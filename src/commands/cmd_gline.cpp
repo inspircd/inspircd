@@ -44,14 +44,11 @@ CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 		long duration = ServerInstance->Duration(parameters[1]);
 		if (ServerInstance->XLines->add_gline(duration,user->nick,parameters[2],parameters[0]))
 		{
-			int to_apply = APPLY_GLINES;
-
 			FOREACH_MOD(I_OnAddGLine,OnAddGLine(duration, user, parameters[2], parameters[0]));
 
 			if (!duration)
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent G-line for %s.",user->nick,parameters[0]);
-				to_apply |= APPLY_PERM_ONLY;
 			}
 			else
 			{
@@ -60,7 +57,7 @@ CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 
-			ServerInstance->XLines->apply_lines(to_apply);
+			ServerInstance->XLines->apply_lines();
 		}
 		else
 		{

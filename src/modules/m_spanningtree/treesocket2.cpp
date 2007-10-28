@@ -522,22 +522,18 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 {
 	if (params.size() < 6)
 		return true;
+
 	bool propogate = false;
-	if (!this->bursting)
-		Utils->lines_to_apply = 0;
+
 	switch (*(params[0].c_str()))
 	{
 		case 'Z':
 			propogate = Instance->XLines->add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 			Instance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-			if (propogate)
-				Utils->lines_to_apply |= APPLY_ZLINES;
 		break;
 		case 'Q':
 			propogate = Instance->XLines->add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 			Instance->XLines->qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-			if (propogate)
-				Utils->lines_to_apply |= APPLY_QLINES;
 		break;
 		case 'E':
 			propogate = Instance->XLines->add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
@@ -546,13 +542,9 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		case 'G':
 			propogate = Instance->XLines->add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 			Instance->XLines->gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-			if (propogate)
-				Utils->lines_to_apply |= APPLY_GLINES;
 		break;
 		case 'K':
 			propogate = Instance->XLines->add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-			if (propogate)
-				Utils->lines_to_apply |= APPLY_KLINES;
 		break;
 		default:
 			/* Just in case... */
@@ -575,11 +567,12 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		params[5] = ":" + params[5];
 		Utils->DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
 	}
+
 	if (!this->bursting)
 	{
-		Instance->XLines->apply_lines(Utils->lines_to_apply);
-		Utils->lines_to_apply = 0;
+		Instance->XLines->apply_lines();
 	}
+
 	return true;
 }
 
@@ -1347,8 +1340,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (this->bursting)
 				{
 					this->bursting = false;
-					Instance->XLines->apply_lines(Utils->lines_to_apply);
-					Utils->lines_to_apply = 0;
+					Instance->XLines->apply_lines();
 				}
 
 				return this->LocalPing(prefix,params);
@@ -1367,8 +1359,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (this->bursting)
 				{
 					this->bursting = false;
-					Instance->XLines->apply_lines(Utils->lines_to_apply);
-					Utils->lines_to_apply = 0;
+					Instance->XLines->apply_lines();
 				}
 
 				return this->LocalPong(prefix,params);
@@ -1486,8 +1477,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "ENDBURST")
 			{
 				this->bursting = false;
-				Instance->XLines->apply_lines(Utils->lines_to_apply);
-				Utils->lines_to_apply = 0;
+				Instance->XLines->apply_lines();
 				std::string sourceserv = this->myhost;
 				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;

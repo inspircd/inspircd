@@ -38,11 +38,9 @@ CmdResult CommandQline::Handle (const char** parameters, int pcnt, User *user)
 		long duration = ServerInstance->Duration(parameters[1]);
 		if (ServerInstance->XLines->add_qline(duration,user->nick,parameters[2],parameters[0]))
 		{
-			int to_apply = APPLY_QLINES;
 			FOREACH_MOD(I_OnAddQLine,OnAddQLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)
 			{
-				to_apply |= APPLY_PERM_ONLY;
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Q-line for %s.",user->nick,parameters[0]);
 			}
 			else
@@ -51,7 +49,7 @@ CmdResult CommandQline::Handle (const char** parameters, int pcnt, User *user)
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Q-line for %s, expires on %s",user->nick,parameters[0],
 					  ServerInstance->TimeString(c_requires_crap).c_str());
 			}
-			ServerInstance->XLines->apply_lines(to_apply);
+			ServerInstance->XLines->apply_lines();
 		}
 		else
 		{

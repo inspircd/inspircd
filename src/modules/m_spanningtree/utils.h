@@ -94,11 +94,6 @@ class SpanningTreeUtilities
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<Link> LinkBlocks;
-	/** Holds a bitmask of queued xline types waiting to be applied.
-	 * Will be a mask containing values APPLY_GLINES, APPLY_KLINES,
-	 * APPLY_QLINES and APPLY_ZLINES.
-	 */
-	int lines_to_apply;
 
 	/** If this is true, this server is the master sync server for time
 	 * synching - e.g. it is the server with its clock correct. It will

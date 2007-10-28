@@ -26,10 +26,11 @@ void FloodQuitUserHandler::Call(User* current)
 			current->registered == REG_ALL ? current->nick : "",
 			current->registered == REG_ALL ? "!" : "", current->ident, current->host);
 	User::QuitUser(Server, current, "Excess flood");
+
 	if (current->registered != REG_ALL)
 	{
 		Server->XLines->add_zline(120, Server->Config->ServerName, "Flood from unregistered connection", current->GetIPString());
-		Server->XLines->apply_lines(APPLY_ZLINES);
+		Server->XLines->apply_lines();
 	}
 }
 

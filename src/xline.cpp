@@ -17,6 +17,34 @@
 #include "wildcard.h"
 #include "xline.h"
 
+/*
+ * This is now version 3 of the XLine subsystem, let's see if we can get it as nice and 
+ * efficient as we can this time so we can close this file and never ever touch it again ..
+ *
+ * Background:
+ *  Version 1 stored all line types in one list (one for g, one for z, etc). This was fine,
+ *  but both version 1 and 2 suck at applying lines efficiently. That is, every time a new line
+ *  was added, it iterated every existing line for every existing user. Ow. Expiry was also
+ *  expensive, as the lists were NOT sorted.
+ *
+ *  Version 2 moved permanent lines into a seperate list from non-permanent to help optimize
+ *  matching speed, but matched in the same way.
+ *  Expiry was also sped up by sorting the list by expiry (meaning just remove the items at the
+ *  head of the list that are outdated.)
+ *
+ * This was fine and good, but it looked less than ideal in code, and matching was still slower
+ * than it could have been, something which we address here.
+ *
+ * VERSION 3:
+ *  All lines are (as in v1) stored together -- no seperation of perm and non-perm. Expiry will
+ *  still use a sorted list, and we'll just ignore anything permanent.
+ *
+ *  Application will be by a list of lines 'pending' application, meaning only the newly added lines
+ *  will be gone over. Much faster.
+ *
+ * More of course is to come.
+ */
+
 /* Version two, now with optimized expiry!
  *
  * Because the old way was horrendously slow, the new way of expiring xlines is very
@@ -42,25 +70,29 @@ bool InitXLine(ServerConfig* conf, const char* tag)
 
 bool DoneZLine(ServerConfig* conf, const char* tag)
 {
-	conf->GetInstance()->XLines->apply_lines(APPLY_ZLINES|APPLY_PERM_ONLY);
+	// XXX we should really only call this once - after we've finished processing configuration all together
+	conf->GetInstance()->XLines->apply_lines();
 	return true;
 }
 
 bool DoneQLine(ServerConfig* conf, const char* tag)
 {
-	conf->GetInstance()->XLines->apply_lines(APPLY_QLINES|APPLY_PERM_ONLY);
+	// XXX we should really only call this once - after we've finished processing configuration all together
+	conf->GetInstance()->XLines->apply_lines();
 	return true;
 }
 
 bool DoneKLine(ServerConfig* conf, const char* tag)
 {
-	conf->GetInstance()->XLines->apply_lines(APPLY_KLINES|APPLY_PERM_ONLY);
+	// XXX we should really only call this once - after we've finished processing configuration all together
+	conf->GetInstance()->XLines->apply_lines();
 	return true;
 }
 
 bool DoneELine(ServerConfig* conf, const char* tag)
 {
-	/* Yes, this is supposed to do nothing, we dont 'apply' these */
+	// XXX we should really only call this once - after we've finished processing configuration all together
+	conf->GetInstance()->XLines->apply_lines();
 	return true;
 }
 
@@ -132,15 +164,8 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 
 	GLine* item = new GLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
-	if (duration)
-	{
-		glines.push_back(item);
-		sort(glines.begin(), glines.end(),XLineManager::GSortComparison);
-	}
-	else
-	{
-		pglines.push_back(item);
-	}
+	glines.push_back(item);
+	sort(glines.begin(), glines.end(),XLineManager::XSortComparison);
 
 	return true;
 }
@@ -156,15 +181,9 @@ bool XLineManager::add_eline(long duration, const char* source, const char* reas
 
 	ELine* item = new ELine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
-	if (duration)
-	{
-		elines.push_back(item);
-		sort(elines.begin(), elines.end(),XLineManager::ESortComparison);
-	}
-	else
-	{
-		pelines.push_back(item);
-	}
+	elines.push_back(item);
+	sort(elines.begin(), elines.end(),XLineManager::XSortComparison);
+
 	return true;
 }
 
@@ -177,15 +196,9 @@ bool XLineManager::add_qline(long duration, const char* source, const char* reas
 
 	QLine* item = new QLine(ServerInstance->Time(), duration, source, reason, nickname);
 
-	if (duration)
-	{
-		qlines.push_back(item);
-		sort(qlines.begin(), qlines.end(),XLineManager::QSortComparison);
-	}
-	else
-	{
-		pqlines.push_back(item);
-	}
+	qlines.push_back(item);
+	sort(qlines.begin(), qlines.end(),XLineManager::XSortComparison);
+
 	return true;
 }
 
@@ -205,15 +218,9 @@ bool XLineManager::add_zline(long duration, const char* source, const char* reas
 
 	ZLine* item = new ZLine(ServerInstance->Time(), duration, source, reason, ipaddr);
 
-	if (duration)
-	{
-		zlines.push_back(item);
-		sort(zlines.begin(), zlines.end(),XLineManager::ZSortComparison);
-	}
-	else
-	{
-		pzlines.push_back(item);
-	}
+	zlines.push_back(item);
+	sort(zlines.begin(), zlines.end(),XLineManager::XSortComparison);
+
 	return true;
 }
 
@@ -228,15 +235,9 @@ bool XLineManager::add_kline(long duration, const char* source, const char* reas
 
 	KLine* item = new KLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
-	if (duration)
-	{
-		klines.push_back(item);
-		sort(klines.begin(), klines.end(),XLineManager::KSortComparison);
-	}
-	else
-	{
-		pklines.push_back(item);
-	}
+	klines.push_back(item);
+	sort(klines.begin(), klines.end(),XLineManager::XSortComparison);
+
 	return true;
 }
 
@@ -257,18 +258,7 @@ bool XLineManager::del_gline(const char* hostmask, bool simulate)
 			return true;
 		}
 	}
-	for (std::vector<GLine*>::iterator i = pglines.begin(); i != pglines.end(); i++)
-	{
-		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				pglines.erase(i);
-			}
-			return true;
-		}
-	}
+
 	return false;
 }
 
@@ -289,18 +279,7 @@ bool XLineManager::del_eline(const char* hostmask, bool simulate)
 			return true;
 		}
 	}
-	for (std::vector<ELine*>::iterator i = pelines.begin(); i != pelines.end(); i++)
-	{
-		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				pelines.erase(i);
-			}
-			return true;
-		}
-	}
+
 	return false;
 }
 
@@ -320,18 +299,7 @@ bool XLineManager::del_qline(const char* nickname, bool simulate)
 			return true;
 		}
 	}
-	for (std::vector<QLine*>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
-	{
-		if (!strcasecmp(nickname,(*i)->nick))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				pqlines.erase(i);
-			}
-			return true;
-		}
-	}
+
 	return false;
 }
 
@@ -351,18 +319,7 @@ bool XLineManager::del_zline(const char* ipaddr, bool simulate)
 			return true;
 		}
 	}
-	for (std::vector<ZLine*>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
-	{
-		if (!strcasecmp(ipaddr,(*i)->ipaddr))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				pzlines.erase(i);
-			}
-			return true;
-		}
-	}
+
 	return false;
 }
 
@@ -383,34 +340,18 @@ bool XLineManager::del_kline(const char* hostmask, bool simulate)
 			return true;
 		}
 	}
-	for (std::vector<KLine*>::iterator i = pklines.begin(); i != pklines.end(); i++)
-	{
-		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				pklines.erase(i);
-			}
-			return true;
-		}
-	}
+
 	return false;
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
 
-QLine* XLineManager::matches_qline(const char* nick, bool permonly)
+QLine* XLineManager::matches_qline(const char* nick)
 {
-	if ((qlines.empty()) && (pqlines.empty()))
+	if (qlines.empty())
 		return NULL;
-	if (!permonly)
-	{
-		for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
-			if (match(nick,(*i)->nick))
-				return (*i);
-	}
-	for (std::vector<QLine*>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
+
+	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
 		if (match(nick,(*i)->nick))
 			return (*i);
 	return NULL;
@@ -418,24 +359,12 @@ QLine* XLineManager::matches_qline(const char* nick, bool permonly)
 
 // returns a pointer to the reason if a host matches a gline, NULL if it didnt match
 
-GLine* XLineManager::matches_gline(User* user, bool permonly)
+GLine* XLineManager::matches_gline(User* user)
 {
-	if ((glines.empty()) && (pglines.empty()))
+	if (glines.empty())
 		return NULL;
-	if (!permonly)
-	{
-		for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
-		{
-			if ((match(user->ident,(*i)->identmask)))
-			{
-				if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
-				{
-					return (*i);
-				}
-			}
-		}
-	}
-	for (std::vector<GLine*>::iterator i = pglines.begin(); i != pglines.end(); i++)
+
+	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
 		if ((match(user->ident,(*i)->identmask)))
 		{
@@ -445,29 +374,18 @@ GLine* XLineManager::matches_gline(User* user, bool permonly)
 			}
 		}
 	}
+
 	return NULL;
 }
 
-ELine* XLineManager::matches_exception(User* user, bool permonly)
+ELine* XLineManager::matches_exception(User* user)
 {
-	if ((elines.empty()) && (pelines.empty()))
+	if (elines.empty())
 		return NULL;
 	char host2[MAXBUF];
+
 	snprintf(host2,MAXBUF,"*@%s",user->host);
-	if (!permonly)
-	{
-		for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
-		{
-			if ((match(user->ident,(*i)->identmask)))
-			{
-				if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
-				{
-					return (*i);
-				}
-			}
-		}
-	}
-	for (std::vector<ELine*>::iterator i = pelines.begin(); i != pelines.end(); i++)
+	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
 		if ((match(user->ident,(*i)->identmask)))
 		{
@@ -492,14 +410,7 @@ void XLineManager::gline_set_creation_time(const char* host, time_t create_time)
 			return;
 		}
 	}
-	for (std::vector<GLine*>::iterator i = pglines.begin(); i != pglines.end(); i++)
-	{
-		if (!strcasecmp(host,(*i)->hostmask))
-		{
-			(*i)->set_time = create_time;
-			return;
-		}
-	}
+
 	return ;
 }
 
@@ -514,14 +425,7 @@ void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
 			return;
 		}
 	}
-	for (std::vector<ELine*>::iterator i = pelines.begin(); i != pelines.end(); i++)
-	{
-		if (!strcasecmp(host,(*i)->hostmask))
-		{
-			(*i)->set_time = create_time;
-			return;
-		}
-	}
+
 	return;
 }
 
@@ -536,14 +440,7 @@ void XLineManager::qline_set_creation_time(const char* nick, time_t create_time)
 			return;
 		}
 	}
-	for (std::vector<QLine*>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
-	{
-		if (!strcasecmp(nick,(*i)->nick))
-		{
-			(*i)->set_time = create_time;
-			return;
-		}
-	}
+
 	return;
 }
 
@@ -558,30 +455,18 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 			return;
 		}
 	}
-	for (std::vector<ZLine*>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
-	{
-		if (!strcasecmp(ip,(*i)->ipaddr))
-		{
-			(*i)->set_time = create_time;
-			return;
-		}
-	}
+
 	return;
 }
 
 // returns a pointer to the reason if an ip address matches a zline, NULL if it didnt match
 
-ZLine* XLineManager::matches_zline(const char* ipaddr, bool permonly)
+ZLine* XLineManager::matches_zline(const char* ipaddr)
 {
-	if ((zlines.empty()) && (pzlines.empty()))
+	if (zlines.empty())
 		return NULL;
-	if (!permonly)
-	{
-		for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
-			if (match(ipaddr,(*i)->ipaddr, true))
-				return (*i);
-	}
-	for (std::vector<ZLine*>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
+
+	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		if (match(ipaddr,(*i)->ipaddr, true))
 			return (*i);
 	return NULL;
@@ -589,24 +474,12 @@ ZLine* XLineManager::matches_zline(const char* ipaddr, bool permonly)
 
 // returns a pointer to the reason if a host matches a kline, NULL if it didnt match
 
-KLine* XLineManager::matches_kline(User* user, bool permonly)
+KLine* XLineManager::matches_kline(User* user)
 {
-	if ((klines.empty()) && (pklines.empty()))
+	if (klines.empty())
 		return NULL;
-	if (!permonly)
-	{
-		for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
-		{
-			if ((match(user->ident,(*i)->identmask)))
-			{
-				if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
-				{
-					return (*i);
-				}
-			}
-		}
-	}
-	for (std::vector<KLine*>::iterator i = pklines.begin(); i != pklines.end(); i++)
+
+	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
 	{
 		if ((match(user->ident,(*i)->identmask)))
 		{
@@ -616,36 +489,21 @@ KLine* XLineManager::matches_kline(User* user, bool permonly)
 			}
 		}
 	}
+
 	return NULL;
 }
 
-bool XLineManager::GSortComparison ( const GLine* one, const GLine* two )
+bool XLineManager::XSortComparison(const XLine *one, const XLine *two)
 {
-	return (one->expiry) < (two->expiry);
-}
-
-bool XLineManager::ESortComparison ( const ELine* one, const ELine* two )
-{
-	return (one->expiry) < (two->expiry);
-}
-
-bool XLineManager::ZSortComparison ( const ZLine* one, const ZLine* two )
-{
-	return (one->expiry) < (two->expiry);
-}
-
-bool XLineManager::KSortComparison ( const KLine* one, const KLine* two )
-{
-	return (one->expiry) < (two->expiry);
-}
-
-bool XLineManager::QSortComparison ( const QLine* one, const QLine* two )
-{
+	// account for permanent lines
+	if (one->expiry == 0)
+	{
+		return false;
+	}
 	return (one->expiry) < (two->expiry);
 }
 
 // removes lines that have expired
-
 void XLineManager::expire_lines()
 {
 	time_t current = ServerInstance->Time();
@@ -655,35 +513,35 @@ void XLineManager::expire_lines()
 	 * none left at the head of the queue that are after the current time.
 	 */
 
-	while ((glines.size()) && (current > (*glines.begin())->expiry))
+	while ((glines.size()) && (current > (*glines.begin())->expiry) && ((*glines.begin())->duration != 0))
 	{
 		std::vector<GLine*>::iterator i = glines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
 		glines.erase(i);
 	}
 
-	while ((elines.size()) && (current > (*elines.begin())->expiry))
+	while ((elines.size()) && (current > (*elines.begin())->expiry) && ((*elines.begin())->duration != 0))
 	{
 		std::vector<ELine*>::iterator i = elines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed E-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
 		elines.erase(i);
 	}
 
-	while ((zlines.size()) && (current > (*zlines.begin())->expiry))
+	while ((zlines.size()) && (current > (*zlines.begin())->expiry) && ((*zlines.begin())->duration != 0))
 	{
 		std::vector<ZLine*>::iterator i = zlines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Z-Line %s (set by %s %d seconds ago)",(*i)->ipaddr,(*i)->source,(*i)->duration);
 		zlines.erase(i);
 	}
 
-	while ((klines.size()) && (current > (*klines.begin())->expiry))
+	while ((klines.size()) && (current > (*klines.begin())->expiry) && ((*klines.begin())->duration != 0))
 	{
 		std::vector<KLine*>::iterator i = klines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed K-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
 		klines.erase(i);
 	}
 
-	while ((qlines.size()) && (current > (*qlines.begin())->expiry))
+	while ((qlines.size()) && (current > (*qlines.begin())->expiry) && ((*qlines.begin())->duration != 0))
 	{
 		std::vector<QLine*>::iterator i = qlines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Q-Line %s (set by %s %d seconds ago)",(*i)->nick,(*i)->source,(*i)->duration);
@@ -694,154 +552,72 @@ void XLineManager::expire_lines()
 
 // applies lines, removing clients and changing nicks etc as applicable
 
-void XLineManager::apply_lines(const int What)
+void XLineManager::apply_lines()
 {
-	if (!What)
-		return;
+	int What = 0; // XXX remove me
+	char reason[MAXBUF];
 
-	if (What & APPLY_PERM_ONLY)
+	XLine* check = NULL;
+	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
-		char reason[MAXBUF];
+		User* u = (User*)(*u2);
 
-		if ((!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
-			return;
-
-		XLine* check = NULL;
-		for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+		if (elines.size())
 		{
-			User* u = (User*)(*u2);
-
-			if (elines.size() || pelines.size())
-				if (matches_exception(u))
-					continue;
-
-			if ((What & APPLY_GLINES) && pglines.size())
+			// ignore people matching exempts
+			if (matches_exception(u))
+				continue;
+		}
+		if ((What & APPLY_GLINES) && (glines.size()))
+		{
+			if ((check = matches_gline(u)))
 			{
-				if ((check = matches_gline(u,true)))
-				{
-					snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "G-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
-			}
-
-			if ((What & APPLY_KLINES) && pklines.size())
-			{
-				if ((check = matches_kline(u,true)))
-				{
-					snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "K-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
-			}
-
-			if ((What & APPLY_QLINES) && pqlines.size())
-			{
-				if ((check = matches_qline(u->nick,true)))
-				{
-					snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "Q-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
-			}
-
-			if ((What & APPLY_ZLINES) && pzlines.size())
-			{
-				if ((check = matches_zline(u->GetIPString(),true)))
-				{
-					snprintf(reason,MAXBUF,"Z-Lined: %s",check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "Z-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
+				snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
+				if (*ServerInstance->Config->MoronBanner)
+					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+				if (ServerInstance->Config->HideBans)
+					User::QuitUser(ServerInstance, u, "G-Lined", reason);
+				else
+					User::QuitUser(ServerInstance, u, reason);
 			}
 		}
-	}
-	else
-	{
-		char reason[MAXBUF];
-
-		if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()) &&
-		(!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
-			return;
-
-		XLine* check = NULL;
-		for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+		if ((What & APPLY_KLINES) && (klines.size()))
 		{
-			User* u = (User*)(*u2);
-
-			if (elines.size() || pelines.size())
+			if ((check = matches_kline(u)))
 			{
-				// ignore people matching exempts
-				if (matches_exception(u))
-					continue;
+				snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
+				if (*ServerInstance->Config->MoronBanner)
+					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+				if (ServerInstance->Config->HideBans)
+					User::QuitUser(ServerInstance, u, "K-Lined", reason);
+				else
+					User::QuitUser(ServerInstance, u, reason);
 			}
-			if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
+		}
+		if ((What & APPLY_QLINES) && (qlines.size()))
+		{
+			if ((check = matches_qline(u->nick)))
 			{
-				if ((check = matches_gline(u)))
-				{
-					snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "G-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
+				snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
+				if (*ServerInstance->Config->MoronBanner)
+					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+				if (ServerInstance->Config->HideBans)
+					User::QuitUser(ServerInstance, u, "Q-Lined", reason);
+				else
+					User::QuitUser(ServerInstance, u, reason);
 			}
-			if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
+		}
+		if ((What & APPLY_ZLINES) && (zlines.size()))
+		{
+			if ((check = matches_zline(u->GetIPString())))
 			{
-				if ((check = matches_kline(u)))
-				{
-					snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "K-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
-			}
-			if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
-			{
-				if ((check = matches_qline(u->nick)))
-				{
-					snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "Q-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
-			}
-			if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
-			{
-				if ((check = matches_zline(u->GetIPString())))
-				{
-					snprintf(reason,MAXBUF,"Z-Lined: %s", check->reason);
-					if (*ServerInstance->Config->MoronBanner)
-						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-					if (ServerInstance->Config->HideBans)
-						User::QuitUser(ServerInstance, u, "Z-Lined", reason);
-					else
-						User::QuitUser(ServerInstance, u, reason);
-				}
+				snprintf(reason,MAXBUF,"Z-Lined: %s", check->reason);
+				if (*ServerInstance->Config->MoronBanner)
+					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+				if (ServerInstance->Config->HideBans)
+					User::QuitUser(ServerInstance, u, "Z-Lined", reason);
+				else
+					User::QuitUser(ServerInstance, u, reason);
 			}
 		}
 	}
@@ -852,16 +628,12 @@ void XLineManager::stats_k(User* user, string_list &results)
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
 		results.push_back(sn+" 216 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
-	for (std::vector<KLine*>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		results.push_back(sn+" 216 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
 void XLineManager::stats_g(User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
-	for (std::vector<GLine*>::iterator i = pglines.begin(); i != pglines.end(); i++)
 		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
@@ -870,8 +642,6 @@ void XLineManager::stats_q(User* user, string_list &results)
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
 		results.push_back(sn+" 217 "+user->nick+" :"+(*i)->nick+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
-	for (std::vector<QLine*>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
-		results.push_back(sn+" 217 "+user->nick+" :"+(*i)->nick+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
 void XLineManager::stats_z(User* user, string_list &results)
@@ -879,16 +649,12 @@ void XLineManager::stats_z(User* user, string_list &results)
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->ipaddr+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
-	for (std::vector<ZLine*>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->ipaddr+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
 void XLineManager::stats_e(User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
-	for (std::vector<ELine*>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 

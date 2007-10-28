@@ -286,25 +286,9 @@ class CoreExport XLineManager
 	 */
 	InspIRCd* ServerInstance;
 
-	/** This functor is used by the std::sort() function to keep glines in order
+	/** This functor is used by the std::sort() function to keep all lines in order
 	 */
-	static bool GSortComparison ( const GLine* one, const GLine* two );
-
-	/** This functor is used by the std::sort() function to keep elines in order
-	 */
-	static bool ESortComparison ( const ELine* one, const ELine* two );
-
-	/** This functor is used by the std::sort() function to keep zlines in order
-	 */
-	static bool ZSortComparison ( const ZLine* one, const ZLine* two );
-
-	/** This functor is used by the std::sort() function to keep klines in order
-	 */
-	static bool KSortComparison ( const KLine* one, const KLine* two );
-
-	/** This functor is used by the std::sort() function to keep qlines in order
-	 */
-	static bool QSortComparison ( const QLine* one, const QLine* two );
+	static bool XSortComparison (const XLine *one, const XLine *two);
  public:
 	/* Lists for temporary lines with an expiry time */
 
@@ -323,23 +307,6 @@ class CoreExport XLineManager
 	/** Temporary ELines */
 	std::vector<ELine*> elines;
 
-	/* Seperate lists for perm XLines that isnt checked by expiry functions */
-
-	/** Permenant KLines */
-	std::vector<KLine*> pklines;
-
-	/** Permenant GLines */
-	std::vector<GLine*> pglines;
-
-	/** Permenant ZLines */
-	std::vector<ZLine*> pzlines;
-
-	/** Permenant QLines */
-	std::vector<QLine*> pqlines;
-
-	/** Permenant ELines */
-	std::vector<ELine*> pelines;
-	
 	/** Constructor
 	 * @param Instance A pointer to the creator object
 	 */
@@ -434,42 +401,39 @@ class CoreExport XLineManager
 	 * @return nick The nick to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	QLine* matches_qline(const char* nick, bool permonly = false);
+	QLine* matches_qline(const char* nick);
 
 	/** Check if a hostname matches a GLine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	GLine* matches_gline(User* user, bool permonly = false);
+	GLine* matches_gline(User* user);
 
 	/** Check if a IP matches a ZLine
 	 * @param ipaddr The IP to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	ZLine* matches_zline(const char* ipaddr, bool permonly = false);
+	ZLine* matches_zline(const char* ipaddr);
 
 	/** Check if a hostname matches a KLine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	KLine* matches_kline(User* user, bool permonly = false);
+	KLine* matches_kline(User* user);
 
 	/** Check if a hostname matches a ELine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	ELine* matches_exception(User* user, bool permonly = false);
+	ELine* matches_exception(User* user);
 
-	/** Expire any pending non-permenant lines
+	/** Expire any lines that should be expired.
 	 */
 	void expire_lines();
 
-	/** Apply any new lines
-	 * @param What The types of lines to apply, from the set
-	 * APPLY_GLINES | APPLY_KLINES | APPLY_QLINES | APPLY_ZLINES | APPLY_ALL
-	 * | APPLY_LOCAL_ONLY
+	/** Apply any new lines that are pending to be applied
 	 */
-	void apply_lines(const int What);
+	void apply_lines();
 
 	/** Handle /STATS K
 	 * @param user The username making the query

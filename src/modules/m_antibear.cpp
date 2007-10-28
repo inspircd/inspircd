@@ -46,12 +46,11 @@ class ModuleAntiBear : public Module
 		{
 			if (!strncmp(parameters[1], "\1TIME Mon May 01 18:54:20 2006", 30))
 			{
-				if (ServerInstance->XLines->add_zline(86400, ServerInstance->Config->ServerName, "Unless you're stuck in a time warp, you appear to be a bear bot!", user->MakeHostIP()))
-				{
-					ServerInstance->XLines->apply_lines(APPLY_ZLINES);
-					FOREACH_MOD(I_OnAddGLine,OnAddZLine(86400, NULL, "Unless you're stuck in a time warp, you appear to be a bear bot!", user->MakeHostIP()));
-					return 1;
-				}
+				ServerInstance->XLines->add_zline(86400, ServerInstance->Config->ServerName, "Unless you're stuck in a time warp, you appear to be a bear bot!", user->GetIPString());
+				// XXX move events into the damn XLineManager stuff
+				FOREACH_MOD(I_OnAddGLine,OnAddZLine(86400, NULL, "Unless you're stuck in a time warp, you appear to be a bear bot!", user->MakeHostIP()));
+				ServerInstance->XLines->apply_lines();
+				return 1;
 			}
 			
 			user->Shrink("antibear_timewait");

@@ -38,12 +38,9 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 		long duration = ServerInstance->Duration(parameters[1]);
 		if (ServerInstance->XLines->add_zline(duration,user->nick,parameters[2],parameters[0]))
 		{
-			int to_apply = APPLY_ZLINES;
-
 			FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)
 			{
-				to_apply |= APPLY_PERM_ONLY;
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s.",user->nick,parameters[0]);
 			}
 			else
@@ -52,7 +49,7 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Z-line for %s, expires on %s",user->nick,parameters[0],
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
-			ServerInstance->XLines->apply_lines(to_apply);
+			ServerInstance->XLines->apply_lines();
 		}
 		else
 		{
