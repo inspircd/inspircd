@@ -486,13 +486,8 @@ KLine* XLineManager::matches_kline(User* user)
 
 	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
 	{
-		if ((match(user->ident,(*i)->identmask)))
-		{
-			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
-			{
-				return (*i);
-			}
-		}
+		if ((*i)->Matches(user))
+			return (*i);
 	}
 
 	return NULL;
@@ -666,3 +661,40 @@ void XLineManager::stats_e(User* user, string_list &results)
 XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
+
+
+
+bool KLine::Matches(User *u)
+{
+	if ((match(u->ident, this->identmask)))
+	{
+		if ((match(u->host, this->hostmask, true)) || (match(u->GetIPString(), this->hostmask, true)))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool GLine::Matches(User *u)
+{
+	return false;
+}
+
+bool ELine::Matches(User *u)
+{
+	return false;
+}
+
+bool ZLine::Matches(User *u)
+{
+	return false;
+}
+
+bool QLine::Matches(User *u)
+{
+	return false;
+}
+
+

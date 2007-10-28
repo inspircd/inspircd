@@ -59,7 +59,7 @@ class CoreExport XLine : public classbase
 
 	/** Returns true whether or not the given user is covered by this line.
 	 */
-	virtual bool Matches(User *u);
+	virtual bool Matches(User *u) = 0;
 
 	/** The time the line was added.
 	 */
@@ -109,6 +109,8 @@ class CoreExport KLine : public XLine
 		free(hostmask);
 	}
 
+	virtual bool Matches(User *u);
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -144,6 +146,8 @@ class CoreExport GLine : public XLine
 		free(hostmask);
 	}
 
+	virtual bool Matches(User *u);
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -177,6 +181,8 @@ class CoreExport ELine : public XLine
 		free(hostmask);
 	}
 
+	virtual bool Matches(User *u);
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -209,6 +215,8 @@ class CoreExport ZLine : public XLine
 		free(ipaddr);
 	}
 
+	virtual bool Matches(User *u);
+
 	/** IP mask
 	 */
 	char* ipaddr;
@@ -236,7 +244,9 @@ class CoreExport QLine : public XLine
 	~QLine()
 	{
 		free(nick);
+
 	}
+	virtual bool Matches(User *u);
 
 	/** Nickname mask
 	 */
