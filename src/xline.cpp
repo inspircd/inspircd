@@ -134,6 +134,7 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 
 bool XLine::Matches(User *u)
 {
+	return false;
 }
 
 IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
