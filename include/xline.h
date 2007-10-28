@@ -56,6 +56,11 @@ class CoreExport XLine : public classbase
 		free(reason);
 		free(source);
 	}
+
+	/** Returns true whether or not the given user is covered by this line.
+	 */
+	virtual bool Matches(User *u);
+
 	/** The time the line was added.
 	 */
 	time_t set_time;
