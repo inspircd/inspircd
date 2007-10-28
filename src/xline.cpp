@@ -689,12 +689,13 @@ bool ELine::Matches(User *u)
 
 bool ZLine::Matches(User *u)
 {
-	return false;
+	if (match(user->GetIPString(), this->ipaddr, true))
+		return true;
+	else
+		return false;
 }
 
 bool QLine::Matches(User *u)
 {
 	return false;
 }
-
-
