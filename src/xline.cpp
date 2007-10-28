@@ -132,6 +132,10 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	return true;
 }
 
+bool XLine::Matches(User *u)
+{
+}
+
 IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 {
 	IdentHostPair n = std::make_pair<std::string,std::string>("*","*");
