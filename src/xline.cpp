@@ -171,6 +171,7 @@ bool XLineManager::AddGLine(long duration, const char* source,const char* reason
 
 	glines.push_back(item);
 	sort(glines.begin(), glines.end(),XLineManager::XSortComparison);
+	pending_lines.push_back(item);
 
 	return true;
 }
@@ -188,6 +189,7 @@ bool XLineManager::AddELine(long duration, const char* source, const char* reaso
 
 	elines.push_back(item);
 	sort(elines.begin(), elines.end(),XLineManager::XSortComparison);
+	pending_lines.push_back(item);
 
 	return true;
 }
@@ -203,6 +205,7 @@ bool XLineManager::AddQLine(long duration, const char* source, const char* reaso
 
 	qlines.push_back(item);
 	sort(qlines.begin(), qlines.end(),XLineManager::XSortComparison);
+	pending_lines.push_back(item);
 
 	return true;
 }
@@ -225,6 +228,7 @@ bool XLineManager::AddZLine(long duration, const char* source, const char* reaso
 
 	zlines.push_back(item);
 	sort(zlines.begin(), zlines.end(),XLineManager::XSortComparison);
+	pending_lines.push_back(item);
 
 	return true;
 }
@@ -242,6 +246,7 @@ bool XLineManager::AddKLine(long duration, const char* source, const char* reaso
 
 	klines.push_back(item);
 	sort(klines.begin(), klines.end(),XLineManager::XSortComparison);
+	pending_lines.push_back(item);
 
 	return true;
 }
@@ -357,7 +362,7 @@ QLine* XLineManager::matches_qline(const char* nick)
 		return NULL;
 
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
-		if ((*i)->Matches(user))
+		if ((*i)->Matches(nick))
 			return (*i);
 	return NULL;
 }
@@ -542,7 +547,6 @@ void XLineManager::expire_lines()
 
 void XLineManager::ApplyLines()
 {
-	int What = 0; // XXX remove me
 	char reason[MAXBUF];
 
 	XLine* check = NULL;
@@ -552,63 +556,97 @@ void XLineManager::ApplyLines()
 
 		if (elines.size())
 		{
-			// ignore people matching exempts
+			// ignore people matching exempts -- XXX cache the exempt state in userrec permanently?
+			// should be fairly easy to accomplish really, and might achieve some nice gains?
 			if (matches_exception(u))
 				continue;
 		}
-		if ((What & APPLY_GLINES) && (glines.size()))
+
+		for (std::vector<XLine *>::iterator i = pending_lines.begin(); i != pending_lines.end(); i++)
 		{
-			if ((check = matches_gline(u)))
+			XLine *x = (*i);
+
+			switch (x->type)
 			{
-				snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-				if (*ServerInstance->Config->MoronBanner)
-					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-				if (ServerInstance->Config->HideBans)
-					User::QuitUser(ServerInstance, u, "G-Lined", reason);
-				else
-					User::QuitUser(ServerInstance, u, reason);
-			}
-		}
-		if ((What & APPLY_KLINES) && (klines.size()))
-		{
-			if ((check = matches_kline(u)))
-			{
-				snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-				if (*ServerInstance->Config->MoronBanner)
-					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-				if (ServerInstance->Config->HideBans)
-					User::QuitUser(ServerInstance, u, "K-Lined", reason);
-				else
-					User::QuitUser(ServerInstance, u, reason);
-			}
-		}
-		if ((What & APPLY_QLINES) && (qlines.size()))
-		{
-			if ((check = matches_qline(u->nick)))
-			{
-				snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-				if (*ServerInstance->Config->MoronBanner)
-					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-				if (ServerInstance->Config->HideBans)
-					User::QuitUser(ServerInstance, u, "Q-Lined", reason);
-				else
-					User::QuitUser(ServerInstance, u, reason);
-			}
-		}
-		if ((What & APPLY_ZLINES) && (zlines.size()))
-		{
-			if ((check = matches_zline(u)))
-			{
-				snprintf(reason,MAXBUF,"Z-Lined: %s", check->reason);
-				if (*ServerInstance->Config->MoronBanner)
-					u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-				if (ServerInstance->Config->HideBans)
-					User::QuitUser(ServerInstance, u, "Z-Lined", reason);
-				else
-					User::QuitUser(ServerInstance, u, reason);
+				case 'Z':
+				{
+					ZLine *z = dynamic_cast<ZLine *>(x);
+
+					if (z->Matches(u))
+					{
+						snprintf(reason,MAXBUF,"Z-Lined: %s", check->reason);
+						if (*ServerInstance->Config->MoronBanner)
+							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+						if (ServerInstance->Config->HideBans)
+							User::QuitUser(ServerInstance, u, "Z-Lined", reason);
+						else
+							User::QuitUser(ServerInstance, u, reason);
+					}
+					break;
+				}
+				case 'G':
+				{
+					GLine *g = dynamic_cast<GLine *>(x);
+
+					if (g->Matches(u))
+					{
+						snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
+						if (*ServerInstance->Config->MoronBanner)
+							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+						if (ServerInstance->Config->HideBans)
+							User::QuitUser(ServerInstance, u, "G-Lined", reason);
+						else
+							User::QuitUser(ServerInstance, u, reason);
+					}
+					break;
+				}
+				case 'Q':
+				{
+					QLine *q = dynamic_cast<QLine *>(x);
+
+					if (q->Matches(u))
+					{
+						snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
+						if (*ServerInstance->Config->MoronBanner)
+							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+						if (ServerInstance->Config->HideBans)
+							User::QuitUser(ServerInstance, u, "Q-Lined", reason);
+						else
+							User::QuitUser(ServerInstance, u, reason);
+					}
+					break;
+				}
+				case 'K':
+				{
+					KLine *k = dynamic_cast<KLine *>(x);
+
+					if (k->Matches(u))
+					{
+						snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
+						if (*ServerInstance->Config->MoronBanner)
+							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+						if (ServerInstance->Config->HideBans)
+							User::QuitUser(ServerInstance, u, "K-Lined", reason);
+						else
+							User::QuitUser(ServerInstance, u, reason);
+					}
+					break;
+				}
+				case 'E':
+				{
+//					ELine *e = dynamic_cast<ELine *>(x);
+					break;
+				}
+				default:
+				{
+					ServerInstance->Log(DEBUG, "Unknown line type pending: %c", x->type);
+					break;
+				}
 			}
 		}
 	}
+
+	pending_lines.clear();
 }
 
 void XLineManager::stats_k(User* user, string_list &results)
@@ -650,10 +688,10 @@ XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-virtual bool Matches(const std::string &str)
-{
-	return false;
-}
+//irtual bool Matches(const std::string &str)
+//{
+	//return false;
+//}
 
 bool KLine::Matches(User *u)
 {
@@ -704,7 +742,7 @@ bool ZLine::Matches(User *u)
 
 bool QLine::Matches(User *u)
 {
-	if (match(user->nick, this->nick))
+	if (match(u->nick, this->nick))
 		return true;
 
 	return false;

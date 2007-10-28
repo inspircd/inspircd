@@ -82,6 +82,10 @@ class CoreExport XLine : public classbase
 	/** Expiry time
 	 */
 	time_t expiry;
+
+	/** Q, K, etc. Don't change this. Constructors set it.
+	 */
+	char type;
 };
 
 /** KLine class
@@ -101,6 +105,7 @@ class CoreExport KLine : public XLine
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
+		type = 'K';
 	}
 
 	/** Destructor
@@ -138,6 +143,7 @@ class CoreExport GLine : public XLine
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
+		type = 'G';
 	}
 
 	/** Destructor
@@ -175,6 +181,7 @@ class CoreExport ELine : public XLine
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
+		type = 'E';
 	}
 
 	~ELine()
@@ -208,6 +215,7 @@ class CoreExport ZLine : public XLine
 	ZLine(time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(s_time, d, src, re)
 	{
 		ipaddr = strdup(ip);
+		type = 'Z';
 	}
 
 	/** Destructor
@@ -241,6 +249,7 @@ class CoreExport QLine : public XLine
 	QLine(time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(s_time, d, src, re)
 	{
 		nick = strdup(nickname);
+		type = 'Q';
 	}
 
 	/** Destructor
@@ -310,6 +319,10 @@ class CoreExport XLineManager
 	/** This functor is used by the std::sort() function to keep all lines in order
 	 */
 	static bool XSortComparison (const XLine *one, const XLine *two);
+
+	/** Used to hold XLines which have not yet been applied.
+	 */
+	std::vector<XLine *> pending_lines;
  public:
 	/* Lists for temporary lines with an expiry time */
 
