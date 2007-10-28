@@ -424,11 +424,11 @@ class CoreExport XLineManager
 	 */
 	GLine* matches_gline(User* user);
 
-	/** Check if a IP matches a ZLine
-	 * @param ipaddr The IP to check against
+	/** Check if a user's IP matches a ZLine
+	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	ZLine* matches_zline(const char* ipaddr);
+	ZLine* matches_zline(User *user);
 
 	/** Check if a hostname matches a KLine
 	 * @param user The user to check against

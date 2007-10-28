@@ -466,13 +466,13 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 
 // returns a pointer to the reason if an ip address matches a zline, NULL if it didnt match
 
-ZLine* XLineManager::matches_zline(const char* ipaddr)
+ZLine* XLineManager::matches_zline(User *u)
 {
 	if (zlines.empty())
 		return NULL;
 
 	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
-		if (match(ipaddr,(*i)->ipaddr, true))
+		if ((*i)->Matches(u))
 			return (*i);
 	return NULL;
 }
@@ -609,7 +609,7 @@ void XLineManager::ApplyLines()
 		}
 		if ((What & APPLY_ZLINES) && (zlines.size()))
 		{
-			if ((check = matches_zline(u->GetIPString())))
+			if ((check = matches_zline(u)))
 			{
 				snprintf(reason,MAXBUF,"Z-Lined: %s", check->reason);
 				if (*ServerInstance->Config->MoronBanner)
@@ -689,7 +689,7 @@ bool ELine::Matches(User *u)
 
 bool ZLine::Matches(User *u)
 {
-	if (match(user->GetIPString(), this->ipaddr, true))
+	if (match(u->GetIPString(), this->ipaddr, true))
 		return true;
 	else
 		return false;
