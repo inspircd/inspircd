@@ -693,6 +693,22 @@ bool XLine::Matches(const std::string &str)
 	return false;
 }
 
+void XLine::Apply(User* u)
+{
+}
+
+void XLine::DefaultApply(User* u, char line)
+{
+	char reason[MAXBUF];
+	snprintf(reason, MAXBUF, "%c-Lined: %s", line, this->reason);
+	if (*ServerInstance->Config->MoronBanner)
+		u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+	if (ServerInstance->Config->HideBans)
+		User::QuitUser(ServerInstance, u, line + std::string("-Lined"), reason);
+	else
+		User::QuitUser(ServerInstance, u, reason);
+}
+
 bool KLine::Matches(User *u)
 {
 	if ((match(u->ident, this->identmask)))
@@ -706,6 +722,11 @@ bool KLine::Matches(User *u)
 	return false;
 }
 
+void KLine::Apply(User* u)
+{
+	DefaultApply(u, 'K');
+}
+
 bool GLine::Matches(User *u)
 {
 	if ((match(u->ident, this->identmask)))
@@ -717,6 +738,11 @@ bool GLine::Matches(User *u)
 	}
 
 	return false;
+}
+
+void GLine::Apply(User* u)
+{       
+	DefaultApply(u, 'G');
 }
 
 bool ELine::Matches(User *u)
@@ -740,6 +766,12 @@ bool ZLine::Matches(User *u)
 		return false;
 }
 
+void ZLine::Apply(User* u)
+{       
+	DefaultApply(u, 'Z');
+}
+
+
 bool QLine::Matches(User *u)
 {
 	if (match(u->nick, this->nick))
@@ -747,6 +779,13 @@ bool QLine::Matches(User *u)
 
 	return false;
 }
+
+void QLine::Apply(User* u)
+{       
+	/* Can we force the user to their uid here instead? */
+	DefaultApply(u, 'Q');
+}
+
 
 bool ZLine::Matches(const std::string &str)
 {

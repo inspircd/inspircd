@@ -33,7 +33,12 @@ const int APPLY_ALL		= APPLY_GLINES | APPLY_KLINES | APPLY_QLINES | APPLY_ZLINES
  */
 class CoreExport XLine : public classbase
 {
-  public:
+ protected:
+
+	InspIRCd* ServerInstance;
+	void DefaultApply(User* u, char line);
+
+ public:
 
 	/** Create an XLine.
 	 * @param s_time The set time
@@ -41,8 +46,8 @@ class CoreExport XLine : public classbase
 	 * @param src The sender of the xline
 	 * @param re The reason of the xline
 	 */
-	XLine(time_t s_time, long d, const char* src, const char* re)
-		: set_time(s_time), duration(d)
+	XLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re)
+		: ServerInstance(Instance), set_time(s_time), duration(d)
 	{
 		source = strdup(src);
 		reason = strdup(re);
@@ -62,6 +67,8 @@ class CoreExport XLine : public classbase
 	virtual bool Matches(User *u) = 0;
 
 	virtual bool Matches(const std::string &str);
+
+	virtual void Apply(User* u);
 
 	/** The time the line was added.
 	 */
@@ -101,7 +108,7 @@ class CoreExport KLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	KLine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
+	KLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re)
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
@@ -139,7 +146,7 @@ class CoreExport GLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	GLine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
+	GLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re)
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
@@ -177,7 +184,7 @@ class CoreExport ELine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	ELine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
+	ELine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re)
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
@@ -212,7 +219,7 @@ class CoreExport ZLine : public XLine
 	 * @param re The reason of the xline
 	 * @param ip IP to match
 	 */
-	ZLine(time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(s_time, d, src, re)
+	ZLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(Instance, s_time, d, src, re)
 	{
 		ipaddr = strdup(ip);
 		type = 'Z';
@@ -246,7 +253,7 @@ class CoreExport QLine : public XLine
 	 * @param re The reason of the xline
 	 * @param nickname Nickname to match
 	 */
-	QLine(time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(s_time, d, src, re)
+	QLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(Instance, s_time, d, src, re)
 	{
 		nick = strdup(nickname);
 		type = 'Q';
