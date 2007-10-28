@@ -371,13 +371,8 @@ GLine* XLineManager::matches_gline(User* user)
 
 	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
-		if ((match(user->ident,(*i)->identmask)))
-		{
-			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
-			{
-				return (*i);
-			}
-		}
+		if ((*i)->Matches(user))
+			return (*i);
 	}
 
 	return NULL;
@@ -387,18 +382,11 @@ ELine* XLineManager::matches_exception(User* user)
 {
 	if (elines.empty())
 		return NULL;
-	char host2[MAXBUF];
 
-	snprintf(host2,MAXBUF,"*@%s",user->host);
 	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
-		if ((match(user->ident,(*i)->identmask)))
-		{
-			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
-			{
-				return (*i);
-			}
-		}
+		if ((*i)->Matches(user))
+			return (*i);
 	}
 	return NULL;
 }
@@ -679,11 +667,27 @@ bool KLine::Matches(User *u)
 
 bool GLine::Matches(User *u)
 {
+	if ((match(u->ident, this->identmask)))
+	{
+		if ((match(u->host, this->hostmask, true)) || (match(u->GetIPString(), this->hostmask, true)))
+		{
+			return true;
+		}
+	}
+
 	return false;
 }
 
 bool ELine::Matches(User *u)
 {
+	if ((match(u->ident, this->identmask)))
+	{
+		if ((match(u->host, this->hostmask, true)) || (match(u->GetIPString(), this->hostmask, true)))
+		{
+			return true;
+		}
+	}
+
 	return false;
 }
 
