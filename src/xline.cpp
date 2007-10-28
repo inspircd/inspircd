@@ -357,7 +357,7 @@ QLine* XLineManager::matches_qline(const char* nick)
 		return NULL;
 
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
-		if (match(nick,(*i)->nick))
+		if ((*i)->Matches(user))
 			return (*i);
 	return NULL;
 }
@@ -701,5 +701,8 @@ bool ZLine::Matches(User *u)
 
 bool QLine::Matches(User *u)
 {
+	if (match(user->nick, this->nick))
+		return true;
+
 	return false;
 }
