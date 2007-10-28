@@ -189,7 +189,9 @@ bool XLineManager::AddELine(long duration, const char* source, const char* reaso
 
 	elines.push_back(item);
 	sort(elines.begin(), elines.end(),XLineManager::XSortComparison);
-	pending_lines.push_back(item);
+
+	// XXX we really only need to check one line (the new one) - this is a bit wasteful!
+	CheckELines(ServerInstance, elines);
 
 	return true;
 }
@@ -283,8 +285,16 @@ bool XLineManager::DelELine(const char* hostmask, bool simulate)
 		{
 			if (!simulate)
 			{
+				/* remove exempt from everyone and force recheck after deleting eline */
+				for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+				{
+					User* u = (User*)(*u2);
+					u->exempt = false;
+				}
+
 				delete *i;
 				elines.erase(i);
+				CheckELines(ServerInstance, elines);
 			}
 			return true;
 		}
@@ -543,8 +553,22 @@ void XLineManager::expire_lines()
 
 }
 
-// applies lines, removing clients and changing nicks etc as applicable
+void CheckELines(InspIRCd *ServerInstance, const std::vector &ELines)
+{
+	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+	{
+		User* u = (User*)(*u2);
 
+		for (std::vector<ELine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
+		{
+			ELine *e = (*i);
+
+			u->exempt = e->Matches(u);
+		}
+	}
+}
+
+// applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
 	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
@@ -609,7 +633,7 @@ XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-bool XLine::Matches(const std::string &str)
+virtual bool Matches(const std::string &str)
 {
 	return false;
 }
@@ -695,7 +719,7 @@ void ZLine::Apply(User* u)
 
 bool QLine::Matches(User *u)
 {
-	if (match(u->nick, this->nick))
+	if (match(user->nick, this->nick))
 		return true;
 
 	return false;
