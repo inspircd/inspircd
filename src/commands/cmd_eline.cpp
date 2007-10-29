@@ -59,7 +59,7 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelELine(parameters[0]))
+		if (ServerInstance->XLines->DelLine(parameters[0], 'E'))
 		{
 			FOREACH_MOD(I_OnDelELine,OnDelELine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed E-line on %s.",user->nick,parameters[0]);
