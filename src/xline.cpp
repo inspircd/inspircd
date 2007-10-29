@@ -323,6 +323,9 @@ void ELine::Unset()
 
 QLine* XLineManager::matches_qline(const char* nick)
 {
+	if (lookup_lines.find('Q') == lookup_lines.end())
+		return NULL;
+
 	if (lookup_lines.find('Q') != lookup_lines.end() && lookup_lines['Q'].empty())
 		return NULL;
 
@@ -336,6 +339,9 @@ QLine* XLineManager::matches_qline(const char* nick)
 
 GLine* XLineManager::matches_gline(User* user)
 {
+	if (lookup_lines.find('G') == lookup_lines.end())
+		return NULL;
+
 	if (lookup_lines.find('G') != lookup_lines.end() && lookup_lines['G'].empty())
 		return NULL;
 
@@ -348,6 +354,9 @@ GLine* XLineManager::matches_gline(User* user)
 
 ELine* XLineManager::matches_exception(User* user)
 {
+	if (lookup_lines.find('E') == lookup_lines.end())
+		return NULL;
+
 	if (lookup_lines.find('E') != lookup_lines.end() && lookup_lines['E'].empty())
 		return NULL;
 
@@ -424,6 +433,9 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 
 ZLine* XLineManager::matches_zline(User *u)
 {
+	if (lookup_lines.find('Z') == lookup_lines.end())
+		return NULL;
+
 	if (lookup_lines.find('Z') != lookup_lines.end() && lookup_lines['Z'].empty())
 		return NULL;
 
@@ -437,6 +449,9 @@ ZLine* XLineManager::matches_zline(User *u)
 
 KLine* XLineManager::matches_kline(User* user)
 {
+	if (lookup_lines.find('K') == lookup_lines.end())
+		return NULL;
+
 	if (lookup_lines.find('K') != lookup_lines.end() && lookup_lines['K'].empty())
 		return NULL;
 
