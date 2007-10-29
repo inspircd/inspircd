@@ -205,10 +205,10 @@ bool XLineManager::AddELine(long duration, const char* source, const char* reaso
 
 	active_lines.push_back(item);
 	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
-	elines[hostmask] = item;
+	lookup_lines['E'][hostmask] = item;
 
 	// XXX we really only need to check one line (the new one) - this is a bit wasteful!
-	CheckELines(ServerInstance, elines);
+	CheckELines(ServerInstance, lookup_lines['E']);
 
 	return true;
 }
@@ -305,8 +305,8 @@ void ELine::Unset()
 		User* u = (User*)(*u2);
 		u->exempt = false;
 	}
-	ServerInstance->XLines->elines.erase(this->identmask + std::string("@") + this->hostmask);
-	CheckELines(ServerInstance, ServerInstance->XLines->elines);
+	ServerInstance->XLines->lookup_lines['E'].erase(this->identmask + std::string("@") + this->hostmask);
+	CheckELines(ServerInstance, ServerInstance->XLines->lookup_lines['E']);
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
@@ -332,7 +332,7 @@ GLine* XLineManager::matches_gline(User* user)
 
 ELine* XLineManager::matches_exception(User* user)
 {
-	if (elines.empty())
+	if (lookup_lines['E'].empty())
 		return NULL;
 
 	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
