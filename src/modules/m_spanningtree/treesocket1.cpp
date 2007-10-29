@@ -1218,7 +1218,10 @@ void TreeSocket::SendXLines(TreeServer* Current)
 	std::string n = this->Instance->Config->GetSID();
 	const char* sn = n.c_str();
 	/* Yes, these arent too nice looking, but they get the job done */
-	for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++)
+
+	/* FIXME: FOR THE LOVE OF ZOMBIE JESUS, FIX ME */
+
+/*	for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++)
 	{
 		snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\r\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 		buffer.append(data);
@@ -1238,7 +1241,7 @@ void TreeSocket::SendXLines(TreeServer* Current)
 		snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 		buffer.append(data);
 	}
-
+*/
 	if (!buffer.empty())
 		this->WriteLine(buffer);
 }
