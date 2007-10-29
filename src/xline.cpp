@@ -138,15 +138,18 @@ bool XLine::Matches(User *u)
 }
 
 //XXX perhaps move into xlinemanager
-void CheckELines(InspIRCd *ServerInstance, std::map<std::string, ELine *> &ELines)
+void CheckELines(InspIRCd *ServerInstance, std::map<std::string, XLine *> &ELines)
 {
+	if (ELines.empty())
+		return;
+
 	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
 
-		for (std::map<std::string, ELine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
+		for (std::map<std::string, XLine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
 		{
-			ELine *e = i->second;
+			XLine *e = i->second;
 			u->exempt = e->Matches(u);
 		}
 	}
@@ -188,6 +191,7 @@ bool XLineManager::AddGLine(long duration, const char* source,const char* reason
 	active_lines.push_back(item);
 	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
 	pending_lines.push_back(item);
+	lookup_lines['G'][hostmask] = item;
 
 	return true;
 }
@@ -225,6 +229,7 @@ bool XLineManager::AddQLine(long duration, const char* source, const char* reaso
 	active_lines.push_back(item);
 	sort(active_lines.begin(), active_lines.end(), XLineManager::XSortComparison);
 	pending_lines.push_back(item);
+	lookup_lines['Q'][nickname] = item;
 
 	return true;
 }
@@ -248,6 +253,7 @@ bool XLineManager::AddZLine(long duration, const char* source, const char* reaso
 	active_lines.push_back(item);
 	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
 	pending_lines.push_back(item);
+	lookup_lines['Z'][ipaddr] = item;
 
 	return true;
 }
@@ -266,6 +272,7 @@ bool XLineManager::AddKLine(long duration, const char* source, const char* reaso
 	active_lines.push_back(item);
 	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
 	pending_lines.push_back(item);
+	lookup_lines['K'][hostmask] = item;
 
 	return true;
 }
@@ -286,6 +293,8 @@ bool XLineManager::DelLine(const char* hostmask, char type, bool simulate)
 					(*i)->Unset();
 					delete *i;
 					active_lines.erase(i);
+					if (lookup_lines.find(type) != lookup_lines.end())
+						lookup_lines[type].erase(hostmask);
 					/* XXX: Should erase from pending lines here */
 				}
 				return true;
@@ -305,14 +314,18 @@ void ELine::Unset()
 		User* u = (User*)(*u2);
 		u->exempt = false;
 	}
-	ServerInstance->XLines->lookup_lines['E'].erase(this->identmask + std::string("@") + this->hostmask);
-	CheckELines(ServerInstance, ServerInstance->XLines->lookup_lines['E']);
+
+	if (ServerInstance->XLines->lookup_lines.find('E') != ServerInstance->XLines->lookup_lines.end())
+		CheckELines(ServerInstance, ServerInstance->XLines->lookup_lines['E']);
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
 
 QLine* XLineManager::matches_qline(const char* nick)
 {
+	if (lookup_lines.find('Q') != lookup_lines.end() && lookup_lines['Q'].empty())
+		return NULL;
+
 	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
 		if ((*i)->type == 'Q' && (*i)->Matches(nick))
 			return (QLine*)(*i);
@@ -323,6 +336,9 @@ QLine* XLineManager::matches_qline(const char* nick)
 
 GLine* XLineManager::matches_gline(User* user)
 {
+	if (lookup_lines.find('G') != lookup_lines.end() && lookup_lines['G'].empty())
+		return NULL;
+
 	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
 		if ((*i)->type == 'G' && (*i)->Matches(user))
 			return (GLine*)(*i);
@@ -332,7 +348,7 @@ GLine* XLineManager::matches_gline(User* user)
 
 ELine* XLineManager::matches_exception(User* user)
 {
-	if (lookup_lines['E'].empty())
+	if (lookup_lines.find('E') != lookup_lines.end() && lookup_lines['E'].empty())
 		return NULL;
 
 	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
@@ -408,6 +424,9 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 
 ZLine* XLineManager::matches_zline(User *u)
 {
+	if (lookup_lines.find('Z') != lookup_lines.end() && lookup_lines['Z'].empty())
+		return NULL;
+
 	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
 		if ((*i)->type == 'Z' && (*i)->Matches(u))
 			return (ZLine*)(*i);
@@ -418,6 +437,9 @@ ZLine* XLineManager::matches_zline(User *u)
 
 KLine* XLineManager::matches_kline(User* user)
 {
+	if (lookup_lines.find('K') != lookup_lines.end() && lookup_lines['K'].empty())
+		return NULL;
+
 	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
 		if ((*i)->Matches(user))
 			return (KLine*)(*i);

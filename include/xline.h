@@ -359,7 +359,7 @@ class CoreExport XLineManager
 
  public:
 
-	std::map<char, std::map<std::string, ELine *> > lookup_lines;
+	std::map<char, std::map<std::string, XLine *> > lookup_lines;
 
 	/** Constructor
 	 * @param Instance A pointer to the creator object
