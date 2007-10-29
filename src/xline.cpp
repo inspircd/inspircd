@@ -138,16 +138,15 @@ bool XLine::Matches(User *u)
 }
 
 //XXX perhaps move into xlinemanager
-void CheckELines(InspIRCd *ServerInstance, std::vector<ELine *> &ELines)
+void CheckELines(InspIRCd *ServerInstance, std::map<std::string, ELine *> &ELines)
 {
 	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
 
-		for (std::vector<ELine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
+		for (std::map<std::string, ELine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
 		{
-			ELine *e = (*i);
-
+			ELine *e = i->second;
 			u->exempt = e->Matches(u);
 		}
 	}
@@ -181,13 +180,13 @@ bool XLineManager::AddGLine(long duration, const char* source,const char* reason
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	if (DelGLine(hostmask, true))
+	if (DelLine(hostmask, 'G', true))
 		return false;
 
 	GLine* item = new GLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
-	glines.push_back(item);
-	sort(glines.begin(), glines.end(),XLineManager::XSortComparison);
+	active_lines.push_back(item);
+	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
 	pending_lines.push_back(item);
 
 	return true;
@@ -199,13 +198,14 @@ bool XLineManager::AddELine(long duration, const char* source, const char* reaso
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	if (DelELine(hostmask, true))
+	if (DelLine(hostmask, 'E', true))
 		return false;
 
 	ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
-	elines.push_back(item);
-	sort(elines.begin(), elines.end(),XLineManager::XSortComparison);
+	active_lines.push_back(item);
+	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
+	elines[hostmask] = item;
 
 	// XXX we really only need to check one line (the new one) - this is a bit wasteful!
 	CheckELines(ServerInstance, elines);
@@ -217,13 +217,13 @@ bool XLineManager::AddELine(long duration, const char* source, const char* reaso
 
 bool XLineManager::AddQLine(long duration, const char* source, const char* reason, const char* nickname)
 {
-	if (DelQLine(nickname, true))
+	if (DelLine(nickname, 'Q', true))
 		return false;
 
 	QLine* item = new QLine(ServerInstance, ServerInstance->Time(), duration, source, reason, nickname);
 
-	qlines.push_back(item);
-	sort(qlines.begin(), qlines.end(),XLineManager::XSortComparison);
+	active_lines.push_back(item);
+	sort(active_lines.begin(), active_lines.end(), XLineManager::XSortComparison);
 	pending_lines.push_back(item);
 
 	return true;
@@ -240,13 +240,13 @@ bool XLineManager::AddZLine(long duration, const char* source, const char* reaso
 		ipaddr++;
 	}
 
-	if (DelZLine(ipaddr, true))
+	if (DelLine(ipaddr, 'Z', true))
 		return false;
 
 	ZLine* item = new ZLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ipaddr);
 
-	zlines.push_back(item);
-	sort(zlines.begin(), zlines.end(),XLineManager::XSortComparison);
+	active_lines.push_back(item);
+	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
 	pending_lines.push_back(item);
 
 	return true;
@@ -258,13 +258,13 @@ bool XLineManager::AddKLine(long duration, const char* source, const char* reaso
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	if (DelKLine(hostmask, true))
+	if (DelLine(hostmask, 'K', true))
 		return false;
 
 	KLine* item = new KLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
-	klines.push_back(item);
-	sort(klines.begin(), klines.end(),XLineManager::XSortComparison);
+	active_lines.push_back(item);
+	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
 	pending_lines.push_back(item);
 
 	return true;
@@ -272,125 +272,50 @@ bool XLineManager::AddKLine(long duration, const char* source, const char* reaso
 
 // deletes a g:line, returns true if the line existed and was removed
 
-bool XLineManager::DelGLine(const char* hostmask, bool simulate)
+bool XLineManager::DelLine(const char* hostmask, char type, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
-	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
+	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
 	{
-		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
+		if ((*i)->type == type)
 		{
-			if (!simulate)
+			if ((*i)->Matches(hostmask))
 			{
-				delete *i;
-				glines.erase(i);
-			}
-			return true;
-		}
-	}
-
-	return false;
-}
-
-// deletes a e:line, returns true if the line existed and was removed
-
-bool XLineManager::DelELine(const char* hostmask, bool simulate)
-{
-	IdentHostPair ih = IdentSplit(hostmask);
-	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
-	{
-		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
-		{
-			if (!simulate)
-			{
-				/* remove exempt from everyone and force recheck after deleting eline */
-				for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+				if (!simulate)
 				{
-					User* u = (User*)(*u2);
-					u->exempt = false;
+					(*i)->Unset();
+					delete *i;
+					active_lines.erase(i);
+					/* XXX: Should erase from pending lines here */
 				}
-
-				delete *i;
-				elines.erase(i);
-				CheckELines(ServerInstance, elines);
+				return true;
 			}
-			return true;
 		}
 	}
 
 	return false;
 }
 
-// deletes a q:line, returns true if the line existed and was removed
 
-bool XLineManager::DelQLine(const char* nickname, bool simulate)
+void ELine::Unset()
 {
-	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
+	/* remove exempt from everyone and force recheck after deleting eline */
+	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
-		if (!strcasecmp(nickname,(*i)->nick))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				qlines.erase(i);
-			}
-			return true;
-		}
+		User* u = (User*)(*u2);
+		u->exempt = false;
 	}
-
-	return false;
-}
-
-// deletes a z:line, returns true if the line existed and was removed
-
-bool XLineManager::DelZLine(const char* ipaddr, bool simulate)
-{
-	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
-	{
-		if (!strcasecmp(ipaddr,(*i)->ipaddr))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				zlines.erase(i);
-			}
-			return true;
-		}
-	}
-
-	return false;
-}
-
-// deletes a k:line, returns true if the line existed and was removed
-
-bool XLineManager::DelKLine(const char* hostmask, bool simulate)
-{
-	IdentHostPair ih = IdentSplit(hostmask);
-	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
-	{
-		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
-		{
-			if (!simulate)
-			{
-				delete *i;
-				klines.erase(i);
-			}
-			return true;
-		}
-	}
-
-	return false;
+	ServerInstance->XLines->elines.erase(this->identmask + std::string("@") + this->hostmask);
+	CheckELines(ServerInstance, ServerInstance->XLines->elines);
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
 
 QLine* XLineManager::matches_qline(const char* nick)
 {
-	if (qlines.empty())
-		return NULL;
-
-	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
-		if ((*i)->Matches(nick))
-			return (*i);
+	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
+		if ((*i)->type == 'Q' && (*i)->Matches(nick))
+			return (QLine*)(*i);
 	return NULL;
 }
 
@@ -398,14 +323,9 @@ QLine* XLineManager::matches_qline(const char* nick)
 
 GLine* XLineManager::matches_gline(User* user)
 {
-	if (glines.empty())
-		return NULL;
-
-	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
-	{
-		if ((*i)->Matches(user))
-			return (*i);
-	}
+	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
+		if ((*i)->type == 'G' && (*i)->Matches(user))
+			return (GLine*)(*i);
 
 	return NULL;
 }
@@ -415,10 +335,10 @@ ELine* XLineManager::matches_exception(User* user)
 	if (elines.empty())
 		return NULL;
 
-	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
+	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
 	{
-		if ((*i)->Matches(user))
-			return (*i);
+		if ((*i)->type == 'E' && (*i)->Matches(user))
+			return (ELine*)(*i);
 	}
 	return NULL;
 }
@@ -426,7 +346,7 @@ ELine* XLineManager::matches_exception(User* user)
 
 void XLineManager::gline_set_creation_time(const char* host, time_t create_time)
 {
-	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
+	/*for (std::vector<XLine*>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
 		if (!strcasecmp(host,(*i)->hostmask))
 		{
@@ -434,14 +354,14 @@ void XLineManager::gline_set_creation_time(const char* host, time_t create_time)
 			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
-	}
+	}*/
 
 	return ;
 }
 
 void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
 {
-	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
+	/*for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
 		if (!strcasecmp(host,(*i)->hostmask))
 		{
@@ -449,14 +369,14 @@ void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
 			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
-	}
+	}*/
 
 	return;
 }
 
 void XLineManager::qline_set_creation_time(const char* nick, time_t create_time)
 {
-	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
+	/*for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
 		if (!strcasecmp(nick,(*i)->nick))
 		{
@@ -464,14 +384,14 @@ void XLineManager::qline_set_creation_time(const char* nick, time_t create_time)
 			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
-	}
+	}*/
 
 	return;
 }
 
 void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 {
-	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
+	/*for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
 		if (!strcasecmp(ip,(*i)->ipaddr))
 		{
@@ -479,7 +399,7 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
-	}
+	}*/
 
 	return;
 }
@@ -488,12 +408,9 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 
 ZLine* XLineManager::matches_zline(User *u)
 {
-	if (zlines.empty())
-		return NULL;
-
-	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
-		if ((*i)->Matches(u))
-			return (*i);
+	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
+		if ((*i)->type == 'Z' && (*i)->Matches(u))
+			return (ZLine*)(*i);
 	return NULL;
 }
 
@@ -501,14 +418,9 @@ ZLine* XLineManager::matches_zline(User *u)
 
 KLine* XLineManager::matches_kline(User* user)
 {
-	if (klines.empty())
-		return NULL;
-
-	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
-	{
+	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
 		if ((*i)->Matches(user))
-			return (*i);
-	}
+			return (KLine*)(*i);
 
 	return NULL;
 }
@@ -533,41 +445,14 @@ void XLineManager::expire_lines()
 	 * none left at the head of the queue that are after the current time.
 	 */
 
-	while ((glines.size()) && (current > (*glines.begin())->expiry) && ((*glines.begin())->duration != 0))
+	while ((active_lines.size()) && (current > (*active_lines.begin())->expiry) && ((*active_lines.begin())->duration != 0))
 	{
-		std::vector<GLine*>::iterator i = glines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
-		glines.erase(i);
+		std::vector<XLine*>::iterator i = active_lines.begin();
+		(*i)->DisplayExpiry();
+		(*i)->Unset();
+		active_lines.erase(i);
+		delete *i;
 	}
-
-	while ((elines.size()) && (current > (*elines.begin())->expiry) && ((*elines.begin())->duration != 0))
-	{
-		std::vector<ELine*>::iterator i = elines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed E-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
-		elines.erase(i);
-	}
-
-	while ((zlines.size()) && (current > (*zlines.begin())->expiry) && ((*zlines.begin())->duration != 0))
-	{
-		std::vector<ZLine*>::iterator i = zlines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Z-Line %s (set by %s %d seconds ago)",(*i)->ipaddr,(*i)->source,(*i)->duration);
-		zlines.erase(i);
-	}
-
-	while ((klines.size()) && (current > (*klines.begin())->expiry) && ((*klines.begin())->duration != 0))
-	{
-		std::vector<KLine*>::iterator i = klines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed K-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
-		klines.erase(i);
-	}
-
-	while ((qlines.size()) && (current > (*qlines.begin())->expiry) && ((*qlines.begin())->duration != 0))
-	{
-		std::vector<QLine*>::iterator i = qlines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Q-Line %s (set by %s %d seconds ago)",(*i)->nick,(*i)->source,(*i)->duration);
-		qlines.erase(i);
-	}
-
 }
 
 // applies lines, removing clients and changing nicks etc as applicable
@@ -590,37 +475,37 @@ void XLineManager::ApplyLines()
 
 void XLineManager::stats_k(User* user, string_list &results)
 {
-	std::string sn = ServerInstance->Config->ServerName;
+	/*std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
-		results.push_back(sn+" 216 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
+		results.push_back(sn+" 216 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);*/
 }
 
 void XLineManager::stats_g(User* user, string_list &results)
 {
-	std::string sn = ServerInstance->Config->ServerName;
+	/*std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);*/
 }
 
 void XLineManager::stats_q(User* user, string_list &results)
 {
-	std::string sn = ServerInstance->Config->ServerName;
+	/*std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
-		results.push_back(sn+" 217 "+user->nick+" :"+(*i)->nick+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
+		results.push_back(sn+" 217 "+user->nick+" :"+(*i)->nick+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);*/
 }
 
 void XLineManager::stats_z(User* user, string_list &results)
 {
-	std::string sn = ServerInstance->Config->ServerName;
+	/*std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->ipaddr+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->ipaddr+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);*/
 }
 
 void XLineManager::stats_e(User* user, string_list &results)
 {
-	std::string sn = ServerInstance->Config->ServerName;
+	/*std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);*/
 }
 
 XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
@@ -755,5 +640,30 @@ bool QLine::Matches(const std::string &str)
 		return true;
 
 	return false;
+}
+
+void ELine::DisplayExpiry()
+{
+	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed E-Line %s@%s (set by %s %d seconds ago)",this->identmask,this->hostmask,this->source,this->duration);
+}
+
+void QLine::DisplayExpiry()
+{
+	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s (set by %s %d seconds ago)",this->nick,this->source,this->duration);
+}
+
+void ZLine::DisplayExpiry()
+{
+	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Z-Line %s (set by %s %d seconds ago)",this->ipaddr,this->source,this->duration);
+}
+
+void KLine::DisplayExpiry()
+{
+	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed K-Line %s@%s (set by %s %d seconds ago)",this->identmask,this->hostmask,this->source,this->duration);
+}
+
+void GLine::DisplayExpiry()
+{
+	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s@%s (set by %s %d seconds ago)",this->identmask,this->hostmask,this->source,this->duration);
 }
 

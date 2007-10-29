@@ -70,6 +70,10 @@ class CoreExport XLine : public classbase
 
 	virtual void Apply(User* u);
 
+	virtual void Unset() { };
+
+	virtual void DisplayExpiry() = 0;
+
 	/** The time the line was added.
 	 */
 	time_t set_time;
@@ -127,6 +131,8 @@ class CoreExport KLine : public XLine
 
 	virtual void Apply(User* u);
 
+	virtual void DisplayExpiry();
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -167,6 +173,8 @@ class CoreExport GLine : public XLine
 
 	virtual void Apply(User* u);
 
+	virtual void DisplayExpiry();
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -202,6 +210,10 @@ class CoreExport ELine : public XLine
 	}
 
 	virtual bool Matches(User *u);
+
+	virtual void Unset();
+
+	virtual void DisplayExpiry();
 
 	/** Ident mask
 	 */
@@ -242,6 +254,8 @@ class CoreExport ZLine : public XLine
 
 	virtual void Apply(User* u);
 
+	virtual void DisplayExpiry();
+
 	/** IP mask
 	 */
 	char* ipaddr;
@@ -277,6 +291,8 @@ class CoreExport QLine : public XLine
 	virtual bool Matches(const std::string &str);
 
 	virtual void Apply(User* u);
+
+	virtual void DisplayExpiry();
 
 	/** Nickname mask
 	 */
@@ -338,23 +354,12 @@ class CoreExport XLineManager
 	/** Used to hold XLines which have not yet been applied.
 	 */
 	std::vector<XLine *> pending_lines;
+
+	std::vector<XLine *> active_lines;
+
  public:
-	/* Lists for temporary lines with an expiry time */
 
-	/** Temporary KLines */
-	std::vector<KLine*> klines;
-
-	/** Temporary Glines */
-	std::vector<GLine*> glines;
-
-	/** Temporary Zlines */
-	std::vector<ZLine*> zlines;
-
-	/** Temporary QLines */
-	std::vector<QLine*> qlines;
-
-	/** Temporary ELines */
-	std::vector<ELine*> elines;
+	std::map<std::string, ELine *> elines;
 
 	/** Constructor
 	 * @param Instance A pointer to the creator object
@@ -413,38 +418,11 @@ class CoreExport XLineManager
 
 	/** Delete a GLine
 	 * @param hostmask The host to remove
+	 * @param type Type of line to remove
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool DelGLine(const char* hostmask, bool simulate = false);
-
-	/** Delete a QLine
-	 * @param nickname The nick to remove
-	 * @param simulate If this is true, don't actually remove the line, just return
-	 * @return True if the line was deleted successfully
-	 */
-	bool DelQLine(const char* nickname, bool simulate = false);
-
-	/** Delete a ZLine
-	 * @param ipaddr The IP to remove
-	 * @param simulate If this is true, don't actually remove the line, just return
-	 * @return True if the line was deleted successfully
-	 */
-	bool DelZLine(const char* ipaddr, bool simulate = false);
-
-	/** Delete a KLine
-	 * @param hostmask The host to remove
-	 * @param simulate If this is true, don't actually remove the line, just return
-	 * @return True if the line was deleted successfully
-	 */
-	bool DelKLine(const char* hostmask, bool simulate = false);
-
-	/** Delete a ELine
-	 * @param hostmask The host to remove
-	 * @param simulate If this is true, don't actually remove the line, just return
-	 * @return True if the line was deleted successfully
-	 */
-	bool DelELine(const char* hostmask, bool simulate = false);
+	bool DelLine(const char* hostmask, char type, bool simulate = false);
 
 	/** Check if a nickname matches a QLine
 	 * @return nick The nick to check against
