@@ -121,10 +121,29 @@ CmdResult CommandPrivmsg::Handle (const char** parameters, int pcnt, User *user)
 		return CMD_SUCCESS;
 	}
 
+	const char* destnick = parameters[0];
+
 	if (IS_LOCAL(user))
-		dest = ServerInstance->FindNickOnly(parameters[0]);
+	{
+		const char* targetserver = strchr(destnick, '@');
+	
+		if (targetserver)
+		{
+			char nickonly[NICKMAX+1];
+			strlcpy(nickonly, destnick, targetserver - destnick + 1);
+			dest = ServerInstance->FindNickOnly(nickonly);
+			if (dest && strcasecmp(dest->server, targetserver + 1))
+			{
+				/* Incorrect server for user */
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+				return CMD_FAILURE;
+			}
+		}
+		else
+			dest = ServerInstance->FindNickOnly(destnick);
+	}
 	else
-		dest = ServerInstance->FindNick(parameters[0]);
+		dest = ServerInstance->FindNick(destnick);
 
 	if (dest)
 	{
