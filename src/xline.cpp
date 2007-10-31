@@ -135,16 +135,12 @@ bool XLineManager::AddLine(XLine* line)
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
 
-	active_lines.push_back(item);
+	active_lines.push_back(line);
 	sort(active_lines.begin(), active_lines.end(), XLineManager::XSortComparison);
-	lookup_lines[line->type][hostmask] = item;
+	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
 
-	// XXX we really only need to check one line (the new one) - this is a bit wasteful!
-	// we should really create a temporary var here and pass that instead.
-	// hmm, perhaps we can merge this with line "application" somehow.. and just force a recheck on DelELine?
-	/*this->CheckELines(lookup_lines['E']);
-	return true;*/
+	return true;
 }
 
 /*bool XLineManager::AddZLine(long duration, const char* source, const char* reason, const char* ipaddr)
@@ -575,7 +571,7 @@ bool ELine::MatchesLiteral(const std::string &str)
 
 bool ZLine::MatchesLiteral(const std::string &str)
 {       
-	return (assign(str) == this->ipmask);
+	return (assign(str) == this->ipaddr);
 }
 
 bool GLine::MatchesLiteral(const std::string &str)
@@ -590,12 +586,18 @@ bool KLine::MatchesLiteral(const std::string &str)
 
 bool QLine::MatchesLiteral(const std::string &str)
 {       
-	return (assign(str) == this->nickmask);
+	return (assign(str) == this->nick);
 }
 
 void ELine::OnAdd()
 {
-	ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines['E']);
+	/* When adding one eline, only check the one eline */
+	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+	{
+		User* u = (User*)(*u2);
+		if (this->Matches(u))
+			u->exempt = true;
+	}
 }
 
 void ELine::DisplayExpiry()
@@ -645,6 +647,6 @@ const char* ZLine::Displayable()
 
 const char* QLine::Displayable()
 {
-	return nickmask;
+	return nick;
 }
 
