@@ -113,28 +113,41 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_KLINE:
 						{
-							std::string ban = std::string("*@") + them->GetIPString();
-							if (show)
-								ServerInstance->XLines->ApplyLines();								
-							show = ServerInstance->XLines->AddKLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
-							FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, ban));
+							KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+									"*", them->GetIPString());
+							if (ServerInstance->XLines->AddLine(kl))
+							{
+								ServerInstance->XLines->ApplyLines();
+								FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
+							}
+							else
+								delete kl;
 							break;
 						}
 						case DNSBLConfEntry::I_GLINE:
 						{
-							std::string ban = std::string("*@") + them->GetIPString();
-							show = ServerInstance->XLines->AddGLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
-							if (show)
+							GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+									"*", them->GetIPString());
+							if (ServerInstance->XLines->AddLine(gl))
+							{
 								ServerInstance->XLines->ApplyLines();
-							FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, ban));
+								FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
+							}
+							else
+								delete gl;
 							break;
 						}
 						case DNSBLConfEntry::I_ZLINE:
 						{
-							show = ServerInstance->XLines->AddZLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), them->GetIPString());
-							if (show)
+							ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+									them->GetIPString());
+							if (ServerInstance->XLines->AddLine(zl))
+							{
 								ServerInstance->XLines->ApplyLines();
-							FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
+								FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
+							}
+							else 
+								delete zl;
 							break;
 						}
 						case DNSBLConfEntry::I_UNKNOWN:
