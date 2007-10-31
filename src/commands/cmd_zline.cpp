@@ -36,7 +36,16 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 			return CMD_FAILURE;
 
 		long duration = ServerInstance->Duration(parameters[1]);
-		if (ServerInstance->XLines->AddZLine(duration,user->nick,parameters[2],parameters[0]))
+
+		const char* ipaddr = parameters[0]; 
+		if (strchr(ipaddr,'@'))
+		{
+			while (*ipaddr != '@')
+				ipaddr++;
+			ipaddr++;
+		}
+		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
+		if (!ServerInstance->XLines->AddLine(zl))
 		{
 			FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)
@@ -53,6 +62,7 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 		}
 		else
 		{
+			delete zl;
 			user->WriteServ("NOTICE %s :*** Z-Line for %s already exists",user->nick,parameters[0]);
 		}
 	}

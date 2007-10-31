@@ -37,7 +37,9 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 		}
 
 		long duration = ServerInstance->Duration(parameters[1]);
-		if (ServerInstance->XLines->AddELine(duration,user->nick,parameters[2],parameters[0]))
+
+		ELine* el = new ELine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
+		if (!ServerInstance->XLines->AddLine(el))
 		{
 			FOREACH_MOD(I_OnAddELine,OnAddELine(duration, user, parameters[2], parameters[0]));
 
@@ -54,6 +56,7 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 		}
 		else
 		{
+			delete el;
 			user->WriteServ("NOTICE %s :*** E-Line for %s already exists",user->nick,parameters[0]);
 		}
 	}

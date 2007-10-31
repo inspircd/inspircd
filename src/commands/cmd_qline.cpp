@@ -36,7 +36,8 @@ CmdResult CommandQline::Handle (const char** parameters, int pcnt, User *user)
 		}
 
 		long duration = ServerInstance->Duration(parameters[1]);
-		if (ServerInstance->XLines->AddQLine(duration,user->nick,parameters[2],parameters[0]))
+		QLine* ql = new QLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+		if (!ServerInstance->XLines->AddLine(ql))
 		{
 			FOREACH_MOD(I_OnAddQLine,OnAddQLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)
@@ -53,6 +54,7 @@ CmdResult CommandQline::Handle (const char** parameters, int pcnt, User *user)
 		}
 		else
 		{
+			delete ql;
 			user->WriteServ("NOTICE %s :*** Q-Line for %s already exists",user->nick,parameters[0]);
 		}
 	}
