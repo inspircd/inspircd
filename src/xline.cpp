@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -169,7 +169,6 @@ bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool sim
 				if (!simulate)
 				{
 					(*i)->Unset();
-					delete *i;
 					active_lines.erase(i);
 					if (lookup_lines.find(type) != lookup_lines.end())
 						lookup_lines[type].erase(hostmask);
@@ -179,6 +178,8 @@ bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool sim
 					std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), *i);					
 					if (pptr != pending_lines.end())
 						pending_lines.erase(pptr);
+
+					delete *i;
 				}
 				return true;
 			}
@@ -370,7 +371,15 @@ void XLineManager::expire_lines()
 		std::vector<XLine*>::iterator i = active_lines.begin();
 		(*i)->DisplayExpiry();
 		(*i)->Unset();
+
 		active_lines.erase(i);
+		if (lookup_lines.find((*i)->type) != lookup_lines.end())
+			lookup_lines[(*i)->type].erase((*i)->Displayable());
+
+		std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), *i);
+		if (pptr != pending_lines.end())
+			pending_lines.erase(pptr);
+
 		delete *i;
 	}
 }
