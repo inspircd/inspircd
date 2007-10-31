@@ -529,7 +529,7 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		return false;
 
 	XLine* xl = xlf->Generate(Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-	xl->SetCreateTime(atoi(params[3]).c_str());
+	xl->SetCreateTime(atoi(params[3].c_str()));
 	if (Instance->XLines->AddLine(xl,NULL))
 	{
 		if (xl->expiry)
