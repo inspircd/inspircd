@@ -45,7 +45,7 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 			ipaddr++;
 		}
 		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
-		if (!ServerInstance->XLines->AddLine(zl))
+		if (ServerInstance->XLines->AddLine(zl))
 		{
 			FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)

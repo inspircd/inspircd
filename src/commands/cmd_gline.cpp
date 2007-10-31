@@ -43,7 +43,7 @@ CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 
 		long duration = ServerInstance->Duration(parameters[1]);
 		GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
-		if (!ServerInstance->XLines->AddLine(gl))
+		if (ServerInstance->XLines->AddLine(gl))
 		{
 			FOREACH_MOD(I_OnAddGLine,OnAddGLine(duration, user, parameters[2], parameters[0]));
 
