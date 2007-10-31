@@ -281,10 +281,9 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		if (f->action == "gline")
 		{
 			GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
-			if (ServerInstance->XLines->AddLine(gl))
+			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
-				FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
 			}
 			else
 				delete gl;
@@ -369,10 +368,9 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 				{
 					/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
 					GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
-					if (ServerInstance->XLines->AddLine(gl))
+					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
 						ServerInstance->XLines->ApplyLines();
-						FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
 					}
 					else
 						delete gl;

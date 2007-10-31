@@ -48,10 +48,8 @@ class ModuleAntiBear : public Module
 			{
 				ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), 86400, ServerInstance->Config->ServerName,
 						"Unless you're stuck in a time warp, you appear to be a bear bot!", user->GetIPString());
-				if (ServerInstance->XLines->AddLine(zl))
+				if (ServerInstance->XLines->AddLine(zl,NULL))
 				{
-					// XXX move events into the xline manager
-					FOREACH_MOD(I_OnAddGLine,OnAddZLine(86400, NULL, "Unless you're stuck in a time warp, you appear to be a bear bot!", user->MakeHostIP()));
 					ServerInstance->XLines->ApplyLines();
 				}
 				else

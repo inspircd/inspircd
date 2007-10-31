@@ -178,14 +178,8 @@ class ModuleSpanningTree : public Module
 	virtual void OnRehash(User* user, const std::string &parameter);
 	virtual void OnOper(User* user, const std::string &opertype);
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
-	virtual void OnAddGLine(long duration, User* source, const std::string &reason, const std::string &hostmask);
-	virtual void OnAddZLine(long duration, User* source, const std::string &reason, const std::string &ipmask);
-	virtual void OnAddQLine(long duration, User* source, const std::string &reason, const std::string &nickmask);
-	virtual void OnAddELine(long duration, User* source, const std::string &reason, const std::string &hostmask);
-	virtual void OnDelGLine(User* source, const std::string &hostmask);
-	virtual void OnDelZLine(User* source, const std::string &ipmask);
-	virtual void OnDelQLine(User* source, const std::string &nickmask);
-	virtual void OnDelELine(User* source, const std::string &hostmask);
+	virtual void OnAddLine(XLine* line, User* user);
+	virtual void OnDelLine(XLine* line, User* user);
 	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text);
 	virtual int OnStats(char statschar, User* user, string_list &results);
 	virtual void OnSetAway(User* user);

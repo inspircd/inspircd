@@ -736,83 +736,47 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 	}
 }
 
-void ModuleSpanningTree::OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason)
+void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
 {
-	if (!source)
+	if (!user)
 	{
 		/* Server-set lines */
 		char data[MAXBUF];
-		snprintf(data,MAXBUF,"%c %s %s %lu %lu :%s", linetype, host.c_str(), ServerInstance->Config->ServerName, (unsigned long)ServerInstance->Time(false),
-				(unsigned long)duration, reason.c_str());
+		snprintf(data,MAXBUF,"%c %s %s %lu %lu :%s", line->type, line->Displayable(), ServerInstance->Config->ServerName, line->set_time,
+				line->duration, line->reason);
 		std::deque<std::string> params;
 		params.push_back(data);
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ADDLINE", params);
 	}
 	else
 	{
-		if (IS_LOCAL(source))
+		if (user && IS_LOCAL(user))
 		{
 			char type[8];
-			snprintf(type,8,"%cLINE",linetype);
-			std::string stype = type;
-			if (adding)
-			{
-				char sduration[MAXBUF];
-				snprintf(sduration,MAXBUF,"%ld",duration);
-				std::deque<std::string> params;
-				params.push_back(host);
-				params.push_back(sduration);
-				params.push_back(":"+reason);
-				Utils->DoOneToMany(source->uuid,stype,params);
-			}
-			else
-			{
-				std::deque<std::string> params;
-				params.push_back(host);
-				Utils->DoOneToMany(source->uuid,stype,params);
-			}
+			snprintf(type,8,"%cLINE",line->type);
+			std::string stype(type);
+			char sduration[MAXBUF];
+			snprintf(sduration,MAXBUF,"%ld",line->duration);
+			std::deque<std::string> params;
+			params.push_back(line->Displayable());
+			params.push_back(ConvToStr(line->duration));
+			params.push_back(std::string(":")+line->reason);
+			Utils->DoOneToMany(user->uuid,stype,params);
 		}
 	}
 }
 
-void ModuleSpanningTree::OnAddGLine(long duration, User* source, const std::string &reason, const std::string &hostmask)
+void ModuleSpanningTree::OnDelLine(XLine* line, User* user)
 {
-	OnLine(source,hostmask,true,'G',duration,reason);
-}
-	
-void ModuleSpanningTree::OnAddZLine(long duration, User* source, const std::string &reason, const std::string &ipmask)
-{
-	OnLine(source,ipmask,true,'Z',duration,reason);
-}
-
-void ModuleSpanningTree::OnAddQLine(long duration, User* source, const std::string &reason, const std::string &nickmask)
-{
-	OnLine(source,nickmask,true,'Q',duration,reason);
-}
-
-void ModuleSpanningTree::OnAddELine(long duration, User* source, const std::string &reason, const std::string &hostmask)
-{
-	OnLine(source,hostmask,true,'E',duration,reason);
-}
-
-void ModuleSpanningTree::OnDelGLine(User* source, const std::string &hostmask)
-{
-	OnLine(source,hostmask,false,'G',0,"");
-}
-
-void ModuleSpanningTree::OnDelZLine(User* source, const std::string &ipmask)
-{
-	OnLine(source,ipmask,false,'Z',0,"");
-}
-
-void ModuleSpanningTree::OnDelQLine(User* source, const std::string &nickmask)
-{
-	OnLine(source,nickmask,false,'Q',0,"");
-}
-
-void ModuleSpanningTree::OnDelELine(User* source, const std::string &hostmask)
-{
-	OnLine(source,hostmask,false,'E',0,"");
+	if (user && IS_LOCAL(user))
+	{
+		char type[8];
+		snprintf(type,8,"%cLINE",line->type);
+		std::string stype(type);
+		std::deque<std::string> params;
+		params.push_back(line->Displayable());
+		Utils->DoOneToMany(user->uuid,stype,params);
+	}
 }
 
 void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::string &text)
@@ -1030,8 +994,7 @@ void ModuleSpanningTree::Implements(char* List)
 	List[I_OnWallops] = List[I_OnUserNotice] = List[I_OnUserMessage] = List[I_OnBackgroundTimer] = 1;
 	List[I_OnUserJoin] = List[I_OnChangeHost] = List[I_OnChangeName] = List[I_OnUserPart] = List[I_OnUserConnect] = 1;
 	List[I_OnUserQuit] = List[I_OnUserPostNick] = List[I_OnUserKick] = List[I_OnRemoteKill] = List[I_OnRehash] = 1;
-	List[I_OnOper] = List[I_OnAddGLine] = List[I_OnAddZLine] = List[I_OnAddQLine] = List[I_OnAddELine] = 1;
-	List[I_OnDelGLine] = List[I_OnDelZLine] = List[I_OnDelQLine] = List[I_OnDelELine] = List[I_ProtoSendMode] = List[I_OnMode] = 1;
+	List[I_OnOper] = List[I_OnAddLine] = List[I_OnDelLine] = List[I_ProtoSendMode] = List[I_OnMode] = 1;
 	List[I_OnStats] = List[I_ProtoSendMetaData] = List[I_OnEvent] = List[I_OnSetAway] = List[I_OnCancelAway] = List[I_OnPostCommand] = 1;
 }
 

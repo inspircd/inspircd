@@ -115,10 +115,9 @@ class DNSBLResolver : public Resolver
 						{
 							KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
 									"*", them->GetIPString());
-							if (ServerInstance->XLines->AddLine(kl))
+							if (ServerInstance->XLines->AddLine(kl,NULL))
 							{
 								ServerInstance->XLines->ApplyLines();
-								FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, them->MakeHostIP()));
 							}
 							else
 								delete kl;
@@ -128,10 +127,9 @@ class DNSBLResolver : public Resolver
 						{
 							GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
 									"*", them->GetIPString());
-							if (ServerInstance->XLines->AddLine(gl))
+							if (ServerInstance->XLines->AddLine(gl,NULL))
 							{
 								ServerInstance->XLines->ApplyLines();
-								FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, them->MakeHostIP()));
 							}
 							else
 								delete gl;
@@ -141,10 +139,9 @@ class DNSBLResolver : public Resolver
 						{
 							ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
 									them->GetIPString());
-							if (ServerInstance->XLines->AddLine(zl))
+							if (ServerInstance->XLines->AddLine(zl,NULL))
 							{
 								ServerInstance->XLines->ApplyLines();
-								FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
 							}
 							else 
 								delete zl;
