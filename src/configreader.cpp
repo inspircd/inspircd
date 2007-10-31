@@ -31,6 +31,7 @@ std::vector<std::string> old_module_names, new_module_names, added_modules, remo
 
 /* Needs forward declaration */
 bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
+bool DoneELine(ServerConfig* conf, const char* tag);
 
 ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 {
@@ -1970,6 +1971,19 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	ELine* el = new ELine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
 	if (!xlm->AddLine(el))
 		delete el;
+	return true;
+}
+
+// this should probably be moved to configreader, but atm it relies on CheckELines above.
+bool DoneELine(ServerConfig* conf, const char* tag)
+{
+	for (std::vector<User*>::const_iterator u2 = conf->GetInstance()->local_users.begin(); u2 != conf->GetInstance()->local_users.end(); u2++)
+	{
+		User* u = (User*)(*u2);
+		u->exempt = false;
+	}
+
+	conf->GetInstance()->XLines->CheckELines(conf->GetInstance()->XLines->lookup_lines['E']);
 	return true;
 }
 

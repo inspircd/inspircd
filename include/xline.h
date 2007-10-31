@@ -79,6 +79,8 @@ class CoreExport XLine : public classbase
 
 	virtual void DisplayExpiry() = 0;
 
+	virtual const char* Displayable() = 0;
+
 	virtual void OnAdd() { }
 
 	/** The time the line was added.
@@ -145,6 +147,8 @@ class CoreExport KLine : public XLine
 
 	virtual void DisplayExpiry();
 
+	virtual const char* Displayable();
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -193,6 +197,8 @@ class CoreExport GLine : public XLine
 	virtual void Apply(User* u);
 
 	virtual void DisplayExpiry();
+
+	virtual const char* Displayable();
 
 	/** Ident mask
 	 */
@@ -243,6 +249,8 @@ class CoreExport ELine : public XLine
 
 	virtual void OnAdd();
 
+	virtual const char* Displayable();
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -287,6 +295,8 @@ class CoreExport ZLine : public XLine
 
 	virtual void DisplayExpiry();
 
+	virtual const char* Displayable();
+
 	/** IP mask
 	 */
 	char* ipaddr;
@@ -326,6 +336,8 @@ class CoreExport QLine : public XLine
 
 	virtual void DisplayExpiry();
 
+	virtual const char* Displayable();
+
 	/** Nickname mask
 	 */
 	char* nick;
@@ -335,10 +347,6 @@ class CoreExport QLine : public XLine
  */
 class ServerConfig;
 class InspIRCd;
-
-/** Done adding elines from the config
- */
-bool DoneELine(ServerConfig* conf, const char* tag);
 
 /** Contains an ident and host split into two strings
  */

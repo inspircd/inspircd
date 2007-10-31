@@ -130,7 +130,7 @@ bool XLineManager::AddLine(XLine* line)
 {
 	/*IdentHostPair ih = IdentSplit(hostmask);*/
 
-	if (DelLine(hostmask, line->type, true))
+	if (DelLine(line->Displayable(), line->type, true))
 		return false;
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
@@ -568,32 +568,32 @@ bool GLine::Matches(const std::string &str)
 	return ((match(str.c_str(), matchtext.c_str(), true)));
 }
 
-virtual bool ELine::MatchesLiteral(const std::string &str)
+bool ELine::MatchesLiteral(const std::string &str)
 {
-	return (assign(str) == irc::string(this->identmask) + '@' + this->hostmask);
+	return (assign(str) == matchtext);
 }
 
-virtual bool ZLine::MatchesLiteral(const std::string &str)
+bool ZLine::MatchesLiteral(const std::string &str)
 {       
 	return (assign(str) == this->ipmask);
 }
 
-virtual bool GLine::MatchesLiteral(const std::string &str)
+bool GLine::MatchesLiteral(const std::string &str)
 {       
-	return (assign(str) == irc::string(this->identmask) + '@' + this->hostmask);
+	return (assign(str) == matchtext);
 }
 
-virtual bool KLine::MatchesLiteral(const std::string &str)
+bool KLine::MatchesLiteral(const std::string &str)
 {       
-	return (assign(str) == irc::string(this->identmask) + '@' + this->hostmask);
+	return (assign(str) == matchtext);
 }
 
-virtual bool QLine::MatchesLiteral(const std::string &str)
+bool QLine::MatchesLiteral(const std::string &str)
 {       
 	return (assign(str) == this->nickmask);
 }
 
-virtual void ELine::OnAdd()
+void ELine::OnAdd()
 {
 	ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines['E']);
 }
@@ -621,5 +621,30 @@ void KLine::DisplayExpiry()
 void GLine::DisplayExpiry()
 {
 	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s@%s (set by %s %d seconds ago)",this->identmask,this->hostmask,this->source,this->duration);
+}
+
+const char* ELine::Displayable()
+{
+	return matchtext.c_str();
+}
+
+const char* KLine::Displayable()
+{
+	return matchtext.c_str();
+}
+
+const char* GLine::Displayable()
+{
+	return matchtext.c_str();
+}
+
+const char* ZLine::Displayable()
+{
+	return ipaddr;
+}
+
+const char* QLine::Displayable()
+{
+	return nickmask;
 }
 
