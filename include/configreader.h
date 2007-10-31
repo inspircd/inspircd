@@ -803,5 +803,30 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &val
  */
 bool DoneClassesAndTypes(ServerConfig* conf, const char* tag);
 
+
+
+/** Initialize x line
+ */
+bool InitXLine(ServerConfig* conf, const char* tag);
+ 
+/** Add a config-defined zline
+ */
+bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+
+/** Add a config-defined qline
+ */
+bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+
+/** Add a config-defined kline
+ */
+bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+
+/** Add a config-defined eline
+ */
+bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+
+
+
+
 #endif
 

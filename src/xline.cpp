@@ -63,82 +63,15 @@
  *     -- Brain
  */
 
-bool InitXLine(ServerConfig* conf, const char* tag)
-{
-	return true;
-}
-
-bool DoneZLine(ServerConfig* conf, const char* tag)
-{
-	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->ApplyLines();
-	return true;
-}
-
-bool DoneQLine(ServerConfig* conf, const char* tag)
-{
-	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->ApplyLines();
-	return true;
-}
-
-bool DoneKLine(ServerConfig* conf, const char* tag)
-{
-	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->ApplyLines();
-	return true;
-}
-
-bool DoneELine(ServerConfig* conf, const char* tag)
-{
-	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->ApplyLines();
-	return true;
-}
-
-bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* ipmask = values[1].GetString();
-
-	conf->GetInstance()->XLines->AddZLine(0,"<Config>",reason,ipmask);
-	return true;
-}
-
-bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* nick = values[1].GetString();
-
-	conf->GetInstance()->XLines->AddQLine(0,"<Config>",reason,nick);
-	return true;
-}
-
-bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* host = values[1].GetString();
-
-	conf->GetInstance()->XLines->AddKLine(0,"<Config>",reason,host);
-	return true;
-}
-
-bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* host = values[1].GetString();
-
-	conf->GetInstance()->XLines->AddELine(0,"<Config>",reason,host);
-	return true;
-}
-
 bool XLine::Matches(User *u)
 {
 	return false;
 }
 
-//XXX perhaps move into xlinemanager
-void CheckELines(InspIRCd *ServerInstance, std::map<std::string, XLine *> &ELines)
+/*
+ * Checks what users match a given vector of ELines and sets their ban exempt flag accordingly.
+ */
+void XLineManager::CheckELines(std::map<std::string, XLine *> &ELines)
 {
 	if (ELines.empty())
 		return;
@@ -153,6 +86,19 @@ void CheckELines(InspIRCd *ServerInstance, std::map<std::string, XLine *> &ELine
 			u->exempt = e->Matches(u);
 		}
 	}
+}
+
+// this should probably be moved to configreader, but atm it relies on CheckELines above.
+bool DoneELine(ServerConfig* conf, const char* tag)
+{
+	for (std::vector<User*>::const_iterator u2 = conf->GetInstance()->local_users.begin(); u2 != conf->GetInstance()->local_users.end(); u2++)
+	{
+		User* u = (User*)(*u2);
+		u->exempt = false;
+	}
+
+	conf->GetInstance()->XLines->CheckELines(conf->GetInstance()->XLines->lookup_lines['E']);
+	return true;
 }
 
 
@@ -212,8 +158,9 @@ bool XLineManager::AddELine(long duration, const char* source, const char* reaso
 	lookup_lines['E'][hostmask] = item;
 
 	// XXX we really only need to check one line (the new one) - this is a bit wasteful!
-	CheckELines(ServerInstance, lookup_lines['E']);
-
+	// we should really create a temporary var here and pass that instead.
+	// hmm, perhaps we can merge this with line "application" somehow.. and just force a recheck on DelELine?
+	this->CheckELines(lookup_lines['E']);
 	return true;
 }
 
@@ -316,7 +263,7 @@ void ELine::Unset()
 	}
 
 	if (ServerInstance->XLines->lookup_lines.find('E') != ServerInstance->XLines->lookup_lines.end())
-		CheckELines(ServerInstance, ServerInstance->XLines->lookup_lines['E']);
+		ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines['E']);
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match

@@ -304,35 +304,9 @@ class CoreExport QLine : public XLine
 class ServerConfig;
 class InspIRCd;
 
-/** Initialize x line
- */
-bool InitXLine(ServerConfig* conf, const char* tag);
-
-/** Done adding zlines from the config
- */
-bool DoneZLine(ServerConfig* conf, const char* tag);
-/** Done adding qlines from the config
- */
-bool DoneQLine(ServerConfig* conf, const char* tag);
-/** Done adding klines from the config
- */
-bool DoneKLine(ServerConfig* conf, const char* tag);
 /** Done adding elines from the config
  */
 bool DoneELine(ServerConfig* conf, const char* tag);
-
-/** Add a config-defined zline
- */
-bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
-/** Add a config-defined qline
- */
-bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
-/** Add a config-defined kline
- */
-bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
-/** Add a config-defined eline
- */
-bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
 
 /** Contains an ident and host split into two strings
  */
@@ -370,6 +344,11 @@ class CoreExport XLineManager
 	 * This allows for faster matching.
 	 */
 	IdentHostPair IdentSplit(const std::string &ident_and_host);
+
+	/** Checks what users match a given list of ELines and sets their ban exempt flag accordingly.
+	 * @param ELines List of E:Lines to check.
+	 */
+	void CheckELines(std::map<std::string, XLine *> &ELines);
 
 	/** Add a new GLine
 	 * @param duration The duration of the line

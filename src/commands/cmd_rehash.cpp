@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "xline.h"
 #include "commands/cmd_rehash.h"
 
 
@@ -39,6 +40,9 @@ CmdResult CommandRehash::Handle (const char** parameters, int pcnt, User *user)
 		ServerInstance->RehashUsersAndChans();
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		ServerInstance->Config->Read(false,user);
+		// Get XLine to do it's thing.
+		ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines['E']);
+		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
 		ServerInstance->ResetMaxBans();
 	}

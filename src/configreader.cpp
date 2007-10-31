@@ -181,6 +181,11 @@ bool NoValidation(ServerConfig*, const char*, const char*, ValueItem&)
 	return true;
 }
 
+bool DoneConfItem(ServerConfig* conf, const char* tag)
+{
+	return true;
+}
+
 bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if ((data.GetInteger() < 0) || (data.GetInteger() > 31))
@@ -793,19 +798,19 @@ void ServerConfig::Read(bool bail, User* user)
 				{"reason",	"ipmask",	NULL},
 				{"No reason",	"",		NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoZLine, DoneZLine},
+				InitXLine, DoZLine, DoneConfItem},
 
 		{"badnick",
 				{"reason",	"nick",		NULL},
 				{"No reason",	"",		NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoQLine, DoneQLine},
+				InitXLine, DoQLine, DoneConfItem},
 
 		{"badhost",
 				{"reason",	"host",		NULL},
 				{"No reason",	"",		NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoKLine, DoneKLine},
+				InitXLine, DoKLine, DoneConfItem},
 
 		{"exception",
 				{"reason",	"host",		NULL},
@@ -1904,6 +1909,49 @@ bool DoClass(ServerConfig* conf, const char*, char**, ValueList &values, int*)
  */
 bool DoneClassesAndTypes(ServerConfig*, const char*)
 {
+	return true;
+}
+
+
+
+bool InitXLine(ServerConfig* conf, const char* tag)
+{
+	return true;
+}
+
+bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+{
+	const char* reason = values[0].GetString();
+	const char* ipmask = values[1].GetString();
+
+	conf->GetInstance()->XLines->AddZLine(0,"<Config>",reason,ipmask);
+	return true;
+}
+
+bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+{
+	const char* reason = values[0].GetString();
+	const char* nick = values[1].GetString();
+
+	conf->GetInstance()->XLines->AddQLine(0,"<Config>",reason,nick);
+	return true;
+}
+
+bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+{
+	const char* reason = values[0].GetString();
+	const char* host = values[1].GetString();
+
+	conf->GetInstance()->XLines->AddKLine(0,"<Config>",reason,host);
+	return true;
+}
+
+bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+{
+	const char* reason = values[0].GetString();
+	const char* host = values[1].GetString();
+
+	conf->GetInstance()->XLines->AddELine(0,"<Config>",reason,host);
 	return true;
 }
 

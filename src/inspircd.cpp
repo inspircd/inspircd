@@ -435,6 +435,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	
 	Config->ClearStack();
 	Config->Read(true, NULL);
+
+	// Get XLine to do it's thing.
+	this->XLines->CheckELines(this->XLines->lookup_lines['E']);
+	this->XLines->ApplyLines();
 	
 	this->Modules->modules.resize(255);
 	this->Modules->handles.resize(255);
