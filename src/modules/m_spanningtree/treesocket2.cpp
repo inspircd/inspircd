@@ -525,26 +525,37 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 
 	bool propogate = false;
 
+	XLine* xl;
+	IdentHostPair ih;
+
 	switch (*(params[0].c_str()))
 	{
 		case 'Z':
-			propogate = Instance->XLines->AddZLine(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+			xl = (XLine*)(new ZLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str()));
+			propogate = Instance->XLines->AddLine(xl);
 			Instance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 		break;
 		case 'Q':
-			propogate = Instance->XLines->AddQLine(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+			xl = (XLine*)(new QLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str()));
+			propogate = Instance->XLines->AddLine(xl);
 			Instance->XLines->qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 		break;
 		case 'E':
-			propogate = Instance->XLines->AddELine(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+			ih = Instance->XLines->IdentSplit(params[1]);
+			xl = (XLine*)(new GLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), ih.first.c_str(), ih.second.c_str()));
+			propogate = Instance->XLines->AddLine(xl);
 			Instance->XLines->eline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 		break;
 		case 'G':
-			propogate = Instance->XLines->AddGLine(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+			ih = Instance->XLines->IdentSplit(params[1]);
+			xl = (XLine*)(new GLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), ih.first.c_str(), ih.second.c_str()));
+			propogate = Instance->XLines->AddLine(xl);
 			Instance->XLines->gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 		break;
 		case 'K':
-			propogate = Instance->XLines->AddKLine(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+			ih = Instance->XLines->IdentSplit(params[1]);
+			xl = (XLine*)(new KLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), ih.first.c_str(), ih.second.c_str()));
+			propogate = Instance->XLines->AddLine(xl);
 		break;
 		default:
 			/* Just in case... */
@@ -555,10 +566,9 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 	/* Send it on its way */
 	if (propogate)
 	{
-		if (atoi(params[4].c_str()))
+		if (xl->expiry)
 		{
-			time_t c_requires_crap = ConvToInt(params[4]) + Instance->Time();
-			this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),Instance->TimeString(c_requires_crap).c_str(),params[5].c_str());
+			this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),Instance->TimeString(xl->expiry).c_str(),params[5].c_str());
 		}
 		else
 		{
