@@ -372,9 +372,8 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
 			I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
 			I_OnGetServerDescription, I_OnSyncUser, I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData,
-			I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddGLine,
-			I_OnAddZLine, I_OnAddQLine, I_OnAddKLine, I_OnAddELine, I_OnDelGLine, I_OnDelZLine, I_OnDelKLine, I_OnDelELine, I_OnDelQLine,
-			I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
+			I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddLine,
+			I_OnDelLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
 			I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnUserRrgister, I_OnCheckInvite,
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
@@ -886,85 +885,25 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void OnChangeName(User* user, const std::string &gecos);
 
-	/** Called whenever a gline is added by a local user.
+	/** Called whenever an xline is added by a local user.
 	 * This method is triggered after the line is added.
-	 * @param duration The duration of the line in seconds
-	 * @param source The sender of the line
-	 * @param reason The reason text to be displayed
-	 * @param hostmask The hostmask to add
+	 * @param source The sender of the line or NULL for local server
+	 * @param line The xline being added
 	 */
-	virtual void OnAddGLine(long duration, User* source, const std::string &reason, const std::string &hostmask);
+	virtual void OnAddLine(User* source, XLine* line);
 
-	/** Called whenever a zline is added by a local user.
-	 * This method is triggered after the line is added.
-	 * @param duration The duration of the line in seconds
-	 * @param source The sender of the line
-	 * @param reason The reason text to be displayed
-	 * @param ipmask The hostmask to add
-	 */
-	virtual void OnAddZLine(long duration, User* source, const std::string &reason, const std::string &ipmask);
-
-	/** Called whenever a kline is added by a local user.
-	 * This method is triggered after the line is added.
-	 * @param duration The duration of the line in seconds
-	 * @param source The sender of the line
-	 * @param reason The reason text to be displayed
-	 * @param hostmask The hostmask to add
-	 */
-	virtual void OnAddKLine(long duration, User* source, const std::string &reason, const std::string &hostmask);
-
-	/** Called whenever a qline is added by a local user.
-	 * This method is triggered after the line is added.
-	 * @param duration The duration of the line in seconds
-	 * @param source The sender of the line
-	 * @param reason The reason text to be displayed
-	 * @param nickmask The hostmask to add
-	 */
-	virtual void OnAddQLine(long duration, User* source, const std::string &reason, const std::string &nickmask);
-
-	/** Called whenever a eline is added by a local user.
-	 * This method is triggered after the line is added.
-	 * @param duration The duration of the line in seconds
-	 * @param source The sender of the line
-	 * @param reason The reason text to be displayed
-	 * @param hostmask The hostmask to add
-	 */
-	virtual void OnAddELine(long duration, User* source, const std::string &reason, const std::string &hostmask);
-
-	/** Called whenever a gline is deleted.
+	/** Called whenever an xline is deleted.
 	 * This method is triggered after the line is deleted.
-	 * @param source The user removing the line
-	 * @param hostmask The hostmask to delete
+	 * @param source The user removing the line or NULL for local server
+	 * @param line the line being deleted
 	 */
-	virtual void OnDelGLine(User* source, const std::string &hostmask);
+	virtual void OnDelLine(User* source, XLine* line);
 
 	/** Called whenever a zline is deleted.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line
 	 * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelZLine(User* source, const std::string &ipmask);
-
-	/** Called whenever a kline is deleted.
-	 * This method is triggered after the line is deleted.
-	 * @param source The user removing the line
-	 * @param hostmask The hostmask to delete
-	 */
-	virtual void OnDelKLine(User* source, const std::string &hostmask);
-	
-	/** Called whenever a qline is deleted.
-	 * This method is triggered after the line is deleted.
-	 * @param source The user removing the line
-	 * @param hostmask The hostmask to delete
-	 */
-	virtual void OnDelQLine(User* source, const std::string &nickmask);
-
-	/** Called whenever a eline is deleted.
-	 * This method is triggered after the line is deleted.
-	 * @param source The user removing the line
-	 * @param hostmask The hostmask to delete
-	 */
-	virtual void OnDelELine(User* source, const std::string &hostmask);
 
 	/** Called before your module is unloaded to clean up Extensibles.
 	 * This method is called once for every user and channel on the network,

@@ -175,16 +175,8 @@ void		Module::ProtoSendMetaData(void*, int, void*, const std::string&, const std
 void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }
 void		Module::OnChangeName(User*, const std::string&) { }
-void		Module::OnAddGLine(long, User*, const std::string&, const std::string&) { }
-void		Module::OnAddZLine(long, User*, const std::string&, const std::string&) { }
-void		Module::OnAddKLine(long, User*, const std::string&, const std::string&) { }
-void		Module::OnAddQLine(long, User*, const std::string&, const std::string&) { }
-void		Module::OnAddELine(long, User*, const std::string&, const std::string&) { }
-void		Module::OnDelGLine(User*, const std::string&) { }
-void		Module::OnDelZLine(User*, const std::string&) { }
-void		Module::OnDelKLine(User*, const std::string&) { }
-void		Module::OnDelQLine(User*, const std::string&) { }
-void		Module::OnDelELine(User*, const std::string&) { }
+void		Module::OnAddLine(User*, XLine*) { }
+void		Module::OnDelLine(User*, XLine*) { }
 void 		Module::OnCleanup(int, void*) { }
 void		Module::Implements(char* Implements) { for (int j = 0; j < 255; j++) Implements[j] = 0; }
 void		Module::OnChannelDelete(Channel*) { }
