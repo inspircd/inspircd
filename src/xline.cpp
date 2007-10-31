@@ -348,11 +348,10 @@ KLine* XLineManager::matches_kline(User* user)
 
 bool XLineManager::XSortComparison(const XLine *one, const XLine *two)
 {
-	// account for permanent lines
+	// account for permanent lines, move to bottom
 	if (one->expiry == 0)
-	{
 		return false;
-	}
+
 	return (one->expiry) < (two->expiry);
 }
 
@@ -361,6 +360,8 @@ void XLineManager::expire_lines()
 {
 	time_t current = ServerInstance->Time();
 
+	ServerInstance->Log(DEBUG,"expire_lines() running. Time %ld active_lines.size() %u", current, active_lines.size());
+
 	/* Because we now store all our XLines in sorted order using ((*i)->duration + (*i)->set_time) as a key, this
 	 * means that to expire the XLines we just need to do a while, picking off the top few until there are
 	 * none left at the head of the queue that are after the current time.
@@ -368,6 +369,7 @@ void XLineManager::expire_lines()
 
 	while ((active_lines.size()) && (current > (*active_lines.begin())->expiry) && ((*active_lines.begin())->duration != 0))
 	{
+		ServerInstance->Log(DEBUG,"Remove one");
 		std::vector<XLine*>::iterator i = active_lines.begin();
 		(*i)->DisplayExpiry();
 		(*i)->Unset();
@@ -381,6 +383,11 @@ void XLineManager::expire_lines()
 			pending_lines.erase(pptr);
 
 		delete *i;
+	}
+
+	for (std::vector<XLine*>::iterator n = active_lines.begin(); n != active_lines.end(); n++)
+	{
+		ServerInstance->Log(DEBUG,"n->expiry=%ld n->duration=%ld", (*n)->expiry, (*n)->duration);
 	}
 }
 
