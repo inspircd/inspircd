@@ -1926,7 +1926,7 @@ bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* ipmask = values[1].GetString();
 
 	ZLine* zl = new ZLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ipmask);
-	if (!conf->GetInstance()->XLines->AddLine(zl))
+	if (!conf->GetInstance()->XLines->AddLine(zl, NULL))
 		delete zl;
 
 	return true;
@@ -1938,7 +1938,7 @@ bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* nick = values[1].GetString();
 
 	QLine* ql = new QLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, nick);
-	if (!conf->GetInstance()->XLines->AddLine(ql))
+	if (!conf->GetInstance()->XLines->AddLine(ql, NULL))
 		delete ql;
 
 	return true;
@@ -1954,7 +1954,7 @@ bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	IdentHostPair ih = xlm->IdentSplit(host);
 
 	KLine* kl = new KLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
-	if (!xlm->AddLine(kl))
+	if (!xlm->AddLine(kl, NULL))
 		delete kl;
 	return true;
 }
@@ -1969,7 +1969,7 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	IdentHostPair ih = xlm->IdentSplit(host);
 
 	ELine* el = new ELine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
-	if (!xlm->AddLine(el))
+	if (!xlm->AddLine(el, NULL))
 		delete el;
 	return true;
 }

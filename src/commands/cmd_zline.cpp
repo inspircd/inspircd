@@ -45,9 +45,8 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 			ipaddr++;
 		}
 		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
-		if (ServerInstance->XLines->AddLine(zl))
+		if (ServerInstance->XLines->AddLine(zl,user))
 		{
-			FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s.",user->nick,parameters[0]);
@@ -68,9 +67,8 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0],'Z'))
+		if (ServerInstance->XLines->DelLine(parameters[0],'Z',user))
 		{
-			FOREACH_MOD(I_OnDelZLine,OnDelZLine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Z-line on %s.",user->nick,parameters[0]);
 		}
 		else

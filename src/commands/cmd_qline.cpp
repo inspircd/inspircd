@@ -37,9 +37,8 @@ CmdResult CommandQline::Handle (const char** parameters, int pcnt, User *user)
 
 		long duration = ServerInstance->Duration(parameters[1]);
 		QLine* ql = new QLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
-		if (ServerInstance->XLines->AddLine(ql))
+		if (ServerInstance->XLines->AddLine(ql,user))
 		{
-			FOREACH_MOD(I_OnAddQLine,OnAddQLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Q-line for %s.",user->nick,parameters[0]);
@@ -60,9 +59,8 @@ CmdResult CommandQline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0],'Q'))
+		if (ServerInstance->XLines->DelLine(parameters[0],'Q',user))
 		{
-			FOREACH_MOD(I_OnDelQLine,OnDelQLine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Q-line on %s.",user->nick,parameters[0]);
 		}
 		else

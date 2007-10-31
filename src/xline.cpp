@@ -126,19 +126,22 @@ IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 // adds a g:line
 
 /*bool XLineManager::AddELine(long duration, const char* source, const char* reason, const char* hostmask)*/
-bool XLineManager::AddLine(XLine* line)
+bool XLineManager::AddLine(XLine* line, User* user)
 {
 	/*IdentHostPair ih = IdentSplit(hostmask);*/
 
-	if (DelLine(line->Displayable(), line->type, true))
+	if (DelLine(line->Displayable(), line->type, user, true))
 		return false;
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
 
 	active_lines.push_back(line);
 	sort(active_lines.begin(), active_lines.end(), XLineManager::XSortComparison);
+	pending_lines.push_back(line);
 	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
+
+	FOREACH_MOD(I_OnAddLine,OnAddLine(user, line));	
 
 	return true;
 }
@@ -154,7 +157,7 @@ bool XLineManager::AddLine(XLine* line)
 
 // deletes a g:line, returns true if the line existed and was removed
 
-bool XLineManager::DelLine(const char* hostmask, char type, bool simulate)
+bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
@@ -170,7 +173,12 @@ bool XLineManager::DelLine(const char* hostmask, char type, bool simulate)
 					active_lines.erase(i);
 					if (lookup_lines.find(type) != lookup_lines.end())
 						lookup_lines[type].erase(hostmask);
-					/* XXX: Should erase from pending lines here */
+
+					FOREACH_MOD(I_OnDelLine,OnDelLine(user, *i));
+
+					std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), *i);					
+					if (pptr != pending_lines.end())
+						pending_lines.erase(pptr);
 				}
 				return true;
 			}

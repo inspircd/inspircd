@@ -43,10 +43,8 @@ CmdResult CommandKline::Handle (const char** parameters, int pcnt, User *user)
 
 		long duration = ServerInstance->Duration(parameters[1]);
 		KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
-		if (ServerInstance->XLines->AddLine(kl))
+		if (ServerInstance->XLines->AddLine(kl,user))
 		{
-			FOREACH_MOD(I_OnAddKLine,OnAddKLine(duration, user, parameters[2], parameters[0]));
-	
 			if (!duration)
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent K-line for %s.",user->nick,parameters[0]);
@@ -68,9 +66,8 @@ CmdResult CommandKline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0],'K'))
+		if (ServerInstance->XLines->DelLine(parameters[0],'K',user))
 		{
-			FOREACH_MOD(I_OnDelKLine,OnDelKLine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed K-line on %s.",user->nick,parameters[0]);
 		}
 		else

@@ -30,7 +30,7 @@ void FloodQuitUserHandler::Call(User* current)
 	if (current->registered != REG_ALL)
 	{
 		ZLine* zl = new ZLine(Server, Server->Time(), 0, Server->Config->ServerName, "Flood from unregistered connection", current->GetIPString());
-		if (Server->XLines->AddLine(zl))
+		if (Server->XLines->AddLine(zl,NULL))
 			Server->XLines->ApplyLines();
 		else
 			delete zl;

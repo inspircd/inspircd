@@ -39,10 +39,8 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 		long duration = ServerInstance->Duration(parameters[1]);
 
 		ELine* el = new ELine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
-		if (ServerInstance->XLines->AddLine(el))
+		if (ServerInstance->XLines->AddLine(el, user))
 		{
-			FOREACH_MOD(I_OnAddELine,OnAddELine(duration, user, parameters[2], parameters[0]));
-
 			if (!duration)
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent E-line for %s.",user->nick,parameters[0]);
@@ -62,9 +60,8 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0], 'E'))
+		if (ServerInstance->XLines->DelLine(parameters[0], 'E', user))
 		{
-			FOREACH_MOD(I_OnDelELine,OnDelELine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed E-line on %s.",user->nick,parameters[0]);
 		}
 		else

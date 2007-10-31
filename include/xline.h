@@ -426,21 +426,20 @@ class CoreExport XLineManager
 	void CheckELines(std::map<std::string, XLine *> &ELines);
 
 	/** Add a new GLine
-	 * @param duration The duration of the line
-	 * @param source The source of the line
-	 * @param reason The reason for the line
-	 * @param hostmask The hostmask
+	 * @param line The line to be added
+	 * @param user The user adding the line or NULL for the local server
 	 * @return True if the line was added successfully
 	 */
-	bool AddLine(XLine* line);
+	bool AddLine(XLine* line, User* user);
 
 	/** Delete a GLine
-	 * @param hostmask The host to remove
-	 * @param type Type of line to remove
+	 * @param hostmask The xline-specific string identifying the line, e.g. "*@foo"
+	 * @param type The type of xline
+	 * @param user The user removing the line or NULL if its the local server
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool DelLine(const char* hostmask, char type, bool simulate = false);
+	bool DelLine(const char* hostmask, char type, User* user, bool simulate = false);
 
 	/** Registers an xline factory.
 	 * An xline factory is a class which when given a particular xline type,
