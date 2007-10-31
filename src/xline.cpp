@@ -125,104 +125,36 @@ IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 
 // adds a g:line
 
-bool XLineManager::AddGLine(long duration, const char* source,const char* reason,const char* hostmask)
+/*bool XLineManager::AddELine(long duration, const char* source, const char* reason, const char* hostmask)*/
+bool XLineManager::AddLine(XLine* line)
 {
-	IdentHostPair ih = IdentSplit(hostmask);
+	/*IdentHostPair ih = IdentSplit(hostmask);*/
 
-	if (DelLine(hostmask, 'G', true))
+	if (DelLine(hostmask, line->type, true))
 		return false;
 
-	GLine* item = new GLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
+	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
 
 	active_lines.push_back(item);
-	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
-	pending_lines.push_back(item);
-	lookup_lines['G'][hostmask] = item;
-
-	return true;
-}
-
-// adds an e:line (exception to bans)
-
-bool XLineManager::AddELine(long duration, const char* source, const char* reason, const char* hostmask)
-{
-	IdentHostPair ih = IdentSplit(hostmask);
-
-	if (DelLine(hostmask, 'E', true))
-		return false;
-
-	ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
-
-	active_lines.push_back(item);
-	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
-	lookup_lines['E'][hostmask] = item;
+	sort(active_lines.begin(), active_lines.end(), XLineManager::XSortComparison);
+	lookup_lines[line->type][hostmask] = item;
+	line->OnAdd();
 
 	// XXX we really only need to check one line (the new one) - this is a bit wasteful!
 	// we should really create a temporary var here and pass that instead.
 	// hmm, perhaps we can merge this with line "application" somehow.. and just force a recheck on DelELine?
-	this->CheckELines(lookup_lines['E']);
-	return true;
+	/*this->CheckELines(lookup_lines['E']);
+	return true;*/
 }
 
-// adds a q:line
-
-bool XLineManager::AddQLine(long duration, const char* source, const char* reason, const char* nickname)
-{
-	if (DelLine(nickname, 'Q', true))
-		return false;
-
-	QLine* item = new QLine(ServerInstance, ServerInstance->Time(), duration, source, reason, nickname);
-
-	active_lines.push_back(item);
-	sort(active_lines.begin(), active_lines.end(), XLineManager::XSortComparison);
-	pending_lines.push_back(item);
-	lookup_lines['Q'][nickname] = item;
-
-	return true;
-}
-
-// adds a z:line
-
-bool XLineManager::AddZLine(long duration, const char* source, const char* reason, const char* ipaddr)
+/*bool XLineManager::AddZLine(long duration, const char* source, const char* reason, const char* ipaddr)
 {
 	if (strchr(ipaddr,'@'))
 	{
 		while (*ipaddr != '@')
 			ipaddr++;
 		ipaddr++;
-	}
-
-	if (DelLine(ipaddr, 'Z', true))
-		return false;
-
-	ZLine* item = new ZLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ipaddr);
-
-	active_lines.push_back(item);
-	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
-	pending_lines.push_back(item);
-	lookup_lines['Z'][ipaddr] = item;
-
-	return true;
-}
-
-// adds a k:line
-
-bool XLineManager::AddKLine(long duration, const char* source, const char* reason, const char* hostmask)
-{
-	IdentHostPair ih = IdentSplit(hostmask);
-
-	if (DelLine(hostmask, 'K', true))
-		return false;
-
-	KLine* item = new KLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
-
-	active_lines.push_back(item);
-	sort(active_lines.begin(), active_lines.end(),XLineManager::XSortComparison);
-	pending_lines.push_back(item);
-	lookup_lines['K'][hostmask] = item;
-
-	return true;
-}
+	}*/
 
 // deletes a g:line, returns true if the line existed and was removed
 
@@ -233,7 +165,7 @@ bool XLineManager::DelLine(const char* hostmask, char type, bool simulate)
 	{
 		if ((*i)->type == type)
 		{
-			if ((*i)->Matches(hostmask))
+			if ((*i)->MatchesLiteral(hostmask))
 			{
 				if (!simulate)
 				{
@@ -626,6 +558,36 @@ bool QLine::Matches(const std::string &str)
 	return false;
 }
 
+virtual bool ELine::MatchesLiteral(const std::string &str)
+{
+	return (assign(str) == irc::string(this->identmask) + '@' + this->hostmask);
+}
+
+virtual bool ZLine::MatchesLiteral(const std::string &str)
+{       
+	return (assign(str) == this->ipmask);
+}
+
+virtual bool GLine::MatchesLiteral(const std::string &str)
+{       
+	return (assign(str) == irc::string(this->identmask) + '@' + this->hostmask);
+}
+
+virtual bool KLine::MatchesLiteral(const std::string &str)
+{       
+	return (assign(str) == irc::string(this->identmask) + '@' + this->hostmask);
+}
+
+virtual bool QLine::MatchesLiteral(const std::string &str)
+{       
+	return (assign(str) == this->nickmask);
+}
+
+virtual void ELine::OnAdd()
+{
+	ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines['E']);
+}
+
 void ELine::DisplayExpiry()
 {
 	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed E-Line %s@%s (set by %s %d seconds ago)",this->identmask,this->hostmask,this->source,this->duration);
@@ -633,7 +595,7 @@ void ELine::DisplayExpiry()
 
 void QLine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s (set by %s %d seconds ago)",this->nick,this->source,this->duration);
+	ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Q-Line %s (set by %s %d seconds ago)",this->nick,this->source,this->duration);
 }
 
 void ZLine::DisplayExpiry()

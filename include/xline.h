@@ -46,8 +46,8 @@ class CoreExport XLine : public classbase
 	 * @param src The sender of the xline
 	 * @param re The reason of the xline
 	 */
-	XLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re)
-		: ServerInstance(Instance), set_time(s_time), duration(d)
+	XLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char t)
+		: ServerInstance(Instance), set_time(s_time), duration(d), type(t)
 	{
 		source = strdup(src);
 		reason = strdup(re);
@@ -66,13 +66,20 @@ class CoreExport XLine : public classbase
 	 */
 	virtual bool Matches(User *u) = 0;
 
+	/** Returns true wether or not the given string exactly matches the gline
+	 * (no wildcard use in this method) -- used for removal of a line
+	 */
+	virtual bool MatchesLiteral(std::string &str) = 0;
+
 	virtual bool Matches(const std::string &str);
 
 	virtual void Apply(User* u);
 
-	virtual void Unset() { };
+	virtual void Unset() { }
 
 	virtual void DisplayExpiry() = 0;
+
+	virtual void OnAdd() { }
 
 	/** The time the line was added.
 	 */
@@ -96,7 +103,7 @@ class CoreExport XLine : public classbase
 
 	/** Q, K, etc. Don't change this. Constructors set it.
 	 */
-	char type;
+	const char type;
 };
 
 /** KLine class
@@ -112,11 +119,10 @@ class CoreExport KLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	KLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re)
+	KLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, 'K')
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
-		type = 'K';
 	}
 
 	/** Destructor
@@ -128,6 +134,8 @@ class CoreExport KLine : public XLine
 	}
 
 	virtual bool Matches(User *u);
+
+	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -154,11 +162,10 @@ class CoreExport GLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	GLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re)
+	GLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, 'G')
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
-		type = 'G';
 	}
 
 	/** Destructor
@@ -170,6 +177,8 @@ class CoreExport GLine : public XLine
 	}
 
 	virtual bool Matches(User *u);
+
+	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -196,11 +205,10 @@ class CoreExport ELine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	ELine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re)
+	ELine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, 'E')
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
-		type = 'E';
 	}
 
 	~ELine()
@@ -211,9 +219,13 @@ class CoreExport ELine : public XLine
 
 	virtual bool Matches(User *u);
 
+	virtual bool MatchesLiteral(const std::string &str);
+
 	virtual void Unset();
 
 	virtual void DisplayExpiry();
+
+	virtual void OnAdd();
 
 	/** Ident mask
 	 */
@@ -235,10 +247,9 @@ class CoreExport ZLine : public XLine
 	 * @param re The reason of the xline
 	 * @param ip IP to match
 	 */
-	ZLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(Instance, s_time, d, src, re)
+	ZLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(Instance, s_time, d, src, re, 'Z')
 	{
 		ipaddr = strdup(ip);
-		type = 'Z';
 	}
 
 	/** Destructor
@@ -251,6 +262,8 @@ class CoreExport ZLine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
+
+	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -273,10 +286,9 @@ class CoreExport QLine : public XLine
 	 * @param re The reason of the xline
 	 * @param nickname Nickname to match
 	 */
-	QLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(Instance, s_time, d, src, re)
+	QLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(Instance, s_time, d, src, re, 'Q')
 	{
 		nick = strdup(nickname);
-		type = 'Q';
 	}
 
 	/** Destructor
@@ -289,6 +301,8 @@ class CoreExport QLine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
+
+	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -357,43 +371,7 @@ class CoreExport XLineManager
 	 * @param hostmask The hostmask
 	 * @return True if the line was added successfully
 	 */
-	bool AddGLine(long duration, const char* source, const char* reason, const char* hostmask);
-
-	/** Add a new QLine
-	 * @param duration The duration of the line
-	 * @param source The source of the line
-	 * @param reason The reason for the line
-	 * @param nickname The nickmask
-	 * @return True if the line was added successfully
-	 */
-	bool AddQLine(long duration, const char* source, const char* reason, const char* nickname);
-
-	/** Add a new ZLine
-	 * @param duration The duration of the line
-	 * @param source The source of the line
-	 * @param reason The reason for the line
-	 * @param ipaddr The IP mask
-	 * @return True if the line was added successfully
-	 */
-	bool AddZLine(long duration, const char* source, const char* reason, const char* ipaddr);
-
-	/** Add a new KLine
-	 * @param duration The duration of the line
-	 * @param source The source of the line
-	 * @param reason The reason for the line
-	 * @param hostmask The hostmask
-	 * @return True if the line was added successfully
-	 */
-	bool AddKLine(long duration, const char* source, const char* reason, const char* hostmask);
-
-	/** Add a new ELine
-	 * @param duration The duration of the line
-	 * @param source The source of the line
-	 * @param reason The reason for the line
-	 * @param hostmask The hostmask
-	 * @return True if the line was added successfully
-	 */
-	bool AddELine(long duration, const char* source, const char* reason, const char* hostmask);
+	bool AddLine(XLine* line);
 
 	/** Delete a GLine
 	 * @param hostmask The host to remove
