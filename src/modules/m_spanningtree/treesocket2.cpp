@@ -529,9 +529,9 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		return false;
 
 	XLine* xl = xlf->Generate(Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+	xl->SetCreateTime(atoi(params[3]).c_str());
 	if (Instance->XLines->AddLine(xl,NULL))
 	{
-		/*Instance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));*/
 		if (xl->expiry)
 		{
 			this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),Instance->TimeString(xl->expiry).c_str(),params[5].c_str());

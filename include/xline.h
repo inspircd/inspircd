@@ -62,6 +62,12 @@ class CoreExport XLine : public classbase
 		free(source);
 	}
 
+	virtual void SetCreateTime(time_t created)
+	{
+		set_time = created;
+		expiry = created + duration;
+	}
+
 	/** Returns true whether or not the given user is covered by this line.
 	 */
 	virtual bool Matches(User *u) = 0;
