@@ -422,6 +422,20 @@ void XLineManager::stats_e(User* user, string_list &results)
 
 XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	GFact = new GLineFactory(Instance);
+	EFact = new ELineFactory(Instance);
+
+	RegisterFactory(GFact);
+	RegisterFactory(EFact);
+}
+
+XLineManager::~XLineManager()
+{
+	UnregisterFactory(GFact);
+	UnregisterFactory(EFact);
+
+	delete GFact;
+	delete EFact;
 }
 
 void XLine::Apply(User* u)

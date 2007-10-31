@@ -343,16 +343,21 @@ class CoreExport QLine : public XLine
 	char* nick;
 };
 
-class XLineFactory
+/** Contains an ident and host split into two strings
+ */
+typedef std::pair<std::string, std::string> IdentHostPair;
+
+
+class CoreExport XLineFactory
 {
  protected:
 
-	const char type;
 	InspIRCd* ServerInstance;
+	const char type;
 
  public:
 
-	XLineFactory(const char t) : type(t) { }
+	XLineFactory(InspIRCd* Instance, const char t) : ServerInstance(Instance), type(t) { }
 	
 	virtual const char GetType() { return type; }
 
@@ -366,9 +371,8 @@ class XLineFactory
 class ServerConfig;
 class InspIRCd;
 
-/** Contains an ident and host split into two strings
- */
-typedef std::pair<std::string, std::string> IdentHostPair;
+class GLineFactory;
+class ELineFactory;
 
 /** XLineManager is a class used to manage glines, klines, elines, zlines and qlines.
  */
@@ -391,6 +395,9 @@ class CoreExport XLineManager
 
 	std::map<char, XLineFactory*> line_factory;
 
+	GLineFactory* GFact;
+	ELineFactory* EFact;
+
  public:
 
 	std::map<char, std::map<std::string, XLine *> > lookup_lines;
@@ -399,6 +406,8 @@ class CoreExport XLineManager
 	 * @param Instance A pointer to the creator object
 	 */
 	XLineManager(InspIRCd* Instance);
+
+	~XLineManager();
 
 	/** Split an ident and host into two seperate strings.
 	 * This allows for faster matching.
@@ -539,6 +548,31 @@ class CoreExport XLineManager
 	 */
 	void eline_set_creation_time(const char* host, time_t create_time);
 };
+
+class CoreExport GLineFactory : public XLineFactory
+{
+ public:
+	GLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'G') { }
+
+	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	{
+		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		return new GLine(ServerInstance, set_time, duration, source, reason, ih.first.c_str(), ih.second.c_str());
+	}
+};
+
+class CoreExport ELineFactory : public XLineFactory
+{
+ public:
+	ELineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'E') { }
+
+	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	{
+		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		return new ELine(ServerInstance, set_time, duration, source, reason, ih.first.c_str(), ih.second.c_str());
+	}
+};
+
 
 #endif
 
