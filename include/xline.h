@@ -69,9 +69,9 @@ class CoreExport XLine : public classbase
 	/** Returns true wether or not the given string exactly matches the gline
 	 * (no wildcard use in this method) -- used for removal of a line
 	 */
-	virtual bool MatchesLiteral(std::string &str) = 0;
+	virtual bool MatchesLiteral(const std::string &str) = 0;
 
-	virtual bool Matches(const std::string &str);
+	virtual bool Matches(const std::string &str) = 0;
 
 	virtual void Apply(User* u);
 
@@ -123,6 +123,8 @@ class CoreExport KLine : public XLine
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
+		matchtext = this->identmask;
+		matchtext.append("@").append(this->hostmask);
 	}
 
 	/** Destructor
@@ -134,6 +136,8 @@ class CoreExport KLine : public XLine
 	}
 
 	virtual bool Matches(User *u);
+
+	virtual bool Matches(const std::string &str);
 
 	virtual bool MatchesLiteral(const std::string &str);
 
@@ -147,6 +151,8 @@ class CoreExport KLine : public XLine
 	/** Host mask
 	 */
 	char* hostmask;
+
+	std::string matchtext;
 };
 
 /** GLine class
@@ -166,6 +172,8 @@ class CoreExport GLine : public XLine
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
+		matchtext = this->identmask;
+		matchtext.append("@").append(this->hostmask);
 	}
 
 	/** Destructor
@@ -177,6 +185,8 @@ class CoreExport GLine : public XLine
 	}
 
 	virtual bool Matches(User *u);
+
+	virtual bool Matches(const std::string &str);
 
 	virtual bool MatchesLiteral(const std::string &str);
 
@@ -190,6 +200,8 @@ class CoreExport GLine : public XLine
 	/** Host mask
 	 */
 	char* hostmask;
+
+	std::string matchtext;
 };
 
 /** ELine class
@@ -209,6 +221,8 @@ class CoreExport ELine : public XLine
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
+		matchtext = this->identmask;
+		matchtext.append("@").append(this->hostmask);
 	}
 
 	~ELine()
@@ -218,6 +232,8 @@ class CoreExport ELine : public XLine
 	}
 
 	virtual bool Matches(User *u);
+
+	virtual bool Matches(const std::string &str);
 
 	virtual bool MatchesLiteral(const std::string &str);
 
@@ -233,6 +249,8 @@ class CoreExport ELine : public XLine
 	/** Host mask
 	 */
 	char* hostmask;
+
+	std::string matchtext;
 };
 
 /** ZLine class

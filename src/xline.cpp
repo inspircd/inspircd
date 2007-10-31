@@ -428,11 +428,6 @@ XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-bool XLine::Matches(const std::string &str)
-{
-	return false;
-}
-
 void XLine::Apply(User* u)
 {
 }
@@ -556,6 +551,21 @@ bool QLine::Matches(const std::string &str)
 		return true;
 
 	return false;
+}
+
+bool ELine::Matches(const std::string &str)
+{
+	return ((match(str.c_str(), matchtext.c_str(), true)));
+}
+
+bool KLine::Matches(const std::string &str)
+{
+	return ((match(str.c_str(), matchtext.c_str(), true)));
+}
+
+bool GLine::Matches(const std::string &str)
+{
+	return ((match(str.c_str(), matchtext.c_str(), true)));
 }
 
 virtual bool ELine::MatchesLiteral(const std::string &str)
