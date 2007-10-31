@@ -324,7 +324,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
+
 	this->Config = new ServerConfig(this);
+	this->SNO = new SnomaskManager(this);
+	this->Modules = new ModuleManager(this);
+	this->stats = new serverstats();
+	this->Timers = new TimerManager(this);
+	this->Parser = new CommandParser(this);
+	this->XLines = new XLineManager(this);
 
 	this->Config->argv = argv;
 	this->Config->argc = argc;
@@ -337,7 +344,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->Config->opertypes.clear();
 	this->Config->operclass.clear();
-	this->SNO = new SnomaskManager(this);
+
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 	this->time_delta = 0;
 	srand(this->TIME);
@@ -425,14 +432,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* Set the finished argument values */
 	Config->nofork = do_nofork;
 	Config->forcedebug = do_debug;
-	Config->writelog = !do_nolog;
-
-	this->Modules = new ModuleManager(this);
-	this->stats = new serverstats();
-	this->Timers = new TimerManager(this);
-	this->Parser = new CommandParser(this);
-	this->XLines = new XLineManager(this);
-	
+	Config->writelog = !do_nolog;	
 	Config->ClearStack();
 	Config->Read(true, NULL);
 
