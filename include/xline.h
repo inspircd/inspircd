@@ -501,29 +501,12 @@ class CoreExport XLineManager
 	 */
 	void ApplyLines();
 
-	/** Handle /STATS K
+	/** Handle /STATS for a given type.
+	 * @param numeric The numeric to give to each result line
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results
 	 */
-	void stats_k(User* user, string_list &results);
-
-	/** Handle /STATS G
-	 * @param user The username making the query
-	 * @param results The string_list to receive the results
-	 */
-	void stats_g(User* user, string_list &results);
-
-	/** Handle /STATS Q
-	 * @param user The username making the query
-	 * @param results The string_list to receive the results
-	 */
-	void stats_q(User* user, string_list &results);
-
-	/** Handle /STATS Z
-	 * @param user The username making the query
-	 * @param results The string_list to receive the results
-	 */
-	void stats_z(User* user, string_list &results);
+	void InvokeStats(const char type, int numeric, User* user, string_list &results);
 
 	/** Handle /STATS E
 	 * @param user The username making the query
