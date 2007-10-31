@@ -650,3 +650,37 @@ const char* QLine::Displayable()
 	return nick;
 }
 
+bool XLineManager::RegisterFactory(XLineFactory* xlf)
+{
+	std::map<char, XLineFactory*>::iterator n = line_factory.find(xlf->GetType());
+
+	if (n != line_factory.end())
+		return false;
+
+	line_factory[xlf->GetType()] = xlf;
+
+	return true;
+}
+
+bool XLineManager::UnregisterFactory(XLineFactory* xlf)
+{
+	std::map<char, XLineFactory*>::iterator n = line_factory.find(xlf->GetType());
+
+	if (n == line_factory.end())
+		return false;
+
+	line_factory.erase(n);
+
+	return true;
+}
+
+XLineFactory* XLineManager::GetFactory(const char type)
+{
+	std::map<char, XLineFactory*>::iterator n = line_factory.find(type);
+
+	if (n != line_factory.end())
+		return NULL;
+
+	return n->second;
+}
+
