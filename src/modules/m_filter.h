@@ -280,11 +280,14 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		}
 		if (f->action == "gline")
 		{
-			if (ServerInstance->XLines->AddGLine(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), user->MakeHostIP()))
+			GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
+			if (ServerInstance->XLines->AddLine(gl))
 			{
 				ServerInstance->XLines->ApplyLines();
 				FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
 			}
+			else
+				delete gl;
 		}
 
 		ServerInstance->Log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their message filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
@@ -365,14 +368,14 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 				if (f->action == "gline")
 				{
 					/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
-					std::string wild = "*@";
-					wild.append(user->GetIPString());
-
-					if (ServerInstance->XLines->AddGLine(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), wild.c_str()))
+					GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
+					if (ServerInstance->XLines->AddLine(gl))
 					{
 						ServerInstance->XLines->ApplyLines();
 						FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
 					}
+					else
+						delete gl;
 				}
 				return 1;
 			}

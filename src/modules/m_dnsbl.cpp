@@ -118,7 +118,7 @@ class DNSBLResolver : public Resolver
 							if (ServerInstance->XLines->AddLine(kl))
 							{
 								ServerInstance->XLines->ApplyLines();
-								FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
+								FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, them->MakeHostIP()));
 							}
 							else
 								delete kl;
@@ -131,7 +131,7 @@ class DNSBLResolver : public Resolver
 							if (ServerInstance->XLines->AddLine(gl))
 							{
 								ServerInstance->XLines->ApplyLines();
-								FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
+								FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, them->MakeHostIP()));
 							}
 							else
 								delete gl;
