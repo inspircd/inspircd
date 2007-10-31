@@ -523,49 +523,15 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 	if (params.size() < 6)
 		return true;
 
-	bool propogate = false;
+	XLineFactory* xlf = Instance->XLines->GetFactory(params[0][0]);
 
-	XLine* xl;
-	IdentHostPair ih;
+	if (!xlf)
+		return false;
 
-	switch (*(params[0].c_str()))
+	XLine* xl = xlf->Generate(Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+	if (Instance->XLines->AddLine(xl,NULL))
 	{
-		case 'Z':
-			xl = (XLine*)(new ZLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str()));
-			propogate = Instance->XLines->AddLine(xl,NULL);
-			Instance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-		break;
-		case 'Q':
-			xl = (XLine*)(new QLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str()));
-			propogate = Instance->XLines->AddLine(xl,NULL);
-			Instance->XLines->qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-		break;
-		case 'E':
-			ih = Instance->XLines->IdentSplit(params[1]);
-			xl = (XLine*)(new GLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), ih.first.c_str(), ih.second.c_str()));
-			propogate = Instance->XLines->AddLine(xl,NULL);
-			Instance->XLines->eline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-		break;
-		case 'G':
-			ih = Instance->XLines->IdentSplit(params[1]);
-			xl = (XLine*)(new GLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), ih.first.c_str(), ih.second.c_str()));
-			propogate = Instance->XLines->AddLine(xl,NULL);
-			Instance->XLines->gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-		break;
-		case 'K':
-			ih = Instance->XLines->IdentSplit(params[1]);
-			xl = (XLine*)(new KLine(Instance, Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), ih.first.c_str(), ih.second.c_str()));
-			propogate = Instance->XLines->AddLine(xl,NULL);
-		break;
-		default:
-			/* Just in case... */
-			this->Instance->SNO->WriteToSnoMask('x',"\2WARNING\2: Invalid xline type '"+params[0]+"' sent by server "+prefix+", ignored!");
-			propogate = false;
-		break;
-	}
-	/* Send it on its way */
-	if (propogate)
-	{
+		/*Instance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));*/
 		if (xl->expiry)
 		{
 			this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),Instance->TimeString(xl->expiry).c_str(),params[5].c_str());
@@ -577,6 +543,8 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		params[5] = ":" + params[5];
 		Utils->DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
 	}
+	else
+		delete xl;
 
 	if (!this->bursting)
 	{
