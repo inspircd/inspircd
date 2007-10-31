@@ -259,67 +259,6 @@ ELine* XLineManager::matches_exception(User* user)
 	return NULL;
 }
 
-
-void XLineManager::gline_set_creation_time(const char* host, time_t create_time)
-{
-	/*for (std::vector<XLine*>::iterator i = glines.begin(); i != glines.end(); i++)
-	{
-		if (!strcasecmp(host,(*i)->hostmask))
-		{
-			(*i)->set_time = create_time;
-			(*i)->expiry = create_time + (*i)->duration;
-			return;
-		}
-	}*/
-
-	return ;
-}
-
-void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
-{
-	/*for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
-	{
-		if (!strcasecmp(host,(*i)->hostmask))
-		{
-			(*i)->set_time = create_time;
-			(*i)->expiry = create_time + (*i)->duration;
-			return;
-		}
-	}*/
-
-	return;
-}
-
-void XLineManager::qline_set_creation_time(const char* nick, time_t create_time)
-{
-	/*for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
-	{
-		if (!strcasecmp(nick,(*i)->nick))
-		{
-			(*i)->set_time = create_time;
-			(*i)->expiry = create_time + (*i)->duration;
-			return;
-		}
-	}*/
-
-	return;
-}
-
-void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
-{
-	/*for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
-	{
-		if (!strcasecmp(ip,(*i)->ipaddr))
-		{
-			(*i)->set_time = create_time;
-			(*i)->expiry = create_time + (*i)->duration;
-			return;
-		}
-	}*/
-
-	return;
-}
-
 // returns a pointer to the reason if an ip address matches a zline, NULL if it didnt match
 
 ZLine* XLineManager::matches_zline(User *u)

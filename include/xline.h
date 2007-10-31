@@ -513,36 +513,6 @@ class CoreExport XLineManager
 	 * @param results The string_list to receive the results
 	 */
 	void InvokeStats(const char type, int numeric, User* user, string_list &results);
-
-	/** Handle /STATS E
-	 * @param user The username making the query
-	 * @param results The string_list to receive the results
-	 */
-	void stats_e(User* user, string_list &results);
-
-	/** Change creation time of a GLine
-	 * @param host The hostname to change
-	 * @param create_Time The new creation time
-	 */
-	void gline_set_creation_time(const char* host, time_t create_time);
-
-	/** Change creation time of a QLine
-	 * @param nick The nickmask to change
-	 * @param create_Time The new creation time
-	 */
-	void qline_set_creation_time(const char* nick, time_t create_time);
-
-	/** Change creation time of a ZLine
-	 * @param ip The ipmask to change
-	 * @param create_Time The new creation time
-	 */
-	void zline_set_creation_time(const char* ip, time_t create_time);
-
-	/** Change creation time of a ELine
-	 * @param host The hostname to change
-	 * @param create_Time The new creation time
-	 */
-	void eline_set_creation_time(const char* host, time_t create_time);
 };
 
 class CoreExport GLineFactory : public XLineFactory
