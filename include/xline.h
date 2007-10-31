@@ -404,6 +404,8 @@ class CoreExport XLineManager
 	QLineFactory* QFact;
 	ZLineFactory* ZFact;
 
+	unsigned int PermLines;
+
  public:
 
 	std::map<char, std::map<std::string, XLine *> > lookup_lines;

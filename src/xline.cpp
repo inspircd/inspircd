@@ -141,6 +141,9 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
 
+	if (!line->duration)
+		PermLines++;
+
 	FOREACH_MOD(I_OnAddLine,OnAddLine(user, line));	
 
 	return true;
@@ -169,7 +172,7 @@ bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool sim
 				if (!simulate)
 				{
 					(*i)->Unset();
-					active_lines.erase(i);
+
 					if (lookup_lines.find(type) != lookup_lines.end())
 						lookup_lines[type].erase(hostmask);
 
@@ -179,7 +182,11 @@ bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool sim
 					if (pptr != pending_lines.end())
 						pending_lines.erase(pptr);
 
+					if (!(*i)->duration)
+						PermLines--;
+
 					delete *i;
+					active_lines.erase(i);
 				}
 				return true;
 			}
@@ -348,10 +355,6 @@ KLine* XLineManager::matches_kline(User* user)
 
 bool XLineManager::XSortComparison(const XLine *one, const XLine *two)
 {
-	// account for permanent lines, move to bottom
-	if (one->expiry == 0)
-		return false;
-
 	return (one->expiry) < (two->expiry);
 }
 
@@ -360,34 +363,31 @@ void XLineManager::expire_lines()
 {
 	time_t current = ServerInstance->Time();
 
-	ServerInstance->Log(DEBUG,"expire_lines() running. Time %ld active_lines.size() %u", current, active_lines.size());
-
 	/* Because we now store all our XLines in sorted order using ((*i)->duration + (*i)->set_time) as a key, this
 	 * means that to expire the XLines we just need to do a while, picking off the top few until there are
-	 * none left at the head of the queue that are after the current time.
+	 * none left at the head of the queue that are after the current time. We use PermLines as an offset into the
+	 * vector past the first item with a duration 0.
 	 */
 
-	while ((active_lines.size()) && (current > (*active_lines.begin())->expiry) && ((*active_lines.begin())->duration != 0))
+	std::vector<XLine*>::iterator start = active_lines.begin() + PermLines;
+
+	while ((start < active_lines.end()) && (current > (*start)->expiry))
 	{
-		ServerInstance->Log(DEBUG,"Remove one");
-		std::vector<XLine*>::iterator i = active_lines.begin();
-		(*i)->DisplayExpiry();
-		(*i)->Unset();
+		(*start)->DisplayExpiry();
+		(*start)->Unset();
 
-		active_lines.erase(i);
-		if (lookup_lines.find((*i)->type) != lookup_lines.end())
-			lookup_lines[(*i)->type].erase((*i)->Displayable());
+		if (lookup_lines.find((*start)->type) != lookup_lines.end())
+			lookup_lines[(*start)->type].erase((*start)->Displayable());
 
-		std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), *i);
+		std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), *start);
 		if (pptr != pending_lines.end())
 			pending_lines.erase(pptr);
 
-		delete *i;
-	}
+		if (!(*start)->duration)
+			PermLines--;
 
-	for (std::vector<XLine*>::iterator n = active_lines.begin(); n != active_lines.end(); n++)
-	{
-		ServerInstance->Log(DEBUG,"n->expiry=%ld n->duration=%ld", (*n)->expiry, (*n)->duration);
+		delete *start;
+		active_lines.erase(start);
 	}
 }
 
@@ -444,7 +444,7 @@ void XLineManager::stats_e(User* user, string_list &results)
 		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);*/
 }
 
-XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
+XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance), PermLines(0)
 {
 	GFact = new GLineFactory(Instance);
 	EFact = new ELineFactory(Instance);
