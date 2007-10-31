@@ -14,6 +14,8 @@
 #ifndef __MODULES_H
 #define __MODULES_H
 
+class XLine;
+
 /** Used with OnAccessCheck() method of modules
  */
 enum AccessControlType {
