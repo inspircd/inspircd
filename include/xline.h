@@ -343,6 +343,24 @@ class CoreExport QLine : public XLine
 	char* nick;
 };
 
+class XLineFactory
+{
+ protected:
+
+	const char type;
+	InspIRCd* ServerInstance;
+
+ public:
+
+	XLineFactory(const char t) : type(t) { }
+	
+	virtual const char GetType() { return type; }
+
+	virtual XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask) = 0;
+
+	virtual ~XLineFactory() { }
+};
+
 /* Required forward declarations
  */
 class ServerConfig;
@@ -370,6 +388,8 @@ class CoreExport XLineManager
 	std::vector<XLine *> pending_lines;
 
 	std::vector<XLine *> active_lines;
+
+	std::map<char, XLineFactory*> line_factory;
 
  public:
 
@@ -406,6 +426,26 @@ class CoreExport XLineManager
 	 * @return True if the line was deleted successfully
 	 */
 	bool DelLine(const char* hostmask, char type, bool simulate = false);
+
+	/** Registers an xline factory.
+	 * An xline factory is a class which when given a particular xline type,
+	 * will generate a new XLine specialized to that type. For example if you
+	 * pass the XLineFactory that handles glines some data it will return a
+	 * pointer to a GLine, polymorphically represented as XLine. This is used where
+	 * you do not know the full details of the item you wish to create, e.g. in a 
+	 * server protocol module like m_spanningtree, when you receive xlines from other
+	 * servers.
+	 */
+	bool RegisterFactory(XLineFactory* xlf);
+
+	/** Unregisters an xline factory
+	 */
+	bool UnregisterFactory(XLineFactory* xlf);
+
+	/** Get the XLineFactory for a specific type.
+	 * Returns NULL if there is no known handler for this xline type
+	 */
+	XLineFactory* GetFactory(const char type);
 
 	/** Check if a nickname matches a QLine
 	 * @return nick The nick to check against
