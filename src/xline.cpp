@@ -424,18 +424,30 @@ XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	GFact = new GLineFactory(Instance);
 	EFact = new ELineFactory(Instance);
+	KFact = new KLineFactory(Instance);
+	QFact = new QLineFactory(Instance);
+	ZFact = new ZLineFactory(Instance);
 
 	RegisterFactory(GFact);
 	RegisterFactory(EFact);
+	RegisterFactory(KFact);
+	RegisterFactory(QFact);
+	RegisterFactory(ZFact);
 }
 
 XLineManager::~XLineManager()
 {
 	UnregisterFactory(GFact);
 	UnregisterFactory(EFact);
+	UnregisterFactory(KFact);
+	UnregisterFactory(QFact);
+	UnregisterFactory(ZFact);
 
 	delete GFact;
 	delete EFact;
+	delete KFact;
+	delete QFact;
+	delete ZFact;
 }
 
 void XLine::Apply(User* u)

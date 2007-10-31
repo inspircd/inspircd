@@ -373,6 +373,9 @@ class InspIRCd;
 
 class GLineFactory;
 class ELineFactory;
+class QLineFactory;
+class ZLineFactory;
+class KLineFactory;
 
 /** XLineManager is a class used to manage glines, klines, elines, zlines and qlines.
  */
@@ -397,6 +400,9 @@ class CoreExport XLineManager
 
 	GLineFactory* GFact;
 	ELineFactory* EFact;
+	KLineFactory* KFact;
+	QLineFactory* QFact;
+	ZLineFactory* ZFact;
 
  public:
 
@@ -573,6 +579,38 @@ class CoreExport ELineFactory : public XLineFactory
 	}
 };
 
+class CoreExport KLineFactory : public XLineFactory
+{
+ public:
+        KLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'K') { }
+
+        XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+        {
+                IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+                return new KLine(ServerInstance, set_time, duration, source, reason, ih.first.c_str(), ih.second.c_str());
+        }
+};
+
+class CoreExport QLineFactory : public XLineFactory
+{
+ public:
+        QLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'Q') { }
+
+        XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+        {
+                return new QLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+        }
+};
+
+class CoreExport ZLineFactory : public XLineFactory
+{
+ public:
+        ZLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'Z') { }
+
+        XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+        {
+                return new ZLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+        }
+};
 
 #endif
-
