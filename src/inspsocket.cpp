@@ -151,7 +151,10 @@ void BufferedSocket::SetQueues(int nfd)
 	int sendbuf = 32768;
 	int recvbuf = 32768;
 	if(setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf)) || setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(sendbuf)))
-		this->Instance->Log(DEFAULT, "Could not increase SO_SNDBUF/SO_RCVBUF for socket %u", GetFd());
+	{
+		//this->Instance->Log(DEFAULT, "Could not increase SO_SNDBUF/SO_RCVBUF for socket %u", GetFd());
+		; // do nothing. I'm a little sick of people trying to interpret this message as a result of why their incorrect setups don't work.
+	}
 }
 
 /* Most irc servers require you to specify the ip you want to bind to.
