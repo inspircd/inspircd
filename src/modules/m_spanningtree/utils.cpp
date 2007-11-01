@@ -487,7 +487,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 					if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
 					{
-						ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' for port %s:%s - maybe you forgot to load it BEFORE m_spanningtree in your config file? - Skipping this port binding", transport.c_str(), IP.c_str(), Port.c_str());
+						throw CoreException("Can't find transport type '"+transport+"' for port "+IP+":"+Port+" - maybe you forgot to load it BEFORE m_spanningtree in your config file?");
 						break;
 					}
 
@@ -544,8 +544,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 		if ((!L.Hook.empty()) && (hooks.find(L.Hook.c_str()) ==  hooks.end()))
 		{
-			ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' for link '%s' - maybe you forgot to load it BEFORE m_spanningtree in your config file? Skipping <link> tag completely.",
-			L.Hook.c_str(), L.Name.c_str());
+			throw CoreException("Can't find transport type '"+L.Hook+"' for link '"+assign(L.Name)+"' - maybe you forgot to load it BEFORE m_spanningtree in your config file? Skipping <link> tag completely.");
 			continue;
 
 		}
@@ -556,6 +555,12 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		{
 			if ((!L.IPAddr.empty()) && (!L.RecvPass.empty()) && (!L.SendPass.empty()) && (!L.Name.empty()) && (L.Port))
 			{
+				if (L.Name.find('.') == std::string::npos)
+					throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
+
+				if (L.Name.length() > 64)
+					throw CoreException("The link name '"+assign(L.Name)+"' is longer than 64 characters!");
+
 				ValidIPs.push_back(L.IPAddr);
 
 				if (Allow.length())
@@ -603,29 +608,29 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			{
 				if (L.IPAddr.empty())
 				{
-					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', IP address not defined!",L.Name.c_str());
+					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', IP address not defined!");
 				}
 				else if (L.RecvPass.empty())
 				{
-					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', recvpass not defined!",L.Name.c_str());
+					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', recvpass not defined!");
 				}
 				else if (L.SendPass.empty())
 				{
-					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', sendpass not defined!",L.Name.c_str());
+					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', sendpass not defined!");
 				}
 				else if (L.Name.empty())
 				{
-					ServerInstance->Log(DEFAULT,"Invalid configuration, link tag without a name!");
+					throw CoreException("Invalid configuration, link tag without a name! IP address: "+L.IPAddr);
 				}
 				else if (!L.Port)
 				{
-					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', no port specified!",L.Name.c_str());
+					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', no port specified!");
 				}
 			}
 		}
 		else
 		{
-			ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', link tag has the same server name as the local server!",L.Name.c_str());
+			throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', link tag has the same server name as the local server!");
 		}
 	}
 	DELETE(Conf);
