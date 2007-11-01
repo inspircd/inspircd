@@ -36,31 +36,17 @@
  * than it could have been, something which we address here.
  *
  * VERSION 3:
- *  All lines are (as in v1) stored together -- no seperation of perm and non-perm. Expiry will
- *  still use a sorted list, and we'll just ignore anything permanent.
+ *  All lines are (as in v1) stored together -- no seperation of perm and non-perm. They are stored in
+ *  a map of maps (first map is line type, second map is for quick lookup on add/delete/etc).
  *
- *  Application will be by a list of lines 'pending' application, meaning only the newly added lines
- *  will be gone over. Much faster.
+ *  Expiry is *no longer* performed on a timer, and no longer uses a sorted list of any variety. This
+ *  is now done by only checking for expiry when a line is accessed, meaning that expiry is no longer
+ *  a resource intensive problem.
  *
- * More of course is to come.
- */
-
-/* Version two, now with optimized expiry!
- *
- * Because the old way was horrendously slow, the new way of expiring xlines is very
- * very efficient. I have improved the efficiency of the algorithm in two ways:
- *
- * (1) There are now two lists of items for each linetype. One list holds temporary
- *     items, and the other list holds permanent items (ones which will expire).
- *     Items which are on the permanent list are NEVER checked at all by the
- *     expire_lines() function.
- * (2) The temporary xline lists are always kept in strict numerical order, keyed by
- *     current time + duration. This means that the line which is due to expire the
- *     soonest is always pointed at by vector::begin(), so a simple while loop can
- *     very efficiently, very quickly and above all SAFELY pick off the first few
- *     items in the vector which need zapping.
- *
- *     -- Brain
+ *  Application no longer tries to apply every single line on every single user - instead, now only lines
+ *  added since the previous application are applied. This keeps S2S ADDLINE during burst nice and fast,
+ *  while at the same time not slowing things the fuck down when we try adding a ban with lots of preexisting
+ *  bans. :)
  */
 
 bool XLine::Matches(User *u)
