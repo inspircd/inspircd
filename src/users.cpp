@@ -830,10 +830,10 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 	}
 #endif
 
-	New->exempt = (Instance->XLines->matches_exception(New) != NULL);
+	New->exempt = (Instance->XLines->MatchesLine('E',New) != NULL);
 	if (!New->exempt)
 	{
-		ZLine* r = Instance->XLines->matches_zline(New);
+		XLine* r = Instance->XLines->MatchesLine('Z',New);
 
 		if (r)
 		{
@@ -942,7 +942,7 @@ void User::FullConnect()
 
 	if (!this->exempt)
 	{
-		GLine* r = ServerInstance->XLines->matches_gline(this);
+		XLine* r = ServerInstance->XLines->MatchesLine('G',this);
 
 		if (r)
 		{
@@ -955,7 +955,7 @@ void User::FullConnect()
 			return;
 		}
 
-		KLine* n = ServerInstance->XLines->matches_kline(this);
+		XLine* n = ServerInstance->XLines->MatchesLine('K',this);
 
 		if (n)
 		{
@@ -1065,7 +1065,7 @@ bool User::ForceNickChange(const char* newnick)
 			return false;
 		}
 
-		if (ServerInstance->XLines->matches_qline(newnick))
+		if (ServerInstance->XLines->MatchesLine('Q',newnick))
 		{
 			ServerInstance->stats->statsCollisions++;
 			return false;

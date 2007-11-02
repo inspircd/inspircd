@@ -60,7 +60,7 @@ CmdResult CommandNick::Handle (const char** parameters, int, User *user)
 	}
 	else
 	{
-		QLine* mq = ServerInstance->XLines->matches_qline(parameters[0]);
+		XLine* mq = ServerInstance->XLines->MatchesLine('Q',parameters[0]);
 		if (mq)
 		{
 			ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0], user->nick, user->ident, user->host, mq->reason);

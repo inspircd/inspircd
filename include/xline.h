@@ -392,15 +392,9 @@ class CoreExport XLineManager
 	 */
 	InspIRCd* ServerInstance;
 
-	/** This functor is used by the std::sort() function to keep all lines in order
-	 */
-	static bool XSortComparison (const XLine *one, const XLine *two);
-
 	/** Used to hold XLines which have not yet been applied.
 	 */
 	std::vector<XLine *> pending_lines;
-
-	std::vector<XLine *> active_lines;
 
 	std::map<char, XLineFactory*> line_factory;
 
@@ -469,35 +463,19 @@ class CoreExport XLineManager
 	 */
 	XLineFactory* GetFactory(const char type);
 
-	/** Check if a nickname matches a QLine
-	 * @return nick The nick to check against
+	/** Check if a user matches an XLine
+	 * @param type The type of line to look up
+	 * @param user The user to match against (what is checked is specific to the xline type)
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	QLine* matches_qline(const char* nick);
+	XLine* MatchesLine(const char type, User* user);
 
-	/** Check if a hostname matches a GLine
-	 * @param user The user to check against
-	 * @return The reason for the line if there is a match, or NULL if there is no match
+	/** Check if a pattern matches an XLine
+	 * @param type The type of line to look up
+	 * @param pattern A pattern string specific to the xline type
+	 * @return The matching XLine if there is a match, or NULL if there is no match
 	 */
-	GLine* matches_gline(User* user);
-
-	/** Check if a user's IP matches a ZLine
-	 * @param user The user to check against
-	 * @return The reason for the line if there is a match, or NULL if there is no match
-	 */
-	ZLine* matches_zline(User *user);
-
-	/** Check if a hostname matches a KLine
-	 * @param user The user to check against
-	 * @return The reason for the line if there is a match, or NULL if there is no match
-	 */
-	KLine* matches_kline(User* user);
-
-	/** Check if a hostname matches a ELine
-	 * @param user The user to check against
-	 * @return The reason for the line if there is a match, or NULL if there is no match
-	 */
-	ELine* matches_exception(User* user);
+	XLine* MatchesLine(const char type, const std::string &pattern);
 
 	/** Expire any lines that should be expired.
 	 */

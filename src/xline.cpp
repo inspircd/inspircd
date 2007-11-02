@@ -120,9 +120,6 @@ bool XLineManager::AddLine(XLine* line, User* user)
 		return false;
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
-
-	active_lines.push_back(line);
-	sort(active_lines.begin(), active_lines.end(), XLineManager::XSortComparison);
 	pending_lines.push_back(line);
 	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
@@ -135,51 +132,40 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	return true;
 }
 
-/*bool XLineManager::AddZLine(long duration, const char* source, const char* reason, const char* ipaddr)
-{
-	if (strchr(ipaddr,'@'))
-	{
-		while (*ipaddr != '@')
-			ipaddr++;
-		ipaddr++;
-	}*/
-
-// deletes a g:line, returns true if the line existed and was removed
+// deletes a line, returns true if the line existed and was removed
 
 bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool simulate)
 {
-	IdentHostPair ih = IdentSplit(hostmask);
-	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
-	{
-		if ((*i)->type == type)
-		{
-			if ((*i)->MatchesLiteral(hostmask))
-			{
-				if (!simulate)
-				{
-					(*i)->Unset();
+	std::map<char, std::map<std::string, XLine*> >::iterator x = lookup_lines.find(type);
 
-					if (lookup_lines.find(type) != lookup_lines.end())
-						lookup_lines[type].erase(hostmask);
+	if (x == lookup_lines.end())
+		return false;
 
-					FOREACH_MOD(I_OnDelLine,OnDelLine(user, *i));
+	std::map<std::string, XLine*>::iterator y = lookup_lines[type].find(hostmask);
 
-					std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), *i);					
-					if (pptr != pending_lines.end())
-						pending_lines.erase(pptr);
+	if (y == lookup_lines[type].end())
+		return false;
 
-					if (!(*i)->duration)
-						PermLines--;
+	if (simulate)
+		return true;
 
-					delete *i;
-					active_lines.erase(i);
-				}
-				return true;
-			}
-		}
-	}
+	FOREACH_MOD(I_OnDelLine,OnDelLine(user, y->second));
 
-	return false;
+	y->second->Unset();
+
+	lookup_lines[type].erase(hostmask);
+
+	std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), y->second);
+	if (pptr != pending_lines.end())
+		pending_lines.erase(pptr);
+
+	if (y->second->duration)
+		PermLines--;
+
+	delete y->second;
+	lookup_lines[type].erase(y);
+
+	return true;
 }
 
 
@@ -198,101 +184,43 @@ void ELine::Unset()
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
 
-QLine* XLineManager::matches_qline(const char* nick)
+XLine* XLineManager::MatchesLine(const char type, User* user)
 {
-	if (lookup_lines.find('Q') == lookup_lines.end())
+	std::map<char, std::map<std::string, XLine*> >::iterator x = lookup_lines.find(type);
+
+	if (x == lookup_lines.end())
 		return NULL;
 
-	if (lookup_lines.find('Q') != lookup_lines.end() && lookup_lines['Q'].empty())
-		return NULL;
 
-	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
-		if ((*i)->type == 'Q' && (*i)->Matches(nick))
-			return (QLine*)(*i);
-	return NULL;
-}
-
-// returns a pointer to the reason if a host matches a gline, NULL if it didnt match
-
-GLine* XLineManager::matches_gline(User* user)
-{
-	if (lookup_lines.find('G') == lookup_lines.end())
-		return NULL;
-
-	if (lookup_lines.find('G') != lookup_lines.end() && lookup_lines['G'].empty())
-		return NULL;
-
-	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
-		if ((*i)->type == 'G' && (*i)->Matches(user))
-			return (GLine*)(*i);
-
-	return NULL;
-}
-
-ELine* XLineManager::matches_exception(User* user)
-{
-	if (lookup_lines.find('E') == lookup_lines.end())
-		return NULL;
-
-	if (lookup_lines.find('E') != lookup_lines.end() && lookup_lines['E'].empty())
-		return NULL;
-
-	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
+	for (std::map<std::string, XLine*>::iterator i = x->second.begin(); i != x->second.end(); i++)
 	{
-		if ((*i)->type == 'E' && (*i)->Matches(user))
-			return (ELine*)(*i);
+		if (i->second->Matches(user))
+			return i->second;
 	}
 	return NULL;
 }
 
-// returns a pointer to the reason if an ip address matches a zline, NULL if it didnt match
-
-ZLine* XLineManager::matches_zline(User *u)
+XLine* XLineManager::MatchesLine(const char type, const std::string &pattern)
 {
-	if (lookup_lines.find('Z') == lookup_lines.end())
+	std::map<char, std::map<std::string, XLine*> >::iterator x = lookup_lines.find(type);
+
+	if (x == lookup_lines.end())
 		return NULL;
 
-	if (lookup_lines.find('Z') != lookup_lines.end() && lookup_lines['Z'].empty())
-		return NULL;
-
-	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
-		if ((*i)->type == 'Z' && (*i)->Matches(u))
-			return (ZLine*)(*i);
-	return NULL;
-}
-
-// returns a pointer to the reason if a host matches a kline, NULL if it didnt match
-
-KLine* XLineManager::matches_kline(User* user)
-{
-	if (lookup_lines.find('K') == lookup_lines.end())
-		return NULL;
-
-	if (lookup_lines.find('K') != lookup_lines.end() && lookup_lines['K'].empty())
-		return NULL;
-
-	for (std::vector<XLine*>::iterator i = active_lines.begin(); i != active_lines.end(); i++)
-		if ((*i)->Matches(user))
-			return (KLine*)(*i);
+	for (std::map<std::string, XLine*>::iterator i = x->second.begin(); i != x->second.end(); i++)
+	{
+		if (i->second->Matches(pattern))
+			return i->second;
+	}
 
 	return NULL;
 }
 
-bool XLineManager::XSortComparison(const XLine *one, const XLine *two)
-{
-	return (one->expiry) < (two->expiry);
-}
 
 // removes lines that have expired
 void XLineManager::expire_lines()
 {
-	time_t current = ServerInstance->Time();
-
-	/* Because we now store all our XLines in sorted order using ((*i)->duration + (*i)->set_time) as a key, this
-	 * means that to expire the XLines we just need to do a while, picking off the top few until there are
-	 * none left at the head of the queue that are after the current time. We use PermLines as an offset into the
-	 * vector past the first item with a duration 0.
-	 */
+/*	time_t current = ServerInstance->Time();
 
 	std::vector<XLine*>::iterator start = active_lines.begin() + PermLines;
 
@@ -313,8 +241,9 @@ void XLineManager::expire_lines()
 
 		delete *start;
 		active_lines.erase(start);
-	}
+	}*/
 }
+
 
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
