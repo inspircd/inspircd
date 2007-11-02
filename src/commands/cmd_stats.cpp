@@ -47,6 +47,7 @@ CmdResult CommandStats::Handle (const char** parameters, int /* pcnt */, User *u
 DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
+	int statsnumber = 0;
 
 	if ((!*ServerInstance->Config->UserStats && !IS_OPER(user)) || (!IS_OPER(user) && !ServerInstance->ULine(user->server) && !strchr(ServerInstance->Config->UserStats,statschar)))
 	{
@@ -140,21 +141,20 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		break;
  
 		case 'k':
+			statsnumber = 216;
 		case 'g':
+			statsnumber = 223;
 		case 'q':
+			statsnumber = 217;
 		case 'Z':
+			statsnumber = 223;
 		case 'e':
 		{
-			/* FIXME: Make the 216 here different depending on stats char:
-			 * k: 216
-			 * g: 223
-			 * q: 217
-			 * z: 223
-			 * e: 223
-			 */
+			if (!statsnumber)
+				statsnumber = 223;
 			std::string stat;
 			stat += toupper(statschar);
-			ServerInstance->XLines->InvokeStats(stat,216,user,results);
+			ServerInstance->XLines->InvokeStats(stat,statsnumber,user,results);
 		}
 		break;
 
