@@ -532,18 +532,20 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 	xl->SetCreateTime(atoi(params[3].c_str()));
 	if (Instance->XLines->AddLine(xl,NULL))
 	{
-		if (xl->expiry)
+		if (xl->duration)
 		{
-			this->Instance->SNO->WriteToSnoMask('x',"%s Added %s%s on %s to expire on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
+			this->Instance->SNO->WriteToSnoMask('x',"%s added %s%s on %s to expire on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
 					params[1].c_str(),Instance->TimeString(xl->expiry).c_str(),params[5].c_str());
 		}
 		else
 		{
-			this->Instance->SNO->WriteToSnoMask('x',"%s Added permenant %s%s on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
+			this->Instance->SNO->WriteToSnoMask('x',"%s added permenant %s%s on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
 					params[1].c_str(),params[5].c_str());
 		}
 		params[5] = ":" + params[5];
-		Utils->DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
+
+		User* u = Instance->FindNick(prefix);
+		Utils->DoOneToAllButSender(prefix, "ADDLINE", params, u ? u->server : prefix);
 	}
 	else
 		delete xl;
@@ -553,6 +555,23 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		Instance->XLines->ApplyLines();
 	}
 
+	return true;
+}
+
+bool TreeSocket::DelLine(const std::string &prefix, std::deque<std::string> &params)
+{
+	if (params.size() < 2)
+		return true;
+
+	User* user = Instance->FindNick(prefix);
+
+	/* NOTE: No check needed on 'user', this function safely handles NULL */
+	if (Instance->XLines->DelLine(params[0].c_str(), params[1], user))
+	{
+		this->Instance->SNO->WriteToSnoMask('x',"%s removed %s%s on %s.", prefix.c_str(),
+				params[0].c_str(), params[0].length() == 1 ? "LINE" : "", params[1].c_str());
+		Utils->DoOneToAllButSender(prefix,"DELLINE", params, prefix);
+	}
 	return true;
 }
 
@@ -1362,6 +1381,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (ServerSource)
 					Utils->SetRemoteBursting(ServerSource, false);
 				return this->AddLine(prefix,params);
+			}
+			else if (command == "DELLINE")
+			{
+				return this->DelLine(prefix,params);
 			}
 			else if (command == "SVSNICK")
 			{

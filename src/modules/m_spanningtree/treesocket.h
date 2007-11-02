@@ -331,6 +331,10 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool AddLine(const std::string &prefix, std::deque<std::string> &params);
 
+	/** DELLINE
+	 */
+	bool DelLine(const std::string &prefix, std::deque<std::string> &params);
+
 	/** CHGNAME
 	 */
 	bool ChangeName(const std::string &prefix, std::deque<std::string> &params);
