@@ -275,25 +275,33 @@ void XLineManager::ApplyLines()
 	pending_lines.clear();
 }
 
-/* k: 216
- * g: 223
- * q: 217
- * z: 223
- * e: 223
- */
-
 void XLineManager::InvokeStats(const std::string &type, int numeric, User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
 	ContainerIter n = lookup_lines.find(type);
 
+	time_t current = ServerInstance->Time();
+
+	LookupIter safei;
+
 	if (n != lookup_lines.end())
 	{
 		XLineLookup& list = n->second;
-		for (LookupIter i = list.begin(); i != list.end(); i++)
-			results.push_back(sn+" "+ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
+		for (LookupIter i = list.begin(); i != list.end(); )
+		{
+			safei = i;
+			safei++;
+
+			if (current > i->second->expiry)
+			{
+				ExpireLine(n, i);
+			}
+			else
+				results.push_back(sn+" "+ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
 					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+std::string(i->second->source)+" :"+(i->second->reason));
+			i = safei;
+		}
 	}
 }
 
