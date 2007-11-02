@@ -415,6 +415,14 @@ class CoreExport XLineManager
 	 */
 	void CheckELines();
 
+	/** Get all lines of a certain type to an XLineLookup (std::map<std::string, XLine*>)
+	 */
+	XLineLookup* GetAll(const std::string &type);
+
+	/** Return all known types of line currently stored by the XLineManager
+	 */
+	std::vector<std::string> GetAllTypes();
+
 	/** Add a new GLine
 	 * @param line The line to be added
 	 * @param user The user adding the line or NULL for the local server

@@ -1217,31 +1217,27 @@ void TreeSocket::SendXLines(TreeServer* Current)
 	std::string buffer;
 	std::string n = this->Instance->Config->GetSID();
 	const char* sn = n.c_str();
-	/* Yes, these arent too nice looking, but they get the job done */
 
-	/* FIXME: FOR THE LOVE OF ZOMBIE JESUS, FIX ME */
+	std::vector<std::string> types = Instance->XLines->GetAllTypes();
 
-/*	for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++)
+	for (std::vector<std::string>::iterator it = types.begin(); it != types.end(); ++it)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\r\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		XLineLookup* lookup = Instance->XLines->GetAll(*it);
+
+		if (lookup)
+		{
+			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
+			{
+				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s\r\n",sn, it->c_str(), i->second->Displayable(),
+						i->second->source,
+						(unsigned long)i->second->set_time,
+						(unsigned long)i->second->duration,
+						i->second->reason);
+				buffer.append(data);
+			}
+		}
 	}
-	for (std::vector<QLine*>::iterator i = Instance->XLines->qlines.begin(); i != Instance->XLines->qlines.end(); i++)
-	{
-		snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s\r\n",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
-	}
-	for (std::vector<GLine*>::iterator i = Instance->XLines->glines.begin(); i != Instance->XLines->glines.end(); i++)
-	{
-		snprintf(data,MAXBUF,":%s ADDLINE G %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
-	}
-	for (std::vector<ELine*>::iterator i = Instance->XLines->elines.begin(); i != Instance->XLines->elines.end(); i++)
-	{
-		snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
-	}
-*/
+
 	if (!buffer.empty())
 		this->WriteLine(buffer);
 }

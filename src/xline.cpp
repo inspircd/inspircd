@@ -59,9 +59,9 @@ bool XLine::Matches(User *u)
  */
 void XLineManager::CheckELines()
 {
-	ContainerIter n = ServerInstance->XLines->lookup_lines.find("E");
+	ContainerIter n = lookup_lines.find("E");
 
-	if (n == ServerInstance->XLines->lookup_lines.end())
+	if (n == lookup_lines.end())
 		return;
 
 	XLineLookup& ELines = n->second;
@@ -81,6 +81,24 @@ void XLineManager::CheckELines()
 	}
 }
 
+
+XLineLookup* XLineManager::GetAll(const std::string &type)
+{
+	ContainerIter n = lookup_lines.find(type);
+
+	if (n == lookup_lines.end())
+		return NULL;
+
+	return &(n->second);
+}
+
+std::vector<std::string> XLineManager::GetAllTypes()
+{
+	std::vector<std::string> items;
+	for (ContainerIter x = lookup_lines.begin(); x != lookup_lines.end(); ++x)
+		items.push_back(x->first);
+	return items;
+}
 
 IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 {

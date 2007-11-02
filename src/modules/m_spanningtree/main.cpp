@@ -742,7 +742,7 @@ void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
 	{
 		/* Server-set lines */
 		char data[MAXBUF];
-		snprintf(data,MAXBUF,"%c %s %s %lu %lu :%s", line->type, line->Displayable(), ServerInstance->Config->ServerName, line->set_time,
+		snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", line->type.c_str(), line->Displayable(), ServerInstance->Config->ServerName, line->set_time,
 				line->duration, line->reason);
 		std::deque<std::string> params;
 		params.push_back(data);
@@ -750,10 +750,13 @@ void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
 	}
 	else
 	{
+		/** XXX: This is WRONG and needs fixing.
+		 * We need to implement a DELLINE
+		 */
 		if (user && IS_LOCAL(user))
 		{
 			char type[8];
-			snprintf(type,8,"%cLINE",line->type);
+			snprintf(type,8,"%sLINE",line->type.c_str());
 			std::string stype(type);
 			char sduration[MAXBUF];
 			snprintf(sduration,MAXBUF,"%ld",line->duration);
@@ -770,8 +773,11 @@ void ModuleSpanningTree::OnDelLine(XLine* line, User* user)
 {
 	if (user && IS_LOCAL(user))
 	{
+		/** XXX: This is WRONG and needs fixing.
+		 * We need to implement a DELLINE
+		 */
 		char type[8];
-		snprintf(type,8,"%cLINE",line->type);
+		snprintf(type,8,"%sLINE",line->type.c_str());
 		std::string stype(type);
 		std::deque<std::string> params;
 		params.push_back(line->Displayable());
