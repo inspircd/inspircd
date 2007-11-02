@@ -483,8 +483,8 @@ bool QLine::Matches(User *u)
 
 void QLine::Apply(User* u)
 {       
-	/* Can we force the user to their uid here instead? */
-	DefaultApply(u, "Q");
+	/* Force to uuid on apply of qline, no need to disconnect any more :) */
+	u->ForceNickChange(u->uuid);
 }
 
 
