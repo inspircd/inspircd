@@ -105,7 +105,7 @@ XLineLookup* XLineManager::GetAll(const std::string &type)
 	{
 		safei = x;
 		safei++;
-		if (current > x->second->expiry)
+		if (x->second->duration && current > x->second->expiry)
 		{
 			ExpireLine(n, x);
 		}
@@ -222,7 +222,7 @@ XLine* XLineManager::MatchesLine(const std::string &type, User* user)
 	{
 		if (i->second->Matches(user))
 		{
-			if (current > i->second->expiry)
+			if (i->second->duration && current > i->second->expiry)
 			{
 				/* Expire the line, return nothing */
 				ExpireLine(x, i);
@@ -248,7 +248,7 @@ XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pat
 	{
 		if (i->second->Matches(pattern))
 		{
-			if (current > i->second->expiry)
+			if (i->second->duration && current > i->second->expiry)
 			{
 				/* Expire the line, return nothing */
 				ExpireLine(x, i);
@@ -316,7 +316,7 @@ void XLineManager::InvokeStats(const std::string &type, int numeric, User* user,
 			safei = i;
 			safei++;
 
-			if (current > i->second->expiry)
+			if (i->second->duration && current > i->second->expiry)
 			{
 				ExpireLine(n, i);
 			}
