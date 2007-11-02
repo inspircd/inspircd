@@ -395,9 +395,9 @@ class CoreExport XLineManager
 	QLineFactory* QFact;
 	ZLineFactory* ZFact;
 
- public:
-
 	XLineContainer lookup_lines;
+
+ public:
 
 	/** Constructor
 	 * @param Instance A pointer to the creator object

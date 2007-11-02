@@ -163,9 +163,7 @@ void ELine::Unset()
 		u->exempt = false;
 	}
 
-	ContainerIter x = ServerInstance->XLines->lookup_lines.find("E");
-	if (x != ServerInstance->XLines->lookup_lines.end())
-		ServerInstance->XLines->CheckELines();
+	ServerInstance->XLines->CheckELines();
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
