@@ -73,10 +73,18 @@ void XLineManager::CheckELines()
 	{
 		User* u = (User*)(*u2);
 
-		for (LookupIter i = ELines.begin(); i != ELines.end(); i++)
+		/* This uses safe iteration to ensure that if a line expires here, it doenst trash the iterator */
+		LookupIter safei;
+
+		for (LookupIter i = ELines.begin(); i != ELines.end(); )
 		{
+			safei = i;
+			safei++;
+
 			XLine *e = i->second;
 			u->exempt = e->Matches(u);
+
+			i = safei;
 		}
 	}
 }
@@ -88,6 +96,21 @@ XLineLookup* XLineManager::GetAll(const std::string &type)
 
 	if (n == lookup_lines.end())
 		return NULL;
+
+	LookupIter safei;
+	const time_t current = ServerInstance->Time();
+
+	/* Expire any dead ones, before sending */
+	for (LookupIter x = n->second.begin(); x != n->second.end(); )
+	{
+		safei = x;
+		safei++;
+		if (current > x->second->expiry)
+		{
+			ExpireLine(n, x);
+		}
+		x = safei;
+	}
 
 	return &(n->second);
 }
