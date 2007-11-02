@@ -46,8 +46,7 @@ CmdResult CommandStats::Handle (const char** parameters, int /* pcnt */, User *u
 
 DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, string_list &results)
 {
-	std::string sn = ServerInstance->Config->ServerName;
-	int statsnumber = 0;
+	std::string sn(ServerInstance->Config->ServerName);
 
 	if ((!*ServerInstance->Config->UserStats && !IS_OPER(user)) || (!IS_OPER(user) && !ServerInstance->ULine(user->server) && !strchr(ServerInstance->Config->UserStats,statschar)))
 	{
@@ -141,21 +140,19 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		break;
  
 		case 'k':
-			statsnumber = 216;
+			ServerInstance->XLines->InvokeStats("K",216,user,results);
+		break;
 		case 'g':
-			statsnumber = 223;
+			ServerInstance->XLines->InvokeStats("G",223,user,results);
+		break;
 		case 'q':
-			statsnumber = 217;
+			ServerInstance->XLines->InvokeStats("Q",217,user,results);
+		break;
 		case 'Z':
-			statsnumber = 223;
+			ServerInstance->XLines->InvokeStats("Z",223,user,results);
+		break;
 		case 'e':
-		{
-			if (!statsnumber)
-				statsnumber = 223;
-			std::string stat;
-			stat += toupper(statschar);
-			ServerInstance->XLines->InvokeStats(stat,statsnumber,user,results);
-		}
+			ServerInstance->XLines->InvokeStats("E",223,user,results);
 		break;
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
