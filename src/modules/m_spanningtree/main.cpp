@@ -738,6 +738,9 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 
 void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
 {
+	if (line->type == "K")
+		return;
+
 	char data[MAXBUF];
 	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", line->type.c_str(), line->Displayable(), ServerInstance->Config->ServerName, line->set_time,
 			line->duration, line->reason);
@@ -758,6 +761,9 @@ void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
 
 void ModuleSpanningTree::OnDelLine(XLine* line, User* user)
 {
+	if (line->type == "K")
+		return;
+
 	char data[MAXBUF];
 	snprintf(data,MAXBUF,"%s %s", line->type.c_str(), line->Displayable());
 	std::deque<std::string> params;
