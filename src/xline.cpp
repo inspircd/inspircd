@@ -218,19 +218,30 @@ XLine* XLineManager::MatchesLine(const std::string &type, User* user)
 
 	const time_t current = ServerInstance->Time();
 
-	for (LookupIter i = x->second.begin(); i != x->second.end(); i++)
+	LookupIter safei;
+
+	for (LookupIter i = x->second.begin(); i != x->second.end(); )
 	{
+		safei = i;
+		safei++;
+
 		if (i->second->Matches(user))
 		{
 			if (i->second->duration && current > i->second->expiry)
 			{
 				/* Expire the line, return nothing */
 				ExpireLine(x, i);
-				return NULL;
+				/* Continue, there may be another that matches
+				 * (thanks aquanight)
+				 */
+				i = safei;
+				continue;
 			}
 			else
 				return i->second;
 		}
+
+		i = safei;
 	}
 	return NULL;
 }
@@ -244,19 +255,28 @@ XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pat
 
 	const time_t current = ServerInstance->Time();
 
-	for (LookupIter i = x->second.begin(); i != x->second.end(); i++)
+	 LookupIter safei;
+
+	for (LookupIter i = x->second.begin(); i != x->second.end(); )
 	{
+		safei = i;
+		safei++;
+
 		if (i->second->Matches(pattern))
 		{
 			if (i->second->duration && current > i->second->expiry)
 			{
 				/* Expire the line, return nothing */
 				ExpireLine(x, i);
-				return NULL;
+				/* See above */
+				i = safei;
+				continue;
 			}
 			else
 				return i->second;
 		}
+
+		i = safei;
 	}
 	return NULL;
 }
