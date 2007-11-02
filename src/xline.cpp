@@ -124,9 +124,6 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
 
-	if (!line->duration)
-		PermLines++;
-
 	FOREACH_MOD(I_OnAddLine,OnAddLine(user, line));	
 
 	return true;
@@ -141,9 +138,9 @@ bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool sim
 	if (x == lookup_lines.end())
 		return false;
 
-	std::map<std::string, XLine*>::iterator y = lookup_lines[type].find(hostmask);
+	std::map<std::string, XLine*>::iterator y = x->second.find(hostmask);
 
-	if (y == lookup_lines[type].end())
+	if (y == x->second.end())
 		return false;
 
 	if (simulate)
@@ -153,17 +150,12 @@ bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool sim
 
 	y->second->Unset();
 
-	lookup_lines[type].erase(hostmask);
-
 	std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), y->second);
 	if (pptr != pending_lines.end())
 		pending_lines.erase(pptr);
 
-	if (y->second->duration)
-		PermLines--;
-
 	delete y->second;
-	lookup_lines[type].erase(y);
+	x->second.erase(y);
 
 	return true;
 }
@@ -178,8 +170,9 @@ void ELine::Unset()
 		u->exempt = false;
 	}
 
-	if (ServerInstance->XLines->lookup_lines.find('E') != ServerInstance->XLines->lookup_lines.end())
-		ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines['E']);
+	std::map<char, std::map<std::string, XLine*> >::iterator x = ServerInstance->XLines->lookup_lines.find('E');
+	if (x != ServerInstance->XLines->lookup_lines.end())
+		ServerInstance->XLines->CheckELines(x->second);
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
@@ -191,11 +184,21 @@ XLine* XLineManager::MatchesLine(const char type, User* user)
 	if (x == lookup_lines.end())
 		return NULL;
 
+	const time_t current = ServerInstance->Time();
 
 	for (std::map<std::string, XLine*>::iterator i = x->second.begin(); i != x->second.end(); i++)
 	{
 		if (i->second->Matches(user))
-			return i->second;
+		{
+			if (current > i->second->expiry)
+			{
+				/* Expire the line, return nothing */
+				ExpireLine(x, i);
+				return NULL;
+			}
+			else
+				return i->second;
+		}
 	}
 	return NULL;
 }
@@ -207,41 +210,41 @@ XLine* XLineManager::MatchesLine(const char type, const std::string &pattern)
 	if (x == lookup_lines.end())
 		return NULL;
 
+	const time_t current = ServerInstance->Time();
+
 	for (std::map<std::string, XLine*>::iterator i = x->second.begin(); i != x->second.end(); i++)
 	{
 		if (i->second->Matches(pattern))
-			return i->second;
+		{
+			if (current > i->second->expiry)
+			{
+				/* Expire the line, return nothing */
+				ExpireLine(x, i);
+				return NULL;
+			}
+			else
+				return i->second;
+		}
 	}
-
 	return NULL;
 }
 
-
 // removes lines that have expired
-void XLineManager::expire_lines()
+void XLineManager::ExpireLine(std::map<char, std::map<std::string, XLine*> >::iterator container, std::map<std::string, XLine*>::iterator item)
 {
-/*	time_t current = ServerInstance->Time();
+		item->second->DisplayExpiry();
+		item->second->Unset();
 
-	std::vector<XLine*>::iterator start = active_lines.begin() + PermLines;
-
-	while ((start < active_lines.end()) && (current > (*start)->expiry))
-	{
-		(*start)->DisplayExpiry();
-		(*start)->Unset();
-
-		if (lookup_lines.find((*start)->type) != lookup_lines.end())
-			lookup_lines[(*start)->type].erase((*start)->Displayable());
-
-		std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), *start);
+		/* TODO: Can we skip this loop by having a 'pending' field in the XLine class, which is set when a line
+		 * is pending, cleared when it is no longer pending, so we skip over this loop if its not pending?
+		 * -- Brain
+		 */
+		std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), item->second);
 		if (pptr != pending_lines.end())
 			pending_lines.erase(pptr);
 
-		if (!(*start)->duration)
-			PermLines--;
-
-		delete *start;
-		active_lines.erase(start);
-	}*/
+		delete item->second;
+		container->second.erase(item);
 }
 
 
@@ -286,7 +289,7 @@ void XLineManager::InvokeStats(const char type, int numeric, User* user, string_
 }
 
 
-XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance), PermLines(0)
+XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	GFact = new GLineFactory(Instance);
 	EFact = new ELineFactory(Instance);

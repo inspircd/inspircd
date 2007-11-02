@@ -404,8 +404,6 @@ class CoreExport XLineManager
 	QLineFactory* QFact;
 	ZLineFactory* ZFact;
 
-	unsigned int PermLines;
-
  public:
 
 	std::map<char, std::map<std::string, XLine *> > lookup_lines;
@@ -477,9 +475,9 @@ class CoreExport XLineManager
 	 */
 	XLine* MatchesLine(const char type, const std::string &pattern);
 
-	/** Expire any lines that should be expired.
+	/** Expire a line given two iterators which identify it
 	 */
-	void expire_lines();
+	void ExpireLine(std::map<char, std::map<std::string, XLine*> >::iterator container, std::map<std::string, XLine*>::iterator item);
 
 	/** Apply any new lines that are pending to be applied
 	 */

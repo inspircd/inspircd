@@ -635,7 +635,6 @@ int InspIRCd::Run()
 
 			if ((TIME % 5) == 0)
 			{
-				XLines->expire_lines();
 				FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 				Timers->TickMissedTimers(TIME);
 			}
