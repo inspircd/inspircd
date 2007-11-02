@@ -41,7 +41,7 @@ CmdResult CommandRehash::Handle (const char** parameters, int pcnt, User *user)
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		ServerInstance->Config->Read(false,user);
 		// Get XLine to do it's thing.
-		ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines['E']);
+		ServerInstance->XLines->CheckELines(ServerInstance->XLines->lookup_lines["E"]);
 		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
 		ServerInstance->ResetMaxBans();

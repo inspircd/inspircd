@@ -1983,7 +1983,7 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 		u->exempt = false;
 	}
 
-	conf->GetInstance()->XLines->CheckELines(conf->GetInstance()->XLines->lookup_lines['E']);
+	conf->GetInstance()->XLines->CheckELines();
 	return true;
 }
 

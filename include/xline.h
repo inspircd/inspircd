@@ -36,7 +36,7 @@ class CoreExport XLine : public classbase
  protected:
 
 	InspIRCd* ServerInstance;
-	void DefaultApply(User* u, char line);
+	void DefaultApply(User* u, const std::string &line);
 
  public:
 
@@ -46,7 +46,7 @@ class CoreExport XLine : public classbase
 	 * @param src The sender of the xline
 	 * @param re The reason of the xline
 	 */
-	XLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char t)
+	XLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const std::string &t)
 		: ServerInstance(Instance), set_time(s_time), duration(d), type(t)
 	{
 		source = strdup(src);
@@ -71,11 +71,6 @@ class CoreExport XLine : public classbase
 	/** Returns true whether or not the given user is covered by this line.
 	 */
 	virtual bool Matches(User *u) = 0;
-
-	/** Returns true wether or not the given string exactly matches the gline
-	 * (no wildcard use in this method) -- used for removal of a line
-	 */
-	virtual bool MatchesLiteral(const std::string &str) = 0;
 
 	virtual bool Matches(const std::string &str) = 0;
 
@@ -111,7 +106,7 @@ class CoreExport XLine : public classbase
 
 	/** Q, K, etc. Don't change this. Constructors set it.
 	 */
-	const char type;
+	const std::string type;
 };
 
 /** KLine class
@@ -127,7 +122,7 @@ class CoreExport KLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	KLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, 'K')
+	KLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, "K")
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
@@ -146,8 +141,6 @@ class CoreExport KLine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
-
-	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -178,7 +171,7 @@ class CoreExport GLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	GLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, 'G')
+	GLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, "G")
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
@@ -197,8 +190,6 @@ class CoreExport GLine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
-
-	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -229,7 +220,7 @@ class CoreExport ELine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	ELine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, 'E')
+	ELine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(Instance, s_time, d, src, re, "E")
 	{
 		identmask = strdup(ident);
 		hostmask = strdup(host);
@@ -246,8 +237,6 @@ class CoreExport ELine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
-
-	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Unset();
 
@@ -279,7 +268,7 @@ class CoreExport ZLine : public XLine
 	 * @param re The reason of the xline
 	 * @param ip IP to match
 	 */
-	ZLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(Instance, s_time, d, src, re, 'Z')
+	ZLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(Instance, s_time, d, src, re, "Z")
 	{
 		ipaddr = strdup(ip);
 	}
@@ -294,8 +283,6 @@ class CoreExport ZLine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
-
-	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -320,7 +307,7 @@ class CoreExport QLine : public XLine
 	 * @param re The reason of the xline
 	 * @param nickname Nickname to match
 	 */
-	QLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(Instance, s_time, d, src, re, 'Q')
+	QLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(Instance, s_time, d, src, re, "Q")
 	{
 		nick = strdup(nickname);
 	}
@@ -335,8 +322,6 @@ class CoreExport QLine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
-
-	virtual bool MatchesLiteral(const std::string &str);
 
 	virtual void Apply(User* u);
 
@@ -359,13 +344,13 @@ class CoreExport XLineFactory
  protected:
 
 	InspIRCd* ServerInstance;
-	const char type;
+	std::string type;
 
  public:
 
-	XLineFactory(InspIRCd* Instance, const char t) : ServerInstance(Instance), type(t) { }
+	XLineFactory(InspIRCd* Instance, const std::string &t) : ServerInstance(Instance), type(t) { }
 	
-	virtual const char GetType() { return type; }
+	virtual const std::string& GetType() { return type; }
 
 	virtual XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask) = 0;
 
@@ -383,6 +368,12 @@ class QLineFactory;
 class ZLineFactory;
 class KLineFactory;
 
+typedef std::map<std::string, XLineFactory*> XLineFactMap;
+typedef std::map<std::string, XLine *> XLineLookup;
+typedef std::map<std::string, XLineLookup > XLineContainer;
+typedef XLineContainer::iterator ContainerIter;
+typedef XLineLookup::iterator LookupIter;
+
 /** XLineManager is a class used to manage glines, klines, elines, zlines and qlines.
  */
 class CoreExport XLineManager
@@ -396,7 +387,7 @@ class CoreExport XLineManager
 	 */
 	std::vector<XLine *> pending_lines;
 
-	std::map<char, XLineFactory*> line_factory;
+	XLineFactMap line_factory;
 
 	GLineFactory* GFact;
 	ELineFactory* EFact;
@@ -406,7 +397,7 @@ class CoreExport XLineManager
 
  public:
 
-	std::map<char, std::map<std::string, XLine *> > lookup_lines;
+	XLineContainer lookup_lines;
 
 	/** Constructor
 	 * @param Instance A pointer to the creator object
@@ -420,10 +411,9 @@ class CoreExport XLineManager
 	 */
 	IdentHostPair IdentSplit(const std::string &ident_and_host);
 
-	/** Checks what users match a given list of ELines and sets their ban exempt flag accordingly.
-	 * @param ELines List of E:Lines to check.
+	/** Checks what users match e:lines and sets their ban exempt flag accordingly.
 	 */
-	void CheckELines(std::map<std::string, XLine *> &ELines);
+	void CheckELines();
 
 	/** Add a new GLine
 	 * @param line The line to be added
@@ -439,7 +429,7 @@ class CoreExport XLineManager
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool DelLine(const char* hostmask, char type, User* user, bool simulate = false);
+	bool DelLine(const char* hostmask, const std::string &type, User* user, bool simulate = false);
 
 	/** Registers an xline factory.
 	 * An xline factory is a class which when given a particular xline type,
@@ -459,25 +449,25 @@ class CoreExport XLineManager
 	/** Get the XLineFactory for a specific type.
 	 * Returns NULL if there is no known handler for this xline type
 	 */
-	XLineFactory* GetFactory(const char type);
+	XLineFactory* GetFactory(const std::string &type);
 
 	/** Check if a user matches an XLine
 	 * @param type The type of line to look up
 	 * @param user The user to match against (what is checked is specific to the xline type)
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	XLine* MatchesLine(const char type, User* user);
+	XLine* MatchesLine(const std::string &type, User* user);
 
 	/** Check if a pattern matches an XLine
 	 * @param type The type of line to look up
 	 * @param pattern A pattern string specific to the xline type
 	 * @return The matching XLine if there is a match, or NULL if there is no match
 	 */
-	XLine* MatchesLine(const char type, const std::string &pattern);
+	XLine* MatchesLine(const std::string &type, const std::string &pattern);
 
 	/** Expire a line given two iterators which identify it
 	 */
-	void ExpireLine(std::map<char, std::map<std::string, XLine*> >::iterator container, std::map<std::string, XLine*>::iterator item);
+	void ExpireLine(ContainerIter container, LookupIter item);
 
 	/** Apply any new lines that are pending to be applied
 	 */
@@ -488,13 +478,13 @@ class CoreExport XLineManager
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results
 	 */
-	void InvokeStats(const char type, int numeric, User* user, string_list &results);
+	void InvokeStats(const std::string &type, int numeric, User* user, string_list &results);
 };
 
 class CoreExport GLineFactory : public XLineFactory
 {
  public:
-	GLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'G') { }
+	GLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "G") { }
 
 	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
 	{
@@ -506,7 +496,7 @@ class CoreExport GLineFactory : public XLineFactory
 class CoreExport ELineFactory : public XLineFactory
 {
  public:
-	ELineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'E') { }
+	ELineFactory(InspIRCd* Instance) : XLineFactory(Instance, "E") { }
 
 	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
 	{
@@ -518,7 +508,7 @@ class CoreExport ELineFactory : public XLineFactory
 class CoreExport KLineFactory : public XLineFactory
 {
  public:
-        KLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'K') { }
+        KLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "K") { }
 
         XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
         {
@@ -530,7 +520,7 @@ class CoreExport KLineFactory : public XLineFactory
 class CoreExport QLineFactory : public XLineFactory
 {
  public:
-        QLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'Q') { }
+        QLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "Q") { }
 
         XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
         {
@@ -541,7 +531,7 @@ class CoreExport QLineFactory : public XLineFactory
 class CoreExport ZLineFactory : public XLineFactory
 {
  public:
-        ZLineFactory(InspIRCd* Instance) : XLineFactory(Instance, 'Z') { }
+        ZLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "Z") { }
 
         XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
         {
@@ -550,3 +540,4 @@ class CoreExport ZLineFactory : public XLineFactory
 };
 
 #endif
+

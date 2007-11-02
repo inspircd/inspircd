@@ -59,7 +59,7 @@ CmdResult CommandQline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0],'Q',user))
+		if (ServerInstance->XLines->DelLine(parameters[0],"Q",user))
 		{
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Q-line on %s.",user->nick,parameters[0]);
 		}

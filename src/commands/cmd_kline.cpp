@@ -66,7 +66,7 @@ CmdResult CommandKline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0],'K',user))
+		if (ServerInstance->XLines->DelLine(parameters[0],"K",user))
 		{
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed K-line on %s.",user->nick,parameters[0]);
 		}

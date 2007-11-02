@@ -67,7 +67,7 @@ CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0],'G',user))
+		if (ServerInstance->XLines->DelLine(parameters[0],"G",user))
 		{
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,parameters[0]);
 		}

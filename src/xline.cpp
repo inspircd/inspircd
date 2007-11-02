@@ -57,8 +57,15 @@ bool XLine::Matches(User *u)
 /*
  * Checks what users match a given vector of ELines and sets their ban exempt flag accordingly.
  */
-void XLineManager::CheckELines(std::map<std::string, XLine *> &ELines)
+void XLineManager::CheckELines()
 {
+	ContainerIter n = ServerInstance->XLines->lookup_lines.find("E");
+
+	if (n == ServerInstance->XLines->lookup_lines.end())
+		return;
+
+	XLineLookup& ELines = n->second;
+
 	if (ELines.empty())
 		return;
 
@@ -66,25 +73,12 @@ void XLineManager::CheckELines(std::map<std::string, XLine *> &ELines)
 	{
 		User* u = (User*)(*u2);
 
-		for (std::map<std::string, XLine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
+		for (LookupIter i = ELines.begin(); i != ELines.end(); i++)
 		{
 			XLine *e = i->second;
 			u->exempt = e->Matches(u);
 		}
 	}
-}
-
-// this should probably be moved to configreader, but atm it relies on CheckELines above.
-bool DoneELine(ServerConfig* conf, const char* tag)
-{
-	for (std::vector<User*>::const_iterator u2 = conf->GetInstance()->local_users.begin(); u2 != conf->GetInstance()->local_users.end(); u2++)
-	{
-		User* u = (User*)(*u2);
-		u->exempt = false;
-	}
-
-	conf->GetInstance()->XLines->CheckELines(conf->GetInstance()->XLines->lookup_lines['E']);
-	return true;
 }
 
 
@@ -109,9 +103,8 @@ IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 	return n;
 }
 
-// adds a g:line
+// adds a line
 
-/*bool XLineManager::AddELine(long duration, const char* source, const char* reason, const char* hostmask)*/
 bool XLineManager::AddLine(XLine* line, User* user)
 {
 	/*IdentHostPair ih = IdentSplit(hostmask);*/
@@ -131,14 +124,14 @@ bool XLineManager::AddLine(XLine* line, User* user)
 
 // deletes a line, returns true if the line existed and was removed
 
-bool XLineManager::DelLine(const char* hostmask, char type, User* user, bool simulate)
+bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* user, bool simulate)
 {
-	std::map<char, std::map<std::string, XLine*> >::iterator x = lookup_lines.find(type);
+	ContainerIter x = lookup_lines.find(type);
 
 	if (x == lookup_lines.end())
 		return false;
 
-	std::map<std::string, XLine*>::iterator y = x->second.find(hostmask);
+	LookupIter y = x->second.find(hostmask);
 
 	if (y == x->second.end())
 		return false;
@@ -170,23 +163,23 @@ void ELine::Unset()
 		u->exempt = false;
 	}
 
-	std::map<char, std::map<std::string, XLine*> >::iterator x = ServerInstance->XLines->lookup_lines.find('E');
+	ContainerIter x = ServerInstance->XLines->lookup_lines.find("E");
 	if (x != ServerInstance->XLines->lookup_lines.end())
-		ServerInstance->XLines->CheckELines(x->second);
+		ServerInstance->XLines->CheckELines();
 }
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
 
-XLine* XLineManager::MatchesLine(const char type, User* user)
+XLine* XLineManager::MatchesLine(const std::string &type, User* user)
 {
-	std::map<char, std::map<std::string, XLine*> >::iterator x = lookup_lines.find(type);
+	ContainerIter x = lookup_lines.find(type);
 
 	if (x == lookup_lines.end())
 		return NULL;
 
 	const time_t current = ServerInstance->Time();
 
-	for (std::map<std::string, XLine*>::iterator i = x->second.begin(); i != x->second.end(); i++)
+	for (LookupIter i = x->second.begin(); i != x->second.end(); i++)
 	{
 		if (i->second->Matches(user))
 		{
@@ -203,16 +196,16 @@ XLine* XLineManager::MatchesLine(const char type, User* user)
 	return NULL;
 }
 
-XLine* XLineManager::MatchesLine(const char type, const std::string &pattern)
+XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pattern)
 {
-	std::map<char, std::map<std::string, XLine*> >::iterator x = lookup_lines.find(type);
+	ContainerIter x = lookup_lines.find(type);
 
 	if (x == lookup_lines.end())
 		return NULL;
 
 	const time_t current = ServerInstance->Time();
 
-	for (std::map<std::string, XLine*>::iterator i = x->second.begin(); i != x->second.end(); i++)
+	for (LookupIter i = x->second.begin(); i != x->second.end(); i++)
 	{
 		if (i->second->Matches(pattern))
 		{
@@ -230,7 +223,7 @@ XLine* XLineManager::MatchesLine(const char type, const std::string &pattern)
 }
 
 // removes lines that have expired
-void XLineManager::ExpireLine(std::map<char, std::map<std::string, XLine*> >::iterator container, std::map<std::string, XLine*>::iterator item)
+void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 {
 		item->second->DisplayExpiry();
 		item->second->Unset();
@@ -273,16 +266,16 @@ void XLineManager::ApplyLines()
  * e: 223
  */
 
-void XLineManager::InvokeStats(const char type, int numeric, User* user, string_list &results)
+void XLineManager::InvokeStats(const std::string &type, int numeric, User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
-	std::map<const char, std::map<std::string, XLine*> >::iterator n = lookup_lines.find(type);
+	ContainerIter n = lookup_lines.find(type);
 
 	if (n != lookup_lines.end())
 	{
-		std::map<std::string, XLine*>& list = n->second;
-		for (std::map<std::string, XLine*>::iterator i = list.begin(); i != list.end(); i++)
+		XLineLookup& list = n->second;
+		for (LookupIter i = list.begin(); i != list.end(); i++)
 			results.push_back(sn+" "+ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
 					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+std::string(i->second->source)+" :"+(i->second->reason));
 	}
@@ -323,14 +316,14 @@ void XLine::Apply(User* u)
 {
 }
 
-void XLine::DefaultApply(User* u, char line)
+void XLine::DefaultApply(User* u, const std::string &line)
 {
 	char reason[MAXBUF];
-	snprintf(reason, MAXBUF, "%c-Lined: %s", line, this->reason);
+	snprintf(reason, MAXBUF, "%s-Lined: %s", line.c_str(), this->reason);
 	if (*ServerInstance->Config->MoronBanner)
 		u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 	if (ServerInstance->Config->HideBans)
-		User::QuitUser(ServerInstance, u, line + std::string("-Lined"), reason);
+		User::QuitUser(ServerInstance, u, line + "-Lined", reason);
 	else
 		User::QuitUser(ServerInstance, u, reason);
 }
@@ -353,7 +346,7 @@ bool KLine::Matches(User *u)
 
 void KLine::Apply(User* u)
 {
-	DefaultApply(u, 'K');
+	DefaultApply(u, "K");
 }
 
 bool GLine::Matches(User *u)
@@ -374,7 +367,7 @@ bool GLine::Matches(User *u)
 
 void GLine::Apply(User* u)
 {       
-	DefaultApply(u, 'G');
+	DefaultApply(u, "G");
 }
 
 bool ELine::Matches(User *u)
@@ -406,7 +399,7 @@ bool ZLine::Matches(User *u)
 
 void ZLine::Apply(User* u)
 {       
-	DefaultApply(u, 'Z');
+	DefaultApply(u, "Z");
 }
 
 
@@ -424,7 +417,7 @@ bool QLine::Matches(User *u)
 void QLine::Apply(User* u)
 {       
 	/* Can we force the user to their uid here instead? */
-	DefaultApply(u, 'Q');
+	DefaultApply(u, "Q");
 }
 
 
@@ -457,31 +450,6 @@ bool KLine::Matches(const std::string &str)
 bool GLine::Matches(const std::string &str)
 {
 	return ((match(str.c_str(), matchtext.c_str(), true)));
-}
-
-bool ELine::MatchesLiteral(const std::string &str)
-{
-	return (assign(str) == matchtext);
-}
-
-bool ZLine::MatchesLiteral(const std::string &str)
-{       
-	return (assign(str) == this->ipaddr);
-}
-
-bool GLine::MatchesLiteral(const std::string &str)
-{       
-	return (assign(str) == matchtext);
-}
-
-bool KLine::MatchesLiteral(const std::string &str)
-{       
-	return (assign(str) == matchtext);
-}
-
-bool QLine::MatchesLiteral(const std::string &str)
-{       
-	return (assign(str) == this->nick);
 }
 
 void ELine::OnAdd()
@@ -547,7 +515,7 @@ const char* QLine::Displayable()
 
 bool XLineManager::RegisterFactory(XLineFactory* xlf)
 {
-	std::map<char, XLineFactory*>::iterator n = line_factory.find(xlf->GetType());
+	XLineFactMap::iterator n = line_factory.find(xlf->GetType());
 
 	if (n != line_factory.end())
 		return false;
@@ -559,7 +527,7 @@ bool XLineManager::RegisterFactory(XLineFactory* xlf)
 
 bool XLineManager::UnregisterFactory(XLineFactory* xlf)
 {
-	std::map<char, XLineFactory*>::iterator n = line_factory.find(xlf->GetType());
+	XLineFactMap::iterator n = line_factory.find(xlf->GetType());
 
 	if (n == line_factory.end())
 		return false;
@@ -569,9 +537,9 @@ bool XLineManager::UnregisterFactory(XLineFactory* xlf)
 	return true;
 }
 
-XLineFactory* XLineManager::GetFactory(const char type)
+XLineFactory* XLineManager::GetFactory(const std::string &type)
 {
-	std::map<char, XLineFactory*>::iterator n = line_factory.find(type);
+	XLineFactMap::iterator n = line_factory.find(type);
 
 	if (n != line_factory.end())
 		return NULL;

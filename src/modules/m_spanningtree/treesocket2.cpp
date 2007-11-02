@@ -523,7 +523,7 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 	if (params.size() < 6)
 		return true;
 
-	XLineFactory* xlf = Instance->XLines->GetFactory(params[0][0]);
+	XLineFactory* xlf = Instance->XLines->GetFactory(params[0]);
 
 	if (!xlf)
 		return false;
@@ -534,11 +534,13 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 	{
 		if (xl->expiry)
 		{
-			this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),Instance->TimeString(xl->expiry).c_str(),params[5].c_str());
+			this->Instance->SNO->WriteToSnoMask('x',"%s Added %s%s on %s to expire on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
+					params[1].c_str(),Instance->TimeString(xl->expiry).c_str(),params[5].c_str());
 		}
 		else
 		{
-			this->Instance->SNO->WriteToSnoMask('x',"%s Added permenant %cLINE on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),params[5].c_str());
+			this->Instance->SNO->WriteToSnoMask('x',"%s Added permenant %s%s on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
+					params[1].c_str(),params[5].c_str());
 		}
 		params[5] = ":" + params[5];
 		Utils->DoOneToAllButSender(prefix,"ADDLINE",params,prefix);

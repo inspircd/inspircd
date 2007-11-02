@@ -144,6 +144,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		case 'q':
 		case 'Z':
 		case 'e':
+		{
 			/* FIXME: Make the 216 here different depending on stats char:
 			 * k: 216
 			 * g: 223
@@ -151,7 +152,10 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			 * z: 223
 			 * e: 223
 			 */
-			ServerInstance->XLines->InvokeStats(toupper(statschar),216,user,results);
+			std::string stat;
+			stat += toupper(statschar);
+			ServerInstance->XLines->InvokeStats(stat,216,user,results);
+		}
 		break;
 
 		/* stats m (list number of times each command has been used, plus bytecount) */

@@ -67,7 +67,7 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->DelLine(parameters[0],'Z',user))
+		if (ServerInstance->XLines->DelLine(parameters[0],"Z",user))
 		{
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Z-line on %s.",user->nick,parameters[0]);
 		}
