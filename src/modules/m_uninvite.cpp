@@ -53,7 +53,8 @@ class cmd_uninvite : public command_t
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
+				user->WriteServ("482 %s %s :You must be at least a%soperator to change modes on this channel",user->nick, c->name,
+						ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
 				return CMD_FAILURE;
 			}
 		}

@@ -393,7 +393,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 						 * NOT a uline and NOT a servermode,
 						 * OR, NOT halfop or above.
 						 */
-						user->WriteServ("482 %s %s :You're not a channel (half)operator",user->nick, targetchannel->name);
+						user->WriteServ("482 %s %s :You're not a channel %soperator",user->nick, targetchannel->name,
+								ServerInstance->Config->AllowHalfop ? "(half)" : "");
 						return;
 					}
 				}
