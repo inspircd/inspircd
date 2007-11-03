@@ -13,4 +13,7 @@
 
 /* $Core: libIRCDbancache */
 
+#include "inspircd.h"
+#include "bancache.h"
+
 
