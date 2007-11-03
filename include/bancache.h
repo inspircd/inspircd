@@ -25,7 +25,7 @@ class CoreExport BanCacheHit : public classbase
 	const bool Banned;
 	const time_t Duration;
 	const time_t Creation;
-}
+};
 
 // must be defined after class BanCacheHit.
 typedef nspace::hash_map<std::string, BanCacheHit *, nspace::hash<std::string> > BanCacheHash;
@@ -44,6 +44,6 @@ class CoreExport BanCacheManager : public classbase
 		this->ServerInstance = Instance;
 		this->BanHash = new BanCacheHash();
 	}
-}
+};
 
 #endif
