@@ -547,7 +547,7 @@ $config{HAS_EPOLL} = $has_epoll;
 $config{HAS_KQUEUE} = $has_kqueue; 
 
 printf "Checking for libgnutls... ";
-if (($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS} >= 1.2) || ($config{HAS_GNUTLS} eq "y"))) {
+if (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y")) {
 	print "yes\n";
 	$config{HAS_GNUTLS} = "y";
 } else {
@@ -556,7 +556,7 @@ if (($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS} >= 1.2) || ($config{HAS_GNUTL
 }
 
 printf "Checking for openssl... ";
-if (($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL} >= 0.8) || ($config{HAS_OPENSSL} eq "y"))) {
+if (($config{HAS_OPENSSL}) || ($config{HAS_OPENSSL} eq "y")) {
 	print "yes\n";
 	$config{HAS_OPENSSL} = "y";
 } else {
