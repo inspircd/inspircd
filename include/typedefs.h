@@ -17,13 +17,10 @@
 #include <string>
 #include "inspircd_config.h"
 #include "hash_map.h"
-#include "users.h"
-#include "channels.h"
 #include "hashcomp.h"
-#include "inspstring.h"
-#include "ctables.h"
-#include "modules.h"
-#include "globals.h"
+
+class User;
+class Channel;
 
 #ifndef WIN32
 /** User hash (POSIX systems with GCC)
