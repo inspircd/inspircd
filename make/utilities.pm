@@ -71,7 +71,7 @@ sub make_rpath($;$)
 			print "Adding extra library path to \033[1;32m$module\033[0m ... \033[1;32m$libpath\033[0m\n";
 			$already_added{$libpath} = 1;
 		}
-		$output .= "-Wl,--rpath -Wl,$libpath -L$libpath ";
+		$output .= "-Wl,--rpath -Wl,$libpath -L$libpath " unless defined $main::opt_disablerpath;
 		$data =~ s/-L(\S+)//;
 	}
 	return $output;

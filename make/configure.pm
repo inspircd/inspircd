@@ -238,6 +238,8 @@ InspIRCd 1.0.x, are also allowed.
 
   --disable-interactive        Sets no options intself, but
                                will disable any interactive prompting.
+  --disable-rpath              Disable runtime paths. DO NOT USE UNLESS
+                               YOU KNOW WHAT YOU ARE DOING!
   --update                     Update makefiles and dependencies
   --modupdate                  Detect new modules and write makefiles
   --svnupdate {--rebuild}      Update working copy via subversion

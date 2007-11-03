@@ -98,6 +98,7 @@ GetOptions (
 	'disable-ports' => \$opt_noports,
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
+	'disable-rpath' => \$opt_disablerpath,
 	'enable-ipv6' => \$opt_ipv6,
 	'enable-remote-ipv6' => \$opt_ipv6links,
 	'disable-remote-ipv6' => \$opt_noipv6links,
@@ -1010,7 +1011,7 @@ sub getosflags {
 	$config{LDLIBS} = "-lstdc++";
 	$config{FLAGS}  = "-fPIC -Wall -pedantic $config{OPTIMISATI}";
 	$config{DEVELOPER} = "-fPIC -Wall -pedantic -g";
-	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared";
+	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared" unless defined $opt_disablerpath;
 	$config{MAKEPROG} = "make";
 
 	if ($config{OSNAME} =~ /darwin/i) {
@@ -1555,7 +1556,8 @@ sub write_dynamic_makefile
 	else
 	{
 		$libraryext = "so";
-		$othercrap = "	\$(CC) -pipe -I../include -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) ";
+		$RPATH = "-Wl,--rpath -Wl,$config{LIBRARY_DIR}" unless defined $opt_disablerpath;
+		$othercrap = "	\$(CC) -pipe -I../include $RPATH \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) ";
 	}
 
 	foreach my $cpp (sort keys %filelist)
@@ -1605,7 +1607,14 @@ EOM
 		}
 		else
 		{
-			$libcrap = "-Wl,--rpath -Wl," . $config{LIBRARY_DIR} . " -shared";
+			if (defined $opt_disablerpath)
+			{
+				$libcrap = " -shared";
+			}
+			else
+			{
+				$libcrap = "-Wl,--rpath -Wl," . $config{LIBRARY_DIR} . " -shared";
+			}
 		}
 		$deps = calcdeps("src/$cpp");
 		if (exists($extrasources{$cpp}))
