@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -185,6 +185,99 @@ bool NoValidation(ServerConfig*, const char*, const char*, ValueItem&)
 bool DoneConfItem(ServerConfig* conf, const char* tag)
 {
 	return true;
+}
+
+void ServerConfig::ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val)
+{
+	for (const char* ptr = p; *ptr; ++ptr)
+	{
+		if (*ptr == ' ')
+			throw CoreException("The value of <"+tag+":"+val+"> cannot contain spaces");
+	}
+}
+
+/* NOTE: Before anyone asks why we're not using inet_pton for this, it is because inet_pton and friends do not return so much detail,
+ * even in strerror(errno). They just return 'yes' or 'no' to an address without such detail as to whats WRONG with the address.
+ * Because ircd users arent as technical as they used to be (;)) we are going to give more of a useful error message.
+ */
+void ServerConfig::ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild)
+{
+	int num_dots = 0;
+	int num_seps = 0;
+	int not_numbers = false;
+	int not_hex = false;
+
+	if (*p)
+	{
+		if (*p == '.')
+			throw CoreException("The value of <"+tag+":"+val+"> is not an IP address");
+
+		for (const char* ptr = p; *ptr; ++ptr)
+		{
+			if (wild && (*ptr == '*' || *ptr == '?' || *ptr == '/'))
+				continue;
+
+			if (*ptr != ':' && *ptr != '.')
+			{
+				if (*ptr < '0' || *ptr > '9')
+					not_numbers = true;
+				if ((*ptr < '0' || *ptr > '9') && (toupper(*ptr) < 'A' || toupper(*ptr) > 'F'))
+					not_hex = true;
+			}
+			switch (*ptr)
+			{
+				case ' ':
+					throw CoreException("The value of <"+tag+":"+val+"> is not an IP address");
+				case '.':
+					num_dots++;
+				break;
+				case ':':
+					num_seps++;
+				break;
+			}
+		}
+
+		if (num_dots > 3)
+			throw CoreException("The value of <"+tag+":"+val+"> is an IPv4 address with too many fields!");
+
+		if (num_seps > 8)
+			throw CoreException("The value of <"+tag+":"+val+"> is an IPv6 address with too many fields!");
+
+		if (num_seps == 0 && num_dots < 3 && !wild)
+			throw CoreException("The value of <"+tag+":"+val+"> looks to be a malformed IPv4 address");
+
+		if (num_seps == 0 && num_dots == 3 && not_numbers)
+			throw CoreException("The value of <"+tag+":"+val+"> contains non-numeric characters in an IPv4 address");
+
+		if (num_seps != 0 && not_hex)
+			throw CoreException("The value of <"+tag+":"+val+"> contains non-hexdecimal characters in an IPv6 address");
+
+		if (num_seps != 0 && num_dots != 3 && num_dots != 0 && !wild)
+			throw CoreException("The value of <"+tag+":"+val+"> is a malformed IPv6 4in6 address");
+	}
+}
+
+void ServerConfig::ValidateHostname(const char* p, const std::string &tag, const std::string &val)
+{
+	int num_dots = 0;
+	if (*p)
+	{
+		if (*p == '.')
+			throw CoreException("The value of <"+tag+":"+val+"> is not a valid hostname");
+		for (const char* ptr = p; *ptr; ++ptr)
+		{
+			switch (*ptr)
+			{
+				case ' ':
+					throw CoreException("The value of <"+tag+":"+val+"> is not a valid hostname");
+				case '.':
+					num_dots++;
+				break;
+			}
+		}
+		if (num_dots == 0)
+			throw CoreException("The value of <"+tag+":"+val+"> is not a valid hostname");
+	}
 }
 
 bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem &data)
@@ -705,57 +798,57 @@ void ServerConfig::Read(bool bail, User* user)
 
 	/* These tags can occur ONCE or not at all */
 	InitialConfig Values[] = {
-		{"options",	"softlimit",	MAXCLIENTS_S,		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
-		{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
-		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR, NoValidation},
-		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
-		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
-		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
-		{"server",	"id",		"0",			new ValueContainerInt  (&this->sid),			DT_INTEGER, ValidateSID},
-		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR, NoValidation},
-		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR, NoValidation},
-		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},
-		{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR, ValidateMotd},
-		{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR, ValidateRules},
-		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR, ValidateNotEmpty},
-		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER, NoValidation},
-		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR, ValidateNotEmpty},
-		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
-		{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR, NoValidation},
-		{"options",	"fixedquit",	"",			new ValueContainerChar (this->FixedQuit),		DT_CHARPTR, NoValidation},
-		{"options",	"loglevel",	"default",		new ValueContainerChar (debug),				DT_CHARPTR, ValidateLogLevel},
-		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
-		{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
-		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN, NoValidation},
-		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_CHARPTR, DNSServerValidator},
-		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER, NoValidation},
-		{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR, NoValidation},
-		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR, NoValidation},
-		{"options",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR, NoValidation},
-		{"options",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR, NoValidation},
-		{"options",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN, NoValidation},
-		{"options",	"hidebans",	"0",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN, NoValidation},
-		{"options",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_CHARPTR, NoValidation},
-		{"options",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_CHARPTR, NoValidation},
-		{"options",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN, NoValidation},
-		{"options",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN, NoValidation},
-		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
-		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN, NoValidation},
-		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN, NoValidation},
-		{"options",	"announceinvites", "1",			new ValueContainerChar (announceinvites),		DT_CHARPTR, ValidateInvite},
-		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
-		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR, ValidateModeLists},
-		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR, ValidateExemptChanOps},
-		{"options",	"maxtargets",	"20",			new ValueContainerUInt (&this->MaxTargets),		DT_INTEGER, ValidateMaxTargets},
-		{"options",	"defaultmodes", "nt",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR, NoValidation},
-		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
-		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
-		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
-		{"whowas",	"maxkeep",	"3600",			new ValueContainerChar (maxkeep),			DT_CHARPTR, ValidateWhoWas},
-		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR, NoValidation},
-		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER, NoValidation},
-		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER, NoValidation},
-		{NULL,		NULL,		NULL,			NULL,							DT_NOTHING, NoValidation}
+		{"options",	"softlimit",	MAXCLIENTS_S,		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
+		{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
+		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
+		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME, ValidateServerName},
+		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
+		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_NOSPACES, NoValidation},
+		{"server",	"id",		"0",			new ValueContainerInt  (&this->sid),			DT_NOSPACES, ValidateSID},
+		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR,  NoValidation},
+		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR,  NoValidation},
+		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR,  NoValidation},
+		{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR,  ValidateMotd},
+		{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR,  ValidateRules},
+		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR,  ValidateNotEmpty},
+		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER,  NoValidation},
+		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR,  ValidateNotEmpty},
+		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR,  NoValidation},
+		{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR,  NoValidation},
+		{"options",	"fixedquit",	"",			new ValueContainerChar (this->FixedQuit),		DT_CHARPTR,  NoValidation},
+		{"options",	"loglevel",	"default",		new ValueContainerChar (debug),				DT_CHARPTR,  ValidateLogLevel},
+		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
+		{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
+		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  NoValidation},
+		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_IPADDRESS,DNSServerValidator},
+		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER,  NoValidation},
+		{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR,  NoValidation},
+		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR,  NoValidation},
+		{"options",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR,  NoValidation},
+		{"options",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR,  NoValidation},
+		{"options",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN,  NoValidation},
+		{"options",	"hidebans",	"0",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN,  NoValidation},
+		{"options",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_NOSPACES, NoValidation},
+		{"options",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_NOSPACES,  NoValidation},
+		{"options",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN,  NoValidation},
+		{"options",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN,  NoValidation},
+		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN,  NoValidation},
+		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN,  NoValidation},
+		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN,  NoValidation},
+		{"options",	"announceinvites", "1",			new ValueContainerChar (announceinvites),		DT_CHARPTR,  ValidateInvite},
+		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN,  NoValidation},
+		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR,  ValidateModeLists},
+		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR,  ValidateExemptChanOps},
+		{"options",	"maxtargets",	"20",			new ValueContainerUInt (&this->MaxTargets),		DT_INTEGER,  ValidateMaxTargets},
+		{"options",	"defaultmodes", "nt",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR,  NoValidation},
+		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR,  NoValidation},
+		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER,  NoValidation},
+		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER,  NoValidation},
+		{"whowas",	"maxkeep",	"3600",			new ValueContainerChar (maxkeep),			DT_CHARPTR,  ValidateWhoWas},
+		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR,  NoValidation},
+		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER,  NoValidation},
+		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER,  NoValidation},
+		{NULL,		NULL,		NULL,			NULL,							DT_NOTHING,  NoValidation}
 	};
 
 	/* These tags can occur multiple times, and therefore they have special code to read them
@@ -770,17 +863,19 @@ void ServerConfig::Read(bool bail, User* user)
 				NULL},
 				{"",		"",		"",		"",		"120",		"",
 				 "",		"",		"",		"3",		"3",		"0",
-				 "",		"",		"0",            "0",
+				 "",		"",		"0",	    "0",
 				 NULL},
-				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
+				{DT_IPADDRESS|DT_ALLOW_WILD,
+						DT_IPADDRESS|DT_ALLOW_WILD,
+								DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				 DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,     DT_INTEGER},
+				 DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER},
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",
 				{"server",	"silent",	NULL},
 				{"",		"0",		NULL},
-				{DT_CHARPTR,	DT_BOOLEAN},
+				{DT_HOSTNAME,	DT_BOOLEAN},
 				InitULine,DoULine,DoneULine},
 
 		{"banlist",
@@ -798,7 +893,7 @@ void ServerConfig::Read(bool bail, User* user)
 		{"badip",
 				{"reason",	"ipmask",	NULL},
 				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
+				{DT_CHARPTR,	DT_IPADDRESS|DT_ALLOW_WILD},
 				InitXLine, DoZLine, DoneConfItem},
 
 		{"badnick",
@@ -822,13 +917,13 @@ void ServerConfig::Read(bool bail, User* user)
 		{"type",
 				{"name",	"classes",	NULL},
 				{"",		"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
+				{DT_NOSPACES,	DT_CHARPTR},
 				InitTypes, DoType, DoneClassesAndTypes},
 
 		{"class",
 				{"name",	"commands",	NULL},
 				{"",		"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
+				{DT_NOSPACES,	DT_CHARPTR},
 				InitClasses, DoClass, DoneClassesAndTypes},
 
 		{NULL,
@@ -871,8 +966,10 @@ void ServerConfig::Read(bool bail, User* user)
 		{
 			char item[MAXBUF];
 			int dt = Values[Index].datatype;
-			bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);
+			bool allow_newlines = ((dt & DT_ALLOW_NEWLINE) > 0);
+			bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
 			dt &= ~DT_ALLOW_NEWLINE;
+			dt &= ~DT_ALLOW_WILD;
 
 			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
@@ -882,6 +979,35 @@ void ServerConfig::Read(bool bail, User* user)
 
 			switch (Values[Index].datatype)
 			{
+				case DT_NOSPACES:
+				{
+					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					this->ValidateNoSpaces(vi.GetString(), Values[Index].tag, Values[Index].value);
+					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+				}
+				break;
+				case DT_HOSTNAME:
+				{
+					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					this->ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
+					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+				}
+				break;
+				case DT_IPADDRESS:
+				{
+					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					this->ValidateIP(vi.GetString(), Values[Index].tag, Values[Index].value, allow_wild);
+					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+				}
+				break;
+				case DT_CHANNEL:
+				{
+					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString()))
+						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
+					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+				}
+				break;
 				case DT_CHARPTR:
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
@@ -929,10 +1055,53 @@ void ServerConfig::Read(bool bail, User* user)
 				{
 					int dt = MultiValues[Index].datatype[valuenum];
 					bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);
+					bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
 					dt &= ~DT_ALLOW_NEWLINE;
+					dt &= ~DT_ALLOW_WILD;
 
 					switch (dt)
 					{
+						case DT_NOSPACES:
+						{
+							char item[MAXBUF];
+							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+							this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+						}
+						break;
+						case DT_HOSTNAME:
+						{
+							char item[MAXBUF];
+							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+							this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+						}
+						break;
+						case DT_IPADDRESS:
+						{
+							char item[MAXBUF];
+							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+							this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
+						}
+						break;
+						case DT_CHANNEL:
+						{
+							char item[MAXBUF];
+							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+							if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString()))
+								throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
+						}
+						break;
 						case DT_CHARPTR:
 						{
 							char item[MAXBUF];

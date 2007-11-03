@@ -44,7 +44,12 @@ enum ConfigDataType
 	DT_INTEGER       = 1,		/* Integer */
 	DT_CHARPTR       = 2,		/* Char pointer */
 	DT_BOOLEAN       = 3,		/* Boolean */
-	DT_ALLOW_NEWLINE = 128		/* New line characters allowed */
+	DT_HOSTNAME	 = 4,		/* Hostname syntax */
+	DT_NOSPACES	 = 5,		/* No spaces */
+	DT_IPADDRESS	 = 6,		/* IP address (v4, v6) */
+	DT_CHANNEL	 = 7,		/* Channel name */
+	DT_ALLOW_WILD	 = 64,		/* Allow wildcards/CIDR in DT_IPADDRESS */
+	DT_ALLOW_NEWLINE = 128		/* New line characters allowed in DT_CHARPTR */
 };
 
 /** Holds a config value, either string, integer or boolean.
@@ -713,6 +718,12 @@ class CoreExport ServerConfig : public Extensible
 	/** Returns the numbers of vars inside the index'th 'tag in the config file
 	 */
 	int ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index);
+
+	void ValidateHostname(const char* p, const std::string &tag, const std::string &val);
+
+	void ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild);
+
+	void ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val);
 	
 	/** Get a pointer to the module which has hooked the given port.
 	 * @parameter port Port number
