@@ -140,10 +140,9 @@ public:
 		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCleanup] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserQuit] = List[I_OnUserConnect] = 1;
 	}
 	
-	virtual Priority Prioritize()
+	virtual void Prioritize()
 	{
-		// We want to get here before m_cloaking and m_hostchange etc
-		return PRIORITY_FIRST;
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIO_FIRST);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
