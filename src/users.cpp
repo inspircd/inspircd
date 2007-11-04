@@ -861,8 +861,6 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 
 			if (r)
 			{
-				Instance->Log(DEBUG, std::string("BanCache: Adding positive hit for ") + New->GetIPString());
-				Instance->BanCache->AddHit(New->GetIPString(), "Z", std::string("Z-Lined: ") + r->reason);
 				r->Apply(New);
 				return;
 			}
@@ -965,7 +963,7 @@ void User::FullConnect()
 
 	if (!this->exempt)
 	{
-		XLine* r = ServerInstance->XLines->MatchesLine("G",this);
+		GLine *r = (GLine *)ServerInstance->XLines->MatchesLine("G", this);
 
 		if (r)
 		{
@@ -974,7 +972,7 @@ void User::FullConnect()
 			return;
 		}
 
-		XLine* n = ServerInstance->XLines->MatchesLine("K",this);
+		KLine *n = (KLine *)ServerInstance->XLines->MatchesLine("K", this);
 
 		if (n)
 		{

@@ -16,6 +16,7 @@
 #include "inspircd.h"
 #include "wildcard.h"
 #include "xline.h"
+#include "bancache.h"
 
 /*
  * This is now version 3 of the XLine subsystem, let's see if we can get it as nice and 
@@ -383,7 +384,7 @@ void XLine::Apply(User* u)
 {
 }
 
-void XLine::DefaultApply(User* u, const std::string &line)
+void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 {
 	char reason[MAXBUF];
 	snprintf(reason, MAXBUF, "%s-Lined: %s", line.c_str(), this->reason);
@@ -393,6 +394,13 @@ void XLine::DefaultApply(User* u, const std::string &line)
 		User::QuitUser(ServerInstance, u, line + "-Lined", reason);
 	else
 		User::QuitUser(ServerInstance, u, reason);
+
+
+	if (bancache)
+	{
+		ServerInstance->Log(DEBUG, std::string("BanCache: Adding positive hit (") + line + ") for " + u->GetIPString());
+		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason);
+	}
 }
 
 bool KLine::Matches(User *u)
@@ -413,7 +421,7 @@ bool KLine::Matches(User *u)
 
 void KLine::Apply(User* u)
 {
-	DefaultApply(u, "K");
+	DefaultApply(u, "K", (strcmp(this->identmask, "*") == 0) ? true : false);
 }
 
 bool GLine::Matches(User *u)
@@ -434,7 +442,7 @@ bool GLine::Matches(User *u)
 
 void GLine::Apply(User* u)
 {       
-	DefaultApply(u, "G");
+	DefaultApply(u, "G", (strcmp(this->identmask, "*") == 0) ? true : false);
 }
 
 bool ELine::Matches(User *u)
@@ -466,7 +474,7 @@ bool ZLine::Matches(User *u)
 
 void ZLine::Apply(User* u)
 {       
-	DefaultApply(u, "Z");
+	DefaultApply(u, "Z", true);
 }
 
 
