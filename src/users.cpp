@@ -18,6 +18,7 @@
 #include "socketengine.h"
 #include "wildcard.h"
 #include "xline.h"
+#include "bancache.h"
 #include "commands/cmd_whowas.h"
 
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
@@ -829,20 +830,46 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 		return;
 	}
 #endif
-
+	/*
+	 * even with bancache, we still have to keep User::exempt current.
+	 * besides that, if we get a positive bancache hit, we still won't fuck
+	 * them over if they are exempt. -- w00t
+	 */
 	New->exempt = (Instance->XLines->MatchesLine("E",New) != NULL);
-	if (!New->exempt)
-	{
-		XLine* r = Instance->XLines->MatchesLine("Z",New);
 
-		if (r)
+	if (BanCacheHit *b = Instance->BanCache->GetHit(New->GetIPString()))
+	{
+		if (!b->Type.empty())
 		{
-			char reason[MAXBUF];
+			/* user banned */
+			Instance->Log(DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
 			if (*Instance->Config->MoronBanner)
 				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
-			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
-			User::QuitUser(Instance, New, reason);
+			User::QuitUser(Instance, New, b->Reason);
 			return;
+		}
+		else
+		{
+			Instance->Log(DEBUG, std::string("BanCache: Negative hit for ") + New->GetIPString());
+		}
+	}
+	else
+	{
+		if (!New->exempt)
+		{
+			XLine* r = Instance->XLines->MatchesLine("Z",New);
+
+			if (r)
+			{
+				Instance->Log(DEBUG, std::string("BanCache: Adding positive hit for ") + New->GetIPString());
+				Instance->BanCache->AddHit(New->GetIPString(), "Z", std::string("Z-Lined: ") + r->reason);
+				char reason[MAXBUF];
+				if (*Instance->Config->MoronBanner)
+					New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
+				snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
+				User::QuitUser(Instance, New, reason);
+				return;
+			}
 		}
 	}
 
