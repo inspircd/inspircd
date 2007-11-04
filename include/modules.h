@@ -123,18 +123,16 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * loaded modules in a readable simple way, e.g.:
  * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
  */
-#define FOREACH_MOD(y,x) if (!ServerInstance->Modules->EventHandlers[y].empty()) \
+#define FOREACH_MOD(y,x) \
+for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
 { \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
+	try \
 	{ \
-		try \
-		{ \
-			(*_i)->x ; \
-		} \
-		catch (CoreException& modexcept) \
-		{ \
-			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
-		} \
+		(*_i)->x ; \
+	} \
+	catch (CoreException& modexcept) \
+	{ \
+		ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 	} \
 }
 
@@ -144,18 +142,16 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * an instance pointer to the macro. e.g.:
  * 'FOREACH_MOD_I(Instance, OnConnect, OnConnect(user));'
  */
-#define FOREACH_MOD_I(z,y,x) if (!z->Modules->EventHandlers[y].empty()) \
+#define FOREACH_MOD_I(z,y,x) \
+for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
 { \
-	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
+	try \
 	{ \
-		try \
-		{ \
-			(*_i)->x ; \
-		} \
-		catch (CoreException& modexcept) \
-		{ \
-			z->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
-		} \
+		(*_i)->x ; \
+	} \
+	catch (CoreException& modexcept) \
+	{ \
+		z->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 	} \
 }
 
@@ -164,8 +160,8 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * The first module to return a nonzero result is the value to be accepted,
  * and any modules after are ignored.
  */
-#define FOREACH_RESULT(y,x) if (!ServerInstance->Modules->EventHandlers[y].empty()) \
-{ \
+#define FOREACH_RESULT(y,x) \
+do { \
 	MOD_RESULT = 0; \
 	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
 	{ \
@@ -182,7 +178,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
-} 
+} while(0);
 
 
 /**
@@ -190,8 +186,8 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * The first module to return a nonzero result is the value to be accepted,
  * and any modules after are ignored.
  */
-#define FOREACH_RESULT_I(z,y,x) if (!z->Modules->EventHandlers[y].empty()) \
-{ \
+#define FOREACH_RESULT_I(z,y,x) \
+do { \
 	MOD_RESULT = 0; \
 	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
 	{ \
@@ -208,7 +204,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 			z->Log(DEBUG,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
-}
+} while (0);
 
 /** Represents a non-local user.
  * (in fact, any FD less than -1 does)
