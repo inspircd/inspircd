@@ -241,6 +241,13 @@ bool ModuleManager::SetPriority(Module* mod, PriorityState s)
 
 bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules, size_t sz)
 {
+	if (GetModuleName(mod) != "m_spanningtree.so")
+		Instance->Log(DEBUG,"ModuleManager::SetPriority called by %s, priority state %s num_modules=%u", GetModuleName(mod).c_str(), s == PRIO_BEFORE ? "PRIO_BEFORE" : 
+			s == PRIO_AFTER ? "PRIO_AFTER" :
+			s == PRIO_LAST ? "PRIO_LAST" :
+			s == PRIO_FIRST ? "PRIO_FIRST" : "<unknown!>",
+			sz);
+
 	size_t swap_pos;
 	size_t source = 0;
 	bool swap = true;
@@ -258,6 +265,16 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 
 	if (!found)
 		return false;
+
+	Instance->Log(DEBUG,"ModuleManager::SetPriority: My position: %u", source);
+
+	for (size_t n = 0; n < sz; ++n)
+	{
+		if (modules[n])
+			Instance->Log(DEBUG,"    Listed Module: [%08x] %s", modules[n], GetModuleName(modules[n]).c_str());
+		else
+			Instance->Log(DEBUG,"    [null module]");
+	}
 
 	switch (s)
 	{
@@ -304,6 +321,8 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 
 	if (swap)
 		std::swap(EventHandlers[i][swap_pos], EventHandlers[i][source]);
+
+	Instance->Log(DEBUG,"Swap locations %u and %u", swap_pos, source);
 
 	return true;
 }
