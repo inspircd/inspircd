@@ -863,11 +863,7 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 			{
 				Instance->Log(DEBUG, std::string("BanCache: Adding positive hit for ") + New->GetIPString());
 				Instance->BanCache->AddHit(New->GetIPString(), "Z", std::string("Z-Lined: ") + r->reason);
-				char reason[MAXBUF];
-				if (*Instance->Config->MoronBanner)
-					New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
-				snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
-				User::QuitUser(Instance, New, reason);
+				r->Apply(New);
 				return;
 			}
 		}
@@ -974,11 +970,7 @@ void User::FullConnect()
 		if (r)
 		{
 			this->muted = true;
-			char reason[MAXBUF];
-			if (*ServerInstance->Config->MoronBanner)
-				this->WriteServ("NOTICE %s :*** %s", this->nick, ServerInstance->Config->MoronBanner);
-			snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
-			User::QuitUser(ServerInstance, this, reason);
+			r->Apply(this);
 			return;
 		}
 
@@ -987,11 +979,7 @@ void User::FullConnect()
 		if (n)
 		{
 			this->muted = true;
-			char reason[MAXBUF];
-			if (*ServerInstance->Config->MoronBanner)
-				this->WriteServ("NOTICE %s :*** %s", this, ServerInstance->Config->MoronBanner);
-			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
-			User::QuitUser(ServerInstance, this, reason);
+			n->Apply(this);
 			return;
 		}
 	}
