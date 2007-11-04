@@ -14,7 +14,6 @@
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel modes +a and +q */
-/* $ModDep: ../../include/u_listmode.h */
 
 #define PROTECT_VALUE 40000
 #define FOUNDER_VALUE 50000
@@ -311,13 +310,9 @@ class ModuleChanProtect : public Module
 
 		if (!ServerInstance->AddMode(cp) || !ServerInstance->AddMode(cf))
 			throw ModuleException("Could not add new modes!");
+
 		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnRehash, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
-	}
-
-	void Implements(char* List)
-	{
-		List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserPreJoin] = List[I_OnPostJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
 	}
 
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)

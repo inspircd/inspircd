@@ -238,9 +238,10 @@ class ListModeBase : public ModeHandler
 
 	/** Populate the Implements list with the correct events for a List Mode
 	 */
-	virtual void DoImplements(char* List)
+	virtual void DoImplements(Module* m)
 	{
-		List[I_OnChannelDelete] = List[I_OnSyncChannel] = List[I_OnCleanup] = List[I_OnRehash] = 1;
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnSyncChannel, I_OnCleanup, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	/** Handle the list mode.

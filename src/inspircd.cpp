@@ -494,11 +494,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	CheckDie();
 	int bounditems = BindPorts(true, found_ports, pl);
 
-	for(int t = 0; t < 255; t++)
-		Config->global_implementation[t] = 0;
-
-	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
-
 	printf("\n");
 
 	this->Res = new DNS(this);

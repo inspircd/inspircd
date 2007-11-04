@@ -47,14 +47,10 @@ public:
 		if (!ServerInstance->AddMode(ie))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
+
+		ie->DoImplements(this);
 		Implementation eventlist[] = { I_OnRequest, I_On005Numeric, I_OnCheckInvite };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
-	}
-
-	virtual void Implements(char* List)
-	{
-		ie->DoImplements(List);
-		List[I_OnRequest] = List[I_On005Numeric] = List[I_OnCheckInvite] = 1;
 	}
 	
 	virtual void On005Numeric(std::string &output)

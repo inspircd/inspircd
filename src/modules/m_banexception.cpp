@@ -42,15 +42,14 @@ class ModuleBanException : public Module
 	
 
 public:
-	ModuleBanException(InspIRCd* Me)
-	: Module(Me)
+	ModuleBanException(InspIRCd* Me) : Module(Me)
 	{
 		be = new BanException(ServerInstance);
 		if (!ServerInstance->AddMode(be))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
-		//be->DoImplements(List);
+		be->DoImplements(this);
 		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnCheckBan };
 		Me->Modules->Attach(list, this, 4);
 
