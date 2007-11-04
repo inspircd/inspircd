@@ -40,7 +40,7 @@ class CommandGloadmodule : public Command
 			}
 			else
 			{
-				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
+				user->WriteServ("974 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 		}
 		else
@@ -74,7 +74,7 @@ class CommandGunloadmodule : public Command
 			}
 			else
 			{
-				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
+				user->WriteServ("972 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 		}
 		else
@@ -107,7 +107,7 @@ class CommandGreloadmodule : public Command
 			}
 			if (!ServerInstance->Modules->Load(parameters[0]))
 			{
-				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
+				user->WriteServ("974 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
@@ -149,3 +149,4 @@ class ModuleGlobalLoad : public Module
 };
 
 MODULE_INIT(ModuleGlobalLoad)
+
