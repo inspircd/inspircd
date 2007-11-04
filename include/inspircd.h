@@ -232,6 +232,7 @@ DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 
 /* Forward declaration - required */
 class XLineManager;
+class BanCacheManager;
 
 /** The main class of the irc server.
  * This class contains instances of all the other classes
@@ -400,6 +401,11 @@ class CoreExport InspIRCd : public classbase
 	 * modules.
 	 */
 	ModuleManager* Modules;
+
+	/** BanCacheManager is used to speed up checking of restrictions on connection
+	 * to the IRCd.
+	 */
+	BanCacheManager *BanCache;
 
 	/** Stats class, holds miscellaneous stats counters
 	 */

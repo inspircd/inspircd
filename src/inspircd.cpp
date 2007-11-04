@@ -31,6 +31,7 @@
 
 #include <fstream>
 #include "xline.h"
+#include "bancache.h"
 #include "socketengine.h"
 #include "inspircd_se_config.h"
 #include "socket.h"
@@ -327,6 +328,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->Config = new ServerConfig(this);
 	this->SNO = new SnomaskManager(this);
+	this->BanCache = new BanCacheManager(this);
 	this->Modules = new ModuleManager(this);
 	this->stats = new serverstats();
 	this->Timers = new TimerManager(this);
