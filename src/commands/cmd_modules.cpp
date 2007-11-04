@@ -39,10 +39,13 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 /** Handle /MODULES
  */
 CmdResult CommandModules::Handle (const char**, int, User *user)
-{/* XXX FIXME
-  	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)
+{
+	std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
+
+  	for (unsigned int i = 0; i < module_names.size(); i++)
 	{
-		Version V = ServerInstance->Modules->modules[i]->GetVersion();
+		Module* m = ServerInstance->Modules->Find(module_names[i]);
+		Version V = m->GetVersion();
 		char modulename[MAXBUF];
 		char flagstate[MAXBUF];
 		*flagstate = 0;
@@ -56,10 +59,10 @@ CmdResult CommandModules::Handle (const char**, int, User *user)
 			strlcat(flagstate,", service provider",MAXBUF);
 		if (!flagstate[0])
 			strcpy(flagstate,"  <no flags>");
-		strlcpy(modulename,ServerInstance->Config->module_names[i].c_str(),256);
+		strlcpy(modulename,module_names[i].c_str(),256);
 		if (IS_OPER(user))
 		{
-			user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->Modules->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+			user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,m,V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{
@@ -67,6 +70,6 @@ CmdResult CommandModules::Handle (const char**, int, User *user)
 		}
 	}
 	user->WriteServ("901 %s :End of MODULES list",user->nick);
-	*/
+
 	return CMD_SUCCESS;
 }

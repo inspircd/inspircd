@@ -71,9 +71,12 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 	if (!source)
 		return true;
 
-	for (unsigned int i = 0; i < Instance->Config->module_names.size(); i++)
+	std::vector<std::string> module_names = Instance->Modules->GetAllModuleNames(0);
+
+	for (unsigned int i = 0; i < module_names.size(); i++)
 	{
-		Version V = Instance->Modules->modules[i]->GetVersion();
+		Module* m = Instance->Modules->Find(module_names[i]);
+		Version V = m->GetVersion();
 		char modulename[MAXBUF];
 		char flagstate[MAXBUF];
 		*flagstate = 0;
@@ -87,10 +90,11 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 			strlcat(flagstate,", service provider",MAXBUF);
 		if (!flagstate[0])
 			strcpy(flagstate,"  <no flags>");
-		strlcpy(modulename,Instance->Config->module_names[i].c_str(),256);
+		strlcpy(modulename,module_names[i].c_str(),256);
 		if (*source->oper)
 		{
-			snprintf(strbuf, MAXBUF, "::%s 900 %s :0x%08lx %d.%d.%d.%d %s (%s)",Instance->Config->ServerName,source->nick,(long unsigned int)Instance->Modules->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+			snprintf(strbuf, MAXBUF, "::%s 900 %s :0x%08lx %d.%d.%d.%d %s (%s)",Instance->Config->ServerName,source->nick,(unsigned long)m,
+					V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{
