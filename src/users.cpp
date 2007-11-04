@@ -839,7 +839,7 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 
 	if (BanCacheHit *b = Instance->BanCache->GetHit(New->GetIPString()))
 	{
-		if (!b->Type.empty())
+		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
 			Instance->Log(DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
