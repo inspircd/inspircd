@@ -1521,10 +1521,6 @@ typedef DLLFactory<Module> ircd_module;
  */
 typedef std::vector<Module*> IntModuleList;
 
-/** A list of event handlers
- */
-typedef std::vector<IntModuleList> EventHandlerList;
-
 /** An event handler iterator
  */
 typedef IntModuleList::iterator EventHandlerIter;
@@ -1576,7 +1572,7 @@ class CoreExport ModuleManager : public classbase
 	/** Event handler hooks.
 	 * This needs to be public to be used by FOREACH_MOD and friends.
 	 */
-	EventHandlerList EventHandlers;
+	IntModuleList EventHandlers[I_END];
 
 	/** Simple, bog-standard, boring constructor.
 	 */

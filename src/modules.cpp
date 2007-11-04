@@ -191,8 +191,6 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
 {
-	for (int n = I_BEGIN; n != I_END; ++n)
-		EventHandlers.push_back(std::vector<Module*>());
 }
 
 ModuleManager::~ModuleManager()
