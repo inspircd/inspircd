@@ -664,15 +664,10 @@ bool DoneULine(ServerConfig*, const char*)
  */
 bool InitModule(ServerConfig* conf, const char*)
 {
-	old_module_names.clear();
+	old_module_names = conf->GetInstance()->Modules->GetAllModuleNames(0);
 	new_module_names.clear();
 	added_modules.clear();
 	removed_modules.clear();
-	/** FIXME **/
-	/*for (std::vector<std::string>::iterator t = conf->module_names.begin(); t != conf->module_names.end(); t++)
-	{
-		old_module_names.push_back(*t);
-	}*/
 	return true;
 }
 

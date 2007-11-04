@@ -70,9 +70,6 @@ const char* ExitCodes[] =
 
 void InspIRCd::Cleanup()
 {
-	std::vector<std::string> mymodnames;
-	int MyModCount = this->Modules->GetCount();
-
 	if (Config)
 	{
 		for (unsigned int i = 0; i < Config->ports.size(); i++)
@@ -97,21 +94,12 @@ void InspIRCd::Cleanup()
 	 */
 	for (int tries = 0; tries < 3; tries++)
 	{
-		MyModCount = this->Modules->GetCount();
-		mymodnames.clear();
-
-		if (MyModCount)
+		std::vector<std::string> module_names = Modules->GetAllModuleNames(0);
+		for (std::vector<std::string>::iterator k = module_names.begin(); k != module_names.end(); ++k)
 		{
 			/* Unload all modules, so they get a chance to clean up their listeners */
-			/*XXX FIXME
-			 * for (int j = 0; j <= MyModCount; j++)
-				mymodnames.push_back(Config->module_names[j]);
-
-			for (int k = 0; k <= MyModCount; k++)
-				this->Modules->Unload(mymodnames[k].c_str());
-			*/
+			this->Modules->Unload(k->c_str());
 		}
-
 	}
 
 	/* Close logging */
