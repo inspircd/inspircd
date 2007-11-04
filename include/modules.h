@@ -14,6 +14,18 @@
 #ifndef __MODULES_H
 #define __MODULES_H
 
+#include "globals.h"
+#include "dynamic.h"
+#include "base.h"
+#include "ctables.h"
+#include "inspsocket.h"
+#include <string>
+#include <deque>
+#include <sstream>
+#include "timer.h"
+#include "mode.h"
+#include "dns.h"
+
 class XLine;
 
 /** Used with OnAccessCheck() method of modules
@@ -64,18 +76,6 @@ enum MessageType {
 	MSG_PRIVMSG = 0,
 	MSG_NOTICE = 1
 };
-
-#include "globals.h"
-#include "dynamic.h"
-#include "base.h"
-#include "ctables.h"
-#include "inspsocket.h"
-#include <string>
-#include <deque>
-#include <sstream>
-#include "timer.h"
-#include "mode.h"
-#include "dns.h"
 
 /** If you change the module API, change this value.
  * If you have enabled ipv6, the sizes of structs is
