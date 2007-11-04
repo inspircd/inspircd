@@ -65,10 +65,6 @@ class ModuleHideChans : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnWhoisLine] = 1;
-	}
 	
 	virtual ~ModuleHideChans()
 	{

@@ -168,11 +168,6 @@ class ModuleZLib : public Module
 		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = 1;
-		List[I_OnStats] = List[I_OnRequest] = 1;
-	}
 
 	/* Handle BufferedSocketHook API requests */
 	virtual char* OnRequest(Request* request)

@@ -22,12 +22,6 @@ class ModuleOperFlood : public Module
 public:
 	ModuleOperFlood(InspIRCd * Me) : Module(Me) {}
 
-	void Implements(char * List)
-	{
-		List[I_OnPostOper] = 1;
-		Implementation eventlist[] = { I_OnPostOper };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
-	}
 
 	Version GetVersion()
 	{

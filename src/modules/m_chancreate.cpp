@@ -37,10 +37,6 @@ class ModuleChanCreate : public Module
 		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserJoin] = 1;
-	}
 	
 	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{

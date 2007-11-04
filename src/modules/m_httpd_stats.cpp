@@ -234,10 +234,6 @@ class ModuleHttpStats : public Module
 		return NULL;
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnEvent] = List[I_OnRequest] = List[I_OnChannelDelete] = List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserQuit] = 1;
-	}
 
 	virtual ~ModuleHttpStats()
 	{

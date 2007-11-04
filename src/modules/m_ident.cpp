@@ -353,10 +353,6 @@ class ModuleIdent : public Module
 		return Version(1, 1, 1, 0, VF_VENDOR, API_VERSION);
 	}
 	
-	virtual void Implements(char *List)
-	{
-		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnCleanup] = List[I_OnUserDisconnect] = 1;
-	}
 	
 	virtual void OnRehash(User *user, const std::string &param)
 	{

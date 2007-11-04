@@ -163,10 +163,6 @@ class ModuleSVSHold : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreNick] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnStats] = 1;
-	}
 	
 	virtual int OnStats(char symbol, User* user, string_list &results)
 	{

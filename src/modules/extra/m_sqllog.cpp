@@ -212,12 +212,6 @@ class ModuleSQLLog : public Module
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnOper] = List[I_OnGlobalOper] = List[I_OnKill] = 1;
-		List[I_OnPreCommand] = List[I_OnUserConnect] = 1;
-		List[I_OnUserQuit] = List[I_OnLoadModule] = List[I_OnRequest] = 1;
-	}
 
 	void ReadConfig()
 	{

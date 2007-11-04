@@ -61,10 +61,6 @@ class ModuleNoCTCP : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
-	}
 
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{

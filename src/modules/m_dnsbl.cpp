@@ -215,10 +215,6 @@ class ModuleDNSBL : public Module
 		return Version(2, 0, 0, 1, VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnStats] = 1;
-	}
 
 	/** Clear entries and free the mem it was using
 	 */

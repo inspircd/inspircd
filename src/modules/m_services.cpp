@@ -200,10 +200,6 @@ class ModuleServices : public Module
 		}
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
-	}
 
 	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{

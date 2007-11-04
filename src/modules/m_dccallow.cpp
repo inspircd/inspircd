@@ -259,10 +259,6 @@ class ModuleDCCAllow : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserQuit] = List[I_OnUserPreNick] = List[I_OnRehash] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

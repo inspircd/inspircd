@@ -60,10 +60,6 @@ public:
 		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

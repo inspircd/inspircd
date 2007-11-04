@@ -72,9 +72,6 @@ class ModuleVHost : public Module
 	{
 	}
 
-	void Implements(char* List)
-	{
-	}
 
 	virtual Version GetVersion()
 	{

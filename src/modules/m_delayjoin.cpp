@@ -89,10 +89,6 @@ class ModuleDelayJoin : public Module
 		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserKick] = List[I_OnUserQuit] = List[I_OnUserList] = List[I_OnText] = 1;
-	}
 
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
 	{

@@ -64,10 +64,6 @@ class ModuleSafeList : public Module
 		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
  
-	void Implements(char* List)
-	{
-		List[I_OnBufferFlushed] = List[I_OnPreCommand] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnRehash] = 1;
-	}
 
 	/*
 	 * OnPreCommand()

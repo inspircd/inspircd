@@ -52,10 +52,6 @@ class ModuleServProtectMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnWhois] = List[I_OnKill] = List[I_OnWhoisLine] = 1;
-	}
 	
 	virtual ~ModuleServProtectMode()
 	{

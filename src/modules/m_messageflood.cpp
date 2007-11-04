@@ -289,10 +289,6 @@ class ModuleMsgFlood : public Module
 		}
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnChannelDelete] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
-	}
 
 	virtual ~ModuleMsgFlood()
 	{

@@ -94,10 +94,6 @@ class ModuleHTTPClient : public Module
 		return Version(1, 0, 0, 0, VF_SERVICEPROVIDER | VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRequest] = 1;
-	}
 
 	char* OnRequest(Request *req)
 	{

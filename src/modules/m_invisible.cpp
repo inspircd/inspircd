@@ -185,10 +185,6 @@ class ModuleInvisible : public Module
 		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserQuit] = List[I_OnRehash] = 1;
-	}
 	
 	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{

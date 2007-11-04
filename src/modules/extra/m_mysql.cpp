@@ -754,10 +754,6 @@ class ModuleSQL : public Module
 	}
 
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnRequest] = 1;
-	}
 
 	unsigned long NewID()
 	{

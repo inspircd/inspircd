@@ -498,10 +498,6 @@ class ModuleSQLite3 : public Module
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRequest] = List[I_OnRehash] = 1;
-	}
 
 	void SendQueue()
 	{

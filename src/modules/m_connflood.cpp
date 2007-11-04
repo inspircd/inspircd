@@ -45,10 +45,6 @@ public:
 		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnUserRegister] = 1;
-	}
    
 	void InitConf()
 	{

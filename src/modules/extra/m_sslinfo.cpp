@@ -77,9 +77,6 @@ class ModuleSSLInfo : public Module
 
 	}
 
-	void Implements(char* List)
-	{
-	}
 
 	virtual ~ModuleSSLInfo()
 	{

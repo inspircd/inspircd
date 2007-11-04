@@ -148,10 +148,6 @@ class ModuleJumpServer : public Module
 		return 0;
 	}
 
-	virtual void Implements(char* List)
-	{
-		List[I_OnUserRegister] = 1;
-	}
 
 	virtual Version GetVersion()
 	{

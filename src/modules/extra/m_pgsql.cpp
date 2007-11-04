@@ -752,10 +752,6 @@ class ModulePgSQL : public Module
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUnloadModule] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

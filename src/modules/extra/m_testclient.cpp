@@ -31,10 +31,6 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRequest] = List[I_OnBackgroundTimer] = 1;
-	}
 		
 	virtual Version GetVersion()
 	{

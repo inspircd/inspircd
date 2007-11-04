@@ -60,10 +60,6 @@ class ModuleOperChans : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreJoin] = 1;
-	}
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{

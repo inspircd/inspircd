@@ -251,10 +251,6 @@ class ModuleSHA256 : public Module
 		ServerInstance->Modules->UnpublishInterface("HashRequest", this);
 	}
 
-	void Implements(char *List)
-	{
-		List[I_OnRequest] = 1;
-	}
 
 	virtual char* OnRequest(Request* request)
 	{

@@ -155,10 +155,6 @@ class ModuleHelpop : public Module
 
 		}
 
-		void Implements(char* List)
-		{
-			List[I_OnRehash] = List[I_OnWhois] = 1;
-		}
 
 		virtual void OnRehash(User* user, const std::string &parameter)
 		{

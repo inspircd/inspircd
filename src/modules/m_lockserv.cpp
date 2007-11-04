@@ -96,10 +96,6 @@ public:
 	{
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserRegister] = List[I_OnRehash] = List[I_OnCheckReady] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

@@ -102,10 +102,6 @@ class ModuleXMLSocket : public Module
 		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUnloadModule] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnRehash] = 1;
-	}
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{

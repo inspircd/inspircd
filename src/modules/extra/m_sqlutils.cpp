@@ -47,10 +47,6 @@ public:
 		ServerInstance->Modules->UnpublishInterface("SQLutils", this);
 	}	
 
-	void Implements(char* List)
-	{
-		List[I_OnChannelDelete] = List[I_OnUnloadModule] = List[I_OnRequest] =  List[I_OnUserDisconnect] = 1;
-	}
 
 	virtual char* OnRequest(Request* request)
 	{

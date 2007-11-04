@@ -53,10 +53,6 @@ class ModuleBlockAmsg : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnPreCommand] = List[I_OnCleanup] = 1;
-	}
 	
 	virtual ~ModuleBlockAmsg()
 	{

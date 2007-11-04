@@ -264,10 +264,6 @@ class ModuleJoinFlood : public Module
 		}
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserJoin] = 1;
-	}
 
 	virtual ~ModuleJoinFlood()
 	{

@@ -35,10 +35,6 @@ public:
 	{
 	}
 
-	virtual void Implements(char* List)
-	{
-		List[I_OnRequest] = List[I_OnUserJoin] = List[I_OnUserPart] = 1;
-	}
 
 	virtual Version GetVersion()
 	{

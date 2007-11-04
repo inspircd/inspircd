@@ -68,10 +68,6 @@ class ModuleDeaf : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = List[I_OnBuildExemptList] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string&)
 	{

@@ -88,10 +88,6 @@ class ModuleChgHost : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = 1;
-	}
 	
 	void OnRehash(User* user, const std::string &parameter)
 	{

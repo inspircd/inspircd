@@ -487,10 +487,6 @@ class ModuleHttpServer : public Module
 		return NULL;
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRequest] = 1;
-	}
 
 	virtual ~ModuleHttpServer()
 	{

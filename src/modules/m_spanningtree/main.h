@@ -189,7 +189,6 @@ class ModuleSpanningTree : public Module
 	virtual void OnEvent(Event* event);
 	virtual ~ModuleSpanningTree();
 	virtual Version GetVersion();
-	void Implements(char* List);
 	void Prioritize();
 };
 

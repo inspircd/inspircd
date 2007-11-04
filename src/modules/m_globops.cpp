@@ -66,9 +66,6 @@ class ModuleGlobops : public Module
 		return Version(1, 1, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-	}
 };
 
 MODULE_INIT(ModuleGlobops)

@@ -46,9 +46,6 @@ class ModuleTestCommand : public Module
 
 	}
 
-	void Implements(char* List)
-	{
-	}
 
 	virtual ~ModuleTestCommand()
 	{

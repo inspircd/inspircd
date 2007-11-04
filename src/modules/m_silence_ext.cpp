@@ -253,10 +253,6 @@ class ModuleSilence : public Module
 			maxsilence = 32;
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnBuildExemptList] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
-	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{

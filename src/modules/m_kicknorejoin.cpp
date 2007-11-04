@@ -201,10 +201,6 @@ public:
 			OnChannelDelete((Channel*)item);
 	}
 
-	virtual void Implements(char* List)
-	{
-		List[I_OnCleanup] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserKick] = 1;
-	}
 
 	virtual ~ModuleKickNoRejoin()
 	{

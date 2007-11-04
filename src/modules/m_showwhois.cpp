@@ -72,10 +72,6 @@ class ModuleShowwhois : public Module
 		delete sw;
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnWhois] = 1;
-	}
 
 	virtual Version GetVersion()
 	{

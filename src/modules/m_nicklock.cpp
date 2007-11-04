@@ -124,10 +124,6 @@ class ModuleNickLock : public Module
 		return Version(1, 1, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreNick] = List[I_OnUserQuit] = List[I_OnCleanup] = 1;
-	}
 
 	virtual int OnUserPreNick(User* user, const std::string &newnick)
 	{

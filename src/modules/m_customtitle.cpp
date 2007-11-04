@@ -122,10 +122,6 @@ class ModuleCustomTitle : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnDecodeMetaData] = List[I_OnWhoisLine] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = 1;
-	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
 	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)

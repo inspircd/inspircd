@@ -45,10 +45,6 @@ class ModuleWaitPong : public Module
 			killonbadreply = true;
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnPreCommand] = List[I_OnRehash] = List[I_OnUserDisconnect] = List[I_OnCleanup] = 1;
-	}
 
 	char* RandString(unsigned int length)
 	{

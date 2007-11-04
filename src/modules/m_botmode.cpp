@@ -61,10 +61,6 @@ class ModuleBotMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnWhois] = 1;
-	}
 	
 	virtual ~ModuleBotMode()
 	{

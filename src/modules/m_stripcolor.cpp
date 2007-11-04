@@ -98,10 +98,6 @@ class ModuleStripColor : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
-	}
 
 	virtual ~ModuleStripColor()
 	{

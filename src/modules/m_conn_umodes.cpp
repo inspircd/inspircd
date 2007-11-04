@@ -32,10 +32,6 @@ class ModuleModesOnConnect : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnPostConnect] = List[I_OnRehash] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

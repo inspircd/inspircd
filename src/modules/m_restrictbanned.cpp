@@ -34,10 +34,6 @@ class ModuleRestrictBanned : public Module
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnLocalTopicChange] = List[I_OnUserPreNick] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
-	}
 
 	int CheckRestricted(User *user, Channel *channel, const std::string &action)
 	{

@@ -117,10 +117,6 @@ class ModuleOperHash : public Module
 		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnOperCompare] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

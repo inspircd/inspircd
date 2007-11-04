@@ -50,10 +50,6 @@ class ModuleRestrictChans : public Module
 		ReadConfig();
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
-	}
 	
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{

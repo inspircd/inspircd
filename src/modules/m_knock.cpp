@@ -110,9 +110,6 @@ class ModuleKnock : public Module
 
 	}
 
-	void Implements(char* List)
-	{
-	}
 
 	virtual ~ModuleKnock()
 	{

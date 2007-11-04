@@ -60,10 +60,6 @@ class ModuleHostChange : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIO_AFTER, &cloak);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnUserConnect] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

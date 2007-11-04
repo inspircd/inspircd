@@ -75,9 +75,6 @@ class ModuleTLine : public Module
 
 	}
 
-	void Implements(char* List)
-	{
-	}
 
 	virtual ~ModuleTLine()
 	{

@@ -37,10 +37,6 @@ class ModuleSSLDummy : public Module
 		return Version(1, 0, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnWhois] = 1;
-	}
 
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
 	virtual void OnWhois(User* source, User* dest)

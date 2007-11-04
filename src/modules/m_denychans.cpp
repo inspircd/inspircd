@@ -48,10 +48,6 @@ class ModuleDenyChannels : public Module
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
-	}
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{

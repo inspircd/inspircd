@@ -266,10 +266,6 @@ class ModuleNickFlood : public Module
 		}
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnChannelDelete] = List[I_OnUserPreNick] = 1;
-	}
 
 	virtual ~ModuleNickFlood()
 	{

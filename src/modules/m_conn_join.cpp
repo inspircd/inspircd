@@ -55,10 +55,6 @@ class ModuleConnJoin : public Module
 			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIO_LAST);
 		}
 
-		void Implements(char* List)
-		{
-			List[I_OnPostConnect] = List[I_OnRehash] = 1;
-		}
 
 		virtual void OnRehash(User* user, const std::string &parameter)
 		{

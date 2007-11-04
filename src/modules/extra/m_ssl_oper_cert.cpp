@@ -91,10 +91,6 @@ class ModuleOperSSLCert : public Module
 		delete cf;
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnPreCommand] = List[I_OnRehash] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

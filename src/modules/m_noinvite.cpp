@@ -57,10 +57,6 @@ class ModuleNoInvite : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreInvite] = 1;
-	}
 
 	virtual int OnUserPreInvite(User* user,User* dest,Channel* channel)
 	{

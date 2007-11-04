@@ -60,10 +60,6 @@ class ModuleUserIP : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_On005Numeric] = 1;
-	}
 
 	virtual void On005Numeric(std::string &output)
 	{

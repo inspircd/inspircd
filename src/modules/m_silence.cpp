@@ -139,10 +139,6 @@ class ModuleSilence : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

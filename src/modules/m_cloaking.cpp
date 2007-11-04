@@ -357,10 +357,6 @@ class ModuleCloaking : public Module
 		cu->DoRehash();
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = 1;
-	}
 };
 
 MODULE_INIT(ModuleCloaking)

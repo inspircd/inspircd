@@ -49,10 +49,6 @@ class ModuleSecureList : public Module
 		delete MyConf;
 	}
  
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnPreCommand] = List[I_On005Numeric] = 1;
-	}
 
 	/*
 	 * OnPreCommand()

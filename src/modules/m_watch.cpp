@@ -324,10 +324,6 @@ class Modulewatch : public Module
 			maxwatch = 32;
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnGarbageCollect] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
-	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{

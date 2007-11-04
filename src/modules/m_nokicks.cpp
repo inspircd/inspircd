@@ -61,10 +61,6 @@ class ModuleNoKicks : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnAccessCheck] = 1;
-	}
 
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{

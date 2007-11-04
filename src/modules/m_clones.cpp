@@ -88,10 +88,6 @@ class ModuleClones : public Module
 		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
-	void Implements(char* List)
-	{
-		/* we don't hook anything, nothing required */
-	}
 	
 };
 

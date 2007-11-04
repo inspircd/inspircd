@@ -29,10 +29,6 @@ class ModuleUHNames : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnSyncUserMetaData] = List[I_OnPreCommand] = List[I_OnUserList] = List[I_On005Numeric] = 1;
-	}
 
 	virtual ~ModuleUHNames()
 	{

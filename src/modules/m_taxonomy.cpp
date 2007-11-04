@@ -69,10 +69,6 @@ class ModuleTaxonomy : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_ProtoSendMetaData] = 1;
-	}
 
 	void ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{

@@ -123,10 +123,6 @@ class ModuleTimedBans : public Module
 		TimedBanList.clear();
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnDelBan] = List[I_OnBackgroundTimer] = 1;
-	}
 
 	virtual int OnDelBan(User* source, Channel* chan, const std::string &banmask)
 	{

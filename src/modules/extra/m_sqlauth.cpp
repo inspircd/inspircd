@@ -62,10 +62,6 @@ public:
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserDisconnect] = List[I_OnCheckReady] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = 1;
-	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{

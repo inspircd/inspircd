@@ -52,16 +52,17 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 
 	RefreshTimer = new CacheRefreshTimer(ServerInstance, Utils);
 	ServerInstance->Timers->AddTimer(RefreshTimer);
-		Implementation eventlist[] =
-		{
-			I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
-			I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
-			I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart, I_OnUserConnect,
-			I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
-			I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
-			I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnCancelAway, I_OnPostCommand
-		};
-		ServerInstance->Modules->Attach(eventlist, this, 29);
+
+	Implementation eventlist[] =
+	{
+		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
+		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
+		I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart, I_OnUserConnect,
+		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
+		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
+		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnCancelAway, I_OnPostCommand
+	};
+	ServerInstance->Modules->Attach(eventlist, this, 29);
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
@@ -998,16 +999,6 @@ ModuleSpanningTree::~ModuleSpanningTree()
 Version ModuleSpanningTree::GetVersion()
 {
 	return Version(1,1,0,2,VF_VENDOR,API_VERSION);
-}
-
-void ModuleSpanningTree::Implements(char* List)
-{
-	List[I_OnPreCommand] = List[I_OnGetServerDescription] = List[I_OnUserInvite] = List[I_OnPostLocalTopicChange] = 1;
-	List[I_OnWallops] = List[I_OnUserNotice] = List[I_OnUserMessage] = List[I_OnBackgroundTimer] = 1;
-	List[I_OnUserJoin] = List[I_OnChangeHost] = List[I_OnChangeName] = List[I_OnUserPart] = List[I_OnUserConnect] = 1;
-	List[I_OnUserQuit] = List[I_OnUserPostNick] = List[I_OnUserKick] = List[I_OnRemoteKill] = List[I_OnRehash] = 1;
-	List[I_OnOper] = List[I_OnAddLine] = List[I_OnDelLine] = List[I_ProtoSendMode] = List[I_OnMode] = 1;
-	List[I_OnStats] = List[I_ProtoSendMetaData] = List[I_OnEvent] = List[I_OnSetAway] = List[I_OnCancelAway] = List[I_OnPostCommand] = 1;
 }
 
 /* It is IMPORTANT that m_spanningtree is the last module in the chain

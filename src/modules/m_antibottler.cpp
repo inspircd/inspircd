@@ -26,10 +26,6 @@ class ModuleAntiBottler : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnPreCommand] = 1;
-	}
 
 	
 	virtual ~ModuleAntiBottler()

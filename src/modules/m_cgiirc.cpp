@@ -137,10 +137,6 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCleanup] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserQuit] = List[I_OnUserConnect] = 1;
-	}
 	
 	virtual void Prioritize()
 	{
