@@ -30,7 +30,7 @@ CmdResult CommandUnloadmodule::Handle (const char** parameters, int, User *user)
 	}
 	else
 	{
-		user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
+		user->WriteServ("972 %s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
 		return CMD_FAILURE;
 	}
 

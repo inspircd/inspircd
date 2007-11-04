@@ -33,6 +33,6 @@ CmdResult CommandReloadmodule::Handle (const char** parameters, int, User *user)
 	}
 	
 	ServerInstance->WriteOpers("*** RELOAD MODULE: %s unsuccessfully reloaded %s",user->nick, parameters[0]);
-	user->WriteServ("975 %s %s :Module failed to reload.",user->nick, parameters[0]);
+	user->WriteServ("975 %s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
 	return CMD_FAILURE;
 }
