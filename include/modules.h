@@ -1521,10 +1521,6 @@ class CoreExport FileReader : public classbase
  */
 typedef DLLFactory<Module> ircd_module;
 
-/** A list of loaded module handles (ircd_module)
- */
-typedef std::vector<ircd_module*> ModuleHandleList;
-
 /** A list of modules
  */
 typedef std::vector<Module*> IntModuleList;
