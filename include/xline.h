@@ -17,8 +17,6 @@
 #include <string>
 #include <deque>
 #include <vector>
-#include "users.h"
-#include "channels.h"
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  * Modules may derive from this, and their xlines will automatically be

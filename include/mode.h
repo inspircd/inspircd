@@ -14,12 +14,9 @@
 #ifndef __MODE_H
 #define __MODE_H
 
-/* include the common header files */
 #include <string>
 #include <deque>
 #include <vector>
-#include "users.h"
-#include "channels.h"
 #include "ctables.h"
 
 class InspIRCd;

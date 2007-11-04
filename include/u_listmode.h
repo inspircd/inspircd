@@ -18,11 +18,9 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include "users.h"
-#include "channels.h"
+#include "inspircd.h"
 #include "modules.h"
 #include "wildcard.h"
-#include "inspircd.h"
 
 /** Get the time as a string
  */

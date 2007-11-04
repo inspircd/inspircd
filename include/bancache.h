@@ -19,12 +19,19 @@
 class CoreExport BanCacheHit : public classbase
 {
  private:
+	InspIRCd *ServerInstance;
  public:
-	const std::string Type;
-	const std::string Reason;
-	const bool Banned;
-	const time_t Duration;
-	const time_t Creation;
+	std::string Type;
+	std::string Reason;
+	std::string IP;
+
+	BanCacheHit(InspIRCd *Instance, const std::string &ip, const std::string &type, const std::string &reason)
+	{
+		ServerInstance = Instance;
+		this->Type = type;
+		this->Reason = reason;
+		this->IP = ip;
+	}
 };
 
 // must be defined after class BanCacheHit.
@@ -36,8 +43,15 @@ class CoreExport BanCacheManager : public classbase
 	BanCacheHash *BanHash;
 	InspIRCd *ServerInstance;
  public:
-	BanCacheHit *AddHit(const std::string &ip, bool banned, const std::string &reason);
+
+	/** Creates and adds a Ban Cache item.
+	 * @param ip The IP the item is for.
+	 * @param type The type of ban cache item. std::string. .empty() means it's a negative match (user is allowed freely).
+	 * @param reason The reason for the ban. Left .empty() if it's a negative match.
+	 */
+	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason);
 	BanCacheHit *GetHit(const std::string &ip);
+	bool RemoveHit(BanCacheHit *b);
 
 	BanCacheManager(InspIRCd *Instance)
 	{

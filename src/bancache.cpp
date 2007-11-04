@@ -16,4 +16,51 @@
 #include "inspircd.h"
 #include "bancache.h"
 
+BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &type, const std::string &reason)
+{
+	BanCacheHit *b;
+
+
+	if (this->BanHash->find(ip) != this->BanHash->end()) // can't have two cache entries on the same IP, sorry..
+		return NULL;
+
+	b = new BanCacheHit(ServerInstance, ip, type, reason);
+
+	this->BanHash->insert(std::make_pair(ip, b));
+	return b;
+}
+
+BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
+{
+	BanCacheHash::iterator i = this->BanHash->find(ip);
+
+	if (i == this->BanHash->end())
+		return NULL; // free and safe
+	else
+		return i->second; // hit.
+}
+
+bool BanCacheManager::RemoveHit(BanCacheHit *b)
+{
+	BanCacheHash::iterator i;
+
+	if (!b)
+		return false; // I don't think so.
+
+	i = this->BanHash->find(b->IP);
+
+	if (i == this->BanHash->end())
+	{
+		// err..
+		ServerInstance->Log(DEBUG, "BanCacheManager::RemoveHit(): I got asked to remove a hit that wasn't in the hash(?)");
+	}
+	else
+	{
+		this->BanHash->erase(b->IP);
+	}
+
+	delete b;
+	return true;
+}
+
 

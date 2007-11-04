@@ -19,8 +19,6 @@
 #include <string>
 #include <deque>
 #include <vector>
-#include "users.h"
-#include "channels.h"
 
 class InspIRCd;
 
