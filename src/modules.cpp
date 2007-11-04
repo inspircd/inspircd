@@ -268,12 +268,15 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 
 	Instance->Log(DEBUG,"ModuleManager::SetPriority: My position: %u", source);
 
-	for (size_t n = 0; n < sz; ++n)
+	if (modules)
 	{
-		if (modules[n])
-			Instance->Log(DEBUG,"    Listed Module: [%08x] %s", modules[n], GetModuleName(modules[n]).c_str());
-		else
-			Instance->Log(DEBUG,"    [null module]");
+		for (size_t n = 0; n < sz; ++n)
+		{
+			if (modules[n])
+				Instance->Log(DEBUG,"    Listed Module: [%08x] %s", modules[n], GetModuleName(modules[n]).c_str());
+			else
+				Instance->Log(DEBUG,"    [null module]");
+		}
 	}
 
 	switch (s)
@@ -294,12 +297,16 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 		{
 			/* Find the latest possible position */
 			swap_pos = 0;
+			swap = false;
 			for (size_t x = 0; x != EventHandlers[i].size(); ++x)
 			{
 				for (size_t n = 0; n < sz; ++n)
 				{
-					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x >= swap_pos))
+					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x >= swap_pos) && (source <= swap_pos))
+					{
 						swap_pos = x;
+						swap = true;
+					}
 				}
 			}
 		}
@@ -307,12 +314,16 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 		case PRIO_BEFORE:
 		{
 			swap_pos = EventHandlers[i].size() - 1;
+			swap = false;
 			for (size_t x = 0; x != EventHandlers[i].size(); ++x)
 			{
 				for (size_t n = 0; n < sz; ++n)
 				{
-					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x <= swap_pos))
+					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x <= swap_pos) && (source >= swap_pos))
+					{
+						swap = true;
 						swap_pos = x;
+					}
 				}
 			}
 		}
@@ -326,6 +337,12 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 	}
 	else
 		Instance->Log(DEBUG,"No need to swap");
+
+	Instance->Log(DEBUG,"New ordering:");
+	for (size_t x = 0; x != EventHandlers[i].size(); ++x)
+	{
+		Instance->Log(DEBUG,"  [%08x] %s", EventHandlers[i][x], GetModuleName(EventHandlers[i][x]).c_str());
+	}
 
 	return true;
 }
