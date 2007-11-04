@@ -55,10 +55,11 @@ class ModuleAuditorium : public Module
 	{
 		aum = new AuditoriumMode(ServerInstance);
 		if (!ServerInstance->AddMode(aum))
-			throw ModuleException("Could not add new modes!")
+			throw ModuleException("Could not add new modes!");
+
 		OnRehash(NULL, "");
 
-		Implements eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnUserList, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnUserList, I_OnRehash };
 		Me->Modules->Attach(eventlist, this, sizeof(eventlist));
 	}
 	
@@ -70,7 +71,8 @@ class ModuleAuditorium : public Module
 
 	void Prioritize()
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &(ServerInstance->Modules->Find("m_namesx.so")));
+		Module* namesx = ServerInstance->Modules->Find("m_namesx.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &namesx);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
