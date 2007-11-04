@@ -1558,7 +1558,7 @@ class CoreExport ModuleManager : public classbase
 	 */
 	interfacelist Interfaces;
  
-	/** Total number of modules loaded into the ircd, minus one
+	/** Total number of modules loaded into the ircd
 	 */
 	int ModCount; 
 	
