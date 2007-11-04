@@ -103,7 +103,7 @@ class CommandGreloadmodule : public Command
 		{
 			if (!ServerInstance->Modules->Unload(parameters[0]))
 			{
-				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
+				user->WriteServ("972 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 			if (!ServerInstance->Modules->Load(parameters[0]))
 			{
