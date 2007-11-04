@@ -75,10 +75,11 @@ class ModuleDelayJoin : public Module
 		DELETE(djm);
 	}
 
-	Priority Prioritize()
+	void Prioritize()
 	{
-		/* To ensure that we get priority over namesx for names list generation on +u channels */
-		return (Priority)ServerInstance->Modules->PriorityBefore("m_namesx.so");
+		/* To ensure that we get priority over namesx for names list generation */
+		Module* namesx = ServerInstance->Modules->Find("m_namesx.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &namesx);
 	}
 
 	virtual Version GetVersion()
