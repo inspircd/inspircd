@@ -668,10 +668,11 @@ bool InitModule(ServerConfig* conf, const char*)
 	new_module_names.clear();
 	added_modules.clear();
 	removed_modules.clear();
-	for (std::vector<std::string>::iterator t = conf->module_names.begin(); t != conf->module_names.end(); t++)
+	/** FIXME **/
+	/*for (std::vector<std::string>::iterator t = conf->module_names.begin(); t != conf->module_names.end(); t++)
 	{
 		old_module_names.push_back(*t);
-	}
+	}*/
 	return true;
 }
 

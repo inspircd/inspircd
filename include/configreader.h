@@ -499,11 +499,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	ClassVector Classes;
 
-	/** A list of module names (names only, no paths)
-	 * which are currently loaded by the server.
-	 */
-	std::vector<std::string> module_names;
-
 	/** A list of the classes for listening client ports
 	 */
 	std::vector<ListenSocket*> ports;

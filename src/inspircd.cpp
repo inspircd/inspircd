@@ -441,9 +441,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Get XLine to do it's thing.
 	this->XLines->CheckELines();
 	this->XLines->ApplyLines();
-	
-	this->Modules->modules.resize(255);
-	this->Modules->handles.resize(255);
 
 	/*
 	 * Initialise SID/UID.

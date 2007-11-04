@@ -401,7 +401,7 @@ bool ModuleManager::Load(const char* filename)
 		return false;
 	}
 	
-	if(find(Instance->Config->module_names.begin(), Instance->Config->module_names.end(), filename_str) != Instance->Config->module_names.end())
+	if (Modules.find(filename_str) != Modules.end())
 	{	
 		Instance->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
 		snprintf(MODERR, MAXBUF, "Module already loaded");
@@ -420,10 +420,7 @@ bool ModuleManager::Load(const char* filename)
 		 * the module file or getting a pointer to the init_module symbol.
 		 */
 		newhandle = new ircd_module(Instance, modfile, "init_module");
-			
-		handles[this->ModCount+1] = newhandle;
-			
-		newmod = handles[this->ModCount+1]->CallInit();
+		newmod = newhandle->CallInit();
 
 		if(newmod)
 		{
@@ -441,11 +438,7 @@ bool ModuleManager::Load(const char* filename)
 				Instance->Log(DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 
-			modules[this->ModCount+1] = newmod;
-				
-			/* save the module and the module's classfactory, if
-			 * this isnt done, random crashes can occur :/ */
-			Instance->Config->module_names.push_back(filename);
+			Modules[filename_str] = std::make_pair(newhandle, newmod);
 		}
 		else
 		{
@@ -474,123 +467,70 @@ bool ModuleManager::Load(const char* filename)
 	}
 	
 	this->ModCount++;
-	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
+	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(newmod, filename_str));
 
-	for (int n = 0; n != this->ModCount+1; ++n)
-		modules[n]->Prioritize();
+	for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator n = Modules.begin(); n != Modules.end(); ++n)
+		n->second.second->Prioritize();
 
 	Instance->BuildISupport();
 	return true;
 }
 
-bool ModuleManager::EraseHandle(unsigned int j)
-{
-	ModuleHandleList::iterator iter;
-	
-	if (j >= handles.size())
-	{
-		return false;
-	}
-	
-	iter = handles.begin() + j;
-
-	if(*iter)
-	{
-		delete *iter;	
-		handles.erase(iter);
- 		handles.push_back(NULL);
-	}
-
-	return true;
-}
-
-bool ModuleManager::EraseModule(unsigned int j)
-{
-	bool success = false;
-	
-	ModuleList::iterator iter;	
-	
-	if (j >= modules.size())
-	{
-		return false;
-	}
-
-	iter = modules.begin() + j;
-
-	if (*iter)
-	{
-		delete *iter;	
-		modules.erase(iter);
- 		modules.push_back(NULL);
-		success = true;
-	}
-
-	std::vector<std::string>::iterator iter2;
-	
-	if (j >= Instance->Config->module_names.size())
-	{
-		return false;
-	}
-
-	iter2 = Instance->Config->module_names.begin() + j;
-
-	Instance->Config->module_names.erase(iter2);
-	success = true;
-
-	return success;
-}
-
 bool ModuleManager::Unload(const char* filename)
 {
 	std::string filename_str = filename;
-	for (unsigned int j = 0; j != Instance->Config->module_names.size(); j++)
+	std::map<std::string, std::pair<ircd_module*, Module*> >::iterator modfind = Modules.find(filename);
+
+	if (modfind != Modules.end())
 	{
-		if (Instance->Config->module_names[j] == filename_str)
+		if (modfind->second.second->GetVersion().Flags & VF_STATIC)
 		{
-			if (modules[j]->GetVersion().Flags & VF_STATIC)
-			{
-				Instance->Log(DEFAULT,"Failed to unload STATIC module %s",filename);
-				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
-				return false;
-			}
-			std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modules[j]);
-			if (intercount.first > 0)
-			{
-				Instance->Log(DEFAULT,"Failed to unload module %s, being used by %d other(s) via interface '%s'",filename, intercount.first, intercount.second.c_str());
-				snprintf(MODERR,MAXBUF,"Module not unloadable (Still in use by %d other module%s which %s using its interface '%s') -- unload dependent modules first!",
-						intercount.first,
-						intercount.first > 1 ? "s" : "",
-						intercount.first > 1 ? "are" : "is",
-						intercount.second.c_str());
-				return false;
-			}
-			/* Give the module a chance to tidy out all its metadata */
-			for (chan_hash::iterator c = Instance->chanlist->begin(); c != Instance->chanlist->end(); c++)
-			{
-				modules[j]->OnCleanup(TYPE_CHANNEL,c->second);
-			}
-			for (user_hash::iterator u = Instance->clientlist->begin(); u != Instance->clientlist->end(); u++)
-			{
-				modules[j]->OnCleanup(TYPE_USER,u->second);
-			}
-
-			/* Tidy up any dangling resolvers */
-			Instance->Res->CleanResolvers(modules[j]);
-
-			FOREACH_MOD_I(Instance,I_OnUnloadModule,OnUnloadModule(modules[j],Instance->Config->module_names[j]));
-
-			this->DetachAll(modules[j]);
-
-			// found the module
-			Instance->Parser->RemoveCommands(filename);
-			this->EraseModule(j);
-			this->EraseHandle(j);
-			Instance->Log(DEFAULT,"Module %s unloaded",filename);
-			this->ModCount--;
-			Instance->BuildISupport();
-			return true;
+			Instance->Log(DEFAULT,"Failed to unload STATIC module %s",filename);
+			snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
+			return false;
 		}
+		std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modfind->second.second);
+		if (intercount.first > 0)
+		{
+			Instance->Log(DEFAULT,"Failed to unload module %s, being used by %d other(s) via interface '%s'",filename, intercount.first, intercount.second.c_str());
+			snprintf(MODERR,MAXBUF,"Module not unloadable (Still in use by %d other module%s which %s using its interface '%s') -- unload dependent modules first!",
+					intercount.first,
+					intercount.first > 1 ? "s" : "",
+					intercount.first > 1 ? "are" : "is",
+					intercount.second.c_str());
+			return false;
+		}
+
+		/* Give the module a chance to tidy out all its metadata */
+		for (chan_hash::iterator c = Instance->chanlist->begin(); c != Instance->chanlist->end(); c++)
+		{
+			modfind->second.second->OnCleanup(TYPE_CHANNEL,c->second);
+		}
+		for (user_hash::iterator u = Instance->clientlist->begin(); u != Instance->clientlist->end(); u++)
+		{
+			modfind->second.second->OnCleanup(TYPE_USER,u->second);
+		}
+
+		/* Tidy up any dangling resolvers */
+		Instance->Res->CleanResolvers(modfind->second.second);
+
+
+		FOREACH_MOD_I(Instance,I_OnUnloadModule,OnUnloadModule(modfind->second.second, modfind->first));
+
+		this->DetachAll(modfind->second.second);
+
+		Instance->Parser->RemoveCommands(filename);
+
+		delete modfind->second.second;
+		delete modfind->second.first;
+		Modules.erase(modfind);
+
+		Instance->Log(DEFAULT,"Module %s unloaded",filename);
+		this->ModCount--;
+		Instance->BuildISupport();
+		return true;
 	}
+
 	Instance->Log(DEFAULT,"Module %s is not loaded, cannot unload it!",filename);
 	snprintf(MODERR,MAXBUF,"Module not loaded");
 	return false;
@@ -600,7 +540,6 @@ bool ModuleManager::Unload(const char* filename)
 void ModuleManager::LoadAll()
 {
 	char configToken[MAXBUF];
-	Instance->Config->module_names.clear();
 	ModCount = -1;
 
 	for(int count = 0; count < Instance->Config->ConfValueEnum(Instance->Config->config_data, "module"); count++)
@@ -730,19 +669,15 @@ std::pair<int,std::string> ModuleManager::GetInterfaceInstanceCount(Module* m)
 
 const std::string& ModuleManager::GetModuleName(Module* m)
 {
-	static std::string nothing; /* Prevent compiler warning */
+	static std::string nothing;
 
-	if (!this->GetCount())
-		return nothing;
-
-	for (int i = 0; i <= this->GetCount(); i++)
+	for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator n = Modules.begin(); n != Modules.end(); ++n)
 	{
-		if (this->modules[i] == m)
-		{
-			return Instance->Config->module_names[i];
-		}
+		if (n->second.second == m)
+			return n->first;
 	}
-	return nothing; /* As above */
+
+	return nothing;
 }
 
 /* This is ugly, yes, but hash_map's arent designed to be
@@ -842,14 +777,12 @@ bool InspIRCd::AddResolver(Resolver* r, bool cached)
 
 Module* ModuleManager::Find(const std::string &name)
 {
-	for (int i = 0; i <= this->GetCount(); i++)
-	{
-		if (Instance->Config->module_names[i] == name)
-		{
-			return this->modules[i];
-		}
-	}
-	return NULL;
+	std::map<std::string, std::pair<ircd_module*, Module*> >::iterator modfind = Modules.find(name);
+
+	if (modfind == Modules.end())
+		return NULL;
+	else
+		return modfind->second.second;
 }
 
 ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)

@@ -1565,21 +1565,11 @@ class CoreExport ModuleManager : public classbase
 	 */
 	InspIRCd* Instance;
 
+	std::map<std::string, std::pair<ircd_module*, Module*> > Modules;
+
  public:
 
 	EventHandlerList EventHandlers;
-
-	/** A list of ircd_module* module handles
-	 * Note that this list is always exactly 255 in size.
-	 * The actual number of loaded modules is available from GetModuleCount()
-	 */
-	ModuleHandleList handles;
- 
-  	/** A list of Module* module classes
-	 * Note that this list is always exactly 255 in size.
-	 * The actual number of loaded modules is available from GetModuleCount()
-	 */
-	ModuleList modules;	 
 
 	/** Simple, bog-standard, boring constructor.
 	 */
