@@ -107,8 +107,8 @@ class ModuleStripColor : public Module
 	{
 		ServerInstance->Modes->DelMode(usc);
 		ServerInstance->Modes->DelMode(csc);
-		DELETE(usc);
-		DELETE(csc);
+		delete usc;
+		delete csc;
 	}
 	
 	virtual void ReplaceLine(std::string &sentence)

@@ -109,7 +109,7 @@ class ModuleSSLModes : public Module
 	virtual ~ModuleSSLModes()
 	{
 		ServerInstance->Modes->DelMode(sslm);
-		DELETE(sslm);
+		delete sslm;
 	}
 	
 	virtual Version GetVersion()

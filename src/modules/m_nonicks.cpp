@@ -60,7 +60,7 @@ class ModuleNoNickChange : public Module
 	virtual ~ModuleNoNickChange()
 	{
 		ServerInstance->Modes->DelMode(nn);
-		DELETE(nn);
+		delete nn;
 	}
 	
 	virtual Version GetVersion()

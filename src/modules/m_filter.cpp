@@ -112,7 +112,7 @@ class ModuleFilter : public FilterBase
 			FilterResult* x = new FilterResult(pattern, reason, do_action, gline_time, flags);
 			filters[pattern] = x;
 		}
-		DELETE(MyConf);
+		delete MyConf;
 	}
 
 	virtual int OnStats(char symbol, User* user, string_list &results)

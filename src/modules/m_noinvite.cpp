@@ -75,7 +75,7 @@ class ModuleNoInvite : public Module
 	virtual ~ModuleNoInvite()
 	{
 		ServerInstance->Modes->DelMode(ni);
-		DELETE(ni);
+		delete ni;
 	}
 	
 	virtual Version GetVersion()

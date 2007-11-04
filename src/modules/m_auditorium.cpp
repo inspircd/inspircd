@@ -67,7 +67,7 @@ class ModuleAuditorium : public Module
 	virtual ~ModuleAuditorium()
 	{
 		ServerInstance->Modes->DelMode(aum);
-		DELETE(aum);
+		delete aum;
 	}
 
 	void Prioritize()

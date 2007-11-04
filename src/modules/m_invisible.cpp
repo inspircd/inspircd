@@ -175,9 +175,9 @@ class ModuleInvisible : public Module
 	{
 		ServerInstance->Modes->DelMode(qm);
 		ServerInstance->Modes->DelModeWatcher(ido);
-		DELETE(qm);
-		DELETE(ido);
-		DELETE(conf);
+		delete qm;
+		delete ido;
+		delete conf;
 	}
 
 	virtual Version GetVersion()
@@ -203,7 +203,7 @@ class ModuleInvisible : public Module
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
-		DELETE(conf);
+		delete conf;
 		conf = new ConfigReader(ServerInstance);
 	}
 

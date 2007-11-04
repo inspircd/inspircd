@@ -43,12 +43,12 @@ void TimerManager::TickTimers(time_t TIME)
 			}
 			else
 			{
-				DELETE(n);
+				delete n;
 			}
 		}
 
 		Timers.erase(found);
-		DELETE(x);
+		delete x;
 	}
 
 	this->CantDeleteHere = false;
@@ -84,12 +84,12 @@ void TimerManager::DelTimer(Timer* T)
 			Timer* n = *y;
 			if (n == T)
 			{
-				DELETE(n);
+				delete n;
 				x->erase(y);
 				if (!x->size())
 				{
 					Timers.erase(found);
-					DELETE(x);
+					delete x;
 				}
 				return;
 			}

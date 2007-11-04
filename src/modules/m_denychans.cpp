@@ -34,13 +34,13 @@ class ModuleDenyChannels : public Module
 	
 	virtual void OnRehash(User* user, const std::string &param)
 	{
-		DELETE(Conf);
+		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
 	}
 
 	virtual ~ModuleDenyChannels()
 	{
-		DELETE(Conf);
+		delete Conf;
 	}
 	
 	virtual Version GetVersion()

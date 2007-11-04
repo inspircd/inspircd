@@ -55,7 +55,7 @@ class ModuleOverride : public Module
 			overrides[typen] = tokenlist;
 		}
 		
-		DELETE(Conf);
+		delete Conf;
 	}
 
 	void Implements(char* List)

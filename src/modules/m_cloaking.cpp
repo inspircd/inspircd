@@ -341,7 +341,7 @@ class ModuleCloaking : public Module
 	virtual ~ModuleCloaking()
 	{
 		ServerInstance->Modes->DelMode(cu);
-		DELETE(cu);
+		delete cu;
 		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 	

@@ -49,7 +49,7 @@ class ModuleHostChange : public Module
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			DELETE(i->second);
+			delete i->second;
 		}
 		hostchanges.clear();
 	}
@@ -73,7 +73,7 @@ class ModuleHostChange : public Module
 		MySeparator = Conf.ReadValue("host","separator",".",0);
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			DELETE(i->second);
+			delete i->second;
 		}
 		hostchanges.clear();
 		for (int index = 0; index < Conf.Enumerate("hostchange"); index++)

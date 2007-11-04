@@ -39,13 +39,13 @@ class ModuleModesOnConnect : public Module
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
-		DELETE(Conf);
+		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
 	}
 	
 	virtual ~ModuleModesOnConnect()
 	{
-		DELETE(Conf);
+		delete Conf;
 	}
 	
 	virtual Version GetVersion()

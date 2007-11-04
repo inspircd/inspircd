@@ -69,7 +69,7 @@ class ModuleShowwhois : public Module
 	~ModuleShowwhois()
 	{
 		ServerInstance->Modes->DelMode(sw);
-		DELETE(sw);
+		delete sw;
 	}
 
 	void Implements(char* List)

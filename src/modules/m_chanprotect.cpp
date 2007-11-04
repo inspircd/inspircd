@@ -358,8 +358,8 @@ class ModuleChanProtect : public Module
 		{
 			ServerInstance->Modes->DelMode(cp);
 			ServerInstance->Modes->DelMode(cf);
-			DELETE(cp);
-			DELETE(cf);
+			delete cp;
+			delete cf;
 			cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 			cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 			/* These wont fail, we already owned the mode characters before */
@@ -481,8 +481,8 @@ class ModuleChanProtect : public Module
 	{
 		ServerInstance->Modes->DelMode(cp);
 		ServerInstance->Modes->DelMode(cf);
-		DELETE(cp);
-		DELETE(cf);
+		delete cp;
+		delete cf;
 	}
 	
 	virtual Version GetVersion()

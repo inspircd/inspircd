@@ -118,8 +118,8 @@ class ModuleRandQuote : public Module
 	
 	virtual ~ModuleRandQuote()
 	{
-		DELETE(conf);
-		DELETE(quotes);
+		delete conf;
+		delete quotes;
 	}
 	
 	virtual Version GetVersion()

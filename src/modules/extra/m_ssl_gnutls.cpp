@@ -224,7 +224,7 @@ class ModuleSSLGnuTLS : public Module
 		// This may be on a large (once a day or week) timer eventually.
 		GenerateDHParams();
 
-		DELETE(Conf);
+		delete Conf;
 	}
 
 	void GenerateDHParams()
@@ -688,8 +688,8 @@ class ModuleSSLGnuTLS : public Module
 			metadata->push_back("ON");		// The value to send
 			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
 			event->Send(ServerInstance);		// Trigger the event. We don't care what module picks it up.
-			DELETE(event);
-			DELETE(metadata);
+			delete event;
+			delete metadata;
 
 			VerifyCertificate(&sessions[user->GetFd()],user);
 			if (sessions[user->GetFd()].sess)

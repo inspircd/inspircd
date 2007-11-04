@@ -633,7 +633,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', link tag has the same server name as the local server!");
 		}
 	}
-	DELETE(Conf);
+	delete Conf;
 }
 
 void SpanningTreeUtilities::DoFailOver(Link* x)

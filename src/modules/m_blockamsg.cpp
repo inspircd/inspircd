@@ -178,7 +178,7 @@ class ModuleBlockAmsg : public Module
 			user->GetExt("amsgblock", m);
 			if(m)
 			{
-				DELETE(m);
+				delete m;
 				user->Shrink("amsgblock");
 			}
 		}

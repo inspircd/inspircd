@@ -84,7 +84,7 @@ class ModuleOperChans : public Module
 	virtual ~ModuleOperChans()
 	{
 		ServerInstance->Modes->DelMode(oc);
-		DELETE(oc);
+		delete oc;
 	}
 	
 	virtual Version GetVersion()

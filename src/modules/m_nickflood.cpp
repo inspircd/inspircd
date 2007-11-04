@@ -194,7 +194,7 @@ class NickFlood : public ModeHandler
 			{
 				nickfloodsettings *f;
 				channel->GetExt("nickflood", f);
-				DELETE(f);
+				delete f;
 				channel->Shrink("nickflood");
 				channel->SetMode('F', false);
 				return MODEACTION_ALLOW;
@@ -261,7 +261,7 @@ class ModuleNickFlood : public Module
 		nickfloodsettings *f;
 		if (chan->GetExt("nickflood",f))
 		{
-			DELETE(f);
+			delete f;
 			chan->Shrink("nickflood");
 		}
 	}
@@ -274,7 +274,7 @@ class ModuleNickFlood : public Module
 	virtual ~ModuleNickFlood()
 	{
 		ServerInstance->Modes->DelMode(jf);
-		DELETE(jf);
+		delete jf;
 	}
 	
 	virtual Version GetVersion()

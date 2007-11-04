@@ -60,7 +60,7 @@ class ModuleServProtectMode : public Module
 	virtual ~ModuleServProtectMode()
 	{
 		ServerInstance->Modes->DelMode(bm);
-		DELETE(bm);
+		delete bm;
 	}
 	
 	virtual Version GetVersion()

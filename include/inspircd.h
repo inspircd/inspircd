@@ -56,14 +56,6 @@
  */
 #define ETIREDHAMSTERS EAGAIN
 
-/** Delete a pointer, and NULL its value
- */
-template<typename T> inline void DELETE(T* x)
-{
-	delete x;
-	x = NULL;
-}
-
 /** Template function to convert any input type to std::string
  */
 template<typename T> inline std::string ConvNumeric(const T &in)

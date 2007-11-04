@@ -55,7 +55,7 @@ class KickRejoin : public ModeHandler
 			
 			if (channel->GetExt("norejoinusers", dl))
 			{
-				DELETE(dl);
+				delete dl;
 				channel->Shrink("norejoinusers");
 			}
 			
@@ -162,7 +162,7 @@ public:
 				if (!dl->size())
 				{
 					// Now it's empty..
-					DELETE(dl);
+					delete dl;
 					chan->Shrink("norejoinusers");
 				}
 			}
@@ -190,7 +190,7 @@ public:
 			
 		if (chan->GetExt("norejoinusers", dl))
 		{
-			DELETE(dl);
+			delete dl;
 			chan->Shrink("norejoinusers");
 		}
 	}
@@ -209,7 +209,7 @@ public:
 	virtual ~ModuleKickNoRejoin()
 	{
 		ServerInstance->Modes->DelMode(kr);
-		DELETE(kr);
+		delete kr;
 	}
 	
 	virtual Version GetVersion()

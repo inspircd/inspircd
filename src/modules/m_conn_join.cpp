@@ -67,7 +67,7 @@ class ModuleConnJoin : public Module
 			Joinchans.clear();
 			if (!JoinChan.empty())
 				tokenize(JoinChan,Joinchans);
-			DELETE(conf);
+			delete conf;
 		}
 
 		virtual ~ModuleConnJoin()

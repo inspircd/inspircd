@@ -79,7 +79,7 @@ class ModuleDeaf : public Module
 		deaf_bypasschars = conf->ReadValue("deaf", "bypasschars", 0);
 		deaf_bypasschars_uline = conf->ReadValue("deaf", "bypasscharsuline", 0);
 
-		DELETE(conf);
+		delete conf;
 	}
 
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -180,7 +180,7 @@ class ModuleDeaf : public Module
 	virtual ~ModuleDeaf()
 	{
 		ServerInstance->Modes->DelMode(m1);
-		DELETE(m1);
+		delete m1;
 	}
 
 	virtual Version GetVersion()

@@ -330,7 +330,7 @@ bool TreeServer::Tidy()
 			TreeServer* s = (TreeServer*)*a;
 			s->Tidy();
 			Children.erase(a);
-			DELETE(s);
+			delete s;
 			stillchildren = true;
 			break;
 		}

@@ -186,7 +186,7 @@ class MsgFlood : public ModeHandler
 		{
 			if (channel->GetExt("flood", f))
 			{
-				DELETE(f);
+				delete f;
 				channel->Shrink("flood");
 				channel->SetMode('f', false);
 				return MODEACTION_ALLOW;
@@ -284,7 +284,7 @@ class ModuleMsgFlood : public Module
 		floodsettings* f;
 		if (chan->GetExt("flood", f))
 		{
-			DELETE(f);
+			delete f;
 			chan->Shrink("flood");
 		}
 	}
@@ -297,7 +297,7 @@ class ModuleMsgFlood : public Module
 	virtual ~ModuleMsgFlood()
 	{
 		ServerInstance->Modes->DelMode(mf);
-		DELETE(mf);
+		delete mf;
 	}
 	
 	virtual Version GetVersion()

@@ -154,7 +154,7 @@ class BanRedirect : public ModeWatcher
 										
 										if(redirects->empty())
 										{
-											DELETE(redirects);
+											delete redirects;
 											channel->Shrink("banredirects");
 										}
 										
@@ -244,7 +244,7 @@ class ModuleBanRedirect : public Module
 					ServerInstance->SendMode(mode_junk, stackresult.size() + 1, ServerInstance->FakeClient);
 				}
 				
-				DELETE(redirects);
+				delete redirects;
 				chan->Shrink("banredirects");
 			}
 		}
@@ -318,7 +318,7 @@ class ModuleBanRedirect : public Module
 	virtual ~ModuleBanRedirect()
 	{
 		ServerInstance->Modes->DelModeWatcher(re);
-		DELETE(re);
+		delete re;
 	}
 	
 	virtual Version GetVersion()

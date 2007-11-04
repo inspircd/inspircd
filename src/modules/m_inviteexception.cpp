@@ -140,7 +140,7 @@ public:
 	~ModuleInviteException()
 	{
 		ServerInstance->Modes->DelMode(ie);
-		DELETE(ie);
+		delete ie;
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };

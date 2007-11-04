@@ -65,7 +65,7 @@ class CommandSwhois : public Command
 				ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
 			
 			dest->Shrink("swhois");
-			DELETE(text);
+			delete text;
 		}
 		else if (!ServerInstance->ULine(user->server))
 		{
@@ -114,7 +114,7 @@ class ModuleSWhois : public Module
 
 	void OnRehash(User* user, const std::string &parameter)
 	{
-		DELETE(Conf);
+		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
 	}
 
@@ -171,7 +171,7 @@ class ModuleSWhois : public Module
 		if (swhois)
 		{
 			user->Shrink("swhois");
-			DELETE(swhois);
+			delete swhois;
 		}
 	}
 
@@ -186,7 +186,7 @@ class ModuleSWhois : public Module
 			if (swhois)
 			{
 				user->Shrink("swhois");
-				DELETE(swhois);
+				delete swhois;
 			}
 		}
 	}
@@ -250,7 +250,7 @@ class ModuleSWhois : public Module
 		if (user->GetExt("swhois", old))
 		{
 			user->Shrink("swhois");
-			DELETE(old);
+			delete old;
 		}
 		
 		if (!swhois.length())
@@ -269,7 +269,7 @@ class ModuleSWhois : public Module
 
 	virtual ~ModuleSWhois()
 	{
-		DELETE(Conf);
+		delete Conf;
 	}
 	
 	virtual Version GetVersion()

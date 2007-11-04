@@ -147,7 +147,7 @@ class RequestTimeout : public Timer
 				ServerInstance->Res->Classes[watchid] = NULL;
 			}
 			ServerInstance->Res->requests[watchid] = NULL;
-			DELETE(watch);
+			delete watch;
 			return;
 		}
 	}

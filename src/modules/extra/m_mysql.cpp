@@ -512,7 +512,7 @@ void ClearOldConnections(ConfigReader* conf)
 	{
 		if (!HostInConf(conf, i->second->GetConfHost()))
 		{
-			DELETE(i->second);
+			delete i->second;
 			safei = i;
 			--i;
 			Connections.erase(safei);
@@ -526,7 +526,7 @@ void ClearAllConnections()
 	while ((i = Connections.begin()) != Connections.end())
 	{
 		Connections.erase(i);
-		DELETE(i->second);
+		delete i->second;
 	}
 }
 

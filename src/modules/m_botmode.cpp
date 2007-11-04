@@ -69,7 +69,7 @@ class ModuleBotMode : public Module
 	virtual ~ModuleBotMode()
 	{
 		ServerInstance->Modes->DelMode(bm);
-		DELETE(bm);
+		delete bm;
 	}
 	
 	virtual Version GetVersion()

@@ -1841,7 +1841,7 @@ void User::PurgeEmptyChannels()
 		if (i2 != ServerInstance->chanlist->end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
-			DELETE(i2->second);
+			delete i2->second;
 			ServerInstance->chanlist->erase(i2);
 			this->chans.erase(*n);
 		}

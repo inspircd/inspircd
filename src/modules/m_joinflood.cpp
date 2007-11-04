@@ -194,7 +194,7 @@ class JoinFlood : public ModeHandler
 			{
 				joinfloodsettings *f;
 				channel->GetExt("joinflood", f);
-				DELETE(f);
+				delete f;
 				channel->Shrink("joinflood");
 				channel->SetMode('j', false);
 				return MODEACTION_ALLOW;
@@ -259,7 +259,7 @@ class ModuleJoinFlood : public Module
 		joinfloodsettings *f;
 		if (chan->GetExt("joinflood",f))
 		{
-			DELETE(f);
+			delete f;
 			chan->Shrink("joinflood");
 		}
 	}
@@ -272,7 +272,7 @@ class ModuleJoinFlood : public Module
 	virtual ~ModuleJoinFlood()
 	{
 		ServerInstance->Modes->DelMode(jf);
-		DELETE(jf);
+		delete jf;
 	}
 	
 	virtual Version GetVersion()

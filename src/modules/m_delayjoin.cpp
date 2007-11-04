@@ -74,7 +74,7 @@ class ModuleDelayJoin : public Module
 	virtual ~ModuleDelayJoin()
 	{
 		ServerInstance->Modes->DelMode(djm);
-		DELETE(djm);
+		delete djm;
 	}
 
 	void Prioritize()

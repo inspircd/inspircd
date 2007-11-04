@@ -129,7 +129,7 @@ public:
 	virtual ~ModuleBlockCAPS()
 	{
 		ServerInstance->Modes->DelMode(bc);
-		DELETE(bc);
+		delete bc;
 	}
 
 	virtual Version GetVersion()

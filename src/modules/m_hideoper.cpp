@@ -72,7 +72,7 @@ class ModuleHideOper : public Module
 	virtual ~ModuleHideOper()
 	{
 		ServerInstance->Modes->DelMode(hm);
-		DELETE(hm);
+		delete hm;
 	}
 	
 	virtual Version GetVersion()

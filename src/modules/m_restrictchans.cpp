@@ -32,7 +32,7 @@ class ModuleRestrictChans : public Module
 			irc::string channel = txt.c_str();
 			allowchans[channel] = 1;
 		}
-		DELETE(MyConf);
+		delete MyConf;
 	}
 
  public:

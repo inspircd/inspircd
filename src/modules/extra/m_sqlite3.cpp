@@ -594,7 +594,7 @@ class ModuleSQLite3 : public Module
 		{
 			if (!HostInConf(iter->second->GetConfHost()))
 			{
-				DELETE(iter->second);
+				delete iter->second;
 				safei = iter;
 				--iter;
 				connections.erase(safei);
@@ -608,7 +608,7 @@ class ModuleSQLite3 : public Module
 		while ((i = connections.begin()) != connections.end())
 		{
 			connections.erase(i);
-			DELETE(i->second);
+			delete i->second;
 		}
 	}
 

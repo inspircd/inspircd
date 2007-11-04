@@ -121,7 +121,7 @@ class CommandSilence : public Command
 							user->WriteServ("950 %s %s :Removed %s %s from silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
 							if (!sl->size())
 							{
-								DELETE(sl);
+								delete sl;
 								user->Shrink("silence_list");
 							}
 							return CMD_SUCCESS;
@@ -265,7 +265,7 @@ class ModuleSilence : public Module
 		user->GetExt("silence_list", sl);
 		if (sl)
 		{
-			DELETE(sl);
+			delete sl;
 			user->Shrink("silence_list");
 		}
 	}

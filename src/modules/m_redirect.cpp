@@ -147,7 +147,7 @@ class ModuleRedirect : public Module
 	virtual ~ModuleRedirect()
 	{
 		ServerInstance->Modes->DelMode(re);
-		DELETE(re);
+		delete re;
 	}
 	
 	virtual Version GetVersion()

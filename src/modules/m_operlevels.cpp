@@ -39,7 +39,7 @@ class ModuleOperLevels : public Module
 
 		virtual ~ModuleOperLevels()
 		{
-			DELETE(conf);
+			delete conf;
 		}
 
 		void Implements(char* List)
@@ -49,7 +49,7 @@ class ModuleOperLevels : public Module
 
 		virtual void OnRehash(User* user, const std::string &parameter)
 		{
-			DELETE(conf);
+			delete conf;
 			conf = new ConfigReader(ServerInstance);
 		}
 

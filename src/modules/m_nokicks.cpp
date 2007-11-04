@@ -91,7 +91,7 @@ class ModuleNoKicks : public Module
 	virtual ~ModuleNoKicks()
 	{
 		ServerInstance->Modes->DelMode(nk);
-		DELETE(nk);
+		delete nk;
 	}
 	
 	virtual Version GetVersion()

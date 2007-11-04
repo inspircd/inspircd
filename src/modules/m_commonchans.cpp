@@ -66,7 +66,7 @@ class ModulePrivacyMode : public Module
 	virtual ~ModulePrivacyMode()
 	{
 		ServerInstance->Modes->DelMode(pm);
-		DELETE(pm);
+		delete pm;
 	}
 	
 	virtual Version GetVersion()

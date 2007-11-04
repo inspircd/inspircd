@@ -176,7 +176,7 @@ class ModuleHelpop : public Module
 		virtual ~ModuleHelpop()
 		{
 			ServerInstance->Modes->DelMode(ho);
-			DELETE(ho);
+			delete ho;
 		}
 	
 		virtual Version GetVersion()

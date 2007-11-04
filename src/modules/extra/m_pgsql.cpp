@@ -143,10 +143,10 @@ public:
 	{
 		/* If we allocated these, free them... */
 		if(fieldlist)
-			DELETE(fieldlist);
+			delete fieldlist;
 
 		if(fieldmap)
-			DELETE(fieldmap);
+			delete fieldmap;
 
 		PQclear(res);
 	}
@@ -301,12 +301,12 @@ public:
 
 	virtual void Free(SQLfieldMap* fm)
 	{
-		DELETE(fm);
+		delete fm;
 	}
 
 	virtual void Free(SQLfieldList* fl)
 	{
-		DELETE(fl);
+		delete fl;
 	}
 };
 
@@ -862,7 +862,7 @@ class ModulePgSQL : public Module
 		{
 			if (!HostInConf(iter->second->GetConfHost()))
 			{
-				DELETE(iter->second);
+				delete iter->second;
 				safei = iter;
 				--iter;
 				connections.erase(safei);
@@ -876,7 +876,7 @@ class ModulePgSQL : public Module
 		while ((i = connections.begin()) != connections.end())
 		{
 			connections.erase(i);
-			DELETE(i->second);
+			delete i->second;
 		}
 	}
 
@@ -902,7 +902,7 @@ class ModulePgSQL : public Module
 		{
 			if (conn == iter->second)
 			{
-				DELETE(iter->second);
+				delete iter->second;
 				connections.erase(iter);
 				break;
 			}

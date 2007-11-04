@@ -76,7 +76,7 @@ class ModuleXMLSocket : public Module
 			}
 		}
 
-		DELETE(Conf);
+		delete Conf;
 	}
 
 	virtual ~ModuleXMLSocket()

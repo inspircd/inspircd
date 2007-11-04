@@ -83,7 +83,7 @@ class CommandSilence : public Command
 						{
 							// tidy up -- if a user's list is empty, theres no use having it
 							// hanging around in the user record.
-							DELETE(sl);
+							delete sl;
 							user->Shrink("silence_list");
 						}
 					}
@@ -160,7 +160,7 @@ class ModuleSilence : public Module
 		user->GetExt("silence_list", sl);
 		if (sl)
 		{
-			DELETE(sl);
+			delete sl;
 			user->Shrink("silence_list");
 		}
 	}
