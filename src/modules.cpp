@@ -404,13 +404,15 @@ bool ModuleManager::Load(const char* filename)
 		newhandle = new ircd_module(Instance, modfile, "init_module");
 		newmod = newhandle->CallInit();
 
-		if(newmod)
+		if (newmod)
 		{
 			Version v = newmod->GetVersion();
 
 			if (v.API != API_VERSION)
 			{
+				DetachAll(newmod);
 				delete newmod;
+				delete newhandle;
 				LastModuleError = "Unable to load " + filename_str + ": Incorrect module API version: " + ConvToStr(v.API) + " (our version: " + ConvToStr(API_VERSION) + ")";
 				Instance->Log(DEFAULT, LastModuleError);
 				return false;
@@ -424,25 +426,42 @@ bool ModuleManager::Load(const char* filename)
 		}
 		else
 		{
+			delete newhandle;
 			LastModuleError = "Unable to load " + filename_str + ": Probably missing init_module() entrypoint, but dlsym() didn't notice a problem";
 			Instance->Log(DEFAULT, LastModuleError);
 			return false;
 		}
 	}
+	/** XXX: Is there anything we can do about this mess? -- Brain */
 	catch (LoadModuleException& modexcept)
 	{
+		DetachAll(newmod);
+		if (newmod)
+			delete newmod;
+		if (newhandle)
+			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": Error when loading: " + modexcept.GetReason();
 		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (FindSymbolException& modexcept)
 	{
+		DetachAll(newmod);
+		if (newmod)
+			delete newmod;
+		if (newhandle)
+			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": Error finding symbol: " + modexcept.GetReason();
 		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (CoreException& modexcept)
 	{
+		DetachAll(newmod);
+		if (newmod)
+			delete newmod;
+		if (newhandle)
+			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
 		Instance->Log(DEFAULT, LastModuleError);
 		return false;
