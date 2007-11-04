@@ -55,8 +55,11 @@ class ModuleAuditorium : public Module
 	{
 		aum = new AuditoriumMode(ServerInstance);
 		if (!ServerInstance->AddMode(aum))
-			throw ModuleException("Could not add new modes!");
+			throw ModuleException("Could not add new modes!")
 		OnRehash(NULL, "");
+
+		Implements eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnUserList, I_OnRehash };
+		Me->Modules->Attach(eventlist, this, sizeof(eventlist));
 	}
 	
 	virtual ~ModuleAuditorium()
@@ -65,26 +68,20 @@ class ModuleAuditorium : public Module
 		DELETE(aum);
 	}
 
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &(ServerInstance->Modules->Find("m_namesx.so")));
+	}
+
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader conf(ServerInstance);
 		ShowOps = conf.ReadFlag("auditorium", "showops", 0);
 	}
 
-	Priority Prioritize()
-	{
-		/* To ensure that we get priority over namesx for names list generation on +u channels */
-		return (Priority)ServerInstance->Modules->PriorityBefore("m_namesx.so");
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
-	}
-
-	void Implements(char* List)
-	{
-		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserKick] = List[I_OnUserQuit] = List[I_OnUserList] = List[I_OnRehash] = 1;
 	}
 
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)

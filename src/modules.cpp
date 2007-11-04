@@ -192,7 +192,7 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
 {
 	for (int n = I_BEGIN + 1; n != I_END; ++n)
-		EventHandlers.push_back(std::list<Module*>());
+		EventHandlers.push_back(std::vector<Module*>());
 }
 
 ModuleManager::~ModuleManager()
@@ -229,6 +229,70 @@ void ModuleManager::DetachAll(Module* mod)
 {
 	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
 		Detach((Implementation)n, mod);
+}
+
+bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules, size_t sz)
+{
+	size_t swap_pos;
+	size_t source;
+	bool swap = true;
+
+	for (size_t x = 0; x != EventHandlers[i].size(); ++x)
+	{
+		if (EventHandlers[i][x] == mod)
+		{
+			source = x;
+			break;
+		}
+	}
+
+	switch (s)
+	{
+		case PRIO_DONTCARE:
+			swap = false;
+		break;
+		case PRIO_FIRST:
+			swap_pos = 0;
+		break;
+		case PRIO_LAST:
+			if (EventHandlers[i].empty())
+				swap_pos = 0;
+			else
+				swap_pos = EventHandlers[i].size() - 1;
+		break;
+		case PRIO_AFTER:
+		{
+			/* Find the latest possible position */
+			swap_pos = 0;
+			for (size_t x = 0; x != EventHandlers[i].size(); ++x)
+			{
+				for (size_t n = 0; n < sz; ++n)
+				{
+					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x >= swap_pos))
+						swap_pos = x;
+				}
+			}
+		}
+		break;
+		case PRIO_BEFORE:
+		{
+			swap_pos = EventHandlers[i].size() - 1;
+			for (size_t x = 0; x != EventHandlers[i].size(); ++x)
+			{
+				for (size_t n = 0; n < sz; ++n)
+				{
+					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x <= swap_pos))
+						swap_pos = x;
+				}
+			}
+		}
+		break;
+	}
+
+	if (swap)
+		std::swap(EventHandlers[i][swap_pos], EventHandlers[i][source]);
+
+	return true;
 }
 
 const char* ModuleManager::LastError()
@@ -359,6 +423,10 @@ bool ModuleManager::Load(const char* filename)
 	
 	this->ModCount++;
 	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
+
+	for (int n = 0; n != this->ModCount+1; ++n)
+		modules[n]->Prioritize();
+
 	Instance->BuildISupport();
 	return true;
 }

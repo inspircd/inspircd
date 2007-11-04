@@ -416,6 +416,10 @@ class CoreExport Module : public Extensible
 	 */
 	virtual ~Module();
 
+	virtual void Prioritize()
+	{
+	}
+
 	/** Returns the version number of a Module.
 	 * The method should return a Version object with its version information assigned via
 	 * Version::Version
@@ -1522,9 +1526,18 @@ typedef std::vector<Module*> ModuleList;
  */
 typedef std::vector<ircd_module*> ModuleHandleList;
 
-typedef std::list<Module*> IntModuleList;
+typedef std::vector<Module*> IntModuleList;
 typedef std::vector<IntModuleList> EventHandlerList;
 typedef IntModuleList::iterator EventHandlerIter;
+
+enum PriorityState
+{
+	PRIO_DONTCARE,
+	PRIO_FIRST,
+	PRIO_LAST,
+	PRIO_AFTER,
+	PRIO_BEFORE
+};
 
 /** ModuleManager takes care of all things module-related
  * in the core.
@@ -1573,6 +1586,8 @@ class CoreExport ModuleManager : public classbase
 	ModuleManager(InspIRCd* Ins);
 
 	~ModuleManager(); 
+
+	bool SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules = NULL, size_t sz = 1);
 
 	/** Attach an event to a module
 	 * @param i Event type to attach
