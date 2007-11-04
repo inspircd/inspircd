@@ -1548,7 +1548,7 @@ class CoreExport ModuleManager : public classbase
  private:
 	/** Holds a string describing the last module error to occur
 	 */
-	char MODERR[MAXBUF];
+	std::string LastModuleError;
  
  	/** The feature names published by various modules
 	 */
@@ -1651,7 +1651,7 @@ class CoreExport ModuleManager : public classbase
 	/** Returns text describing the last module error
 	 * @return The last error message to occur
 	 */
-	const char* LastError();
+	std::string& LastError();
 
 	/** Load a given module file
 	 * @param filename The file to load

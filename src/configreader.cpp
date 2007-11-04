@@ -1182,7 +1182,7 @@ void ServerConfig::Read(bool bail, User* user)
 				else
 				{
 					if (user)
-						user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError());
+						user->WriteServ("972 %s %s :%s",user->nick, removing->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1203,7 +1203,7 @@ void ServerConfig::Read(bool bail, User* user)
 				else
 				{
 					if (user)
-						user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError());
+						user->WriteServ("974 %s %s :%s",user->nick, adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}

@@ -367,9 +367,9 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 	return true;
 }
 
-const char* ModuleManager::LastError()
+std::string& ModuleManager::LastError()
 {
-	return MODERR;
+	return LastModuleError;
 }
 
 bool ModuleManager::Load(const char* filename)
@@ -409,22 +409,22 @@ bool ModuleManager::Load(const char* filename)
 
 	if (!ServerConfig::DirValid(modfile))
 	{
-		snprintf(MODERR, MAXBUF,"Module %s is not within the modules directory.", modfile);
-		Instance->Log(DEFAULT, MODERR);
+		LastModuleError = "Module " + filename_str + " is not within the modules directory.";
+		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
 	
 	if (!ServerConfig::FileExists(modfile))
 	{
-		snprintf(MODERR,MAXBUF,"Module file could not be found: %s", modfile);
-		Instance->Log(DEFAULT, MODERR);
+		LastModuleError = "Module file could not be found: " + filename_str;
+		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
 	
 	if (Modules.find(filename_str) != Modules.end())
 	{	
-		Instance->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
-		snprintf(MODERR, MAXBUF, "Module already loaded");
+		LastModuleError = "Module " + filename_str + " is already loaded, cannot load a module twice!";
+		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
 		
@@ -446,8 +446,8 @@ bool ModuleManager::Load(const char* filename)
 			if (v.API != API_VERSION)
 			{
 				delete newmod;
-				Instance->Log(DEFAULT,"Unable to load %s: Incorrect module API version: %d (our version: %d)",modfile,v.API,API_VERSION);
-				snprintf(MODERR,MAXBUF,"Loader/Linker error: Incorrect module API version: %d (our version: %d)",v.API,API_VERSION);
+				LastModuleError = "Unable to load " + filename_str + ": Incorrect module API version: " + ConvToStr(v.API) + " (our version: " + ConvToStr(API_VERSION) + ")";
+				Instance->Log(DEFAULT, LastModuleError);
 				return false;
 			}
 			else
@@ -459,30 +459,30 @@ bool ModuleManager::Load(const char* filename)
 		}
 		else
 		{
-			Instance->Log(DEFAULT, "Unable to load %s",modfile);
-			snprintf(MODERR,MAXBUF, "Probably missing init_module() entrypoint, but dlsym() didn't notice a problem");
+			LastModuleError = "Unable to load " + filename_str + ": Probably missing init_module() entrypoint, but dlsym() didn't notice a problem";
+			Instance->Log(DEFAULT, LastModuleError);
 			return false;
 		}
 	}
 	catch (LoadModuleException& modexcept)
 	{
-		Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
-		snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
+		LastModuleError = "Unable to load " + filename_str + ": Error when loading: " + modexcept.GetReason();
+		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (FindSymbolException& modexcept)
 	{
-		Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
-		snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
+		LastModuleError = "Unable to load " + filename_str + ": Error finding symbol: " + modexcept.GetReason();
+		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (CoreException& modexcept)
 	{
-		Instance->Log(DEFAULT,"Unable to load %s: %s",modfile,modexcept.GetReason());
-		snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
+		Instance->Log(DEFAULT, LastModuleError);
 		return false;
 	}
-	
+
 	this->ModCount++;
 	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(newmod, filename_str));
 
@@ -499,26 +499,22 @@ bool ModuleManager::Load(const char* filename)
 
 bool ModuleManager::Unload(const char* filename)
 {
-	std::string filename_str = filename;
+	std::string filename_str(filename);
 	std::map<std::string, std::pair<ircd_module*, Module*> >::iterator modfind = Modules.find(filename);
 
 	if (modfind != Modules.end())
 	{
 		if (modfind->second.second->GetVersion().Flags & VF_STATIC)
 		{
-			Instance->Log(DEFAULT,"Failed to unload STATIC module %s",filename);
-			snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
+			LastModuleError = "Module " + filename_str + " not unloadable (marked static)";
+			Instance->Log(DEFAULT, LastModuleError);
 			return false;
 		}
 		std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modfind->second.second);
 		if (intercount.first > 0)
 		{
-			Instance->Log(DEFAULT,"Failed to unload module %s, being used by %d other(s) via interface '%s'",filename, intercount.first, intercount.second.c_str());
-			snprintf(MODERR,MAXBUF,"Module not unloadable (Still in use by %d other module%s which %s using its interface '%s') -- unload dependent modules first!",
-					intercount.first,
-					intercount.first > 1 ? "s" : "",
-					intercount.first > 1 ? "are" : "is",
-					intercount.second.c_str());
+			LastModuleError = "Failed to unload module " + filename_str + ", being used by " + ConvToStr(intercount.first) + " other(s) via interface '" + intercount.second + "'";
+			Instance->Log(DEFAULT, LastModuleError);
 			return false;
 		}
 
@@ -552,8 +548,8 @@ bool ModuleManager::Unload(const char* filename)
 		return true;
 	}
 
-	Instance->Log(DEFAULT,"Module %s is not loaded, cannot unload it!",filename);
-	snprintf(MODERR,MAXBUF,"Module not loaded");
+	LastModuleError = "Module " + filename_str + " is not loaded, cannot unload it!";
+	Instance->Log(DEFAULT, LastModuleError);
 	return false;
 }
 
@@ -570,13 +566,13 @@ void ModuleManager::LoadAll()
 		
 		if (!this->Load(configToken))		
 		{
-			Instance->Log(DEFAULT,"There was an error loading the module '%s': %s", configToken, this->LastError());
-			printf_c("\n[\033[1;31m*\033[0m] There was an error loading the module '%s': %s\n\n", configToken, this->LastError());
+			Instance->Log(DEFAULT, this->LastError());
+			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
 			Instance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
-	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", (this->GetCount()+1), (this->GetCount()+1) == 1 ? " has" : "s have");
-	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount()+1);
+	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", (this->GetCount()), (this->GetCount()) == 1 ? " has" : "s have");
+	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount());
 }
 
 bool ModuleManager::PublishFeature(const std::string &FeatureName, Module* Mod)
