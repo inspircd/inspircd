@@ -35,7 +35,11 @@ class CoreExport BanCacheHit : public classbase
 };
 
 // must be defined after class BanCacheHit.
+#ifndef WIN32
 typedef nspace::hash_map<std::string, BanCacheHit *, nspace::hash<std::string> > BanCacheHash;
+#else
+typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash_compare<string, less<string> > > BanCacheHash;
+#endif
 
 class CoreExport BanCacheManager : public classbase
 {
