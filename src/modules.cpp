@@ -191,8 +191,7 @@ void		Module::OnBufferFlushed(User*) { }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 
 
-ModuleManager::ModuleManager(InspIRCd* Ins)
-: ModCount(0), Instance(Ins)
+ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
 {
 	for (int n = I_BEGIN + 1; n != I_END; ++n)
 		EventHandlers.push_back(std::list<Module*>());
@@ -200,6 +199,38 @@ ModuleManager::ModuleManager(InspIRCd* Ins)
 
 ModuleManager::~ModuleManager()
 {
+}
+
+bool ModuleManager::Attach(Implementation i, Module* mod)
+{
+	if (std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod) != EventHandlers[i].end())
+		return false;
+
+	EventHandlers[i].push_back(mod);
+	return true;
+}
+
+bool ModuleManager::Detach(Implementation i, Module* mod)
+{
+	EventHandlerIter x = std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod);
+
+	if (x == EventHandlers[i].end())
+		return false;
+
+	EventHandlers[i].erase(x);
+	return true;
+}
+
+void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
+{
+	for (size_t n = 0; n < sz; ++n)
+		Attach(i[n], mod);
+}
+
+void ModuleManager::DetachAll(Module* mod)
+{
+	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
+		Detach((Implementation)n, mod);
 }
 
 const char* ModuleManager::LastError()

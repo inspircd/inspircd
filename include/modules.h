@@ -123,19 +123,20 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * loaded modules in a readable simple way, e.g.:
  * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
  */
-#define FOREACH_MOD(y,x) if (ServerInstance->Config->global_implementation[y] > 0) { \
-	for (int _i = 0; _i <= ServerInstance->Modules->GetCount(); _i++) { \
-	if (ServerInstance->Config->implement_lists[_i][y]) \
+#define FOREACH_MOD(y,x) if (!ServerInstance->Modules->EventHandlers[y].empty()) \
+{ \
+	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
+	{ \
 		try \
 		{ \
-			ServerInstance->Modules->modules[_i]->x ; \
+			(*_i)->x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
 			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
-  }
+}
 
 /**
  * This #define allows us to call a method in all
@@ -143,12 +144,13 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * an instance pointer to the macro. e.g.:
  * 'FOREACH_MOD_I(Instance, OnConnect, OnConnect(user));'
  */
-#define FOREACH_MOD_I(z,y,x) if (z->Config->global_implementation[y] > 0) { \
-	for (int _i = 0; _i <= z->Modules->GetCount(); _i++) { \
-		if (z->Config->implement_lists[_i][y]) \
+#define FOREACH_MOD_I(z,y,x) if (!z->Modules->EventHandlers[y].empty()) \
+{ \
+	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
+	{ \
 		try \
 		{ \
-			z->Modules->modules[_i]->x ; \
+			(*_i)->x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
@@ -156,54 +158,54 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 		} \
 	} \
 }
-/**
- * This define is similar to the one above but returns a result in MOD_RESULT.
- * The first module to return a nonzero result is the value to be accepted,
- * and any modules after are ignored.
- */
-#define FOREACH_RESULT(y,x) { if (ServerInstance->Config->global_implementation[y] > 0) { \
-			MOD_RESULT = 0; \
-			for (int _i = 0; _i <= ServerInstance->Modules->GetCount(); _i++) { \
-			if (ServerInstance->Config->implement_lists[_i][y]) { \
-				try \
-				{ \
-					int res = ServerInstance->Modules->modules[_i]->x ; \
-					if (res != 0) { \
-						MOD_RESULT = res; \
-						break; \
-					} \
-				} \
-				catch (CoreException& modexcept) \
-				{ \
-					ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
-				} \
-			} \
-		} \
-	} \
- }
 
 /**
  * This define is similar to the one above but returns a result in MOD_RESULT.
  * The first module to return a nonzero result is the value to be accepted,
  * and any modules after are ignored.
  */
-#define FOREACH_RESULT_I(z,y,x) { if (z->Config->global_implementation[y] > 0) { \
-			MOD_RESULT = 0; \
-			for (int _i = 0; _i <= z->Modules->GetCount(); _i++) { \
-			if (z->Config->implement_lists[_i][y]) { \
-				try \
-				{ \
-					int res = z->Modules->modules[_i]->x ; \
-					if (res != 0) { \
-						MOD_RESULT = res; \
-						break; \
-					} \
-				} \
-				catch (CoreException& modexcept) \
-				{ \
-					z->Log(DEBUG,"Exception caught: %s",modexcept.GetReason()); \
-				} \
+#define FOREACH_RESULT(y,x) if (!ServerInstance->Modules->EventHandlers[y].empty()) \
+{ \
+	MOD_RESULT = 0; \
+	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
+	{ \
+		try \
+		{ \
+			int res = (*_i)->x ; \
+			if (res != 0) { \
+				MOD_RESULT = res; \
+				break; \
 			} \
+		} \
+		catch (CoreException& modexcept) \
+		{ \
+			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+		} \
+	} \
+} 
+
+
+/**
+ * This define is similar to the one above but returns a result in MOD_RESULT.
+ * The first module to return a nonzero result is the value to be accepted,
+ * and any modules after are ignored.
+ */
+#define FOREACH_RESULT_I(z,y,x) if (!z->Modules->EventHandlers[y].empty()) \
+{ \
+	MOD_RESULT = 0; \
+	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
+	{ \
+		try \
+		{ \
+			int res = (*_i)->x ; \
+			if (res != 0) { \
+				MOD_RESULT = res; \
+				break; \
+			} \
+		} \
+		catch (CoreException& modexcept) \
+		{ \
+			z->Log(DEBUG,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
 }
@@ -1555,6 +1557,10 @@ typedef std::vector<Module*> ModuleList;
  */
 typedef std::vector<ircd_module*> ModuleHandleList;
 
+typedef std::list<Module*> IntModuleList;
+typedef std::vector<IntModuleList> EventHandlerList;
+typedef IntModuleList::iterator EventHandlerIter;
+
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
@@ -1583,7 +1589,7 @@ class CoreExport ModuleManager : public classbase
 
  public:
 
-	std::vector<std::list<Module*> > EventHandlers;
+	EventHandlerList EventHandlers;
 
 	/** A list of ircd_module* module handles
 	 * Note that this list is always exactly 255 in size.
@@ -1602,6 +1608,31 @@ class CoreExport ModuleManager : public classbase
 	ModuleManager(InspIRCd* Ins);
 
 	~ModuleManager(); 
+
+	/** Attach an event to a module
+	 * @param i Event type to attach
+	 * @param mod Module to attach event to
+	 * @return True if the event was attached
+	 */
+	bool Attach(Implementation i, Module* mod);
+
+	/** Detatch an event from a module
+	 * @param i Event type to detach
+	 * @param mod Module to detach event from
+	 * @param Detach true if the event was detached
+	 */
+	bool Detach(Implementation i, Module* mod);
+
+	/** Attach an array of events to a module
+	 * @param i Event types (array) to attach
+	 * @param mod Module to attach events to
+	 */
+	void Attach(Implementation* i, Module* mod, size_t sz);
+
+	/** Detach all events from a module (used on unload)
+	 * @param mod Module to detach from
+	 */
+	void DetachAll(Module* mod);
  
 	/** Returns text describing the last module error
 	 * @return The last error message to occur
