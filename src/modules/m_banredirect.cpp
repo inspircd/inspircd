@@ -197,11 +197,9 @@ class ModuleBanRedirect : public Module
 			throw ModuleException("Could not add mode watcher");
 
 		OnRehash(NULL, "");
-	}
-	
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnUserPreJoin] = List[I_OnChannelDelete] = List[I_OnCleanup] = 1;
+
+		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete, I_OnCleanup };
+		Me->Modules->Attach(list, this, sizeof(list));
 	}
 	
 	virtual void OnChannelDelete(Channel* chan)
@@ -327,11 +325,11 @@ class ModuleBanRedirect : public Module
 		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 	
-	Priority Prioritize()
+	void Prioritize()
 	{
-		return (Priority)ServerInstance->Modules->PriorityBefore("m_banexception.so");
+		Module* banex = ServerInstance->Modules->Find("m_banexception.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIO_BEFORE, &banex);
 	}
 };
-
 
 MODULE_INIT(ModuleBanRedirect)
