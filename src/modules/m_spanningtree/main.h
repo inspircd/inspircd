@@ -190,7 +190,7 @@ class ModuleSpanningTree : public Module
 	virtual ~ModuleSpanningTree();
 	virtual Version GetVersion();
 	void Implements(char* List);
-	Priority Prioritize();
+	void Prioritize();
 };
 
 #endif

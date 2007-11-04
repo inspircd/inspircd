@@ -231,20 +231,31 @@ void ModuleManager::DetachAll(Module* mod)
 		Detach((Implementation)n, mod);
 }
 
+bool ModuleManager::SetPriority(Module* mod, PriorityState s)
+{
+	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
+		SetPriority(mod, (Implementation)n, s);
+}
+
 bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules, size_t sz)
 {
 	size_t swap_pos;
-	size_t source;
+	size_t source = 0;
 	bool swap = true;
+	bool found = false;
 
 	for (size_t x = 0; x != EventHandlers[i].size(); ++x)
 	{
 		if (EventHandlers[i][x] == mod)
 		{
 			source = x;
+			found = true;
 			break;
 		}
 	}
+
+	if (!found)
+		return false;
 
 	switch (s)
 	{

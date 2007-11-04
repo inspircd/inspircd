@@ -52,9 +52,10 @@ class ModuleHostChange : public Module
 		hostchanges.clear();
 	}
 
-	Priority Prioritize()
+	void Prioritize()
 	{
-		return (Priority)ServerInstance->Modules->PriorityAfter("m_cloaking.so");
+		Module* cloak = ServerInstance->Modules->Find("m_cloaking.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIO_AFTER, &cloak);
 	}
 
 	void Implements(char* List)

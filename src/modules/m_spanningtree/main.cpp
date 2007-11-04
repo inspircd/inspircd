@@ -1007,9 +1007,9 @@ void ModuleSpanningTree::Implements(char* List)
  * Therefore, we return PRIORITY_LAST to make sure we end up at the END of
  * the module call queue.
  */
-Priority ModuleSpanningTree::Prioritize()
+void ModuleSpanningTree::Prioritize()
 {
-	return PRIORITY_LAST;
+	ServerInstance->Modules->SetPriority(this, PRIO_LAST);
 }
 
 MODULE_INIT(ModuleSpanningTree)

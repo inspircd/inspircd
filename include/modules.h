@@ -1589,6 +1589,8 @@ class CoreExport ModuleManager : public classbase
 
 	bool SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules = NULL, size_t sz = 1);
 
+	bool SetPriority(Module* mod, PriorityState s);
+
 	/** Attach an event to a module
 	 * @param i Event type to attach
 	 * @param mod Module to attach event to

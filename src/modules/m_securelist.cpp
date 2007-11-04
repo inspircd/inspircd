@@ -86,9 +86,10 @@ class ModuleSecureList : public Module
 		output.append(" SECURELIST");
 	}
 
-	virtual Priority Prioritize()
+	void Prioritize()
 	{
-		return (Priority)ServerInstance->Modules->PriorityBefore("m_safelist.so");
+		Module* safelist = ServerInstance->Modules->Find("m_safelist.so");
+		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIO_BEFORE, &safelist);
 	}
 
 };

@@ -52,9 +52,10 @@ class ModuleUHNames : public Module
 		output.append(" UHNAMES");
 	}
 
-	Priority Prioritize()
+	void Prioritize()
 	{
-		return (Priority)ServerInstance->Modules->PriorityBefore("m_namesx.so");
+		Module* namesx = ServerInstance->Modules->Find("m_namesx.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &namesx);
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
