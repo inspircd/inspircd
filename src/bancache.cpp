@@ -56,7 +56,7 @@ bool BanCacheManager::RemoveHit(BanCacheHit *b)
 	}
 	else
 	{
-		this->BanHash->erase(b->IP);
+		this->BanHash->erase(i);
 	}
 
 	delete b;
