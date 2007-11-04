@@ -422,41 +422,6 @@ class CoreExport Module : public Extensible
 	 */
 	virtual Version GetVersion();
 
-	/** The Implements function specifies which methods a module should receive events for.
-	 * The char* parameter passed to this function contains a set of true or false values
-	 * (1 or 0) which indicate wether each function is implemented. You must use the Iimplementation
-	 * enum (documented elsewhere on this page) to mark functions as active. For example, to
-	 * receive events for OnUserJoin():
-	 *
-	 * Implements[I_OnUserJoin] = 1;
-	 *
-	 * @param The implement list
-	 */
-	virtual void Implements(char* Implements);
-
-	/** Used to set the 'priority' of a module (e.g. when it is called in relation to other modules.
-	 * Some modules prefer to be called before other modules, due to their design. For example, a
-	 * module which is expected to operate on complete information would expect to be placed last, so
-	 * that any other modules which wish to adjust that information would execute before it, to be sure
-	 * its information is correct. You can change your module's priority by returning one of:
-	 *
-	 * PRIORITY_FIRST - To place your module first in the list
-	 * 
-	 * PRIORITY_LAST - To place your module last in the list
-	 *
-	 * PRIORITY_DONTCARE - To leave your module as it is (this is the default value, if you do not implement this function)
-	 *
-	 * The result of InspIRCd::PriorityBefore() - To move your module before another named module
-	 *
-	 * The result of InspIRCd::PriorityLast() - To move your module after another named module
-	 *
-	 * For a good working example of this method call, please see src/modules/m_spanningtree.cpp
-	 * and src/modules/m_hostchange.so which make use of it. It is highly recommended that unless
-	 * your module has a real need to reorder its priority, it should not implement this function,
-	 * as many modules changing their priorities can make the system redundant.
-	 */
-	virtual Priority Prioritize();
-
 	/** Called when a user connects.
 	 * The details of the connecting user are available to you in the parameter User *user
 	 * @param user The user who is connecting
@@ -1681,54 +1646,6 @@ class CoreExport ModuleManager : public classbase
 	 * @return True if a handle existed at the given index, false otherwise
 	 */
 	bool EraseModule(unsigned int j);
-
-	/** Move a given module to a specific slot in the list
-	 * @param modulename The module name to relocate
-	 * @param slot The slot to move the module into
-	 */
-	void MoveTo(std::string modulename,int slot);
-
-	/** Moves the given module to the last slot in the list
-	 * @param modulename The module name to relocate
-	 */
-	void MoveToLast(std::string modulename);
-
-	/** Moves the given module to the first slot in the list
-	 * @param modulename The module name to relocate
-	 */
-	void MoveToFirst(std::string modulename);
-
-	/** Moves one module to be placed after another in the list
-	 * @param modulename The module name to relocate
-	 * @param after The module name to place the module after
-	 */
-	void MoveAfter(std::string modulename, std::string after);
-
-	/** Moves one module to be placed before another in the list
-	 * @param modulename The module name to relocate
-	 * @param after The module name to place the module before
-	 */
-	void MoveBefore(std::string modulename, std::string before);
-	
-	/** For use with Module::Prioritize().
-	 * When the return value of this function is returned from
-	 * Module::Prioritize(), this specifies that the module wishes
-	 * to be ordered exactly BEFORE 'modulename'. For more information
-	 * please see Module::Prioritize().
-	 * @param modulename The module your module wants to be before in the call list
-	 * @returns a priority ID which the core uses to relocate the module in the list
-	 */
-	long PriorityBefore(const std::string &modulename);
-
-	/** For use with Module::Prioritize().
-	 * When the return value of this function is returned from
-	 * Module::Prioritize(), this specifies that the module wishes
-	 * to be ordered exactly AFTER 'modulename'. For more information please
-	 * see Module::Prioritize().
-	 * @param modulename The module your module wants to be after in the call list
-	 * @returns a priority ID which the core uses to relocate the module in the list
-	 */
-	long PriorityAfter(const std::string &modulename);
 
 	/** Publish a 'feature'.
 	 * There are two ways for a module to find another module it depends on.

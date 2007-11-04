@@ -75,11 +75,9 @@ class ModuleAlias : public Module
 	{
 		ReadAliases();
 		pars.resize(MAXPARAMETERS);
-	}
 
-	void Implements(char* List)
-	{
-		List[I_OnPreCommand] = List[I_OnRehash] = 1;
+		Me->Modules->Attach(I_OnPreCommand, this);
+		Me->Modules->Attach(I_OnRehash, this);
 	}
 
 	virtual ~ModuleAlias()

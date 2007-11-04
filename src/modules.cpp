@@ -178,9 +178,7 @@ void		Module::OnChangeName(User*, const std::string&) { }
 void		Module::OnAddLine(User*, XLine*) { }
 void		Module::OnDelLine(User*, XLine*) { }
 void 		Module::OnCleanup(int, void*) { }
-void		Module::Implements(char* Implements) { for (int j = 0; j < 255; j++) Implements[j] = 0; }
 void		Module::OnChannelDelete(Channel*) { }
-Priority	Module::Prioritize() { return PRIORITY_DONTCARE; }
 void		Module::OnSetAway(User*) { }
 void		Module::OnCancelAway(User*) { }
 int		Module::OnUserList(User*, Channel*, CUList*&) { return 0; }
@@ -332,15 +330,6 @@ bool ModuleManager::Load(const char* filename)
 			/* save the module and the module's classfactory, if
 			 * this isnt done, random crashes can occur :/ */
 			Instance->Config->module_names.push_back(filename);
-
-			char* x = &Instance->Config->implement_lists[this->ModCount+1][0];
-			for(int t = 0; t < 255; t++)
-				x[t] = 0;
-
-			modules[this->ModCount+1]->Implements(x);
-
-			for(int t = 0; t < 255; t++)
-				Instance->Config->global_implementation[t] += Instance->Config->implement_lists[this->ModCount+1][t];
 		}
 		else
 		{
@@ -370,31 +359,6 @@ bool ModuleManager::Load(const char* filename)
 	
 	this->ModCount++;
 	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
-	// now work out which modules, if any, want to move to the back of the queue,
-	// and if they do, move them there.
-	std::vector<std::string> put_to_back;
-	std::vector<std::string> put_to_front;
-	std::map<std::string,std::string> put_before;
-	std::map<std::string,std::string> put_after;
-	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
-	{
-		if (modules[j]->Prioritize() == PRIORITY_LAST)
-			put_to_back.push_back(Instance->Config->module_names[j]);
-		else if (modules[j]->Prioritize() == PRIORITY_FIRST)
-			put_to_front.push_back(Instance->Config->module_names[j]);
-		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_BEFORE)
-			put_before[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
-		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_AFTER)
-			put_after[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
-	}
-	for (unsigned int j = 0; j < put_to_back.size(); j++)
-		MoveToLast(put_to_back[j]);
-	for (unsigned int j = 0; j < put_to_front.size(); j++)
-		MoveToFirst(put_to_front[j]);
-	for (std::map<std::string,std::string>::iterator j = put_before.begin(); j != put_before.end(); j++)
-		MoveBefore(j->first,j->second);
-	for (std::map<std::string,std::string>::iterator j = put_after.begin(); j != put_after.end(); j++)
-		MoveAfter(j->first,j->second);
 	Instance->BuildISupport();
 	return true;
 }
@@ -456,84 +420,6 @@ bool ModuleManager::EraseModule(unsigned int j)
 	return success;
 }
 
-void ModuleManager::MoveTo(std::string modulename,int slot)
-{
-	unsigned int v2 = 256;
-	
-	for (unsigned int v = 0; v < Instance->Config->module_names.size(); v++)
-	{
-		if (Instance->Config->module_names[v] == modulename)
-		{
-			// found an instance, swap it with the item at the end
-			v2 = v;
-			break;
-		}
-	}
-	if ((v2 != (unsigned int)slot) && (v2 < 256))
-	{
-		// Swap the module names over
-		Instance->Config->module_names[v2] = Instance->Config->module_names[slot];
-		Instance->Config->module_names[slot] = modulename;
-		// now swap the module factories
-		ircd_module* temp = handles[v2];
-		handles[v2] = handles[slot];
-		handles[slot] = temp;
-		// now swap the module objects
-		Module* temp_module = modules[v2];
-		modules[v2] = modules[slot];
-		modules[slot] = temp_module;
-		// now swap the implement lists (we dont
-		// need to swap the global or recount it)
-		for (int n = 0; n < 255; n++)
-		{
-			char x = Instance->Config->implement_lists[v2][n];
-			Instance->Config->implement_lists[v2][n] = Instance->Config->implement_lists[slot][n];
-			Instance->Config->implement_lists[slot][n] = x;
-		}
-	}
-}
-
-void ModuleManager::MoveAfter(std::string modulename, std::string after)
-{
-	for (unsigned int v = 0; v < Instance->Config->module_names.size(); v++)
-	{
-		if (Instance->Config->module_names[v] == after)
-		{
-			MoveTo(modulename, v);
-			return;
-		}
-	}
-}
-
-void ModuleManager::MoveBefore(std::string modulename, std::string before)
-{
-	for (unsigned int v = 0; v < Instance->Config->module_names.size(); v++)
-	{
-		if (Instance->Config->module_names[v] == before)
-		{
-			if (v > 0)
-			{
-				MoveTo(modulename, v-1);
-			}
-			else
-			{
-				MoveTo(modulename, v);
-			}
-			return;
-		}
-	}
-}
-
-void ModuleManager::MoveToFirst(std::string modulename)
-{
-	MoveTo(modulename,0);
-}
-
-void ModuleManager::MoveToLast(std::string modulename)
-{
-	MoveTo(modulename,this->GetCount());
-}
-
 bool ModuleManager::Unload(const char* filename)
 {
 	std::string filename_str = filename;
@@ -573,20 +459,7 @@ bool ModuleManager::Unload(const char* filename)
 
 			FOREACH_MOD_I(Instance,I_OnUnloadModule,OnUnloadModule(modules[j],Instance->Config->module_names[j]));
 
-			for(int t = 0; t < 255; t++)
-			{
-				Instance->Config->global_implementation[t] -= Instance->Config->implement_lists[j][t];
-			}
-
-			/* We have to renumber implement_lists after unload because the module numbers change!
-			 */
-			for(int j2 = j; j2 < 254; j2++)
-			{
-				for(int t = 0; t < 255; t++)
-				{
-					Instance->Config->implement_lists[j2][t] = Instance->Config->implement_lists[j2+1][t];
-				}
-			}
+			this->DetachAll(modules[j]);
 
 			// found the module
 			Instance->Parser->RemoveCommands(filename);
@@ -624,30 +497,6 @@ void ModuleManager::LoadAll()
 	}
 	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", (this->GetCount()+1), (this->GetCount()+1) == 1 ? " has" : "s have");
 	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount()+1);
-}
-
-long ModuleManager::PriorityAfter(const std::string &modulename)
-{
-	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
-	{
-		if (Instance->Config->module_names[j] == modulename)
-		{
-			return ((j << 8) | PRIORITY_AFTER);
-		}
-	}
-	return PRIORITY_DONTCARE;
-}
-
-long ModuleManager::PriorityBefore(const std::string &modulename)
-{
-	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
-	{
-		if (Instance->Config->module_names[j] == modulename)
-		{
-			return ((j << 8) | PRIORITY_BEFORE);
-		}
-	}
-	return PRIORITY_DONTCARE;
 }
 
 bool ModuleManager::PublishFeature(const std::string &FeatureName, Module* Mod)
