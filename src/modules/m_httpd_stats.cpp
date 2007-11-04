@@ -119,17 +119,13 @@ class ModuleHttpStats : public Module
 
 				data << "</general>";
 				data << "<modulelist>";
-				/* XXX FIXME
-				 * for (int i = 0; i <= ServerInstance->Modules->GetCount(); i++)
+				std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
+				for (std::vector<std::string>::iterator i = module_names.begin(); i != module_names.end(); ++i)
 				{
-					if (!ServerInstance->Config->module_names[i].empty())
-					{
-						Version v = ServerInstance->Modules->modules[i]->GetVersion();
-						data << "<module><name>" << ServerInstance->Config->module_names[i] << "</name><version>" << 
-							v.Major << "." <<  v.Minor << "." << v.Revision << "." << v.Build << "</version></module>";
-					}
+					Module* m = ServerInstance->Modules->Find(i->c_str());
+					Version v = m->GetVersion();
+					data << "<module><name>" << *i << "</name><version>" << v.Major << "." <<  v.Minor << "." << v.Revision << "." << v.Build << "</version></module>";
 				}
-				*/
 				data << "</modulelist>";
 
 				data << "<channellist>";
