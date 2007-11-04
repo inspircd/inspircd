@@ -1514,22 +1514,31 @@ class CoreExport FileReader : public classbase
 };
 
 /** A DLLFactory (designed to load shared objects) containing a
- * handle to a module's init_module() function.
+ * handle to a module's init_module() function. Unfortunately,
+ * due to the design of shared object systems we must keep this
+ * hanging around, as if we remove this handle, we remove the
+ * shared object file from memory (!)
  */
 typedef DLLFactory<Module> ircd_module;
-
-/** A list of loaded Modules
- */
-typedef std::vector<Module*> ModuleList;
 
 /** A list of loaded module handles (ircd_module)
  */
 typedef std::vector<ircd_module*> ModuleHandleList;
 
+/** A list of modules
+ */
 typedef std::vector<Module*> IntModuleList;
+
+/** A list of event handlers
+ */
 typedef std::vector<IntModuleList> EventHandlerList;
+
+/** An event handler iterator
+ */
 typedef IntModuleList::iterator EventHandlerIter;
 
+/** Module priority states
+ */
 enum PriorityState
 {
 	PRIO_DONTCARE,
@@ -1565,30 +1574,71 @@ class CoreExport ModuleManager : public classbase
 	 */
 	InspIRCd* Instance;
 
+	/** List of loaded modules and shared object/dll handles
+	 * keyed by module name
+	 */
 	std::map<std::string, std::pair<ircd_module*, Module*> > Modules;
 
  public:
 
+	/** Event handler hooks.
+	 * This needs to be public to be used by FOREACH_MOD and friends.
+	 */
 	EventHandlerList EventHandlers;
 
 	/** Simple, bog-standard, boring constructor.
 	 */
 	ModuleManager(InspIRCd* Ins);
 
+	/** Destructor
+	 */
 	~ModuleManager(); 
 
+	/** Change the priority of one event in a module.
+	 * Each module event has a list of modules which are attached to that event type.
+	 * If you wish to be called before or after other specific modules, you may use this
+	 * method (usually within void Module::Prioritize()) to set your events priority.
+	 * You may use this call in other methods too, however, this is not supported behaviour
+	 * for a module.
+	 * @param mod The module to change the priority of
+	 * @param i The event to change the priority of
+	 * @param s The state you wish to use for this event. Use one of
+	 * PRIO_FIRST to set the event to be first called, PRIO_LAST to
+	 * set it to be the last called, or PRIO_BEFORE and PRIO_AFTER
+	 * to set it to be before or after one or more other modules.
+	 * @param modules If PRIO_BEFORE or PRIO_AFTER is set in parameter 's',
+	 * then this contains a list of one or more modules your module must be 
+	 * placed before or after. Your module will be placed before the highest
+	 * priority module in this list for PRIO_BEFORE, or after the lowest
+	 * priority module in this list for PRIO_AFTER.
+	 * @param sz The number of modules being passed for PRIO_BEFORE and PRIO_AFTER.
+	 * Defaults to 1, as most of the time you will only want to prioritize your module
+	 * to be before or after one other module.
+	 */
 	bool SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules = NULL, size_t sz = 1);
 
+	/** Change the priority of all events in a module.
+	 * @param mod The module to set the priority of
+	 * @param s The priority of all events in the module.
+	 * Note that with this method, it is not possible to effectively use
+	 * PRIO_BEFORE or PRIO_AFTER, you should use the more fine tuned
+	 * SetPriority method for this, where you may specify other modules to
+	 * be prioritized against.
+	 */
 	bool SetPriority(Module* mod, PriorityState s);
 
-	/** Attach an event to a module
+	/** Attach an event to a module.
+	 * You may later detatch the event with ModuleManager::Detach().
+	 * If your module is unloaded, all events are automatically detatched.
 	 * @param i Event type to attach
 	 * @param mod Module to attach event to
 	 * @return True if the event was attached
 	 */
 	bool Attach(Implementation i, Module* mod);
 
-	/** Detatch an event from a module
+	/** Detatch an event from a module.
+	 * This is not required when your module unloads, as the core will
+	 * automatically detatch your module from all events it is attached to.
 	 * @param i Event type to detach
 	 * @param mod Module to detach event from
 	 * @param Detach true if the event was detached
@@ -1745,6 +1795,12 @@ class CoreExport ModuleManager : public classbase
 	 */
 	const std::string& GetModuleName(Module* m);
 
+	/** Return a list of all modules matching the given filter
+	 * @param filter This int is a bitmask of flags set in Module::Flags,
+	 * such as VF_VENDOR or VF_STATIC. If you wish to receive a list of
+	 * all modules with no filtering, set this to 0.
+	 * @return The list of module names
+	 */
 	const std::vector<std::string> GetAllModuleNames(int filter);
 };
 
