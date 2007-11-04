@@ -241,13 +241,6 @@ bool ModuleManager::SetPriority(Module* mod, PriorityState s)
 
 bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules, size_t sz)
 {
-	if (GetModuleName(mod) != "m_spanningtree.so")
-		Instance->Log(DEBUG,"ModuleManager::SetPriority called by %s, priority state %s num_modules=%u", GetModuleName(mod).c_str(), s == PRIO_BEFORE ? "PRIO_BEFORE" : 
-			s == PRIO_AFTER ? "PRIO_AFTER" :
-			s == PRIO_LAST ? "PRIO_LAST" :
-			s == PRIO_FIRST ? "PRIO_FIRST" : "<unknown!>",
-			sz);
-
 	/** To change the priority of a module, we first find its position in the vector,
 	 * then we find the position of the other modules in the vector that this module
 	 * wants to be before/after. We pick off either the first or last of these depending
@@ -277,20 +270,6 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 	 */
 	if (!found)
 		return false;
-
-	Instance->Log(DEBUG,"ModuleManager::SetPriority: My position: %u", source);
-
-	/* Debug stuff. We will probably comment this out some time */
-	if (modules)
-	{
-		for (size_t n = 0; n < sz; ++n)
-		{
-			if (modules[n])
-				Instance->Log(DEBUG,"    Listed Module: [%08x] %s", modules[n], GetModuleName(modules[n]).c_str());
-			else
-				Instance->Log(DEBUG,"    [null module]");
-		}
-	}
 
 	switch (s)
 	{
@@ -350,19 +329,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 
 	/* Do we need to swap? */
 	if (swap && (swap_pos != source))
-	{
 		std::swap(EventHandlers[i][swap_pos], EventHandlers[i][source]);
-		Instance->Log(DEBUG,"Swap locations %u and %u", swap_pos, source);
-	}
-	else
-		Instance->Log(DEBUG,"No need to swap");
-
-	/* Debug stuff. We wont need this some day soon (tm) */
-	Instance->Log(DEBUG,"New ordering:");
-	for (size_t x = 0; x != EventHandlers[i].size(); ++x)
-	{
-		Instance->Log(DEBUG,"  [%08x] %s", EventHandlers[i][x], GetModuleName(EventHandlers[i][x]).c_str());
-	}
 
 	return true;
 }
