@@ -368,6 +368,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\bancache.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\base.cpp"
 				>
 			</File>
@@ -517,6 +521,10 @@
 		<Filter
 			Name="Header Files"
 			>
+			<File
+				RelativePath="..\include\bancache.h"
+				>
+			</File>
 			<File
 				RelativePath="..\include\base.h"
 				>
