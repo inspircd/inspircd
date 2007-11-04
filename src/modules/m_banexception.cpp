@@ -52,7 +52,7 @@ public:
 
 		//be->DoImplements(List);
 		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnCheckBan };
-		Me->Modules->Attach(list, this, sizeof(list));
+		Me->Modules->Attach(list, this, 4);
 	}
 	
 	virtual void On005Numeric(std::string &output)

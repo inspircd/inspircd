@@ -235,6 +235,8 @@ bool ModuleManager::SetPriority(Module* mod, PriorityState s)
 {
 	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
 		SetPriority(mod, (Implementation)n, s);
+
+	return true;
 }
 
 bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules, size_t sz)
