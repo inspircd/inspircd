@@ -36,6 +36,8 @@ class ModuleOverride : public Module
 		ServerInstance->SNO->EnableSnomask('O',"OVERRIDE");
 		OverriddenMode = false;
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
+		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 	
 	virtual void OnRehash(User* user, const std::string &parameter)

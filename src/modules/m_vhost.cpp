@@ -65,6 +65,7 @@ class ModuleVHost : public Module
 	{
 		mycommand = new CommandVhost(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleVHost()

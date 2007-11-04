@@ -25,6 +25,8 @@ class ModuleUHNames : public Module
 	ModuleUHNames(InspIRCd* Me)
 		: Module(Me)
 	{
+		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnUserList, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void Implements(char* List)

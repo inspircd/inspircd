@@ -53,6 +53,8 @@ class ModuleNoInvite : public Module
 		ni = new NoInvite(ServerInstance);
 		if (!ServerInstance->AddMode(ni))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnUserPreInvite };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

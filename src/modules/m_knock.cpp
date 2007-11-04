@@ -107,6 +107,7 @@ class ModuleKnock : public Module
 
 		mycommand = new CommandKnock(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 
 	void Implements(char* List)

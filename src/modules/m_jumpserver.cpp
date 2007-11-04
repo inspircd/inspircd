@@ -129,6 +129,8 @@ class ModuleJumpServer : public Module
 		
 		js = new CommandJumpserver(ServerInstance);
 		ServerInstance->AddCommand(js);
+		Implementation eventlist[] = { I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 	
 	virtual ~ModuleJumpServer()

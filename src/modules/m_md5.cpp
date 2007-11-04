@@ -268,6 +268,8 @@ class ModuleMD5 : public Module
 		: Module(Me), key(NULL), chars(NULL)
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
+		Implementation eventlist[] = { I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 	
 	virtual ~ModuleMD5()

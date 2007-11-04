@@ -25,6 +25,8 @@ class ModuleRestrictMsg : public Module
 		: Module(Me)
 	{
 		
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void Implements(char* List)

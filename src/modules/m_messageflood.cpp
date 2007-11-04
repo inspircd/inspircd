@@ -211,6 +211,8 @@ class ModuleMsgFlood : public Module
 		mf = new MsgFlood(ServerInstance);
 		if (!ServerInstance->AddMode(mf))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 	
 	int ProcessMessages(User* user,Channel* dest, const std::string &text)

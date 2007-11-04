@@ -474,6 +474,8 @@ class ModuleHttpServer : public Module
 	{
 		ReadConfig();
 		HttpModule = this;
+		Implementation eventlist[] = { I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	char* OnRequest(Request* request)

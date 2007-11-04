@@ -42,6 +42,8 @@ class ModuleSafeList : public Module
 	ModuleSafeList(InspIRCd* Me) : Module(Me)
 	{
 		OnRehash(NULL, "");
+		Implementation eventlist[] = { I_OnBufferFlushed, I_OnPreCommand, I_OnCleanup, I_OnUserQuit, I_On005Numeric, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
  
 	virtual ~ModuleSafeList()

@@ -72,6 +72,7 @@ public:
 	{
 		mycommand = new CommandChgname(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleChgName()

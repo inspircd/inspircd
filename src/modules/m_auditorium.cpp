@@ -61,6 +61,7 @@ class ModuleAuditorium : public Module
 
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnUserList, I_OnRehash };
 		Me->Modules->Attach(eventlist, this, 6);
+
 	}
 	
 	virtual ~ModuleAuditorium()

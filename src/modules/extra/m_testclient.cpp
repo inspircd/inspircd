@@ -27,6 +27,8 @@ public:
 	ModuleTestClient(InspIRCd* Me)
 		: Module::Module(Me)
 	{
+		Implementation eventlist[] = { I_OnRequest, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void Implements(char* List)

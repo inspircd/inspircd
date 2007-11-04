@@ -89,6 +89,7 @@ class ModuleUninvite : public Module
 		
 		mycommand = new CommandUninvite(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleUninvite()

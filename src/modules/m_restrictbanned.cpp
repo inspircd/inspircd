@@ -21,6 +21,8 @@ class ModuleRestrictBanned : public Module
  public:
 	ModuleRestrictBanned(InspIRCd* Me) : Module(Me)
 	{
+		Implementation eventlist[] = { I_OnLocalTopicChange, I_OnUserPreNick, I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 	
 	virtual ~ModuleRestrictBanned()

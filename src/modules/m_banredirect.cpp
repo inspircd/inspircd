@@ -200,6 +200,7 @@ class ModuleBanRedirect : public Module
 
 		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete, I_OnCleanup };
 		Me->Modules->Attach(list, this, sizeof(list));
+
 	}
 	
 	virtual void OnChannelDelete(Channel* chan)

@@ -22,6 +22,8 @@ class ModuleAntiBottler : public Module
 		: Module(Me)
 	{
 		
+		Implementation eventlist[] = { I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

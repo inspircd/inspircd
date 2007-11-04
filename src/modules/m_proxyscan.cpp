@@ -310,6 +310,8 @@ class ModuleProxy : public Module
 		: Module(Me)
 	{
 		OnRehash(NULL, "");
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnUserDisconnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 	
 	virtual Version GetVersion()

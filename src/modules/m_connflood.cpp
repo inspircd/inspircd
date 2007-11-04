@@ -32,6 +32,8 @@ public:
 	{
 		
 		InitConf();
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleConnFlood()

@@ -72,6 +72,7 @@ class ModuleTLine : public Module
 		
 		newcommand = new CommandTline(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
+
 	}
 
 	void Implements(char* List)

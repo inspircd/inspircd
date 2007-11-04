@@ -26,6 +26,8 @@ class ModuleXMLSocket : public Module
 		: Module(Me)
 	{
 		OnRehash(NULL,"");
+		Implementation eventlist[] = { I_OnUnloadModule, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	virtual void OnRehash(User* user, const std::string &param)

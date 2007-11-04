@@ -140,6 +140,7 @@ class ModuleSpy : public Module
 		mycommand2 = new CommandSpynames(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
+
 	}
 	
 	virtual ~ModuleSpy()

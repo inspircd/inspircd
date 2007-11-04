@@ -312,6 +312,8 @@ class Modulewatch : public Module
 		whos_watching_me = new watchentries();
 		mycommand = new CommandWatch(ServerInstance, maxwatch);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnCleanup, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)

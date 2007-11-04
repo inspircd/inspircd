@@ -63,6 +63,7 @@ class ModuleClose : public Module
 		// Create a new command
 		newcommand = new CommandClose(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
+
 	}
 
 	virtual ~ModuleClose()

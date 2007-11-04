@@ -41,6 +41,8 @@ class ModuleHostChange : public Module
 		: Module(Me)
 	{
 		OnRehash(NULL,"");
+		Implementation eventlist[] = { I_OnRehash, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
 	virtual ~ModuleHostChange()

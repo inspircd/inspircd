@@ -218,6 +218,8 @@ class ModuleJoinFlood : public Module
 		jf = new JoinFlood(ServerInstance);
 		if (!ServerInstance->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreJoin, I_OnUserJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 	
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)

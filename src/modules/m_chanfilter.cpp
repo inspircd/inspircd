@@ -68,6 +68,8 @@ class ModuleChanFilter : public Module
 		cf = new ChanFilter(ServerInstance);
 		if (!ServerInstance->AddMode(cf))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 	void Implements(char* List) 

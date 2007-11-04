@@ -96,6 +96,7 @@ class ModuleSajoin : public Module
 		
 		mycommand = new CommandSajoin(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSajoin()

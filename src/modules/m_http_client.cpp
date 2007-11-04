@@ -79,6 +79,8 @@ class ModuleHTTPClient : public Module
 	ModuleHTTPClient(InspIRCd *Me)
 		: Module(Me)
 	{
+		Implementation eventlist[] = { I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 	
 	virtual ~ModuleHTTPClient()

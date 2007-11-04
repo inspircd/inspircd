@@ -88,6 +88,8 @@ public:
 
 		unlockcommand = new CommandUnlockserv(ServerInstance, locked);
 		ServerInstance->AddCommand(unlockcommand);
+		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleLockserv()

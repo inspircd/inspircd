@@ -94,6 +94,7 @@ class ModuleSapart : public Module
 		
 		mycommand = new CommandSapart(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSapart()

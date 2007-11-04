@@ -108,6 +108,8 @@ class ModuleSWhois : public Module
 		Conf = new ConfigReader(ServerInstance);
 		mycommand = new CommandSwhois(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnRehash, I_OnPostCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	void OnRehash(User* user, const std::string &parameter)

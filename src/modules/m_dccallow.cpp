@@ -255,6 +255,8 @@ class ModuleDCCAllow : public Module
 		mycommand = new CommandDccallow(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ReadFileConf();
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	void Implements(char* List)

@@ -21,6 +21,8 @@ class ModuleRegOnlyCreate : public Module
 	ModuleRegOnlyCreate(InspIRCd* Me)
 		: Module(Me)
 	{
+		Implementation eventlist[] = { I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

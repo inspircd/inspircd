@@ -334,6 +334,8 @@ class ModuleCloaking : public Module
 			throw ModuleException("Could not add new modes!");
 
 		OnRehash(NULL,"");
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 	
 	virtual ~ModuleCloaking()

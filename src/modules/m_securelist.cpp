@@ -24,6 +24,8 @@ class ModuleSecureList : public Module
 	ModuleSecureList(InspIRCd* Me) : Module(Me)
 	{
 		OnRehash(NULL,"");
+		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
  
 	virtual ~ModuleSecureList()

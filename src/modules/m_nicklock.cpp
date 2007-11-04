@@ -111,6 +111,8 @@ class ModuleNickLock : public Module
 		cmd2 = new CommandNickunlock(ServerInstance);
 		ServerInstance->AddCommand(cmd1);
 		ServerInstance->AddCommand(cmd2);
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserQuit, I_OnCleanup };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 	
 	virtual ~ModuleNickLock()

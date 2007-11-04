@@ -201,6 +201,8 @@ class ModuleDNSBL : public Module
 	ModuleDNSBL(InspIRCd *Me) : Module(Me)
 	{
 		ReadConf();
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleDNSBL()

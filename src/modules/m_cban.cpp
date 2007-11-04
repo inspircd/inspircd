@@ -127,6 +127,8 @@ class ModuleCBan : public Module
 		
 		mycommand = new CommandCban(Me);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void Implements(char* List)

@@ -737,6 +737,8 @@ class ModulePgSQL : public Module
 		ReadConf();
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
+		Implementation eventlist[] = { I_OnUnloadModule, I_OnRequest, I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserDisconnect };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 	virtual ~ModulePgSQL()

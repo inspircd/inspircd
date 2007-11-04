@@ -319,10 +319,13 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 		break;
 	}
 
-	if (swap)
+	if (swap && (swap_pos != source))
+	{
 		std::swap(EventHandlers[i][swap_pos], EventHandlers[i][source]);
-
-	Instance->Log(DEBUG,"Swap locations %u and %u", swap_pos, source);
+		Instance->Log(DEBUG,"Swap locations %u and %u", swap_pos, source);
+	}
+	else
+		Instance->Log(DEBUG,"No need to swap");
 
 	return true;
 }

@@ -28,6 +28,8 @@ class ModuleModesOnOper : public Module
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
+		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void Implements(char* List)

@@ -164,6 +164,7 @@ class ModuleCheck : public Module
 		
 		mycommand = new CommandCheck(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleCheck()

@@ -28,6 +28,8 @@ class ModuleDenyChannels : public Module
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
 	virtual void OnRehash(User* user, const std::string &param)

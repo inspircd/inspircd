@@ -135,6 +135,8 @@ class ModuleSilence : public Module
 		OnRehash(NULL, "");
 		mycommand = new CommandSilence(ServerInstance, maxsilence);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	void Implements(char* List)

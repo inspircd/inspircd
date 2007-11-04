@@ -56,6 +56,8 @@ class ModuleBlockColour : public Module
 		bc = new BlockColor(ServerInstance);
 		if (!ServerInstance->AddMode(bc))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void Implements(char* List)

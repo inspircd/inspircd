@@ -311,6 +311,8 @@ class ModuleChanProtect : public Module
 
 		if (!ServerInstance->AddMode(cp) || !ServerInstance->AddMode(cf))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnRehash, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	void Implements(char* List)

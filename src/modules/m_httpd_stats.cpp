@@ -46,6 +46,8 @@ class ModuleHttpStats : public Module
 	{
 		ReadConfig();
 		this->changed = true;
+		Implementation eventlist[] = { I_OnEvent, I_OnRequest, I_OnChannelDelete, I_OnUserJoin, I_OnUserPart, I_OnUserQuit };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 	void InsertOrder(irc::string channel, int count)

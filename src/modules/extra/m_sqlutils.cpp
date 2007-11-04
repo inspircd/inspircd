@@ -38,6 +38,8 @@ public:
 	: Module::Module(Me)
 	{
 		ServerInstance->Modules->PublishInterface("SQLutils", this);
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnUnloadModule, I_OnRequest, I_OnUserDisconnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	virtual ~ModuleSQLutils()

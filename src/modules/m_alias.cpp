@@ -78,6 +78,7 @@ class ModuleAlias : public Module
 
 		Me->Modules->Attach(I_OnPreCommand, this);
 		Me->Modules->Attach(I_OnRehash, this);
+
 	}
 
 	virtual ~ModuleAlias()

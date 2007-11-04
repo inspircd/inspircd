@@ -47,6 +47,8 @@ public:
 		if (!ServerInstance->AddMode(ie))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
+		Implementation eventlist[] = { I_OnRequest, I_On005Numeric, I_OnCheckInvite };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual void Implements(char* List)

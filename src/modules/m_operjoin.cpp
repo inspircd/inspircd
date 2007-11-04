@@ -44,6 +44,8 @@ class ModuleOperjoin : public Module
 		ModuleOperjoin(InspIRCd* Me) : Module(Me)
 		{
 			OnRehash(NULL, "");
+		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 		void Implements(char* List)

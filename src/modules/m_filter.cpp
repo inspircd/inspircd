@@ -29,6 +29,7 @@ class ModuleFilter : public FilterBase
 	: FilterBase(Me, "m_filter.so")
 	{
 		OnRehash(NULL,"");
+
 	}
 	
 	virtual ~ModuleFilter()

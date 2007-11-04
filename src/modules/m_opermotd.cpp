@@ -83,6 +83,8 @@ class ModuleOpermotd : public Module
 		ServerInstance->AddCommand(mycommand);
 		opermotd = new FileReader(ServerInstance);
 		LoadOperMOTD();
+		Implementation eventlist[] = { I_OnRehash, I_OnOper };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleOpermotd()

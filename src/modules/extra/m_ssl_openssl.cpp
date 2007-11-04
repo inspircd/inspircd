@@ -153,6 +153,9 @@ class ModuleSSLOpenSSL : public Module
 
 		// Needs the flag as it ignores a plain /rehash
 		OnRehash(NULL,"ssl");
+		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup, I_On005Numeric,
+			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 15);
 	}
 
 	virtual void OnRehash(User* user, const std::string &param)

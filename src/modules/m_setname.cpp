@@ -62,6 +62,7 @@ class ModuleSetName : public Module
 		
 		mycommand = new CommandSetname(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSetName()

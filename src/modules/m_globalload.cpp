@@ -135,6 +135,7 @@ class ModuleGlobalLoad : public Module
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 		ServerInstance->AddCommand(mycommand3);
+
 	}
 	
 	virtual ~ModuleGlobalLoad()

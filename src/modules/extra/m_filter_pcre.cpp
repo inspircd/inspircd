@@ -55,6 +55,7 @@ class ModuleFilterPCRE : public FilterBase
 	: FilterBase(Me, "m_filter_pcre.so")
 	{
 		OnRehash(NULL,"");
+
 	}
 
 	virtual ~ModuleFilterPCRE()

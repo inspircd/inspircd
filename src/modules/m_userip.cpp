@@ -56,6 +56,8 @@ class ModuleUserIP : public Module
 		
 		mycommand = new CommandUserip(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

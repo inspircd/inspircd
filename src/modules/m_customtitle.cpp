@@ -118,6 +118,8 @@ class ModuleCustomTitle : public Module
 		
 		mycommand = new CommandTitle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	void Implements(char* List)

@@ -76,6 +76,7 @@ class ModuleClones : public Module
 		
 		mycommand = new CommandClones(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleClones()

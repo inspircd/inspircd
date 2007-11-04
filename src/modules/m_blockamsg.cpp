@@ -49,6 +49,8 @@ class ModuleBlockAmsg : public Module
 	{
 		
 		this->OnRehash(NULL,"");
+		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnCleanup };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void Implements(char* List)

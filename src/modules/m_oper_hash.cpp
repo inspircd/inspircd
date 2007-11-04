@@ -108,6 +108,8 @@ class ModuleOperHash : public Module
 
 		mycommand = new CommandMkpasswd(ServerInstance, this, hashers, names);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnRehash, I_OnOperCompare };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
 	virtual ~ModuleOperHash()

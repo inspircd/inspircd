@@ -739,6 +739,8 @@ class ModuleSQL : public Module
 		}
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
+		Implementation eventlist[] = { I_OnRehash, I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleSQL()

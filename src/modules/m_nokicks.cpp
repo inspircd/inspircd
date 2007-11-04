@@ -57,6 +57,8 @@ class ModuleNoKicks : public Module
 		nk = new NoKicks(ServerInstance);
 		if (!ServerInstance->AddMode(nk))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnAccessCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

@@ -65,6 +65,7 @@ class ModuleSetIdent : public Module
 		
 		mycommand = new CommandSetident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSetIdent()

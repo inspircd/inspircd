@@ -107,6 +107,8 @@ class ModuleRedirect : public Module
 		re = new Redirect(ServerInstance);
 		if (!ServerInstance->AddMode(re))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 	
 	void Implements(char* List)

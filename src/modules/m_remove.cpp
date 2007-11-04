@@ -252,6 +252,8 @@ class ModuleRemove : public Module
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 		OnRehash(NULL,"");
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void Implements(char* List)

@@ -48,6 +48,8 @@ class ModuleRpcJson : public Module
 	ModuleRpcJson(InspIRCd *Me) : Module(Me)
 	{
 		ServerInstance->Modules->PublishInterface("RPC", this);
+		Implementation eventlist[] = { I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 	
 	virtual ~ModuleRpcJson()

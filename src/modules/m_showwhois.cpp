@@ -62,6 +62,8 @@ class ModuleShowwhois : public Module
 		sw = new SeeWhois(ServerInstance);
 		if (!ServerInstance->AddMode(sw))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnWhois };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	~ModuleShowwhois()

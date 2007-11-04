@@ -72,6 +72,8 @@ class ModuleSetHost : public Module
 		OnRehash(NULL,"");
 		mycommand = new CommandSethost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

@@ -43,6 +43,7 @@ class ModuleTestCommand : public Module
 		// Create a new command
 		newcommand = new CommandDalinfo(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
+
 	}
 
 	void Implements(char* List)

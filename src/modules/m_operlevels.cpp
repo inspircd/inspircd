@@ -33,6 +33,8 @@ class ModuleOperLevels : public Module
 
 			
 			conf = new ConfigReader(ServerInstance);
+		Implementation eventlist[] = { I_OnRehash, I_OnKill };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 		virtual ~ModuleOperLevels()

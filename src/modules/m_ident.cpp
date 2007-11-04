@@ -344,6 +344,8 @@ class ModuleIdent : public Module
 		: Module(Me)
 	{
 		OnRehash(NULL, "");
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnCleanup, I_OnUserDisconnect };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 	
 	virtual Version GetVersion()

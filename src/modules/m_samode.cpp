@@ -76,6 +76,7 @@ class ModuleSaMode : public Module
 		
 		mycommand = new CommandSamode(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSaMode()

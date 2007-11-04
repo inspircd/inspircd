@@ -200,6 +200,10 @@ class ModuleSQLLog : public Module
 		OnRehash(NULL,"");
 		MyMod = this;
 		active_queries.clear();
+
+		Implementation eventlist[] = { I_OnRehash, I_OnOper, I_OnGlobalOper, I_OnKill,
+			I_OnPreCommand, I_OnUserConnect, I_OnUserQuit, I_OnLoadModule, I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 9);
 	}
 
 	virtual ~ModuleSQLLog()

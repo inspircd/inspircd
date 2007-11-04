@@ -61,6 +61,7 @@ class ModuleDeVoice : public Module
 
 		mycommand = new CommandDevoice(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 
 	virtual ~ModuleDeVoice()

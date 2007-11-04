@@ -74,6 +74,7 @@ class ModuleSSLInfo : public Module
 		
 		newcommand = new cmd_sslinfo(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
+
 	}
 
 	void Implements(char* List)

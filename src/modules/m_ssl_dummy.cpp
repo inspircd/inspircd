@@ -24,6 +24,8 @@ class ModuleSSLDummy : public Module
 	ModuleSSLDummy(InspIRCd* Me)	: Module(Me)
 	{
 		
+		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnWhois };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 	
 	virtual ~ModuleSSLDummy()

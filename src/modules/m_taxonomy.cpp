@@ -65,6 +65,8 @@ class ModuleTaxonomy : public Module
 		// Create a new command
 		newcommand = new CommandTaxonomy(ServerInstance, this, claimed);
 		ServerInstance->AddCommand(newcommand);
+		Implementation eventlist[] = { I_ProtoSendMetaData };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

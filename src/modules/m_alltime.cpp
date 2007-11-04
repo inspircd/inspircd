@@ -67,6 +67,7 @@ class Modulealltime : public Module
 	{
 		mycommand = new CommandAlltime(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~Modulealltime()

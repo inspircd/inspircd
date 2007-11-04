@@ -52,6 +52,16 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 
 	RefreshTimer = new CacheRefreshTimer(ServerInstance, Utils);
 	ServerInstance->Timers->AddTimer(RefreshTimer);
+		Implementation eventlist[] =
+		{
+			I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
+			I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
+			I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart, I_OnUserConnect,
+			I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
+			I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
+			I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnCancelAway, I_OnPostCommand
+		};
+		ServerInstance->Modules->Attach(eventlist, this, 29);
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)

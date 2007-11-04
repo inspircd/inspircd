@@ -23,6 +23,8 @@ class ModuleSeeNicks : public Module
 	{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
 		ServerInstance->SNO->EnableSnomask('N',"REMOTENICK");
+		Implementation eventlist[] = { I_OnUserPostNick };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleSeeNicks()

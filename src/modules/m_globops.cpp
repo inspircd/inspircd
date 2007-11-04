@@ -53,6 +53,7 @@ class ModuleGlobops : public Module
 		mycommand = new CommandGlobops(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
+
 	}
 	
 	virtual ~ModuleGlobops()

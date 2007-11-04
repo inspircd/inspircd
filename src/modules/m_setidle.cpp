@@ -57,6 +57,7 @@ class ModuleSetIdle : public Module
 		
 		mycommand = new CommandSetidle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSetIdle()

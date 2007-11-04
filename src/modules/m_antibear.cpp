@@ -24,6 +24,8 @@ class ModuleAntiBear : public Module
 	ModuleAntiBear(InspIRCd* Me) : Module(Me)
 	{
 		
+		Implementation eventlist[] = { I_OnUserRegister, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
 	virtual ~ModuleAntiBear()

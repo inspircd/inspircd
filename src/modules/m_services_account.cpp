@@ -120,6 +120,11 @@ class ModuleServicesAccount : public Module
 		m3 = new AUser_R(ServerInstance);
 		if (!ServerInstance->AddMode(m1) || !ServerInstance->AddMode(m2) || !ServerInstance->AddMode(m3))
 			throw ModuleException("Could not add new modes!");
+
+		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin,
+			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData };
+
+		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */

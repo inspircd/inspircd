@@ -480,6 +480,8 @@ class ModuleSQLite3 : public Module
 		ReadConf();
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
+		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleSQLite3()

@@ -119,6 +119,8 @@ class ModuleHelpop : public Module
 				throw ModuleException("Could not add new modes!");
 			mycommand = new CommandHelpop(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnRehash, I_OnWhois };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 		virtual void ReadConfig()

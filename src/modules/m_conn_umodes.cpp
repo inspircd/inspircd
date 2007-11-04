@@ -28,6 +28,8 @@ class ModuleModesOnConnect : public Module
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
+		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void Implements(char* List)

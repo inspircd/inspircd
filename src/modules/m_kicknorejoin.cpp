@@ -126,6 +126,8 @@ public:
 		kr = new KickRejoin(ServerInstance);
 		if (!ServerInstance->AddMode(kr))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnUserPreJoin, I_OnUserKick };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)

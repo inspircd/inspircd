@@ -41,6 +41,8 @@ class ModuleRestrictChans : public Module
 	{
 		
 		ReadConfig();
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)

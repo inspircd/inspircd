@@ -110,6 +110,9 @@ class ModuleSSLGnuTLS : public Module
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
+		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
+			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 15);
 	}
 
 	virtual void OnRehash(User* user, const std::string &param)

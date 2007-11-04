@@ -167,6 +167,8 @@ class ModuleInvisible : public Module
 
 		/* Yeah i know people can take this out. I'm not about to obfuscate code just to be a pain in the ass. */
 		ServerInstance->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin, I_OnUserPart, I_OnUserQuit, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 	virtual ~ModuleInvisible()

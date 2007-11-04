@@ -133,6 +133,8 @@ public:
 		OnRehash(NULL,"");
 		mycommand=new CommandWebirc(Me, Hosts, NotifyOpers);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUserQuit, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	void Implements(char* List)

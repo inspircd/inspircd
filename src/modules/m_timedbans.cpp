@@ -114,6 +114,8 @@ class ModuleTimedBans : public Module
 		mycommand = new CommandTban(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		TimedBanList.clear();
+		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
 	virtual ~ModuleTimedBans()

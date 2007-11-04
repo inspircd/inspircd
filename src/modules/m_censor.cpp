@@ -99,6 +99,8 @@ class ModuleCensor : public Module
 		cc = new CensorChannel(ServerInstance);
 		if (!ServerInstance->AddMode(cu) || !ServerInstance->AddMode(cc))
 			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void Implements(char* List)

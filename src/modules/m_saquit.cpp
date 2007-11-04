@@ -68,6 +68,7 @@ class ModuleSaquit : public Module
 		
 		mycommand = new CommandSaquit(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSaquit()

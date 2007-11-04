@@ -35,6 +35,8 @@ class ModuleFoobar : public Module
 		// The constructor just makes a copy of the server class
 	
 		
+		Implementation eventlist[] = { I_OnUserConnect, I_OnUserQuit, I_OnUserJoin, I_OnUserPart };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 	
 	virtual ~ModuleFoobar()

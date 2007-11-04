@@ -154,6 +154,8 @@ class ModuleZLib : public Module
 
 		total_out_compressed = total_in_compressed = 0;
 		total_out_uncompressed = total_out_uncompressed = 0;
+		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnStats, I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	virtual ~ModuleZLib()

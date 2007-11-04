@@ -82,6 +82,8 @@ class ModuleOperSSLCert : public Module
 		mycommand = new cmd_fingerprint(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		cf = new ConfigReader(ServerInstance);
+		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleOperSSLCert()

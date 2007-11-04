@@ -76,6 +76,7 @@ public:
 	{
 		mycommand = new CommandChgident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleChgIdent()

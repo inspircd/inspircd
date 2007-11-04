@@ -49,6 +49,8 @@ public:
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
 
 		OnRehash(NULL,"");
+		Implementation eventlist[] = { I_OnRequest, I_OnRehash, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleSQLOper()

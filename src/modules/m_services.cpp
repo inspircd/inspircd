@@ -186,6 +186,8 @@ class ModuleServices : public Module
 		}
 	
 		kludgeme = false;
+		Implementation eventlist[] = { I_OnWhois, I_OnUserPostNick, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */

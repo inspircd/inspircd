@@ -159,6 +159,8 @@ class ModuleSVSHold : public Module
 	{
 		mycommand = new CommandSvshold(Me);
 		ServerInstance->AddCommand(mycommand);
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void Implements(char* List)

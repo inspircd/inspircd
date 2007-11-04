@@ -64,6 +64,8 @@ class ModuleDeaf : public Module
 			throw ModuleException("Could not add new modes!");
 
 		OnRehash(NULL, "");
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnBuildExemptList };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void Implements(char* List)

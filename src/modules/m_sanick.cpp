@@ -79,6 +79,7 @@ class ModuleSanick : public Module
 		
 		mycommand = new CommandSanick(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleSanick()

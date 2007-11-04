@@ -87,6 +87,7 @@ class ModuleCycle : public Module
 		
 		mycommand = new CommandCycle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
 	}
 	
 	virtual ~ModuleCycle()

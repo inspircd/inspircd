@@ -107,6 +107,8 @@ class ModuleRandQuote : public Module
 			mycommand = new CommandRandquote(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
 		}
+		Implementation eventlist[] = { I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Implements(char* List)

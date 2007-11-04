@@ -242,6 +242,8 @@ class ModuleSHA256 : public Module
 	ModuleSHA256(InspIRCd* Me) : Module(Me), key(NULL), chars(NULL)
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
+		Implementation eventlist[] = { I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleSHA256()

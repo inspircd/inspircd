@@ -27,6 +27,8 @@ public:
 	MyModule(InspIRCd* Me)
 		: Module::Module(Me)
 	{
+		Implementation eventlist[] = { I_OnRequest, I_OnUserJoin, I_OnUserPart };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~MyModule()

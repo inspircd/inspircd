@@ -27,6 +27,8 @@ class ModuleRPCTest : public Module
  public:
 	ModuleRPCTest(InspIRCd *Me) : Module(Me)
 	{
+		Implementation eventlist[] = { I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 	
 	virtual ~ModuleRPCTest()
