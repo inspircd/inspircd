@@ -248,11 +248,20 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 			s == PRIO_FIRST ? "PRIO_FIRST" : "<unknown!>",
 			sz);
 
+	/** To change the priority of a module, we first find its position in the vector,
+	 * then we find the position of the other modules in the vector that this module
+	 * wants to be before/after. We pick off either the first or last of these depending
+	 * on which they want, and we make sure our module is *at least* before or after
+	 * the first or last of this subset, depending again on the type of priority.
+	 */
 	size_t swap_pos;
 	size_t source = 0;
 	bool swap = true;
 	bool found = false;
 
+	/* Locate our module. This is O(n) but it only occurs on module load so we're
+	 * not too bothered about it
+	 */
 	for (size_t x = 0; x != EventHandlers[i].size(); ++x)
 	{
 		if (EventHandlers[i][x] == mod)
@@ -263,11 +272,15 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 		}
 	}
 
+	/* Eh? this module doesnt exist, probably trying to set priority on an event
+	 * theyre not attached to.
+	 */
 	if (!found)
 		return false;
 
 	Instance->Log(DEBUG,"ModuleManager::SetPriority: My position: %u", source);
 
+	/* Debug stuff. We will probably comment this out some time */
 	if (modules)
 	{
 		for (size_t n = 0; n < sz; ++n)
@@ -281,18 +294,22 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 
 	switch (s)
 	{
+		/* Dummy value */
 		case PRIO_DONTCARE:
 			swap = false;
 		break;
+		/* Module wants to be first, sod everything else */
 		case PRIO_FIRST:
 			swap_pos = 0;
 		break;
+		/* Module is submissive and wants to be last... awww. */
 		case PRIO_LAST:
 			if (EventHandlers[i].empty())
 				swap_pos = 0;
 			else
 				swap_pos = EventHandlers[i].size() - 1;
 		break;
+		/* Place this module after a set of other modules */
 		case PRIO_AFTER:
 		{
 			/* Find the latest possible position */
@@ -311,6 +328,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 			}
 		}
 		break;
+		/* Place this module before a set of other modules */
 		case PRIO_BEFORE:
 		{
 			swap_pos = EventHandlers[i].size() - 1;
@@ -330,6 +348,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 		break;
 	}
 
+	/* Do we need to swap? */
 	if (swap && (swap_pos != source))
 	{
 		std::swap(EventHandlers[i][swap_pos], EventHandlers[i][source]);
@@ -338,6 +357,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 	else
 		Instance->Log(DEBUG,"No need to swap");
 
+	/* Debug stuff. We wont need this some day soon (tm) */
 	Instance->Log(DEBUG,"New ordering:");
 	for (size_t x = 0; x != EventHandlers[i].size(); ++x)
 	{
@@ -408,12 +428,9 @@ bool ModuleManager::Load(const char* filename)
 		return false;
 	}
 		
-	Module* newmod;
-	ircd_module* newhandle;
-	
-	newmod = NULL;
-	newhandle = NULL;
-		
+	Module* newmod = NULL;
+	ircd_module* newhandle = NULL;
+
 	try
 	{
 		/* This will throw a CoreException if there's a problem loading
@@ -469,6 +486,10 @@ bool ModuleManager::Load(const char* filename)
 	this->ModCount++;
 	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(newmod, filename_str));
 
+	/* We give every module a chance to re-prioritize when we introduce a new one,
+	 * not just the one thats loading, as the new module could affect the preference
+	 * of others
+	 */
 	for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator n = Modules.begin(); n != Modules.end(); ++n)
 		n->second.second->Prioritize();
 
