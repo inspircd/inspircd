@@ -785,6 +785,15 @@ Module* ModuleManager::Find(const std::string &name)
 		return modfind->second.second;
 }
 
+const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
+{
+	std::vector<std::string> retval;
+	for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator x = Modules.begin(); x != Modules.end(); ++x)
+		if (!filter || (x->second.second->GetVersion().Flags & filter))
+			retval.push_back(x->first);
+	return retval;
+}
+
 ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	/* Is there any reason to load the entire config file again here?

@@ -194,8 +194,6 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			}
 
 			results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
-			results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(ServerInstance->Modules->modules.size())+" ("+ConvToStr(ServerInstance->Modules->modules.size()*sizeof(Module))+" bytes)");
-			results.push_back(sn+" 249 "+user->nick+" :ModuleHandles(VECTOR) "+ConvToStr(ServerInstance->Modules->handles.size())+" ("+ConvToStr(ServerInstance->Modules->handles.size()*sizeof(ircd_module))+" bytes)");
 
 #ifndef WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.

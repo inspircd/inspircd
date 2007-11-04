@@ -39,7 +39,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 /** Handle /MODULES
  */
 CmdResult CommandModules::Handle (const char**, int, User *user)
-{
+{/* XXX FIXME
   	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)
 	{
 		Version V = ServerInstance->Modules->modules[i]->GetVersion();
@@ -67,6 +67,6 @@ CmdResult CommandModules::Handle (const char**, int, User *user)
 		}
 	}
 	user->WriteServ("901 %s :End of MODULES list",user->nick);
-
+	*/
 	return CMD_SUCCESS;
 }

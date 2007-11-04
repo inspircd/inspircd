@@ -277,13 +277,8 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
 
 std::string TreeSocket::MyCapabilities()
 {
-	std::vector<std::string> modlist;
+	std::vector<std::string> modlist = this->Instance->Modules->GetAllModuleNames(VF_COMMON);
 	std::string capabilities;
-	for (int i = 0; i <= this->Instance->Modules->GetCount(); i++)
-	{
-		if (this->Instance->Modules->modules[i]->GetVersion().Flags & VF_COMMON)
-			modlist.push_back(this->Instance->Config->module_names[i]);
-	}
 	sort(modlist.begin(),modlist.end());
 	for (unsigned int i = 0; i < modlist.size(); i++)
 	{

@@ -119,7 +119,8 @@ class ModuleHttpStats : public Module
 
 				data << "</general>";
 				data << "<modulelist>";
-				for (int i = 0; i <= ServerInstance->Modules->GetCount(); i++)
+				/* XXX FIXME
+				 * for (int i = 0; i <= ServerInstance->Modules->GetCount(); i++)
 				{
 					if (!ServerInstance->Config->module_names[i].empty())
 					{
@@ -128,6 +129,7 @@ class ModuleHttpStats : public Module
 							v.Major << "." <<  v.Minor << "." << v.Revision << "." << v.Build << "</version></module>";
 					}
 				}
+				*/
 				data << "</modulelist>";
 
 				data << "<channellist>";

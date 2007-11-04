@@ -103,11 +103,13 @@ void InspIRCd::Cleanup()
 		if (MyModCount)
 		{
 			/* Unload all modules, so they get a chance to clean up their listeners */
-			for (int j = 0; j <= MyModCount; j++)
+			/*XXX FIXME
+			 * for (int j = 0; j <= MyModCount; j++)
 				mymodnames.push_back(Config->module_names[j]);
 
 			for (int k = 0; k <= MyModCount; k++)
 				this->Modules->Unload(mymodnames[k].c_str());
+			*/
 		}
 
 	}
@@ -715,18 +717,13 @@ int main(int argc, char ** argv)
  */
 bool InspIRCd::AllModulesReportReady(User* user)
 {
-	if (!Config->global_implementation[I_OnCheckReady])
-		return true;
-
-	for (int i = 0; i <= this->Modules->GetCount(); i++)
+	for (EventHandlerIter i = Modules->EventHandlers[I_OnCheckReady].begin(); i != Modules->EventHandlers[I_OnCheckReady].end(); ++i)
 	{
-		if (Config->implement_lists[i][I_OnCheckReady])
-		{
-			int res = this->Modules->modules[i]->OnCheckReady(user);
-			if (!res)
-				return false;
-		}
+		int res = (*i)->OnCheckReady(user);
+		if (!res)
+			return false;
 	}
+
 	return true;
 }
 

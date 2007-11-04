@@ -1642,18 +1642,6 @@ class CoreExport ModuleManager : public classbase
 	 */
 	Module* Find(const std::string &name);
  
-	/** Remove a module handle pointer
-	 * @param j Index number of the module handle to remove
-	 * @return True if a handle existed at the given index, false otherwise
-	 */
-	bool EraseHandle(unsigned int j);
-
-	/** Remove a Module pointer
-	 * @param j Index number of the Module to remove
-	 * @return True if a handle existed at the given index, false otherwise
-	 */
-	bool EraseModule(unsigned int j);
-
 	/** Publish a 'feature'.
 	 * There are two ways for a module to find another module it depends on.
 	 * Either by name, using InspIRCd::FindModule, or by feature, using this
@@ -1756,6 +1744,8 @@ class CoreExport ModuleManager : public classbase
 	 * @return The module name or an empty string
 	 */
 	const std::string& GetModuleName(Module* m);
+
+	const std::vector<std::string> GetAllModuleNames(int filter);
 };
 
 /** This definition is used as shorthand for the various classes
