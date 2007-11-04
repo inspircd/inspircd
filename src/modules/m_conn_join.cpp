@@ -48,9 +48,9 @@ class ModuleConnJoin : public Module
 			OnRehash(NULL, "");
 		}
 
-		Priority Prioritize()
+		void Prioritize()
 		{
-			return PRIORITY_LAST;
+			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIO_LAST);
 		}
 
 		void Implements(char* List)
