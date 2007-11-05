@@ -62,6 +62,8 @@ class CoreExport BanCacheManager : public classbase
 		this->ServerInstance = Instance;
 		this->BanHash = new BanCacheHash();
 	}
+
+	void RehashCache();
 };
 
 #endif

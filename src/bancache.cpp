@@ -63,4 +63,26 @@ bool BanCacheManager::RemoveHit(BanCacheHit *b)
 	return true;
 }
 
+void BanCacheManager::RehashCache()
+{
+	BanCacheHash* NewHash = new BanCacheHash();
 
+	BanCacheHash::iterator safei;
+	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); )
+	{
+		safei = n;
+		safei++;
+
+		/* Safe to delete items here through iterator 'n' */
+
+		/* Actually inserts a std::pair */
+		NewHash->insert(*n);
+
+		/* End of safe section */
+
+		n = safei;
+	}
+
+	delete BanHash;
+	BanHash = NewHash;
+}
