@@ -186,7 +186,7 @@ class ModuleInvisible : public Module
 	}
 
 	
-	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		if (user->IsModeSet('Q'))
 		{

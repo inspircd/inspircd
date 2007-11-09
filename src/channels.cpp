@@ -198,7 +198,7 @@ void Channel::SetDefaultModes()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record 
  */
-Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool override, const char* key, time_t TS)
+Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS)
 {
 	if (!user || !cn)
 		return NULL;
@@ -359,10 +359,10 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		}
 	}
 
-	return Channel::ForceChan(Instance, Ptr, user, privs);
+	return Channel::ForceChan(Instance, Ptr, user, privs, bursting);
 }
 
-Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs)
+Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting)
 {
 	std::string nick = user->nick;
 	bool silent = false;
@@ -405,7 +405,7 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		}
 	}
 
-	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, silent));
+	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, bursting, silent));
 
 	if (!silent)
 		Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);

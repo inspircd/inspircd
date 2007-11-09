@@ -62,7 +62,7 @@ class CommandCycle : public Command
 				if (!channel->PartUser(user, reason.c_str()))
 					delete channel;
 				
-				Channel::JoinUser(ServerInstance, user, parameters[0], true, "", ServerInstance->Time(true));
+				Channel::JoinUser(ServerInstance, user, parameters[0], true, "", false, ServerInstance->Time(true));
 			}
 
 			return CMD_LOCALONLY;

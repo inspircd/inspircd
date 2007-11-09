@@ -458,8 +458,10 @@ class CoreExport Module : public Extensible
 	 * @param channel The channel being joined
 	 * @param silent Change this to true if you want to conceal the JOIN command from the other users
 	 * of the channel (useful for modules such as auditorium)
+	 * @param sync This is set to true if the JOIN is the result of a network sync and the remote user is being introduced
+	 * to a channel due to the network sync.
 	 */
-	virtual void OnUserJoin(User* user, Channel* channel, bool &silent);
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has

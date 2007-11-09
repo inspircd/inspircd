@@ -122,7 +122,7 @@ class CoreExport Channel : public Extensible
 
 	/** Connect a Channel to a User
 	 */
-	static Channel* ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs);
+	static Channel* ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting);
 
 	/** Set default modes for the channel on creation
 	 */
@@ -375,7 +375,7 @@ class CoreExport Channel : public Extensible
 	 * been created if the channel did not exist before the user was joined to it.
 	 * If the user could not be joined to a channel, the return value may be NULL.
 	 */
-	static Channel* JoinUser(InspIRCd* ServerInstance, User *user, const char* cn, bool override, const char* key, time_t TS = 0);
+	static Channel* JoinUser(InspIRCd* ServerInstance, User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS = 0);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with

@@ -68,10 +68,10 @@ class ModuleFoobar : public Module
 		ServerInstance->Log(DEBUG,"Foobar: User quitting: "+b);
 	}
 	
-	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		// method called when a user joins a channel
-	
+
 		std::string c = channel->name;
 		std::string b = user->nick;
 		ServerInstance->Log(DEBUG,"Foobar: User "+b+" joined "+c);

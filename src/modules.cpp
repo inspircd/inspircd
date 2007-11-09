@@ -109,7 +109,7 @@ std::string Event::GetEventID()
 void		Module::OnUserConnect(User*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }
-void		Module::OnUserJoin(User*, Channel*, bool&) { }
+void		Module::OnUserJoin(User*, Channel*, bool, bool&) { }
 void		Module::OnPostJoin(User*, Channel*) { }
 void		Module::OnUserPart(User*, Channel*, const std::string&, bool&) { }
 void		Module::OnRehash(User*, const std::string&) { }

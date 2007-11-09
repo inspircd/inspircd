@@ -861,7 +861,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 
-				Channel::JoinUser(this->Instance, who, channel.c_str(), true, "", TS);
+				Channel::JoinUser(this->Instance, who, channel.c_str(), true, "", true, TS);
 			}
 			else
 			{

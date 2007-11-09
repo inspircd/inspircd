@@ -30,7 +30,7 @@ CmdResult CommandJoin::Handle (const char** parameters, int pcnt, User *user)
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
-			Channel::JoinUser(ServerInstance, user, parameters[0], false, parameters[1]);
+			Channel::JoinUser(ServerInstance, user, parameters[0], false, parameters[1], false);
 			return CMD_SUCCESS;
 		}
 	}
@@ -41,7 +41,7 @@ CmdResult CommandJoin::Handle (const char** parameters, int pcnt, User *user)
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
-			Channel::JoinUser(ServerInstance, user, parameters[0], false, "");
+			Channel::JoinUser(ServerInstance, user, parameters[0], false, "", false);
 			return CMD_SUCCESS;
 		}
 	}

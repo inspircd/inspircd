@@ -557,7 +557,7 @@ void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 	DoPingChecks(curtime);
 }
 
-void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool &silent)
+void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 {
 	// Only do this for local users
 	if (IS_LOCAL(user))

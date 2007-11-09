@@ -239,9 +239,15 @@ class ModuleJoinFlood : public Module
 		return 0;
 	}
 
-	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		joinfloodsettings *f;
+
+		/* We arent interested in JOIN events caused by a network burst */
+		if (sync)
+			return;
+
+		/* But all others are OK */
 		if (channel->GetExt("joinflood",f))
 		{
 			f->addjoin();

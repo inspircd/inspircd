@@ -118,7 +118,7 @@ class ModuleDelayJoin : public Module
 		return 0;
 	}
 
-	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		if (channel->IsModeSet('D'))
 		{
@@ -190,6 +190,10 @@ class ModuleDelayJoin : public Module
 
 		/* Display the join to everyone else (the user who joined got it earlier) */
 		this->WriteCommonFrom(user, channel, "JOIN %s", channel->name);
+
+		std::string n = this->ServerInstance->Modes->ModeString(user, channel);
+		if (n.length() > 0)
+			this->WriteCommonFrom(user, channel, "MODE %s +%s", channel->name, n.c_str());
 
 		/* Shrink off the neccessary metadata for a specific channel */
 		user->Shrink(std::string("delayjoin_")+channel->name);

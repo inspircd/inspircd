@@ -258,7 +258,7 @@ class ModuleBanRedirect : public Module
 		ExceptionModule = ServerInstance->Modules->Find("m_banexception.so");
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, bool synching = false)
 	{
 		/* This prevents recursion when a user sets multiple ban redirects in a chain
 		 * (thanks Potter)
@@ -307,7 +307,7 @@ class ModuleBanRedirect : public Module
 							user->WriteServ("474 %s %s :Cannot join channel (You are banned)", user->nick, chan->name);
 							user->WriteServ("470 %s :You are being automatically redirected to %s", user->nick, redir->targetchan.c_str());
 							nofollow = true;
-							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", ServerInstance->Time(true));
+							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time(true));
 							nofollow = false;
 							return 1;
 						}

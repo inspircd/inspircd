@@ -186,7 +186,7 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	void OnUserJoin(User* user, Channel* channel, bool &silent)
+	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		StatsIter a = sh->find(channel->name);
 		if (a != sh->end())
