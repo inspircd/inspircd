@@ -309,7 +309,11 @@ class ModuleChanProtect : public Module
 		cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 
 		if (!ServerInstance->AddMode(cp) || !ServerInstance->AddMode(cf))
+		{
+			delete cp;
+			delete cf;
 			throw ModuleException("Could not add new modes!");
+		}
 
 		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnRehash, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 7);

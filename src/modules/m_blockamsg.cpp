@@ -44,10 +44,8 @@ class ModuleBlockAmsg : public Module
 	BlockAction action;
 	
  public:
-	ModuleBlockAmsg(InspIRCd* Me)
-	: Module(Me)
+	ModuleBlockAmsg(InspIRCd* Me) : Module(Me)
 	{
-		
 		this->OnRehash(NULL,"");
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 3);

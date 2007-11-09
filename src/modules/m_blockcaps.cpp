@@ -59,7 +59,10 @@ public:
 		OnRehash(NULL,"");
 		bc = new BlockCaps(ServerInstance);
 		if (!ServerInstance->AddMode(bc))
+		{
+			delete bc;
 			throw ModuleException("Could not add new modes!");
+		}
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}

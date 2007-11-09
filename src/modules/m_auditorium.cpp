@@ -55,7 +55,10 @@ class ModuleAuditorium : public Module
 	{
 		aum = new AuditoriumMode(ServerInstance);
 		if (!ServerInstance->AddMode(aum))
+		{
+			delete aum;
 			throw ModuleException("Could not add new modes!");
+		}
 
 		OnRehash(NULL, "");
 
