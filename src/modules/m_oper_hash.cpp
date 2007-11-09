@@ -84,8 +84,6 @@ class ModuleOperHash : public Module
 		Conf = NULL;
 		OnRehash(NULL,"");
 
-		ServerInstance->UseInterface("HashRequest");
-
 		/* Find all modules which implement the interface 'HashRequest' */
 		modulelist* ml = ServerInstance->FindInterface("HashRequest");
 
@@ -108,6 +106,8 @@ class ModuleOperHash : public Module
 		{
 			throw ModuleException("I can't find any modules loaded which implement the HashRequest interface! You probably forgot to load a hashing module such as m_md5.so or m_sha256.so.");
 		}
+
+		ServerInstance->UseInterface("HashRequest");
 
 		mycommand = new cmd_mkpasswd(ServerInstance, this, hashers, names);
 		ServerInstance->AddCommand(mycommand);

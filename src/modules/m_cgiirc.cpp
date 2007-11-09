@@ -130,7 +130,7 @@ public:
 	{
 		
 		OnRehash(NULL,"");
-		mycommand=new cmd_webirc(Me, Hosts, NotifyOpers);
+		mycommand = new cmd_webirc(Me, Hosts, NotifyOpers);
 		ServerInstance->AddCommand(mycommand);
 	}
 

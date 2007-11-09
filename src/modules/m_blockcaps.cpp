@@ -63,7 +63,10 @@ public:
 		OnRehash(NULL,"");
 		bc = new BlockCaps(ServerInstance);
 		if (!ServerInstance->AddMode(bc, 'P'))
+		{
+			delete bc;
 			throw ModuleException("Could not add new modes!");
+		}
 	}
 
 	void Implements(char* List)

@@ -315,7 +315,11 @@ class ModuleChanProtect : public Module
 		cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 
 		if (!ServerInstance->AddMode(cp, 'a') || !ServerInstance->AddMode(cf, 'q'))
+		{
+			delete cp;
+			delete cf;
 			throw ModuleException("Could not add new modes!");
+		}
 	}
 
 	void Implements(char* List)

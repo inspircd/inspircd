@@ -48,10 +48,8 @@ class ModuleBlockAmsg : public Module
 	BlockAction action;
 	
  public:
-	ModuleBlockAmsg(InspIRCd* Me)
-	: Module(Me)
-	{
-		
+	ModuleBlockAmsg(InspIRCd* Me) : Module(Me)
+	{	
 		this->OnRehash(NULL,"");
 	}
 

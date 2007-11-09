@@ -101,7 +101,11 @@ class ModuleCensor : public Module
 		cu = new CensorUser(ServerInstance);
 		cc = new CensorChannel(ServerInstance);
 		if (!ServerInstance->AddMode(cu, 'G') || !ServerInstance->AddMode(cc, 'G'))
+		{
+			delete cu;
+			delete cc;
 			throw ModuleException("Could not add new modes!");
+		}
 	}
 
 	void Implements(char* List)

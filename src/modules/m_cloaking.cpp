@@ -314,7 +314,7 @@ class ModuleCloaking : public Module
 	ModuleCloaking(InspIRCd* Me)
 		: Module(Me)
 	{
-		ServerInstance->UseInterface("HashRequest");
+		OnRehash(NULL,"");
 
 		/* Attempt to locate the md5 service provider, bail if we can't find it */
 		HashModule = ServerInstance->FindModule("m_md5.so");
@@ -324,10 +324,10 @@ class ModuleCloaking : public Module
 		/* Create new mode handler object */
 		cu = new CloakUser(ServerInstance, this, HashModule);
 
-		OnRehash(NULL,"");
-
 		if (!ServerInstance->AddMode(cu, 'x'))
 			throw ModuleException("Could not add new modes!");
+
+		ServerInstance->UseInterface("HashRequest");
 	}
 	
 	virtual ~ModuleCloaking()
