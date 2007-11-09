@@ -321,19 +321,25 @@ class ModuleCloaking : public Module
 	{
 		ServerInstance->Modules->UseInterface("HashRequest");
 
-		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		HashModule = ServerInstance->Modules->Find("m_md5.so");
-		if (!HashModule)
-			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
-
 		/* Create new mode handler object */
 		cu = new CloakUser(ServerInstance, this, HashModule);
 
 		OnRehash(NULL,"");
 
+		/* Attempt to locate the md5 service provider, bail if we can't find it */
+		HashModule = ServerInstance->Modules->Find("m_md5.so");
+		if (!HashModule)
+		{
+			delete cu;
+			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
+		}
+
 		/* Register it with the core */
 		if (!ServerInstance->AddMode(cu))
+		{
+			delete cu;
 			throw ModuleException("Could not add new modes!");
+		}
 
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
