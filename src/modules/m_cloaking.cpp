@@ -319,8 +319,6 @@ class ModuleCloaking : public Module
 	ModuleCloaking(InspIRCd* Me)
 		: Module(Me)
 	{
-		ServerInstance->Modules->UseInterface("HashRequest");
-
 		/* Create new mode handler object */
 		cu = new CloakUser(ServerInstance, this, HashModule);
 
@@ -340,6 +338,8 @@ class ModuleCloaking : public Module
 			delete cu;
 			throw ModuleException("Could not add new modes!");
 		}
+
+		ServerInstance->Modules->UseInterface("HashRequest");
 
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
