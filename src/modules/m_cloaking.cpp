@@ -324,11 +324,10 @@ class ModuleCloaking : public Module
 		/* Create new mode handler object */
 		cu = new CloakUser(ServerInstance, this, HashModule);
 
-		/* Register it with the core */		
+		OnRehash(NULL,"");
+
 		if (!ServerInstance->AddMode(cu, 'x'))
 			throw ModuleException("Could not add new modes!");
-
-		OnRehash(NULL,"");
 	}
 	
 	virtual ~ModuleCloaking()
