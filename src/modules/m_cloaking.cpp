@@ -68,7 +68,6 @@ class CloakUser : public ModeHandler
  public:
 	CloakUser(InspIRCd* Instance, Module* Source, Module* Hash) : ModeHandler(Instance, 'x', 0, 0, false, MODETYPE_USER, false), Sender(Source), HashProvider(Hash)
 	{
-		printf("ServerInstance: %08lx\n", ServerInstance);
 	}
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
@@ -315,6 +314,11 @@ class ModuleCloaking : public Module
 	ModuleCloaking(InspIRCd* Me)
 		: Module(Me)
 	{
+
+		HashModule = ServerInstance->FindModule("m_md5.so");
+		if (!HashModule)
+			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
+
 		/* Create new mode handler object */
 		cu = new CloakUser(ServerInstance, this, HashModule);
 
@@ -327,11 +331,6 @@ class ModuleCloaking : public Module
 			delete cu;
 			throw e;
 		}
-
-		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		HashModule = ServerInstance->FindModule("m_md5.so");
-		if (!HashModule)
-			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
 
 		if (!ServerInstance->AddMode(cu, 'x'))
 			throw ModuleException("Could not add new modes!");
