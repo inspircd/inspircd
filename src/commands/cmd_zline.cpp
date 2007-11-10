@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -37,12 +37,21 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 
 		long duration = ServerInstance->Duration(parameters[1]);
 
-		const char* ipaddr = parameters[0]; 
-		if (strchr(ipaddr,'@'))
+		const char* ipaddr = parameters[0];
+		User* find = ServerInstance->FindNick(parameters[0]);
+
+		if (find)
 		{
-			while (*ipaddr != '@')
+			ipaddr = find->GetIPString();
+		}
+		else
+		{
+			if (strchr(ipaddr,'@'))
+			{
+				while (*ipaddr != '@')
+					ipaddr++;
 				ipaddr++;
-			ipaddr++;
+			}
 		}
 		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))

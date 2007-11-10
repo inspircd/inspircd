@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -26,7 +26,16 @@ CmdResult CommandKline::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt >= 3)
 	{
-		IdentHostPair ih = ServerInstance->XLines->IdentSplit(parameters[0]);
+		IdentHostPair ih;
+		User* find = ServerInstance->FindNick(parameters[0]);
+		if (find)
+		{
+			ih.first = "*";
+			ih.second = find->GetIPString();
+		}
+		else
+			ih = ServerInstance->XLines->IdentSplit(parameters[0]);
+
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
