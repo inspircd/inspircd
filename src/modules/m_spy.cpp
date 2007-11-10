@@ -61,34 +61,6 @@ void spy_userlist(User *user, Channel *c)
 
 }
 
-/** Handle /SPYLIST
- */
-class CommandSpylist : public Command
-{
-  public:
-	CommandSpylist (InspIRCd* Instance) : Command(Instance,"SPYLIST", 'o', 0)
-	{
-		this->source = "m_spy.so";
-		syntax.clear();
-	}
-
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
-	{
-		ServerInstance->WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
-		user->WriteServ("321 %s Channel :Users Name",user->nick);
-		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
-		{
-			if (pcnt && !match(i->second->name, parameters[0]))
-				continue;
-			user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,i->second->GetUserCounter(),i->second->ChanModes(true),i->second->topic);
-		}
-		user->WriteServ("323 %s :End of channel list.",user->nick);
-
-		/* Dont send out across the network */
-		return CMD_LOCALONLY;
-	}
-};
-
 /** Handle /SPYNAMES
  */
 class CommandSpynames : public Command
@@ -130,15 +102,12 @@ class CommandSpynames : public Command
 
 class ModuleSpy : public Module
 {
-	CommandSpylist *mycommand;
 	CommandSpynames *mycommand2;
  public:
 	ModuleSpy(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new CommandSpylist(ServerInstance);
 		mycommand2 = new CommandSpynames(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 
 	}
@@ -154,3 +123,4 @@ class ModuleSpy : public Module
 };
 
 MODULE_INIT(ModuleSpy)
+
