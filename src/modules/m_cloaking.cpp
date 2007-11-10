@@ -319,16 +319,12 @@ class ModuleCloaking : public Module
 	ModuleCloaking(InspIRCd* Me)
 		: Module(Me)
 	{
-		/* Create new mode handler object */
-		cu = new CloakUser(ServerInstance, this, HashModule);
-
 		/* Attempt to locate the md5 service provider, bail if we can't find it */
 		HashModule = ServerInstance->Modules->Find("m_md5.so");
 		if (!HashModule)
-		{
-			delete cu;
 			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
-		}
+
+		cu = new CloakUser(ServerInstance, this, HashModule);
 
 		try
 		{
