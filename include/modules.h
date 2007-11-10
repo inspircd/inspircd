@@ -1271,7 +1271,9 @@ class CoreExport Module : public Extensible
 	 * @param userlist The user list for the channel (you may change this pointer.
 	 * If you want to change the values, take a copy first, and change the copy, then
 	 * point the pointer at your copy)
-	 * @return 1 to prevent the user list being sent to the client, 0 to allow it
+	 * @return 1 to prevent the user list being sent to the client, 0 to allow it.
+	 * Returning -1 allows the names list, but bypasses any checks which check for
+	 * channel membership before sending the names list.
 	 */
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &userlist);
 

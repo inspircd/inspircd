@@ -835,6 +835,14 @@ void Channel::UserList(User *user, CUList *ulist)
 	FOREACH_RESULT(I_OnUserList,OnUserList(user, this, ulist));
 	if (MOD_RESULT == 1)
 		return;
+	if (MOD_RESULT != -1)
+	{
+		if ((this->IsModeSet('s')) && (!this->HasUser(user)))
+		{
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, this->name);
+			return;
+		}
+	}
 
 	dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name);
 
