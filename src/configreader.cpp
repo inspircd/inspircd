@@ -1208,6 +1208,9 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	{
 		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 		{
+			if (bail)
+				printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n", adding->c_str());
+
 			if (ServerInstance->Modules->Load(adding->c_str()))
 			{
 				ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
@@ -1220,14 +1223,17 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 			{
 				if (user)
 					user->WriteServ("974 %s %s :%s",user->nick, adding->c_str(), ServerInstance->Modules->LastError().c_str());
+
+				if (bail)
+				{
+					printf_c("\n[\033[1;31m*\033[0m] %s\n\n", ServerInstance->Modules->LastError().c_str());
+					ServerInstance->Exit(EXIT_STATUS_MODULE);
+				}
 			}
 		}
 	}
 
-	ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules in pass 2.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
-
-	/** Note: This is safe, the method checks for user == NULL */
-	/*ServerInstance->Parser->SetupCommandTable(user);*/
+	ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 
 	if (user)
 		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
@@ -1237,8 +1243,9 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 
 bool ServerConfig::Downloading()
 {
+	ServerInstance->Log(DEBUG, "ServerConfig::Downloading() TotalDownloaded %u of %u", TotalDownloaded, IncludedFiles.size());
 	/* Returns true if there are still files in the process of downloading */
-	return (TotalDownloaded >= IncludedFiles.size());
+	return (TotalDownloaded < IncludedFiles.size());
 }
 
 void ServerConfig::StartDownloads()
