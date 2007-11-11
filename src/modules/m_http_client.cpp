@@ -54,6 +54,7 @@ class HTTPResolver : public Resolver
  public:
 	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(socket)
 	{
+		ServerInstance->Log(DEBUG,"HTTPResolver::HTTPResolver");
 	}
 	
 	void OnLookupComplete(const string &result, unsigned int ttl, bool cached, int resultnum = 0)
@@ -64,8 +65,9 @@ class HTTPResolver : public Resolver
 	
 	void OnError(ResolverError e, const string &errmsg)
 	{
-		if (ServerInstance->SocketCull.find(socket) == ServerInstance->SocketCull.end())
-			ServerInstance->SocketCull[socket] = socket;
+		ServerInstance->Log(DEBUG,"HTTPResolver::OnError");
+		/*if (ServerInstance->SocketCull.find(socket) == ServerInstance->SocketCull.end())
+			ServerInstance->SocketCull[socket] = socket;*/
 	}
 };
 
@@ -111,7 +113,7 @@ class ModuleHTTPClient : public Module
 HTTPSocket::HTTPSocket(InspIRCd *Instance, ModuleHTTPClient *Mod)
 		: BufferedSocket(Instance), Server(Instance), Mod(Mod), status(HTTP_CLOSED)
 {
-	this->ClosePending = false;
+	Instance->Log(DEBUG,"HTTPSocket::HTTPSocket");
 	this->port = 80;
 }
 
@@ -130,6 +132,7 @@ HTTPSocket::~HTTPSocket()
 
 bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 {
+	Instance->Log(DEBUG,"HTTPSocket::DoRequest");
 	/* Tweak by brain - we take a copy of this,
 	 * so that the caller doesnt need to leave
 	 * pointers knocking around, less chance of
@@ -166,6 +169,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 
 bool HTTPSocket::ParseURL(const std::string &iurl)
 {
+	Instance->Log(DEBUG,"HTTPSocket::ParseURL");
 	url.url = iurl;
 	url.port = 80;
 	url.protocol = "http";
@@ -248,6 +252,7 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 
 void HTTPSocket::Connect(const string &ip)
 {
+	Instance->Log(DEBUG,"HTTPSocket::Connect");
 	strlcpy(this->IP, ip.c_str(), MAXBUF);
 	
 	if (!this->DoConnect())
@@ -280,6 +285,7 @@ bool HTTPSocket::OnConnected()
 
 bool HTTPSocket::OnDataReady()
 {
+	Instance->Log(DEBUG,"HTTPSocket::OnDataReady()");
 	char *data = this->Read();
 
 	if (!data)
@@ -335,6 +341,7 @@ bool HTTPSocket::OnDataReady()
 
 void HTTPSocket::OnClose()
 {
+	Instance->Log(DEBUG,"HTTPSocket::OnClose");
 	if (data.empty())
 		return; // notification that request failed?
 
@@ -344,3 +351,4 @@ void HTTPSocket::OnClose()
 }
 
 MODULE_INIT(ModuleHTTPClient)
+
