@@ -58,6 +58,11 @@ class ModuleRemoteInclude : public Module
 
 			ServerInstance->Log(DEBUG, "Flag file complete without error");
 			ServerInstance->Config->Complete(resp->GetURL(), false);
+
+			/* Erase from our association map, but dont delete the pointer.
+			 * the core will want to access this pointer for the file data.
+			 */
+			assoc.erase(n);
 		}
 
 		return NULL;
