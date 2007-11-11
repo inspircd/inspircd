@@ -150,10 +150,13 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
+	/*
 	bool cached;
 	HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
 	Instance->AddResolver(r, cached);
 	return true;
+	*/
+	Connect(url.domain);
 	
 	return true;
 }
