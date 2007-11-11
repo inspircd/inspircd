@@ -1142,6 +1142,8 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		 * at this point
 		 */
 
+		if (!ServerInstance->Res)
+			ServerInstance->Res = new DNS(ServerInstance);
 	        /** Note: This is safe, the method checks for user == NULL */
 	        ServerInstance->Parser->SetupCommandTable(user);
 		ServerInstance->Modules->LoadAll();

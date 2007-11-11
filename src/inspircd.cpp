@@ -315,6 +315,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
+	this->Res = NULL;
 
 	this->Config = new ServerConfig(this);
 	this->SNO = new SnomaskManager(this);
@@ -398,7 +399,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Set up winsock
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(2,0), &wsadata);
-
 	ChangeWindowsSpecificPointers(this);
 #endif
 	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
@@ -464,8 +464,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	SE->RecoverFromFork();
-
-	this->Res = new DNS(this);
 
 	/* Read config, pass 0. At the end if this pass,
 	 * the Config->IncludeFiles is populated, we call
