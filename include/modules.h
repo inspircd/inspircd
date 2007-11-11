@@ -401,9 +401,11 @@ enum Implementation
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
-	I_OnText,
+	I_OnText, I_OnReadConfig, I_OnDownloadFile,
 	I_END
 };
+
+class ConfigReader;
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -433,6 +435,10 @@ class CoreExport Module : public Extensible
 	virtual void Prioritize()
 	{
 	}
+
+	virtual void OnReadConfig(ServerConfig* config, ConfigReader* coreconf);
+
+	virtual int OnDownloadFile(const std::string &filename, std::stringstream &filedata);
 
 	/** Returns the version number of a Module.
 	 * The method should return a Version object with its version information assigned via

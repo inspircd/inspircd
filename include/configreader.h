@@ -232,11 +232,11 @@ class CoreExport ServerConfig : public Extensible
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream);
+	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream, int pass);
   
 	/** Process an include directive
 	 */
-	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
+	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream, int pass);
 
 	/** Check that there is only one of each configuration item
 	 */
@@ -643,12 +643,12 @@ class CoreExport ServerConfig : public Extensible
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream);
+	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream);
+	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream, int pass);
 	
 	/* Both these return true if the value existed or false otherwise */
 	

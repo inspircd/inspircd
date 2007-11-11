@@ -426,11 +426,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->forcedebug = do_debug;
 	Config->writelog = !do_nolog;	
 	Config->ClearStack();
-	Config->Read(true, NULL);
 
-	// Get XLine to do it's thing.
-	this->XLines->CheckELines();
-	this->XLines->ApplyLines();
+	this->Modes = new ModeParser(this);
+	this->AddServerName(Config->ServerName);
 
 	/*
 	 * Initialise SID/UID.
@@ -489,16 +487,21 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	SE->RecoverFromFork();
 
-	this->Modes = new ModeParser(this);
-	this->AddServerName(Config->ServerName);
+	this->Res = new DNS(this);
+
+        Config->Read(true, NULL);
+
+        // Get XLine to do it's thing.
+        this->XLines->CheckELines();
+        this->XLines->ApplyLines();
+
+
 	CheckDie();
 	int bounditems = BindPorts(true, found_ports, pl);
 
 	printf("\n");
 
-	this->Res = new DNS(this);
-
-	this->Modules->LoadAll();
+	/*this->Modules->LoadAll();*/
 	
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();

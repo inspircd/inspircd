@@ -781,365 +781,395 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 
 void ServerConfig::Read(bool bail, User* user)
 {
-	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
-	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
-	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
-	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
-	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
-	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
-	std::ostringstream errstr;	/* String stream containing the error output */
+	int rem = 0, add = 0;           /* Number of modules added, number of modules removed */
 
-	/* These tags MUST occur and must ONLY occur once in the config file */
-	static char* Once[] = { "server", "admin", "files", "power", "options", NULL };
-
-	/* These tags can occur ONCE or not at all */
-	InitialConfig Values[] = {
-		{"options",	"softlimit",	MAXCLIENTS_S,		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
-		{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
-		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
-		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME, ValidateServerName},
-		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
-		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_NOSPACES, NoValidation},
-		{"server",	"id",		"0",			new ValueContainerInt  (&this->sid),			DT_NOSPACES, ValidateSID},
-		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR,  NoValidation},
-		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR,  NoValidation},
-		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR,  NoValidation},
-		{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR,  ValidateMotd},
-		{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR,  ValidateRules},
-		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR,  ValidateNotEmpty},
-		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER,  NoValidation},
-		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR,  ValidateNotEmpty},
-		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR,  NoValidation},
-		{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR,  NoValidation},
-		{"options",	"fixedquit",	"",			new ValueContainerChar (this->FixedQuit),		DT_CHARPTR,  NoValidation},
-		{"options",	"loglevel",	"default",		new ValueContainerChar (debug),				DT_CHARPTR,  ValidateLogLevel},
-		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
-		{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
-		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  NoValidation},
-		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_IPADDRESS,DNSServerValidator},
-		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER,  NoValidation},
-		{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR,  NoValidation},
-		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR,  NoValidation},
-		{"options",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR,  NoValidation},
-		{"options",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR,  NoValidation},
-		{"options",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN,  NoValidation},
-		{"options",	"hidebans",	"0",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN,  NoValidation},
-		{"options",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_NOSPACES, NoValidation},
-		{"options",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_NOSPACES,  NoValidation},
-		{"options",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN,  NoValidation},
-		{"options",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN,  NoValidation},
-		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN,  NoValidation},
-		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN,  NoValidation},
-		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN,  NoValidation},
-		{"options",	"announceinvites", "1",			new ValueContainerChar (announceinvites),		DT_CHARPTR,  ValidateInvite},
-		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN,  NoValidation},
-		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR,  ValidateModeLists},
-		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR,  ValidateExemptChanOps},
-		{"options",	"maxtargets",	"20",			new ValueContainerUInt (&this->MaxTargets),		DT_INTEGER,  ValidateMaxTargets},
-		{"options",	"defaultmodes", "nt",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR,  NoValidation},
-		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR,  NoValidation},
-		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER,  NoValidation},
-		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER,  NoValidation},
-		{"whowas",	"maxkeep",	"3600",			new ValueContainerChar (maxkeep),			DT_CHARPTR,  ValidateWhoWas},
-		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR,  NoValidation},
-		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER,  NoValidation},
-		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER,  NoValidation},
-		{NULL,		NULL,		NULL,			NULL,							DT_NOTHING,  NoValidation}
-	};
-
-	/* These tags can occur multiple times, and therefore they have special code to read them
-	 * which is different to the code for reading the singular tags listed above.
-	 */
-	MultiConfig MultiValues[] = {
-
-		{"connect",
-				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
-				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
-				"name",		"parent",	"maxchans",     "limit",
-				NULL},
-				{"",		"",		"",		"",		"120",		"",
-				 "",		"",		"",		"3",		"3",		"0",
-				 "",		"",		"0",	    "0",
-				 NULL},
-				{DT_IPADDRESS|DT_ALLOW_WILD,
-						DT_IPADDRESS|DT_ALLOW_WILD,
-								DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				 DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER},
-				InitConnect, DoConnect, DoneConnect},
-
-		{"uline",
-				{"server",	"silent",	NULL},
-				{"",		"0",		NULL},
-				{DT_HOSTNAME,	DT_BOOLEAN},
-				InitULine,DoULine,DoneULine},
-
-		{"banlist",
-				{"chan",	"limit",	NULL},
-				{"",		"",		NULL},
-				{DT_CHARPTR,	DT_INTEGER},
-				InitMaxBans, DoMaxBans, DoneMaxBans},
-
-		{"module",
-				{"name",	NULL},
-				{"",		NULL},
-				{DT_CHARPTR},
-				InitModule, DoModule, DoneModule},
-
-		{"badip",
-				{"reason",	"ipmask",	NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_IPADDRESS|DT_ALLOW_WILD},
-				InitXLine, DoZLine, DoneConfItem},
-
-		{"badnick",
-				{"reason",	"nick",		NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoQLine, DoneConfItem},
-
-		{"badhost",
-				{"reason",	"host",		NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoKLine, DoneConfItem},
-
-		{"exception",
-				{"reason",	"host",		NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoELine, DoneELine},
-
-		{"type",
-				{"name",	"classes",	NULL},
-				{"",		"",		NULL},
-				{DT_NOSPACES,	DT_CHARPTR},
-				InitTypes, DoType, DoneClassesAndTypes},
-
-		{"class",
-				{"name",	"commands",	NULL},
-				{"",		"",		NULL},
-				{DT_NOSPACES,	DT_CHARPTR},
-				InitClasses, DoClass, DoneClassesAndTypes},
-
-		{NULL,
-				{NULL},
-				{NULL},
-				{0},
-				NULL, NULL, NULL}
-	};
-
-	include_stack.clear();
-
-	/* Load and parse the config file, if there are any errors then explode */
-
-	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
-	ConfigDataHash newconfig;
-
-	if (this->LoadConf(newconfig, ServerInstance->ConfigFileName, errstr))
+	for (int pass = 0; pass < 2; pass++)
 	{
-		/* If we succeeded, set the ircd config to the new one */
-		this->config_data = newconfig;
-	}
-	else
-	{
-		ReportConfigError(errstr.str(), bail, user);
-		return;
-	}
+	
+		ServerInstance->Log(DEBUG,"Start config pass %d", pass);
 
-	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
-	try
-	{
-		/* Check we dont have more than one of singular tags, or any of them missing
+		static char debug[MAXBUF];	/* Temporary buffer for debugging value */
+		static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
+		static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
+		static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
+		static char announceinvites[MAXBUF];	/* options:announceinvites setting */
+		std::ostringstream errstr;	/* String stream containing the error output */
+
+		/* These tags MUST occur and must ONLY occur once in the config file */
+		static char* Once[] = { "server", "admin", "files", "power", "options", NULL };
+
+		/* These tags can occur ONCE or not at all */
+		InitialConfig Values[] = {
+			{"options",	"softlimit",	MAXCLIENTS_S,		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
+			{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
+			{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
+			{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME, ValidateServerName},
+			{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
+			{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_NOSPACES, NoValidation},
+			{"server",	"id",		"0",			new ValueContainerInt  (&this->sid),			DT_NOSPACES, ValidateSID},
+			{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR,  NoValidation},
+			{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR,  NoValidation},
+			{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR,  NoValidation},
+			{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR,  ValidateMotd},
+			{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR,  ValidateRules},
+			{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR,  ValidateNotEmpty},
+			{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER,  NoValidation},
+			{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR,  ValidateNotEmpty},
+			{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR,  NoValidation},
+			{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR,  NoValidation},
+			{"options",	"fixedquit",	"",			new ValueContainerChar (this->FixedQuit),		DT_CHARPTR,  NoValidation},
+			{"options",	"loglevel",	"default",		new ValueContainerChar (debug),				DT_CHARPTR,  ValidateLogLevel},
+			{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
+			{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
+			{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  NoValidation},
+			{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_IPADDRESS,DNSServerValidator},
+			{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER,  NoValidation},
+			{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR,  NoValidation},
+			{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR,  NoValidation},
+			{"options",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR,  NoValidation},
+			{"options",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR,  NoValidation},
+			{"options",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN,  NoValidation},
+			{"options",	"hidebans",	"0",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN,  NoValidation},
+			{"options",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_NOSPACES, NoValidation},
+			{"options",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_NOSPACES,  NoValidation},
+			{"options",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN,  NoValidation},
+			{"options",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN,  NoValidation},
+			{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN,  NoValidation},
+			{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN,  NoValidation},
+			{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN,  NoValidation},
+			{"options",	"announceinvites", "1",			new ValueContainerChar (announceinvites),		DT_CHARPTR,  ValidateInvite},
+			{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN,  NoValidation},
+			{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR,  ValidateModeLists},
+			{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR,  ValidateExemptChanOps},
+			{"options",	"maxtargets",	"20",			new ValueContainerUInt (&this->MaxTargets),		DT_INTEGER,  ValidateMaxTargets},
+			{"options",	"defaultmodes", "nt",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR,  NoValidation},
+			{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR,  NoValidation},
+			{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER,  NoValidation},
+			{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER,  NoValidation},
+			{"whowas",	"maxkeep",	"3600",			new ValueContainerChar (maxkeep),			DT_CHARPTR,  ValidateWhoWas},
+			{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR,  NoValidation},
+			{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER,  NoValidation},
+			{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER,  NoValidation},
+			{NULL,		NULL,		NULL,			NULL,							DT_NOTHING,  NoValidation}
+		};
+
+		/* These tags can occur multiple times, and therefore they have special code to read them
+		 * which is different to the code for reading the singular tags listed above.
 		 */
-		for (int Index = 0; Once[Index]; Index++)
-			if (!CheckOnce(Once[Index]))
-				return;
+		MultiConfig MultiValues[] = {
 
-		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
-		 */
-		for (int Index = 0; Values[Index].tag; Index++)
+			{"connect",
+					{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
+					"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
+					"name",		"parent",	"maxchans",     "limit",
+					NULL},
+					{"",		"",		"",		"",		"120",		"",
+					 "",		"",		"",		"3",		"3",		"0",
+					 "",		"",		"0",	    "0",
+					 NULL},
+					{DT_IPADDRESS|DT_ALLOW_WILD,
+							DT_IPADDRESS|DT_ALLOW_WILD,
+									DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
+					DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
+					DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER},
+					InitConnect, DoConnect, DoneConnect},
+
+			{"uline",
+					{"server",	"silent",	NULL},
+					{"",		"0",		NULL},
+					{DT_HOSTNAME,	DT_BOOLEAN},
+					InitULine,DoULine,DoneULine},
+
+			{"banlist",
+					{"chan",	"limit",	NULL},
+					{"",		"",		NULL},
+					{DT_CHARPTR,	DT_INTEGER},
+					InitMaxBans, DoMaxBans, DoneMaxBans},
+
+			{"module",
+					{"name",	NULL},
+					{"",		NULL},
+					{DT_CHARPTR},
+					InitModule, DoModule, DoneModule},
+
+			{"badip",
+					{"reason",	"ipmask",	NULL},
+					{"No reason",	"",		NULL},
+					{DT_CHARPTR,	DT_IPADDRESS|DT_ALLOW_WILD},
+					InitXLine, DoZLine, DoneConfItem},
+
+			{"badnick",
+					{"reason",	"nick",		NULL},
+					{"No reason",	"",		NULL},
+					{DT_CHARPTR,	DT_CHARPTR},
+					InitXLine, DoQLine, DoneConfItem},
+	
+			{"badhost",
+					{"reason",	"host",		NULL},
+					{"No reason",	"",		NULL},
+					{DT_CHARPTR,	DT_CHARPTR},
+					InitXLine, DoKLine, DoneConfItem},
+
+			{"exception",
+					{"reason",	"host",		NULL},
+					{"No reason",	"",		NULL},
+					{DT_CHARPTR,	DT_CHARPTR},
+					InitXLine, DoELine, DoneELine},
+	
+			{"type",
+					{"name",	"classes",	NULL},
+					{"",		"",		NULL},
+					{DT_NOSPACES,	DT_CHARPTR},
+					InitTypes, DoType, DoneClassesAndTypes},
+	
+			{"class",
+					{"name",	"commands",	NULL},
+					{"",		"",		NULL},
+					{DT_NOSPACES,	DT_CHARPTR},
+					InitClasses, DoClass, DoneClassesAndTypes},
+	
+			{NULL,
+					{NULL},
+					{NULL},
+					{0},
+					NULL, NULL, NULL}
+		};
+
+		include_stack.clear();
+
+		/* Load and parse the config file, if there are any errors then explode */
+
+		/* Make a copy here so if it fails then we can carry on running with an unaffected config */
+		ConfigDataHash newconfig;
+
+		if (this->LoadConf(newconfig, ServerInstance->ConfigFileName, errstr, pass))
 		{
-			char item[MAXBUF];
-			int dt = Values[Index].datatype;
-			bool allow_newlines = ((dt & DT_ALLOW_NEWLINE) > 0);
-			bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
-			dt &= ~DT_ALLOW_NEWLINE;
-			dt &= ~DT_ALLOW_WILD;
-
-			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
-			ValueItem vi(item);
-
-			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
-				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
-
-			switch (Values[Index].datatype)
-			{
-				case DT_NOSPACES:
-				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					this->ValidateNoSpaces(vi.GetString(), Values[Index].tag, Values[Index].value);
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
-				}
-				break;
-				case DT_HOSTNAME:
-				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					this->ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
-				}
-				break;
-				case DT_IPADDRESS:
-				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					this->ValidateIP(vi.GetString(), Values[Index].tag, Values[Index].value, allow_wild);
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
-				}
-				break;
-				case DT_CHANNEL:
-				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString()))
-						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
-				}
-				break;
-				case DT_CHARPTR:
-				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					/* Make sure we also copy the null terminator */
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
-				}
-				break;
-				case DT_INTEGER:
-				{
-					int val = vi.GetInteger();
-					ValueContainerInt* vci = (ValueContainerInt*)Values[Index].val;
-					vci->Set(&val, sizeof(int));
-				}
-				break;
-				case DT_BOOLEAN:
-				{
-					bool val = vi.GetBool();
-					ValueContainerBool* vcb = (ValueContainerBool*)Values[Index].val;
-					vcb->Set(&val, sizeof(bool));
-				}
-				break;
-				default:
-					/* You don't want to know what happens if someones bad code sends us here. */
-				break;
-			}
-
-			/* We're done with this now */
-			delete Values[Index].val;
+			/* If we succeeded, set the ircd config to the new one */
+			this->config_data = newconfig;
+		}
+		else
+		{
+			ReportConfigError(errstr.str(), bail, user);
+			return;
 		}
 
-		/* Read the multiple-tag items (class tags, connect tags, etc)
-		 * and call the callbacks associated with them. We have three
-		 * callbacks for these, a 'start', 'item' and 'end' callback.
-		 */
-		for (int Index = 0; MultiValues[Index].tag; Index++)
+		/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
+		try
 		{
-			MultiValues[Index].init_function(this, MultiValues[Index].tag);
-
-			int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
-
-			for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
+			/* Read the values of all the tags which occur once or not at all, and call their callbacks.
+			 */
+			for (int Index = 0; Values[Index].tag; Index++)
 			{
-				ValueList vl;
-				for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
-				{
-					int dt = MultiValues[Index].datatype[valuenum];
-					bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);
-					bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
-					dt &= ~DT_ALLOW_NEWLINE;
-					dt &= ~DT_ALLOW_WILD;
+				char item[MAXBUF];
+				int dt = Values[Index].datatype;
+				bool allow_newlines = ((dt & DT_ALLOW_NEWLINE) > 0);
+				bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
+				dt &= ~DT_ALLOW_NEWLINE;
+				dt &= ~DT_ALLOW_WILD;
 
-					switch (dt)
+				ConfValue(this->config_data, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
+				ValueItem vi(item);
+
+				if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
+					throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
+	
+				switch (Values[Index].datatype)
+				{
+					case DT_NOSPACES:
 					{
-						case DT_NOSPACES:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
-						}
-						break;
-						case DT_HOSTNAME:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
-						}
-						break;
-						case DT_IPADDRESS:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
-						}
-						break;
-						case DT_CHANNEL:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString()))
-								throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
-						}
-						break;
-						case DT_CHARPTR:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-						}
-						break;
-						case DT_INTEGER:
-						{
-							int item = 0;
-							if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(0));
-						}
-						break;
-						case DT_BOOLEAN:
-						{
-							bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
-							vl.push_back(ValueItem(item));
-						}
-						break;
-						default:
-							/* Someone was smoking craq if we got here, and we're all gonna die. */
-						break;
+						ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+						this->ValidateNoSpaces(vi.GetString(), Values[Index].tag, Values[Index].value);
+						vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
 					}
+					break;
+					case DT_HOSTNAME:
+					{
+						ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+						this->ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
+						vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					}
+					break;
+					case DT_IPADDRESS:
+					{
+						ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+						this->ValidateIP(vi.GetString(), Values[Index].tag, Values[Index].value, allow_wild);
+						vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					}
+					break;
+					case DT_CHANNEL:
+					{
+						ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+						if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString()))
+							throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
+						vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					}
+					break;
+					case DT_CHARPTR:
+					{
+							ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+						/* Make sure we also copy the null terminator */
+						vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					}
+					break;
+					case DT_INTEGER:
+					{
+						int val = vi.GetInteger();
+						ValueContainerInt* vci = (ValueContainerInt*)Values[Index].val;
+						vci->Set(&val, sizeof(int));
+					}
+					break;
+					case DT_BOOLEAN:
+					{
+						bool val = vi.GetBool();
+						ValueContainerBool* vcb = (ValueContainerBool*)Values[Index].val;
+						vcb->Set(&val, sizeof(bool));
+					}
+					break;
+					default:
+						/* You don't want to know what happens if someones bad code sends us here. */
+					break;
 				}
-
-				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
+	
+				/* We're done with this now */
+				delete Values[Index].val;
 			}
 
-			MultiValues[Index].finish_function(this, MultiValues[Index].tag);
+			/* Read the multiple-tag items (class tags, connect tags, etc)
+			 * and call the callbacks associated with them. We have three
+			 * callbacks for these, a 'start', 'item' and 'end' callback.
+			 */
+			for (int Index = 0; MultiValues[Index].tag; Index++)
+			{
+				MultiValues[Index].init_function(this, MultiValues[Index].tag);
+	
+				int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
+	
+				for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
+				{
+					ValueList vl;
+					for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
+					{
+						int dt = MultiValues[Index].datatype[valuenum];
+						bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);
+						bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
+						dt &= ~DT_ALLOW_NEWLINE;
+						dt &= ~DT_ALLOW_WILD;
+
+						switch (dt)
+						{
+							case DT_NOSPACES:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+							}
+							break;
+							case DT_HOSTNAME:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+							}
+							break;
+							case DT_IPADDRESS:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
+							}
+							break;
+							case DT_CHANNEL:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString()))
+									throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
+							}
+							break;
+							case DT_CHARPTR:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+							}
+							break;
+							case DT_INTEGER:
+							{
+								int item = 0;
+								if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(0));
+							}
+							break;
+							case DT_BOOLEAN:
+							{
+								bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
+								vl.push_back(ValueItem(item));
+							}
+							break;
+							default:
+								/* Someone was smoking craq if we got here, and we're all gonna die. */
+							break;
+						}
+					}
+
+					MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
+				}
+
+				MultiValues[Index].finish_function(this, MultiValues[Index].tag);
+			}
+	
 		}
 
-	}
+		catch (CoreException &ce)
+		{
+			ReportConfigError(ce.GetReason(), bail, user);
+			return;
+		}
 
-	catch (CoreException &ce)
-	{
-		ReportConfigError(ce.GetReason(), bail, user);
-		return;
+		/** XXX END PASS **/
+		ServerInstance->Log(DEBUG,"End config pass %d", pass);
+
+		if (pass == 0)
+		{
+			/* FIRST PASS: Set up commands, load modules.
+			 * We cannot gaurantee that all config is correct
+			 * at this point
+			 */
+	
+		        /** Note: This is safe, the method checks for user == NULL */
+		        ServerInstance->Parser->SetupCommandTable(user);
+			ServerInstance->Modules->LoadAll();
+		}
+		else
+		{
+			/* SECOND PASS: Call modules to read configs, finalize
+			 * stuff. Check that we have at least the required number
+			 * of whichever items. This is no longer done first.
+			 */
+			ConfigReader* n = new ConfigReader(ServerInstance);
+			FOREACH_MOD(I_OnReadConfig,OnReadConfig(this, n));
+
+			for (int Index = 0; Once[Index]; Index++)
+				if (!CheckOnce(Once[Index]))
+					return;
+		}
+
 	}
 
 	// write once here, to try it out and make sure its ok
@@ -1165,54 +1195,51 @@ void ServerConfig::Read(bool bail, User* user)
 				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
 			}
 		}
-
-		if (!removed_modules.empty())
-		{
-			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
-			{
-				if (ServerInstance->Modules->Unload(removing->c_str()))
-				{
-					ServerInstance->WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
-
-					if (user)
-						user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
-
-					rem++;
-				}
-				else
-				{
-					if (user)
-						user->WriteServ("972 %s %s :%s",user->nick, removing->c_str(), ServerInstance->Modules->LastError().c_str());
-				}
-			}
-		}
-
-		if (!added_modules.empty())
-		{
-			for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
-			{
-				if (ServerInstance->Modules->Load(adding->c_str()))
-				{
-					ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
-
-					if (user)
-						user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
-
-					add++;
-				}
-				else
-				{
-					if (user)
-						user->WriteServ("974 %s %s :%s",user->nick, adding->c_str(), ServerInstance->Modules->LastError().c_str());
-				}
-			}
-		}
-
-		ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 	}
 
+	if (!removed_modules.empty())
+	{
+		for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+		{
+			if (ServerInstance->Modules->Unload(removing->c_str()))
+			{
+				ServerInstance->WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
+				if (user)
+					user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+				rem++;
+			}
+			else
+			{
+				if (user)
+					user->WriteServ("972 %s %s :%s",user->nick, removing->c_str(), ServerInstance->Modules->LastError().c_str());
+			}
+		}
+	}
+
+	if (!added_modules.empty())
+	{
+		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+		{
+			if (ServerInstance->Modules->Load(adding->c_str()))
+			{
+				ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
+				if (user)
+					user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+
+				add++;
+			}
+			else
+			{
+				if (user)
+					user->WriteServ("974 %s %s :%s",user->nick, adding->c_str(), ServerInstance->Modules->LastError().c_str());
+			}
+		}
+	}
+
+	ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules in pass 2.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
+
 	/** Note: This is safe, the method checks for user == NULL */
-	ServerInstance->Parser->SetupCommandTable(user);
+	/*ServerInstance->Parser->SetupCommandTable(user);*/
 
 	if (user)
 		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
@@ -1220,7 +1247,7 @@ void ServerConfig::Read(bool bail, User* user)
 		ServerInstance->WriteOpers("*** Successfully rehashed server.");
 }
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream)
+bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass)
 {
 	std::ifstream conf(filename);
 	std::string line;
@@ -1237,11 +1264,22 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	in_comment = false;
 
 	/* Check if the file open failed first */
-	if (!conf)
+	if (!conf && (pass == 1))
 	{
-		errorstream << "LoadConf: Couldn't open config file: " << filename << std::endl;
-		return false;
+		int MOD_RESULT = 0;
+		std::stringstream filedata;
+		/** XXX: THIS SHOULD BE NONBLOCKING WITH A CALLBACK, RETURN A VALUE LIKE
+		 * LOADCONF_TRYAGAIN, LOADCONF_DONE_WITH_ERROR, LOADCONF_DONE_COMPLETE
+		 */
+		FOREACH_RESULT(I_OnDownloadFile, OnDownloadFile(filename, filedata));
+		if (MOD_RESULT == 0)
+		{
+			errorstream << "LoadConf: Couldn't open config file: " << filename << std::endl;
+			return false;
+		}
 	}
+	else if (!conf && (pass == 0))
+		return true;
 
 	/* Fix the chmod of the file to restrict it to the current user and group */
 	chmod(filename,0600);
@@ -1400,7 +1438,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
 
-					if (!this->ParseLine(target, line, linenumber, errorstream))
+					if (!this->ParseLine(target, line, linenumber, errorstream, pass))
 						return false;
 
 					line.clear();
@@ -1424,12 +1462,12 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	return true;
 }
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream)
+bool ServerConfig::LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream, int pass)
 {
-	return this->LoadConf(target, filename.c_str(), errorstream);
+	return this->LoadConf(target, filename.c_str(), errorstream, pass);
 }
 
-bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream)
+bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream, int pass)
 {
 	std::string tagname;
 	std::string current_key;
@@ -1528,7 +1566,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 
 						if ((tagname == "include") && (current_key == "file"))
 						{
-							if (!this->DoInclude(target, current_value, errorstream))
+							if (!this->DoInclude(target, current_value, errorstream, pass))
 								return false;
 						}
 
@@ -1553,7 +1591,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 	return true;
 }
 
-bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream)
+bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream, int pass)
 {
 	std::string confpath;
 	std::string newfile;
@@ -1579,7 +1617,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 		}
 	}
 
-	return LoadConf(target, newfile, errorstream);
+	return LoadConf(target, newfile, errorstream, pass);
 }
 
 bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds)

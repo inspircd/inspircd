@@ -106,6 +106,8 @@ std::string Event::GetEventID()
 
 		Module::Module(InspIRCd* Me) : ServerInstance(Me) { }
 		Module::~Module() { }
+void		Module::OnReadConfig(ServerConfig*, ConfigReader*) { }
+int		Module::OnDownloadFile(const std::string&, std::stringstream&) { return 0; }
 void		Module::OnUserConnect(User*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }
@@ -825,7 +827,11 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 	this->data = new ConfigDataHash;
 	this->privatehash = true;
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = ServerInstance->Config->LoadConf(*this->data, filename, *this->errorlog);
+	for (int pass = 0; pass < 2; pass++)
+	{
+		/*** XXX: Can return a 'not ready yet!' code! */
+		this->readerror = ServerInstance->Config->LoadConf(*this->data, filename, *this->errorlog, pass);
+	}
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 }
