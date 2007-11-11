@@ -241,6 +241,8 @@ class CoreExport ServerConfig : public Extensible
 	/** Check that there is only one of each configuration item
 	 */
 	bool CheckOnce(char* tag);
+
+	std::map<std::string, std::stringstream*> IncludedFiles;
   
   public:
 
@@ -251,6 +253,10 @@ class CoreExport ServerConfig : public Extensible
 	Validator DNSServerValidator;
 
 	InspIRCd* GetInstance();
+
+	bool Downloading();
+
+	void StartDownloads();
 	  
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
@@ -626,7 +632,7 @@ class CoreExport ServerConfig : public Extensible
 	 * and initialize this class. All other methods
 	 * should be used only by the core.
 	 */
-	void Read(bool bail, User* user);
+	void Read(bool bail, User* user, int pass);
 
 	/** Read a file into a file_cache object
 	 */

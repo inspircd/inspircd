@@ -489,7 +489,26 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->Res = new DNS(this);
 
-        Config->Read(true, NULL);
+	/* Read config, pass 0. At the end if this pass,
+	 * the Config->IncludeFiles is populated, we call
+	 * Config->StartDownloads to initialize the downlaods of all
+	 * these files.
+	 */
+        Config->Read(true, NULL, 0);
+	Config->StartDownloads();
+	
+	/* Now the downloads are started, we monitor them for completion.
+	 * On completion, we call Read again with pass = 1
+	 */
+
+	while (Config->Downloading())
+	{
+		SE->DispatchEvents();
+		this->BufferedSocketCull();
+	}
+
+	/* We have all the files we can get, initiate pass 1 */
+	Config->Read(true, NULL, 1);
 
         // Get XLine to do it's thing.
         this->XLines->CheckELines();
