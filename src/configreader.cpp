@@ -1297,7 +1297,7 @@ void ServerConfig::StartDownloads()
 
 			/* For now, error it */
 			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnDownloadFile, OnDownloadFile(file, reinterpret_cast<std::istringstream*>(x->second)));
+			FOREACH_RESULT(I_OnDownloadFile, OnDownloadFile(file, x->second));
 			if (MOD_RESULT == 0)
 			{
 				/* No module claimed this file */
