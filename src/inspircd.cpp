@@ -428,33 +428,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->ClearStack();
 
 	this->Modes = new ModeParser(this);
-	this->AddServerName(Config->ServerName);
 
-	/*
-	 * Initialise SID/UID.
-	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
-	 *   -- w00t
-	 */
-	/* Generate SID */
-	size_t sid = 0;
-	if (Config->sid)
-	{
-		sid = Config->sid;
-	}
-	else
-	{
-		for (const char* x = Config->ServerName; *x; ++x)
-			sid = 5 * sid + *x;
-		for (const char* y = Config->ServerDesc; *y; ++y)
-			sid = 5 * sid + *y;
-		sid = sid % 999;
-
-		Config->sid = sid;
-	}
-
-	this->InitialiseUID();
-
-	/* set up fake client */
+	/* set up fake client (uid is incorrect at this point,
+         * until after config is read. we set up the user again
+         * at that point 
+         */
 	this->FakeClient = new User(this);
 	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
@@ -526,6 +504,37 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	/* We have all the files we can get, initiate pass 1 */
 	Config->Read(true, NULL, 1);
+
+        this->AddServerName(Config->ServerName);
+
+        /* set up fake client again this time with the correct uid */
+        delete FakeClient;
+        this->FakeClient = new User(this);
+        this->FakeClient->SetFd(FD_MAGIC_NUMBER);
+
+        /*
+         * Initialise SID/UID.
+         * For an explanation as to exactly how this works, and why it works this way, see GetUID().
+         *   -- w00t
+         */
+        /* Generate SID */
+        size_t sid = 0;
+        if (Config->sid)
+        {
+                sid = Config->sid;
+        }
+        else
+        {
+                for (const char* x = Config->ServerName; *x; ++x)
+                        sid = 5 * sid + *x;
+                for (const char* y = Config->ServerDesc; *y; ++y)
+                        sid = 5 * sid + *y;
+                sid = sid % 999;
+
+                Config->sid = sid;
+        }
+
+        this->InitialiseUID();
 
         // Get XLine to do it's thing.
         this->XLines->CheckELines();
