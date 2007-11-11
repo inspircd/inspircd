@@ -1208,6 +1208,10 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	{
 		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 		{
+			/* Skip over modules that are aleready loaded for some reason */
+			if (ServerInstance->Modules->Find(*adding))
+				continue;
+
 			if (bail)
 				printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n", adding->c_str());
 
@@ -1251,6 +1255,24 @@ bool ServerConfig::Downloading()
 
 	/* Returns true if there are still files in the process of downloading */
 	return (TotalDownloaded < IncludedFiles.size());
+}
+
+void ServerConfig::Complete(const std::string &filename, bool error)
+{
+	std::map<std::string, std::istream*>::iterator x = IncludedFiles.find(filename);
+
+	if (x != IncludedFiles.end())
+	{
+		TotalDownloaded++;
+		if (error)
+		{
+			delete x->second;
+			x->second = NULL;
+			FileErrors++;
+		}
+	}
+
+	return;
 }
 
 void ServerConfig::StartDownloads()

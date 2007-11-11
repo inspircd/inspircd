@@ -260,6 +260,8 @@ class CoreExport ServerConfig : public Extensible
 	bool Downloading();
 
 	void StartDownloads();
+
+	void Complete(const std::string &filename, bool error);
 	  
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
