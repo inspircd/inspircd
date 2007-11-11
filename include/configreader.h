@@ -242,9 +242,11 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool CheckOnce(char* tag);
 
-	std::map<std::string, std::stringstream*> IncludedFiles;
+	std::map<std::string, std::istream*> IncludedFiles;
   
   public:
+
+	size_t TotalDownloaded;
 
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };

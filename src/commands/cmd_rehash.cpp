@@ -39,7 +39,7 @@ CmdResult CommandRehash::Handle (const char** parameters, int pcnt, User *user)
 			user->WriteServ("*** NOTICE %s :ERROR: Could not open logfile %s: %s", user->nick, ServerInstance->Config->logpath.c_str(), strerror(errno));
 		ServerInstance->RehashUsersAndChans();
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
-		ServerInstance->Config->Read(false,user);
+		/*ServerInstance->Config->Read(false,user);*/
 		// Get XLine to do it's thing.
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();

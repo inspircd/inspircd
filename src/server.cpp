@@ -54,7 +54,7 @@ void InspIRCd::Rehash()
 		this->WriteOpers("*** ERROR: Could not open logfile %s: %s", Config->logpath.c_str(), strerror(errno));
 	this->RehashUsersAndChans();
 	FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
-	this->Config->Read(false,NULL);
+	/*this->Config->Read(false,NULL);*/
 	this->ResetMaxBans();
 	this->Res->Rehash();
 	FOREACH_MOD_I(this,I_OnRehash,OnRehash(NULL,""));
@@ -65,7 +65,7 @@ void InspIRCd::RehashServer()
 {
 	this->WriteOpers("*** Rehashing config file");
 	this->RehashUsersAndChans();
-	this->Config->Read(false,NULL);
+	/*this->Config->Read(false,NULL);*/
 	this->ResetMaxBans();
 	this->Res->Rehash();
 }

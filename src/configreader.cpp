@@ -1238,22 +1238,47 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 bool ServerConfig::Downloading()
 {
 	/* Returns true if there are still files in the process of downloading */
-	return true;
+	return (TotalDownloaded >= IncludedFiles.size());
 }
 
 void ServerConfig::StartDownloads()
 {
+	TotalDownloaded = 0;
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
-	for (std::map<std::string, std::stringstream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
+	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
 	{
 		ServerInstance->Log(DEBUG,"Begin download for %s", x->first.c_str());
+		if ((x->first[0] == '/') || (x->first.substr(7) == "file://"))
+		{
+			/* For file:// schema files, we use std::ifstream which is a derivative of std::istream.
+			 * For all other file schemas, we use a std::stringstream.
+			 */
+
+			/* First, delete the dummy std::stringstream file that LoadConf put here */
+			delete x->second;
+
+			/* Now add our own ifstream */
+			std::ifstream* conf = new std::ifstream(x->first.c_str());
+			if (!conf->fail())
+			{
+				ServerInstance->Log(DEBUG,"file:// schema file %s loaded OK", x->first.c_str());
+				x->second = conf;
+			}
+
+			TotalDownloaded++;
+		}
+		else
+		{
+			/* Modules handle these */
+			ServerInstance->Log(DEBUG,"Module-handled schema for %s", x->first.c_str());
+		}
 	}
 }
 
 bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass)
 {
 	std::string line;
-	std::stringstream* conf = NULL;
+	std::istream* conf = NULL;
 	char ch;
 	long linenumber;
 	bool in_tag;
@@ -1266,26 +1291,38 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	in_quote = false;
 	in_comment = false;
 
-	/* Check if the file open failed first */
-	if (IncludedFiles.find(filename) == IncludedFiles.end())
+	if (std::string(filename) == CONFIG_FILE)
 	{
-		if (pass == 0)
+		conf = new std::ifstream(filename);
+		if (conf->fail())
 		{
-			ServerInstance->Log(DEBUG,"Push include file %s onto map", filename);
-			/* First pass, we insert the file into a map, and just return true */
-			IncludedFiles.insert(std::make_pair(filename,new std::stringstream));
-			return true;
-		}
-		else
-		{
-			/* Second pass, look for the file in the map */
-			ServerInstance->Log(DEBUG,"We are in the second pass, and %s is not in the map!", filename);
-			errorstream << "File " << filename << " could not be found." << std::endl;
+			errorstream << "File " << filename << " could not be opened." << std::endl;
 			return false;
 		}
 	}
 	else
-		conf = IncludedFiles.find(filename)->second;
+	{
+		/* Check if the file open failed first */
+		if (IncludedFiles.find(filename) == IncludedFiles.end())
+		{
+			if (pass == 0)
+			{
+				ServerInstance->Log(DEBUG,"Push include file %s onto map", filename);
+				/* First pass, we insert the file into a map, and just return true */
+				IncludedFiles.insert(std::make_pair(filename,new std::stringstream));
+				return true;
+			}
+			else
+			{
+				/* Second pass, look for the file in the map */
+				ServerInstance->Log(DEBUG,"We are in the second pass, and %s is not in the map!", filename);
+				errorstream << "File " << filename << " could not be opened." << std::endl;
+				return false;
+			}
+		}
+		else
+			conf = IncludedFiles.find(filename)->second;
+	}
 
 	/* Start reading characters... */
 	while (conf->get(ch))
