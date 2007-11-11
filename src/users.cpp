@@ -190,6 +190,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Visibility = NULL;
 	ip = NULL;
 	MyClass = NULL;
+	AllowedOperCommands = NULL;
 	chans.clear();
 	invites.clear();
 	memset(modes,0,sizeof(modes));
@@ -241,6 +242,11 @@ User::~User()
 	{
 		this->MyClass->RefCount--;
 		ServerInstance->Log(DEBUG, "User destructor -- connect refcount now: %u", this->MyClass->RefCount);
+	}
+	if (this->AllowedOperCommands)
+	{
+		delete AllowedOperCommands;
+		AllowedOperCommands = NULL;
 	}
 
 	this->InvalidateCache();
@@ -419,10 +425,6 @@ void User::RemoveInvite(const irc::string &channel)
 
 bool User::HasPermission(const std::string &command)
 {
-	char* mycmd;
-	char* savept;
-	char* savept2;
-
 	/*
 	 * users on remote servers can completely bypass all permissions based checks.
 	 * This prevents desyncs when one server has different type/class tags to another.
@@ -439,38 +441,13 @@ bool User::HasPermission(const std::string &command)
 		return false;
 	}
 
-	// check their opertype exists (!). This won't affect local users, of course.
-	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
-	if (iter_opertype == ServerInstance->Config->opertypes.end())
-	{
+	if (!AllowedOperCommands)
 		return false;
-	}
 
-	/* XXX all this strtok/strdup stuff is a bit ick and horrid -- w00t */
-	char* Classes = strdup(iter_opertype->second);
-	char* myclass = strtok_r(Classes," ",&savept);
-	while (myclass)
-	{
-		operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
-		if (iter_operclass != ServerInstance->Config->operclass.end())
-		{
-			char* CommandList = strdup(iter_operclass->second);
-			mycmd = strtok_r(CommandList," ",&savept2);
-			while (mycmd)
-			{
-				if ((!strcasecmp(mycmd,command.c_str())) || (*mycmd == '*'))
-				{
-					free(Classes);
-					free(CommandList);
-					return true;
-				}
-				mycmd = strtok_r(NULL," ",&savept2);
-			}
-			free(CommandList);
-		}
-		myclass = strtok_r(NULL," ",&savept);
-	}
-	free(Classes);
+	if (AllowedOperCommands->find(command) != AllowedOperCommands->end())
+		return true;
+	else if (AllowedOperCommands->find("*") != AllowedOperCommands->end())
+		return true;
 
 	return false;
 }
@@ -672,6 +649,10 @@ const char* User::GetWriteError()
 
 void User::Oper(const std::string &opertype)
 {
+	char* mycmd;
+	char* savept;
+	char* savept2;
+
 	try
 	{
 		this->modes[UM_OPERATOR] = 1;
@@ -680,6 +661,37 @@ void User::Oper(const std::string &opertype)
 		ServerInstance->Log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
 		strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
 		ServerInstance->all_opers.push_back(this);
+
+		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
+		if (iter_opertype != ServerInstance->Config->opertypes.end())
+		{
+
+			if (AllowedOperCommands)
+				AllowedOperCommands->clear();
+			else
+				AllowedOperCommands = new std::map<std::string, bool>;
+
+			char* Classes = strdup(iter_opertype->second);
+			char* myclass = strtok_r(Classes," ",&savept);
+			while (myclass)
+			{
+				operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
+				if (iter_operclass != ServerInstance->Config->operclass.end())
+				{
+					char* CommandList = strdup(iter_operclass->second);
+					mycmd = strtok_r(CommandList," ",&savept2);
+					while (mycmd)
+					{
+						this->AllowedOperCommands->insert(std::make_pair(mycmd, true));
+						mycmd = strtok_r(NULL," ",&savept2);
+					}
+					free(CommandList);
+				}
+				myclass = strtok_r(NULL," ",&savept);
+			}
+			free(Classes);
+		}
+
 		FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype));
 	}
 
@@ -701,6 +713,12 @@ void User::UnOper()
 			
 			// remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404
 			ServerInstance->all_opers.remove(this);
+
+			if (AllowedOperCommands)
+			{
+				delete AllowedOperCommands;
+				AllowedOperCommands = NULL;
+			}
 		}
 	}
 

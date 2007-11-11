@@ -489,6 +489,8 @@ class CoreExport User : public connection
 	 */
 	unsigned int MaxChans;
 
+	std::map<std::string, bool>* AllowedOperCommands;
+
  public:
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
 	 * The pointer is guarenteed to *always* be valid. :)
