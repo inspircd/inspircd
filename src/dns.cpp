@@ -338,8 +338,6 @@ void DNS::Rehash()
 		this->ip6munge = true;
 	}
 
-	printf("dns server: %s\n", ServerInstance->Config->DNSServer);
-
 	this->socketfamily = AF_INET;
 #ifdef IPV6
 	if (strchr(ServerInstance->Config->DNSServer,':'))

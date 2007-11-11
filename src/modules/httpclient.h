@@ -23,6 +23,7 @@ typedef std::map<std::string,std::string> HeaderMap;
 
 const char* HTTP_CLIENT_RESPONSE = "HTTPCLIENT_RESPONSE";
 const char* HTTP_CLIENT_REQUEST = "HTTPCLIENT_REQUEST";
+const char* HTTP_CLIENT_ERROR = "HTTPCLIENT_ERROR";
 
 /** This class represents an outgoing HTTP request
  */
@@ -64,6 +65,26 @@ class HTTPClientRequest : public Request
 	HeaderMap GetHeaders()
 	{
 		return Headers;
+	}
+};
+
+class HTTPClientError : public Request
+{
+ protected:
+	friend class HTTPSocket;
+	std::string url;
+	int response;
+	std::string responsestr;
+	HeaderMap Headers;
+ public:
+	HTTPClientError(Module* src, Module* target, const std::string &url, int response)
+		: Request(src, target, HTTP_CLIENT_ERROR), url(url), response(response)
+	{
+	}
+
+	const std::string &GetURL()
+	{
+		return url;
 	}
 };
 

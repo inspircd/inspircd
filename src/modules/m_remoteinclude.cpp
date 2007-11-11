@@ -42,9 +42,9 @@ class ModuleRemoteInclude : public Module
 
 	char* OnRequest(Request* req)
 	{
-		HTTPClientResponse* resp = (HTTPClientResponse*)req;
-		if(!strcmp(resp->GetId(), HTTP_CLIENT_RESPONSE))
+		if (!strcmp(req->GetId(), HTTP_CLIENT_RESPONSE))
 		{
+			HTTPClientResponse* resp = (HTTPClientResponse*)req;
 			ServerInstance->Log(DEBUG, "Got http file for %s", resp->GetURL().c_str());
 
 			std::map<std::string, std::stringstream*>::iterator n = assoc.find(resp->GetURL());
@@ -64,7 +64,18 @@ class ModuleRemoteInclude : public Module
 			 */
 			assoc.erase(n);
 		}
+		else if (!strcmp(req->GetId(), HTTP_CLIENT_ERROR))
+		{
+			HTTPClientError* resp = (HTTPClientError*)req;
 
+			ServerInstance->Log(DEBUG, "Got http error when accessing %s", resp->GetURL().c_str());
+			ServerInstance->Config->Complete(resp->GetURL(), true);
+
+			std::map<std::string, std::stringstream*>::iterator n = assoc.find(resp->GetURL());
+
+			if (n != assoc.end())
+				assoc.erase(n);
+		}
 		return NULL;
 	}
 

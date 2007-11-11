@@ -70,8 +70,7 @@ class HTTPResolver : public Resolver
 	void OnError(ResolverError e, const string &errmsg)
 	{
 		ServerInstance->Log(DEBUG,"HTTPResolver::OnError");
-		/*if (ServerInstance->SocketCull.find(socket) == ServerInstance->SocketCull.end())
-			ServerInstance->SocketCull[socket] = socket;*/
+		socket->OnClose();
 	}
 };
 
@@ -150,13 +149,17 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
-	/*
-	bool cached;
-	HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
-	Instance->AddResolver(r, cached);
-	return true;
-	*/
-	Connect(url.domain);
+	in6_addr s6;
+	in_addr s4;
+	/* Doesnt look like an ipv4 or an ipv6 address */
+	if ((inet_pton(AF_INET6, url.domain.c_str(), &s6) < 1) && (inet_pton(AF_INET, url.domain.c_str(), &s4) < 1))
+	{
+		bool cached;
+		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
+		Instance->AddResolver(r, cached);
+	}
+	else
+		Connect(url.domain);
 	
 	return true;
 }
@@ -334,8 +337,14 @@ void HTTPSocket::OnClose()
 {
 	Instance->Log(DEBUG,"HTTPSocket::OnClose");
 	if (data.empty())
-		return; // notification that request failed?
+	{
+		HTTPClientError* err = new HTTPClientError((Module*)Mod, req.GetSource(), req.GetURL(), 0);
+		err->Send();
+		delete err;
+		return;
+	}
 
+	Instance->Log(DEBUG,"Set data and send");
 	response->data = data;
 	response->Send();
 	delete response;
