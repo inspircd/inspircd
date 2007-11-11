@@ -61,10 +61,11 @@ class HTTPResolver : public Resolver
 	
 	void OnLookupComplete(const string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
+		ServerInstance->Log(DEBUG,"HTTPResolver::OnLookupComplete");
 		if (!resultnum)
 			socket->Connect(result);
 		else
-			socket->Connect(orig);
+			socket->OnClose();
 	}
 	
 	void OnError(ResolverError e, const string &errmsg)
@@ -251,11 +252,9 @@ void HTTPSocket::Connect(const string &ip)
 {
 	Instance->Log(DEBUG,"HTTPSocket::Connect");
 	strlcpy(this->IP, ip.c_str(), MAXBUF);
-	
+
 	if (!this->DoConnect())
-	{
-		delete this;
-	}
+		this->Close();
 }
 
 bool HTTPSocket::OnConnected()
