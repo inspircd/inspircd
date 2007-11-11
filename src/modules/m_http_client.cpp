@@ -35,6 +35,7 @@ class HTTPSocket : public BufferedSocket
 	enum { HTTP_CLOSED, HTTP_REQSENT, HTTP_HEADERS, HTTP_DATA } status;
 	std::string data;
 	std::string buffer;
+	bool closed;
 
  public:
 	HTTPSocket(InspIRCd *Instance, class ModuleHTTPClient *Mod);
@@ -53,7 +54,7 @@ class HTTPResolver : public Resolver
 	HTTPSocket *socket;
 	std::string orig;
  public:
-	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(socket)
+	HTTPResolver(HTTPSocket *s, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(s)
 	{
 		ServerInstance->Log(DEBUG,"HTTPResolver::HTTPResolver");
 		orig = hostname;
@@ -120,6 +121,8 @@ HTTPSocket::HTTPSocket(InspIRCd *Instance, ModuleHTTPClient *Mod)
 {
 	Instance->Log(DEBUG,"HTTPSocket::HTTPSocket");
 	this->port = 80;
+	response = NULL;
+	closed = false;
 }
 
 HTTPSocket::~HTTPSocket()
@@ -161,6 +164,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 		bool cached;
 		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
 		Instance->AddResolver(r, cached);
+		Instance->Log(DEBUG,"Resolver added");
 	}
 	else
 		Connect(url.domain);
@@ -170,7 +174,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 
 bool HTTPSocket::ParseURL(const std::string &iurl)
 {
-	Instance->Log(DEBUG,"HTTPSocket::ParseURL");
+	Instance->Log(DEBUG,"HTTPSocket::ParseURL %s", iurl.c_str());
 	url.url = iurl;
 	url.port = 80;
 	url.protocol = "http";
@@ -253,16 +257,23 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 
 void HTTPSocket::Connect(const string &ip)
 {
-	Instance->Log(DEBUG,"HTTPSocket::Connect(%s)", ip.c_str());
+	this->response = new HTTPClientResponse((Module*)Mod, req.GetSource() , url.url, 0, "");
+
+	Instance->Log(DEBUG,"HTTPSocket::Connect(%s) response=%08lx", ip.c_str(), response);
 	strlcpy(this->IP, ip.c_str(), MAXBUF);
 	strlcpy(this->host, ip.c_str(), MAXBUF);
 
 	if (!this->DoConnect())
+	{
+		Instance->Log(DEBUG,"DoConnect failed, bailing");
 		this->Close();
+	}
 }
 
 bool HTTPSocket::OnConnected()
 {
+	Instance->Log(DEBUG,"HTTPSocket::OnConnected");
+
 	std::string request = "GET " + url.request + " HTTP/1.1\r\n";
 
 	// Dump headers into the request
@@ -288,7 +299,7 @@ bool HTTPSocket::OnDataReady()
 	Instance->Log(DEBUG,"HTTPSocket::OnDataReady()");
 	char *data = this->Read();
 
-	if (!data || !*data)
+	if (!data)
 		return false;
 
 	if (this->status < HTTP_DATA)
@@ -314,7 +325,8 @@ bool HTTPSocket::OnDataReady()
 				// HTTP reply (HTTP/1.1 200 msg)
 				char const* data = line.c_str();
 				data += 9;
-				response = new HTTPClientResponse((Module*)Mod, req.GetSource() , url.url, atoi(data), data + 4);
+				response->SetResponse(data);
+				response->SetData(data + 4);
 				this->status = HTTP_HEADERS;
 				continue;
 			}
@@ -338,19 +350,25 @@ bool HTTPSocket::OnDataReady()
 
 void HTTPSocket::OnClose()
 {
-	Instance->Log(DEBUG,"HTTPSocket::OnClose");
-	if (data.empty())
+	if (!closed)
 	{
-		HTTPClientError* err = new HTTPClientError((Module*)Mod, req.GetSource(), req.GetURL(), 0);
-		err->Send();
-		delete err;
-		return;
-	}
+		closed = true;
+		Instance->Log(DEBUG,"HTTPSocket::OnClose response=%08lx", response);
+		std::string e;
+		if (data.empty())
+			{
+			Instance->Log(DEBUG,"Send error");
+			HTTPClientError* err = new HTTPClientError((Module*)Mod, req.GetSource(), req.GetURL(), 0);
+			err->Send();
+			delete err;
+			return;
+		}
 
-	Instance->Log(DEBUG,"Set data and send");
-	response->data = data;
-	response->Send();
-	delete response;
+		Instance->Log(DEBUG,"Set data and send, %s", response->GetURL().c_str());
+		response->SetData(data);
+		response->Send();
+		delete response;
+	}
 }
 
 MODULE_INIT(ModuleHTTPClient)

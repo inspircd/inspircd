@@ -343,6 +343,8 @@ bool BufferedSocket::DoConnect()
 		}
 		this->SetQueues(this->fd);
 	}
+
+	Instance->Log(DEBUG,"BufferedSocket::DoConnect success");
 	return true;
 }
 

@@ -133,6 +133,12 @@ class HTTPClientResponse : public Request
 		str = responsestr;
 		return response;
 	}
+
+	void SetResponse(const std::string &str)
+	{
+		responsestr = str;
+		response = atoi(responsestr.c_str());
+	}
 	
 	std::string GetHeader(const std::string &header)
 	{

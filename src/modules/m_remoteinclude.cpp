@@ -94,8 +94,10 @@ class ModuleRemoteInclude : public Module
 			{
 				ServerInstance->Log(DEBUG,"Claiming schema http://, making fetch request");
 
-				HTTPClientRequest req(ServerInstance, this, target, name);
-				req.Send();
+				HTTPClientRequest* req = new HTTPClientRequest(ServerInstance, this, target, name);
+				req->Send();
+
+				/* XXX: We should delete req when the request is complete */
 
 				assoc[name] = new std::stringstream();
 				delete filedata;

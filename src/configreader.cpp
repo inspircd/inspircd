@@ -1275,8 +1275,12 @@ void ServerConfig::Complete(const std::string &filename, bool error)
 
 		/* We should parse the new file here and check it for another level of include files */
 		CompletedFiles[filename] = true;
-		LoadConf(this->newconfig, filename, errstr, 0, x->second);
-		StartDownloads();
+
+		if (!error)
+		{
+			LoadConf(this->newconfig, filename, errstr, 0, x->second);
+			StartDownloads();
+		}
 	}
 
 	return;
@@ -1284,11 +1288,14 @@ void ServerConfig::Complete(const std::string &filename, bool error)
 
 void ServerConfig::StartDownloads()
 {
-	if (isatty(0) && isatty(1) && isatty(2))
-		printf("Downloading configuration ");
+	if (IncludedFiles.empty())
+	{
+		if (isatty(0) && isatty(1) && isatty(2))
+			printf("Downloading configuration ");
 
-	TotalDownloaded = 0;
-	FileErrors = 0;
+		TotalDownloaded = 0;
+		FileErrors = 0;
+	}
 
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
@@ -1435,7 +1442,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		if ((character_count++ < 2) && (ch == '\xFF' || ch == '\xFE'))
 		{
 			errorstream << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
-			delete conf;
+			if (!scan_for_includes_only)
+				delete conf;
 			return false;
 		}
 
@@ -1491,7 +1499,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			else
 			{
 				errorstream << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
-				delete conf;
+				if (!scan_for_includes_only)
+					delete conf;
 				return false;
 			}
 		}
@@ -1506,7 +1515,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				if (!in_quote)
 				{
 					errorstream << "Got another opening < when the first one wasn't closed: " << filename << ":" << linenumber << std::endl;
-					delete conf;
+					if (!scan_for_includes_only)
+						delete conf;
 					return false;
 				}
 			}
@@ -1515,7 +1525,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				if (in_quote)
 				{
 					errorstream << "We're in a quote but outside a tag, interesting. " << filename << ":" << linenumber << std::endl;
-					delete conf;
+					if (!scan_for_includes_only)
+						delete conf;
 					return false;
 				}
 				else
@@ -1568,7 +1579,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 
 					if (!this->ParseLine(target, line, linenumber, errorstream, pass, scan_for_includes_only))
 					{
-						delete conf;
+						if (!scan_for_includes_only)
+							delete conf;
 						return false;
 					}
 
@@ -1577,7 +1589,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				else
 				{
 					errorstream << "Got a closing > when we weren't inside a tag: " << filename << ":" << linenumber << std::endl;
-					delete conf;
+					if (!scan_for_includes_only)
+						delete conf;
 					return false;
 				}
 			}
@@ -1591,7 +1604,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
 	}
 
-	delete conf;
+	if (!scan_for_includes_only)
+		delete conf;
 	return true;
 }
 
