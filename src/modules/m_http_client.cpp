@@ -151,6 +151,8 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
+	Instance->Log(DEBUG,"Doing request for %s", url.url.c_str());
+
 	in6_addr s6;
 	in_addr s4;
 	/* Doesnt look like an ipv4 or an ipv6 address */

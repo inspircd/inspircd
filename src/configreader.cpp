@@ -788,7 +788,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
 	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
 	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
-	std::ostringstream errstr;	/* String stream containing the error output */
+	errstr.clear();
 
 	/* These tags MUST occur and must ONLY occur once in the config file */
 	static char* Once[] = { "server", "admin", "files", "power", "options", NULL };
@@ -933,7 +933,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	/* Load and parse the config file, if there are any errors then explode */
 
 	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
-	ConfigDataHash newconfig;
+	newconfig.clear();
 
 	if (this->LoadConf(newconfig, ServerInstance->ConfigFileName, errstr, pass))
 	{
@@ -1272,6 +1272,11 @@ void ServerConfig::Complete(const std::string &filename, bool error)
 			x->second = NULL;
 			FileErrors++;
 		}
+
+		/* We should parse the new file here and check it for another level of include files */
+		CompletedFiles[filename] = true;
+		LoadConf(this->newconfig, filename, errstr, 0, x->second);
+		StartDownloads();
 	}
 
 	return;
@@ -1288,11 +1293,15 @@ void ServerConfig::StartDownloads()
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
 	{
+		if (CompletedFiles.find(x->first) != CompletedFiles.end())
+		{
+			ServerInstance->Log(DEBUG, "Already fetched: %s", x->first.c_str());
+			continue;
+		}
+
 		std::string file = x->first;
-		ServerInstance->Log(DEBUG,"Begin download for %s", file.c_str());
 		if ((file[0] == '/') || (file.substr(0, 7) == "file://"))
 		{
-			ServerInstance->Log(DEBUG,"Core-handled schema for %s", file.c_str());
 			/* For file:// schema files, we use std::ifstream which is a derivative of std::istream.
 			 * For all other file schemas, we use a std::stringstream.
 			 */
@@ -1311,7 +1320,6 @@ void ServerConfig::StartDownloads()
 				x->second = NULL;
 				FileErrors++;
 			}
-
 			TotalDownloaded++;
 		}
 		else
@@ -1331,10 +1339,13 @@ void ServerConfig::StartDownloads()
 				x->second = NULL;
 			}
 		}
+
+		CompletedFiles[file] = true;
+		ServerInstance->Log(DEBUG, "Flagging as already fetched: %s", file.c_str());
 	}
 }
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass)
+bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass, std::istream *scan_for_includes_only)
 {
 	std::string line;
 	std::istream* conf = NULL;
@@ -1350,13 +1361,23 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	in_quote = false;
 	in_comment = false;
 
+	if (scan_for_includes_only)
+	{
+		ServerInstance->Log(DEBUG,"scan_for_includes_only set");
+		conf = scan_for_includes_only;
+	}
+
 	if (std::string(filename) == CONFIG_FILE)
 	{
-		conf = new std::ifstream(filename);
-		if (conf->fail())
+		if (!scan_for_includes_only)
 		{
-			errorstream << "File " << filename << " could not be opened." << std::endl;
-			return false;
+			conf = new std::ifstream(filename);
+			if (conf->fail())
+			{
+				errorstream << "File " << filename << " could not be opened." << std::endl;
+				return false;
+			}
+			CompletedFiles[filename] = true;
 		}
 	}
 	else
@@ -1366,10 +1387,13 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		{
 			if (pass == 0)
 			{
-				ServerInstance->Log(DEBUG,"Push include file %s onto map", filename);
-				/* First pass, we insert the file into a map, and just return true */
-				IncludedFiles.insert(std::make_pair(filename,new std::stringstream));
-				return true;
+				if (CompletedFiles.find(filename) == CompletedFiles.end())
+				{
+					ServerInstance->Log(DEBUG,"Push include file %s onto map", filename);
+					/* First pass, we insert the file into a map, and just return true */
+					IncludedFiles.insert(std::make_pair(filename,new std::stringstream));
+					return true;
+				}
 			}
 			else
 			{
@@ -1381,15 +1405,20 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		}
 		else
 		{
-			if (x->second)
-				conf = IncludedFiles.find(filename)->second;
-			else
+			if (!scan_for_includes_only)
 			{
-				errorstream << "File " << filename << " could not be opened." << std::endl;
-				return false;
+				if (x->second)
+					conf = IncludedFiles.find(filename)->second;
+				else
+				{
+					errorstream << "File " << filename << " could not be opened." << std::endl;
+					return false;
+				}
 			}
 		}
 	}
+
+	ServerInstance->Log(DEBUG,"Start to read conf %s %08lx", filename, conf);
 
 	/* Start reading characters... */
 	while (conf->get(ch))
@@ -1537,7 +1566,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
 
-					if (!this->ParseLine(target, line, linenumber, errorstream, pass))
+					if (!this->ParseLine(target, line, linenumber, errorstream, pass, scan_for_includes_only))
 					{
 						delete conf;
 						return false;
@@ -1566,12 +1595,12 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	return true;
 }
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream, int pass)
+bool ServerConfig::LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream, int pass, std::istream* scan_for_includs_only)
 {
-	return this->LoadConf(target, filename.c_str(), errorstream, pass);
+	return this->LoadConf(target, filename.c_str(), errorstream, pass, scan_for_includs_only);
 }
 
-bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream, int pass)
+bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream, int pass, std::istream* scan_for_includes_only)
 {
 	std::string tagname;
 	std::string current_key;
@@ -1661,7 +1690,8 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 					else
 					{
 						/* Leaving quotes, we have the value */
-						results.push_back(KeyVal(current_key, current_value));
+						if (!scan_for_includes_only)
+							results.push_back(KeyVal(current_key, current_value));
 
 						// std::cout << "<" << tagname << ":" << current_key << "> " << current_value << std::endl;
 
@@ -1670,7 +1700,14 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 
 						if ((tagname == "include") && (current_key == "file"))
 						{
-							if (!this->DoInclude(target, current_value, errorstream, pass))
+							if (scan_for_includes_only && (CompletedFiles.find(current_key) != CompletedFiles.end()))
+							{
+								current_key.clear();
+								current_value.clear();
+								continue;
+							}
+							
+							if (!this->DoInclude(target, current_value, errorstream, pass, scan_for_includes_only))
 								return false;
 						}
 
@@ -1695,7 +1732,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 	return true;
 }
 
-bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream, int pass)
+bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream, int pass, std::istream* scan_for_includes_only)
 {
 	std::string confpath;
 	std::string newfile;

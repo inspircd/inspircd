@@ -232,11 +232,11 @@ class CoreExport ServerConfig : public Extensible
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream, int pass);
+	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream, int pass, std::istream* scan_for_includes_only);
   
 	/** Process an include directive
 	 */
-	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream, int pass);
+	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream, int pass, std::istream* scan_for_includes_only);
 
 	/** Check that there is only one of each configuration item
 	 */
@@ -244,7 +244,13 @@ class CoreExport ServerConfig : public Extensible
 
  public:
 
+	std::ostringstream errstr;
+
+	ConfigDataHash newconfig;
+
 	std::map<std::string, std::istream*> IncludedFiles;
+
+	std::map<std::string, bool> CompletedFiles;
 
 	size_t TotalDownloaded;
 	size_t FileErrors;
@@ -654,12 +660,12 @@ class CoreExport ServerConfig : public Extensible
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass);
+	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass, std::istream* scan_for_includs_only);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream, int pass);
+	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream, int pass, std::istream* scan_for_includs_only = NULL);
 	
 	/* Both these return true if the value existed or false otherwise */
 	
