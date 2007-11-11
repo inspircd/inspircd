@@ -250,8 +250,9 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 
 void HTTPSocket::Connect(const string &ip)
 {
-	Instance->Log(DEBUG,"HTTPSocket::Connect");
+	Instance->Log(DEBUG,"HTTPSocket::Connect(%s)", ip.c_str());
 	strlcpy(this->IP, ip.c_str(), MAXBUF);
+	strlcpy(this->host, ip.c_str(), MAXBUF);
 
 	if (!this->DoConnect())
 		this->Close();
