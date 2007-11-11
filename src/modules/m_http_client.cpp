@@ -92,7 +92,8 @@ class ModuleHTTPClient : public Module
 	virtual ~ModuleHTTPClient()
 	{
 		for (HTTPList::iterator i = sockets.begin(); i != sockets.end(); i++)
-			delete *i;
+			(*i)->Close();
+		ServerInstance->BufferedSocketCull();
 	}
 	
 	virtual Version GetVersion()
