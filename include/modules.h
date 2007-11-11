@@ -125,10 +125,10 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  */
 #define FOREACH_MOD(y,x) do { \
 	EventHandlerIter safei; \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
+	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
 	{ \
 		safei = _i; \
-		safei++; \
+		++safei; \
 		try \
 		{ \
 			(*_i)->x ; \
@@ -149,10 +149,10 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  */
 #define FOREACH_MOD_I(z,y,x) do { \
 	EventHandlerIter safei; \
-	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
+	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ) \
 	{ \
 		safei = _i; \
-		safei++; \
+		++safei; \
 		try \
 		{ \
 			(*_i)->x ; \
@@ -174,10 +174,10 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 do { \
 	EventHandlerIter safei; \
 	MOD_RESULT = 0; \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
+	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
 	{ \
 		safei = _i; \
-		safei++; \
+		++safei; \
 		try \
 		{ \
 			int res = (*_i)->x ; \
@@ -204,10 +204,10 @@ do { \
 do { \
 	EventHandlerIter safei; \
 	MOD_RESULT = 0; \
-	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
+	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ) \
 	{ \
 		safei = _i; \
-		safei++; \
+		++safei; \
 		try \
 		{ \
 			int res = (*_i)->x ; \
