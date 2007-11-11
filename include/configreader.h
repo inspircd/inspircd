@@ -242,9 +242,9 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool CheckOnce(char* tag);
 
+ public:
+
 	std::map<std::string, std::istream*> IncludedFiles;
-  
-  public:
 
 	size_t TotalDownloaded;
 	size_t FileErrors;

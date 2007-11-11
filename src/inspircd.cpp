@@ -515,6 +515,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		/* One or more file download/access errors, do not
 		 * proceed to second pass
 		 */
+		for (std::map<std::string, std::istream*>::iterator x = Config->IncludedFiles.begin(); x != Config->IncludedFiles.end(); ++x)
+		{
+			if (!x->second)
+				printf("ERROR: Failed to access the file: %s.\n", x->first.c_str());
+		}
+		printf("Initialisation of configuration failed.\n");
 		Exit(EXIT_STATUS_CONFIG);
 	}
 

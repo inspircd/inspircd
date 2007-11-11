@@ -1268,7 +1268,7 @@ void ServerConfig::StartDownloads()
 		ServerInstance->Log(DEBUG,"Begin download for %s", file.c_str());
 		if ((file[0] == '/') || (file.substr(0, 7) == "file://"))
 		{
-			ServerInstance->Log(DEBUG,"Core-handled schema for %s %s", file.c_str(), file.substr(0,7).c_str());
+			ServerInstance->Log(DEBUG,"Core-handled schema for %s", file.c_str());
 			/* For file:// schema files, we use std::ifstream which is a derivative of std::istream.
 			 * For all other file schemas, we use a std::stringstream.
 			 */
@@ -1282,7 +1282,11 @@ void ServerConfig::StartDownloads()
 				x->second = conf;
 			}
 			else
+			{
+				delete x->second;
+				x->second = NULL;
 				FileErrors++;
+			}
 
 			TotalDownloaded++;
 		}
@@ -1290,6 +1294,12 @@ void ServerConfig::StartDownloads()
 		{
 			/* Modules handle these */
 			ServerInstance->Log(DEBUG,"Module-handled schema for %s", x->first.c_str());
+
+			/* For now, error it */
+			FileErrors++;
+			TotalDownloaded++;
+			delete x->second;
+			x->second = NULL;
 		}
 	}
 }
@@ -1321,8 +1331,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	}
 	else
 	{
-		/* Check if the file open failed first */
-		if (IncludedFiles.find(filename) == IncludedFiles.end())
+		std::map<std::string, std::istream*>::iterator x = IncludedFiles.find(filename);
+		if (x == IncludedFiles.end())
 		{
 			if (pass == 0)
 			{
@@ -1340,7 +1350,15 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			}
 		}
 		else
-			conf = IncludedFiles.find(filename)->second;
+		{
+			if (x->second)
+				conf = IncludedFiles.find(filename)->second;
+			else
+			{
+				errorstream << "File " << filename << " could not be opened." << std::endl;
+				return false;
+			}
+		}
 	}
 
 	/* Start reading characters... */
