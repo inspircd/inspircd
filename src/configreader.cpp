@@ -1406,6 +1406,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		if ((character_count++ < 2) && (ch == '\xFF' || ch == '\xFE'))
 		{
 			errorstream << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
+			delete conf;
 			return false;
 		}
 
@@ -1461,6 +1462,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			else
 			{
 				errorstream << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
+				delete conf;
 				return false;
 			}
 		}
@@ -1475,6 +1477,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				if (!in_quote)
 				{
 					errorstream << "Got another opening < when the first one wasn't closed: " << filename << ":" << linenumber << std::endl;
+					delete conf;
 					return false;
 				}
 			}
@@ -1483,6 +1486,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				if (in_quote)
 				{
 					errorstream << "We're in a quote but outside a tag, interesting. " << filename << ":" << linenumber << std::endl;
+					delete conf;
 					return false;
 				}
 				else
@@ -1534,13 +1538,17 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 					 */
 
 					if (!this->ParseLine(target, line, linenumber, errorstream, pass))
+					{
+						delete conf;
 						return false;
+					}
 
 					line.clear();
 				}
 				else
 				{
 					errorstream << "Got a closing > when we weren't inside a tag: " << filename << ":" << linenumber << std::endl;
+					delete conf;
 					return false;
 				}
 			}
@@ -1554,6 +1562,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
 	}
 
+	delete conf;
 	return true;
 }
 
