@@ -123,18 +123,23 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * loaded modules in a readable simple way, e.g.:
  * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
  */
-#define FOREACH_MOD(y,x) \
-for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
-{ \
-	try \
+#define FOREACH_MOD(y,x) do { \
+	EventHandlerIter safei; \
+	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
 	{ \
-		(*_i)->x ; \
+		safei = _i; \
+		safei++; \
+		try \
+		{ \
+			(*_i)->x ; \
+		} \
+		catch (CoreException& modexcept) \
+		{ \
+			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+		} \
+		_i = safei; \
 	} \
-	catch (CoreException& modexcept) \
-	{ \
-		ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
-	} \
-}
+} while (0);
 
 /**
  * This #define allows us to call a method in all
@@ -142,18 +147,23 @@ for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i
  * an instance pointer to the macro. e.g.:
  * 'FOREACH_MOD_I(Instance, OnConnect, OnConnect(user));'
  */
-#define FOREACH_MOD_I(z,y,x) \
-for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
-{ \
-	try \
+#define FOREACH_MOD_I(z,y,x) do { \
+	EventHandlerIter safei; \
+	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
 	{ \
-		(*_i)->x ; \
+		safei = _i; \
+		safei++; \
+		try \
+		{ \
+			(*_i)->x ; \
+		} \
+		catch (CoreException& modexcept) \
+		{ \
+			z->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+		} \
+		_i = safei; \
 	} \
-	catch (CoreException& modexcept) \
-	{ \
-		z->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
-	} \
-}
+} while (0);
 
 /**
  * This define is similar to the one above but returns a result in MOD_RESULT.
@@ -162,9 +172,12 @@ for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Module
  */
 #define FOREACH_RESULT(y,x) \
 do { \
+	EventHandlerIter safei; \
 	MOD_RESULT = 0; \
 	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ++_i) \
 	{ \
+		safei = _i; \
+		safei++; \
 		try \
 		{ \
 			int res = (*_i)->x ; \
@@ -177,6 +190,7 @@ do { \
 		{ \
 			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
+		_i = safei; \
 	} \
 } while(0);
 
@@ -188,9 +202,12 @@ do { \
  */
 #define FOREACH_RESULT_I(z,y,x) \
 do { \
+	EventHandlerIter safei; \
 	MOD_RESULT = 0; \
 	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ++_i) \
 	{ \
+		safei = _i; \
+		safei++; \
 		try \
 		{ \
 			int res = (*_i)->x ; \
@@ -203,6 +220,7 @@ do { \
 		{ \
 			z->Log(DEBUG,"Exception caught: %s",modexcept.GetReason()); \
 		} \
+		_i = safei; \
 	} \
 } while (0);
 
