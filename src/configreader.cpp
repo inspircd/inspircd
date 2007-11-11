@@ -1243,14 +1243,24 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 
 bool ServerConfig::Downloading()
 {
-	ServerInstance->Log(DEBUG, "ServerConfig::Downloading() TotalDownloaded %u of %u", TotalDownloaded, IncludedFiles.size());
+	if (isatty(0) && isatty(1) && isatty(2))
+	{
+		printf(".");
+		fflush(stdout);
+	}
+
 	/* Returns true if there are still files in the process of downloading */
 	return (TotalDownloaded < IncludedFiles.size());
 }
 
 void ServerConfig::StartDownloads()
 {
+	if (isatty(0) && isatty(1) && isatty(2))
+		printf("Downloading configuration ");
+
 	TotalDownloaded = 0;
+	FileErrors = 0;
+
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
 	{
@@ -1271,6 +1281,8 @@ void ServerConfig::StartDownloads()
 				delete x->second;
 				x->second = conf;
 			}
+			else
+				FileErrors++;
 
 			TotalDownloaded++;
 		}

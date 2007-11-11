@@ -498,13 +498,24 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->StartDownloads();
 	
 	/* Now the downloads are started, we monitor them for completion.
-	 * On completion, we call Read again with pass = 1
+	 * On completion, we call Read again with pass = 1.
+	 * NOTE: We really should add a timeout here
 	 */
 
 	while (Config->Downloading())
 	{
 		SE->DispatchEvents();
 		this->BufferedSocketCull();
+	}
+
+	printf("\n");
+
+	if (Config->FileErrors)
+	{
+		/* One or more file download/access errors, do not
+		 * proceed to second pass
+		 */
+		Exit(EXIT_STATUS_CONFIG);
 	}
 
 	/* We have all the files we can get, initiate pass 1 */
