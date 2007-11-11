@@ -1254,21 +1254,21 @@ void ServerConfig::StartDownloads()
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
 	{
-		ServerInstance->Log(DEBUG,"Begin download for %s", x->first.c_str());
-		if ((x->first[0] == '/') || (x->first.substr(7) == "file://"))
+		std::string file = x->first;
+		ServerInstance->Log(DEBUG,"Begin download for %s", file.c_str());
+		if ((file[0] == '/') || (file.substr(0, 7) == "file://"))
 		{
+			ServerInstance->Log(DEBUG,"Core-handled schema for %s %s", file.c_str(), file.substr(0,7).c_str());
 			/* For file:// schema files, we use std::ifstream which is a derivative of std::istream.
 			 * For all other file schemas, we use a std::stringstream.
 			 */
 
-			/* First, delete the dummy std::stringstream file that LoadConf put here */
-			delete x->second;
-
-			/* Now add our own ifstream */
-			std::ifstream* conf = new std::ifstream(x->first.c_str());
+			/* Add our own ifstream */
+			std::ifstream* conf = new std::ifstream(file.c_str());
 			if (!conf->fail())
 			{
-				ServerInstance->Log(DEBUG,"file:// schema file %s loaded OK", x->first.c_str());
+				ServerInstance->Log(DEBUG,"file:// schema file %s loaded OK", file.c_str());
+				delete x->second;
 				x->second = conf;
 			}
 
@@ -1638,7 +1638,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 	std::replace(newfile.begin(),newfile.end(),'\\','/');
 	std::replace(confpath.begin(),confpath.end(),'\\','/');
 
-	if (newfile[0] != '/')
+	if ((newfile[0] != '/') && (newfile.find("://") == std::string::npos))
 	{
 		if((pos = confpath.rfind("/")) != std::string::npos)
 		{
