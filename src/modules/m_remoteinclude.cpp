@@ -51,13 +51,19 @@ class ModuleRemoteInclude : public Module
 
 			if (n == assoc.end())
 				ServerInstance->Config->Complete(resp->GetURL(), true);
-			
-			*(n->second) << resp->GetData();
+		
+			std::string responsestr;
+			if (resp->GetResponse(responsestr) == 200)
+			{
+				*(n->second) << resp->GetData();
 
-			ServerInstance->Log(DEBUG, "Got data: %s", resp->GetData().c_str());
+				ServerInstance->Log(DEBUG, "Got data: %s", resp->GetData().c_str());
 
-			ServerInstance->Log(DEBUG, "Flag file complete without error");
-			ServerInstance->Config->Complete(resp->GetURL(), false);
+				ServerInstance->Log(DEBUG, "Flag file complete without error");
+				ServerInstance->Config->Complete(resp->GetURL(), false);
+			}
+			else
+				ServerInstance->Config->Complete(resp->GetURL(), true);
 
 			/* Erase from our association map, but dont delete the pointer.
 			 * the core will want to access this pointer for the file data.
