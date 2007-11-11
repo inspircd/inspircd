@@ -51,16 +51,20 @@ class HTTPResolver : public Resolver
 {
  private:
 	HTTPSocket *socket;
+	std::string orig;
  public:
 	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(socket)
 	{
 		ServerInstance->Log(DEBUG,"HTTPResolver::HTTPResolver");
+		orig = hostname;
 	}
 	
 	void OnLookupComplete(const string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
 		if (!resultnum)
 			socket->Connect(result);
+		else
+			socket->Connect(orig);
 	}
 	
 	void OnError(ResolverError e, const string &errmsg)
@@ -146,23 +150,10 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
-	in_addr addy1;
-#ifdef IPV6
-	in6_addr addy2;
-	if ((inet_aton(this->host, &addy1) > 0) || (inet_pton(AF_INET6, this->host, &addy2) > 0))
-#else
-	if (inet_aton(this->host, &addy1) > 0)
-#endif
-	{
-		bool cached;
-		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
-		Instance->AddResolver(r, cached);
-		return true;
-	}
-	else
-	{
-		this->Connect(url.domain);
-	}
+	bool cached;
+	HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
+	Instance->AddResolver(r, cached);
+	return true;
 	
 	return true;
 }
@@ -288,11 +279,8 @@ bool HTTPSocket::OnDataReady()
 	Instance->Log(DEBUG,"HTTPSocket::OnDataReady()");
 	char *data = this->Read();
 
-	if (!data)
-	{
-		this->Close();
+	if (!data || !*data)
 		return false;
-	}
 
 	if (this->status < HTTP_DATA)
 	{

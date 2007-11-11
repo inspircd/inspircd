@@ -213,6 +213,8 @@ inline void DNS::EmptyHeader(unsigned char *output, const DNSHeader *header, con
 /** Send requests we have previously built down the UDP socket */
 int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryType qt)
 {
+	ServerInstance->Log(DEBUG,"DNSRequest::SendRequests");
+
 	unsigned char payload[sizeof(DNSHeader)];
 
 	this->rr_class = 1;
@@ -242,6 +244,8 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		if (ServerInstance->SE->SendTo(dnsobj, (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
+
+	ServerInstance->Log(DEBUG,"Sent OK");
 	return 0;
 }
 
@@ -362,6 +366,7 @@ void DNS::Rehash()
 		if (!ServerInstance->BindSocket(this->GetFd(), portpass, "", false))
 		{
 			/* Failed to bind */
+			ServerInstance->Log(DEBUG,"Error binding dns socket");
 			ServerInstance->SE->Shutdown(this, 2);
 			ServerInstance->SE->Close(this);
 			this->SetFd(-1);
@@ -382,11 +387,16 @@ void DNS::Rehash()
 			}
 		}
 	}
+	else
+	{
+		ServerInstance->Log(DEBUG,"Error creating dns socket");
+	}
 }
 
 /** Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	ServerInstance->Log(DEBUG,"DNS::DNS");
 	/* Clear the Resolver class table */
 	memset(Classes,0,sizeof(Classes));
 
@@ -949,6 +959,7 @@ void Resolver::TriggerCachedResult()
 /** High level abstraction of dns used by application at large */
 Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, bool &cached, Module* creator) : ServerInstance(Instance), Creator(creator), input(source), querytype(qt)
 {
+	ServerInstance->Log(DEBUG,"Resolver::Resolver");
 	cached = false;
 
 	CQ = ServerInstance->Res->GetCache(source);
@@ -1016,6 +1027,10 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 		throw ModuleException("Resolver: Couldnt get an id to make a request");
 		/* We shouldnt get here really */
 		return;
+	}
+	else
+	{
+		ServerInstance->Log(DEBUG,"DNS request id %d", this->myid);
 	}
 }
 
@@ -1103,6 +1118,7 @@ void DNS::HandleEvent(EventType, int)
 /** Add a derived Resolver to the working set */
 bool DNS::AddResolverClass(Resolver* r)
 {
+	ServerInstance->Log(DEBUG,"AddResolverClass %08lx", r);
 	/* Check the pointers validity and the id's validity */
 	if ((r) && (r->GetId() > -1))
 	{

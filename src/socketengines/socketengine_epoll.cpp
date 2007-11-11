@@ -38,6 +38,7 @@ EPollEngine::~EPollEngine()
 
 bool EPollEngine::AddFd(EventHandler* eh)
 {
+	ServerInstance->Log(DEBUG,"Add new fd: %d", eh->GetFd());
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
@@ -120,6 +121,9 @@ int EPollEngine::DispatchEvents()
 	socklen_t codesize;
 	int errcode;
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 1000);
+
+	ServerInstance->Log(DEBUG,"DispatchEvents num events = %d of %d", i, CurrentSetSize);
+
 	for (int j = 0; j < i; j++)
 	{
 		if (events[j].events & EPOLLHUP)
