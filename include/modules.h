@@ -438,7 +438,7 @@ class CoreExport Module : public Extensible
 
 	virtual void OnReadConfig(ServerConfig* config, ConfigReader* coreconf);
 
-	virtual int OnDownloadFile(const std::string &filename, std::stringstream &filedata);
+	virtual int OnDownloadFile(const std::string &filename, std::istringstream* &filedata);
 
 	/** Returns the version number of a Module.
 	 * The method should return a Version object with its version information assigned via

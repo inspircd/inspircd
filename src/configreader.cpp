@@ -1296,10 +1296,16 @@ void ServerConfig::StartDownloads()
 			ServerInstance->Log(DEBUG,"Module-handled schema for %s", x->first.c_str());
 
 			/* For now, error it */
-			FileErrors++;
-			TotalDownloaded++;
-			delete x->second;
-			x->second = NULL;
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnDownloadFile, OnDownloadFile(file, reinterpret_cast<std::istringstream*>(x->second)));
+			if (MOD_RESULT == 0)
+			{
+				/* No module claimed this file */
+				TotalDownloaded++;
+				FileErrors++;
+				delete x->second;
+				x->second = NULL;
+			}
 		}
 	}
 }
