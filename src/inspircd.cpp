@@ -470,14 +470,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 * Config->StartDownloads to initialize the downlaods of all
 	 * these files.
 	 */
-        Config->Read(true, NULL, 0);
+	Config->Read(true, NULL, 0);
 	Config->StartDownloads();
 	
 	/* Now the downloads are started, we monitor them for completion.
 	 * On completion, we call Read again with pass = 1.
 	 * NOTE: We really should add a timeout here
 	 */
-
+	
 	while (Config->Downloading())
 	{
 		SE->DispatchEvents();
