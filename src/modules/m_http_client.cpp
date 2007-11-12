@@ -123,6 +123,7 @@ HTTPSocket::HTTPSocket(InspIRCd *Instance, ModuleHTTPClient *Mod)
 	this->port = 80;
 	response = NULL;
 	closed = false;
+	timeout_val = 10;
 }
 
 HTTPSocket::~HTTPSocket()
@@ -296,7 +297,7 @@ bool HTTPSocket::OnConnected()
 
 bool HTTPSocket::OnDataReady()
 {
-	Instance->Log(DEBUG,"HTTPSocket::OnDataReady()");
+	Instance->Log(DEBUG,"HTTPSocket::OnDataReady() for %s", url.url.c_str());
 	char *data = this->Read();
 
 	if (!data)

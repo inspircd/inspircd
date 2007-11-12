@@ -92,7 +92,7 @@ class ModuleRemoteInclude : public Module
 			Module* target = ServerInstance->Modules->Find("m_http_client.so");
 			if (target)
 			{
-				ServerInstance->Log(DEBUG,"Claiming schema http://, making fetch request");
+				ServerInstance->Log(DEBUG,"Claiming schema http://, making fetch request for %s", name.c_str());
 
 				HTTPClientRequest* req = new HTTPClientRequest(ServerInstance, this, target, name);
 				req->Send();

@@ -488,9 +488,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (Config->FileErrors)
 	{
-		/* One or more file download/access errors, do not
-		 * proceed to second pass
-		 */
 		for (std::map<std::string, std::istream*>::iterator x = Config->IncludedFiles.begin(); x != Config->IncludedFiles.end(); ++x)
 		{
 			if (!x->second)
@@ -718,6 +715,7 @@ void InspIRCd::BufferedSocketCull()
 {
 	for (std::map<BufferedSocket*,BufferedSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
 	{
+		Log(DEBUG,"Cull socket");
 		SE->DelFd(x->second);
 		x->second->Close();
 		delete x->second;

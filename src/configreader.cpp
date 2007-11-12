@@ -1283,12 +1283,6 @@ void ServerConfig::Complete(const std::string &filename, bool error)
 			x->second = NULL;
 			FileErrors++;
 		}
-		else
-		{
-			ServerInstance->Log(DEBUG,"Recursively follow conf %s", x->first.c_str());
-			LoadConf(newconfig, x->first.c_str(), errstr, 0, x->second);
-			StartDownloads();
-		}
 		TotalDownloaded++;
 	}
 
@@ -1297,13 +1291,15 @@ void ServerConfig::Complete(const std::string &filename, bool error)
 
 void ServerConfig::StartDownloads()
 {
-	ServerInstance->Log(DEBUG,"StartDownloads() size=%d", IncludedFiles.size());
+	ServerInstance->Log(DEBUG,"((((((((((((((((((((((((( StartDownloads() size=%d )))))))))))))))))))))))))))))))))))))", IncludedFiles.size());
 
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
 	{
 		if (CompletedFiles.find(x->first) != CompletedFiles.end())
 			continue;
+
+		ServerInstance->Log(DEBUG,"StartDownloads File: %s", x->first.c_str());
 
 		std::string file = x->first;
 		if ((file[0] == '/') || (file.substr(0, 7) == "file://"))

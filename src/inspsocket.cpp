@@ -536,6 +536,8 @@ bool BufferedSocket::FlushWriteBuffer()
 
 void SocketTimeout::Tick(time_t)
 {
+	ServerInstance->Log(DEBUG,"SocketTimeout::Tick");
+
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
 		return;
 
