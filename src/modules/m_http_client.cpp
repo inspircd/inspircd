@@ -56,13 +56,13 @@ class HTTPResolver : public Resolver
  public:
 	HTTPResolver(HTTPSocket *s, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(s)
 	{
-		ServerInstance->Log(DEBUG,"HTTPResolver::HTTPResolver");
+		ServerInstance->Log(DEBUG,">>>>>>>>>>>>>>>>>> HTTPResolver::HTTPResolver <<<<<<<<<<<<<<<");
 		orig = hostname;
 	}
 	
 	void OnLookupComplete(const string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
-		ServerInstance->Log(DEBUG,"HTTPResolver::OnLookupComplete");
+		ServerInstance->Log(DEBUG,"************* HTTPResolver::OnLookupComplete ***************");
 		if (!resultnum)
 			socket->Connect(result);
 		else
@@ -71,7 +71,7 @@ class HTTPResolver : public Resolver
 	
 	void OnError(ResolverError e, const string &errmsg)
 	{
-		ServerInstance->Log(DEBUG,"HTTPResolver::OnError");
+		ServerInstance->Log(DEBUG,"!!!!!!!!!!!!!!!! HTTPResolver::OnError: %s", errmsg.c_str());
 		socket->OnClose();
 	}
 };
@@ -164,7 +164,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 		bool cached;
 		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
 		Instance->AddResolver(r, cached);
-		Instance->Log(DEBUG,"Resolver added");
+		Instance->Log(DEBUG,"Resolver added, cached=%d", cached);
 	}
 	else
 		Connect(url.domain);

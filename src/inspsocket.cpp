@@ -236,6 +236,7 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 		}
 		j++;
 	}
+	Instance->Log(DEBUG,"nothing in the config to bind()!");
 	return true;
 }
 

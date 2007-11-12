@@ -1142,6 +1142,15 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		 * at this point
 		 */
 
+		if (pass == 0)
+		{
+			if (isatty(0) && isatty(1) && isatty(2))
+				printf("Downloading configuration ");
+
+			TotalDownloaded = 0;
+			FileErrors = 0;
+		}
+
 		if (!ServerInstance->Res)
 			ServerInstance->Res = new DNS(ServerInstance);
 	        /** Note: This is safe, the method checks for user == NULL */
@@ -1261,6 +1270,7 @@ bool ServerConfig::Downloading()
 
 void ServerConfig::Complete(const std::string &filename, bool error)
 {
+	ServerInstance->Log(DEBUG,"Flag complete: %s %d", filename.c_str(), error);
 	std::map<std::string, std::istream*>::iterator x = IncludedFiles.find(filename);
 
 	if (x != IncludedFiles.end())
@@ -1272,15 +1282,6 @@ void ServerConfig::Complete(const std::string &filename, bool error)
 			x->second = NULL;
 			FileErrors++;
 		}
-
-		/* We should parse the new file here and check it for another level of include files */
-		CompletedFiles[filename] = true;
-
-		if (!error)
-		{
-			LoadConf(this->newconfig, filename, errstr, 0, x->second);
-			StartDownloads();
-		}
 	}
 
 	return;
@@ -1288,24 +1289,11 @@ void ServerConfig::Complete(const std::string &filename, bool error)
 
 void ServerConfig::StartDownloads()
 {
-	if (IncludedFiles.empty())
-	{
-		if (isatty(0) && isatty(1) && isatty(2))
-			printf("Downloading configuration ");
-
-		TotalDownloaded = 0;
-		FileErrors = 0;
-	}
+	ServerInstance->Log(DEBUG,"StartDownloads() size=%d", IncludedFiles.size());
 
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
 	{
-		if (CompletedFiles.find(x->first) != CompletedFiles.end())
-		{
-			ServerInstance->Log(DEBUG, "Already fetched: %s", x->first.c_str());
-			continue;
-		}
-
 		std::string file = x->first;
 		if ((file[0] == '/') || (file.substr(0, 7) == "file://"))
 		{
@@ -1346,9 +1334,6 @@ void ServerConfig::StartDownloads()
 				x->second = NULL;
 			}
 		}
-
-		CompletedFiles[file] = true;
-		ServerInstance->Log(DEBUG, "Flagging as already fetched: %s", file.c_str());
 	}
 }
 
@@ -1384,7 +1369,6 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				errorstream << "File " << filename << " could not be opened." << std::endl;
 				return false;
 			}
-			CompletedFiles[filename] = true;
 		}
 	}
 	else
@@ -1394,13 +1378,10 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		{
 			if (pass == 0)
 			{
-				if (CompletedFiles.find(filename) == CompletedFiles.end())
-				{
-					ServerInstance->Log(DEBUG,"Push include file %s onto map", filename);
-					/* First pass, we insert the file into a map, and just return true */
-					IncludedFiles.insert(std::make_pair(filename,new std::stringstream));
-					return true;
-				}
+				ServerInstance->Log(DEBUG,"Push include file %s onto map", filename);
+				/* First pass, we insert the file into a map, and just return true */
+				IncludedFiles.insert(std::make_pair(filename,new std::stringstream));
+				return true;
 			}
 			else
 			{
@@ -1713,14 +1694,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 						got_key = false;
 
 						if ((tagname == "include") && (current_key == "file"))
-						{
-							if (scan_for_includes_only && (CompletedFiles.find(current_key) != CompletedFiles.end()))
-							{
-								current_key.clear();
-								current_value.clear();
-								continue;
-							}
-							
+						{	
 							if (!this->DoInclude(target, current_value, errorstream, pass, scan_for_includes_only))
 								return false;
 						}
@@ -1741,7 +1715,8 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 	}
 
 	/* Finished parsing the tag, add it to the config hash */
-	target.insert(std::pair<std::string, KeyValList > (tagname, results));
+	if (!scan_for_includes_only)
+		target.insert(std::pair<std::string, KeyValList > (tagname, results));
 
 	return true;
 }
@@ -1772,7 +1747,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 		}
 	}
 
-	return LoadConf(target, newfile, errorstream, pass);
+	return LoadConf(target, newfile, errorstream, pass, scan_for_includes_only);
 }
 
 bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds)
