@@ -121,8 +121,6 @@ int EPollEngine::DispatchEvents()
 	int errcode;
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 1000);
 
-	ServerInstance->Log(DEBUG,"Events: %d %d", i, CurrentSetSize);
-
 	for (int j = 0; j < i; j++)
 	{
 		if (events[j].events & EPOLLHUP)
