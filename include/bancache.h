@@ -57,6 +57,12 @@ class CoreExport BanCacheManager : public classbase
 	BanCacheHit *GetHit(const std::string &ip);
 	bool RemoveHit(BanCacheHit *b);
 
+	/** Removes all entries of a given type, either positive or negative. Returns the number of hits removed.
+	 * @param type The type of bancache entries to remove (e.g. 'G')
+	 * @param positive Remove either positive (true) or negative (false) hits.
+	 */
+	int RemoveEntries(const std::string &type, bool positive);
+
 	BanCacheManager(InspIRCd *Instance)
 	{
 		this->ServerInstance = Instance;

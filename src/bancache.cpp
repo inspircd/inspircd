@@ -63,6 +63,11 @@ bool BanCacheManager::RemoveHit(BanCacheHit *b)
 	return true;
 }
 
+int BanCacheManager::RemoveEntries(const std::string &type, bool positive)
+{
+	return 0;
+}
+
 void BanCacheManager::RehashCache()
 {
 	BanCacheHash* NewHash = new BanCacheHash();
