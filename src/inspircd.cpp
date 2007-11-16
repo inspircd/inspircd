@@ -502,11 +502,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
         this->AddServerName(Config->ServerName);
 
-        /* set up fake client again this time with the correct uid */
-        delete FakeClient;
-        this->FakeClient = new User(this);
-        this->FakeClient->SetFd(FD_MAGIC_NUMBER);
-
         /*
          * Initialise SID/UID.
          * For an explanation as to exactly how this works, and why it works this way, see GetUID().
@@ -530,6 +525,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
         }
 
         this->InitialiseUID();
+
+        /* set up fake client again this time with the correct uid */
+        delete FakeClient;
+        this->FakeClient = new User(this);
+        this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
         // Get XLine to do it's thing.
         this->XLines->CheckELines();
