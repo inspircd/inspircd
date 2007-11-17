@@ -65,7 +65,36 @@ bool BanCacheManager::RemoveHit(BanCacheHit *b)
 
 int BanCacheManager::RemoveEntries(const std::string &type, bool positive)
 {
-	return 0;
+	int removed = 0;
+
+	BanCacheHash::iterator safei;
+
+	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); )
+	{
+		safei = n;
+		safei++;
+
+		BanCacheHit *b = n->second;
+
+		/* Safe to delete items here through iterator 'n' */
+		if (b->Type == type)
+		{
+			if ((positive && !b->Reason.empty()) || b->Reason.empty())
+			{
+				/* we need to remove this one. */
+				delete b;
+				b = NULL;
+				BanHash->erase(n);
+				removed++;
+			}
+		}
+
+		/* End of safe section */
+		n = safei;
+	}
+
+
+	return removed;
 }
 
 void BanCacheManager::RehashCache()
