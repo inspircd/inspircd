@@ -37,11 +37,16 @@ class ModuleRemoteIncludeHttp : public Module
 
 	virtual int OnDownloadFile(const std::string &filename, std::istream* &filedata)
 	{
+		std::stringstream* gotfile = (std::stringstream*)filedata;
 		ServerInstance->Log(DEBUG,"OnDownloadFile in m_remoteinclude_http");
 		int sockfd, portno, n;
 		struct sockaddr_in serv_addr;
 		struct hostent *server;
 		char buffer[65536];
+
+		/* Ours? */
+		if (filename.substr(0, 7) != "http://")
+			return 0;
 
 		portno = 80;
 		server = gethostbyname("neuron.brainbox.winbot.co.uk");
@@ -74,7 +79,7 @@ class ModuleRemoteIncludeHttp : public Module
 
 		ServerInstance->Log(DEBUG,"Connected to brainbox");
 
-		n = send(sockfd, "GET / HTTP/1.0\r\n\r\n", 18, 0);
+		n = this->SockSend(sockfd, "GET / HTTP/1.1\r\nConnection: close\r\nHost: neuron.brainbox.winbot.co.uk\r\n\r\n");
 		if (n < 0) 
 		{
 			ServerInstance->Log(DEBUG,"Failed to send()");
@@ -83,17 +88,28 @@ class ModuleRemoteIncludeHttp : public Module
 
 		ServerInstance->Log(DEBUG,"Sent GET request");
 
-		n = read(sockfd,buffer,1);
-
-		if (n < 1) 
+		while (((n = read(sockfd,buffer,65535)) > 0))
 		{
-			ServerInstance->Log(DEBUG,"Failed to read()");
-			return 0;
+			std::string output(buffer, 0, n);
+			(*(gotfile)) << output;
 		}
 
-		ServerInstance->Log(DEBUG,"Read one byte");
+		ServerInstance->Log(DEBUG,"Read page");
 
-		return 1;
+		std::string version, result;
+		(*(gotfile)) >> version;
+		(*(gotfile)) >> result;
+
+		/* HTTP/1.1 200 OK */
+
+		ServerInstance->Log(DEBUG,"Result: %s", result.c_str());
+
+		return (result == "200");
+	}
+
+	int SockSend(int sock, const std::string &data)
+	{
+		return send(sock, data.data(), data.length(), 0);
 	}
 
 	virtual Version GetVersion()
