@@ -47,30 +47,51 @@ class ModuleRemoteIncludeHttp : public Module
 		server = gethostbyname("neuron.brainbox.winbot.co.uk");
 
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
-		if (sockfd < 0) 
+		if (sockfd < 0)
+		{
+			ServerInstance->Log(DEBUG,"Failed to socket()");
 			return 0;
+		}
 
 		if (server == NULL) 
+		{
+			ServerInstance->Log(DEBUG,"No such host");
 			return 0;
+		}
 
 		memset(&serv_addr, sizeof(serv_addr), 0);
 
 		serv_addr.sin_family = AF_INET;
 
-		memcpy(server->h_addr, &serv_addr.sin_addr.s_addr, server->h_length);
+		memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
 		serv_addr.sin_port = htons(portno);
 
 		if (connect(sockfd, (const sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
+		{
+			ServerInstance->Log(DEBUG,"Failed to connect()");
 			return 0;
+		}
 
-		n = send(sockfd, "GET / HTTP/1.0\r\n", 16, 0);
+		ServerInstance->Log(DEBUG,"Connected to brainbox");
+
+		n = send(sockfd, "GET / HTTP/1.0\r\n\r\n", 18, 0);
 		if (n < 0) 
+		{
+			ServerInstance->Log(DEBUG,"Failed to send()");
 			return 0;
+		}
 
-		n = read(sockfd,buffer,255);
+		ServerInstance->Log(DEBUG,"Sent GET request");
+
+		n = read(sockfd,buffer,1);
 
 		if (n < 1) 
+		{
+			ServerInstance->Log(DEBUG,"Failed to read()");
 			return 0;
+		}
+
+		ServerInstance->Log(DEBUG,"Read one byte");
 
 		return 1;
 	}
