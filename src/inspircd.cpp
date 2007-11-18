@@ -471,32 +471,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 * these files.
 	 */
 	Config->Read(true, NULL, 0);
-	Config->StartDownloads();
-	
-	/* Now the downloads are started, we monitor them for completion.
-	 * On completion, we call Read again with pass = 1.
-	 * NOTE: We really should add a timeout here
-	 */
-	
-	while (Config->Downloading())
-	{
-		SE->DispatchEvents();
-		this->BufferedSocketCull();
-	}
-
-	printf("\n");
-
-	if (Config->FileErrors)
-	{
-		for (std::map<std::string, std::istream*>::iterator x = Config->IncludedFiles.begin(); x != Config->IncludedFiles.end(); ++x)
-		{
-			if (!x->second)
-				printf("ERROR: Failed to access the file: %s.\n", x->first.c_str());
-		}
-		printf("Initialisation of configuration failed.\n");
-		Exit(EXIT_STATUS_CONFIG);
-	}
-
+	Config->DoDownloads();
 	/* We have all the files we can get, initiate pass 1 */
 	Config->Read(true, NULL, 1);
 

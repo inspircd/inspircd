@@ -1256,42 +1256,10 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		ServerInstance->WriteOpers("*** Successfully rehashed server.");
 }
 
-bool ServerConfig::Downloading()
+/* XXX: This can and will block! */
+void ServerConfig::DoDownloads()
 {
-	if (isatty(0) && isatty(1) && isatty(2))
-	{
-		printf(".");
-		fflush(stdout);
-	}
-
-	ServerInstance->Log(DEBUG, "ServerConfig::Downloading %d %d", TotalDownloaded, IncludedFiles.size());
-
-	/* Returns true if there are still files in the process of downloading */
-	return (TotalDownloaded < IncludedFiles.size());
-}
-
-void ServerConfig::Complete(const std::string &filename, bool error)
-{
-	ServerInstance->Log(DEBUG,"Flag complete: %s %d", filename.c_str(), error);
-	std::map<std::string, std::istream*>::iterator x = IncludedFiles.find(filename);
-
-	if (x != IncludedFiles.end())
-	{
-		if (error)
-		{
-			delete x->second;
-			x->second = NULL;
-			FileErrors++;
-		}
-		TotalDownloaded++;
-	}
-
-	return;
-}
-
-void ServerConfig::StartDownloads()
-{
-	ServerInstance->Log(DEBUG,"((((((((((((((((((((((((( StartDownloads() size=%d )))))))))))))))))))))))))))))))))))))", IncludedFiles.size());
+	ServerInstance->Log(DEBUG,"In DoDownloads()");
 
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
@@ -1339,6 +1307,10 @@ void ServerConfig::StartDownloads()
 				FileErrors++;
 				delete x->second;
 				x->second = NULL;
+			}
+			else
+			{
+				/* Search new file here for more includes to parse */
 			}
 		}
 		CompletedFiles[x->first] = true;

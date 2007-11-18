@@ -263,11 +263,7 @@ class CoreExport ServerConfig : public Extensible
 
 	InspIRCd* GetInstance();
 
-	bool Downloading();
-
-	void StartDownloads();
-
-	void Complete(const std::string &filename, bool error);
+	void DoDownloads();
 	  
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
