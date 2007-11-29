@@ -879,7 +879,7 @@ void* DispatcherThread(void* arg)
 			/* XXX: Unlock */
 		}
 
-		usleep(50);
+		usleep(1000);
 	}
 
 	return NULL;
