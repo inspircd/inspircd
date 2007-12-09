@@ -235,6 +235,8 @@ InspIRCd 1.0.x, are also allowed.
   --clean                      Remove .config.cache file and go interactive
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
+  --disable-rpath              Disable library paths (do not use unless you
+                               know what you are doing!) [no]
   --with-nick-length=[n]       Specify max. nick length [32]
   --with-channel-length=[n]    Specify max. channel length [64]
   --with-max-clients=[n]       Specify maximum number of users
