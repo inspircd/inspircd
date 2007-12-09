@@ -54,6 +54,7 @@ GetOptions (
 	'module-dir=s' => \$opt_module_dir,
 	'binary-dir=s' => \$opt_binary_dir,
 	'library-dir=s' => \$opt_library_dir,
+	'disable-rpath=i' => \$opt_disable_rpath,
 	'disable-debuginfo' => sub { $opt_disable_debug = 1 },
 	'help'	=> sub { showhelp(); },
 	'modupdate' => sub { modupdate(); },
@@ -94,6 +95,7 @@ my $non_interactive = (
 	(defined $opt_noepoll) ||
 	(defined $opt_noports) ||
 	(defined $opt_maxbuf) ||
+	(defined $opt_disable_rpath) ||
 	(defined $opt_use_gnutls)
 );
 my $interactive = !$non_interactive;
@@ -964,7 +966,14 @@ sub getosflags {
 	$config{LDLIBS} = "-lstdc++";
 	$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual -Wno-deprecated $config{OPTIMISATI}";
 	$config{DEVELOPER} = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual -Wno-deprecated -g";
-	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared";
+	if (defined $opt_disable_rpath)
+	{
+		$SHARED = "-shared";
+	}
+	else
+	{
+		$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared";
+	}
 	$config{MAKEPROG} = "make";
 
 	if ($config{OSNAME} =~ /darwin/i) {
@@ -1789,100 +1798,109 @@ EOM
 
 } else {
 
+	if ($opt_disable_rpath)
+	{
+		$RPATH = "";
+	}
+	else
+	{
+		$RPATH = "-Wl,--rpath -Wl,$config{LIBRARY_DIR}";
+	}
+
 	print FH <<EOM;
 all: libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so libIRCDsnomasks.so inspircd
 
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDsnomasks.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so
-	\$(CC) -pipe -I../include $extra -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDtimer.so libIRCDsnomasks.so
+	\$(CC) -pipe -I../include $extra $RPATH \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDtimer.so libIRCDsnomasks.so
 
 libIRCDsocketengine.so: $se.cpp socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/$se.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp $se.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDsocketengine.so socketengine.o $se.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDsocketengine.so socketengine.o $se.o
 
 libIRCDsnomasks.so: snomasks.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/channels.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c snomasks.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDsnomasks.so snomasks.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDsnomasks.so snomasks.o
 
 libIRCDcommand_parse.so: command_parse.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c command_parse.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDcommand_parse.so command_parse.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDcommand_parse.so command_parse.o
 
 libIRCDcull_list.so: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDcull_list.so cull_list.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDcull_list.so cull_list.o
 
 libIRCDuserprocess.so: userprocess.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c userprocess.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDuserprocess.so userprocess.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDuserprocess.so userprocess.o
 
 libIRCDhash.so: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDhash.so hashcomp.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDhash.so hashcomp.o
 
 libIRCDhelper.so: helperfuncs.cpp ../include/base.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDhelper.so helperfuncs.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDhelper.so helperfuncs.o
 
 libIRCDchannels.so: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDchannels.so channels.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDchannels.so channels.o
 
 libIRCDmode.so: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES)
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
 	\${MAKE} -C "modes" DIRNAME="src/modes" CC="\$(CC)" \$(MAKEARGS) CPPFILES="\$(CPPFILES)"
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDmode.so mode.o modes/modeclasses.a
+	\$(CC) -pipe $RPATH -shared -o libIRCDmode.so mode.o modes/modeclasses.a
 
 libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c xline.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDxline.so xline.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDxline.so xline.o
 
 libIRCDstring.so: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspstring.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDstring.so inspstring.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDstring.so inspstring.o
 
 libIRCDasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dns.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDasyncdns.so dns.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDasyncdns.so dns.o
 
 libIRCDbase.so: base.cpp ../include/base.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c base.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDbase.so base.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDbase.so base.o
 
 libIRCDconfigreader.so: configreader.cpp ../include/base.h ../include/configreader.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c configreader.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDconfigreader.so configreader.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDconfigreader.so configreader.o
 
 libIRCDcommands.so: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDcommands.so commands.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDcommands.so commands.o
 
 libIRCDdynamic.so: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dynamic.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDdynamic.so dynamic.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDdynamic.so dynamic.o
 
 libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c users.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDusers.so users.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDusers.so users.o
 
 libIRCDmodules.so: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c modules.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDmodules.so modules.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDmodules.so modules.o
 
 libIRCDwildcard.so: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c wildcard.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDwildcard.so wildcard.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDwildcard.so wildcard.o
 
 libIRCDsocket.so: socket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socket.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDsocket.so socket.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDsocket.so socket.o
 
 libIRCDinspsocket.so: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspsocket.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDinspsocket.so inspsocket.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDinspsocket.so inspsocket.o
 
 libIRCDtimer.so: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timer.cpp
-	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDtimer.so timer.o
+	\$(CC) -pipe $RPATH -shared -o libIRCDtimer.so timer.o
 
 EOM
 }
