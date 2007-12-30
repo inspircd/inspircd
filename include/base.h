@@ -20,14 +20,8 @@
 #include <deque>
 #include <string>
 
-/** Do we use this? -- Brain */
-typedef void* VoidPointer;
-
 /** A private data store for an Extensible class */
 typedef std::map<std::string,char*> ExtensibleStore;
-
-/** Needed */
-class InspIRCd;
 
 /** The base class for all inspircd classes.
  * Wherever possible, all classes you create should inherit from this,
