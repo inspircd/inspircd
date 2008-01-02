@@ -262,7 +262,7 @@ public:
 				user->WriteServ("381 %s :You are now %s %s",user->nick, strchr("aeiouAEIOU", type[0]) ? "an" : "a", irc::Spacify(type.c_str()));
 
 				if (!user->modes[UM_OPERATOR])
-					user->Oper(type);
+					user->Oper(type, tname);
 
 				return true;
 			}
