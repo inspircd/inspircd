@@ -30,15 +30,6 @@ class cmd_clones : public command_t
 		syntax = "<limit>";
 	}
 
-	std::string FindMatchingIP(const irc::string &ipaddr)
-	{
-		std::string n = assign(ipaddr);
-		for (user_hash::const_iterator a = ServerInstance->clientlist->begin(); a != ServerInstance->clientlist->end(); a++)
-			if (a->second->GetIPString() == n)
-				return a->second->GetFullRealHost();
-		return "<?>";
-	}
-
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 
@@ -49,7 +40,7 @@ class cmd_clones : public command_t
 		/*
 		 * Syntax of a /clones reply:
 		 *  :server.name 304 target :CLONES START
-		 *  :server.name 304 target :CLONES <count> <ip> <fullhost>
+		 *  :server.name 304 target :CLONES <count> <ip>
 		 *  :server.name 304 target :CHECK END
 		 */
 
@@ -59,7 +50,7 @@ class cmd_clones : public command_t
 		for (clonemap::iterator x = ServerInstance->global_clones.begin(); x != ServerInstance->global_clones.end(); x++)
 		{
 			if (x->second >= limit)
-				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + assign(x->first) + " " + FindMatchingIP(x->first));
+				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + assign(x->first));
 		}
 
 		user->WriteServ(clonesstr + " END");
