@@ -888,7 +888,7 @@ class CoreExport User : public connection
 	 * This will also give the +o usermode.
 	 * @param opertype The oper type to oper as
 	 */
-	void Oper(const std::string &opertype);
+	void Oper(const std::string &opertype, const std::string &opername);
 
 	/** Call this method to find the matching <connect> for a user, and to check them against it.
 	 */

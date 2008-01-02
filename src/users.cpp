@@ -647,7 +647,7 @@ const char* User::GetWriteError()
 	return this->WriteError.c_str();
 }
 
-void User::Oper(const std::string &opertype)
+void User::Oper(const std::string &opertype, const std::string &opername)
 {
 	char* mycmd;
 	char* savept;
@@ -692,7 +692,7 @@ void User::Oper(const std::string &opertype)
 			free(Classes);
 		}
 
-		FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype));
+		FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype, opername));
 	}
 
 	catch (...)

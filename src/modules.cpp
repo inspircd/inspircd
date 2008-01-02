@@ -120,7 +120,7 @@ int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&) { return 
 void		Module::OnMode(User*, void*, int, const std::string&) { }
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR,-1); }
 void		Module::OnOper(User*, const std::string&) { }
-void		Module::OnPostOper(User*, const std::string&) { }
+void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }
 void		Module::OnWhois(User*, User*) { }
 int		Module::OnUserPreInvite(User*, User*, Channel*) { return 0; }

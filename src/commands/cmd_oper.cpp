@@ -108,7 +108,7 @@ CmdResult CommandOper::Handle (const char** parameters, int, User *user)
 		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick,user->ident,user->host,irc::Spacify(OperType),parameters[0]);
 		user->WriteServ("381 %s :You are now %s %s",user->nick, strchr("aeiouAEIOU", *OperType) ? "an" : "a", irc::Spacify(OperType));
 		if (!user->IsModeSet('o'))
-			user->Oper(OperType);
+			user->Oper(OperType, LoginName);
 	}
 	else
 	{
