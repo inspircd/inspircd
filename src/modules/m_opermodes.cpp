@@ -57,47 +57,68 @@ class ModuleModesOnOper : public Module
 		for (int j =0; j < Conf->Enumerate("type"); j++)
 		{
 			std::string typen = Conf->ReadValue("type","name",j);
-			if (!strcmp(typen.c_str(),user->oper))
+			if (typen == user->oper)
 			{
 				std::string ThisOpersModes = Conf->ReadValue("type","modes",j);
 				if (!ThisOpersModes.empty())
 				{
-					char first = *(ThisOpersModes.c_str());
-					if ((first != '+') && (first != '-'))
-						ThisOpersModes = "+" + ThisOpersModes;
-
-					std::string buf;
-					stringstream ss(ThisOpersModes);
-					vector<string> tokens;
-
-					// split ThisOperModes into modes and mode params
-					while (ss >> buf)
-						tokens.push_back(buf);
-
-					int size = tokens.size() + 1;
-					const char** modes = new const char*[size];
-					modes[0] = user->nick;
-
-					// process mode params
-					int i = 1;
-					for (unsigned int k = 0; k < tokens.size(); k++)
-					{
-						modes[i] = tokens[k].c_str();
-						i++;
-					}
-
-					std::deque<std::string> n;
-					Event rmode((char *)&n, NULL, "send_mode_explicit");
-					for (unsigned int j = 0; j < tokens.size(); j++)
-						n.push_back(modes[j]);
-
-					rmode.Send(ServerInstance);
-					ServerInstance->SendMode(modes, size, user);
-					delete [] modes;
+					ApplyModes(user, ThisOpersModes);
 				}
 				break;
 			}
 		}
+
+		if (!opername.empty()) // if user is local ..
+		{
+			for (int j = 0; j < Conf->Enumerate("oper"); j++)
+			{
+				if (opername == Conf->ReadValue("oper", "name", j))
+				{
+					std::string ThisOpersModes = Conf->ReadValue("oper", "modes", j);
+					if (!ThisOpersModes.empty())
+					{
+						ApplyModes(user, ThisOpersModes);
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	void ApplyModes(User *u, std::string &smodes)
+	{
+		char first = *(smodes.c_str());
+		if ((first != '+') && (first != '-'))
+			smodes = "+" + smodes;
+
+		std::string buf;
+		stringstream ss(smodes);
+		vector<string> tokens;
+
+		// split into modes and mode params
+		while (ss >> buf)
+			tokens.push_back(buf);
+
+		int size = tokens.size() + 1;
+		const char** modes = new const char*[size];
+		modes[0] = u->nick;
+
+		// process mode params
+		int i = 1;
+		for (unsigned int k = 0; k < tokens.size(); k++)
+		{
+			modes[i] = tokens[k].c_str();
+			i++;
+		}
+
+		std::deque<std::string> n;
+		Event rmode((char *)&n, NULL, "send_mode_explicit");
+		for (unsigned int j = 0; j < tokens.size(); j++)
+			n.push_back(modes[j]);
+
+		rmode.Send(ServerInstance);
+		ServerInstance->SendMode(modes, size, u);
+		delete [] modes;
 	}
 };
 
