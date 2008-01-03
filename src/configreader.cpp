@@ -532,9 +532,11 @@ bool InitConnect(ServerConfig* conf, const char*)
 			conf->Classes.erase(i);
 			i = conf->Classes.begin(); // start over so we don't trample on a bad iterator
 		}
-
-		/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
-		c->SetDisabled(true);
+		else
+		{
+			/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
+			c->SetDisabled(true);
+		}
 	}
 
 	return true;
