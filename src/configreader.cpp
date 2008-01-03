@@ -478,13 +478,7 @@ bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &dat
 
 bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	int sid = data.GetInteger();
-	if ((sid > 999) || (sid < 0))
-	{
-		sid = sid % 1000;
-		data.Set(sid);
-		conf->GetInstance()->Log(DEFAULT,"WARNING: Server ID is less than 0 or greater than 999. Set to %d", sid);
-	}
+//	std::string  sid = data.GetString();
 	return true;
 }
 
@@ -801,7 +795,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME, ValidateServerName},
 		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
 		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_NOSPACES, NoValidation},
-		{"server",	"id",		"0",			new ValueContainerInt  (&this->sid),			DT_NOSPACES, ValidateSID},
+		{"server",	"id",		"",			new ValueContainerChar (this->sid),			DT_CHARPTR,  ValidateSID},
 		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR,  NoValidation},
 		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR,  NoValidation},
 		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR,  NoValidation},
@@ -2095,11 +2089,7 @@ InspIRCd* ServerConfig::GetInstance()
 
 std::string ServerConfig::GetSID()
 {
-	std::string OurSID;
-	OurSID += (char)((sid / 100) + 48);
-	OurSID += (char)((sid / 10) % 10 + 48);
-	OurSID += (char)(sid % 10 + 48);
-	return OurSID;
+	return sid;
 }
 
 ValueItem::ValueItem(int value)
