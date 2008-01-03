@@ -483,20 +483,25 @@ InspIRCd::InspIRCd(int argc, char** argv)
          *   -- w00t
          */
         /* Generate SID */
-        size_t sid = 0;
         if (Config->sid)
         {
-                sid = Config->sid;
+		// already defined, don't bother
         }
         else
         {
+		// Generate one
+		size_t sid = 0;
+
                 for (const char* x = Config->ServerName; *x; ++x)
                         sid = 5 * sid + *x;
                 for (const char* y = Config->ServerDesc; *y; ++y)
                         sid = 5 * sid + *y;
                 sid = sid % 999;
 
-                Config->sid = sid;
+		Config->sid[0] = (char)(sid / 100 + 48);
+		Config->sid[1] = (char)(((sid / 10) % 10) + 48);
+		Config->sid[2] = (char)(sid % 10 + 48);
+                //Config->sid = sprintf("%u", sid);
         }
 
         this->InitialiseUID();
@@ -584,16 +589,17 @@ InspIRCd::InspIRCd(int argc, char** argv)
 /* moved to a function, as UID generation can call this also */
 void InspIRCd::InitialiseUID()
 {
-	int i;
-	size_t sid = Config->sid;
+	int i = 3;
 
-	current_uid[0] = sid / 100 + 48;
-	current_uid[1] = ((sid / 10) % 10) + 48;
-	current_uid[2] = sid % 10 + 48;
+	current_uid[0] = Config->sid[0];
+	current_uid[1] = Config->sid[1];
+	current_uid[2] = Config->sid[2];
 
 	/* Initialise UID */
 	for(i = 3; i < UUID_LENGTH - 1; i++)
 		current_uid[i] = 'A';
+
+	current_uid[UUID_LENGTH] = '\0';
 }
 
 int InspIRCd::Run()

@@ -613,7 +613,7 @@ class CoreExport ServerConfig : public Extensible
 	 * makes code simpler. 0AA, 1BB etc with letters are reserved
 	 * for services use.
 	 */
-	int sid;
+	char sid[MAXBUF];
 
 	/** Construct a new ServerConfig
 	 */
