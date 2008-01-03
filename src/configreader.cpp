@@ -521,14 +521,19 @@ bool InitConnect(ServerConfig* conf, const char*)
 		conf->GetInstance()->Log(DEBUG, "Address of class is %p", c);
 	}
 
-	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
+	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end() ; )
 	{
-		ConnectClass *c = *i;
+		ConnectClass* c = *i;
 
 		/* only delete a class with refcount 0 */
 		if (c->RefCount == 0)
 		{
 			conf->GetInstance()->Log(DEFAULT, "Removing connect class, refcount is 0!");
+			
+			/* This was causing a crash, because we'd set i to .begin() just here, but then the for loop's increment would
+			 * set it to .begin() + 1. Which if it was already the last thing in the list, wasn't good.
+			 * Now the increment is in the else { } below.
+			 */
 			conf->Classes.erase(i);
 			i = conf->Classes.begin(); // start over so we don't trample on a bad iterator
 		}
@@ -536,6 +541,7 @@ bool InitConnect(ServerConfig* conf, const char*)
 		{
 			/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
 			c->SetDisabled(true);
+			i++;
 		}
 	}
 
@@ -2291,4 +2297,3 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 	conf->GetInstance()->XLines->CheckELines();
 	return true;
 }
-
