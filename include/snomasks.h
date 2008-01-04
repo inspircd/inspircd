@@ -20,6 +20,27 @@
 #include "configreader.h"
 #include "inspircd.h"
 
+class Snomask
+{
+	private:
+		InspIRCd *ServerInstance;
+	public:
+		char MySnomask;
+		std::string Description;
+//		std::string LastMessage;
+//		unsigned int Count;
+
+	/** Create a new Snomask
+	 */
+	Snomask(InspIRCd* Instance, char snomask, const std::string &description)
+	{
+		MySnomask = snomask;
+		Description = description;
+	}
+
+	
+};
+
 /** A list of snomasks which are valid, and their descriptive texts
  */
 typedef std::map<char, std::string> SnoList;
@@ -34,9 +55,11 @@ class CoreExport SnomaskManager : public Extensible
 	/** Creator/owner
 	 */
 	InspIRCd* ServerInstance;
+
 	/** Currently active snomask list
 	 */
 	SnoList SnoMasks;
+
 	/** Set up the default (core available) snomask chars
 	 */
 	void SetupDefaults();
@@ -44,6 +67,7 @@ class CoreExport SnomaskManager : public Extensible
 	/** Create a new SnomaskManager
 	 */
 	SnomaskManager(InspIRCd* Instance);
+
 	/** Delete SnomaskManager
 	 */
 	~SnomaskManager();
@@ -58,23 +82,37 @@ class CoreExport SnomaskManager : public Extensible
 	 * exists.
 	 */
 	bool EnableSnomask(char letter, const std::string &description);
+
 	/** Disable a snomask.
 	 * @param letter The snomask letter to disable.
 	 * @return True if the snomask was disabled, false if it didn't
 	 * exist.
 	 */
 	bool DisableSnomask(char letter);
+
 	/** Write to all users with a given snomask.
 	 * @param letter The snomask letter to write to
 	 * @param text The text to send to the users
 	 */
 	void WriteToSnoMask(char letter, const std::string &text);
+
 	/** Write to all users with a given snomask.
 	 * @param letter The snomask letter to write to
 	 * @param text A format string containing text to send
 	 * @param ... Format arguments
 	 */
 	void WriteToSnoMask(char letter, const char* text, ...);
+
+	/** Called once per 5 seconds from the mainloop, this flushes any cached
+	 * snotices. The way the caching works is as follows:
+	 * Calls to WriteToSnoMask write to a cache, if the call is the same as it was
+	 * for the previous call, then a count is incremented. If it is different,
+	 * the previous message it just sent normally via NOTICE (with count if > 1)
+	 * and the new message is cached. This acts as a sender in case the number of notices
+	 * is not particularly significant, in order to keep notices going out.
+	 */
+	void FlushSnotices();
+
 	/** Check if a snomask is enabled.
 	 * @param letter The snomask letter to check.
 	 * @return True if the snomask has been enabled.
