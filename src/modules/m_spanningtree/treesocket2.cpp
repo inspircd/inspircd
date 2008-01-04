@@ -1641,7 +1641,8 @@ void TreeSocket::OnTimeout()
 
 void TreeSocket::OnClose()
 {
-	if (this->LinkState == LISTENER)
+	// Test fix for big fuckup
+	if (this->LinkState != CONNECTED)
 		return;
 
 	// Connection closed.
