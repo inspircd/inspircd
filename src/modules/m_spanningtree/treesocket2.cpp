@@ -1381,10 +1381,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "ADDLINE")
 			{
-				TreeServer* ServerSource = Utils->FindServer(prefix);
-				if (ServerSource)
-					Utils->SetRemoteBursting(ServerSource, false);
-				return this->AddLine(prefix,params);
+//				TreeServer* ServerSource = Utils->FindServer(prefix);
+//				if (ServerSource)
+//					Utils->SetRemoteBursting(ServerSource, false);
+//				return this->AddLine(prefix,params);
 			}
 			else if (command == "DELLINE")
 			{
