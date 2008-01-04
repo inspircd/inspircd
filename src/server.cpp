@@ -77,7 +77,7 @@ std::string InspIRCd::GetVersionString()
 	}
 	else
 	{
-		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%s,%s,%d]",VERSION,Config->ServerName,SYSTEM,REVISION,SE->GetName().c_str(),Config->sid);
+		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%s,%s,%s]",VERSION,Config->ServerName,SYSTEM,REVISION,SE->GetName().c_str(),Config->sid);
 	}
 	return versiondata;
 }
