@@ -14,13 +14,17 @@
 #ifndef __TYPEDEF_H__
 #define __TYPEDEF_H__
 
+
 #include <string>
 #include "inspircd_config.h"
 #include "hash_map.h"
+#include "users.h"
+#include "channels.h"
 #include "hashcomp.h"
-
-class User;
-class Channel;
+#include "inspstring.h"
+#include "ctables.h"
+#include "modules.h"
+#include "globals.h"
 
 #ifndef WIN32
 /** User hash (POSIX systems with GCC)
