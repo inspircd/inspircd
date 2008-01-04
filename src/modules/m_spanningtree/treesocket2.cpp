@@ -525,12 +525,18 @@ bool TreeSocket::ChangeHost(const std::string &prefix, std::deque<std::string> &
 bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() < 6)
+	{
+		this->Instance->SNO->WriteToSnoMask('x',"%s sent me a malformed ADDLINE of type %s.",prefix.c_str(),params[0].c_str());
 		return true;
+	}
 
 	XLineFactory* xlf = Instance->XLines->GetFactory(params[0]);
 
 	if (!xlf)
-		return false;
+	{
+		this->Instance->SNO->WriteToSnoMask('x',"%s sent me an unknown ADDLINE type (%s).",prefix.c_str(),params[0].c_str());
+		return true;
+	}
 
 	XLine* xl = xlf->Generate(Instance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 	xl->SetCreateTime(atoi(params[3].c_str()));
@@ -1381,10 +1387,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "ADDLINE")
 			{
-//				TreeServer* ServerSource = Utils->FindServer(prefix);
-//				if (ServerSource)
-//					Utils->SetRemoteBursting(ServerSource, false);
-//				return this->AddLine(prefix,params);
+				TreeServer* ServerSource = Utils->FindServer(prefix);
+				if (ServerSource)
+					Utils->SetRemoteBursting(ServerSource, false);
+				return this->AddLine(prefix,params);
 			}
 			else if (command == "DELLINE")
 			{
