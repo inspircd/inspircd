@@ -22,13 +22,13 @@
 
 class Snomask
 {
-	private:
-		InspIRCd *ServerInstance;
-	public:
-		char MySnomask;
-		std::string Description;
-//		std::string LastMessage;
-//		unsigned int Count;
+ private:
+	InspIRCd *ServerInstance;
+ public:
+	char MySnomask;
+	std::string Description;
+//	std::string LastMessage;
+//	unsigned int Count;
 
 	/** Create a new Snomask
 	 */

@@ -1146,8 +1146,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 
 		if (pass == 0)
 		{
-			if (isatty(0) && isatty(1) && isatty(2))
-				printf("Downloading configuration ");
+			ServerInstance->Log(DEBUG, "Downloading configuration");
 
 			TotalDownloaded = 0;
 			FileErrors = 0;
