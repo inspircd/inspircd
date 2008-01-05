@@ -25,9 +25,6 @@ class Snomask
  private:
 	InspIRCd *ServerInstance;
 
-	/** Sends out a pending message
-	 */
-	void Flush();
  public:
 	char MySnomask;
 	std::string Description;
@@ -46,6 +43,10 @@ class Snomask
 	/** Sends a message to all opers with this snomask.
 	 */
 	void SendMessage(const std::string &message);
+
+	/** Sends out a pending message
+	 */
+	void Flush();
 };
 
 /** A list of snomasks which are valid, and their descriptive texts

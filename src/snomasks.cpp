@@ -30,6 +30,10 @@ SnomaskManager::~SnomaskManager()
 void SnomaskManager::FlushSnotices()
 {
 	// stub.. not yet written XXX
+	for (std::map<char, Snomask *>::iterator i = SnoMasks.begin(); i != SnoMasks.end(); i++)
+	{
+		i->second->Flush();
+	}
 }
 
 bool SnomaskManager::EnableSnomask(char letter, const std::string &type)
@@ -106,7 +110,6 @@ void Snomask::SendMessage(const std::string &message)
 	{
 		this->Flush();
 		LastMessage = message;
-		Count = 1;
 	}
 	else
 	{
@@ -134,4 +137,7 @@ void Snomask::Flush()
 			}
 		}
 	}
+
+	LastMessage = "";
+	Count = 1;
 }
