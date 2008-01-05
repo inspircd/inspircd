@@ -29,14 +29,15 @@ SnomaskManager::~SnomaskManager()
 
 void SnomaskManager::FlushSnotices()
 {
-
+	// stub.. not yet written XXX
 }
 
 bool SnomaskManager::EnableSnomask(char letter, const std::string &type)
 {
 	if (SnoMasks.find(letter) == SnoMasks.end())
 	{
-		SnoMasks[letter] = type;
+		Snomask *s = new Snomask(ServerInstance, letter, type);
+		SnoMasks[letter] = s;
 		return true;
 	}
 	return false;
@@ -47,6 +48,7 @@ bool SnomaskManager::DisableSnomask(char letter)
 	SnoList::iterator n = SnoMasks.find(letter);
 	if (n != SnoMasks.end())
 	{
+		delete n->second; // destroy the snomask
 		SnoMasks.erase(n);
 		return true;
 	}
@@ -59,16 +61,7 @@ void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
 	SnoList::iterator n = SnoMasks.find(letter);
 	if (n != SnoMasks.end())
 	{
-		/* Only opers can receive snotices, so we iterate the oper list */
-		for (std::list<User*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
-		{
-			User* a = *i;
-			if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(n->first))
-			{
-				/* send server notices to all with +ns */
-				a->WriteServ("NOTICE %s :*** %s: %s",a->nick, n->second.c_str(), text.c_str());
-			}
-		}
+		n->second->SendMessage(text);
 	}
 }
 
@@ -105,3 +98,35 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('f',"FLOOD");			/* Flooding notices */
 }
 
+/*************************************************************************************/
+
+void Snomask::SendMessage(const std::string &message)
+{
+	if (message != LastMessage)
+	{
+		this->Flush();
+		LastMessage = message;
+		Count = 1;
+	}
+	else
+	{
+		Count++;
+	}
+}
+
+void Snomask::Flush()
+{
+	/* Only opers can receive snotices, so we iterate the oper list */
+	for (std::list<User*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
+	{
+		User* a = *i;
+		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(MySnomask))
+		{
+			a->WriteServ("NOTICE %s :*** %s: %s", a->nick, this->Description.c_str(), this->LastMessage.c_str());
+			if (Count > 1)
+			{
+				a->WriteServ("NOTICE %s :*** %s: (last message repeated %u times)", a->nick, this->Description.c_str(), Count);
+			}
+		}
+	}
+}

@@ -24,11 +24,15 @@ class Snomask
 {
  private:
 	InspIRCd *ServerInstance;
+
+	/** Sends out a pending message
+	 */
+	void Flush();
  public:
 	char MySnomask;
 	std::string Description;
-//	std::string LastMessage;
-//	unsigned int Count;
+	std::string LastMessage;
+	unsigned int Count;
 
 	/** Create a new Snomask
 	 */
@@ -38,12 +42,14 @@ class Snomask
 		Description = description;
 	}
 
-	
+	/** Sends a message to all opers with this snomask.
+	 */
+	void SendMessage(const std::string &message);
 };
 
 /** A list of snomasks which are valid, and their descriptive texts
  */
-typedef std::map<char, std::string> SnoList;
+typedef std::map<char, Snomask *> SnoList;
 
 /** Snomask manager handles routing of SNOMASK (usermode +n) messages to opers.
  * Modules and the core can enable and disable snomask characters. If they do,
