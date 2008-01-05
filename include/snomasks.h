@@ -38,6 +38,7 @@ class Snomask
 	 */
 	Snomask(InspIRCd* Instance, char snomask, const std::string &description)
 	{
+		ServerInstance = Instance;
 		MySnomask = snomask;
 		Description = description;
 	}
