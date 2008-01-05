@@ -38,8 +38,7 @@ class cmd_taxonomy : public command_t
 		if (dest)
 		{
 			std::deque<std::string> list;
-			list.clear();
-			user->GetExtList(list);
+			dest->GetExtList(list);
 			user->WriteServ("304 " + std::string(user->nick) + ":TAXONOMY ITEMS " + std::string(dest->nick) + " " +ConvToStr(list.size()));
 			for (unsigned int j = 0; j < list.size(); j++)
 			{
