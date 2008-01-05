@@ -133,6 +133,7 @@ std::string& TreeServer::GetID()
 
 void TreeServer::SetID(const std::string &id)
 {
+	ServerInstance->Log(DEBUG, "Setting SID to " + id);
 	sid = id;
 	server_hash::iterator iter = Utils->sidlist.find(sid);
 	if (iter == Utils->sidlist.end())

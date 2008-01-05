@@ -652,6 +652,7 @@ int InspIRCd::Run()
 			{
 				FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 				Timers->TickMissedTimers(TIME);
+				SNO->FlushSnotices();
 			}
 #ifndef WIN32
 			/* Same change as in cmd_stats.cpp, use RUSAGE_SELF rather than '0' -- Om */

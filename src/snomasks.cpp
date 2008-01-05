@@ -27,6 +27,11 @@ SnomaskManager::~SnomaskManager()
 {
 }
 
+void SnomaskManager::FlushSnotices()
+{
+
+}
+
 bool SnomaskManager::EnableSnomask(char letter, const std::string &type)
 {
 	if (SnoMasks.find(letter) == SnoMasks.end())
