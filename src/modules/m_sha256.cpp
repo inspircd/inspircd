@@ -186,7 +186,26 @@ class ModuleSHA256 : public Module
 	
 	void SHA256Update(SHA256Context *ctx, unsigned char *message, unsigned int len)
 	{
-		unsigned int rem_len = SHA256_BLOCK_SIZE - ctx->len;
+		/*
+		 * XXX here be dragons!
+		 * After many hours of pouring over this, I think I've found the problem.
+		 * When Special created our module from the reference one, he used:
+		 *
+		 *     unsigned int rem_len = SHA256_BLOCK_SIZE - ctx->len;
+		 *
+		 * instead of the reference's version of:
+		 *
+		 *     unsigned int tmp_len = SHA256_BLOCK_SIZE - ctx->len;
+		 *     unsigned int rem_len = len < tmp_len ? len : tmp_len;
+		 *
+		 * I've changed back to the reference version of this code, and it seems to work with no errors.
+		 * So I'm inclined to believe this was the problem..
+		 *             -- w00t (January 06, 2008)
+		 */
+		unsigned int tmp_len = SHA256_BLOCK_SIZE - ctx->len;
+		unsigned int rem_len = len < tmp_len ? len : tmp_len;
+
+		
 		memcpy(&ctx->block[ctx->len], message, rem_len);
 		if (ctx->len + len < SHA256_BLOCK_SIZE)
 		{
