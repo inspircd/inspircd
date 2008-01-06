@@ -18,12 +18,19 @@
 #include "wildcard.h"
 #include "mode.h"
 
-Channel::Channel(InspIRCd* Instance) : ServerInstance(Instance)
+Channel::Channel(InspIRCd* Instance, const std::string &name, time_t ts) : ServerInstance(Instance)
 {
-	*name = *topic = *setby = *key = 0;
-	maxbans = created = topicset = limit = 0;
+	(*(ServerInstance->chanlist))[name.c_str()] = this;
+	strlcpy(this->name, name.c_str(), CHANMAX);
+	this->created = ts ? ts : ServerInstance->Time(true);
+	this->age = this->created;
+
+
+
+
+	*topic = *setby = *key = 0;
+	maxbans = topicset = limit = 0;
 	memset(&modes,0,64);
-	age = ServerInstance->Time(true);
 }
 
 void Channel::SetMode(char mode,bool mode_on)
@@ -271,7 +278,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 				return NULL;
 		}
 
-		Ptr = Channel::CreateChannel(Instance, cname, TS);
+		Ptr = new Channel(Instance, cname, TS);
 	}
 	else
 	{
@@ -350,18 +357,6 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		Ptr->SetDefaultModes();
 
 	return Channel::ForceChan(Instance, Ptr, user, privs, bursting);
-}
-
-Channel *Channel::CreateChannel(InspIRCd *ServerInstance, const std::string &name, time_t ts)
-{
-	/* create a new one */
-	Channel *c = new Channel(ServerInstance);
-	(*(ServerInstance->chanlist))[name.c_str()] = c;
-
-	strlcpy(c->name, name.c_str(), CHANMAX);
-	c->created = ts ? ts : ServerInstance->Time();
-	c->age = c->created;
-	return c;
 }
 
 Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting)

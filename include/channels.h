@@ -135,6 +135,11 @@ class CoreExport Channel : public Extensible
 	int maxbans;
 
  public:
+	/** Creates a channel record and initialises it with default values
+	 * @throw Nothing at present.
+	 */
+	Channel(InspIRCd* Instance, const std::string &name, time_t ts);
+
 	/** The channel's name.
 	 */
 	char name[CHANMAX];
@@ -331,11 +336,6 @@ class CoreExport Channel : public Extensible
 	 */
 	bool HasUser(User* user);
 
-	/** Creates a channel record and initialises it with default values
-	 * @throw Nothing at present.
-	 */
-	Channel(InspIRCd* Instance);
-
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
 	 * @param user The user being kicked (must be on this channel)
@@ -373,14 +373,6 @@ class CoreExport Channel : public Extensible
 	 * If the user could not be joined to a channel, the return value may be NULL.
 	 */
 	static Channel* JoinUser(InspIRCd* ServerInstance, User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS = 0);
-
-	/*
-	 * Create a channel record, and insert it into the hash.
-	 * @param name The channel name
-	 * @param ts The channel timestamp
-	 * @return A pointer to the newly created Channel object.
-	 */
-	static Channel *CreateChannel(InspIRCd *ServerInstance, const std::string &name, time_t ts = 0);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with
