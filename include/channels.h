@@ -93,9 +93,6 @@ enum UserChannelModes {
 	UCMODE_HOP	= 4	/* Halfopped user */
 };
 
-/* Forward declaration -- required */
-class InspIRCd;
-
 /** A stored prefix and its rank
  */
 typedef std::pair<char, unsigned int> prefixtype;
