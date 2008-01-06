@@ -1095,7 +1095,7 @@ class CoreExport Module : public Extensible
 	 * @param pcnt The parameter count for the mode (0 or 1)
 	 * @return 1 to deny the mode, 0 to allow
 	 */
-	virtual int OnRawMode(User* user, Channel* chan, char mode, const std::string &param, bool adding, int pcnt);
+	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and

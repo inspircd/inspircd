@@ -306,6 +306,11 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 		{
 			unsigned char mletter = *mode;
 
+			int MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, *mode, "", true, 0));
+			if (MOD_RESULT == ACR_DENY)
+				continue;
+
 			if (*mode == '+')
 			{
 				mode++;
@@ -501,6 +506,11 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 									continue;
 								}
 
+								int MOD_RESULT = 0;
+								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, parameter, adding, 1));
+								if (MOD_RESULT == ACR_DENY)
+									return;
+
 								bool had_parameter = !parameter.empty();
 								
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
@@ -523,6 +533,11 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 							}
 							else
 							{
+								int MOD_RESULT = 0;
+								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, "", adding, 0));
+								if (MOD_RESULT == ACR_DENY)
+									return;
+
 								/* Fix by brain: mode watchers not being called for parameterless modes */
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
