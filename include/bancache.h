@@ -34,6 +34,16 @@ class CoreExport BanCacheHit : public classbase
 		this->IP = ip;
 		this->Expiry = time(NULL) + 60; // XXX changeme
 	}
+
+	// overridden to allow custom time
+	BanCacheHit(InspIRCd *Instance, const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
+	{
+		ServerInstance = Instance;
+		this->Type = type;
+		this->Reason = reason;
+		this->IP = ip;
+		this->Expiry = time(NULL) + seconds;
+	}
 };
 
 // must be defined after class BanCacheHit.
