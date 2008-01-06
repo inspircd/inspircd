@@ -33,46 +33,73 @@
 cmd_rsquit::cmd_rsquit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RSQUIT", 'o', 1), Creator(Callback), Utils(Util)
 {
 	this->source = "m_spanningtree.so";
-	syntax = "<remote-server-mask> [reason]";
+	syntax = "<remote-server-mask> [target-server-mask]";
 }
 
 CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, User *user)
 {
-	TreeServer *server_target; // one to squit
-	TreeServer *server_linked; // one it's linked to
-
-	server_target = Utils->FindServerMask(parameters[0]);
-	if (!server_target)
+	if (IS_LOCAL(user))
 	{
-		user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0]);
-		return CMD_FAILURE;
-	}
-
-	server_linked = server_target->GetParent();
-	user->WriteServ("NOTICE %s :*** RSQUIT: Sending instruction to squit server \002%s\002 to parent server \002%s\002.",user->nick, server_target->GetName().c_str(), server_linked->GetName().c_str());
-
-	if (server_linked == Utils->TreeRoot)
-	{
-		// I have been asked to remove the server.
-		if (server_target == Utils->TreeRoot)
+		if (!Utils->FindServerMask(parameters[0]))
 		{
-			NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[0])+" matches local server name)");
+			user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
+		if (pcnt > 1)
+			user->WriteServ("NOTICE %s :*** RSQUIT: Sending remote squit to \002%s\002 to squit server \002%s\002.",user->nick,parameters[0],parameters[1]);
+		else
+			user->WriteServ("NOTICE %s :*** RSQUIT: Sending remote squit for server \002%s\002.",user->nick,parameters[0]);
+	}
 
-		TreeSocket* sock = server_target->GetSocket();
-		if (sock)
+	TreeServer* s = (pcnt > 1) ? Utils->FindServerMask(parameters[1]) : Utils->FindServerMask(parameters[0]);
+
+	if (pcnt > 1)
+	{
+		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
 		{
-			const char *reason = pcnt == 2 ? parameters[1] : "No reason";
-			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0], user->nick, reason);
-			sock->Squit(server_target, std::string("Server quit by ") + user->GetFullRealHost() + " (" + reason + ")");
-			ServerInstance->SE->DelFd(sock);
-			sock->Close();
-			return CMD_LOCALONLY;
+			if (s)
+			{
+				if (s == Utils->TreeRoot)
+				{
+					NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[1])+" matches local server name)");
+					return CMD_FAILURE;
+				}
+				TreeSocket* sock = s->GetSocket();
+				if (!sock)
+				{
+					NoticeUser(user, "*** RSQUIT: Server \002"+ConvToStr(parameters[1])+"\002 isn't connected to \002"+ConvToStr(parameters[0])+"\002.");
+					return CMD_FAILURE;
+				}
+				ServerInstance->SNO->WriteToSnoMask('l',"Remote SQUIT from %s matching \002%s\002, squitting server \002%s\002",user->nick,parameters[0],parameters[1]);
+				const char* para[1];
+				para[0] = parameters[1];
+				std::string original_command = std::string("SQUIT ") + parameters[1];
+				Creator->OnPreCommand("SQUIT", para, 1, user, true, original_command);
+				return CMD_LOCALONLY;
+			}
+		}
+	}
+	else
+	{
+		if (s)
+		{
+			if (s == Utils->TreeRoot)
+			{
+				NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[0])+" matches local server name)");
+				return CMD_FAILURE;
+			}
+			TreeSocket* sock = s->GetSocket();
+			if (sock)
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
+				sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
+				ServerInstance->SE->DelFd(sock);
+				sock->Close();
+				return CMD_LOCALONLY;
+			}
 		}
 	}
 
-	// Route the RSQUIT, no match yet.
 	return CMD_SUCCESS;
 }
 
