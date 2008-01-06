@@ -140,6 +140,7 @@ bool		Module::OnCheckReady(User*) { return true; }
 int		Module::OnUserRegister(User*) { return 0; }
 int		Module::OnUserPreKick(User*, User*, Channel*, const std::string&) { return 0; }
 void		Module::OnUserKick(User*, User*, Channel*, const std::string&, bool&) { }
+int		Module::OnRawMode(User*, Channel*, char, const std::string &, bool, int) { return 0; }
 int		Module::OnCheckInvite(User*, Channel*) { return 0; }
 int		Module::OnCheckKey(User*, Channel*, const std::string&) { return 0; }
 int		Module::OnCheckLimit(User*, Channel*) { return 0; }

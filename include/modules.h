@@ -395,7 +395,7 @@ enum Implementation
 	I_OnGetServerDescription, I_OnSyncUser, I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData,
 	I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddLine,
 	I_OnDelLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
-	I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnUserRrgister, I_OnCheckInvite,
+	I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite, I_OnRawMode,
 	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
@@ -1084,6 +1084,18 @@ class CoreExport Module : public Extensible
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
 	virtual int OnCheckInvite(User* user, Channel* chan);
+
+	/** Called whenever a mode character is processed.
+	 * Return 1 from this function to block the mode character from being processed entirely.
+	 * @param user The user who is sending the mode
+	 * @param chan The channel the mode is being sent to (or NULL if a usermode)
+	 * @param mode The mode character being set
+	 * @param param The parameter for the mode or an empty string
+	 * @param adding true of the mode is being added, false if it is being removed
+	 * @param pcnt The parameter count for the mode (0 or 1)
+	 * @return 1 to deny the mode, 0 to allow
+	 */
+	virtual int OnRawMode(User* user, Channel* chan, char mode, const std::string &param, bool adding, int pcnt);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and
