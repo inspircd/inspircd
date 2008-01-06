@@ -780,21 +780,23 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	 * they wont as their timestamp will be too high :-)
 	 */
 
-	if (params.size() < 3)
+	if (params.size() < 2)
 		return true;
 
 	irc::modestacker modestack(true);				/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
-	irc::tokenstream users(params[2]);				/* Users from the user list */
+	irc::tokenstream users((params.size() > 2) ? params[2] : "");   /* users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
 	Channel* chan = this->Instance->FindChan(channel);		/* The channel we're sending joins to */
 	time_t ourTS = chan ? chan->age : Instance->Time(true)+600;	/* The TS of our side of the link */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
-	params[2] = ":" + params[2];
+	if (params.size() > 2)
+		params[2] = ":" + params[2];
+		
 	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
         if (!TS)
@@ -803,6 +805,9 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", source.c_str());
 		return true;
 	}
+
+	if (created)
+		chan = new Channel(Instance, channel, ourTS);
 
 	/* If our TS is less than theirs, we dont accept their modes */
 	if (ourTS < TS)
@@ -1145,7 +1150,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 
 	size_t dlen, curlen;
 	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age);
-	int numusers = 0;
+	int numusers = 1;
 	char* ptr = list + dlen;
 
 	CUList *ulist = c->GetUsers();

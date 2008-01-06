@@ -64,16 +64,13 @@ CmdResult CommandList::Handle (const char** parameters, int pcnt, User *user)
 		bool n = i->second->HasUser(user);
 		if ((i->second->IsModeSet('p')) && (!n))
 		{
-			if (users)
-				user->WriteServ("322 %s *",user->nick,i->second->name);
+			user->WriteServ("322 %s *",user->nick,i->second->name);
 		}
 		else
 		{
 			if (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('s')))) || (n))
 			{
-				long users = i->second->GetUserCounter();
-				if (users)
-					user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,users,i->second->ChanModes(n),i->second->topic);
+				user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,users,i->second->ChanModes(n),i->second->topic);
 			}
 		}
 	}
