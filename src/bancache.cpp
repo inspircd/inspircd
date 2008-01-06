@@ -87,9 +87,10 @@ unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positi
 		/* Safe to delete items here through iterator 'n' */
 		if (b->Type == type)
 		{
-			if ((positive && !b->Reason.empty()) || b->Reason.empty())
+			if ((positive && !b->Reason.empty()) || !positive && b->Reason.empty())
 			{
 				/* we need to remove this one. */
+				ServerInstance->Log(DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + b->IP);
 				delete b;
 				b = NULL;
 				BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
