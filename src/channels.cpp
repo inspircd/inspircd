@@ -482,7 +482,11 @@ long Channel::PartUser(User *user, const char* reason)
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
+			int MOD_RESULT = 0;
+			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
+			if (MOD_RESULT == 1)
+				return 1; // delete halted by module
+			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
 		return 0;
@@ -528,7 +532,11 @@ long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents)
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
+			int MOD_RESULT = 0;
+			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
+			if (MOD_RESULT == 1)
+				return 1; // delete halted by module
+			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
 		return 0;
@@ -606,7 +614,11 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
+			int MOD_RESULT = 0;
+			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
+			if (MOD_RESULT == 1)
+				return 1; // delete halted by module
+			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
 		return 0;

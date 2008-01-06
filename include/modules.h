@@ -399,7 +399,7 @@ enum Implementation
 	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-	I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
+	I_OnOperCompare, I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
 	I_OnText, I_OnReadConfig, I_OnDownloadFile,
 	I_END
@@ -469,6 +469,12 @@ class CoreExport Module : public Extensible
 	 * @param user The user who is disconnecting
 	 */
 	virtual void OnUserDisconnect(User* user);
+
+	/** Called whenever a channel is about to be deleted
+	 * @param chan The channel being deleted
+	 * @return An integer specifying whether or not the channel may be deleted. 0 for yes, 1 for no.
+	 */
+	virtual int OnChannelPreDelete(Channel *chan);
 
 	/** Called whenever a channel is deleted, either by QUIT, KICK or PART.
 	 * @param chan The channel being deleted
@@ -899,12 +905,6 @@ class CoreExport Module : public Extensible
 	 * @param line the line being deleted
 	 */
 	virtual void OnDelLine(User* source, XLine* line);
-
-	/** Called whenever a zline is deleted.
-	 * This method is triggered after the line is deleted.
-	 * @param source The user removing the line
-	 * @param hostmask The hostmask to delete
-	 */
 
 	/** Called before your module is unloaded to clean up Extensibles.
 	 * This method is called once for every user and channel on the network,

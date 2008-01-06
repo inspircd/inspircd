@@ -180,6 +180,7 @@ void		Module::OnChangeName(User*, const std::string&) { }
 void		Module::OnAddLine(User*, XLine*) { }
 void		Module::OnDelLine(User*, XLine*) { }
 void 		Module::OnCleanup(int, void*) { }
+int		Module::OnChannelPreDelete(Channel*) { return 0; }
 void		Module::OnChannelDelete(Channel*) { }
 void		Module::OnSetAway(User*) { }
 void		Module::OnCancelAway(User*) { }
