@@ -77,6 +77,11 @@ unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positi
 
 	BanCacheHash::iterator safei;
 
+	if (positive)
+		ServerInstance->Log(DEBUG, "BanCacheManager::RemoveEntries(): Removing positive hits for " + type);
+	else
+		ServerInstance->Log(DEBUG, "BanCacheManager::RemoveEntries(): Removing negative hits for " + type);
+
 	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); )
 	{
 		safei = n;
@@ -85,9 +90,9 @@ unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positi
 		BanCacheHit *b = n->second;
 
 		/* Safe to delete items here through iterator 'n' */
-		if (b->Type == type)
+		if (b->Type == type || !positive) // if removing negative hits, ignore type..
 		{
-			if ((positive && !b->Reason.empty()) || !positive && b->Reason.empty())
+			if ((positive && !b->Reason.empty()) || b->Reason.empty())
 			{
 				/* we need to remove this one. */
 				ServerInstance->Log(DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + b->IP);

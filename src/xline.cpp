@@ -151,7 +151,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 {
 	/*IdentHostPair ih = IdentSplit(hostmask);*/
 
-	ServerInstance->BanCache->RemoveEntries(line->type, true);
+	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
 
 	if (DelLine(line->Displayable(), line->type, user, true))
 		return false;
@@ -183,7 +183,7 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 	if (simulate)
 		return true;
 
-	ServerInstance->BanCache->RemoveEntries(y->second->type, false);	
+	ServerInstance->BanCache->RemoveEntries(y->second->type, true);
 
 	FOREACH_MOD(I_OnDelLine,OnDelLine(user, y->second));
 
