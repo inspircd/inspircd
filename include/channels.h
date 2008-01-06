@@ -374,6 +374,14 @@ class CoreExport Channel : public Extensible
 	 */
 	static Channel* JoinUser(InspIRCd* ServerInstance, User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS = 0);
 
+	/*
+	 * Create a channel record, and insert it into the hash.
+	 * @param name The channel name
+	 * @param ts The channel timestamp
+	 * @return A pointer to the newly created Channel object.
+	 */
+	static Channel *CreateChannel(InspIRCd *ServerInstance, const std::string &name, time_t ts = 0);
+
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with
 	 * @param text A printf-style format string which builds the output line without prefix

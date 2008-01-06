@@ -271,21 +271,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 				return NULL;
 		}
 
-		/* create a new one */
-		Ptr = new Channel(Instance);
-		(*(Instance->chanlist))[cname] = Ptr;
-
-		strlcpy(Ptr->name, cname,CHANMAX);
-
-		/* As spotted by jilles, dont bother to set this on remote users */
-		if (IS_LOCAL(user))
-			Ptr->SetDefaultModes();
-
-		Ptr->created = TS ? TS : Instance->Time();
-		Ptr->age = Ptr->created;
-		*Ptr->topic = 0;
-		*Ptr->setby = 0;
-		Ptr->topicset = 0;
+		Ptr = Channel::CreateChannel(Instance, cname, TS);
 	}
 	else
 	{
@@ -359,7 +345,23 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		}
 	}
 
+	/* As spotted by jilles, dont bother to set this on remote users */
+	if (IS_LOCAL(user) && Ptr->GetUserCounter() == 1)
+		Ptr->SetDefaultModes();
+
 	return Channel::ForceChan(Instance, Ptr, user, privs, bursting);
+}
+
+Channel *Channel::CreateChannel(InspIRCd *ServerInstance, const std::string &name, time_t ts)
+{
+	/* create a new one */
+	Channel *c = new Channel(ServerInstance);
+	(*(ServerInstance->chanlist))[name.c_str()] = c;
+
+	strlcpy(c->name, name.c_str(), CHANMAX);
+	c->created = ts ? ts : ServerInstance->Time();
+	c->age = c->created;
+	return c;
 }
 
 Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting)
