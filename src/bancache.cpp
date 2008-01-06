@@ -20,7 +20,6 @@ BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &t
 {
 	BanCacheHit *b;
 
-
 	if (this->BanHash->find(ip) != this->BanHash->end()) // can't have two cache entries on the same IP, sorry..
 		return NULL;
 
@@ -37,7 +36,16 @@ BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
 	if (i == this->BanHash->end())
 		return NULL; // free and safe
 	else
+	{
+		if (time(NULL) > i->second->Expiry)
+		{
+			ServerInstance->Log(DEBUG, "Hit on " + ip + " is out of date, removing!");
+			RemoveHit(i->second);
+			return NULL; // out of date
+		}
+
 		return i->second; // hit.
+	}
 }
 
 bool BanCacheManager::RemoveHit(BanCacheHit *b)
@@ -63,7 +71,7 @@ bool BanCacheManager::RemoveHit(BanCacheHit *b)
 	return true;
 }
 
-int BanCacheManager::RemoveEntries(const std::string &type, bool positive)
+unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positive)
 {
 	int removed = 0;
 
@@ -84,7 +92,7 @@ int BanCacheManager::RemoveEntries(const std::string &type, bool positive)
 				/* we need to remove this one. */
 				delete b;
 				b = NULL;
-				BanHash->erase(n);
+				BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
 				removed++;
 			}
 		}
@@ -108,9 +116,20 @@ void BanCacheManager::RehashCache()
 		safei++;
 
 		/* Safe to delete items here through iterator 'n' */
+		BanCacheHit *b = n->second;
 
-		/* Actually inserts a std::pair */
-		NewHash->insert(*n);
+		if (time(NULL) > b->Expiry)
+		{
+			/* we need to remove this one. */
+			delete b;
+			b = NULL;
+			BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
+		}
+		else
+		{
+			/* Actually inserts a std::pair */
+			NewHash->insert(*n);
+		}
 
 		/* End of safe section */
 

@@ -24,6 +24,7 @@ class CoreExport BanCacheHit : public classbase
 	std::string Type;
 	std::string Reason;
 	std::string IP;
+	time_t Expiry;
 
 	BanCacheHit(InspIRCd *Instance, const std::string &ip, const std::string &type, const std::string &reason)
 	{
@@ -31,6 +32,7 @@ class CoreExport BanCacheHit : public classbase
 		this->Type = type;
 		this->Reason = reason;
 		this->IP = ip;
+		this->Expiry = time(NULL) + 60; // XXX changeme
 	}
 };
 
@@ -61,7 +63,7 @@ class CoreExport BanCacheManager : public classbase
 	 * @param type The type of bancache entries to remove (e.g. 'G')
 	 * @param positive Remove either positive (true) or negative (false) hits.
 	 */
-	int RemoveEntries(const std::string &type, bool positive);
+	unsigned int RemoveEntries(const std::string &type, bool positive);
 
 	BanCacheManager(InspIRCd *Instance)
 	{
