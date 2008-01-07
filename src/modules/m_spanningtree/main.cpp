@@ -63,6 +63,11 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnCancelAway, I_OnPostCommand
 	};
 	ServerInstance->Modules->Attach(eventlist, this, 29);
+
+	for (std::vector<User*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	{
+		this->OnPostConnect((*i));
+	}
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
