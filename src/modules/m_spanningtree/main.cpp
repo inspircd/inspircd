@@ -64,7 +64,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	};
 	ServerInstance->Modules->Attach(eventlist, this, 29);
 
-	for (std::vector<User*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
 		this->OnPostConnect((*i));
 	}
