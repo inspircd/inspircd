@@ -170,7 +170,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnChangeHost(User* user, const std::string &newhost);
 	virtual void OnChangeName(User* user, const std::string &gecos);
 	virtual void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent);
-	virtual void OnUserConnect(User* user);
+	virtual void OnPostConnect(User* user);
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
 	virtual void OnUserPostNick(User* user, const std::string &oldnick);
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);

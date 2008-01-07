@@ -57,7 +57,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
-		I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart, I_OnUserConnect,
+		I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart, I_OnPostConnect,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnCancelAway, I_OnPostCommand
@@ -619,7 +619,7 @@ void ModuleSpanningTree::OnUserPart(User* user, Channel* channel, const std::str
 	}
 }
 
-void ModuleSpanningTree::OnUserConnect(User* user)
+void ModuleSpanningTree::OnPostConnect(User* user)
 {
 	if (IS_LOCAL(user))
 	{
@@ -635,12 +635,12 @@ void ModuleSpanningTree::OnUserConnect(User* user)
 		params.push_back(ConvToStr(user->signon));
 		params.push_back(":"+std::string(user->fullname));
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
-		// User is Local, change needs to be reflected!
-		TreeServer* SourceServer = Utils->FindServer(user->server);
-		if (SourceServer)
-		{
-			SourceServer->AddUserCount();
-		}
+	}
+
+	TreeServer* SourceServer = Utils->FindServer(user->server);
+	if (SourceServer)
+	{
+		SourceServer->SetUserCount(1); // increment by 1
 	}
 }
 
@@ -659,11 +659,12 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		params.push_back(":"+reason);
 		Utils->DoOneToMany(user->uuid,"QUIT",params);
 	}
+
 	// Regardless, We need to modify the user Counts..
 	TreeServer* SourceServer = Utils->FindServer(user->server);
 	if (SourceServer)
 	{
-		SourceServer->DelUserCount();
+		SourceServer->SetUserCount(-1); // decrement by 1
 	}
 }
 

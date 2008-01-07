@@ -30,7 +30,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const st
 	ServerName.clear();
 	ServerDesc.clear();
 	VersionString.clear();
-	UserCount = OperCount = 0;
+	ServerUserCount = ServerOperCount = 0;
 	rtt = LastPing = 0;
 	Warned = Hidden = DupError = false;
 	VersionString = ServerInstance->GetVersionString();
@@ -46,8 +46,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 {
 	Parent = NULL;
 	VersionString.clear();
-	UserCount = ServerInstance->UserCount();
-	OperCount = ServerInstance->OperCount();
+	ServerUserCount = ServerOperCount = 0;
 	VersionString = ServerInstance->GetVersionString();
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
@@ -65,7 +64,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
 	VersionString.clear();
-	UserCount = OperCount = 0;
+	ServerUserCount = ServerOperCount = 0;
 	this->SetNextPingTime(time(NULL) + Utils->PingFreq);
 	this->SetPingFlag();
 	DupError = false;
@@ -241,24 +240,24 @@ void TreeServer::SetPingFlag()
 	LastPingWasGood = true;
 }
 
-int TreeServer::GetUserCount()
+unsigned int TreeServer::GetUserCount()
 {
-	return UserCount;
+	return ServerUserCount;
 }
 
-void TreeServer::AddUserCount()
+void TreeServer::SetUserCount(int diff)
 {
-	UserCount++;
+	ServerUserCount += diff;
 }
 
-void TreeServer::DelUserCount()
+void TreeServer::SetOperCount(int diff)
 {
-	UserCount--;
+	ServerOperCount += diff;
 }
 
-int TreeServer::GetOperCount()
+unsigned int TreeServer::GetOperCount()
 {
-	return OperCount;
+	return ServerOperCount;
 }
 
 TreeSocket* TreeServer::GetSocket()

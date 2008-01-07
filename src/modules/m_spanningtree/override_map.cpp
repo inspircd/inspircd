@@ -47,7 +47,8 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		for (int t = 0; t < depth; t++)
 		{
 			matrix[line][t] = ' ';
-		}       
+		}
+       
 		// For Aligning, we need to work out exactly how deep this thing is, and produce
 		// a 'Spacer' String to compensate.
 		char spacer[40];
@@ -59,12 +60,14 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		{
 			spacer[5] = '\0';
 		}       
+
 		float percent;
 		char text[128];
 		/* Neat and tidy default values, as we're dealing with a matrix not a simple string */
 		memset(text, 0, 128);
 
-		if (ServerInstance->clientlist->size() == 0) {
+		if (ServerInstance->clientlist->size() == 0)
+		{
 			// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
 			percent = 0;
 		}
@@ -72,12 +75,14 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		{
 			percent = ((float)Current->GetUserCount() / (float)ServerInstance->clientlist->size()) * 100;
 		}
+
 		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
 		snprintf(text, 126, "%s %s%5d [%5.2f%%]%s", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
 		totusers += Current->GetUserCount();
 		totservers++;
 		strlcpy(&matrix[line][depth],text,126);
 		line++;
+
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
 			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
@@ -112,13 +117,17 @@ void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, User* user
 	float totusers = 0;
 	float totservers = 0;
 	char matrix[128][128];
+
 	for (unsigned int t = 0; t < 128; t++)
 	{
 		matrix[t][0] = '\0';
 	}
+
 	line = 0;
+
 	// The only recursive bit is called here.
 	ShowMap(Utils->TreeRoot,user,0,matrix,totusers,totservers);
+
 	// Process each line one by one. The algorithm has a limit of
 	// 128 servers (which is far more than a spanning tree should have
 	// anyway, so we're ok). This limit can be raised simply by making
@@ -130,17 +139,22 @@ void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, User* user
 		// the servers at indented positions depending on what they
 		// are related to)
 		int first_nonspace = 0;
+
 		while (matrix[l][first_nonspace] == ' ')
 		{
 			first_nonspace++;
 		}
+
 		first_nonspace--;
+
 		// Draw the `- (corner) section: this may be overwritten by
 		// another L shape passing along the same vertical pane, becoming
 		// a |- (branch) section instead.
+
 		matrix[l][first_nonspace] = '-';
 		matrix[l][first_nonspace-1] = '`';
 		int l2 = l - 1;
+
 		// Draw upwards until we hit the parent server, causing possibly
 		// other corners (`-) to become branches (|-)
 		while ((matrix[l2][first_nonspace-1] == ' ') || (matrix[l2][first_nonspace-1] == '`'))
@@ -149,6 +163,7 @@ void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, User* user
 			l2--;
 		}
 	}
+
 	// dump the whole lot to the user. This is the easy bit, honest.
 	for (int t = 0; t < line; t++)
 	{
