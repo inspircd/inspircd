@@ -549,7 +549,7 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		}
 		else
 		{
-			this->Instance->SNO->WriteToSnoMask('x',"%s added permenant %s%s on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
+			this->Instance->SNO->WriteToSnoMask('x',"%s added permanent %s%s on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
 					params[1].c_str(),params[5].c_str());
 		}
 		params[5] = ":" + params[5];
