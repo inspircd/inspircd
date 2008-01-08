@@ -374,7 +374,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			}
 		}
 	}
-	else if (user)
+	else if (user && user->registered == REG_ALL)
 	{
 		ServerInstance->stats->statsUnknown++;
 		user->WriteServ("421 %s %s :Unknown command",user->nick,command.c_str());
