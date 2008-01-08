@@ -290,7 +290,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	/* find the command, check it exists */
 	Commandable::iterator cm = cmdlist.find(command);
 	
-	if (cm == cmdlist.end())
+	if (cm == cmdlist.end() && user->registered == REG_ALL)
 	{
 		ServerInstance->stats->statsUnknown++;
 		user->WriteServ("421 %s %s :Unknown command",user->nick,command.c_str());
