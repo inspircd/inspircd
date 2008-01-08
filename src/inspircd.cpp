@@ -482,16 +482,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
          * For an explanation as to exactly how this works, and why it works this way, see GetUID().
          *   -- w00t
          */
-        /* Generate SID */
-	printf("\nSID is %s\n\n", Config->sid);
         if (*Config->sid)
         {
-		// already defined, don't bother
-		printf("\nAlready defined!\n\n");
 	}
         else
         {
-		printf("\nGenerating..\n\n");
 		// Generate one
 		size_t sid = 0;
 
@@ -500,11 +495,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
                 for (const char* y = Config->ServerDesc; *y; ++y)
                         sid = 5 * sid + *y;
                 sid = sid % 999;
-
-		printf("\nGenerated %u\n\n", sid);
-		printf("\n0 %c\n\n", (sid / 100 + 48));
-		printf("\n1 %c\n\n", (((sid / 10) % 10) + 48));
-		printf("\n2 %c\n\n", (sid % 10 + 48));
 
 		Config->sid[0] = (char)(sid / 100 + 48);
 		Config->sid[1] = (char)(((sid / 10) % 10) + 48);
