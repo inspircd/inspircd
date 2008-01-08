@@ -378,7 +378,7 @@ bool TreeSocket::RemoteRehash(const std::string &prefix, std::deque<std::string>
 	{
 		this->Instance->SNO->WriteToSnoMask('l',"Remote rehash initiated by \002"+prefix+"\002.");
 		this->Instance->RehashServer();
-		Utils->ReadConfiguration(false);
+		Utils->ReadConfiguration(true);
 		InitializeDisabledCommands(Instance->Config->DisabledCommands, Instance);
 	}
 	Utils->DoOneToAllButSender(prefix,"REHASH",params,prefix);
