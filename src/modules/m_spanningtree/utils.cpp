@@ -475,7 +475,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			ServerInstance->SE->DelFd(Bindings[i]);
 			Bindings[i]->Close();
 		}
-		ServerInstance->InspSocketCull();
+		ServerInstance->BufferedSocketCull();
 		Bindings.clear();
 
 		for (int j = 0; j < Conf->Enumerate("bind"); j++)
