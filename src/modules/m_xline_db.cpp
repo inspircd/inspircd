@@ -19,12 +19,17 @@
 class ModuleXLineDB : public Module
 {
 	std::vector<XLine *> xlines;
+	bool reading_db;			// If this is true, addlines are as a result of db reading, so don't bother flushing the db to disk.
+						// DO REMEMBER TO SET IT, otherwise it's annoying :P
  public:
 	ModuleXLineDB(InspIRCd* Me) : Module(Me)
 	{
 		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
+
+		reading_db = true;
 		ReadDatabase();
+		reading_db = false;
 	}
 
 	virtual ~ModuleXLineDB()
@@ -47,7 +52,10 @@ class ModuleXLineDB : public Module
 ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason);
 		}
 
-		WriteDatabase();
+		if (!reading_db)
+		{
+			WriteDatabase();
+		}
 	}
 
 	/** Called whenever an xline is deleted.
