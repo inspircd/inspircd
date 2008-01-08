@@ -1350,15 +1350,15 @@
 # use hexdecimal numbers prefixed by "0x", as shown in this example,  #
 # with each key eight hex digits long.                                #
 
-#-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Close module: Allows an oper to close all unregistered connections.
-#<module name="m_close.so">
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Clones module: Adds an oper command /CLONES for detecting cloned
 # users. Warning: This module may be resource intensive when its
 # command is issued, use with care.
 #<module name="m_clones.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Close module: Allows an oper to close all unregistered connections.
+#<module name="m_close.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Common channels module: Adds user mode +c, which, when set, requires
@@ -1404,10 +1404,6 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel cycle module. Server side /hop, with +ilk etc bypass.
-#<module name="m_cycle.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connection throttle module. Configuration:
 #<module name="m_connflood.so">
 #
@@ -1442,6 +1438,10 @@
 #
 #<title name="foo" password="bar" title="Official Chat Helper">
 #<title name="bar" password="foo" host="ident@host.name" title="Official Chat Helper" vhost="helper.network.chat">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel cycle module. Server side /hop, with +ilk etc bypass.
+#<module name="m_cycle.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DCCALLOW module: Adds the /DCCALLOW command
@@ -1520,13 +1520,13 @@
 #<module name="m_foobar.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Globops module: gives /GLOBOPS and usermode +g
-#<module name="m_globops.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Global load module: Allows loading and unloading of modules network-
 # wide (USE WITH EXTREME CAUTION!)
 #<module name="m_globalload.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Globops module: gives /GLOBOPS and usermode +g
+#<module name="m_globops.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
@@ -1607,10 +1607,6 @@
 #<ident timeout="5" bind="">                                          #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Invite except module: Adds support for channel invite exceptions (+I)
-#<module name="m_inviteexception.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invisible module - Adds support for usermode +Q (quiet) which lets an
 # oper go 'invisible' similar to unrealircd 3.1's +I mode. Note that
 # opers are still able to see invisible users, and if an oper with +Q
@@ -1620,6 +1616,10 @@
 # must first add the value canquiet="yes" to that oper's type tag.
 #
 #<module name="m_invisible.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Invite except module: Adds support for channel invite exceptions (+I)
+#<module name="m_inviteexception.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection (+j)
@@ -1737,6 +1737,17 @@
 #<operjoin channel="#channel">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper levels module: Gives each oper a level and prevents
+# actions being taken against higher level opers
+# Specify the level as the 'level' parameter of the <type> tag
+#<module name="m_operlevels.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper modes module: Allows you to specify modes to add/remove on oper
+# Specify the modes as the 'modes' parameter of the <type> tag
+#<module name="m_opermodes.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for seperate message of the day
 # on oper-up
 #<module name="m_opermotd.so">
@@ -1755,17 +1766,6 @@
 #                                                                     #
 # m_override.so is too complex it describe here, see the wiki:        #
 # http://www.inspircd.org/wiki/Oper_Override_Module                   #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper levels module: Gives each oper a level and prevents
-# actions being taken against higher level opers
-# Specify the level as the 'level' parameter of the <type> tag
-#<module name="m_operlevels.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper modes module: Allows you to specify modes to add/remove on oper
-# Specify the modes as the 'modes' parameter of the <type> tag
-#<module name="m_opermodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
@@ -1886,11 +1886,6 @@
 #<module name="m_seenicks.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Set Idle module: Adds a command for opers to change their
-# idle time (mainly a toy)
-#<module name="m_setidle.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Services support module: Adds several usermodes such as +R and +M
 # this module implements the 'identified' state via user mode +r, which
 # is similar to the DALnet and dreamforge systems.
@@ -1913,6 +1908,11 @@
 #<module name="m_setident.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Set Idle module: Adds a command for opers to change their
+# idle time (mainly a toy)
+#<module name="m_setidle.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SETNAME module: Adds the /SETNAME command
 #<module name="m_setname.so">
 
@@ -1922,11 +1922,99 @@
 #<module name="m_showwhois.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SILENCE module: Adds support for /SILENCE
+#<module name="m_silence.so">
+#
+# Configuration tags:
+#
+#<silence maxentries="32">
+#
+# Sets the maximum number of entries on a users silence list.
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Extended SILENCE module: Adds support for /SILENCE with additional
+# features to silence based on invites, channel messages, etc.
+#<module name="m_silence_ext.so">
+#
+# The configuration tags for this module are identical to those of
+# m_silence, shown above.
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Spy module: Adds the commands SPYLIST and SPYNAMES that let opers
 # see who is in a +s channel, and list +s channels, show keys of keyed
 # channels the oper is not a member of etc. (standard 'abusive' features
 # of many other ircds, modulized here in InspIRCd).
 #<module name="m_spy.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL authentication module: Allows IRCd connections to be tied into
+# a database table (for example a forum). You must copy the source for
+# this module from the directory src/modules/extra
+# Depends on the SQLutils module being loaded first.
+#<module name="m_sqlauth.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_sqlauth.so is too complex it describe here, see the wiki:         #
+# http://www.inspircd.org/wiki/SQL_Authentication_Module              #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQLite3 module: Allows other SQL modules to access SQLite3          #
+# databases through a unified API. You must link the source for this  #
+# module from the directory src/modules/extra to src/modules, plus    #
+# the file m_sqlv2.h                                                  #
+#<module name="m_sqlite3.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_sqlite.so is more complex than described here, see the wiki for   #
+# more: http://www.inspircd.org/wiki/SQLite3_Service_Provider_Module  #
+#
+#<database hostname="/full/path/to/database.db" id="anytext">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL logging module: Allows you to log network-wide data for your
+# network in a fully normalized set of SQL tables. You must copy the
+# source for this module from the directory src/modules/extra
+#<module name="m_sqllog.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  SQLLOG CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# dbid       - Database ID to use (see m_sql)                         #
+#                                                                     #
+# See also: http://www.inspircd.org/wiki/SQL_Logging_Module           #
+#                                                                     #
+#<sqllog dbid="1">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL oper module: Allows you to store oper credentials in an SQL table
+# You must copy the source for this module from the directory src/modules/extra
+# Depends on the SQLutils module being loaded first.
+#<module name="m_sqloper.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# dbid       - Database ID to use (see m_sql)                         #
+#                                                                     #
+# See also: http://www.inspircd.org/wiki/SQL_Oper_Storage_Module      #
+#                                                                     #
+#<sqloper dbid="1">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQLutils module: Provides some utilities to SQL client modules, such
+# as mapping queries to users and channels. You must copy the source
+# for this module from the directory src/modules/extra/m_sqlutils.cpp
+# and src/modules/extra/m_sqlutils.h into /src/modules
+# Needed for, and loaded before: SQLauth and SQLoper
+#<module name="m_sqlutils.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SSL Info module: Allows users to retrieve information about other
+# user's peer SSL certificates and keys. This can be used by client
+# scripts to validate users. For this to work, one of m_ssl_gnutls.so
+# or m_ssl_openssl.so must be loaded. You must symlink the source for
+# this module from the directory src/modules/extra.
+#<module name="m_sslinfo.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL channel mode module: Adds support for SSL-only channels (+z).
@@ -1957,14 +2045,6 @@
 # your configuration file!                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL Info module: Allows users to retrieve information about other
-# user's peer SSL certificates and keys. This can be used by client
-# scripts to validate users. For this to work, one of m_ssl_gnutls.so
-# or m_ssl_openssl.so must be loaded. You must symlink the source for
-# this module from the directory src/modules/extra.
-#<module name="m_sslinfo.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # OpenSSL ssl module: Adds support for client-server SSL using OpenSSL,
 # if enabled. You must copy the source for this module from the directory
 # src/modules/extra, or answer 'yes' in ./configure when asked if you
@@ -1992,86 +2072,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip colour module: Adds the channel mode +S
 #<module name="m_stripcolor.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SILENCE module: Adds support for /SILENCE
-#<module name="m_silence.so">
-#
-# Configuration tags:
-#
-#<silence maxentries="32">
-#
-# Sets the maximum number of entries on a users silence list.
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Extended SILENCE module: Adds support for /SILENCE with additional
-# features to silence based on invites, channel messages, etc.
-#<module name="m_silence_ext.so">
-#
-# The configuration tags for this module are identical to those of
-# m_silence, shown above.
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQLite3 module: Allows other SQL modules to access SQLite3          #
-# databases through a unified API. You must link the source for this  #
-# module from the directory src/modules/extra to src/modules, plus    #
-# the file m_sqlv2.h                                                  #
-#<module name="m_sqlite3.so">
-#
-#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# m_sqlite.so is more complex than described here, see the wiki for   #
-# more: http://www.inspircd.org/wiki/SQLite3_Service_Provider_Module  #
-#
-#<database hostname="/full/path/to/database.db" id="anytext">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQLutils module: Provides some utilities to SQL client modules, such
-# as mapping queries to users and channels. You must copy the source
-# for this module from the directory src/modules/extra/m_sqlutils.cpp
-# and src/modules/extra/m_sqlutils.h into /src/modules
-# Needed for, and loaded before: SQLauth and SQLoper
-#<module name="m_sqlutils.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQL authentication module: Allows IRCd connections to be tied into
-# a database table (for example a forum). You must copy the source for
-# this module from the directory src/modules/extra
-# Depends on the SQLutils module being loaded first.
-#<module name="m_sqlauth.so">
-#
-#-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# m_sqlauth.so is too complex it describe here, see the wiki:         #
-# http://www.inspircd.org/wiki/SQL_Authentication_Module              #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQL logging module: Allows you to log network-wide data for your
-# network in a fully normalized set of SQL tables. You must copy the
-# source for this module from the directory src/modules/extra
-#<module name="m_sqllog.so">
-#
-#-#-#-#-#-#-#-#-#-#-#-  SQLLOG CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# dbid       - Database ID to use (see m_sql)                         #
-#                                                                     #
-# See also: http://www.inspircd.org/wiki/SQL_Logging_Module           #
-#                                                                     #
-#<sqllog dbid="1">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQL oper module: Allows you to store oper credentials in an SQL table
-# You must copy the source for this module from the directory src/modules/extra
-# Depends on the SQLutils module being loaded first.
-#<module name="m_sqloper.so">
-#
-#-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# dbid       - Database ID to use (see m_sql)                         #
-#                                                                     #
-# See also: http://www.inspircd.org/wiki/SQL_Oper_Storage_Module      #
-#                                                                     #
-#<sqloper dbid="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SVSHold module: Implements SVSHOLD. Like Q:Lines, but can only be   #
