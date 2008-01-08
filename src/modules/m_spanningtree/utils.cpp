@@ -454,6 +454,14 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	ConfigReader* Conf = new ConfigReader(ServerInstance);
 	if (rebind)
 	{
+		for (unsigned int i = 0; i < Bindings.size(); i++)
+		{
+			ServerInstance->SE->DelFd(Bindings[i]);
+			Bindings[i]->Close();
+		}
+		ServerInstance->InspSocketCull();
+		Bindings.clear();
+
 		for (int j = 0; j < Conf->Enumerate("bind"); j++)
 		{
 			std::string Type = Conf->ReadValue("bind","type",j);

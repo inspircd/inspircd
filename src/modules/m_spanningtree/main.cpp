@@ -1147,7 +1147,7 @@ void ModuleSpanningTree::OnRehash(userrec* user, const std::string &parameter)
 			ServerInstance->RehashServer();
 		}
 	}
-	Utils->ReadConfiguration(false);
+	Utils->ReadConfiguration(true);
 	InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
 }
 
