@@ -190,6 +190,8 @@ ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason
 				items++;
 			}
 
+			ServerInstance->Log(DEBUG, "xlinedb: Processing %s", linebuf);
+
 			if (command_p[0] == "VERSION")
 			{
 				if (command_p[1] == "1")
@@ -206,8 +208,8 @@ ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason
 			}
 			else if (command_p[0] == "LINE")
 			{
-				//mercilessly stolen from spanningtree
-				XLineFactory* xlf = ServerInstance->XLines->GetFactory(command_p[0]);
+				// Mercilessly stolen from spanningtree
+				XLineFactory* xlf = ServerInstance->XLines->GetFactory(command_p[1]);
 
 				if (!xlf)
 				{
