@@ -24,6 +24,7 @@ class ModuleXLineDB : public Module
 	{
 		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ReadDatabase();
 	}
 
 	virtual ~ModuleXLineDB()
@@ -103,7 +104,7 @@ ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason
 		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
 		{
 			line = (*i);
-			fprintf(f, "%s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
+			fprintf(f, "LINE %s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
 				ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason);
 		}
 
@@ -129,6 +130,97 @@ ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason
 
 		return true;
 	}
+
+	bool ReadDatabase()
+	{
+		FILE *f;
+		char linebuf[MAXBUF];
+		unsigned int lineno = 0;
+
+		f = fopen("xline.db", "r");
+		if (!f)
+		{
+			if (errno == ENOENT)
+			{
+				/* xline.db doesn't exist, fake good return value (we don't care about this) */
+				return true;
+			}
+			else
+			{
+				/* this might be slightly more problematic. */
+				ServerInstance->Log(DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
+				ServerInstance->SNO->WriteToSnoMask('x', "database: cannot read db: %s (%d)", strerror(errno), errno);
+				return false;
+			}
+		}
+
+		while (fgets(linebuf, MAXBUF, f))
+		{
+			char *c = linebuf;
+
+			while (c && *c)
+			{
+				if (*c == '\n')
+				{
+					*c = '\0';
+				}
+
+				c++;
+			}
+			// Smart man might think of initing to 1, and moving this to the bottom. Don't. We use continue in this loop.
+			lineno++;
+
+			// Inspired by the command parser. :)
+			irc::tokenstream tokens(linebuf);
+			int items = 0;
+			std::string command_p[MAXPARAMETERS];
+			std::string tmp;
+
+			while (tokens.GetToken(tmp) && (items < MAXPARAMETERS))
+			{
+				command_p[items] = tmp.c_str();
+				items++;
+			}
+
+			if (command_p[0] == "VERSION")
+			{
+				if (command_p[1] == "1")
+				{
+					ServerInstance->Log(DEBUG, "xlinedb: Reading db version %s", command_p[1].c_str());
+				}
+				else
+				{
+					fclose(f);
+					ServerInstance->Log(DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
+					ServerInstance->SNO->WriteToSnoMask('x', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
+					return false;
+				}
+			}
+			else if (command_p[0] == "LINE")
+			{
+				//mercilessly stolen from spanningtree
+				XLineFactory* xlf = ServerInstance->XLines->GetFactory(command_p[0]);
+
+				if (!xlf)
+				{
+					ServerInstance->SNO->WriteToSnoMask('x', "database: Unknown line type (%s).", command_p[1].c_str());
+					continue;
+				}
+
+				XLine* xl = xlf->Generate(ServerInstance->Time(), atoi(command_p[5].c_str()), command_p[3].c_str(), command_p[6].c_str(), command_p[2].c_str());
+				xl->SetCreateTime(atoi(command_p[4].c_str()));
+
+				if (ServerInstance->XLines->AddLine(xl, NULL))
+				{
+					ServerInstance->SNO->WriteToSnoMask('x', "database: Added a line of type %s", command_p[1].c_str());
+				}
+			}
+		}
+
+		return true;
+	}
+
+	
 
 	virtual Version GetVersion()
 	{
