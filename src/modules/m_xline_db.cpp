@@ -45,6 +45,8 @@ class ModuleXLineDB : public Module
 			ServerInstance->WriteOpers("%s %s %s %lu %lu :%s", line->type.c_str(), line->Displayable(),
 ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason);
 		}
+
+		WriteDatabase();
 	}
 
 	/** Called whenever an xline is deleted.
@@ -62,6 +64,70 @@ ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason
 				break;
 			}
 		}
+
+		WriteDatabase();
+	}
+
+	bool WriteDatabase()
+	{
+		FILE *f;
+
+		/*
+		 * We need to perform an atomic write so as not to fuck things up.
+		 * So, let's write to a temporary file, flush and sync the FD, then rename the file..
+		 * Technically, that means that this can block, but I have *never* seen that.
+		 *		-- w00t
+		 */
+		ServerInstance->Log(DEBUG, "xlinedb: Opening temporary database");
+		f = fopen("xline.db.new", "w");
+		if (!f)
+		{
+			ServerInstance->Log(DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot create new db: %s (%d)", strerror(errno), errno);
+			return false;
+		}
+
+		ServerInstance->Log(DEBUG, "xlinedb: Opened. Writing..");
+
+		/*
+		 * Now, much as I hate writing semi-unportable formats, additional
+		 * xline types may not have a conf tag, so let's just write them.
+		 * In addition, let's use a file version, so we can maintain some
+		 * semblance of backwards compatibility for reading on startup..
+		 * 		-- w00t
+		 */
+		fprintf(f, "VERSION 1\n");
+
+		// Now, let's write.
+		XLine *line;
+		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
+		{
+			line = (*i);
+			fprintf(f, "%s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
+				ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason);
+		}
+
+		ServerInstance->Log(DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
+
+		int write_error = 0;
+		write_error = ferror(f);
+		write_error |= fclose(f);
+		if (write_error)
+		{
+			ServerInstance->Log(DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
+			return false;
+		}
+
+		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
+		if (rename("xline.db.new", "xline.db") < 0)
+		{
+			ServerInstance->Log(DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+			return false;
+		}
+
+		return true;
 	}
 
 	virtual Version GetVersion()
