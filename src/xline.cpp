@@ -620,7 +620,7 @@ XLineFactory* XLineManager::GetFactory(const std::string &type)
 {
 	XLineFactMap::iterator n = line_factory.find(type);
 
-	if (n != line_factory.end())
+	if (n == line_factory.end())
 		return NULL;
 
 	return n->second;
