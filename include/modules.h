@@ -394,7 +394,7 @@ enum Implementation
 	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
 	I_OnGetServerDescription, I_OnSyncUser, I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData,
 	I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddLine,
-	I_OnDelLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
+	I_OnDelLine, I_OnExpireLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
 	I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite, I_OnRawMode,
 	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
@@ -899,12 +899,18 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void OnAddLine(User* source, XLine* line);
 
-	/** Called whenever an xline is deleted.
+	/** Called whenever an xline is deleted MANUALLY. See OnExpireLine for expiry.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line or NULL for local server
 	 * @param line the line being deleted
 	 */
 	virtual void OnDelLine(User* source, XLine* line);
+
+	/** Called whenever an xline expires.
+	 * This method is triggered after the line is deleted.
+	 * @param line The line being deleted.
+	 */
+	virtual void OnExpireLine(XLine *line);
 
 	/** Called before your module is unloaded to clean up Extensibles.
 	 * This method is called once for every user and channel on the network,

@@ -289,19 +289,21 @@ XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pat
 // removes lines that have expired
 void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 {
-		item->second->DisplayExpiry();
-		item->second->Unset();
+	FOREACH_MOD(I_OnExpireLine, OnExpireLine(item->second));
 
-		/* TODO: Can we skip this loop by having a 'pending' field in the XLine class, which is set when a line
-		 * is pending, cleared when it is no longer pending, so we skip over this loop if its not pending?
-		 * -- Brain
-		 */
-		std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), item->second);
-		if (pptr != pending_lines.end())
-			pending_lines.erase(pptr);
+	item->second->DisplayExpiry();
+	item->second->Unset();
 
-		delete item->second;
-		container->second.erase(item);
+	/* TODO: Can we skip this loop by having a 'pending' field in the XLine class, which is set when a line
+	 * is pending, cleared when it is no longer pending, so we skip over this loop if its not pending?
+	 * -- Brain
+	 */
+	std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), item->second);
+	if (pptr != pending_lines.end())
+		pending_lines.erase(pptr);
+
+	delete item->second;
+	container->second.erase(item);
 }
 
 
