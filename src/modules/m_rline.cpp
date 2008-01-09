@@ -13,171 +13,179 @@
 
 #include "inspircd.h"
 #include <pcre.h>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "m_filter.h"
+#include "xline.h"
 
-/* $ModDesc: m_filter with regexps */
+/* $ModDesc: RLINE: Regexp user banning. */
 /* $CompileFlags: exec("pcre-config --cflags") */
 /* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */
-/* $ModDep: m_filter.h */
 
 #ifdef WINDOWS
 #pragma comment(lib, "pcre.lib")
 #endif
 
-class PCREFilter : public FilterResult
+class CoreExport RLine : public XLine
 {
- public:
-	 pcre* regexp;
+  public:
 
-	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time, const std::string &pat, const std::string &flags)
-		 : FilterResult(pat, rea, act, gline_time, flags), regexp(r)
-	 {
-	 }
-
-	 PCREFilter()
-	 {
-	 }
-};
-
-class ModuleFilterPCRE : public FilterBase
-{
-	std::vector<PCREFilter> filters;
-	pcre *re;
-	const char *error;
-	int erroffset;
-	PCREFilter fr;
-
- public:
-	ModuleFilterPCRE(InspIRCd* Me)
-	: FilterBase(Me, "m_filter_pcre.so")
+	/** Create a R-Line.
+	 * @param s_time The set time
+	 * @param d The duration of the xline
+	 * @param src The sender of the xline
+	 * @param re The reason of the xline
+	 * @param regex Pattern to match with
+	 * @
+	 */
+	RLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* regexs) : XLine(Instance, s_time, d, src, re, "K")
 	{
-		OnRehash(NULL,"");
+		const char *error;
+		int erroffset;
 
-	}
+		matchtext = regexs;
 
-	virtual ~ModuleFilterPCRE()
-	{
-	}
+		regex = pcre_compile(regexs, 0, &error, &erroffset, NULL);
 
-	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags)
-	{
-		for (std::vector<PCREFilter>::iterator index = filters.begin(); index != filters.end(); index++)
+		if (!regex)
 		{
-			/* Skip ones that dont apply to us */
-
-			if (!FilterBase::AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flags))
-				continue;
-
-			if (pcre_exec(index->regexp, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
-			{
-				fr = *index;
-				if (index != filters.begin())
-				{
-					filters.erase(index);
-					filters.insert(filters.begin(), fr);
-				}
-				return &fr;
-			}
+			ServerInstance->SNO->WriteToSnoMask('x',"Error in regular expression: %s at offset %d: %s\n", regexs, erroffset, error);
+			throw CoreException("Bad regex pattern.");
 		}
-		return NULL;
 	}
 
-	virtual bool DeleteFilter(const std::string &freeform)
+	/** Destructor
+	 */
+	~RLine()
 	{
-		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		pcre_free(regex);
+	}
+
+	virtual bool Matches(User *u)
+	{
+		std::string compare = compare.assign(u->nick) + "!" + u->ident + "@" + u->host + " " + u->fullname;
+
+		ServerInstance->Log(DEBUG, "Matching " + matchtext + " against string " + compare);
+
+		if (pcre_exec(regex, NULL, compare.c_str(), compare.length(), 0, 0, NULL, 0) > -1)
 		{
-			if (i->freeform == freeform)
-			{
-				pcre_free((*i).regexp);
-				filters.erase(i);
-				return true;
-			}
+			// Bang. :D
+			return true;
 		}
+
 		return false;
 	}
 
-	virtual void SyncFilters(Module* proto, void* opaque)
+	virtual bool Matches(const std::string&); // Ignored for us
+
+	virtual void Apply(User* u)
 	{
-		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
-		{
-			this->SendFilter(proto, opaque, &(*i));
-		}
+		DefaultApply(u, "R", true);
 	}
 
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags)
+	virtual void DisplayExpiry()
 	{
-		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
-		{
-			if (i->freeform == freeform)
-			{
-				return std::make_pair(false, "Filter already exists");
-			}
-		}
+		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed R-Line %s (set by %s %d seconds ago)", this->matchtext.c_str(), this->source, this->duration);
+	}
 
-		re = pcre_compile(freeform.c_str(),0,&error,&erroffset,NULL);
+	virtual const char* Displayable()
+	{
+		return matchtext.c_str();
+	}
 
-		if (!re)
+	std::string matchtext;
+
+	pcre *regex;
+};
+
+
+/** An XLineFactory specialized to generate RLine* pointers
+ */
+class CoreExport RLineFactory : public XLineFactory
+{
+ public:
+        RLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "R") { }
+
+	/** Generate a RLine
+	 */
+        XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+        {
+                return new RLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+        }
+};
+
+/*
+	if (pcnt >= 3)
+	{
+		IdentHostPair ih;
+		User* find = ServerInstance->FindNick(parameters[0]);
+		if (find)
 		{
-			ServerInstance->Log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", freeform.c_str(), erroffset, error);
-			ServerInstance->Log(DEFAULT,"Regular expression %s not loaded.", freeform.c_str());
-			return std::make_pair(false, "Error in regular expression at offset " + ConvToStr(erroffset) + ": "+error);
+			ih.first = "*";
+			ih.second = find->GetIPString();
 		}
 		else
-		{
-			filters.push_back(PCREFilter(re, reason, type, duration, freeform, flags));
-			return std::make_pair(true, "");
+			ih = ServerInstance->XLines->IdentSplit(parameters[0]);
+
+		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
+			return CMD_FAILURE;
+
+		if (!strchr(parameters[0],'@'))
+		{       
+			user->WriteServ("NOTICE %s :*** G-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
+			return CMD_FAILURE;
 		}
-	}
-
-	virtual void OnRehash(User* user, const std::string &parameter)
-	{		
-		ConfigReader MyConf(ServerInstance);
-
-		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
+		else if (strchr(parameters[0],'!'))
 		{
-			this->DeleteFilter(MyConf.ReadValue("keyword", "pattern", index));
+			user->WriteServ("NOTICE %s :*** G-Line cannot contain a nickname!",user->nick);
+			return CMD_FAILURE;
+		}
 
-			std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
-			std::string reason = MyConf.ReadValue("keyword", "reason", index);
-			std::string action = MyConf.ReadValue("keyword", "action", index);
-			std::string flags = MyConf.ReadValue("keyword", "flags", index);
-			long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index));
-			if (action.empty())
-				action = "none";
-			if (flags.empty())
-				flags = "*";
-
-			re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
-
-			if (!re)
+		long duration = ServerInstance->Duration(parameters[1]);
+		GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
+		if (ServerInstance->XLines->AddLine(gl, user))
+		{
+			if (!duration)
 			{
-				ServerInstance->Log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
-				ServerInstance->Log(DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent G-line for %s.",user->nick,parameters[0]);
 			}
 			else
 			{
-				filters.push_back(PCREFilter(re, reason, action, gline_time, pattern, flags));
-				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
+				time_t c_requires_crap = duration + ServerInstance->Time();
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed G-line for %s, expires on %s",user->nick,parameters[0],
+						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
+
+			ServerInstance->XLines->ApplyLines();
+		}
+		else
+		{
+			delete gl;
+			user->WriteServ("NOTICE %s :*** G-Line for %s already exists",user->nick,parameters[0]);
+		}
+
+	}
+	else
+	{
+		if (ServerInstance->XLines->DelLine(parameters[0],"G",user))
+		{
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,parameters[0]);
+		}
+		else
+		{
+			user->WriteServ("NOTICE %s :*** G-line %s not found in list, try /stats g.",user->nick,parameters[0]);
 		}
 	}
+*/
 
-	virtual int OnStats(char symbol, User* user, string_list &results)
+class ModuleRLine : public Module
+{
+ public:
+	ModuleRLine(InspIRCd* Me) : Module(Me)
 	{
-		if (symbol == 's')
-		{
-			std::string sn = ServerInstance->Config->ServerName;
-			for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
-			{
-				results.push_back(sn+" 223 "+user->nick+" :REGEXP:"+i->freeform+" "+i->flags+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
-			}
-		}
-		return 0;
+	}
+
+	virtual ~ModuleRLine()
+	{
 	}
 };
 
-MODULE_INIT(ModuleFilterPCRE)
+MODULE_INIT(ModuleRLine)
 
