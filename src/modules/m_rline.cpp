@@ -111,75 +111,85 @@ class CoreExport RLineFactory : public XLineFactory
         }
 };
 
-/*
-	if (pcnt >= 3)
+/** Handle /RLINE
+ * Syntax is same as other lines: RLINE regex_goes_here 1d :reason
+ */
+class CommandRLine : public Command
+{
+ public:
+	CommandRLine (InspIRCd* Instance) : Command(Instance,"DALINFO", 1, 'o')
 	{
-		IdentHostPair ih;
-		User* find = ServerInstance->FindNick(parameters[0]);
-		if (find)
+		this->source = "m_rline.so";
+	}
+
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	{
+		if (pcnt >= 3)
 		{
-			ih.first = "*";
-			ih.second = find->GetIPString();
+			// Adding - XXX todo make this respect <insane> tag perhaps..
+
+			long duration = ServerInstance->Duration(parameters[1]);
+			RLine *r = NULL;
+
+			try
+			{
+				r = new RLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+			}
+			catch (...)
+			{
+				; // Do nothing. If we get here, the regex was fucked up, and they already got told it fucked up.
+			}
+
+			if (r)
+			{
+				if (ServerInstance->XLines->AddLine(r, user))
+				{
+					if (!duration)
+					{
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent R-Line for %s.", user->nick, parameters[0]);
+					}
+					else
+					{
+						time_t c_requires_crap = duration + ServerInstance->Time();
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-Line for %s, expires on %s", user->nick, parameters[0],
+								ServerInstance->TimeString(c_requires_crap).c_str());
+					}
+
+					ServerInstance->XLines->ApplyLines();
+				}
+				else
+				{
+					delete r;
+					user->WriteServ("NOTICE %s :*** R-Line for %s already exists", user->nick, parameters[0]);
+				}
+			}
 		}
 		else
-			ih = ServerInstance->XLines->IdentSplit(parameters[0]);
-
-		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
-			return CMD_FAILURE;
-
-		if (!strchr(parameters[0],'@'))
-		{       
-			user->WriteServ("NOTICE %s :*** G-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
-			return CMD_FAILURE;
-		}
-		else if (strchr(parameters[0],'!'))
 		{
-			user->WriteServ("NOTICE %s :*** G-Line cannot contain a nickname!",user->nick);
-			return CMD_FAILURE;
-		}
-
-		long duration = ServerInstance->Duration(parameters[1]);
-		GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
-		if (ServerInstance->XLines->AddLine(gl, user))
-		{
-			if (!duration)
+			if (ServerInstance->XLines->DelLine(parameters[0],"G",user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent G-line for %s.",user->nick,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,parameters[0]);
 			}
 			else
 			{
-				time_t c_requires_crap = duration + ServerInstance->Time();
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed G-line for %s, expires on %s",user->nick,parameters[0],
-						ServerInstance->TimeString(c_requires_crap).c_str());
+				user->WriteServ("NOTICE %s :*** G-line %s not found in list, try /stats g.",user->nick,parameters[0]);
 			}
-
-			ServerInstance->XLines->ApplyLines();
-		}
-		else
-		{
-			delete gl;
-			user->WriteServ("NOTICE %s :*** G-Line for %s already exists",user->nick,parameters[0]);
 		}
 
+		return CMD_SUCCESS;
 	}
-	else
-	{
-		if (ServerInstance->XLines->DelLine(parameters[0],"G",user))
-		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,parameters[0]);
-		}
-		else
-		{
-			user->WriteServ("NOTICE %s :*** G-line %s not found in list, try /stats g.",user->nick,parameters[0]);
-		}
-	}
-*/
+};
 
 class ModuleRLine : public Module
 {
+ private:
+	CommandRLine *r;
  public:
 	ModuleRLine(InspIRCd* Me) : Module(Me)
 	{
+		// Create a new command
+		r = new CommandRLine(ServerInstance);
+		ServerInstance->AddCommand(r);
 	}
 
 	virtual ~ModuleRLine()
