@@ -60,7 +60,7 @@ class CoreExport RLine : public XLine
 
 	bool Matches(User *u)
 	{
-		std::string compare = compare.assign(u->nick) + "!" + u->ident + "@" + u->host + " " + u->fullname;
+		std::string compare = std::string(u->nick) + "!" + u->ident + "@" + u->host + " " + u->fullname;
 
 		ServerInstance->Log(DEBUG, "Matching " + matchtext + " against string " + compare);
 
@@ -126,7 +126,7 @@ class CoreExport RLineFactory : public XLineFactory
 class CommandRLine : public Command
 {
  public:
-	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", 1, 'o')
+	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", 'o', 1)
 	{
 		this->source = "m_rline.so";
 	}
