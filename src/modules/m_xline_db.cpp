@@ -24,8 +24,8 @@ class ModuleXLineDB : public Module
  public:
 	ModuleXLineDB(InspIRCd* Me) : Module(Me)
 	{
-		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 		reading_db = true;
 		ReadDatabase();
@@ -58,6 +58,16 @@ class ModuleXLineDB : public Module
 	 * @param line the line being deleted
 	 */
 	void OnDelLine(User* source, XLine* line)
+	{
+		RemoveLine(line);
+	}
+
+	void OnExpireLine(XLine *line)
+	{
+		RemoveLine(line);
+	}
+
+	void RemoveLine(XLine *line)
 	{
 		ServerInstance->Log(DEBUG, "xlinedb: Removing a line");
 		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
