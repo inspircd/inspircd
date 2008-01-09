@@ -43,14 +43,8 @@ class ModuleXLineDB : public Module
 	 */
 	void OnAddLine(User* source, XLine* line)
 	{
+		ServerInstance->Log(DEBUG, "xlinedb: Adding a line");
 		xlines.push_back(line);
-
-		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
-		{
-			line = (*i);
-			ServerInstance->WriteOpers("%s %s %s %lu %lu :%s", line->type.c_str(), line->Displayable(),
-ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason);
-		}
 
 		if (!reading_db)
 		{
@@ -65,6 +59,7 @@ ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason
 	 */
 	void OnDelLine(User* source, XLine* line)
 	{
+		ServerInstance->Log(DEBUG, "xlinedb: Removing a line");
 		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
 		{
 			if ((*i) == line)
