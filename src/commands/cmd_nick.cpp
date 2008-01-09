@@ -154,6 +154,7 @@ CmdResult CommandNick::Handle (const char** parameters, int, User *user)
 	}
 	else if (user->registered == REG_ALL)
 	{
+		user->IncreasePenalty(10);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 	}
 
