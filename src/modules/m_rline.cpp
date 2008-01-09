@@ -58,7 +58,7 @@ class CoreExport RLine : public XLine
 		pcre_free(regex);
 	}
 
-	virtual bool Matches(User *u)
+	bool Matches(User *u)
 	{
 		std::string compare = compare.assign(u->nick) + "!" + u->ident + "@" + u->host + " " + u->fullname;
 
@@ -73,19 +73,28 @@ class CoreExport RLine : public XLine
 		return false;
 	}
 
-	virtual bool Matches(const std::string&); // Ignored for us
+	bool Matches(const std::string &compare)
+	{
+		if (pcre_exec(regex, NULL, compare.c_str(), compare.length(), 0, 0, NULL, 0) > -1)
+		{
+			// Bang. :D
+			return true;
+		}
 
-	virtual void Apply(User* u)
+		return false;
+	}
+
+	void Apply(User* u)
 	{
 		DefaultApply(u, "R", true);
 	}
 
-	virtual void DisplayExpiry()
+	void DisplayExpiry()
 	{
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed R-Line %s (set by %s %d seconds ago)", this->matchtext.c_str(), this->source, this->duration);
 	}
 
-	virtual const char* Displayable()
+	const char* Displayable()
 	{
 		return matchtext.c_str();
 	}
@@ -101,14 +110,14 @@ class CoreExport RLine : public XLine
 class CoreExport RLineFactory : public XLineFactory
 {
  public:
-        RLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "R") { }
+	RLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "R") { }
 
 	/** Generate a RLine
 	 */
-        XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
-        {
-                return new RLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
-        }
+	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	{
+		return new RLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+	}
 };
 
 /** Handle /RLINE
@@ -117,13 +126,14 @@ class CoreExport RLineFactory : public XLineFactory
 class CommandRLine : public Command
 {
  public:
-	CommandRLine (InspIRCd* Instance) : Command(Instance,"DALINFO", 1, 'o')
+	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", 1, 'o')
 	{
 		this->source = "m_rline.so";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
+
 		if (pcnt >= 3)
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
@@ -166,13 +176,14 @@ class CommandRLine : public Command
 		}
 		else
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0],"G",user))
+			if (ServerInstance->XLines->DelLine(parameters[0], "R", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed R-Line on %s.",user->nick,parameters[0]);
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** G-line %s not found in list, try /stats g.",user->nick,parameters[0]);
+				// XXX todo implement stats
+				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats g.",user->nick,parameters[0]);
 			}
 		}
 
@@ -194,6 +205,11 @@ class ModuleRLine : public Module
 
 	virtual ~ModuleRLine()
 	{
+	}
+
+	virtual Version GetVersion()
+	{
+		return Version(1,1,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 };
 
