@@ -2,7 +2,7 @@
  *       | UnrealIRCd v4.0                    |
  *       +------------------------------------+
  *
- * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk 
+ * UnrealIRCd 4.0 (C) 2008 Carsten Valdemar Munk 
  * This program is free but copyrighted software; see
  *            the file COPYING for details.
  *

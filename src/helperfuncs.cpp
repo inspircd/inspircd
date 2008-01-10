@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+ *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
@@ -577,7 +577,7 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* fo
 	this->SendWhoisLine(user, dest, numeric, std::string(textbuffer));
 }
 
-/** Refactored by Brain, Jun 2007. Much faster with some clever O(1) array
+/** Refactored by Brain, Jun 2008. Much faster with some clever O(1) array
  * lookups and pointer maths.
  */
 long InspIRCd::Duration(const std::string &str)
