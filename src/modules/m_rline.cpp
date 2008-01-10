@@ -35,7 +35,7 @@ class CoreExport RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* regexs) : XLine(Instance, s_time, d, src, re, "K")
+	RLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* regexs) : XLine(Instance, s_time, d, src, re, "R")
 	{
 		const char *error;
 		int erroffset;
