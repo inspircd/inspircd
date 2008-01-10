@@ -348,6 +348,18 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	char FixedQuit[MAXBUF];
 
+	/** The part prefix in use, or an empty string
+	 */
+	char PrefixPart[MAXBUF];
+
+	/** The part suffix in use, or an empty string
+	 */
+	char SuffixPart[MAXBUF];
+
+	/** The fixed part message in use, or an empty string
+	 */
+	char FixedPart[MAXBUF];
+
 	/** The last string found within a <die> tag, or
 	 * an empty string.
 	 */

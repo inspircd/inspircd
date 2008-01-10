@@ -21,6 +21,25 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 CmdResult CommandPart::Handle (const char** parameters, int pcnt, User *user)
 {
+	std::string reason;
+
+	if (IS_LOCAL(user))
+	{
+		if (*ServerInstance->Config->FixedPart)
+			reason = ServerInstance->Config->FixedPart;
+		else
+		{
+			if (pcnt > 1)
+				reason = ServerInstance->Config->PrefixPart + std::string(parameters[1]) + ServerInstance->Config->SuffixPart;
+			else
+				reason = "";
+		}
+	}
+	else
+	{
+		reason = pcnt ? parameters[1] : "";
+	}
+
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return CMD_SUCCESS;
 
@@ -28,7 +47,8 @@ CmdResult CommandPart::Handle (const char** parameters, int pcnt, User *user)
 	
 	if (c)
 	{
-		if (!c->PartUser(user, pcnt > 1 ? parameters[1] : NULL))
+		const char *rreason = reason.empty() ? NULL : reason.c_str();
+		if (!c->PartUser(user, rreason))
 			/* Arse, who stole our channel! :/ */
 			delete c;
 	}
