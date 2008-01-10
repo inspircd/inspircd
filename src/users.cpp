@@ -346,9 +346,11 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 
 void userrec::RemoveCloneCounts()
 {
+	ServerInstance->Log(DEBUG, "Removing my clone counts");
 	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
 	if (x != ServerInstance->local_clones.end())
 	{
+		ServerInstance->Log(DEBUG, "Removed local");
 		x->second--;
 		if (!x->second)
 		{
@@ -359,6 +361,7 @@ void userrec::RemoveCloneCounts()
 	clonemap::iterator y = ServerInstance->global_clones.find(this->GetIPString());
 	if (y != ServerInstance->global_clones.end())
 	{
+		ServerInstance->Log(DEBUG, "Removed global");
 		y->second--;
 		if (!y->second)
 		{

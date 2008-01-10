@@ -78,7 +78,7 @@ class ModuleTaxonomy : public Module
 	{
 		if (target_type == TYPE_USER)
 		{
-			User* spoolto = (User*)target;
+			userrec *spoolto = (userrec*)target;
 			std::string taxstr = "304 " + std::string(spoolto->nick) + ":TAXONOMY METADATA "+extname+" = "+extdata;
 			spoolto->WriteServ(taxstr);
 			claimed = true;
