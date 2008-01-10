@@ -195,16 +195,21 @@ class ModuleRLine : public Module
 {
  private:
 	CommandRLine *r;
+	RLineFactory *f;
  public:
 	ModuleRLine(InspIRCd* Me) : Module(Me)
 	{
 		// Create a new command
 		r = new CommandRLine(ServerInstance);
 		ServerInstance->AddCommand(r);
+
+		f = new RLineFactory(ServerInstance);
+		ServerInstance->XLines->RegisterFactory(f);
 	}
 
 	virtual ~ModuleRLine()
 	{
+		ServerInstance->XLines->UnregisterFactory(f);
 	}
 
 	virtual Version GetVersion()
