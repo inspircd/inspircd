@@ -734,6 +734,16 @@
 #                  QUITS. If specified, overrides both prefixquit     #
 #                  and suffixquit options.                            #
 #                                                                     #
+#  prefixpart    - A prefix to be placed on the start of a client's   #
+#                  part message                                       #
+#                                                                     #
+#  suffixpart    - A suffix to be placed on the end of a client's     #
+#                  part message.                                      #
+#                                                                     #
+#  fixedpart     - A fixed part message to display for all client     #
+#                  parts. If specified, overrides both prefixpart     #
+#                  and suffixpart options.                            #
+#                                                                     #
 #  loglevel      - specifies what detail of messages to log in the    #
 #                  log file. You may select from debug, verbose,      #
 #                  default, sparse and none.                          #
@@ -948,6 +958,8 @@
 #                                                                     #
 
 <options prefixquit="Quit: "
+         prefixpart="\""
+         suffixpart="\""
          loglevel="default"
          netbuffersize="10240"
          maxwho="128"
