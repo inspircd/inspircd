@@ -23,16 +23,24 @@ class CommandSapart : public Command
 	CommandSapart (InspIRCd* Instance) : Command(Instance,"SAPART", 'o', 2, false, 0)
 	{
 		this->source = "m_sapart.so";
-		syntax = "<nick> <channel>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		syntax = "<nick> <channel> [reason]";
+		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
+		std::string reason;
+
 		if (dest && channel)
 		{
+			ServerInstance->Log(DEBUG, "SAPART: pcnt is %d", pcnt);
+			if (pcnt == 3)
+				reason = parameters[2];
+			else
+				reason = dest->nick;
+
 			if (ServerInstance->ULine(dest->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
@@ -45,7 +53,7 @@ class CommandSapart : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				if (!channel->PartUser(dest, dest->nick))
+				if (!channel->PartUser(dest, reason.c_str()))
 					delete channel;
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (!n)
