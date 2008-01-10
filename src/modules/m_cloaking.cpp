@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+ *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
@@ -109,7 +109,7 @@ class CloakUser : public ModeHandler
 					 * 'real' hostname which you shouldnt write to.
 					 */
 
-					/* 2007/08/18: add <cloak:ipalways> which always cloaks
+					/* 2008/08/18: add <cloak:ipalways> which always cloaks
 					 * the IP, for anonymity. --nenolod
 					 */
 					if (!ipalways)
