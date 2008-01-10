@@ -76,6 +76,7 @@ class ModuleChanCreate : public Module
 					delete zl;
 
 				ServerInstance->SNO->WriteToSnoMask('x', "Quit flooding from IP %s (%d)", u->GetIPString(), threshold);
+				quits.erase(i);
 			}
 		}
 		else
