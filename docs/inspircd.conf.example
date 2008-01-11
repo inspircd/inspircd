@@ -1478,13 +1478,18 @@
 # If you have the m_denychans.so module loaded, you need to specify   #
 # the channels to deny:                                               #
 #                                                                     #
-# name        -      The channel name to deny.                        #
+# name        -      The channel name to deny. (glob masks are ok)    #
 #                                                                     #
 # allowopers  -      If operators are allowed to override the deny.   #
 #                                                                     #
 # reason      -      Reason given for the deny.                       #
 #                                                                     #
-#<badchan name="#gods" allowopers="yes" reason="Tortoises!">
+#<badchan name="#gods*" allowopers="yes" reason="Tortoises!">         #
+#                                                                     #
+# Additionally, you may specify channels which are allowed, even if   #
+# a badchan tag specifies it would be denied:                         #
+#<goodchan name="#godsleeps">                                         #
+# Glob masks are accepted here also.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Devoice Module: Let users devoice themselves.
