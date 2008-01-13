@@ -117,7 +117,7 @@ void ListenSocket::HandleEvent(EventType, int)
 			}
 		}
 		ServerInstance->stats->statsAccept++;
-		User::AddClient(ServerInstance, incomingSockfd, in_port, false, this->family, client);
+		ServerInstance->Users->AddClient(ServerInstance, incomingSockfd, in_port, false, this->family, client);
 	}
 	else
 	{

@@ -916,18 +916,6 @@ class CoreExport User : public connection
 	 */
 	bool ForceNickChange(const char* newnick);
 
-	/** Add a client to the system.
-	 * This will create a new User, insert it into the user_hash,
-	 * initialize it as not yet registered, and add it to the socket engine.
-	 * @param Instance a pointer to the server instance
-	 * @param socket The socket id (file descriptor) this user is on
-	 * @param port The port number this user connected on
-	 * @param iscached This variable is reserved for future use
-	 * @param ip The IP address of the user
-	 * @return This function has no return value, but a call to AddClient may remove the user.
-	 */
-	static void AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip);
-
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type
 	 */
