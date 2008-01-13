@@ -44,7 +44,8 @@ class CommandClones : public Command
 		user->WriteServ(clonesstr + " START");
 
 		/* hostname or other */
-		for (clonemap::iterator x = ServerInstance->global_clones.begin(); x != ServerInstance->global_clones.end(); x++)
+		// XXX I really don't like marking global_clones public for this. at all. -- w00t
+		for (clonemap::iterator x = ServerInstance->Users->global_clones.begin(); x != ServerInstance->Users->global_clones.end(); x++)
 		{
 			if (x->second >= limit)
 				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + assign(x->first));

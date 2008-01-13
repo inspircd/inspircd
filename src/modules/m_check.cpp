@@ -119,7 +119,7 @@ class CommandCheck : public Command
 				/*
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
-				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", i->first->GlobalCloneCount(), targchan->GetAllPrefixChars(i->first), i->first->nick, i->first->ident, i->first->dhost, i->first->fullname);
+				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick, i->first->ident, i->first->dhost, i->first->fullname);
 				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
 		}

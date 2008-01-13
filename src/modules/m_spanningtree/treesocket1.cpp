@@ -1116,7 +1116,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 #endif
 		_new->SetSockAddr(AF_INET, params[7].c_str(), 0);
 
-	Instance->AddGlobalClone(_new);
+	Instance->Users->AddGlobalClone(_new);
 
 	bool dosend = !(((this->Utils->quiet_bursts) && (this->bursting || Utils->FindRemoteBurstServer(remoteserver))) || (this->Instance->SilentULine(_new->server)));
 	

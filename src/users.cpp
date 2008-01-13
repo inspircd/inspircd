@@ -212,29 +212,6 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
 
-void User::RemoveCloneCounts()
-{
-	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
-	if (x != ServerInstance->local_clones.end())
-	{
-		x->second--;
-		if (!x->second)
-		{
-			ServerInstance->local_clones.erase(x);
-		}
-	}
-	
-	clonemap::iterator y = ServerInstance->global_clones.find(this->GetIPString());
-	if (y != ServerInstance->global_clones.end())
-	{
-		y->second--;
-		if (!y->second)
-		{
-			ServerInstance->global_clones.erase(y);
-		}
-	}
-}
-
 User::~User()
 {
 	/* NULL for remote users :) */
@@ -255,7 +232,7 @@ User::~User()
 		free(operquit);
 	if (ip)
 	{
-		this->RemoveCloneCounts();
+		ServerInstance->Users->RemoveCloneCounts(this);
 
 		if (this->GetProtocolFamily() == AF_INET)
 		{
@@ -801,8 +778,8 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 		New->dhost[j] = New->host[j] = *temp;
 	New->dhost[j] = New->host[j] = 0;
 
-	Instance->AddLocalClone(New);
-	Instance->AddGlobalClone(New);
+	Instance->Users->AddLocalClone(New);
+	Instance->Users->AddGlobalClone(New);
 
 	/*
 	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
@@ -909,24 +886,6 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 	}
 }
 
-unsigned long User::GlobalCloneCount()
-{
-	clonemap::iterator x = ServerInstance->global_clones.find(this->GetIPString());
-	if (x != ServerInstance->global_clones.end())
-		return x->second;
-	else
-		return 0;
-}
-
-unsigned long User::LocalCloneCount()
-{
-	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
-	if (x != ServerInstance->local_clones.end())
-		return x->second;
-	else
-		return 0;
-}
-
 /*
  * Check class restrictions
  */
@@ -939,13 +898,13 @@ void User::CheckClass()
 		User::QuitUser(ServerInstance, this, "Unauthorised connection");
 		return;
 	}
-	else if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
+	else if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))
 	{
 		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
 		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
-	else if ((a->GetMaxGlobal()) && (this->GlobalCloneCount() > a->GetMaxGlobal()))
+	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
 	{
 		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (global)");
 		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());

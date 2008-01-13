@@ -933,22 +933,6 @@ class CoreExport User : public connection
 	 */
 	void UnOper();
 
-	/** Return the number of global clones of this user
-	 * @return The global clone count of this user
-	 */
-	unsigned long GlobalCloneCount();
-
-	/** Return the number of local clones of this user
-	 * @return The local clone count of this user
-	 */
-	unsigned long LocalCloneCount();
-
-	/** Remove all clone counts from the user, you should
-	 * use this if you change the user's IP address in
-	 * User::ip after they have registered.
-	 */
-	void RemoveCloneCounts();
-
 	/** Write text to this user, appending CR/LF.
 	 * @param text A std::string to send to the user
 	 */

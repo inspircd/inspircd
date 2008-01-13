@@ -325,6 +325,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);
 	this->XLines = new XLineManager(this);
+	this->Users = new UserManager(this);
 
 	this->Config->argv = argv;
 	this->Config->argc = argc;
@@ -746,24 +747,6 @@ int InspIRCd::SetTimeDelta(int delta)
 	time_delta = delta;
 	this->Log(DEBUG, "Time delta set to %d (was %d)", time_delta, old);
 	return old;
-}
-
-void InspIRCd::AddLocalClone(User* user)
-{
-	clonemap::iterator x = local_clones.find(user->GetIPString());
-	if (x != local_clones.end())
-		x->second++;
-	else
-		local_clones[user->GetIPString()] = 1;
-}
-
-void InspIRCd::AddGlobalClone(User* user)
-{
-	clonemap::iterator y = global_clones.find(user->GetIPString());
-	if (y != global_clones.end())
-		y->second++;
-	else
-		global_clones[user->GetIPString()] = 1;
 }
 
 int InspIRCd::GetTimeDelta()

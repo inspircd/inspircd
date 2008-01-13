@@ -32,6 +32,7 @@
 #include "inspircd_config.h"
 #include "uid.h"
 #include "users.h"
+#include "usermanager.h"
 #include "channels.h"
 #include "socket.h"
 #include "mode.h"
@@ -210,9 +211,6 @@ class serverstats : public classbase
 
 /** A list of failed port bindings, used for informational purposes on startup */
 typedef std::vector<std::pair<std::string, long> > FailedPortList;
-
-/** A list of ip addresses cross referenced against clone counts */
-typedef std::map<irc::string, unsigned int> clonemap;
 
 class InspIRCd;
 
@@ -433,14 +431,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	std::list<User*> all_opers;
 
-	/** Map of local ip addresses for clone counting
-	 */
-	clonemap local_clones;
-
-	/** Map of global ip addresses for clone counting
-	 */
-	clonemap global_clones;
-
 	/** DNS class, provides resolver facilities to the core and modules
 	 */
 	DNS* Res;
@@ -452,6 +442,10 @@ class CoreExport InspIRCd : public classbase
 	/** X-Line manager. Handles G/K/Q/E line setting, removal and matching
 	 */
 	XLineManager* XLines;
+
+	/** User manager. Various methods and data associated with users.
+	 */
+	UserManager *Users;
 
 	/** Set to the current signal recieved
 	 */
@@ -472,16 +466,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return The old time delta
 	 */
 	int SetTimeDelta(int delta);
-
-	/** Add a user to the local clone map
-	 * @param user The user to add
-	 */
-	void AddLocalClone(User* user);
-
-	/** Add a user to the global clone map
-	 * @param user The user to add
-	 */
-	void AddGlobalClone(User* user);
 	
 	/** Number of users with a certain mode set on them
 	 */

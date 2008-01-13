@@ -295,7 +295,7 @@ public:
 		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
 		{
 			bool valid=false;
-			user->RemoveCloneCounts();
+			ServerInstance->Users->RemoveCloneCounts(user);
 #ifdef IPV6
 			valid = (inet_pton(AF_INET6, webirc_ip->c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0); 
 
@@ -309,8 +309,8 @@ public:
 			delete webirc_ip;
 			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_ip");
-			ServerInstance->AddLocalClone(user);
-			ServerInstance->AddGlobalClone(user);
+			ServerInstance->Users->AddLocalClone(user);
+			ServerInstance->Users->AddGlobalClone(user);
 			user->CheckClass();
 		}
 	}
@@ -326,7 +326,7 @@ public:
 			user->InvalidateCache();
 
 			bool valid = false;
-			user->RemoveCloneCounts();
+			ServerInstance->Users->RemoveCloneCounts(user);
 #ifdef IPV6
 			if (user->GetProtocolFamily() == AF_INET6)
 				valid = (inet_pton(AF_INET6, user->password, &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
@@ -336,8 +336,8 @@ public:
 			if (inet_aton(user->password, &((sockaddr_in*)user->ip)->sin_addr))
 				valid = true;
 #endif
-			ServerInstance->AddLocalClone(user);
-			ServerInstance->AddGlobalClone(user);
+			ServerInstance->Users->AddLocalClone(user);
+			ServerInstance->Users->AddGlobalClone(user);
 			user->CheckClass();
 
 			if (valid)
@@ -396,15 +396,15 @@ public:
 			
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
-		user->RemoveCloneCounts();
+		ServerInstance->Users->RemoveCloneCounts(user);
 #ifdef IPV6
 		if (user->GetProtocolFamily() == AF_INET6)
 			inet_pton(AF_INET6, newip, &((sockaddr_in6*)user->ip)->sin6_addr);
 		else
 #endif
 		inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
-		ServerInstance->AddLocalClone(user);
-		ServerInstance->AddGlobalClone(user);
+		ServerInstance->Users->AddLocalClone(user);
+		ServerInstance->Users->AddGlobalClone(user);
 		user->CheckClass();
 		try
 		{
