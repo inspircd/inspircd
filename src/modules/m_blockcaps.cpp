@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */
+/* $ModDesc: Provides support to block all-CAPS channel messages and notices */
 
 
 /** Handles the +P channel mode
@@ -21,23 +21,23 @@
 class BlockCaps : public ModeHandler
 {
  public:
-	BlockCaps(InspIRCd* Instance) : ModeHandler(Instance, 'P', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	BlockCaps(InspIRCd* Instance) : ModeHandler(Instance, 'B', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
-			if (!channel->IsModeSet('P'))
+			if (!channel->IsModeSet('B'))
 			{
-				channel->SetMode('P',true);
+				channel->SetMode('B',true);
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			if (channel->IsModeSet('P'))
+			if (channel->IsModeSet('B'))
 			{
-				channel->SetMode('P',false);
+				channel->SetMode('B',false);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -82,7 +82,7 @@ public:
 
 			Channel* c = (Channel*)dest;
 
-			if (c->IsModeSet('P'))
+			if (c->IsModeSet('B'))
 			{
 				int caps = 0;
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
