@@ -49,6 +49,19 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 #endif
 	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
 
+	(*(Instance->clientlist))[New->uuid] = New;
+
+	/* The users default nick is their UUID */
+	strlcpy(New->nick, New->uuid, NICKMAX - 1);
+
+	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
+	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
+	strcpy(New->ident, "unknown");
+
+	New->registered = REG_NONE;
+	New->signon = Instance->Time() + Instance->Config->dns_timeout;
+	New->lastping = 1;
+
 	New->SetSockAddr(socketfamily, ipaddr, port);
 
 	New->SetFd(socket);

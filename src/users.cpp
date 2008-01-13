@@ -210,20 +210,6 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 		(*Instance->uuidlist)[uuid] = this;
 	else
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
-
-	(*(Instance->clientlist))[this->uuid] = this;
-
-	/* The users default nick is their UUID */
-	strlcpy(this->nick, this->uuid, NICKMAX - 1);
-
-	this->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
-	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
-	strcpy(this->ident, "unknown");
-
-	this->registered = REG_NONE;
-	this->signon = Instance->Time() + Instance->Config->dns_timeout;
-	this->lastping = 1;
-
 }
 
 User::~User()
