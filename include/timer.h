@@ -44,7 +44,7 @@ class CoreExport Timer : public Extensible
 	 * @param now The time now
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	Timer(long secs_from_now,time_t now, bool repeating = false)
+	Timer(long secs_from_now, time_t now, bool repeating = false)
 	{
 		trigger = now + secs_from_now;
 		secs = secs_from_now;
@@ -60,6 +60,13 @@ class CoreExport Timer : public Extensible
 	virtual time_t GetTimer()
 	{
 		return trigger;
+	}
+
+	/** Sets the trigger timeout to a new value
+	 */
+	virtual void SetTimer(time_t t)
+	{
+		trigger = t;
 	}
 
 	/** Called when the timer ticks.
@@ -107,32 +114,23 @@ class CoreExport Timer : public Extensible
 class CoreExport TimerManager : public Extensible
 {
  protected:
-	/** A group of timers all set to trigger at the same time
+	/** A list of all pending timers
 	 */
-	typedef std::vector<Timer*> timergroup;
-	/** A map of timergroups, each group has a specific trigger time
-	 */
-	typedef std::map<time_t, timergroup*> timerlist;
-	/** Set when ticking timers, to prevent deletion while iterating
-	 */
-	bool CantDeleteHere;
+	std::vector<Timer *> Timers;
+
 	/** Creating server instance
 	 */
 	InspIRCd* ServerInstance;
- private:
-
-	/** The current timer set, a map of timergroups
-	 */
-	timerlist Timers;
-
  public:
 	/** Constructor
 	 */
 	TimerManager(InspIRCd* Instance);
+
 	/** Tick all pending Timers
 	 * @param TIME the current system time
 	 */
 	void TickTimers(time_t TIME);
+
 	/** Add an Timer
 	 * @param T an Timer derived class to add
 	 * @param secs_from_now You may set this to the number of seconds
@@ -141,15 +139,16 @@ class CoreExport TimerManager : public Extensible
 	 * will be used. This is used internally for re-triggering repeating
 	 * timers.
 	 */
-	void AddTimer(Timer* T, long secs_from_now = 0);
+	void AddTimer(Timer *T);
+
 	/** Delete an Timer
 	 * @param T an Timer derived class to delete
 	 */
 	void DelTimer(Timer* T);
-	/** Tick any timers that have been missed due to lag
-	 * @param TIME the current system time
+
+	/** Compares two timers
 	 */
-	void TickMissedTimers(time_t TIME);
+	static bool TimerComparison( Timer *one,  Timer*two);
 };
 
 #endif
