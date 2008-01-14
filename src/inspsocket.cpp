@@ -625,9 +625,14 @@ bool BufferedSocket::Poll()
 			}
 			else
 #endif
+			{
+				// FIX: we were doing this for IPv6 connections as well, which was fucking recvip..
+				// Add brackets to make this a bit clearer. -- w00t (Jan 15, 2008)
+				recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
+			}
+
 			Instance->SE->NonBlocking(incoming);
 
-			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
 			if (this->IsIOHooked)
