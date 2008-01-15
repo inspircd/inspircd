@@ -625,6 +625,9 @@ int InspIRCd::Run()
 		 */
 		if (TIME != OLDTIME)
 		{
+			/* if any users were quit, take them out */
+			this->GlobalCulls.Apply();
+
 			if (TIME < OLDTIME)
 			{
 				WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
@@ -673,9 +676,6 @@ int InspIRCd::Run()
 		 * dispatched to their handlers.
 		 */
 		this->SE->DispatchEvents();
-
-		/* if any users was quit, take them out */
-		this->GlobalCulls.Apply();
 
 		/* If any inspsockets closed, remove them */
 		this->BufferedSocketCull();
