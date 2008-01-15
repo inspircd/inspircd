@@ -197,6 +197,7 @@ int CullList::Apply()
 			delete u;
 		}
 
+		delete *list.begin();
 		list.erase(list.begin());
 		exempt.erase(exemptiter);
 	}
