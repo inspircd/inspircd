@@ -115,7 +115,7 @@ class CoreExport CullList : public classbase
 	 * See the information for CullItem for
 	 * more information.
 	 */
-	std::vector<CullItem> list;
+	std::vector<CullItem *> list;
 
  public:
 	/** Constructor.

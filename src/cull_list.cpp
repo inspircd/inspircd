@@ -85,7 +85,7 @@ void CullList::AddItem(User* user, const char* reason, const char* o_reason)
 {
 	if (exempt.find(user) == exempt.end())
 	{
-		CullItem item(user, reason, o_reason);
+		CullItem *item = new CullItem(user, reason, o_reason);
 		list.push_back(item);
 		exempt[user] = user;
 	}
@@ -93,11 +93,11 @@ void CullList::AddItem(User* user, const char* reason, const char* o_reason)
 
 void CullList::MakeSilent(User* user)
 {
-	for (std::vector<CullItem>::iterator a = list.begin(); a != list.end(); ++a)
+	for (std::vector<CullItem *>::iterator a = list.begin(); a != list.end(); ++a)
 	{
-		if (a->GetUser() == user)
+		if ((*a)->GetUser() == user)
 		{
-			a->MakeSilent();
+			(*a)->MakeSilent();
 			break;
 		}
 	}
@@ -111,14 +111,14 @@ int CullList::Apply()
 
 	while (list.size() && i++ != 100)
 	{
-		std::vector<CullItem>::iterator a = list.begin();
+		std::vector<CullItem *>::iterator a = list.begin();
 
-		User *u = a->GetUser();
+		User *u = (*a)->GetUser();
 		user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
 		std::map<User*, User*>::iterator exemptiter = exempt.find(u);
 		const char* preset_reason = u->GetOperQuit();
-		std::string reason = a->GetReason();
-		std::string oper_reason = *preset_reason ? preset_reason : a->GetOperReason();
+		std::string reason = (*a)->GetReason();
+		std::string oper_reason = *preset_reason ? preset_reason : (*a)->GetOperReason();
 
 		if (reason.length() > MAXQUIT - 1)
 			reason.resize(MAXQUIT - 1);
@@ -170,14 +170,14 @@ int CullList::Apply()
 		{
 			if (IS_LOCAL(u))
 			{
-				if (!a->IsSilent())
+				if (!(*a)->IsSilent())
 				{
 					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick,u->ident,u->host,oper_reason.c_str());
 				}
 			}
 			else
 			{
-				if ((!ServerInstance->SilentULine(u->server)) && (!a->IsSilent()))
+				if ((!ServerInstance->SilentULine(u->server)) && (!(*a)->IsSilent()))
 				{
 					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",u->server,u->nick,u->ident,u->host,oper_reason.c_str());
 				}
