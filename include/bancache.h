@@ -66,6 +66,9 @@ class CoreExport BanCacheManager : public classbase
 	 * @param reason The reason for the ban. Left .empty() if it's a negative match.
 	 */
 	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason);
+
+	// Overridden to allow an optional number of seconds before expiry
+	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds);
 	BanCacheHit *GetHit(const std::string &ip);
 	bool RemoveHit(BanCacheHit *b);
 
