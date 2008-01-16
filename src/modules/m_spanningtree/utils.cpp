@@ -29,16 +29,6 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-bool SpanningTreeUtilities::IsSID(const std::string &str)
-{
-	/* Returns true if the string given is exactly 3 characters long,
-	 * starts with a digit, and the other two characters are A-Z or digits
-	 */
-	return ((str.length() == 3) && isdigit(str[0]) &&
-			((str[1] >= 'A' && str[1] <= 'Z') || isdigit(str[1])) &&
-			 ((str[2] >= 'A' && str[2] <= 'Z') || isdigit(str[2])));
-}
-
 /** Yay for fast searches!
  * This is hundreds of times faster than recursion
  * or even scanning a linked list, especially when
@@ -47,7 +37,7 @@ bool SpanningTreeUtilities::IsSID(const std::string &str)
  */
 TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
-	if (IsSID(ServerName))
+	if (this->ServerInstance->IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
 	server_hash::iterator iter = serverlist.find(ServerName.c_str());

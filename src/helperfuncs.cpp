@@ -506,6 +506,16 @@ bool IsIdentHandler::Call(const char* n)
 	return true;
 }
 
+bool InspIRCd::IsSID(const std::string &str)
+{
+	/* Returns true if the string given is exactly 3 characters long,
+	 * starts with a digit, and the other two characters are A-Z or digits
+	 */
+	return ((str.length() == 3) && isdigit(str[0]) &&
+			((str[1] >= 'A' && str[1] <= 'Z') || isdigit(str[1])) &&
+			 ((str[2] >= 'A' && str[2] <= 'Z') || isdigit(str[2])));
+}
+
 /* open the proper logfile */
 bool InspIRCd::OpenLog(char**, int)
 {

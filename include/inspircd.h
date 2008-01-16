@@ -619,6 +619,11 @@ class CoreExport InspIRCd : public classbase
 	 */
 	bool IsChannel(const char *chname);
 
+	/** Return true if str looks like a server ID
+	 * @param string to check against
+	 */
+	bool IsSID(const std::string &str);
+
 	/** Rehash the local server
 	 */
 	void Rehash();

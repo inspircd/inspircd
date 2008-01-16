@@ -818,7 +818,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 		this->SendError("Protocol error - Introduced remote server from unknown server "+prefix);
 		return false;
 	}
-	if (!Utils->IsSID(sid))
+	if (!this->Instance->IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
 		return false;
@@ -897,7 +897,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		return false;
 	}
 
-	if (!Utils->IsSID(sid))
+	if (!this->Instance->IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
 		return false;
@@ -974,7 +974,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 		return false;
 	}
 
-	if (!Utils->IsSID(sid))
+	if (!this->Instance->IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
 		return false;

@@ -478,7 +478,13 @@ bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &dat
 
 bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-//	std::string  sid = data.GetString();
+	const char *sid = data.GetString();
+
+	if (*sid && !conf->GetInstance()->IsSID(sid))
+	{
+		throw CoreException(std::string(sid) + " is not a valid server ID.");
+	}
+
 	return true;
 }
 
