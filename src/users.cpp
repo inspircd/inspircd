@@ -181,7 +181,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Penalty = 0;
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	OverPenalty = ExemptFromPenalty = muted = exempt = haspassed = dns_done = false;
+	OverPenalty = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
@@ -708,7 +708,7 @@ void User::QuitUser(InspIRCd* Instance, User *user, const std::string &quitreaso
 {
 	Instance->Log(DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
 	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
-	user->muted = true;
+	user->quitting = true;
 	user->quietquit = false;
 	user->quitmsg = quitreason;
 	user->operquitmsg = operreason;
@@ -1700,7 +1700,7 @@ void User::ShowRULES()
 
 void User::HandleEvent(EventType et, int errornum)
 {
-	if (this->muted) // drop everything, user is due to be quit
+	if (this->quitting) // drop everything, user is due to be quit
 		return;
 
 	/* WARNING: May delete this user! */

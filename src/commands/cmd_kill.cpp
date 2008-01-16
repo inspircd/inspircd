@@ -90,7 +90,7 @@ CmdResult CommandKill::Handle (const char** parameters, int pcnt, User *user)
 			/* Bug #419, make sure this message can only occur once even in the case of multiple KILL messages crossing the network, and change to show
 			 * hidekillsserver as source if possible
 			 */
-			if (!u->muted)
+			if (!u->quitting)
 			{
 				u->Write(":%s KILL %s :%s!%s!%s (%s)", *ServerInstance->Config->HideKillsServer ? ServerInstance->Config->HideKillsServer : user->GetFullHost(),
 						u->nick,

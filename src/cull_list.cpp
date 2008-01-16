@@ -19,16 +19,14 @@
 CullList::CullList(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	list.clear();
-	exempt.clear();
 }
 
 void CullList::AddItem(User* user)
 {
-	if (exempt.find(user) == exempt.end())
-	{
-		list.push_back(user);
-		exempt[user] = user;
-	}
+	if (user->quitting)
+		return;
+
+	list.push_back(user);
 }
 
 void CullList::MakeSilent(User* user)
@@ -48,7 +46,6 @@ int CullList::Apply()
 
 		User *u = (*a);
 		user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
-		std::map<User*, User*>::iterator exemptiter = exempt.find(u);
 		const char* preset_reason = u->GetOperQuit();
 		std::string reason = u->operquitmsg;
 		std::string oper_reason = *preset_reason ? preset_reason : u->operquitmsg;
@@ -131,7 +128,6 @@ int CullList::Apply()
 
 		delete u;
 		list.erase(list.begin());
-		exempt.erase(exemptiter);
 	}
 
 	return n;

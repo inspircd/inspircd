@@ -636,9 +636,8 @@ class CoreExport User : public connection
 	 * are dropped into the bit-bucket.
 	 * This value is set by QuitUser, and is not needed seperately from that call.
 	 * Please note that setting this value alone will NOT cause the user to quit.
-	 * This means it can be used seperately, for example by shun modules etc.
 	 */
-	bool muted;
+	bool quitting;
 
 	/** IPV4 or IPV6 ip address. Use SetSockAddr to set this and GetProtocolFamily/
 	 * GetIPString/GetPort to obtain its values.
