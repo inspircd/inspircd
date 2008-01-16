@@ -24,8 +24,12 @@ CullList::CullList(InspIRCd* Instance) : ServerInstance(Instance)
 void CullList::AddItem(User* user)
 {
 	if (user->quitting)
+	{
+		ServerInstance->Log(DEBUG, "*** Warning *** - You tried to quit a user (%s) twice. Did your module call QuitUser twice?", user->nick);
 		return;
+	}
 
+	user->quitting = true;
 	list.push_back(user);
 }
 
