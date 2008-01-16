@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.15+Wensleydale"
+echo "InspIRCd-1.1.16+Parmesan"
