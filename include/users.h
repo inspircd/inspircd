@@ -620,6 +620,10 @@ class CoreExport User : public connection
 	 */
 	std::string operquitmsg;
 
+	/** Whether or not to send an snotice about this user's quitting
+	 */
+	bool quietquit;
+
 	/** Flood counters - lines received
 	 */
 	unsigned int lines_in;

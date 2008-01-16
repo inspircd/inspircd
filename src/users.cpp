@@ -709,6 +709,7 @@ void User::QuitUser(InspIRCd* Instance, User *user, const std::string &quitreaso
 	Instance->Log(DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
 	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
 	user->muted = true;
+	user->quietquit = false;
 	user->quitmsg = quitreason;
 	user->operquitmsg = operreason;
 	Instance->GlobalCulls.AddItem(user);

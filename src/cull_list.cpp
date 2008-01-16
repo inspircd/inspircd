@@ -33,15 +33,7 @@ void CullList::AddItem(User* user)
 
 void CullList::MakeSilent(User* user)
 {
-/*	for (std::vector<CullItem *>::iterator a = list.begin(); a != list.end(); ++a)
-	{
-		if ((*a)->GetUser() == user)
-		{
-			(*a)->MakeSilent();
-			break;
-		}
-	}
-*/
+	user->quietquit = true;
 	return;
 }
 
@@ -111,18 +103,17 @@ int CullList::Apply()
 		{
 			if (IS_LOCAL(u))
 			{
-	// XXX
-	//			if (!(*a)->IsSilent())
-	//			{
-	//				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick,u->ident,u->host,oper_reason.c_str());
-	//			}
+				if (!u->quietquit)
+				{
+					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick,u->ident,u->host,oper_reason.c_str());
+				}
 			}
 			else
 			{
-	//			if ((!ServerInstance->SilentULine(u->server)) && (!(*a)->IsSilent()))
-	//			{
+				if ((!ServerInstance->SilentULine(u->server)) && (!u->quietquit))
+				{
 					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",u->server,u->nick,u->ident,u->host,oper_reason.c_str());
-	//			}
+				}
 			}
 			u->AddToWhoWas();
 		}
@@ -136,13 +127,13 @@ int CullList::Apply()
 					ServerInstance->local_users.erase(x);
 			}
 			ServerInstance->clientlist->erase(iter);
-			delete u;
 		}
 
-	//	delete *list.begin();
+		delete u;
 		list.erase(list.begin());
 		exempt.erase(exemptiter);
 	}
+
 	return n;
 }
 
