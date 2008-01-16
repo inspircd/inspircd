@@ -32,7 +32,7 @@ class CoreExport BanCacheHit : public classbase
 		this->Type = type;
 		this->Reason = reason;
 		this->IP = ip;
-		this->Expiry = time(NULL) + 60; // XXX changeme
+		this->Expiry = time(NULL) + 86400; // a day. this might seem long, but entries will be removed as glines/etc expire.
 	}
 
 	// overridden to allow custom time
