@@ -16,84 +16,24 @@
 #include "inspircd.h"
 #include "cull_list.h"
 
-CullItem::CullItem(User* u, std::string &r, const char* o_reason)
-{
-	this->user = u;
-	this->reason = r;
-	this->silent = false;
-	/* Seperate oper reason not set, use the user reason */
-	if (*o_reason)
-		this->oper_reason = o_reason;
-	else
-		this->oper_reason = r;
-}
-
-CullItem::CullItem(User* u, const char* r, const char* o_reason)
-{
-	this->user = u;
-	this->reason = r;
-	this->silent = false;
-	/* Seperate oper reason not set, use the user reason */
-	if (*o_reason)
-		this->oper_reason = o_reason;
-	else
-		this->oper_reason = r;
-}
-
-void CullItem::MakeSilent()
-{
-	this->silent = true;
-}
-
-bool CullItem::IsSilent()
-{
-	return this->silent;
-}
-
-CullItem::~CullItem()
-{
-}
-
-User* CullItem::GetUser()
-{
-	return this->user;
-}
-
-std::string& CullItem::GetReason()
-{
-	return this->reason;
-}
-
-std::string& CullItem::GetOperReason()
-{
-	return this->oper_reason;
-}
-
 CullList::CullList(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	list.clear();
 	exempt.clear();
 }
 
-void CullList::AddItem(User* user, std::string &reason, const char* o_reason)
-{
-	AddItem(user, reason.c_str(), o_reason);
-}
-
-
-void CullList::AddItem(User* user, const char* reason, const char* o_reason)
+void CullList::AddItem(User* user)
 {
 	if (exempt.find(user) == exempt.end())
 	{
-		CullItem *item = new CullItem(user, reason, o_reason);
-		list.push_back(item);
+		list.push_back(user);
 		exempt[user] = user;
 	}
 }
 
 void CullList::MakeSilent(User* user)
 {
-	for (std::vector<CullItem *>::iterator a = list.begin(); a != list.end(); ++a)
+/*	for (std::vector<CullItem *>::iterator a = list.begin(); a != list.end(); ++a)
 	{
 		if ((*a)->GetUser() == user)
 		{
@@ -101,6 +41,7 @@ void CullList::MakeSilent(User* user)
 			break;
 		}
 	}
+*/
 	return;
 }
 
@@ -111,14 +52,14 @@ int CullList::Apply()
 
 	while (list.size() && i++ != 100)
 	{
-		std::vector<CullItem *>::iterator a = list.begin();
+		std::vector<User *>::iterator a = list.begin();
 
-		User *u = (*a)->GetUser();
+		User *u = (*a);
 		user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
 		std::map<User*, User*>::iterator exemptiter = exempt.find(u);
 		const char* preset_reason = u->GetOperQuit();
-		std::string reason = (*a)->GetReason();
-		std::string oper_reason = *preset_reason ? preset_reason : (*a)->GetOperReason();
+		std::string reason = u->operquitmsg;
+		std::string oper_reason = *preset_reason ? preset_reason : u->operquitmsg;
 
 		if (reason.length() > MAXQUIT - 1)
 			reason.resize(MAXQUIT - 1);
@@ -170,17 +111,18 @@ int CullList::Apply()
 		{
 			if (IS_LOCAL(u))
 			{
-				if (!(*a)->IsSilent())
-				{
-					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick,u->ident,u->host,oper_reason.c_str());
-				}
+	// XXX
+	//			if (!(*a)->IsSilent())
+	//			{
+	//				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick,u->ident,u->host,oper_reason.c_str());
+	//			}
 			}
 			else
 			{
-				if ((!ServerInstance->SilentULine(u->server)) && (!(*a)->IsSilent()))
-				{
+	//			if ((!ServerInstance->SilentULine(u->server)) && (!(*a)->IsSilent()))
+	//			{
 					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",u->server,u->nick,u->ident,u->host,oper_reason.c_str());
-				}
+	//			}
 			}
 			u->AddToWhoWas();
 		}
@@ -197,7 +139,7 @@ int CullList::Apply()
 			delete u;
 		}
 
-		delete *list.begin();
+	//	delete *list.begin();
 		list.erase(list.begin());
 		exempt.erase(exemptiter);
 	}

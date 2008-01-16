@@ -196,7 +196,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	memset(modes,0,sizeof(modes));
 	memset(snomasks,0,sizeof(snomasks));
 	/* Invalidate cache */
-	operquit = cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
+	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 
 	if (uid.empty())
 		strlcpy(uuid, Instance->GetUID().c_str(), UUID_LENGTH);
@@ -228,8 +228,7 @@ User::~User()
 
 	this->InvalidateCache();
 	this->DecrementModes();
-	if (operquit)
-		free(operquit);
+
 	if (ip)
 	{
 		ServerInstance->Users->RemoveCloneCounts(this);
@@ -710,7 +709,9 @@ void User::QuitUser(InspIRCd* Instance, User *user, const std::string &quitreaso
 	Instance->Log(DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
 	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
 	user->muted = true;
-	Instance->GlobalCulls.AddItem(user, quitreason.c_str(), operreason);
+	user->quitmsg = quitreason;
+	user->operquitmsg = operreason;
+	Instance->GlobalCulls.AddItem(user);
 }
 
 /* adds or updates an entry in the whowas list */
@@ -1736,15 +1737,12 @@ void User::HandleEvent(EventType et, int errornum)
 
 void User::SetOperQuit(const std::string &oquit)
 {
-	if (operquit)
-		return;
-
-	operquit = strdup(oquit.c_str());
+	operquitmsg = oquit;
 }
 
 const char* User::GetOperQuit()
 {
-	return operquit ? operquit : "";
+	return operquitmsg.c_str();
 }
 
 void User::IncreasePenalty(int increase)

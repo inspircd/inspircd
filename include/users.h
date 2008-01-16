@@ -481,10 +481,6 @@ class CoreExport User : public connection
 	 */
 	void DecrementModes();
 
-	/** Oper-only quit message for this user if non-null
-	 */
-	char* operquit;
-
 	/** Max channels for this user
 	 */
 	unsigned int MaxChans;
@@ -615,6 +611,14 @@ class CoreExport User : public connection
 	 * Lines waiting to be sent are stored here until their buffer is flushed.
 	 */
 	std::string sendq;
+
+	/** Message user will quit with. Not to be set externally.
+	 */
+	std::string quitmsg;
+
+	/** Quit message shown to opers - not to be set externally.
+	 */
+	std::string operquitmsg;
 
 	/** Flood counters - lines received
 	 */

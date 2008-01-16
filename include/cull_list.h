@@ -115,7 +115,7 @@ class CoreExport CullList : public classbase
 	 * See the information for CullItem for
 	 * more information.
 	 */
-	std::vector<CullItem *> list;
+	std::vector<User *> list;
 
  public:
 	/** Constructor.
@@ -131,15 +131,7 @@ class CoreExport CullList : public classbase
 	 * @param reason The quit reason of the user being added
 	 * @param o_reason The quit reason to show only to opers
 	 */
-	void AddItem(User* user, std::string &reason, const char* o_reason = "");
-
-	/** Adds a user to the cull list for later
-	 * removal via QUIT.
-	 * @param user The user to add
-	 * @param reason The quit reason of the user being added
-	 * @param o_reason The quit reason to show only to opers
-	 */
-	void AddItem(User* user, const char* reason, const char* o_reason = "");
+	void AddItem(User* user);
 
 	/* Turn an item into a silent item (don't send out QUIT for this user)
 	 */
