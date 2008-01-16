@@ -98,7 +98,6 @@ CmdResult CommandKill::Handle (const char** parameters, int pcnt, User *user)
 						user->dhost,
 						*ServerInstance->Config->HideKillsServer ? ServerInstance->Config->HideKillsServer : user->nick,
 						parameters[1]);
-				u->muted = true;
 			}
 		}
 

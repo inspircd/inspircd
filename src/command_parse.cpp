@@ -413,12 +413,10 @@ bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
 
 	if (buffer.length())
 	{
-		if (!user->muted)
-		{
-			ServerInstance->Log(DEBUG,"C[%d] I :%s %s",user->GetFd(), user->nick, buffer.c_str());
-			return this->ProcessCommand(user,buffer);
-		}
+		ServerInstance->Log(DEBUG,"C[%d] I :%s %s",user->GetFd(), user->nick, buffer.c_str());
+		return this->ProcessCommand(user,buffer);
 	}
+
 	return true;
 }
 

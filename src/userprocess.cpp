@@ -190,7 +190,6 @@ void InspIRCd::DoBackgroundUserStuff()
 			 * registration timeout -- didnt send USER/NICK/HOST
 			 * in the time specified in their connection class.
 			 */
-			curr->muted = true;
 			User::QuitUser(this, curr, "Registration timeout");
 			continue;
 		}
@@ -220,7 +219,6 @@ void InspIRCd::DoBackgroundUserStuff()
 				time_t time = this->Time(false) - (curr->nping - curr->MyClass->GetPingTime());
 				char message[MAXBUF];
 				snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
-				curr->muted = true;
 				curr->lastping = 1;
 				curr->nping = TIME + curr->MyClass->GetPingTime();
 				User::QuitUser(this, curr, message);

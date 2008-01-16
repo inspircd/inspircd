@@ -632,11 +632,11 @@ class CoreExport User : public connection
 	 */
 	time_t reset_due;
 
-	/** If this is set to true, then all read operations for the user
+	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
-	 * This is used by the global CullList, but please note that setting this value
-	 * alone will NOT cause the user to quit. This means it can be used seperately,
-	 * for example by shun modules etc.
+	 * This value is set by QuitUser, and is not needed seperately from that call.
+	 * Please note that setting this value alone will NOT cause the user to quit.
+	 * This means it can be used seperately, for example by shun modules etc.
 	 */
 	bool muted;
 

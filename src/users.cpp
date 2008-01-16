@@ -785,7 +785,6 @@ void User::FullConnect()
 
 		if (r)
 		{
-			this->muted = true;
 			r->Apply(this);
 			return;
 		}
@@ -794,7 +793,6 @@ void User::FullConnect()
 
 		if (n)
 		{
-			this->muted = true;
 			n->Apply(this);
 			return;
 		}
@@ -1702,6 +1700,9 @@ void User::ShowRULES()
 
 void User::HandleEvent(EventType et, int errornum)
 {
+	if (this->muted) // drop everything, user is due to be quit
+		return;
+
 	/* WARNING: May delete this user! */
 	int thisfd = this->GetFd();
 
