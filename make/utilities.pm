@@ -14,10 +14,14 @@ package make::utilities;
 
 require 5.8.0;
 
+use strict;
+use warnings FATAL => qw(all);
+
 use Exporter 'import';
 use POSIX;
 use Getopt::Long;
-@EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring vcheck);
+use Fcntl;
+our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring vcheck);
 
 # Parse the output of a *_config program,
 # such as pcre_config, take out the -L
@@ -33,7 +37,7 @@ sub promptstring($$$$$)
 	my $var;
 	if (!$main::interactive)
 	{
-		undef $opt_commandlineswitch;
+		my $opt_commandlineswitch;
 		GetOptions ("$commandlineswitch=s" => \$opt_commandlineswitch);
 		if (defined $opt_commandlineswitch)
 		{
@@ -61,11 +65,11 @@ sub promptstring($$$$$)
 sub make_rpath($;$)
 {
 	my ($executable, $module) = @_;
-	chomp($data = `$executable`);
+	chomp(my $data = `$executable`);
 	my $output = "";
 	while ($data =~ /-L(\S+)/)
 	{
-		$libpath = $1;
+		my $libpath = $1;
 		if (!exists $already_added{$libpath})
 		{
 			print "Adding extra library path to \033[1;32m$module\033[0m ... \033[1;32m$libpath\033[0m\n";
@@ -97,7 +101,7 @@ sub pkgconfig_get_include_dirs($$$;$)
 	if (exists $main::config{$key})
 	{
 		print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
-		$ret = $main::config{$key};
+		my $ret = $main::config{$key};
 		print "\033[1;32m$ret\033[0m (cached)\n";
 		return $ret;
 	}
@@ -106,14 +110,15 @@ sub pkgconfig_get_include_dirs($$$;$)
 
 	print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 
-	$v = `pkg-config --modversion $packagename 2>/dev/null`;
-	$ret = `pkg-config --cflags $packagename 2>/dev/null`;
+	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
+	my $ret = `pkg-config --cflags $packagename 2>/dev/null`;
+	my $foo = "";
 
 	if ((!defined $v) || ($v eq ""))
 	{
 		$foo = `locate "$headername" | head -n 1`;
 		$foo =~ /(.+)\Q$headername\E/;
-		$find = $1;
+		my $find = $1;
 		chomp($find);
 		if ((defined $find) && ($find ne "") && ($find ne $packagename))
 		{
@@ -167,17 +172,17 @@ sub pkgconfig_get_include_dirs($$$;$)
 sub vcheck($$)
 {
 	my ($version1, $version2) = @_;
-	$version1 =~ s/\-r(\d+)/\.\1/g; # minor revs/patchlevels
-	$version2 =~ s/\-r(\d+)/\.\1/g;
-	$version1 =~ s/p(\d+)/\.\1/g;
-	$version2 =~ s/p(\d+)/\.\1/g;
+	$version1 =~ s/\-r(\d+)/\.$1/g; # minor revs/patchlevels
+	$version2 =~ s/\-r(\d+)/\.$1/g;
+	$version1 =~ s/p(\d+)/\.$1/g;
+	$version2 =~ s/p(\d+)/\.$1/g;
 	$version1 =~ s/\-//g;
 	$version2 =~ s/\-//g;
-	$version1 =~ s/a-z//g;
-	$version2 =~ s/a-z//g;
+	$version1 =~ s/[a-z]//g;
+	$version2 =~ s/[a-z]//g;
 	my @v1 = split('\.', $version1);
 	my @v2 = split('\.', $version2);
-	for ($curr = 0; $curr < scalar(@v1); $curr++)
+	for (my $curr = 0; $curr < scalar(@v1); $curr++)
 	{
 		if ($v1[$curr] < $v2[$curr])
 		{
@@ -195,7 +200,7 @@ sub pkgconfig_check_version($$;$)
 
 	print "Checking version of package \033[1;32m$packagename\033[0m is >= \033[1;32m$version\033[0m... ";
 
-	$v = `pkg-config --modversion $packagename 2>/dev/null`;
+	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
 	if (defined $v)
 	{
 		chomp($v);
@@ -228,7 +233,7 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	if (exists $main::config{$key})
 	{
 		print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
-		$ret = $main::config{$key};
+		my $ret = $main::config{$key};
 		print "\033[1;32m$ret\033[0m (cached)\n";
 		return $ret;
 	}
@@ -237,14 +242,15 @@ sub pkgconfig_get_lib_dirs($$$;$)
 
 	print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 
-	$v = `pkg-config --modversion $packagename 2>/dev/null`;
-	$ret = `pkg-config --libs $packagename 2>/dev/null`;
+	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
+	my $ret = `pkg-config --libs $packagename 2>/dev/null`;
 
+	my $foo = "";
 	if ((!defined $v) || ($v eq ""))
 	{
 		$foo = `locate "$libname" | head -n 1`;
 		$foo =~ /(.+)\Q$libname\E/;
-		$find = $1;
+		my $find = $1;
 		chomp($find);
 		if ((defined $find) && ($find ne "") && ($find ne $packagename))
 		{
@@ -323,7 +329,7 @@ sub translate_functions($$)
 		}
 		while ($line =~ /execruntime\("(.+?)"\)/)
 		{
-			$line =~ s/execruntime\("(.+?)"\)/`\1`/;
+			$line =~ s/execruntime\("(.+?)"\)/`$1`/;
 		}
 		while ($line =~ /eval\("(.+?)"\)/)
 		{
@@ -378,7 +384,7 @@ sub translate_functions($$)
 	};
 	if ($@)
 	{
-		$err = $@;
+		my $err = $@;
 		$err =~ s/at .+? line \d+.*//g;
 		print "\n\nConfiguration failed. The following error occured:\n\n$err\n";
 		exit;

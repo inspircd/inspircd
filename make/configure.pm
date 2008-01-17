@@ -14,17 +14,20 @@ package make::configure;
 
 require 5.8.0;
 
+use strict;
+use warnings FATAL => qw(all);
+
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s);
+our @EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s);
 
 my $no_svn = 0;
 
 sub yesno {
 	my ($flag,$prompt) = @_;
 	print "$prompt [\033[1;32m$main::config{$flag}\033[0m] -> ";
-	chomp($tmp = <STDIN>);
+	chomp(my $tmp = <STDIN>);
 	if ($tmp eq "") { $tmp = $main::config{$flag} }
 	if (($tmp eq "") || ($tmp =~ /^y/i))
 	{
@@ -57,7 +60,7 @@ sub getrevision {
 	if ($data eq "")
 	{
 		$no_svn = 1;
-		$rev = "0";
+		my $rev = "0";
 		return $rev;
 	}
 	$data =~ /Revision: (\d+)/;
@@ -79,7 +82,7 @@ sub getcompilerflags {
 		}
 	}
 	close(FLAGS);
-	return undef;
+	return "";
 }
 
 sub getlinkerflags {
@@ -92,7 +95,7 @@ sub getlinkerflags {
 		}
 	}
 	close(FLAGS);
-	return undef;
+	return "";
 }
 
 sub getdependencies {
@@ -105,7 +108,7 @@ sub getdependencies {
 		}
 	}
 	close(FLAGS);
-	return undef;
+	return "";
 }
 
 sub nopedantic {
@@ -126,11 +129,11 @@ sub getmodules
 	my $i = 0;
 	print "Detecting modules ";
 	opendir(DIRHANDLE, "src/modules");
-	foreach $name (sort readdir(DIRHANDLE))
+	foreach my $name (sort readdir(DIRHANDLE))
 	{
 		if ($name =~ /^m_(.+)\.cpp$/)
 		{
-			$mod = $1;
+			my $mod = $1;
 			$main::modlist[$i++] = $mod;
 			print ".";
 		}
@@ -147,7 +150,7 @@ sub promptnumeric($$)
 	{
 		print "Please enter the maximum $prompt?\n";
 		print "[\033[1;32m$main::config{$configitem}\033[0m] -> ";
-		chomp($var = <STDIN>);
+		chomp(my $var = <STDIN>);
 		if ($var eq "")
 		{
 			$var = $main::config{$configitem};
@@ -218,7 +221,7 @@ sub is_dir
 
 sub showhelp
 {
-	chomp($PWD = `pwd`);
+	chomp(my $PWD = `pwd`);
 	print "Usage: configure [options]
 
 *** NOTE: NON-INTERACTIVE CONFIGURE IS *NOT* SUPPORTED BY THE ***
