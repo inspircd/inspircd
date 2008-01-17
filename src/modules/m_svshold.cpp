@@ -125,12 +125,12 @@ class CommandSvshold : public Command
 				if(length > 0)
 				{
 					user->WriteServ( "385 %s %s :Added %lu second SVSHOLD (%s)", user->nick, parameters[0], length, reason.c_str());
-					ServerInstance->WriteOpers("*** %s added %lu second SVSHOLD on %s (%s)", user->nick, length, parameters[0], reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('O', "%s added %lu second SVSHOLD on %s (%s)", user->nick, length, parameters[0], reason.c_str());
 				}
 				else
 				{
 					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], parameters[0], reason.c_str());
-					ServerInstance->WriteOpers("*** %s added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('O', "%s added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else
@@ -261,7 +261,7 @@ class ModuleSVSHold : public Module
 				if ((*iter)->set_on + (*iter)->length <= ServerInstance->Time())
 				{
 					ServerInstance->Log(DEBUG, "m_svshold.so: hold on %s expired, removing...", (*iter)->nickname.c_str());
-					ServerInstance->WriteOpers("*** %li second SVSHOLD on %s (%s) set %u seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
+					ServerInstance->SNO->WriteToSnoMask('O',"%li second SVSHOLD on %s (%s) set %u seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
 					HoldMap.erase(assign((*iter)->nickname));
 					delete *iter;
 					safeiter = iter;

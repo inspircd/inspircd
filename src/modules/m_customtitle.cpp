@@ -90,7 +90,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 
 				if (!ServerInstance->ULine(user->server))
 					// Ulines set TITLEs silently
-					ServerInstance->WriteOpers("*** %s used TITLE to set custom title '%s'",user->nick,title.c_str());
+					ServerInstance->SNO->WriteToSnoMask('O', "%s used TITLE to set custom title '%s'",user->nick,title.c_str());
 
 				user->WriteServ("NOTICE %s :Custom title set to '%s'",user->nick, title.c_str());
 
@@ -100,7 +100,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 
 		if (!ServerInstance->ULine(user->server))
 			// Ulines also fail TITLEs silently
-			ServerInstance->WriteOpers("*** Failed TITLE attempt by %s!%s@%s using login '%s'",user->nick,user->ident,user->host,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('O', "Failed TITLE attempt by %s!%s@%s using login '%s'",user->nick,user->ident,user->host,parameters[0]);
 
 		user->WriteServ("NOTICE %s :Invalid title credentials",user->nick);
 		return CMD_SUCCESS;

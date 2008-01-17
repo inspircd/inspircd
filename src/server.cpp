@@ -46,10 +46,10 @@ void InspIRCd::Exit(int status)
 
 void InspIRCd::Rehash()
 {
-	this->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(this->ConfigFileName));
+	this->SNO->WriteToSnoMask('O', "Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(this->ConfigFileName));
 	this->CloseLog();
 	if (!this->OpenLog(this->Config->argv, this->Config->argc))
-		this->WriteOpers("*** ERROR: Could not open logfile %s: %s", Config->logpath.c_str(), strerror(errno));
+		this->SNO->WriteToSnoMask('O', "ERROR: Could not open logfile %s: %s", Config->logpath.c_str(), strerror(errno));
 	this->RehashUsersAndChans();
 	FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
 	/*this->Config->Read(false,NULL);*/
@@ -61,7 +61,7 @@ void InspIRCd::Rehash()
 
 void InspIRCd::RehashServer()
 {
-	this->WriteOpers("*** Rehashing config file");
+	this->SNO->WriteToSnoMask('O', "Rehashing config file");
 	this->RehashUsersAndChans();
 	/*this->Config->Read(false,NULL);*/
 	this->ResetMaxBans();

@@ -65,7 +65,7 @@ class CommandWebirc : public Command
 						user->Extend("cgiirc_realhost", new std::string(user->host));
 						user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 						if (notify)
-							ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick, user->host, parameters[2], user->host);
+							ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick, user->host, parameters[2], user->host);
 						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
 						user->Extend("cgiirc_webirc_ip", new std::string(parameters[3]));
 						return CMD_LOCALONLY;
@@ -98,7 +98,7 @@ class CGIResolver : public Resolver
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
-				ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick, them->host, result.c_str(), typ.c_str());
+				ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick, them->host, result.c_str(), typ.c_str());
 
 			strlcpy(them->host, result.c_str(), 63);
 			strlcpy(them->dhost, result.c_str(), 63);
@@ -112,7 +112,7 @@ class CGIResolver : public Resolver
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
-				ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick, them->host,typ.c_str());
+				ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick, them->host,typ.c_str());
 		}
 	}
 
@@ -344,7 +344,7 @@ public:
 			{
 				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
 				if(NotifyOpers)
-					ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);
+					ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);
 			}
 			else
 			{
@@ -359,14 +359,14 @@ public:
 				catch (...)
 				{
 					if (NotifyOpers)
-						ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
+						ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
 				}
 			}
 			
 			*user->password = 0;
 
 			/*if(NotifyOpers)
-				ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);*/
+				ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);*/
 
 			return true;
 		}
@@ -424,7 +424,7 @@ public:
 			user->InvalidateCache();
 
 			if(NotifyOpers)
-				 ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
+				 ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
 		}
 		/*strlcpy(user->host, newip, 16);
 		strlcpy(user->dhost, newip, 16);

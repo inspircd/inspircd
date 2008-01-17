@@ -627,7 +627,7 @@ int InspIRCd::Run()
 		{
 			if (TIME < OLDTIME)
 			{
-				WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
+				SNO->WriteToSnoMask('O', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
 			}
 
 			if ((TIME % 3600) == 0)

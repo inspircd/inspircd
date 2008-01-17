@@ -40,7 +40,7 @@ class CommandSaquit : public Command
 			
 			irc::stringjoiner reason_join(" ", parameters, 1, pcnt - 1);
 			std::string line = reason_join.GetJoined();
-			ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
+			ServerInstance->SNO->WriteToSnoMask('O', std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
 			
 			// Pass the command on, so the client's server can quit it properly.
 			if (!IS_LOCAL(dest))

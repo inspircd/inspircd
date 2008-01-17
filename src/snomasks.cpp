@@ -95,7 +95,7 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('K',"REMOTEKILL");			/* Remote kill notices */
 	this->EnableSnomask('l',"LINK");			/* Link notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
-	this->EnableSnomask('O',"ALLOPERS");			/* WriteOpers() - generic notices to all opers */
+	this->EnableSnomask('O',"ALLOPERS");			/* formerly WriteOpers() - generic notices to all opers */
 	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */

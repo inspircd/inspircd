@@ -267,7 +267,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		}
 		if (f->action == "block")
 		{	
-			ServerInstance->WriteOpers(std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
+			ServerInstance->SNO->WriteToSnoMask('O', std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message has been filtered and opers notified: "+f->reason);
 		}
 		if (f->action == "silent")

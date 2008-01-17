@@ -52,7 +52,7 @@ class CommandSethost : public Command
 		}
 		if (user->ChangeDisplayedHost(parameters[0]))
 		{
-			ServerInstance->WriteOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+user->dhost);
+			ServerInstance->SNO->WriteToSnoMask('O', std::string(user->nick)+" used SETHOST to change their displayed host to "+user->dhost);
 			return CMD_SUCCESS;
 		}
 

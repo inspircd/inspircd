@@ -35,7 +35,7 @@ class CommandGloadmodule : public Command
 		{
 			if (ServerInstance->Modules->Load(parameters[0]))
 			{
-				ServerInstance->WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
+				ServerInstance->SNO->WriteToSnoMask('O', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
 				user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 			}
 			else
@@ -44,7 +44,7 @@ class CommandGloadmodule : public Command
 			}
 		}
 		else
-			ServerInstance->WriteOpers("*** MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('O', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0],user->nick);
 
 		return CMD_SUCCESS;
 	}
@@ -69,7 +69,7 @@ class CommandGunloadmodule : public Command
 		{
 			if (ServerInstance->Modules->Unload(parameters[0]))
 			{
-				ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
+				ServerInstance->SNO->WriteToSnoMask('O', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
 				user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
 			}
 			else
@@ -78,7 +78,7 @@ class CommandGunloadmodule : public Command
 			}
 		}
 		else
-			ServerInstance->WriteOpers("*** MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('O', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0],user->nick);
 
 		return CMD_SUCCESS;
 	}
@@ -109,11 +109,11 @@ class CommandGreloadmodule : public Command
 			{
 				user->WriteServ("974 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
-			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('O', "MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 		}
 		else
-			ServerInstance->WriteOpers("*** MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('O', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0],user->nick);
 
 		return CMD_SUCCESS;
 	}

@@ -95,38 +95,6 @@ std::string InspIRCd::GetServerDescription(const char* servername)
 	}
 }
 
-/* XXX - We don't use WriteMode for this because WriteMode is very slow and
- * this isnt. Basically WriteMode has to iterate ALL the users 'n' times for
- * the number of modes provided, e.g. if you send WriteMode 'og' to write to
- * opers with globops, and you have 2000 users, thats 4000 iterations. WriteOpers
- * uses the oper list, which means if you have 2000 users but only 5 opers,
- * it iterates 5 times.
- */
-void InspIRCd::WriteOpers(const char* text, ...)
-{
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteOpers(std::string(textbuffer));
-}
-
-void InspIRCd::WriteOpers(const std::string &text)
-{
-	for (std::list<User*>::iterator i = this->all_opers.begin(); i != this->all_opers.end(); i++)
-	{
-		User* a = *i;
-		if (IS_LOCAL(a) && a->IsModeSet('s'))
-		{
-			// send server notices to all with +s
-			a->WriteServ("NOTICE %s :%s",a->nick,text.c_str());
-		}
-	}
-}
-
 void InspIRCd::ServerNoticeAll(char* text, ...)
 {
 	if (!text)

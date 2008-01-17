@@ -525,17 +525,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	std::string GetServerDescription(const char* servername);
 
-	/** Write text to all opers connected to this server
-	 * @param text The text format string
-	 * @param ... Format args
-	 */
-	void WriteOpers(const char* text, ...);
-
-	/** Write text to all opers connected to this server
-	 * @param text The text to send
-	 */
-	void WriteOpers(const std::string &text);
-
 	/** Find a user in the nick hash.
 	 * If the user cant be found in the nick hash check the uuid hash
 	 * @param nick The nickname to find

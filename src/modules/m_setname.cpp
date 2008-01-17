@@ -43,7 +43,7 @@ class CommandSetname : public Command
 		
 		if (user->ChangeName(parameters[0]))
 		{
-			ServerInstance->WriteOpers("%s used SETNAME to change their GECOS to %s", user->nick, parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('O', "%s used SETNAME to change their GECOS to %s", user->nick, parameters[0]);
 			return CMD_SUCCESS;
 		}
 

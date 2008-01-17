@@ -58,7 +58,7 @@ class CommandChgident : public Command
 		dest->ChangeIdent(parameters[1]);
 
 		if (!ServerInstance->ULine(user->server))
-			ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident to '%s'", user->nick, dest->nick, dest->ident);
+			ServerInstance->SNO->WriteToSnoMask('O', "%s used CHGIDENT to change %s's ident to '%s'", user->nick, dest->nick, dest->ident);
 
 		/* route it! */
 		return CMD_SUCCESS;

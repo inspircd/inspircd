@@ -91,12 +91,12 @@ class CommandCban : public Command
 				if(length > 0)
 				{
 					user->WriteServ("385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
-					ServerInstance->WriteOpers("*** %s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('O', "%s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
 				}
 				else
 				{
 					user->WriteServ("385 %s %s :Added permanent channel ban (%s)", user->nick, parameters[0], reason.c_str());
-					ServerInstance->WriteOpers("*** %s added permanent channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('O', "%s added permanent channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else
@@ -159,7 +159,7 @@ class ModuleCBan : public Module
 			{
 				// Channel is banned.
 				user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick, cname, iter->reason.c_str());
-				ServerInstance->WriteOpers("*** %s tried to join %s which is CBANed (%s)", user->nick, cname, iter->reason.c_str());
+				ServerInstance->SNO->WriteToSnoMask('O', "%s tried to join %s which is CBANed (%s)", user->nick, cname, iter->reason.c_str());
 				return 1;
 			}
 		}
@@ -228,7 +228,7 @@ class ModuleCBan : public Module
 				{
 					if (iter->set_on + iter->length <= ServerInstance->Time())
 					{
-						ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set on %s expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), ServerInstance->TimeString(iter->set_on).c_str());
+						ServerInstance->SNO->WriteToSnoMask('O', "%li second CBAN on %s (%s) set on %s expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), ServerInstance->TimeString(iter->set_on).c_str());
 						cbans.erase(iter);
 						go_again = true;
 					}

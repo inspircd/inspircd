@@ -179,7 +179,7 @@ class ModuleAlias : public Module
 				{
 					if (!ServerInstance->ULine(u->server))
 					{
-						ServerInstance->WriteOpers("*** NOTICE -- Service "+Aliases[i].requires+" required by alias "+std::string(Aliases[i].text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!"); 
+						ServerInstance->SNO->WriteToSnoMask('O', "NOTICE -- Service "+Aliases[i].requires+" required by alias "+std::string(Aliases[i].text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!"); 
 						user->WriteServ("401 "+std::string(user->nick)+" "+Aliases[i].requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
 						return 1;
 					}

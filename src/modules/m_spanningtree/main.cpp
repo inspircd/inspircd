@@ -732,7 +732,7 @@ void ModuleSpanningTree::OnRehash(User* user, const std::string &parameter)
 		// check for self
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameter))
 		{
-			ServerInstance->WriteOpers("*** Remote rehash initiated locally by \002%s\002", user ? user->nick : ServerInstance->Config->ServerName);
+			ServerInstance->SNO->WriteToSnoMask('O', "Remote rehash initiated locally by \002%s\002", user ? user->nick : ServerInstance->Config->ServerName);
 			ServerInstance->RehashServer();
 		}
 	}

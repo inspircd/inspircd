@@ -63,7 +63,7 @@ class CommandChghost : public Command
 		if ((dest->ChangeDisplayedHost(parameters[1])) && (!ServerInstance->ULine(user->server)))
 		{
 			// fix by brain - ulines set hosts silently
-			ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
+			ServerInstance->SNO->WriteToSnoMask('O', std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
 		}
 
 		/* route it! */

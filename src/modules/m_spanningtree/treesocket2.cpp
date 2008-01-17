@@ -1462,7 +1462,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 1)
-					Instance->WriteOpers("*** From " + prefix + ": " + params[0]);
+					Instance->SNO->WriteToSnoMask('O', "From " + prefix + ": " + params[0]);
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
 			else if (command == "MODENOTICE")

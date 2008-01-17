@@ -137,7 +137,7 @@ class ModuleBlockAmsg : public Module
 			{
 				// Block it...
 				if(action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
-					ServerInstance->WriteOpers("*** %s had an /amsg or /ame denied", user->nick);
+					ServerInstance->SNO->WriteToSnoMask('O', "%s had an /amsg or /ame denied", user->nick);
 
 				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					User::QuitUser(ServerInstance, user, "Global message (/amsg or /ame) detected");

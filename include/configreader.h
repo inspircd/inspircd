@@ -661,7 +661,7 @@ class CoreExport ServerConfig : public Extensible
 	 * @param bail If this is set to true, the error is sent to the console, and the program exits
 	 * @param user If this is set to a non-null value, and bail is false, the errors are spooled to
 	 * this user as SNOTICEs.
-	 * If the parameter is NULL, the messages are spooled to all users via WriteOpers as SNOTICEs.
+	 * If the parameter is NULL, the messages are spooled to all opers.
 	 */
 	void ReportConfigError(const std::string &errormessage, bool bail, User* user);
 

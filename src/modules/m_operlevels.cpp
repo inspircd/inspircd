@@ -19,22 +19,15 @@
 
 class ModuleOperLevels : public Module
 {
-
 	private:
-
-		
 		ConfigReader* conf;
-
 	public:
-
 		ModuleOperLevels(InspIRCd* Me)
 			: Module(Me)
 		{
-
-			
 			conf = new ConfigReader(ServerInstance);
-		Implementation eventlist[] = { I_OnRehash, I_OnKill };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+			Implementation eventlist[] = { I_OnRehash, I_OnKill };
+			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 		virtual ~ModuleOperLevels()
@@ -81,7 +74,7 @@ class ModuleOperLevels : public Module
 				}
 				if (dest_level > source_level)
 				{
-					ServerInstance->WriteOpers("Oper %s (level %d) attempted to /kill a higher oper: %s (level %d): Reason: %s",source->nick,source_level,dest->nick,dest_level,reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('O', "Oper %s (level %d) attempted to /kill a higher oper: %s (level %d): Reason: %s",source->nick,source_level,dest->nick,dest_level,reason.c_str());
 					dest->WriteServ("NOTICE %s :Oper %s attempted to /kill you!",dest->nick,source->nick);
 					source->WriteServ("481 %s :Permission Denied - Oper %s is a higher level than you",source->nick,dest->nick);
 					return 1;

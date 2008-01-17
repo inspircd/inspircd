@@ -452,7 +452,7 @@ bool User::AddBuffer(std::string a)
 		if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
 		{
 			this->SetWriteError("RecvQ exceeded");
-			ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
+			ServerInstance->SNO->WriteToSnoMask('O', "User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
 			return false;
 		}
 
@@ -524,12 +524,12 @@ void User::AddWriteBuf(const std::string &data)
 	if (this->MyClass && (sendq.length() + data.length() > this->MyClass->GetSendqMax()))
 	{
 		/*
-		 * Fix by brain - Set the error text BEFORE calling writeopers, because
+		 * Fix by brain - Set the error text BEFORE calling, because
 		 * if we dont it'll recursively  call here over and over again trying
 		 * to repeatedly add the text to the sendq!
 		 */
 		this->SetWriteError("SendQ exceeded");
-		ServerInstance->WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->MyClass->GetSendqMax());
+		ServerInstance->SNO->WriteToSnoMask('O', "User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
 
@@ -543,7 +543,7 @@ void User::AddWriteBuf(const std::string &data)
 	catch (...)
 	{
 		this->SetWriteError("SendQ exceeded");
-		ServerInstance->WriteOpers("*** User %s SendQ got an exception",this->nick);
+		ServerInstance->SNO->WriteToSnoMask('O', "User %s SendQ got an exception",this->nick);
 	}
 }
 
@@ -741,13 +741,13 @@ void User::CheckClass()
 	else if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))
 	{
 		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
-		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
+		ServerInstance->SNO->WriteToSnoMask('O', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
 	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
 	{
 		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (global)");
-		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
+		ServerInstance->SNO->WriteToSnoMask('O', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
 

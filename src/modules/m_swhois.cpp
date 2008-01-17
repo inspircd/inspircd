@@ -62,7 +62,7 @@ class CommandSwhois : public Command
 			
 			if (!ServerInstance->ULine(user->server))
 				// Ulines set SWHOISes silently
-				ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
+				ServerInstance->SNO->WriteToSnoMask('O', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
 			
 			dest->Shrink("swhois");
 			delete text;
@@ -70,7 +70,7 @@ class CommandSwhois : public Command
 		else if (!ServerInstance->ULine(user->server))
 		{
 			// Ulines set SWHOISes silently
-			ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
+			ServerInstance->SNO->WriteToSnoMask('O', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
 		}
 		
 		text = new std::string(line);
