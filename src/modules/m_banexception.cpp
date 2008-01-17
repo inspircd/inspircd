@@ -45,7 +45,7 @@ public:
 	ModuleBanException(InspIRCd* Me) : Module(Me)
 	{
 		be = new BanException(ServerInstance);
-		if (!ServerInstance->AddMode(be))
+		if (!ServerInstance->Modes->AddMode(be))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 

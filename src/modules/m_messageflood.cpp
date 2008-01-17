@@ -209,7 +209,7 @@ class ModuleMsgFlood : public Module
 	{
 		
 		mf = new MsgFlood(ServerInstance);
-		if (!ServerInstance->AddMode(mf))
+		if (!ServerInstance->Modes->AddMode(mf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 3);

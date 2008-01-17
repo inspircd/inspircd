@@ -54,7 +54,7 @@ class ModuleNoNotice : public Module
 	{
 		
 		nt = new NoNotice(ServerInstance);
-		if (!ServerInstance->AddMode(nt))
+		if (!ServerInstance->Modes->AddMode(nt))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

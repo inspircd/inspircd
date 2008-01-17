@@ -54,7 +54,7 @@ class ModuleAuditorium : public Module
 		: Module(Me)
 	{
 		aum = new AuditoriumMode(ServerInstance);
-		if (!ServerInstance->AddMode(aum))
+		if (!ServerInstance->Modes->AddMode(aum))
 		{
 			delete aum;
 			throw ModuleException("Could not add new modes!");

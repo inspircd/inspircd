@@ -216,7 +216,7 @@ class ModuleJoinFlood : public Module
 	{
 		
 		jf = new JoinFlood(ServerInstance);
-		if (!ServerInstance->AddMode(jf))
+		if (!ServerInstance->Modes->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreJoin, I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 3);

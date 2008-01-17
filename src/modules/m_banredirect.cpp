@@ -193,7 +193,7 @@ class ModuleBanRedirect : public Module
 		re = new BanRedirect(Me);
 		nofollow = false;
 		
-		if(!ServerInstance->AddModeWatcher(re))
+		if(!ServerInstance->Modes->AddModeWatcher(re))
 		{
 			delete re;
 			throw ModuleException("Could not add mode watcher");

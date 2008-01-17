@@ -52,7 +52,7 @@ class ModuleNoNickChange : public Module
 	{
 		
 		nn = new NoNicks(ServerInstance);
-		ServerInstance->AddMode(nn);
+		ServerInstance->Modes->AddMode(nn);
 		Implementation eventlist[] = { I_OnUserPreNick };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

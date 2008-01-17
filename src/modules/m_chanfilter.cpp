@@ -66,7 +66,7 @@ class ModuleChanFilter : public Module
 		: Module(Me)
 	{
 		cf = new ChanFilter(ServerInstance);
-		if (!ServerInstance->AddMode(cf))
+		if (!ServerInstance->Modes->AddMode(cf))
 			throw ModuleException("Could not add new modes!");
 
 		cf->DoImplements(this);

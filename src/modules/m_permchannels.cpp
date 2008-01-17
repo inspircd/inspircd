@@ -54,7 +54,7 @@ public:
 	ModulePermanentChannels(InspIRCd* Me) : Module(Me)
 	{
 		p = new PermChannel(ServerInstance);
-		if (!ServerInstance->AddMode(p))
+		if (!ServerInstance->Modes->AddMode(p))
 		{
 			delete p;
 			throw ModuleException("Could not add new modes!");

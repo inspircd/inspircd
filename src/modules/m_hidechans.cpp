@@ -59,7 +59,7 @@ class ModuleHideChans : public Module
 	{
 		
 		hm = new HideChans(ServerInstance);
-		if (!ServerInstance->AddMode(hm))
+		if (!ServerInstance->Modes->AddMode(hm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhoisLine };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

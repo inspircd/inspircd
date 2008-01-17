@@ -215,7 +215,7 @@ class ModuleNickFlood : public Module
 	{
 		
 		jf = new NickFlood(ServerInstance);
-		if (!ServerInstance->AddMode(jf))
+		if (!ServerInstance->Modes->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

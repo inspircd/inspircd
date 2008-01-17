@@ -55,7 +55,7 @@ class ModuleBotMode : public Module
 	{
 		
 		bm = new BotMode(ServerInstance);
-		if (!ServerInstance->AddMode(bm))
+		if (!ServerInstance->Modes->AddMode(bm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhois };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

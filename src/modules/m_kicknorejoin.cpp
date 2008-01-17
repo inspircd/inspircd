@@ -124,7 +124,7 @@ public:
 	{
 		
 		kr = new KickRejoin(ServerInstance);
-		if (!ServerInstance->AddMode(kr))
+		if (!ServerInstance->Modes->AddMode(kr))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnUserPreJoin, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, 4);

@@ -60,7 +60,7 @@ class ModuleDeaf : public Module
 		: Module(Me)
 	{
 		m1 = new User_d(ServerInstance);
-		if (!ServerInstance->AddMode(m1))
+		if (!ServerInstance->Modes->AddMode(m1))
 			throw ModuleException("Could not add new modes!");
 
 		OnRehash(NULL, "");

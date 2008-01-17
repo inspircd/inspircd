@@ -65,7 +65,7 @@ class ModuleDelayJoin : public Module
 		: Module(Me)
 	{
 		djm = new DelayJoinMode(ServerInstance, this);
-		if (!ServerInstance->AddMode(djm))
+		if (!ServerInstance->Modes->AddMode(djm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnUserList, I_OnText };
 		ServerInstance->Modules->Attach(eventlist, this, 6);

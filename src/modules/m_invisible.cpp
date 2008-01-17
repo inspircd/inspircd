@@ -159,10 +159,10 @@ class ModuleInvisible : public Module
 	{
 		conf = new ConfigReader(ServerInstance);
 		qm = new InvisibleMode(ServerInstance);
-		if (!ServerInstance->AddMode(qm))
+		if (!ServerInstance->Modes->AddMode(qm))
 			throw ModuleException("Could not add new modes!");
 		ido = new InvisibleDeOper(ServerInstance);
-		if (!ServerInstance->AddModeWatcher(ido))
+		if (!ServerInstance->Modes->AddModeWatcher(ido))
 			throw ModuleException("Could not add new mode watcher on usermode +o!");
 
 		/* Yeah i know people can take this out. I'm not about to obfuscate code just to be a pain in the ass. */

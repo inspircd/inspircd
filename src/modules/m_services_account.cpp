@@ -118,7 +118,7 @@ class ModuleServicesAccount : public Module
 		m1 = new AChannel_R(ServerInstance);
 		m2 = new AChannel_M(ServerInstance);
 		m3 = new AUser_R(ServerInstance);
-		if (!ServerInstance->AddMode(m1) || !ServerInstance->AddMode(m2) || !ServerInstance->AddMode(m3))
+		if (!ServerInstance->Modes->AddMode(m1) || !ServerInstance->Modes->AddMode(m2) || !ServerInstance->Modes->AddMode(m3))
 			throw ModuleException("Could not add new modes!");
 
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin,

@@ -92,7 +92,7 @@ class ModuleStripColor : public Module
 		usc = new UserStripColor(ServerInstance);
 		csc = new ChannelStripColor(ServerInstance);
 
-		if (!ServerInstance->AddMode(usc) || !ServerInstance->AddMode(csc))
+		if (!ServerInstance->Modes->AddMode(usc) || !ServerInstance->Modes->AddMode(csc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

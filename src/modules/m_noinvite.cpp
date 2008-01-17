@@ -51,7 +51,7 @@ class ModuleNoInvite : public Module
 	ModuleNoInvite(InspIRCd* Me) : Module(Me)
 	{
 		ni = new NoInvite(ServerInstance);
-		if (!ServerInstance->AddMode(ni))
+		if (!ServerInstance->Modes->AddMode(ni))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreInvite };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

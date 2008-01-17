@@ -752,21 +752,6 @@ User* FindDescriptorHandler::Call(int socket)
 	return reinterpret_cast<User*>(Server->SE->GetRef(socket));
 }
 
-bool InspIRCd::AddMode(ModeHandler* mh)
-{
-	return this->Modes->AddMode(mh);
-}
-
-bool InspIRCd::AddModeWatcher(ModeWatcher* mw)
-{
-	return this->Modes->AddModeWatcher(mw);
-}
-
-bool InspIRCd::DelModeWatcher(ModeWatcher* mw)
-{
-	return this->Modes->DelModeWatcher(mw);
-}
-
 bool InspIRCd::AddResolver(Resolver* r, bool cached)
 {
 	if (!cached)
@@ -800,10 +785,6 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 
 ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	/* Is there any reason to load the entire config file again here?
-	 * it's needed if they specify another config file, but using the
-	 * default one we can just use the global config data - pre-parsed!
-	 */
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
 	this->error = CONF_NO_ERROR;
 	this->data = &ServerInstance->Config->config_data;

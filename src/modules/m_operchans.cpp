@@ -54,7 +54,7 @@ class ModuleOperChans : public Module
 	{
 				
 		oc = new OperChans(ServerInstance);
-		if (!ServerInstance->AddMode(oc))
+		if (!ServerInstance->Modes->AddMode(oc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

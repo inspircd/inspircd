@@ -669,24 +669,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	caller1<User*, int> FindDescriptor;
 
-	/** Add a new mode to this server's mode parser
-	 * @param mh The modehandler to add
-	 * @return True if the mode handler was added
-	 */
-	bool AddMode(ModeHandler* mh);
-
-	/** Add a new mode watcher to this server's mode parser
-	 * @param mw The modewatcher to add
-	 * @return True if the modewatcher was added
-	 */
-	bool AddModeWatcher(ModeWatcher* mw);
-
-	/** Delete a mode watcher from this server's mode parser
-	 * @param mw The modewatcher to delete
-	 * @return True if the modewatcher was deleted
-	 */
-	bool DelModeWatcher(ModeWatcher* mw);
-
 	/** Add a dns Resolver class to this server's active set
 	 * @param r The resolver to add
 	 * @param cached If this value is true, then the cache will

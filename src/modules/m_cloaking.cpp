@@ -337,7 +337,7 @@ class ModuleCloaking : public Module
 		}
 
 		/* Register it with the core */
-		if (!ServerInstance->AddMode(cu))
+		if (!ServerInstance->Modes->AddMode(cu))
 		{
 			delete cu;
 			throw ModuleException("Could not add new modes!");
