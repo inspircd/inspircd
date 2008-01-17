@@ -651,35 +651,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	static void QuickExit(int status);
 
-	/** Return a count of users, unknown and known connections
-	 * @return The number of users
-	 */
-	int UserCount();
-
-	/** Return a count of fully registered connections only
-	 * @return The number of registered users
-	 */
-	int RegisteredUserCount();
-
-	/** Return a count of opered (umode +o) users only
-	 * @return The number of opers
-	 */
-	int OperCount();
-
-	/** Return a count of unregistered (before NICK/USER) users only
-	 * @return The number of unregistered (unknown) connections
-	 */
-	int UnregisteredUserCount();
-
 	/** Return a count of channels on the network
 	 * @return The number of channels
 	 */
 	long ChannelCount();
-
-	/** Return a count of local users on this server only
-	 * @return The number of local users
-	 */
-	long LocalUserCount();
 
 	/** Send an error notice to all local users, opered and unopered
 	 * @param s The error string to send

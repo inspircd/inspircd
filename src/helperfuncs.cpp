@@ -339,18 +339,6 @@ void InspIRCd::SendError(const std::string &s)
 	}
 }
 
-/* this function counts all users connected, wether they are registered or NOT. */
-int InspIRCd::UserCount()
-{
-	return clientlist->size();
-}
-
-/* this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state */
-int InspIRCd::RegisteredUserCount()
-{
-	return clientlist->size() - this->UnregisteredUserCount();
-}
-
 /* return how many users have a given mode e.g. 'a' */
 int InspIRCd::ModeCount(const char mode)
 {
@@ -362,29 +350,10 @@ int InspIRCd::ModeCount(const char mode)
 		return 0;
 }
 
-/* return how many users are opered */
-int InspIRCd::OperCount()
-{
-	return this->all_opers.size();
-}
-
-/* return how many users are unregistered */
-int InspIRCd::UnregisteredUserCount()
-{
-	return this->unregistered_count;
-}
-
 /* return channel count */
 long InspIRCd::ChannelCount()
 {
 	return chanlist->size();
-}
-
-/* return how many local registered users there are */
-long InspIRCd::LocalUserCount()
-{
-	/* Doesnt count unregistered clients */
-	return (local_users.size() - this->UnregisteredUserCount());
 }
 
 bool InspIRCd::IsValidMask(const std::string &mask)

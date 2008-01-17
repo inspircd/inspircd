@@ -77,10 +77,30 @@ class CoreExport UserManager : public classbase
 	 */
 	unsigned long LocalCloneCount(User *user);
 
+	/** Return a count of users, unknown and known connections
+	 * @return The number of users
+	 */
+	unsigned int UserCount();
 
+	/** Return a count of fully registered connections only
+	 * @return The number of registered users
+	 */
+	unsigned int RegisteredUserCount();
 
+	/** Return a count of opered (umode +o) users only
+	 * @return The number of opers
+	 */
+	unsigned int OperCount();
 
-	void RemoveCloneCounts();
+	/** Return a count of unregistered (before NICK/USER) users only
+	 * @return The number of unregistered (unknown) connections
+	 */
+	unsigned int UnregisteredUserCount();
+
+	/** Return a count of local users on this server only
+	 * @return The number of local users
+	 */
+	unsigned int LocalUserCount();
 };
 
 #endif

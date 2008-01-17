@@ -237,3 +237,41 @@ unsigned long UserManager::LocalCloneCount(User *user)
 	else
 		return 0;
 }
+
+/* this function counts all users connected, wether they are registered or NOT. */
+unsigned int UserManager::UserCount()
+{
+	/*
+	 * XXX: Todo:
+	 *  As part of this restructuring, move clientlist/etc fields into usermanager.
+	 * 	-- w00t
+	 */
+	return ServerInstance->clientlist->size();
+}
+
+/* this counts only registered users, so that the percentages in /MAP don't mess up */
+unsigned int UserManager::RegisteredUserCount()
+{
+	return ServerInstance->clientlist->size() - this->UnregisteredUserCount();
+}
+
+/* return how many users are opered */
+unsigned int UserManager::OperCount()
+{
+	return ServerInstance->all_opers.size();
+}
+
+/* return how many users are unregistered */
+unsigned int UserManager::UnregisteredUserCount()
+{
+	return ServerInstance->unregistered_count;
+}
+
+/* return how many local registered users there are */
+unsigned int UserManager::LocalUserCount()
+{
+        /* Doesnt count unregistered clients */
+        return (ServerInstance->local_users.size() - this->UnregisteredUserCount());
+}
+
+
