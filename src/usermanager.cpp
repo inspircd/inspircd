@@ -155,14 +155,11 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 		}
 	}
 
-        if (socket > -1)
-        {
-                if (!Instance->SE->AddFd(New))
-                {
-			Instance->Log(DEBUG,"Internal error on new connection");
-			User::QuitUser(Instance, New, "Internal error handling connection");
-                }
-        }
+	if (!Instance->SE->AddFd(New))
+	{
+		Instance->Log(DEBUG,"Internal error on new connection");
+		User::QuitUser(Instance, New, "Internal error handling connection");
+	}
 
 	/* NOTE: even if dns lookups are *off*, we still need to display this.
 	 * BOPM and other stuff requires it.
@@ -270,8 +267,8 @@ unsigned int UserManager::UnregisteredUserCount()
 /* return how many local registered users there are */
 unsigned int UserManager::LocalUserCount()
 {
-        /* Doesnt count unregistered clients */
-        return (ServerInstance->local_users.size() - this->UnregisteredUserCount());
+	/* Doesnt count unregistered clients */
+	return (ServerInstance->local_users.size() - this->UnregisteredUserCount());
 }
 
 
