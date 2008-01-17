@@ -29,7 +29,6 @@ SnomaskManager::~SnomaskManager()
 
 void SnomaskManager::FlushSnotices()
 {
-	// stub.. not yet written XXX
 	for (std::map<char, Snomask *>::iterator i = SnoMasks.begin(); i != SnoMasks.end(); i++)
 	{
 		i->second->Flush();
@@ -89,13 +88,14 @@ bool SnomaskManager::IsEnabled(char letter)
 void SnomaskManager::SetupDefaults()
 {
 	this->EnableSnomask('c',"CONNECT");			/* Local connect notices */
-	this->EnableSnomask('C',"REMOTECONNECT");	/* Remote connect notices */
+	this->EnableSnomask('C',"REMOTECONNECT");		/* Remote connect notices */
 	this->EnableSnomask('q',"QUIT");			/* Local quit notices */
-	this->EnableSnomask('Q',"REMOTEQUIT");		/* Remote quit notices */
+	this->EnableSnomask('Q',"REMOTEQUIT");			/* Remote quit notices */
 	this->EnableSnomask('k',"KILL");			/* Kill notices */
-	this->EnableSnomask('K',"REMOTEKILL");		/* Remote kill notices */
+	this->EnableSnomask('K',"REMOTEKILL");			/* Remote kill notices */
 	this->EnableSnomask('l',"LINK");			/* Link notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
+	this->EnableSnomask('O',"ALLOPERS");			/* WriteOpers() - generic notices to all opers */
 	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */

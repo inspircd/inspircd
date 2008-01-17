@@ -33,7 +33,7 @@ CmdResult CommandRehash::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		ServerInstance->WriteOpers("*** %s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
+		ServerInstance->SNO->WriteToSnoMask('O', "%s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 		ServerInstance->CloseLog();
 		if (!ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc))
 			user->WriteServ("*** NOTICE %s :ERROR: Could not open logfile %s: %s", user->nick, ServerInstance->Config->logpath.c_str(), strerror(errno));

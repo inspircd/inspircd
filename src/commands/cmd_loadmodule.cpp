@@ -25,7 +25,7 @@ CmdResult CommandLoadmodule::Handle (const char** parameters, int, User *user)
 {
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{
-		ServerInstance->WriteOpers("*** NEW MODULE: %s loaded %s",user->nick, parameters[0]);
+		ServerInstance->SNO->WriteToSnoMask('O', "NEW MODULE: %s loaded %s",user->nick, parameters[0]);
 		user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 		return CMD_SUCCESS;
 	}
