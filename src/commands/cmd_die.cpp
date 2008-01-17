@@ -38,7 +38,7 @@ CmdResult CommandDie::Handle (const char** parameters, int pcnt, User *user)
 	else
 	{
 		ServerInstance->Log(SPARSE, "Failed /DIE command from %s!%s@%s", user->nick, user->ident, user->host);
-		ServerInstance->SNO->WriteToSnoMask('O', "Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
+		ServerInstance->SNO->WriteToSnoMask('A', "Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;

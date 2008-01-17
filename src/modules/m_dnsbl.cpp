@@ -156,7 +156,7 @@ class DNSBLResolver : public Resolver
 
 					if (show)
 					{
-						ServerInstance->SNO->WriteToSnoMask('O', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost(), ConfEntry->name.c_str(), bitmask);
+						ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost(), ConfEntry->name.c_str(), bitmask);
 					}
 				}
 				else
@@ -264,25 +264,25 @@ class ModuleDNSBL : public Module
 			/* yeah, logic here is a little messy */
 			if (e->bitmask <= 0)
 			{
-				ServerInstance->SNO->WriteToSnoMask('O', "DNSBL(#%d): invalid bitmask",i);
+				ServerInstance->SNO->WriteToSnoMask('A', "DNSBL(#%d): invalid bitmask",i);
 			}
 			else if (e->name.empty())
 			{
-				ServerInstance->SNO->WriteToSnoMask('O', "DNSBL(#%d): Invalid name",i);
+				ServerInstance->SNO->WriteToSnoMask('A', "DNSBL(#%d): Invalid name",i);
 			}
 			else if (e->domain.empty())
 			{
-				ServerInstance->SNO->WriteToSnoMask('O', "DNSBL(#%d): Invalid domain",i);
+				ServerInstance->SNO->WriteToSnoMask('A', "DNSBL(#%d): Invalid domain",i);
 			}
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
-				ServerInstance->SNO->WriteToSnoMask('O', "DNSBL(#%d): Invalid banaction", i);
+				ServerInstance->SNO->WriteToSnoMask('A', "DNSBL(#%d): Invalid banaction", i);
 			}
 			else
 			{
 				if (e->reason.empty())
 				{
-					ServerInstance->SNO->WriteToSnoMask('O', "DNSBL(#%d): empty reason, using defaults",i);
+					ServerInstance->SNO->WriteToSnoMask('A', "DNSBL(#%d): empty reason, using defaults",i);
 					e->reason = "Your IP has been blacklisted.";
 				}
 

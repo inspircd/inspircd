@@ -35,7 +35,7 @@ class CommandSamode : public Command
 
 		if (ServerInstance->Modes->GetLastParse().length())
 		{
-			ServerInstance->SNO->WriteToSnoMask('O', std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
+			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
 
 			std::deque<std::string> n;
 			irc::spacesepstream spaced(ServerInstance->Modes->GetLastParse());

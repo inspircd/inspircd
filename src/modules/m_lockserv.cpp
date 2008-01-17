@@ -38,7 +38,7 @@ public:
 	{
 		locked = true;
 		user->WriteServ("988 %s %s :Closed for new connections", user->nick, user->server);
-		ServerInstance->SNO->WriteToSnoMask('O', "Oper %s used LOCKSERV to temporarily close for new connections", user->nick);
+		ServerInstance->SNO->WriteToSnoMask('A', "Oper %s used LOCKSERV to temporarily close for new connections", user->nick);
 		/* Dont send to the network */
 		return CMD_LOCALONLY;
 	}
@@ -61,7 +61,7 @@ public:
 	{
 		locked = false;
 		user->WriteServ("989 %s %s :Open for new connections", user->nick, user->server);
-		ServerInstance->SNO->WriteToSnoMask('O', "Oper %s used UNLOCKSERV to allow for new connections", user->nick);
+		ServerInstance->SNO->WriteToSnoMask('A', "Oper %s used UNLOCKSERV to allow for new connections", user->nick);
 		/* Dont send to the network */
 		return CMD_LOCALONLY;
 	}

@@ -364,7 +364,7 @@ class ModuleChanProtect : public Module
 			/* These wont fail, we already owned the mode characters before */
 			ServerInstance->AddMode(cp);
 			ServerInstance->AddMode(cf);
-			ServerInstance->SNO->WriteToSnoMask('O', "WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
+			ServerInstance->SNO->WriteToSnoMask('A', "WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
 		}
 	}
 	

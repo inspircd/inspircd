@@ -48,7 +48,7 @@ class CommandSetident : public Command
 		}
 		
 		user->ChangeIdent(parameters[0]);
-		ServerInstance->SNO->WriteToSnoMask('O', "%s used SETIDENT to change their ident to '%s'", user->nick, user->ident);
+		ServerInstance->SNO->WriteToSnoMask('A', "%s used SETIDENT to change their ident to '%s'", user->nick, user->ident);
 
 		return CMD_SUCCESS;
 	}

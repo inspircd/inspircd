@@ -776,10 +776,10 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('O', "There were errors in the configuration file:");
+			ServerInstance->SNO->WriteToSnoMask('A', "There were errors in the configuration file:");
 			while (start < errors.length())
 			{
-				ServerInstance->SNO->WriteToSnoMask('O', errors.substr(start, 360).c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', errors.substr(start, 360).c_str());
 				start += 360;
 			}
 		}
@@ -1212,7 +1212,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		{
 			if (ServerInstance->Modules->Unload(removing->c_str()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('O', "REHASH UNLOADED MODULE: %s",removing->c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', "REHASH UNLOADED MODULE: %s",removing->c_str());
 				if (user)
 					user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
 				rem++;
@@ -1238,7 +1238,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 
 			if (ServerInstance->Modules->Load(adding->c_str()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('O', "REHASH LOADED MODULE: %s",adding->c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', "REHASH LOADED MODULE: %s",adding->c_str());
 				if (user)
 					user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
 
@@ -1263,7 +1263,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	if (user)
 		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
 	else
-		ServerInstance->SNO->WriteToSnoMask('O', "Successfully rehashed server.");
+		ServerInstance->SNO->WriteToSnoMask('A', "Successfully rehashed server.");
 }
 
 /* XXX: This can and will block! */

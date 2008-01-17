@@ -52,7 +52,7 @@ class CommandChgname : public Command
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1]);
-			ServerInstance->SNO->WriteToSnoMask('O', "%s used CHGNAME to change %s's real name to '%s'", user->nick, dest->nick, dest->fullname);
+			ServerInstance->SNO->WriteToSnoMask('A', "%s used CHGNAME to change %s's real name to '%s'", user->nick, dest->nick, dest->fullname);
 			return CMD_LOCALONLY; /* name change routed by FNAME in spanningtree now */
 		}
 

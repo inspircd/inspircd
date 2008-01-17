@@ -506,7 +506,7 @@ CmdResult cmd_reload::Handle(const char** parameters, int /* pcnt */, User *user
 	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))
 	{
 		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick, parameters[0]);
-		ServerInstance->SNO->WriteToSnoMask('O', "RELOAD: %s reloaded the '%s' command.", user->nick, parameters[0]);
+		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD: %s reloaded the '%s' command.", user->nick, parameters[0]);
 		return CMD_SUCCESS;
 	}
 	else

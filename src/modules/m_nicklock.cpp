@@ -54,7 +54,7 @@ class CommandNicklock : public Command
 		}
 
 		// let others know
-		ServerInstance->SNO->WriteToSnoMask('O', std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
+		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
 
 		if (!source->ForceNickChange(parameters[1]))
 		{
@@ -88,7 +88,7 @@ class CommandNickunlock : public Command
 		{
 			source->Shrink("nick_locked");
 			user->WriteServ("945 %s %s :Nickname now unlocked.",user->nick,source->nick);
-			ServerInstance->SNO->WriteToSnoMask('O', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 			return CMD_SUCCESS;
 		}
 

@@ -25,7 +25,7 @@ CmdResult CommandUnloadmodule::Handle (const char** parameters, int, User *user)
 {
 	if (ServerInstance->Modules->Unload(parameters[0]))
 	{
-		ServerInstance->SNO->WriteToSnoMask('O', "MODULE UNLOADED: %s unloaded %s", user->nick, parameters[0]);
+		ServerInstance->SNO->WriteToSnoMask('A', "MODULE UNLOADED: %s unloaded %s", user->nick, parameters[0]);
 		user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
 	}
 	else

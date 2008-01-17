@@ -95,7 +95,7 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('K',"REMOTEKILL");			/* Remote kill notices */
 	this->EnableSnomask('l',"LINK");			/* Link notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
-	this->EnableSnomask('O',"ALLOPERS");			/* formerly WriteOpers() - generic notices to all opers */
+	this->EnableSnomask('A',"ANNOUNCENENT");		/* formerly WriteOpers() - generic notices to all opers */
 	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */
@@ -128,7 +128,7 @@ void Snomask::Flush()
 	for (std::list<User*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
 	{
 		User* a = *i;
-		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(MySnomask))
+		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)
 		{
 			a->WriteServ("NOTICE %s :*** %s: %s", a->nick, this->Description.c_str(), this->LastMessage.c_str());
 			if (Count > 1)

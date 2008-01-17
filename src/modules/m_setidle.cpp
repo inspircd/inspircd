@@ -39,7 +39,7 @@ class CommandSetidle : public Command
 		// minor tweak - we cant have signon time shorter than our idle time!
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
-		ServerInstance->SNO->WriteToSnoMask('O', std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
+		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
 		user->WriteServ("944 %s :Idle time set.",user->nick);
 
 		return CMD_LOCALONLY;
