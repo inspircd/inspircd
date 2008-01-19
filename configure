@@ -1034,13 +1034,13 @@ our $SHARED = "";
 sub getosflags {
 
 	$config{LDLIBS} = "-lstdc++";
-	$config{FLAGS}  = "-fPIC -Wall -pedantic $config{OPTIMISATI}";
-	$config{DEVELOPER} = "-fPIC -Wall -pedantic -g";
+	$config{FLAGS}  = "-fPIC -Wall $config{OPTIMISATI}";
+	$config{DEVELOPER} = "-fPIC -Wall -g";
 	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared" unless defined $opt_disablerpath;
 	$config{MAKEPROG} = "make";
 
 	if ($config{OSNAME} =~ /darwin/i) {
-		$config{FLAGS}  = "-DDARWIN -frtti -fPIC -Wall -pedantic $config{OPTIMISATI}";
+		$config{FLAGS}  = "-DDARWIN -frtti -fPIC -Wall $config{OPTIMISATI}";
 		$SHARED = "-bundle -twolevel_namespace -undefined dynamic_lookup";
 		$config{LDLIBS} = "-ldl -lstdc++";
 	}
@@ -1061,7 +1061,7 @@ sub getosflags {
 
 	if ($config{OSNAME} =~ /Linux/i) {
 		$config{LDLIBS} = "-ldl -lstdc++";
-		$config{FLAGS}  = "-fPIC -Wall -pedantic $config{OPTIMISATI}";
+		$config{FLAGS}  = "-fPIC -Wall $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
 		$config{MAKEPROG} = "make";
@@ -1351,14 +1351,11 @@ EOCHEESE
 		#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
 	
 
-		my $nicerflags = $config{FLAGS};
-		$nicerflags =~ s/-pedantic//g;
-
 		if (nopedantic("src/modules/m_".$i.".cpp"))
 		{
 			print FILEHANDLE "
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
-	\$(CC) -pipe -I../../include $nicerflags $cmflags \$(PICLDFLAGS) $liflags -export-dynamic -o m_$i.so m_$i.cpp
+	\$(CC) -pipe -I../../include \$(NICEFLAGS) $cmflags \$(PICLDFLAGS) $liflags -export-dynamic -o m_$i.so m_$i.cpp
 "
 		}
 		else

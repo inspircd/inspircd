@@ -9,8 +9,10 @@
 CC = @CC@
 MAKE = @MAKEPROG@
 PROGS = inspircd
-FLAGS = @FLAGS@
-DEBUG = @DEVELOPER@
+NICEFLAGS = @FLAGS@
+FLAGS = $(NICEFLAGS) -pedantic
+NICEDEBUG = @DEVELOPER@
+DEBUG = $(NICEDEBUG) -pedantic
 LDLIBS = @LDLIBS@
 BASE = $(DESTDIR)@BASE_DIR@
 CONPATH = $(DESTDIR)@CONFIG_DIR@
@@ -38,7 +40,7 @@ debug:
 	@echo "*      experiencing problems.       *"
 	@echo "*                                   *"
 	@echo "*************************************"
-	${MAKE} -C . 'FLAGS=${DEBUG}' all
+	${MAKE} -C . 'FLAGS=${DEBUG}' 'NICEFLAGS=${NICEDEBUG}' all
 
 mods:
 	@echo "Making modules..."
