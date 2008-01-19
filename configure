@@ -1094,6 +1094,8 @@ sub getosflags {
 	return $config{OSNAME};
 }
 
+my ($mliflags, $mfrules, $mobjs, $mfcount) = ("", "", "", 0);
+
 sub writefiles {
 	my($writeheader) = @_;
 	my $se = "";
@@ -1376,10 +1378,10 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 	opendir(DIRHANDLE, "src/modules");
 	foreach my $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^m_(.+?)$/) {
-			my $mfrules = "";
-			my $mobjs = "";
-			my $mliflags = "";
-			my $mfcount = 0;
+			$mfrules = "";
+			$mobjs = "";
+			$mliflags = "";
+			$mfcount = 0;
 			# A module made of multiple files, in a dir, e.g. src/modules/m_spanningtree/
 			if (defined(opendir(MDIRHANDLE, "src/modules/$name"))) {
 				read_module_directory("src/modules/$name", $name);
@@ -1406,7 +1408,6 @@ sub read_module_directory {
 		return;
 	}
 	
-	my ($mliflags, $mfrules, $mobjs, $mfcount) = ("", "", "", 0);
 	foreach my $fname (sort readdir(MDIRHANDLE)) {
 		if ($fname =~ /\.cpp$/) {
 			my $cmflags = getcompilerflags("$dpath/$fname");
