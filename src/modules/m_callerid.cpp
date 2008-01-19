@@ -59,6 +59,24 @@ void RemoveFromAllAccepts(InspIRCd* ServerInstance, User* who)
 	}
 }
 
+class User_g : public ModeHandler
+{
+private:
+
+public:
+	User_g(InspIRCd* Instance) : ModeHandler(Instance, 'g', 0, 0, false, MODETYPE_USER, false) { }
+
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	{
+		if (adding != dest->IsModeSet('g'))
+		{
+			dest->SetMode('g', adding);
+			return MODEACTION_ALLOW;
+		}
+		return MODEACTION_DENY;
+	}
+};
+
 class CommandAccept : public Command
 {
 private:
@@ -178,6 +196,7 @@ class ModuleCallerID : public Module
 {
 private:
 	CommandAccept *mycommand;
+	User_g* myumode;
 
 	// Configuration variables:
 	unsigned int maxaccepts; // Maximum ACCEPT entries.
@@ -190,7 +209,19 @@ public:
 	{
 		OnRehash(NULL, "");
 		mycommand = new CommandAccept(ServerInstance, maxaccepts);
-		ServerInstance->AddCommand(mycommand);
+		myumode = new User_g(ServerInstance);
+		try {
+			ServerInstance->AddCommand(mycommand);
+		} catch (const ModuleException& e) {
+			delete mycommand;
+			throw;
+		}
+		if (!ServerInstance->Modes->AddMode(myumode))
+		{
+			delete mycommand;
+			delete myumode;
+			throw new ModuleException("Could not add usermode and command!");
+		}
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
