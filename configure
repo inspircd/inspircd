@@ -1298,9 +1298,9 @@ EOF
 			$tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
 			$tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/;
 			$tmp =~ s/\@MODULES\@/$modules/;
-			$tmp =~ s/\@STARTSCRIPT\@/$config{STARTSCRIPT}/;
-			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/;
-			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/;
+			$tmp =~ s/\@STARTSCRIPT\@/$config{STARTSCRIPT}/ if defined $config{STARTSCRIPT};
+			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/ if defined $config{DESTINATION};
+			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/ if defined $config{EXTRA_DIR};
 			$tmp =~ s/\@EXECUTABLE\@/$exe/;
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
 			$tmp =~ s/\@VERSION\@/$version/;
@@ -1594,14 +1594,14 @@ sub write_dynamic_makefile
 		print " done!\n";
 	}
 
-	my $freebsd4libs = $config{CRAQ};
+	my $freebsd4libs = (defined $config{CRAQ} ? $config{CRAQ} : "");
 
 	my $all = "all: ";
 	my $all_libsonly = "";
 
-	my $libraryext;
-	my $othercrap;
-	my $RPATH;
+	my $libraryext = "";
+	my $othercrap = "";
+	my $RPATH = "";
 
 	if ($config{IS_DARWIN} eq "YES")
 	{
