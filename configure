@@ -392,7 +392,7 @@ sub update
 			# We've Loaded the cache file and all our variables..
 			print "Updating files...\n";
 			getosflags();
-			if ($opt_disable_debug == 1)
+			if (defined($opt_disable_debug) && $opt_disable_debug == 1)
 			{
 				print "Disabling debug information (-g).\n";
 				$config{OPTIMISATI} = "";
