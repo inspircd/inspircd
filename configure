@@ -103,6 +103,15 @@ our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_n
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
     $opt_library_dir);
 
+sub list_extras ();
+
+sub enable_extras (@);
+
+sub disable_extras (@);
+
+my @opt_enableextras;
+my @opt_disableextras;
+
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
 	'rebuild' => \$opt_rebuild,
@@ -141,7 +150,21 @@ GetOptions (
 	'update' => sub { update(); },
 	'svnupdate' => sub { svnupdate(); },
 	'clean' => sub { clean(); },
+	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
+	'enable-extras=s@' => \@opt_enableextras, # ^
+	'disable-extras=s@' => \@opt_disableextras, # ^
 );
+
+if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
+	@opt_enableextras = split /,/, join(',', @opt_enableextras);
+	@opt_disableextras = split /,/, join(',', @opt_disableextras);
+	enable_extras(@opt_enableextras);
+	disable_extras(@opt_disableextras);
+	list_extras;
+	print "Remember: YOU are responsible for making sure any libraries needed have been installed!\n";
+	print "Run $0 -modupdate after you've done this to update the makefiles.\n";
+	exit 0;
+}
 
 our $non_interactive = (
 	(defined $opt_library_dir) ||
@@ -1709,3 +1732,164 @@ ITEM
 #	\$(CC) -pipe $SHARED -o cmd_$cmd.so cmd_$cmd.o
 }
 
+# Routine to list out the extra/ modules that have been enabled.
+# Note: when getting any filenames out and comparing, it's important to lc it if the
+# file system is not case-sensitive (== Epoc, MacOS, OS/2 (incl DOS/DJGPP), VMS, Win32
+# (incl NetWare, Symbian)). Cygwin may or may not be case-sensitive, depending on
+# configuration, however, File::Spec does not currently tell us (it assumes Unix behavior).
+sub list_extras () {
+	use File::Spec;
+	# @_ not used
+	my $srcdir = File::Spec->catdir("src", "modules");
+	my $abs_srcdir = File::Spec->rel2abs($srcdir);
+	local $_;
+	my $dd;
+	opendir $dd, File::Spec->catdir($abs_srcdir, "extra") or die (File::Spec->catdir($abs_srcdir, "extra") . ": $!\n");
+	my @extras = map { File::Spec->case_tolerant() ? lc($_) : $_ } (readdir($dd));
+	closedir $dd;
+	undef $dd;
+	opendir $dd, $abs_srcdir or die "$abs_srcdir: $!\n";
+	my @sources = map { File::Spec->case_tolerant() ? lc($_) : $_ } (readdir($dd));
+	closedir $dd;
+	undef $dd;
+	my $maxlen = (sort { $b <=> $a } (map {length($_)} (@extras)))[0];
+	my %extras = ();
+EXTRA:	for my $extra (@extras) {
+		next if (File::Spec->curdir() eq $extra || File::Spec->updir() eq $extra);
+		next if ($extra eq '.svn');
+		my $abs_extra = File::Spec->catfile($abs_srcdir, "extra", $extra);
+		my $abs_source = File::Spec->catfile($abs_srcdir, $extra);
+		next unless ($extra =~ m/\.(cpp|h)$/ || (-d $abs_extra)); # C++ Source/Header, or directory
+		if (-l $abs_source) {
+			# Symlink, is it in the right place?
+			my $targ = readlink($abs_source);
+			my $abs_targ = File::Spec->rel2abs($targ, $abs_srcdir);
+			if ($abs_targ eq $abs_extra) {
+				$extras{$extra} = "\e[32;1menabled\e[0m";
+			} else {
+				$extras{$extra} = sprintf("\e[31;1mwrong symlink target (%s)\e[0m", $abs_targ);
+			}
+		} elsif (-e $abs_source) {
+			my ($devext, $inoext) = stat($abs_extra);
+			my ($devsrc, $inosrc, undef, $lnksrc) = stat($abs_source);
+			if ($lnksrc > 1) {
+				if ($devsrc == $devext && $inosrc == $inoext) {
+					$extras{$extra} = "\e[32;1menabled\e[0m";
+				} else {
+					$extras{$extra} = sprintf("\e[31;1mwrong hardlink target (%d:%d)\e[0m", $devsrc, $inosrc);
+				}
+			} else {
+				open my $extfd, "<", $abs_extra;
+				open my $srcfd, "<", $abs_source;
+				local $/ = undef;
+				if (scalar(<$extfd>) eq scalar(<$srcfd>)) {
+					$extras{$extra} = "\e[32;1menabled\e[0m";
+				} else {
+					$extras{$extra} = sprintf("\e[31;1mout of synch (re-copy)\e[0m");
+				}
+			}
+		} else {
+			$extras{$extra} = "\e[33;1mdisabled\e[0m";
+		}
+	}
+	# Now let's add dependency info
+	for my $extra (keys(%extras)) {
+		next unless $extras{$extra} =~ m/enabled/; # only process enabled extras.
+		my $abs_extra = File::Spec->catfile($abs_srcdir, "extra", $extra);
+		my @deps = split / +/, getdependencies($abs_extra);
+		for my $dep (@deps) {
+			if (exists($extras{$dep})) {
+				my $ref = \$extras{$dep}; # Take reference.
+				if ($$ref !~ m/needed by/) {
+					# First dependency found.
+					if ($$ref =~ m/enabled/) {
+						$$ref .= " (needed by \e[32;1m$extra\e[0m";
+					} else {
+						$$ref =~ s/\e\[.*?m//g; # Strip out previous coloring. Will be set in bold+red+blink later.
+						$$ref .= " (needed by \e[0;32;1;5m$extra\e[0;31;1;5m";
+					}
+				} else {
+					if ($$ref =~ m/enabled/) {
+						$$ref .= ", \e[32;1m$extra\e[0m";
+					} else {
+						$$ref .= ", \e[0;32;1;5m$extra\e[0;31;1;5m";
+					}
+				}
+			}
+		}
+	}
+	for my $extra (sort {$a cmp $b} keys(%extras)) {
+		my $text = $extras{$extra};
+		if ($text =~ m/needed by/ && $text !~ m/enabled/) {
+			printf "\e[31;1;5m%-*s = %s%s\e[0m\n", $maxlen, $extra, $text, ($text =~ m/needed by/ ? ")" : "");
+		} else {
+			printf "%-*s = %s%s\n", $maxlen, $extra, $text, ($text =~ m/needed by/ ? "\e[0m)" : "");
+		}
+	}
+	return keys(%extras) if wantarray; # Can be used by manage_extras.
+}
+
+sub enable_extras (@) {
+	my (@extras) = @_;
+	for my $extra (@extras) {
+		my $extrapath = "src/modules/extra/$extra";
+		if (!-e $extrapath) {
+			print STDERR "Cannot enable \e[32;1m$extra\e[0m : No such file or directory in src/modules/extra\n";
+		}
+		my $source = "src/modules/$extra";
+		if (-e $source) {
+			print STDERR "Cannot enable \e[32;1m$extra\e[0m : destination in src/modules exists (might already be enabled?)\n";
+			next;
+		}
+		# Get dependencies, and add them to be processed.
+		my @deps = split / +/, getdependencies($extrapath);
+		for my $dep (@deps) {
+			next if scalar(grep { $_ eq $dep } (@extras)) > 0; # Skip if we're going to be enabling it anyway.
+			if (!-e "src/modules/$dep") {
+				if (-e "src/modules/extra/$dep") {
+					print STDERR "Will also enable extra \e[32;1m$dep\e[0m (needed by \e[32;1m$extra\e[0m)\n";
+					push @extras, $dep;
+				} else {
+					print STDERR "\e[33;1mWARNING:\e[0m module \e[32;1m$extra\e[0m might be missing dependency \e[32;1m$dep\e[0m - YOU are responsible for satisfying it!\n";
+				}
+			}
+		}
+		print "Enabling $extra ... \n";
+		symlink "extra/$extra", $source or print STDERR "$source: Cannot link to 'extra/$extra': $!\n";
+	}
+}
+
+sub disable_extras (@)
+{
+	opendir my $dd, "src/modules/extra/";
+	my @files = readdir($dd);
+	closedir $dd;
+	my (@extras) = @_;
+EXTRA:	for my $extra (@extras) {
+		my $extrapath = "src/modules/extra/$extra";
+		my $source = "src/modules/$extra";
+		if (!-e $extrapath) {
+			print STDERR "Cannot disable \e[32;1m$extra\e[0m : Is not an extra\n";
+			next;
+		}
+		if ((! -l $source) || readlink($source) ne "extra/$extra") {
+			print STDERR "Cannot disable \e[32;1m$extra\e[0m : Source is not a link or doesn't refer to the right file. Remove manually if this is in error.\n";
+			next;
+		}
+		# Check if anything needs this.
+		for my $file (@files) {
+			my @deps = split / +/, getdependencies("src/modules/extra/$file");
+			# File depends on this extra...
+			if (scalar(grep { $_ eq $extra } @deps) > 0) {
+				# And is both enabled and not about to be disabled.
+				if (-e "src/modules/$file" && scalar(grep { $_ eq $file } @extras) < 1) {
+					print STDERR "Cannot disable \e[32;1m$extra\e[0m : is needed by \e[32;1m$file\e[0m\n";
+					next EXTRA;
+				}
+			}
+		}
+		# Now remove.
+		print "Disabling $extra ... \n";
+		unlink "src/modules/$extra" or print STDERR "Cannot disable \e[32;1m$extra\e[0m : $!\n";
+	}
+}

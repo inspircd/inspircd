@@ -291,6 +291,9 @@ InspIRCd 1.0.x, are also allowed.
                                [$PWD/bin]
   --library-dir=[directory]    Library directory for core libraries
                                [$PWD/lib]
+  --list-extras                Show current status of extra modules
+  --enable-extras=[extras]     Enable the specified list of extras
+  --disable-extras=[extras]    Disable the specified list of extras
   --help                       Show this help text and exit
 
 ";
