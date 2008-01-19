@@ -35,6 +35,7 @@ CmdResult CommandInfo::Handle (const char**, int, User *user)
 	user->WriteServ( "371 %s :    Pippijn van Steenhoven, pippijn,   <pippijn@one09.net>", user->nick);
 	user->WriteServ( "371 %s :    Dennis Friis,           peavey,    <peavey@inspircd.org>", user->nick);
 	user->WriteServ( "371 %s :                            Burlex,    <burlex@inspircd.org>", user->nick);
+	user->WriteServ( "371 %s :    Thomas Stagner,         aquanight, <aquanight@inspircd.org>", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Regular Contributors\2:", user->nick);
 	user->WriteServ( "371 %s :    satmd          nenolod         John2          djGrrr", user->nick);
