@@ -94,10 +94,11 @@ class FilterBase : public Module
 {
 	CommandFilter* filtcommand;
 	int flags;
+protected:
+	std::vector<std::string> exemptfromfilter; // List of channel names excluded from filtering.
  public:
 	FilterBase(InspIRCd* Me, const std::string &source);
 	virtual ~FilterBase();
-	virtual void Implements(char* List);
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags) = 0;
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
@@ -225,15 +226,12 @@ FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me)
 {
 	filtcommand = new CommandFilter(this, Me, source);
 	ServerInstance->AddCommand(filtcommand);
+	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
+	ServerInstance->Modules->Attach(eventlist, this, 7);
 }
 
 FilterBase::~FilterBase()
 {
-}
-
-void FilterBase::Implements(char* List)
-{
-	List[I_OnPreCommand] = List[I_OnStats] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
 }
 
 int FilterBase::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -264,6 +262,8 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		{
 			Channel* t = (Channel*)dest;
 			target = std::string(t->name);
+			std::vector<std::string>::iterator i = find(exemptfromfilter.begin(), exemptfromfilter.end(), target);
+			if (i != exemptfromfilter.end()) return 0;
 		}
 		if (f->action == "block")
 		{	
@@ -321,6 +321,8 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 			if (pcnt < 2)
 				return 0;
 
+			std::vector<std::string>::iterator i = find(exemptfromfilter.begin(), exemptfromfilter.end(), parameters[0]);
+			if (i != exemptfromfilter.end()) return 0;
 			checkline = parameters[1];
 			replacepoint = 1;
 			parting = true;
@@ -385,8 +387,18 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 
 void FilterBase::OnRehash(User* user, const std::string &parameter)
 {
+	ConfigReader* MyConf = new ConfigReader(ServerInstance);
+	vector<std::string>().swap(exemptfromfilter);
+	for (int index = 0; index < MyConf->Enumerate("exemptfromfilter"); ++index)
+	{
+		std::string chan = MyConf->ReadValue("exemptfromfilter", "channel", index);
+		if (!chan.empty()) {
+			exemptfromfilter.push_back(chan);
+		}
+	}
+	delete MyConf;
 }
-	
+
 Version FilterBase::GetVersion()
 {
 	return Version(1,1,0,2,VF_VENDOR|VF_COMMON,API_VERSION);

@@ -113,6 +113,7 @@ class ModuleFilter : public FilterBase
 			filters[pattern] = x;
 		}
 		delete MyConf;
+		FilterBase::OnRehash(user, parameter);
 	}
 
 	virtual int OnStats(char symbol, User* user, string_list &results)

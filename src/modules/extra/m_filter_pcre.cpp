@@ -163,6 +163,7 @@ class ModuleFilterPCRE : public FilterBase
 				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}
+		FilterBase::OnRehash(user, parameter);
 	}
 
 	virtual int OnStats(char symbol, User* user, string_list &results)
@@ -173,6 +174,10 @@ class ModuleFilterPCRE : public FilterBase
 			for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 			{
 				results.push_back(sn+" 223 "+user->nick+" :REGEXP:"+i->freeform+" "+i->flags+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+			}
+			for (std::vector<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
+			{
+				results.push_back(sn+" 223 "+user->nick+" :EXEMPT "+(*i));
 			}
 		}
 		return 0;
