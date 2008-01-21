@@ -376,6 +376,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\channelmanager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\channels.cpp"
 				>
 			</File>
@@ -428,6 +432,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\logger.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\mode.cpp"
 				>
 			</File>
@@ -469,6 +477,10 @@
 			</File>
 			<File
 				RelativePath="..\src\user_resolver.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\usermanager.cpp"
 				>
 			</File>
 			<File
@@ -527,6 +539,14 @@
 			</File>
 			<File
 				RelativePath="..\include\base.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\caller.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\channelmanager.h"
 				>
 			</File>
 			<File
@@ -598,6 +618,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\logger.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\mode.h"
 				>
 			</File>
@@ -631,6 +655,14 @@
 			</File>
 			<File
 				RelativePath="..\include\u_listmode.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\uid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\usermanager.h"
 				>
 			</File>
 			<File
