@@ -37,6 +37,9 @@ class ModuleRemoteIncludeHttp : public Module
 
 	virtual int OnDownloadFile(const std::string &filename, std::istream* &filedata)
 	{
+#ifdef WIN32
+		return 0;
+#else
 		std::stringstream* gotfile = (std::stringstream*)filedata;
 		ServerInstance->Log(DEBUG,"OnDownloadFile in m_remoteinclude_http");
 		int sockfd, portno, n;
@@ -105,6 +108,7 @@ class ModuleRemoteIncludeHttp : public Module
 		ServerInstance->Log(DEBUG,"Result: %s", result.c_str());
 
 		return (result == "200");
+#endif
 	}
 
 	int SockSend(int sock, const std::string &data)
