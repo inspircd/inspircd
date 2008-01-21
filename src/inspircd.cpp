@@ -652,16 +652,7 @@ int InspIRCd::Run()
 				this->stats->LastCPU = ru.ru_utime;
 			}
 #else
-			WindowsIPC->Check();
-	
-			if(Config->nofork)
-			{
-				uptime = Time() - startup_time;
-				stime = gmtime(&uptime);
-				snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
-					LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
-				SetConsoleTitle(window_title);
-			}
+			WindowsIPC->Check();	
 #endif
 		}
 
