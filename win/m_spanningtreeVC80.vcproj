@@ -479,6 +479,10 @@
 				RelativePath="..\src\modules\m_spanningtree\treesocket.h"
 				>
 			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\utils.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
