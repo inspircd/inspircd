@@ -53,9 +53,9 @@ void RemoveFromAllAccepts(InspIRCd* ServerInstance, User* who)
 		callerid_data* dat = GetData(i->second, false);
 		if (!dat) continue;
 		std::set<User*>& accepting = dat->accepting;
-		std::set<User*>::iterator i = accepting.find(who);
-		if (i == accepting.end()) continue;
-		accepting.erase(i);
+		std::set<User*>::iterator iter = accepting.find(who);
+		if (iter == accepting.end()) continue;
+		accepting.erase(iter);
 	}
 }
 
