@@ -55,3 +55,5 @@
 #
 # <keyword pattern="^blah.*?$" reason="Dont blah!" action="gline" duration="1d6h" flags="pnPq">
 
+# An example of excluding a channel from filtering:
+# <exemptfromfilter channel="#help">

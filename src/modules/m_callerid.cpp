@@ -333,7 +333,7 @@ public:
 				throw ModuleException("Invalid cooldown value, negative");
 			default:
 				/* Yikes */
-				throw ModuleException("Invalid maxaccepts value, unknown config error");
+				throw ModuleException("Invalid cooldown value, unknown config error");
 		}
 		maxaccepts = new_maxaccepts;
 		notify_cooldown = new_cooldown;

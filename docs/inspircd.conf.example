@@ -1275,6 +1275,27 @@
 #<module name="m_botmode.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CallerID module: Adds usermode +g which activates hybrid-style 
+# callerid (== block all private messages unless you /accept first)
+#<module name="m_callerid.so">
+# 
+#-#-#-#-#-#-#-#-#-#-#- CALLERID  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+# maxaccepts     - Maximum number of entires a user can add to his    #
+#                  /accept list. Default is 16 entries.               #
+# operoverride   - Can opers (note: ALL opers) ignore callerid mode?  #
+#                  Default is no.                                     #
+# tracknick      - Preserve /accept entries when a user changes nick? #
+#                  If no (the default), the user is removed from      #
+#                  everyone's accept list if he changes nickname.     #
+# cooldown       - Amount of time (in seconds) that must pass since   #
+#                  the last notification sent to a user before he can #
+#                  be sent another. Default is 60 (1 minute).         #
+#<callerid maxaccepts="16"
+#          operoverride="no"
+#          tracknick="no"
+#          cooldown="60"
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CBAN module: Lets you disallow channels from being used at runtime.
 #<module name="m_cban.so">
 
