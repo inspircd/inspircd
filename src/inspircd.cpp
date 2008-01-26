@@ -578,8 +578,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 #endif
 
-	printf("\nInspIRCd is now running as '%s'[%s]\n", Config->ServerName,Config->GetSID());
-	Log(DEFAULT,"Startup complete as '%s'[%s]", Config->ServerName,Config->GetSID());
+	printf("\nInspIRCd is now running as '%s'[%s]\n", Config->ServerName,Config->GetSID().c_str());
+	Log(DEFAULT,"Startup complete as '%s'[%s]", Config->ServerName,Config->GetSID().c_str());
 
 	this->WritePID(Config->PID);
 }
