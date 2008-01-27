@@ -32,7 +32,7 @@ CmdResult CommandPass::Handle (const char** parameters, int, User *user)
 		return CMD_FAILURE;
 
 	strlcpy(user->password,parameters[0],63);
-	if (a->GetPass() == parameters[0])
+	if (!ServerInstance->PassCompare(user, a->GetPass().c_str(), parameters[0], a->GetHash().c_str()))
 	{
 		user->haspassed = true;
 	}

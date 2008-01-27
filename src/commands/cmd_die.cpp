@@ -24,7 +24,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandDie::Handle (const char** parameters, int pcnt, User *user)
 {
-	if (!strcmp(parameters[0],ServerInstance->Config->diepass))
+	if (!ServerInstance->PassCompare(user, ServerInstance->Config->diepass, parameters[0], ServerInstance->Config->powerhash))
 	{
 		std::string diebuf = std::string("*** DIE command from ") + user->nick + "!" + user->ident + "@" + user->dhost + ". Terminating in " + ConvToStr(ServerInstance->Config->DieDelay) + " seconds.";
 		ServerInstance->Log(SPARSE, diebuf);

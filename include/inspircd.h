@@ -779,15 +779,16 @@ class CoreExport InspIRCd : public classbase
 	 */
 	long Duration(const std::string &str);
 
-	/** Attempt to compare an oper password to a string from the config file.
+	/** Attempt to compare a password to a string from the config file.
 	 * This will be passed to handling modules which will compare the data
 	 * against possible hashed equivalents in the input string.
+	 * @param ex The object (user, server, whatever) causing the comparison.
 	 * @param data The data from the config file
 	 * @param input The data input by the oper
-	 * @param tagnum the tag number of the oper's tag in the config file
+	 * @param hashtype The hash from the config file
 	 * @return 0 if the strings match, 1 or -1 if they do not
 	 */
-	int OperPassCompare(const char* data,const char* input, int tagnum);
+	int PassCompare(Extensible* ex, const char* data,const char* input, const char* hashtype);
 
 	/** Check if a given server is a uline.
 	 * An empty string returns true, this is by design.

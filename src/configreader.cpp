@@ -575,6 +575,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	const char* parent = values[13].GetString();
 	int maxchans = values[14].GetInteger();
 	unsigned long limit = values[15].GetInteger();
+	const char* hashtype = values[16].GetString();
 
 	/*
 	 * duplicates check: Now we don't delete all connect classes on rehash, we need to ensure we don't add dupes.
@@ -619,7 +620,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	{
 		if (*allow)
 		{
-			ConnectClass* c = new ConnectClass(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans);
+			ConnectClass* c = new ConnectClass(name, timeout, flood, allow, pingfreq, password, hashtype, threshold, sendq, recvq, localmax, globalmax, maxchans);
 			c->limit = limit;
 			c->SetPort(port);
 			conf->Classes.push_back(c);
@@ -817,6 +818,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR,  ValidateRules},
 		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR,  ValidateNotEmpty},
 		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER,  NoValidation},
+		{"power",	"hash",		"",			new ValueContainerChar (this->powerhash),		DT_CHARPTR,  NoValidation},
 		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR,  ValidateNotEmpty},
 		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR,  NoValidation},
 		{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR,  NoValidation},
@@ -867,17 +869,17 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
 				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
-				"name",		"parent",	"maxchans",     "limit",
+				"name",		"parent",	"maxchans",     "limit",	"hash",
 				NULL},
 				{"",		"",		"",		"",		"120",		"",
 				 "",		"",		"",		"3",		"3",		"0",
-				 "",		"",		"0",	    "0",
+				 "",		"",		"0",	    "0",	"",
 				 NULL},
 				{DT_IPADDRESS|DT_ALLOW_WILD,
 						DT_IPADDRESS|DT_ALLOW_WILD,
 								DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER},
+				DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER,	DT_CHARPTR},
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",

@@ -22,7 +22,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 CmdResult CommandRestart::Handle (const char** parameters, int, User *user)
 {
 	ServerInstance->Log(DEFAULT,"Restart: %s",user->nick);
-	if (!strcmp(parameters[0],ServerInstance->Config->restartpass))
+	if (!ServerInstance->PassCompare(user, ServerInstance->Config->restartpass, parameters[0], ServerInstance->Config->powerhash))
 	{
 		ServerInstance->SNO->WriteToSnoMask('A', "RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
 

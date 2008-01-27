@@ -35,8 +35,9 @@ class CommandVhost : public Command
 			std::string mask = Conf->ReadValue("vhost","host",index);
 			std::string username = Conf->ReadValue("vhost","user",index);
 			std::string pass = Conf->ReadValue("vhost","pass",index);
+			std::string hash = Conf->ReadValue("vhost","hash",index);
 
-			if ((!strcmp(parameters[0],username.c_str())) && (!strcmp(parameters[1],pass.c_str())))
+			if ((!strcmp(parameters[0],username.c_str())) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1], hash.c_str()))
 			{
 				if (!mask.empty())
 				{

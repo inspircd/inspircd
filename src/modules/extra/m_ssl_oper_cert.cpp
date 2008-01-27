@@ -112,7 +112,6 @@ class ModuleOperSSLCert : public Module
 		return false;
 	}
 
-
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string cmd = command.c_str();
@@ -125,6 +124,7 @@ class ModuleOperSSLCert : public Module
 			std::string Password;
 			std::string OperType;
 			std::string HostName;
+			std::string HashType;
 			std::string FingerPrint;
 			bool SSLOnly;
 			char* dummy;
@@ -140,12 +140,13 @@ class ModuleOperSSLCert : public Module
 				Password = cf->ReadValue("oper", "password", i);
 				OperType = cf->ReadValue("oper", "type", i);
 				HostName = cf->ReadValue("oper", "host", i);
+				HashType = cf->ReadValue("oper", "hash", i);
 				FingerPrint = cf->ReadValue("oper", "fingerprint", i);
 				SSLOnly = cf->ReadFlag("oper", "sslonly", i);
 
 				if (SSLOnly || !FingerPrint.empty())
 				{
-					if ((!strcmp(LoginName.c_str(),parameters[0])) && (!ServerInstance->OperPassCompare(Password.c_str(),parameters[1],i)) && (OneOfMatches(TheHost,TheIP,HostName.c_str())))
+					if ((!strcmp(LoginName.c_str(),parameters[0])) && (!ServerInstance->PassCompare(user, Password.c_str(),parameters[1], HashType.c_str())) && (OneOfMatches(TheHost,TheIP,HostName.c_str())))
 					{
 						if (SSLOnly && !user->GetExt("ssl", dummy))
 						{

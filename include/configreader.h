@@ -187,11 +187,11 @@ struct MultiConfig
 	/** Tag name */
 	const char*	tag;
 	/** One or more items within tag */
-	char*		items[17];
+	char*		items[18];
 	/** One or more defaults for items within tags */
-	char*		items_default[17];
+	char*		items_default[18];
 	/** One or more data types */
-	int		datatype[17];
+	int		datatype[18];
 	/** Initialization function */
 	MultiNotify	init_function;
 	/** Validation function */
@@ -325,6 +325,10 @@ class CoreExport ServerConfig : public Extensible
 	/** The admin-configured /RESTART password
 	 */
 	char restartpass[MAXBUF];
+
+	/** The hash method for *BOTH* the die and restart passwords.
+	 */
+	char powerhash[MAXBUF];
 
 	/** The pathname and filename of the message of the
 	 * day file, as defined by the administrator.

@@ -222,13 +222,13 @@ public:
 			delete myumode;
 			throw new ModuleException("Could not add usermode and command!");
 		}
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnCleanup };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	~ModuleCallerID()
 	{
-		delete mycommand;
+		delete myumode;
 	}
 
 	Version GetVersion()
@@ -277,6 +277,14 @@ public:
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text, true);
 		return 0;
+	}
+
+	void OnCleanup(int type, void* item)
+	{
+		if (type != TYPE_USER) return;
+		User* u = (User*)item;
+		/* Cleanup only happens on unload (before dtor), so keep this O(n) instead of O(n^2) which deferring to OnUserQuit would do.  */
+		RemoveData(u);
 	}
 
 	int OnUserPreNick(User* user, const std::string& newnick)

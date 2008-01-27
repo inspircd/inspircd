@@ -151,7 +151,7 @@ int		Module::OnChangeLocalUserGECOS(User*, const std::string&) { return 0; }
 int		Module::OnLocalTopicChange(User*, Channel*, const std::string&) { return 0; }
 void		Module::OnEvent(Event*) { return; }
 char*		Module::OnRequest(Request*) { return NULL; }
-int		Module::OnOperCompare(const std::string&, const std::string&, int) { return 0; }
+int		Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return 0; }
 void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
 int		Module::OnAddBan(User*, Channel*, const std::string &) { return 0; }

@@ -45,6 +45,7 @@ CmdResult CommandOper::Handle (const char** parameters, int, User *user)
 	char ClassName[MAXBUF];
 	char TheHost[MAXBUF];
 	char TheIP[MAXBUF];
+	char HashType[MAXBUF];
 	int j;
 	bool found = false;
 	bool type_invalid = false;
@@ -62,9 +63,10 @@ CmdResult CommandOper::Handle (const char** parameters, int, User *user)
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "password", i, Password, MAXBUF);
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "type", i, OperType, MAXBUF);
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
+		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "hash", i, HashType, MAXBUF);
 
 		match_login = !strcmp(LoginName,parameters[0]);
-		match_pass = !ServerInstance->OperPassCompare(Password,parameters[1], i);
+		match_pass = !ServerInstance->PassCompare(user, Password,parameters[1], HashType);
 		match_hosts = OneOfMatches(TheHost,TheIP,HostName);
 
 		if (match_login && match_pass && match_hosts)

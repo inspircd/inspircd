@@ -108,7 +108,7 @@ class ModuleOperHash : public Module
 
 		mycommand = new CommandMkpasswd(ServerInstance, this, hashers, names);
 		ServerInstance->AddCommand(mycommand);
-		Implementation eventlist[] = { I_OnRehash, I_OnOperCompare };
+		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
@@ -127,10 +127,9 @@ class ModuleOperHash : public Module
 		Conf = new ConfigReader(ServerInstance);
 	}
 
-	virtual int OnOperCompare(const std::string &data, const std::string &input, int tagnumber)
+	virtual int OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 	{
 		/* First, lets see what hash theyre using on this oper */
-		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
 		hashymodules::iterator x = hashers.find(hashtype.c_str());
 
 		/* Is this a valid hash name? (case insensitive) */

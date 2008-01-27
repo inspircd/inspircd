@@ -59,11 +59,12 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 		{
 			std::string name = Conf.ReadValue("title", "name", "", i);
 			std::string pass = Conf.ReadValue("title", "password", "", i);
+			std::string hash = Conf.ReadValue("title", "hash", "", i);
 			std::string host = Conf.ReadValue("title", "host", "*@*", i);
 			std::string title = Conf.ReadValue("title", "title", "", i);
 			std::string vhost = Conf.ReadValue("title", "vhost", "", i);
 
-			if (!strcmp(name.c_str(),parameters[0]) && !strcmp(pass.c_str(),parameters[1]) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
+			if (!strcmp(name.c_str(),parameters[0]) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1], hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
 			{
 				std::string* text;
 				user->GetExt("ctitle", text);

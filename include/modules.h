@@ -397,11 +397,11 @@ enum Implementation
 	I_OnDelLine, I_OnExpireLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
 	I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite, I_OnRawMode,
 	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
-	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
+	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-	I_OnOperCompare, I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
+	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
-	I_OnText, I_OnReadConfig, I_OnDownloadFile,
+	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare,
 	I_END
 };
 
@@ -1195,17 +1195,17 @@ class CoreExport Module : public Extensible
 	 */
 	virtual char* OnRequest(Request* request);
 
-	/** Called whenever an oper password is to be compared to what a user has input.
+	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
 	 * The password field (from the config file) is in 'password' and is to be compared against
-	 * 'input'. This method allows for encryption of oper passwords and much more besides.
-	 * You should return a nonzero value if you want to allow the comparison or zero if you wish
-	 * to do nothing.
-	 * @param password The oper's password
-	 * @param input The password entered
-	 * @param tagnumber The tag number (from the configuration file) of this oper's tag
-	 * @return 1 to match the passwords, 0 to do nothing. -1 to not match, and not continue.
+	 * 'input'. This method allows for encryption of passwords (oper, connect:allow, die/restart, etc).
+	 * You should return a nonzero value to override the normal comparison, or zero to pass it on.
+	 * @param ex The object that's causing the authentication (User* for <oper> <connect:allow> etc, Server* for <link>).
+	 * @param password The password from the configuration file (the password="" value).
+	 * @param input The password entered by the user or whoever.
+	 * @param hashtype The hash value from the config
+	 * @return 0 to do nothing (pass on to next module/default), 1 == password is OK, -1 == password is not OK
 	 */
-	virtual int OnOperCompare(const std::string &password, const std::string &input, int tagnumber);
+	virtual int OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
 
 	/** Called whenever a user is given usermode +o, anywhere on the network.
 	 * You cannot override this and prevent it from happening as it is already happened and

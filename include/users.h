@@ -145,6 +145,10 @@ class CoreExport ConnectClass : public classbase
 	 */
 	std::string pass;
 
+	/** (Optional) Hash Method for this line
+	 */
+	std::string hash;
+
 	/** Threshold value for flood disconnect
 	 */
 	unsigned int threshold;
@@ -179,7 +183,7 @@ public:
 	 */
 	ConnectClass(const ConnectClass* source) : classbase(), type(source->type), name(source->name),
 		registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
-		pingtime(source->pingtime), pass(source->pass), threshold(source->threshold), sendqmax(source->sendqmax),
+		pingtime(source->pingtime), pass(source->pass), hash(source->hash), threshold(source->threshold), sendqmax(source->sendqmax),
 		recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
 		port(source->port), RefCount(0), disabled(false), limit(0)
 	{
@@ -187,7 +191,7 @@ public:
 
 	/** Create a new connect class with no settings.
 	 */
-	ConnectClass() : type(CC_DENY), name("unnamed"), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
+	ConnectClass() : type(CC_DENY), name("unnamed"), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""), hash(""),
 			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), RefCount(0), disabled(false), limit(0)
 	{
 	}
@@ -199,6 +203,7 @@ public:
 	 * @param hst The IP mask to allow
 	 * @param ping The ping frequency
 	 * @param pas The password to be used
+	 * @param hsh The hash to be used
 	 * @param thres The flooding threshold
 	 * @param sendq The maximum sendq value
 	 * @param recvq The maximum recvq value
@@ -206,9 +211,9 @@ public:
 	 * @param maxg The maximum global sessions
 	 */
 	ConnectClass(const std::string &thename, unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
-			const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
+			const std::string &pas, const std::string &hsh, unsigned int thres, unsigned long sendq, unsigned long recvq,
 			unsigned long maxl, unsigned long maxg, unsigned int maxc, int p = 0) :
-			type(CC_ALLOW), name(thename), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas),
+			type(CC_ALLOW), name(thename), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas), hash(hsh),
 			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg), maxchans(maxc), port(p), RefCount(0), disabled(false), limit(0) { }
 
 	/** Create a new connect class to DENY connections
@@ -216,7 +221,7 @@ public:
 	 * @param hst The IP mask to deny
 	 */
 	ConnectClass(const std::string &thename, const std::string &hst) : type(CC_DENY), name(thename), registration_timeout(0),
-			flood(0), host(hst), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), RefCount(0), disabled(false), limit(0)
+			flood(0), host(hst), pingtime(0), pass(""), hash(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), RefCount(0), disabled(false), limit(0)
 	{
 	}
 
@@ -226,7 +231,7 @@ public:
 	 */
 	ConnectClass(const std::string &thename, const ConnectClass* source) : type(source->type), name(thename),
 				registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
-				pingtime(source->pingtime), pass(source->pass), threshold(source->threshold), sendqmax(source->sendqmax),
+				pingtime(source->pingtime), pass(source->pass), hash(source->hash), threshold(source->threshold), sendqmax(source->sendqmax),
 				recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
 				port(source->port), RefCount(0), disabled(false), limit(0)
 	{
@@ -354,6 +359,13 @@ public:
 	const std::string& GetPass()
 	{
 		return pass;
+	}
+
+	/** Returns the hash or an empty string
+	 */
+	const std::string& GetHash()
+	{
+		return hash;
 	}
 
 	/** Returns the flood threshold value
