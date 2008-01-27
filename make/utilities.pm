@@ -324,6 +324,7 @@ sub translate_functions($$)
 		{
 			print "Executing program for module \033[1;32m$module\033[0m ... \033[1;32m$1\033[0m\n";
 			my $replace = `$1`;
+			die $replace if ($replace =~ /Configuration failed/);
 			chomp($replace);
 			$line =~ s/exec\("(.+?)"\)/$replace/;
 		}
