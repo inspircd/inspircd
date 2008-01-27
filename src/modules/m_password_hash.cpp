@@ -30,7 +30,7 @@ class CommandMkpasswd : public Command
 	CommandMkpasswd (InspIRCd* Instance, Module* S, hashymodules &h, std::deque<std::string> &n)
 		: Command(Instance,"MKPASSWD", 'o', 2), Sender(S), hashers(h), names(n)
 	{
-		this->source = "m_oper_hash.so";
+		this->source = "m_password_hash.so";
 		syntax = "<hashtype> <any-text>";
 	}
 
