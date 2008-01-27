@@ -89,11 +89,13 @@ class cmd_tban : public command_t
 						was_added = true;
 				if (was_added)
 				{
+					CUList tmp;
 					T.channel = channelname;
 					T.mask = mask;
 					T.expire = expire;
 					TimedBanList.push_back(T);
-					channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
+					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
+					channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
@@ -161,7 +163,6 @@ class ModuleTimedBans : public Module
 					again = true;
 					if (cr)
 					{
-						cr->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
 						const char *setban[3];
 						setban[0] = i->channel.c_str();
 						setban[1] = "-b";
@@ -172,7 +173,10 @@ class ModuleTimedBans : public Module
 						// hash and set its descriptor to FD_MAGIC_NUMBER so the data
 						// falls into the abyss :p
 						userrec* temp = new userrec(ServerInstance);
+						CUList empty;
 						temp->SetFd(FD_MAGIC_NUMBER);
+						cr->WriteAllExcept(temp, true, '@', empty, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
+						cr->WriteAllExcept(temp, true, '%', empty, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
 						/* FIX: Send mode remotely*/
 						std::deque<std::string> n;
 						n.push_back(setban[0]);
