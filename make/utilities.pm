@@ -345,7 +345,6 @@ sub translate_functions($$)
 			close TF;
 			my $replace = `perl $tmpfile`;
 			chomp($replace);
-			unlink($tmpfile);
 			$line =~ s/eval\("(.+?)"\)/$replace/;
 		}
 		while ($line =~ /pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/)

@@ -12,7 +12,9 @@
 #
 ###################################################
 
-require 5.8.0;
+BEGIN {
+	require 5.8.0;
+}
 
 use strict;
 use warnings FATAL => qw(all);
