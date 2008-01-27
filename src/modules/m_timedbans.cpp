@@ -85,11 +85,13 @@ class CommandTban : public Command
 						was_added = true;
 				if (was_added)
 				{
+					CUList tmp;
 					T.channel = channelname;
 					T.mask = mask;
 					T.expire = expire;
 					TimedBanList.push_back(T);
-					channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
+					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
+					channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
@@ -155,7 +157,6 @@ class ModuleTimedBans : public Module
 					again = true;
 					if (cr)
 					{
-						cr->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
 						const char *setban[3];
 						setban[0] = i->channel.c_str();
 						setban[1] = "-b";
@@ -169,6 +170,10 @@ class ModuleTimedBans : public Module
 						ServerInstance->SendMode(setban,3, ServerInstance->FakeClient);
 						Event rmode((char *)&n, NULL, "send_mode");
 						rmode.Send(ServerInstance);
+						CUList empty;
+						cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, i->mask.c_str());
+						if (ServerInstance->Config->AllowHalfop)
+							cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, i->mask.c_str());
 					}
 					else
 					{
