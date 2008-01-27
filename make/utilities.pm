@@ -27,7 +27,7 @@ our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pk
 # such as pcre_config, take out the -L
 # directive and return an rpath for it.
 
-# \033[1;32msrc/Makefile\033[0m
+# \e[1;32msrc/Makefile\e[0m
 
 my %already_added = ();
 
@@ -41,18 +41,18 @@ sub promptstring($$$$$)
 		GetOptions ("$commandlineswitch=s" => \$opt_commandlineswitch);
 		if (defined $opt_commandlineswitch)
 		{
-			print "\033[1;32m$opt_commandlineswitch\033[0m\n";
+			print "\e[1;32m$opt_commandlineswitch\e[0m\n";
 			$var = $opt_commandlineswitch;
 		}
 		else
 		{
-			die "Could not detect $package! Please specify the $prompt via the command line option \033[1;32m--$commandlineswitch=\"/path/to/file\"\033[0m";
+			die "Could not detect $package! Please specify the $prompt via the command line option \e[1;32m--$commandlineswitch=\"/path/to/file\"\e[0m";
 		}
 	}
 	else
 	{
 		print "\nPlease enter the $prompt?\n";
-		print "[\033[1;32m$default\033[0m] -> ";
+		print "[\e[1;32m$default\e[0m] -> ";
 		chomp($var = <STDIN>);
 	}
 	if ($var eq "")
@@ -72,7 +72,7 @@ sub make_rpath($;$)
 		my $libpath = $1;
 		if (!exists $already_added{$libpath})
 		{
-			print "Adding extra library path to \033[1;32m$module\033[0m ... \033[1;32m$libpath\033[0m\n";
+			print "Adding extra library path to \e[1;32m$module\e[0m ... \e[1;32m$libpath\e[0m\n";
 			$already_added{$libpath} = 1;
 		}
 		$output .= "-Wl,--rpath -Wl,$libpath -L$libpath " unless defined $main::opt_disablerpath;
@@ -100,15 +100,15 @@ sub pkgconfig_get_include_dirs($$$;$)
 	my $key = "default_includedir_$packagename";
 	if (exists $main::config{$key})
 	{
-		print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
+		print "Locating include directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 		my $ret = $main::config{$key};
-		print "\033[1;32m$ret\033[0m (cached)\n";
+		print "\e[1;32m$ret\e[0m (cached)\n";
 		return $ret;
 	}
 
 	extend_pkg_path();
 
-	print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
+	print "Locating include directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 
 	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
 	my $ret = `pkg-config --cflags $packagename 2>/dev/null`;
@@ -122,7 +122,7 @@ sub pkgconfig_get_include_dirs($$$;$)
 		chomp($find);
 		if ((defined $find) && ($find ne "") && ($find ne $packagename))
 		{
-			print "(\033[1;32mFound via search\033[0m) ";
+			print "(\e[1;32mFound via search\e[0m) ";
 			$foo = "-I$1";
 		}
 		else
@@ -163,7 +163,7 @@ sub pkgconfig_get_include_dirs($$$;$)
 		$main::config{$key} = "$ret -DVERSION_$packagename=\"$v\"";
 		$main::config{$key} =~ s/^\s+//g;
 		$ret = $main::config{$key};
-		print "\033[1;32m$ret\033[0m (version $v)\n";
+		print "\e[1;32m$ret\e[0m (version $v)\n";
 	}
 	$ret =~ s/^\s+//g;
 	return $ret;
@@ -198,7 +198,7 @@ sub pkgconfig_check_version($$;$)
 
 	extend_pkg_path();
 
-	print "Checking version of package \033[1;32m$packagename\033[0m is >= \033[1;32m$version\033[0m... ";
+	print "Checking version of package \e[1;32m$packagename\e[0m is >= \e[1;32m$version\e[0m... ";
 
 	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
 	if (defined $v)
@@ -209,19 +209,19 @@ sub pkgconfig_check_version($$;$)
 	{
 		if (vcheck($v,$version) == 1)
 		{
-			print "\033[1;32mYes (version $v)\033[0m\n";
+			print "\e[1;32mYes (version $v)\e[0m\n";
 			return 1;
 		}
 		else
 		{
-			print "\033[1;32mNo (version $v)\033[0m\n";
+			print "\e[1;32mNo (version $v)\e[0m\n";
 			return 0;
 		}
 	}
 	# If we didnt find it, we  cant definitively say its too old.
 	# Return ok, and let pkgconflibs() or pkgconfincludes() pick up
 	# the missing library later on.
-	print "\033[1;32mNo (not found)\033[0m\n";
+	print "\e[1;32mNo (not found)\e[0m\n";
 	return 1;
 }
 
@@ -232,15 +232,15 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	my $key = "default_libdir_$packagename";
 	if (exists $main::config{$key})
 	{
-		print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
+		print "Locating library directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 		my $ret = $main::config{$key};
-		print "\033[1;32m$ret\033[0m (cached)\n";
+		print "\e[1;32m$ret\e[0m (cached)\n";
 		return $ret;
 	}
 
 	extend_pkg_path();
 
-	print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
+	print "Locating library directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
 
 	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
 	my $ret = `pkg-config --libs $packagename 2>/dev/null`;
@@ -254,7 +254,7 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		chomp($find);
 		if ((defined $find) && ($find ne "") && ($find ne $packagename))
 		{
-			print "(\033[1;32mFound via search\033[0m) ";
+			print "(\e[1;32mFound via search\e[0m) ";
 			$foo = "-L$1";
 		}
 		else
@@ -290,7 +290,7 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	else
 	{
 		chomp($v);
-		print "\033[1;32m$ret\033[0m (version $v)\n";
+		print "\e[1;32m$ret\e[0m (version $v)\n";
 		my $key = "default_libdir_$packagename";
 		$main::config{$key} = $ret;
 		$main::config{$key} =~ s/^\s+//g;
@@ -322,7 +322,7 @@ sub translate_functions($$)
 		}
 		while ($line =~ /exec\("(.+?)"\)/)
 		{
-			print "Executing program for module \033[1;32m$module\033[0m ... \033[1;32m$1\033[0m\n";
+			print "Executing program for module \e[1;32m$module\e[0m ... \e[1;32m$1\e[0m\n";
 			my $replace = `$1`;
 			die $replace if ($replace =~ /Configuration failed/);
 			chomp($replace);
@@ -334,17 +334,18 @@ sub translate_functions($$)
 		}
 		while ($line =~ /eval\("(.+?)"\)/)
 		{
-			print "Evaluating perl code for module \033[1;32m$module\033[0m ... ";
+			print "Evaluating perl code for module \e[1;32m$module\e[0m ... ";
 			my $tmpfile;
 			do
 			{
 				$tmpfile = tmpnam();
 			} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW, 0700);
-			print "(Created and executed \033[1;32m$tmpfile\033[0m)\n";
+			print "(Created and executed \e[1;32m$tmpfile\e[0m)\n";
 			print TF $1;
 			close TF;
 			my $replace = `perl $tmpfile`;
 			chomp($replace);
+			unlink($tmpfile);
 			$line =~ s/eval\("(.+?)"\)/$replace/;
 		}
 		while ($line =~ /pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/)
@@ -356,7 +357,7 @@ sub translate_functions($$)
 		{
 			if (pkgconfig_check_version($1, $2, $module) != 1)
 			{
-				die "Version of package $1 is too old. Please upgrade it to version \033[1;32m$2\033[0m or greater and try again.";
+				die "Version of package $1 is too old. Please upgrade it to version \e[1;32m$2\e[0m or greater and try again.";
 			}
 			# This doesnt actually get replaced with anything
 			$line =~ s/pkgconfversion\("(.+?)","(.+?)"\)//;

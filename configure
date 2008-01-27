@@ -23,6 +23,8 @@ BEGIN {
 	$Data::Dumper::Useqq = 1;
 };
 
+use File::Copy ();
+
 use Socket;
 use Cwd;
 use Getopt::Long;
@@ -693,41 +695,42 @@ else
 # Clear the Screen..
 if ($interactive)
 {
-	system("clear");
+	print "\e[2J\e[0G\e[0d"; # J = Erase in Display, 2 = Entire Screen, (G, d) = Move cursor to (..,..)
 	my $wholeos = $^O;
 
 	my $rev = getrevision();
 	# Display Introduction Message..
-	print "
-Welcome to the \033[1mInspIRCd\033[0m Configuration program! (\033[1minteractive mode\033[0m)
-\033[1mPackage maintainers: Type ./configure --help for non-interactive help\033[0m
+	print <<"STOP" ;
+Welcome to the \e[1mInspIRCd\e[0m Configuration program! (\e[1minteractive mode\e[0m)
+\e[1mPackage maintainers: Type ./configure --help for non-interactive help\e[0m
 
 *** If you are unsure of any of these values, leave it blank for    ***
 *** standard settings that will work, and your server will run      ***
 *** using them. Please consult your IRC network admin if in doubt.  ***
 
-Press \033[1m<RETURN>\033[0m to accept the default for any option, or enter
-a new value. Please note: You will \033[1mHAVE\033[0m to read the docs
+Press \e[1m<RETURN>\e[0m to accept the default for any option, or enter
+a new value. Please note: You will \e[1mHAVE\e[0m to read the docs
 dir, otherwise you won't have a config file!
 
-Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos)
-Maximum file descriptors: \033[1;32m$config{MAX_CLIENT_T}\033[0m
-Your InspIRCd revision ID is \033[1;32mr$rev\033[0m";
+Your operating system is: \e[1;32m$config{OSNAME}\e[0m ($wholeos)
+Maximum file descriptors: \e[1;32m$config{MAX_CLIENT_T}\e[0m
+Your InspIRCd revision ID is \e[1;32mr$rev\e[0m
+STOP
 	if ($rev eq "r0") {
 		print " (Non-SVN build)";
 	}
 	print ".\n\n";
 
 	$config{CHANGE_COMPILER} = "n";
-	print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
+	print "I have detected the following compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.x\e[0m)\n";
 
 	while (($config{GCCVER} < 3) || ($config{GCCVER} eq "")) {
-		print "\033[1;32mIMPORTANT!\033[0m A GCC 2.x compiler has been detected, and
+		print "\e[1;32mIMPORTANT!\e[0m A GCC 2.x compiler has been detected, and
 should NOT be used. You should probably specify a newer compiler.\n\n";
 		yesno('CHANGE_COMPILER',"Do you want to change the compiler?");
 		if ($config{CHANGE_COMPILER} =~ /y/i) {
 			print "What command do you want to use to invoke your compiler?\n";
-			print "[\033[1;32m$config{CC}\033[0m] -> ";
+			print "[\e[1;32m$config{CC}\e[0m] -> ";
 			chomp($config{CC} = <STDIN>);
 			if ($config{CC} eq "") {
 				$config{CC} = "g++";
@@ -735,13 +738,13 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 			chomp(my $foo = `$config{CC} -dumpversion | cut -c 1`);
 			if ($foo ne "") {
 				chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
-				print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
+				print "Queried compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.x\e[0m)\n";
 				if ($config{GCCVER} < 3) {
-					print "\033[1;32mGCC 2.x WILL NOT WORK!\033[0m. Let's try that again, shall we?\n";
+					print "\e[1;32mGCC 2.x WILL NOT WORK!\e[0m. Let's try that again, shall we?\n";
 				}
 			}
 			else {
-				print "\033[1;32mWARNING!\033[0m Could not execute the compiler you specified. You may want to try again.\n";
+				print "\e[1;32mWARNING!\e[0m Could not execute the compiler you specified. You may want to try again.\n";
 			}
 		}
 	}
@@ -785,20 +788,20 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	print "\n";
 
 	if ($config{IPV6} eq "y") {
-		print "You have chosen to build an \033[1;32mIPV6-enabled\033[0m server.\nTo accept IPV4 users, you can still use IPV4 addresses\nin your port bindings..\n\n";
+		print "You have chosen to build an \e[1;32mIPV6-enabled\e[0m server.\nTo accept IPV4 users, you can still use IPV4 addresses\nin your port bindings..\n\n";
 		$config{SUPPORT_IP6LINKS} = "y";
 	} else {
-		yesno('SUPPORT_IP6LINKS',"You have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers?\nIf you are using a recent operating\nsystem and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)");
+		yesno('SUPPORT_IP6LINKS',"You have chosen to build an \e[1;32mIPV4-only\e[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers?\nIf you are using a recent operating\nsystem and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)");
 		print "\n";
 	}
 
 	if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
-		print "I have detected both \033[1;32mGnuTLS\033[0m and \033[1;32mOpenSSL\033[0m on your system.\n";
+		print "I have detected both \e[1;32mGnuTLS\e[0m and \e[1;32mOpenSSL\e[0m on your system.\n";
 		print "I will default to GnuTLS. If you wish to use OpenSSL\n";
 		print "instead, you should enable the OpenSSL module yourself\n";
 		print "by copying it from src/modules/extra to src/modules.\n\n";
-		print "Detected GnuTLS version: \033[1;32m" . $gnutls_ver . "\033[0m\n";
-		print "Detected OpenSSL version: \033[1;32m" . $openssl_ver . "\033[0m\n\n";
+		print "Detected GnuTLS version: \e[1;32m" . $gnutls_ver . "\e[0m\n";
+		print "Detected OpenSSL version: \e[1;32m" . $openssl_ver . "\e[0m\n\n";
 	}
 
 	if ($config{HAS_GNUTLS} eq "y") {
@@ -855,24 +858,14 @@ if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 our $failed = 0;
 
 if ($config{USE_GNUTLS} eq "y") {
-	$failed = 0;
-	open(TMP, "<src/modules/m_ssl_gnutls.cpp") or $failed = 1;
-	close(TMP);
-	if ($failed) {
+	unless (-r "src/modules/m_ssl_gnutls.cpp") {
 		print "Symlinking src/modules/m_ssl_gnutls.cpp from extra/\n";
-		chdir("src/modules");
-		system("ln -s extra/m_ssl_gnutls.cpp");
-		chdir("../..");
+		symlink "extra/m_ssl_gnutls.cpp", "src/modules/m_ssl_gnutls.cpp" or print STDERR "Symlink failed: $!";
 	}
 	getmodules();
 	if ($interactive)
 	{
-		$failed = 0;
-		open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
-		close(TMP);
-		open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
-		close(TMP);
-		if ($failed) {
+		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
 			print "SSL Certificates Not found, Generating.. \n\n
 *************************************************************
 * Generating the Private Key may take some time, go grab a  *
@@ -883,11 +876,11 @@ if ($config{USE_GNUTLS} eq "y") {
 *************************************************************\n\n";
 			$failed = make_gnutls_cert();
 			if ($failed) {
-				print "\n\033[1;32mCertificate generation failed!\033[0m\n\n";
+				print "\n\e[1;32mCertificate generation failed!\e[0m\n\n";
 			} else {
 				print "\nCertificate generation complete, copying to config directory... ";
-				system("mv key.pem $config{CONFIG_DIR}/key.pem");
-				system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
+				File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
+				File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
 				print "Done.\n\n";
 			}
 		}
@@ -900,24 +893,15 @@ if ($config{USE_GNUTLS} eq "y") {
 		print "Skipping SSL certificate generation\nin non-interactive mode.\n\n";
 	}
 } elsif ($config{USE_OPENSSL} eq "y") {
-	$failed = 0;
-	open(TMP, "<src/modules/m_ssl_openssl.cpp") or $failed = 1;
-	close(TMP);
-	if ($failed) {
+	unless (-r "src/modules/m_ssl_openssl.cpp") {
 		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
-		chdir("src/modules");
-		system("ln -s extra/m_ssl_openssl.cpp");
-		chdir("../..");
+		symlink "extra/m_ssl_openssl.cpp", "src/modules/m_ssl_openssl.cpp" or print STDERR "Symlink failed: $!";
 	}
 	getmodules();
 	$failed = 0;
 	if ($interactive)
 	{
-		open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
-		close(TMP);
-		open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
-		close(TMP);
-		if ($failed) {
+		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
 			print "SSL Certificates Not found, Generating.. \n\n
 *************************************************************
 * Generating the certificates may take some time, go grab a *
@@ -925,9 +909,9 @@ if ($config{USE_GNUTLS} eq "y") {
 *************************************************************\n\n";
 			make_openssl_cert();
 			print "\nCertificate generation complete, copying to config directory... ";
-			system("mv key.pem $config{CONFIG_DIR}/key.pem");
-			system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
-			system("mv dhparams.pem $config{CONFIG_DIR}/dhparams.pem");
+			File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
+			File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
+			File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
 			print "Done.\n\n";
 		} else {
 			print "SSL Certificates found, skipping.\n\n"
@@ -947,21 +931,21 @@ writefiles(1);
 makecache();
 
 print "\n\n";
-print "To build your server with these settings, please type '\033[1;32m$config{MAKEPROG}\033[0m' now.\n";
+print "To build your server with these settings, please type '\e[1;32m$config{MAKEPROG}\e[0m' now.\n";
 if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
-	print "Please remember that to enable \033[1;32mSSL support\033[0m you must\n";
+	print "Please remember that to enable \e[1;32mSSL support\e[0m you must\n";
 	print "load the required modules in your config. This configure process\n";
 	print "has just prepared these modules to be compiled for you, and has not\n";
 	print "configured them to be compiled into the core of the ircd.\n";
 }
-print "*** \033[1;32mRemember to edit your configuration files!!!\033[0m ***\n\n\n";
+print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n\n";
 if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
-	print "\033[1;32mWARNING!\033[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
+	print "\e[1;32mWARNING!\e[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
 }
 
 if ($config{GCCVER} < "3") {
 	print <<FOO2;
-\033[1;32mWARNING!\033[0m You are attempting to compile InspIRCd on GCC 2.x!
+\e[1;32mWARNING!\e[0m You are attempting to compile InspIRCd on GCC 2.x!
 GCC 2.x series compilers only had partial (read as broken) C++ support, and
 your compile will most likely fail horribly! If you have any problems, do NOT
 report them to the bugtracker or forums without first upgrading your compiler
@@ -991,7 +975,7 @@ sub getcache {
 
 sub makecache {
 	# Dump the contents of %config
-	print "Writing \033[1;32mcache file\033[0m for future ./configures ...\n";
+	print "Writing \e[1;32mcache file\e[0m for future ./configures ...\n";
 	open(FILEHANDLE, ">.config.cache");
 	foreach my $key (keys %config) {
 		print FILEHANDLE "$key=\"$config{$key}\"\n";
@@ -1004,7 +988,7 @@ sub dir_check {
 	my $complete = 0;
 	while (!$complete) {
 		print "In what directory $desc?\n";
-		print "[\033[1;32m$config{$hash_key}\033[0m] -> ";
+		print "[\e[1;32m$config{$hash_key}\e[0m] -> ";
 		chomp(my $var = <STDIN>);
 		if ($var eq "") {
 			$var = $config{$hash_key};
@@ -1021,14 +1005,16 @@ sub dir_check {
 		
 		$var = resolve_directory($var); 
 		if (! -e $var) {
-			print "$var does not exist. Create it?\n[\033[1;32my\033[0m] ";
+			print "$var does not exist. Create it?\n[\e[1;32my\e[0m] ";
 			chomp(my $tmp = <STDIN>);
 			if (($tmp eq "") || ($tmp =~ /^y/i)) {
 				# Attempt to Create the Dir..
-				
-				system("mkdir -p \"$var\" >> /dev/null 2>&1");
-				my $chk = system("mkdir -p \"$var\" >> /dev/null 2>&1") / 256;
-				if ($chk != 0) {
+				my $chk = eval {
+					use File::Path ();
+					File::Path::mkpath($var, 0, 0777);
+					1;
+				};
+				unless (defined($chk) && -d $var) {
 					print "Unable to create directory. ($var)\n\n";
 					# Restart Loop..
 					next;
@@ -1128,7 +1114,7 @@ sub writefiles {
 	chomp(my $revision2 = getrevision());
 	if ($writeheader == 1)
 	{
-		print "Writing \033[1;32minspircd_config.h\033[0m\n";
+		print "Writing \e[1;32minspircd_config.h\e[0m\n";
 		open(FILEHANDLE, ">include/inspircd_config.h");
 		my $NL = $config{NICK_LENGT}+1;
 		my $CL = $config{CHAN_LENGT}+1;
@@ -1265,7 +1251,7 @@ EOF
 	# We can actually parse any file starting with . and ending with .inc,
 	# but right now we only parse .inspircd.inc to form './inspircd'
 
-        print "Writing \033[1;32mMakefiles\033[0m\n";
+        print "Writing \e[1;32mMakefiles\e[0m\n";
 	write_dynamic_modules_makefile();
 	write_dynamic_makefile();
 
@@ -1286,7 +1272,7 @@ EOF
 			}
 			close(FILEHANDLE);
 
-			print "Writing \033[1;32m$file\033[0m ...\n";
+			print "Writing \e[1;32m$file\e[0m ...\n";
 			$tmp =~ s/\@CC\@/$config{CC}/ if defined $config{CC};
 			$tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/ if defined $config{MAKEPROG};
 			$tmp =~ s/\@FLAGS\@/$config{FLAGS}/ if defined $config{FLAGS};
@@ -1319,7 +1305,7 @@ EOF
 
 sub write_dynamic_modules_makefile {
 	# Modules Makefile..
-	print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
+	print "Writing \e[1;32msrc/modules/Makefile\e[0m\n";
 	open(FILEHANDLE, ">src/modules/Makefile");
 
 ###
@@ -1405,7 +1391,7 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 			# A module made of multiple files, in a dir, e.g. src/modules/m_spanningtree/
 			if (defined(opendir(MDIRHANDLE, "src/modules/$name"))) {
 				read_module_directory("src/modules/$name", $name);
-				print "Composing Makefile rules for directory \033[1;32m$name\033[0m... (\033[1;32m$mfcount files found\033[0m)\n";
+				print "Composing Makefile rules for directory \e[1;32m$name\e[0m... (\e[1;32m$mfcount files found\e[0m)\n";
 				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $mobjs\n"; 
 				if ($config{IS_DARWIN} eq "YES") {
 					print FILEHANDLE "	\$(CC) -pipe -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) $mliflags -bundle -o $name.so $mobjs\n"; 
@@ -1518,7 +1504,7 @@ sub write_dynamic_makefile
 
 	foreach my $dir (("src","src/commands","src/modes","src/socketengines","src/modules"))
 	{
-		print "Scanning \033[1;32m$dir\033[0m for core files ";
+		print "Scanning \e[1;32m$dir\e[0m for core files ";
 		opendir(DIRHANDLE, $dir);
 		foreach my $name (sort readdir(DIRHANDLE))
 		{
@@ -1835,6 +1821,7 @@ sub enable_extras (@) {
 		my $extrapath = "src/modules/extra/$extra";
 		if (!-e $extrapath) {
 			print STDERR "Cannot enable \e[32;1m$extra\e[0m : No such file or directory in src/modules/extra\n";
+			next;
 		}
 		my $source = "src/modules/$extra";
 		if (-e $source) {
