@@ -162,8 +162,6 @@ int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPS
 
 	Banner();
 	Run();
-	WriteCompileCommands();
-	WriteCompileModules();
 	FreeConsole();
 	return 0;
 }
