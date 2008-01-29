@@ -48,7 +48,6 @@
 #                                                                     #
 #     <server name="server.name"                                      #
 #      description="Server Description"                               #
-#      networkemail="Email address shown on g/k/z/q lines"            #
 #      network="MyNetwork">                                           #
 #                                                                     #
 
