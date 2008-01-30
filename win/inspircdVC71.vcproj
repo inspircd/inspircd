@@ -46,9 +46,11 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="echo Compiling commands... &amp;&amp; cd ..\src\commands &amp;&amp; nmake -f commands.mak &amp;&amp; echo Compiling modules... &amp;&amp; cd ..\modules &amp;&amp; nmake -f modules.mak"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="&quot;$(InputDir)\configure.exe&quot;"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -95,9 +97,11 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="echo Compiling commands... &amp;&amp; cd ..\src\commands &amp;&amp; nmake -f commands.mak &amp;&amp; echo Compiling modules... &amp;&amp; cd ..\modules &amp;&amp; nmake -f modules.mak"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="&quot;$(InputDir)\configure.exe&quot;"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -122,7 +126,13 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath="..\src\bancache.cpp">
+			</File>
+			<File
 				RelativePath="..\src\base.cpp">
+			</File>
+			<File
+				RelativePath="..\src\channelmanager.cpp">
 			</File>
 			<File
 				RelativePath="..\src\channels.cpp">
@@ -164,6 +174,9 @@
 				RelativePath="..\src\inspstring.cpp">
 			</File>
 			<File
+				RelativePath="..\src\logger.cpp">
+			</File>
+			<File
 				RelativePath="..\src\mode.cpp">
 			</File>
 			<File
@@ -182,10 +195,16 @@
 				RelativePath="..\src\socketengine.cpp">
 			</File>
 			<File
-				RelativePath="..\src\socketengine_iocp.cpp">
+				RelativePath="..\src\socketengines\socketengine_iocp.cpp">
 			</File>
 			<File
 				RelativePath="..\src\timer.cpp">
+			</File>
+			<File
+				RelativePath="..\src\user_resolver.cpp">
+			</File>
+			<File
+				RelativePath="..\src\usermanager.cpp">
 			</File>
 			<File
 				RelativePath="..\src\userprocess.cpp">
