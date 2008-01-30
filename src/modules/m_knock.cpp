@@ -32,6 +32,7 @@ class cmd_knock : public command_t
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chanrec* c = ServerInstance->FindChan(parameters[0]);
+		std::string line;
 
 		if (!c)
 		{
@@ -39,11 +40,21 @@ class cmd_knock : public command_t
 			return CMD_FAILURE;
 		}
 
-		std::string line;
+		if (c->HasUser(user))
+		{
+			user->WriteServ("480 %s :Can't KNOCK on %s, you are already on that channel.", user->nick, c->name);
+			return CMD_FAILURE;
+		}
 
 		if (c->IsModeSet('K'))
 		{
 			user->WriteServ("480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
+			return CMD_FAILURE;
+		}
+
+		if (!c->modes[CM_INVITEONLY])
+		{
+			user->WriteServ("480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
 			return CMD_FAILURE;
 		}
 
@@ -52,12 +63,6 @@ class cmd_knock : public command_t
 			line = line + std::string(parameters[i]) + " ";
 		}
 		line = line + std::string(parameters[pcnt-1]);
-
-		if (!c->modes[CM_INVITEONLY])
-		{
-			user->WriteServ("480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
-			return CMD_FAILURE;
-		}
 
 		c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName,  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
 		user->WriteServ("NOTICE %s :KNOCKing on %s",user->nick,c->name);
