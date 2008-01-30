@@ -41,14 +41,13 @@ CmdResult CommandInfo::Handle (const char**, int, User *user)
 	user->WriteServ( "371 %s :    satmd          nenolod         John2          djGrrr", user->nick);
 	user->WriteServ( "371 %s :    jilles         Stskeeps        eggy           Trystan", user->nick);
 	user->WriteServ( "371 %s :    Quension       danieldg        praetorian     Majic", user->nick);
-	user->WriteServ( "371 %s :    searchirc.com  irc-junkie.org", user->nick);
+	user->WriteServ( "371 %s :    fez            searchirc.com  irc-junkie.org", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Other Contributors\2:", user->nick);
 	user->WriteServ( "371 %s :   dmb             Zaba            skenmy         LeaChim", user->nick);
 	user->WriteServ( "371 %s :   Thunderhacker   Dan             Jason          owine", user->nick);
 	user->WriteServ( "371 %s :   Adremelech      dz              BuildSmart     HiroP", user->nick);
 	user->WriteServ( "371 %s :   ThaPrince       Bricker         AnMaster       aquanight", user->nick);
-	user->WriteServ( "371 %s :   fez", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Former Contributors\2:", user->nick);
 	user->WriteServ( "371 %s :   CC              jamie           typobox43", user->nick);
