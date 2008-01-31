@@ -16,10 +16,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#ifdef WINDOWS
-#include <openssl/applink.c>
-#endif
-
 #include "configreader.h"
 #include "users.h"
 #include "channels.h"
