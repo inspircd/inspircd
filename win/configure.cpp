@@ -68,7 +68,10 @@ bool get_bool_option(const char * text, bool def)
 void get_string_option(const char * text, char * def, char * buf)
 {
 	static char buffer[500];
-	printf_c("%s\n[\033[1;32m%s\033[0m] -> ", text, def);
+	if (*def)
+		printf_c("%s\n[\033[1;32m%s\033[0m] -> ", text, def);
+	else
+		printf_c("%s\n[] -> ", text);
 	fgets(buffer, 500, stdin);
 	if(sscanf(buffer, "%s", buf) != 1)
 		strcpy(buf, def);
@@ -184,12 +187,15 @@ void Run()
 	int max_fd = 1024;
 	bool use_iocp = false;
 	bool support_ip6links = false;
+	bool use_openssl = false;
 	char mod_path[MAX_PATH];
 	char config_file[MAX_PATH];
 	char library_dir[MAX_PATH];
 	char base_path[MAX_PATH];
 	char bin_dir[MAX_PATH];
 	char revision_text[MAX_PATH];
+	char openssl_inc_path[MAX_PATH];
+	char openssl_lib_path[MAX_PATH];
 
 	int max_clients = 1024;
 	int nicklen = 31;
@@ -271,6 +277,48 @@ void Run()
 	kicklen = get_int_option("Please enter the maximum length of a kick message?", 255);
 	rllen = get_int_option("Please enter the maximum length of a GECOS (real name)?", 128);
 	awaylen = get_int_option("Please enter the maximum length of an away message?", 200);
+
+	// NOTE: this may seem hackish (generating a batch build script), but it assures the user knows
+	// what they're doing, and we don't have to mess with copying files and changing around modules.mak
+	// for the extra libraries. --fez
+
+	printf_c("You can compile InspIRCd modules that add OpenSSL or GnuTLS support for SSL functionality.\n"
+		"To do so you will need the appropriate link libraries and header files on your system.\n");
+	use_openssl = get_bool_option("Would you like to compile the IRCd with OpenSSL support?", false);
+	if (use_openssl)
+	{
+		get_string_option("Please enter the full path to your OpenSSL include directory\n"
+			"(e.g., C:\\openssl\\include, but NOT the openssl subdirectory under include\\)\n"
+			"(also, path should not end in '\\')",
+			"C:\\openssl\\include", openssl_inc_path);
+
+		// NOTE: if inspircd ever changes so that it compiles with /MT instead of the /MTd switch, then
+		// the dependency on libeay32mtd.lib and ssleay32mtd.lib will change to just libeay32.lib and
+		// ssleay32.lib. --fez
+
+		get_string_option("Please enter the full path to your OpenSSL library directory\n"
+			"(e.g., C:\\openssl\\lib, which should contain libeay32mtd.lib and ssleay32mtd.lib)",
+			"C:\\openssl\\lib", openssl_lib_path);
+
+		// write batch file
+		FILE *fp = fopen("compile_openssl.bat", "w");
+		fprintf(fp, "@echo off\n");
+		fprintf(fp, "echo This batch script compiles m_ssl_openssl for InspIRCd.\n");
+		fprintf(fp, "echo NOTE: this batch file should be invoked from the Visual Studio Command Prompt (vsvars32.bat)\n");
+		fprintf(fp, "set OPENSSL_INC_PATH=\"%s\"\n", openssl_inc_path);
+		fprintf(fp, "set OPENSSL_LIB_PATH=\"%s\"\n", openssl_lib_path);
+		fprintf(fp, "set COMPILE=cl /nologo -Dssize_t=long /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /Gm /MT /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W2 /Wp64 /Zi /TP /I %%OPENSSL_INC_PATH%% m_ssl_openssl.cpp ..\\..\\win\\inspircd_memory_functions.cpp %%OPENSSL_INC_PATH%%\\openssl\\applink.c /link /LIBPATH:%%OPENSSL_LIB_PATH%% ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.so\" /PDB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.lib\"\n");
+		fprintf(fp, "cd ..\\src\\modules\n");
+		fprintf(fp, "copy extra\\m_ssl_openssl.cpp .\n");
+		fprintf(fp, "echo \t%%COMPILE%%\n");
+		fprintf(fp, "%%COMPILE%%\n");
+		fprintf(fp, "cd ..\\..\\win\n");
+		fprintf(fp, "echo done... now check for errors.\n");
+		fclose(fp);
+
+		printf_c("\033[1;32m!!!NOTICE!!! The file 'compile_openssl.bat' has been written to your 'win' directory.  Launch it\n"
+			"!!! from the Visual Studio Command Prompt !!! to compile the m_ssl_openssl module.\033[0m\n");
+	}
 
 	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
 
