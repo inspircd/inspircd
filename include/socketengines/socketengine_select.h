@@ -17,7 +17,9 @@
 #include <vector>
 #include <string>
 #include <map>
+#ifndef WINDOWS
 #include <sys/select.h>
+#endif // WINDOWS
 #include "inspircd_config.h"
 #include "globals.h"
 #include "inspircd.h"
