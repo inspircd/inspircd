@@ -88,7 +88,7 @@
 #                                                                     #
 #   Enter the port and address bindings here.                         #
 #                                                                     #
-#  bind address - specifies which address ports bind to. Leaving this #
+#  bind address - Specifies which address ports bind to. Leaving this #
 #                 field blank binds the port to all IP's available.   #
 #                                                                     #
 #  port         - The port number to bind to. You may specify a port  #
@@ -100,7 +100,7 @@
 #                 the entire range from being bound, just that one    #
 #                 port number.                                        #
 #                                                                     #
-#  type         - can be 'clients' or 'servers'. The clients type is  #
+#  type         - Can be 'clients' or 'servers'. The clients type is  #
 #                 a standard TCP based socket, the servers type is a  #
 #                 also a TCP based connection but of a different      #
 #                 format. SSL support is provided by modules, to      #
@@ -109,7 +109,7 @@
 #                                                                     #
 #  ssl          - When using m_ssl_gnutls.so or m_ssl_openssl.so      #
 #                 modules, you must define this value to use ssl on   #
-#                 that port. valid values are 'gnutls' or 'openssl'   #
+#                 that port. Valid values are 'gnutls' or 'openssl'   #
 #                 respectively. If the module is not loaded, this     #
 #                 setting is ignored.                                 #
 #                                                                     #
@@ -117,7 +117,7 @@
 #                 either one of the SSL modules (m_ssl_gnutls or      #
 #                 m_ssl_openssl) or m_ziplinks.so, then you may make  #
 #                 use of this value.                                  #
-#                 setting it to 'openssl' or 'gnutls' or 'zip'        #
+#                 Setting it to 'openssl' or 'gnutls' or 'zip'        #
 #                 indicates that the port should accept connections   #
 #                 using the given transport name. Transports are      #
 #                 layers which sit on top of a socket and change the  #
@@ -353,17 +353,17 @@
 #   your server, as well as the commands they are allowed to use.     #
 #   This works alongside with the classes specified above.            #
 #                                                                     #
-#  type name  - a name for the combined class types.                  #
+#  type name  - A name for the combined class types.                  #
 #               a type name cannot contain spaces, however if you     #
 #               put an _ symbol in the name, it will be translated    #
 #               to a space when displayed in a WHOIS.                 #
 #                                                                     #
-#  classes    - specified above, used for flexibility for the         #
+#  classes    - Specified above, used for flexibility for the         #
 #               server admin to decide on which operators get         #
 #               what commands. Class names are case sensitive,        #
 #               separate multiple class names with spaces.            #
 #                                                                     #
-#  host       - optional hostmask operators will receive on oper-up.  #
+#  host       - Optional hostmask operators will receive on oper-up.  #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
@@ -390,20 +390,20 @@
 #   Opers are defined here. This is a very important section.         #
 #   Remember to only make operators out of trust worthy people.       #
 #                                                                     #
-#  name        - oper name, this is case sensitive, so it is best to  #
+#  name        - Oper name, this is case sensitive, so it is best to  #
 #                use lower-case.                                      #
 #                                                                     #
-#  password    - password to oper-up, also case sensitive.            #
+#  password    - Password to oper-up, also case sensitive.            #
 #                encryption is supported via modules. You may load    #
 #                modules for MD5 or SHA256 encryption, and if you do, #
 #                this value will be a hash value, otherwise put a     #
 #                plaintext password in this value.                    #
 #                                                                     #
-#  host        - hosts of client allowed to oper-up.                  #
+#  host        - Hosts of client allowed to oper-up.                  #
 #                wildcards accepted, separate multiple hosts with a   #
 #                space. You may also specify CIDR IP addresses.       #
 #                                                                     #
-#  fingerprint - when using the m_ssl_oper_cert.so module, you may    #
+#  fingerprint - When using the m_ssl_oper_cert.so module, you may    #
 #                specify a key fingerprint here. This can be obtained #
 #                using the /fingerprint command whilst the module is  #
 #                loaded, or from the notice given to you when you     #
@@ -418,7 +418,7 @@
 #                is not loaded, this configuration option has no      #
 #                effect and will be ignored.                          #
 #                                                                     #
-#  type        - defines the kind of operator. This must match a type #
+#  type        - Defines the kind of operator. This must match a type #
 #                tag you defined above, and is case sensitive.        #
 #                                                                     #
 #  Syntax is as follows:                                              #
@@ -440,29 +440,29 @@
 # Defines which servers can link to this one, and which servers this  #
 # server may create outbound links to.                                #
 #                                                                     #
-# name        -   the name is the canonical name of the server, does   #
+# name        -   The name is the canonical name of the server, does   #
 #                 not have to resolve - but it is expected to be set  #
 #                 in the remote servers connection info.              #
 #                                                                     #
-# ipaddr      -   valid host or IP address for remote server. These   #
+# ipaddr      -   Valid host or IP address for remote server. These   #
 #                 hosts are resolved on rehash, and cached, if you    #
 #                 specify a hostname; so if you find that your server #
 #                 is still trying to connect to an old IP after you   #
 #                 have updated your DNS, try rehashing and then       #
 #                 attempting the connect again.                       #
 #                                                                     #
-# port        -   the TCP port for the remote server.                 #
+# port        -   The TCP port for the remote server.                 #
 #                                                                     #
-# sendpass    -   password to send to create an outbound connection   #
+# sendpass    -   Password to send to create an outbound connection   #
 #                 to this server.                                     #
 #                                                                     #
-# recvpass    -   password to receive to accept an inbound connection #
+# recvpass    -   Password to receive to accept an inbound connection #
 #                 from this server.                                   #
 #                                                                     #
-# autoconnect -   sets the server to autoconnect. Where x is the num. #
+# autoconnect -   Sets the server to autoconnect. Where x is the num. #
 # (optional)      of seconds between attempts. e.g. 300 = 5 minutes.  #
 #                                                                     #
-# transport     - if defined, this is a transport name implemented by #
+# transport     - If defined, this is a transport name implemented by #
 #                 another module. Transports are layers on top of     #
 #                 plaintext connections, which alter them in certain  #
 #                 ways. Currently the three supported transports are  #
@@ -473,7 +473,7 @@
 #                 link to succeed. OpenSSL and GnuTLS are link-       #
 #                 compatible with each other.                         #
 #                                                                     #
-# statshidden   - when using m_spanningtree.so for linking. you may   #
+# statshidden   - When using m_spanningtree.so for linking. you may   #
 #                 set this to 'yes', and if you do, the IP address/   #
 #                 hostname of this connection will NEVER be shown to  #
 #                 any opers on the network. In /stats c its address   #
@@ -482,7 +482,7 @@
 #                 UNLESS the connection fails (e.g. due to a bad      #
 #                 password or servername)                             #
 #                                                                     #
-# allowmask     - when this is defined, it indicates a range of IP    #
+# allowmask     - When this is defined, it indicates a range of IP    #
 #                 addresses to allow for this link (You may use CIDR  #
 #                 or wildcard form for this address).                 #
 #                 e.g. if your server is going to connect to you from #
@@ -490,7 +490,7 @@
 #                 into this value. If it is not defined, then only    #
 #                 the ipaddr field of the server shall be allowed.    #
 #                                                                     #
-# failover      - if you define this option, it must be the name of a #
+# failover      - If you define this option, it must be the name of a #
 #                 different link tag in your configuration. This      #
 #                 option causes the ircd to attempt a connection to   #
 #                 the failover link in the event that the connection  #
@@ -508,12 +508,12 @@
 #                 apply to autoconnected servers as well as manually  #
 #                 connected ones.                                     #
 #                                                                     #
-# timeout       - if this is defined, then outbound connections will  #
+# timeout       - If this is defined, then outbound connections will  #
 #                 time out if they are not connected within this many #
 #                 seconds. If this is not defined, the default of ten #
 #                 seconds is used.                                    #
 #                                                                     #
-# bind          - if you specify this value, then when creating an    #
+# bind          - If you specify this value, then when creating an    #
 #                 outbound connection to the given server, the IP you #
 #                 place here will be bound to. This is for multi-     #
 #                 homed servers which may have multiple IP addresses. #
@@ -527,7 +527,7 @@
 #                 looking for the error 'Could not assign requested   #
 #                 address' in your log when connecting to servers.    #
 #                                                                     #
-# hidden        - if this is set to true, yes, or 1, then the server  #
+# hidden        - If this is set to true, yes, or 1, then the server  #
 #                 is completely hidden from non-opers. It does not    #
 #                 show in /links and it does not show in /map. Also,  #
 #                 any servers which are child servers of this one     #
@@ -539,7 +539,7 @@
 #                 example to hide a non-client hub, for which clients #
 #                 do not have an IP address or resolvable hostname.   #
 #                                                                     #
-# to u:line a server (give it extra privileges required for running   #
+# To u:line a server (give it extra privileges required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
 #                                                                     #
@@ -661,7 +661,7 @@
 #                                                                     #
 # ------------------------------------------------------------------- #
 #                                                                     #
-# NOTE: if you have built InspIRCd with IPv6 support, then both       #
+# NOTE: If you have built InspIRCd with IPv6 support, then both       #
 # IPv6 and IPv4 addresses are allowed here, and also in the system    #
 # resolv.conf file. Remember that an IPv4 DNS server can still        #
 # resolve IPv6 addresses, and vice versa.                             #
@@ -743,11 +743,11 @@
 #                  parts. If specified, overrides both prefixpart     #
 #                  and suffixpart options.                            #
 #                                                                     #
-#  loglevel      - specifies what detail of messages to log in the    #
+#  loglevel      - Specifies what detail of messages to log in the    #
 #                  log file. You may select from debug, verbose,      #
 #                  default, sparse and none.                          #
 #                                                                     #
-#  allowhalfop   - allows the +h channel mode                         #
+#  allowhalfop   - Allows the +h channel mode                         #
 #                                                                     #
 #  noservices    - If noservices is true, yes, or 1, then the first   #
 #                  user into a channel gets founder status. This is   #
@@ -778,7 +778,7 @@
 #                  especially in the case of bots, and it is          #
 #                  recommended that this option is enabled.           #
 #                                                                     #
-#  netbuffersize - size of the buffer used to receive data from       #
+#  netbuffersize - Size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
 #                  of text in one go at any time. (OPTIONAL)          #
 #                                                                     #
