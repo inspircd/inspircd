@@ -281,7 +281,8 @@ void Run()
 	// NOTE: this may seem hackish (generating a batch build script), but it assures the user knows
 	// what they're doing, and we don't have to mess with copying files and changing around modules.mak
 	// for the extra libraries. --fez
-
+	// in case it exists, remove old m_ssl_openssl.cpp
+	remove("..\\src\\modules\\m_ssl_openssl.cpp");
 	printf_c("You can compile InspIRCd modules that add OpenSSL or GnuTLS support for SSL functionality.\n"
 		"To do so you will need the appropriate link libraries and header files on your system.\n");
 	use_openssl = get_bool_option("Would you like to compile the IRCd with OpenSSL support?", false);
@@ -317,7 +318,9 @@ void Run()
 		fclose(fp);
 
 		printf_c("\033[1;32m!!!NOTICE!!! The file 'compile_openssl.bat' has been written to your 'win' directory.  Launch it\n"
-			"!!! from the Visual Studio Command Prompt !!! to compile the m_ssl_openssl module.\033[0m\n");
+			"!!! from the Visual Studio Command Prompt !!! to compile the m_ssl_openssl module.\n"
+			"Wait until after compiling inspircd to run it.\n"
+			"Also, ssleay32.dll and libeay32.dll will be required for the IRCd to run.\033[0m\n");
 	}
 
 	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
