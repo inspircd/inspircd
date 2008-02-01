@@ -870,8 +870,8 @@
 #                  hint will be given (using the RPL_TEXT numeric)    #
 #                  as well as the standard ERR_NEEDMOREPARAMS.        #
 #                                                                     #
-#  announcets    - If this value is defined to yes, true or 1, then   #
-#                  a channel's timestamp is updated, the users on     #
+#  announcets    - If this value is defined to yes, true, or 1, then  #
+#                  a channels' timestamp is updated, the users on     #
 #                  the channel will be informed of the change via     #
 #                  a server notice to the channel with the old and    #
 #                  new TS values in the timestamp. If you think this  #
