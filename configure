@@ -546,7 +546,7 @@ $has_kqueue = 0;
 $fail = 0;
 open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
 if (!$fail) {
-	while (defiined(my $line = <KQUEUE>)) {
+	while (defined(my $line = <KQUEUE>)) {
 		chomp($line);
 		# try and find the delcaration of:
 		# int kqueue(void);
