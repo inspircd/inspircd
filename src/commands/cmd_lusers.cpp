@@ -25,7 +25,7 @@ CmdResult CommandLusers::Handle (const char**, int, User *user)
 {
 	// this lusers command shows one server at all times because
 	// a protocol module must override it to show those stats.
-	user->WriteServ("251 %s :There are %d users and %d invisible on 1 server",user->nick,ServerInstance->Users->UserCount()-ServerInstance->ModeCount('i'),ServerInstance->ModeCount('i'));
+	user->WriteServ("251 %s :There are %d users and %d invisible on 1 server",user->nick,ServerInstance->Users->UserCount()-ServerInstance->Users->ModeCount('i'),ServerInstance->Users->ModeCount('i'));
 	if (ServerInstance->Users->OperCount())
 		user->WriteServ("252 %s %d :operator(s) online",user->nick,ServerInstance->Users->OperCount());
 	if (ServerInstance->Users->UnregisteredUserCount())

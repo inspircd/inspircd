@@ -28,7 +28,7 @@ class CommandClose : public Command
 	{
 		std::map<std::string,int> closed;
 
-		for (std::vector<User*>::iterator u = ServerInstance->local_users.begin(); u != ServerInstance->local_users.end(); u++)
+		for (std::vector<User*>::iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); u++)
 		{
 			if ((*u)->registered != REG_ALL)
 			{

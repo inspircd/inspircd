@@ -39,7 +39,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 
 	int j = 0;
 
-	Instance->unregistered_count++;
+	this->unregistered_count++;
 
 	char ipaddr[MAXBUF];
 #ifdef IPV6
@@ -49,7 +49,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 #endif
 	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
 
-	(*(Instance->clientlist))[New->uuid] = New;
+	(*(this->clientlist))[New->uuid] = New;
 
 	/* The users default nick is their UUID */
 	strlcpy(New->nick, New->uuid, NICKMAX - 1);
@@ -92,9 +92,9 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	 */
 	New->CheckClass();
 
-	Instance->local_users.push_back(New);
+	this->local_users.push_back(New);
 
-	if ((Instance->local_users.size() > Instance->Config->SoftLimit) || (Instance->local_users.size() >= MAXCLIENTS))
+	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= MAXCLIENTS))
 	{
 		Instance->SNO->WriteToSnoMask('A', "Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
 		User::QuitUser(Instance, New,"No more connections allowed");
@@ -243,32 +243,148 @@ unsigned int UserManager::UserCount()
 	 *  As part of this restructuring, move clientlist/etc fields into usermanager.
 	 * 	-- w00t
 	 */
-	return ServerInstance->clientlist->size();
+	return this->clientlist->size();
 }
 
 /* this counts only registered users, so that the percentages in /MAP don't mess up */
 unsigned int UserManager::RegisteredUserCount()
 {
-	return ServerInstance->clientlist->size() - this->UnregisteredUserCount();
+	return this->clientlist->size() - this->UnregisteredUserCount();
 }
 
 /* return how many users are opered */
 unsigned int UserManager::OperCount()
 {
-	return ServerInstance->all_opers.size();
+	return this->all_opers.size();
 }
 
 /* return how many users are unregistered */
 unsigned int UserManager::UnregisteredUserCount()
 {
-	return ServerInstance->unregistered_count;
+	return this->unregistered_count;
 }
 
 /* return how many local registered users there are */
 unsigned int UserManager::LocalUserCount()
 {
 	/* Doesnt count unregistered clients */
-	return (ServerInstance->local_users.size() - this->UnregisteredUserCount());
+	return (this->local_users.size() - this->UnregisteredUserCount());
 }
+
+void UserManager::ServerNoticeAll(char* text, ...)
+{
+	if (!text)
+		return;
+
+	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s", ServerInstance->Config->ServerName, textbuffer);
+
+	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	{
+		User* t = *i;
+		t->WriteServ(std::string(formatbuffer));
+	}
+}
+
+void UserManager::ServerPrivmsgAll(char* text, ...)
+{
+	if (!text)
+		return;
+
+	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s", ServerInstance->Config->ServerName, textbuffer);
+
+	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	{
+		User* t = *i;
+		t->WriteServ(std::string(formatbuffer));
+	}
+}
+
+void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	int modelen;
+	va_list argsPtr;
+
+	if (!text || !modes || !flags)
+	{
+		ServerInstance->Log(DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
+		return;
+	}
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+	modelen = strlen(modes);
+
+	if (flags == WM_AND)
+	{
+		for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+		{
+			User* t = *i;
+			bool send_to_user = true;
+
+			for (int n = 0; n < modelen; n++)
+			{
+				if (!t->IsModeSet(modes[n]))
+				{
+					send_to_user = false;
+					break;
+				}
+			}
+			if (send_to_user)
+			{
+				t->WriteServ("NOTICE %s :%s", t->nick, textbuffer);
+			}
+		}
+	}
+	else if (flags == WM_OR)
+	{
+		for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+		{
+			User* t = *i;
+			bool send_to_user = false;
+
+			for (int n = 0; n < modelen; n++)
+			{
+				if (t->IsModeSet(modes[n]))
+				{
+					send_to_user = true;
+					break;
+				}
+			}
+
+			if (send_to_user)
+			{
+				t->WriteServ("NOTICE %s :%s", t->nick, textbuffer);
+			}
+		}
+	}
+}
+
+/* return how many users have a given mode e.g. 'a' */
+int UserManager::ModeCount(const char mode)
+{
+	ModeHandler* mh = this->ServerInstance->Modes->FindMode(mode, MODETYPE_USER);
+
+	if (mh)
+		return mh->GetCount();
+	else
+		return 0;
+}
+
 
 

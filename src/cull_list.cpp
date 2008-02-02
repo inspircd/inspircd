@@ -49,7 +49,7 @@ int CullList::Apply()
 		std::vector<User *>::iterator a = list.begin();
 
 		User *u = (*a);
-		user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
+		user_hash::iterator iter = ServerInstance->Users->clientlist->find(u->nick);
 		const char* preset_reason = u->GetOperQuit();
 		std::string reason = u->operquitmsg;
 		std::string oper_reason = *preset_reason ? preset_reason : u->operquitmsg;
@@ -60,8 +60,8 @@ int CullList::Apply()
 			oper_reason.resize(MAXQUIT - 1);
 
 		if (u->registered != REG_ALL)
-			if (ServerInstance->unregistered_count)
-				ServerInstance->unregistered_count--;
+			if (ServerInstance->Users->unregistered_count)
+				ServerInstance->Users->unregistered_count--;
 
 		if (IS_LOCAL(u))
 		{
@@ -119,15 +119,15 @@ int CullList::Apply()
 			u->AddToWhoWas();
 		}
 
-		if (iter != ServerInstance->clientlist->end())
+		if (iter != ServerInstance->Users->clientlist->end())
 		{
 			if (IS_LOCAL(u))
 			{
-				std::vector<User*>::iterator x = find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),u);
-				if (x != ServerInstance->local_users.end())
-					ServerInstance->local_users.erase(x);
+				std::vector<User*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),u);
+				if (x != ServerInstance->Users->local_users.end())
+					ServerInstance->Users->local_users.erase(x);
 			}
-			ServerInstance->clientlist->erase(iter);
+			ServerInstance->Users->clientlist->erase(iter);
 		}
 
 		delete u;

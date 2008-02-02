@@ -73,7 +73,7 @@ class ModuleHttpStats : public Module
 		so->clear();
 		for (StatsIter a = sh->begin(); a != sh->end(); a++)
 			InsertOrder(a->first, a->second);
-		for (user_hash::iterator u = ServerInstance->clientlist->begin(); u != ServerInstance->clientlist->end(); u++)
+		for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			StatsHash::iterator n = Servers->find(u->second->server);
 			if (n != Servers->end())
@@ -103,9 +103,9 @@ class ModuleHttpStats : public Module
 				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>" << ServerInstance->Config->ServerDesc << "</gecos></server>";
 
 				data << "<general>";
-				data << "<usercount>" << ServerInstance->clientlist->size() << "</usercount>";
+				data << "<usercount>" << ServerInstance->Users->clientlist->size() << "</usercount>";
 				data << "<channelcount>" << ServerInstance->chanlist->size() << "</channelcount>";
-				data << "<opercount>" << ServerInstance->all_opers.size() << "</opercount>";
+				data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
 				data << "<socketcount>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << "</socketcount><socketmax>" << ServerInstance->SE->GetMaxFds() <<
 					"</socketmax><socketengine>" << ServerInstance->SE->GetName() << "</socketengine>";
 

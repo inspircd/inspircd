@@ -129,7 +129,7 @@ class CommandCheck : public Command
 			long x = 0;
 
 			/* hostname or other */
-			for (user_hash::const_iterator a = ServerInstance->clientlist->begin(); a != ServerInstance->clientlist->end(); a++)
+			for (user_hash::const_iterator a = ServerInstance->Users->clientlist->begin(); a != ServerInstance->Users->clientlist->end(); a++)
 			{
 				if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
 				{

@@ -25,15 +25,20 @@
 #undef ERROR
 #endif
 
+// Required system headers.
 #include <time.h>
-#include <string>
-#include <sstream>
-#include <list>
+#include <stdarg.h>
+
+
+//#include <string>
+//#include <sstream>
 #include "inspircd_config.h"
 #include "uid.h"
 #include "users.h"
-#include "usermanager.h"
 #include "channels.h"
+#include "hashcomp.h"
+#include "typedefs.h"
+#include "usermanager.h"
 #include "socket.h"
 #include "mode.h"
 #include "socketengine.h"
@@ -358,11 +363,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void BuildISupport();
 
-	/** Number of unregistered users online right now.
-	 * (Unregistered means before USER/NICK/dns)
-	 */
-	int unregistered_count;
-
 	/** List of server names we've seen.
 	 */
 	servernamelist servernames;
@@ -410,27 +410,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	SnomaskManager* SNO;
 
-	/** Client list, a hash_map containing all clients, local and remote
-	 */
-	user_hash* clientlist;
-
-	/** Client list stored by UUID. Contains all clients, and is updated
-	 * automatically by the constructor and destructor of User.
-	 */
-	user_hash* uuidlist;
-
-	/** Channel list, a hash_map containing all channels
-	 */
-	chan_hash* chanlist;
-
-	/** Local client list, a vector containing only local clients
-	 */
-	std::vector<User*> local_users;
-
-	/** Oper list, a vector containing all local and remote opered users
-	 */
-	std::list<User*> all_opers;
-
 	/** DNS class, provides resolver facilities to the core and modules
 	 */
 	DNS* Res;
@@ -446,6 +425,10 @@ class CoreExport InspIRCd : public classbase
 	/** User manager. Various methods and data associated with users.
 	 */
 	UserManager *Users;
+
+	/** Channel list, a hash_map containing all channels XXX move to channel manager class
+	 */
+	chan_hash* chanlist;
 
 	/** Set to the current signal recieved
 	 */
@@ -466,10 +449,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return The old time delta
 	 */
 	int SetTimeDelta(int delta);
-	
-	/** Number of users with a certain mode set on them
-	 */
-	int ModeCount(const char mode);
 
 	/** Get the time offset in seconds
 	 * @return The current time delta (in seconds)
@@ -579,28 +558,6 @@ class CoreExport InspIRCd : public classbase
 	/** Close the currently open log file
 	 */
 	void CloseLog();
-
-	/** Send a server notice to all local users
-	 * @param text The text format string to send
-	 * @param ... The format arguments
-	 */
-	void ServerNoticeAll(char* text, ...);
-
-	/** Send a server message (PRIVMSG) to all local users
-	 * @param text The text format string to send
-	 * @param ... The format arguments
-	 */
-	void ServerPrivmsgAll(char* text, ...);
-
-	/** Send text to all users with a specific set of modes
-	 * @param modes The modes to check against, without a +, e.g. 'og'
-	 * @param flags one of WM_OR or WM_AND. If you specify WM_OR, any one of the
-	 * mode characters in the first parameter causes receipt of the message, and
-	 * if you specify WM_OR, all the modes must be present.
-	 * @param text The text format string to send
-	 * @param ... The format arguments
-	 */
-	void WriteMode(const char* modes, int flags, const char* text, ...);
 
 	/** Return true if a channel name is valid
 	 * @param chname A channel name to verify

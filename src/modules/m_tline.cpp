@@ -34,7 +34,7 @@ class CommandTline : public Command
 		float n_match_host = 0;
 		float n_match_ip = 0;
 
-		for (user_hash::const_iterator u = ServerInstance->clientlist->begin(); u != ServerInstance->clientlist->end(); u++)
+		for (user_hash::const_iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			n_counted++;
 			if (match(u->second->GetFullRealHost(),parameters[0]))

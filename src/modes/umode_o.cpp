@@ -45,5 +45,5 @@ ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, st
 
 unsigned int ModeUserOperator::GetCount()
 {
-	return ServerInstance->all_opers.size();
+	return count;
 }

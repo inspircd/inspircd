@@ -125,7 +125,7 @@ void Snomask::Flush()
 	ServerInstance->Log(DEBUG, "Flusing snomask %s", this->Description.c_str());
 
 	/* Only opers can receive snotices, so we iterate the oper list */
-	for (std::list<User*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
+	for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
 	{
 		User* a = *i;
 		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)

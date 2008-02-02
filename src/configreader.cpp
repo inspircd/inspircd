@@ -2298,7 +2298,7 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 // this should probably be moved to configreader, but atm it relies on CheckELines above.
 bool DoneELine(ServerConfig* conf, const char* tag)
 {
-	for (std::vector<User*>::const_iterator u2 = conf->GetInstance()->local_users.begin(); u2 != conf->GetInstance()->local_users.end(); u2++)
+	for (std::vector<User*>::const_iterator u2 = conf->GetInstance()->Users->local_users.begin(); u2 != conf->GetInstance()->Users->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
 		u->exempt = false;

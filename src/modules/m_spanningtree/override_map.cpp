@@ -66,14 +66,14 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		/* Neat and tidy default values, as we're dealing with a matrix not a simple string */
 		memset(text, 0, 128);
 
-		if (ServerInstance->clientlist->size() == 0)
+		if (ServerInstance->Users->clientlist->size() == 0)
 		{
 			// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
 			percent = 0;
 		}
 		else
 		{
-			percent = ((float)Current->GetUserCount() / (float)ServerInstance->clientlist->size()) * 100;
+			percent = ((float)Current->GetUserCount() / (float)ServerInstance->Users->clientlist->size()) * 100;
 		}
 
 		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";

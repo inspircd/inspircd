@@ -512,7 +512,7 @@ bool ModuleManager::Unload(const char* filename)
 		{
 			modfind->second.second->OnCleanup(TYPE_CHANNEL,c->second);
 		}
-		for (user_hash::iterator u = Instance->clientlist->begin(); u != Instance->clientlist->end(); u++)
+		for (user_hash::iterator u = Instance->Users->clientlist->begin(); u != Instance->Users->clientlist->end(); u++)
 		{
 			modfind->second.second->OnCleanup(TYPE_USER,u->second);
 		}

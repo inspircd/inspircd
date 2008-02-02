@@ -14,6 +14,8 @@
 #ifndef __USERMANAGER_H
 #define __USERMANAGER_H
 
+#include <list>
+
 /** A list of ip addresses cross referenced against clone counts */
 typedef std::map<irc::string, unsigned int> clonemap;
 
@@ -30,6 +32,29 @@ class CoreExport UserManager : public classbase
 	{
 		ServerInstance = Instance;
 	}
+
+
+	/** Client list, a hash_map containing all clients, local and remote
+	 */
+	user_hash* clientlist;
+
+	/** Client list stored by UUID. Contains all clients, and is updated
+	 * automatically by the constructor and destructor of User.
+	 */
+	user_hash* uuidlist;
+
+	/** Local client list, a vector containing only local clients
+	 */
+	std::vector<User*> local_users;
+
+	/** Oper list, a vector containing all local and remote opered users
+	 */
+	std::list<User*> all_opers;
+
+	/** Number of unregistered users online right now.
+	 * (Unregistered means before USER/NICK/dns)
+	 */
+	int unregistered_count;
 
 	/** Map of global ip addresses for clone counting
 	 * XXX - this should be private, but m_clones depends on it currently.
@@ -101,6 +126,35 @@ class CoreExport UserManager : public classbase
 	 * @return The number of local users
 	 */
 	unsigned int LocalUserCount();
+
+
+
+
+	/** Number of users with a certain mode set on them
+	 */
+	int ModeCount(const char mode);
+
+	/** Send a server notice to all local users
+	 * @param text The text format string to send
+	 * @param ... The format arguments
+	 */
+	void ServerNoticeAll(char* text, ...);
+
+	/** Send a server message (PRIVMSG) to all local users
+	 * @param text The text format string to send
+	 * @param ... The format arguments
+	 */
+	void ServerPrivmsgAll(char* text, ...);
+
+	/** Send text to all users with a specific set of modes
+	 * @param modes The modes to check against, without a +, e.g. 'og'
+	 * @param flags one of WM_OR or WM_AND. If you specify WM_OR, any one of the
+	 * mode characters in the first parameter causes receipt of the message, and
+	 * if you specify WM_OR, all the modes must be present.
+	 * @param text The text format string to send
+	 * @param ... The format arguments
+	 */
+	void WriteMode(const char* modes, int flags, const char* text, ...);
 };
 
 #endif

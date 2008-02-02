@@ -82,7 +82,7 @@ void InspIRCd::Cleanup()
 	}
 
 	/* Close all client sockets, or the new process inherits them */
-	for (std::vector<User*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = this->Users->local_users.begin(); i != this->Users->local_users.end(); i++)
 	{
 		(*i)->SetWriteError("Server shutdown");
 		(*i)->CloseSocket();
@@ -156,21 +156,21 @@ void InspIRCd::ResetMaxBans()
  */
 void InspIRCd::RehashUsersAndChans()
 {
-	user_hash* old_users = this->clientlist;
-	user_hash* old_uuid  = this->uuidlist;
+	user_hash* old_users = this->Users->clientlist;
+	user_hash* old_uuid  = this->Users->uuidlist;
 	chan_hash* old_chans = this->chanlist;
 
-	this->clientlist = new user_hash();
-	this->uuidlist = new user_hash();
+	this->Users->clientlist = new user_hash();
+	this->Users->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
 	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
-		this->clientlist->insert(*n);
+		this->Users->clientlist->insert(*n);
 
 	delete old_users;
 
 	for (user_hash::const_iterator n = old_uuid->begin(); n != old_uuid->end(); n++)
-		this->uuidlist->insert(*n);
+		this->Users->uuidlist->insert(*n);
 
 	delete old_uuid;
 
@@ -309,10 +309,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->s_signal = 0;
 
-	this->unregistered_count = 0;
+	this->Users->unregistered_count = 0;
 
-	this->clientlist = new user_hash();
-	this->uuidlist = new user_hash();
+	this->Users->clientlist = new user_hash();
+	this->Users->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
 	this->Res = NULL;

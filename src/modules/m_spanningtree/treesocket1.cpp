@@ -1046,9 +1046,9 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 
 	/* check for collision */
-	user_hash::iterator iter = this->Instance->clientlist->find(tempnick);
+	user_hash::iterator iter = this->Instance->Users->clientlist->find(tempnick);
 
-	if (iter != this->Instance->clientlist->end())
+	if (iter != this->Instance->Users->clientlist->end())
 	{
 		/*
 		 * Nick collision.
@@ -1076,7 +1076,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
 		return false;
 	}
-	(*(this->Instance->clientlist))[tempnick] = _new;
+	(*(this->Instance->Users->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
 	strlcpy(_new->nick, tempnick, NICKMAX - 1);
 	strlcpy(_new->host, params[3].c_str(),64);
@@ -1267,7 +1267,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 	char data[MAXBUF];
 	std::deque<std::string> list;
 	std::string dataline;
-	for (user_hash::iterator u = this->Instance->clientlist->begin(); u != this->Instance->clientlist->end(); u++)
+	for (user_hash::iterator u = this->Instance->Users->clientlist->begin(); u != this->Instance->Users->clientlist->end(); u++)
 	{
 		if (u->second->registered == REG_ALL)
 		{

@@ -126,7 +126,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		case 'P':
 		{
 			int idx = 0;
-		  	for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
+		  	for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
 			{
 				if (IS_OPER(i->second) && !ServerInstance->ULine(i->second->server))
 				{
@@ -171,7 +171,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		case 'z':
 		{
 			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
-			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(User))+" bytes)");
+			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->Users->clientlist->size())+" ("+ConvToStr(ServerInstance->Users->clientlist->size()*sizeof(User))+" bytes)");
 			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(Channel))+" bytes)");
 			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(Command))+" bytes)");
 
@@ -255,7 +255,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		/* stats l (show user I/O stats) */
 		case 'l':
 			results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-		  	for (std::vector<User*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
+		  	for (std::vector<User*>::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
 			{
 				User* i = *n;
 				if (ServerInstance->IsNick(i->nick))
@@ -268,7 +268,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 	/* stats L (show user I/O stats with IP addresses) */
 		case 'L':
 			results.push_back(sn+" 211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-			for (std::vector<User*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
+			for (std::vector<User*>::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
 			{
 				User* i = *n;
 				if (ServerInstance->IsNick(i->nick))

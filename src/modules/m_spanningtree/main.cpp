@@ -64,7 +64,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	};
 	ServerInstance->Modules->Attach(eventlist, this, 29);
 
-	for (std::vector<User*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
 		this->OnPostConnect((*i));
 	}
@@ -150,8 +150,8 @@ void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, User* u
 		}
 	}
 	user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,
-			n_users-ServerInstance->ModeCount('i'),
-			ServerInstance->ModeCount('i'),
+			n_users-ServerInstance->Users->ModeCount('i'),
+			ServerInstance->Users->ModeCount('i'),
 			ulined_count ? this->CountServs() - ulined_count : this->CountServs());
 
 	if (ServerInstance->Users->OperCount())

@@ -205,9 +205,9 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 
 	ServerInstance->Log(DEBUG,"New UUID for user: %s (%s)", uuid, uid.empty() ? "allocated new" : "used remote");
 
-	user_hash::iterator finduuid = Instance->uuidlist->find(uuid);
-	if (finduuid == Instance->uuidlist->end())
-		(*Instance->uuidlist)[uuid] = this;
+	user_hash::iterator finduuid = Instance->Users->uuidlist->find(uuid);
+	if (finduuid == Instance->Users->uuidlist->end())
+		(*Instance->Users->uuidlist)[uuid] = this;
 	else
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
@@ -245,7 +245,7 @@ User::~User()
 #endif
 	}
 
-	ServerInstance->uuidlist->erase(uuid);
+	ServerInstance->Users->uuidlist->erase(uuid);
 }
 
 char* User::MakeHost()
@@ -636,7 +636,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		FOREACH_MOD(I_OnOper, OnOper(this, opertype));
 		ServerInstance->Log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
 		strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
-		ServerInstance->all_opers.push_back(this);
+		ServerInstance->Users->all_opers.push_back(this);
 
 		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
 		if (iter_opertype != ServerInstance->Config->opertypes.end())
@@ -688,7 +688,7 @@ void User::UnOper()
 			this->modes[UM_OPERATOR] = 0;
 			
 			// remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404
-			ServerInstance->all_opers.remove(this);
+			ServerInstance->Users->all_opers.remove(this);
 
 			if (AllowedOperCommands)
 			{
@@ -811,8 +811,8 @@ void User::FullConnect()
 	this->ShowMOTD();
 
 	/* Now registered */
-	if (ServerInstance->unregistered_count)
-		ServerInstance->unregistered_count--;
+	if (ServerInstance->Users->unregistered_count)
+		ServerInstance->Users->unregistered_count--;
 
 	/* Trigger LUSERS output, give modules a chance too */
 	int MOD_RESULT = 0;
@@ -845,17 +845,17 @@ User* User::UpdateNickHash(const char* New)
 	try
 	{
 		//user_hash::iterator newnick;
-		user_hash::iterator oldnick = ServerInstance->clientlist->find(this->nick);
+		user_hash::iterator oldnick = ServerInstance->Users->clientlist->find(this->nick);
 
 		if (!strcasecmp(this->nick,New))
 			return oldnick->second;
 
-		if (oldnick == ServerInstance->clientlist->end())
+		if (oldnick == ServerInstance->Users->clientlist->end())
 			return NULL; /* doesnt exist */
 
 		User* olduser = oldnick->second;
-		(*(ServerInstance->clientlist))[New] = olduser;
-		ServerInstance->clientlist->erase(oldnick);
+		(*(ServerInstance->Users->clientlist))[New] = olduser;
+		ServerInstance->Users->clientlist->erase(oldnick);
 		return olduser;
 	}
 
@@ -1312,7 +1312,7 @@ void User::WriteWallOps(const std::string &text)
 	std::string wallop("WALLOPS :");
 	wallop.append(text);
 
-	for (std::vector<User*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
 		User* t = *i;
 		if (t->IsModeSet('w'))
@@ -1456,7 +1456,7 @@ void User::SendAll(const char* command, char* text, ...)
 	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost(), command, textbuffer);
 	std::string fmt = formatbuffer;
 
-	for (std::vector<User*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
 		(*i)->Write(fmt);
 	}

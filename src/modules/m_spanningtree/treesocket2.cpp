@@ -242,7 +242,7 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 	if (u)
 	{
 		if (!u->IsModeSet('o'))
-			this->Instance->all_opers.push_back(u);
+			this->Instance->Users->all_opers.push_back(u);
 		u->modes[UM_OPERATOR] = 1;
 		strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
 		Utils->DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
@@ -1073,7 +1073,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 		
 		if (prefix.empty())
 		{
-			this->SendError("BUG (??) Empty prefix recieved.");
+			this->SendError("BUG (?) Empty prefix recieved.");
 			return false;
 		}
 	}
@@ -1480,7 +1480,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 2)
 				{
-					Instance->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", prefix.c_str(), params[1].c_str());
+					Instance->Users->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", prefix.c_str(), params[1].c_str());
 				}
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}

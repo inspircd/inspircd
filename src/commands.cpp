@@ -31,7 +31,7 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 	if (Config->ConfValueBool(Config->config_data, "insane","hostmasks", 0))
 		return false;
 	
-	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
+	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
 		if ((match(u->second->MakeHost(),mask.c_str(),true)) || (match(u->second->MakeHostIP(),mask.c_str(),true)))
 		{
@@ -42,7 +42,7 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 	if (!matches)
 		return false;
 
-	float percent = ((float)matches / (float)clientlist->size()) * 100;
+	float percent = ((float)matches / (float)this->Users->clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
 		SNO->WriteToSnoMask('A', "\2WARNING\2: %s tried to set a G/K/E line mask of %s, which covers %.2f%% of the network!",user->nick,mask.c_str(),percent);
@@ -62,7 +62,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 	if (Config->ConfValueBool(Config->config_data, "insane","ipmasks",0))
 		return false;
 	
-	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
+	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
 		if (match(u->second->GetIPString(),ip.c_str(),true))
 			matches++;
@@ -71,7 +71,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 	if (!matches)
 		return false;
 
-	float percent = ((float)matches / (float)clientlist->size()) * 100;
+	float percent = ((float)matches / (float)this->Users->clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
 		SNO->WriteToSnoMask('A', "\2WARNING\2: %s tried to set a Z line mask of %s, which covers %.2f%% of the network!",user->nick,ip.c_str(),percent);
@@ -91,7 +91,7 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 	if (Config->ConfValueBool(Config->config_data, "insane","nickmasks",0))
 		return false;
 
-	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
+	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
 		if (match(u->second->nick,nick.c_str()))
 			matches++;
@@ -100,7 +100,7 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 	if (!matches)
 		return false;
 
-	float percent = ((float)matches / (float)clientlist->size()) * 100;
+	float percent = ((float)matches / (float)this->Users->clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
 		SNO->WriteToSnoMask('A', "\2WARNING\2: %s tried to set a Q line mask of %s, which covers %.2f%% of the network!",user->nick,nick.c_str(),percent);

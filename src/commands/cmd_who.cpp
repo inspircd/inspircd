@@ -298,7 +298,7 @@ CmdResult CommandWho::Handle (const char** parameters, int pcnt, User *user)
 		if (opt_viewopersonly)
 		{
 			/* Showing only opers */
-			for (std::list<User*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
+			for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
 			{
 				User* oper = *i;
 
@@ -316,7 +316,7 @@ CmdResult CommandWho::Handle (const char** parameters, int pcnt, User *user)
 		}
 		else
 		{
-			for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
+			for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
 			{
 				if (whomatch(i->second, matchtext))
 				{

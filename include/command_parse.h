@@ -16,7 +16,6 @@
 
 #include <string>
 #include "ctables.h"
-#include "typedefs.h"
 
 /** Required forward declaration
  */
