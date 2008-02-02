@@ -380,8 +380,11 @@ if (defined $opt_away)
 	$config{MAX_AWAY} = $opt_away;
 }
 
-$config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/;
-$config{HAS_OPENSSL} = $1;
+if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
+	$config{HAS_OPENSSL} = $1;
+} else {
+	$config{HAS_OPENSSL} = "";
+}
 
 if ($config{GCCVER} eq "") {
 	print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
@@ -643,7 +646,7 @@ $config{HAS_EPOLL} = $has_epoll;
 $config{HAS_KQUEUE} = $has_kqueue; 
 
 printf "Checking for libgnutls... ";
-if (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y")) {
+if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y"))) {
 	print "yes\n";
 	$config{HAS_GNUTLS} = "y";
 } else {
@@ -652,7 +655,7 @@ if (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y")) {
 }
 
 printf "Checking for openssl... ";
-if (($config{HAS_OPENSSL}) || ($config{HAS_OPENSSL} eq "y")) {
+if (defined($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL}) || ($config{HAS_OPENSSL} eq "y"))) {
 	print "yes\n";
 	$config{HAS_OPENSSL} = "y";
 } else {
