@@ -156,9 +156,6 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRehash(User* user, const std::string &param)
 	{
-		if (param != "ssl")
-			return;
-
 		ConfigReader Conf(ServerInstance);
 
 		for (unsigned int i = 0; i < listenports.size(); i++)
@@ -209,6 +206,12 @@ class ModuleSSLOpenSSL : public Module
 
 		if (!sslports.empty())
 			sslports.erase(sslports.end() - 1);
+
+		if (param != "ssl")
+		{
+			delete Conf;
+			return;
+		}
 
 		std::string confdir(ServerInstance->ConfigFileName);
 		// +1 so we the path ends with a /
