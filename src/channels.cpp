@@ -379,18 +379,15 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		ModeHandler* mh = Instance->Modes->FindPrefix(status);
 		if (mh)
 		{
+			/* Set, and make sure that the mode handler knows this mode was now set */
 			Ptr->SetPrefix(user, status, mh->GetPrefixRank(), true);
-			/* Make sure that the mode handler knows this mode was now set */
 			mh->OnModeChange(Instance->FakeClient, Instance->FakeClient, Ptr, nick, true);
 
 			switch (mh->GetPrefix())
 			{
-				/* These logic ops are SAFE IN THIS CASE
-				 * because if the entry doesnt exist,
-				 * addressing operator[] creates it.
-				 * If they do exist, it points to it.
-				 * At all other times where we dont want
-				 * to create an item if it doesnt exist, we
+				/* These logic ops are SAFE IN THIS CASE because if the entry doesnt exist,
+				 * addressing operator[] creates it. If they do exist, it points to it.
+				 * At all other times where we dont want to create an item if it doesnt exist, we
 				 * must stick to ::find().
 				 */
 				case '@':
