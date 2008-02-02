@@ -65,12 +65,23 @@ ListenSocket::~ListenSocket()
 	}
 }
 
+
+// XXX this is a bit of an untidy way to avoid reallocating this constantly. also, we leak it on shutdown.. but that's kinda minor - w
+static sockaddr *sock_us;
+static sockaddr *client;
+static bool setup_sock = false;
+
 void ListenSocket::HandleEvent(EventType, int)
 {
-	sockaddr* sock_us = new sockaddr[2];	// our port number
-	sockaddr* client = new sockaddr[2];
 	socklen_t uslen, length;		// length of our port number
 	int incomingSockfd, in_port;
+
+	if (!setup_sock)
+	{
+		sock_us = new sockaddr[2];
+		client = new sockaddr[2];
+		setup_sock = true;
+	}
 
 #ifdef IPV6
 	if (this->family == AF_INET6)
@@ -125,8 +136,6 @@ void ListenSocket::HandleEvent(EventType, int)
 		ServerInstance->SE->Close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
 	}
-	delete[] client;
-	delete[] sock_us;
 }
 
 /* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
