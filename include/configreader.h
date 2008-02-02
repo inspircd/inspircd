@@ -429,10 +429,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool AllowHalfop;
 
-	/** If this value is true, users are allowed to devoice themselves.
-	 */
-	bool AllowDevoiceSelf;
-
 	/** If this is set to true, then mode lists (e.g
 	 * MODE #chan b) are hidden from unprivileged
 	 * users.
