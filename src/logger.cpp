@@ -15,3 +15,16 @@
 
 #include "inspircd.h"
 
+/*
+ * Suggested implementation...
+ *	class LogManager
+ *		LogStream *AddLogType(const std::string &type)
+ *		LogStream *DelLogType(const std::string &type)
+ *		Log(LogStream *, enum loglevel, const std::string &msg)
+ *
+ *  class LogStream
+ *		std::string type
+ *		(void)(*)Callback(LogStream *, enum loglevel, const std::string &msg) <---- callback for modules to implement their own logstreams, core will just handle to file/channel(?)
+ *
+ * Feel free to elaborate on this further.
+ */
