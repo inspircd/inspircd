@@ -641,6 +641,19 @@ modulelist* ModuleManager::FindInterface(const std::string &InterfaceName)
 		return &(iter->second.second);
 }
 
+bool ModuleManager::ModuleHasInterface(Module* mod, const std::string& InterfaceName)
+{
+	interfacelist::iterator iter = Interfaces.find(InterfaceName);
+	if (iter == Interfaces.end())
+		return false;
+	else
+	{
+		modulelist& ml = iter->second.second;
+		modulelist::iterator mi = std::find(ml.begin(), ml.end(), mod);
+		return (mi != ml.end());
+	}
+}
+
 void ModuleManager::UseInterface(const std::string &InterfaceName)
 {
 	interfacelist::iterator iter = Interfaces.find(InterfaceName);

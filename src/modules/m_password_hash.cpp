@@ -67,18 +67,19 @@ class ModuleOperHash : public Module
 {
 	
 	CommandMkpasswd* mycommand;
-	ConfigReader* Conf;
 	hashymodules hashers; /* List of modules which implement HashRequest */
 	std::deque<std::string> names; /* Module names which implement HashRequest */
 
+	bool diduseiface; /* If we've called UseInterface yet. */
  public:
 
 	ModuleOperHash(InspIRCd* Me)
 		: Module(Me)
 	{
+		diduseiface = false;
 
 		/* Read the config file first */
-		Conf = NULL;
+//		Conf = NULL;
 		OnRehash(NULL,"");
 
 		/* Find all modules which implement the interface 'HashRequest' */
@@ -98,33 +99,37 @@ class ModuleOperHash : public Module
 				hashers[name.c_str()] = *m;
 				names.push_back(name);
 			}
+			/* UseInterface doesn't do anything if there are no providers, so we'll have to call it later if a module gets loaded later on. */
+			ServerInstance->Modules->UseInterface("HashRequest");
+			diduseiface = true;
 		}
-		else
-		{
-			throw ModuleException("I can't find any modules loaded which implement the HashRequest interface! You probably forgot to load a hashing module such as m_md5.so or m_sha256.so.");
-		}
-
-		ServerInstance->Modules->UseInterface("HashRequest");
 
 		mycommand = new CommandMkpasswd(ServerInstance, this, hashers, names);
 		ServerInstance->AddCommand(mycommand);
-		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
+		Implementation eventlist[] = { I_OnPassCompare, I_OnLoadModule };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
 	virtual ~ModuleOperHash()
 	{
-		ServerInstance->Modules->DoneWithInterface("HashRequest");
+		if (diduseiface) ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnLoadModule(Module* mod, const std::string& name)
 	{
-		/* Re-read configuration file */
-		if (Conf)
-			delete Conf;
-
-		Conf = new ConfigReader(ServerInstance);
+		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
+		{
+			ServerInstance->Log(DEBUG, "Post-load registering hasher: %s", name.c_str());
+			std::string name = HashNameRequest(this, mod).Send();
+			hashers[name.c_str()] = mod;
+			names.push_back(name);
+			if (!diduseiface)
+			{
+				ServerInstance->Modules->UseInterface("HashRequest");
+				diduseiface = true;
+			}
+		}
 	}
 
 	virtual int OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)

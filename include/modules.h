@@ -1824,6 +1824,14 @@ class CoreExport ModuleManager : public classbase
 	 */
 	modulelist* FindInterface(const std::string &InterfaceName);
 
+	/** Determine if a module has published the named interface.
+	 * This could be used in, for example, OnLoadModule to pick up other modules that can be used.
+	 * @param mod The module to check.
+	 * @param InterfaceName the interface you want to check for
+	 * @return True if the module provides the interface, false otherwise.
+	 */
+	bool ModuleHasInterface(Module* mod, const std::string& InterfaceName);
+
 	/** Given a pointer to a Module, return its filename
 	 * @param m The module pointer to identify
 	 * @return The module name or an empty string
