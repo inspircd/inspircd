@@ -308,7 +308,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	delete SEF;
 
 	this->s_signal = 0;
-
+	
+	// Create base manager classes early, so nothing breaks
+	this->Users = new UserManager(this);
+	
 	this->Users->unregistered_count = 0;
 
 	this->Users->clientlist = new user_hash();
@@ -325,7 +328,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);
 	this->XLines = new XLineManager(this);
-	this->Users = new UserManager(this);
 
 	this->Config->argv = argv;
 	this->Config->argc = argc;
