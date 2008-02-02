@@ -136,7 +136,9 @@ std::string ModeChannelVoice::DelVoice(User *user,const char *dest,Channel *chan
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_HOP) && (!ServerInstance->ULine(user->server)))
+				if ((status < STATUS_HOP) && (!ServerInstance->ULine(user->server)) ||
+					user == d && ServerInstance->Config->AllowDevoiceSelf
+				)
 				{
 					user->WriteServ("482 %s %s :You are not a channel (half)operator",user->nick, chan->name);
 					return "";

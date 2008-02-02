@@ -926,6 +926,8 @@ bool User::ForceNickChange(const char* newnick)
 
 void User::SetSockAddr(int protocol_family, const char* ip, int port)
 {
+	this->cachedip = "";
+
 	switch (protocol_family)
 	{
 #ifdef SUPPORT_IP6LINKS
@@ -1001,6 +1003,9 @@ const char* User::GetIPString()
 	if (this->ip == NULL)
 		return "";
 
+	if (!this->cachedip.empty())
+		return this->cachedip.c_str();
+
 	switch (this->GetProtocolFamily())
 	{
 #ifdef SUPPORT_IP6LINKS
@@ -1015,8 +1020,11 @@ const char* User::GetIPString()
 			{
 				strlcpy(&temp[1], buf, sizeof(temp) - 1);
 				*temp = '0';
+				this->cachedip = temp;
 				return temp;
 			}
+			
+			this->cachedip = buf;
 			return buf;
 		}
 		break;
@@ -1025,12 +1033,15 @@ const char* User::GetIPString()
 		{
 			sockaddr_in* sin = (sockaddr_in*)this->ip;
 			inet_ntop(sin->sin_family, &sin->sin_addr, buf, sizeof(buf));
+			this->cachedip = buf;
 			return buf;
 		}
 		break;
 		default:
 		break;
 	}
+	
+	// Unreachable, probably
 	return "";
 }
 

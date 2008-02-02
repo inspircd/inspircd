@@ -655,6 +655,10 @@ class CoreExport User : public connection
 	 * GetIPString/GetPort to obtain its values.
 	 */
 	sockaddr* ip;
+	
+	/** Set by GetIPString() to avoid constantly re-grabbing IP via sockets voodoo.
+	 */
+	std::string cachedip;
 
 	/** Initialize the clients sockaddr
 	 * @param protocol_family The protocol family of the IP address, AF_INET or AF_INET6
