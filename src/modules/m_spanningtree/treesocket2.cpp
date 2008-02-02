@@ -1070,9 +1070,17 @@ bool TreeSocket::ProcessLine(std::string &line)
 	{
 		prefix = params[0].substr(1);
 		params.pop_front();
+		
+		if (prefix.empty())
+		{
+			this->SendError("BUG (??) Empty prefix recieved.");
+			return false;
+		}
 	}
+
 	command = params[0].c_str();
 	params.pop_front();
+
 	switch (this->LinkState)
 	{
 		TreeServer* Node;
