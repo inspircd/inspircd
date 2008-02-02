@@ -113,9 +113,6 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnRehash(userrec* user, const std::string &param)
 	{
-		if(param != "ssl")
-			return;
-
 		Conf = new ConfigReader(ServerInstance);
 
 		for(unsigned int i = 0; i < listenports.size(); i++)
@@ -162,6 +159,12 @@ class ModuleSSLGnuTLS : public Module
 					}
 				}
 			}
+		}
+
+		if(param != "ssl")
+		{
+			delete Conf;
+			return;
 		}
 
 		std::string confdir(ServerInstance->ConfigFileName);
