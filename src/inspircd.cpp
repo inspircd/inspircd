@@ -433,9 +433,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Modes = new ModeParser(this);
 
 	/* set up fake client (uid is incorrect at this point,
-         * until after config is read. we set up the user again
-         * at that point 
-         */
+	 * until after config is read. we set up the user again
+	 * at that point 
+	 */
 	this->FakeClient = new User(this);
 	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
@@ -478,42 +478,42 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* We have all the files we can get, initiate pass 1 */
 	Config->Read(true, NULL, 1);
 
-        this->AddServerName(Config->ServerName);
+	this->AddServerName(Config->ServerName);
 
-        /*
-         * Initialise SID/UID.
-         * For an explanation as to exactly how this works, and why it works this way, see GetUID().
-         *   -- w00t
-         */
-        if (*Config->sid)
-        {
+	/*
+	 * Initialise SID/UID.
+ 	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
+	 *   -- w00t
+ 	 */
+	if (*Config->sid)
+	{
 	}
-        else
-        {
+	else
+	{
 		// Generate one
 		size_t sid = 0;
 
-                for (const char* x = Config->ServerName; *x; ++x)
-                        sid = 5 * sid + *x;
-                for (const char* y = Config->ServerDesc; *y; ++y)
-                        sid = 5 * sid + *y;
-                sid = sid % 999;
+		for (const char* x = Config->ServerName; *x; ++x)
+			sid = 5 * sid + *x;
+		for (const char* y = Config->ServerDesc; *y; ++y)
+			sid = 5 * sid + *y;
+		sid = sid % 999;
 
 		Config->sid[0] = (char)(sid / 100 + 48);
 		Config->sid[1] = (char)(((sid / 10) % 10) + 48);
 		Config->sid[2] = (char)(sid % 10 + 48);
-        }
+	}
 
-        this->InitialiseUID();
+	this->InitialiseUID();
 
-        /* set up fake client again this time with the correct uid */
-        delete FakeClient;
-        this->FakeClient = new User(this);
-        this->FakeClient->SetFd(FD_MAGIC_NUMBER);
+	/* set up fake client again this time with the correct uid */
+	delete FakeClient;
+	this->FakeClient = new User(this);
+	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
-        // Get XLine to do it's thing.
-        this->XLines->CheckELines();
-        this->XLines->ApplyLines();
+	// Get XLine to do it's thing.
+	this->XLines->CheckELines();
+	this->XLines->ApplyLines();
 
 
 	CheckDie();
