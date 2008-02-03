@@ -113,10 +113,6 @@ class TreeServer : public classbase
 	 */
 	time_t NextPingTime();
 
-	/** Time of last ping used to calculate this->rtt below
-	 */
-	time_t LastPing;
-
 	/** Last ping time in microseconds, used to calculate round trip time
 	 */
 	unsigned long LastPingMsec;

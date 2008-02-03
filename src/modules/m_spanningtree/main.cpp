@@ -197,7 +197,6 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 				{
 					sock->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" PING "+serv->GetID());
 					serv->SetNextPingTime(curtime + Utils->PingFreq);
-					serv->LastPing = curtime;
 					timeval t;
 					gettimeofday(&t, NULL);
 					long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);

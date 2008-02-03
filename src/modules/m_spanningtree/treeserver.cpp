@@ -31,7 +31,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const st
 	ServerDesc.clear();
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;
-	rtt = LastPing = 0;
+	rtt = 0;
 	Warned = Hidden = DupError = false;
 	VersionString = ServerInstance->GetVersionString();
 	SetID(id);
@@ -50,7 +50,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	VersionString = ServerInstance->GetVersionString();
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
-	rtt = LastPing = 0;
+	rtt = 0;
 	Warned = Hidden = DupError = false;
 	AddHashEntry();
 	SetID(id);
@@ -68,7 +68,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	this->SetNextPingTime(time(NULL) + Utils->PingFreq);
 	this->SetPingFlag();
 	DupError = false;
-	rtt = LastPing = 0;
+	rtt = 0;
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
 	 *
