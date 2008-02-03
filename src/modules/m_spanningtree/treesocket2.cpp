@@ -1178,6 +1178,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				gettimeofday(&t, NULL);
 				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 				Node->StartBurst = ts;
+				this->Instance->Log(DEBUG, "Started bursting at time %lu", ts);
 				this->DoBurst(Node);
 			}
 			else if (command == "ERROR")
@@ -1517,8 +1518,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 				gettimeofday(&t, NULL);
 				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 				unsigned long bursttime = ts - ServerSource->StartBurst;
-				this->Instance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %ul ms)", sourceserv.c_str(), bursttime);
-
+				this->Instance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu ms)", sourceserv.c_str(), bursttime);
+				this->Instance->Log(DEBUG, "Ended bursting at %lu (ts: %lu, startburst: %lu)", bursttime, ts, ServerSource->StartBurst);
 				Event rmode((char*)sourceserv.c_str(), (Module*)Utils->Creator, "new_server");
 				rmode.Send(Instance);
 
