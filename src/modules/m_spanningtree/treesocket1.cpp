@@ -744,10 +744,11 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 					c->WriteChannel(user, "TOPIC %s :%s", c->name, c->topic);
 					nsource = user->server;
 				}
-				/* all done, send it on its way */
-				params[3] = ":" + params[3];
-				Utils->DoOneToAllButSender(source,"FTOPIC",params,nsource);
 			}
+
+			/* all done, send it on its way */
+			params[3] = ":" + params[3];
+			Utils->DoOneToAllButSender(source,"FTOPIC",params,nsource);
 		}
 
 	}
