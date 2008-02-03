@@ -55,7 +55,8 @@ class TreeServer : public classbase
  public:
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
-
+	bool bursting;				/* whether or not this server is bursting */
+	
 	/** We don't use this constructor. Its a dummy, and won't cause any insertion
 	 * of the TreeServer into the hash_map. See below for the two we DO use.
 	 */
@@ -196,6 +197,10 @@ class TreeServer : public classbase
 	/** True on duplicate server ID (server not usable)
 	 */
 	bool DuplicateID();
+
+	/** Marks a server as having finished bursting and performs appropriate actions.
+	 */
+	void FinishBurst();
 
 	/** Destructor
 	 */

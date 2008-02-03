@@ -51,9 +51,7 @@ class SpanningTreeUtilities
 	/** Creator module
 	 */
 	ModuleSpanningTree* Creator;
-	/** Remote servers that are currently bursting
-	 */
-	server_hash RemoteServersBursting;
+
 	/** Flatten links and /MAP for non-opers
 	 */
 	bool FlatLinks;
@@ -124,72 +122,78 @@ class SpanningTreeUtilities
 	/** Initialise utility class
 	 */
 	SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* Creator);
+
 	/** Destroy class and free listeners etc
 	 */
 	~SpanningTreeUtilities();
+
 	/** Send a message from this server to one other local or remote
 	 */
 	bool DoOneToOne(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string target);
+
 	/** Send a message from this server to all but one other, local or remote
 	 */
 	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string omit);
+
 	/** Send a message from this server to all but one other, local or remote
 	 */
 	bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit);
+
 	/** Send a message from this server to all others
 	 */
 	bool DoOneToMany(const std::string &prefix, const std::string &command, std::deque<std::string> &params);
+
 	/** Send a message from this server to all others
 	 */
 	bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params);
+
 	/** Send a message from this server to all others, without doing any processing on the command (e.g. send it as-is with colons and all)
 	 */
 	bool DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, std::deque<std::string> &params);
+
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration(bool rebind);
+
 	/** Add a server to the server list for GetListOfServersForChannel
 	 */
 	void AddThisServer(TreeServer* server, TreeServerList &list);
+
 	/** Compile a list of servers which contain members of channel c
 	 */
 	void GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list);
+
 	/** Find a server by name
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
+
 	/** Find server by SID
 	 */
 	TreeServer* FindServerID(const std::string &id);
-	/** Find a remote bursting server by name
-	 */
-	TreeServer* FindRemoteBurstServer(TreeServer* Server);
-	/** Set a remote server to bursting or not bursting
-	 */
-	void SetRemoteBursting(TreeServer* Server, bool bursting);
+
 	/** Find a route to a server by name
 	 */
 	TreeServer* BestRouteTo(const std::string &ServerName);
+
 	/** Find a server by glob mask
 	 */
 	TreeServer* FindServerMask(const std::string &ServerName);
+
 	/** Returns true if this is a server name we recognise
 	 */
 	bool IsServer(const std::string &ServerName);
+
 	/** Attempt to connect to the failover link of link x
 	 */
 	void DoFailOver(Link* x);
+
 	/** Find a link tag from a server name
 	 */
 	Link* FindLink(const std::string& name);
+
 	/** Refresh the IP cache used for allowing inbound connections
 	 */
 	void RefreshIPCache();
-
-	TreeSocket* FindBurstingServer(const std::string &ServerName);
-
-	void AddBurstingServer(const std::string &ServerName, TreeSocket* s);
-
-	void DelBurstingServer(TreeSocket* s);
 };
 
 #endif

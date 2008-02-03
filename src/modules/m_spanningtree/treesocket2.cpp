@@ -257,8 +257,7 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 			 * then do nothing. -- w00t
 			 */
 			if (
-				this->bursting ||
-				Utils->FindRemoteBurstServer(remoteserver) ||
+				remoteserver->bursting ||
 				this->Instance->SilentULine(this->Instance->FindServerNamePtr(u->server))
 			   )
 			{
@@ -463,8 +462,6 @@ bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &pa
 	TreeServer* ServerSource = Utils->FindServer(prefix);
 	if (ServerSource)
 	{
-		Utils->SetRemoteBursting(ServerSource, false);
-
 		if (params[0] == "*")
 		{
 			FOREACH_MOD_I(this->Instance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_OTHER,NULL,params[1],params[2]));
@@ -556,14 +553,15 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 
 		User* u = Instance->FindNick(prefix);
 		Utils->DoOneToAllButSender(prefix, "ADDLINE", params, u ? u->server : prefix);
+		TreeServer *remoteserver = Utils->FindServer(u ? u->server : prefix);
+		
+		if (!remoteserver->bursting)
+		{
+			Instance->XLines->ApplyLines();
+		}
 	}
 	else
 		delete xl;
-
-	if (!this->bursting)
-	{
-		Instance->XLines->ApplyLines();
-	}
 
 	return true;
 }
@@ -844,7 +842,6 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 
 	ParentOfThis->AddChild(Node);
 	params[4] = ":" + params[4];
-	Utils->SetRemoteBursting(Node, true);
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
 	this->Instance->SNO->WriteToSnoMask('l',"Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
 	return true;
@@ -935,7 +932,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			Utils->TreeRoot->AddChild(Node);
 			params[4] = ":" + params[4];
 			Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,sname);
-			this->bursting = true;
+			Node->bursting = true;
 			this->DoBurst(Node);
 			return true;
 		}
@@ -984,18 +981,6 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 	{
 		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password) || x->RecvPass == password && (this->GetTheirChallenge().empty()))))
 		{
-			/* First check for instances of the server that are waiting between the inbound and outbound SERVER command */
-			TreeSocket* CheckDupeSocket = Utils->FindBurstingServer(sname);
-			if (CheckDupeSocket)
-			{
-				/* If we find one, we abort the link to prevent a race condition */
-				this->SendError("Negotiation collision");
-				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists in a negotiating state.");
-				CheckDupeSocket->SendError("Negotiation collision");
-				Instance->SE->DelFd(CheckDupeSocket);
-				CheckDupeSocket->Close();
-				return false;
-			}
 			/* Check for fully initialized instances of the server by id */
 			Instance->Log(DEBUG,"Looking for dupe SID %s", sid.c_str());
 			TreeServer* CheckDupeSID = Utils->FindServerID(sid);
@@ -1020,8 +1005,6 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 				std::string name = BufferedSocketNameRequest((Module*)Utils->Creator, this->Hook).Send();
 				this->Instance->SNO->WriteToSnoMask('l',"Connection from \2"+sname+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+name+"\2");
 			}
-
-			Utils->AddBurstingServer(sname,this);
 
 			// this is good. Send our details: Our server name and description and hopcount of 0,
 			// along with the sendpass from this block.
@@ -1077,7 +1060,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			return false;
 		}
 	}
-
+	
 	command = params[0].c_str();
 	params.pop_front();
 
@@ -1086,14 +1069,22 @@ bool TreeSocket::ProcessLine(std::string &line)
 		TreeServer* Node;
 
 		case WAIT_AUTH_1:
-			// Waiting for SERVER command from remote server. Server initiating
-			// the connection sends the first SERVER command, listening server
-			// replies with theirs if its happy, then if the initiator is happy,
-			// it starts to send its net sync, which starts the merge, otherwise
-			// it sends an ERROR.
+			/*
+			 * State WAIT_AUTH_1:
+			 *  Waiting for SERVER command from remote server. Server initiating
+			 *  the connection sends the first SERVER command, listening server
+			 *  replies with theirs if its happy, then if the initiator is happy,
+			 *  it starts to send its net sync, which starts the merge, otherwise
+			 *  it sends an ERROR.
+			 */
 			if (command == "PASS")
 			{
-				/* Silently ignored */
+				/*
+				 * Ignore this silently. Some services packages insist on sending PASS, even
+				 * when it is not required (i.e. by us). We have to ignore this here, otherwise
+				 * as it's an unknown command (effectively), it will cause the connection to be
+				 * closed, which probably isn't what people want. -- w00t
+				 */
 			}
 			else if (command == "SERVER")
 			{
@@ -1114,18 +1105,26 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else
 			{
+				// XXX ...wtf.
 				irc::string error = "Invalid command in negotiation phase: " + command;
 				this->SendError(assign(error));
 				return false;
 			}
 		break;
 		case WAIT_AUTH_2:
-			// Waiting for start of other side's netmerge to say they liked our
-			// password.
+			/*
+			 * State WAIT_AUTH_2:
+			 *  We have sent SERVER to the other side of the connection. Now we're waiting for them to start BURST.
+			 *  The other option at this stage of things, of course, is for them to close our connection thanks
+			 *  to invalid credentials.. -- w
+			 */
 			if (command == "SERVER")
 			{
-				// cant do this, they sent it to us in the WAIT_AUTH_1 state!
-				// silently ignore.
+				/*
+				 * Connection is either attempting to re-auth itself (stupid) or sending netburst without sending BURST.
+				 * Both of these aren't allowable, so block them here. -- w
+				 */
+				this->SendError("You may not re-authenticate or commence netburst without sending BURST.");
 				return true;
 			}
 			else if (command == "BURST")
@@ -1164,7 +1163,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					this->Instance->SNO->WriteToSnoMask('l',"Server \2"+InboundServerName+"\2 being introduced from \2" + prefix + "\2 denied, server ID already exists on the network. Closing link.");
 					return false;
 				}
-				Utils->DelBurstingServer(this);
+
 				Utils->TreeRoot->AddChild(Node);
 				params.clear();
 				params.push_back(InboundServerName);
@@ -1173,7 +1172,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				params.push_back(InboundSID);
 				params.push_back(":"+InboundDescription);
 				Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,InboundServerName);
-				this->bursting = true;
+				Node->bursting = true;
 				this->DoBurst(Node);
 			}
 			else if (command == "ERROR")
@@ -1187,17 +1186,22 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 		break;
 		case LISTENER:
+			/*
+			 * This really shouldn't happen.
+			 */
 			this->SendError("Internal error -- listening socket accepted its own descriptor!!!");
 			return false;
 		break;
 		case CONNECTING:
+			/*
+			 * State CONNECTING:
+			 *  We're connecting (OUTGOING) to another server. They are in state WAIT_AUTH_1 until they verify
+			 *  our credentials, when they proceed into WAIT_AUTH_2 and send SERVER to us. We then send BURST
+			 *  + our netburst, which will put them into CONNECTED state. -- w
+			 */
 			if (command == "SERVER")
 			{
-				// another server we connected to, which was in WAIT_AUTH_1 state,
-				// has just sent us their credentials. If we get this far, theyre
-				// happy with OUR credentials, and they are now in WAIT_AUTH_2 state.
-				// if we're happy with this, we should send our netburst which
-				// kickstarts the merge.
+				// Our credentials have been accepted, send netburst. (this puts US into the CONNECTED state)
 				return this->Outbound_Reply_Server(params);
 			}
 			else if (command == "ERROR")
@@ -1210,12 +1214,25 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 		break;
 		case CONNECTED:
-			// This is the 'authenticated' state, when all passwords
-			// have been exchanged and anything past this point is taken
-			// as gospel.
-
+			/*
+			* State CONNECTED:
+			 *  Credentials have been exchanged, we've gotten their 'BURST' (or sent ours).
+			 *  Anything from here on should be accepted a little more reasonably.
+			 */
 			if (!prefix.empty())
 			{
+				/*
+				 * Check for fake direction here, and drop any instances that are found.
+				 * What is fake direction? Imagine the following server setup:
+				 *    0AA <-> 0AB <-> 0AC
+				 * Fake direction would be 0AC sending a message to 0AB claiming to be from
+				 * 0AA, or something similar. Basically, a message taking a path that *cannot*
+				 * be correct.
+				 *
+				 * When would this be seen?
+				 * Well, hopefully never. It could be caused by race conditions, bugs, or
+				 * "miscreant" servers, though, so let's check anyway. -- w
+				 */
 				std::string direction = prefix;
 
 				User *t = this->Instance->FindUUID(prefix);
@@ -1240,6 +1257,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else
 			{
+				/*
+				 * Empty prefix from a server to server link:
+				 *  This is somewhat bad/naughty, so let's set the prefix
+				 *  to be the link that we got it from, so we don't break anything. -- w
+				 */
 				TreeServer* n = Utils->FindServer(GetName());
 				if (n)
 					prefix = n->GetID();
@@ -1247,35 +1269,52 @@ bool TreeSocket::ProcessLine(std::string &line)
 					prefix = GetName();
 			}
 
-			if ((command == "MODE") && (params.size() >= 2))
+			/*
+			 * First up, check for any malformed commands (e.g. MODE without a timestamp)
+			 * and rewrite commands where necessary (SVSMODE -> MODE for services). -- w
+			 */
+			if (command == "MODE")
 			{
-				Channel* channel = Instance->FindChan(params[0]);
-				if (channel)
+				if (params.size() >= 2)
 				{
-					User* x = Instance->FindNick(prefix);
-					if (x)
+					Channel* channel = Instance->FindChan(params[0]);
+					if (channel)
 					{
-						if (warned.find(x->server) == warned.end())
+						User* x = Instance->FindNick(prefix);
+						if (x)
 						{
-							Instance->Log(DEFAULT,"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.", params[1].c_str(), x->server);
-							Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending nonstandard modes: '%s MODE %s' where FMODE should be used, and may cause desyncs.", x->server, x->nick, params[1].c_str());
-							warned[x->server] = x->nick;
+							if (warned.find(x->server) == warned.end())
+							{
+								Instance->Log(DEFAULT,"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.", params[1].c_str(), x->server);
+								Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending nonstandard modes: '%s MODE %s' where FMODE should be used, and may cause desyncs.", x->server, x->nick, params[1].c_str());
+								warned[x->server] = x->nick;
+							}
 						}
 					}
 				}
 			}
-
-			if (command == "SVSMODE")
+			else if (command == "SVSMODE")
 			{
-				/* Services expects us to implement
-				 * SVSMODE. In inspircd its the same as
-				 * MODE anyway.
-				 */
 				command = "MODE";
 			}
-			std::string target;
-			/* Yes, know, this is a mess. Its reasonably fast though as we're
-			 * working with std::string here.
+
+
+			/*
+			 * Now, check for (and parse) commands as appropriate. -- w
+			 */	
+		
+			/* Find the server that this command originated from, used in the handlers below */
+			TreeServer *ServerSource = Utils->FindServer(prefix);
+
+			/* Find the link we just got this from so we don't bounce it back incorrectly */
+			std::string sourceserv = this->myhost;
+			if (!this->InboundServerName.empty())
+			{
+				sourceserv = this->InboundServerName;
+			}
+
+			/*
+			 * XXX one of these days, this needs to be moved into class Commands.
 			 */
 			if (command == "UID")
 			{
@@ -1283,9 +1322,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "FJOIN")
 			{
-				TreeServer* ServerSource = Utils->FindServer(prefix);
-				if (ServerSource)
-					Utils->SetRemoteBursting(ServerSource, false);
 				return this->ForceJoin(prefix,params);
 			}
 			else if (command == "STATS")
@@ -1296,8 +1332,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Motd(prefix, params);
 			}
-			else if (command == "KILL" && Utils->IsServer(prefix))
+			else if (command == "KILL" && ServerSource)
 			{
+				// Kill from a server
 				return this->RemoteKill(prefix,params);
 			}
 			else if (command == "MODULES")
@@ -1322,9 +1359,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "FMODE")
 			{
-				TreeServer* ServerSource = Utils->FindServer(prefix);
-				if (ServerSource)
-					Utils->SetRemoteBursting(ServerSource, false);
 				return this->ForceMode(prefix,params);
 			}
 			else if (command == "FTOPIC")
@@ -1345,40 +1379,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "PING")
 			{
-				/*
-				 * We just got a ping from a server that's bursting.
-				 * This can't be right, so set them to not bursting, and
-				 * apply their lines.
-				 */
-				TreeServer* ServerSource = Utils->FindServer(prefix);
-				if (ServerSource)
-					Utils->SetRemoteBursting(ServerSource, false);
-
-				if (this->bursting)
-				{
-					this->bursting = false;
-					Instance->XLines->ApplyLines();
-				}
-
 				return this->LocalPing(prefix,params);
 			}
 			else if (command == "PONG")
 			{
-				/*
-				 * We just got a pong from a server that's bursting.
-				 * This can't be right, so set them to not bursting, and
-				 * apply their lines.
-				 */
-				TreeServer* ServerSource = Utils->FindServer(prefix);
-				if (ServerSource)
-					Utils->SetRemoteBursting(ServerSource, false);
-
-				if (this->bursting)
-				{
-					this->bursting = false;
-					Instance->XLines->ApplyLines();
-				}
-
 				return this->LocalPong(prefix,params);
 			}
 			else if (command == "VERSION")
@@ -1395,9 +1399,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "ADDLINE")
 			{
-				TreeServer* ServerSource = Utils->FindServer(prefix);
-				if (ServerSource)
-					Utils->SetRemoteBursting(ServerSource, false);
 				return this->AddLine(prefix,params);
 			}
 			else if (command == "DELLINE")
@@ -1430,7 +1431,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if ((command == "KICK") && (Utils->IsServer(prefix)))
 			{
-				std::string sourceserv = this->myhost;
 				if (params.size() == 3)
 				{
 					User* user = this->Instance->FindNick(params[1]);
@@ -1442,10 +1442,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 							delete chan;
 					}
 				}
-				if (!this->InboundServerName.empty())
-				{
-					sourceserv = this->InboundServerName;
-				}
+
 				return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 			}
 			else if (command == "SVSJOIN")
@@ -1466,18 +1463,12 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "OPERNOTICE")
 			{
-				std::string sourceserv = this->myhost;
-				if (!this->InboundServerName.empty())
-					sourceserv = this->InboundServerName;
 				if (params.size() >= 1)
 					Instance->SNO->WriteToSnoMask('A', "From " + prefix + ": " + params[0]);
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
 			else if (command == "MODENOTICE")
 			{
-				std::string sourceserv = this->myhost;
-				if (!this->InboundServerName.empty())
-					sourceserv = this->InboundServerName;
 				if (params.size() >= 2)
 				{
 					Instance->Users->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", prefix.c_str(), params[1].c_str());
@@ -1486,39 +1477,47 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "SNONOTICE")
 			{
-				std::string sourceserv = this->myhost;
-				if (!this->InboundServerName.empty())
-					sourceserv = this->InboundServerName;
 				if (params.size() >= 2)
 				{
 					Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + prefix + ": "+ params[1]);
 				}
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
+			else if (command == "BURST")
+			{
+				// Set prefix server as bursting
+				if (!ServerSource)
+				{
+					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got BURST from a nonexistant server(?): %s", prefix.c_str());
+					return false;
+				}
+				
+				ServerSource->bursting = true;
+				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
+			}
 			else if (command == "ENDBURST")
 			{
-				TreeServer* ServerSource = Utils->FindServer(prefix);
 				if (!ServerSource)
 				{
 					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a nonexistant server(?): %s", prefix.c_str());
 					return false;
 				}
 				
-				this->bursting = false;
-				Instance->XLines->ApplyLines();
-				std::string sourceserv = this->myhost;
-				if (!this->InboundServerName.empty())
-					sourceserv = this->InboundServerName;
-				timeval t;
-				gettimeofday(&t, NULL);
-				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
-				unsigned long bursttime = ts - ServerSource->StartBurst;
-				this->Instance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu %s)", sourceserv.c_str(), 
-						(bursttime > 1000 ? bursttime / 1000 : bursttime), (bursttime > 1000 ? "secs" : "msecs"));
-				Event rmode((char*)sourceserv.c_str(), (Module*)Utils->Creator, "new_server");
-				rmode.Send(Instance);
-
-				return true;
+				ServerSource->FinishBurst();
+				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
+			}
+			else if (command == "MODE")
+			{
+				// Server-prefix MODE.
+				const char* modelist[MAXPARAMETERS];
+				for (size_t i = 0; i < params.size(); i++)
+					modelist[i] = params[i].c_str();
+					
+				// Insert into the parser
+				this->Instance->SendMode(modelist, params.size(), this->Instance->FakeClient);
+				
+				// Pass out to the network
+				return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 			}
 			else
 			{
@@ -1528,111 +1527,75 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 */
 				User *who = this->Instance->FindUUID(prefix);
 
-				std::string sourceserv = this->myhost;
-				if (!this->InboundServerName.empty())
+				if (!who)
 				{
-					sourceserv = this->InboundServerName;
+					// this looks ugly because command is an irc::string
+					this->SendError("Command (" + std::string(command.c_str()) + ") from unknown prefix (" + prefix + ")! Dropping link.");
+					return false;
 				}
-				if ((!who) && (command == "MODE"))
-				{
-					if (Utils->IsServer(prefix))
-					{
-						const char* modelist[MAXPARAMETERS];
-						for (size_t i = 0; i < params.size(); i++)
-							modelist[i] = params[i].c_str();
-						this->Instance->SendMode(modelist, params.size(), this->Instance->FakeClient);
-						/* Hot potato! pass it on! */
-						return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
-					}
-				}
-				if (who)
-				{
-					if (command == "NICK")
-					{
-						if (params.size() != 2)
-						{
-							SendError("Protocol violation: NICK message without TS - :"+std::string(who->uuid)+" NICK "+params[0]);
-							return false;
-						}
-						/* Update timestamp on user when they change nicks */
-						who->age = atoi(params[1].c_str());
 
-						/* On nick messages, check that the nick doesnt
-						 * already exist here. If it does, kill their copy,
-						 * and our copy.
-						 */
-						User* x = this->Instance->FindNickOnly(params[0]);
-						if ((x) && (x != who))
+				if (command == "NICK")
+				{
+					if (params.size() != 2)
+					{
+						SendError("Protocol violation: NICK message without TS - :"+std::string(who->uuid)+" NICK "+params[0]);
+						return false;
+					}
+					/* Update timestamp on user when they change nicks */
+					who->age = atoi(params[1].c_str());
+
+					/*
+					 * On nick messages, check that the nick doesnt already exist here.
+					 * If it does, perform collision logic.
+					 */
+					User* x = this->Instance->FindNickOnly(params[0]);
+					if ((x) && (x != who))
+					{
+						int collideret = 0;
+						/* x is local, who is remote */
+						collideret = this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
+						if (collideret != 1)
 						{
-							int collideret = 0;
-							/* x is local, who is remote */
-							collideret = this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
-							if (collideret != 1)
-							{
-								/*
-								 * Remote client lost, or both lost,
-								 * parsing this nickchange would be
-								 * pointless, as the incoming client's
-								 * server will soon recieve SVSNICK to
-								 * change its nick to its UID. :)
-								 *   -- w00t
-								 */
-								return true;
-							}
-/*
-Old nickname collision logic..
-							std::deque<std::string> p;
-							p.push_back(params[0]);
-							p.push_back(":Nickname collision ("+prefix+" -> "+params[0]+")");
-							Utils->DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
-							p.clear();
-							p.push_back(prefix);
-							p.push_back(":Nickname collision");
-							Utils->DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
-							User::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
-							User* y = this->Instance->FindNick(prefix);
-							if (y)
-							{
-								User::QuitUser(this->Instance,y,"Nickname collision");
-							}
-							return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
-*/
+							/*
+							 * Remote client lost, or both lost, parsing this nickchange would be
+							 * pointless, as the incoming client's server will soon recieve SVSNICK to
+							 * change its nick to its UID. :) -- w00t
+							 */
+							return true;
 						}
 					}
-					// its a user
-					target = who->server;
-					const char* strparams[127];
-					for (unsigned int q = 0; q < params.size(); q++)
-					{
-						strparams[q] = params[q].c_str();
-					}
-					switch (this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
-					{
-						case CMD_INVALID:
-							this->SendError("Unrecognised or malformed command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
-							return false;
-						break;
-						case CMD_FAILURE:
-							return true;
-						break;
-						default:
-							/* CMD_SUCCESS and CMD_USER_DELETED fall through here */
-						break;
-					}
 				}
-				else
+					
+				// its a user
+				const char* strparams[127];
+				for (unsigned int q = 0; q < params.size(); q++)
 				{
-					// its not a user. Its either a server, or somethings screwed up.
-					if (Utils->IsServer(prefix))
-						target = this->Instance->Config->GetSID();
-					else
-						return true;
+					strparams[q] = params[q].c_str();
 				}
+
+				switch (this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
+				{
+					case CMD_INVALID:
+						// command is irc::string, hence ugliness
+						this->SendError("Unrecognised or malformed command '" + std::string(command.c_str()) + "' -- possibly loaded mismatched modules");
+						return false;
+						break;
+					/*
+					 * CMD_LOCALONLY is aliased to CMD_FAILURE, so this won't go out onto the network.
+					 */
+					case CMD_FAILURE:
+						return true;
+						break;
+					default:
+						/* CMD_SUCCESS and CMD_USER_DELETED fall through here */
+						break;
+				}
+
 				return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 
 			}
 			return true;
-		break;
+			break; // end of state CONNECTED (phew).
 	}
 	return true;
 }

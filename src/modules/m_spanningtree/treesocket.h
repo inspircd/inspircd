@@ -84,7 +84,6 @@ class TreeSocket : public BufferedSocket
 	int num_lost_servers;			/* Servers lost in split */
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
-	bool bursting;				/* True if not finished bursting yet */
 	unsigned int keylength;			/* Is this still used? */
 	std::string ModuleList;			/* Module list of other server from CAPAB */
 	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */

@@ -93,8 +93,6 @@ TreeSocket::~TreeSocket()
 {
 	if (Hook)
 		BufferedSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
-
-	Utils->DelBurstingServer(this);
 }
 
 const std::string& TreeSocket::GetOurChallenge()
@@ -799,7 +797,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		
 	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
-        if (!TS)
+	if (!TS)
 	{
 		Instance->Log(DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", source.c_str());
@@ -1118,7 +1116,10 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 	Instance->Users->AddGlobalClone(_new);
 
-	bool dosend = !(((this->Utils->quiet_bursts) && (this->bursting || Utils->FindRemoteBurstServer(remoteserver))) || (this->Instance->SilentULine(_new->server)));
+	bool dosend = true;
+	
+	if ((this->Utils->quiet_bursts && remoteserver->bursting) || this->Instance->SilentULine(_new->server))
+		dosend = false;
 	
 	if (dosend)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString(), _new->fullname);
@@ -1310,8 +1311,8 @@ void TreeSocket::SendUsers(TreeServer* Current)
 void TreeSocket::DoBurst(TreeServer* s)
 {
 	std::string name = s->GetName();
-	std::string burst = "BURST "+ConvToStr(Instance->Time(true));
-	std::string endburst = "ENDBURST";
+	std::string burst = ":" + this->Instance->Config->GetSID() + " BURST " +ConvToStr(Instance->Time(true));
+	std::string endburst = ":" + this->Instance->Config->GetSID() + " ENDBURST";
 	this->Instance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s).", name.c_str(), this->GetTheirChallenge().empty() ? "plaintext password" : "SHA256-HMAC challenge-response");
 	this->WriteLine(burst);
 	/* send our version string */

@@ -27,6 +27,7 @@
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &id) : ServerInstance(Instance), Utils(Util)
 {
 	Parent = NULL;
+	bursting = false;
 	ServerName.clear();
 	ServerDesc.clear();
 	VersionString.clear();
@@ -44,6 +45,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const st
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id)
 						: ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
 {
+	bursting = false;
 	Parent = NULL;
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;
@@ -63,6 +65,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
+	bursting = false;
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;
 	this->SetNextPingTime(time(NULL) + Utils->PingFreq);
@@ -135,6 +138,20 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 std::string& TreeServer::GetID()
 {
 	return sid;
+}
+
+void TreeServer::FinishBurst()
+{
+	this->bursting = false;
+	ServerInstance->XLines->ApplyLines();
+	timeval t;
+	gettimeofday(&t, NULL);
+	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+	unsigned long bursttime = ts - this->StartBurst;
+	ServerInstance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu %s)", ServerName.c_str(),
+						(bursttime > 1000 ? bursttime / 1000 : bursttime), (bursttime > 1000 ? "secs" : "msecs"));
+	Event rmode((char*)ServerName.c_str(),  (Module*)Utils->Creator, "new_server");
+	rmode.Send(ServerInstance);
 }
 
 void TreeServer::SetID(const std::string &id)
