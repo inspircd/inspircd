@@ -120,6 +120,10 @@ class TreeServer : public classbase
 	/** Round trip time of last ping
 	 */
 	unsigned long rtt;
+	
+	/** When we recieved BURST from this server, used to calculate total burst time at ENDBURST.
+	 */
+	unsigned long StartBurst;
 
 	/** True if this server is hidden
 	 */

@@ -1174,6 +1174,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 				params.push_back(":"+InboundDescription);
 				Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,InboundServerName);
 				this->bursting = true;
+				timeval t;
+				gettimeofday(&t, NULL);
+				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+				Node->StartBurst = ts;
 				this->DoBurst(Node);
 			}
 			else if (command == "ERROR")
@@ -1497,12 +1501,23 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "ENDBURST")
 			{
+				TreeServer* ServerSource = Utils->FindServer(prefix);
+				if (!ServerSource)
+				{
+					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a nonexistant server(?): %s", prefix.c_str());
+					return false;
+				}
+				
 				this->bursting = false;
 				Instance->XLines->ApplyLines();
 				std::string sourceserv = this->myhost;
 				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;
-				this->Instance->SNO->WriteToSnoMask('l',"Received end of netburst from \2%s\2",sourceserv.c_str());
+				timeval t;
+				gettimeofday(&t, NULL);
+				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+				unsigned long bursttime = ts - ServerSource->StartBurst;
+				this->Instance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %ul ms)", sourceserv.c_str(), bursttime);
 
 				Event rmode((char*)sourceserv.c_str(), (Module*)Utils->Creator, "new_server");
 				rmode.Send(Instance);
