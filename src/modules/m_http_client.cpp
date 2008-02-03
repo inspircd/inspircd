@@ -54,13 +54,13 @@ class HTTPResolver : public Resolver
 	HTTPSocket *socket;
 	std::string orig;
  public:
-	HTTPResolver(HTTPSocket *s, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(s)
+	HTTPResolver(HTTPSocket *s, InspIRCd *Instance, const std::string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(s)
 	{
 		ServerInstance->Log(DEBUG,">>>>>>>>>>>>>>>>>> HTTPResolver::HTTPResolver <<<<<<<<<<<<<<<");
 		orig = hostname;
 	}
 	
-	void OnLookupComplete(const string &result, unsigned int ttl, bool cached, int resultnum = 0)
+	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
 		ServerInstance->Log(DEBUG,"************* HTTPResolver::OnLookupComplete ***************");
 		if (!resultnum)
@@ -69,14 +69,14 @@ class HTTPResolver : public Resolver
 			socket->OnClose();
 	}
 	
-	void OnError(ResolverError e, const string &errmsg)
+	void OnError(ResolverError e, const std::string &errmsg)
 	{
 		ServerInstance->Log(DEBUG,"!!!!!!!!!!!!!!!! HTTPResolver::OnError: %s", errmsg.c_str());
 		socket->OnClose();
 	}
 };
 
-typedef vector<HTTPSocket*> HTTPList;
+typedef std::vector<HTTPSocket*> HTTPList;
 
 class ModuleHTTPClient : public Module
 {
@@ -256,7 +256,7 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 	return true;
 }
 
-void HTTPSocket::Connect(const string &ip)
+void HTTPSocket::Connect(const std::string &ip)
 {
 	this->response = new HTTPClientResponse((Module*)Mod, req.GetSource() , url.url, 0, "");
 

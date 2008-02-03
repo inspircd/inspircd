@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-
 /** Match a string against a mask.
  * @param str The string to check
  * @param mask the mask to check against

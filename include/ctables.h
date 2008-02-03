@@ -14,15 +14,6 @@
 #ifndef __CTABLES_H__
 #define __CTABLES_H__
 
-
-#include "inspircd_config.h"
-#include "hash_map.h"
-#include "base.h"
-
-/* Forward declarations - required */
-class User;
-class InspIRCd;
-
 /** Used to indicate command success codes
  */
 enum CmdResult

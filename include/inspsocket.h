@@ -14,13 +14,6 @@
 #ifndef __INSP_SOCKET_H__
 #define __INSP_SOCKET_H__
 
-#include <sstream>
-#include <string>
-#include <deque>
-#include "dns.h"
-#include "inspircd_config.h"
-#include "socket.h"
-#include "inspsocket.h"
 #include "timer.h"
 
 /**

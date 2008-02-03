@@ -36,17 +36,23 @@
 #include "uid.h"
 #include "users.h"
 #include "channels.h"
+#include "timer.h"
 #include "hashcomp.h"
 #include "typedefs.h"
 #include "usermanager.h"
 #include "socket.h"
+#include "ctables.h"
+#include "command_parse.h"
 #include "mode.h"
 #include "socketengine.h"
-#include "command_parse.h"
 #include "snomasks.h"
 #include "cull_list.h"
 #include "filelogger.h"
 #include "caller.h"
+//#include "inspsocket.h"
+#include "modules.h"
+#include "configreader.h"
+#include "inspstring.h"
 
 /**
  * Used to define the maximum number of parameters a command may have.
@@ -295,7 +301,7 @@ class CoreExport InspIRCd : public classbase
 
 	/** Used when connecting clients
 	 */
-	insp_sockaddr client, server;
+	irc::sockets::insp_sockaddr client, server;
 
 	/** Used when connecting clients
 	 */
@@ -706,7 +712,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param LinePrefix text to prefix each complete line with
 	 * @param TextStream the text to send to the user
 	 */
-	void DumpText(User* User, const std::string &LinePrefix, stringstream &TextStream);
+	void DumpText(User* User, const std::string &LinePrefix, std::stringstream &TextStream);
 
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against

@@ -14,13 +14,6 @@
 #ifndef __CHANNELS_H__
 #define __CHANNELS_H__
 
-#include "inspircd_config.h"
-#include "base.h"
-#include <time.h>
-#include <vector>
-#include <string>
-#include <map>
-
 /** RFC1459 channel modes
  */
 enum ChannelModes {
@@ -36,7 +29,6 @@ enum ChannelModes {
 
 /* Forward declarations - needed */
 class User;
-class Channel;
 
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.

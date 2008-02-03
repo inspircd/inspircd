@@ -14,13 +14,6 @@
 #ifndef __MODE_H
 #define __MODE_H
 
-#include <string>
-#include <deque>
-#include <vector>
-#include "ctables.h"
-
-class InspIRCd;
-
 /**
  * Holds the values for different type of modes
  * that can exist, USER or CHANNEL type.

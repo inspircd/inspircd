@@ -34,7 +34,6 @@
 #endif
 
 #include <errno.h>
-#include "inspircd_config.h"
 #include "socketengine.h"
 
 /* Contains irc-specific definitions */

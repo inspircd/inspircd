@@ -14,8 +14,6 @@
 #ifndef __BASE_H__ 
 #define __BASE_H__ 
 
-#include "inspircd_config.h"
-#include <time.h>
 #include <map>
 #include <deque>
 #include <string>

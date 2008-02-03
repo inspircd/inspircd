@@ -63,9 +63,9 @@ class ModuleModesOnConnect : public Module
 				if (!ThisModes.empty())
 				{
 					std::string buf;
-					stringstream ss(ThisModes);
+					std::stringstream ss(ThisModes);
 
-					vector<string> tokens;
+					std::vector<std::string> tokens;
 
 					// split ThisUserModes into modes and mode params
 					while (ss >> buf)

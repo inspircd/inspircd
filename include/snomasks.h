@@ -14,12 +14,6 @@
 #ifndef __SNOMASKS_H__
 #define __SNOMASKS_H__
 
-#include <string>
-#include <vector>
-#include <map>
-#include "configreader.h"
-#include "inspircd.h"
-
 class Snomask
 {
  private:

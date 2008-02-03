@@ -14,8 +14,6 @@
 #ifndef __DLL_H
 #define __DLL_H
 
-#include "inspircd_config.h"
-
 /** The DLLManager class is able to load a module file by filename,
  * and locate its init_module symbol.
  */

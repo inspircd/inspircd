@@ -14,9 +14,9 @@
 #ifndef __XLINE_H
 #define __XLINE_H
 
-#include <string>
-#include <deque>
-#include <vector>
+//#include <string>
+//#include <deque>
+//#include <vector>
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  * Modules may derive from this, and their xlines will automatically be

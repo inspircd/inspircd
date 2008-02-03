@@ -14,8 +14,8 @@
 #ifndef _HASHCOMP_H_
 #define _HASHCOMP_H_
 
-#include "inspircd_config.h"
-#include "socket.h"
+//#include "inspircd_config.h"
+//#include "socket.h"
 #include "hash_map.h"
 
 /*******************************************************
@@ -32,15 +32,6 @@
  * backwards compatible with other code which is not
  * aware of irc::string.
  *******************************************************/
-
-/** Required namespaces and symbols */
-using namespace std;
-
-/** aton() */
-using irc::sockets::insp_aton;
-
-/** nota() */
-using irc::sockets::insp_ntoa;
 
 #ifndef LOWERMAP
 #define LOWERMAP
@@ -133,7 +124,7 @@ namespace irc
 
 	/** This typedef declares irc::string based upon irc_char_traits.
 	 */
-	typedef basic_string<char, irc_char_traits, allocator<char> > string;
+	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;
 
 	/** irc::stringjoiner joins string lists into a string, using
 	 * the given seperator string.
@@ -711,7 +702,7 @@ namespace nspace
 		* @param s A string to hash
 		* @return The hash value
 		*/
-		size_t operator()(const string &s) const;
+		size_t operator()(const std::string &s) const;
 	};
 #endif
 

@@ -14,8 +14,6 @@
 #ifndef __BANCACHE_H
 #define __BANCACHE_H
 
-#include <string>
-
 class CoreExport BanCacheHit : public classbase
 {
  private:

@@ -14,7 +14,7 @@
 #ifndef INSPIRCD_TIMER_H
 #define INSPIRCD_TIMER_H
 
-class InspIRCd;
+//class InspIRCd;
 
 /** Timer class for one-second resolution timers
  * Timer provides a facility which allows module

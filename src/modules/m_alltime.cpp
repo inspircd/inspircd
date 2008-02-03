@@ -36,7 +36,7 @@ class CommandAlltime : public Command
 		
 		int delta = ServerInstance->GetTimeDelta();
 		
-		string msg = ":" + string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time for " +
+		std::string msg = ":" + std::string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time for " +
 			ServerInstance->Config->ServerName + " is: " + fmtdate + " (delta " + ConvToStr(delta) + " seconds): Time with delta: "+ fmtdate2;
 		
 		if (IS_LOCAL(user))
@@ -45,7 +45,7 @@ class CommandAlltime : public Command
 		}
 		else
 		{
-			deque<string> params;
+			std::deque<std::string> params;
 			params.push_back(user->nick);
 			params.push_back(msg);
 			Event ev((char *) &params, NULL, "send_push");

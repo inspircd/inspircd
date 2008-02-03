@@ -106,7 +106,7 @@ void InspIRCd::AddServerName(const std::string &servername)
 		if(**itr == servername)
 			return;
 
-	string * ns = new string(servername);
+	std::string * ns = new std::string(servername);
 	servernames.push_back(ns);
 }
 
@@ -117,7 +117,7 @@ const char* InspIRCd::FindServerNamePtr(const std::string &servername)
 		if(**itr == servername)
 			return (*itr)->c_str();
 
-	servernames.push_back(new string(servername));
+	servernames.push_back(new std::string(servername));
 	itr = --servernames.end();
 	return (*itr)->c_str();
 }

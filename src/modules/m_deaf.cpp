@@ -118,13 +118,13 @@ class ModuleDeaf : public Module
 		if (!deaf_bypasschars.empty())
 		{
 			is_bypasschar_avail = 1;
-			if (deaf_bypasschars.find(text[0], 0) != string::npos)
+			if (deaf_bypasschars.find(text[0], 0) != std::string::npos)
 				is_bypasschar = 1;
 		}
 		if (!deaf_bypasschars_uline.empty())
 		{
 			is_bypasschar_uline_avail = 1;
-			if (deaf_bypasschars_uline.find(text[0], 0) != string::npos)
+			if (deaf_bypasschars_uline.find(text[0], 0) != std::string::npos)
 				is_bypasschar_uline = 1;
 		}
 

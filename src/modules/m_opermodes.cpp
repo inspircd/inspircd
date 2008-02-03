@@ -92,8 +92,8 @@ class ModuleModesOnOper : public Module
 			smodes = "+" + smodes;
 
 		std::string buf;
-		stringstream ss(smodes);
-		vector<string> tokens;
+		std::stringstream ss(smodes);
+		std::vector<std::string> tokens;
 
 		// split into modes and mode params
 		while (ss >> buf)

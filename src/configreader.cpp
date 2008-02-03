@@ -335,7 +335,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &
 		std::string nameserver;
 		// attempt to look up their nameserver from /etc/resolv.conf
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
-		ifstream resolv("/etc/resolv.conf");
+		std::ifstream resolv("/etc/resolv.conf");
 		bool found_server = false;
 
 		if (resolv.is_open())

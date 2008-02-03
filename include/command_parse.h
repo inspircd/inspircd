@@ -14,13 +14,6 @@
 #ifndef __COMMAND_PARSE_H
 #define __COMMAND_PARSE_H
 
-#include <string>
-#include "ctables.h"
-
-/** Required forward declaration
- */
-class InspIRCd;
-
 /** A list of dll/so files containing the command handlers for the core
  */
 typedef std::map<std::string, void*> SharedObjectList;

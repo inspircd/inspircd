@@ -14,12 +14,6 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include <time.h>
-#include <string>
-#include <sstream>
-#include "socketengine.h"
-
-
 /** Debug levels for use with InspIRCd::Log()
  *  */
 enum DebugLevel

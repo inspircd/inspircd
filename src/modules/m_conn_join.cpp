@@ -22,14 +22,14 @@ class ModuleConnJoin : public Module
 		std::vector<std::string> Joinchans;
 		
 
-		int tokenize(const string &str, std::vector<std::string> &tokens)
+		int tokenize(const std::string &str, std::vector<std::string> &tokens)
 		{
 			// skip delimiters at beginning.
-			string::size_type lastPos = str.find_first_not_of(",", 0);
+			std::string::size_type lastPos = str.find_first_not_of(",", 0);
 			// find first "non-delimiter".
-			string::size_type pos = str.find_first_of(",", lastPos);
+			std::string::size_type pos = str.find_first_of(",", lastPos);
 
-			while (string::npos != pos || string::npos != lastPos)
+			while (std::string::npos != pos || std::string::npos != lastPos)
 			{
 				// found a token, add it to the vector.
 				tokens.push_back(str.substr(lastPos, pos - lastPos));

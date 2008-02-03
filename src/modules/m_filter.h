@@ -388,7 +388,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 void FilterBase::OnRehash(User* user, const std::string &parameter)
 {
 	ConfigReader* MyConf = new ConfigReader(ServerInstance);
-	vector<std::string>().swap(exemptfromfilter);
+	std::vector<std::string>().swap(exemptfromfilter);
 	for (int index = 0; index < MyConf->Enumerate("exemptfromfilter"); ++index)
 	{
 		std::string chan = MyConf->ReadValue("exemptfromfilter", "channel", index);

@@ -32,21 +32,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef _DNS_H
 #define _DNS_H
 
-#include <string>
-#include "inspircd_config.h"
-#include "base.h"
-#include "socketengine.h"
 #include "socket.h"
-#include "hash_map.h"
 #include "hashcomp.h"
 
-using namespace std;
-using irc::sockets::insp_aton;
-using irc::sockets::insp_ntoa;
-using irc::sockets::insp_sockaddr;
-using irc::sockets::insp_inaddr;
-
-class InspIRCd;
 class Module;
 
 /**
@@ -419,7 +407,7 @@ class CoreExport DNS : public EventHandler
 	 * e.g. use ipv6 reverse lookup when built for ipv6,
 	 * or ipv4 lookup when built for ipv4.
 	 */
-	int GetName(const insp_inaddr* ip);
+	int GetName(const irc::sockets::insp_inaddr* ip);
 
 	/**
 	 * Start lookup of a hostname from an ip, but

@@ -744,7 +744,7 @@ void InspIRCd::SendMode(const char** parameters, int pcnt, User *user)
 	this->Modes->Process(parameters,pcnt,user,true);
 }
 
-void InspIRCd::DumpText(User* User, const std::string &LinePrefix, stringstream &TextStream)
+void InspIRCd::DumpText(User* User, const std::string &LinePrefix, std::stringstream &TextStream)
 {
 	std::string CompleteLine = LinePrefix;
 	std::string Word;

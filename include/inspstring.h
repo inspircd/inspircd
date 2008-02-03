@@ -14,9 +14,10 @@
 #ifndef __IN_INSPSTRING_H
 #define __IN_INSPSTRING_H
 
+// This (inspircd_config) is needed as inspstring doesn't pull in the central header
 #include "inspircd_config.h"
 #include <string.h>
-#include <cstddef>
+//#include <cstddef>
 
 #ifndef HAS_STRLCPY
 /** strlcpy() implementation for systems that don't have it (linux) */

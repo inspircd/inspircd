@@ -14,12 +14,6 @@
 #ifndef INSPIRCD_LISTMODE_PROVIDER
 #define INSPIRCD_LISTMODE_PROVIDER
 
-#include <stdio.h>
-#include <string>
-#include <sstream>
-#include <vector>
-#include "inspircd.h"
-#include "modules.h"
 #include "wildcard.h"
 
 /** Get the time as a string
