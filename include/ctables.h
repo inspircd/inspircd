@@ -29,8 +29,7 @@ enum CmdResult
 {
 	CMD_FAILURE = 0,	/* Command exists, but failed */
 	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
-	CMD_INVALID = 2,	/* Command doesnt exist at all! */
-	CMD_USER_DELETED = 3	/* User was deleted - DEPRECIATED */
+	CMD_INVALID = 2		/* Command doesnt exist at all! */
 };
 
 enum TranslateType
