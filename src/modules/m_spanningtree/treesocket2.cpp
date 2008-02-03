@@ -1174,11 +1174,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 				params.push_back(":"+InboundDescription);
 				Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,InboundServerName);
 				this->bursting = true;
-				timeval t;
-				gettimeofday(&t, NULL);
-				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
-				Node->StartBurst = ts;
-				this->Instance->Log(DEBUG, "Started bursting at time %lu", ts);
 				this->DoBurst(Node);
 			}
 			else if (command == "ERROR")

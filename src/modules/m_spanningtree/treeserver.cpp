@@ -69,6 +69,13 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	this->SetPingFlag();
 	DupError = false;
 	StartBurst = rtt = 0;
+
+	timeval t;
+	gettimeofday(&t, NULL);
+	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+	this->StartBurst = ts;
+	Instance->Log(DEBUG, "Started bursting at time %lu", ts);
+
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
 	 *
