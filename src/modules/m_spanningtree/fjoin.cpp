@@ -184,3 +184,24 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	return true;
 }
 
+/** TODO: This creates a total mess of output and needs to really use irc::modestacker.
+ */
+bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string> &params)
+{
+	if (params.size() < 1)
+		return true;
+
+	Channel* c = Instance->FindChan(params[0]);
+
+	if (c)
+	{
+		for (char modeletter = 'A'; modeletter <= 'z'; modeletter++)
+		{
+			ModeHandler* mh = Instance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+			if (mh)
+				mh->RemoveMode(c);
+		}
+	}
+	return true;
+}
+ 
