@@ -119,24 +119,6 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	return true;
 }
 
-bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
-{
-	if ((!strncmp(ours.c_str(), "HMAC-SHA256:", 12)) || (!strncmp(theirs.c_str(), "HMAC-SHA256:", 12)))
-	{
-		/* One or both of us specified hmac sha256, but we don't have sha256 module loaded!
-		 * We can't allow this password as valid.
-		 */
-		if (!Instance->Modules->Find("m_sha256.so") || !Utils->ChallengeResponse)
-				return false;
-		else
-			/* Straight string compare of hashes */
-			return ours == theirs;
-	}
-	else
-		/* Straight string compare of plaintext */
-		return ours == theirs;
-}
-
 bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 {
 	if (params.size() < 5)
