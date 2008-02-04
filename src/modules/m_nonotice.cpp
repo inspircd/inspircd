@@ -68,9 +68,14 @@ class ModuleNoNotice : public Module
 			Channel* c = (Channel*)dest;
 			if (c->IsModeSet('T'))
 			{
-				if ((ServerInstance->ULine(user->server)) || (c->GetStatus(user) == STATUS_OP) || (c->GetStatus(user) == STATUS_HOP))
+				if (ServerInstance->ULine(user->server))
 				{
-					// ops and halfops can still /NOTICE the channel
+					// ulines are exempt.
+					return 0;
+				}
+				else if (CHANOPS_EXEMPT(ServerInstance, 'T') && c->GetStatus(user) == STATUS_OP)
+				{
+					// channel ops are exempt if set in conf.
 					return 0;
 				}
 				else

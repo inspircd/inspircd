@@ -72,6 +72,12 @@ class ModuleNoCTCP : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
+			
+			if (CHANOPS_EXEMPT(ServerInstance, 'C') && c->GetStatus(user) == STATUS_OP)
+			{
+				return 0;
+			}
+			
 			if (c->IsModeSet('C'))
 			{
 				if ((text.length()) && (text[0] == '\1'))
