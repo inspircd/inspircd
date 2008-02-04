@@ -76,7 +76,7 @@ class CensorChannel : public ModeHandler
 			}
 		}
 
-		return MODEACTION_ALLOW;
+		return MODEACTION_DENY;
 	}
 };
 
