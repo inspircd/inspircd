@@ -884,25 +884,33 @@ bool User::ForceNickChange(const char* newnick)
 {
 	try
 	{
-		int MOD_RESULT = 0;
-
-		this->InvalidateCache();
-
-		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
-
-		if (MOD_RESULT)
+		/*
+		 * XXX this makes no sense..
+		 * why do we do nothing for change on users not REG_ALL?
+		 * why do we trigger events twice for everyone previously (and just them now)
+		 * i think the first if () needs removing totally, or? -- w00t
+		 */
+		if (this->registered != REG_ALL)
 		{
-			ServerInstance->stats->statsCollisions++;
-			return false;
-		}
+			int MOD_RESULT = 0;
 
-		if (ServerInstance->XLines->MatchesLine("Q",newnick))
-		{
-			ServerInstance->stats->statsCollisions++;
-			return false;
-		}
+			this->InvalidateCache();
 
-		if (this->registered == REG_ALL)
+			FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
+
+			if (MOD_RESULT)
+			{
+				ServerInstance->stats->statsCollisions++;
+				return false;
+			}
+
+			if (ServerInstance->XLines->MatchesLine("Q",newnick))
+			{
+				ServerInstance->stats->statsCollisions++;
+				return false;
+			}
+		}
+		else
 		{
 			std::deque<classbase*> dummy;
 			Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
