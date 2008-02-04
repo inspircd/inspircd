@@ -55,23 +55,6 @@ class cmd_randquote : public command_t
 	}
 };
 
-/** Thrown by m_randquote
- */
-class RandquoteException : public ModuleException
-{
- private:
-	const std::string err;
- public:
-	RandquoteException(const std::string &message) : err(message) { }
-
-	~RandquoteException() throw () { }
-
-	virtual const char* GetReason()
-	{
-		return err.c_str();
-	}
-};
-
 class ModuleRandQuote : public Module
 {
  private:
@@ -94,14 +77,14 @@ class ModuleRandQuote : public Module
 
 		if (q_file.empty())
 		{
-			RandquoteException e("m_randquote: Quotefile not specified - Please check your config.");
+			CoreException e("m_randquote: Quotefile not specified - Please check your config.");
 			throw(e);
 		}
 
 		quotes = new FileReader(ServerInstance, q_file);
 		if(!quotes->Exists())
 		{
-			RandquoteException e("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
+			CoreException e("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
 			throw(e);
 		}
 		else
