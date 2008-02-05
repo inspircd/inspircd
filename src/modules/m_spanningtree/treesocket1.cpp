@@ -923,7 +923,7 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	const char* tempnick = params[1].c_str();
 	std::string empty;
 
-	cmd_validation valid[] = { {"Nickname", 1, NICKMAX}, {"Hostname", 2, 64}, {"Displayed hostname", 3, 64}, {"Ident", 4, IDENTMAX}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
+	cmd_validation valid[] = { {"Nickname", 1, NICKMAX}, {"Hostname", 2, 64}, {"Displayed hostname", 3, 64}, {"Ident", 4, IDENTMAX+1}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
 
 	TreeServer* remoteserver = Utils->FindServer(source);
 	if (!remoteserver)
