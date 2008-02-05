@@ -233,12 +233,12 @@ void TreeSocket::SendUsers(TreeServer* Current)
 						u->second->ident, u->second->FormatModes(), u->second->GetIPString(),
 						(unsigned long)u->second->signon, u->second->fullname);
 				this->WriteLine(data);
-				if (*u->second->oper)
+				if (IS_OPER(u->second))
 				{
 					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid, u->second->oper);
 					this->WriteLine(data);
 				}
-				if (*u->second->awaymsg)
+				if (IS_AWAY(u->second))
 				{
 					snprintf(data,MAXBUF,":%s AWAY :%s", u->second->uuid, u->second->awaymsg);
 					this->WriteLine(data);
