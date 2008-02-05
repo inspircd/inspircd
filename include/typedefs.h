@@ -24,10 +24,10 @@ typedef nspace::hash_map<std::string, Channel*, nspace::hash<std::string>, irc::
 #else
 /** User hash (windows systems with visual studio)
  */
-typedef nspace::hash_map<std::string, User*, nspace::hash_compare<std::string, less<std::string> > > user_hash;
+typedef nspace::hash_map<std::string, User*, nspace::hash_compare<std::string, std::less<std::string> > > user_hash;
 /** Channel hash (windows systems with visual studio)
  */
-typedef nspace::hash_map<std::string, Channel*, nspace::hash_compare<std::string, less<std::string> > > chan_hash;
+typedef nspace::hash_map<std::string, Channel*, nspace::hash_compare<std::string, std::less<std::string> > > chan_hash;
 #endif
 
 /** Server name cache
