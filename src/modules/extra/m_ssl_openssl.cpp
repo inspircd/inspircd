@@ -209,7 +209,6 @@ class ModuleSSLOpenSSL : public Module
 
 		if (param != "ssl")
 		{
-			delete Conf;
 			return;
 		}
 
