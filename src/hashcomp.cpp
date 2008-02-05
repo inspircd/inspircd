@@ -70,7 +70,7 @@ void nspace::strlower(char *n)
 #ifndef WIN32
 size_t nspace::hash<std::string>::operator()(const std::string &s) const
 #else
-size_t nspace::hash_compare<string, std::less<std::string> >::operator()(const std::string &s) const
+size_t nspace::hash_compare<std::string, std::less<std::string> >::operator()(const std::string &s) const
 #endif
 {
 	/* XXX: NO DATA COPIES! :)
