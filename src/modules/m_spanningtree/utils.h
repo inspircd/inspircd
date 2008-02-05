@@ -26,7 +26,7 @@ class ModuleSpanningTree;
  * tree, used for rapid linear lookups.
  */
 #ifdef WINDOWS
-typedef nspace::hash_map<std::string, TreeServer*, nspace::hash_compare<std::string, std::less<string> > > server_hash;
+typedef nspace::hash_map<std::string, TreeServer*, nspace::hash_compare<std::string, std::less<std::string> > > server_hash;
 #else
 typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<std::string>, irc::StrHashComp> server_hash;
 #endif
