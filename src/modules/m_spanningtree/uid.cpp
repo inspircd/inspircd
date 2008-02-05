@@ -49,7 +49,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	std::string empty;
 
 	/* XXX probably validate UID length too -- w00t */
-	cmd_validation valid[] = { {"Nickname", 2, NICKMAX}, {"Hostname", 3, 64}, {"Displayed hostname", 4, 64}, {"Ident", 5, IDENTMAX}, {"GECOS", 9, MAXGECOS}, {"", 0, 0} };
+	cmd_validation valid[] = { {"Nickname", 2, NICKMAX}, {"Hostname", 3, 64}, {"Displayed hostname", 4, 64}, {"Ident", 5, IDENTMAX + 1}, {"GECOS", 9, MAXGECOS}, {"", 0, 0} };
 
 	TreeServer* remoteserver = Utils->FindServer(source);
 
