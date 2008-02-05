@@ -967,7 +967,7 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	strlcpy(_new->host, params[2].c_str(),64);
 	strlcpy(_new->dhost, params[3].c_str(),64);
 	_new->server = this->Instance->FindServerNamePtr(source.c_str());
-	strlcpy(_new->ident, params[4].c_str(),IDENTMAX);
+	strlcpy(_new->ident, params[4].c_str(),IDENTMAX+1);
 	strlcpy(_new->fullname, params[7].c_str(),MAXGECOS);
 	_new->registered = REG_ALL;
 	_new->signon = age;
