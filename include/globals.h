@@ -14,9 +14,13 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
+#include <vector>
+#include <deque>
+#include <map>
+
 /** A cached text file stored with its contents as lines
  */
-typedef std::deque<std::string> file_cache;
+typedef std::deque< std::string > file_cache;
 
 /** A configuration key and value pair
  */
