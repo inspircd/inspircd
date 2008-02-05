@@ -1444,7 +1444,7 @@ bool User::ChangeIdent(const char* newident)
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
 
-	strlcpy(this->ident, newident, IDENTMAX+2);
+	strlcpy(this->ident, newident, IDENTMAX+1);
 
 	this->InvalidateCache();
 
