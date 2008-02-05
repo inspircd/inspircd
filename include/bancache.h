@@ -48,7 +48,7 @@ class CoreExport BanCacheHit : public classbase
 #ifndef WIN32
 typedef nspace::hash_map<std::string, BanCacheHit *, nspace::hash<std::string> > BanCacheHash;
 #else
-typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash_compare<string, less<string> > > BanCacheHash;
+typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash_compare<std::string, std::less<std::string> > > BanCacheHash;
 #endif
 
 class CoreExport BanCacheManager : public classbase
