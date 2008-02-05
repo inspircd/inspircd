@@ -62,7 +62,7 @@
  * Yes, it's horrid. Blame cl for being different. -- w00t
  */
 #ifdef WINDOWS
-typedef nspace::hash_map<irc::string, std::deque<User*>, nspace::hash_compare<irc::string, less<irc::string> > > watchentries;
+typedef nspace::hash_map<irc::string, std::deque<User*>, nspace::hash_compare<irc::string, std::less<irc::string> > > watchentries;
 #else
 typedef nspace::hash_map<irc::string, std::deque<User*>, nspace::hash<irc::string> > watchentries;
 #endif
