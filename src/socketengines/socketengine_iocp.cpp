@@ -93,7 +93,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	/* we're all good =) */
 	try
 	{
-		m_binding.insert( map<int, EventHandler*>::value_type( eh->GetFd(), eh ) );
+		m_binding.insert( std::map<int, EventHandler*>::value_type( eh->GetFd(), eh ) );
 	}
 	catch (...)
 	{
@@ -411,7 +411,7 @@ std::string IOCPEngine::GetName()
 
 EventHandler * IOCPEngine::GetRef(int fd)
 {
-	map<int, EventHandler*>::iterator itr = m_binding.find(fd);
+	std::map<int, EventHandler*>::iterator itr = m_binding.find(fd);
 	return (itr == m_binding.end()) ? 0 : itr->second;
 }
 
