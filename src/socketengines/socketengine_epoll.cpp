@@ -22,8 +22,8 @@ EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Log(SPARSE,"ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
+		ServerInstance->Log(DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Log(DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine: %s\n", strerror(errno));
 		printf("ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
