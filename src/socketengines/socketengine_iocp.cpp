@@ -20,10 +20,10 @@ IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 	/* Create completion port */
 	m_completionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)0, 0);
 
-        if (!m_completionPort)
+	if (!m_completionPort)
 	{
-		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Log(DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Log(DEFAULT, "ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.\n");
 		printf("ERROR: this is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
