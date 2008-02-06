@@ -766,8 +766,8 @@ void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
 		return;
 
 	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", line->type.c_str(), line->Displayable(), ServerInstance->Config->ServerName, line->set_time,
-			line->duration, line->reason);
+	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", line->type.c_str(), line->Displayable(), 
+	ServerInstance->Config->ServerName, (unsigned long)line->set_time, (unsigned long)line->duration, line->reason);
 	std::deque<std::string> params;
 	params.push_back(data);
 
