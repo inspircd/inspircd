@@ -47,6 +47,7 @@ class ModuleAuditorium : public Module
  private:
 	AuditoriumMode* aum;
 	bool ShowOps;
+	bool OperOverride;
 	CUList nl;
 	CUList except_list;
  public:
@@ -83,6 +84,7 @@ class ModuleAuditorium : public Module
 	{
 		ConfigReader conf(ServerInstance);
 		ShowOps = conf.ReadFlag("auditorium", "showops", 0);
+		OperOverride = conf.ReadFlag("auditorium", "operoverride", 0);
 	}
 
 	virtual Version GetVersion()
@@ -94,6 +96,17 @@ class ModuleAuditorium : public Module
 	{
 		if (Ptr->IsModeSet('u'))
 		{
+			if (OperOverride)
+			{
+				if (IS_OPER(user))
+				{
+					/*
+					 * If user is oper and operoverride is on, don't touch the list
+					 */
+					return 0;
+				}
+			}
+			
 			if (ShowOps)
 			{
 				/* Leave the names list alone, theyre an op
