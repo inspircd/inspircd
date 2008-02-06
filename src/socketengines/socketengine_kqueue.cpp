@@ -34,10 +34,10 @@ void KQueueEngine::RecoverFromFork()
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
-		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		printf("ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Log(DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Log(DEFAULT, "ERROR: this is a fatal error, exiting now.");
+		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.\n");
+		printf("ERROR: this is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
