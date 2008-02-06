@@ -24,8 +24,8 @@ IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 	{
 		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
-		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		printf("ERROR: this is a fatal error, exiting now.");
+		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.\n");
+		printf("ERROR: this is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 
