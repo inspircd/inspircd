@@ -46,7 +46,7 @@ class CoreExport FileLogger : public EventHandler
  protected:
 	/** The creator/owner of this object
 	 */
-    InspIRCd* ServerInstance;
+	InspIRCd* ServerInstance;
 	/** The log file (fd is inside this somewhere,
 	 * we get it out with fileno())
 	 */
