@@ -8,17 +8,21 @@ together by the makefile to form a single .so, with the same name as the directo
 This directory contains the following files:
 
 * handshaketimer.cpp		Code for detecting end of ziplink/ssl handshake
-* handshaketimer.h		Header for above code
-* link.h			Contains the definition of the Link block class
-* main.cpp			The main group of classes and code for the module class
-* main.h			The header for the main file
-* resolvers.h			The header file that defines certain DNS utility classes
-* treesocket.cpp		Contains code that inherits InspSocket into a server socket
-* treesocket.h			Header definitions for above code
-* treeserver.cpp		Contains code that defines the behaviour of a single server
-* treeserver.h			Header definitions for above code
-* utils.cpp			Contains general and message routing utility classes
-* utils.h			Header code for general and message routing utilities
+* handshaketimer.h			Header for above code
+* link.h					Contains the definition of the Link block class
+* main.cpp					The main group of classes and code for the module class
+* main.h					The header for the main file
+* resolvers.h				The header file that defines certain DNS utility classes
+* treesocket1.cpp			Contains code that inherits BufferedSocket into a server socket
+* treesocket2.cpp			More of the above.
+* treesocket.h				Header definitions for above code
+* treeserver.cpp			Contains code that defines the behaviour of a single server
+* treeserver.h				Header definitions for above code
+* utils.cpp					Contains general and message routing utility classes
+* utils.h					Header code for general and message routing utilities
 
-Have fun
-  -- Brain :-)
+Also included are various other files for command support, and to do things like
+overriding /lusers to give meaningful output with more than one server.
+
+Have fun.
+  -- InspIRCd Team
