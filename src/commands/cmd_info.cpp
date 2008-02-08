@@ -39,8 +39,8 @@ CmdResult CommandInfo::Handle (const char**, int, User *user)
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Regular Contributors\2:", user->nick);
 	user->WriteServ( "371 %s :    satmd          nenolod         John2          djGrrr", user->nick);
-	user->WriteServ( "371 %s :    jilles         Stskeeps        eggy           Trystan", user->nick);
-	user->WriteServ( "371 %s :    Quension       danieldg        praetorian     Majic", user->nick);
+	user->WriteServ( "371 %s :    jilles         Majic           eggy           Trystan", user->nick);
+	user->WriteServ( "371 %s :    Quension       danieldg        praetorian", user->nick);
 	user->WriteServ( "371 %s :    searchirc.com  irc-junkie.org", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Other Contributors\2:", user->nick);
@@ -51,6 +51,7 @@ CmdResult CommandInfo::Handle (const char**, int, User *user)
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Former Contributors\2:", user->nick);
 	user->WriteServ( "371 %s :   CC              jamie           typobox43      Burlex (win32)", user->nick);
+	user->WriteServ( "371 %s :   Stskeeps        ", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s : Best experienced with: \2An IRC client\2", user->nick);
 	FOREACH_MOD(I_OnInfo,OnInfo(user));
