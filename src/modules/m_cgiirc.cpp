@@ -40,6 +40,17 @@ public:
 };
 typedef std::vector<CGIhost> CGIHostlist;
 
+/*
+ * WEBIRC
+ *  This is used for the webirc method of CGIIRC auth, and is (really) the best way to do these things.
+ *  Syntax: WEBIRC password client hostname ip
+ *  Where password is a shared key, client is the name of the "client" and version (e.g. cgiirc), hostname
+ *  is the resolved host of the client issuing the command and IP is the real IP of the client.
+ *
+ * How it works:
+ *  To tie in with the rest of cgiirc module, and to avoid race conditions, /webirc is only processed locally
+ *  and simply sets metadata on the user, which is later decoded on full connect to give something meaningful.
+ */
 class CommandWebirc : public Command
 {
 	InspIRCd* Me;
@@ -134,7 +145,7 @@ public:
 		mycommand = new CommandWebirc(Me, Hosts, NotifyOpers);
 		ServerInstance->AddCommand(mycommand);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUserQuit, I_OnUserConnect };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
@@ -240,7 +251,7 @@ public:
 		}
 	}
 
-	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
+	virtual void OnUserDisconnect(User* user)
 	{
 		OnCleanup(TYPE_USER, user);
 	}
