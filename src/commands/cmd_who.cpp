@@ -134,12 +134,12 @@ bool CommandWho::CanView(Channel* chan, User* user)
 
 void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
 {
-	std::string lcn = get_first_visible_channel(u);
-	Channel* chlast = ServerInstance->FindChan(lcn);
-
 	/* Not visible to this user */
 	if (u->Visibility && !u->Visibility->VisibleTo(user))
 		return;
+
+	std::string lcn = get_first_visible_channel(u);
+	Channel* chlast = ServerInstance->FindChan(lcn);
 
 	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +
 				((*ServerInstance->Config->HideWhoisServer && !IS_OPER(user)) ? ServerInstance->Config->HideWhoisServer : u->server) +
