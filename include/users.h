@@ -360,9 +360,9 @@ public:
 	}
 };
 
-/** Holds a complete list of all channels to which a user has been invited and has not yet joined.
+/** Holds a complete list of all channels to which a user has been invited and has not yet joined, and the time at which they'll expire.
  */
-typedef std::vector<irc::string> InvitedList;
+typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
@@ -736,8 +736,9 @@ class CoreExport User : public connection
 
 	/** Adds a channel to a users invite list (invites them to a channel)
 	 * @param channel A channel name to add
+	 * @param timeout When the invite should expire (0 == never)
 	 */
-	virtual void InviteTo(const irc::string &channel);
+	virtual void InviteTo(const irc::string &channel, time_t timeout);
 
 	/** Removes a channel from a users invite list.
 	 * This member function is called on successfully joining an invite only channel

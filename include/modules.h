@@ -626,9 +626,10 @@ class CoreExport Module : public Extensible
 	 * @param source The user who is issuing the INVITE
 	 * @param dest The user being invited
 	 * @param channel The channel the user is being invited to
+	 * @param timeout The time the invite will expire (0 == never)
 	 * @return 1 to deny the invite, 0 to allow
 	 */
-	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel);
+	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout);
 	
 	/** Called after a user has been successfully invited to a channel.
 	 * You cannot prevent the invite from occuring using this function, to do that,
@@ -636,8 +637,9 @@ class CoreExport Module : public Extensible
 	 * @param source The user who is issuing the INVITE
 	 * @param dest The user being invited
 	 * @param channel The channel the user is being invited to
+	 * @param timeout The time the invite will expire (0 == never)
 	 */
-	virtual void OnUserInvite(User* source,User* dest,Channel* channel);
+	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t timeout);
 	
 	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no

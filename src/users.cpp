@@ -367,10 +367,20 @@ char* User::GetFullRealHost()
 
 bool User::IsInvited(const irc::string &channel)
 {
-	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+	time_t now = time(NULL);
+	InvitedList::iterator safei;
+	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
 	{
-		if (channel == *i)
+		if (channel == i->first)
 		{
+			if (i->second != 0 && now > i->second)
+			{
+				/* Expired invite, remove it. */
+				safei = i;
+				--i;
+				invites.erase(safei);
+				continue;
+			}
 			return true;
 		}
 	}
@@ -379,19 +389,44 @@ bool User::IsInvited(const irc::string &channel)
 
 InvitedList* User::GetInviteList()
 {
+	time_t now = time(NULL);
+	/* Weed out expired invites here. */
+	InvitedList::iterator safei;
+	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
+	{
+		if (i->second != 0 && now > i->second)
+		{
+			/* Expired invite, remove it. */
+			safei = i;
+			--i;
+			invites.erase(safei);
+		}
+	}
 	return &invites;
 }
 
-void User::InviteTo(const irc::string &channel)
+void User::InviteTo(const irc::string &channel, time_t timeout)
 {
-	invites.push_back(channel);
+	time_t now = time(NULL);
+	if (timeout != 0 && now > timeout) return; /* Don't add invites that are expired from the get-go. */
+	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
+	{
+		if (channel == i->first)
+		{
+			if (i->second != 0 && timeout > i->second)
+			{
+				i->second = timeout;
+			}
+		}
+	}
+	invites.push_back(std::make_pair(channel, timeout));
 }
 
 void User::RemoveInvite(const irc::string &channel)
 {
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
-		if (channel == *i)
+		if (channel == i->first)
 		{
 			invites.erase(i);
 			return;

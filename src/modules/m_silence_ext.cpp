@@ -334,7 +334,7 @@ class ModuleSilence : public Module
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
 	}
 
-	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel)
+	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout)
 	{
 		return MatchPattern(dest, source, SILENCE_INVITE);
 	}

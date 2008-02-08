@@ -123,7 +123,7 @@ void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }
 void		Module::OnWhois(User*, User*) { }
-int		Module::OnUserPreInvite(User*, User*, Channel*) { return 0; }
+int		Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return 0; }
 int		Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&) { return 0; }
 int		Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return 0; }
 int		Module::OnUserPreNick(User*, const std::string&) { return 0; }
@@ -164,7 +164,7 @@ int		Module::OnRawSocketRead(int, char*, unsigned int, int&) { return 0; }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&) { }
 void		Module::OnUserNotice(User*, void*, int, const std::string&, char, const CUList&) { }
 void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
-void		Module::OnUserInvite(User*, User*, Channel*) { }
+void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }
 void		Module::OnPostLocalTopicChange(User*, Channel*, const std::string&) { }
 void		Module::OnGetServerDescription(const std::string&, std::string&) { }
 void		Module::OnSyncUser(User*, Module*, void*) { }

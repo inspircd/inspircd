@@ -25,10 +25,15 @@ CmdResult CommandInvite::Handle (const char** parameters, int pcnt, User *user)
 {
 	int MOD_RESULT = 0;
 
-	if (pcnt == 2)
+	if (pcnt == 2 || pcnt == 3)
 	{
 		User* u = ServerInstance->FindNick(parameters[0]);
 		Channel* c = ServerInstance->FindChan(parameters[1]);
+		time_t timeout = 0;
+		if (pcnt == 3)
+		{
+			timeout = time(NULL) + ServerInstance->Duration(parameters[2]);
+		}
 
 		if ((!c) || (!u))
 		{
@@ -65,14 +70,14 @@ CmdResult CommandInvite::Handle (const char** parameters, int pcnt, User *user)
 	  		return CMD_FAILURE;
 		}
 
-		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c));
+		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c,timeout));
 
 		if (MOD_RESULT == 1)
 		{
 			return CMD_FAILURE;
 		}
 
-		u->InviteTo(c->name);
+		u->InviteTo(c->name, timeout);
 		u->WriteFrom(user,"INVITE %s :%s",u->nick,c->name);
 		user->WriteServ("341 %s %s %s",user->nick,u->nick,c->name);
 		switch (ServerInstance->Config->AnnounceInvites)
@@ -93,7 +98,7 @@ CmdResult CommandInvite::Handle (const char** parameters, int pcnt, User *user)
 				/* Nobody */
 			break;
 		}
-		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c));
+		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c,timeout));
 	}
 	else
 	{
@@ -102,7 +107,7 @@ CmdResult CommandInvite::Handle (const char** parameters, int pcnt, User *user)
 		InvitedList* il = user->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
-			user->WriteServ("346 %s :%s",user->nick,i->c_str());
+			user->WriteServ("346 %s :%s",user->nick,i->first.c_str());
 		}
 		user->WriteServ("347 %s :End of INVITE list",user->nick);
 	}

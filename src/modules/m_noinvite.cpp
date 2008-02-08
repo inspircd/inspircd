@@ -58,7 +58,7 @@ class ModuleNoInvite : public Module
 	}
 
 
-	virtual int OnUserPreInvite(User* user,User* dest,Channel* channel)
+	virtual int OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
 	{
 		if (channel->IsModeSet('V'))
 		{
