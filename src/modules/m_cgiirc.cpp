@@ -136,7 +136,7 @@ public:
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCleanup] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserQuit] = List[I_OnUserConnect] = 1;
+		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCleanup] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserDisconnect] = List[I_OnUserConnect] = 1;
 	}
 	
 	virtual Priority Prioritize()
@@ -241,7 +241,7 @@ public:
 		}
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
+	virtual void OnUserDisconnect(userrec* user)
 	{
 		OnCleanup(TYPE_USER, user);
 	}
