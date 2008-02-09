@@ -127,8 +127,11 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 
 void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...)
 {
+	if (Logging)
+		return;
+
 	va_list a;
-	char buf[65536];
+	static char buf[65536];
 
 	va_start(a, fmt);
 	vsnprintf(buf, 65536, fmt, a);
@@ -139,6 +142,19 @@ void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...
 
 void LogManager::Log(const std::string &type, int loglevel, const std::string &msg)
 {
+	if (Logging)
+		return;
+
+	Logging = true;
+
+	std::vector<LogStream *>::iterator gi = GlobalLogStreams.begin();
+
+	while (gi != GlobalLogStreams.end())
+	{
+		(*gi)->OnLog(loglevel, type, msg);
+		gi++;
+	}
+
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
 
 	if (i != LogStreams.end())
@@ -147,23 +163,12 @@ void LogManager::Log(const std::string &type, int loglevel, const std::string &m
 
 		while (it != i->second.end())
 		{
-			(*it)->OnLog(loglevel, msg);
+			(*it)->OnLog(loglevel, type, msg);
 			it++;
 		}
-
-		return;
 	}
 
-	std::vector<LogStream *>::iterator gi = GlobalLogStreams.begin();
-
-	while (gi != GlobalLogStreams.end())
-	{
-		(*gi)->OnLog(loglevel, msg);
-		gi++;
-	}
-
-	// blurp, no handler for this type
-	return;
+	Logging = false;
 }
 
 

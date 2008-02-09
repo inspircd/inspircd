@@ -102,7 +102,7 @@ FileLogger::~FileLogger()
 }
 
 
-void FileLogStream::OnLog(int loglevel, const std::string &text)
+void FileLogStream::OnLog(int loglevel, const std::string &type, const std::string &text)
 {
 	static char TIMESTR[26];
 	static time_t LAST = 0;

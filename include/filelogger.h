@@ -93,7 +93,7 @@ class CoreExport FileLogStream : public LogStream
  private:
 	FileLogger *f;
  public:
-	FileLogStream(InspIRCd *Instance, FILE *f, const std::string &type) : LogStream(Instance, type)
+	FileLogStream(InspIRCd *Instance, FILE *f) : LogStream(Instance)
 	{
 		this->f = new FileLogger(Instance, f);
 	}
@@ -103,7 +103,7 @@ class CoreExport FileLogStream : public LogStream
 		delete this->f;
 	}
 
-	virtual void OnLog(int loglevel, const std::string &msg);
+	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg);
 };
 
 #endif

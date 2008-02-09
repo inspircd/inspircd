@@ -18,20 +18,19 @@ class CoreExport LogStream : public classbase
 {
  protected:
 	InspIRCd *ServerInstance;
-	std::string type;
  public:
-	LogStream(InspIRCd *Instance, const std::string &type)
+	LogStream(InspIRCd *Instance)
 	{
 		this->ServerInstance = Instance;
-		this->type = type;
 	}
 
-	virtual void OnLog(int loglevel, const std::string &msg) { }
+	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg) { }
 };
 
 class CoreExport LogManager : public classbase
 {
  private:
+	bool Logging; // true when logging, avoids recursion
 	InspIRCd *ServerInstance;
 	std::map<std::string, std::vector<LogStream *> > LogStreams;
 	std::vector<LogStream *> GlobalLogStreams; //holds all logstreams with a type of *
@@ -39,6 +38,7 @@ class CoreExport LogManager : public classbase
 	LogManager(InspIRCd *Instance)
 	{
 		ServerInstance = Instance;
+		Logging = false;
 	}
 
 	void CloseLogs();
