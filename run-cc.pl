@@ -25,6 +25,16 @@ my @msgfilters = (
 		}
 		die $errstr;
 	} ],
+
+	[ qr/^.* warning: / => sub {
+		my ($msg) = @_;
+		print STDERR "\e[33;1m$msg\e[0m\n";
+	} ],
+
+	[ qr/^.* error: / => sub {
+		my ($msg) = @_;
+		print STDERR "\e[31;1m$msg\e[0m\n";
+	} ],
 );
 
 my $pid;
