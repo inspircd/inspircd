@@ -52,7 +52,7 @@ BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
 	{
 		if (time(NULL) > i->second->Expiry)
 		{
-			ServerInstance->Log(DEBUG, "Hit on " + ip + " is out of date, removing!");
+			ServerInstance->Logs->Log("BANCACHE", DEBUG, "Hit on " + ip + " is out of date, removing!");
 			RemoveHit(i->second);
 			return NULL; // out of date
 		}
@@ -73,7 +73,7 @@ bool BanCacheManager::RemoveHit(BanCacheHit *b)
 	if (i == this->BanHash->end())
 	{
 		// err..
-		ServerInstance->Log(DEBUG, "BanCacheManager::RemoveHit(): I got asked to remove a hit that wasn't in the hash(?)");
+		ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveHit(): I got asked to remove a hit that wasn't in the hash(?)");
 	}
 	else
 	{
@@ -91,9 +91,9 @@ unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positi
 	BanCacheHash::iterator safei;
 
 	if (positive)
-		ServerInstance->Log(DEBUG, "BanCacheManager::RemoveEntries(): Removing positive hits for " + type);
+		ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing positive hits for " + type);
 	else
-		ServerInstance->Log(DEBUG, "BanCacheManager::RemoveEntries(): Removing negative hits for " + type);
+		ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing negative hits for " + type);
 
 	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); )
 	{
@@ -108,7 +108,7 @@ unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positi
 			if ((positive && !b->Reason.empty()) || b->Reason.empty())
 			{
 				/* we need to remove this one. */
-				ServerInstance->Log(DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + b->IP);
+				ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + b->IP);
 				delete b;
 				b = NULL;
 				BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
