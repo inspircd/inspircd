@@ -389,6 +389,10 @@ class CoreExport InspIRCd : public classbase
 	/** Socket engine, handles socket activity events
 	 */
 	SocketEngine* SE;
+
+	/** LogManager handles logging.
+	 */
+	LogManager *Logs;
 	
 	/** ModuleManager contains everything related to loading/unloading
 	 * modules.
