@@ -100,7 +100,7 @@ void User::StartDNSLookup()
 	}
 	catch (CoreException& e)
 	{
-		ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
+		ServerInstance->Logs->Log("USERS", DEBUG,"Error in resolver: %s",e.GetReason());
 	}
 }
 
@@ -156,16 +156,16 @@ const char* User::FormatModes()
 
 void User::DecrementModes()
 {
-	ServerInstance->Log(DEBUG,"DecrementModes()");
+	ServerInstance->Logs->Log("USERS", DEBUG, "DecrementModes()");
 	for (unsigned char n = 'A'; n <= 'z'; n++)
 	{
 		if (modes[n-65])
 		{
-			ServerInstance->Log(DEBUG,"DecrementModes() found mode %c", n);
+			ServerInstance->Logs->Log("USERS", DEBUG,"DecrementModes() found mode %c", n);
 			ModeHandler* mh = ServerInstance->Modes->FindMode(n, MODETYPE_USER);
 			if (mh)
 			{
-				ServerInstance->Log(DEBUG,"Found handler %c and call ChangeCount", n);
+				ServerInstance->Logs->Log("USERS", DEBUG,"Found handler %c and call ChangeCount", n);
 				mh->ChangeCount(-1);
 			}
 		}
@@ -203,7 +203,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	else
 		strlcpy(uuid, uid.c_str(), UUID_LENGTH);
 
-	ServerInstance->Log(DEBUG,"New UUID for user: %s (%s)", uuid, uid.empty() ? "allocated new" : "used remote");
+	ServerInstance->Logs->Log("USERS", DEBUG,"New UUID for user: %s (%s)", uuid, uid.empty() ? "allocated new" : "used remote");
 
 	user_hash::iterator finduuid = Instance->Users->uuidlist->find(uuid);
 	if (finduuid == Instance->Users->uuidlist->end())
@@ -218,7 +218,7 @@ User::~User()
 	if (this->MyClass)
 	{
 		this->MyClass->RefCount--;
-		ServerInstance->Log(DEBUG, "User destructor -- connect refcount now: %u", this->MyClass->RefCount);
+		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %u", this->MyClass->RefCount);
 	}
 	if (this->AllowedOperCommands)
 	{
@@ -496,7 +496,7 @@ bool User::AddBuffer(std::string a)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::AddBuffer()");
+		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::AddBuffer()");
 		return false;
 	}
 }
@@ -546,7 +546,7 @@ std::string User::GetBuffer()
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::GetBuffer()");
+		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::GetBuffer()");
 		return "";
 	}
 }
@@ -568,18 +568,10 @@ void User::AddWriteBuf(const std::string &data)
 		return;
 	}
 
-	try
-	{
-		if (data.length() > MAXBUF - 2) /* MAXBUF has a value of 514, to account for line terminators */
-			sendq.append(data.substr(0,MAXBUF - 4)).append("\r\n"); /* MAXBUF-4 = 510 */
-		else
-			sendq.append(data);
-	}
-	catch (...)
-	{
-		this->SetWriteError("SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ got an exception",this->nick);
-	}
+	if (data.length() > MAXBUF - 2) /* MAXBUF has a value of 514, to account for line terminators */
+		sendq.append(data.substr(0,MAXBUF - 4)).append("\r\n"); /* MAXBUF-4 = 510 */
+	else
+		sendq.append(data);
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
@@ -629,7 +621,7 @@ void User::FlushWriteBuf()
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::FlushWriteBuf()");
+		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::FlushWriteBuf()");
 	}
 
 	if (this->sendq.empty())
@@ -640,17 +632,9 @@ void User::FlushWriteBuf()
 
 void User::SetWriteError(const std::string &error)
 {
-	try
-	{
-		// don't try to set the error twice, its already set take the first string.
-		if (this->WriteError.empty())
-			this->WriteError = error;
-	}
-
-	catch (...)
-	{
-		ServerInstance->Log(DEBUG,"Exception in User::SetWriteError()");
-	}
+	// don't try to set the error twice, its already set take the first string.
+	if (this->WriteError.empty())
+		this->WriteError = error;
 }
 
 const char* User::GetWriteError()
@@ -669,7 +653,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		this->modes[UM_OPERATOR] = 1;
 		this->WriteServ("MODE %s :+o", this->nick);
 		FOREACH_MOD(I_OnOper, OnOper(this, opertype));
-		ServerInstance->Log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
+		ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
 		strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
 		ServerInstance->Users->all_opers.push_back(this);
 
@@ -714,34 +698,26 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 
 void User::UnOper()
 {
-	try
+	if (IS_OPER(this))
 	{
-		if (IS_OPER(this))
-		{
-			// unset their oper type (what IS_OPER checks), and remove +o
-			*this->oper = 0;
-			this->modes[UM_OPERATOR] = 0;
+		// unset their oper type (what IS_OPER checks), and remove +o
+		*this->oper = 0;
+		this->modes[UM_OPERATOR] = 0;
 			
-			// remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404
-			ServerInstance->Users->all_opers.remove(this);
+		// remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404
+		ServerInstance->Users->all_opers.remove(this);
 
-			if (AllowedOperCommands)
-			{
-				delete AllowedOperCommands;
-				AllowedOperCommands = NULL;
-			}
+		if (AllowedOperCommands)
+		{
+			delete AllowedOperCommands;
+			AllowedOperCommands = NULL;
 		}
-	}
-
-	catch (...)
-	{
-		ServerInstance->Log(DEBUG,"Exception in User::UnOper()");
 	}
 }
 
 void User::QuitUser(InspIRCd* Instance, User *user, const std::string &quitreason, const char* operreason)
 {
-	Instance->Log(DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
+	Instance->Logs->Log("USERS", DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
 	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
 	user->quietquit = false;
 	user->quitmsg = quitreason;
@@ -866,8 +842,7 @@ void User::FullConnect()
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString(), this->fullname);
-
-	ServerInstance->Log(DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
+	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 }
 
@@ -877,28 +852,19 @@ void User::FullConnect()
  */
 User* User::UpdateNickHash(const char* New)
 {
-	try
-	{
-		//user_hash::iterator newnick;
-		user_hash::iterator oldnick = ServerInstance->Users->clientlist->find(this->nick);
+	//user_hash::iterator newnick;
+	user_hash::iterator oldnick = ServerInstance->Users->clientlist->find(this->nick);
 
-		if (!strcasecmp(this->nick,New))
-			return oldnick->second;
+	if (!strcasecmp(this->nick,New))
+		return oldnick->second;
 
-		if (oldnick == ServerInstance->Users->clientlist->end())
-			return NULL; /* doesnt exist */
+	if (oldnick == ServerInstance->Users->clientlist->end())
+		return NULL; /* doesnt exist */
 
-		User* olduser = oldnick->second;
-		(*(ServerInstance->Users->clientlist))[New] = olduser;
-		ServerInstance->Users->clientlist->erase(oldnick);
-		return olduser;
-	}
-
-	catch (...)
-	{
-		ServerInstance->Log(DEBUG,"Exception in User::UpdateNickHash()");
-		return NULL;
-	}
+	User* olduser = oldnick->second;
+	(*(ServerInstance->Users->clientlist))[New] = olduser;
+	ServerInstance->Users->clientlist->erase(oldnick);
+	return olduser;
 }
 
 void User::InvalidateCache()
@@ -917,54 +883,47 @@ void User::InvalidateCache()
 
 bool User::ForceNickChange(const char* newnick)
 {
-	try
+	/*
+	 * XXX this makes no sense..
+	 * why do we do nothing for change on users not REG_ALL?
+	 * why do we trigger events twice for everyone previously (and just them now)
+	 * i think the first if () needs removing totally, or? -- w00t
+	 */
+	if (this->registered != REG_ALL)
 	{
-		/*
-		 * XXX this makes no sense..
-		 * why do we do nothing for change on users not REG_ALL?
-		 * why do we trigger events twice for everyone previously (and just them now)
-		 * i think the first if () needs removing totally, or? -- w00t
-		 */
-		if (this->registered != REG_ALL)
+		int MOD_RESULT = 0;
+
+		this->InvalidateCache();
+
+		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
+
+		if (MOD_RESULT)
 		{
-			int MOD_RESULT = 0;
-
-			this->InvalidateCache();
-
-			FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
-
-			if (MOD_RESULT)
-			{
-				ServerInstance->stats->statsCollisions++;
-				return false;
-			}
-
-			if (ServerInstance->XLines->MatchesLine("Q",newnick))
-			{
-				ServerInstance->stats->statsCollisions++;
-				return false;
-			}
+			ServerInstance->stats->statsCollisions++;
+			return false;
 		}
-		else
+
+		if (ServerInstance->XLines->MatchesLine("Q",newnick))
 		{
-			std::deque<classbase*> dummy;
-			Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
-			if (nickhandler)
-			{
-				nickhandler->HandleInternal(1, dummy);
-				bool result = (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
-				nickhandler->HandleInternal(0, dummy);
-				return result;
-			}
+			ServerInstance->stats->statsCollisions++;
+			return false;
 		}
-		return false;
+	}
+	else
+	{
+		std::deque<classbase*> dummy;
+		Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
+		if (nickhandler) // wtfbbq, when would this not be here
+		{
+			nickhandler->HandleInternal(1, dummy);
+			bool result = (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
+			nickhandler->HandleInternal(0, dummy);
+			return result;
+		}
 	}
 
-	catch (...)
-	{
-		ServerInstance->Log(DEBUG,"Exception in User::ForceNickChange()");
-		return false;
-	}
+	// Unreachable.
+	return false;
 }
 
 void User::SetSockAddr(int protocol_family, const char* ip, int port)
@@ -1101,11 +1060,7 @@ void User::Write(std::string text)
 
 	try
 	{
-		/* ServerInstance->Log(DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
-		 * WARNING: The above debug line is VERY loud, do NOT
-		 * enable it till we have a good way of filtering it
-		 * out of the logs (e.g. 1.2 would be good).
-		 */
+		ServerInstance->Logs->Log("USERIO", DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
 		text.append("\r\n");
 	}
 	catch (...)
@@ -1116,11 +1071,11 @@ void User::Write(std::string text)
 
 	if (ServerInstance->Config->GetIOHook(this->GetPort()))
 	{
+		/* XXX: The lack of buffering here is NOT a bug, modules implementing this interface have to
+		 * implement their own buffering mechanisms
+		 */
 		try
 		{
-			/* XXX: The lack of buffering here is NOT a bug, modules implementing this interface have to
-			 * implement their own buffering mechanisms
-			 */
 			ServerInstance->Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, text.data(), text.length());
 		}
 		catch (CoreException& modexcept)
@@ -1236,47 +1191,39 @@ void User::WriteCommon(const char* text, ...)
 
 void User::WriteCommon(const std::string &text)
 {
-	try
+	bool sent_to_at_least_one = false;
+	char tb[MAXBUF];
+
+	if (this->registered != REG_ALL)
+		return;
+
+	uniq_id++;
+
+	/* We dont want to be doing this n times, just once */
+	snprintf(tb,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
+	std::string out = tb;
+
+	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		bool sent_to_at_least_one = false;
-		char tb[MAXBUF];
-
-		if (this->registered != REG_ALL)
-			return;
-
-		uniq_id++;
-
-		/* We dont want to be doing this n times, just once */
-		snprintf(tb,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
-		std::string out = tb;
-
-		for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
+		CUList* ulist = v->first->GetUsers();
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			CUList* ulist = v->first->GetUsers();
-			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 			{
-				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
-				{
-					already_sent[i->first->fd] = uniq_id;
-					i->first->Write(out);
-					sent_to_at_least_one = true;
-				}
+				already_sent[i->first->fd] = uniq_id;
+				i->first->Write(out);
+				sent_to_at_least_one = true;
 			}
-		}
-
-		/*
-		 * if the user was not in any channels, no users will receive the text. Make sure the user
-		 * receives their OWN message for WriteCommon
-		 */
-		if (!sent_to_at_least_one)
-		{
-			this->Write(std::string(tb));
 		}
 	}
 
-	catch (...)
+	/*
+	 * if the user was not in any channels, no users will receive the text. Make sure the user
+	 * receives their OWN message for WriteCommon
+	 */
+	if (!sent_to_at_least_one)
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::WriteCommon()");
+		this->Write(std::string(tb));
 	}
 }
 
@@ -1446,6 +1393,7 @@ bool User::ChangeDisplayedHost(const char* host)
 			return false;
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,host));
 	}
+
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("QUIT :Changing hosts");
 
@@ -1519,27 +1467,21 @@ void User::SendAll(const char* command, char* text, ...)
 
 std::string User::ChannelList(User* source)
 {
-	try
+	std::string list;
+
+	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 	{
-		std::string list;
-		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
+		/* If the target is the same as the sender, let them see all their channels.
+		 * If the channel is NOT private/secret OR the user shares a common channel
+		 * If the user is an oper, and the <options:operspywhois> option is set.
+		 */
+		if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!i->first->IsModeSet('p')) && (!i->first->IsModeSet('s'))) || (i->first->HasUser(source))))
 		{
-			/* If the target is the same as the sender, let them see all their channels.
-			 * If the channel is NOT private/secret OR the user shares a common channel
-			 * If the user is an oper, and the <options:operspywhois> option is set.
-			 */
-			if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!i->first->IsModeSet('p')) && (!i->first->IsModeSet('s'))) || (i->first->HasUser(source))))
-			{
-				list.append(i->first->GetPrefixChar(this)).append(i->first->name).append(" ");
-			}
+			list.append(i->first->GetPrefixChar(this)).append(i->first->name).append(" ");
 		}
-		return list;
 	}
-	catch (...)
-	{
-		ServerInstance->Log(DEBUG,"Exception in User::ChannelList()");
-		return "";
-	}
+
+	return list;
 }
 
 void User::SplitChanList(User* dest, const std::string &cl)
@@ -1548,42 +1490,34 @@ void User::SplitChanList(User* dest, const std::string &cl)
 	std::ostringstream prefix;
 	std::string::size_type start, pos, length;
 
-	try
+	prefix << this->nick << " " << dest->nick << " :";
+	line = prefix.str();
+	int namelen = strlen(ServerInstance->Config->ServerName) + 6;
+
+	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
 	{
-		prefix << this->nick << " " << dest->nick << " :";
-		line = prefix.str();
-		int namelen = strlen(ServerInstance->Config->ServerName) + 6;
+		length = (pos == std::string::npos) ? cl.length() : pos;
 
-		for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
-		{
-			length = (pos == std::string::npos) ? cl.length() : pos;
-
-			if (line.length() + namelen + length - start > 510)
-			{
-				ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
-				line = prefix.str();
-			}
-
-			if(pos == std::string::npos)
-			{
-				line.append(cl.substr(start, length - start));
-				break;
-			}
-			else
-			{
-				line.append(cl.substr(start, length - start + 1));
-			}
-		}
-
-		if (line.length())
+		if (line.length() + namelen + length - start > 510)
 		{
 			ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
+			line = prefix.str();
+		}
+
+		if(pos == std::string::npos)
+		{
+			line.append(cl.substr(start, length - start));
+			break;
+		}
+		else
+		{
+			line.append(cl.substr(start, length - start + 1));
 		}
 	}
 
-	catch (...)
+	if (line.length())
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::SplitChanList()");
+		ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
 	}
 }
 

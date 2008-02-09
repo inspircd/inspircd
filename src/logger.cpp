@@ -101,6 +101,18 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 	return false;
 }
 
+void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...)
+{
+	va_list a;
+	char buf[65536];
+
+	va_start(a, fmt);
+	vsnprintf(buf, 65536, fmt, a);
+	va_end(a);
+
+	this->Log(type, loglevel, std::string(buf));
+}
+
 void LogManager::Log(const std::string &type, int loglevel, const std::string &msg)
 {
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);

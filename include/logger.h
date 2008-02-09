@@ -44,6 +44,7 @@ class CoreExport LogManager : public classbase
 	bool AddLogType(const std::string &type, LogStream *l);
 	bool DelLogType(const std::string &type, LogStream *l);
 	void Log(const std::string &type, int loglevel, const std::string &msg);
+	void Log(const std::string &type, int loglevel, const char *fmt, ...);
 };
 
 #endif
