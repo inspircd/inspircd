@@ -59,7 +59,6 @@ class CommandSwhois : public Command
 		if (text)
 		{
 			// We already had it set...
-			
 			if (!ServerInstance->ULine(user->server))
 				// Ulines set SWHOISes silently
 				ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
@@ -89,6 +88,13 @@ class CommandSwhois : public Command
 		Event event((char*)metadata,(Module*)this,"send_metadata");
 		event.Send(ServerInstance);
 		delete metadata;
+		
+		// If it's an empty swhois, unset it (not ideal, but ok)
+		if (text.empty())
+		{
+			dest->Shrink("swhois");
+			delete text;
+		}
 
 		return CMD_LOCALONLY;
 	}
