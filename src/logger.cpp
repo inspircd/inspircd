@@ -55,12 +55,25 @@ bool LogManager::AddLogType(const std::string &type, LogStream *l)
 		LogStreams[type] = v;
 	}
 
+	if (type == "*")
+		GlobalLogStreams.push_back(l);
+
 	return true;
 }
 
 bool LogManager::DelLogType(const std::string &type, LogStream *l)
 {
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
+	std::vector<LogStream *>::iterator gi = GlobalLogStreams.begin();
+
+	while (gi != GlobalLogStreams.end())
+	{
+		if ((*gi) == l)
+		{
+			GlobalLogStreams.erase(gi);
+			break;
+		}
+	}
 
 	if (i != LogStreams.end())
 	{
@@ -80,6 +93,8 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 				delete l;
 				return true;
 			}
+
+			it++;
 		}
 	}
 
@@ -97,9 +112,18 @@ void LogManager::Log(const std::string &type, int loglevel, const std::string &m
 		while (it != i->second.end())
 		{
 			(*it)->OnLog(loglevel, msg);
+			it++;
 		}
 
 		return;
+	}
+
+	std::vector<LogStream *>::iterator gi = GlobalLogStreams.begin();
+
+	while (gi != GlobalLogStreams.end())
+	{
+		(*gi)->OnLog(loglevel, msg);
+		gi++;
 	}
 
 	// blurp, no handler for this type

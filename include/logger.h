@@ -16,7 +16,7 @@
 
 class CoreExport LogStream : public classbase
 {
- private:
+ protected:
 	InspIRCd *ServerInstance;
 	std::string type;
  public:
@@ -26,7 +26,7 @@ class CoreExport LogStream : public classbase
 		this->type = type;
 	}
 
-	virtual void OnLog(int loglevel, const std::string &msg);
+	virtual void OnLog(int loglevel, const std::string &msg) { }
 };
 
 class CoreExport LogManager : public classbase
@@ -34,6 +34,7 @@ class CoreExport LogManager : public classbase
  private:
 	InspIRCd *ServerInstance;
 	std::map<std::string, std::vector<LogStream *> > LogStreams;
+	std::vector<LogStream *> GlobalLogStreams; //holds all logstreams with a type of *
  public:
 	LogManager(InspIRCd *Instance)
 	{

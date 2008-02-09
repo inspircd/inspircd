@@ -88,5 +88,17 @@ class CoreExport FileLogger : public EventHandler
 	virtual ~FileLogger();
 };
 
+class CoreExport FileLogStream : public LogStream
+{
+ private:
+	FileLogger *f;
+ public:
+	FileLogStream(InspIRCd *Instance, FILE *f, const std::string &type) : LogStream(Instance, type)
+	{
+		this->f = new FileLogger(Instance, f);
+	}
+
+	virtual void OnLog(int loglevel, const std::string &msg);
+};
 
 #endif

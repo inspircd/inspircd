@@ -18,23 +18,12 @@
 #include "xline.h"
 #include "exitcodes.h"
 
-static char TIMESTR[26];
-static time_t LAST = 0;
-
 /** Log()
  *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
  *  is greater than the configured loglevel.
  */
 void InspIRCd::Log(int level, const char* text, ...)
 {
-	/* sanity check, just in case */
-	if (!this->Config || !this->Logger)
-		return;
-
-	/* Do this check again here so that we save pointless vsnprintf calls */
-	if ((level < Config->LogLevel) && !Config->forcedebug)
-		return;
-
 	va_list argsPtr;
 	char textbuffer[65536];
 
@@ -47,34 +36,8 @@ void InspIRCd::Log(int level, const char* text, ...)
 
 void InspIRCd::Log(int level, const std::string &text)
 {
-	/* sanity check, just in case */
-	if (!this->Config || !this->Logger)
-		return;
-
-	/* If we were given -debug we output all messages, regardless of configured loglevel */
-	if ((level < Config->LogLevel) && !Config->forcedebug)
-		return;
-
-	if (Time() != LAST)
-	{
-		time_t local = Time();
-		struct tm *timeinfo = localtime(&local);
-
-		strlcpy(TIMESTR,asctime(timeinfo),26);
-		TIMESTR[24] = ':';
-		LAST = Time();
-	}
-
-	if (Config->log_file && Config->writelog)
-	{
-		std::string out = std::string(TIMESTR) + " " + text.c_str() + "\n";
-		this->Logger->WriteLogLine(out);
-	}
-
-	if (Config->nofork)
-	{
-		printf("%s %s\n", TIMESTR, text.c_str());
-	}
+	this->Logs->Log("WARNING", DEFAULT, "Deprecated call to InspIRCd::Log()! - log message follows");
+	this->Logs->Log("DEPRECATED", level, text);
 }
 
 std::string InspIRCd::GetServerDescription(const char* servername)
@@ -358,11 +321,11 @@ bool InspIRCd::OpenLog(char**, int)
 
 	if (!Config->log_file)
 	{
-		this->Logger = NULL;
 		return false;
 	}
 
-	this->Logger = new FileLogger(this, Config->log_file);
+	FileLogStream *f = new FileLogStream(this, Config->log_file, "*");
+	this->Logs->AddLogType("*", f);
 	return true;
 }
 

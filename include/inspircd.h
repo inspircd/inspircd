@@ -304,10 +304,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	socklen_t length;
 
-	/** Nonblocking file writer
-	 */
-	FileLogger* Logger;
-
 	/** Time offset in seconds
 	 * This offset is added to all calls to Time(). Use SetTimeDelta() to update
 	 */

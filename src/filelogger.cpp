@@ -101,3 +101,38 @@ FileLogger::~FileLogger()
 	this->Close();
 }
 
+
+void FileLogStream::OnLog(int loglevel, const std::string &text)
+{
+	static char TIMESTR[26];
+	static time_t LAST = 0;
+
+	/* sanity check, just in case */
+	if (!ServerInstance->Config)
+		return;
+
+	/* If we were given -debug we output all messages, regardless of configured loglevel */
+	if ((loglevel < ServerInstance->Config->LogLevel) && !ServerInstance->Config->forcedebug)
+		return;
+
+	if (ServerInstance->Time() != LAST)
+	{
+		time_t local = ServerInstance->Time();
+		struct tm *timeinfo = localtime(&local);
+
+		strlcpy(TIMESTR,asctime(timeinfo),26);
+		TIMESTR[24] = ':';
+		LAST = ServerInstance->Time();
+	}
+
+	if (ServerInstance->Config->log_file && ServerInstance->Config->writelog)
+	{
+		std::string out = std::string(TIMESTR) + " " + text.c_str() + "\n";
+		this->f->WriteLogLine(out);
+	}
+
+	if (ServerInstance->Config->nofork)
+	{
+		printf("%s %s\n", TIMESTR, text.c_str());
+	}
+}
