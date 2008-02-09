@@ -42,6 +42,30 @@
  * 
  */
 
+void LogManager::CloseLogs()
+{
+	/*
+	 * This doesn't remove logstreams from the map/vector etc, because if this is called, shit is hitting the fan
+	 * and we're going down anyway - this just provides a "nice" way for logstreams to clean up. -- w
+	 */
+	std::map<std::string, std::vector<LogStream *> >::iterator i;
+
+	while (LogStreams.begin() != LogStreams.end())
+	{
+		i = LogStreams.begin();
+
+		while (i->second.begin() != i->second.end())
+		{
+			std::vector<LogStream *>::iterator it = i->second.begin();
+
+			delete (*it);
+			i->second.erase(it);
+		}
+
+		LogStreams.erase(i);
+	}
+}
+
 bool LogManager::AddLogType(const std::string &type, LogStream *l)
 {
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);

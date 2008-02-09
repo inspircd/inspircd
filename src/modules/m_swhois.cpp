@@ -90,7 +90,7 @@ class CommandSwhois : public Command
 		delete metadata;
 		
 		// If it's an empty swhois, unset it (not ideal, but ok)
-		if (text.empty())
+		if (text->empty())
 		{
 			dest->Shrink("swhois");
 			delete text;

@@ -103,7 +103,7 @@ void InspIRCd::Cleanup()
 	}
 
 	/* Close logging */
-	// XXX we need to add a method to terminate all logstreams.
+	this->Logs->CloseLogs();
 
 	/* Cleanup Server Names */
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
@@ -176,11 +176,6 @@ void InspIRCd::RehashUsersAndChans()
 		this->chanlist->insert(*n);
 
 	delete old_chans;
-}
-
-void InspIRCd::CloseLog()
-{
-	// XXX add a method to terminate all logstreams.
 }
 
 void InspIRCd::SetSignals()

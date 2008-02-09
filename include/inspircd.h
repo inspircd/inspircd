@@ -558,10 +558,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	bool OpenLog(char** argv, int argc);
 
-	/** Close the currently open log file
-	 */
-	void CloseLog();
-
 	/** Return true if a channel name is valid
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid

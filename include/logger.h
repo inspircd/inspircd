@@ -41,6 +41,7 @@ class CoreExport LogManager : public classbase
 		ServerInstance = Instance;
 	}
 
+	void CloseLogs();
 	bool AddLogType(const std::string &type, LogStream *l);
 	bool DelLogType(const std::string &type, LogStream *l);
 	void Log(const std::string &type, int loglevel, const std::string &msg);
