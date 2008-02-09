@@ -98,6 +98,11 @@ class CoreExport FileLogStream : public LogStream
 		this->f = new FileLogger(Instance, f);
 	}
 
+	~FileLogStream()
+	{
+		delete this->f;
+	}
+
 	virtual void OnLog(int loglevel, const std::string &msg);
 };
 
