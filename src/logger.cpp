@@ -41,3 +41,69 @@
  *       can we accomplish this easily? I guess with a map of pre-loved logpaths, and a pointer of FILE *..
  * 
  */
+
+bool LogManager::AddLogType(const std::string &type, LogStream *l)
+{
+	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
+
+	if (i != LogStreams.end())
+		i->second.push_back(l);
+	else
+	{
+		std::vector<LogStream *> v;
+		v.push_back(l);
+		LogStreams[type] = v;
+	}
+
+	return true;
+}
+
+bool LogManager::DelLogType(const std::string &type, LogStream *l)
+{
+	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
+
+	if (i != LogStreams.end())
+	{
+		std::vector<LogStream *>::iterator it = i->second.begin();
+
+		while (it != i->second.end())
+		{
+			if (*it == l)
+			{
+				i->second.erase(it);
+
+				if (i->second.size() == 0)
+				{
+					LogStreams.erase(i);
+				}
+
+				delete l;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void LogManager::Log(const std::string &type, int loglevel, const std::string &msg)
+{
+	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
+
+	if (i != LogStreams.end())
+	{
+		std::vector<LogStream *>::iterator it = i->second.begin();
+
+		while (it != i->second.end())
+		{
+			(*it)->OnLog(loglevel, msg);
+		}
+
+		return;
+	}
+
+	// blurp, no handler for this type
+	return;
+}
+
+

@@ -11,3 +11,38 @@
  * ---------------------------------------------------
  */
 
+#ifndef __LOGMANAGER_H
+#define __LOGMANAGER_H
+
+class CoreExport LogStream : public classbase
+{
+ private:
+	InspIRCd *ServerInstance;
+	std::string type;
+ public:
+	LogStream(InspIRCd *Instance, const std::string &type)
+	{
+		this->ServerInstance = Instance;
+		this->type = type;
+	}
+
+	virtual void OnLog(int loglevel, const std::string &msg);
+};
+
+class CoreExport LogManager : public classbase
+{
+ private:
+	InspIRCd *ServerInstance;
+	std::map<std::string, std::vector<LogStream *> > LogStreams;
+ public:
+	LogManager(InspIRCd *Instance)
+	{
+		ServerInstance = Instance;
+	}
+
+	bool AddLogType(const std::string &type, LogStream *l);
+	bool DelLogType(const std::string &type, LogStream *l);
+	void Log(const std::string &type, int loglevel, const std::string &msg);
+};
+
+#endif

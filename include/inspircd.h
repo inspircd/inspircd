@@ -29,9 +29,6 @@
 #include <time.h>
 #include <stdarg.h>
 
-
-//#include <string>
-//#include <sstream>
 #include "inspircd_config.h"
 #include "uid.h"
 #include "users.h"
@@ -39,6 +36,7 @@
 #include "timer.h"
 #include "hashcomp.h"
 #include "typedefs.h"
+#include "logger.h"
 #include "usermanager.h"
 #include "socket.h"
 #include "ctables.h"
@@ -49,7 +47,6 @@
 #include "cull_list.h"
 #include "filelogger.h"
 #include "caller.h"
-//#include "inspsocket.h"
 #include "modules.h"
 #include "configreader.h"
 #include "inspstring.h"
