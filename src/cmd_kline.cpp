@@ -33,14 +33,9 @@ CmdResult cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
-		if (!strchr(parameters[0],'@'))
-		{       
-			user->WriteServ("NOTICE %s :*** K-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
-			return CMD_FAILURE;
-		}
-		else if (strchr(parameters[0],'!'))
+		if (strchr(parameters[0],'!'))
 		{
-			user->WriteServ("NOTICE %s :*** K-Line cannot contain a nickname!",user->nick);
+			user->WriteServ("NOTICE %s :*** K-Line cannot operate on nick!user@host masks",user->nick);
 			return CMD_FAILURE;
 		}
 

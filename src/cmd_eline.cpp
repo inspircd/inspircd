@@ -33,12 +33,6 @@ CmdResult cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
-		if (!strchr(parameters[0],'@'))
-		{
-			user->WriteServ("NOTICE %s :*** E-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
-			return CMD_FAILURE;
-		}
-
 		long duration = ServerInstance->Duration(parameters[1]);
 		if (ServerInstance->XLines->add_eline(duration,user->nick,parameters[2],parameters[0]))
 		{
