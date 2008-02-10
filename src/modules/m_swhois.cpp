@@ -38,12 +38,6 @@ class CommandSwhois : public Command
 			return CMD_FAILURE;
 		}
 
-		if (!*parameters[1])
-		{
-			user->WriteServ("NOTICE %s :*** SWHOIS: Whois line must be specified", user->nick);
-			return CMD_FAILURE;
-		}
-		
 		std::string line;
 		for (int i = 1; i < pcnt; i++)
 		{
