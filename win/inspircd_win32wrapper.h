@@ -23,6 +23,9 @@
 #define WINDOWS 1
 #define ENABLE_CRASHDUMPS 0
 
+/* This defaults to 64, way too small for an ircd! */
+#define FD_SETSIZE 12000
+
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
