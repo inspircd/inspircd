@@ -46,9 +46,11 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="echo Compiling commands... &amp;&amp; cd ..\src &amp;&amp; nmake -f commands.mak &amp;&amp; echo Compiling modules... &amp;&amp; cd modules &amp;&amp; nmake -f modules.mak"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="&quot;$(InputDir)\configure.exe&quot;"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -95,9 +97,11 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="echo Compiling commands... &amp;&amp; cd ..\src &amp;&amp; nmake -f commands.mak &amp;&amp; echo Compiling modules... &amp;&amp; cd modules &amp;&amp; nmake -f modules.mak"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="&quot;$(InputDir)\configure.exe&quot;"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -177,6 +181,9 @@
 			</File>
 			<File
 				RelativePath="..\src\socketengine_iocp.cpp">
+			</File>
+			<File
+				RelativePath="..\src\socketengine_select.cpp">
 			</File>
 			<File
 				RelativePath="..\src\timer.cpp">
@@ -288,6 +295,9 @@
 			</File>
 			<File
 				RelativePath="..\include\socketengine_iocp.h">
+			</File>
+			<File
+				RelativePath="..\include\socketengine_select.h">
 			</File>
 			<File
 				RelativePath="..\include\timer.h">

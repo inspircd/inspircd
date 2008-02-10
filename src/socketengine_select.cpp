@@ -12,7 +12,9 @@
  */
 
 #include "inspircd.h"
+#ifndef WIN32
 #include <sys/select.h>
+#endif
 #include "socketengine_select.h"
 
 
@@ -131,7 +133,7 @@ int SelectEngine::DispatchEvents()
 			{
 				if (ev[i])
 				{
-					if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+					if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
 						errcode = errno;
 
 					ev[i]->HandleEvent(EVENT_ERROR, errcode);
