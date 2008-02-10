@@ -40,11 +40,11 @@ debug:
 	@echo "*      experiencing problems.       *"
 	@echo "*                                   *"
 	@echo "*************************************"
-	${MAKE} -C . 'FLAGS=${DEBUG}' 'NICEFLAGS=${NICEDEBUG}' all
+	@${MAKE} -C . 'FLAGS=${DEBUG}' 'NICEFLAGS=${NICEDEBUG}' all
 
 mods:
 	@echo "Making modules..."
-	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
+	@${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
 
 # Make this depend on 'ircd' and 'mods', so its always output last even with -j
 finishmessage: ircd mods
@@ -65,7 +65,7 @@ ircd:
 	@echo "*   http://www.inspircd.org/wiki    *"
 	@echo "*  while you wait for make to run?  *"
 	@echo "*************************************"
-	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
+	@${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install: all@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BASE)
@@ -85,7 +85,7 @@ install: all@EXTRA_DIR@
 	@echo "*************************************"
 
 module:
-	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) ${name}
+	@${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) ${name}
 
 clean:
 	@echo Cleaning...

@@ -16,6 +16,8 @@ use POSIX ();
 
 # The subs are passed the message, and anything the regex captured.
 
+my $cc = shift(@ARGV);
+
 my @msgfilters = (
 	[ qr/^(.*) warning: cannot pass objects of non-POD type `(.*)' through `\.\.\.'; call will abort at runtime/ => sub {
 		my ($msg, $where, $type) = @_;
@@ -33,6 +35,7 @@ my @msgfilters = (
 
 	[ qr/^.* error: / => sub {
 		my ($msg) = @_;
+		print STDERR "An error occured when executing:\e[37;1m $cc " . join(' ', @ARGV) . "\n";
 		print STDERR "\e[31;1m$msg\e[0m\n";
 	} ],
 );
@@ -41,7 +44,15 @@ my $pid;
 
 my ($r_stderr, $w_stderr);
 
-my $cc = shift(@ARGV);
+my $name = "";
+
+foreach my $n (@ARGV)
+{
+	if ($n =~ /\.cpp$/)
+	{
+		$name = $n;
+	}
+}
 
 if (!defined($cc) || $cc eq "") {
 	die "Compiler not specified!\n";
@@ -54,6 +65,9 @@ $pid = fork;
 die "Cannot fork to start gcc! $!\n" unless defined($pid);
 
 if ($pid) {
+
+	print "\t\e[1;32mBUILD:\e[0m\t\t$name\n" unless $name eq "";
+
 	my $fail = 0;
 	# Parent - Close child-side pipes.
 	close $w_stderr;
