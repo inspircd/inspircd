@@ -29,7 +29,18 @@ CmdResult cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
-		IdentHostPair ih = ServerInstance->XLines->IdentSplit(parameters[0]);
+		IdentHostPair ih;
+		userrec* find = ServerInstance->FindNick(parameters[0]);
+		if (find)
+		{
+			std::string c = std::string("*@") + find->GetIPString();
+			ih.first = "*";
+			ih.second = find->GetIPString();
+			parameters[0] = c.c_str();
+		}
+		else
+			ih = ServerInstance->XLines->IdentSplit(parameters[0]);
+
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
