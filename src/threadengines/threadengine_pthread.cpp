@@ -36,14 +36,17 @@ void PThreadEngine::Create(Thread* thread_to_init)
 {
 	pthread_attr_t attribs;
 	pthread_attr_init(&attribs);
-	if (pthread_create(&this->MyPThread,
-				&attribs,
-				PThreadEngine::Entry,
-				(void*)this) != 0)
+	pthread_t* MyPThread = new pthread_t;
+
+	if (pthread_create(MyPThread, &attribs, PThreadEngine::Entry, (void*)this) != 0)
 	{
+		delete MyPThread;
 		throw CoreException("Unable to create new PThreadEngine: " + std::string(strerror(errno)));
 	}
+
 	NewThread = thread_to_init;
+	NewThread->Creator = this;
+	NewThread->Extend("pthread", MyPThread);
 }
 
 PThreadEngine::~PThreadEngine()
@@ -53,9 +56,6 @@ PThreadEngine::~PThreadEngine()
 
 void PThreadEngine::Run()
 {
-	/* This is a factory function that will create a class of type 'Thread'. The class of type Thread just
-	 * takes an InspIRCd* pointer and a ThreadEngine* pointer in its ctor (so it can easily use the Mutex
-	 * methods etc) and runs asyncronously of the ircd. */
 	NewThread->Run();
 }
 
@@ -74,5 +74,14 @@ void* PThreadEngine::Entry(void* parameter)
 	ThreadEngine * pt = (ThreadEngine*)parameter;
 	pt->Run();
 	return NULL;
+}
+
+void PThreadEngine::FreeThread(Thread* thread)
+{
+	pthread_t* pthread = NULL;
+	if (thread->GetExt("pthread", pthread))
+	{
+		delete pthread;
+	}
 }
 

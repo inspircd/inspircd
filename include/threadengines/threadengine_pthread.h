@@ -23,10 +23,6 @@ class InspIRCd;
 
 class CoreExport PThreadEngine : public ThreadEngine
 {
- private:
-
-	 pthread_t MyPThread;
-
  public:
 
 	PThreadEngine(InspIRCd* Instance);
@@ -40,6 +36,8 @@ class CoreExport PThreadEngine : public ThreadEngine
 	static void* Entry(void* parameter);
 
 	void Create(Thread* thread_to_init);
+
+	void FreeThread(Thread* thread);
 };
 
 #endif

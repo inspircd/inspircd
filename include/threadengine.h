@@ -21,14 +21,8 @@
 #include "base.h"
 
 class InspIRCd;
+class Thread;
 
-class CoreExport Thread : public Extensible
-{
- public:
-	Thread() { };
-	virtual ~Thread() { };
-	virtual void Run() = 0;
-};
 
 class CoreExport ThreadEngine : public Extensible
 {
@@ -48,6 +42,30 @@ class CoreExport ThreadEngine : public Extensible
 	virtual void Run() = 0;
 
 	virtual void Create(Thread* thread_to_init) = 0;
+
+	virtual void FreeThread(Thread* thread) = 0;
 };
 
+class CoreExport Thread : public Extensible
+{
+ public:
+
+	ThreadEngine* Creator;
+
+	Thread() : Creator(NULL)
+	{
+	}
+
+	virtual ~Thread()
+	{
+		if (Creator)
+			Creator->FreeThread(this);
+	}
+
+	virtual void Run() = 0;
+};
+
+
+
 #endif
+
