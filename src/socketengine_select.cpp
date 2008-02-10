@@ -12,7 +12,7 @@
  */
 
 #include "inspircd.h"
-#ifndef WIN32
+#ifndef WINDOWS
 #include <sys/select.h>
 #endif
 #include "socketengine_select.h"
