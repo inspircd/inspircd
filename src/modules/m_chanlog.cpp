@@ -42,7 +42,6 @@ class ChannelLogStream : public LogStream
 class ModuleChanLog : public Module
 {
  private:
-	InspIRCd *ServerInstance;
 	ChannelLogStream *l;
  public:
 	ModuleChanLog(InspIRCd* Me) : Module(Me)
