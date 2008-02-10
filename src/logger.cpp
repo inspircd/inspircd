@@ -15,6 +15,8 @@
 
 #include "inspircd.h"
 
+#include "filelogger.h"
+
 /*
  * Suggested implementation...
  *	class LogManager
@@ -42,6 +44,61 @@
  * 
  */
 
+void LogManager::OpenFileLogs()
+{
+	ConfigReader* Conf = new ConfigReader(ServerInstance);
+	std::map<std::string, FileWriter*> logmap;
+	std::map<std::string, FileWriter*>::iterator i;
+	for (int index = 0; index < Conf->Enumerate("log"); ++index)
+	{
+		std::string method = Conf->ReadValue("log", "method", index);
+		if (method != "file") continue;
+		std::string type = Conf->ReadValue("log", "type", index);
+		std::string level = Conf->ReadValue("log", "level", index);
+		int loglevel = DEFAULT;
+		if (level == "debug")
+		{
+			loglevel = DEBUG;
+			ServerInstance->Config->debugging = true;
+		}
+		else if (level == "verbose")
+		{
+			loglevel = VERBOSE;
+		}
+		else if (level == "default")
+		{
+			loglevel = DEFAULT;
+		}
+		else if (level == "sparse")
+		{
+			loglevel = SPARSE;
+		}
+		else if (level == "none")
+		{
+			loglevel = NONE;
+		}
+		FileWriter* fw;
+		std::string target = Conf->ReadValue("log", "target", index);
+		if ((i = logmap.find(target)) == logmap.end())
+		{
+			FILE* f = fopen(target.c_str(), "a");
+			fw = new FileWriter(ServerInstance, f);
+			logmap.insert(std::make_pair(target, fw));
+		}
+		else
+		{
+			fw = i->second;
+		}
+		FileLogStream* fls = new FileLogStream(ServerInstance, loglevel, fw);
+		irc::commasepstream css(type);
+		std::string tok;
+		while (css.GetToken(tok))
+		{
+			AddLogType(tok, fls);
+		}
+	}
+}
+
 void LogManager::CloseLogs()
 {
 	/*
@@ -64,6 +121,12 @@ void LogManager::CloseLogs()
 
 		LogStreams.erase(i);
 	}
+	/* Now close FileLoggers, for those logstreams that neglected to properly free their stuff. */
+	for (FileLogMap::iterator i = FileLogs.begin(); i != FileLogs.end(); ++i)
+	{
+		delete i->first;
+	}
+	FileLogMap().swap(FileLogs); /* Swap with empty map to clear */
 }
 
 bool LogManager::AddLogType(const std::string &type, LogStream *l)
@@ -169,6 +232,89 @@ void LogManager::Log(const std::string &type, int loglevel, const std::string &m
 	}
 
 	Logging = false;
+}
+
+
+FileWriter::FileWriter(InspIRCd* Instance, FILE* logfile)
+: ServerInstance(Instance), log(logfile), writeops(0)
+{
+	if (log)
+	{
+		Instance->SE->NonBlocking(fileno(log));
+		SetFd(fileno(log));
+		buffer.clear();
+	}
+}
+
+bool FileWriter::Readable()
+{
+	return false;
+}
+    
+void FileWriter::HandleEvent(EventType, int)
+{
+	WriteLogLine("");
+	if (log)
+		ServerInstance->SE->DelFd(this);
+}
+
+void FileWriter::WriteLogLine(const std::string &line)
+{
+	if (line.length())
+		buffer.append(line);
+
+	if (log)
+	{
+		int written = fprintf(log,"%s",buffer.c_str());
+#ifdef WINDOWS
+		buffer.clear();
+#else
+		if ((written >= 0) && (written < (int)buffer.length()))
+		{
+			buffer.erase(0, buffer.length());
+			ServerInstance->SE->AddFd(this);
+		}
+		else if (written == -1)
+		{
+			if (errno == EAGAIN)
+				ServerInstance->SE->AddFd(this);
+		}
+		else
+		{
+			/* Wrote the whole buffer, and no need for write callback */
+			buffer.clear();
+		}
+#endif
+		if (writeops++ % 20)
+		{
+			fflush(log);
+		}
+	}
+}
+
+void FileWriter::Close()
+{
+	if (log)
+	{
+		ServerInstance->SE->Blocking(fileno(log));
+
+		if (buffer.size())
+			fprintf(log,"%s",buffer.c_str());
+
+#ifndef WINDOWS
+		ServerInstance->SE->DelFd(this);
+#endif
+
+		fflush(log);
+		fclose(log);
+	}
+
+	buffer.clear();
+}
+
+FileWriter::~FileWriter()
+{
+	this->Close();
 }
 
 
