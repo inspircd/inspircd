@@ -122,7 +122,7 @@ void Snomask::Flush()
 	if (this->LastMessage.empty())
 		return;
 
-	ServerInstance->Log(DEBUG, "Flusing snomask %s", this->Description.c_str());
+	ServerInstance->Logs->Log("SNOMASK", DEBUG, "Flushing snomask %s", this->Description.c_str());
 
 	/* Only opers can receive snotices, so we iterate the oper list */
 	for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)

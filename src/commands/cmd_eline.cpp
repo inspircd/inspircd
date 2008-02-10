@@ -39,12 +39,6 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
-		if (!strchr(parameters[0],'@'))
-		{
-			user->WriteServ("NOTICE %s :*** E-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
-			return CMD_FAILURE;
-		}
-
 		long duration = ServerInstance->Duration(parameters[1]);
 
 		ELine* el = new ELine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
