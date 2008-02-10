@@ -1542,14 +1542,17 @@ sub write_dynamic_makefile
 						}
 					elsif ($line =~ /\/\* \$If: (\w+) \*\//i)
 					{
-						if (($config{$1} !~ /y/i) and ($config{$1} ne "1"))
+						if (defined $config{$1})
 						{
-							# Skip to 'endif'
-							while (defined($line = <CPP>))
+							if (($config{$1} !~ /y/i) and ($config{$1} ne "1"))
 							{
-								chomp($line);
-								die ("\$If buildsystem instruction within another \$If in file $dir/$name") if ($line =~ /\/\* \$If: (\w+) \*\//i);
-								last if ($line =~ /\/\* \$EndIf \*\//i);
+								# Skip to 'endif'
+								while (defined($line = <CPP>))
+								{
+									chomp($line);
+									die ("\$If buildsystem instruction within another \$If in file $dir/$name") if ($line =~ /\/\* \$If: (\w+) \*\//i);
+									last if ($line =~ /\/\* \$EndIf \*\//i);
+								}
 							}
 						}
 					}
