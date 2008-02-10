@@ -62,6 +62,7 @@ class ModuleDenyChannels : public Module
 				else
 				{
 					std::string reason = Conf->ReadValue("badchan","reason",j);
+					std::string redirect = Conf->ReadValue("badchan","redirect",j);
 
 					for (int j = 0; j < Conf->Enumerate("goodchan"); j++)
 					{
@@ -69,6 +70,13 @@ class ModuleDenyChannels : public Module
 						{
 							return 0;
 						}
+					}
+					
+					if (ServerInstance->IsChannel(redirect.c_str()))
+					{
+						user->writeserv("926 %s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick,cname,cname,redirect.c_str(), reason.c_str());
+						Channel::JoinUser(ServerInstance,user,redirect.c_str(),false,"",false,ServerInstance->Time(true));
+						return 1;
 					}
 
 					user->WriteServ("926 %s %s :Channel %s is forbidden: %s",user->nick,cname,cname,reason.c_str());
