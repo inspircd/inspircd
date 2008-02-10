@@ -74,7 +74,7 @@ class ModuleDenyChannels : public Module
 					
 					if (ServerInstance->IsChannel(redirect.c_str()))
 					{
-						user->writeserv("926 %s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick,cname,cname,redirect.c_str(), reason.c_str());
+						user->WriteServ("926 %s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick,cname,cname,redirect.c_str(), reason.c_str());
 						Channel::JoinUser(ServerInstance,user,redirect.c_str(),false,"",false,ServerInstance->Time(true));
 						return 1;
 					}
