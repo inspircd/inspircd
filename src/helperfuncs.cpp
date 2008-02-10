@@ -324,7 +324,7 @@ bool InspIRCd::OpenLog(char**, int)
 		return false;
 	}
 
-	FileLogStream *f = new FileLogStream(this, Config->log_file, "*");
+	FileLogStream *f = new FileLogStream(this, Config->log_file);
 	this->Logs->AddLogType("*", f);
 	return true;
 }
