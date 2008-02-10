@@ -1047,7 +1047,7 @@ our $SHARED = "";
 
 sub getosflags {
 
-	$config{LDLIBS} = "-lstdc++";
+	$config{LDLIBS} = "-pthread -lstdc++";
 	$config{FLAGS}  = "-fPIC -Wall $config{OPTIMISATI}";
 	$config{DEVELOPER} = "-fPIC -Wall -g";
 	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared" unless defined $opt_disablerpath;
@@ -1056,7 +1056,7 @@ sub getosflags {
 	if ($config{OSNAME} =~ /darwin/i) {
 		$config{FLAGS}  = "-DDARWIN -frtti -fPIC -Wall $config{OPTIMISATI}";
 		$SHARED = "-bundle -twolevel_namespace -undefined dynamic_lookup";
-		$config{LDLIBS} = "-ldl -lstdc++";
+		$config{LDLIBS} = "-ldl -pthread -lstdc++";
 	}
 
 	if ($config{OSNAME} =~ /OpenBSD/i) {
@@ -1074,7 +1074,7 @@ sub getosflags {
 	}
 
 	if ($config{OSNAME} =~ /Linux/i) {
-		$config{LDLIBS} = "-ldl -lstdc++";
+		$config{LDLIBS} = "-ldl -lstdc++ -pthread";
 		$config{FLAGS}  = "-fPIC -Wall $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
@@ -1094,7 +1094,7 @@ sub getosflags {
 		# rt = POSIX realtime extensions
 		# resolv = inet_aton only (why isnt this in nsl?!)
 		$config{MAKEPROG} = "gmake";
-		$config{LDLIBS} .= " -lsocket -lnsl -lrt -lresolv";
+		$config{LDLIBS} .= " -lsocket -lnsl -lrt -lresolv -pthread";
 		return "Solaris";
 	}
 	
