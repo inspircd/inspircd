@@ -112,7 +112,7 @@ void FileLogStream::OnLog(int loglevel, const std::string &type, const std::stri
 		return;
 
 	/* If we were given -debug we output all messages, regardless of configured loglevel */
-	if ((loglevel < ServerInstance->Config->LogLevel) && !ServerInstance->Config->forcedebug)
+	if ((loglevel < this->loglvl) && !ServerInstance->Config->forcedebug)
 		return;
 
 	if (ServerInstance->Time() != LAST)

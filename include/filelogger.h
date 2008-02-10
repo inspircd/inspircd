@@ -93,7 +93,7 @@ class CoreExport FileLogStream : public LogStream
  private:
 	FileLogger *f;
  public:
-	FileLogStream(InspIRCd *Instance, FILE *f) : LogStream(Instance)
+	FileLogStream(InspIRCd *Instance, int loglevel, FILE *f) : LogStream(Instance, loglevel)
 	{
 		this->f = new FileLogger(Instance, f);
 	}

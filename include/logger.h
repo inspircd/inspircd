@@ -18,8 +18,9 @@ class CoreExport LogStream : public classbase
 {
  protected:
 	InspIRCd *ServerInstance;
+	int loglvl;
  public:
-	LogStream(InspIRCd *Instance)
+	LogStream(InspIRCd *Instance, int loglevel) : loglvl(loglevel)
 	{
 		this->ServerInstance = Instance;
 	}
