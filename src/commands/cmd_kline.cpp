@@ -32,6 +32,8 @@ CmdResult CommandKline::Handle (const char** parameters, int pcnt, User *user)
 		{
 			ih.first = "*";
 			ih.second = find->GetIPString();
+			std::string c = std::string("*@") + find->GetIPString();
+			parameters[0] = c.c_str();
 		}
 		else
 			ih = ServerInstance->XLines->IdentSplit(parameters[0]);

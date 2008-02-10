@@ -32,6 +32,13 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 			return CMD_FAILURE;
 		}
 
+		User *u = ServerInstance->FindNick(parameters[0]);
+		
+		if (u)
+		{
+			parameters[0] = u->GetIPString();
+		}
+
 		if (ServerInstance->IPMatchesEveryone(parameters[0],user))
 			return CMD_FAILURE;
 
