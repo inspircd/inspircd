@@ -45,11 +45,18 @@ my $pid;
 my ($r_stderr, $w_stderr);
 
 my $name = "";
+my $action = "";
 
 foreach my $n (@ARGV)
 {
 	if ($n =~ /\.cpp$/)
 	{
+		$action = "BUILD";
+		$name = $n;
+	}
+	elsif ($n !~ /\.^-c/)
+	{
+		$action = "LINK";
 		$name = $n;
 	}
 }
@@ -66,7 +73,7 @@ die "Cannot fork to start gcc! $!\n" unless defined($pid);
 
 if ($pid) {
 
-	print "\t\e[1;32mBUILD:\e[0m\t\t$name\n" unless $name eq "";
+	print "\t\e[1;32m$action:\e[0m\t\t$name\n" unless $name eq "";
 
 	my $fail = 0;
 	# Parent - Close child-side pipes.
