@@ -43,7 +43,6 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 			User* x = this->Instance->FindNick(params[0]);
 			if ((x) && (IS_LOCAL(x)))
 			{
-				User* x = this->Instance->FindNick(params[0]);
 				char signon[MAXBUF];
 				char idle[MAXBUF];
 				snprintf(signon, MAXBUF, "%lu", (unsigned long)x->signon);

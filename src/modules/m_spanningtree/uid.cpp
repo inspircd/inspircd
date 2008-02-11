@@ -43,7 +43,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		return true;
 	}
 
-	time_t age = ConvToInt(params[1]);
+	time_t age_t = ConvToInt(params[1]);
 	time_t signon = ConvToInt(params[8]);
 	const char* tempnick = params[2].c_str();
 	std::string empty;
@@ -60,7 +60,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	}
 
 	/* Check parameters for validity before introducing the client, discovered by dmb */
-	if (!age)
+	if (!age_t)
 	{
 		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
 		return true;
@@ -85,7 +85,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		 * Nick collision.
 		 */
 		Instance->Log(DEBUG,"*** Collision on %s", tempnick);
-		int collide = this->DoCollision(iter->second, age, params[5].c_str(), params[7].c_str(), params[0].c_str());
+		int collide = this->DoCollision(iter->second, age_t, params[5].c_str(), params[7].c_str(), params[0].c_str());
 
 		if (collide == 2)
 		{
@@ -117,7 +117,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	strlcpy(_new->fullname, params[9].c_str(),MAXGECOS);
 	_new->registered = REG_ALL;
 	_new->signon = signon;
-	_new->age = age;
+	_new->age = age_t;
 
 	/* we need to remove the + from the modestring, so we can do our stuff */
 	std::string::size_type pos_after_plus = params[6].find_first_not_of('+');

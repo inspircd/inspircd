@@ -116,8 +116,8 @@ class ModuleHTTPClient : public Module
 	}
 };
 
-HTTPSocket::HTTPSocket(InspIRCd *Instance, ModuleHTTPClient *Mod)
-		: BufferedSocket(Instance), Server(Instance), Mod(Mod), status(HTTP_CLOSED)
+HTTPSocket::HTTPSocket(InspIRCd *SI, ModuleHTTPClient *m)
+		: BufferedSocket(SI), Server(SI), Mod(m), status(HTTP_CLOSED)
 {
 	Instance->Log(DEBUG,"HTTPSocket::HTTPSocket");
 	this->port = 80;
@@ -139,7 +139,7 @@ HTTPSocket::~HTTPSocket()
 	}
 }
 
-bool HTTPSocket::DoRequest(HTTPClientRequest *req)
+bool HTTPSocket::DoRequest(HTTPClientRequest *request)
 {
 	Instance->Log(DEBUG,"HTTPSocket::DoRequest");
 	/* Tweak by brain - we take a copy of this,
@@ -147,7 +147,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	 * pointers knocking around, less chance of
 	 * a memory leak.
 	 */
-	this->req = *req;
+	this->req = *request;
 
 	if (!ParseURL(this->req.GetURL()))
 		return false;
@@ -298,9 +298,9 @@ bool HTTPSocket::OnConnected()
 bool HTTPSocket::OnDataReady()
 {
 	Instance->Log(DEBUG,"HTTPSocket::OnDataReady() for %s", url.url.c_str());
-	char *data = this->Read();
+	char *sdata = this->Read();
 
-	if (!data)
+	if (!sdata)
 		return false;
 
 	if (this->status < HTTP_DATA)
@@ -308,7 +308,7 @@ bool HTTPSocket::OnDataReady()
 		std::string line;
 		std::string::size_type pos;
 
-		this->buffer += data;
+		this->buffer += sdata;
 		while ((pos = buffer.find("\r\n")) != std::string::npos)
 		{
 			line = buffer.substr(0, pos);
@@ -324,10 +324,10 @@ bool HTTPSocket::OnDataReady()
 			if (this->status == HTTP_REQSENT)
 			{
 				// HTTP reply (HTTP/1.1 200 msg)
-				char const* data = line.c_str();
-				data += 9;
-				response->SetResponse(data);
-				response->SetData(data + 4);
+				char const* sdata2 = line.c_str();
+				sdata2 += 9;
+				response->SetResponse(sdata2);
+				response->SetData(sdata2 + 4);
 				this->status = HTTP_HEADERS;
 				continue;
 			}

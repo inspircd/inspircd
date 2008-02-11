@@ -27,8 +27,8 @@ class JsonException : public std::exception
  private:
 	std::string _what;
  public:
-	JsonException(const std::string &what)
-		: _what(what)
+	JsonException(const std::string &swhat)
+		: _what(swhat)
 	{
 	}
 	

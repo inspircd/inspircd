@@ -118,10 +118,10 @@ class CommandWatch : public Command
 			if (x != whos_watching_me->end())
 			{
 				/* People are watching this user, am i one of them? */
-				std::deque<User*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
-				if (n != x->second.end())
+				std::deque<User*>::iterator n2 = std::find(x->second.begin(), x->second.end(), user);
+				if (n2 != x->second.end())
 					/* I'm no longer watching you... */
-					x->second.erase(n);
+					x->second.erase(n2);
 
 				if (!x->second.size())
 					whos_watching_me->erase(nick);
@@ -231,16 +231,16 @@ class CommandWatch : public Command
 					{
 						for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
 						{
-							watchentries::iterator x = whos_watching_me->find(i->first);
-							if (x != whos_watching_me->end())
+							watchentries::iterator i2 = whos_watching_me->find(i->first);
+							if (i2 != whos_watching_me->end())
 							{
 								/* People are watching this user, am i one of them? */
-								std::deque<User*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
-								if (n != x->second.end())
+								std::deque<User*>::iterator n = std::find(i2->second.begin(), i2->second.end(), user);
+								if (n != i2->second.end())
 									/* I'm no longer watching you... */
-									x->second.erase(n);
+									i2->second.erase(n);
 
-								if (!x->second.size())
+								if (!i2->second.size())
 									whos_watching_me->erase(user->nick);
 							}
 						}
@@ -278,9 +278,9 @@ class CommandWatch : public Command
 						you_have = wl->size();
 					}
 
-					watchentries::iterator x = whos_watching_me->find(user->nick);
-					if (x != whos_watching_me->end())
-						youre_on = x->second.size();
+					watchentries::iterator i2 = whos_watching_me->find(user->nick);
+					if (i2 != whos_watching_me->end())
+						youre_on = i2->second.size();
 
 					user->WriteServ("603 %s :You have %d and are on %d WATCH entries", user->nick, you_have, youre_on);
 					user->WriteServ("606 %s :%s",user->nick, list.c_str());
@@ -353,16 +353,16 @@ class Modulewatch : public Module
 			/* Iterate every user on my watch list, and take me out of the whos_watching_me map for each one we're watching */
 			for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
 			{
-				watchentries::iterator x = whos_watching_me->find(i->first);
-				if (x != whos_watching_me->end())
+				watchentries::iterator i2 = whos_watching_me->find(i->first);
+				if (i2 != whos_watching_me->end())
 				{
 						/* People are watching this user, am i one of them? */
-						std::deque<User*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
-						if (n != x->second.end())
+						std::deque<User*>::iterator n = std::find(i2->second.begin(), i2->second.end(), user);
+						if (n != i2->second.end())
 							/* I'm no longer watching you... */
-							x->second.erase(n);
+							i2->second.erase(n);
 	
-						if (!x->second.size())
+						if (!i2->second.size())
 							whos_watching_me->erase(user->nick);
 				}
 			}

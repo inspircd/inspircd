@@ -95,30 +95,30 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	return password;
 }
 
-std::string TreeSocket::RandString(unsigned int length)
+std::string TreeSocket::RandString(unsigned int ilength)
 {
-	char* randombuf = new char[length+1];
+	char* randombuf = new char[ilength+1];
 	std::string out;
 #ifdef WINDOWS
-	int fd = -1;
+	int f = -1;
 #else
-	int fd = open("/dev/urandom", O_RDONLY, 0);
+	int f = open("/dev/urandom", O_RDONLY, 0);
 #endif
 
-	if (fd >= 0)
+	if (f >= 0)
 	{
 #ifndef WINDOWS
-		read(fd, randombuf, length);
-		close(fd);
+		read(f, randombuf, ilength);
+		close(f);
 #endif
 	}
 	else
 	{
-		for (unsigned int i = 0; i < length; i++)
+		for (unsigned int i = 0; i < ilength; i++)
 			randombuf[i] = rand();
 	}
 
-	for (unsigned int i = 0; i < length; i++)
+	for (unsigned int i = 0; i < ilength; i++)
 	{
 		char randchar = static_cast<char>((randombuf[i] & 0x7F) | 0x21);
 		out += (randchar == '=' ? '_' : randchar);

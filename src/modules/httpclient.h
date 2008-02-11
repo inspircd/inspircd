@@ -35,8 +35,8 @@ class HTTPClientRequest : public Request
 	Module *src;
 	HeaderMap Headers;
  public:
-	HTTPClientRequest(InspIRCd *Instance, Module *src, Module* target, const std::string &url)
-		: Request(src, target, HTTP_CLIENT_REQUEST), url(url), Instance(Instance), src(src)
+	HTTPClientRequest(InspIRCd *SI, Module *m, Module* target, const std::string &surl)
+		: Request(m, target, HTTP_CLIENT_REQUEST), url(surl), Instance(SI), src(m)
 	{
 		Headers["User-Agent"] = "InspIRCd (m_http_client.so)";
 		Headers["Connection"] = "Close";
@@ -52,9 +52,9 @@ class HTTPClientRequest : public Request
 		return url;
 	}
 
-	void AddHeader(std::string &header, std::string &data)
+	void AddHeader(std::string &header, std::string &sdata)
 	{
-		Headers[header] = data;
+		Headers[header] = sdata;
 	}
 	
 	void DeleteHeader(std::string &header)
@@ -77,8 +77,8 @@ class HTTPClientError : public Request
 	std::string responsestr;
 	HeaderMap Headers;
  public:
-	HTTPClientError(Module* src, Module* target, const std::string &url, int response)
-		: Request(src, target, HTTP_CLIENT_ERROR), url(url), response(response)
+	HTTPClientError(Module* src, Module* target, const std::string &surl, int iresponse)
+		: Request(src, target, HTTP_CLIENT_ERROR), url(surl), response(iresponse)
 	{
 	}
 
@@ -99,8 +99,8 @@ class HTTPClientResponse : public Request
 	std::string responsestr;
 	HeaderMap Headers;
  public:
-	HTTPClientResponse(Module* src, Module* target, std::string &url, int response, std::string responsestr)
-		: Request(src, target, HTTP_CLIENT_RESPONSE), url(url), response(response), responsestr(responsestr)
+	HTTPClientResponse(Module* src, Module* target, std::string &surl, int iresponse, std::string sresponsestr)
+		: Request(src, target, HTTP_CLIENT_RESPONSE), url(surl), response(iresponse), responsestr(sresponsestr)
 	{
 	}
 
@@ -113,9 +113,9 @@ class HTTPClientResponse : public Request
 		data = ndata;
 	}
 	
-	void AddHeader(const std::string &header, const std::string &data)
+	void AddHeader(const std::string &header, const std::string &sdata)
 	{
-		Headers[header] = data;
+		Headers[header] = sdata;
 	}
 	
 	const std::string &GetURL()

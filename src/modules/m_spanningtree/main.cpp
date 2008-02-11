@@ -760,14 +760,14 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 	}
 }
 
-void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
+void ModuleSpanningTree::OnAddLine(XLine* x, User* user)
 {
-	if (line->type == "K")
+	if (x->type == "K")
 		return;
 
 	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", line->type.c_str(), line->Displayable(), 
-	ServerInstance->Config->ServerName, (unsigned long)line->set_time, (unsigned long)line->duration, line->reason);
+	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(), 
+	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason);
 	std::deque<std::string> params;
 	params.push_back(data);
 
@@ -783,13 +783,13 @@ void ModuleSpanningTree::OnAddLine(XLine* line, User* user)
 	}
 }
 
-void ModuleSpanningTree::OnDelLine(XLine* line, User* user)
+void ModuleSpanningTree::OnDelLine(XLine* x, User* user)
 {
-	if (line->type == "K")
+	if (x->type == "K")
 		return;
 
 	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s", line->type.c_str(), line->Displayable());
+	snprintf(data,MAXBUF,"%s %s", x->type.c_str(), x->Displayable());
 	std::deque<std::string> params;
 	params.push_back(data);
 
@@ -939,10 +939,10 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		}
 		else
 		{
-			Channel* a = ServerInstance->FindChan((*params)[0]);
-			if (a)
+			Channel* c = ServerInstance->FindChan((*params)[0]);
+			if (c)
 			{
-				ourTS = a->age;
+				ourTS = c->age;
 				params->insert(params->begin() + 1,ConvToStr(ourTS));
 				Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",*params);
 			}

@@ -106,11 +106,11 @@ class RPCValue : public classbase
  public:
 	RPCValue *parent;
 
-	RPCValue(RPCValue *parent = NULL) : type(RPCNull), value(NULL), parent(parent) { }
-	RPCValue(RPCValueType type, RPCValue *parent = NULL) : type(type), value(NULL), parent(parent) { InitValue(); }
-	RPCValue(bool nvalue, RPCValue *parent = NULL) : type(RPCBoolean), value((void*)nvalue), parent(parent) { }
-	RPCValue(double nvalue, RPCValue *parent = NULL) : type(RPCInteger), parent(parent) { value = new double(nvalue); }
-	RPCValue(const std::string &nvalue, RPCValue *parent = NULL) : type(RPCString), parent(parent) { value = new std::string(nvalue); }
+	RPCValue(RPCValue *rparent = NULL) : type(RPCNull), value(NULL), parent(rparent) { }
+	RPCValue(RPCValueType ttype, RPCValue *rparent = NULL) : type(ttype), value(NULL), parent(rparent) { InitValue(); }
+	RPCValue(bool nvalue, RPCValue *rparent = NULL) : type(RPCBoolean), value((void*)nvalue), parent(rparent) { }
+	RPCValue(double nvalue, RPCValue *rparent = NULL) : type(RPCInteger), parent(rparent) { value = new double(nvalue); }
+	RPCValue(const std::string &nvalue, RPCValue *rparent = NULL) : type(RPCString), parent(rparent) { value = new std::string(nvalue); }
 	
 	virtual ~RPCValue()
 	{
@@ -280,8 +280,8 @@ class RPCRequest : public classbase
 	bool claimed;
 	std::string error;
 	
-	RPCRequest(const std::string &provider, const std::string &method, RPCValue *parameters)
-		: method(method), parameters(parameters), provider(provider), claimed(false)
+	RPCRequest(const std::string &sprovider, const std::string &smethod, RPCValue *rparameters)
+		: method(smethod), parameters(rparameters), provider(sprovider), claimed(false)
 	{
 		result = new RPCValue();
 	}
