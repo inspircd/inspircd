@@ -458,7 +458,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (!this->DaemonSeed())
 		{
 			printf("ERROR: could not go into daemon mode. Shutting down.\n");
-			Log(DEFAULT,"ERROR: could not go into daemon mode. Shutting down.");
+			Logs->Log("STARTUP", DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
 			Exit(EXIT_STATUS_FORK);
 		}
 	}
@@ -527,7 +527,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if ((Config->ports.size() == 0) && (found_ports > 0))
 	{
 		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
-		Log(DEFAULT,"ERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?");
+		Logs->Log("STARTUP", DEFAULT,"ERROR: I couldn't bind any ports! Something else is bound to those ports!");
 		Exit(EXIT_STATUS_BIND);
 	}
 
@@ -547,7 +547,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			printf("Error killing parent process: %s\n",strerror(errno));
-			Log(DEFAULT,"Error killing parent process: %s",strerror(errno));
+			Logs->Log("STARTUP", DEFAULT, "Error killing parent process: %s",strerror(errno));
 		}
 	}
 
@@ -565,7 +565,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		}
 		else
 		{
-			Log(DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+			Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
 		}
 	}
 #else
@@ -578,7 +578,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 #endif
 
 	printf("\nInspIRCd is now running as '%s'[%s]\n", Config->ServerName,Config->GetSID().c_str());
-	Log(DEFAULT,"Startup complete as '%s'[%s]", Config->ServerName,Config->GetSID().c_str());
+	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s]", Config->ServerName,Config->GetSID().c_str());
 
 	this->WritePID(Config->PID);
 }
