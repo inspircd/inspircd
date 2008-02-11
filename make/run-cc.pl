@@ -18,6 +18,11 @@ use POSIX ();
 
 my $cc = shift(@ARGV);
 
+my $showncmdline = 0;
+
+# GCC's "location of error stuff", which accumulates the "In file included from" include stack
+my $location = "";
+
 my @msgfilters = (
 	[ qr/^(.*) warning: cannot pass objects of non-POD type `(.*)' through `\.\.\.'; call will abort at runtime/ => sub {
 		my ($msg, $where, $type) = @_;
@@ -28,14 +33,42 @@ my @msgfilters = (
 		die $errstr;
 	} ],
 
+	# Start of an include stack.
+	[ qr/^In file included from .*[,:]$/ => sub {
+		my ($msg) = @_;
+		$location = "$msg\n";
+	} ],
+
+	# Continuation of an include stack.
+	[ qr/^                 from .*[,:]$/ => sub {
+		my ($msg) = @_;
+		$location .= "$msg\n";
+	} ],
+
+	# A function, method, constructor, or destructor is the site of a problem
+	[ qr/In ((con|de)structor|(member )?function)/ => sub {
+		my ($msg) = @_;
+		# If a complete location string is waiting then probably we dropped an error, so drop the location for a new one.
+		if ($location =~ m/In ((con|de)structor|(member )?function)/) {
+			$location = "$msg\n";
+		} else {
+			$location .= "$msg\n";
+		}
+	} ],
+
 	[ qr/^.* warning: / => sub {
 		my ($msg) = @_;
+		print $location;
+		$location = "";
 		print STDERR "\e[33;1m$msg\e[0m\n";
 	} ],
 
 	[ qr/^.* error: / => sub {
 		my ($msg) = @_;
-		print STDERR "An error occured when executing:\e[37;1m $cc " . join(' ', @ARGV) . "\n";
+		print STDERR "An error occured when executing:\e[37;1m $cc " . join(' ', @ARGV) . "\n" unless $showncmdline;
+		$showncmdline = 1;
+		print $location;
+		$location = "";
 		print STDERR "\e[31;1m$msg\e[0m\n";
 	} ],
 );
