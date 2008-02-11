@@ -436,13 +436,14 @@ void ModuleSpanningTree::OnGetServerDescription(const std::string &servername,st
 	}
 }
 
-void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel)
+void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, time_t expiry)
 {
 	if (IS_LOCAL(source))
 	{
 		std::deque<std::string> params;
 		params.push_back(dest->uuid);
 		params.push_back(channel->name);
+		params.push_back(ConvToStr(expiry));
 		Utils->DoOneToMany(source->uuid,"INVITE",params);
 	}
 }
@@ -760,7 +761,7 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 	}
 }
 
-void ModuleSpanningTree::OnAddLine(XLine* x, User* user)
+void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 {
 	if (x->type == "K")
 		return;
@@ -783,7 +784,7 @@ void ModuleSpanningTree::OnAddLine(XLine* x, User* user)
 	}
 }
 
-void ModuleSpanningTree::OnDelLine(XLine* x, User* user)
+void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 {
 	if (x->type == "K")
 		return;

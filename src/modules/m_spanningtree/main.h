@@ -160,7 +160,7 @@ class ModuleSpanningTree : public Module
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line);
 	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
-	virtual void OnUserInvite(User* source,User* dest,Channel* channel);
+	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t);
 	virtual void OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic);
 	virtual void OnWallops(User* user, const std::string &text);
 	virtual void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
@@ -178,8 +178,8 @@ class ModuleSpanningTree : public Module
 	virtual void OnRehash(User* user, const std::string &parameter);
 	virtual void OnOper(User* user, const std::string &opertype);
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
-	virtual void OnAddLine(XLine* line, User* user);
-	virtual void OnDelLine(XLine* line, User* user);
+	virtual void OnAddLine(User *u, XLine *x);
+	virtual void OnDelLine(User *u, XLine *x);
 	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text);
 	virtual int OnStats(char statschar, User* user, string_list &results);
 	virtual void OnSetAway(User* user);
