@@ -1,3 +1,4 @@
+
 /*       +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
@@ -47,11 +48,11 @@ ModePair ModeChannelVoice::ModeSet(User*, User*, Channel* channel, const std::st
 
 void ModeChannelVoice::RemoveMode(Channel* channel)
 {
-	CUList* list = channel->GetVoicedUsers();
+	CUList* clist = channel->GetVoicedUsers();
 	CUList copy;
 	char moderemove[MAXBUF];
 
-	for (CUList::iterator i = list->begin(); i != list->end(); i++)
+	for (CUList::iterator i = clist->begin(); i != clist->end(); i++)
 	{
 		User* n = i->first;
 		copy.insert(std::make_pair(n,n->nick));

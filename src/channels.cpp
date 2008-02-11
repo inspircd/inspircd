@@ -18,14 +18,14 @@
 #include "wildcard.h"
 #include "mode.h"
 
-Channel::Channel(InspIRCd* Instance, const std::string &name, time_t ts) : ServerInstance(Instance)
+Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : ServerInstance(Instance)
 {
 	chan_hash::iterator findchan = ServerInstance->chanlist->find(name);
 	if (findchan != Instance->chanlist->end())
-		throw CoreException("Cannot create duplicate channel " + name);
+		throw CoreException("Cannot create duplicate channel " + cname);
 
-	(*(ServerInstance->chanlist))[name.c_str()] = this;
-	strlcpy(this->name, name.c_str(), CHANMAX);
+	(*(ServerInstance->chanlist))[cname.c_str()] = this;
+	strlcpy(this->name, cname.c_str(), CHANMAX);
 	this->created = ts ? ts : ServerInstance->Time(true);
 	this->age = this->created;
 

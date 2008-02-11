@@ -76,7 +76,7 @@ class HttpServerSocket : public BufferedSocket
 	
  public:
 
-	HttpServerSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : BufferedSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
+	HttpServerSocket(InspIRCd* SI, std::string shost, int iport, bool listening, unsigned long maxtime, FileReader* index_page) : BufferedSocket(SI, shost, iport, listening, maxtime), index(index_page), postsize(0)
 	{
 		InternalState = HTTP_LISTEN;
 		Timeout = NULL;
@@ -407,9 +407,9 @@ class HttpServerSocket : public BufferedSocket
 		}
 	}
 
-	void Page(std::stringstream* n, int response, HTTPHeaders *headers)
+	void Page(std::stringstream* n, int response, HTTPHeaders *hheaders)
 	{
-		SendHeaders(n->str().length(), response, *headers);
+		SendHeaders(n->str().length(), response, *hheaders);
 		this->Write(n->str());
 		
 		if (!keepalive)

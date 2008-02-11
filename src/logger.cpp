@@ -122,10 +122,11 @@ void LogManager::CloseLogs()
 		LogStreams.erase(i);
 	}
 	/* Now close FileLoggers, for those logstreams that neglected to properly free their stuff. */
-	for (FileLogMap::iterator i = FileLogs.begin(); i != FileLogs.end(); ++i)
+	for (FileLogMap::iterator it = FileLogs.begin(); it != FileLogs.end(); ++i)
 	{
-		delete i->first;
+		delete it->first;
 	}
+
 	FileLogMap().swap(FileLogs); /* Swap with empty map to clear */
 }
 

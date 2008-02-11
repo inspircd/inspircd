@@ -416,19 +416,19 @@ long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
-bool InspIRCd::ULine(const char* server)
+bool InspIRCd::ULine(const char* sserver)
 {
-	if (!server)
+	if (!sserver)
 		return false;
-	if (!*server)
+	if (!*sserver)
 		return true;
 
-	return (Config->ulines.find(server) != Config->ulines.end());
+	return (Config->ulines.find(sserver) != Config->ulines.end());
 }
 
-bool InspIRCd::SilentULine(const char* server)
+bool InspIRCd::SilentULine(const char* sserver)
 {
-	std::map<irc::string,bool>::iterator n = Config->ulines.find(server);
+	std::map<irc::string,bool>::iterator n = Config->ulines.find(sserver);
 	if (n != Config->ulines.end())
 		return n->second;
 	else return false;

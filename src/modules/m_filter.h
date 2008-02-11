@@ -36,10 +36,10 @@ class FilterResult : public classbase
 	bool flag_privmsg;
 	bool flag_notice;
 
-	FilterResult(const std::string free, const std::string &rea, const std::string &act, long gt, const std::string &fla) : freeform(free), reason(rea),
-									action(act), gline_time(gt), flags(fla)
+	FilterResult(const std::string free, const std::string &rea, const std::string &act, long gt, const std::string &fla) :
+			freeform(free), reason(rea), action(act), gline_time(gt), flags(fla)
 	{
-		this->FillFlags(flags);
+		this->FillFlags(fla);
 	}
 
 	int FillFlags(const std::string &fl)
@@ -121,9 +121,9 @@ class CommandFilter : public Command
 {
 	FilterBase* Base;
  public:
-	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &source) : Command(Me, "FILTER", 'o', 1), Base(f)
+	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource) : Command(Me, "FILTER", 'o', 1), Base(f)
 	{
-		this->source = source;
+		this->source = ssource;
 		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
 	}
 
@@ -207,17 +207,17 @@ class CommandFilter : public Command
 	}
 };
 
-bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int flags)
+bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
 	if ((filter->flag_no_opers) && IS_OPER(user))
 		return false;
-	if ((flags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
+	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
-	if ((flags & FLAG_NOTICE) && (!filter->flag_notice))
+	if ((iflags & FLAG_NOTICE) && (!filter->flag_notice))
 		return false;
-	if ((flags & FLAG_QUIT)   && (!filter->flag_quit_message))
+	if ((iflags & FLAG_QUIT)   && (!filter->flag_quit_message))
 		return false;
-	if ((flags & FLAG_PART)   && (!filter->flag_part_message))
+	if ((iflags & FLAG_PART)   && (!filter->flag_part_message))
 		return false;
 	return true;
 }

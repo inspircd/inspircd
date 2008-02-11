@@ -150,23 +150,23 @@ void CommandWhowas::AddToWhoWas(User* user)
 
 		if ((int)(whowas.size()) > ServerInstance->Config->WhoWasMaxGroups)
 		{
-			whowas_users::iterator iter = whowas.find(whowas_fifo[0].second);
-			if (iter != whowas.end())
+			whowas_users::iterator iter2 = whowas.find(whowas_fifo[0].second);
+			if (iter2 != whowas.end())
 			{
-				whowas_set* n = (whowas_set*)iter->second;
+				whowas_set* n2 = (whowas_set*)iter2->second;
 
-				if (n->size())
+				if (n2->size())
 				{
-					while (n->begin() != n->end())
+					while (n2->begin() != n2->end())
 					{
-						WhoWasGroup *a = *(n->begin());
-						delete a;
-						n->pop_front();
+						WhoWasGroup *a2 = *(n2->begin());
+						delete a2;
+						n2->pop_front();
 					}
 				}
 
-				delete n;
-				whowas.erase(iter);
+				delete n2;
+				whowas.erase(iter2);
 			}
 			whowas_fifo.pop_front();
 		}
@@ -179,8 +179,8 @@ void CommandWhowas::AddToWhoWas(User* user)
 
 		if ((int)(group->size()) > ServerInstance->Config->WhoWasGroupSize)
 		{
-			WhoWasGroup *a = (WhoWasGroup*)*(group->begin());
-			delete a;
+			WhoWasGroup *a2 = (WhoWasGroup*)*(group->begin());
+			delete a2;
 			group->pop_front();
 		}
 	}

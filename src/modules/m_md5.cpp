@@ -61,10 +61,10 @@ class ModuleMD5 : public Module
 		} while (--words);
 	}
 
-	void MD5Init(MD5Context *ctx, unsigned int* key = NULL)
+	void MD5Init(MD5Context *ctx, unsigned int* ikey = NULL)
 	{
 		/* These are the defaults for md5 */
-		if (!key)
+		if (!ikey)
 		{
 			ctx->buf[0] = 0x67452301;
 			ctx->buf[1] = 0xefcdab89;
@@ -73,10 +73,10 @@ class ModuleMD5 : public Module
 		}
 		else
 		{
-			ctx->buf[0] = key[0];
-			ctx->buf[1] = key[1];
-			ctx->buf[2] = key[2];
-			ctx->buf[3] = key[3];
+			ctx->buf[0] = ikey[0];
+			ctx->buf[1] = ikey[1];
+			ctx->buf[2] = ikey[2];
+			ctx->buf[3] = ikey[3];
 		}
 	
 		ctx->bytes[0] = 0;
@@ -236,20 +236,20 @@ class ModuleMD5 : public Module
 	}
 	
 	
-	void MyMD5(void *dest, void *orig, int len, unsigned int* key)
+	void MyMD5(void *dest, void *orig, int len, unsigned int* ikey)
 	{
 		MD5Context context;
-		MD5Init(&context, key);
+		MD5Init(&context, ikey);
 		MD5Update(&context, (const unsigned char*)orig, len);
 		MD5Final((unsigned char*)dest, &context);
 	}
 	
 	
-	void GenHash(const char* src, char* dest, const char* xtab, unsigned int* key)
+	void GenHash(const char* src, char* dest, const char* xtab, unsigned int* ikey)
 	{
 		unsigned char bytes[16];
 
-		MyMD5((char*)bytes, (void*)src, strlen(src), key);
+		MyMD5((char*)bytes, (void*)src, strlen(src), ikey);
 
 		for (int i = 0; i < 16; i++)
 		{

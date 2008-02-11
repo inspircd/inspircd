@@ -135,7 +135,7 @@ class HashSumRequest : public HashRequest
 	 * @param Target A pointer to the hashing module
 	 * @param data The data to be hashed
 	 */
-	HashSumRequest(Module* Me, Module* Target, const std::string &data) : HashRequest(Me, Target, data)
+	HashSumRequest(Module* Me, Module* Target, const std::string &sdata) : HashRequest(Me, Target, sdata)
 	{
 	}
 };
@@ -161,7 +161,7 @@ class HashKeyRequest : public HashRequest
 	 * @param data The new IV's. This should be an array of exactly four 32 bit values.
 	 * On 64-bit architectures, the upper 32 bits of the values will be discarded.
 	 */
-	HashKeyRequest(Module* Me, Module* Target, unsigned int* data) : HashRequest(Me, Target, data)
+	HashKeyRequest(Module* Me, Module* Target, unsigned int* sdata) : HashRequest(Me, Target, sdata)
 	{
 	}
 };
@@ -187,7 +187,7 @@ class HashHexRequest : public HashRequest
 	 * @param data The hex sequence to use. This should contain exactly 16 ASCII characters,
 	 * terminated by a NULL char.
 	 */
-	HashHexRequest(Module* Me, Module* Target, const char* data) : HashRequest(Me, Target, data)
+	HashHexRequest(Module* Me, Module* Target, const char* sdata) : HashRequest(Me, Target, sdata)
 	{
 	}
 };

@@ -583,11 +583,11 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	 */
 	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
 	{
-		ConnectClass* c = *item;
-		if ((*name && (c->GetName() == name)) || (*allow && (c->GetHost() == allow)) || (*deny && (c->GetHost() == deny)))
+		ConnectClass* cc = *item;
+		if ((*name && (cc->GetName() == name)) || (*allow && (cc->GetHost() == allow)) || (*deny && (cc->GetHost() == deny)))
 		{
 			/* reenable class so users can be shoved into it :P */
-			c->SetDisabled(false);
+			cc->SetDisabled(false);
 			conf->GetInstance()->Log(DEFAULT, "Not adding class, it already exists!");
 			return true;
 		} 
@@ -603,11 +603,11 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		ClassVector::iterator item = conf->Classes.begin();
 		for (; item != conf->Classes.end(); ++item)
 		{
-			ConnectClass* c = *item;
-			conf->GetInstance()->Log(DEBUG,"Class: %s", c->GetName().c_str());
-			if (c->GetName() == parent)
+			ConnectClass* cc = *item;
+			conf->GetInstance()->Log(DEBUG,"Class: %s", cc->GetName().c_str());
+			if (cc->GetName() == parent)
 			{
-				ConnectClass* newclass = new ConnectClass(name, c);
+				ConnectClass* newclass = new ConnectClass(name, cc);
 				newclass->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
 				conf->Classes.push_back(newclass);
 				break;
@@ -620,16 +620,16 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	{
 		if (*allow)
 		{
-			ConnectClass* c = new ConnectClass(name, timeout, flood, allow, pingfreq, password, hashtype, threshold, sendq, recvq, localmax, globalmax, maxchans);
-			c->limit = limit;
-			c->SetPort(port);
-			conf->Classes.push_back(c);
+			ConnectClass* cc = new ConnectClass(name, timeout, flood, allow, pingfreq, password, hashtype, threshold, sendq, recvq, localmax, globalmax, maxchans);
+			cc->limit = limit;
+			cc->SetPort(port);
+			conf->Classes.push_back(cc);
 		}
 		else
 		{
-			ConnectClass* c = new ConnectClass(name, deny);
-			c->SetPort(port);
-			conf->Classes.push_back(c);
+			ConnectClass* cc = new ConnectClass(name, deny);
+			cc->SetPort(port);
+			conf->Classes.push_back(cc);
 		}
 	}
 

@@ -178,10 +178,10 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 	int j = 0;
 	while (j < Conf.Enumerate("bind") || (!ip.empty()))
 	{
-		std::string IP = ip.empty() ? Conf.ReadValue("bind","address",j) : ip;
+		std::string sIP = ip.empty() ? Conf.ReadValue("bind","address",j) : ip;
 		if (!ip.empty() || Conf.ReadValue("bind","type",j) == "servers")
 		{
-			if (!ip.empty() || ((IP != "*") && (IP != "127.0.0.1") && (!IP.empty()) && (IP != "::1")))
+			if (!ip.empty() || ((sIP != "*") && (sIP != "127.0.0.1") && (!sIP.empty()) && (sIP != "::1")))
 			{
 				/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
 				sockaddr* s = new sockaddr[2];
@@ -189,7 +189,7 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 				if (v6)
 				{
 					in6_addr n;
-					if (inet_pton(AF_INET6, IP.c_str(), &n) > 0)
+					if (inet_pton(AF_INET6, sIP.c_str(), &n) > 0)
 					{
 						memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(sockaddr_in6));
 						((sockaddr_in6*)s)->sin6_port = 0;
@@ -207,7 +207,7 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 #endif
 				{
 					in_addr n;
-					if (inet_aton(IP.c_str(), &n) > 0)
+					if (inet_aton(sIP.c_str(), &n) > 0)
 					{
 						((sockaddr_in*)s)->sin_addr = n;
 						((sockaddr_in*)s)->sin_port = 0;

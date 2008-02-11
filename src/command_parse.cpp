@@ -354,7 +354,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		cm->second->total_bytes += cmd.length();
 
 		/* module calls too */
-		int MOD_RESULT = 0;
+		MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true,cmd));
 		if (MOD_RESULT == 1)
 			return do_more;

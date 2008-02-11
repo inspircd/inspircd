@@ -268,13 +268,13 @@ class ModuleDCCAllow : public Module
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
-		dccallowlist* dl;
+		dccallowlist* udl;
 	
 		// remove their DCCALLOW list if they have one
-		user->GetExt("dccallow_list", dl);
-		if (dl)
+		user->GetExt("dccallow_list", udl);
+		if (udl)
 		{
-			delete dl;
+			delete udl;
 			user->Shrink("dccallow_list");
 			RemoveFromUserlist(user);
 		}
@@ -389,17 +389,17 @@ class ModuleDCCAllow : public Module
 			{
 				if (dl->size())
 				{
-					dccallowlist::iterator iter = dl->begin();
-					while (iter != dl->end())
+					dccallowlist::iterator iter2 = dl->begin();
+					while (iter2 != dl->end())
 					{
-						if ((iter->set_on + iter->length) <= ServerInstance->Time())
+						if ((iter2->set_on + iter2->length) <= ServerInstance->Time())
 						{
-							u->WriteServ("997 %s %s :DCCALLOW entry for %s has expired", u->nick, u->nick, iter->nickname.c_str());
-							iter = dl->erase(iter);
+							u->WriteServ("997 %s %s :DCCALLOW entry for %s has expired", u->nick, u->nick, iter2->nickname.c_str());
+							iter2 = dl->erase(iter2);
 						}
 						else
 						{
-							++iter;
+							++iter2;
 						}
 					}
 				}

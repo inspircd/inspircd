@@ -64,9 +64,9 @@ class ModuleDenyChannels : public Module
 					std::string reason = Conf->ReadValue("badchan","reason",j);
 					std::string redirect = Conf->ReadValue("badchan","redirect",j);
 
-					for (int j = 0; j < Conf->Enumerate("goodchan"); j++)
+					for (int i = 0; i < Conf->Enumerate("goodchan"); i++)
 					{
-						if (match(cname, Conf->ReadValue("goodchan", "name", j).c_str()))
+						if (match(cname, Conf->ReadValue("goodchan", "name", i).c_str()))
 						{
 							return 0;
 						}

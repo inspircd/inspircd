@@ -88,13 +88,13 @@ void User::StartDNSLookup()
 	try
 	{
 		bool cached;
-		const char* ip = this->GetIPString();
+		const char* sip = this->GetIPString();
 
 		/* Special case for 4in6 (Have i mentioned i HATE 4in6?) */
-		if (!strncmp(ip, "0::ffff:", 8))
-			res_reverse = new UserResolver(this->ServerInstance, this, ip + 8, DNS_QUERY_PTR4, cached);
+		if (!strncmp(sip, "0::ffff:", 8))
+			res_reverse = new UserResolver(this->ServerInstance, this, sip + 8, DNS_QUERY_PTR4, cached);
 		else
-			res_reverse = new UserResolver(this->ServerInstance, this, ip, this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6, cached);
+			res_reverse = new UserResolver(this->ServerInstance, this, sip, this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6, cached);
 
 		this->ServerInstance->AddResolver(res_reverse, cached);
 	}
@@ -405,21 +405,21 @@ InvitedList* User::GetInviteList()
 	return &invites;
 }
 
-void User::InviteTo(const irc::string &channel, time_t timeout)
+void User::InviteTo(const irc::string &channel, time_t invtimeout)
 {
 	time_t now = time(NULL);
-	if (timeout != 0 && now > timeout) return; /* Don't add invites that are expired from the get-go. */
+	if (invtimeout != 0 && now > invtimeout) return; /* Don't add invites that are expired from the get-go. */
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
 	{
 		if (channel == i->first)
 		{
-			if (i->second != 0 && timeout > i->second)
+			if (i->second != 0 && invtimeout > i->second)
 			{
-				i->second = timeout;
+				i->second = invtimeout;
 			}
 		}
 	}
-	invites.push_back(std::make_pair(channel, timeout));
+	invites.push_back(std::make_pair(channel, invtimeout));
 }
 
 void User::RemoveInvite(const irc::string &channel)
@@ -926,7 +926,7 @@ bool User::ForceNickChange(const char* newnick)
 	return false;
 }
 
-void User::SetSockAddr(int protocol_family, const char* ip, int port)
+void User::SetSockAddr(int protocol_family, const char* sip, int port)
 {
 	this->cachedip = "";
 
@@ -938,7 +938,7 @@ void User::SetSockAddr(int protocol_family, const char* ip, int port)
 			sockaddr_in6* sin = new sockaddr_in6;
 			sin->sin6_family = AF_INET6;
 			sin->sin6_port = port;
-			inet_pton(AF_INET6, ip, &sin->sin6_addr);
+			inet_pton(AF_INET6, sip, &sin->sin6_addr);
 			this->ip = (sockaddr*)sin;
 		}
 		break;
@@ -948,7 +948,7 @@ void User::SetSockAddr(int protocol_family, const char* ip, int port)
 			sockaddr_in* sin = new sockaddr_in;
 			sin->sin_family = AF_INET;
 			sin->sin_port = port;
-			inet_pton(AF_INET, ip, &sin->sin_addr);
+			inet_pton(AF_INET, sip, &sin->sin_addr);
 			this->ip = (sockaddr*)sin;
 		}
 		break;
@@ -1380,25 +1380,25 @@ bool User::ChangeName(const char* gecos)
 	return true;
 }
 
-bool User::ChangeDisplayedHost(const char* host)
+bool User::ChangeDisplayedHost(const char* shost)
 {
-	if (!strcmp(host, this->dhost))
+	if (!strcmp(shost, this->dhost))
 		return true;
 
 	if (IS_LOCAL(this))
 	{
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(this,host));
+		FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(this,shost));
 		if (MOD_RESULT)
 			return false;
-		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,host));
+		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,shost));
 	}
 
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("QUIT :Changing hosts");
 
 	/* Fix by Om: User::dhost is 65 long, this was truncating some long hosts */
-	strlcpy(this->dhost,host,64);
+	strlcpy(this->dhost,shost,64);
 
 	this->InvalidateCache();
 

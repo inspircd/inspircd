@@ -30,20 +30,20 @@ class CommandNicklock : public Command
 
 	CmdResult Handle(const char** parameters, int pcnt, User *user)
 	{
-		User* source = ServerInstance->FindNick(parameters[0]);
+		User* target = ServerInstance->FindNick(parameters[0]);
 		irc::string server;
 		irc::string me;
 
 		// check user exists
-		if (!source)
+		if (!target)
 		{
 			return CMD_FAILURE;
 		}
 
 		// check if user is locked
-		if (source->GetExt("nick_locked", dummy))
+		if (target->GetExt("nick_locked", dummy))
 		{
-			user->WriteServ("946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
+			user->WriteServ("946 %s %s :This user's nickname is already locked.",user->nick,target->nick);
 			return CMD_FAILURE;
 		}
 
@@ -56,14 +56,14 @@ class CommandNicklock : public Command
 		// let others know
 		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
 
-		if (!source->ForceNickChange(parameters[1]))
+		if (!target->ForceNickChange(parameters[1]))
 		{
 			// ugh, nickchange failed for some reason -- possibly existing nick?
-			User::QuitUser(ServerInstance, source, "Nickname collision");
+			User::QuitUser(ServerInstance, target, "Nickname collision");
 		}
 
 		// give them a lock flag
-		source->Extend("nick_locked", "ON");
+		target->Extend("nick_locked", "ON");
 
 		/* route */
 		return CMD_SUCCESS;
@@ -83,11 +83,11 @@ class CommandNickunlock : public Command
 
 	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		User* source = ServerInstance->FindNick(parameters[0]);
-		if (source)
+		User* target = ServerInstance->FindNick(parameters[0]);
+		if (target)
 		{
-			source->Shrink("nick_locked");
-			user->WriteServ("945 %s %s :Nickname now unlocked.",user->nick,source->nick);
+			target->Shrink("nick_locked");
+			user->WriteServ("945 %s %s :Nickname now unlocked.",user->nick,target->nick);
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 			return CMD_SUCCESS;
 		}

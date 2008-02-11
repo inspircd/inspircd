@@ -197,10 +197,10 @@ class ModuleAlias : public Module
 				else
 				{
 					irc::sepstream commands(Aliases[i].replace_with, '\n');
-					std::string command;
-					while (commands.GetToken(command))
+					std::string scommand;
+					while (commands.GetToken(scommand))
 					{
-						DoCommand(command, user, safe);
+						DoCommand(scommand, user, safe);
 					}
 					return 1;
 				}

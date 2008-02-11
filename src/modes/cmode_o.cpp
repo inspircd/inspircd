@@ -48,11 +48,11 @@ ModePair ModeChannelOp::ModeSet(User*, User*, Channel* channel, const std::strin
 
 void ModeChannelOp::RemoveMode(Channel* channel)
 {
-	CUList* list = channel->GetOppedUsers();
+	CUList* clist = channel->GetOppedUsers();
 	CUList copy;
 	char moderemove[MAXBUF];
 
-	for (CUList::iterator i = list->begin(); i != list->end(); i++)
+	for (CUList::iterator i = clist->begin(); i != clist->end(); i++)
 	{
 		User* n = i->first;
 		copy.insert(std::make_pair(n,n->nick));

@@ -147,7 +147,7 @@ CmdResult CommandNick::Handle (const char** parameters, int, User *user)
 	else if (user->registered == REG_NICKUSER)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-		int MOD_RESULT = 0;
+		MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserRegister,OnUserRegister(user));
 		if (MOD_RESULT > 0)
 			return CMD_FAILURE;

@@ -36,13 +36,13 @@ class ModuleFilter : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags)
+	virtual FilterResult* FilterMatch(User* user, const std::string &text, int iflags)
 	{
 		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
 
 			/* Skip ones that dont apply to us */
-			if (!FilterBase::AppliesToMe(user, index->second, flags))
+			if (!FilterBase::AppliesToMe(user, index->second, iflags))
 				continue;
 
 			if (ServerInstance->MatchText(text,index->first))
@@ -71,14 +71,14 @@ class ModuleFilter : public FilterBase
 		return false;
 	}
 
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags)
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &sflags)
 	{
 		if (filters.find(freeform) != filters.end())
 		{
 			return std::make_pair(false, "Filter already exists");
 		}
 
-		FilterResult* x = new FilterResult(freeform, reason, type, duration, flags);
+		FilterResult* x = new FilterResult(freeform, reason, type, duration, sflags);
 		filters[freeform] = x;
 
 		return std::make_pair(true, "");
@@ -103,13 +103,13 @@ class ModuleFilter : public FilterBase
 			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
 			std::string reason = MyConf->ReadValue("keyword","reason",index);
 			std::string do_action = MyConf->ReadValue("keyword","action",index);
-			std::string flags = MyConf->ReadValue("keyword","flags",index);
+			std::string sflags = MyConf->ReadValue("keyword","flags",index);
 			long gline_time = ServerInstance->Duration(MyConf->ReadValue("keyword","duration",index));
 			if (do_action.empty())
 				do_action = "none";
-			if (flags.empty())
-				flags = "*";
-			FilterResult* x = new FilterResult(pattern, reason, do_action, gline_time, flags);
+			if (sflags.empty())
+				sflags = "*";
+			FilterResult* x = new FilterResult(pattern, reason, do_action, gline_time, sflags);
 			filters[pattern] = x;
 		}
 		delete MyConf;

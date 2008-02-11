@@ -209,8 +209,8 @@ class ModuleCustomTitle : public Module
 			std::string* text;
 			if (!dest->GetExt("ctitle", text))
 			{
-				std::string* text = new std::string(extdata);
-				dest->Extend("ctitle",text);
+				std::string* ntext = new std::string(extdata);
+				dest->Extend("ctitle",ntext);
 			}
 		}
 	}

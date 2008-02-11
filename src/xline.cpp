@@ -392,14 +392,14 @@ void XLine::Apply(User* u)
 
 void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 {
-	char reason[MAXBUF];
-	snprintf(reason, MAXBUF, "%s-Lined: %s", line.c_str(), this->reason);
+	char sreason[MAXBUF];
+	snprintf(sreason, MAXBUF, "%s-Lined: %s", line.c_str(), this->reason);
 	if (*ServerInstance->Config->MoronBanner)
 		u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 	if (ServerInstance->Config->HideBans)
-		User::QuitUser(ServerInstance, u, line + "-Lined", reason);
+		User::QuitUser(ServerInstance, u, line + "-Lined", sreason);
 	else
-		User::QuitUser(ServerInstance, u, reason);
+		User::QuitUser(ServerInstance, u, sreason);
 
 
 	if (bancache)

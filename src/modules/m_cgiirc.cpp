@@ -33,8 +33,8 @@ public:
 	CGItype type;
 	std::string password;
 
-	CGIhost(const std::string &mask = "", CGItype t = IDENTFIRST, const std::string &password ="")
-	: hostmask(mask), type(t), password(password)
+	CGIhost(const std::string &mask = "", CGItype t = IDENTFIRST, const std::string &spassword ="")
+	: hostmask(mask), type(t), password(spassword)
 	{
 	}
 };
@@ -53,11 +53,12 @@ typedef std::vector<CGIhost> CGIHostlist;
  */
 class CommandWebirc : public Command
 {
+	// XXX why is inspircd declared here? does class command not have one?
 	InspIRCd* Me;
 	CGIHostlist Hosts;
 	bool notify;
 	public:
-		CommandWebirc(InspIRCd* Me, CGIHostlist &Hosts, bool notify) : Command(Me, "WEBIRC", 0, 4, true), Hosts(Hosts), notify(notify)
+		CommandWebirc(InspIRCd* iMe, CGIHostlist &cHosts, bool bnotify) : Command(iMe, "WEBIRC", 0, 4, true), Hosts(cHosts), notify(bnotify)
 		{
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
@@ -97,8 +98,8 @@ class CGIResolver : public Resolver
 	User* them;
 	bool notify;
  public:
-	CGIResolver(Module* me, InspIRCd* ServerInstance, bool NotifyOpers, const std::string &source, bool forward, User* u, int userfd, const std::string &type, bool &cached)
-		: Resolver(ServerInstance, source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+	CGIResolver(Module* me, InspIRCd* Instance, bool NotifyOpers, const std::string &source, bool forward, User* u, int userfd, const std::string &type, bool &cached)
+		: Resolver(Instance, source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{

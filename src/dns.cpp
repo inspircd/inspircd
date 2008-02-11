@@ -154,12 +154,12 @@ class RequestTimeout : public Timer
 };
 
 /* Allocate the processing buffer */
-DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original) : dnsobj(dns), ServerInstance(Instance)
+DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, int rid, const std::string &original) : dnsobj(dns), ServerInstance(Instance)
 {
 	res = new unsigned char[512];
 	*res = 0;
 	orig = original;
-	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, id);
+	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, rid);
 	Instance->Timers->AddTimer(RT); /* The timer manager frees this */
 }
 

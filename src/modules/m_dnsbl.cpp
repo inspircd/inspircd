@@ -51,8 +51,8 @@ class DNSBLResolver : public Resolver
 
  public:
 
-	DNSBLResolver(Module *me, InspIRCd *ServerInstance, const std::string &hostname, User* u, int userfd, DNSBLConfEntry *conf, bool &cached)
-		: Resolver(ServerInstance, hostname, DNS_QUERY_A, cached, me)
+	DNSBLResolver(Module *me, InspIRCd *Instance, const std::string &hostname, User* u, int userfd, DNSBLConfEntry *conf, bool &cached)
+		: Resolver(Instance, hostname, DNS_QUERY_A, cached, me)
 	{
 		theirfd = userfd;
 		them = u;
@@ -220,7 +220,6 @@ class ModuleDNSBL : public Module
 	 */
 	void ClearEntries()
 	{
-		std::vector<DNSBLConfEntry *>::iterator i;
 		for (std::vector<DNSBLConfEntry *>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
 			delete *i;
 		DNSBLConfEntries.clear();

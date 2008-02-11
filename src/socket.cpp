@@ -312,8 +312,8 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
 bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 {
 	/* We allocate 2 of these, because sockaddr_in6 is larger than sockaddr (ugh, hax) */
-	sockaddr* server = new sockaddr[2];
-	memset(server,0,sizeof(sockaddr)*2);
+	sockaddr* servaddr = new sockaddr[2];
+	memset(servaddr,0,sizeof(sockaddr)*2);
 
 	int ret, size;
 
@@ -330,13 +330,13 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 			in6_addr addy;
 			if (inet_pton(AF_INET6, addr, &addy) < 1)
 			{
-				delete[] server;
+				delete[] servaddr;
 				return false;
 			}
 
-			((sockaddr_in6*)server)->sin6_family = AF_INET6;
-			memcpy(&(((sockaddr_in6*)server)->sin6_addr), &addy, sizeof(in6_addr));
-			((sockaddr_in6*)server)->sin6_port = htons(port);
+			((sockaddr_in6*)servaddr)->sin6_family = AF_INET6;
+			memcpy(&(((sockaddr_in6*)servaddr)->sin6_addr), &addy, sizeof(in6_addr));
+			((sockaddr_in6*)servaddr)->sin6_port = htons(port);
 			size = sizeof(sockaddr_in6);
 		}
 		else
@@ -345,13 +345,13 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 			in_addr addy;
 			if (inet_pton(AF_INET, addr, &addy) < 1)
 			{
-				delete[] server;
+				delete[] servaddr;
 				return false;
 			}
 
-			((sockaddr_in*)server)->sin_family = AF_INET;
-			((sockaddr_in*)server)->sin_addr = addy;
-			((sockaddr_in*)server)->sin_port = htons(port);
+			((sockaddr_in*)servaddr)->sin_family = AF_INET;
+			((sockaddr_in*)servaddr)->sin_addr = addy;
+			((sockaddr_in*)servaddr)->sin_port = htons(port);
 			size = sizeof(sockaddr_in);
 		}
 	}
@@ -362,45 +362,45 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 			/* Port -1: Means UDP IPV4 port binding - Special case
 			 * used by DNS engine.
 			 */
-			((sockaddr_in*)server)->sin_family = AF_INET;
-			((sockaddr_in*)server)->sin_addr.s_addr = htonl(INADDR_ANY);
-			((sockaddr_in*)server)->sin_port = 0;
+			((sockaddr_in*)servaddr)->sin_family = AF_INET;
+			((sockaddr_in*)servaddr)->sin_addr.s_addr = htonl(INADDR_ANY);
+			((sockaddr_in*)servaddr)->sin_port = 0;
 			size = sizeof(sockaddr_in);
 		}
 		else
 		{
 			/* Theres no address here, default to ipv6 bind to all */
-			((sockaddr_in6*)server)->sin6_family = AF_INET6;
-			memset(&(((sockaddr_in6*)server)->sin6_addr), 0, sizeof(in6_addr));
-			((sockaddr_in6*)server)->sin6_port = htons(port);
+			((sockaddr_in6*)servaddr)->sin6_family = AF_INET6;
+			memset(&(((sockaddr_in6*)servaddr)->sin6_addr), 0, sizeof(in6_addr));
+			((sockaddr_in6*)servaddr)->sin6_port = htons(port);
 			size = sizeof(sockaddr_in6);
 		}
 	}
 #else
 	/* If we aren't built with ipv6, the choice becomes simple */
-	((sockaddr_in*)server)->sin_family = AF_INET;
+	((sockaddr_in*)servaddr)->sin_family = AF_INET;
 	if (*addr)
 	{
 		/* There is an address here. */
 		in_addr addy;
 		if (inet_pton(AF_INET, addr, &addy) < 1)
 		{
-			delete[] server;
+			delete[] servaddr;
 			return false;
 		}
-		((sockaddr_in*)server)->sin_addr = addy;
+		((sockaddr_in*)servaddr)->sin_addr = addy;
 	}
 	else
 	{
 		/* Bind ipv4 to all */
-		((sockaddr_in*)server)->sin_addr.s_addr = htonl(INADDR_ANY);
+		((sockaddr_in*)servaddr)->sin_addr.s_addr = htonl(INADDR_ANY);
 	}
 	/* Bind ipv4 port number */
-	((sockaddr_in*)server)->sin_port = htons(port);
+	((sockaddr_in*)servaddr)->sin_port = htons(port);
 	size = sizeof(sockaddr_in);
 #endif
-	ret = SE->Bind(sockfd, server, size);
-	delete[] server;
+	ret = SE->Bind(sockfd, servaddr, size);
+	delete[] servaddr;
 
 	if (ret < 0)
 	{

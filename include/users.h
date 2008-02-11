@@ -207,7 +207,7 @@ public:
 	 */
 	void Update(unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
 				const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
-				unsigned long maxl, unsigned long maxg, unsigned int maxc, int p, unsigned long limit)
+				unsigned long maxl, unsigned long maxg, unsigned int maxc, int p, unsigned long llimit)
 	{
 		if (timeout)
 			registration_timeout = timeout;
@@ -234,7 +234,7 @@ public:
 		if (p)
 			port = p;
 
-		this->limit = limit;
+		this->limit = llimit;
 	}
 
 	/** Reference counter. Contains an int as to how many users are connected to this class. :)

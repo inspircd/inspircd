@@ -370,13 +370,13 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DoChannelDelete(Channel* chan)
 	{
-		modelist* list;
-		chan->GetExt(infokey, list);
+		modelist* mlist;
+		chan->GetExt(infokey, mlist);
 
-		if (list)
+		if (mlist)
 		{
 			chan->Shrink(infokey);
-			delete list;
+			delete mlist;
 		}
 	}
 
@@ -388,13 +388,13 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DoSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
-		modelist* list;
-		chan->GetExt(infokey, list);
+		modelist* mlist;
+		chan->GetExt(infokey, mlist);
 		irc::modestacker modestack(true);
 		std::deque<std::string> stackresult;
-		if (list)
+		if (mlist)
 		{
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
 			{
 				modestack.Push(std::string(1, mode)[0], assign(it->mask));
 			}
