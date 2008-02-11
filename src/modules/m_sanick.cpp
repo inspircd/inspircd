@@ -29,10 +29,10 @@ class CommandSanick : public Command
 
 	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		User* source = ServerInstance->FindNick(parameters[0]);
-		if (source)
+		User* target = ServerInstance->FindNick(parameters[0]);
+		if (target)
 		{
-			if (ServerInstance->ULine(source->server))
+			if (ServerInstance->ULine(target->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return CMD_FAILURE;
@@ -40,7 +40,7 @@ class CommandSanick : public Command
 			std::string oldnick = user->nick;
 			if (ServerInstance->IsNick(parameters[1]))
 			{
-				if (source->ForceNickChange(parameters[1]))
+				if (target->ForceNickChange(parameters[1]))
 				{
 					ServerInstance->SNO->WriteToSnoMask('A', oldnick+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
 					return CMD_SUCCESS;

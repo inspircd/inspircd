@@ -134,12 +134,12 @@ uint32_t sha256_k[64] =
 
 class ModuleSHA256 : public Module
 {
-	void SHA256Init(SHA256Context *ctx, const unsigned int* key)
+	void SHA256Init(SHA256Context *ctx, const unsigned int* ikey)
 	{
-		if (key)
+		if (ikey)
 		{
 			for (int i = 0; i < 8; i++)
-				ctx->h[i] = key[i];
+				ctx->h[i] = ikey[i];
 		}
 		else
 		{
@@ -236,12 +236,12 @@ class ModuleSHA256 : public Module
 			UNPACK32(ctx->h[i], &digest[i << 2]);
 	}
 	
-	void SHA256(const char *src, char *dest, int len, const char* hxc, const unsigned int* key = NULL)
+	void SHA256(const char *src, char *dest, int len, const char* hxc, const unsigned int* ikey = NULL)
 	{
 		// Generate the hash
 		unsigned char bytehash[SHA256_DIGEST_SIZE];
 		SHA256Context ctx;
-		SHA256Init(&ctx, key);
+		SHA256Init(&ctx, ikey);
 		SHA256Update(&ctx, (unsigned char *)src, (unsigned int)len);
 		SHA256Final(&ctx, bytehash);
 		// Convert it to hex

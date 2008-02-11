@@ -204,8 +204,8 @@ class ModuleSWhois : public Module
 			std::string* text;
 			if (!dest->GetExt("swhois", text))
 			{
-				std::string* text = new std::string(extdata);
-				dest->Extend("swhois",text);
+				std::string* text2 = new std::string(extdata);
+				dest->Extend("swhois",text2);
 			}
 		}
 	}
