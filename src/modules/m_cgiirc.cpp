@@ -44,7 +44,6 @@ typedef std::vector<CGIhost> CGIHostlist;
 
 class cmd_webirc : public command_t
 {
-	InspIRCd* Me;
 	CGIHostlist Hosts;
 	bool notify;
 	public:
