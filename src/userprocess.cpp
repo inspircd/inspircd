@@ -223,7 +223,6 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 */
 				if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 				{
-					curr->muted = true;
 					userrec::QuitUser(this, curr, "Registration timeout");
 					continue;
 				}
@@ -276,7 +275,6 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 						time_t time = this->Time(false) - (curr->nping - curr->pingmax);
 						char message[MAXBUF];
 						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
-						curr->muted = true;
 						curr->lastping = 1;
 						curr->nping = TIME+curr->pingmax;
 						userrec::QuitUser(this, curr, message);

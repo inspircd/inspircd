@@ -367,10 +367,6 @@ class CoreExport userrec : public connection
 	 */
 	void DecrementModes();
 
-	/** Oper-only quit message for this user if non-null
-	 */
-	char* operquit;
-
  public:
 	/** Resolvers for looking up this users IP address
 	 * This will occur if and when res_reverse completes.
@@ -512,7 +508,18 @@ class CoreExport userrec : public connection
 	 * alone will NOT cause the user to quit. This means it can be used seperately,
 	 * for example by shun modules etc.
 	 */
-	bool muted;
+	bool quitting;
+
+	/* Silent quit or not */
+	bool silentquit;
+
+	/** Quit message for this user.
+	 */
+	std::string quitmsg;
+
+	/** Oper-only quit message for this user if non-null
+	 */
+	std::string operquitmsg;
 
 	/** IPV4 or IPV6 ip address. Use SetSockAddr to set this and GetProtocolFamily/
 	 * GetIPString/GetPort to obtain its values.

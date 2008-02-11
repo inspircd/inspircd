@@ -328,7 +328,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	age = ServerInstance->Time(true);
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	muted = exempt = haspassed = dns_done = false;
+	quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
@@ -341,7 +341,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	memset(modes,0,sizeof(modes));
 	memset(snomasks,0,sizeof(snomasks));
 	/* Invalidate cache */
-	operquit = cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
+	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 }
 
 void userrec::RemoveCloneCounts()
@@ -371,8 +371,7 @@ userrec::~userrec()
 {
 	this->InvalidateCache();
 	this->DecrementModes();
-	if (operquit)
-		free(operquit);
+
 	if (ip)
 	{
 		this->RemoveCloneCounts();
@@ -833,7 +832,6 @@ void userrec::UnOper()
 void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason, const char* operreason)
 {
 	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
-	user->muted = true;
 	Instance->GlobalCulls.AddItem(user, quitreason.c_str(), operreason);
 }
 
@@ -1059,7 +1057,6 @@ void userrec::FullConnect()
 
 		if (r)
 		{
-			this->muted = true;
 			char reason[MAXBUF];
 			if (*ServerInstance->Config->MoronBanner)
 				this->WriteServ("NOTICE %s :*** %s", this->nick, ServerInstance->Config->MoronBanner);
@@ -1072,7 +1069,6 @@ void userrec::FullConnect()
 
 		if (n)
 		{
-			this->muted = true;
 			char reason[MAXBUF];
 			if (*ServerInstance->Config->MoronBanner)
 				this->WriteServ("NOTICE %s :*** %s", this, ServerInstance->Config->MoronBanner);
@@ -1944,12 +1940,14 @@ void userrec::HandleEvent(EventType et, int errornum)
 {
 	/* WARNING: May delete this user! */
 	int thisfd = this->GetFd();
-
+	
 	try
 	{
 		switch (et)
 		{
 			case EVENT_READ:
+				if (this->quitting)
+					return; // we just don't care anymore
 				ServerInstance->ProcessUser(this);
 			break;
 			case EVENT_WRITE:
@@ -1978,15 +1976,12 @@ void userrec::HandleEvent(EventType et, int errornum)
 
 void userrec::SetOperQuit(const std::string &oquit)
 {
-	if (operquit)
-		return;
-
-	operquit = strdup(oquit.c_str());
+	operquitmsg = oquit;
 }
 
 const char* userrec::GetOperQuit()
 {
-	return operquit ? operquit : "";
+	return operquitmsg.c_str();
 }
 
 VisData::VisData()
