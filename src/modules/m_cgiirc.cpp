@@ -53,12 +53,10 @@ typedef std::vector<CGIhost> CGIHostlist;
  */
 class CommandWebirc : public Command
 {
-	// XXX why is inspircd declared here? does class command not have one?
-	InspIRCd* Me;
 	CGIHostlist Hosts;
 	bool notify;
 	public:
-		CommandWebirc(InspIRCd* iMe, CGIHostlist &cHosts, bool bnotify) : Command(iMe, "WEBIRC", 0, 4, true), Hosts(cHosts), notify(bnotify)
+		CommandWebirc(InspIRCd* Instance, CGIHostlist &cHosts, bool bnotify) : Command(Instance, "WEBIRC", 0, 4, true), Hosts(cHosts), notify(bnotify)
 		{
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
