@@ -132,8 +132,8 @@ class PgSQLresult : public SQLresult
 	SQLfieldList* fieldlist;
 	SQLfieldMap* fieldmap;
 public:
-	PgSQLresult(Module* self, Module* to, unsigned long id, PGresult* result)
-	: SQLresult(self, to, id), res(result), currentrow(0), fieldlist(NULL), fieldmap(NULL)
+	PgSQLresult(Module* self, Module* to, unsigned long rid, PGresult* result)
+	: SQLresult(self, to, rid), res(result), currentrow(0), fieldlist(NULL), fieldmap(NULL)
 	{
 		rows = PQntuples(res);
 		cols = PQnfields(res);
@@ -219,9 +219,9 @@ public:
 
 		if(currentrow < PQntuples(res))
 		{
-			int cols = PQnfields(res);
+			int ncols = PQnfields(res);
 
-			for(int i = 0; i < cols; i++)
+			for(int i = 0; i < ncols; i++)
 			{
 				fieldlist->push_back(GetValue(currentrow, i));
 			}
@@ -248,9 +248,9 @@ public:
 
 		if(currentrow < PQntuples(res))
 		{
-			int cols = PQnfields(res);
+			int ncols = PQnfields(res);
 
-			for(int i = 0; i < cols; i++)
+			for(int i = 0; i < ncols; i++)
 			{
 				fieldmap->insert(std::make_pair(ColName(i), GetValue(currentrow, i)));
 			}
@@ -267,9 +267,9 @@ public:
 
 		if(currentrow < PQntuples(res))
 		{
-			int cols = PQnfields(res);
+			int ncols = PQnfields(res);
 
-			for(int i = 0; i < cols; i++)
+			for(int i = 0; i < ncols; i++)
 			{
 				fl->push_back(GetValue(currentrow, i));
 			}
@@ -286,9 +286,9 @@ public:
 
 		if(currentrow < PQntuples(res))
 		{
-			int cols = PQnfields(res);
+			int ncols = PQnfields(res);
 
-			for(int i = 0; i < cols; i++)
+			for(int i = 0; i < ncols; i++)
 			{
 				fm->insert(std::make_pair(ColName(i), GetValue(currentrow, i)));
 			}

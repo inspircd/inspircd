@@ -96,8 +96,8 @@ class SQLite3Result : public SQLresult
 	SQLfieldMap* fieldmap;
 
   public:
-	SQLite3Result(Module* self, Module* to, unsigned int id)
-	: SQLresult(self, to, id), currentrow(0), rows(0), cols(0), fieldlist(NULL), fieldmap(NULL)
+	SQLite3Result(Module* self, Module* to, unsigned int rid)
+	: SQLresult(self, to, rid), currentrow(0), rows(0), cols(0), fieldlist(NULL), fieldmap(NULL)
 	{
 	}
 
@@ -105,7 +105,7 @@ class SQLite3Result : public SQLresult
 	{
 	}
 
-	void AddRow(int colsnum, char **data, char **colname)
+	void AddRow(int colsnum, char **dat, char **colname)
 	{
 		colnames.clear();
 		cols = colsnum;
@@ -113,7 +113,7 @@ class SQLite3Result : public SQLresult
 		{
 			fieldlists.resize(fieldlists.size()+1);
 			colnames.push_back(colname[i]);
-			SQLfield sf(data[i] ? data[i] : "", data[i] ? false : true);
+			SQLfield sf(dat[i] ? dat[i] : "", dat[i] ? false : true);
 			fieldlists[rows].push_back(sf);
 		}
 		rows++;

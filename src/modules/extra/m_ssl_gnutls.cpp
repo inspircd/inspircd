@@ -128,14 +128,14 @@ class ModuleSSLGnuTLS : public Module
 		clientactive = 0;
 		sslports.clear();
 
-		for(int i = 0; i < Conf->Enumerate("bind"); i++)
+		for(int index = 0; index < Conf->Enumerate("bind"); index++)
 		{
 			// For each <bind> tag
-			std::string x = Conf->ReadValue("bind", "type", i);
-			if(((x.empty()) || (x == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "gnutls"))
+			std::string x = Conf->ReadValue("bind", "type", index);
+			if(((x.empty()) || (x == "clients")) && (Conf->ReadValue("bind", "ssl", index) == "gnutls"))
 			{
 				// Get the port we're meant to be listening on with SSL
-				std::string port = Conf->ReadValue("bind", "port", i);
+				std::string port = Conf->ReadValue("bind", "port", index);
 				irc::portparser portrange(port, false);
 				long portno = -1;
 				while ((portno = portrange.GetToken()))

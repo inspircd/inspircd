@@ -182,7 +182,6 @@ public:
 
 class ModuleSQLLog : public Module
 {
-	ConfigReader* Conf;
 
  public:
 	ModuleSQLLog(InspIRCd* Me)
@@ -237,7 +236,6 @@ class ModuleSQLLog : public Module
 			if (n != active_queries.end())
 			{
 				n->second->Go(res);
-				std::map<unsigned long, QueryInfo*>::iterator n = active_queries.find(res->id);
 				active_queries.erase(n);
 			}
 

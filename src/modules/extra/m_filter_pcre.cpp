@@ -32,8 +32,8 @@ class PCREFilter : public FilterResult
  public:
 	 pcre* regexp;
 
-	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time, const std::string &pat, const std::string &flags)
-		 : FilterResult(pat, rea, act, gline_time, flags), regexp(r)
+	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long glinetime, const std::string &pat, const std::string &flgs)
+		 : FilterResult(pat, rea, act, glinetime, flgs), regexp(r)
 	 {
 	 }
 
@@ -62,13 +62,13 @@ class ModuleFilterPCRE : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags)
+	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flgs)
 	{
 		for (std::vector<PCREFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 		{
 			/* Skip ones that dont apply to us */
 
-			if (!FilterBase::AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flags))
+			if (!FilterBase::AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flgs))
 				continue;
 
 			if (pcre_exec(index->regexp, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
@@ -107,7 +107,7 @@ class ModuleFilterPCRE : public FilterBase
 		}
 	}
 
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags)
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flgs)
 	{
 		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
@@ -127,7 +127,7 @@ class ModuleFilterPCRE : public FilterBase
 		}
 		else
 		{
-			filters.push_back(PCREFilter(re, reason, type, duration, freeform, flags));
+			filters.push_back(PCREFilter(re, reason, type, duration, freeform, flgs));
 			return std::make_pair(true, "");
 		}
 	}
@@ -143,12 +143,12 @@ class ModuleFilterPCRE : public FilterBase
 			std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
 			std::string reason = MyConf.ReadValue("keyword", "reason", index);
 			std::string action = MyConf.ReadValue("keyword", "action", index);
-			std::string flags = MyConf.ReadValue("keyword", "flags", index);
+			std::string flgs = MyConf.ReadValue("keyword", "flags", index);
 			long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index));
 			if (action.empty())
 				action = "none";
-			if (flags.empty())
-				flags = "*";
+			if (flgs.empty())
+				flgs = "*";
 
 			re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
 
@@ -159,7 +159,7 @@ class ModuleFilterPCRE : public FilterBase
 			}
 			else
 			{
-				filters.push_back(PCREFilter(re, reason, action, gline_time, pattern, flags));
+				filters.push_back(PCREFilter(re, reason, action, gline_time, pattern, flgs));
 				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}

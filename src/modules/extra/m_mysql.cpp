@@ -99,7 +99,7 @@ class MySQLresult : public SQLresult
 	int rows;
  public:
 
-	MySQLresult(Module* self, Module* to, MYSQL_RES* res, int affected_rows, unsigned int id) : SQLresult(self, to, id), currentrow(0), fieldmap(NULL)
+	MySQLresult(Module* self, Module* to, MYSQL_RES* res, int affected_rows, unsigned int rid) : SQLresult(self, to, rid), currentrow(0), fieldmap(NULL)
 	{
 		/* A number of affected rows from from mysql_affected_rows.
 		 */
@@ -145,7 +145,7 @@ class MySQLresult : public SQLresult
 		}
 	}
 
-	MySQLresult(Module* self, Module* to, SQLerror e, unsigned int id) : SQLresult(self, to, id), currentrow(0)
+	MySQLresult(Module* self, Module* to, SQLerror e, unsigned int rid) : SQLresult(self, to, rid), currentrow(0)
 	{
 		rows = 0;
 		error = e;
