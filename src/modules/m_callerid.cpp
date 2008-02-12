@@ -313,10 +313,10 @@ public:
 				new_maxaccepts = 16;
 				break;
 			case CONF_NOT_A_NUMBER:
-				if (user) user->WriteServ("NOTICE %s :Invalid maxaccepts value '%s', not a number", Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
+				if (user) user->WriteServ("NOTICE %s :Invalid maxaccepts value '%s', not a number", user->nick, Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
 				throw ModuleException("Invalid maxaccepts value, not a number");
 			case CONF_INT_NEGATIVE:
-				if (user) user->WriteServ("NOTICE %s :Invalid maxaccepts value '%s', negative", Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
+				if (user) user->WriteServ("NOTICE %s :Invalid maxaccepts value '%s', negative", user->nick, Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
 				throw ModuleException("Invalid maxaccepts value, negative");
 			default:
 				/* Yikes */
@@ -334,10 +334,10 @@ public:
 				new_cooldown = 16;
 				break;
 			case CONF_NOT_A_NUMBER:
-				if (user) user->WriteServ("NOTICE %s :Invalid cooldown value '%s', not a number", Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
+				if (user) user->WriteServ("NOTICE %s :Invalid cooldown value '%s', not a number", user->nick, Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
 				throw ModuleException("Invalid cooldown value, not a number");
 			case CONF_INT_NEGATIVE:
-				if (user) user->WriteServ("NOTICE %s :Invalid cooldown value '%s', negative", Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
+				if (user) user->WriteServ("NOTICE %s :Invalid cooldown value '%s', negative", user->nick, Conf.ReadValue("callerid", "maxaccepts", "", 0).c_str());
 				throw ModuleException("Invalid cooldown value, negative");
 			default:
 				/* Yikes */
