@@ -27,7 +27,7 @@ extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	std::string target;
+	std::string target = parameters[0];
 
 	if (pcnt >= 3)
 	{
