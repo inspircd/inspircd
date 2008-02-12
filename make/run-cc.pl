@@ -86,8 +86,13 @@ foreach my $n (@ARGV)
 	{
 		$action = "BUILD";
 		$name = $n;
+		last;
 	}
-	elsif ($n !~ /\.^-c/)
+	elsif ($n eq "-o")
+	{
+		$action = $name = $n;
+	}
+	elsif ($name eq "-o")
 	{
 		$action = "LINK";
 		$name = $n;
