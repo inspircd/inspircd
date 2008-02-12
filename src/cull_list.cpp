@@ -33,7 +33,11 @@ void CullList::AddItem(userrec* user, const char* reason, const char* o_reason)
 		
 	user->quitting = true;
 	user->quitmsg = reason;
-	user->operquitmsg = o_reason;
+	
+	if (!*o_reason)
+		user->operquitmsg = reason;
+	else
+		user->operquitmsg = o_reason;
 
 	list.push_back(user);
 }
@@ -54,9 +58,8 @@ int CullList::Apply()
 		userrec *a = (*li);
 		
 		user_hash::iterator iter = ServerInstance->clientlist->find(a->nick);
-		const char* preset_reason = a->operquitmsg.c_str();
 		std::string reason = a->quitmsg;
-		std::string oper_reason = *preset_reason ? preset_reason : a->operquitmsg;
+		std::string oper_reason = a->operquitmsg;
 
 		if (reason.length() > MAXQUIT - 1)
 			reason.resize(MAXQUIT - 1);
