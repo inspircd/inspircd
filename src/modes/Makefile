@@ -56,8 +56,8 @@ cmode_b.o: cmode_b.cpp ../../include/base.h ../../include/modules.h ../../includ
 
 modeclasses.a: umode_w.o umode_s.o umode_o.o umode_n.o umode_i.o cmode_v.o cmode_t.o cmode_s.o cmode_p.o cmode_o.o cmode_n.o cmode_m.o cmode_l.o cmode_k.o cmode_i.o cmode_h.o cmode_b.o
 	@-rm -rf modeclasses.a
-	@ar r modeclasses.a *.o
-	@ar -s modeclasses.a
+	@ar r modeclasses.a *.o 2>/dev/null
+	@ar -s modeclasses.a 2>/dev/null
 
 clean:
 	@-rm *.o
