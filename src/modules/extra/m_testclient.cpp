@@ -37,7 +37,7 @@ public:
 		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
 	}
 	
-	virtual void OnBackgroundTimer(time_t foo)
+	virtual void OnBackgroundTimer(time_t)
 	{
 		Module* target = ServerInstance->Modules->FindFeature("SQL");
 		

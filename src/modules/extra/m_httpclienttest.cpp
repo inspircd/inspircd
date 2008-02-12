@@ -41,7 +41,7 @@ public:
 		return Version(1,0,0,1,VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		// method called when a user joins a channel
 
