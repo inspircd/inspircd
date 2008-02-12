@@ -74,6 +74,34 @@ typedef std::map<irc::string, std::string> watchlist;
  */
 watchentries* whos_watching_me;
 
+class CommandSVSWatch : public Command
+{
+ public:
+	CommandSVSWatch (InspIRCd* Instance) : Command(Instance,"WATCH", 0, 2)
+	{
+		this->source = "m_watch.so";
+		syntax = "<target> [C|L|S]|[+|-<nick>]";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
+	}
+
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	{
+		if (!ServerInstance->ULine(user->server))
+			return CMD_FAILURE;
+			
+		User *u = ServerInstance->FindNick(parameters[0]);
+		if (!u)
+			return CMD_FAILURE;
+			
+		if (IS_LOCAL(u))
+		{
+			ServerInstance->Parser->CallHandler("WATCH", &parameters[1], 1, u);
+		}
+		
+		return CMD_SUCCESS;
+	}
+};
+
 /** Handle /WATCH
  */
 class CommandWatch : public Command
@@ -306,9 +334,10 @@ class CommandWatch : public Command
 class Modulewatch : public Module
 {
 	CommandWatch* mycommand;
+	CommandSVSWatch *sw;
 	unsigned int maxwatch;
+	
  public:
-
 	Modulewatch(InspIRCd* Me)
 		: Module(Me), maxwatch(32)
 	{
@@ -316,6 +345,8 @@ class Modulewatch : public Module
 		whos_watching_me = new watchentries();
 		mycommand = new CommandWatch(ServerInstance, maxwatch);
 		ServerInstance->AddCommand(mycommand);
+		sw = new CommandSVSWatch(ServerInstance);
+		ServerInstance->AddCommand(sw);
 		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnCleanup, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
