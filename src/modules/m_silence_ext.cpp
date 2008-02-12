@@ -194,6 +194,7 @@ class CommandSilence : public Command
 					p |= SILENCE_CNOTICE;
 					break;
 				case 'a':
+				case '*':
 					p |= SILENCE_ALL;
 					break;
 				case 'x':
