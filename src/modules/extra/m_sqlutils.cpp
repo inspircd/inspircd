@@ -48,7 +48,7 @@ public:
 	}	
 
 
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLUTILAU, request->GetId()) == 0)
 		{

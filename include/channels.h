@@ -371,7 +371,7 @@ class CoreExport Channel : public Extensible
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD types
 	 */
-	void WriteChannel(User* user, char* text, ...);
+	void WriteChannel(User* user, const char* text, ...);
 
 	/** Write to a channel, from a user, using std::string for text
 	 * @param user User whos details to prefix the line with
@@ -401,7 +401,7 @@ class CoreExport Channel : public Extensible
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
 	 */
-	void WriteAllExceptSender(User* user, bool serversource, char status, char* text, ...);
+	void WriteAllExceptSender(User* user, bool serversource, char status, const char* text, ...);
 
 	/** Write to all users on a channel except a list of users, using va_args for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
@@ -412,7 +412,7 @@ class CoreExport Channel : public Extensible
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
 	 */
-	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, char* text, ...);
+	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const char* text, ...);
 
 	/** Write to all users on a channel except a specific user, using std::string for text.
 	 * Internally, this calls WriteAllExcept().

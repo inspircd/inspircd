@@ -907,7 +907,7 @@ class ModulePgSQL : public Module
 		ServerInstance->Timers->AddTimer(retimer);
 	}
 
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLREQID, request->GetId()) == 0)
 		{

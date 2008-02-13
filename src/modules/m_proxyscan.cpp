@@ -76,7 +76,7 @@ class ProxySocket : public EventHandler
 	int rlen;
 	bool done;
  public:
-	ProxySocket(InspIRCd *Server, User* u, const std::string &bindip, int port, char *cstr, int mclen, char *rstr, int mrlen)
+	ProxySocket(InspIRCd *Server, User* u, const std::string &bindip, int port, const char *cstr, int mclen, const char *rstr, int mrlen)
 	{
 		user = u;
 		ServerInstance = Server;

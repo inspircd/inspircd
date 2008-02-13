@@ -613,7 +613,7 @@ class ModuleSQLite3 : public Module
 		ReadConf();
 	}
 
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLREQID, request->GetId()) == 0)
 		{

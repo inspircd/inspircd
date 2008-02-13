@@ -59,7 +59,7 @@ public:
 			ServerInstance->Log(DEBUG,"module not found, load it!!");
 	}
 
-	char* OnRequest(Request* req)
+	virtual const char* OnRequest(Request* req)
 	{
 		HTTPClientResponse* resp = (HTTPClientResponse*)req;
 		if(!strcmp(resp->GetId(), HTTP_CLIENT_RESPONSE))

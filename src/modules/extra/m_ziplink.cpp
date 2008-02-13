@@ -170,7 +170,7 @@ class ModuleZLib : public Module
 
 
 	/* Handle BufferedSocketHook API requests */
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
 		if (strcmp("IS_NAME", request->GetId()) == 0)

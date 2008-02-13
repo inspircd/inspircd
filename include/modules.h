@@ -335,7 +335,7 @@ class CoreExport Request : public ModuleMessage
 	 * sent the request to. It is up to your module to know what this data is and
 	 * how to deal with it.
 	 */
-	char* Send();
+	const char* Send();
 };
 
 
@@ -1195,7 +1195,7 @@ class CoreExport Module : public Extensible
 	 * may be able to use for pre-determined purposes (e.g. the results of an SQL query, etc).
 	 * @param request The Request class being received
 	 */
-	virtual char* OnRequest(Request* request);
+	virtual const char* OnRequest(Request* request);
 
 	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
 	 * The password field (from the config file) is in 'password' and is to be compared against

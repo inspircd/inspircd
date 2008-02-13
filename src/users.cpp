@@ -1450,7 +1450,7 @@ bool User::ChangeIdent(const char* newident)
 	return true;
 }
 
-void User::SendAll(const char* command, char* text, ...)
+void User::SendAll(const char* command, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	char formatbuffer[MAXBUF];

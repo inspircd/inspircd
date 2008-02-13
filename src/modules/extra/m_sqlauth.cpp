@@ -126,7 +126,7 @@ public:
 		}
 	}
 	
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{

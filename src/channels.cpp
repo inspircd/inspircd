@@ -624,7 +624,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 	return this->GetUserCounter();
 }
 
-void Channel::WriteChannel(User* user, char* text, ...)
+void Channel::WriteChannel(User* user, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -689,7 +689,7 @@ void Channel::WriteChannelWithServ(const char* ServName, const std::string &text
 
 /* write formatted text from a source user to all users on a channel except
  * for the sender (for privmsg etc) */
-void Channel::WriteAllExceptSender(User* user, bool serversource, char status, char* text, ...)
+void Channel::WriteAllExceptSender(User* user, bool serversource, char status, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -704,7 +704,7 @@ void Channel::WriteAllExceptSender(User* user, bool serversource, char status, c
 	this->WriteAllExceptSender(user, serversource, status, std::string(textbuffer));
 }
 
-void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, char* text, ...)
+void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;

@@ -309,7 +309,7 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.
  */ 
-bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
+bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 {
 	/* We allocate 2 of these, because sockaddr_in6 is larger than sockaddr (ugh, hax) */
 	sockaddr* servaddr = new sockaddr[2];
@@ -318,7 +318,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 	int ret, size;
 
 	if (*addr == '*')
-		*addr = 0;
+		addr = "";
 
 #ifdef IPV6
 	if (*addr)

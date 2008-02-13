@@ -103,7 +103,7 @@ class ModuleHTTPClient : public Module
 	}
 
 
-	char* OnRequest(Request *req)
+	virtual const char* OnRequest(Request *req)
 	{
 		HTTPClientRequest *httpreq = (HTTPClientRequest *)req;
 		if (!strcmp(httpreq->GetId(), HTTP_CLIENT_REQUEST))
@@ -298,7 +298,7 @@ bool HTTPSocket::OnConnected()
 bool HTTPSocket::OnDataReady()
 {
 	Instance->Log(DEBUG,"HTTPSocket::OnDataReady() for %s", url.url.c_str());
-	char *sdata = this->Read();
+	const char *sdata = this->Read();
 
 	if (!sdata)
 		return false;

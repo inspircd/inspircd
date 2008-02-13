@@ -343,7 +343,7 @@ class ModuleSSLOpenSSL : public Module
 	}
 
 
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
 		if (strcmp("IS_NAME", request->GetId()) == 0)
@@ -352,10 +352,10 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
-			char* ret = "OK";
+			const char* ret = "OK";
 			try
 			{
-				ret = ServerInstance->Config->AddIOHook((Module*)this, (BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+				ret = ServerInstance->Config->AddIOHook((Module*)this, (BufferedSocket*)ISR->Sock) ? "OK" : NULL;
 			}
 			catch (ModuleException &e)
 			{
@@ -366,15 +366,15 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
-			return ServerInstance->Config->DelIOHook((BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			return ServerInstance->Config->DelIOHook((BufferedSocket*)ISR->Sock) ? "OK" : NULL;
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
 			if (ISR->Sock->GetFd() < 0)
-				return (char*)"OK";
+				return "OK";
 
 			issl_session* session = &sessions[ISR->Sock->GetFd()];
-			return (session->status == ISSL_HANDSHAKING) ? NULL : (char*)"OK";
+			return (session->status == ISSL_HANDSHAKING) ? NULL : "OK";
 		}
 		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
 		{

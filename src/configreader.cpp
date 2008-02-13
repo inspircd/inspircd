@@ -160,7 +160,7 @@ void ServerConfig::Send005(User* user)
 		user->WriteServ("005 %s %s", user->nick, line->c_str());
 }
 
-bool ServerConfig::CheckOnce(char* tag)
+bool ServerConfig::CheckOnce(const char* tag)
 {
 	int count = ConfValueEnum(this->config_data, tag);
 
@@ -800,7 +800,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	errstr.clear();
 
 	/* These tags MUST occur and must ONLY occur once in the config file */
-	static char* Once[] = { "server", "admin", "files", "power", "options", NULL };
+	static const char* Once[] = { "server", "admin", "files", "power", "options", NULL };
 
 	/* These tags can occur ONCE or not at all */
 	InitialConfig Values[] = {
@@ -2124,12 +2124,7 @@ ValueItem::ValueItem(bool value)
 	v = n.str();
 }
 
-ValueItem::ValueItem(char* value)
-{
-	v = value;
-}
-
-void ValueItem::Set(char* value)
+ValueItem::ValueItem(const char* value)
 {
 	v = value;
 }

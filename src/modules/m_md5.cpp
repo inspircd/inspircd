@@ -278,7 +278,7 @@ class ModuleMD5 : public Module
 	}
 
 	
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		HashRequest* MD5 = (HashRequest*)request;
 

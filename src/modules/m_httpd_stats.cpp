@@ -225,7 +225,7 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		return NULL;
 	}

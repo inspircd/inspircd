@@ -385,7 +385,7 @@ std::string BufferedSocket::GetIP()
 	return this->IP;
 }
 
-char* BufferedSocket::Read()
+const char* BufferedSocket::Read()
 {
 	if (!Instance->SE->BoundsCheckFd(this))
 		return NULL;

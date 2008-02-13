@@ -258,7 +258,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
  */
 bool TreeSocket::OnDataReady()
 {
-	char* data = this->Read();
+	const char* data = this->Read();
 	/* Check that the data read is a valid pointer and it has some content */
 	if (data && *data)
 	{

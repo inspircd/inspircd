@@ -271,7 +271,7 @@ unsigned int UserManager::LocalUserCount()
 	return (this->local_users.size() - this->UnregisteredUserCount());
 }
 
-void UserManager::ServerNoticeAll(char* text, ...)
+void UserManager::ServerNoticeAll(const char* text, ...)
 {
 	if (!text)
 		return;
@@ -292,7 +292,7 @@ void UserManager::ServerNoticeAll(char* text, ...)
 	}
 }
 
-void UserManager::ServerPrivmsgAll(char* text, ...)
+void UserManager::ServerPrivmsgAll(const char* text, ...)
 {
 	if (!text)
 		return;

@@ -478,7 +478,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param addr The address to bind to (IP only)
 	 * @return True if the port was bound successfully
 	 */
-	bool BindSocket(int sockfd, int port, char* addr, bool dolisten = true);
+	bool BindSocket(int sockfd, int port, const char* addr, bool dolisten = true);
 
 	/** Adds a server name to the list of servers we've seen
 	 * @param The servername to add

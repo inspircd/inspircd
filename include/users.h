@@ -1033,7 +1033,7 @@ class CoreExport User : public connection
 	 * @param text The text format string to send
 	 * @param ... Format arguments
 	 */
-	void SendAll(const char* command, char* text, ...);
+	void SendAll(const char* command, const char* text, ...);
 
 	/** Compile a channel list for this user, and send it to the user 'source'
 	 * Used internally by WHOIS

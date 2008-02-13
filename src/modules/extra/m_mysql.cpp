@@ -762,7 +762,7 @@ class ModuleSQL : public Module
 		return ++currid;
 	}
 
-	char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLREQID, request->GetId()) == 0)
 		{

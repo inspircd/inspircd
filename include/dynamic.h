@@ -23,7 +23,7 @@ class CoreExport DLLManager
 
 	/** The last error string, or NULL
 	 */
-	char *err;
+	const char *err;
  
  public:
 	/** This constructor loads the module using dlopen()
@@ -44,7 +44,7 @@ class CoreExport DLLManager
 	/** Get the last error from dlopen() or dlsym().
 	 * @return The last error string, or NULL if no error has occured.
 	 */
-	char* LastError() 
+	const char* LastError()
 	{
 		 return err;
 	}

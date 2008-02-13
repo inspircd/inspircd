@@ -15,7 +15,7 @@
 #include "wildcard.h"
 #include "commands/cmd_who.h"
 
-static char *get_first_visible_channel(User *u)
+static const char *get_first_visible_channel(User *u)
 {
 	UCListIter i = u->chans.begin();
 	if (i != u->chans.end())

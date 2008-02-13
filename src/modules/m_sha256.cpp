@@ -271,7 +271,7 @@ class ModuleSHA256 : public Module
 	}
 
 
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		HashRequest* SHA = (HashRequest*)request;
 		if (strcmp("KEY", request->GetId()) == 0)

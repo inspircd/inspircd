@@ -318,7 +318,7 @@ class CoreExport BufferedSocket : public EventHandler
 	 * into a char* array which can be up to
 	 * 16 kilobytes in length.
 	 */
-	virtual char* Read();
+	virtual const char* Read();
 
 	/**
 	 * Returns the IP address associated with

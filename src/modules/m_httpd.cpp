@@ -270,7 +270,7 @@ class HttpServerSocket : public BufferedSocket
 
 	virtual bool OnDataReady()
 	{
-		char* data = this->Read();
+		const char* data = this->Read();
 
 		/* Check that the data read is a valid pointer and it has some content */
 		if (!data || !*data)
@@ -478,7 +478,7 @@ class ModuleHttpServer : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		claimed = true;
 		HTTPDocument* doc = (HTTPDocument*)request->GetData();

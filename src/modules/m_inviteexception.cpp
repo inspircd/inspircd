@@ -83,7 +83,7 @@ public:
 		return 0;		
 	}
 
-	virtual char* OnRequest(Request* request)
+	virtual const char* OnRequest(Request* request)
 	{
 		ListModeRequest* LM = (ListModeRequest*)request;
 		if (strcmp("LM_CHECKLIST", request->GetId()) == 0)
