@@ -87,7 +87,7 @@ sub getcompilerflags {
 
 sub getlinkerflags {
 	my ($file) = @_;
-	open(FLAGS, $file);
+	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
 			close(FLAGS);
@@ -100,7 +100,7 @@ sub getlinkerflags {
 
 sub getdependencies {
 	my ($file) = @_;
-	open(FLAGS, $file);
+	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
 			close(FLAGS);
@@ -113,7 +113,7 @@ sub getdependencies {
 
 sub nopedantic {
 	my ($file) = @_;
-	open(FLAGS, $file);
+	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$NoPedantic \*\/$/) {
 			close(FLAGS);
@@ -128,7 +128,7 @@ sub getmodules
 {
 	my $i = 0;
 	print "Detecting modules ";
-	opendir(DIRHANDLE, "src/modules");
+	opendir(DIRHANDLE, "src/modules") or die("WTF, missing src/modules!");
 	foreach my $name (sort readdir(DIRHANDLE))
 	{
 		if ($name =~ /^m_(.+)\.cpp$/)
