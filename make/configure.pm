@@ -74,7 +74,7 @@ sub getrevision {
 
 sub getcompilerflags {
 	my ($file) = @_;
-	open(FLAGS, $file);
+	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
 			close(FLAGS);
