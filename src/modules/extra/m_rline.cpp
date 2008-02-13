@@ -126,7 +126,7 @@ class CoreExport RLineFactory : public XLineFactory
 class CommandRLine : public Command
 {
  public:
-	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", 'o', 1)
+	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", "o", 1)
 	{
 		this->source = "m_rline.so";
 	}
