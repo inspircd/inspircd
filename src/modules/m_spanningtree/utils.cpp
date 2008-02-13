@@ -418,11 +418,12 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			{
 				irc::portparser portrange(Port, false);
 				int portno = -1;
+
+				if (IP == "*")
+					IP.clear();
+
 				while ((portno = portrange.GetToken()))
 				{
-					if (IP == "*")
-						IP.clear();
-
 					if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
 					{
 						throw CoreException("Can't find transport type '"+transport+"' for port "+IP+":"+Port+" - maybe you forgot to load it BEFORE m_spanningtree in your config file?");
