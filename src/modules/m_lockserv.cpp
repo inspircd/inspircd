@@ -28,7 +28,7 @@ private:
 
 public:
 	CommandLockserv (InspIRCd* Instance, bool &lock)
-	: Command(Instance, "LOCKSERV", 'o', 0), locked(lock)
+	: Command(Instance, "LOCKSERV", "o", 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
 		syntax.clear();
@@ -51,7 +51,7 @@ private:
 
 public:
 	CommandUnlockserv (InspIRCd* Instance, bool &lock)
-	: Command(Instance, "UNLOCKSERV", 'o', 0), locked(lock)
+	: Command(Instance, "UNLOCKSERV", "o", 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
 		syntax.clear();

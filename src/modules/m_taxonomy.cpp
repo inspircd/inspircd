@@ -23,7 +23,7 @@ class CommandTaxonomy : public Command
 	bool& claimed;
  public:
 	/* Command 'taxonomy', takes no parameters and needs no special modes */
-	CommandTaxonomy (InspIRCd* Instance, Module* maker, bool &claim) : Command(Instance,"TAXONOMY", 'o', 1), Creator(maker), claimed(claim)
+	CommandTaxonomy (InspIRCd* Instance, Module* maker, bool &claim) : Command(Instance,"TAXONOMY", "o", 1), Creator(maker), claimed(claim)
 	{
 		this->source = "m_taxonomy.so";
 		syntax = "<nickname>";

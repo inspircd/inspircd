@@ -217,7 +217,7 @@ class cmd_reload : public Command
  public:
 	/** Standard constructor
 	 */
-	cmd_reload (InspIRCd* Instance) : Command(Instance,"RELOAD",'o',1) { syntax = "<core-command>"; }
+	cmd_reload (InspIRCd* Instance) : Command(Instance,"RELOAD","o",1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
 	CmdResult Handle(const char** parameters, int pcnt, User *user);

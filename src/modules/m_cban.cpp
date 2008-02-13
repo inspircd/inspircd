@@ -47,7 +47,7 @@ cbanlist cbans;
 class CommandCban : public Command
 {
  public:
-	CommandCban(InspIRCd* Me) : Command(Me, "CBAN", 'o', 1)
+	CommandCban(InspIRCd* Me) : Command(Me, "CBAN", "o", 1)
 	{
 		this->source = "m_cban.so";
 		this->syntax = "<channel> [<duration> :<reason>]";

@@ -18,7 +18,7 @@
 class CommandAlltime : public Command
 {
  public:
-	CommandAlltime(InspIRCd *Instance) : Command(Instance, "ALLTIME", 'o', 0)
+	CommandAlltime(InspIRCd *Instance) : Command(Instance, "ALLTIME", "o", 0)
 	{
 		this->source = "m_alltime.so";
 		syntax.clear();

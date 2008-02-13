@@ -27,7 +27,7 @@ class CommandJumpserver : public Command
 	std::string reason;
 	int port;
 
-	CommandJumpserver (InspIRCd* Instance) : Command(Instance, "JUMPSERVER", 'o', 0)
+	CommandJumpserver (InspIRCd* Instance) : Command(Instance, "JUMPSERVER", "o", 0)
 	{
 		this->source = "m_jumpserver.so";
 		syntax = "[<server> <port> <+/-a> :<reason>]";

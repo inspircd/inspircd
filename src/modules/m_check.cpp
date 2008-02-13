@@ -21,7 +21,7 @@
 class CommandCheck : public Command
 {
  public:
- 	CommandCheck (InspIRCd* Instance) : Command(Instance,"CHECK", 'o', 1)
+ 	CommandCheck (InspIRCd* Instance) : Command(Instance,"CHECK", "o", 1)
 	{
 		this->source = "m_check.so";
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";

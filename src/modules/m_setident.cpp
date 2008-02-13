@@ -20,7 +20,7 @@
 class CommandSetident : public Command
 {
  public:
- CommandSetident (InspIRCd* Instance) : Command(Instance,"SETIDENT", 'o', 1)
+ CommandSetident (InspIRCd* Instance) : Command(Instance,"SETIDENT", "o", 1)
 	{
 		this->source = "m_setident.so";
 		syntax = "<new-ident>";

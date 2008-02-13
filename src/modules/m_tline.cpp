@@ -21,7 +21,7 @@
 class CommandTline : public Command
 {
  public:
-	CommandTline (InspIRCd* Instance) : Command(Instance,"TLINE", 'o', 1)
+	CommandTline (InspIRCd* Instance) : Command(Instance,"TLINE", "o", 1)
 	{
 		this->source = "m_tline.so";
 		this->syntax = "<mask>";

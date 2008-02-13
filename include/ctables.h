@@ -89,14 +89,14 @@ class CoreExport Command : public Extensible
 	/** Create a new command.
 	 * @param Instance Pointer to creator class
 	 * @param cmd Command name. This must be UPPER CASE.
-	 * @param flags User modes required to execute the command.
+	 * @param flags User mode required to execute the command. May ONLY be one mode - it's a string to give warnings if people mix params up.
 	 * For oper only commands, set this to 'o', otherwise use 0.
 	 * @param minpara Minimum parameters required for the command.
 	 * @param before_reg If this is set to true, the command will
 	 * be allowed before the user is 'registered' (has sent USER,
 	 * NICK, optionally PASS, and been resolved).
 	 */
-	Command(InspIRCd* Instance, const std::string &cmd, char flags, int minpara, int before_reg = false, int penalty = 1) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false), works_before_reg(before_reg), Penalty(penalty)
+	Command(InspIRCd* Instance, const std::string &cmd, char *flags, int minpara, int before_reg = false, int penalty = 1) : ServerInstance(Instance), command(cmd), flags_needed(*flags), min_params(minpara), disabled(false), works_before_reg(before_reg), Penalty(penalty)
 	{
 		use_count = 0;
 		total_bytes = 0;

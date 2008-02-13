@@ -21,7 +21,7 @@ class CommandNicklock : public Command
 {
 	char* dummy;
  public:
-	CommandNicklock (InspIRCd* Instance) : Command(Instance,"NICKLOCK", 'o', 2)
+	CommandNicklock (InspIRCd* Instance) : Command(Instance,"NICKLOCK", "o", 2)
 	{
 		this->source = "m_nicklock.so";
 		syntax = "<oldnick> <newnick>";
@@ -75,7 +75,7 @@ class CommandNicklock : public Command
 class CommandNickunlock : public Command
 {
  public:
-	CommandNickunlock (InspIRCd* Instance) : Command(Instance,"NICKUNLOCK", 'o', 1)
+	CommandNickunlock (InspIRCd* Instance) : Command(Instance,"NICKUNLOCK", "o", 1)
 	{
 		this->source = "m_nicklock.so";
 		syntax = "<locked-nick>";

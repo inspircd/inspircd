@@ -20,7 +20,7 @@
 class CommandChgident : public Command
 {
  public:
-	CommandChgident (InspIRCd* Instance) : Command(Instance,"CHGIDENT", 'o', 2)
+	CommandChgident (InspIRCd* Instance) : Command(Instance,"CHGIDENT", "o", 2)
 	{
 		this->source = "m_chgident.so";
 		syntax = "<nick> <newident>";

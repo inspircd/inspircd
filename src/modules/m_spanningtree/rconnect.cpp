@@ -30,7 +30,7 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h */
 
-cmd_rconnect::cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RCONNECT", 'o', 2), Creator(Callback), Utils(Util)
+cmd_rconnect::cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RCONNECT", "o", 2), Creator(Callback), Utils(Util)
 {
 	this->source = "m_spanningtree.so";
 	syntax = "<remote-server-mask> <target-server-mask>";

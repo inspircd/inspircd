@@ -121,7 +121,7 @@ class CommandFilter : public Command
 {
 	FilterBase* Base;
  public:
-	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource) : Command(Me, "FILTER", 'o', 1), Base(f)
+	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource) : Command(Me, "FILTER", "o", 1), Base(f)
 	{
 		this->source = ssource;
 		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";

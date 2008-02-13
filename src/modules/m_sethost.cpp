@@ -22,7 +22,7 @@ class CommandSethost : public Command
  private:
 	char* hostmap;
  public:
-	CommandSethost (InspIRCd* Instance, char* hmap) : Command(Instance,"SETHOST",'o',1), hostmap(hmap)
+	CommandSethost (InspIRCd* Instance, char* hmap) : Command(Instance,"SETHOST","o",1), hostmap(hmap)
 	{
 		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";

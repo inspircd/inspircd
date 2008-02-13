@@ -20,7 +20,7 @@
 class CommandSetidle : public Command
 {
  public:
-	CommandSetidle (InspIRCd* Instance) : Command(Instance,"SETIDLE", 'o', 1)
+	CommandSetidle (InspIRCd* Instance) : Command(Instance,"SETIDLE", "o", 1)
 	{
 		this->source = "m_setidle.so";
 		syntax = "<duration>";

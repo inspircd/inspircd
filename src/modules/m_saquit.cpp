@@ -20,7 +20,7 @@
 class CommandSaquit : public Command
 {
  public:
-	CommandSaquit (InspIRCd* Instance) : Command(Instance, "SAQUIT", 'o', 2, false, 0)
+	CommandSaquit (InspIRCd* Instance) : Command(Instance, "SAQUIT", "o", 2, false, 0)
 	{
 		this->source = "m_saquit.so";
 		syntax = "<nick> <reason>";

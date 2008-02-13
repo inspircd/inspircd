@@ -50,7 +50,7 @@ SVSHoldMap HoldMap;
 class CommandSvshold : public Command
 {
  public:
-	CommandSvshold(InspIRCd* Me) : Command(Me, "SVSHOLD", 'o', 1)
+	CommandSvshold(InspIRCd* Me) : Command(Me, "SVSHOLD", "o", 1)
 	{
 		this->source = "m_svshold.so";
 		this->syntax = "<nickname> [<duration> :<reason>]";

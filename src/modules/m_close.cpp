@@ -19,7 +19,7 @@ class CommandClose : public Command
 {
  public:
 	/* Command 'close', needs operator */
-	CommandClose (InspIRCd* Instance) : Command(Instance,"CLOSE", 'o', 0)
+	CommandClose (InspIRCd* Instance) : Command(Instance,"CLOSE", "o", 0)
 	{
 		this->source = "m_close.so";
 	}

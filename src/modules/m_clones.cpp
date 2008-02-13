@@ -21,7 +21,7 @@
 class CommandClones : public Command
 {
  public:
- 	CommandClones (InspIRCd* Instance) : Command(Instance,"CLONES", 'o', 1)
+ 	CommandClones (InspIRCd* Instance) : Command(Instance,"CLONES", "o", 1)
 	{
 		this->source = "m_clones.so";
 		syntax = "<limit>";

@@ -22,7 +22,7 @@ class CommandChghost : public Command
  private:
 	char* hostmap;
  public:
-	CommandChghost (InspIRCd* Instance, char* hmap) : Command(Instance,"CHGHOST",'o',2), hostmap(hmap)
+	CommandChghost (InspIRCd* Instance, char* hmap) : Command(Instance,"CHGHOST","o",2), hostmap(hmap)
 	{
 		this->source = "m_chghost.so";
 		syntax = "<nick> <newhost>";

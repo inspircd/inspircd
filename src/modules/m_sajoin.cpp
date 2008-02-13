@@ -20,7 +20,7 @@
 class CommandSajoin : public Command
 {
  public:
-	CommandSajoin (InspIRCd* Instance) : Command(Instance,"SAJOIN", 'o', 2, false, 0)
+	CommandSajoin (InspIRCd* Instance) : Command(Instance,"SAJOIN", "o", 2, false, 0)
 	{
 		this->source = "m_sajoin.so";
 		syntax = "<nick> <channel>";

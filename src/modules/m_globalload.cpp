@@ -20,7 +20,7 @@
 class CommandGloadmodule : public Command
 {
  public:
-	CommandGloadmodule (InspIRCd* Instance) : Command(Instance,"GLOADMODULE", 'o', 1)
+	CommandGloadmodule (InspIRCd* Instance) : Command(Instance,"GLOADMODULE", "o", 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
@@ -55,7 +55,7 @@ class CommandGloadmodule : public Command
 class CommandGunloadmodule : public Command
 {
  public:
-	CommandGunloadmodule (InspIRCd* Instance) : Command(Instance,"GUNLOADMODULE", 'o', 1)
+	CommandGunloadmodule (InspIRCd* Instance) : Command(Instance,"GUNLOADMODULE", "o", 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
@@ -89,7 +89,7 @@ class CommandGunloadmodule : public Command
 class CommandGreloadmodule : public Command
 {
  public:
-	CommandGreloadmodule (InspIRCd* Instance) : Command(Instance, "GRELOADMODULE", 'o', 1)
+	CommandGreloadmodule (InspIRCd* Instance) : Command(Instance, "GRELOADMODULE", "o", 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
