@@ -773,7 +773,7 @@ class ModuleSQL : public Module
 
 			ConnMap::iterator iter;
 
-			char* returnval = NULL;
+			const char* returnval = NULL;
 
 			if((iter = Connections.find(req->dbid)) != Connections.end())
 			{

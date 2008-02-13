@@ -182,7 +182,7 @@ sub vcheck($$)
 	$version2 =~ s/[a-z]//g;
 	my @v1 = split('\.', $version1);
 	my @v2 = split('\.', $version2);
-	for (my $curr = 0; $curr < scalar(@v1); $curr++)
+	for (my $curr = 0; $curr < scalar(@v2); $curr++)
 	{
 		if ($v1[$curr] < $v2[$curr])
 		{

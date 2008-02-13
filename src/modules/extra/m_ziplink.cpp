@@ -181,10 +181,10 @@ class ModuleZLib : public Module
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
 			/* Attach to an inspsocket */
-			char* ret = "OK";
+			const char* ret = "OK";
 			try
 			{
-				ret = ServerInstance->Config->AddIOHook((Module*)this, (BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+				ret = ServerInstance->Config->AddIOHook((Module*)this, (BufferedSocket*)ISR->Sock) ? "OK" : NULL;
 			}
 			catch (ModuleException& e)
 			{
@@ -195,7 +195,7 @@ class ModuleZLib : public Module
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
 			/* Detatch from an inspsocket */
-			return ServerInstance->Config->DelIOHook((BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			return ServerInstance->Config->DelIOHook((BufferedSocket*)ISR->Sock) ? "OK" : NULL;
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
