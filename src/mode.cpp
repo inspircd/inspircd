@@ -515,7 +515,6 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 									/* Check access to this mode character */
 									if ((type == MODETYPE_CHANNEL) && (modehandlers[handler_id]->GetNeededPrefix()))
 									{
-										bool allowed = false;
 										char needed = modehandlers[handler_id]->GetNeededPrefix();
 										ModeHandler* prefixmode = FindPrefix(needed);
 										if (prefixmode)
@@ -523,26 +522,22 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 											unsigned int neededrank = prefixmode->GetPrefixRank();
 
 											/* Compare our rank on the channel against the rank of the required prefix,
-											 * allow if >= ours
+											 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
+											 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
+											 * first, so we don't need to iterate, we just look up the first instead.
 											 */
-
-											std::string modestring = ModeString(user, targetchannel);
-											for (std::string::iterator v = modestring.begin(); v != modestring.end(); ++v)
+											std::string modestring = targetchannel->GetAllPrefixChars(user);
+											if (!modestring.empty())
 											{
-												ModeHandler* ourmode = FindPrefix(*v);
-												if (ourmode && (ourmode->GetPrefixRank() >= neededrank))
+												ModeHandler* ourmode = FindPrefix(modestring[0]);
+												if (!ourmode || ourmode->GetPrefixRank() < neededrank)
 												{
-													/* Yay, allowed */
-													allowed = true;
-													break;
+													/* Bog off */
+													user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",
+															user->nick, targetchannel->name, needed, modechar);
+													continue;
 												}
 											}
-										}
-
-										if (!allowed)
-										{
-											user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",user->nick,
-													targetchannel->name, needed, modechar);
 										}
 									}
 								}
