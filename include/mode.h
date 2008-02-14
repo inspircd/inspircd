@@ -134,6 +134,11 @@ class CoreExport ModeHandler : public Extensible
 	 */
 	unsigned int count;
 
+	/** The prefix char needed on channel to use this mode,
+	 * only checked for channel modes
+	 */
+	char prefixneeded;
+
  public:
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
@@ -151,7 +156,7 @@ class CoreExport ModeHandler : public Extensible
 	 * and the rank values OP_VALUE, HALFOP_VALUE and VOICE_VALUE respectively. Any prefixes you define should have unique values proportional
 	 * to these three defaults or proportional to another mode in a module you depend on. See src/cmode_o.cpp as an example.
 	 */
-	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix = 0);
+	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix = 0, char prefixrequired = '%');
 	/**
 	 * The default destructor does nothing
 	 */
@@ -277,6 +282,10 @@ class CoreExport ModeHandler : public Extensible
 	 * @param channel The channel which the server wants to remove your mode from
 	 */
 	virtual void RemoveMode(Channel* channel);
+
+	char GetNeededPrefix();
+
+	void SetNeededPrefix(char needsprefix);
 };
 
 /**

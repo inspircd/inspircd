@@ -54,8 +54,8 @@
 /* +n (notice mask - our implementation of snomasks) */
 #include "modes/umode_n.h"
 
-ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix)
-	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly), prefix(mprefix), count(0)
+ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired)
+	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly), prefix(mprefix), count(0), prefixneeded(prefixrequired)
 {
 }
 
@@ -66,6 +66,16 @@ ModeHandler::~ModeHandler()
 bool ModeHandler::IsListMode()
 {
 	return list;
+}
+
+char ModeHandler::GetNeededPrefix()
+{
+	return prefixneeded;
+}
+
+void ModeHandler::SetNeededPrefix(char needsprefix)
+{
+	prefixneeded = needsprefix;
 }
 
 unsigned int ModeHandler::GetPrefixRank()
@@ -386,28 +396,13 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 			 * (e.g. are they a (half)op?
 			 */
 
-			if ((IS_LOCAL(user)) && (targetchannel->GetStatus(user) < STATUS_HOP))
+			if ((IS_LOCAL(user)) && (!ServerInstance->ULine(user->server)) && (!servermode))
 			{
 				/* We don't have halfop */
 				int MOD_RESULT = 0;
 				FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user, NULL, targetchannel, AC_GENERAL_MODE));
 				if (MOD_RESULT == ACR_DENY)
 					return;
-
-				if (MOD_RESULT == ACR_DEFAULT)
-				{
-					/* Are we a uline or is it a servermode? */
-					if ((!ServerInstance->ULine(user->server)) && (!servermode))
-					{
-						/* Not enough permission:
-						 * NOT a uline and NOT a servermode,
-						 * OR, NOT halfop or above.
-						 */
-						user->WriteServ("482 %s %s :You're not a channel %soperator",user->nick, targetchannel->name,
-								ServerInstance->Config->AllowHalfop ? "(half)" : "");
-						return;
-					}
-				}
 			}
 		}
 		else if (targetuser)
@@ -509,10 +504,48 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 									continue;
 								}
 
+
 								int MOD_RESULT = 0;
 								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, parameter, adding, 1));
 								if (MOD_RESULT == ACR_DENY)
 									continue;
+
+								if (MOD_RESULT != ACR_ALLOW)
+								{
+									/* Check access to this mode character */
+									if ((type == MODETYPE_CHANNEL) && (modehandlers[handler_id]->GetNeededPrefix()))
+									{
+										bool allowed = false;
+										char needed = modehandlers[handler_id]->GetNeededPrefix();
+										ModeHandler* prefixmode = FindPrefix(needed);
+										if (prefixmode)
+										{
+											unsigned int neededrank = prefixmode->GetPrefixRank();
+
+											/* Compare our rank on the channel against the rank of the required prefix,
+											 * allow if >= ours
+											 */
+
+											std::string modestring = ModeString(user, targetchannel);
+											for (std::string::iterator v = modestring.begin(); v != modestring.end(); ++v)
+											{
+												ModeHandler* ourmode = FindPrefix(*v);
+												if (ourmode && (ourmode->GetPrefixRank() >= neededrank))
+												{
+													/* Yay, allowed */
+													allowed = true;
+													break;
+												}
+											}
+										}
+
+										if (!allowed)
+										{
+											user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",user->nick,
+													targetchannel->name, needed, modechar);
+										}
+									}
+								}
 
 								bool had_parameter = !parameter.empty();
 								
