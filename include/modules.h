@@ -1101,7 +1101,9 @@ class CoreExport Module : public Extensible
 	 * @param param The parameter for the mode or an empty string
 	 * @param adding true of the mode is being added, false if it is being removed
 	 * @param pcnt The parameter count for the mode (0 or 1)
-	 * @return 1 to deny the mode, 0 to allow
+	 * @return ACR_DENY to deny the mode, ACR_DEFAULT to do standard mode checking, and ACR_ALLOW
+	 * to skip all permission checking. Please note that for remote mode changes, your return value
+	 * will be ignored!
 	 */
 	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt);
 

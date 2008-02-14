@@ -387,6 +387,8 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 	}
 	else if (pcnt > 1)
 	{
+		bool SkipAccessChecks = false;
+
 		if (targetchannel)
 		{
 			type = MODETYPE_CHANNEL;
@@ -403,6 +405,7 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 				FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user, NULL, targetchannel, AC_GENERAL_MODE));
 				if (MOD_RESULT == ACR_DENY)
 					return;
+				SkipAccessChecks = (MOD_RESULT == ACR_ALLOW);
 			}
 		}
 		else if (targetuser)
@@ -516,7 +519,7 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 							if (IS_LOCAL(user) && (MOD_RESULT == ACR_DENY))
 								continue;
 
-							if (IS_LOCAL(user) && (MOD_RESULT != ACR_ALLOW))
+							if (!SkipAccessChecks && IS_LOCAL(user) && (MOD_RESULT != ACR_ALLOW))
 							{
 								ServerInstance->Log(DEBUG,"Enter minimum prefix check");
 								/* Check access to this mode character */
