@@ -516,14 +516,15 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 							if (IS_LOCAL(user) && (MOD_RESULT == ACR_DENY))
 								continue;
 
-
 							if (IS_LOCAL(user) && (MOD_RESULT != ACR_ALLOW))
 							{
+								ServerInstance->Log(DEBUG,"Enter minimum prefix check");
 								/* Check access to this mode character */
 								if ((type == MODETYPE_CHANNEL) && (modehandlers[handler_id]->GetNeededPrefix()))
 								{
 									char needed = modehandlers[handler_id]->GetNeededPrefix();
 									ModeHandler* prefixmode = FindPrefix(needed);
+									ServerInstance->Log(DEBUG,"Needed prefix: %c", needed);
 									if (prefixmode)
 									{
 										unsigned int neededrank = prefixmode->GetPrefixRank();
@@ -533,16 +534,14 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 										 * first, so we don't need to iterate, we just look up the first instead.
 										 */
 										std::string modestring = targetchannel->GetAllPrefixChars(user);
-										if (!modestring.empty())
+										char ml = (modestring.empty() ? '\0' : modestring[0]);
+										ModeHandler* ourmode = FindPrefix(ml);
+										if (!ourmode || ourmode->GetPrefixRank() < neededrank)
 										{
-											ModeHandler* ourmode = FindPrefix(modestring[0]);
-											if (!ourmode || ourmode->GetPrefixRank() < neededrank)
-											{
-												/* Bog off */
-												user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",
-														user->nick, targetchannel->name, needed, modechar);
-												continue;
-											}
+											/* Bog off */
+											user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",
+													user->nick, targetchannel->name, needed, modechar);
+											continue;
 										}
 									}
 								}
