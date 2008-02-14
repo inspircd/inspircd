@@ -42,17 +42,66 @@ class ChannelLogStream : public LogStream
 class ModuleChanLog : public Module
 {
  private:
-	ChannelLogStream *l;
+	std::vector<ChannelLogStream*> cls;
  public:
 	ModuleChanLog(InspIRCd* Me) : Module(Me)
 	{
-		l = new ChannelLogStream(Me, ServerInstance->Config->LogLevel, "#services");
-		Me->Logs->AddLogType("*", l);
 	}
 
 	virtual ~ModuleChanLog()
 	{
-		delete l;
+		std::vector<ChannelLogStream*>::iterator i;
+		while ((i = cls.begin()) != cls.end())
+		{
+			ServerInstance->Logs->DelLogStream(*i);
+			cls.erase(i);
+		}
+	}
+
+	virtual void OnReadConfig(ServerConfig* sc, ConfigReader* Conf)
+	{
+		/* Since the CloseLogs prior to this hook just wiped out our logstreams for us, we just need to wipe the vector. */
+		std::vector<ChannelLogStream*>().swap(cls);
+		int index, max = Conf->Enumerate("log");
+		cls.reserve(max);
+		for (index = 0; index < max; ++index)
+		{
+			std::string method = Conf->ReadValue("log", "method", index);
+			if (method != "file") continue;
+			std::string type = Conf->ReadValue("log", "type", index);
+			std::string level = Conf->ReadValue("log", "level", index);
+			int loglevel = DEFAULT;
+			if (level == "debug")
+			{
+				loglevel = DEBUG;
+				ServerInstance->Config->debugging = true;
+			}
+			else if (level == "verbose")
+			{
+				loglevel = VERBOSE;
+			}
+			else if (level == "default")
+			{
+				loglevel = DEFAULT;
+			}
+			else if (level == "sparse")
+			{
+				loglevel = SPARSE;
+			}
+			else if (level == "none")
+			{
+				loglevel = NONE;
+			}
+			std::string target = Conf->ReadValue("log", "target", index);
+			ChannelLogStream* c = new ChannelLogStream(ServerInstance, loglevel, target);
+			irc::commasepstream css(type);
+			std::string tok;
+			while (css.GetToken(tok))
+			{
+				ServerInstance->Logs->AddLogType(tok, c);
+			}
+			cls.push_back(c);
+		}
 	}
 
 	virtual Version GetVersion()

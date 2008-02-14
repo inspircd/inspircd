@@ -101,33 +101,21 @@ void LogManager::OpenFileLogs()
 
 void LogManager::CloseLogs()
 {
-	/*
-	 * This doesn't remove logstreams from the map/vector etc, because if this is called, shit is hitting the fan
-	 * and we're going down anyway - this just provides a "nice" way for logstreams to clean up. -- w
-	 */
-	std::map<std::string, std::vector<LogStream *> >::iterator i;
-
-	while (LogStreams.begin() != LogStreams.end())
+	std::map<std::string, std::vector<LogStream*> >().swap(LogStreams); /* Clear it */
+	std::vector<LogStream*>().swap(GlobalLogStreams); /* Clear it */
+	for (std::map<LogStream*, int>::iterator i = AllLogStreams.begin(); i != AllLogStreams.end(); ++i)
 	{
-		i = LogStreams.begin();
-
-		while (i->second.begin() != i->second.end())
-		{
-			std::vector<LogStream *>::iterator it = i->second.begin();
-
-			delete (*it);
-			i->second.erase(it);
-		}
-
-		LogStreams.erase(i);
+		delete i->first;
 	}
+	std::map<LogStream*, int>().swap(AllLogStreams); /* And clear it */
+
 	/* Now close FileLoggers, for those logstreams that neglected to properly free their stuff. */
-	for (FileLogMap::iterator it = FileLogs.begin(); it != FileLogs.end(); ++i)
+	for (FileLogMap::iterator it = FileLogs.begin(); it != FileLogs.end(); ++it)
 	{
 		delete it->first;
 	}
 
-	FileLogMap().swap(FileLogs); /* Swap with empty map to clear */
+	FileLogMap().swap(FileLogs);
 }
 
 bool LogManager::AddLogType(const std::string &type, LogStream *l)
@@ -146,47 +134,79 @@ bool LogManager::AddLogType(const std::string &type, LogStream *l)
 	if (type == "*")
 		GlobalLogStreams.push_back(l);
 
+	std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
+	if (ai == AllLogStreams.end())
+	{
+		AllLogStreams.insert(std::make_pair(l, 1));
+	}
+	else
+	{
+		++ai->second;
+	}
+
 	return true;
+}
+
+void LogManager::DelLogStream(LogStream* l)
+{
+	for (std::map<std::string, std::vector<LogStream*> >::iterator i = LogStreams.begin(); i != LogStreams.end(); ++i)
+	{
+		std::vector<LogStream*>::iterator it;
+		while ((it = std::find(i->second.begin(), i->second.end(), l)) != i->second.end())
+		{
+			if (it == i->second.end()) continue;
+			i->second.erase(it);
+		}
+	}
+	std::vector<LogStream *>::iterator gi = std::find(GlobalLogStreams.begin(), GlobalLogStreams.end(), l);
+	if (gi != GlobalLogStreams.end()) GlobalLogStreams.erase(gi);
+	std::map<LogStream*, int>::iterator ai = AllLogStreams.begin();
+	if (ai == AllLogStreams.end()) return; /* Done. */
+	delete ai->first;
+	AllLogStreams.erase(ai);
 }
 
 bool LogManager::DelLogType(const std::string &type, LogStream *l)
 {
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
-	std::vector<LogStream *>::iterator gi = GlobalLogStreams.begin();
-
-	while (gi != GlobalLogStreams.end())
+	if (type == "*")
 	{
-		if ((*gi) == l)
-		{
-			GlobalLogStreams.erase(gi);
-			break;
-		}
+		std::vector<LogStream *>::iterator gi = std::find(GlobalLogStreams.begin(), GlobalLogStreams.end(), l);
+		if (gi != GlobalLogStreams.end()) GlobalLogStreams.erase(gi);
 	}
 
 	if (i != LogStreams.end())
 	{
-		std::vector<LogStream *>::iterator it = i->second.begin();
+		std::vector<LogStream *>::iterator it = std::find(i->second.begin(), i->second.end(), l);
 
-		while (it != i->second.end())
+		if (it != i->second.end())
 		{
-			if (*it == l)
+			i->second.erase(it);
+			if (i->second.size() == 0)
 			{
-				i->second.erase(it);
-
-				if (i->second.size() == 0)
-				{
-					LogStreams.erase(i);
-				}
-
-				delete l;
-				return true;
+				LogStreams.erase(i);
 			}
-
-			it++;
+		}
+		else
+		{
+			return false;
 		}
 	}
+	else
+	{
+		return false;
+	}
 
-	return false;
+	std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
+	if (ai == AllLogStreams.end()) return true;
+
+	if ((--ai->second) < 1)
+	{
+		AllLogStreams.erase(ai);
+		delete l;
+	}
+
+	return true;
 }
 
 void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...)

@@ -86,7 +86,7 @@ class CoreExport LogStream : public classbase
 
 	virtual ~LogStream() { }
 
-	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg) { }
+	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg) = 0;
 };
 
 typedef std::map<FileWriter*, int> FileLogMap;
@@ -97,6 +97,7 @@ class CoreExport LogManager : public classbase
 	bool Logging; // true when logging, avoids recursion
 	InspIRCd *ServerInstance;
 	std::map<std::string, std::vector<LogStream *> > LogStreams;
+	std::map<LogStream *, int> AllLogStreams; // holds all logstreams
 	std::vector<LogStream *> GlobalLogStreams; //holds all logstreams with a type of *
 	FileLogMap FileLogs; /* Holds all file logs, refcounted */
  public:
@@ -134,6 +135,7 @@ class CoreExport LogManager : public classbase
 	void OpenFileLogs();
 	void CloseLogs();
 	bool AddLogType(const std::string &type, LogStream *l);
+	void DelLogStream(LogStream* l);
 	bool DelLogType(const std::string &type, LogStream *l);
 	void Log(const std::string &type, int loglevel, const std::string &msg);
 	void Log(const std::string &type, int loglevel, const char *fmt, ...);

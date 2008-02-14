@@ -1175,6 +1175,9 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		 * stuff. Check that we have at least the required number
 		 * of whichever items. This is no longer done first.
 		 */
+		/* Close all logs at this point and reopen <log method="file"> logs. */
+		ServerInstance->Logs->CloseLogs();
+		ServerInstance->Logs->OpenFileLogs();
 		ConfigReader* n = new ConfigReader(ServerInstance);
 		FOREACH_MOD(I_OnReadConfig,OnReadConfig(this, n));
 
