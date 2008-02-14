@@ -306,20 +306,12 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 		{
 			unsigned char mletter = *mode;
 
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, *mode, "", true, 0));
-			if (MOD_RESULT == ACR_DENY)
-			{
-				mode++;
-				continue;
-			}
-
 			if (*mode == '+')
 			{
 				mode++;
 				continue;
 			}
-
+			
 			/* Ensure the user doesnt request the same mode twice,
 			 * so they cant flood themselves off out of idiocy.
 			 */
@@ -338,6 +330,14 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 
 			if ((mh) && (mh->IsListMode()))
 			{
+				int MOD_RESULT = 0;
+				FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, *mode, "", true, 0));
+				if (MOD_RESULT == ACR_DENY)
+				{
+					mode++;
+					continue;
+				}
+
 				if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
 				{
 					user->WriteServ("482 %s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
