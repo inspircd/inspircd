@@ -69,6 +69,7 @@ class CoreExport EventHandler : public Extensible
 	 */
 	int fd;
  public:
+
 	/** Get the current file descriptor
 	 * @return The file descriptor of this handler
 	 */
@@ -168,6 +169,11 @@ protected:
 	 */
 	EventHandler* ref[MAX_DESCRIPTORS];
 public:
+
+	double TotalEvents;
+	double ReadEvents;
+	double WriteEvents;
+	double ErrorEvents;
 
 	/** Constructor.
 	 * The constructor transparently initializes

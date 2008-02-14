@@ -100,6 +100,8 @@ int PortsEngine::DispatchEvents()
 	if (i == -1)
 		return i;
 
+	TotalEvents += nget;
+
 	for (i = 0; i < nget; i++)
 	{
 		switch (this->events[i].portev_source)
@@ -111,6 +113,10 @@ int PortsEngine::DispatchEvents()
 				{
 					// reinsert port for next time around
 					port_associate(EngineHandle, PORT_SOURCE_FD, fd, POLLRDNORM, ref[fd]);
+					if ((this->events[i].portev_events & POLLRDNORM))
+						ReadEvents++;
+					else
+						WriteEvents++;
 					ref[fd]->HandleEvent((this->events[i].portev_events & POLLRDNORM) ? EVENT_READ : EVENT_WRITE);
 				}
 			}

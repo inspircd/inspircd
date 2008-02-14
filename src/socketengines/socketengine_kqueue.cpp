@@ -128,7 +128,11 @@ int KQueueEngine::DispatchEvents()
 {
 	ts.tv_nsec = 0;
 	ts.tv_sec = 1;
+
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
+
+	TotalEvents += i;
+
 	for (int j = 0; j < i; j++)
 	{
 		if (ke_list[j].flags & EV_EOF)
@@ -138,6 +142,7 @@ int KQueueEngine::DispatchEvents()
 			 * Unlike smelly epoll and select, where we have to getsockopt
 			 * to get the error, this saves us time and cpu cycles. Go BSD!
 			 */
+			ErrorEvents++;
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
 			continue;
@@ -150,11 +155,13 @@ int KQueueEngine::DispatchEvents()
 			struct kevent ke;
 			EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
 			kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+			WriteEvents++;
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}
 		else
 		{
+			ReadEvents++;
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_READ);
 		}

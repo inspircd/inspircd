@@ -121,16 +121,20 @@ int EPollEngine::DispatchEvents()
 	int errcode;
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 1000);
 
+	TotalEvents += i;
+
 	for (int j = 0; j < i; j++)
 	{
 		if (events[j].events & EPOLLHUP)
 		{
+			ErrorEvents++;
 			if (ref[events[j].data.fd])
 				ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, 0);
 			continue;
 		}
 		if (events[j].events & EPOLLERR)
 		{
+			ErrorEvents++;
 			/* Get error number */
 			if (getsockopt(events[j].data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
@@ -140,6 +144,7 @@ int EPollEngine::DispatchEvents()
 		}
 		if (events[j].events & EPOLLOUT)
 		{
+			WriteEvents++;
 			struct epoll_event ev;
 			memset(&ev,0,sizeof(struct epoll_event));
 			ev.events = EPOLLIN;
@@ -150,6 +155,7 @@ int EPollEngine::DispatchEvents()
 		}
 		else
 		{
+			ReadEvents++;
 			if (ref[events[j].data.fd])
 				ref[events[j].data.fd]->HandleEvent(EVENT_READ);
 		}

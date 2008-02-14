@@ -62,6 +62,7 @@ void SocketEngine::WantWrite(EventHandler* eh)
 SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	memset(ref, 0, sizeof(ref));
+	TotalEvents = WriteEvents = ReadEvents = ErrorEvents = 0;
 }
 
 SocketEngine::~SocketEngine()

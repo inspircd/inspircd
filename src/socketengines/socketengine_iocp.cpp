@@ -302,10 +302,13 @@ int IOCPEngine::DispatchEvents()
 		eh->GetExt("windows_readevent", m_readEvent);
 		eh->GetExt("windows_writeevent", m_writeEvent);
 
+		TotalEvents++;
+
 		switch(ov->m_event)
 		{
 			case SOCKET_IO_EVENT_WRITE_READY:
 			{
+				WriteEvents++;
 				eh->Shrink("windows_writeevent");
 				eh->HandleEvent(EVENT_WRITE, 0);
 			}
@@ -313,6 +316,7 @@ int IOCPEngine::DispatchEvents()
 
 			case SOCKET_IO_EVENT_READ_READY:
 			{
+				ReadEvents++;
 				if(ov->m_params)
 				{
 					// if we had params, it means we are a udp socket with a udp_overlap pointer in this long.
@@ -346,6 +350,7 @@ int IOCPEngine::DispatchEvents()
 			case SOCKET_IO_EVENT_ACCEPT:
 			{
 				/* this is kinda messy.. :/ */
+				ReadEvents++;
 				eh->HandleEvent(EVENT_READ, ov->m_params);
 				delete ((accept_overlap*)ov->m_params);
 				eh->Shrink("windows_acceptevent");
@@ -355,6 +360,7 @@ int IOCPEngine::DispatchEvents()
 
 			case SOCKET_IO_EVENT_ERROR:
 			{
+				ErrorEvents++;
 				eh->HandleEvent(EVENT_ERROR, ov->m_params);
 			}
 			break;

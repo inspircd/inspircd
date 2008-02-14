@@ -132,27 +132,35 @@ int SelectEngine::DispatchEvents()
 		{
 			if (FD_ISSET (ev[i]->GetFd(), &errfdset))
 			{
-				if (ev[i])
-				{
-					if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
-						errcode = errno;
+				ErrorEvents++;
 
-					ev[i]->HandleEvent(EVENT_ERROR, errcode);
-				}
+				if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
+					errcode = errno;
+
+				ev[i]->HandleEvent(EVENT_ERROR, errcode);
+
 				continue;
 			}
-			if (ev[i])
+			else
 			{
 				if (writeable[ev[i]->GetFd()])
 				{
+					WriteEvents++;
 					writeable[ev[i]->GetFd()] = false;
-					if (ev[i])
-						ev[i]->HandleEvent(EVENT_WRITE);
+					ev[i]->HandleEvent(EVENT_WRITE);
 				}
 				else
 				{
-					if (ev[i])
-						ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
+					if (ev[i]->Readable())
+					{
+						ReadEvents++;
+						ev[i]->HandleEvent(EVENT_READ);
+					}
+					else
+					{
+						WriteEvents++;
+						ev[i]->HandleEvent(EVENT_WRITE);
+					}
 				}
 			}
 		}
