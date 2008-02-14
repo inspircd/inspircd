@@ -525,24 +525,30 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 									char needed = modehandlers[handler_id]->GetNeededPrefix();
 									ModeHandler* prefixmode = FindPrefix(needed);
 									ServerInstance->Log(DEBUG,"Needed prefix: %c", needed);
-									if (prefixmode)
+
+									/* If the mode defined by the handler is not '\0', but the handler for it
+									 * cannot be found, they probably dont have the right module loaded to implement
+									 * the prefix they want to compare the mode against, e.g. '&' for m_chanprotect.
+									 * Revert to checking against the minimum core prefix, '%'.
+									 */
+									if (needed && !prefixmode)
+										prefixmode = FindPrefix('%');
+						
+									unsigned int neededrank = prefixmode->GetPrefixRank();
+									/* Compare our rank on the channel against the rank of the required prefix,
+									 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
+									 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
+									 * first, so we don't need to iterate, we just look up the first instead.
+									 */
+									std::string modestring = targetchannel->GetAllPrefixChars(user);
+									char ml = (modestring.empty() ? '\0' : modestring[0]);
+									ModeHandler* ourmode = FindPrefix(ml);
+									if (!ourmode || ourmode->GetPrefixRank() < neededrank)
 									{
-										unsigned int neededrank = prefixmode->GetPrefixRank();
-										/* Compare our rank on the channel against the rank of the required prefix,
-										 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
-										 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
-										 * first, so we don't need to iterate, we just look up the first instead.
-										 */
-										std::string modestring = targetchannel->GetAllPrefixChars(user);
-										char ml = (modestring.empty() ? '\0' : modestring[0]);
-										ModeHandler* ourmode = FindPrefix(ml);
-										if (!ourmode || ourmode->GetPrefixRank() < neededrank)
-										{
-											/* Bog off */
-											user->WriteServ("482 %s %s :You require channel privilege %c or above to %sset channel mode %c",
-													user->nick, targetchannel->name, needed, adding ? "" : "un", modechar);
-											continue;
-										}
+										/* Bog off */
+										user->WriteServ("482 %s %s :You require channel privilege %c or above to %sset channel mode %c",
+												user->nick, targetchannel->name, needed, adding ? "" : "un", modechar);
+										continue;
 									}
 								}
 							}
