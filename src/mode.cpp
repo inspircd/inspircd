@@ -539,8 +539,8 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 										if (!ourmode || ourmode->GetPrefixRank() < neededrank)
 										{
 											/* Bog off */
-											user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",
-													user->nick, targetchannel->name, needed, modechar);
+											user->WriteServ("482 %s %s :You require channel privilege %c or above to %sset channel mode %c",
+													user->nick, targetchannel->name, needed, adding ? "" : "un", modechar);
 											continue;
 										}
 									}
