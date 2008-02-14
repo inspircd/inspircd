@@ -202,7 +202,7 @@ class ModuleBanRedirect : public Module
 		OnRehash(NULL, "");
 
 		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete, I_OnCleanup };
-		Me->Modules->Attach(list, this, sizeof(*list));
+		Me->Modules->Attach(list, this, 4);
 
 	}
 	
