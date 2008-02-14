@@ -487,6 +487,8 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 
 						if (modehandlers[handler_id]->GetModeType() == type)
 						{
+							int MOD_RESULT = 0;
+
 							if (modehandlers[handler_id]->GetNumParams(adding))
 							{
 								/* This mode expects a parameter, do we have any parameters left in our list to use? */
@@ -504,84 +506,67 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 									continue;
 								}
 
-
-								int MOD_RESULT = 0;
 								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, parameter, adding, 1));
-								if (MOD_RESULT == ACR_DENY)
-									continue;
+							}
+							else
+							{
+								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, "", adding, 0));
+							}
 
-								if (MOD_RESULT != ACR_ALLOW)
+							if (IS_LOCAL(user) && (MOD_RESULT == ACR_DENY))
+								continue;
+
+
+							if (IS_LOCAL(user) && (MOD_RESULT != ACR_ALLOW))
+							{
+								/* Check access to this mode character */
+								if ((type == MODETYPE_CHANNEL) && (modehandlers[handler_id]->GetNeededPrefix()))
 								{
-									/* Check access to this mode character */
-									if ((type == MODETYPE_CHANNEL) && (modehandlers[handler_id]->GetNeededPrefix()))
+									char needed = modehandlers[handler_id]->GetNeededPrefix();
+									ModeHandler* prefixmode = FindPrefix(needed);
+									if (prefixmode)
 									{
-										char needed = modehandlers[handler_id]->GetNeededPrefix();
-										ModeHandler* prefixmode = FindPrefix(needed);
-										if (prefixmode)
+										unsigned int neededrank = prefixmode->GetPrefixRank();
+										/* Compare our rank on the channel against the rank of the required prefix,
+										 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
+										 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
+										 * first, so we don't need to iterate, we just look up the first instead.
+										 */
+										std::string modestring = targetchannel->GetAllPrefixChars(user);
+										if (!modestring.empty())
 										{
-											unsigned int neededrank = prefixmode->GetPrefixRank();
-
-											/* Compare our rank on the channel against the rank of the required prefix,
-											 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
-											 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
-											 * first, so we don't need to iterate, we just look up the first instead.
-											 */
-											std::string modestring = targetchannel->GetAllPrefixChars(user);
-											if (!modestring.empty())
+											ModeHandler* ourmode = FindPrefix(modestring[0]);
+											if (!ourmode || ourmode->GetPrefixRank() < neededrank)
 											{
-												ModeHandler* ourmode = FindPrefix(modestring[0]);
-												if (!ourmode || ourmode->GetPrefixRank() < neededrank)
-												{
-													/* Bog off */
-													user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",
-															user->nick, targetchannel->name, needed, modechar);
-													continue;
-												}
+												/* Bog off */
+												user->WriteServ("482 %s %s :You require channel privilege '%c' or above to execute channel mode '%c'",
+														user->nick, targetchannel->name, needed, modechar);
+												continue;
 											}
 										}
 									}
 								}
+							}
 
-								bool had_parameter = !parameter.empty();
+							bool had_parameter = !parameter.empty();
 								
-								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
-								{
-									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
-									{
-										abort = true;
-										break;
-									}
-									/* A module whacked the parameter completely, and there was one. abort. */
-									if ((had_parameter) && (parameter.empty()))
-									{
-										abort = true;
-										break;
-									}
-								}
-
-								if (abort)
-									continue;
-							}
-							else
+							for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 							{
-								int MOD_RESULT = 0;
-								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, "", adding, 0));
-								if (MOD_RESULT == ACR_DENY)
-									continue;
-
-								/* Fix by brain: mode watchers not being called for parameterless modes */
-								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
+								if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
 								{
-									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
-									{
-										abort = true;
-										break;
-									}
+									abort = true;
+									break;
 								}
-
-								if (abort)
-									continue;
+								/* A module whacked the parameter completely, and there was one. abort. */
+								if ((had_parameter) && (parameter.empty()))
+								{
+									abort = true;
+									break;
+								}
 							}
+
+							if (abort)
+								continue;
 
 							/* It's an oper only mode, check if theyre an oper. If they arent,
 							 * eat any parameter that  came with the mode, and continue to next
