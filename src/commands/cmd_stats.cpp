@@ -154,6 +154,12 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		case 'e':
 			ServerInstance->XLines->InvokeStats("E",223,user,results);
 		break;
+		case 'E':
+			results.push_back(sn+" 249 "+user->nick+" :Total events: "+ConvToStr(ServerInstance->SE->TotalEvents));
+			results.push_back(sn+" 249 "+user->nick+" :Read events:  "+ConvToStr(ServerInstance->SE->ReadEvents));
+			results.push_back(sn+" 249 "+user->nick+" :Write events: "+ConvToStr(ServerInstance->SE->WriteEvents));
+			results.push_back(sn+" 249 "+user->nick+" :Error events: "+ConvToStr(ServerInstance->SE->ErrorEvents));
+		break;
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':

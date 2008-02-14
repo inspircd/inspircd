@@ -77,7 +77,7 @@ watchentries* whos_watching_me;
 class CommandSVSWatch : public Command
 {
  public:
-	CommandSVSWatch (InspIRCd* Instance) : Command(Instance,"WATCH", 0, 2)
+	CommandSVSWatch (InspIRCd* Instance) : Command(Instance,"SVSWATCH", 0, 2)
 	{
 		this->source = "m_watch.so";
 		syntax = "<target> [C|L|S]|[+|-<nick>]";
