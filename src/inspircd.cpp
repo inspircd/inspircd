@@ -401,6 +401,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 #endif
 	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
 
+	/* Set the finished argument values */
+	Config->nofork = do_nofork;
+	Config->forcedebug = do_debug;
+	Config->writelog = !do_nolog;	
+
 	if (!this->OpenLog(argv, argc))
 	{
 		printf("ERROR: Could not open logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
@@ -421,10 +426,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	printf_c("\t\033[1;32mpippijn, peavey, aquanight, fez\033[0m\n\n");
 	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
 
-	/* Set the finished argument values */
-	Config->nofork = do_nofork;
-	Config->forcedebug = do_debug;
-	Config->writelog = !do_nolog;	
 	Config->ClearStack();
 
 	this->Modes = new ModeParser(this);

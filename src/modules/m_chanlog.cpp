@@ -98,7 +98,7 @@ class ModuleChanLog : public Module
 			std::string tok;
 			while (css.GetToken(tok))
 			{
-				ServerInstance->Logs->AddLogType(tok, c);
+				ServerInstance->Logs->AddLogType(tok, c, true);
 			}
 			cls.push_back(c);
 		}

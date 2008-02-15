@@ -303,6 +303,12 @@ bool InspIRCd::IsSID(const std::string &str)
 /* open the proper logfile */
 bool InspIRCd::OpenLog(char**, int)
 {
+	/* This function only happens at startup now (log reopening is done at OnReadConfig stage now instead of rehash) */
+	if (Config->nofork)
+	{
+		this->Logs->SetupNoFork();
+	}
+	if (!Config->writelog) return true; // Skip opening default log if -nolog
 	Config->MyDir = Config->GetFullProgDir();
 
 	if (!*this->LogFileName)
@@ -325,9 +331,10 @@ bool InspIRCd::OpenLog(char**, int)
 	}
 
 	FileWriter* fw = new FileWriter(this, Config->log_file);
-	FileLogStream *f = new FileLogStream(this, Config->LogLevel, fw);
+	FileLogStream *f = new FileLogStream(this, (Config->forcedebug ? DEBUG : Config->LogLevel), fw);
 
-	this->Logs->AddLogType("*", f);
+	this->Logs->AddLogType("*", f, true);
+
 	return true;
 }
 

@@ -26,8 +26,10 @@ my $location = "";
 my @msgfilters = (
 	[ qr/^(.*) warning: cannot pass objects of non-POD type `(.*)' through `\.\.\.'; call will abort at runtime/ => sub {
 		my ($msg, $where, $type) = @_;
+		print $location;
+		$location = "";
 		my $errstr = "$where error: cannot pass objects of non-POD type `$type' through `...'\n";
-		if ($type =~ m/::string/) {
+		if ($type =~ m/::(basic_)?string/) {
 			$errstr .= "$where (Did you forget to call c_str()?)\n";
 		}
 		die $errstr;

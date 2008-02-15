@@ -42,7 +42,9 @@ void FileLogStream::OnLog(int loglevel, const std::string &type, const std::stri
 
 	/* If we were given -debug we output all messages, regardless of configured loglevel */
 	if ((loglevel < this->loglvl) && !ServerInstance->Config->forcedebug)
+	{
 		return;
+	}
 
 	if (ServerInstance->Time() != LAST)
 	{
@@ -54,14 +56,6 @@ void FileLogStream::OnLog(int loglevel, const std::string &type, const std::stri
 		LAST = ServerInstance->Time();
 	}
 
-	if (ServerInstance->Config->log_file && ServerInstance->Config->writelog)
-	{
-		std::string out = std::string(TIMESTR) + " " + text.c_str() + "\n";
-		this->f->WriteLogLine(out);
-	}
-
-	if (ServerInstance->Config->nofork)
-	{
-		printf("%s %s\n", TIMESTR, text.c_str());
-	}
+	std::string out = std::string(TIMESTR) + " " + text.c_str() + "\n";
+	this->f->WriteLogLine(out);
 }

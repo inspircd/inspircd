@@ -44,8 +44,24 @@
  * 
  */
 
+void LogManager::SetupNoFork()
+{
+	if (!noforkstream)
+	{
+		FileWriter* fw = new FileWriter(ServerInstance, stdout);
+		noforkstream = new FileLogStream(ServerInstance, ServerInstance->Config->forcedebug ? DEBUG : ServerInstance->Config->LogLevel, fw);
+	}
+	else
+	{
+		noforkstream->ChangeLevel(ServerInstance->Config->forcedebug ? DEBUG : ServerInstance->Config->LogLevel);
+	}
+	AddLogType("*", noforkstream, false);
+}
+
 void LogManager::OpenFileLogs()
 {
+	if (ServerInstance->Config->nofork) SetupNoFork(); // Call this to reregister the nofork stream.
+	if (!ServerInstance->Config->writelog) return; // Skip rest of logfile opening if we are running -nolog.
 	ConfigReader* Conf = new ConfigReader(ServerInstance);
 	std::map<std::string, FileWriter*> logmap;
 	std::map<std::string, FileWriter*>::iterator i;
@@ -56,7 +72,7 @@ void LogManager::OpenFileLogs()
 		std::string type = Conf->ReadValue("log", "type", index);
 		std::string level = Conf->ReadValue("log", "level", index);
 		int loglevel = DEFAULT;
-		if (level == "debug")
+		if (level == "debug" || ServerInstance->Config->forcedebug)
 		{
 			loglevel = DEBUG;
 			ServerInstance->Config->debugging = true;
@@ -94,7 +110,7 @@ void LogManager::OpenFileLogs()
 		std::string tok;
 		while (css.GetToken(tok))
 		{
-			AddLogType(tok, fls);
+			AddLogType(tok, fls, true);
 		}
 	}
 }
@@ -108,17 +124,9 @@ void LogManager::CloseLogs()
 		delete i->first;
 	}
 	std::map<LogStream*, int>().swap(AllLogStreams); /* And clear it */
-
-	/* Now close FileLoggers, for those logstreams that neglected to properly free their stuff. */
-	for (FileLogMap::iterator it = FileLogs.begin(); it != FileLogs.end(); ++it)
-	{
-		delete it->first;
-	}
-
-	FileLogMap().swap(FileLogs);
 }
 
-bool LogManager::AddLogType(const std::string &type, LogStream *l)
+bool LogManager::AddLogType(const std::string &type, LogStream *l, bool autoclose)
 {
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
 
@@ -134,14 +142,17 @@ bool LogManager::AddLogType(const std::string &type, LogStream *l)
 	if (type == "*")
 		GlobalLogStreams.push_back(l);
 
-	std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
-	if (ai == AllLogStreams.end())
+	if (autoclose)
 	{
-		AllLogStreams.insert(std::make_pair(l, 1));
-	}
-	else
-	{
-		++ai->second;
+		std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
+		if (ai == AllLogStreams.end())
+		{
+			AllLogStreams.insert(std::make_pair(l, 1));
+		}
+		else
+		{
+			++ai->second;
+		}
 	}
 
 	return true;

@@ -86,6 +86,8 @@ class CoreExport LogStream : public classbase
 
 	virtual ~LogStream() { }
 
+	void ChangeLevel(int lvl) { this->loglvl = lvl; } // For on-the-fly change of loglevel.
+
 	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg) = 0;
 };
 
@@ -95,6 +97,7 @@ class CoreExport LogManager : public classbase
 {
  private:
 	bool Logging; // true when logging, avoids recursion
+	LogStream* noforkstream; // LogStream for nofork.
 	InspIRCd *ServerInstance;
 	std::map<std::string, std::vector<LogStream *> > LogStreams;
 	std::map<LogStream *, int> AllLogStreams; // holds all logstreams
@@ -106,6 +109,8 @@ class CoreExport LogManager : public classbase
 		ServerInstance = Instance;
 		Logging = false;
 	}
+
+	void SetupNoFork();
 
 	void AddLoggerRef(FileWriter* fw)
 	{
@@ -134,7 +139,7 @@ class CoreExport LogManager : public classbase
 	void OpenSingleFile(FILE* f, const std::string& type, int loglevel);
 	void OpenFileLogs();
 	void CloseLogs();
-	bool AddLogType(const std::string &type, LogStream *l);
+	bool AddLogType(const std::string &type, LogStream *l, bool autoclose);
 	void DelLogStream(LogStream* l);
 	bool DelLogType(const std::string &type, LogStream *l);
 	void Log(const std::string &type, int loglevel, const std::string &msg);

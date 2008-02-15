@@ -47,9 +47,6 @@ void InspIRCd::Exit(int status)
 void InspIRCd::Rehash()
 {
 	this->SNO->WriteToSnoMask('A', "Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(this->ConfigFileName));
-	this->Logs->CloseLogs();
-	if (!this->OpenLog(this->Config->argv, this->Config->argc))
-		this->SNO->WriteToSnoMask('A', "ERROR: Could not open logfile %s: %s", Config->logpath.c_str(), strerror(errno));
 	this->RehashUsersAndChans();
 	FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
 	/*this->Config->Read(false,NULL);*/
