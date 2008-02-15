@@ -36,8 +36,7 @@ void InspIRCd::Log(int level, const char* text, ...)
 
 void InspIRCd::Log(int level, const std::string &text)
 {
-	this->Logs->Log("WARNING", DEFAULT, "Deprecated call to InspIRCd::Log()! - log message follows");
-	this->Logs->Log("DEPRECATED", level, text);
+	this->Logs->Log("DEPRECATED", level, "Deprecated use of InspIRCd::Log(), message = %s", text.c_str());
 }
 
 std::string InspIRCd::GetServerDescription(const char* servername)
