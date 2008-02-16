@@ -36,6 +36,44 @@ class ModuleDenyChannels : public Module
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
+		/* check for redirect validity and loops/chains */
+		for (int i =0; i < Conf->Enumerate("badchan"); i++)
+		{
+			std::string name = Conf->ReadValue("badchan","name",i);
+			std::string redirect = Conf->ReadValue("badchan","redirect",i);
+			
+			if (!redirect.empty())
+			{
+			
+				if (!ServerInstance->IsChannel(redirect.c_str()))
+				{
+					if (user)
+						user->WriteServ("Notice %s :Invalid badchan redirect '%s'", user->nick, redirect.c_str());
+					throw ModuleException("Invalid badchan redirect, not a channel");
+				}
+	
+				for (int j =0; j < Conf->Enumerate("badchan"); j++)
+				{
+					if (match(redirect.c_str(), Conf->ReadValue("badchan","name",j).c_str()))
+					{
+						bool goodchan = false;
+						for (int k =0; k < Conf->Enumerate("goodchan"); k++)
+						{
+							if (match(redirect.c_str(), Conf->ReadValue("goodchan","name",k).c_str()))
+								goodchan = true;
+						}
+	
+						if (!goodchan)
+						{
+							/* <badchan:redirect> is a badchan */
+							if (user)
+								user->WriteServ("NOTICE %s :Badchan %s redirects to badchan %s", user->nick, name.c_str(), redirect.c_str());
+							throw ModuleException("Badchan redirect loop");
+						}
+					}
+				}
+			}
+		}
 	}
 
 	virtual ~ModuleDenyChannels()
@@ -74,9 +112,14 @@ class ModuleDenyChannels : public Module
 					
 					if (ServerInstance->IsChannel(redirect.c_str()))
 					{
-						user->WriteServ("926 %s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick,cname,cname,redirect.c_str(), reason.c_str());
-						Channel::JoinUser(ServerInstance,user,redirect.c_str(),false,"",false,ServerInstance->Time(true));
-						return 1;
+						/* simple way to avoid potential loops: don't redirect to +L channels */
+						Channel *newchan = ServerInstance->FindChan(redirect);
+						if ((!newchan) || (!(newchan->IsModeSet('L'))))
+						{
+							user->WriteServ("926 %s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick,cname,cname,redirect.c_str(), reason.c_str());
+							Channel::JoinUser(ServerInstance,user,redirect.c_str(),false,"",false,ServerInstance->Time(true));
+							return 1;
+						}
 					}
 
 					user->WriteServ("926 %s %s :Channel %s is forbidden: %s",user->nick,cname,cname,reason.c_str());
