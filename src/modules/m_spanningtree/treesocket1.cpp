@@ -1097,53 +1097,49 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 void TreeSocket::SendXLines(TreeServer* Current)
 {
 	char data[MAXBUF];
-	std::string buffer;
 	std::string n = this->Instance->Config->ServerName;
 	const char* sn = n.c_str();
 	/* Yes, these arent too nice looking, but they get the job done */
 	for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\r\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
 	for (std::vector<QLine*>::iterator i = Instance->XLines->qlines.begin(); i != Instance->XLines->qlines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s\r\n",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
 	for (std::vector<GLine*>::iterator i = Instance->XLines->glines.begin(); i != Instance->XLines->glines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE G %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE G %s@%s %s %lu %lu :%s",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
 	for (std::vector<ELine*>::iterator i = Instance->XLines->elines.begin(); i != Instance->XLines->elines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
 	for (std::vector<ZLine*>::iterator i = Instance->XLines->pzlines.begin(); i != Instance->XLines->pzlines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\r\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
 	for (std::vector<QLine*>::iterator i = Instance->XLines->pqlines.begin(); i != Instance->XLines->pqlines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s\r\n",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
 	for (std::vector<GLine*>::iterator i = Instance->XLines->pglines.begin(); i != Instance->XLines->pglines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE G %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE G %s@%s %s %lu %lu :%s",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
 	for (std::vector<ELine*>::iterator i = Instance->XLines->pelines.begin(); i != Instance->XLines->pelines.end(); i++)
 	{
-		snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-		buffer.append(data);
+		snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+		this->WriteLine(data);
 	}
-
-	if (!buffer.empty())
-		this->WriteLine(buffer);
 }
 
 /** Send channel modes and topics */
