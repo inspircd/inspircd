@@ -151,7 +151,6 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 void TreeSocket::SendXLines(TreeServer* Current)
 {
 	char data[MAXBUF];
-	std::string buffer;
 	std::string n = this->Instance->Config->GetSID();
 	const char* sn = n.c_str();
 
@@ -165,18 +164,18 @@ void TreeSocket::SendXLines(TreeServer* Current)
 		{
 			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
 			{
+				if (i->second->type == "K")
+					continue;
+
 				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s\r\n",sn, it->c_str(), i->second->Displayable(),
 						i->second->source,
 						(unsigned long)i->second->set_time,
 						(unsigned long)i->second->duration,
 						i->second->reason);
-				buffer.append(data);
+				this->WriteLine(data);
 			}
 		}
 	}
-
-	if (!buffer.empty())
-		this->WriteLine(buffer);
 }
 
 /** Send channel modes and topics */
