@@ -106,7 +106,7 @@ void LogManager::OpenFileLogs()
 			fw = i->second;
 		}
 		FileLogStream* fls = new FileLogStream(ServerInstance, loglevel, fw);
-		irc::commasepstream css(type);
+		irc::spacesepstream css(type);
 		std::string tok;
 		while (css.GetToken(tok))
 		{

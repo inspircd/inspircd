@@ -94,7 +94,7 @@ class ModuleChanLog : public Module
 			}
 			std::string target = Conf->ReadValue("log", "target", index);
 			ChannelLogStream* c = new ChannelLogStream(ServerInstance, loglevel, target);
-			irc::commasepstream css(type);
+			irc::spacesepstream css(type);
 			std::string tok;
 			while (css.GetToken(tok))
 			{
