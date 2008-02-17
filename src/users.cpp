@@ -1065,7 +1065,7 @@ void User::Write(std::string text)
 
 	try
 	{
-		ServerInstance->Logs->Log("USERIO", DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
+		ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
 		text.append("\r\n");
 	}
 	catch (...)

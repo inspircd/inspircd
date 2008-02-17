@@ -413,7 +413,7 @@ bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
 
 	if (buffer.length())
 	{
-		ServerInstance->Logs->Log("USERIO", DEBUG,"C[%d] I :%s %s",user->GetFd(), user->nick, buffer.c_str());
+		ServerInstance->Logs->Log("USERINPUT", DEBUG,"C[%d] I :%s %s",user->GetFd(), user->nick, buffer.c_str());
 		return this->ProcessCommand(user,buffer);
 	}
 
