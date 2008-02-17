@@ -92,21 +92,17 @@ class CommandDccallow : public Command
 				
 				if (action == '-')
 				{
-					user->GetExt("dccallow_list", dl);
 					// check if it contains any entries
-					if (dl)
+					if (user->GetExt("dccallow_list", dl))
 					{
-						if (dl->size())
+						for (dccallowlist::iterator i = dl->begin(); i != dl->end(); ++i)
 						{
-							for (dccallowlist::iterator i = dl->begin(); i != dl->end(); ++i)
+							// search through list
+							if (i->nickname == target->nick)
 							{
-								// search through list
-								if (i->nickname == target->nick)
-								{
-									dl->erase(i);
-									user->WriteServ("995 %s %s :Removed %s from your DCCALLOW list", user->nick, user->nick, target->nick);
-									break;
-								}
+								dl->erase(i);
+								user->WriteServ("995 %s %s :Removed %s from your DCCALLOW list", user->nick, user->nick, target->nick);
+								break;
 							}
 						}
 					}
@@ -129,10 +125,7 @@ class CommandDccallow : public Command
 				}
 				else if (action == '+')
 				{
-					// fetch current DCCALLOW list
-					user->GetExt("dccallow_list", dl);
-					// they don't have one, create it
-					if (!dl)
+					if (!user->GetExt("dccallow_list", dl))
 					{
 						dl = new dccallowlist;
 						user->Extend("dccallow_list", dl);
@@ -228,9 +221,8 @@ class CommandDccallow : public Command
 	{
 		 // display current DCCALLOW list
 		user->WriteServ("990 %s :Users on your DCCALLOW list:", user->nick);
-		user->GetExt("dccallow_list", dl);
-		
-		if (dl)
+	
+		if (user->GetExt("dccallow_list", dl))
 		{
 			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
 			{
@@ -271,8 +263,7 @@ class ModuleDCCAllow : public Module
 		dccallowlist* udl;
 	
 		// remove their DCCALLOW list if they have one
-		user->GetExt("dccallow_list", udl);
-		if (udl)
+		if (user->GetExt("dccallow_list", udl))
 		{
 			delete udl;
 			user->Shrink("dccallow_list");
@@ -317,10 +308,8 @@ class ModuleDCCAllow : public Module
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :VERSION
 					
 				if (strncmp(text.c_str(), "\1DCC ", 5) == 0)
-				{
-					u->GetExt("dccallow_list", dl);
-		
-					if (dl && dl->size())
+				{	
+					if (u->GetExt("dccallow_list", dl) && dl->size())
 					{
 						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
 							if (ServerInstance->MatchText(user->GetFullHost(), iter->hostmask))
@@ -383,9 +372,7 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end(); ++iter)
 		{
 			User* u = (User*)(*iter);
-			u->GetExt("dccallow_list", dl);
-	
-			if (dl)
+			if (u->GetExt("dccallow_list", dl))
 			{
 				if (dl->size())
 				{
@@ -417,9 +404,7 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end(); ++iter)
 		{
 			User *u = (User*)(*iter);
-			u->GetExt("dccallow_list", dl);
-	
-			if (dl)
+			if (u->GetExt("dccallow_list", dl))
 			{
 				if (dl->size())
 				{
@@ -483,3 +468,4 @@ class ModuleDCCAllow : public Module
 };
 
 MODULE_INIT(ModuleDCCAllow)
+
