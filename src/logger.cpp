@@ -60,15 +60,26 @@ void LogManager::SetupNoFork()
 
 void LogManager::OpenFileLogs()
 {
-	if (ServerInstance->Config->nofork) SetupNoFork(); // Call this to reregister the nofork stream.
-	if (!ServerInstance->Config->writelog) return; // Skip rest of logfile opening if we are running -nolog.
+	/* Re-register the nofork stream if necessary. */
+	if (ServerInstance->Config->nofork)
+	{
+		SetupNoFork();
+	}
+	/* Skip rest of logfile opening if we are running -nolog. */
+	if (!ServerInstance->Config->writelog)
+	{
+		return;
+	}
 	ConfigReader* Conf = new ConfigReader(ServerInstance);
 	std::map<std::string, FileWriter*> logmap;
 	std::map<std::string, FileWriter*>::iterator i;
 	for (int index = 0; index < Conf->Enumerate("log"); ++index)
 	{
 		std::string method = Conf->ReadValue("log", "method", index);
-		if (method != "file") continue;
+		if (method != "file")
+		{
+			continue;
+		}
 		std::string type = Conf->ReadValue("log", "type", index);
 		std::string level = Conf->ReadValue("log", "level", index);
 		int loglevel = DEFAULT;
@@ -106,19 +117,14 @@ void LogManager::OpenFileLogs()
 			fw = i->second;
 		}
 		FileLogStream* fls = new FileLogStream(ServerInstance, loglevel, fw);
-		irc::spacesepstream css(type);
-		std::string tok;
-		while (css.GetToken(tok))
-		{
-			AddLogType(tok, fls, true);
-		}
+		AddLogTypes(type, fls, true);
 	}
 }
 
 void LogManager::CloseLogs()
 {
 	std::map<std::string, std::vector<LogStream*> >().swap(LogStreams); /* Clear it */
-	std::vector<LogStream*>().swap(GlobalLogStreams); /* Clear it */
+	std::map<LogStream*, std::vector<std::string> >().swap(GlobalLogStreams); /* Clear it */
 	for (std::map<LogStream*, int>::iterator i = AllLogStreams.begin(); i != AllLogStreams.end(); ++i)
 	{
 		delete i->first;
@@ -126,12 +132,55 @@ void LogManager::CloseLogs()
 	std::map<LogStream*, int>().swap(AllLogStreams); /* And clear it */
 }
 
+void LogManager::AddLogTypes(const std::string &types, LogStream* l, bool autoclose)
+{
+	irc::spacesepstream css(types);
+	std::string tok;
+	std::vector<std::string> excludes;
+	while (css.GetToken(tok))
+	{
+		if (tok.empty())
+		{
+			continue;
+		}
+		if (tok.at(0) == '-')
+		{
+			/* Exclude! */
+			excludes.push_back(tok.substr(1));
+		}
+		else
+		{
+			AddLogType(tok, l, autoclose);
+		}
+	}
+	// Handle doing things like: USERINPUT USEROUTPUT -USERINPUT should be the same as saying just USEROUTPUT.
+	// (This is so modules could, for example, inject exclusions for logtypes they can't handle.)
+	for (std::vector<std::string>::iterator i = excludes.begin(); i != excludes.end(); ++i)
+	{
+		if (*i == "*")
+		{
+			/* -* == Exclude all. Why someone would do this, I dunno. */
+			DelLogStream(l);
+			return;
+		}
+		DelLogType(*i, l);
+	}
+	// Now if it's registered as a global, add the exclusions there too.
+	std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.find(l);
+	if (gi != GlobalLogStreams.end())
+	{
+		gi->second.swap(excludes); // Swap with the vector in the hash.
+	}
+}
+
 bool LogManager::AddLogType(const std::string &type, LogStream *l, bool autoclose)
 {
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
 
 	if (i != LogStreams.end())
+	{
 		i->second.push_back(l);
+	}
 	else
 	{
 		std::vector<LogStream *> v;
@@ -140,7 +189,9 @@ bool LogManager::AddLogType(const std::string &type, LogStream *l, bool autoclos
 	}
 
 	if (type == "*")
-		GlobalLogStreams.push_back(l);
+	{
+		GlobalLogStreams.insert(std::make_pair(l, std::vector<std::string>()));
+	}
 
 	if (autoclose)
 	{
@@ -165,14 +216,21 @@ void LogManager::DelLogStream(LogStream* l)
 		std::vector<LogStream*>::iterator it;
 		while ((it = std::find(i->second.begin(), i->second.end(), l)) != i->second.end())
 		{
-			if (it == i->second.end()) continue;
+			if (it == i->second.end())
+				continue;
 			i->second.erase(it);
 		}
 	}
-	std::vector<LogStream *>::iterator gi = std::find(GlobalLogStreams.begin(), GlobalLogStreams.end(), l);
-	if (gi != GlobalLogStreams.end()) GlobalLogStreams.erase(gi);
+	std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.find(l);
+	if (gi != GlobalLogStreams.end())
+	{
+		GlobalLogStreams.erase(gi);
+	}
 	std::map<LogStream*, int>::iterator ai = AllLogStreams.begin();
-	if (ai == AllLogStreams.end()) return; /* Done. */
+	if (ai == AllLogStreams.end())
+	{
+		return; /* Done. */
+	}
 	delete ai->first;
 	AllLogStreams.erase(ai);
 }
@@ -182,7 +240,7 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
 	if (type == "*")
 	{
-		std::vector<LogStream *>::iterator gi = std::find(GlobalLogStreams.begin(), GlobalLogStreams.end(), l);
+		std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.find(l);
 		if (gi != GlobalLogStreams.end()) GlobalLogStreams.erase(gi);
 	}
 
@@ -209,7 +267,10 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 	}
 
 	std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
-	if (ai == AllLogStreams.end()) return true;
+	if (ai == AllLogStreams.end())
+	{
+		return true;
+	}
 
 	if ((--ai->second) < 1)
 	{
@@ -223,7 +284,9 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...)
 {
 	if (Logging)
+	{
 		return;
+	}
 
 	va_list a;
 	static char buf[65536];
@@ -238,28 +301,28 @@ void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...
 void LogManager::Log(const std::string &type, int loglevel, const std::string &msg)
 {
 	if (Logging)
+	{
 		return;
+	}
 
 	Logging = true;
 
-	std::vector<LogStream *>::iterator gi = GlobalLogStreams.begin();
-
-	while (gi != GlobalLogStreams.end())
+	for (std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.begin(); gi != GlobalLogStreams.end(); ++gi)
 	{
-		(*gi)->OnLog(loglevel, type, msg);
-		gi++;
+		if (std::find(gi->second.begin(), gi->second.end(), type) != gi->second.end())
+		{
+			continue;
+		}
+		gi->first->OnLog(loglevel, type, msg);
 	}
 
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
 
 	if (i != LogStreams.end())
 	{
-		std::vector<LogStream *>::iterator it = i->second.begin();
-
-		while (it != i->second.end())
+		for (std::vector<LogStream *>::iterator it = i->second.begin(); it != i->second.end(); ++it)
 		{
 			(*it)->OnLog(loglevel, type, msg);
-			it++;
 		}
 	}
 
@@ -282,18 +345,22 @@ bool FileWriter::Readable()
 {
 	return false;
 }
-    
+
 void FileWriter::HandleEvent(EventType, int)
 {
 	WriteLogLine("");
 	if (log)
+	{
 		ServerInstance->SE->DelFd(this);
+	}
 }
 
 void FileWriter::WriteLogLine(const std::string &line)
 {
 	if (line.length())
+	{
 		buffer.append(line);
+	}
 
 	if (log)
 	{
@@ -331,7 +398,9 @@ void FileWriter::Close()
 		ServerInstance->SE->Blocking(fileno(log));
 
 		if (buffer.size())
+		{
 			fprintf(log,"%s",buffer.c_str());
+		}
 
 #ifndef WINDOWS
 		ServerInstance->SE->DelFd(this);
@@ -348,5 +417,3 @@ FileWriter::~FileWriter()
 {
 	this->Close();
 }
-
-

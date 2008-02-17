@@ -97,7 +97,7 @@ class CoreExport FileWriter : public EventHandler
  *  can go to a channel as well as a file.
  *
  *  HOW THIS WORKS
- *   LogManager handles all instances of LogStreams, LogStreams (or more likely, derived classes) are instantiated and passed to it.
+ *   LogManager handles all instances of LogStreams, classes derived from LogStream are instantiated and passed to it.
  */
 
 /** LogStream base class. Modules (and other stuff) inherit from this to decide what logging they are interested in, and what to do with it.
@@ -108,15 +108,17 @@ class CoreExport LogStream : public classbase
 	InspIRCd *ServerInstance;
 	int loglvl;
  public:
-	LogStream(InspIRCd *Instance, int loglevel) : loglvl(loglevel)
+	LogStream(InspIRCd *Instance, int loglevel) : ServerInstance(Instance), loglvl(loglevel)
 	{
-		this->ServerInstance = Instance;
 	}
 
+	/* A LogStream's destructor should do whatever it needs to close any resources it was using (or indicate that it is no longer using a resource
+	 * in the event that the resource is shared, see for example FileLogStream).
+	 */
 	virtual ~LogStream() { }
 
-	/** XXX document me properly.
-	 * Used for on the fly changing of loglevel.
+	/** Changes the loglevel for this LogStream on-the-fly.
+	 * This is needed for -nofork. But other LogStreams could use it to change loglevels.
 	 */
 	void ChangeLevel(int lvl) { this->loglvl = lvl; }
 
@@ -132,23 +134,50 @@ typedef std::map<FileWriter*, int> FileLogMap;
 class CoreExport LogManager : public classbase
 {
  private:
-	bool Logging;														// true when logging, avoids recursion
-	LogStream* noforkstream;											// LogStream for nofork.
+	/** Lock variable, set to true when a log is in progress, which prevents further loggging from happening and creating a loop.
+	 */
+	bool Logging;
+
+	/** LogStream for -nofork, logs to STDOUT when it's active.
+	 */
+	LogStream* noforkstream;
+
 	InspIRCd *ServerInstance;
+
+	/** Map of active log types and what LogStreams will receive them.
+	 */
 	std::map<std::string, std::vector<LogStream *> > LogStreams;
-	std::map<LogStream *, int> AllLogStreams;							// holds all logstreams
-	std::vector<LogStream *> GlobalLogStreams;							//holds all logstreams with a type of *
-	FileLogMap FileLogs;												// Holds all file logs, refcounted
+
+	/** Refcount map of all LogStreams managed by LogManager.
+	 * If a logstream is not listed here, it won't be automatically closed by LogManager, even if it's loaded in one of the other lists.
+	 */
+	std::map<LogStream *, int> AllLogStreams;
+
+	/** LogStreams with type * (which means everything), and a list a logtypes they are excluded from (eg for "* -USERINPUT -USEROUTPUT").
+	 */
+	std::map<LogStream *, std::vector<std::string> > GlobalLogStreams;
+
+	/** Refcounted map of all FileWriters in use by FileLogStreams, for file stream sharing.
+	 */
+	FileLogMap FileLogs;
+
  public:
+
 	LogManager(InspIRCd *Instance)
 	{
 		ServerInstance = Instance;
 		Logging = false;
 	}
 
+	/** Sets up the logstream for -nofork. Called by InspIRCd::OpenLog() and LogManager::OpenFileLogs().
+	 * First time called it creates the nofork stream and stores it in noforkstream. Each call thereafter just readds it to GlobalLogStreams
+	 * and updates the loglevel.
+	 */
 	void SetupNoFork();
 
-	/** XXX document me properly. */
+	/** Adds a FileWriter instance to LogManager, or increments the reference count of an existing instance.
+	 * Used for file-stream sharing for FileLogStreams.
+	 */
 	void AddLoggerRef(FileWriter* fw)
 	{
 		FileLogMap::iterator i = FileLogs.find(fw);
@@ -162,7 +191,8 @@ class CoreExport LogManager : public classbase
 		}
 	}
 
-	/** XXX document me properly. */
+	/** Indicates that a FileWriter reference has been removed. Reference count is decreased, and if zeroed, the FileWriter is closed.
+	 */
 	void DelLoggerRef(FileWriter* fw)
 	{
 		FileLogMap::iterator i = FileLogs.find(fw);
@@ -174,33 +204,54 @@ class CoreExport LogManager : public classbase
 		}
 	}
 
-	/** XXX document me properly. */
-	void OpenSingleFile(FILE* f, const std::string& type, int loglevel);
-	
-	/** XXX document me properly. */
+	/** Opens all logfiles defined in the configuration file using <log method="file">.
+	 */
 	void OpenFileLogs();
-	
-	/** Gives all logstreams a chance to clear up (in destructors) while it deletes them.
+
+	/** Removes all LogStreams, meaning they have to be readded for logging to continue.
+	 * Only LogStreams that were listed in AllLogStreams are actually closed.
 	 */
 	void CloseLogs();
-	
+
+	/** Adds a single LogStream to multiple logtypes.
+	 * This automatically handles things like "* -USERINPUT -USEROUTPUT" to mean all but USERINPUT and USEROUTPUT types.
+	 * It is not a good idea to mix values of autoclose for the same LogStream.
+	 * @param type The type string (from configuration, or whatever) to parse.
+	 * @param l The LogStream to add.
+	 * @param autoclose True to have the LogStream automatically closed when all references to it are removed from LogManager. False to leave it open.
+	 */
+	void AddLogTypes(const std::string &type, LogStream *l, bool autoclose);
+
 	/** Registers a new logstream into the logging core, so it can be called for future events
-	 * XXX document me properly.
+	 * It is not a good idea to mix values of autoclose for the same LogStream.
+	 * @param type The type to add this LogStream to.
+	 * @param l The LogStream to add.
+	 * @param autoclose True to have the LogStream automatically closed when all references to it are removed from LogManager. False to leave it open.
+	 * @return True if the LogStream was added successfully, False otherwise.
 	 */
 	bool AddLogType(const std::string &type, LogStream *l, bool autoclose);
-	
+
 	/** Removes a logstream from the core. After removal, it will not recieve further events.
+	 * If the LogStream was ever added with autoclose, it will be closed after this call (this means the pointer won't be valid anymore).
 	 */
 	void DelLogStream(LogStream* l);
-	
-	/** XXX document me properly. */
+
+	/** Removes a LogStream from a single type. If the LogStream has been registered for "*" it will still receive the type unless you remove it from "*" specifically.
+	 * If the LogStream was added with autoclose set to true, then when the last occurrence of the stream is removed it will automatically be closed (freed).
+	 */
 	bool DelLogType(const std::string &type, LogStream *l);
-	
-	/** Pretty self explanatory.
+
+	/** Logs an event, sending it to all LogStreams registered for the type.
+	 * @param type Log message type (ex: "USERINPUT", "MODULE", ...)
+	 * @param loglevel Log message level (DEBUG, VERBOSE, DEFAULT, SPARSE, NONE)
+	 * @param msg The message to be logged (literal).
 	 */
 	void Log(const std::string &type, int loglevel, const std::string &msg);
-	
-	/** Duh.
+
+	/** Logs an event, sending it to all LogStreams registered for the type.
+	 * @param type Log message type (ex: "USERINPUT", "MODULE", ...)
+	 * @param loglevel Log message level (DEBUG, VERBOSE, DEFAULT, SPARSE, NONE)
+	 * @param msg The format of the message to be logged. See your C manual on printf() for details.
 	 */
 	void Log(const std::string &type, int loglevel, const char *fmt, ...);
 };
