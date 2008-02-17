@@ -164,8 +164,11 @@ void TreeSocket::SendXLines(TreeServer* Current)
 		{
 			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
 			{
-				if (i->second->type == "K")
-					continue;
+				/* Is it burstable? this is better than an explicit check for type 'K'.
+				 * We break the loop as NONE of the items in this group are worth iterating.
+				 */
+				if (!i->second->IsBurstable())
+					break;
 
 				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s\r\n",sn, it->c_str(), i->second->Displayable(),
 						i->second->source,

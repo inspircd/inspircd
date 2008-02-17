@@ -391,6 +391,11 @@ void XLine::Apply(User* u)
 {
 }
 
+bool XLine::IsBurstable()
+{
+	return true;
+}
+
 void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 {
 	char sreason[MAXBUF];
@@ -593,6 +598,11 @@ const char* ZLine::Displayable()
 const char* QLine::Displayable()
 {
 	return nick;
+}
+
+bool KLine::IsBurstable()
+{
+	return false;
 }
 
 bool XLineManager::RegisterFactory(XLineFactory* xlf)

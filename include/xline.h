@@ -142,6 +142,8 @@ class CoreExport XLine : public classbase
 	 * type of line this is.
 	 */
 	const std::string type;
+
+	virtual bool IsBurstable();
 };
 
 /** KLine class
@@ -183,6 +185,8 @@ class CoreExport KLine : public XLine
 	virtual void DisplayExpiry();
 
 	virtual const char* Displayable();
+
+	virtual bool IsBurstable();
 
 	/** Ident mask (ident part only)
 	 */
