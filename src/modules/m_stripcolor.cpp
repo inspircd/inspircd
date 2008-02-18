@@ -22,7 +22,7 @@ class ChannelStripColor : public ModeHandler
  public:
 	ChannelStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
 	{
 		if (adding)
 		{
@@ -52,7 +52,7 @@ class UserStripColor : public ModeHandler
  public:
 	UserStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
 	{
 		/* Only opers can change other users modes */
 		if (source != dest)
