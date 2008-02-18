@@ -184,7 +184,7 @@ void Banner()
 
 void Run()
 {
-	int max_fd = 1024;
+	int max_fd = 10200;
 	bool use_iocp = false;
 	bool support_ip6links = false;
 	bool use_openssl = false;
@@ -197,7 +197,7 @@ void Run()
 	char openssl_inc_path[MAX_PATH];
 	char openssl_lib_path[MAX_PATH];
 
-	int max_clients = 1024;
+	int max_clients = 10200;
 	int nicklen = 31;
 	int chanlen = 64;
 	int modechanges = 20;
@@ -236,16 +236,16 @@ void Run()
 #endif
 	printf_c("InspIRCd revision ID: \033[1;32m%s \033[0m\n\n", revision ? revision_text : "(Non-SVN build)");
 
-	max_fd = get_int_option("What is the maximum file descriptor count you would like to allow?", 1024);
+	max_fd = get_int_option("What is the maximum file descriptor count you would like to allow?", 10200);
 
 	// detect windows
 	if(iswinxp())
 	{
 		printf_c("You are running Windows 2000 or above, and IOCP support is most likely available.\n"
-			     "This removes the socket number limitation of select and is much more efficent.\n"
-				 "If you are unsure, answer yes.\n\n");
+			     "Thisis much more efficent but is currently EXPERIMENTAL and UNSUPPORTED.\n"
+				 "If you are unsure, answer no.\n\n");
 
-		use_iocp = get_bool_option("Do you want to use the IOCP implementation?", true);
+		use_iocp = get_bool_option("Do you want to use the IOCP implementation?", false);
 	}
 
 	support_ip6links = get_bool_option("\nYou have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled InspIRCd servers?\nIf you are using a recent operating system and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)", 
@@ -267,7 +267,7 @@ void Run()
 		"different servers on the network.\n\n");
 
     
-	max_clients = get_int_option("Please enter the maximum number of clients at any one time?", 1024);
+	max_clients = get_int_option("Please enter the maximum number of clients at any one time?", 10200);
 	nicklen = get_int_option("Please enter the maximum length of nicknames?", 31);
 	chanlen = get_int_option("Please enter the maximum length of channel names?", 64);
 	modechanges = get_int_option("Please enter the maximum number of mode changes in one line?", 20);
