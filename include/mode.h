@@ -218,7 +218,7 @@ class CoreExport ModeHandler : public Extensible
 	 * @param adding This value is true when the mode is being set, or false when it is being unset.
 	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
 	 */
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false); /* Can change the mode parameter as its a ref */
 	/**
 	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE #channel +modechar
 	 * without any parameter or other modes in the command.
@@ -344,7 +344,7 @@ class CoreExport ModeWatcher : public Extensible
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
-	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type);
+	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type, bool servermode = false);
 	/**
 	 * After the mode character has been processed by the ModeHandler, this method will be called.
 	 * @param source The sender of the mode
@@ -355,7 +355,7 @@ class CoreExport ModeWatcher : public Extensible
 	 * @param adding True if the mode is being added and false if it is being removed
 	 * @type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 */
-	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
+	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type, bool servermode = false);
 };
 
 typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;

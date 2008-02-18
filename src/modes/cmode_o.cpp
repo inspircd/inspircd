@@ -70,7 +70,7 @@ void ModeChannelOp::RemoveMode(User*)
 {
 }
 
-ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
 	int status = channel->GetStatus(source);
 

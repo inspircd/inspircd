@@ -41,7 +41,7 @@ class HostItem : public classbase
 	time_t set_time;
 	/** Who added the item
 	 */
-	char set_by[NICKMAX];
+	char set_by[64];
 	/** The actual item data
 	 */
 	char data[MAXBUF];

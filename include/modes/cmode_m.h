@@ -21,5 +21,5 @@ class ModeChannelModerated : public ModeHandler
 {
  public:
 	ModeChannelModerated(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
 };

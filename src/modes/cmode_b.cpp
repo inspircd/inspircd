@@ -29,13 +29,13 @@ ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, 'b', 
 {
 }
 
-ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
 	int status = channel->GetStatus(source);
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
 	{
-		parameter = this->AddBan(source, parameter, channel, status);
+		parameter = this->AddBan(source, parameter, channel, status, servermode);
 	}
 	else
 	{
@@ -87,7 +87,7 @@ void ModeChannelBan::DisplayEmptyList(User* user, Channel* channel)
 	user->WriteServ("368 %s %s :End of channel ban list",user->nick, channel->name);
 }
 
-std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan, int)
+std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan, int, bool servermode)
 {
 	if ((!user) || (!chan))
 	{
@@ -120,7 +120,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{
-		if (!strcasecmp(i->data,dest.c_str()))
+		if (!strcasecmp(i->data, dest.c_str()))
 		{
 			/* dont allow a user to set the same ban twice */
 			dest = "";
@@ -129,15 +129,8 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	}
 
 	b.set_time = ServerInstance->Time();
-	strlcpy(b.data,dest.c_str(),MAXBUF);
-	if (*user->nick)
-	{
-		strlcpy(b.set_by,user->nick,NICKMAX-1);
-	}
-	else
-	{
-		strlcpy(b.set_by,ServerInstance->Config->ServerName,NICKMAX-1);
-	}
+	strlcpy(b.data, dest.c_str(), MAXBUF);
+	strlcpy(b.set_by, servermode ? ServerInstance->Config->ServerName : user->nick, 63);
 	chan->bans.push_back(b);
 	return dest;
 }

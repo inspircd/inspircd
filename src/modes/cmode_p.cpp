@@ -21,7 +21,7 @@ ModeChannelPrivate::ModeChannelPrivate(InspIRCd* Instance) : ModeHandler(Instanc
 {
 }
 
-ModeAction ModeChannelPrivate::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding)
+ModeAction ModeChannelPrivate::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding, bool servermode)
 {
 	if (channel->modes[CM_PRIVATE] != adding)
 	{

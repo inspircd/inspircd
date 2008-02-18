@@ -39,7 +39,7 @@ bool ModeChannelLimit::CheckTimeStamp(time_t, time_t, const std::string &their_p
 	return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 }
 
-ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
 	if (adding)
 	{

@@ -21,7 +21,7 @@ ModeUserInvisible::ModeUserInvisible(InspIRCd* Instance) : ModeHandler(Instance,
 {
 }
 
-ModeAction ModeUserInvisible::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)
+ModeAction ModeUserInvisible::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding, bool servermode)
 {
 	/* Only opers can change other users modes */
 	if ((source != dest) && (!*source->oper))

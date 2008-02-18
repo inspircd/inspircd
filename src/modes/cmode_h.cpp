@@ -70,7 +70,7 @@ void ModeChannelHalfOp::RemoveMode(User*)
 {
 }
 
-ModeAction ModeChannelHalfOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelHalfOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
 	/* If halfops are not enabled in the conf, we don't execute
 	 * anything in this class at all.

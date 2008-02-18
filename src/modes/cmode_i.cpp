@@ -21,7 +21,7 @@ ModeChannelInviteOnly::ModeChannelInviteOnly(InspIRCd* Instance) : ModeHandler(I
 {
 }
 
-ModeAction ModeChannelInviteOnly::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding)
+ModeAction ModeChannelInviteOnly::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding, bool servermode)
 {
 	if (channel->modes[CM_INVITEONLY] != adding)
 	{

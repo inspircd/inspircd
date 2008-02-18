@@ -21,7 +21,7 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHan
 {
 }
 
-ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)
+ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding, bool servermode)
 {
 	/* Only opers can change other users modes */
 	if ((source != dest) && (!*source->oper))

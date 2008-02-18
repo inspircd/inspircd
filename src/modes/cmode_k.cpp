@@ -58,7 +58,7 @@ bool ModeChannelKey::CheckTimeStamp(time_t, time_t, const std::string &their_par
 	return (their_param < our_param);
 }
 
-ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
 	if ((channel->modes[CM_KEY] != adding) || (!IS_LOCAL(source)))
 	{

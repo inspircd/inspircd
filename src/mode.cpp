@@ -119,7 +119,7 @@ char ModeHandler::GetModeChar()
 	return mode;
 }
 
-ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool)
+ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool, bool)
 {
 	return MODEACTION_DENY;
 }
@@ -167,12 +167,12 @@ ModeType ModeWatcher::GetModeType()
 	return m_type;
 }
 
-bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool, ModeType)
+bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool, ModeType, bool)
 {
 	return true;
 }
 
-void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, ModeType)
+void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, ModeType, bool)
 {
 }
 
@@ -509,11 +509,11 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 									continue;
 								}
 
-								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, parameter, adding, 1));
+								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, parameter, adding, 1, servermode));
 							}
 							else
 							{
-								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, "", adding, 0));
+								FOREACH_RESULT(I_OnRawMode, OnRawMode(user, targetchannel, modechar, "", adding, 0, servermode));
 							}
 
 							if (IS_LOCAL(user) && (MOD_RESULT == ACR_DENY))
@@ -560,7 +560,7 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 								
 							for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 							{
-								if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
+								if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type, servermode) == false)
 								{
 									abort = true;
 									break;
@@ -588,7 +588,7 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 							}
 
 							/* Call the handler for the mode */
-							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
+							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding, servermode);
 
 							if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter.empty()))
 							{
@@ -631,7 +631,7 @@ void ModeParser::Process(const char** parameters, int pcnt, User *user, bool ser
 
 								/* Call all the AfterMode events in the mode watchers for this mode */
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
-									(*watchers)->AfterMode(user, targetuser, targetchannel, parameter, adding, type);
+									(*watchers)->AfterMode(user, targetuser, targetchannel, parameter, adding, type, servermode);
 
 								/* Reset the state change flag */
 								state_change = false;

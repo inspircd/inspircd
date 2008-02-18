@@ -21,7 +21,7 @@ ModeUserOperator::ModeUserOperator(InspIRCd* Instance) : ModeHandler(Instance, '
 {
 }
 
-ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)
+ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding, bool servermode)
 {
 	/* Only opers can execute this class at all */
 	if (!*source->oper)
