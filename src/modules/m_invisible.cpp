@@ -53,7 +53,7 @@ class InvisibleMode : public ModeHandler
 		delete qo;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		if (source != dest)
 			return MODEACTION_DENY;
@@ -135,7 +135,7 @@ class InvisibleDeOper : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type)
+	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type, bool)
 	{
 		/* Users who are opers and have +Q get their +Q removed when they deoper */
 		if ((!adding) && (dest->IsModeSet('Q')))

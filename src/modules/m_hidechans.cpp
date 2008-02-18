@@ -22,12 +22,8 @@ class HideChans : public ModeHandler
  public:
 	HideChans(InspIRCd* Instance) : ModeHandler(Instance, 'I', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
-		/* Only opers can change other users modes */
-		if (source != dest)
-			return MODEACTION_DENY;
-
 		if (adding)
 		{
 			if (!dest->IsModeSet('I'))

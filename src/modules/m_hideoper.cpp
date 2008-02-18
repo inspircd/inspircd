@@ -22,11 +22,8 @@ class HideOper : public ModeHandler
  public:
 	HideOper(InspIRCd* Instance) : ModeHandler(Instance, 'H', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
-		if (source != dest)
-			return MODEACTION_DENY;
-
 		if (adding)
 		{
 			if (!dest->IsModeSet('H'))

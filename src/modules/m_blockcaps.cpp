@@ -23,7 +23,7 @@ class BlockCaps : public ModeHandler
  public:
 	BlockCaps(InspIRCd* Instance) : ModeHandler(Instance, 'B', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		if (adding)
 		{

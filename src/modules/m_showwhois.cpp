@@ -22,7 +22,7 @@ class SeeWhois : public ModeHandler
  public:
 	SeeWhois(InspIRCd* Instance) : ModeHandler(Instance, 'W', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		/* Only opers can change other users modes */
 		if (source != dest)

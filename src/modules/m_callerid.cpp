@@ -66,7 +66,7 @@ private:
 public:
 	User_g(InspIRCd* Instance) : ModeHandler(Instance, 'g', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		if (adding != dest->IsModeSet('g'))
 		{

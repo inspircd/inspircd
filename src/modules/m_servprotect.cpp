@@ -28,7 +28,7 @@ class ServProtectMode : public ModeHandler
  public:
 	ServProtectMode(InspIRCd* Instance) : ModeHandler(Instance, 'k', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		return MODEACTION_DENY;
 	}

@@ -67,7 +67,7 @@ class CloakUser : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		if (source != dest)
 			return MODEACTION_DENY;

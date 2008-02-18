@@ -105,7 +105,7 @@ class NickFlood : public ModeHandler
 		return (their_param < our_param);
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		nickfloodsettings* dummy;
 
