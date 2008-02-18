@@ -241,7 +241,7 @@ class ListModeBase : public ModeHandler
 	/** Handle the list mode.
 	 * See mode.h
 	 */
-	virtual ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+	virtual ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 	{
 		// Try and grab the list
 		modelist* el;
@@ -299,7 +299,7 @@ class ListModeBase : public ModeHandler
 							// And now add the mask onto the list...
 							ListItem e;
 							e.mask = assign(parameter);
-							e.nick = source->nick;
+							e.nick = servermode ? ServerInstance->Config->ServerName : source->nick;
 							e.time = stringtime();
 
 							el->push_back(e);
