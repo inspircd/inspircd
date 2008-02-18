@@ -67,6 +67,7 @@ class Notifier;
 
 typedef std::map<std::string, SQLConnection*> ConnMap;
 bool giveup = false;
+bool threadfinished = false;
 static Module* SQLModule = NULL;
 static Notifier* MessagePipe = NULL;
 int QueueFD = -1;
@@ -724,16 +725,24 @@ class ModuleSQL : public Module
 		
 		pthread_attr_t attribs;
 		pthread_attr_init(&attribs);
-		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
+		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
 		if (pthread_create(&this->Dispatcher, &attribs, DispatcherThread, (void *)this) != 0)
 		{
 			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
 		}
+		pthread_attr_destroy(&attribs);
 
 		if (!ServerInstance->PublishFeature("SQL", this))
 		{
 			/* Tell worker thread to exit NOW */
+			int rc;
+			void* status;
 			giveup = true;
+			rc = pthread_join(Dispatcher, &status);
+			if (rc)
+			{
+				ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is " + rc);
+			}
 			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
 		}
 
@@ -742,7 +751,14 @@ class ModuleSQL : public Module
 
 	virtual ~ModuleSQL()
 	{
+		int rc;
+		void *status;
 		giveup = true;
+		rc = pthread_join(Dispatcher, &status);
+		if (rc)
+		{
+			ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is " + rc);
+		}
 		ClearAllConnections();
 		DELETE(Conf);
 		ServerInstance->UnpublishInterface("SQL", this);
@@ -882,7 +898,7 @@ void* DispatcherThread(void* arg)
 		usleep(1000);
 	}
 
-	return NULL;
+	pthread_exit((void *) 0);
 }
 
 MODULE_INIT(ModuleSQL);
