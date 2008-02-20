@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /KILL
  */
-CmdResult CommandKill::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))

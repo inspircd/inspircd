@@ -28,7 +28,7 @@ CommandWhowas::CommandWhowas(InspIRCd* Instance) : Command(Instance, "WHOWAS", 0
 	Instance->Timers->AddTimer(timer);
 }
 
-CmdResult CommandWhowas::Handle (const char** parameters, int, User* user)
+CmdResult CommandWhowas::Handle (const char* const* parameters, int, User* user)
 {
 	/* if whowas disabled in config */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)

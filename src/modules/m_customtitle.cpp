@@ -43,7 +43,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
     return false;
 }
 
-	CmdResult Handle(const char** parameters, int pcnt, User* user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User* user)
 	{
 		if (!IS_LOCAL(user))
 			return CMD_LOCALONLY;

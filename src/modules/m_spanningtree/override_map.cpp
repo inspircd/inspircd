@@ -109,7 +109,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 // and divisons, we instead render the map onto a backplane of characters
 // (a character matrix), then draw the branches as a series of "L" shapes
 // from the nodes. This is not only friendlier on CPU it uses less stack.
-void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, User* user)
+void ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User* user)
 {
 	// This array represents a virtual screen which we will
 	// "scratch" draw to, as the console device of an irc

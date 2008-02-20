@@ -31,7 +31,7 @@ class CommandRandquote : public Command
 		this->source = "m_randquote.so";
 	}
 
-	CmdResult Handle (const char** parameters, int pcntl, User *user)
+	CmdResult Handle (const char* const* parameters, int pcntl, User *user)
 	{
 		std::string str;
 		int fsize;

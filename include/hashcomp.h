@@ -129,7 +129,7 @@ namespace irc
 	/** irc::stringjoiner joins string lists into a string, using
 	 * the given seperator string.
 	 * This class can join a vector of std::string, a deque of
-	 * std::string, or a const char** array, using overloaded
+	 * std::string, or a const char* const* array, using overloaded
 	 * constructors.
 	 */
 	class CoreExport stringjoiner
@@ -159,7 +159,7 @@ namespace irc
 		 * @param begin The starting element in the sequence to be joined
 		 * @param end The ending element in the sequence to be joined
 		 */
-		stringjoiner(const std::string &seperator, const char** sequence, int begin, int end);
+		stringjoiner(const std::string &seperator, const char* const* sequence, int begin, int end);
 
 		/** Get the joined sequence
 		 * @return A reference to the joined string

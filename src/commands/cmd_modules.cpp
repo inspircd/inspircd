@@ -38,7 +38,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /MODULES
  */
-CmdResult CommandModules::Handle (const char**, int, User *user)
+CmdResult CommandModules::Handle (const char* const*, int, User *user)
 {
 	std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
 

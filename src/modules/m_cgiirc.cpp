@@ -61,7 +61,7 @@ class CommandWebirc : public Command
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
 		}
-		CmdResult Handle(const char** parameters, int pcnt, User *user)
+		CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 		{
 			if(user->registered == REG_ALL)
 				return CMD_FAILURE;

@@ -34,7 +34,7 @@ public:
 		syntax.clear();
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		locked = true;
 		user->WriteServ("988 %s %s :Closed for new connections", user->nick, user->server);
@@ -57,7 +57,7 @@ public:
 		syntax.clear();
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		locked = false;
 		user->WriteServ("989 %s %s :Open for new connections", user->nick, user->server);

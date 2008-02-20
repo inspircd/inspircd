@@ -75,11 +75,11 @@ class ModuleSpanningTree : public Module
 
 	/** Handle LINKS command
 	 */
-	void HandleLinks(const char** parameters, int pcnt, User* user);
+	void HandleLinks(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle LUSERS command
 	 */
-	void HandleLusers(const char** parameters, int pcnt, User* user);
+	void HandleLusers(const char* const* parameters, int pcnt, User* user);
 
 	/** Show MAP output to a user (recursive)
 	 */
@@ -87,35 +87,35 @@ class ModuleSpanningTree : public Module
 
 	/** Handle remote MOTD
 	 */
-	int HandleMotd(const char** parameters, int pcnt, User* user);
+	int HandleMotd(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle remote ADMIN
 	 */
-	int HandleAdmin(const char** parameters, int pcnt, User* user);
+	int HandleAdmin(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle remote STATS
 	 */
-	int HandleStats(const char** parameters, int pcnt, User* user);
+	int HandleStats(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle MAP command
 	 */
-	void HandleMap(const char** parameters, int pcnt, User* user);
+	void HandleMap(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle SQUIT
 	 */
-	int HandleSquit(const char** parameters, int pcnt, User* user);
+	int HandleSquit(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle TIME
 	 */
-	int HandleTime(const char** parameters, int pcnt, User* user);
+	int HandleTime(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle remote WHOIS
 	 */
-	int HandleRemoteWhois(const char** parameters, int pcnt, User* user);
+	int HandleRemoteWhois(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle remote MODULES
 	 */
-	int HandleModules(const char** parameters, int pcnt, User* user);
+	int HandleModules(const char* const* parameters, int pcnt, User* user);
 
 	/** Ping all local servers
 	 */
@@ -131,11 +131,11 @@ class ModuleSpanningTree : public Module
 
 	/** Handle remote VERSON
 	 */
-	int HandleVersion(const char** parameters, int pcnt, User* user);
+	int HandleVersion(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle CONNECT
 	 */
-	int HandleConnect(const char** parameters, int pcnt, User* user);
+	int HandleConnect(const char* const* parameters, int pcnt, User* user);
 
 	/** Send out time sync to all servers
 	 */
@@ -157,8 +157,8 @@ class ModuleSpanningTree : public Module
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line);
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
+	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line);
+	virtual void OnPostCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
 	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t);
 	virtual void OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic);

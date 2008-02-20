@@ -49,7 +49,7 @@ class CommandOpermotd : public Command
 		syntax = "[<servername>]";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User* user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User* user)
 	{
 		return ShowOperMOTD(user);
 	}

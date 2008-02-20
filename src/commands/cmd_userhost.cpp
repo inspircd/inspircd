@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandUserhost(Instance);
 }
 
-CmdResult CommandUserhost::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandUserhost::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	std::string retbuf = std::string("302 ") + user->nick + " :";
 

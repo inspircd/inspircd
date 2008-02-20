@@ -33,7 +33,7 @@ class cmd_sslinfo : public Command
 		this->syntax = "<nick>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		ssl_cert* cert;

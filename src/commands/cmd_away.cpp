@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /AWAY
  */
-CmdResult CommandAway::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandAway::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	if ((pcnt) && (*parameters[0]))
 	{

@@ -48,7 +48,7 @@ int InspIRCd::PassCompare(Extensible* ex, const char* data,const char* input, co
  * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
  * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
  */
-int CommandParser::LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere, unsigned int extra)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
@@ -97,7 +97,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const char** parame
 	return 1;
 }
 
-int CommandParser::LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
@@ -178,7 +178,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 // calls a handler function for a command
 
-CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, User *user)
+CmdResult CommandParser::CallHandler(const std::string &commandname,const char* const* parameters, int pcnt, User *user)
 {
 	Commandable::iterator n = cmdlist.find(commandname);
 
@@ -498,7 +498,7 @@ bool CommandParser::ReloadCommand(const char* cmd, User* user)
 	return false;
 }
 
-CmdResult cmd_reload::Handle(const char** parameters, int /* pcnt */, User *user)
+CmdResult cmd_reload::Handle(const char* const* parameters, int /* pcnt */, User *user)
 {
 	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0]);
 	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))

@@ -57,7 +57,7 @@ class CommandSvshold : public Command
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, User *user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 	{
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */

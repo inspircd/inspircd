@@ -49,7 +49,7 @@ class CommandWho : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, User *user);
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user);
 	bool whomatch(User* user, const char* matchtext);
 };
 

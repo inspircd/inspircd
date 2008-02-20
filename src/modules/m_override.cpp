@@ -59,7 +59,7 @@ class ModuleOverride : public Module
 	}
 
 
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, User *user, CmdResult result, const std::string &original_line)
+	virtual void OnPostCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, CmdResult result, const std::string &original_line)
 	{
 		if ((NoisyOverride) && (OverriddenMode) && (irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS))
 		{

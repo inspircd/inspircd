@@ -58,7 +58,7 @@ class CommandHelpop : public Command
 		syntax = "<any-text>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		irc::string parameter("start");
 		if (pcnt > 0)

@@ -134,8 +134,8 @@ int		Module::OnKill(User*, User*, const std::string&) { return 0; }
 void		Module::OnLoadModule(Module*, const std::string&) { }
 void		Module::OnUnloadModule(Module*, const std::string&) { }
 void		Module::OnBackgroundTimer(time_t) { }
-int		Module::OnPreCommand(const std::string&, const char**, int, User *, bool, const std::string&) { return 0; }
-void		Module::OnPostCommand(const std::string&, const char**, int, User *, CmdResult, const std::string&) { }
+int		Module::OnPreCommand(const std::string&, const char* const*, int, User *, bool, const std::string&) { return 0; }
+void		Module::OnPostCommand(const std::string&, const char* const*, int, User *, CmdResult, const std::string&) { }
 bool		Module::OnCheckReady(User*) { return true; }
 int		Module::OnUserRegister(User*) { return 0; }
 int		Module::OnUserPreKick(User*, User*, Channel*, const std::string&) { return 0; }
@@ -720,7 +720,7 @@ bool InspIRCd::MatchText(const std::string &sliteral, const std::string &spatter
 	return match(sliteral.c_str(),spattern.c_str());
 }
 
-CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, User* user)
+CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const char* const* parameters, int pcnt, User* user)
 {
 	return this->Parser->CallHandler(commandname,parameters,pcnt,user);
 }
@@ -739,7 +739,7 @@ void InspIRCd::AddCommand(Command *f)
 	}
 }
 
-void InspIRCd::SendMode(const char** parameters, int pcnt, User *user)
+void InspIRCd::SendMode(const char* const* parameters, int pcnt, User *user)
 {
 	this->Modes->Process(parameters,pcnt,user,true);
 }

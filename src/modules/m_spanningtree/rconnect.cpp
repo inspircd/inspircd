@@ -36,7 +36,7 @@ cmd_rconnect::cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUt
 	syntax = "<remote-server-mask> <target-server-mask>";
 }
 
-CmdResult cmd_rconnect::Handle (const char** parameters, int pcnt, User *user)
+CmdResult cmd_rconnect::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	if (IS_LOCAL(user))
 	{

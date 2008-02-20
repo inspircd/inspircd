@@ -91,7 +91,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandWhois(Instance);
 }
 
-CmdResult CommandWhois::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandWhois::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	User *dest;
 	int userindex = 0;

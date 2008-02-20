@@ -62,7 +62,7 @@ class CommandSilence : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		if (!pcnt)
 		{

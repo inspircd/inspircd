@@ -27,7 +27,7 @@ class CommandSetident : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, User *user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 	{
 		if (!*parameters[0])
 		{

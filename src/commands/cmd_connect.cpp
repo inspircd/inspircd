@@ -25,7 +25,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /CONNECT
  */
-CmdResult CommandConnect::Handle (const char**, int, User *user)
+CmdResult CommandConnect::Handle (const char* const*, int, User *user)
 {
 	user->WriteServ( "NOTICE %s :Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.", user->nick);
 	return CMD_SUCCESS;

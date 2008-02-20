@@ -131,7 +131,7 @@ class CommandRLine : public Command
 		this->source = "m_rline.so";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 
 		if (pcnt >= 3)

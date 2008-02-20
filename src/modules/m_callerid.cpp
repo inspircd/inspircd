@@ -93,7 +93,7 @@ public:
 	 * /accept nick1,nick2,nick3 *
 	 * to add 3 nicks and then show your list
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, User* user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User* user)
 	{
 		if (pcnt < 1)
 		{

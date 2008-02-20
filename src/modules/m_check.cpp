@@ -27,7 +27,7 @@ class CommandCheck : public Command
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		User *targuser;
 		Channel *targchan;

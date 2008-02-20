@@ -40,7 +40,7 @@ class CommandTban : public Command
 		TRANSLATE4(TR_TEXT, TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		if (channel)

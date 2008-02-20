@@ -84,7 +84,7 @@ class CommandSVSWatch : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		if (!ServerInstance->ULine(user->server))
 			return CMD_FAILURE;
@@ -231,7 +231,7 @@ class CommandWatch : public Command
 		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		if (!pcnt)
 		{

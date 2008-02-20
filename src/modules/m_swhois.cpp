@@ -28,7 +28,7 @@ class CommandSwhois : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, User* user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User* user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		
@@ -210,7 +210,7 @@ class ModuleSWhois : public Module
 		}
 	}
 	
-	virtual void OnPostCommand(const std::string &command, const char **params, int pcnt, User *user, CmdResult result, const std::string &original_line)
+	virtual void OnPostCommand(const std::string &command, const char* const* params, int pcnt, User *user, CmdResult result, const std::string &original_line)
 	{
 		if ((command != "OPER") || (result != CMD_SUCCESS))
 			return;

@@ -22,7 +22,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /ELINE
  */
-CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandEline::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	std::string target = parameters[0];
 	

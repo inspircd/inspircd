@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /LOADMODULE
  */
-CmdResult CommandLoadmodule::Handle (const char** parameters, int, User *user)
+CmdResult CommandLoadmodule::Handle (const char* const* parameters, int, User *user)
 {
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{

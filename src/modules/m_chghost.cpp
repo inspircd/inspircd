@@ -29,7 +29,7 @@ class CommandChghost : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
  
-	CmdResult Handle(const char** parameters, int pcnt, User *user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 	{
 		const char * x = parameters[1];
 

@@ -126,7 +126,7 @@ class ModuleAlias : public Module
 		}
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		User *u = NULL;
 

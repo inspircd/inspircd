@@ -289,7 +289,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	return;
 }
 
-void ModeParser::Process(const char** parameters, int pcnt, User *user, bool servermode)
+void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bool servermode)
 {
 	std::string target = parameters[0];
 	ModeType type = MODETYPE_USER;

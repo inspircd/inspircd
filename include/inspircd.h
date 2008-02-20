@@ -656,7 +656,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param pcnt The number of items you have given in the first parameter
 	 * @param user The user to send error messages to
 	 */
-	void SendMode(const char **parameters, int pcnt, User *user);
+	void SendMode(const char* const* parameters, int pcnt, User *user);
 
 	/** Match two strings using pattern matching.
 	 * This operates identically to the global function match(),
@@ -674,7 +674,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to execute the command as
 	 * @return True if the command handler was called successfully
 	 */
-	CmdResult CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, User* user);
+	CmdResult CallCommandHandler(const std::string &commandname, const char* const* parameters, int pcnt, User* user);
 
 	/** Return true if the command is a module-implemented command and the given parameters are valid for it
 	 * @param parameters The mode parameters

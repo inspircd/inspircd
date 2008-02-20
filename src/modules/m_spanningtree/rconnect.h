@@ -22,7 +22,7 @@ class cmd_rconnect : public Command
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
         cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
-        CmdResult Handle (const char** parameters, int pcnt, User *user);
+        CmdResult Handle (const char* const* parameters, int pcnt, User *user);
 };
 
 #endif

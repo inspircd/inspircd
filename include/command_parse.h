@@ -102,7 +102,7 @@ class CoreExport CommandParser : public classbase
 	 * command simply did not exist at all or the wrong number of parameters were given, or the user
 	 * was not privilaged enough to execute the command.
 	 */
-	CmdResult CallHandler(const std::string &commandname,const char** parameters, int pcnt, User *user);
+	CmdResult CallHandler(const std::string &commandname,const char* const* parameters, int pcnt, User *user);
 
 	/** Get the handler function for a command.
 	 * @param commandname The command required. Always use uppercase for this parameter.
@@ -141,7 +141,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra);
+	int LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere, unsigned int extra);
 
 	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
 	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
@@ -164,7 +164,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere);
+	int LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
@@ -220,7 +220,7 @@ class cmd_reload : public Command
 	cmd_reload (InspIRCd* Instance) : Command(Instance,"RELOAD","o",1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, User *user);
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user);
 };
 
 /** A lookup table of values for multiplier characters used by

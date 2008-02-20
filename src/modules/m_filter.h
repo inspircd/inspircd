@@ -113,7 +113,7 @@ protected:
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual int OnStats(char symbol, User* user, string_list &results) = 0;
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line);
+	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 };
 
@@ -127,7 +127,7 @@ class CommandFilter : public Command
 		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, User *user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 	{
 		if (pcnt == 1)
 		{
@@ -295,7 +295,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 	return 0;
 }
 
-int FilterBase::OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+int FilterBase::OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 {
 	flags = 0;
 	if ((validated == 1) && (IS_LOCAL(user)))

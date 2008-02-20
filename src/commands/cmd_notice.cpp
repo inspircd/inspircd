@@ -20,7 +20,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandNotice(Instance);
 }
 
-CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	User *dest;
 	Channel *chan;
@@ -38,26 +38,27 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,(void*)parameters[0],TYPE_SERVER,temp,0,exempt_list));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
-		parameters[1] = temp.c_str();
-		// notice to server mask
+		const char* text = temp.c_str();
 		const char* servermask = parameters[0] + 1;
-		FOREACH_MOD(I_OnText,OnText(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
+
+		FOREACH_MOD(I_OnText,OnText(user,(void*)parameters[0],TYPE_SERVER,text,0,exempt_list));
 		if (match(ServerInstance->Config->ServerName,servermask))
 		{
-			user->SendAll("NOTICE", "%s", parameters[1]);
+			user->SendAll("NOTICE", "%s", text);
 		}
-		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
+		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,text,0,exempt_list));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
-	if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
+	const char* target = parameters[0];
+	if ((*target == '@') || (*target == '%') || (*target == '+'))
 	{
-		status = *parameters[0];
-		parameters[0]++;
+		status = *target;
+		target++;
 	}
-	if (*parameters[0] == '#')
+	if (*target == '#')
 	{
-		chan = ServerInstance->FindChan(parameters[0]);
+		chan = ServerInstance->FindChan(target);
 
 		exempt_list[user] = user->nick;
 
@@ -83,7 +84,7 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 			if (MOD_RESULT) {
 				return CMD_FAILURE;
 			}
-			parameters[1] = temp.c_str();
+			const char* text = temp.c_str();
 
 			if (temp.empty())
 			{
@@ -91,30 +92,30 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 				return CMD_FAILURE;
 			}
 
-			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,parameters[1],status,exempt_list));
+			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,text,status,exempt_list));
 
 			if (status)
 			{
 				if (ServerInstance->Config->UndernetMsgPrefix)
 				{
-					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%c %s", status, chan->name, status, parameters[1]);
+					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%c %s", status, chan->name, status, text);
 				}
 				else
 				{
-					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%s", status, chan->name, parameters[1]);
+					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%s", status, chan->name, text);
 				}
 			}
 			else
 			{
-				chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name, parameters[1]);
+				chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name, text);
 			}
 
-			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1],status,exempt_list));
+			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,text,status,exempt_list));
 		}
 		else
 		{
 			/* no such nick/channel */
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, target);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -158,17 +159,17 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 		if (MOD_RESULT) {
 			return CMD_FAILURE;
 		}
-		parameters[1] = (char*)temp.c_str();
+		const char* text = temp.c_str();
 
-		FOREACH_MOD(I_OnText,OnText(user,dest,TYPE_USER,parameters[1],0,exempt_list));
+		FOREACH_MOD(I_OnText,OnText(user,dest,TYPE_USER,text,0,exempt_list));
 
 		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
-			user->WriteTo(dest, "NOTICE %s :%s", dest->nick, parameters[1]);
+			user->WriteTo(dest, "NOTICE %s :%s", dest->nick, text);
 		}
 
-		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,parameters[1],0,exempt_list));
+		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,text,0,exempt_list));
 	}
 	else
 	{

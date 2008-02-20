@@ -22,7 +22,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandList(Instance);
 }
 
-CmdResult CommandList::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandList::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	int minusers = 0, maxusers = 0;
 

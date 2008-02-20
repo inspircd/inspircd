@@ -33,7 +33,7 @@ class cmd_fingerprint : public Command
 		syntax = "<nickname>";
 	}       
 	          
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		if (target)
@@ -112,7 +112,7 @@ class ModuleOperSSLCert : public Module
 		return false;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string cmd = command.c_str();
 		

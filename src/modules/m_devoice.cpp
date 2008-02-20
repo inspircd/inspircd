@@ -32,7 +32,7 @@ class CommandDevoice : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		Channel* c = ServerInstance->FindChan(parameters[0]);
 		if (c && c->HasUser(user))

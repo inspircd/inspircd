@@ -396,7 +396,7 @@ irc::stringjoiner::stringjoiner(const std::string &seperator, const std::deque<s
 	joined.append(sequence[end]);
 }
 
-irc::stringjoiner::stringjoiner(const std::string &seperator, const char** sequence, int begin, int end)
+irc::stringjoiner::stringjoiner(const std::string &seperator, const char* const* sequence, int begin, int end)
 {
 	for (int v = begin; v < end; v++)
 		joined.append(sequence[v]).append(seperator);

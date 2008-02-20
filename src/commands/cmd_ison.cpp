@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /ISON
  */
-CmdResult CommandIson::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandIson::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	std::map<User*,User*> ison_already;
 	User *u;

@@ -114,14 +114,14 @@ int ModuleSpanningTree::CountServs()
 	return Utils->serverlist.size();
 }
 
-void ModuleSpanningTree::HandleLinks(const char** parameters, int pcnt, User* user)
+void ModuleSpanningTree::HandleLinks(const char* const* parameters, int pcnt, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
 	user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
 	return;
 }
 
-void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, User* user)
+void ModuleSpanningTree::HandleLusers(const char* const* parameters, int pcnt, User* user)
 {
 	unsigned int n_users = ServerInstance->Users->UserCount();
 
@@ -322,7 +322,7 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 	}
 }
 
-int ModuleSpanningTree::HandleVersion(const char** parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleVersion(const char* const* parameters, int pcnt, User* user)
 {
 	// we've already checked if pcnt > 0, so this is safe
 	TreeServer* found = Utils->FindServerMask(parameters[0]);
@@ -392,7 +392,7 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 	SendingRemoteMessage = false;
 }
 	
-int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleConnect(const char* const* parameters, int pcnt, User* user)
 {
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{

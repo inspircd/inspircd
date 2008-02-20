@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandRestart(Instance);
 }
 
-CmdResult CommandRestart::Handle (const char** parameters, int, User *user)
+CmdResult CommandRestart::Handle (const char* const* parameters, int, User *user)
 {
 	ServerInstance->Log(DEFAULT,"Restart: %s",user->nick);
 	if (!ServerInstance->PassCompare(user, ServerInstance->Config->restartpass, parameters[0], ServerInstance->Config->powerhash))

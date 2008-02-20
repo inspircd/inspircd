@@ -1044,7 +1044,7 @@ class CoreExport Module : public Extensible
 	 * @param original_line The entire original line as passed to the parser from the user
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line);
+	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line);
 
 	/** Called after any command has been executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,
@@ -1058,7 +1058,7 @@ class CoreExport Module : public Extensible
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
 	 * @param original_line The entire original line as passed to the parser from the user
 	 */
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
+	virtual void OnPostCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting

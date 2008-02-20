@@ -22,7 +22,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandRehash(Instance);
 }
 
-CmdResult CommandRehash::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	user->WriteServ("382 %s %s :Rehashing",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 	std::string parameter;

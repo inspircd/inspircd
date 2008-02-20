@@ -27,7 +27,7 @@ class CommandClones : public Command
 		syntax = "<limit>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 
 		std::string clonesstr = "304 " + std::string(user->nick) + " :CLONES";

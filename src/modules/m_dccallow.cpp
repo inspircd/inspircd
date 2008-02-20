@@ -54,7 +54,7 @@ class CommandDccallow : public Command
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 
-	CmdResult Handle(const char **parameters, int pcnt, User *user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 	{
 		/* syntax: DCCALLOW [+|-]<nick> (<time>) */
 		if (!pcnt)

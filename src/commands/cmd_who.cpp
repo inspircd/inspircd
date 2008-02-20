@@ -165,7 +165,7 @@ void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch
 	whoresults.push_back(wholine);
 }
 
-CmdResult CommandWho::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandWho::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	/*
 	 * XXX - RFC says:

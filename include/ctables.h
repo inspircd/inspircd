@@ -113,7 +113,7 @@ class CoreExport Command : public Extensible
 	 * If the command succeeds but should remain local to this server,
 	 * return CMD_LOCALONLY.
 	 */
-	virtual CmdResult Handle(const char** parameters, int pcnt, User* user) = 0;
+	virtual CmdResult Handle(const char* const* parameters, int pcnt, User* user) = 0;
 
 	/** Handle an internal request from another command, the core, or a module
 	 * @param Command ID
@@ -136,7 +136,7 @@ class CoreExport Command : public Extensible
 	 * If the command succeeds but should remain local to this server,
 	 * return CMD_LOCALONLY.
 	 */
-	virtual CmdResult HandleServer(const char** /* parameters */, int /* pcnt */, const std::string& /* servername */)
+	virtual CmdResult HandleServer(const char* const* /* parameters */, int /* pcnt */, const std::string& /* servername */)
 	{
 		return CMD_INVALID;
 	}

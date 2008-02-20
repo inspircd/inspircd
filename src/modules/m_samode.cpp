@@ -26,7 +26,7 @@ class CommandSamode : public Command
 		syntax = "<target> <modes> {<mode-parameters>}";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		/*
 		 * Handles an SAMODE request. Notifies all +s users.

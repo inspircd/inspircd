@@ -26,7 +26,7 @@ class CommandVhost : public Command
 		syntax = "<username> <password>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		ConfigReader *Conf = new ConfigReader(ServerInstance);
 

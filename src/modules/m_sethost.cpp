@@ -29,7 +29,7 @@ class CommandSethost : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		size_t len = 0;
 		for (const char* x = parameters[0]; *x; x++, len++)

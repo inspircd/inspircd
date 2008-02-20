@@ -27,7 +27,7 @@ class CommandGloadmodule : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		std::string servername = pcnt > 1 ? parameters[1] : "*";
 
@@ -61,7 +61,7 @@ class CommandGunloadmodule : public Command
 		syntax = "<modulename> [servermask]";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		std::string servername = pcnt > 1 ? parameters[1] : "*";
 
@@ -95,7 +95,7 @@ class CommandGreloadmodule : public Command
 		syntax = "<modulename> [servermask]";
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, User *user)
+	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 	{
 		std::string servername = pcnt > 1 ? parameters[1] : "*";
 

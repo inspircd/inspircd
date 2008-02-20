@@ -69,7 +69,7 @@ class RemoveBase
 		}
 	}
 	
-	CmdResult Handle (const char** parameters, int pcnt, User *user, bool neworder)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user, bool neworder)
 	{
 		const char* channame;
 		const char* username;
@@ -213,7 +213,7 @@ class CommandRemove : public Command, public RemoveBase
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		return RemoveBase::Handle(parameters, pcnt, user, false);
 	}
@@ -230,7 +230,7 @@ class CommandFpart : public Command, public RemoveBase
 		syntax = "<channel> <nick> [<reason>]";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		return RemoveBase::Handle(parameters, pcnt, user, true);
 	}

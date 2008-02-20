@@ -26,7 +26,7 @@ class CommandUserip : public Command
 		syntax = "<nick>{,<nick>}";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		std::string retbuf = std::string("340 ") + user->nick + " :";
 

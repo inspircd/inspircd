@@ -37,7 +37,7 @@ class CommandJumpserver : public Command
 		redirect_all_immediately = redirect_new_users = false;
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		int n_done = 0;
 		reason = (pcnt < 4) ? "Please use this server/port instead" : parameters[3];

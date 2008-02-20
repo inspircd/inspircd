@@ -38,7 +38,7 @@ class ModuleAntiBear : public Module
 	}
 
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		if (command == "NOTICE" && !validated && pcnt > 1 && user->GetExt("antibear_timewait"))
 		{

@@ -20,7 +20,7 @@ extern "C" DllExport  Command* init_command(InspIRCd* Instance)
 	return new CommandPrivmsg(Instance);
 }
 
-CmdResult CommandPrivmsg::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	User *dest;
 	Channel *chan;
@@ -38,26 +38,26 @@ CmdResult CommandPrivmsg::Handle (const char** parameters, int pcnt, User *user)
 		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,(void*)parameters[0],TYPE_SERVER,temp,0,except_list));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
-		parameters[1] = temp.c_str();
-		// notice to server mask
+		const char* text = temp.c_str();
 		const char* servermask = parameters[0] + 1;
-		FOREACH_MOD(I_OnText,OnText(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,except_list));
+		FOREACH_MOD(I_OnText,OnText(user,(void*)parameters[0],TYPE_SERVER,text,0,except_list));
 		if (match(ServerInstance->Config->ServerName,servermask))
 		{
-			user->SendAll("PRIVMSG", "%s", parameters[1]);
+			user->SendAll("PRIVMSG", "%s", text);
 		}
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,except_list));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,(void*)parameters[0],TYPE_SERVER,text,0,except_list));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
-	if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
+	const char* target = parameters[0];
+	if ((*target == '@') || (*target == '%') || (*target == '+'))
 	{
-		status = *parameters[0];
-		parameters[0]++;
+		status = *target;
+		target++;
 	}
-	if (parameters[0][0] == '#')
+	if (*target == '#')
 	{
-		chan = ServerInstance->FindChan(parameters[0]);
+		chan = ServerInstance->FindChan(target);
 
 		except_list[user] = user->nick;
 
@@ -83,7 +83,7 @@ CmdResult CommandPrivmsg::Handle (const char** parameters, int pcnt, User *user)
 			if (MOD_RESULT) {
 				return CMD_FAILURE;
 			}
-			parameters[1] = temp.c_str();
+			const char* text = temp.c_str();
 
 			/* Check again, a module may have zapped the input string */
 			if (temp.empty())
@@ -92,30 +92,30 @@ CmdResult CommandPrivmsg::Handle (const char** parameters, int pcnt, User *user)
 				return CMD_FAILURE;
 			}
 
-			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,parameters[1],status,except_list));
+			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,text,status,except_list));
 
 			if (status)
 			{
 				if (ServerInstance->Config->UndernetMsgPrefix)
 				{
-					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name, status, parameters[1]);
+					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name, status, text);
 				}
 				else
 				{
-					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%s", status, chan->name, parameters[1]);
+					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%s", status, chan->name, text);
 				}
 			}
 			else 
 			{
-				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name, parameters[1]);
+				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name, text);
 			}
 
-			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1],status,except_list));
+			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,text,status,except_list));
 		}
 		else
 		{
 			/* no such nick/channel */
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, target);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -166,17 +166,17 @@ CmdResult CommandPrivmsg::Handle (const char** parameters, int pcnt, User *user)
 		if (MOD_RESULT) {
 			return CMD_FAILURE;
 		}
-		parameters[1] = (char*)temp.c_str();
+		const char* text = temp.c_str();
 
-		FOREACH_MOD(I_OnText,OnText(user,dest,TYPE_USER,parameters[1],0,except_list));
+		FOREACH_MOD(I_OnText,OnText(user,dest,TYPE_USER,text,0,except_list));
 
 		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
-			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
+			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick, text);
 		}
 
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,parameters[1],0,except_list));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,text,0,except_list));
 	}
 	else
 	{

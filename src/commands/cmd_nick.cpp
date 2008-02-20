@@ -25,7 +25,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult CommandNick::Handle (const char** parameters, int, User *user)
+CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 {
 	char oldnick[NICKMAX];
 

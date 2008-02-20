@@ -52,7 +52,7 @@ class CommandMkpasswd : public Command
 		}
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, User *user)
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		MakeHash(user, parameters[0], parameters[1]);
 		/* NOTE: Don't propagate this across the network!
