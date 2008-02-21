@@ -116,11 +116,11 @@ bool TestSuite::DoThreadTests()
 	cout << "Create new thread based on TestSuiteThread...\n";
 	te->Create(tst);
 
-	cout << "Press any key to end test.\n";
-	getchar();
+	cout << "Type any line and press enter to end test.\n";
+	cin >> anything;
 
 	/* Thread engine auto frees thread on delete */
-	cout << "Waiting for thread to exit...";
+	cout << "Waiting for thread to exit... " << flush;
 	delete tst;
 	cout << "Done!\n";
 
