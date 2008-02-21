@@ -54,7 +54,6 @@ void PThreadEngine::Create(Thread* thread_to_init)
 
 PThreadEngine::~PThreadEngine()
 {
-	//pthread_kill(this->MyPThread, SIGKILL);
 }
 
 void PThreadEngine::Run()
