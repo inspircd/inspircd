@@ -1200,7 +1200,7 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 			print FILEHANDLE "#define USE_SELECT\n";
 			$se = "socketengine_select";
 		}
-		print FILEHANDLE "\n#include \"include/threadengines/threadengine_pthread.h\"\n\n#endif\n";
+		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n\n#endif\n";
 		close(FILEHANDLE);
 	}
 
