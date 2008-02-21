@@ -36,6 +36,7 @@ void PThreadEngine::Create(Thread* thread_to_init)
 {
 	pthread_attr_t attribs;
 	pthread_attr_init(&attribs);
+	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
 	pthread_t* MyPThread = new pthread_t;
 
 	if (pthread_create(MyPThread, &attribs, PThreadEngine::Entry, (void*)this) != 0)
@@ -43,6 +44,8 @@ void PThreadEngine::Create(Thread* thread_to_init)
 		delete MyPThread;
 		throw CoreException("Unable to create new PThreadEngine: " + std::string(strerror(errno)));
 	}
+
+	pthread_attr_destroy(&attribs);
 
 	NewThread = thread_to_init;
 	NewThread->Creator = this;
@@ -81,6 +84,10 @@ void PThreadEngine::FreeThread(Thread* thread)
 	pthread_t* pthread = NULL;
 	if (thread->GetExt("pthread", pthread))
 	{
+		thread->SetExitFlag();
+		int rc;
+		void* status;
+		rc = pthread_join(*pthread, &status);
 		delete pthread;
 	}
 }

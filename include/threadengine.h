@@ -82,6 +82,8 @@ class CoreExport ThreadEngine : public Extensible
  */
 class CoreExport Thread : public Extensible
 {
+ private:
+	bool ExitFlag;
  public:
 
 	/** Creator thread engine
@@ -90,7 +92,7 @@ class CoreExport Thread : public Extensible
 
 	/** Set Creator to NULL at this point
 	 */
-	Thread() : Creator(NULL)
+	Thread() : ExitFlag(false), Creator(NULL)
 	{
 	}
 
@@ -107,6 +109,21 @@ class CoreExport Thread : public Extensible
 	 * threaded code here
 	 */
 	virtual void Run() = 0;
+
+	void SetExitFlag()
+	{
+		ExitFlag = true;
+	}
+
+	void ClearExitFlag()
+	{
+		ExitFlag = false;
+	}
+
+	bool GetExitFlag()
+	{
+		return ExitFlag;
+	}
 };
 
 

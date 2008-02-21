@@ -33,10 +33,10 @@ class TestSuiteThread : public Thread
 
 	virtual void Run()
 	{
-		while (1)
+		while (GetExitFlag() == false)
 		{
 			cout << "Test suite thread run...\n";
-			sleep(10);
+			sleep(5);
 		}
 	}
 };
@@ -110,19 +110,23 @@ bool TestSuite::DoThreadTests()
 	}
 	cout << "Creation success!\n";
 
-	cout << "Creating new thread of type TestSuiteThread\n";
-
+	cout << "Creating new thread of type TestSuiteThread...\n";
 	TestSuiteThread* tst = new TestSuiteThread();
 
+	cout << "Create new thread based on TestSuiteThread...\n";
 	te->Create(tst);
 
-	cout << "Press enter to end test.";
-	cin >> anything;
+	cout << "Press any key to end test.\n";
+	getchar();
 
-	/* Auto frees thread */
+	/* Thread engine auto frees thread on delete */
+	cout << "Waiting for thread to exit...";
 	delete tst;
+	cout << "Done!\n";
 
+	cout << "Delete ThreadEngine... ";
 	delete te;
+	cout << "Done!\n";
 
 	return true;
 }
