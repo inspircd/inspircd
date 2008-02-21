@@ -15,15 +15,39 @@
 
 #include "inspircd.h"
 #include "testsuite.h"
+#include "threadengine.h"
 #include <iostream>
 
 using namespace std;
+
+class TestSuiteThread : public Thread
+{
+	TestSuiteThread() : Thread()
+	{
+	}
+
+	virtual ~TestSuiteThread()
+	{
+	}
+
+	virtual void Run()
+	{
+		while (1)
+		{
+			cout << "Test suite thread run...\n";
+			sleep(10);
+		}
+	}
+};
 
 TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	cout << "\n\n*** STARTING TESTSUITE ***\n";
 
 	std::string modname;
+	std::string choice;
+
+	ServerInstance->SE->Blocking(fileno(stdin));
 
 	while (1)
 	{
@@ -31,8 +55,13 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 		cout << "(2) Load a module\n";
 		cout << "(3) Unload a module\n";
 		cout << "(4) Threading tests\n";
-	
-		switch (fgetc(stdin))
+
+		cout << endl << "(X) Exit test suite\n";
+
+		cout << "\nChoice: ";
+		cin >> choice;
+
+		switch (*choice.begin())
 		{
 			case '1':
 				FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
@@ -50,6 +79,12 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 			case '4':
 				cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 			break;
+			case 'X':
+				return;
+			break;
+			default:
+				cout << "Invalid option\n";
+			break;
 		}
 		cout << endl;
 	}
@@ -57,6 +92,35 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 
 bool TestSuite::DoThreadTests()
 {
+	std::string anything;
+	cout << "Creating new ThreadEngine class...\n";
+	try
+	{
+		ThreadEngineFactory* tef = new ThreadEngineFactory();
+		ThreadEngine* te = tef->Create(ServerInstance);
+		delete tef;
+	}
+	catch (...)
+	{
+		cout << "Creation failed, test failure.\n";
+		return false;
+	}
+	cout << "Creation success!\n";
+
+	cout << "Creating new thread of type TestSuiteThread\n";
+
+	TestSuiteThread* tst = new TestSuiteThread();
+
+	te->Create(tst);
+
+	cout >> "Press enter to end test.";
+	cin >> anything;
+
+	/* Auto frees thread */
+	delete tst;
+
+	delete te;
+
 	return true;
 }
 

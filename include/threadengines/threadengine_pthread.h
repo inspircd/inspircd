@@ -40,4 +40,12 @@ class CoreExport PThreadEngine : public ThreadEngine
 	void FreeThread(Thread* thread);
 };
 
+class ThreadEngineFactory : public classbase
+{
+	ThreadEngine* Create(InspIRCd* ServerInstance)
+	{
+		return new PThreadEngine(ServerInstance);
+	}
+};
+
 #endif
