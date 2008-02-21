@@ -938,10 +938,10 @@ makecache();
 print "\n\n";
 print "To build your server with these settings, please type '\e[1;32m$config{MAKEPROG}\e[0m' now.\n";
 if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
-	print "Please remember that to enable \e[1;32mSSL support\e[0m you must\n";
-	print "load the required modules in your config. This configure process\n";
-	print "has just prepared these modules to be compiled for you, and has not\n";
-	print "configured them to be compiled into the core of the ircd.\n";
+	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
+	print "modules in your config. This configure script has added those modules to the\n";
+	print "build process. For more info please refer to:\n";
+	print "\e[1;32mhttp://www.inspircd.org/wiki/Installation_From_Tarball\e[0m\n";
 }
 print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n\n";
 if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
