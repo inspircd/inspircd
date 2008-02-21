@@ -401,7 +401,7 @@ enum Implementation
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
-	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare,
+	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare, I_OnRunTestSuite,
 	I_END
 };
 
@@ -1352,6 +1352,11 @@ class CoreExport Module : public Extensible
 	 * @param user The user who's buffer is now empty.
 	 */
 	virtual void OnBufferFlushed(User* user);
+
+	/** Add test suite hooks here. These are used for testing functionality of a module
+	 * via the --testsuite debugging parameter.
+	 */
+	virtual void OnRunTestSuite();
 };
 
 

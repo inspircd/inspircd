@@ -629,6 +629,11 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	char sid[MAXBUF];
 
+	/** True if we have been told to run the testsuite from the commandline,
+	 * rather than entering the mainloop.
+	 */
+	bool TestSuite;
+
 	/** Construct a new ServerConfig
 	 */
 	ServerConfig(InspIRCd* Instance);

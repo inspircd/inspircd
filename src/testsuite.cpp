@@ -16,4 +16,13 @@
 #include "inspircd.h"
 #include "testsuite.h"
 
+TestSuite::TestSuite(InspIRCd* ServerInstance)
+{
+	FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
+}
+
+TestSuite::~TestSuite()
+{
+}
+
 /* $Core: libIRCDtestsuite */

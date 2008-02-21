@@ -192,6 +192,7 @@ void		Module::OnBuildExemptList(MessageType, Channel*, User*, char, CUList&, con
 void		Module::OnGarbageCollect() { }
 void		Module::OnBufferFlushed(User*) { }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
+void		Module::OnRunTestSuite() { }
 
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)

@@ -14,4 +14,13 @@
 #ifndef __TESTSUITE_H__
 #define __TESTSUITE_H__
 
+class InspIRCd;
+
+class TestSuite : public Extensible
+{
+ public:
+	TestSuite(InspIRCd* ServerInstance);
+	~TestSuite();
+};
+
 #endif

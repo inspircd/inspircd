@@ -289,7 +289,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
+	int do_version = 0, do_nofork = 0, do_debug = 0,
+	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
 	char c = 0;
 
 	memset(&server, 0, sizeof(server));
@@ -352,6 +353,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
+		{ "testsuite",	no_argument,		&do_testsuite,	1	},
 		{ 0, 0, 0, 0 }
 	};
 
@@ -372,7 +374,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			break;
 			default:
 				/* Unknown parameter! DANGER, INTRUDER.... err.... yeah. */
-				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>] [--runasroot] [--version] [--config <config>]\n", argv[0]);
+				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n\
+				                  [--runasroot] [--version] [--config <config>] [--testsuite]\n", argv[0]);
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
@@ -404,7 +407,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* Set the finished argument values */
 	Config->nofork = do_nofork;
 	Config->forcedebug = do_debug;
-	Config->writelog = !do_nolog;	
+	Config->writelog = !do_nolog;
+	Config->TestSuite = do_testsuite;
 
 	if (!this->OpenLog(argv, argc))
 	{
@@ -602,6 +606,14 @@ void InspIRCd::InitialiseUID()
 
 int InspIRCd::Run()
 {
+	/* See if we're supposed to be running the test suite rather than entering the mainloop */
+	if (Config->TestSuite)
+	{
+		TestSuite* ts = new TestSuite(this);
+		delete ts;
+		Exit(0);
+	}
+
 	while (true)
 	{
 #ifndef WIN32
