@@ -42,6 +42,7 @@ class CoreExport PThreadEngine : public ThreadEngine
 
 class ThreadEngineFactory : public classbase
 {
+ public:
 	ThreadEngine* Create(InspIRCd* ServerInstance)
 	{
 		return new PThreadEngine(ServerInstance);

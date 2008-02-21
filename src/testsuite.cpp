@@ -22,6 +22,7 @@ using namespace std;
 
 class TestSuiteThread : public Thread
 {
+ public:
 	TestSuiteThread() : Thread()
 	{
 	}
@@ -93,11 +94,13 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 bool TestSuite::DoThreadTests()
 {
 	std::string anything;
+	ThreadEngine* te = NULL;
+
 	cout << "Creating new ThreadEngine class...\n";
 	try
 	{
 		ThreadEngineFactory* tef = new ThreadEngineFactory();
-		ThreadEngine* te = tef->Create(ServerInstance);
+		te = tef->Create(ServerInstance);
 		delete tef;
 	}
 	catch (...)
@@ -113,7 +116,7 @@ bool TestSuite::DoThreadTests()
 
 	te->Create(tst);
 
-	cout >> "Press enter to end test.";
+	cout << "Press enter to end test.";
 	cin >> anything;
 
 	/* Auto frees thread */
