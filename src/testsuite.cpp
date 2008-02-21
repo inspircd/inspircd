@@ -11,18 +11,19 @@
  * ---------------------------------------------------
  */
 
-/* $Install: src/inspircd $(BINPATH) */
+/* $Core: libIRCDtestsuite */
 
 #include "inspircd.h"
 #include "testsuite.h"
 
 TestSuite::TestSuite(InspIRCd* ServerInstance)
 {
+	printf("\n\n*** STARTING TESTSUITE ***\n");
 	FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
 }
 
 TestSuite::~TestSuite()
 {
+	printf("\n\n*** END OF TEST SUITE ***\n");
 }
 
-/* $Core: libIRCDtestsuite */
