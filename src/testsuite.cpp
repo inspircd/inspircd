@@ -15,15 +15,53 @@
 
 #include "inspircd.h"
 #include "testsuite.h"
+#include <iostream>
 
-TestSuite::TestSuite(InspIRCd* ServerInstance)
+using namespace std;
+
+TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	printf("\n\n*** STARTING TESTSUITE ***\n");
-	FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
+	cout << "\n\n*** STARTING TESTSUITE ***\n";
+
+	std::string modname;
+
+	while (1)
+	{
+		cout << "(1) Call all module OnRunTestSuite() methods\n";
+		cout << "(2) Load a module\n";
+		cout << "(3) Unload a module\n";
+		cout << "(4) Threading tests\n";
+	
+		switch (fgetc(stdin))
+		{
+			case '1':
+				FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
+			break;
+			case '2':
+				cout << "Enter module filename to load: ";
+				cin >> modname;
+				cout << (Instance->Modules->Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+			break;
+			case '3':
+				cout << "Enter module filename to unload: ";
+				cin >> modname;
+				cout << (Instance->Modules->Unload(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+			break;
+			case '4':
+				cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+			break;
+		}
+		cout << endl;
+	}
+}
+
+bool TestSuite::DoThreadTests()
+{
+	return true;
 }
 
 TestSuite::~TestSuite()
 {
-	printf("\n\n*** END OF TEST SUITE ***\n");
+	cout << "\n\n*** END OF TEST SUITE ***\n";
 }
 

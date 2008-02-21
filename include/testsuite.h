@@ -18,9 +18,13 @@ class InspIRCd;
 
 class TestSuite : public Extensible
 {
+ private:
+	InspIRCd* ServerInstance;
  public:
-	TestSuite(InspIRCd* ServerInstance);
+	TestSuite(InspIRCd* Instance);
 	~TestSuite();
+
+	bool DoThreadTests();
 };
 
 #endif
