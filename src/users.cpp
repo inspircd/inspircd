@@ -328,7 +328,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	age = ServerInstance->Time(true);
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	quitting = exempt = haspassed = dns_done = false;
+	silentquit = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
