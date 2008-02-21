@@ -38,6 +38,7 @@
 #include "command_parse.h"
 #include "exitcodes.h"
 #include "caller.h"
+#include "testsuite.h"
 
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_inaddr;
@@ -380,6 +381,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			break;
 		}
 	}
+
+	if (do_testsuite)
+		do_nofork = do_debug = true;
 
 	if (do_version)
 	{
