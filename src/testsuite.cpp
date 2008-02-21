@@ -108,12 +108,12 @@ bool TestSuite::DoThreadTests()
 		cout << "Creation failed, test failure.\n";
 		return false;
 	}
-	cout << "Creation success!\n";
+	cout << "Creation success, type " << te->GetName() << "\n";
 
-	cout << "Creating new thread of type TestSuiteThread...\n";
+	cout << "Allocate: new TestSuiteThread...\n";
 	TestSuiteThread* tst = new TestSuiteThread();
 
-	cout << "Create new thread based on TestSuiteThread...\n";
+	cout << "ThreadEngine::Create on TestSuiteThread...\n";
 	te->Create(tst);
 
 	cout << "Type any line and press enter to end test.\n";

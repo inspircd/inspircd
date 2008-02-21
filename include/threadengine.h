@@ -75,6 +75,11 @@ class CoreExport ThreadEngine : public Extensible
 	 * is responsible for destroying it.
 	 */
 	virtual void FreeThread(Thread* thread) = 0;
+
+	virtual const std::string GetName()
+	{
+		return "<pure-virtual>";
+	}
 };
 
 /** Derive from this class to implement your own threaded sections of

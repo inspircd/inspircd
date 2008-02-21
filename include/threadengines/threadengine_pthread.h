@@ -38,6 +38,11 @@ class CoreExport PThreadEngine : public ThreadEngine
 	void Create(Thread* thread_to_init);
 
 	void FreeThread(Thread* thread);
+
+	const std::string GetName()
+	{
+		return "posix-thread";
+	}
 };
 
 class ThreadEngineFactory : public classbase
