@@ -11,9 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Install: src/inspircd $(BINPATH) */
+#ifndef __TESTSUITE_H__
+#define __TESTSUITE_H__
 
-#include "inspircd.h"
-#include "testsuite.h"
-
-/* $Core: libIRCDtestsuite */
+#endif
