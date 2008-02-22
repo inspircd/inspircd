@@ -11,22 +11,11 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDthreadengine */
-
-/*********        DEFAULTS       **********/
-/* $ExtraSources: socketengines/socketengine_pthread.cpp */
-/* $ExtraObjects: socketengine_pthread.o */
-
-/* $If: USE_WIN32 */
-/* $ExtraSources: socketengines/socketengine_win32.cpp */
-/* $ExtraObjects: socketengine_win32.o */
-/* $EndIf */
-
 #include "inspircd.h"
 #include "threadengines/threadengine_win32.h"
 #include <pthread.h>
 
-pthread_mutex_t MyMutex = PTHREAD_MUTEX_INITIALIZER;
+CRITICAL_SECTION MyMutex;
 
 Win32ThreadEngine::Win32ThreadEngine(InspIRCd* Instance) : ThreadEngine(Instance)
 {
@@ -34,22 +23,18 @@ Win32ThreadEngine::Win32ThreadEngine(InspIRCd* Instance) : ThreadEngine(Instance
 
 void Win32ThreadEngine::Create(Thread* thread_to_init)
 {
-	pthread_attr_t attribs;
-	pthread_attr_init(&attribs);
-	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
-	pthread_t* MyPThread = new pthread_t;
+	HANDLE* MyThread = new HANDLE;
+	DWORD ThreadId = 0;
 
-	if (pthread_create(MyPThread, &attribs, Win32ThreadEngine::Entry, (void*)this) != 0)
+	if (!(MyThread = CreateThread(NULL,0,Win32ThreadEngine::Entry,this,0,&ThreadId)))
 	{
-		delete MyPThread;
-		throw CoreException("Unable to create new Win32ThreadEngine: " + std::string(strerror(errno)));
+		delete MyThread;
+		throw CoreException("Unable to reate new Win32ThreadEngine: " + dlerror());
 	}
-
-	pthread_attr_destroy(&attribs);
 
 	NewThread = thread_to_init;
 	NewThread->Creator = this;
-	NewThread->Extend("pthread", MyPThread);
+	NewThread->Extend("winthread", MyThread);
 }
 
 Win32ThreadEngine::~Win32ThreadEngine()
@@ -64,30 +49,30 @@ void Win32ThreadEngine::Run()
 bool Win32ThreadEngine::Mutex(bool enable)
 {
 	if (enable)
-		pthread_mutex_lock(&MyMutex);
+		EnterCriticalSection(&MyMutex);
 	else
-		pthread_mutex_unlock(&MyMutex);
+		LeaveCriticalSection(&MyMutex);
 
 	return false;
 }
 
-void* Win32ThreadEngine::Entry(void* parameter)
+DWORD WINAPI Win32ThreadEngine::Entry(void* parameter)
 {
 	ThreadEngine * pt = (ThreadEngine*)parameter;
 	pt->Run();
-	return NULL;
+	return 0;
 }
 
 void Win32ThreadEngine::FreeThread(Thread* thread)
 {
-	pthread_t* pthread = NULL;
-	if (thread->GetExt("pthread", pthread))
+	HANDLE* winthread = NULL;
+	if (thread->GetExt("winthread", winthread))
 	{
 		thread->SetExitFlag();
 		int rc;
 		void* status;
-		rc = pthread_join(*pthread, &status);
-		delete pthread;
+		WaitForSingleObject(*winthread,INFINITE);
+		delete winthread;
 	}
 }
 

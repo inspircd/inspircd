@@ -33,7 +33,7 @@ class CoreExport Win32ThreadEngine : public ThreadEngine
 
 	void Run();
 
-	static void* Entry(void* parameter);
+	static DWORD WINAPI Entry(void* parameter);
 
 	void Create(Thread* thread_to_init);
 
