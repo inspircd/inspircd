@@ -120,7 +120,7 @@ bool TestSuite::DoThreadTests()
 	}
 	catch (CoreException &ce)
 	{
-		cout << "Failure: " << ce.GetReason() << endl;s
+		cout << "Failure: " << ce.GetReason() << endl;
 	}
 
 	cout << "Type any line and press enter to end test.\n";
