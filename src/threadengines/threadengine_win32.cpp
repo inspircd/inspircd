@@ -68,8 +68,6 @@ void Win32ThreadEngine::FreeThread(Thread* thread)
 	if (thread->GetExt("winthread", winthread))
 	{
 		thread->SetExitFlag();
-		int rc;
-		void* status;
 		WaitForSingleObject(*winthread,INFINITE);
 		delete winthread;
 	}

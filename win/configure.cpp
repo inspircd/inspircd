@@ -395,6 +395,7 @@ void Run()
 	fprintf(f, "#define MAXBUF 514\n");
 
 	fprintf(f, "\n#include \"inspircd_win32wrapper.h\"\n\n");
+	fprintf(f, "#include \"threadengines/threadengine_win32.h\"\n\n");
 	fprintf(f, "#endif\n\n");
 	fclose(f);
 
@@ -406,7 +407,6 @@ void Run()
 	fprintf(f, "#ifndef __CONFIGURATION_SOCKETENGINE__\n");
 	fprintf(f, "#define __CONFIGURATION_SOCKETENGINE__\n\n");
 	fprintf(f, "#include \"socketengines/socketengine_%s.h\"\n\n", use_iocp ? "iocp" : "select");
-	fprintf(f, "#include \"threadengines/threadengine_win32.h\"\n\n");
 	fprintf(f, "#endif\n\n");
 	fclose(f);
 
