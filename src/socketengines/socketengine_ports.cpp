@@ -22,8 +22,8 @@ PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Log(SPARSE,"ERROR: This is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: This is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine: %s\n", strerror(errno));
 		printf("ERROR: This is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -51,7 +51,7 @@ bool PortsEngine::AddFd(EventHandler* eh)
 	ref[fd] = eh;
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, eh->Readable() ? POLLRDNORM : POLLWRNORM, eh);
 
-	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	CurrentSetSize++;
 	return true;
 }
@@ -72,7 +72,7 @@ bool PortsEngine::DelFd(EventHandler* eh, bool force)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 

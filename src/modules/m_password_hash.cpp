@@ -120,7 +120,7 @@ class ModuleOperHash : public Module
 	{
 		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
 		{
-			ServerInstance->Log(DEBUG, "Post-load registering hasher: %s", name.c_str());
+			ServerInstance->Logs->Log("m_password-hash",DEBUG, "Post-load registering hasher: %s", name.c_str());
 			std::string sname = HashNameRequest(this, mod).Send();
 			hashers[sname.c_str()] = mod;
 			names.push_back(sname);

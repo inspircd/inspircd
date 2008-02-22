@@ -34,7 +34,7 @@ static std::map<std::string, std::string> warned;       /* Server names that hav
 
 int TreeSocket::WriteLine(std::string line)
 {
-	Instance->Log(DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
+	Instance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
 	line.append("\r\n");
 	return this->Write(line);
 }
@@ -73,7 +73,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 	if (line.empty())
 		return true;
 
-	Instance->Log(DEBUG, "S[%d] I %s", this->GetFd(), line.c_str());
+	Instance->Logs->Log("m_spanningtree",DEBUG, "S[%d] I %s", this->GetFd(), line.c_str());
 
 	this->Split(line.c_str(),params);
 	
@@ -268,7 +268,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if ((!route_back_again) || (route_back_again->GetSocket() != this))
 				{
 					if (route_back_again)
-						Instance->Log(DEBUG,"Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
+						Instance->Logs->Log("m_spanningtree",DEBUG,"Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
 					return true;
 				}
 				/* Fix by brain:
@@ -308,7 +308,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 						{
 							if (warned.find(x->server) == warned.end())
 							{
-								Instance->Log(DEFAULT,"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.", params[1].c_str(), x->server);
+								Instance->Logs->Log("m_spanningtree",DEFAULT,"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.", params[1].c_str(), x->server);
 								Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending nonstandard modes: '%s MODE %s' where FMODE should be used, and may cause desyncs.", x->server, x->nick, params[1].c_str());
 								warned[x->server] = x->nick;
 							}

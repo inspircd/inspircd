@@ -99,11 +99,11 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_global_init(); // This must be called once in the program
 
 		if(gnutls_certificate_allocate_credentials(&x509_cred) != 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to allocate certificate credentials");
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to allocate certificate credentials");
 
 		// Guessing return meaning
 		if(gnutls_dh_params_init(&dh_params) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters");
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters");
 
 		// Needs the flag as it ignores a plain /rehash
 		OnRehash(NULL,"ssl");
@@ -149,17 +149,17 @@ class ModuleSSLGnuTLS : public Module
 							for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
 								if (ServerInstance->Config->ports[i]->GetPort() == portno)
 									ServerInstance->Config->ports[i]->SetDescription("ssl");
-							ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
+							ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
 							sslports.append("*:").append(ConvToStr(portno)).append(";");
 						}
 						else
 						{
-							ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", portno);
+							ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", portno);
 						}
 					}
 					catch (ModuleException &e)
 					{
-						ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
+						ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
 					}
 				}
 			}
@@ -213,10 +213,10 @@ class ModuleSSLGnuTLS : public Module
 		int ret;
 
 		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
 
 		if((ret = gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
 
 		if((ret = gnutls_certificate_set_x509_key_file (x509_cred, certfile.c_str(), keyfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 		{
@@ -240,7 +240,7 @@ class ModuleSSLGnuTLS : public Module
 		int ret;
 
 		if((ret = gnutls_dh_params_generate2(dh_params, dh_bits)) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
 	}
 
 	virtual ~ModuleSSLGnuTLS()

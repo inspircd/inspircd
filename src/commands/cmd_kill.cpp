@@ -86,7 +86,7 @@ CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *us
 			 * snotices, C will get a local kill snotice. this isn't accurate, and needs fixing at some stage. -- w00t
 			 */
 			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
-			ServerInstance->Log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
+			ServerInstance->Logs->Log("KILL",DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
 			/* Bug #419, make sure this message can only occur once even in the case of multiple KILL messages crossing the network, and change to show
 			 * hidekillsserver as source if possible
 			 */

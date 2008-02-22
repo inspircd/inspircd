@@ -62,7 +62,7 @@ class CoreExport RLine : public XLine
 	{
 		std::string compare = std::string(u->nick) + "!" + u->ident + "@" + u->host + " " + u->fullname;
 
-		ServerInstance->Log(DEBUG, "Matching " + matchtext + " against string " + compare);
+		ServerInstance->Logs->Log("m_rline",DEBUG, "Matching " + matchtext + " against string " + compare);
 
 		if (pcre_exec(regex, NULL, compare.c_str(), compare.length(), 0, 0, NULL, 0) > -1)
 		{

@@ -114,13 +114,13 @@ class ModuleSafeList : public Module
 			if (*parameters[0] == '<')
 			{
 				maxusers = atoi(parameters[0]+1);
-				ServerInstance->Log(DEBUG,"Max users: %d", maxusers);
+				ServerInstance->Logs->Log("m_safelist",DEBUG,"Max users: %d", maxusers);
 				pcnt = 0;
 			}
 			else if (*parameters[0] == '>')
 			{
 				minusers = atoi(parameters[0]+1);
-				ServerInstance->Log(DEBUG,"Min users: %d", minusers);
+				ServerInstance->Logs->Log("m_safelist",DEBUG,"Min users: %d", minusers);
 				pcnt = 0;
 			}
 		}

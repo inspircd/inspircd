@@ -56,13 +56,13 @@ class HTTPResolver : public Resolver
  public:
 	HTTPResolver(HTTPSocket *s, InspIRCd *Instance, const std::string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(s)
 	{
-		ServerInstance->Log(DEBUG,">>>>>>>>>>>>>>>>>> HTTPResolver::HTTPResolver <<<<<<<<<<<<<<<");
+		ServerInstance->Logs->Log("m_http_client",DEBUG,">>>>>>>>>>>>>>>>>> HTTPResolver::HTTPResolver <<<<<<<<<<<<<<<");
 		orig = hostname;
 	}
 	
 	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
-		ServerInstance->Log(DEBUG,"************* HTTPResolver::OnLookupComplete ***************");
+		ServerInstance->Logs->Log("m_http_client",DEBUG,"************* HTTPResolver::OnLookupComplete ***************");
 		if (!resultnum)
 			socket->Connect(result);
 		else
@@ -71,7 +71,7 @@ class HTTPResolver : public Resolver
 	
 	void OnError(ResolverError e, const std::string &errmsg)
 	{
-		ServerInstance->Log(DEBUG,"!!!!!!!!!!!!!!!! HTTPResolver::OnError: %s", errmsg.c_str());
+		ServerInstance->Logs->Log("m_http_client",DEBUG,"!!!!!!!!!!!!!!!! HTTPResolver::OnError: %s", errmsg.c_str());
 		socket->OnClose();
 	}
 };
@@ -119,7 +119,7 @@ class ModuleHTTPClient : public Module
 HTTPSocket::HTTPSocket(InspIRCd *SI, ModuleHTTPClient *m)
 		: BufferedSocket(SI), Server(SI), Mod(m), status(HTTP_CLOSED)
 {
-	Instance->Log(DEBUG,"HTTPSocket::HTTPSocket");
+	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::HTTPSocket");
 	this->port = 80;
 	response = NULL;
 	closed = false;
@@ -141,7 +141,7 @@ HTTPSocket::~HTTPSocket()
 
 bool HTTPSocket::DoRequest(HTTPClientRequest *request)
 {
-	Instance->Log(DEBUG,"HTTPSocket::DoRequest");
+	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::DoRequest");
 	/* Tweak by brain - we take a copy of this,
 	 * so that the caller doesnt need to leave
 	 * pointers knocking around, less chance of
@@ -155,7 +155,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *request)
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
-	Instance->Log(DEBUG,"Doing request for %s", url.url.c_str());
+	Instance->Logs->Log("m_http_client",DEBUG,"Doing request for %s", url.url.c_str());
 
 	in6_addr s6;
 	in_addr s4;
@@ -165,7 +165,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *request)
 		bool cached;
 		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
 		Instance->AddResolver(r, cached);
-		Instance->Log(DEBUG,"Resolver added, cached=%d", cached);
+		Instance->Logs->Log("m_http_client",DEBUG,"Resolver added, cached=%d", cached);
 	}
 	else
 		Connect(url.domain);
@@ -175,7 +175,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *request)
 
 bool HTTPSocket::ParseURL(const std::string &iurl)
 {
-	Instance->Log(DEBUG,"HTTPSocket::ParseURL %s", iurl.c_str());
+	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::ParseURL %s", iurl.c_str());
 	url.url = iurl;
 	url.port = 80;
 	url.protocol = "http";
@@ -243,13 +243,13 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 
 	if ((url.domain.empty()) || (!url.port) || (url.protocol.empty()))
 	{
-		Instance->Log(DEFAULT, "Invalid URL (%s): Missing required value", iurl.c_str());
+		Instance->Logs->Log("m_http_client",DEFAULT, "Invalid URL (%s): Missing required value", iurl.c_str());
 		return false;
 	}
 	
 	if (url.protocol != "http")
 	{
-		Instance->Log(DEFAULT, "Invalid URL (%s): Unsupported protocol '%s'", iurl.c_str(), url.protocol.c_str());
+		Instance->Logs->Log("m_http_client",DEFAULT, "Invalid URL (%s): Unsupported protocol '%s'", iurl.c_str(), url.protocol.c_str());
 		return false;
 	}
 	
@@ -260,20 +260,20 @@ void HTTPSocket::Connect(const std::string &ip)
 {
 	this->response = new HTTPClientResponse((Module*)Mod, req.GetSource() , url.url, 0, "");
 
-	Instance->Log(DEBUG,"HTTPSocket::Connect(%s) response=%08lx", ip.c_str(), response);
+	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::Connect(%s) response=%08lx", ip.c_str(), response);
 	strlcpy(this->IP, ip.c_str(), MAXBUF);
 	strlcpy(this->host, ip.c_str(), MAXBUF);
 
 	if (!this->DoConnect())
 	{
-		Instance->Log(DEBUG,"DoConnect failed, bailing");
+		Instance->Logs->Log("m_http_client",DEBUG,"DoConnect failed, bailing");
 		this->Close();
 	}
 }
 
 bool HTTPSocket::OnConnected()
 {
-	Instance->Log(DEBUG,"HTTPSocket::OnConnected");
+	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::OnConnected");
 
 	std::string request = "GET " + url.request + " HTTP/1.1\r\n";
 
@@ -297,7 +297,7 @@ bool HTTPSocket::OnConnected()
 
 bool HTTPSocket::OnDataReady()
 {
-	Instance->Log(DEBUG,"HTTPSocket::OnDataReady() for %s", url.url.c_str());
+	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::OnDataReady() for %s", url.url.c_str());
 	const char *sdata = this->Read();
 
 	if (!sdata)
@@ -354,18 +354,18 @@ void HTTPSocket::OnClose()
 	if (!closed)
 	{
 		closed = true;
-		Instance->Log(DEBUG,"HTTPSocket::OnClose response=%08lx", response);
+		Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::OnClose response=%08lx", response);
 		std::string e;
 		if (data.empty())
 			{
-			Instance->Log(DEBUG,"Send error");
+			Instance->Logs->Log("m_http_client",DEBUG,"Send error");
 			HTTPClientError* err = new HTTPClientError((Module*)Mod, req.GetSource(), req.GetURL(), 0);
 			err->Send();
 			delete err;
 			return;
 		}
 
-		Instance->Log(DEBUG,"Set data and send, %s", response->GetURL().c_str());
+		Instance->Logs->Log("m_http_client",DEBUG,"Set data and send, %s", response->GetURL().c_str());
 		response->SetData(data);
 		response->Send();
 		delete response;

@@ -284,7 +284,7 @@ bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem 
 {
 	if ((data.GetInteger() < 0) || (data.GetInteger() > 31))
 	{
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
 		data.Set(20);
 	}
 	return true;
@@ -294,7 +294,7 @@ bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &
 {
 	if ((data.GetInteger() < 1) || (data.GetInteger() > MAXCLIENTS))
 	{
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
 		data.Set(MAXCLIENTS);
 	}
 	return true;
@@ -303,7 +303,7 @@ bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &
 bool ValidateMaxConn(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (data.GetInteger() > SOMAXCONN)
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	return true;
 }
 
@@ -334,7 +334,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &
 	{
 		std::string nameserver;
 		// attempt to look up their nameserver from /etc/resolv.conf
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		std::ifstream resolv("/etc/resolv.conf");
 		bool found_server = false;
 
@@ -347,19 +347,19 @@ bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &
 					resolv >> nameserver;
 					data.Set(nameserver.c_str());
 					found_server = true;
-					conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+					conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
 				}
 			}
 
 			if (!found_server)
 			{
-				conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+				conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
 				data.Set("127.0.0.1");
 			}
 		}
 		else
 		{
-			conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
+			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
 			data.Set("127.0.0.1");
 		}
 	}
@@ -377,7 +377,7 @@ bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem 
 	}
 	if (!strchr(data.GetString(),'.'))
 	{
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",data.GetString(),data.GetString(),'.');
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",data.GetString(),data.GetString(),'.');
 		std::string moo = std::string(data.GetString()).append(".");
 		data.Set(moo.c_str());
 	}
@@ -388,7 +388,7 @@ bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, ValueIt
 {
 	if ((!data.GetInteger()) || (data.GetInteger() > 65535) || (data.GetInteger() < 1024))
 	{
-		conf->GetInstance()->Log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
 		data.Set(10240);
 	}
 	return true;
@@ -398,7 +398,7 @@ bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &dat
 {
 	if ((data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
-		conf->GetInstance()->Log(DEFAULT,"<options:maxwhoresults> size out of range, setting to default of 128.");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<options:maxwhoresults> size out of range, setting to default of 128.");
 		data.Set(128);
 	}
 	return true;
@@ -501,7 +501,7 @@ bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &dat
 	if (conf->WhoWasMaxKeep < 3600)
 	{
 		conf->WhoWasMaxKeep = 3600;
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
 	}
 
 	Command* whowas_command = conf->GetInstance()->Parser->GetHandler("WHOWAS");
@@ -518,13 +518,13 @@ bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &dat
  */
 bool InitConnect(ServerConfig* conf, const char*)
 {
-	conf->GetInstance()->Log(DEFAULT,"Reading connect classes...");
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes...");
 
 	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
 	{
 		ConnectClass *c = *i;
 
-		conf->GetInstance()->Log(DEBUG, "Address of class is %p", c);
+		conf->GetInstance()->Logs->Log("CONFIG",DEBUG, "Address of class is %p", c);
 	}
 
 	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end() ; )
@@ -534,7 +534,7 @@ bool InitConnect(ServerConfig* conf, const char*)
 		/* only delete a class with refcount 0 */
 		if (c->RefCount == 0)
 		{
-			conf->GetInstance()->Log(DEFAULT, "Removing connect class, refcount is 0!");
+			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Removing connect class, refcount is 0!");
 			
 			/* This was causing a crash, because we'd set i to .begin() just here, but then the for loop's increment would
 			 * set it to .begin() + 1. Which if it was already the last thing in the list, wasn't good.
@@ -588,12 +588,12 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		{
 			/* reenable class so users can be shoved into it :P */
 			cc->SetDisabled(false);
-			conf->GetInstance()->Log(DEFAULT, "Not adding class, it already exists!");
+			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Not adding class, it already exists!");
 			return true;
 		} 
 	}
 
-	conf->GetInstance()->Log(DEFAULT,"Adding a connect class!");
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Adding a connect class!");
 
 	if (*parent)
 	{
@@ -604,7 +604,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		for (; item != conf->Classes.end(); ++item)
 		{
 			ConnectClass* cc = *item;
-			conf->GetInstance()->Log(DEBUG,"Class: %s", cc->GetName().c_str());
+			conf->GetInstance()->Logs->Log("CONFIG",DEBUG,"Class: %s", cc->GetName().c_str());
 			if (cc->GetName() == parent)
 			{
 				ConnectClass* newclass = new ConnectClass(name, cc);
@@ -640,7 +640,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
  */
 bool DoneConnect(ServerConfig *conf, const char*)
 {
-	conf->GetInstance()->Log(DEFAULT, "Done adding connect classes!");
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Done adding connect classes!");
 	return true;
 }
 
@@ -751,7 +751,7 @@ bool DoneMaxBans(ServerConfig*, const char*)
 
 void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail, User* user)
 {
-	ServerInstance->Log(DEFAULT, "There were errors in your configuration file: %s", errormessage.c_str());
+	ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file: %s", errormessage.c_str());
 	if (bail)
 	{
 		/* Unneeded because of the ServerInstance->Log() aboive? */
@@ -1146,7 +1146,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	}
 
 	/** XXX END PASS **/
-	ServerInstance->Log(DEBUG,"End config pass %d", pass);
+	ServerInstance->Logs->Log("CONFIG",DEBUG,"End config pass %d", pass);
 
 	if (pass == 0)
 	{
@@ -1157,7 +1157,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 
 		if (pass == 0)
 		{
-			ServerInstance->Log(DEBUG, "Downloading configuration");
+			ServerInstance->Logs->Log("CONFIG",DEBUG, "Downloading configuration");
 
 			TotalDownloaded = 0;
 			FileErrors = 0;
@@ -1189,7 +1189,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
-	ServerInstance->Log(DEFAULT,"Done reading configuration file.");
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"Done reading configuration file.");
 
 	/* If we're rehashing, let's load any new modules, and unload old ones
 	 */
@@ -1263,7 +1263,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		}
 	}
 
-	ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 
 	if (user)
 		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
@@ -1274,7 +1274,7 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 /* XXX: This can and will block! */
 void ServerConfig::DoDownloads()
 {
-	ServerInstance->Log(DEBUG,"In DoDownloads()");
+	ServerInstance->Logs->Log("CONFIG",DEBUG,"In DoDownloads()");
 
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
@@ -1282,7 +1282,7 @@ void ServerConfig::DoDownloads()
 		if (CompletedFiles.find(x->first) != CompletedFiles.end())
 			continue;
 
-		ServerInstance->Log(DEBUG,"StartDownloads File: %s", x->first.c_str());
+		ServerInstance->Logs->Log("CONFIG",DEBUG,"StartDownloads File: %s", x->first.c_str());
 
 		std::string file = x->first;
 		if ((file[0] == '/') || (file.substr(0, 7) == "file://"))
@@ -1295,7 +1295,7 @@ void ServerConfig::DoDownloads()
 			std::ifstream* conf = new std::ifstream(file.c_str());
 			if (!conf->fail())
 			{
-				ServerInstance->Log(DEBUG,"file:// schema file %s loaded OK", file.c_str());
+				ServerInstance->Logs->Log("CONFIG",DEBUG,"file:// schema file %s loaded OK", file.c_str());
 				delete x->second;
 				x->second = conf;
 			}
@@ -1310,7 +1310,7 @@ void ServerConfig::DoDownloads()
 		else
 		{
 			/* Modules handle these */
-			ServerInstance->Log(DEBUG,"Module-handled schema for %s", x->first.c_str());
+			ServerInstance->Logs->Log("CONFIG",DEBUG,"Module-handled schema for %s", x->first.c_str());
 
 			/* For now, error it */
 			int MOD_RESULT = 0;
@@ -1350,7 +1350,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 
 	if (scan_for_includes_only)
 	{
-		ServerInstance->Log(DEBUG,"scan_for_includes_only set");
+		ServerInstance->Logs->Log("CONFIG",DEBUG,"scan_for_includes_only set");
 		conf = scan_for_includes_only;
 	}
 
@@ -1373,7 +1373,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		{
 			if (pass == 0)
 			{
-				ServerInstance->Log(DEBUG,"Push include file %s onto map", filename);
+				ServerInstance->Logs->Log("CONFIG",DEBUG,"Push include file %s onto map", filename);
 				/* First pass, we insert the file into a map, and just return true */
 				IncludedFiles.insert(std::make_pair(filename,new std::stringstream));
 				return true;
@@ -1381,7 +1381,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			else
 			{
 				/* Second pass, look for the file in the map */
-				ServerInstance->Log(DEBUG,"We are in the second pass, and %s is not in the map!", filename);
+				ServerInstance->Logs->Log("CONFIG",DEBUG,"We are in the second pass, and %s is not in the map!", filename);
 				errorstream << "File " << filename << " could not be opened." << std::endl;
 				return false;
 			}
@@ -1401,7 +1401,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		}
 	}
 
-	ServerInstance->Log(DEBUG,"Start to read conf %s %08lx", filename, conf);
+	ServerInstance->Logs->Log("CONFIG",DEBUG,"Start to read conf %s %08lx", filename, conf);
 
 	/* Start reading characters... */
 	while (conf->get(ch))
@@ -1779,7 +1779,7 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 			{
  				if ((!allow_linefeeds) && (j->second.find('\n') != std::string::npos))
 				{
-					ServerInstance->Log(DEFAULT, "Value of <" + tag + ":" + var+ "> contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
+					ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + var+ "> contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 					for (std::string::iterator n = j->second.begin(); n != j->second.end(); n++)
 						if (*n == '\n')
 							*n = ' ';

@@ -79,7 +79,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 
 	if (!TS)
 	{
-		Instance->Log(DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", source.c_str());
 		return true;
 	}
@@ -148,7 +148,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			}
 			else
 			{
-				Instance->Log(SPARSE,"Warning! Invalid user %s in FJOIN to channel %s IGNORED", usr, channel.c_str());
+				Instance->Logs->Log("m_spanningtree",SPARSE,"Warning! Invalid user %s in FJOIN to channel %s IGNORED", usr, channel.c_str());
 				continue;
 			}
 		}

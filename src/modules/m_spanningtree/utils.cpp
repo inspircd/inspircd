@@ -433,12 +433,12 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(), portno, true, 10, transport.empty() ? NULL : hooks[transport.c_str()]);
 					if (listener->GetState() == I_LISTENING)
 					{
-						ServerInstance->Log(DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), portno);
+						ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), portno);
 						Bindings.push_back(listener);
 					}
 					else
 					{
-						ServerInstance->Log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port: %s:%d: %s",IP.c_str(), portno, strerror(errno));
+						ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Warning: Failed to bind server port: %s:%d: %s",IP.c_str(), portno, strerror(errno));
 						listener->Close();
 					}
 				}
@@ -588,7 +588,7 @@ void SpanningTreeUtilities::DoFailOver(Link* x)
 			TreeServer* CheckDupe = this->FindServer(x->FailOver.c_str());
 			if (CheckDupe)
 			{
-				ServerInstance->Log(DEBUG,"Skipping existing failover: %s", x->FailOver.c_str());
+				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Skipping existing failover: %s", x->FailOver.c_str());
 			}
 			else
 			{

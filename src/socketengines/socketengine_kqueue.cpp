@@ -34,8 +34,8 @@ void KQueueEngine::RecoverFromFork()
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Log(DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		ServerInstance->Log(DEFAULT, "ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.\n");
 		printf("ERROR: this is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -73,7 +73,7 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 	ref[fd] = eh;
 	CurrentSetSize++;
 
-	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	return true;
 }
 
@@ -99,7 +99,7 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 

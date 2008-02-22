@@ -84,7 +84,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 					{
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
 						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type '%s' contains invalid characters",OperType);
-						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
+						ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return CMD_FAILURE;
 					}
 					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
@@ -141,7 +141,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 			Event rmode2((char *)&n, NULL, "send_snoset");
 			rmode2.Send(ServerInstance);
 
-			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0],fields.c_str());
+			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0],fields.c_str());
 			return CMD_FAILURE;
 		}
 		else
@@ -155,7 +155,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 			Event rmode2((char *)&n, NULL, "send_snoset");
 			rmode2.Send(ServerInstance);
 
-			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host,parameters[0]);
+			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host,parameters[0]);
 			return CMD_FAILURE;
 		}
 	}

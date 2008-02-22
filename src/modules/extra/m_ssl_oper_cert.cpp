@@ -159,7 +159,7 @@ class ModuleOperSSLCert : public Module
 						{
 							user->WriteServ("491 %s :This oper login name requires a matching key fingerprint.",user->nick);
 							ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick);
-							ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick,user->ident,user->host);
+							ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick,user->ident,user->host);
 							return 1;
 						}
 					}

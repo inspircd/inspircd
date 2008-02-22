@@ -172,7 +172,7 @@ public:
 			if(hostmask.length())
 			{
 				if (type == "webirc" && !password.length()) {
-						ServerInstance->Log(DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
+						ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
 				}
 				else
 				{
@@ -196,7 +196,7 @@ public:
 			}
 			else
 			{
-				ServerInstance->Log(DEFAULT, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
+				ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
 				continue;
 			}
 		}

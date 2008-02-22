@@ -180,7 +180,7 @@ class IdentRequestSocket : public EventHandler
 
 	virtual void OnConnected()
 	{
-		ServerInstance->Log(DEBUG,"OnConnected()");
+		ServerInstance->Logs->Log("m_ident",DEBUG,"OnConnected()");
 
 		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
 		 * only members we use are in a part of the struct that should always be identical (at the
@@ -230,7 +230,7 @@ class IdentRequestSocket : public EventHandler
 			break;
 			case EVENT_ERROR:
 				/* fd error event, ohshi- */
-				ServerInstance->Log(DEBUG,"EVENT_ERROR");
+				ServerInstance->Logs->Log("m_ident",DEBUG,"EVENT_ERROR");
 				/* We *must* Close() here immediately or we get a
 				 * huge storm of EVENT_ERROR events!
 				 */
@@ -247,7 +247,7 @@ class IdentRequestSocket : public EventHandler
 		 */
 		if (GetFd() > -1)
 		{
-			ServerInstance->Log(DEBUG,"Close ident socket %d", GetFd());
+			ServerInstance->Logs->Log("m_ident",DEBUG,"Close ident socket %d", GetFd());
 			ServerInstance->SE->DelFd(this);
 			ServerInstance->SE->Close(GetFd());
 			ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
@@ -286,7 +286,7 @@ class IdentRequestSocket : public EventHandler
 			return;
 		}
 
-		ServerInstance->Log(DEBUG,"ReadResponse()");
+		ServerInstance->Logs->Log("m_ident",DEBUG,"ReadResponse()");
 
 		irc::sepstream sep(ibuf, ':');
 		std::string token;
@@ -402,7 +402,7 @@ class ModuleIdent : public Module
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Log(DEBUG,"Ident exception: %s", e.GetReason());
+			ServerInstance->Logs->Log("m_ident",DEBUG,"Ident exception: %s", e.GetReason());
 			return 0;
 		}
 
@@ -416,17 +416,17 @@ class ModuleIdent : public Module
 	 */
 	virtual bool OnCheckReady(User *user)
 	{
-		ServerInstance->Log(DEBUG,"OnCheckReady %s", user->nick);
+		ServerInstance->Logs->Log("m_ident",DEBUG,"OnCheckReady %s", user->nick);
 
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = NULL;
 		if (!user->GetExt("ident_socket", isock))
 		{
-			ServerInstance->Log(DEBUG, "No ident socket :(");
+			ServerInstance->Logs->Log("m_ident",DEBUG, "No ident socket :(");
 			return true;
 		}
 
-		ServerInstance->Log(DEBUG, "Has ident_socket");
+		ServerInstance->Logs->Log("m_ident",DEBUG, "Has ident_socket");
 
 		time_t compare = isock->age;
 		compare += RequestTimeout;
@@ -436,7 +436,7 @@ class ModuleIdent : public Module
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
-			ServerInstance->Log(DEBUG, "Timeout");
+			ServerInstance->Logs->Log("m_ident",DEBUG, "Timeout");
 			/* The user isnt actually disconnecting,
 			 * we call this to clean up the user
 			 */
@@ -447,11 +447,11 @@ class ModuleIdent : public Module
 		/* Got a result yet? */
 		if (!isock->HasResult())
 		{
-			ServerInstance->Log(DEBUG, "No result yet");
+			ServerInstance->Logs->Log("m_ident",DEBUG, "No result yet");
 			return false;
 		}
 
-		ServerInstance->Log(DEBUG, "Yay, result!");
+		ServerInstance->Logs->Log("m_ident",DEBUG, "Yay, result!");
 
 		/* wooo, got a result (it will be good, or bad) */
 		if (*(isock->GetResult()) != '~')
@@ -483,7 +483,7 @@ class ModuleIdent : public Module
 			isock->Close();
 			delete isock;
 			user->Shrink("ident_socket");
-			ServerInstance->Log(DEBUG, "Removed ident socket from %s", user->nick);
+			ServerInstance->Logs->Log("m_ident",DEBUG, "Removed ident socket from %s", user->nick);
 		}
 	}
 };

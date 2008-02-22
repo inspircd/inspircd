@@ -25,7 +25,7 @@ void CullList::AddItem(User* user)
 {
 	if (user->quitting)
 	{
-		ServerInstance->Log(DEBUG, "*** Warning *** - You tried to quit a user (%s) twice. Did your module call QuitUser twice?", user->nick);
+		ServerInstance->Logs->Log("CULLLIST",DEBUG, "*** Warning *** - You tried to quit a user (%s) twice. Did your module call QuitUser twice?", user->nick);
 		return;
 	}
 
@@ -88,7 +88,7 @@ int CullList::Apply()
 				}
 				catch (CoreException& modexcept)
 				{
-					ServerInstance->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+					ServerInstance->Logs->Log("CULLLIST",DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 				}
 			}
 

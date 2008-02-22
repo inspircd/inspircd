@@ -188,7 +188,7 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 	std::deque<std::string> list;
 	std::string n = this->Instance->Config->GetSID();
 	const char* sn = n.c_str();
-	Instance->Log(DEBUG,"Sending channels and modes, %d to send", this->Instance->chanlist->size());
+	Instance->Logs->Log("m_spanningtree",DEBUG,"Sending channels and modes, %d to send", this->Instance->chanlist->size());
 	for (chan_hash::iterator c = this->Instance->chanlist->begin(); c != this->Instance->chanlist->end(); c++)
 	{
 		SendFJoins(Current, c->second);

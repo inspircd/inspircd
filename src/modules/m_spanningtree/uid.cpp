@@ -84,7 +84,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		/*
 		 * Nick collision.
 		 */
-		Instance->Log(DEBUG,"*** Collision on %s", tempnick);
+		Instance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s", tempnick);
 		int collide = this->DoCollision(iter->second, age_t, params[5].c_str(), params[7].c_str(), params[0].c_str());
 
 		if (collide == 2)

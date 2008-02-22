@@ -342,7 +342,7 @@ void InspIRCd::CheckRoot()
 	if (geteuid() == 0)
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
-		this->Log(DEFAULT,"Cant start as root");
+		this->Logs->Log("STARTUP",DEFAULT,"Cant start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
 }
@@ -352,7 +352,7 @@ void InspIRCd::CheckDie()
 	if (*Config->DieValue)
 	{
 		printf("WARNING: %s\n\n",Config->DieValue);
-		this->Log(DEFAULT,"Died because of <die> tag: %s",Config->DieValue);
+		this->Logs->Log("CONFIG",DEFAULT,"Died because of <die> tag: %s",Config->DieValue);
 		Exit(EXIT_STATUS_DIETAG);
 	}
 }

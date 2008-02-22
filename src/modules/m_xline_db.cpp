@@ -43,7 +43,7 @@ class ModuleXLineDB : public Module
 	 */
 	void OnAddLine(User* source, XLine* line)
 	{
-		ServerInstance->Log(DEBUG, "xlinedb: Adding a line");
+		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Adding a line");
 		xlines.push_back(line);
 
 		if (!reading_db)
@@ -69,7 +69,7 @@ class ModuleXLineDB : public Module
 
 	void RemoveLine(XLine *line)
 	{
-		ServerInstance->Log(DEBUG, "xlinedb: Removing a line");
+		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Removing a line");
 		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
 		{
 			if ((*i) == line)
@@ -92,16 +92,16 @@ class ModuleXLineDB : public Module
 		 * Technically, that means that this can block, but I have *never* seen that.
 		 *		-- w00t
 		 */
-		ServerInstance->Log(DEBUG, "xlinedb: Opening temporary database");
+		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Opening temporary database");
 		f = fopen("xline.db.new", "w");
 		if (!f)
 		{
-			ServerInstance->Log(DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot create new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
-		ServerInstance->Log(DEBUG, "xlinedb: Opened. Writing..");
+		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Opened. Writing..");
 
 		/*
 		 * Now, much as I hate writing semi-unportable formats, additional
@@ -121,14 +121,14 @@ class ModuleXLineDB : public Module
 				ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason);
 		}
 
-		ServerInstance->Log(DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
+		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
 
 		int write_error = 0;
 		write_error = ferror(f);
 		write_error |= fclose(f);
 		if (write_error)
 		{
-			ServerInstance->Log(DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -136,7 +136,7 @@ class ModuleXLineDB : public Module
 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 		if (rename("xline.db.new", "xline.db") < 0)
 		{
-			ServerInstance->Log(DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -161,7 +161,7 @@ class ModuleXLineDB : public Module
 			else
 			{
 				/* this might be slightly more problematic. */
-				ServerInstance->Log(DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
+				ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
 				ServerInstance->SNO->WriteToSnoMask('x', "database: cannot read db: %s (%d)", strerror(errno), errno);
 				return false;
 			}
@@ -195,18 +195,18 @@ class ModuleXLineDB : public Module
 				items++;
 			}
 
-			ServerInstance->Log(DEBUG, "xlinedb: Processing %s", linebuf);
+			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Processing %s", linebuf);
 
 			if (command_p[0] == "VERSION")
 			{
 				if (command_p[1] == "1")
 				{
-					ServerInstance->Log(DEBUG, "xlinedb: Reading db version %s", command_p[1].c_str());
+					ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Reading db version %s", command_p[1].c_str());
 				}
 				else
 				{
 					fclose(f);
-					ServerInstance->Log(DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
+					ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
 					ServerInstance->SNO->WriteToSnoMask('x', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
 					return false;
 				}

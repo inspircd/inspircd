@@ -41,7 +41,7 @@ class ModuleRemoteIncludeHttp : public Module
 		return 0;
 #else
 		std::stringstream* gotfile = (std::stringstream*)filedata;
-		ServerInstance->Log(DEBUG,"OnDownloadFile in m_remoteinclude_http");
+		ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"OnDownloadFile in m_remoteinclude_http");
 		int sockfd, portno, n;
 		struct sockaddr_in serv_addr;
 		struct hostent *server;
@@ -57,13 +57,13 @@ class ModuleRemoteIncludeHttp : public Module
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		if (sockfd < 0)
 		{
-			ServerInstance->Log(DEBUG,"Failed to socket()");
+			ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"Failed to socket()");
 			return 0;
 		}
 
 		if (server == NULL) 
 		{
-			ServerInstance->Log(DEBUG,"No such host");
+			ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"No such host");
 			return 0;
 		}
 
@@ -76,20 +76,20 @@ class ModuleRemoteIncludeHttp : public Module
 
 		if (connect(sockfd, (const sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) 
 		{
-			ServerInstance->Log(DEBUG,"Failed to connect()");
+			ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"Failed to connect()");
 			return 0;
 		}
 
-		ServerInstance->Log(DEBUG,"Connected to brainbox");
+		ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"Connected to brainbox");
 
 		n = this->SockSend(sockfd, "GET / HTTP/1.1\r\nConnection: close\r\nHost: neuron.brainbox.winbot.co.uk\r\n\r\n");
 		if (n < 0) 
 		{
-			ServerInstance->Log(DEBUG,"Failed to send()");
+			ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"Failed to send()");
 			return 0;
 		}
 
-		ServerInstance->Log(DEBUG,"Sent GET request");
+		ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"Sent GET request");
 
 		while (((n = read(sockfd,buffer,65535)) > 0))
 		{
@@ -97,7 +97,7 @@ class ModuleRemoteIncludeHttp : public Module
 			(*(gotfile)) << output;
 		}
 
-		ServerInstance->Log(DEBUG,"Read page");
+		ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"Read page");
 
 		std::string version, result;
 		(*(gotfile)) >> version;
@@ -105,7 +105,7 @@ class ModuleRemoteIncludeHttp : public Module
 
 		/* HTTP/1.1 200 OK */
 
-		ServerInstance->Log(DEBUG,"Result: %s", result.c_str());
+		ServerInstance->Logs->Log("m_remoteinclude_http",DEBUG,"Result: %s", result.c_str());
 
 		return (result == "200");
 #endif

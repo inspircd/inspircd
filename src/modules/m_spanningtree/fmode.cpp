@@ -90,7 +90,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 
 	if (!TS)
 	{
-		Instance->Log(DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
 		return true;
 	}
@@ -100,7 +100,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	if (TS <= ourTS)
 	{
 		if ((TS < ourTS) && (!dst))
-			Instance->Log(DEFAULT,"*** BUG *** Channel TS sent in FMODE to %s is %lu which is not equal to %lu!", params[0].c_str(), TS, ourTS);
+			Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG *** Channel TS sent in FMODE to %s is %lu which is not equal to %lu!", params[0].c_str(), TS, ourTS);
 
 		if (smode)
 		{

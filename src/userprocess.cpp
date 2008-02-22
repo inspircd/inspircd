@@ -21,7 +21,7 @@
 
 void FloodQuitUserHandler::Call(User* current)
 {
-	Server->Log(DEFAULT,"Excess flood from: %s@%s", current->ident, current->host);
+	Server->Logs->Log("USERS",DEFAULT,"Excess flood from: %s@%s", current->ident, current->host);
 	Server->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
 			current->registered == REG_ALL ? current->nick : "",
 			current->registered == REG_ALL ? "!" : "", current->ident, current->host);
@@ -57,7 +57,7 @@ void ProcessUserHandler::Call(User* cu)
 		}
 		catch (CoreException& modexcept)
 		{
-			Server->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			Server->Logs->Log("USERS",DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 
 		if (MOD_RESULT < 0)

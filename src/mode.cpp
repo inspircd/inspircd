@@ -91,7 +91,7 @@ unsigned int ModeHandler::GetCount()
 void ModeHandler::ChangeCount(int modifier)
 {
 	count += modifier;
-	ServerInstance->Log(DEBUG,"Change count for mode %c is now %d", mode, count);
+	ServerInstance->Logs->Log("MODE", DEBUG,"Change count for mode %c is now %d", mode, count);
 }
 
 ModeType ModeHandler::GetModeType()
@@ -521,13 +521,13 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 
 							if (!SkipAccessChecks && IS_LOCAL(user) && (MOD_RESULT != ACR_ALLOW))
 							{
-								ServerInstance->Log(DEBUG,"Enter minimum prefix check");
+								ServerInstance->Logs->Log("MODE", DEBUG,"Enter minimum prefix check");
 								/* Check access to this mode character */
 								if ((type == MODETYPE_CHANNEL) && (modehandlers[handler_id]->GetNeededPrefix()))
 								{
 									char needed = modehandlers[handler_id]->GetNeededPrefix();
 									ModeHandler* prefixmode = FindPrefix(needed);
-									ServerInstance->Log(DEBUG,"Needed prefix: %c", needed);
+									ServerInstance->Logs->Log("MODE", DEBUG,"Needed prefix: %c", needed);
 
 									/* If the mode defined by the handler is not '\0', but the handler for it
 									 * cannot be found, they probably dont have the right module loaded to implement

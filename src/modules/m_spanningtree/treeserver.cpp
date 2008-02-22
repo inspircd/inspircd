@@ -77,7 +77,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	gettimeofday(&t, NULL);
 	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 	this->StartBurst = ts;
-	Instance->Log(DEBUG, "Started bursting at time %lu", ts);
+	Instance->Logs->Log("m_spanningtree",DEBUG, "Started bursting at time %lu", ts);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -156,7 +156,7 @@ void TreeServer::FinishBurst()
 
 void TreeServer::SetID(const std::string &id)
 {
-	ServerInstance->Log(DEBUG, "Setting SID to " + id);
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Setting SID to " + id);
 	sid = id;
 	server_hash::iterator iter = Utils->sidlist.find(sid);
 	if (iter == Utils->sidlist.end())

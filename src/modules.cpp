@@ -381,21 +381,21 @@ bool ModuleManager::Load(const char* filename)
 	if (!ServerConfig::DirValid(modfile))
 	{
 		LastModuleError = "Module " + filename_str + " is not within the modules directory.";
-		Instance->Log(DEFAULT, LastModuleError);
+		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 	
 	if (!ServerConfig::FileExists(modfile))
 	{
 		LastModuleError = "Module file could not be found: " + filename_str;
-		Instance->Log(DEFAULT, LastModuleError);
+		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 	
 	if (Modules.find(filename_str) != Modules.end())
 	{	
 		LastModuleError = "Module " + filename_str + " is already loaded, cannot load a module twice!";
-		Instance->Log(DEFAULT, LastModuleError);
+		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 		
@@ -420,12 +420,12 @@ bool ModuleManager::Load(const char* filename)
 				delete newmod;
 				delete newhandle;
 				LastModuleError = "Unable to load " + filename_str + ": Incorrect module API version: " + ConvToStr(v.API) + " (our version: " + ConvToStr(API_VERSION) + ")";
-				Instance->Log(DEFAULT, LastModuleError);
+				Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 				return false;
 			}
 			else
 			{
-				Instance->Log(DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+				Instance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 
 			Modules[filename_str] = std::make_pair(newhandle, newmod);
@@ -434,7 +434,7 @@ bool ModuleManager::Load(const char* filename)
 		{
 			delete newhandle;
 			LastModuleError = "Unable to load " + filename_str + ": Probably missing init_module() entrypoint, but dlsym() didn't notice a problem";
-			Instance->Log(DEFAULT, LastModuleError);
+			Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			return false;
 		}
 	}
@@ -447,7 +447,7 @@ bool ModuleManager::Load(const char* filename)
 		if (newhandle)
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": Error when loading: " + modexcept.GetReason();
-		Instance->Log(DEFAULT, LastModuleError);
+		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (FindSymbolException& modexcept)
@@ -458,7 +458,7 @@ bool ModuleManager::Load(const char* filename)
 		if (newhandle)
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": Error finding symbol: " + modexcept.GetReason();
-		Instance->Log(DEFAULT, LastModuleError);
+		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (CoreException& modexcept)
@@ -469,7 +469,7 @@ bool ModuleManager::Load(const char* filename)
 		if (newhandle)
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
-		Instance->Log(DEFAULT, LastModuleError);
+		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 
@@ -497,14 +497,14 @@ bool ModuleManager::Unload(const char* filename)
 		if (modfind->second.second->GetVersion().Flags & VF_STATIC)
 		{
 			LastModuleError = "Module " + filename_str + " not unloadable (marked static)";
-			Instance->Log(DEFAULT, LastModuleError);
+			Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			return false;
 		}
 		std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modfind->second.second);
 		if (intercount.first > 0)
 		{
 			LastModuleError = "Failed to unload module " + filename_str + ", being used by " + ConvToStr(intercount.first) + " other(s) via interface '" + intercount.second + "'";
-			Instance->Log(DEFAULT, LastModuleError);
+			Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			return false;
 		}
 
@@ -532,14 +532,14 @@ bool ModuleManager::Unload(const char* filename)
 		delete modfind->second.first;
 		Modules.erase(modfind);
 
-		Instance->Log(DEFAULT,"Module %s unloaded",filename);
+		Instance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",filename);
 		this->ModCount--;
 		Instance->BuildISupport();
 		return true;
 	}
 
 	LastModuleError = "Module " + filename_str + " is not loaded, cannot unload it!";
-	Instance->Log(DEFAULT, LastModuleError);
+	Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 	return false;
 }
 
@@ -556,7 +556,7 @@ void ModuleManager::LoadAll()
 		
 		if (!this->Load(configToken))		
 		{
-			Instance->Log(DEFAULT, this->LastError());
+			Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
 			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
 			Instance->Exit(EXIT_STATUS_MODULE);
 		}

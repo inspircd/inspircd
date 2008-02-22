@@ -135,7 +135,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 		_i = safei; \
 	} \
@@ -159,7 +159,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			z->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+			z->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 		_i = safei; \
 	} \
@@ -188,7 +188,7 @@ do { \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 		_i = safei; \
 	} \
@@ -218,7 +218,7 @@ do { \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			z->Log(DEBUG,"Exception caught: %s",modexcept.GetReason()); \
+			z->Logs->Log("MODULE",DEBUG,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 		_i = safei; \
 	} \

@@ -189,7 +189,7 @@ class ProxySocket : public EventHandler
 
 	virtual void OnConnected()
 	{
-		ServerInstance->Log(DEBUG,"OnConnected()");
+		ServerInstance->Logs->Log("m_proxyscan",DEBUG,"OnConnected()");
 
 		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
 		 * only members we use are in a part of the struct that should always be identical (at the
@@ -212,10 +212,10 @@ class ProxySocket : public EventHandler
 		/* Send failed if we didnt write the whole ident request --
 		 * might as well give up if this happens!
 		 */
-		ServerInstance->Log(DEBUG, "Sending");
+		ServerInstance->Logs->Log("m_proxyscan",DEBUG, "Sending");
 		if (ServerInstance->SE->Send(this, this->challenge, this->clen, 0) < this->clen)
 		{
-			ServerInstance->Log(DEBUG, "Send incomplete");
+			ServerInstance->Logs->Log("m_proxyscan",DEBUG, "Send incomplete");
 			done = true;
 		}
 	}
@@ -234,7 +234,7 @@ class ProxySocket : public EventHandler
 			break;
 			case EVENT_ERROR:
 				/* fd error event, ohshi- */
-				ServerInstance->Log(DEBUG,"EVENT_ERROR");
+				ServerInstance->Logs->Log("m_proxyscan",DEBUG,"EVENT_ERROR");
 				/* We *must* Close() here immediately or we get a
 				 * huge storm of EVENT_ERROR events!
 				 */
@@ -251,7 +251,7 @@ class ProxySocket : public EventHandler
 		 */
 		if (GetFd() > -1)
 		{
-			ServerInstance->Log(DEBUG,"Close ident socket %d", GetFd());
+			ServerInstance->Logs->Log("m_proxyscan",DEBUG,"Close ident socket %d", GetFd());
 			ServerInstance->SE->DelFd(this);
 			ServerInstance->SE->Close(GetFd());
 			ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
@@ -272,7 +272,7 @@ class ProxySocket : public EventHandler
 		char ibuf[MAXBUF];
 		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
 
-		ServerInstance->Log(DEBUG,"ReadResponse(): %s -- %d", ibuf, recvresult);
+		ServerInstance->Logs->Log("m_proxyscan",DEBUG,"ReadResponse(): %s -- %d", ibuf, recvresult);
 
 		bool match = true;
 		int i;
@@ -281,7 +281,7 @@ class ProxySocket : public EventHandler
 		{
 			if (this->response[i] != ibuf[i])
 			{
-				ServerInstance->Log(DEBUG, "No match at pos %d: %c ne %c", i, this->response[i], ibuf[i]);
+				ServerInstance->Logs->Log("m_proxyscan",DEBUG, "No match at pos %d: %c ne %c", i, this->response[i], ibuf[i]);
 				/* no match */
 				match = false;
 			}
@@ -360,7 +360,7 @@ class ModuleProxy : public Module
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Log(DEBUG,"Proxy exception: %s", e.GetReason());
+			ServerInstance->Logs->Log("m_proxyscan",DEBUG,"Proxy exception: %s", e.GetReason());
 			return 0;
 		}
 
@@ -384,7 +384,7 @@ class ModuleProxy : public Module
 			p->Close();
 			delete p;
 			user->Shrink("proxy_socket");
-			ServerInstance->Log(DEBUG, "Removed proxy socket from %s", user->nick);
+			ServerInstance->Logs->Log("m_proxyscan",DEBUG, "Removed proxy socket from %s", user->nick);
 		}
 	}
 };

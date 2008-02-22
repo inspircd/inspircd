@@ -22,8 +22,8 @@ EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Log(DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Log(DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine: %s\n", strerror(errno));
 		printf("ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -41,7 +41,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		ServerInstance->Log(DEBUG,"Out of range FD");
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"Out of range FD");
 		return false;
 	}
 
@@ -61,7 +61,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 		return false;
 	}
 
-	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 
 	ref[fd] = eh;
 	CurrentSetSize++;
@@ -94,14 +94,14 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 
 	if (i < 0 && !force)
 	{
-		ServerInstance->Log(DEBUG,"Cant remove socket: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"Cant remove socket: %s", strerror(errno));
 		return false;
 	}
 
 	ref[fd] = NULL;
 	CurrentSetSize--;
 
-	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 

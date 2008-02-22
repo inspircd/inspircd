@@ -543,7 +543,7 @@ void ConnectDatabases(InspIRCd* ServerInstance)
 		{
 			/* XXX: MUTEX */
 			pthread_mutex_lock(&logging_mutex);
-			ServerInstance->Log(DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
+			ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
 			i->second->SetEnable(false);
 			pthread_mutex_unlock(&logging_mutex);
 		}
@@ -742,7 +742,7 @@ class ModuleSQL : public Module
 			rc = pthread_join(Dispatcher, &status);
 			if (rc)
 			{
-				ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is " + rc);
+				ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Error code from pthread_join() is " + rc);
 			}
 			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
 		}
@@ -760,7 +760,7 @@ class ModuleSQL : public Module
 		rc = pthread_join(Dispatcher, &status);
 		if (rc)
 		{
-			ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is " + rc);
+			ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Error code from pthread_join() is " + rc);
 		}
 		ClearAllConnections();
 		delete Conf;

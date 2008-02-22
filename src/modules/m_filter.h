@@ -289,7 +289,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 				delete gl;
 		}
 
-		ServerInstance->Log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their message filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
+		ServerInstance->Logs->Log("FILTER",DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their message filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
 		return 1;
 	}
 	return 0;

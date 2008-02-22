@@ -111,7 +111,7 @@ class SQLresolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		ServerInstance->Log(DEBUG, "PgSQL: DNS lookup failed (%s), dying horribly", errormessage.c_str());
+		ServerInstance->Logs->Log("m_pgsql",DEBUG, "PgSQL: DNS lookup failed (%s), dying horribly", errormessage.c_str());
 	}
 };
 
@@ -331,7 +331,7 @@ class SQLConn : public EventHandler
 		idle = this->Instance->Time();
 		if(!DoConnect())
 		{
-			Instance->Log(DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
+			Instance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
 			DelayReconnect();
 		}
 	}
@@ -383,7 +383,7 @@ class SQLConn : public EventHandler
 
 		if (!this->Instance->SE->AddFd(this))
 		{
-			Instance->Log(DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
+			Instance->Logs->Log("m_pgsql",DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
 		}
 
@@ -621,7 +621,7 @@ class SQLConn : public EventHandler
 #endif
 							if(error)
 							{
-								Instance->Log(DEBUG, "BUG: Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
+								Instance->Logs->Log("m_pgsql",DEBUG, "BUG: Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
 							}
 
 							/* Incremenet queryend to the end of the newly escaped parameter */
@@ -632,7 +632,7 @@ class SQLConn : public EventHandler
 						}
 						else
 						{
-							Instance->Log(DEBUG, "BUG: Found a substitution location but no parameter to substitute :|");
+							Instance->Logs->Log("m_pgsql",DEBUG, "BUG: Found a substitution location but no parameter to substitute :|");
 							break;
 						}
 					}
@@ -698,7 +698,7 @@ class SQLConn : public EventHandler
 			}
 			else
 			{
-				Instance->Log(DEBUG, "BUG: PQsocket cant be removed from socket engine!");
+				Instance->Logs->Log("m_pgsql",DEBUG, "BUG: PQsocket cant be removed from socket engine!");
 			}
 		}
 
@@ -846,7 +846,7 @@ class ModulePgSQL : public Module
 			else
 			{
 				/* Invalid address family, die horribly. */
-				ServerInstance->Log(DEBUG, "BUG: insp_aton failed returning -1, oh noes.");
+				ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: insp_aton failed returning -1, oh noes.");
 			}
 		}
 	}
@@ -880,7 +880,7 @@ class ModulePgSQL : public Module
 	{
 		if (HasHost(hi))
 		{
-			ServerInstance->Log(DEFAULT, "WARNING: A pgsql connection with id: %s already exists, possibly due to DNS delay. Aborting connection attempt.", hi.id.c_str());
+			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: A pgsql connection with id: %s already exists, possibly due to DNS delay. Aborting connection attempt.", hi.id.c_str());
 			return;
 		}
 

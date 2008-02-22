@@ -35,7 +35,7 @@ class CommandSapart : public Command
 
 		if (dest && channel)
 		{
-			ServerInstance->Log(DEBUG, "SAPART: pcnt is %d", pcnt);
+			ServerInstance->Logs->Log("m_sapart",DEBUG, "SAPART: pcnt is %d", pcnt);
 			if (pcnt == 3)
 				reason = parameters[2];
 			else

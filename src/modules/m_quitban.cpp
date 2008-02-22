@@ -64,7 +64,7 @@ class ModuleChanCreate : public Module
 		if (i != quits.end())
 		{
 			i->second++;
-			ServerInstance->Log(DEBUG, "quitban: Count for IP is now %d", i->second);
+			ServerInstance->Logs->Log("m_quitban",DEBUG, "quitban: Count for IP is now %d", i->second);
 
 			if (i->second >= threshold)
 			{
@@ -82,13 +82,13 @@ class ModuleChanCreate : public Module
 		else
 		{
 			quits[u->GetIPString()] = 1;
-			ServerInstance->Log(DEBUG, "quitban: Added new record");
+			ServerInstance->Logs->Log("m_quitban",DEBUG, "quitban: Added new record");
 		}
 	}
 
 	virtual void OnGarbageCollect()
 	{
-		ServerInstance->Log(DEBUG, "quitban: Clearing map.");
+		ServerInstance->Logs->Log("m_quitban",DEBUG, "quitban: Clearing map.");
 		quits.clear();
 	}
 };

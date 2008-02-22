@@ -212,7 +212,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password) || x->RecvPass == password && (this->GetTheirChallenge().empty()))))
 		{
 			/* Check for fully initialized instances of the server by id */
-			Instance->Log(DEBUG,"Looking for dupe SID %s", sid.c_str());
+			Instance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
 			TreeServer* CheckDupeSID = Utils->FindServerID(sid);
 			if (CheckDupeSID)
 			{

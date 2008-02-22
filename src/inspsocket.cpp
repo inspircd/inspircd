@@ -116,7 +116,7 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 		}
 		if (!ipvalid)
 		{
-			this->Instance->Log(DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
+			this->Instance->Logs->Log("SOCKET", DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->fd = -1;
@@ -236,7 +236,7 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 		}
 		j++;
 	}
-	Instance->Log(DEBUG,"nothing in the config to bind()!");
+	Instance->Logs->Log("SOCKET", DEBUG,"nothing in the config to bind()!");
 	return true;
 }
 
@@ -345,7 +345,7 @@ bool BufferedSocket::DoConnect()
 		this->SetQueues(this->fd);
 	}
 
-	Instance->Log(DEBUG,"BufferedSocket::DoConnect success");
+	Instance->Logs->Log("SOCKET", DEBUG,"BufferedSocket::DoConnect success");
 	return true;
 }
 
@@ -367,7 +367,7 @@ void BufferedSocket::Close()
 			}
 			catch (CoreException& modexcept)
 			{
-				Instance->Log(DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+				Instance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
 		Instance->SE->Shutdown(this, 2);
@@ -402,7 +402,7 @@ const char* BufferedSocket::Read()
 		}
 		catch (CoreException& modexcept)
 		{
-			Instance->Log(DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			Instance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 		if (MOD_RESULT < 0)
 		{
@@ -470,7 +470,7 @@ bool BufferedSocket::FlushWriteBuffer()
 				}
 				catch (CoreException& modexcept)
 				{
-					Instance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+					Instance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 					return true;
 				}
 			}
@@ -536,7 +536,7 @@ bool BufferedSocket::FlushWriteBuffer()
 
 void SocketTimeout::Tick(time_t)
 {
-	ServerInstance->Log(DEBUG,"SocketTimeout::Tick");
+	ServerInstance->Logs->Log("SOCKET", DEBUG,"SocketTimeout::Tick");
 
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
 		return;
@@ -594,14 +594,14 @@ bool BufferedSocket::Poll()
 
 			if (Instance->Config->GetIOHook(this))
 			{
-				Instance->Log(DEBUG,"Hook for raw connect");
+				Instance->Logs->Log("SOCKET",DEBUG,"Hook for raw connect");
 				try
 				{
 					Instance->Config->GetIOHook(this)->OnRawSocketConnect(this->fd);
 				}
 				catch (CoreException& modexcept)
 				{
-					Instance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+					Instance->Logs->Log("SOCKET",DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 				}
 			}
 			return this->OnConnected();
@@ -643,7 +643,7 @@ bool BufferedSocket::Poll()
 				}
 				catch (CoreException& modexcept)
 				{
-					Instance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+					Instance->Logs->Log("SOCKET",DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 				}
 			}
 

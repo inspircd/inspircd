@@ -128,7 +128,7 @@ public:
 		}
 		else
 		{
-			ServerInstance->Log(SPARSE, "WARNING: Couldn't find SQL provider module. NOBODY will be able to oper up unless their o:line is statically configured");
+			ServerInstance->Logs->Log("m_sqloper",SPARSE, "WARNING: Couldn't find SQL provider module. NOBODY will be able to oper up unless their o:line is statically configured");
 			return false;
 		}
 	}
@@ -235,7 +235,7 @@ public:
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG, "BUG: WHAT?! Why do we have no OPER command?!");
+			ServerInstance->Logs->Log("m_sqloper",DEBUG, "BUG: WHAT?! Why do we have no OPER command?!");
 		}
 	}
 

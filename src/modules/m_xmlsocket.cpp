@@ -65,12 +65,12 @@ class ModuleXMLSocket : public Module
 						}
 						else
 						{
-							ServerInstance->Log(DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d, maybe you have another similar module loaded?", portno);
+							ServerInstance->Logs->Log("m_xmlsocket",DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d, maybe you have another similar module loaded?", portno);
 						}
 					}
 					catch (ModuleException &e)
 					{
-						ServerInstance->Log(DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have another similar module loaded?", portno, e.GetReason());
+						ServerInstance->Logs->Log("m_xmlsocket",DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have another similar module loaded?", portno, e.GetReason());
 					}
 				}
 			}

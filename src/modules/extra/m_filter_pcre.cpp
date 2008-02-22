@@ -121,8 +121,8 @@ class ModuleFilterPCRE : public FilterBase
 
 		if (!re)
 		{
-			ServerInstance->Log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", freeform.c_str(), erroffset, error);
-			ServerInstance->Log(DEFAULT,"Regular expression %s not loaded.", freeform.c_str());
+			ServerInstance->Logs->Log("m_filter_pcre", DEFAULT,"Error in regular expression: %s at offset %d: %s\n", freeform.c_str(), erroffset, error);
+			ServerInstance->Logs->Log("m_filter_pcre", DEFAULT,"Regular expression %s not loaded.", freeform.c_str());
 			return std::make_pair(false, "Error in regular expression at offset " + ConvToStr(erroffset) + ": "+error);
 		}
 		else
@@ -154,13 +154,13 @@ class ModuleFilterPCRE : public FilterBase
 
 			if (!re)
 			{
-				ServerInstance->Log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
-				ServerInstance->Log(DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
+				ServerInstance->Logs->Log("CONFIG",DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
+				ServerInstance->Logs->Log("CONFIG",DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
 			}
 			else
 			{
 				filters.push_back(PCREFilter(re, reason, action, gline_time, pattern, flgs));
-				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
+				ServerInstance->Logs->Log("CONFIG",DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}
 		FilterBase::OnRehash(user, parameter);

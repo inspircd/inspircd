@@ -426,7 +426,7 @@ bool CommandParser::CreateCommand(Command *f, void* so_handle)
 			RFCCommands[f->command] = so_handle;
 		else
 		{
-			ServerInstance->Log(DEFAULT,"ERK! Somehow, we loaded a cmd_*.so file twice! Only the first instance is being recorded.");
+			ServerInstance->Logs->Log("COMMAND",DEFAULT,"ERK! Somehow, we loaded a cmd_*.so file twice! Only the first instance is being recorded.");
 			return false;
 		}
 	}
@@ -451,7 +451,7 @@ bool CommandParser::FindSym(void** v, void* h, const std::string &name)
 	const char* err = dlerror();
 	if (err && !(*v))
 	{
-		ServerInstance->Log(SPARSE, "Error loading core command %s: %s\n", name.c_str(), err);
+		ServerInstance->Logs->Log("COMMAND",SPARSE, "Error loading core command %s: %s\n", name.c_str(), err);
 		return false;
 	}
 	return true;
@@ -523,7 +523,7 @@ const char* CommandParser::LoadCommand(const char* name)
 	/* Command already exists? Succeed silently - this is needed for REHASH */
 	if (RFCCommands.find(name) != RFCCommands.end())
 	{
-		ServerInstance->Log(DEBUG,"Not reloading command %s/%s, it already exists", LIBRARYDIR, name);
+		ServerInstance->Logs->Log("COMMAND",DEBUG,"Not reloading command %s/%s, it already exists", LIBRARYDIR, name);
 		return NULL;
 	}
 
@@ -533,7 +533,7 @@ const char* CommandParser::LoadCommand(const char* name)
 	if (!h)
 	{
 		const char* n = dlerror();
-		ServerInstance->Log(SPARSE, "Error loading core command %s: %s", name, n);
+		ServerInstance->Logs->Log("COMMAND",SPARSE, "Error loading core command %s: %s", name, n);
 		return n;
 	}
 

@@ -692,7 +692,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::Oper()");
+		ServerInstance->Logs->Log("OPER", DEBUG,"Exception in User::Oper()");
 	}
 }
 
@@ -958,7 +958,7 @@ void User::SetSockAddr(int protocol_family, const char* sip, int port)
 		}
 		break;
 		default:
-			ServerInstance->Log(DEBUG,"Uh oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
+			ServerInstance->Logs->Log("USERS",DEBUG,"Uh oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
 		break;
 	}
 }
@@ -1070,7 +1070,7 @@ void User::Write(std::string text)
 	}
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::Write() std::string::append");
+		ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"Exception in User::Write() std::string::append");
 		return;
 	}
 
@@ -1085,7 +1085,7 @@ void User::Write(std::string text)
 		}
 		catch (CoreException& modexcept)
 		{
-			ServerInstance->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			ServerInstance->Logs->Log("USEROUTPUT", DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 	}
 	else
@@ -1590,7 +1590,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		/* deny change if change will take class over the limit */
 		if (found->limit && (found->RefCount + 1 >= found->limit))
 		{
-			ServerInstance->Log(DEBUG, "OOPS: Connect class limit (%u) hit, denying", found->limit);
+			ServerInstance->Logs->Log("USERS", DEBUG, "OOPS: Connect class limit (%u) hit, denying", found->limit);
 			return this->MyClass;
 		}
 
@@ -1600,12 +1600,12 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			if (found == this->MyClass) // no point changing this shit :P
 				return this->MyClass;
 			this->MyClass->RefCount--;
-			ServerInstance->Log(DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
+			ServerInstance->Logs->Log("USERS", DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
 		}
 
 		this->MyClass = found;
 		this->MyClass->RefCount++;
-		ServerInstance->Log(DEBUG, "User tied to new class -- connect refcount now: %u", this->MyClass->RefCount);
+		ServerInstance->Logs->Log("USERS", DEBUG, "User tied to new class -- connect refcount now: %u", this->MyClass->RefCount);
 	}
 
 	return this->MyClass;
@@ -1638,7 +1638,7 @@ void User::PurgeEmptyChannels()
 			}
 			catch (...)
 			{
-				ServerInstance->Log(DEBUG,"Exception in User::PurgeEmptyChannels to_delete.push_back()");
+				ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::PurgeEmptyChannels to_delete.push_back()");
 			}
 		}
 	}
@@ -1716,7 +1716,7 @@ void User::HandleEvent(EventType et, int errornum)
 	}
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in User::HandleEvent intercepted");
+		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::HandleEvent intercepted");
 	}
 
 	/* If the user has raised an error whilst being processed, quit them now we're safe to */

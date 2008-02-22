@@ -58,9 +58,9 @@ ListenSocket::~ListenSocket()
 	if (this->GetFd() > -1)
 	{
 		ServerInstance->SE->DelFd(this);
-		ServerInstance->Log(DEBUG,"Shut down listener on fd %d", this->fd);
+		ServerInstance->Logs->Log("SOCKET", DEBUG,"Shut down listener on fd %d", this->fd);
 		if (ServerInstance->SE->Shutdown(this, 2) || ServerInstance->SE->Close(this))
-			ServerInstance->Log(DEBUG,"Failed to cancel listener: %s", strerror(errno));
+			ServerInstance->Logs->Log("SOCKET", DEBUG,"Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
 }
@@ -124,7 +124,7 @@ void ListenSocket::HandleEvent(EventType, int)
 			}
 			catch (CoreException& modexcept)
 			{
-				ServerInstance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+				ServerInstance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
 		ServerInstance->stats->statsAccept++;
@@ -412,19 +412,19 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 		{
 			if (SE->Listen(sockfd, Config->MaxConn) == -1)
 			{
-				this->Log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
+				this->Logs->Log("SOCKET",DEFAULT,"ERROR in listen(): %s",strerror(errno));
 				return false;
 			}
 			else
 			{
-				this->Log(DEBUG,"New socket binding for %d with listen: %s:%d", sockfd, addr, port);
+				this->Logs->Log("SOCKET",DEBUG,"New socket binding for %d with listen: %s:%d", sockfd, addr, port);
 				SE->NonBlocking(sockfd);
 				return true;
 			}
 		}
 		else
 		{
-			this->Log(DEBUG,"New socket binding for %d without listen: %s:%d", sockfd, addr, port);
+			this->Logs->Log("SOCKET",DEBUG,"New socket binding for %d without listen: %s:%d", sockfd, addr, port);
 			return true;
 		}
 	}
@@ -478,7 +478,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 		Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
 		
 		if (strncmp(Addr, "::ffff:", 7) == 0)
-			this->Log(DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
+			this->Logs->Log("SOCKET",DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 		
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
@@ -533,7 +533,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 			{
 				if (((*n)->GetIP() == old_ports[k].first) && ((*n)->GetPort() == old_ports[k].second))
 				{
-					this->Log(DEFAULT,"Port binding %s:%d was removed from the config file, closing.", old_ports[k].first.c_str(), old_ports[k].second);
+					this->Logs->Log("SOCKET",DEFAULT,"Port binding %s:%d was removed from the config file, closing.", old_ports[k].first.c_str(), old_ports[k].second);
 					delete *n;
 					Config->ports.erase(n);
 					break;

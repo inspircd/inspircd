@@ -55,7 +55,7 @@ class SecurityIPResolver : public Resolver
 			ServerInstance->AddResolver(res, cached);
 			return;
 		}
-		ServerInstance->Log(DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
+		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
 };
 

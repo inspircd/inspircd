@@ -264,7 +264,7 @@ class SQLConn : public classbase
 	{
 		if (OpenDB() != SQLITE_OK)
 		{
-			Instance->Log(DEFAULT, "WARNING: Could not open DB with id: " + host.id);
+			Instance->Logs->Log("m_sqlite3",DEFAULT, "WARNING: Could not open DB with id: " + host.id);
 			CloseDB();
 		}
 	}
@@ -572,7 +572,7 @@ class ModuleSQLite3 : public Module
 	{
 		if (HasHost(hi))
 		{
-			ServerInstance->Log(DEFAULT, "WARNING: A sqlite connection with id: %s already exists. Aborting database open attempt.", hi.id.c_str());
+			ServerInstance->Logs->Log("m_sqlite3",DEFAULT, "WARNING: A sqlite connection with id: %s already exists. Aborting database open attempt.", hi.id.c_str());
 			return;
 		}
 

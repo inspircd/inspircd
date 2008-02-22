@@ -123,14 +123,14 @@ public:
 				{
 					if(iter->second != user)
 					{
-						ServerInstance->Log(DEBUG, "BUG: ID associated with user %s doesn't have the same User* associated with it in the map (erasing anyway)", user->nick);
+						ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: ID associated with user %s doesn't have the same User* associated with it in the map (erasing anyway)", user->nick);
 					}
 
 					iduser.erase(iter);
 				}
 				else
 				{
-					ServerInstance->Log(DEBUG, "BUG: user %s was extended with sqlutils_queryids but there was nothing matching in the map", user->nick);
+					ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: user %s was extended with sqlutils_queryids but there was nothing matching in the map", user->nick);
 				}
 			}
 			
@@ -210,13 +210,13 @@ public:
 				{
 					if(iter->second != chan)
 					{
-						ServerInstance->Log(DEBUG, "BUG: ID associated with channel %s doesn't have the same Channel* associated with it in the map (erasing anyway)", chan->name);
+						ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: ID associated with channel %s doesn't have the same Channel* associated with it in the map (erasing anyway)", chan->name);
 					}
 					idchan.erase(iter);					
 				}
 				else
 				{
-					ServerInstance->Log(DEBUG, "BUG: channel %s was extended with sqlutils_queryids but there was nothing matching in the map", chan->name);
+					ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: channel %s was extended with sqlutils_queryids but there was nothing matching in the map", chan->name);
 				}
 			}
 			

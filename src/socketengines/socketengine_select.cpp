@@ -45,7 +45,7 @@ bool SelectEngine::AddFd(EventHandler* eh)
 	ref[fd] = eh;
 	CurrentSetSize++;
 
-	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	return true;
 }
 
@@ -69,7 +69,7 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 	ref[fd] = NULL;
 	fds[fd] = 0;
 
-	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 

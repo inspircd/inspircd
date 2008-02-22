@@ -232,14 +232,14 @@ bool InspIRCd::DaemonSeed()
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		this->Log(DEFAULT,"Failed to getrlimit()!");
+		this->Logs->Log("STARTUP",DEFAULT,"Failed to getrlimit()!");
 		return false;
 	}
 	else
 	{
 		rl.rlim_cur = rl.rlim_max;
 		if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+			this->Logs->Log("STARTUP",DEFAULT,"setrlimit() failed, cannot increase coredump size.");
 	}
 
 	return true;
@@ -268,7 +268,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	else
 	{
 		printf("Failed to write PID-file '%s', exiting.\n",fname.c_str());
-		this->Log(DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
+		this->Logs->Log("STARTUP",DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
 }
@@ -426,7 +426,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (!ServerConfig::FileExists(this->ConfigFileName))
 	{
 		printf("ERROR: Cannot open config file: %s\nExiting...\n", this->ConfigFileName);
-		this->Log(DEFAULT,"Unable to open config file %s", this->ConfigFileName);
+		this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", this->ConfigFileName);
 		Exit(EXIT_STATUS_CONFIG);
 	}
 
@@ -704,7 +704,7 @@ void InspIRCd::BufferedSocketCull()
 {
 	for (std::map<BufferedSocket*,BufferedSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
 	{
-		Log(DEBUG,"Cull socket");
+		this->Logs->Log("MISC",DEBUG,"Cull socket");
 		SE->DelFd(x->second);
 		x->second->Close();
 		delete x->second;

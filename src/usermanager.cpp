@@ -30,12 +30,12 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	}
 	catch (...)
 	{
-		Instance->Log(DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
+		Instance->Logs->Log("USERS", DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
 		Instance->SNO->WriteToSnoMask('A', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
 
-	Instance->Log(DEBUG,"New user fd: %d", socket);
+	Instance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
 
 	int j = 0;
 
@@ -130,7 +130,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			Instance->Log(DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
+			Instance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
 			if (*Instance->Config->MoronBanner)
 				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
 			User::QuitUser(Instance, New, b->Reason);
@@ -138,7 +138,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 		}
 		else
 		{
-			Instance->Log(DEBUG, std::string("BanCache: Negative hit for ") + New->GetIPString());
+			Instance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Negative hit for ") + New->GetIPString());
 		}
 	}
 	else
@@ -157,7 +157,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 
 	if (!Instance->SE->AddFd(New))
 	{
-		Instance->Log(DEBUG,"Internal error on new connection");
+		Instance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
 		User::QuitUser(Instance, New, "Internal error handling connection");
 	}
 
@@ -321,7 +321,7 @@ void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
 
 	if (!text || !modes || !flags)
 	{
-		ServerInstance->Log(DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
+		ServerInstance->Logs->Log("USERS", DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
 		return;
 	}
 

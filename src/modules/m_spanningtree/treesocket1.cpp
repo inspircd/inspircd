@@ -245,7 +245,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		this->Instance->SNO->WriteToSnoMask('l',"Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 	}
 	else
-		Instance->Log(DEFAULT,"Squit from unknown server");
+		Instance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
 }
 
 /** This function is called when we receive data from a remote

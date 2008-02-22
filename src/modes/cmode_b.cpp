@@ -91,7 +91,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 {
 	if ((!user) || (!chan))
 	{
-		ServerInstance->Log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
+		ServerInstance->Logs->Log("MODE",DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
 		dest = "";
 		return dest;
 	}
@@ -151,7 +151,7 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 {
 	if ((!user) || (!chan))
 	{
-		ServerInstance->Log(DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
+		ServerInstance->Logs->Log("MODE",DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
 		dest = "";
 		return dest;
 	}

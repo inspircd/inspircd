@@ -22,8 +22,8 @@ IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 
 	if (!m_completionPort)
 	{
-		ServerInstance->Log(DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		ServerInstance->Log(DEFAULT, "ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.\n");
 		printf("ERROR: this is a fatal error, exiting now.\n");
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -84,7 +84,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 		PostReadEvent(eh);
 
 	/* log message */
-	ServerInstance->Log(DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
+	ServerInstance->Logs->Log("SOCKET",DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
 
 	/* post a write event if there is data to be written */
 	if(eh->Writeable())
@@ -123,7 +123,7 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 	void* m_writeEvent = NULL;
 	void* m_acceptEvent = NULL;
 
-	ServerInstance->Log(DEBUG, "Removing fake fd %u, real fd %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
+	ServerInstance->Logs->Log("SOCKET",DEBUG, "Removing fake fd %u, real fd %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
 
 	/* Cancel pending i/o operations. */
 	if (CancelIo((HANDLE)fd) == FALSE)

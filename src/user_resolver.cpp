@@ -54,7 +54,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 		}
 		catch (CoreException& e)
 		{
-			ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
+			ServerInstance->Logs->Log("RESOLVER", DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
 	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))

@@ -188,17 +188,17 @@ class ModuleSSLOpenSSL : public Module
 								for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
 								if (ServerInstance->Config->ports[i]->GetPort() == portno)
 									ServerInstance->Config->ports[i]->SetDescription("ssl");
-							ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", portno);
+							ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", portno);
 							sslports.append("*:").append(ConvToStr(portno)).append(";");
 						}
 						else
 						{
-							ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?",	portno);
+							ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?",	portno);
 						}
 					}
 					catch (ModuleException &e)
 					{
-						ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have another SSL or similar module loaded?", portno, e.GetReason());
+						ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have another SSL or similar module loaded?", portno, e.GetReason());
 					}
 				}
 			}
@@ -252,20 +252,20 @@ class ModuleSSLOpenSSL : public Module
 		 */
 		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
 		{
-			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
 		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
 		{
-			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
 		/* Load the CAs we trust*/
 		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
 		{
-			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. %s", cafile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. %s", cafile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
@@ -274,7 +274,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (dhpfile == NULL)
 		{
-			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
 			throw ModuleException("Couldn't open DH file " + dhfile + ": " + strerror(errno));
 		}
 		else
@@ -282,7 +282,7 @@ class ModuleSSLOpenSSL : public Module
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
 			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
 			{
-				ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
+				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
 				ERR_print_errors_cb(error_callback, this);
 			}
 		}
@@ -409,7 +409,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (SSL_set_fd(session->sess, fd) == 0)
 		{
-			ServerInstance->Log(DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
+			ServerInstance->Logs->Log("m_ssl_openssl",DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
 			return;
 		}
 
@@ -436,7 +436,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (SSL_set_fd(session->sess, fd) == 0)
 		{
-			ServerInstance->Log(DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
+			ServerInstance->Logs->Log("m_ssl_openssl",DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
 			return;
 		}
 
@@ -886,7 +886,7 @@ class ModuleSSLOpenSSL : public Module
 static int error_callback(const char *str, size_t len, void *u)
 {
 	ModuleSSLOpenSSL* mssl = (ModuleSSLOpenSSL*)u;
-	mssl->PublicInstance->Log(DEFAULT, "SSL error: " + std::string(str, len - 1));
+	mssl->PublicInstance->Logs->Log("m_ssl_openssl",DEFAULT, "SSL error: " + std::string(str, len - 1));
 	return 0;
 }
 
