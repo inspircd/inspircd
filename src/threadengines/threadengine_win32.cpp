@@ -33,10 +33,14 @@ void Win32ThreadEngine::Create(Thread* thread_to_init)
 		Mutex(false);
 		throw CoreException(std::string("Unable to reate new Win32ThreadEngine: ") + dlerror());
 	}
+
 	NewThread = thread_to_init;
 	NewThread->Creator = this;
 	NewThread->Extend("winthread", MyThread);
 	Mutex(false);
+
+	while (NewThread)
+		SleepEx(100, false);
 }
 
 Win32ThreadEngine::~Win32ThreadEngine()
@@ -46,7 +50,11 @@ Win32ThreadEngine::~Win32ThreadEngine()
 
 void Win32ThreadEngine::Run()
 {
-	NewThread->Run();
+	Mutex(true);
+	Thread* nt = NewThread;
+	NewThread = NULL;
+	Mutex(false);
+	nt->Run();
 }
 
 bool Win32ThreadEngine::Mutex(bool enable)
