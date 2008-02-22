@@ -472,6 +472,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\testsuite.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\threadengine.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\threadengines\threadengine_win32.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\timer.cpp"
 				>
 			</File>
@@ -643,6 +655,18 @@
 			</File>
 			<File
 				RelativePath="..\include\socketengines\socketengine_iocp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\testsuite.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\threadengine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\threadengines\threadengine_win32.h"
 				>
 			</File>
 			<File
