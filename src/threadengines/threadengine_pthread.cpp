@@ -44,6 +44,9 @@ void PThreadEngine::Create(Thread* thread_to_init)
 	NewThread->Extend("pthread", MyPThread);
 
 	Mutex(false);
+
+	while (NewThread)
+		usleep(1000);
 }
 
 PThreadEngine::~PThreadEngine()
@@ -52,7 +55,11 @@ PThreadEngine::~PThreadEngine()
 
 void PThreadEngine::Run()
 {
-	NewThread->Run();
+	Mutex(true);
+	Thread* nt = NewThread;
+	NewThread = NULL;
+	Mutex(false);
+	nt->Run();
 }
 
 bool PThreadEngine::Mutex(bool enable)
