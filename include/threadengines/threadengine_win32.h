@@ -44,7 +44,7 @@ class CoreExport Win32ThreadEngine : public ThreadEngine
 	}
 };
 
-class ThreadEngineFactory : public classbase
+class CoreExport ThreadEngineFactory : public classbase
 {
  public:
 	ThreadEngine* Create(InspIRCd* ServerInstance)
