@@ -416,6 +416,14 @@
 			<File
 				RelativePath="..\src\modules\m_spanningtree\modules.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\modules_spanningtree.obj"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\motd.cpp"
@@ -508,6 +516,14 @@
 			<File
 				RelativePath="..\src\modules\m_spanningtree\server.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\servers_spanningtree.obj"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\stats.cpp"
