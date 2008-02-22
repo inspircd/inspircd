@@ -358,11 +358,83 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\addline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\admin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\capab.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\delline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\fhost.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\fjoin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\fmode.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\fname.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\ftopic.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\handshaketimer.cpp"
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\hmac.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\kill.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\metadata.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\modules.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\motd.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\netburst.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\nickcollide.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\operquit.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\opertype.cpp"
 				>
 			</File>
 			<File
@@ -398,6 +470,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\ping.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\pong.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\postcommand.cpp"
 				>
 			</File>
@@ -406,7 +486,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\push.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\rconnect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\rehash.cpp"
 				>
 			</File>
 			<File
@@ -415,6 +503,30 @@
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\rsquit.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\server.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\stats.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\svsjoin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\svsnick.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\svspart.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\time.cpp"
 				>
 			</File>
 			<File
@@ -434,7 +546,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\uid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\utils.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\version.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\whois.cpp"
 				>
 			</File>
 		</Filter>
