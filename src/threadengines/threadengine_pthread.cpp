@@ -28,6 +28,10 @@ void PThreadEngine::Create(Thread* thread_to_init)
 	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
 	pthread_t* MyPThread = new pthread_t;
 
+	/* Create a thread in a mutex. This prevents whacking the member value NewThread,
+	 * and also prevents recursive creation of threads by mistake (instead, the thread
+	 * will just deadlock itself)
+	 */
 	Mutex(true);
 
 	if (pthread_create(MyPThread, &attribs, PThreadEngine::Entry, (void*)this) != 0)
@@ -43,8 +47,12 @@ void PThreadEngine::Create(Thread* thread_to_init)
 	NewThread->Creator = this;
 	NewThread->Extend("pthread", MyPThread);
 
+	/* Always unset a mutex if you set it */
 	Mutex(false);
 
+	/* Wait for the PThreadEngine::Run method to take a copy of the
+	 * pointer and clear this member value
+	 */
 	while (NewThread)
 		usleep(1000);
 }
@@ -55,10 +63,15 @@ PThreadEngine::~PThreadEngine()
 
 void PThreadEngine::Run()
 {
+	/* Take a copy of the member value, then clear it. Do this
+	 * in a mutex so that we can be sure nothing else is looking
+	 * at it.
+	 */
 	Mutex(true);
 	Thread* nt = NewThread;
 	NewThread = NULL;
 	Mutex(false);
+	/* Now we have our own safe copy, call the object on it */
 	nt->Run();
 }
 
