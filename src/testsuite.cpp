@@ -116,11 +116,18 @@ bool TestSuite::DoThreadTests()
 	cout << "ThreadEngine::Create on TestSuiteThread...\n";
 	try
 	{
-		te->Create(tst);
+		try
+		{
+			te->Create(tst);
+		}
+		catch (CoreException &ce)
+		{
+			cout << "Failure: " << ce.GetReason() << endl;
+		}
 	}
-	catch (CoreException &ce)
+	catch (...)
 	{
-		cout << "Failure: " << ce.GetReason() << endl;
+		cout << "Failure, unhandled exception\n";
 	}
 
 	cout << "Type any line and press enter to end test.\n";
