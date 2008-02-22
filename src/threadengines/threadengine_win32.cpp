@@ -13,7 +13,6 @@
 
 #include "inspircd.h"
 #include "threadengines/threadengine_win32.h"
-#include <pthread.h>
 
 CRITICAL_SECTION MyMutex;
 
@@ -26,10 +25,10 @@ void Win32ThreadEngine::Create(Thread* thread_to_init)
 	HANDLE* MyThread = new HANDLE;
 	DWORD ThreadId = 0;
 
-	if (!(MyThread = CreateThread(NULL,0,Win32ThreadEngine::Entry,this,0,&ThreadId)))
+	if (!(*MyThread = CreateThread(NULL,0,Win32ThreadEngine::Entry,this,0,&ThreadId)))
 	{
 		delete MyThread;
-		throw CoreException("Unable to reate new Win32ThreadEngine: " + dlerror());
+		throw CoreException(std::string("Unable to reate new Win32ThreadEngine: ") + dlerror());
 	}
 
 	NewThread = thread_to_init;

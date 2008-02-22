@@ -13,6 +13,7 @@
 
 /* $Core: libIRCDtestsuite */
 
+#include "inspircd_config.h"
 #include "inspircd.h"
 #include "testsuite.h"
 #include "threadengine.h"

@@ -14,7 +14,6 @@
 #ifndef __THREADENGINE_PTHREAD__
 #define __THREADENGINE_PTHREAD__
 
-#include <pthread.h>
 #include "inspircd_config.h"
 #include "base.h"
 #include "threadengine.h"
