@@ -472,6 +472,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\socketengines\socketengine_select.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\testsuite.cpp"
 				>
 			</File>
@@ -655,6 +659,10 @@
 			</File>
 			<File
 				RelativePath="..\include\socketengines\socketengine_iocp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\socketengines\socketengine_select.h"
 				>
 			</File>
 			<File
