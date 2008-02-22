@@ -11,17 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDthreadengine */
-
-/*********        DEFAULTS       **********/
-/* $ExtraSources: socketengines/socketengine_pthread.cpp */
-/* $ExtraObjects: socketengine_pthread.o */
-
-/* $If: USE_WIN32 */
-/* $ExtraSources: socketengines/socketengine_win32.cpp */
-/* $ExtraObjects: socketengine_win32.o */
-/* $EndIf */
-
 #include "inspircd.h"
 #include "threadengines/threadengine_pthread.h"
 #include <pthread.h>
