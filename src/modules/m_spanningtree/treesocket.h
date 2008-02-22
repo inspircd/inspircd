@@ -346,10 +346,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool Push(const std::string &prefix, std::deque<std::string> &params);
 
-	/** SETTIME
-	 */
-	bool HandleSetTime(const std::string &prefix, std::deque<std::string> &params);
-
 	/** TIME
 	 */
 	bool Time(const std::string &prefix, std::deque<std::string> &params);

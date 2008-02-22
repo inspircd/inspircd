@@ -440,10 +440,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Push(prefix,params);
 			}
-			else if (command == "TIMESET")
-			{
-				return this->HandleSetTime(prefix, params);
-			}
 			else if (command == "TIME")
 			{
 				return this->Time(prefix,params);
