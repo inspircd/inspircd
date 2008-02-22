@@ -48,7 +48,9 @@ InspIRCd* SI = NULL;
 int* mysig = NULL;
 
 
-/* Burlex: Moved from exitcodes.h -- due to duplicate symbols */
+/* Moved from exitcodes.h -- due to duplicate symbols -- Burlex
+ * XXX this is a bit ugly. -- w00t
+ */
 const char* ExitCodes[] =
 {
 		"No error", /* 0 */
