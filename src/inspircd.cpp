@@ -92,6 +92,8 @@ void InspIRCd::Cleanup()
 	/* We do this more than once, so that any service providers get a
 	 * chance to be unhooked by the modules using them, but then get
 	 * a chance to be removed themsleves.
+	 *
+	 * XXX there may be a better way to do this with 1.2
 	 */
 	for (int tries = 0; tries < 3; tries++)
 	{
