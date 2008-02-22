@@ -339,7 +339,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->operclass.clear();
 
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
-	this->time_delta = 0;
 	srand(this->TIME);
 
 	*this->LogFileName = 0;
@@ -740,24 +739,9 @@ bool InspIRCd::AllModulesReportReady(User* user)
 	return true;
 }
 
-time_t InspIRCd::Time(bool delta)
+time_t InspIRCd::Time()
 {
-	if (delta)
-		return TIME + time_delta;
 	return TIME;
-}
-
-int InspIRCd::SetTimeDelta(int delta)
-{
-	int old = time_delta;
-	time_delta = delta;
-	this->Log(DEBUG, "Time delta set to %d (was %d)", time_delta, old);
-	return old;
-}
-
-int InspIRCd::GetTimeDelta()
-{
-	return time_delta;
 }
 
 void InspIRCd::SetSignal(int signal)

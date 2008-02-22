@@ -30,32 +30,6 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-bool TreeSocket::HandleSetTime(const std::string &prefix, std::deque<std::string> &params)
-{
-	if (!params.size() || !Utils->EnableTimeSync)
-		return true;
-
-	bool force = false;
-
-	if ((params.size() == 2) && (params[1] == "FORCE"))
-		force = true;
-
-	time_t them = atoi(params[0].c_str());
-	time_t us = Instance->Time(false);
-
-	time_t diff = them - us;
-
-	Utils->DoOneToAllButSender(prefix, "TIMESET", params, prefix);
-
-	if (force || (them != us))
-	{
-		time_t old = Instance->SetTimeDelta(diff);
-		Instance->Log(DEBUG, "TS (diff %d) from %s applied (old delta was %d)", diff, prefix.c_str(), old);
-	}
-
-	return true;
-}
-
 bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params)
 {
 	// :source.server TIME remote.server sendernick
@@ -68,7 +42,7 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 			User* u = this->Instance->FindNick(params[1]);
 			if (u)
 			{
-				params.push_back(ConvToStr(Instance->Time(false)));
+				params.push_back(ConvToStr(Instance->Time()));
 				params[0] = prefix;
 				Utils->DoOneToOne(this->Instance->Config->GetSID(),"TIME",params,params[0]);
 			}

@@ -61,9 +61,7 @@ class SpanningTreeUtilities
 	/** Announce TS changes to channels on merge
 	 */
 	bool AnnounceTSChange;
-	/** Synchronize timestamps between servers
-	 */
-	bool EnableTimeSync;
+
 	/** Make snomasks +CQ quiet during bursts and splits
 	 */
 	bool quiet_bursts;
@@ -92,12 +90,6 @@ class SpanningTreeUtilities
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<Link> LinkBlocks;
-
-	/** If this is true, this server is the master sync server for time
-	 * synching - e.g. it is the server with its clock correct. It will
-	 * send out the correct time at intervals.
-	 */
-	bool MasterTime;
 
 	/** List of module pointers which can provide I/O abstraction
 	 */

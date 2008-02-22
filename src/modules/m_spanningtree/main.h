@@ -33,7 +33,6 @@ const long ProtocolVersion = 1200;
 class cmd_rconnect;
 class cmd_rsquit;
 class SpanningTreeUtilities;
-class TimeSyncTimer;
 class CacheRefreshTimer;
 class TreeServer;
 class Link;
@@ -51,10 +50,6 @@ class ModuleSpanningTree : public Module
 	SpanningTreeUtilities* Utils;
 
  public:
-	/** Timer for clock syncs
-	 */
-	TimeSyncTimer *SyncTimer;
-
 	CacheRefreshTimer *RefreshTimer;
 
 	/** Constructor
@@ -136,10 +131,6 @@ class ModuleSpanningTree : public Module
 	/** Handle CONNECT
 	 */
 	int HandleConnect(const char* const* parameters, int pcnt, User* user);
-
-	/** Send out time sync to all servers
-	 */
-	void BroadcastTimeSync();
 
 	/** Attempt to send a message to a user
 	 */

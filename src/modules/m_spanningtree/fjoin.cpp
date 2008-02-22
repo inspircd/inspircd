@@ -68,7 +68,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	irc::tokenstream users((params.size() > 2) ? params[2] : "");   /* users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
 	Channel* chan = this->Instance->FindChan(channel);		/* The channel we're sending joins to */
-	time_t ourTS = chan ? chan->age : Instance->Time(true)+600;	/* The TS of our side of the link */
+	time_t ourTS = chan ? chan->age : Instance->Time()+600;	/* The TS of our side of the link */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 

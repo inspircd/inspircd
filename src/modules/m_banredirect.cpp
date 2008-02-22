@@ -307,7 +307,7 @@ class ModuleBanRedirect : public Module
 							user->WriteServ("474 %s %s :Cannot join channel (You are banned)", user->nick, chan->name);
 							user->WriteServ("470 %s :You are being automatically redirected to %s", user->nick, redir->targetchan.c_str());
 							nofollow = true;
-							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time(true));
+							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
 							nofollow = false;
 							return 1;
 						}

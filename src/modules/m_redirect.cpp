@@ -132,7 +132,7 @@ class ModuleRedirect : public Module
 					}
 
 					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s", user->nick, cname, channel.c_str());
-					Channel::JoinUser(ServerInstance, user, channel.c_str(), false, "", false, ServerInstance->Time(true));
+					Channel::JoinUser(ServerInstance, user, channel.c_str(), false, "", false, ServerInstance->Time());
 					return 1;
 				}
 			}

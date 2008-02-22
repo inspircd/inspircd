@@ -216,7 +216,7 @@ void InspIRCd::DoBackgroundUserStuff()
 			// This user didn't answer the last ping, remove them
 			if (!curr->lastping)
 			{
-				time_t time = this->Time(false) - (curr->nping - curr->MyClass->GetPingTime());
+				time_t time = this->Time() - (curr->nping - curr->MyClass->GetPingTime());
 				char message[MAXBUF];
 				snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
 				curr->lastping = 1;

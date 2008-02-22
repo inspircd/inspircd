@@ -28,16 +28,11 @@ class CommandAlltime : public Command
 	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
 	{
 		char fmtdate[64];
-		char fmtdate2[64];
-		time_t now = ServerInstance->Time(false);
+		time_t now = ServerInstance->Time();
 		strftime(fmtdate, sizeof(fmtdate), "%F %T", gmtime(&now));
-		now = ServerInstance->Time(true);
-		strftime(fmtdate2, sizeof(fmtdate2), "%F %T", gmtime(&now));
-		
-		int delta = ServerInstance->GetTimeDelta();
 		
 		std::string msg = ":" + std::string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time for " +
-			ServerInstance->Config->ServerName + " is: " + fmtdate + " (delta " + ConvToStr(delta) + " seconds): Time with delta: "+ fmtdate2;
+			ServerInstance->Config->ServerName + " is: " + fmtdate;
 		
 		if (IS_LOCAL(user))
 		{

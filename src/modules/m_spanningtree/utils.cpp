@@ -448,8 +448,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	FlatLinks = Conf->ReadFlag("options","flatlinks",0);
 	HideULines = Conf->ReadFlag("options","hideulines",0);
 	AnnounceTSChange = Conf->ReadFlag("options","announcets",0);
-	EnableTimeSync = Conf->ReadFlag("timesync","enable",0);
-	MasterTime = Conf->ReadFlag("timesync", "master", 0);
 	ChallengeResponse = !Conf->ReadFlag("options", "disablehmac", 0);
 	quiet_bursts = Conf->ReadFlag("options", "quietbursts", 0);
 	PingWarnTime = Conf->ReadInteger("options", "pingwarning", 0, true);

@@ -42,14 +42,6 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	ServerInstance->AddCommand(command_rconnect);
 	command_rsquit = new cmd_rsquit(ServerInstance, this, Utils);
 	ServerInstance->AddCommand(command_rsquit);
-	if (Utils->EnableTimeSync)
-	{
-		SyncTimer = new TimeSyncTimer(ServerInstance, this);
-		ServerInstance->Timers->AddTimer(SyncTimer);
-	}
-	else
-		SyncTimer = NULL;
-
 	RefreshTimer = new CacheRefreshTimer(ServerInstance, Utils);
 	ServerInstance->Timers->AddTimer(RefreshTimer);
 
@@ -416,17 +408,6 @@ int ModuleSpanningTree::HandleConnect(const char* const* parameters, int pcnt, U
 	return 1;
 }
 
-void ModuleSpanningTree::BroadcastTimeSync()
-{
-	if (Utils->MasterTime)
-	{
-		std::deque<std::string> params;
-		params.push_back(ConvToStr(ServerInstance->Time(false)));
-		params.push_back("FORCE");
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "TIMESET", params);
-	}
-}
-
 void ModuleSpanningTree::OnGetServerDescription(const std::string &servername,std::string &description)
 {
 	TreeServer* s = Utils->FindServer(servername);
@@ -691,7 +672,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
 		 */
 		if (irc::string(user->nick) != assign(oldnick))
-			user->age = ServerInstance->Time(true);
+			user->age = ServerInstance->Time();
 
 		params.push_back(ConvToStr(user->age));
 		Utils->DoOneToMany(user->uuid,"NICK",params);
@@ -916,7 +897,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 			return;
 		(*params)[1] = ":" + (*params)[1];
 		params->insert(params->begin() + 1,ServerInstance->Config->ServerName);
-		params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time(true)));
+		params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time()));
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC",*params);
 	}
 	else if (event->GetEventID() == "send_mode")
@@ -1002,8 +983,6 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	/* This will also free the listeners */
 	delete Utils;
-	if (SyncTimer)
-		ServerInstance->Timers->DelTimer(SyncTimer);
 
 	ServerInstance->Timers->DelTimer(RefreshTimer);
 

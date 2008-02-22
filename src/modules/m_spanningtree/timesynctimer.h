@@ -24,16 +24,6 @@ class InspIRCd;
  * Timer is only one-shot however, so at the end of each Tick() we simply
  * insert another of ourselves into the pending queue :)
  */
-class TimeSyncTimer : public Timer
-{
- private:
-	InspIRCd *Instance;
-	ModuleSpanningTree *Module;
- public:
-	TimeSyncTimer(InspIRCd *Instance, ModuleSpanningTree *Mod);
-	virtual void Tick(time_t TIME);
-};
-
 class CacheRefreshTimer : public Timer
 {
  private:

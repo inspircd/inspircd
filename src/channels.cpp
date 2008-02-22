@@ -26,7 +26,7 @@ Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : Serv
 
 	(*(ServerInstance->chanlist))[cname.c_str()] = this;
 	strlcpy(this->name, cname.c_str(), CHANMAX);
-	this->created = ts ? ts : ServerInstance->Time(true);
+	this->created = ts ? ts : ServerInstance->Time();
 	this->age = this->created;
 
 

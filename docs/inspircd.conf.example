@@ -994,28 +994,6 @@
 	 moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 	 exemptchanops="">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
-# Time synchronisation options for m_spanningtree linking.            #
-#                                                                     #
-# Because IRC is very time and clock dependent, InspIRCd provides its #
-# own methods for synchronisation of time between servers as shown    #
-# in the example below, for servers that don't have ntpd running.     #
-#                                                                     #
-#  enable    -     If this value is 'yes', 'true', or '1', time       #
-#                  synchronisation is enabled on this server. This    #
-#                  means any servers you are linked to will           #
-#                  automatically synchronise time, however you should #
-#                  use ntpd instead where possible, NOT this option.  #
-#                                                                     #
-#  master    -     If this value is set to yes, then this server will #
-#                  act as the authoritative time source for the whole #
-#                  network. All other servers will respect its time   #
-#                  without question, and match their times to it.     #
-#                  only one server should have the master value set   #
-#                  to 'yes'.                                          #
-#                                                                     #
-<timesync enable="no" master="no">
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # This tag lets you define the behaviour of the /whowas command of    #

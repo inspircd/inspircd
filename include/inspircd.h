@@ -304,11 +304,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	socklen_t length;
 
-	/** Time offset in seconds
-	 * This offset is added to all calls to Time(). Use SetTimeDelta() to update
-	 */
-	int time_delta;
-
 #ifdef WIN32
 	IPC* WindowsIPC;
 #endif
@@ -440,23 +435,9 @@ class CoreExport InspIRCd : public classbase
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
 	 * it is much faster than calling time() directly.
-	 * @param delta True to use the delta as an offset, false otherwise
 	 * @return The current time as an epoch value (time_t)
 	 */
-	time_t Time(bool delta = false);
-
-	/** Set the time offset in seconds
-	 * This offset is added to Time() to offset the system time by the specified
-	 * number of seconds.
-	 * @param delta The number of seconds to offset
-	 * @return The old time delta
-	 */
-	int SetTimeDelta(int delta);
-
-	/** Get the time offset in seconds
-	 * @return The current time delta (in seconds)
-	 */
-	int GetTimeDelta();
+	time_t Time();
 
 	/** Process a user whos socket has been flagged as active
 	 * @param cu The user to process

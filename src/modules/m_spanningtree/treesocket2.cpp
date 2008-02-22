@@ -160,11 +160,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "BURST")
 			{
-				if (params.size() && Utils->EnableTimeSync)
+				if (params.size())
 				{
-					bool we_have_delta = (Instance->Time(false) != Instance->Time(true));
 					time_t them = atoi(params[0].c_str());
-					time_t delta = them - Instance->Time(false);
+					time_t delta = them - Instance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
 						Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
@@ -174,13 +173,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 					else if ((delta < -30) || (delta > 30))
 					{
 						Instance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs(delta));
-					}
-
-					if (!Utils->MasterTime && !we_have_delta)
-					{
-						this->Instance->SetTimeDelta(delta);
-						// Send this new timestamp to any other servers
-						Utils->DoOneToMany(Instance->Config->GetSID(), "TIMESET", params);
 					}
 				}
 				this->LinkState = CONNECTED;
@@ -283,7 +275,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * When there is activity on the socket, reset the ping counter so
 				 * that we're not wasting bandwidth pinging an active server.
 				 */
-				route_back_again->SetNextPingTime(time(NULL) + Utils->PingFreq);
+				route_back_again->SetNextPingTime(Instance->Time() + Utils->PingFreq);
 				route_back_again->SetPingFlag();
 			}
 			else
