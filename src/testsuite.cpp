@@ -114,7 +114,14 @@ bool TestSuite::DoThreadTests()
 	TestSuiteThread* tst = new TestSuiteThread();
 
 	cout << "ThreadEngine::Create on TestSuiteThread...\n";
-	te->Create(tst);
+	try
+	{
+		te->Create(tst);
+	}
+	catch (CoreException &ce)
+	{
+		cout << "Failure: " << ce.GetReason() << endl;s
+	}
 
 	cout << "Type any line and press enter to end test.\n";
 	cin >> anything;
