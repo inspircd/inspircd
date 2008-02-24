@@ -1158,6 +1158,10 @@ void ServerConfig::Read(bool bail, User* user)
 
         ServerInstance->Log(DEFAULT,"Done reading configuration file.");
 
+	/* Switch over logfiles */
+	ServerInstance->Logs->CloseLogs();
+	ServerInstance->Logs->OpenFileLogs();
+
         /* If we're rehashing, let's load any new modules, and unload old ones
          */
         if (!bail)
