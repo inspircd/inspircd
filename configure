@@ -1715,17 +1715,10 @@ ITEM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
 cmd_$cmd.so: cmd_$cmd.cpp ../../include/base.h ../../include/modules.h ../../include/inspircd.h ../../include/channels.h ../../include/users.h ../../include/globals.h ../../include/inspircd_config.h ../../include/commands/cmd_$cmd.h
-	\@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
-	\@../../make/run-cc.pl \$(CC) -pipe $SHARED -o cmd_$cmd.so cmd_$cmd.o
+	\@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(FLAGS) -export-dynamic $SHARED -o cmd_$cmd.so cmd_$cmd.cpp
 
 ITEM
 	}
-#try build a .so, no intermediate .o
-#	@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(FLAGS) -export-dynamic $SHARED -o cmd_$cmd.so
-
-#this works for sure
-#	@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
-#	@../../make/run-cc.pl \$(CC) -pipe $SHARED -o cmd_$cmd.so cmd_$cmd.o
 }
 
 # Routine to list out the extra/ modules that have been enabled.
