@@ -790,7 +790,7 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 
 void ServerConfig::Read(bool bail, User* user)
 {
-	int rem = 0, add = 0;           /* Number of modules added, number of modules removed */
+	int rem = 0, add = 0;	   /* Number of modules added, number of modules removed */
 
 	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
@@ -964,7 +964,7 @@ void ServerConfig::Read(bool bail, User* user)
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
-                /* Check we dont have more than one of singular tags, or any of them missing
+		/* Check we dont have more than one of singular tags, or any of them missing
 		 */
 		for (int Index = 0; Once[Index]; Index++)
 			if (!CheckOnce(Once[Index]))
@@ -1153,291 +1153,291 @@ void ServerConfig::Read(bool bail, User* user)
 		return;
 	}
 
-        // write once here, to try it out and make sure its ok
-        ServerInstance->WritePID(this->PID);
+	// write once here, to try it out and make sure its ok
+	ServerInstance->WritePID(this->PID);
 
-        ServerInstance->Log(DEFAULT,"Done reading configuration file.");
+	ServerInstance->Log(DEFAULT,"Done reading configuration file.");
 
 	/* Switch over logfiles */
 	ServerInstance->Logs->CloseLogs();
 	ServerInstance->Logs->OpenFileLogs();
 
-        /* If we're rehashing, let's load any new modules, and unload old ones
-         */
-        if (!bail)
-        {
-                int found_ports = 0;
-                FailedPortList pl;
-                ServerInstance->BindPorts(false, found_ports, pl);
+	/* If we're rehashing, let's load any new modules, and unload old ones
+	 */
+	if (!bail)
+	{
+		int found_ports = 0;
+		FailedPortList pl;
+		ServerInstance->BindPorts(false, found_ports, pl);
 
-                if (pl.size() && user)
-                {
-                        user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick);
-                        user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick);
-                        int j = 1;
-                        for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
-                        {
-                                user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
-                        }
-                }
+		if (pl.size() && user)
+		{
+			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick);
+			user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick);
+			int j = 1;
+			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+			{
+				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
+			}
+		}
 
-                if (!removed_modules.empty())
-                {
-                        for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
-                        {
-                                if (ServerInstance->Modules->Unload(removing->c_str()))
-                                {
-                                        ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
+		if (!removed_modules.empty())
+		{
+			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+			{
+				if (ServerInstance->Modules->Unload(removing->c_str()))
+				{
+					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
-                                        if (user)
-                                                user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+					if (user)
+						user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
 
-                                        rem++;
-                                }
-                                else
-                                {
-                                        if (user)
-                                                user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
-                                }
-                        }
-                }
+					rem++;
+				}
+				else
+				{
+					if (user)
+						user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				}
+			}
+		}
 
-                if (!added_modules.empty())
-                {
-                        for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
-                        {
-                                if (ServerInstance->Modules->Load(adding->c_str()))
-                                {
-                                        ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH LOADED MODULE: %s",adding->c_str());
+		if (!added_modules.empty())
+		{
+			for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+			{
+				if (ServerInstance->Modules->Load(adding->c_str()))
+				{
+					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH LOADED MODULE: %s",adding->c_str());
 
-                                        if (user)
-                                                user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+					if (user)
+						user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
 
-                                        add++;
-                                }
-                                else
-                                {
-                                        if (user)
-                                                user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
-                                }
-                        }
-                }
+					add++;
+				}
+				else
+				{
+					if (user)
+						user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				}
+			}
+		}
 
-                ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
-        }
+		ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
+	}
 
-        /** Note: This is safe, the method checks for user == NULL */
-        ServerInstance->Parser->SetupCommandTable(user);
+	/** Note: This is safe, the method checks for user == NULL */
+	ServerInstance->Parser->SetupCommandTable(user);
 
-        if (user)
-                user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
-        else
-                ServerInstance->SNO->WriteToSnoMask('A', "*** Successfully rehashed server.");
+	if (user)
+		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
+	else
+		ServerInstance->SNO->WriteToSnoMask('A', "*** Successfully rehashed server.");
 
 }
 
 
 bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream)
 {
-        std::ifstream conf(filename);
-        std::string line;
-        char ch;
-        long linenumber;
-        bool in_tag;
-        bool in_quote;
-        bool in_comment;
-        int character_count = 0;
+	std::ifstream conf(filename);
+	std::string line;
+	char ch;
+	long linenumber;
+	bool in_tag;
+	bool in_quote;
+	bool in_comment;
+	int character_count = 0;
 
-        linenumber = 1;
-        in_tag = false;
-        in_quote = false;
-        in_comment = false;
+	linenumber = 1;
+	in_tag = false;
+	in_quote = false;
+	in_comment = false;
 
-        /* Check if the file open failed first */
-        if (!conf)
-        {
-                errorstream << "LoadConf: Couldn't open config file: " << filename << std::endl;
-                return false;
-        }
+	/* Check if the file open failed first */
+	if (!conf)
+	{
+		errorstream << "LoadConf: Couldn't open config file: " << filename << std::endl;
+		return false;
+	}
 
-        /* Fix the chmod of the file to restrict it to the current user and group */
-        chmod(filename,0600);
+	/* Fix the chmod of the file to restrict it to the current user and group */
+	chmod(filename,0600);
 
-        for (unsigned int t = 0; t < include_stack.size(); t++)
-        {
-                if (std::string(filename) == include_stack[t])
-                {
-                        errorstream << "File " << filename << " is included recursively (looped inclusion)." << std::endl;
-                        return false;
-                }
-        }
+	for (unsigned int t = 0; t < include_stack.size(); t++)
+	{
+		if (std::string(filename) == include_stack[t])
+		{
+			errorstream << "File " << filename << " is included recursively (looped inclusion)." << std::endl;
+			return false;
+		}
+	}
 
-        /* It's not already included, add it to the list of files we've loaded */
-        include_stack.push_back(filename);
+	/* It's not already included, add it to the list of files we've loaded */
+	include_stack.push_back(filename);
 
-        /* Start reading characters... */
-        while (conf.get(ch))
-        {
+	/* Start reading characters... */
+	while (conf.get(ch))
+	{
 
-                /*
-                 * Fix for moronic windows issue spotted by Adremelech.
-                 * Some windows editors save text files as utf-16, which is
-                 * a total pain in the ass to parse. Users should save in the
-                 * right config format! If we ever see a file where the first
-                 * byte is 0xFF or 0xFE, or the second is 0xFF or 0xFE, then
-                 * this is most likely a utf-16 file. Bail out and insult user.
-                 */
-                if ((character_count++ < 2) && (ch == '\xFF' || ch == '\xFE'))
-                {
-                        errorstream << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
-                        return false;
-                }
+		/*
+		 * Fix for moronic windows issue spotted by Adremelech.
+		 * Some windows editors save text files as utf-16, which is
+		 * a total pain in the ass to parse. Users should save in the
+		 * right config format! If we ever see a file where the first
+		 * byte is 0xFF or 0xFE, or the second is 0xFF or 0xFE, then
+		 * this is most likely a utf-16 file. Bail out and insult user.
+		 */
+		if ((character_count++ < 2) && (ch == '\xFF' || ch == '\xFE'))
+		{
+			errorstream << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
+			return false;
+		}
 
-                /*
-                 * Here we try and get individual tags on separate lines,
-                 * this would be so easy if we just made people format
-                 * their config files like that, but they don't so...
-                 * We check for a '<' and then know the line is over when
-                 * we get a '>' not inside quotes. If we find two '<' and
-                 * no '>' then die with an error.
-                 */
+		/*
+		 * Here we try and get individual tags on separate lines,
+		 * this would be so easy if we just made people format
+		 * their config files like that, but they don't so...
+		 * We check for a '<' and then know the line is over when
+		 * we get a '>' not inside quotes. If we find two '<' and
+		 * no '>' then die with an error.
+		 */
 
-                if ((ch == '#') && !in_quote)
-                        in_comment = true;
+		if ((ch == '#') && !in_quote)
+			in_comment = true;
 
-                switch (ch)
-                {
-                        case '\n':
-                                if (in_quote)
-                                        line += '\n';
-                                linenumber++;
-                        case '\r':
-                                if (!in_quote)
-                                        in_comment = false;
-                        case '\0':
-                                continue;
-                        case '\t':
-                                ch = ' ';
-                }
+		switch (ch)
+		{
+			case '\n':
+				if (in_quote)
+					line += '\n';
+				linenumber++;
+			case '\r':
+				if (!in_quote)
+					in_comment = false;
+			case '\0':
+				continue;
+			case '\t':
+				ch = ' ';
+		}
 
-                if(in_comment)
-                        continue;
+		if(in_comment)
+			continue;
 
-                /* XXX: Added by Brain, May 1st 2006 - Escaping of characters.
-                 * Note that this WILL NOT usually allow insertion of newlines,
-                 * because a newline is two characters long. Use it primarily to
-                 * insert the " symbol.
-                 *
-                 * Note that this also involves a further check when parsing the line,
-                 * which can be found below.
-                 */
-                if ((ch == '\\') && (in_quote) && (in_tag))
-                {
-                        line += ch;
-                        char real_character;
-                        if (conf.get(real_character))
-                        {
-                                if (real_character == 'n')
-                                        real_character = '\n';
-                                line += real_character;
-                                continue;
-                        }
-                        else
-                        {
-                                errorstream << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
-                                return false;
-                        }
-                }
+		/* XXX: Added by Brain, May 1st 2006 - Escaping of characters.
+		 * Note that this WILL NOT usually allow insertion of newlines,
+		 * because a newline is two characters long. Use it primarily to
+		 * insert the " symbol.
+		 *
+		 * Note that this also involves a further check when parsing the line,
+		 * which can be found below.
+		 */
+		if ((ch == '\\') && (in_quote) && (in_tag))
+		{
+			line += ch;
+			char real_character;
+			if (conf.get(real_character))
+			{
+				if (real_character == 'n')
+					real_character = '\n';
+				line += real_character;
+				continue;
+			}
+			else
+			{
+				errorstream << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
+				return false;
+			}
+		}
 
-                if (ch != '\r')
-                        line += ch;
+		if (ch != '\r')
+			line += ch;
 
-                if (ch == '<')
-                {
-                        if (in_tag)
-                        {
-                                if (!in_quote)
-                                {
-                                        errorstream << "Got another opening < when the first one wasn't closed: " << filename << ":" << linenumber << std::endl;
-                                        return false;
-                                }
-                        }
-                        else
-                        {
-                                if (in_quote)
-                                {
-                                        errorstream << "We're in a quote but outside a tag, interesting. " << filename << ":" << linenumber << std::endl;
-                                        return false;
-                                }
-                                else
-                                {
-                                        // errorstream << "Opening new config tag on line " << linenumber << std::endl;
-                                        in_tag = true;
-                                }
-                        }
-                }
-                else if (ch == '"')
-                {
-                        if (in_tag)
-                        {
-                                if (in_quote)
-                                {
-                                        // errorstream << "Closing quote in config tag on line " << linenumber << std::endl;
-                                        in_quote = false;
-                                }
-                                else
-                                {
-                                        // errorstream << "Opening quote in config tag on line " << linenumber << std::endl;
-                                        in_quote = true;
-                                }
-                        }
-                        else
-                        {
-                                if (in_quote)
-                                {
-                                        errorstream << "Found a (closing) \" outside a tag: " << filename << ":" << linenumber << std::endl;
-                                }
-                                else
-                                {
-                                        errorstream << "Found a (opening) \" outside a tag: " << filename << ":" << linenumber << std::endl;
-                                }
-                        }
-                }
-                else if (ch == '>')
-                {
-                        {
-                                if (in_tag)
-                                {
-                                        // errorstream << "Closing config tag on line " << linenumber << std::endl;
-                                        in_tag = false;
+		if (ch == '<')
+		{
+			if (in_tag)
+			{
+				if (!in_quote)
+				{
+					errorstream << "Got another opening < when the first one wasn't closed: " << filename << ":" << linenumber << std::endl;
+					return false;
+				}
+			}
+			else
+			{
+				if (in_quote)
+				{
+					errorstream << "We're in a quote but outside a tag, interesting. " << filename << ":" << linenumber << std::endl;
+					return false;
+				}
+				else
+				{
+					// errorstream << "Opening new config tag on line " << linenumber << std::endl;
+					in_tag = true;
+				}
+			}
+		}
+		else if (ch == '"')
+		{
+			if (in_tag)
+			{
+				if (in_quote)
+				{
+					// errorstream << "Closing quote in config tag on line " << linenumber << std::endl;
+					in_quote = false;
+				}
+				else
+				{
+					// errorstream << "Opening quote in config tag on line " << linenumber << std::endl;
+					in_quote = true;
+				}
+			}
+			else
+			{
+				if (in_quote)
+				{
+					errorstream << "Found a (closing) \" outside a tag: " << filename << ":" << linenumber << std::endl;
+				}
+				else
+				{
+					errorstream << "Found a (opening) \" outside a tag: " << filename << ":" << linenumber << std::endl;
+				}
+			}
+		}
+		else if (ch == '>')
+		{
+			{
+				if (in_tag)
+				{
+					// errorstream << "Closing config tag on line " << linenumber << std::endl;
+					in_tag = false;
 
-                                        /*
-                                         * If this finds an <include> then ParseLine can simply call
-                                         * LoadConf() and load the included config into the same ConfigDataHash
-                                         */
+					/*
+					 * If this finds an <include> then ParseLine can simply call
+					 * LoadConf() and load the included config into the same ConfigDataHash
+					 */
 
-                                        if (!this->ParseLine(target, line, linenumber, errorstream))
-                                                return false;
+					if (!this->ParseLine(target, line, linenumber, errorstream))
+						return false;
 
-                                        line.clear();
-                                }
-                                else
-                                {
-                                        errorstream << "Got a closing > when we weren't inside a tag: " << filename << ":" << linenumber << std::endl;
-                                        return false;
-                                }
-                        }
-                }
-        }
+					line.clear();
+				}
+				else
+				{
+					errorstream << "Got a closing > when we weren't inside a tag: " << filename << ":" << linenumber << std::endl;
+					return false;
+				}
+			}
+		}
+	}
 
-        /* Fix for bug #392 - if we reach the end of a file and we are still in a quote or comment, most likely the user fucked up */
-        if (in_comment || in_quote)
-        {
-                errorstream << "Reached end of file whilst still inside a quoted section or tag. This is most likely an error or there \
-                        is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
-        }
+	/* Fix for bug #392 - if we reach the end of a file and we are still in a quote or comment, most likely the user fucked up */
+	if (in_comment || in_quote)
+	{
+		errorstream << "Reached end of file whilst still inside a quoted section or tag. This is most likely an error or there \
+			is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
+	}
 
-        return true;
+	return true;
 }
 
 
