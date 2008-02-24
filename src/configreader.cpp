@@ -1211,53 +1211,56 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 		}
 	}
 
-	if (!removed_modules.empty())
+	if (pass == 0)
 	{
-		for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+		if (!removed_modules.empty())
 		{
-			if (ServerInstance->Modules->Unload(removing->c_str()))
+			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', "REHASH UNLOADED MODULE: %s",removing->c_str());
-				if (user)
-					user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
-				rem++;
-			}
-			else
-			{
-				if (user)
-					user->WriteServ("972 %s %s :%s",user->nick, removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				if (ServerInstance->Modules->Unload(removing->c_str()))
+				{
+					ServerInstance->SNO->WriteToSnoMask('A', "REHASH UNLOADED MODULE: %s",removing->c_str());
+					if (user)
+						user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+					rem++;
+				}
+				else
+				{
+					if (user)
+						user->WriteServ("972 %s %s :%s",user->nick, removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				}
 			}
 		}
-	}
 
-	if (!added_modules.empty())
-	{
-		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+		if (!added_modules.empty())
 		{
-			/* Skip over modules that are aleready loaded for some reason */
-			if (ServerInstance->Modules->Find(*adding))
-				continue;
-
-			if (bail)
-				printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n", adding->c_str());
-
-			if (ServerInstance->Modules->Load(adding->c_str()))
+			for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', "REHASH LOADED MODULE: %s",adding->c_str());
-				if (user)
-					user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
-
-				add++;
-			}
-			else
-			{
-				if (user)
-					user->WriteServ("974 %s %s :%s",user->nick, adding->c_str(), ServerInstance->Modules->LastError().c_str());
-
+				/* Skip over modules that are aleready loaded for some reason */
+				if (ServerInstance->Modules->Find(*adding))
+					continue;
+	
 				if (bail)
+					printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n", adding->c_str());
+	
+				if (ServerInstance->Modules->Load(adding->c_str()))
 				{
-					printf_c("\n[\033[1;31m*\033[0m] %s\n\n", ServerInstance->Modules->LastError().c_str());
-					ServerInstance->Exit(EXIT_STATUS_MODULE);
+					ServerInstance->SNO->WriteToSnoMask('A', "REHASH LOADED MODULE: %s",adding->c_str());
+					if (user)
+						user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+	
+					add++;
+				}
+				else
+				{
+					if (user)
+						user->WriteServ("974 %s %s :%s",user->nick, adding->c_str(), ServerInstance->Modules->LastError().c_str());
+	
+					if (bail)
+					{
+							printf_c("\n[\033[1;31m*\033[0m] %s\n\n", ServerInstance->Modules->LastError().c_str());
+						ServerInstance->Exit(EXIT_STATUS_MODULE);
+					}
 				}
 			}
 		}
@@ -1343,6 +1346,7 @@ int ServerConfig::DoDownloads()
 
 bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass, std::istream *scan_for_includes_only)
 {
+	ServerInstance->Logs->Log("CONFIG",DEBUG,"Enter loadconf");
 	std::string line;
 	std::istream* conf = NULL;
 	char ch;
@@ -1365,6 +1369,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 
 	if (std::string(filename) == CONFIG_FILE)
 	{
+		ServerInstance->Logs->Log("CONFIG",DEBUG,"Main config!");
 		if (!scan_for_includes_only)
 		{
 			conf = new std::ifstream(filename);
@@ -1373,13 +1378,16 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				errorstream << "File " << filename << " could not be opened." << std::endl;
 				return false;
 			}
+			ServerInstance->Logs->Log("CONFIG",DEBUG,"Set main conf");
 		}
 	}
 	else
 	{
+		ServerInstance->Logs->Log("CONFIG",DEBUG,"Not main config file");
 		std::map<std::string, std::istream*>::iterator x = IncludedFiles.find(filename);
 		if (x == IncludedFiles.end())
 		{
+			ServerInstance->Logs->Log("CONFIG",DEBUG,"File doesnt exist in map");
 			if (pass == 0)
 			{
 				ServerInstance->Logs->Log("CONFIG",DEBUG,"Push include file %s onto map", filename);
@@ -1397,15 +1405,17 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		}
 		else
 		{
+			ServerInstance->Logs->Log("CONFIG",DEBUG,"File exists in map");
 			if (!scan_for_includes_only)
 			{
 				if (x->second)
 				{
 					ServerInstance->Logs->Log("CONFIG",DEBUG,"Retrieve conf");
-					conf = IncludedFiles.find(filename)->second;
+					conf = x->second;
 				}
 				else
 				{
+					ServerInstance->Logs->Log("CONFIG",DEBUG,"NULL entry, file not found");
 					errorstream << "File " << filename << " could not be opened." << std::endl;
 					return false;
 				}
@@ -1595,8 +1605,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
 	}
 
-	if (!scan_for_includes_only)
-		delete conf;
+	/*if (!scan_for_includes_only)
+		delete conf;*/
 	return true;
 }
 
