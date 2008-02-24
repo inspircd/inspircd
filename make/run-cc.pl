@@ -82,32 +82,37 @@ my ($r_stderr, $w_stderr);
 my $name = "";
 my $action = "";
 
-foreach my $n (@ARGV)
-{
-	if ($n =~ /\.cpp$/)
+if ($cc eq "ar") {
+	$name = $ARGV[1];
+	$action = "ARCHIVE";
+} else {
+	foreach my $n (@ARGV)
 	{
-		if ($action eq "BUILD")
+		if ($n =~ /\.cpp$/)
 		{
-			$name .= " " . $n;
+			if ($action eq "BUILD")
+			{
+				$name .= " " . $n;
+			}
+			else
+			{
+				$action = "BUILD";
+				$name = $n;
+			}
 		}
-		else
+		elsif ($action eq "BUILD") # .cpp has priority.
 		{
-			$action = "BUILD";
+			next;
+		}
+		elsif ($n eq "-o")
+		{
+			$action = $name = $n;
+		}
+		elsif ($name eq "-o")
+		{
+			$action = "LINK";
 			$name = $n;
 		}
-	}
-	elsif ($action eq "BUILD") # .cpp has priority.
-	{
-		next;
-	}
-	elsif ($n eq "-o")
-	{
-		$action = $name = $n;
-	}
-	elsif ($name eq "-o")
-	{
-		$action = "LINK";
-		$name = $n;
 	}
 }
 
@@ -119,11 +124,11 @@ pipe($r_stderr, $w_stderr) or die "pipe stderr: $!\n";
 
 $pid = fork;
 
-die "Cannot fork to start gcc! $!\n" unless defined($pid);
+die "Cannot fork to start $cc! $!\n" unless defined($pid);
 
 if ($pid) {
 
-	print "\t\e[1;32m$action:\e[0m\t\t$name\n" unless $name eq "";
+	printf "\t\e[1;32m%-20s\e[0m%s\n", $action . ":", $name unless $name eq "";
 
 	my $fail = 0;
 	# Parent - Close child-side pipes.

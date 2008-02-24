@@ -7,7 +7,7 @@
 #
 
 CC = @CC@
-MAKE = @MAKEPROG@
+MAKE = @MAKEPROG@ -s
 PROGS = inspircd
 NICEFLAGS = @FLAGS@
 FLAGS = $(NICEFLAGS) -pedantic
