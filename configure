@@ -154,6 +154,7 @@ GetOptions (
 	'update' => sub { update(); },
 	'svnupdate' => sub { svnupdate(); },
 	'clean' => sub { clean(); },
+	'update-root' => sub { update_root() },
 	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
 	'enable-extras=s@' => \@opt_enableextras, # ^
 	'disable-extras=s@' => \@opt_disableextras, # ^
@@ -209,6 +210,7 @@ our $interactive = !$non_interactive;
 chomp(our $topdir = getcwd());
 our $this = resolve_directory($topdir);						# PWD, Regardless.
 our @modlist = ();							  		# Declare for Module List..
+
 our %config = ();						   			# Initiate Configuration Hash..
 $config{ME}		 = resolve_directory($topdir);				# Present Working Directory
 
@@ -406,6 +408,42 @@ sub clean
 }
 
 our ($has_epoll, $has_ports, $has_kqueue) = (0, 0, 0);
+
+sub update_root
+{
+	eval {
+		chomp($topdir = getcwd());
+		$this = resolve_directory($topdir);					     # PWD, Regardless.
+		getmodules();
+		# Does the cache file exist?
+		if (!getcache()) {
+			# No, No it doesn't.. *BASH*
+			print "You have not run ./configure before. Please do this before trying to run the update script.\n";
+			exit 0;
+		} else {
+			print "Updating root files...\n";
+			getosflags();
+			if (defined($opt_disable_debug) && $opt_disable_debug == 1)
+			{
+				print "Disabling debug information (-g).\n";
+				$config{OPTIMISATI} = "";
+				getosflags();
+			}
+			$has_epoll = $config{HAS_EPOLL};
+			$has_ports = $config{HAS_PORTS};
+			$has_kqueue = $config{HAS_KQUEUE};
+			write_root_files();
+			makecache();
+			print "Complete.\n";
+			exit 0;
+		}
+	};
+	if ($@)
+	{
+		print "Configure update failed: $@\n";
+	}
+	exit 1;
+}
 
 sub update
 {
@@ -1111,6 +1149,91 @@ sub getosflags {
 
 my ($mliflags, $mfrules, $mobjs, $mfcount) = ("", "", "", 0);
 
+sub write_root_files {
+	# Create a Modules List..
+	my $modules = "";
+	foreach my $i (@modlist)
+	{
+		$modules .= "m_".$i.".so ";
+	}
+	chomp($modules);   # Remove Redundant whitespace..
+
+	opendir(DIRHANDLE, "src/modules");
+	foreach my $name (sort readdir(DIRHANDLE)) {
+		if ($name =~ /^m_(.+?)$/) {
+			if (defined(opendir(MDIRHANDLE, "src/modules/$name"))) {
+				closedir(MDIRHANDLE);
+				$modules .= "$name.so ";
+				$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/$name.so\n";
+			}
+		}
+	}
+	closedir(DIRHANDLE);
+
+	# Write all .in files.
+	my $exe = "inspircd";
+
+	# Do this once here, and cache it in the .*.inc files,
+	# rather than attempting to read src/version.sh from
+	# compiled code -- we might not have the source to hand.
+	# Fix for bug#177 by Brain.
+
+	chomp(my $version = `sh ./src/version.sh`);
+	chomp(my $revision = getrevision());
+	$version = "$version(r$revision)";
+
+	# We can actually parse any file starting with . and ending with .inc,
+	# but right now we only parse .inspircd.inc to form './inspircd'
+
+	opendir(DIRHANDLE, $this);
+
+	foreach my $name (sort readdir(DIRHANDLE)) {
+		if ($name =~ /^\.(.+)\.inc$/) {
+			my $file = $1;
+
+			# Bug #353, omit this on non-darwin
+			next if (($config{OSNAME} !~ /darwin/) && ($file eq "org.inspircd.plist"));
+
+			# All .name.inc files need parsing!
+			my $tmp = "";
+			open(FILEHANDLE, ".$file.inc") or die ("Can't open .$file.inc");
+			while (<FILEHANDLE>) {
+				$tmp .= $_;
+			}
+			close(FILEHANDLE);
+
+			print "Writing \e[1;32m$file\e[0m ...\n";
+			$tmp =~ s/\@CC\@/$config{CC}/ if defined $config{CC};
+			$tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/ if defined $config{MAKEPROG};
+			$tmp =~ s/\@FLAGS\@/$config{FLAGS}/ if defined $config{FLAGS};
+			$tmp =~ s/\@DEVELOPER\@/$config{DEVELOPER}/ if defined $config{DEVELOPER};
+			$tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/ if defined $config{LDLIBS};
+			$tmp =~ s/\@BASE_DIR\@/$config{BASE_DIR}/ if defined $config{BASE_DIR};
+			$tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/ if defined $config{CONFIG_DIR};
+			$tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/ if defined $config{MODULE_DIR};
+			$tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/ if defined $config{BINARY_DIR};
+			$tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/ if defined $config{LIBRARY_DIR};
+			$tmp =~ s/\@MODULES\@/$modules/ if defined $modules;
+			$tmp =~ s/\@STARTSCRIPT\@/$config{STARTSCRIPT}/ if defined $config{STARTSCRIPT};
+			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/ if defined $config{DESTINATION};
+			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/ if defined $config{EXTRA_DIR};
+			$tmp =~ s/\@EXECUTABLE\@/$exe/ if defined $exe;
+			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/ if defined $config{MAKEORDER};
+			$tmp =~ s/\@VERSION\@/$version/ if defined $version;
+			$tmp =~ s/\@INSTALL_LIST\@/$install_list/ if defined $install_list;
+			$tmp =~ s/\@UNINSTALL_LIST\@/$uninstall_list/ if defined $uninstall_list;
+
+			open(FILEHANDLE, ">$file");
+			print FILEHANDLE $tmp;
+		}
+	}
+	closedir(DIRHANDLE);
+
+	# Make inspircd executable!
+	chmod 0744, 'inspircd';
+
+}
+
 sub writefiles {
 	my($writeheader) = @_;
 	my $se = "";
@@ -1219,95 +1342,12 @@ EOF
 		close(FILEHANDLE);
 	}
 
-
-	# Create a Modules List..
-	my $modules = "";
-	foreach my $i (@modlist)
-	{
-		$modules .= "m_".$i.".so ";
-	}
-	chomp($modules);   # Remove Redundant whitespace..
-
-	opendir(DIRHANDLE, "src/modules");
-	foreach my $name (sort readdir(DIRHANDLE)) {
-		if ($name =~ /^m_(.+?)$/) {
-			if (defined(opendir(MDIRHANDLE, "src/modules/$name"))) {
-				closedir(MDIRHANDLE);
-				$modules .= "$name.so ";
-				$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/$name.so\n";
-			}
-		}
-	}
-	closedir(DIRHANDLE);
-
-
-	# Write all .in files.
-	my $tmp = "";
-	my $file = "";
-	my $exe = "inspircd";
-
-	# Do this once here, and cache it in the .*.inc files,
-	# rather than attempting to read src/version.sh from
-	# compiled code -- we might not have the source to hand.
-	# Fix for bug#177 by Brain.
-
-	chomp($version = `sh ./src/version.sh`);
-	chomp(my $revision = getrevision());
-	$version = "$version(r$revision)";
-
-	# We can actually parse any file starting with . and ending with .inc,
-	# but right now we only parse .inspircd.inc to form './inspircd'
+	write_root_files();
 
         print "Writing \e[1;32mMakefiles\e[0m\n";
 	write_dynamic_modules_makefile();
 	write_dynamic_makefile();
 
-	opendir(DIRHANDLE, $this);
-
-	foreach my $name (sort readdir(DIRHANDLE)) {
-		if ($name =~ /^\.(.+)\.inc$/) {
-			$file = $1;
-
-			# Bug #353, omit this on non-darwin
-			next if (($config{OSNAME} !~ /darwin/) && ($file eq "org.inspircd.plist"));
-
-			# All .name.inc files need parsing!
-			$tmp = "";
-			open(FILEHANDLE, ".$file.inc") or die ("Can't open .$file.inc");
-			while (<FILEHANDLE>) {
-				$tmp .= $_;
-			}
-			close(FILEHANDLE);
-
-			print "Writing \e[1;32m$file\e[0m ...\n";
-			$tmp =~ s/\@CC\@/$config{CC}/ if defined $config{CC};
-			$tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/ if defined $config{MAKEPROG};
-			$tmp =~ s/\@FLAGS\@/$config{FLAGS}/ if defined $config{FLAGS};
-			$tmp =~ s/\@DEVELOPER\@/$config{DEVELOPER}/ if defined $config{DEVELOPER};
-			$tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/ if defined $config{LDLIBS};
-			$tmp =~ s/\@BASE_DIR\@/$config{BASE_DIR}/ if defined $config{BASE_DIR};
-			$tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/ if defined $config{CONFIG_DIR};
-			$tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/ if defined $config{MODULE_DIR};
-			$tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/ if defined $config{BINARY_DIR};
-			$tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/ if defined $config{LIBRARY_DIR};
-			$tmp =~ s/\@MODULES\@/$modules/ if defined $modules;
-			$tmp =~ s/\@STARTSCRIPT\@/$config{STARTSCRIPT}/ if defined $config{STARTSCRIPT};
-			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/ if defined $config{DESTINATION};
-			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/ if defined $config{EXTRA_DIR};
-			$tmp =~ s/\@EXECUTABLE\@/$exe/ if defined $exe;
-			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/ if defined $config{MAKEORDER};
-			$tmp =~ s/\@VERSION\@/$version/ if defined $version;
-			$tmp =~ s/\@INSTALL_LIST\@/$install_list/ if defined $install_list;
-			$tmp =~ s/\@UNINSTALL_LIST\@/$uninstall_list/ if defined $uninstall_list;
-
-			open(FILEHANDLE, ">$file");
-			print FILEHANDLE $tmp;
-		}
-	}
-	closedir(DIRHANDLE);
-
-	# Make inspircd executable!
-	chmod 0744, 'inspircd';
 }
 
 sub write_dynamic_modules_makefile {
