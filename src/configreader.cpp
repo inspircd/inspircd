@@ -2193,5 +2193,8 @@ void ConfigReaderThread::Run()
 {
 	/* TODO: TheUser may be invalid by the time we get here! Check its validity, or pass a UID would be better */
 	ServerInstance->Config->Read(do_bail, TheUser);
+	ServerInstance->Threads->Mutex(true);
+	this->SetExitFlag();
+	ServerInstance->Threads->Mutex(false);
 }
 

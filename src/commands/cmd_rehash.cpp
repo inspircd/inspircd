@@ -50,7 +50,7 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 		else
 		{
 			/* A rehash is already in progress! ahh shit. */
-			user->WriteServ("*** NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick);
+			user->WriteServ("NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick);
 			return CMD_FAILURE;
 		}
 	}
