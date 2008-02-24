@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -49,20 +49,28 @@ void InspIRCd::Rehash()
 	this->SNO->WriteToSnoMask('A', "Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(this->ConfigFileName));
 	this->RehashUsersAndChans();
 	FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
-	/*this->Config->Read(false,NULL);*/
-	this->ResetMaxBans();
-	this->Res->Rehash();
-	FOREACH_MOD_I(this,I_OnRehash,OnRehash(NULL,""));
-	this->BuildISupport();
+	if (!this->ConfigThread)
+	{
+		Config->RehashUser = NULL;
+		Config->RehashParameter = "";
+
+		ConfigThread = new ConfigReaderThread(this, false, NULL);
+		Threads->Create(ConfigThread);
+	}
 }
 
 void InspIRCd::RehashServer()
 {
 	this->SNO->WriteToSnoMask('A', "Rehashing config file");
 	this->RehashUsersAndChans();
-	/*this->Config->Read(false,NULL);*/
-	this->ResetMaxBans();
-	this->Res->Rehash();
+	if (!this->ConfigThread)
+	{
+		Config->RehashUser = NULL;
+		Config->RehashParameter = "";
+
+		ConfigThread = new ConfigReaderThread(this, false, NULL);
+		Threads->Create(ConfigThread);
+	}
 }
 
 std::string InspIRCd::GetVersionString()
