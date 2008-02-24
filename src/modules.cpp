@@ -551,14 +551,17 @@ void ModuleManager::LoadAll()
 
 	for(int count = 0; count < Instance->Config->ConfValueEnum(Instance->Config->config_data, "module"); count++)
 	{
-		Instance->Config->ConfValue(Instance->Config->config_data, "module", "name", count, configToken, MAXBUF);
-		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
-		
-		if (!this->Load(configToken))		
+		if (!this->Find(configToken))
 		{
-			Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
-			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
-			Instance->Exit(EXIT_STATUS_MODULE);
+			Instance->Config->ConfValue(Instance->Config->config_data, "module", "name", count, configToken, MAXBUF);
+			printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
+			
+			if (!this->Load(configToken))		
+			{
+				Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
+				printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
+				Instance->Exit(EXIT_STATUS_MODULE);
+			}
 		}
 	}
 }

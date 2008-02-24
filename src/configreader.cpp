@@ -1336,6 +1336,8 @@ int ServerConfig::DoDownloads()
 		CompletedFiles[x->first] = true;
 	}
 
+	ServerInstance->Logs->Log("CONFIG",DEBUG,"Returning %d from DoDownloads()", new_downloads);
+
 	return new_downloads;
 }
 
@@ -1398,7 +1400,10 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			if (!scan_for_includes_only)
 			{
 				if (x->second)
+				{
+					ServerInstance->Logs->Log("CONFIG",DEBUG,"Retrieve conf");
 					conf = IncludedFiles.find(filename)->second;
+				}
 				else
 				{
 					errorstream << "File " << filename << " could not be opened." << std::endl;
@@ -1407,6 +1412,9 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			}
 		}
 	}
+
+	if (!conf)
+		return false;
 
 	ServerInstance->Logs->Log("CONFIG",DEBUG,"Start to read conf %s %08lx", filename, conf);
 
