@@ -60,6 +60,8 @@ class ModuleSpanningTree : public Module
 	 */
 	void ShowLinks(TreeServer* Current, User* user, int hops);
 
+	void OnReadConfig(ServerConfig* c, ConfigReader* r);
+
 	/** Counts local servers
 	 */
 	int CountLocalServs();
