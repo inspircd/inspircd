@@ -490,6 +490,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	delete ConfigThread;
 	this->ConfigThread = NULL;
 
+	this->Res = new DNS(this);
+
 	this->AddServerName(Config->ServerName);
 
 	/*
@@ -533,18 +535,18 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	printf("\n");
 
-	/*this->Modules->LoadAll();*/
+	this->Modules->LoadAll();
 	
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 
-	if ((Config->ports.size() == 0) && (found_ports > 0))
+	/*if ((Config->ports.size() == 0) && (found_ports > 0))
 	{
 		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
 		Logs->Log("STARTUP", DEFAULT,"ERROR: I couldn't bind any ports! Something else is bound to those ports!");
 		Exit(EXIT_STATUS_BIND);
-	}
+	}*/
 
 	if (Config->ports.size() != (unsigned int)found_ports)
 	{

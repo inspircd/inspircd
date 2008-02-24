@@ -230,11 +230,11 @@ class CoreExport ServerConfig : public Extensible
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream, int pass, std::istream* scan_for_includes_only);
+	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream);
   
 	/** Process an include directive
 	 */
-	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream, int pass, std::istream* scan_for_includes_only);
+	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
 
 	/** Check that there is only one of each configuration item
 	 */
@@ -658,7 +658,7 @@ class CoreExport ServerConfig : public Extensible
 	 * and initialize this class. All other methods
 	 * should be used only by the core.
 	 */
-	void Read(bool bail, User* user, int pass);
+	void Read(bool bail, User* user);
 
 	/** Read a file into a file_cache object
 	 */
@@ -675,12 +675,12 @@ class CoreExport ServerConfig : public Extensible
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass, std::istream* scan_for_includs_only);
+	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream, int pass, std::istream* scan_for_includs_only = NULL);
+	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream);
 	
 	/* Both these return true if the value existed or false otherwise */
 	

@@ -551,17 +551,14 @@ void ModuleManager::LoadAll()
 
 	for(int count = 0; count < Instance->Config->ConfValueEnum(Instance->Config->config_data, "module"); count++)
 	{
-		if (!this->Find(configToken))
+		Instance->Config->ConfValue(Instance->Config->config_data, "module", "name", count, configToken, MAXBUF);
+		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
+		
+		if (!this->Load(configToken))		
 		{
-			Instance->Config->ConfValue(Instance->Config->config_data, "module", "name", count, configToken, MAXBUF);
-			printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
-			
-			if (!this->Load(configToken))		
-			{
-				Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
-				printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
-				Instance->Exit(EXIT_STATUS_MODULE);
-			}
+			Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
+			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
+			Instance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
 }
@@ -826,11 +823,8 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 	this->data = new ConfigDataHash;
 	this->privatehash = true;
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	for (int pass = 0; pass < 2; pass++)
-	{
-		/*** XXX: Can return a 'not ready yet!' code! */
-		this->readerror = ServerInstance->Config->LoadConf(*this->data, filename, *this->errorlog, pass);
-	}
+	/*** XXX: Can return a 'not ready yet!' code! */
+	this->readerror = ServerInstance->Config->LoadConf(*this->data, filename, *this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 }

@@ -36,10 +36,6 @@
 ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	: Module(Me), max_local(0), max_global(0)
 {
-}
-
-void ModuleSpanningTree::OnReadConfig(ServerConfig* c, ConfigReader* r)
-{
 	ServerInstance->Modules->UseInterface("BufferedSocketHook");
 	Utils = new SpanningTreeUtilities(ServerInstance, this);
 	command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);

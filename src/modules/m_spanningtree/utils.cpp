@@ -107,6 +107,8 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 {
 	Bindings.clear();
 
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
+
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 
 	modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
