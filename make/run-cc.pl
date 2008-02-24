@@ -86,9 +86,19 @@ foreach my $n (@ARGV)
 {
 	if ($n =~ /\.cpp$/)
 	{
-		$action = "BUILD";
-		$name = $n;
-		last;
+		if ($action eq "BUILD")
+		{
+			$name .= " " . $n;
+		}
+		else
+		{
+			$action = "BUILD";
+			$name = $n;
+		}
+	}
+	elsif ($action eq "BUILD") # .cpp has priority.
+	{
+		next;
 	}
 	elsif ($n eq "-o")
 	{
