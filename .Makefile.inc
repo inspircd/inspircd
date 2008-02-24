@@ -43,7 +43,6 @@ debug:
 	@${MAKE} -C . 'FLAGS=${DEBUG}' 'NICEFLAGS=${NICEDEBUG}' all
 
 mods:
-	@echo "Making modules..."
 	@${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
 
 # Make this depend on 'ircd' and 'mods', so its always output last even with -j
