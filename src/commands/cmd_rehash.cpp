@@ -36,16 +36,33 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 		ServerInstance->SNO->WriteToSnoMask('A', "%s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 		ServerInstance->Logs->CloseLogs();
 		if (!ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc))
-			user->WriteServ("*** NOTICE %s :ERROR: Could not open logfile %s: %s", user->nick, ServerInstance->Config->logpath.c_str(), strerror(errno));
+			user->WriteServ("NOTICE %s :*** ERROR: Could not open logfile %s: %s", user->nick, ServerInstance->Config->logpath.c_str(), strerror(errno));
 		ServerInstance->RehashUsersAndChans();
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
-		/*ServerInstance->Config->Read(false,user);*/
+		if (!ServerInstance->ConfigThread)
+		{
+			ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance);
+			ServerInstance->Threads->Create(ServerInstance->ConfigThread);
+		}
+		else
+		{
+			/* A rehash is already in progress! ahh shit. */
+			user->WriteServ("*** NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick);
+			return CMD_FAILURE;
+		}
+		/* TODO:
+		 * ALL THIS STUFF HERE NEEDS TO BE HOOKED TO THE 'DEATH' OF THE REHASH THREAD
+		 * VIA SOME NOTIFICATION EVENT. WE CANT JUST CALL IT ALL HERE.
+		 * -- B
+		 */
 		// Get XLine to do it's thing.
-		ServerInstance->XLines->CheckELines();
+		/*ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
-		ServerInstance->ResetMaxBans();
+		ServerInstance->ResetMaxBans();*/
 	}
+
+	/* TODO: Same as above for all this stuff, really */
 	if (old_disabled != ServerInstance->Config->DisabledCommands)
 		InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
 
