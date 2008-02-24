@@ -485,7 +485,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* During startup we don't actually initialize this
 	 * in the thread engine.
 	 */
-	this->ConfigThread = new ConfigReaderThread(this);
+	this->ConfigThread = new ConfigReaderThread(this, true, NULL);
 	ConfigThread->Run();
 	delete ConfigThread;
 	this->ConfigThread = NULL;

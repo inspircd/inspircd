@@ -799,6 +799,8 @@ void ServerConfig::Read(bool bail, User* user)
 	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
 	errstr.clear();
 
+	include_stack.clear();
+
 	/* These tags MUST occur and must ONLY occur once in the config file */
 	static const char* Once[] = { "server", "admin", "files", "power", "options", NULL };
 
@@ -2156,6 +2158,7 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 
 void ConfigReaderThread::Run()
 {
-	ServerInstance->Config->Read(true, NULL);
+	/* TODO: TheUser may be invalid by the time we get here! Check its validity, or pass a UID would be better */
+	ServerInstance->Config->Read(do_bail, TheUser);
 }
 

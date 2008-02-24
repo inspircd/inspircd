@@ -235,8 +235,10 @@ class BanCacheManager;
 class ConfigReaderThread : public Thread
 {
 	InspIRCd* ServerInstance;
+	bool do_bail;
+	User* TheUser;
  public:
-	ConfigReaderThread(InspIRCd* Instance) : Thread(), ServerInstance(Instance)
+	ConfigReaderThread(InspIRCd* Instance, bool bail, User* user) : Thread(), ServerInstance(Instance), do_bail(bail), TheUser(user)
 	{
 	}
 

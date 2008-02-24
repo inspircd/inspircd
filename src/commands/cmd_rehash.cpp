@@ -41,7 +41,7 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		if (!ServerInstance->ConfigThread)
 		{
-			ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance);
+			ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, user);
 			ServerInstance->Threads->Create(ServerInstance->ConfigThread);
 		}
 		else
