@@ -232,6 +232,21 @@ DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 class XLineManager;
 class BanCacheManager;
 
+class ConfigReaderThread : public Thread
+{
+	InspIRCd* ServerInstance;
+ public:
+	ConfigReaderThread(InspIRCd* Instance) : Thread(), ServerInstance(Instance)
+	{
+	}
+
+	virtual ~ConfigReaderThread()
+	{
+	}
+
+	void Run();
+};
+
 /** The main class of the irc server.
  * This class contains instances of all the other classes
  * in this software, with the exception of the base class,
@@ -380,6 +395,14 @@ class CoreExport InspIRCd : public classbase
 	/** Socket engine, handles socket activity events
 	 */
 	SocketEngine* SE;
+
+	/** Thread engine, Handles threading where required
+	 */
+	ThreadEngine* Threads;
+
+	/** The thread/class used to read config files in REHASH and on startup
+	 */
+	ConfigReaderThread* ConfigThread;
 
 	/** LogManager handles logging.
 	 */

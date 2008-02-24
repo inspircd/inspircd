@@ -2305,3 +2305,10 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 	conf->GetInstance()->XLines->CheckELines();
 	return true;
 }
+
+void ConfigReaderThread::Run()
+{
+	ServerInstance->Config->Read(true, NULL, 0);
+	ServerInstance->Config->Read(true, NULL, 1);
+}
+

@@ -308,6 +308,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SE = SEF->Create(this);
 	delete SEF;
 
+
+	ThreadEngineFactory* tef = new ThreadEngineFactory();
+	this->Threads = tef->Create(this);
+	delete tef;
+
 	this->s_signal = 0;
 	
 	// Create base manager classes early, so nothing breaks
@@ -477,15 +482,13 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	SE->RecoverFromFork();
 
-	/* Read config, pass 0. At the end if this pass,
-	 * the Config->IncludeFiles is populated, we call
-	 * Config->StartDownloads to initialize the downlaods of all
-	 * these files.
+	/* During startup we don't actually initialize this
+	 * in the thread engine.
 	 */
-	Config->Read(true, NULL, 0);
-	Config->DoDownloads();
-	/* We have all the files we can get, initiate pass 1 */
-	Config->Read(true, NULL, 1);
+	this->ConfigThread = new ConfigReaderThread(this);
+	ConfigThread->Run();
+	delete ConfigThread;
+	this->ConfigThread = NULL;
 
 	this->AddServerName(Config->ServerName);
 
