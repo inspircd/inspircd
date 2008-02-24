@@ -636,6 +636,20 @@ int InspIRCd::Run()
 		static char window_title[100];
 #endif
 
+		if (this->ConfigThread && this->ConfigThread->GetExitFlag())
+		{
+			/* Rehash has completed */
+			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
+			delete ConfigThread;
+			this->XLines->CheckELines();
+			this->XLines->ApplyLines();
+			this->Res->Rehash();
+			this->ResetMaxBans();
+			InitializeDisabledCommands(Config->DisabledCommands, this);
+			FOREACH_MOD_I(this, I_OnRehash, OnRehash(Config->RehashUser, Config->RehashParameter));
+			this->BuildISupport();
+		}
+
 		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 		 * Once per loop iteration is pleanty.
 		 */

@@ -41,6 +41,9 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		if (!ServerInstance->ConfigThread)
 		{
+			ServerInstance->Config->RehashUser = user;
+			ServerInstance->Config->RehashParameter = parameter;
+
 			ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, user);
 			ServerInstance->Threads->Create(ServerInstance->ConfigThread);
 		}
@@ -50,25 +53,7 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 			user->WriteServ("*** NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick);
 			return CMD_FAILURE;
 		}
-		/* TODO:
-		 * ALL THIS STUFF HERE NEEDS TO BE HOOKED TO THE 'DEATH' OF THE REHASH THREAD
-		 * VIA SOME NOTIFICATION EVENT. WE CANT JUST CALL IT ALL HERE.
-		 * -- B
-		 */
-		// Get XLine to do it's thing.
-		/*ServerInstance->XLines->CheckELines();
-		ServerInstance->XLines->ApplyLines();
-		ServerInstance->Res->Rehash();
-		ServerInstance->ResetMaxBans();*/
 	}
-
-	/* TODO: Same as above for all this stuff, really */
-	if (old_disabled != ServerInstance->Config->DisabledCommands)
-		InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
-
-	FOREACH_MOD(I_OnRehash,OnRehash(user, parameter));
-
-	ServerInstance->BuildISupport();
 
 	return CMD_SUCCESS;
 }

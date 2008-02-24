@@ -242,6 +242,10 @@ class CoreExport ServerConfig : public Extensible
 
  public:
 
+	User* RehashUser;
+
+	std::string RehashParameter;
+
 	std::ostringstream errstr;
 
 	ConfigDataHash newconfig;
