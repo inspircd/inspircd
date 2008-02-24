@@ -636,11 +636,25 @@ int InspIRCd::Run()
 		static char window_title[100];
 #endif
 
+		/* Check if there is a config thread which has finished executing but has not yet been freed */
 		if (this->ConfigThread && this->ConfigThread->GetExitFlag())
 		{
 			/* Rehash has completed */
 			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
+
+			/* IMPORTANT: This delete may hang if you fuck up your thread syncronization.
+			 * It will hang waiting for the ConfigThread to 'join' to avoid race conditons,
+			 * until the other thread is completed.
+			 */
 			delete ConfigThread;
+
+			/* These are currently not known to be threadsafe, so they are executed outside
+			 * of the thread. It would be pretty simple to move them to the thread Run method
+			 * once they are known threadsafe with all the correct mutexes in place.
+			 *
+			 * XXX: The order of these is IMPORTANT, do not reorder them without testing
+			 * thoroughly!!!
+			 */
 			this->XLines->CheckELines();
 			this->XLines->ApplyLines();
 			this->Res->Rehash();
