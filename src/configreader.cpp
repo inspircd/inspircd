@@ -953,7 +953,9 @@ void ServerConfig::Read(bool bail, User* user)
 	if (this->LoadConf(newconfig, ServerInstance->ConfigFileName, errstr))
 	{
 		/* If we succeeded, set the ircd config to the new one */
+		ServerInstance->Threads->Mutex(true);
 		this->config_data = newconfig;
+		ServerInstance->Threads->Mutex(false);
 	}
 	else
 	{
@@ -987,6 +989,7 @@ void ServerConfig::Read(bool bail, User* user)
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 	
+			ServerInstance->Threads->Mutex(true);
 			switch (Values[Index].datatype)
 			{
 				case DT_NOSPACES:
@@ -1014,7 +1017,10 @@ void ServerConfig::Read(bool bail, User* user)
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
 					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString()))
+					{
+						ServerInstance->Threads->Mutex(false);
 						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
+					}
 					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
 				}
 				break;
@@ -1045,6 +1051,7 @@ void ServerConfig::Read(bool bail, User* user)
 			}
 			/* We're done with this now */
 			delete Values[Index].val;
+			ServerInstance->Threads->Mutex(false);
 		}
 
 		/* Read the multiple-tag items (class tags, connect tags, etc)
@@ -1053,7 +1060,9 @@ void ServerConfig::Read(bool bail, User* user)
 		 */
 		for (int Index = 0; MultiValues[Index].tag; Index++)
 		{
+			ServerInstance->Threads->Mutex(true);
 			MultiValues[Index].init_function(this, MultiValues[Index].tag);
+			ServerInstance->Threads->Mutex(false);
 
 			int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
 
@@ -1068,81 +1077,93 @@ void ServerConfig::Read(bool bail, User* user)
 					dt &= ~DT_ALLOW_NEWLINE;
 					dt &= ~DT_ALLOW_WILD;
 
-					switch (dt)
+					ServerInstance->Threads->Mutex(true);
+					/* We catch and rethrow any exception here just so we can free our mutex
+					 */
+					try
 					{
-						case DT_NOSPACES:
+						switch (dt)
 						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+							case DT_NOSPACES:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+							}
+							break;
+							case DT_HOSTNAME:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+							}
+							break;
+							case DT_IPADDRESS:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
+							}
+							break;
+							case DT_CHANNEL:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+								if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString()))
+									throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
+							}
+							break;
+							case DT_CHARPTR:
+							{
+								char item[MAXBUF];
+								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(""));
+							}
+							break;
+							case DT_INTEGER:
+							{
+								int item = 0;
+								if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
+									vl.push_back(ValueItem(item));
+								else
+									vl.push_back(ValueItem(0));
+							}
+							break;
+							case DT_BOOLEAN:
+							{
+								bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
 								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+							}
+							break;
+							default:
+								/* Someone was smoking craq if we got here, and we're all gonna die. */
+							break;
 						}
-						break;
-						case DT_HOSTNAME:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
-						}
-						break;
-						case DT_IPADDRESS:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
-						}
-						break;
-						case DT_CHANNEL:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-							if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString()))
-								throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
-						}
-						break;
-						case DT_CHARPTR:
-						{
-							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(""));
-						}
-						break;
-						case DT_INTEGER:
-						{
-							int item = 0;
-							if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
-								vl.push_back(ValueItem(item));
-							else
-								vl.push_back(ValueItem(0));
-						}
-						break;
-						case DT_BOOLEAN:
-						{
-							bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
-							vl.push_back(ValueItem(item));
-						}
-						break;
-						default:
-							/* Someone was smoking craq if we got here, and we're all gonna die. */
-						break;
 					}
+					catch (CoreException &e)
+					{
+						ServerInstance->Threads->Mutex(false);
+						throw e;
+					}
+					ServerInstance->Threads->Mutex(false);
 				}
-					MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
+				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 			}
-				MultiValues[Index].finish_function(this, MultiValues[Index].tag);
+			MultiValues[Index].finish_function(this, MultiValues[Index].tag);
 		}
 
 	}
@@ -1172,6 +1193,7 @@ void ServerConfig::Read(bool bail, User* user)
 
 		if (pl.size() && user)
 		{
+			ServerInstance->Threads->Mutex(true);
 			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick);
 			user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick);
 			int j = 1;
@@ -1179,8 +1201,10 @@ void ServerConfig::Read(bool bail, User* user)
 			{
 				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
 			}
+			ServerInstance->Threads->Mutex(false);
 		}
 
+		ServerInstance->Threads->Mutex(true);
 		if (!removed_modules.empty())
 		{
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
@@ -1224,10 +1248,15 @@ void ServerConfig::Read(bool bail, User* user)
 		}
 
 		ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
+
+		ServerInstance->Threads->Mutex(false);
+
 	}
 
 	/** Note: This is safe, the method checks for user == NULL */
+	ServerInstance->Threads->Mutex(true);
 	ServerInstance->Parser->SetupCommandTable(user);
+	ServerInstance->Threads->Mutex(false);
 
 	if (user)
 		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
