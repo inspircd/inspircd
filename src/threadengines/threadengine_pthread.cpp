@@ -82,8 +82,6 @@ bool PThreadEngine::Mutex(bool enable)
 	else
 		pthread_mutex_unlock(&MyMutex);
 
-	printf("OK! Mutex %s\n", enable ? "on" : "off");
-
 	return false;
 }
 
