@@ -261,7 +261,7 @@ class CoreExport ServerConfig : public Extensible
 
 	InspIRCd* GetInstance();
 
-	void DoDownloads();
+	int DoDownloads();
 	  
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.

@@ -1272,15 +1272,19 @@ void ServerConfig::Read(bool bail, User* user, int pass)
 }
 
 /* XXX: This can and will block! */
-void ServerConfig::DoDownloads()
+int ServerConfig::DoDownloads()
 {
 	ServerInstance->Logs->Log("CONFIG",DEBUG,"In DoDownloads()");
+
+	int new_downloads = 0;
 
 	/* Reads all local files into the IncludedFiles map, then initiates sockets for the remote ones */
 	for (std::map<std::string, std::istream*>::iterator x = IncludedFiles.begin(); x != IncludedFiles.end(); ++x)
 	{
 		if (CompletedFiles.find(x->first) != CompletedFiles.end())
 			continue;
+
+		new_downloads++;
 
 		ServerInstance->Logs->Log("CONFIG",DEBUG,"StartDownloads File: %s", x->first.c_str());
 
@@ -1326,10 +1330,13 @@ void ServerConfig::DoDownloads()
 			else
 			{
 				/* Search new file here for more includes to parse */
+				ServerInstance->Logs->Log("CONFIG",DEBUG,"Searching for further includes in %s", x->first.c_str());
 			}
 		}
 		CompletedFiles[x->first] = true;
 	}
+
+	return new_downloads;
 }
 
 bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream, int pass, std::istream *scan_for_includes_only)
@@ -2308,7 +2315,12 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 
 void ConfigReaderThread::Run()
 {
-	ServerInstance->Config->Read(true, NULL, 0);
+	do
+	{
+		ServerInstance->Config->Read(true, NULL, 0);
+	}
+	while (ServerInstance->Config->DoDownloads() > 0);
+
 	ServerInstance->Config->Read(true, NULL, 1);
 }
 
