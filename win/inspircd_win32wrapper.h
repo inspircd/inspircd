@@ -86,6 +86,7 @@
 
 /* this standard function is nonstarard. go figure. */
 #define popen _popen
+#define pclose _pclose
 
 /* Error macros need to be redirected to winsock error codes */
 #define ETIMEDOUT WSAETIMEDOUT
