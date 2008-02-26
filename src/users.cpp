@@ -73,6 +73,9 @@ std::string User::ProcessNoticeMasks(const char *sm)
 						output += *c;
 					}
 				}
+				else
+					this->WriteServ("501 %s %c :is unknown snomask char to me", this->nick, *c);
+
 				oldadding = adding;
 			break;
 		}
