@@ -117,9 +117,9 @@ class InvisibleMode : public ModeHandler
 							i->first->WriteServ("MODE %s +%s", f->first->name, n.c_str());
 					}
 				}
-
-				ServerInstance->WriteOpers("*** \2NOTICE\2: Oper %s has become %svisible (%sQ)", dest->GetFullHost(), adding ? "in" : "", adding ? "+" : "-");
 			}
+
+			ServerInstance->WriteOpers("*** \2NOTICE\2: Oper %s has become %svisible (%sQ)", dest->GetFullHost(), adding ? "in" : "", adding ? "+" : "-");
 			return MODEACTION_ALLOW;
 		}
 		else
