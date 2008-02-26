@@ -232,7 +232,7 @@ DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 class XLineManager;
 class BanCacheManager;
 
-class ConfigReaderThread : public Thread
+class CoreExport ConfigReaderThread : public Thread
 {
 	InspIRCd* ServerInstance;
 	bool do_bail;
