@@ -1301,8 +1301,9 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 	include_stack.push_back(filename);
 
 	/* Start reading characters... */
-	while ((ch = fgetc(conf)))
+	while (!feof(conf))
 	{
+		ch = fgetc(conf);
 
 		/*
 		 * Fix for moronic windows issue spotted by Adremelech.
@@ -1360,8 +1361,9 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 		{
 			line += ch;
 			char real_character;
-			if ((real_character = fgetc(conf)))
+			if (!feof(conf))
 			{
+				real_character = fgetc(conf);
 				if (real_character == 'n')
 					real_character = '\n';
 				line += real_character;
