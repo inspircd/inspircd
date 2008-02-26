@@ -32,6 +32,7 @@ class Snomask
 		ServerInstance = Instance;
 		MySnomask = snomask;
 		Description = description;
+		Count = 0;
 	}
 
 	/** Sends a message to all opers with this snomask.
