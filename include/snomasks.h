@@ -27,7 +27,7 @@ class Snomask
 
 	/** Create a new Snomask
 	 */
-	Snomask(InspIRCd* Instance, char snomask, const std::string &description) : MySnomask(snomask), Description(description), LastMessage(""), Count(0)
+	Snomask(InspIRCd* Instance, char snomask, const std::string &description) : ServerInstance(Instance), MySnomask(snomask), Description(description), LastMessage(""), Count(0)
 	{
 	}
 
