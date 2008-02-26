@@ -703,11 +703,27 @@ void User::UnOper()
 {
 	if (IS_OPER(this))
 	{
-		// unset their oper type (what IS_OPER checks), and remove +o
+		/* Remove all oper only modes from the user when the deoper - Bug #466*/
+		std::string moderemove("-");
+
+		for (unsigned char letter = 'A'; letter <= 'z'; letter++)
+		{
+			if (letter != 'o')
+			{
+				ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
+				if (mh && mh->NeedsOper())
+					moderemove += letter;
+			}
+		}
+
+		const char* parameters[] = { this->nick, moderemove.c_str() };
+		ServerInstance->Parser->CallHandler("MODE", parameters, 2, this);
+
+		/* unset their oper type (what IS_OPER checks), and remove +o */
 		*this->oper = 0;
 		this->modes[UM_OPERATOR] = 0;
 			
-		// remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404
+		/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
 		ServerInstance->Users->all_opers.remove(this);
 
 		if (AllowedOperCommands)
