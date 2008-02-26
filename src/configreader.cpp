@@ -950,7 +950,7 @@ void ServerConfig::Read(bool bail, User* user)
 	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
 	newconfig.clear();
 
-	if (this->LoadConf(newconfig, ServerInstance->ConfigFileName, errstr))
+	if (this->DoInclude(newconfig, ServerInstance->ConfigFileName, errstr))
 	{
 		/* If we succeeded, set the ircd config to the new one */
 		ServerInstance->Threads->Mutex(true);
@@ -1266,9 +1266,8 @@ void ServerConfig::Read(bool bail, User* user)
 }
 
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream)
+bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* filename, std::ostringstream &errorstream)
 {
-	std::ifstream conf(filename);
 	std::string line;
 	char ch;
 	long linenumber;
@@ -1289,9 +1288,6 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		return false;
 	}
 
-	/* Fix the chmod of the file to restrict it to the current user and group */
-	chmod(filename,0600);
-
 	for (unsigned int t = 0; t < include_stack.size(); t++)
 	{
 		if (std::string(filename) == include_stack[t])
@@ -1305,7 +1301,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	include_stack.push_back(filename);
 
 	/* Start reading characters... */
-	while (conf.get(ch))
+	while ((ch = fgetc(conf)))
 	{
 
 		/*
@@ -1364,7 +1360,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		{
 			line += ch;
 			char real_character;
-			if (conf.get(real_character))
+			if ((real_character = fgetc(conf)))
 			{
 				if (real_character == 'n')
 					real_character = '\n';
@@ -1470,9 +1466,9 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 }
 
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream)
+bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const std::string &filename, std::ostringstream &errorstream)
 {
-	return this->LoadConf(target, filename.c_str(), errorstream);
+	return this->LoadConf(target, conf, filename.c_str(), errorstream);
 }
 
 bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream)
@@ -1577,6 +1573,12 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 							if (!this->DoInclude(target, current_value, errorstream))
 								return false;
 						}
+						else if ((tagname == "include") && (current_key == "executable"))
+						{
+							/* Pipe an executable and use its stdout as config data */
+							if (!this->DoPipe(target, current_value, errorstream))
+								return false;
+						}
 
 						current_key.clear();
 						current_value.clear();
@@ -1597,6 +1599,22 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 	target.insert(std::pair<std::string, KeyValList > (tagname, results));
 
 	return true;
+}
+
+bool ServerConfig::DoPipe(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream)
+{
+	FILE* conf = popen(file.c_str(), "r");
+	bool ret = false;
+
+	if (conf)
+	{
+		ret = LoadConf(target, conf, file.c_str(), errorstream);
+		pclose(conf);
+	}
+	else
+		errorstream << "Couldn't execute: " << file << std::endl;
+
+	return ret;
 }
 
 bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream)
@@ -1625,7 +1643,18 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 		}
 	}
 
-	return LoadConf(target, newfile, errorstream);
+	FILE* conf = fopen(newfile.c_str(), "r");
+	bool ret = false;
+
+	if (conf)
+	{
+		ret = LoadConf(target, conf, newfile, errorstream);
+		fclose(conf);
+	}
+	else
+		errorstream << "Couldn't open config file: " << file << std::endl;
+
+	return ret;
 }
 
 bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds)

@@ -231,16 +231,20 @@ class CoreExport ServerConfig : public Extensible
 	 * and setting error if an error has occured.
 	 */
 	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream);
-  
-	/** Process an include directive
-	 */
-	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
 
 	/** Check that there is only one of each configuration item
 	 */
 	bool CheckOnce(const char* tag);
 
  public:
+
+	/** Process an include executable directive
+	 */
+	bool DoPipe(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
+
+	/** Process an include file directive
+	 */
+	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
 
 	User* RehashUser;
 
@@ -679,12 +683,12 @@ class CoreExport ServerConfig : public Extensible
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream);
+	bool LoadConf(ConfigDataHash &target, FILE* &conf, const char* filename, std::ostringstream &errorstream);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream);
+	bool LoadConf(ConfigDataHash &target, FILE* &conf, const std::string &filename, std::ostringstream &errorstream);
 	
 	/* Both these return true if the value existed or false otherwise */
 	

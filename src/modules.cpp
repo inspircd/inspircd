@@ -823,8 +823,8 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 	this->data = new ConfigDataHash;
 	this->privatehash = true;
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	/*** XXX: Can return a 'not ready yet!' code! */
-	this->readerror = ServerInstance->Config->LoadConf(*this->data, filename, *this->errorlog);
+	/*** XXX: This might block! */
+	this->readerror = ServerInstance->Config->DoInclude(*this->data, filename, *this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 }
