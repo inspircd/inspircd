@@ -27,12 +27,8 @@ class Snomask
 
 	/** Create a new Snomask
 	 */
-	Snomask(InspIRCd* Instance, char snomask, const std::string &description)
+	Snomask(InspIRCd* Instance, char snomask, const std::string &description) : MySnomask(snomask), Description(description), LastMessage(""), Count(0)
 	{
-		ServerInstance = Instance;
-		MySnomask = snomask;
-		Description = description;
-		Count = 0;
 	}
 
 	/** Sends a message to all opers with this snomask.
