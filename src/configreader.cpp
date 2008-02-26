@@ -520,13 +520,6 @@ bool InitConnect(ServerConfig* conf, const char*)
 {
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes...");
 
-	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
-	{
-		ConnectClass *c = *i;
-
-		conf->GetInstance()->Logs->Log("CONFIG",DEBUG, "Address of class is %p", c);
-	}
-
 	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end() ; )
 	{
 		ConnectClass* c = *i;
@@ -1281,6 +1274,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 	in_quote = false;
 	in_comment = false;
 
+	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading %s", filename);
+
 	/* Check if the file open failed first */
 	if (!conf)
 	{
@@ -1304,7 +1299,6 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 	while (!feof(conf))
 	{
 		ch = fgetc(conf);
-
 		/*
 		 * Fix for moronic windows issue spotted by Adremelech.
 		 * Some windows editors save text files as utf-16, which is
