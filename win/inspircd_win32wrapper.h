@@ -84,6 +84,9 @@
 /* strcasecmp is not defined on windows by default */
 #define strcasecmp _stricmp
 
+/* this standard function is nonstarard. go figure. */
+#define popen _popen
+
 /* Error macros need to be redirected to winsock error codes */
 #define ETIMEDOUT WSAETIMEDOUT
 #define ECONNREFUSED WSAECONNREFUSED
@@ -137,6 +140,7 @@ const char * dlerror();
 
 /* Unix-style directory searching functions */
 #define chmod(filename, mode)  
+
 struct dirent
 {
 	char d_name[MAX_PATH];
