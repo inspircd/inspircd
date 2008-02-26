@@ -647,6 +647,7 @@ int InspIRCd::Run()
 			 * until the other thread is completed.
 			 */
 			delete ConfigThread;
+			ConfigThread = NULL;
 
 			/* These are currently not known to be threadsafe, so they are executed outside
 			 * of the thread. It would be pretty simple to move them to the thread Run method
