@@ -15,7 +15,7 @@
 
 /* $ModDesc: Provides support for hiding oper status with user mode +H */
 
-/** Handles user mode +B
+/** Handles user mode +H
  */
 class HideOper : public ModeHandler
 {
