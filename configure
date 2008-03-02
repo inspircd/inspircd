@@ -493,6 +493,7 @@ sub svnupdate
 	my $configurechanged = 0; # Needs ./configure -update
 	my $coredirchanged = 0; # Needs ./configure -update
 	my $moduledirchanged = 0; # Needs ./configure -modupdate
+	my $rootincchanged = 0;
 	my @conflicted = ();
 	while (defined(my $line = <$fd>))
 	{
@@ -507,7 +508,7 @@ sub svnupdate
 			{
 				$configurechanged = 1;
 			}
-			if ($file =~ m#^src/modules#)
+			elsif ($file =~ m#^src/modules#)
 			{
 				$moduledirchanged = 1;
 			}
@@ -515,12 +516,20 @@ sub svnupdate
 			{
 				$coredirchanged = 1;
 			}
+			elsif ($file =~ m/^\..*\.inc$/)
+			{
+				$rootincchanged = 1;
+			}
 		}
 		elsif ($action eq "U" || $action eq "G")
 		{
 			if ($file eq "configure")
 			{
 				$configurechanged = 1;
+			}
+			elsif ($file =~ m/^\..*\.inc$/)
+			{
+				$rootincchanged = 1;
 			}
 		}
 		elsif ($action eq "A" || $action eq "D")
@@ -556,7 +565,7 @@ sub svnupdate
 	{
 		system("perl configure -update");
 	}
-	elsif ($moduledirchanged)
+	elsif ($moduledirchanged || $rootincchanged)
 	{
 		system("perl configure -modupdate");
 	}
