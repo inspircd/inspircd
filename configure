@@ -483,14 +483,87 @@ sub svnupdate
 	open(FH,"<.svn/entries") or $fail = 1;
 	if ($fail) {
 		print "This is not an SVN copy of InspIRCd.\n";
-		exit;
+		exit 1;
 	}
 	else
 	{
 		close(FH);
 	}
-	system("svn update");
-	system("perl configure -update");
+	open my $fd, "-|", "svn update";
+	my $configurechanged = 0; # Needs ./configure -update
+	my $coredirchanged = 0; # Needs ./configure -update
+	my $moduledirchanged = 0; # Needs ./configure -modupdate
+	my @conflicted = ();
+	while (defined(my $line = <$fd>))
+	{
+		my ($action, $file);
+		print $line;
+		$line =~ m/^([ADUCG])\s+(.*)$/ or next;
+		($action, $file) = ($1, $2);
+		if ($action eq "C")
+		{
+			push @conflicted, $file;
+			if ($file eq "configure")
+			{
+				$configurechanged = 1;
+			}
+			if ($file =~ m#^src/modules#)
+			{
+				$moduledirchanged = 1;
+			}
+			elsif ($file =~ m#^src/#)
+			{
+				$coredirchanged = 1;
+			}
+		}
+		elsif ($action eq "U" || $action eq "G")
+		{
+			if ($file eq "configure")
+			{
+				$configurechanged = 1;
+			}
+		}
+		elsif ($action eq "A" || $action eq "D")
+		{
+			if ($file =~ m#^src/modules#)
+			{
+				$moduledirchanged = 1;
+			}
+			elsif ($file =~ m#^src/#)
+			{
+				$coredirchanged = 1;
+			}
+		}
+	}
+	unless (close $fd) # close() waits for exit and returns false if the command failed
+	{
+		if ($! == 0)
+		{
+			print STDERR "Problem updating from SVN, please check above for errors\n";
+		}
+		else
+		{
+			print STDERR "Failed to run SVN: $!\n";
+		}
+		exit 1;
+	}
+	if (scalar(@conflicted) > 0)
+	{
+		print STDERR "\e[0;33;1mERROR:\e[0m You have local modifications which conflicted with the updates from SVN\n";
+		printf STDERR "Configure is not able to complete the update. Please resolve these conflicts, then run ./configure -%supdate", (($coredirchanged || $configurechanged) ? "" : "mod");
+	}
+	if ($configurechanged || $coredirchanged)
+	{
+		system("perl configure -update");
+	}
+	elsif ($moduledirchanged)
+	{
+		system("perl configure -modupdate");
+	}
+	else
+	{
+		print "No need to update Makefiles.\n";
+	}
 	if (defined $opt_rebuild) {
 		system("make install");
 	}
