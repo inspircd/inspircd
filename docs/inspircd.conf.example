@@ -56,10 +56,13 @@
 #  in behaviour to the server id on ircu and charybdis ircds.         #
 #  You should only need to set this manually if there is a collision  #
 #  between two server ID's on the network. The server ID must be      #
-#  between 1 and 999, if it is not, it will be wrapped to this range. #
-#  There is a range of server ID's which are suffixed by two letters  #
-#  rather than two numbers, e.g. 1AA, 2FF, 3ZZ, which are reserved    #
-#  for use by non-inspircd servers such as services and stats servers.#
+#  three digits or letters long, of which the first digit must always #
+#  be a number, and the other two letters may be any of 0-9 and A-Z.  #
+#  For example, 3F9, 03J and 666 are all valid server IDs, and A9D,   #
+#  QFX and 5eR are not. Remember, in most cases you will not need to  #
+#  even set this value, it is calculated for you from your server     #
+#  name and description. Changing these will change your auto-        #
+#  generated ID.                                                      #
 #                                                                     #
 
 <server name="penguin.omega.org.za"
