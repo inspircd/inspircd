@@ -176,9 +176,9 @@ Section  "SSL Modules" SEC05
   File "..\bin\${BUILD}\bin\libopencdk-8.dll"
   File "..\bin\${BUILD}\bin\libtasn1-3.dll"
   SetOutPath "$INSTDIR\modules"
-  File "d:\temp\m_ssl_gnutls.so"
-  File "d:\temp\m_sslinfo.so"
-  File "d:\temp\m_ssl_oper_cert.so"
+  File "$TEMP\m_ssl_gnutls.so"
+  File "$TEMP\m_sslinfo.so"
+  File "$TEMP\m_ssl_oper_cert.so"
   SetOutPath "$INSTDIR\conf"
   SetOverwrite off
   File "key.pem"
@@ -190,7 +190,7 @@ Section  "Regexp Modules" SEC06
   SetOverwrite ifnewer
   File "..\bin\${BUILD}\bin\pcre.dll"
   SetOutPath "$INSTDIR\modules"
-  File "d:\temp\m_filter_pcre.so"
+  File "$TEMP\m_filter_pcre.so"
 SectionEnd
 
 Section -AdditionalIcons
