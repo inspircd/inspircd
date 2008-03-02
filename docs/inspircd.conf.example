@@ -51,9 +51,9 @@
 #      id="serverid"                                                  #
 #      network="MyNetwork">                                           #
 #                                                                     #
-#  The server ID is optional, and if omitted or set to 0, is auto-    #
-#  matically calculated from the server name and description. This is #
-#  similar in behaviour to the server id on ircu and charybdis ircds. #
+#  The server ID is optional, and if omitted automatically calculated # 
+#  from the server name and description. This is similar in           #
+#  in behaviour to the server id on ircu and charybdis ircds.         #
 #  You should only need to set this manually if there is a collision  #
 #  between two server ID's on the network. The server ID must be      #
 #  between 1 and 999, if it is not, it will be wrapped to this range. #
