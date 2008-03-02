@@ -64,7 +64,6 @@
 
 <server name="penguin.omega.org.za"
         description="Waddle World"
-	    id="0"
 	    network="Omega">
 
 
