@@ -51,6 +51,17 @@
 #      id="serverid"                                                  #
 #      network="MyNetwork">                                           #
 #                                                                     #
+#  The server name should be a syntactically valid hostname, with at  #
+#  least one '.', and does not need to resolve to an IP address.      #
+#                                                                     #
+#  The description is freeform text. Remember you may put quotes in   #
+#  this field by escaping it using \".                                #
+#                                                                     #
+#  The network field indicates the network name given in on connect   #
+#  to clients. It is used by many clients such as mIRC to select a    #
+#  perform list, so it should be identical on all servers on a net    #
+#  and should not contain spaces.                                     #
+#                                                                     #
 #  The server ID is optional, and if omitted automatically calculated # 
 #  from the server name and description. This is similar in           #
 #  in behaviour to the server id on ircu and charybdis ircds.         #
