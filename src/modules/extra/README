@@ -6,6 +6,12 @@ To compile any of these modules first ensure you have the required dependencies
 the .cpp file from this directory into the parent directory (src/modules/) and
 re-configure your inspircd with ./configure -modupdate to detect the new module.
 
+Alternatively, use the command: ./configure --enable-extras=m_extra.cpp, which will
+automatically take care of symlinking the module of that name and any headers it needs
+from the extras directory. You can also use ./configure --list-extras to see what
+modules are available, and whether they are enabled or not. You still are responsible
+for resolving any external dependencies however (ie, PCRE, MySQL, GnuTLS, etc).
+
 NOTE: Some modules require you to copy other dependencies too, such as a related header.
 If you get missing header errors when building these modules, check that the header is
 not within modules/extra before checking for external dependencies.
