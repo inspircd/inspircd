@@ -170,7 +170,7 @@ void TreeSocket::SendXLines(TreeServer* Current)
 				if (!i->second->IsBurstable())
 					break;
 
-				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s\r\n",sn, it->c_str(), i->second->Displayable(),
+				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s",sn, it->c_str(), i->second->Displayable(),
 						i->second->source,
 						(unsigned long)i->second->set_time,
 						(unsigned long)i->second->duration,
