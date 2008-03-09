@@ -153,8 +153,12 @@ class ModuleStripColor : public Module
 
 			// check if we allow ops to bypass filtering, if we do, check if they're opped accordingly.
 			// note: short circut logic here, don't wreck it. -- w00t
-			if (!CHANOPS_EXEMPT(ServerInstance, 'S') || CHANOPS_EXEMPT(ServerInstance, 'S') && t->GetStatus(user) != STATUS_OP)
-				active = t->IsModeSet('S');
+			if (CHANOPS_EXEMPT(ServerInstance, 'S') && t->GetStatus(user) == STATUS_OP)
+			{
+				return 0;
+			}
+
+			active = t->IsModeSet('S');
 		}
 
 		if (active)

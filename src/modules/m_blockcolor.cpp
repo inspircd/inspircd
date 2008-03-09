@@ -67,25 +67,27 @@ class ModuleBlockColour : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
+
+			if (CHANOPS_EXEMPT(ServerInstance, 'c') && c->GetStatus(user) == STATUS_OP)
+			{
+				return 0;
+			}
 			
 			if(c->IsModeSet('c'))
 			{
-				if (!CHANOPS_EXEMPT(ServerInstance, 'c') || CHANOPS_EXEMPT(ServerInstance, 'c') && c->GetStatus(user) != STATUS_OP)
+				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
-					for (std::string::iterator i = text.begin(); i != text.end(); i++)
+					switch (*i)
 					{
-						switch (*i)
-						{
-							case 2:
-							case 3:
-							case 15:
-							case 21:
-							case 22:
-							case 31:
-								user->WriteServ("404 %s %s :Can't send colours to channel (+c set)",user->nick, c->name);
-								return 1;
-							break;
-						}
+						case 2:
+						case 3:
+						case 15:
+						case 21:
+						case 22:
+						case 31:
+							user->WriteServ("404 %s %s :Can't send colours to channel (+c set)",user->nick, c->name);
+							return 1;
+						break;
 					}
 				}
 			}

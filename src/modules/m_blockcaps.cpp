@@ -82,6 +82,11 @@ public:
 
 			Channel* c = (Channel*)dest;
 
+			if (CHANOPS_EXEMPT(ServerInstance, 'B') && c->GetStatus(user) == STATUS_OP)
+			{
+				return 0;
+			}
+
 			if (c->IsModeSet('B'))
 			{
 				int caps = 0;

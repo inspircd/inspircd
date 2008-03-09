@@ -140,7 +140,14 @@ class ModuleCensor : public Module
 		if (target_type == TYPE_USER)
 			active = ((User*)dest)->IsModeSet('G');
 		else if (target_type == TYPE_CHANNEL)
+		{
 			active = ((Channel*)dest)->IsModeSet('G');
+			Channel* c = (Channel*)dest;
+			if (CHANOPS_EXEMPT(ServerInstance, 'G') && c->GetStatus(user) == STATUS_OP)
+			{
+				return 0;
+			}
+		}
 
 		if (!active)
 			return 0;
