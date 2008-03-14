@@ -499,10 +499,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
  	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
 	 *   -- w00t
  	 */
-	if (*Config->sid)
-	{
-	}
-	else
+	if (!*Config->sid)
 	{
 		// Generate one
 		size_t sid = 0;

@@ -368,14 +368,9 @@ bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &
 
 bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server name");
 	/* If we already have a servername, and they changed it, we should throw an exception. */
-	if ((strcasecmp(conf->ServerName, data.GetString())) && (*conf->ServerName))
-	{
-		throw CoreException("Configuration error: You cannot change your servername at runtime! Please restart your server for this change to be applied.");
-		/* We don't actually reach this return of course... */
-		return false;
-	}
-	if (!strchr(data.GetString(),'.'))
+	if (!strchr(data.GetString(), '.'))
 	{
 		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",data.GetString(),data.GetString(),'.');
 		std::string moo = std::string(data.GetString()).append(".");
@@ -478,12 +473,16 @@ bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &dat
 
 bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server id");
+
 	const char *sid = data.GetString();
 
 	if (*sid && !conf->GetInstance()->IsSID(sid))
 	{
 		throw CoreException(std::string(sid) + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
+
+	strlcpy(conf->sid, sid, 5);
 
 	return true;
 }
@@ -802,10 +801,10 @@ void ServerConfig::Read(bool bail, User* user)
 		{"options",	"softlimit",	MAXCLIENTS_S,		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
 		{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
 		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
-		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME, ValidateServerName},
+		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME|DT_BOOTONLY, ValidateServerName},
 		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
 		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_NOSPACES, NoValidation},
-		{"server",	"id",		"",			new ValueContainerChar (this->sid),			DT_CHARPTR,  ValidateSID},
+		{"server",	"id",		"",			new ValueContainerChar (this->sid),			DT_CHARPTR|DT_BOOTONLY,  ValidateSID},
 		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR,  NoValidation},
 		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR,  NoValidation},
 		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR,  NoValidation},
@@ -973,8 +972,14 @@ void ServerConfig::Read(bool bail, User* user)
 			int dt = Values[Index].datatype;
 			bool allow_newlines = ((dt & DT_ALLOW_NEWLINE) > 0);
 			bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
+			bool bootonly = ((dt & DT_BOOTONLY) > 0);
 			dt &= ~DT_ALLOW_NEWLINE;
 			dt &= ~DT_ALLOW_WILD;
+			dt &= ~DT_BOOTONLY;
+
+			/* Silently ignore boot only values */
+			if (bootonly && !bail)
+				continue;
 
 			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
@@ -983,7 +988,7 @@ void ServerConfig::Read(bool bail, User* user)
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 	
 			ServerInstance->Threads->Mutex(true);
-			switch (Values[Index].datatype)
+			switch (dt)
 			{
 				case DT_NOSPACES:
 				{
@@ -997,6 +1002,7 @@ void ServerConfig::Read(bool bail, User* user)
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
 					this->ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
 					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					ServerInstance->Logs->Log("CONFIG",DEFAULT,"Got %s", vi.GetString());
 				}
 				break;
 				case DT_IPADDRESS:

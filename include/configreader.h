@@ -49,7 +49,8 @@ enum ConfigDataType
 	DT_IPADDRESS	 = 6,		/* IP address (v4, v6) */
 	DT_CHANNEL	 = 7,		/* Channel name */
 	DT_ALLOW_WILD	 = 64,		/* Allow wildcards/CIDR in DT_IPADDRESS */
-	DT_ALLOW_NEWLINE = 128		/* New line characters allowed in DT_CHARPTR */
+	DT_ALLOW_NEWLINE = 128,		/* New line characters allowed in DT_CHARPTR */
+	DT_BOOTONLY	 = 256		/* Can only be set on startup, not on rehash */
 };
 
 /** Holds a config value, either string, integer or boolean.
@@ -172,7 +173,7 @@ struct InitialConfig
 	/** Value containers */
 	ValueContainerBase* val;
 	/** Data types */
-	ConfigDataType datatype;
+	int datatype;
 	/** Validation function */
 	Validator validation_function;
 };
