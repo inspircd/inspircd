@@ -1679,6 +1679,10 @@
 #                                                                     #
 # Setting the verbose value causes an oper notice to be sent out for  #
 # every failed authentication to the server, with an error string.    #
+#                                                                     #
+# IMPORTANT NOTE: For this module to work we were required to allow   #
+# anonymous queries of the LDAP tree. This may be changed in a future #
+# version.                                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Lock server module: Adds /LOCKSERV and /UNLOCKSERV commands that is #
