@@ -768,7 +768,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 
-			switch (Values[Index].datatype)
+			switch (dt)
 			{
 				case DT_CHARPTR:
 				{
