@@ -27,7 +27,7 @@
 #include "modules.h"
 
 /* FIXME */
-#define LDAP_DEPRECATED 1
+//#define LDAP_DEPRECATED 1
 #include <ldap.h>
 
 /* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
@@ -55,7 +55,7 @@ public:
 	virtual ~ModuleLDAPAuth()
 	{
 		if (conn)
-			ldap_unbind_s(conn);
+			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
 	void Implements(char* List)
@@ -86,7 +86,7 @@ public:
 	bool Connect()
 	{
 		if (conn != NULL)
-			ldap_unbind_s(conn);
+			ldap_unbind_ext(conn, NULL, NULL);
 		int res, v = LDAP_VERSION3;
 		res = ldap_initialize(&conn, ldapserver.c_str());
 		if (res != LDAP_SUCCESS)
@@ -102,7 +102,7 @@ public:
 		{
 			if (verbose)
 				ServerInstance->WriteOpers("LDAP set protocol to v3 failed: %s", ldap_err2string(res));
-			ldap_unbind_s(conn);				
+			ldap_unbind_ext(conn, NULL, NULL);
 			conn = NULL;
 			return false;
 		}
@@ -133,17 +133,20 @@ public:
 
 		int res;
 		// bind anonymously
-		if ((res = ldap_simple_bind_s(conn, "", "")) != LDAP_SUCCESS)
+		//if ((res = ldap_simple_bind_s(conn, "", "")) != LDAP_SUCCESS)
+		struct berval cred; cred.bv_val = ""; cred.bv_len = 0;
+		if ((res = ldap_sasl_bind_s(conn, "", LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
 		{	
 			if (verbose)
 				ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (LDAP bind anonymously failed: %s)", user->nick, user->ident, user->host, ldap_err2string(res));
-			ldap_unbind_s(conn);				
+			ldap_unbind_ext(conn, NULL, NULL);
 			conn = NULL;
 			return false;
 		}
 		LDAPMessage *msg, *entry;
 		std::string what = (attribute + "=" + user->nick);
-		if ((res = ldap_search_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, &msg)) != LDAP_SUCCESS)
+		//if ((res = ldap_search_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, &msg)) != LDAP_SUCCESS)
+		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, NULL, &msg)) != LDAP_SUCCESS)
 		{
 			if (verbose)
 				ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (LDAP search failed: %s)", user->nick, user->ident, user->host, ldap_err2string(res));
@@ -163,7 +166,9 @@ public:
 			ldap_msgfree(msg);
 			return false;
 		}
-		if ((res = ldap_simple_bind_s(conn, ldap_get_dn(conn, entry), user->password)) == LDAP_SUCCESS)
+		//if ((res = ldap_simple_bind_s(conn, ldap_get_dn(conn, entry), user->password)) == LDAP_SUCCESS)
+		cred.bv_val = user->password; cred.bv_len = strlen(user->password);
+		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
 		{
 			ldap_msgfree(msg);
 			user->Extend("ldapauthed");
