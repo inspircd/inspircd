@@ -25,6 +25,9 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+
+/* FIXME */
+#define LDAP_DEPRECATED 1
 #include <ldap.h>
 
 /* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
