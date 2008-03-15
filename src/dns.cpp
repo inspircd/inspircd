@@ -226,7 +226,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		memcpy(&addr.sin6_addr,&dnsobj->myserver6,sizeof(addr.sin6_addr));
 		addr.sin6_family = AF_INET6;
 		addr.sin6_port = htons(DNS::QUERY_PORT);
-		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
+		if (sendto(dnsobj->GetFd(), (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
 	else
@@ -236,7 +236,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		memcpy(&addr.sin_addr.s_addr,&dnsobj->myserver4,sizeof(addr.sin_addr));
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(DNS::QUERY_PORT);
-		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
+		if (sendto(dnsobj->GetFd(), (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
 #else
