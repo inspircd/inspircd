@@ -186,8 +186,9 @@ void Run()
 {
 	int max_fd = 10200;
 	bool use_iocp = false;
-	bool support_ip6links = false;
+	bool support_ip6links = true;
 	bool use_openssl = false;
+	bool ipv6 = true;
 	char mod_path[MAX_PATH];
 	char config_file[MAX_PATH];
 	char library_dir[MAX_PATH];
@@ -248,8 +249,12 @@ void Run()
 		use_iocp = get_bool_option("Do you want to use the IOCP implementation?", false);
 	}
 
-	support_ip6links = get_bool_option("\nYou have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled InspIRCd servers?\nIf you are using a recent operating system and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)", 
-		true);
+	ipv6 = get_bool_option("Do you want to enable IPv6?", false);
+
+	if (!ipv6)
+		support_ip6links = get_bool_option("\nYou have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled InspIRCd servers?\nIf you are using a recent operating system and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)", true);
+	else
+		support_ip6links = true;
 	
 	printf_c("\033[1mAll paths are relative to the binary directory.\033[0m\n");
 	get_string_option("In what directory do you wish to install the InspIRCd base?", "..", base_path);
@@ -362,6 +367,8 @@ void Run()
 	fprintf(f, "#define __CONFIGURATION_AUTO__\n\n");
 	if(use_iocp)
 		fprintf(f, "#define CONFIG_USE_IOCP 1\n\n");
+	if (ipv6)
+		fprintf(f, "#define IPV6 1\n\n");
 
 	fprintf(f, "#define CONFIG_FILE \"%s/inspircd.conf\"\n", config_file);
 	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path);
