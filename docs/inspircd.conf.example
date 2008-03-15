@@ -1773,10 +1773,6 @@
 # allow anonymous searching in which case these two values do not     #
 # need defining, otherwise they should be set similar to the examples #
 # above.                                                              #
-#                                                                     #
-# IMPORTANT NOTE: For this module to work we were required to allow   #
-# anonymous queries of the LDAP tree. This may be changed in a future #
-# version.                                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Lock server module: Adds /LOCKSERV and /UNLOCKSERV commands that is #
