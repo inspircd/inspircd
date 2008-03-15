@@ -1742,6 +1742,8 @@
 #           allowpattern="Guest*"                                     #
 #           killreason="Access denied"                                #
 #           searchscope="subtree"                                     #
+#           binddn="cn=Manager,dc=brainbox,dc=cc"                     #
+#           bindauth="mysecretpass"                                   #
 #           verbose="yes">                                            #
 #                                                                     #
 # The baserdn indicates the base DN to search in for users. Usually   #
@@ -1765,6 +1767,12 @@
 #                                                                     #
 # Setting the verbose value causes an oper notice to be sent out for  #
 # every failed authentication to the server, with an error string.    #
+#                                                                     #
+# The binddn and bindauth indicate the DN to bind to for searching,   #
+# and the password for the distinguished name. Some LDAP servers will #
+# allow anonymous searching in which case these two values do not     #
+# need defining, otherwise they should be set similar to the examples #
+# above.                                                              #
 #                                                                     #
 # IMPORTANT NOTE: For this module to work we were required to allow   #
 # anonymous queries of the LDAP tree. This may be changed in a future #
