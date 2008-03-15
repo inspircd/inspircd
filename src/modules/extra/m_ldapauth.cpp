@@ -38,6 +38,8 @@ class ModuleLDAPAuth : public Module
 	std::string ldapserver;
 	std::string allowpattern;
 	std::string killreason;
+	std::string username;
+	std::string password;
 	int searchscope;
 	bool verbose;
 	LDAP *conn;
@@ -62,13 +64,15 @@ public:
 	{
 		ConfigReader Conf(ServerInstance);
 		
-		base 		= Conf.ReadValue("ldapauth", "baserdn", 0);
-		attribute	= Conf.ReadValue("ldapauth", "attribute", 0); 
-		ldapserver	= Conf.ReadValue("ldapauth", "server", 0);
-		allowpattern	= Conf.ReadValue("ldapauth", "allowpattern", 0);
-		killreason	= Conf.ReadValue("ldapauth", "killreason", 0);
+		base 			= Conf.ReadValue("ldapauth", "baserdn", 0);
+		attribute		= Conf.ReadValue("ldapauth", "attribute", 0); 
+		ldapserver		= Conf.ReadValue("ldapauth", "server", 0);
+		allowpattern		= Conf.ReadValue("ldapauth", "allowpattern", 0);
+		killreason		= Conf.ReadValue("ldapauth", "killreason", 0);
 		std::string scope	= Conf.ReadValue("ldapauth", "searchscope", 0);
-		verbose		= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
+		username		= Conf.ReadValue("ldapauth", "binddn", 0);
+		password		= Conf.ReadValue("ldapauth", "bindauth", 0);
+		verbose			= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 		
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
@@ -128,16 +132,23 @@ public:
 				return false;
 
 		int res;
-		// bind anonymously
-		struct berval cred; cred.bv_val = ""; cred.bv_len = 0;
-		if ((res = ldap_sasl_bind_s(conn, "", LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
-		{	
+		char* authpass = strdup(password.c_str());
+		// bind anonymously if no bind DN and authentication are given in the config
+		struct berval cred;
+		cred.bv_val = authpass;
+		cred.bv_len = password.length();
+
+		if ((res = ldap_sasl_bind_s(conn, username.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
+		{
+			free(authpass);
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (LDAP bind anonymously failed: %s)", user->nick, user->ident, user->host, ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (LDAP bind failed: %s)", user->nick, user->ident, user->host, ldap_err2string(res));
 			ldap_unbind_ext(conn, NULL, NULL);
 			conn = NULL;
 			return false;
 		}
+		free(authpass);
+
 		LDAPMessage *msg, *entry;
 		std::string what = (attribute + "=" + user->nick);
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
@@ -160,7 +171,8 @@ public:
 			ldap_msgfree(msg);
 			return false;
 		}
-		cred.bv_val = user->password; cred.bv_len = strlen(user->password);
+		cred.bv_val = user->password;
+		cred.bv_len = strlen(user->password);
 		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
 		{
 			ldap_msgfree(msg);
