@@ -1610,6 +1610,23 @@
 #<module name="m_foobar.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# GeoIP module: Allows the server admin to ban users by country code.
+#<module name="m_geoip.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#  GEOIP CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# <geoip banunknown="false">                                          #
+#                                                                     #
+# Set this value to true or yes to block unknown IP ranges which are  #
+# not in the database (usually LAN addresses, localhost, etc)         #
+#                                                                     #
+# <geoban country="TR" reason="This country not permitted">           #
+#                                                                     #
+# Use one or more of these tags to ban countries by country code.     #
+# The country code must be in capitals and should be an ISO country   #
+# code such as TR, GB, or US.                                         #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Globops module: gives /GLOBOPS and usermode +g
 #<module name="m_globops.so">
 
