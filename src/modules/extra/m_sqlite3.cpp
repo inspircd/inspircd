@@ -537,7 +537,6 @@ class ModuleSQLite3 : public Module
 			host.name	= conf.ReadValue("database", "name", i);
 			host.user	= conf.ReadValue("database", "username", i);
 			host.pass	= conf.ReadValue("database", "password", i);
-			host.ssl	= conf.ReadFlag("database", "ssl", "0", i);
 			if (h == host)
 				return true;
 		}
@@ -559,7 +558,6 @@ class ModuleSQLite3 : public Module
 			host.name	= conf.ReadValue("database", "name", i);
 			host.user	= conf.ReadValue("database", "username", i);
 			host.pass	= conf.ReadValue("database", "password", i);
-			host.ssl	= conf.ReadFlag("database", "ssl", "0", i);
 
 			if (HasHost(host))
 				continue;
