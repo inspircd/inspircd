@@ -1806,6 +1806,19 @@
 #<module name="m_messageflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MsSQL module: Allows other SQL modules to access MS SQL Server 
+# through a unified API. You must copy the source for this module
+# from the directory src/modules/extra, plus the file m_sqlv2.h
+#<module name="m_mssql.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_mssql.so is more complex than described here, see wiki for more   #
+# info http://www.inspircd.org/wiki/SQLServer_Service_Provider_Module #
+#
+#<database name="db" username="user" password="pass" hostname="localhost" id="db1">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API. You must copy the source for this module
 # from the directory src/modules/extra, plus the file m_sqlv2.h
