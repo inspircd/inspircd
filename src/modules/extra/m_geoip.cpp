@@ -23,10 +23,15 @@ class ModuleGeoIP : public Module
 {
 	GeoIP * gi;
 
+	bool banunknown;
+
+	std::map<std::string, std::string> GeoBans;
+
+
  public:
 	ModuleGeoIP(InspIRCd *Me) : Module(Me)
 	{
-		ReadConf();
+		OnRehash(NULL, "");
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 
@@ -42,15 +47,20 @@ class ModuleGeoIP : public Module
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
-	virtual void ReadConf()
-	{
-		ConfigReader *MyConf = new ConfigReader(ServerInstance);
-		delete MyConf;
-	}
-
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
-		ReadConf();
+		GeoBans.clear();
+
+		ConfigReader conf(ServerInstance);
+
+		banunknown = conf.ReadFlag("geoip", "banunknown", 0);
+
+		for (int i = 0; i < conf.Enumerate("geoban"); ++i)
+		{
+			std::string countrycode = conf.ReadValue("geoban", "country", i);
+			std::string reason = conf.ReadValue("geoban", "reason", i);
+			GeoBans[countrycode] = reason;
+		}
 	}
 
 	virtual int OnUserRegister(User* user)
@@ -61,16 +71,16 @@ class ModuleGeoIP : public Module
 			const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
 			if (c)
 			{
-				std::string country(c);
-				ServerInstance->Logs->Log("m_geoip", DEBUG, "*** Country: %s", country.c_str());
+				std::map<std::string, std::string>::iterator x = GeoBans.find(c);
+				if (x != GeoBans.end())
+					User::QuitUser(ServerInstance, user,  x->second);
 			}
 			else
 			{
-				ServerInstance->Logs->Log("m_geoip", DEBUG, "*** No country for %s!", user->GetIPString());
+				if (banunknown)
+					User::QuitUser(ServerInstance, user, "Could not identify your country of origin. Access denied.");
 			}
 		}
-
-		/* don't do anything with this hot potato */
 		return 0;
 	}
 };
