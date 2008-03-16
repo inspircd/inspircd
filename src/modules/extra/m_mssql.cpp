@@ -378,7 +378,7 @@ class SQLConn : public classbase
 			return SQLerror(QSEND_FAIL, error);
 		}
 		delete[] query;
-		delete[] msquery;
+		free(msquery);
 		
 		int tds_res;
 		while (tds_process_tokens(sock, &tds_res, NULL, TDS_TOKEN_RESULTS) == TDS_SUCCEED)
