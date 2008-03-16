@@ -368,13 +368,14 @@ class SQLConn : public classbase
 		res->dbid = host.id;
 		res->query = req.query.q;
 
-		const char* msquery = strdup(req.query.q.data());
+		char* msquery = strdup(req.query.q.data());
 		Instance->Logs->Log("m_mssql",DEBUG,"doing Query: %s",msquery);
 		if (tds_submit_query(sock, msquery) != TDS_SUCCEED)
 		{
 			std::string error("failed to execute: "+std::string(req.query.q.data()));
 			delete[] query;
 			delete res;
+			free(msquery);
 			return SQLerror(QSEND_FAIL, error);
 		}
 		delete[] query;
