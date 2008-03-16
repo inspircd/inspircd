@@ -382,8 +382,8 @@ class SQLConn : public classbase
 		int tds_res;
 		while (tds_process_tokens(sock, &tds_res, NULL, TDS_TOKEN_RESULTS) == TDS_SUCCEED)
 		{
-			Instance->Logs->Log("m_mssql",DEBUG,"<******> result type: %d", tds_res);
-			Instance->Logs->Log("m_mssql",DEBUG,"AFFECTED ROWS: %d", sock->rows_affected);
+			//Instance->Logs->Log("m_mssql",DEBUG,"<******> result type: %d", tds_res);
+			//Instance->Logs->Log("m_mssql",DEBUG,"AFFECTED ROWS: %d", sock->rows_affected);
 			switch (tds_res)
 			{
 				case TDS_ROWFMT_RESULT:
@@ -435,8 +435,6 @@ class SQLConn : public classbase
 					break;
 			}	
 		}
-		Instance->Logs->Log("m_mssql",DEBUG,"WEEEEEEEEE 4");
-
 		results.push_back(res);
 		SendNotify();
 		return SQLerror();
