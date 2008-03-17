@@ -294,6 +294,9 @@ class SQLConn : public classbase
 
 	SQLerror Query(SQLrequest &req)
 	{
+		if (!sock)
+			return SQLerror(BAD_CONN, "Socket was NULL, check if SQL server is running.");
+			
 		/* Pointer to the buffer we screw around with substitution in */
 		char* query;
 
@@ -500,6 +503,9 @@ class SQLConn : public classbase
 			tds_free_socket(sock);
 		if (conn)
 			tds_free_connection(conn);
+		login = NULL;
+		sock = NULL;
+		conn = NULL;
 	}
 
 	SQLhost GetConfHost()
