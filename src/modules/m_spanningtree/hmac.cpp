@@ -108,7 +108,8 @@ std::string TreeSocket::RandString(unsigned int ilength)
 	if (f >= 0)
 	{
 #ifndef WINDOWS
-		read(f, randombuf, ilength);
+		if (read(f, randombuf, ilength) < 1)
+			Instance->Logs->Log("m_spanningtree", DEFAULT, "There are crack smoking monkeys in your kernel (in other words, nonblocking /dev/urandom blocked.)");
 		close(f);
 #endif
 	}

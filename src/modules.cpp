@@ -251,7 +251,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 	 * on which they want, and we make sure our module is *at least* before or after
 	 * the first or last of this subset, depending again on the type of priority.
 	 */
-	size_t swap_pos;
+	size_t swap_pos = 0;
 	size_t source = 0;
 	bool swap = true;
 	bool found = false;
