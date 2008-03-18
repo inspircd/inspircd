@@ -129,8 +129,8 @@ class ModuleNamesX : public Module
 			if ((it = std::find(data->wanted.begin(), data->wanted.end(), "multi-prefix")) != data->wanted.end())
 			{
 				// we can handle this, so ACK it, and remove it from the wanted list
-				data->wanted.erase(it);
 				data->ack.push_back(*it);
+				data->wanted.erase(it);
 				data->user->Extend("NAMESX",dummy);
 			}
 		}
@@ -146,7 +146,7 @@ class ModuleNamesX : public Module
 			CapData *data = (CapData *) ev->GetData();
 
 			if (data->user->GetExt("NAMESX"))
-				data->ack.push_back("multi-prefix");
+				data->wanted.push_back("multi-prefix");
 		}
 
 		if (ev->GetEventID() == "cap_clear")

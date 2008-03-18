@@ -98,8 +98,13 @@ class CommandCAP : public Command
 			Event event((char*) &Data, (Module*)this->Creator, subcommand == "LS" ? "cap_ls" : "cap_list");
 			event.Send(this->ServerInstance);
 
-			std::string Result = irc::stringjoiner(" ", Data.wanted, 0, Data.wanted.size() - 1).GetJoined();
-			user->WriteServ("CAP * LS :%s", Result.c_str());
+			std::string Result;
+			if (Data.wanted.size() > 0)
+				Result = irc::stringjoiner(" ", Data.wanted, 0, Data.wanted.size() - 1).GetJoined();
+			else
+				Result = "";
+
+			user->WriteServ("CAP * %s :%s", subcommand.c_str(), Result.c_str());
 		}
 		else if (subcommand == "CLEAR")
 		{
