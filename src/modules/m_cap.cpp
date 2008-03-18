@@ -36,7 +36,6 @@ class CommandCAP : public Command
 {
 	Module* Creator;
  public:
-	/* Command 'dalinfo', takes no parameters and needs no special modes */
 	CommandCAP (InspIRCd* Instance, Module* mod) : Command(Instance,"CAP", 0, 1, true), Creator(mod)
 	{
 		this->source = "m_cap.so";
@@ -45,6 +44,7 @@ class CommandCAP : public Command
 	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
 		irc::string subcommand = parameters[0];
+
 		if (subcommand == "REQ")
 		{
 			CapData Data;
@@ -56,6 +56,8 @@ class CommandCAP : public Command
 			user->Extend("CAP_REGHOLD");
 			Event event((char*) &Data, (Module*)this->Creator, "cap_req");
 			event.Send(this->ServerInstance);
+
+			user->WriteServ("CAP * ACK :%s", Data.parameter.c_str());
 		}
 		else if (subcommand == "END")
 		{
@@ -64,21 +66,38 @@ class CommandCAP : public Command
 		else if ((subcommand == "LS") || (subcommand == "LIST"))
 		{
 			CapData Data;
-			user->Extend("CAP_REGHOLD");
+
 			Data.type = subcommand;
 			Data.user = user;
 			Data.creator = this->Creator;
 			Data.parameter.clear();
 
+			user->Extend("CAP_REGHOLD");
 			Event event((char*) &Data, (Module*)this->Creator, subcommand == "LS" ? "cap_ls" : "cap_list");
 			event.Send(this->ServerInstance);
 
 			user->WriteServ("CAP * LS :%s", Data.parameter.c_str());
 		}
+		else if (subcommand == "CLEAR")
+		{
+			CapData Data;
+
+			Data.type = subcommand;
+			Data.user = user;
+			Data.creator = this->Creator;
+			Data.parameter.clear();
+
+			user->Extend("CAP_REGHOLD");
+			Event event((char*) &Data, (Module*)this->Creator, "cap_clear");
+			event.Send(this->ServerInstance);
+
+			user->WriteServ("CAP * ACK :%s", Data.parameter.c_str());
+		}
 		else
 		{
-			user->WriteServ("410 %s %s :Invalid CAP subcommand", user->nick, subcommand.c_str());
+			user->WriteServ("410 * %s :Invalid CAP subcommand", subcommand.c_str());
 		}
+
 		return CMD_FAILURE;
 	}
 };
