@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "m_cap.h"
 
 static const char* dummy = "ON";
 
@@ -24,8 +25,8 @@ class ModuleNamesX : public Module
 	ModuleNamesX(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnUserList, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnUserList, I_On005Numeric, I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 
@@ -117,6 +118,44 @@ class ModuleNamesX : public Module
 		}
 		return 0;		
  	}
+
+	virtual void OnEvent(Event *ev)
+	{
+		if (ev->GetEventID() == "cap_req")
+		{
+			CapData *data = (CapData *) ev->GetData();
+
+			std::vector<std::string>::iterator it;
+			if ((it = std::find(data->wanted.begin(), data->wanted.end(), "multi-prefix")) != data->wanted.end())
+			{
+				// we can handle this, so ACK it, and remove it from the wanted list
+				data->wanted.erase(it);
+				data->ack.push_back(*it);
+				data->user->Extend("NAMESX",dummy);
+			}
+		}
+
+		if (ev->GetEventID() == "cap_ls")
+		{
+			CapData *data = (CapData *) ev->GetData();
+			data->wanted.push_back("multi-prefix");
+		}
+
+		if (ev->GetEventID() == "cap_list")
+		{
+			CapData *data = (CapData *) ev->GetData();
+
+			if (data->user->GetExt("NAMESX"))
+				data->ack.push_back("multi-prefix");
+		}
+
+		if (ev->GetEventID() == "cap_clear")
+		{
+			CapData *data = (CapData *) ev->GetData();
+			data->ack.push_back("-multi-prefix");
+			data->user->Shrink("NAMESX");
+		}
+	}
 };
 
 MODULE_INIT(ModuleNamesX)
