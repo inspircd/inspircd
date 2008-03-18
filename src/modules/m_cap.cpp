@@ -149,9 +149,9 @@ class ModuleCAP : public Module
 	{
 		/* Users in CAP state get held until CAP END */
 		if (user->GetExt("CAP_REGHOLD"))
-			return true;
+			return false;
 
-		return false;
+		return true;
 	}
 
 	virtual ~ModuleCAP()
