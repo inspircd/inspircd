@@ -447,17 +447,15 @@ class SQLConn : public classbase
 
 	static int HandleMessage(const TDSCONTEXT * pContext, TDSSOCKET * pTdsSocket, TDSMESSAGE * pMessage)
 	{
-		/* TODO: FIXME */
-		//Instance->Logs->Log("m_mssql",DEBUG,pMessage->message);
-		//printf("Message: %s\n", pMessage->message);
+		SQLConn* sc = (SQLConn*)pContext->parent;
+		sc->Instance->Logs->Log("m_mssql", DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		return 0;
 	}
 
 	static int HandleError(const TDSCONTEXT * pContext, TDSSOCKET * pTdsSocket, TDSMESSAGE * pMessage)
 	{
-		/* TODO: FIXME */
-		//Instance->Logs->Log("m_mssql",DEBUG,pMessage->message);
-		//printf("Error: %s\n", pMessage->message);
+		SQLConn* sc = (SQLConn*)pContext->parent;
+		sc->Instance->Logs->Log("m_mssql", DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		return 0;
 	}
 
@@ -476,7 +474,7 @@ class SQLConn : public classbase
 		CloseDB();
 
 		TDSCONTEXT* cont;
-		cont = tds_alloc_context(NULL);
+		cont = tds_alloc_context(this);
 		cont->msg_handler = HandleMessage;
 		cont->err_handler = HandleError;
 
