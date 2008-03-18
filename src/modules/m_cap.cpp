@@ -14,14 +14,21 @@
 #include "inspircd.h"
 #include "m_cap.h"
 
-/* $ModDesc: Provides a pointless /dalinfo command, demo module */
+/* $ModDesc: Provides the CAP negotiation mechanism seen in ratbox-derived ircds */
 
 /*
- *          std::string type;
- *                   std::vector<std::string> parameters;
- *                            User* user;
- *                                     Module* creator;
- */
+CAP LS
+:alfred.staticbox.net CAP * LS :multi-prefix sasl
+CAP REQ :multi-prefix
+:alfred.staticbox.net CAP * ACK :multi-prefix 
+CAP CLEAR
+:alfred.staticbox.net CAP * ACK :-multi-prefix
+CAP REQ :multi-prefix
+:alfred.staticbox.net CAP * ACK :multi-prefix 
+CAP LIST
+:alfred.staticbox.net CAP * LIST :multi-prefix
+CAP END
+*/
 
 /** Handle /CAP
  */
@@ -54,16 +61,16 @@ class CommandCAP : public Command
 		{
 			user->Shrink("CAP_REGHOLD");
 		}
-		else if (subcommand == "LS")
+		else if ((subcommand == "LS") || (subcommand == "LIST"))
 		{
 			CapData Data;
 			user->Extend("CAP_REGHOLD");
-			Data.type = "LS";
+			Data.type = subcommand;
 			Data.user = user;
 			Data.creator = this->Creator;
 			Data.parameter.clear();
 
-			Event event((char*) &Data, (Module*)this->Creator, "cap_ls");
+			Event event((char*) &Data, (Module*)this->Creator, subcommand == "LS" ? "cap_ls" : "cap_list");
 			event.Send(this->ServerInstance);
 
 			user->WriteServ("CAP * LS :%s", Data.parameter.c_str());
