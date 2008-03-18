@@ -21,7 +21,9 @@ class CapData
 {
  public:
 	irc::string type;
-	irc::string parameter;
+	std::vector<std::string> wanted;
+	std::vector<std::string> ack;
+	std::vector<std::string> nak;
 	User* user;
 	Module* creator;
 };

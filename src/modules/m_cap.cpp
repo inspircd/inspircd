@@ -48,16 +48,39 @@ class CommandCAP : public Command
 		if (subcommand == "REQ")
 		{
 			CapData Data;
-			Data.type = parameters[1];
+
+			Data.type = subcommand;
 			Data.user = user;
 			Data.creator = this->Creator;
-			Data.parameter = (pcnt > 1 ? parameters[1] : "");
+
+			if (pcnt < 2)
+				return CMD_FAILURE;
+
+			// tokenize the input into a nice list of requested caps
+			std::string param = parameters[1];
+			std::string cap_;
+			irc::spacesepstream cap_stream(param);
+
+			while (cap_stream.GetToken(cap_))
+			{
+				Data.wanted.push_back(cap_);
+			}
 
 			user->Extend("CAP_REGHOLD");
 			Event event((char*) &Data, (Module*)this->Creator, "cap_req");
 			event.Send(this->ServerInstance);
 
-			user->WriteServ("CAP * ACK :%s", Data.parameter.c_str());
+			if (Data.ack.size() > 0)
+			{
+				std::string AckResult = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
+				user->WriteServ("CAP * ACK :%s", AckResult.c_str());
+			}
+
+			if (Data.nak.size() > 0)
+			{
+				std::string NakResult = irc::stringjoiner(" ", Data.nak, 0, Data.nak.size() - 1).GetJoined();
+				user->WriteServ("CAP * NAK :%s", NakResult.c_str());
+			}
 		}
 		else if (subcommand == "END")
 		{
@@ -70,13 +93,13 @@ class CommandCAP : public Command
 			Data.type = subcommand;
 			Data.user = user;
 			Data.creator = this->Creator;
-			Data.parameter.clear();
 
 			user->Extend("CAP_REGHOLD");
 			Event event((char*) &Data, (Module*)this->Creator, subcommand == "LS" ? "cap_ls" : "cap_list");
 			event.Send(this->ServerInstance);
 
-			user->WriteServ("CAP * LS :%s", Data.parameter.c_str());
+			std::string Result = irc::stringjoiner(" ", Data.wanted, 0, Data.wanted.size() - 1).GetJoined();
+			user->WriteServ("CAP * LS :%s", Result.c_str());
 		}
 		else if (subcommand == "CLEAR")
 		{
@@ -85,13 +108,13 @@ class CommandCAP : public Command
 			Data.type = subcommand;
 			Data.user = user;
 			Data.creator = this->Creator;
-			Data.parameter.clear();
 
 			user->Extend("CAP_REGHOLD");
 			Event event((char*) &Data, (Module*)this->Creator, "cap_clear");
 			event.Send(this->ServerInstance);
 
-			user->WriteServ("CAP * ACK :%s", Data.parameter.c_str());
+			std::string Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
+			user->WriteServ("CAP * ACK :%s", Result.c_str());
 		}
 		else
 		{
@@ -113,8 +136,8 @@ class ModuleCAP : public Module
 		newcommand = new CommandCAP(ServerInstance, this);
 		ServerInstance->AddCommand(newcommand);
 
-		Implementation eventlist[] = { I_OnCheckReady, I_OnCleanup, I_OnUserDisconnect, I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnCheckReady };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual bool OnCheckReady(User* user)
