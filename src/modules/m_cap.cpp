@@ -65,6 +65,12 @@ class CommandCAP : public Command
 
 			Event event((char*) &Data, (Module*)this->Creator, "cap_ls");
 			event.Send(this->ServerInstance);
+
+			user->WriteServ("CAP * LS :%s", Data.parameter.c_str());
+		}
+		else
+		{
+			user->WriteServ("410 %s %s :Invalid CAP subcommand", user->nick, subcommand.c_str());
 		}
 		return CMD_FAILURE;
 	}
