@@ -152,7 +152,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 		if (MOD_RESULT > 0)
 			return CMD_FAILURE;
 	}
-	else if (user->registered == REG_ALL)
+	if (user->registered == REG_ALL)
 	{
 		user->IncreasePenalty(10);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
