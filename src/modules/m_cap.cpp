@@ -76,9 +76,9 @@ class CommandCAP : public Command
 				user->WriteServ("CAP * ACK :%s", AckResult.c_str());
 			}
 
-			if (Data.nak.size() > 0)
+			if (Data.wanted.size() > 0)
 			{
-				std::string NakResult = irc::stringjoiner(" ", Data.nak, 0, Data.nak.size() - 1).GetJoined();
+				std::string NakResult = irc::stringjoiner(" ", Data.wanted, 0, Data.wanted.size() - 1).GetJoined();
 				user->WriteServ("CAP * NAK :%s", NakResult.c_str());
 			}
 		}
