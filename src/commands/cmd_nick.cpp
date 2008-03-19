@@ -144,7 +144,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 	{
 		user->registered = (user->registered | REG_NICK);
 	}
-	else if (user->registered == REG_NICKUSER)
+	if (user->registered == REG_NICKUSER)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		MOD_RESULT = 0;
