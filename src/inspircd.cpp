@@ -1193,7 +1193,7 @@ bool InspIRCd::AllModulesReportReady(userrec* user)
 	{
 		if (Config->implement_lists[i][I_OnCheckReady])
 		{
-			if (!modules[i]->OnCheckReady(user))
+			if (modules[i]->OnCheckReady(user))
 				ready++;
 			total++;
 		}
