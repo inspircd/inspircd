@@ -764,13 +764,12 @@ int main(int argc, char ** argv)
  */
 bool InspIRCd::AllModulesReportReady(User* user)
 {
-	size_t ready = 0;
 	for (EventHandlerIter i = Modules->EventHandlers[I_OnCheckReady].begin(); i != Modules->EventHandlers[I_OnCheckReady].end(); ++i)
 	{
-		if ((*i)->OnCheckReady(user))
-			ready++;
+		if (!(*i)->OnCheckReady(user))
+			return false;
 	}
-	return (ready == Modules->EventHandlers[I_OnCheckReady].size());
+	return true;
 }
 
 time_t InspIRCd::Time()
