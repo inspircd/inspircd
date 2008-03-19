@@ -770,7 +770,7 @@ bool InspIRCd::AllModulesReportReady(User* user)
 		if ((*i)->OnCheckReady(user))
 			ready++;
 	}
-	return (ready == Modules->EventHandlers[I_OnCheckReady].size());
+	return (ready != Modules->EventHandlers[I_OnCheckReady].size());
 }
 
 time_t InspIRCd::Time()
