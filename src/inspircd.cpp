@@ -1184,8 +1184,6 @@ int main(int argc, char** argv)
  */
 bool InspIRCd::AllModulesReportReady(userrec* user)
 {
-	size_t ready = 0, total = 0;
-
 	if (!Config->global_implementation[I_OnCheckReady])
 		return true;
 
@@ -1193,12 +1191,11 @@ bool InspIRCd::AllModulesReportReady(userrec* user)
 	{
 		if (Config->implement_lists[i][I_OnCheckReady])
 		{
-			if (modules[i]->OnCheckReady(user))
-				ready++;
-			total++;
+			if (!modules[i]->OnCheckReady(user))
+				return false;
 		}
 	}
-	return (ready == total);
+	return true;
 }
 
 int InspIRCd::GetModuleCount()
