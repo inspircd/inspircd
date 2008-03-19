@@ -767,10 +767,10 @@ bool InspIRCd::AllModulesReportReady(User* user)
 	size_t ready = 0;
 	for (EventHandlerIter i = Modules->EventHandlers[I_OnCheckReady].begin(); i != Modules->EventHandlers[I_OnCheckReady].end(); ++i)
 	{
-		if ((*i)->OnCheckReady(user))
+		if (!(*i)->OnCheckReady(user))
 			ready++;
 	}
-	return (ready != Modules->EventHandlers[I_OnCheckReady].size());
+	return (ready == Modules->EventHandlers[I_OnCheckReady].size());
 }
 
 time_t InspIRCd::Time()
