@@ -30,17 +30,21 @@ class CommandAuthenticate : public Command
 	{
 		if (user->registered != REG_ALL)
 		{
-			/* Only allow AUTHENTICATE on unregistered clients */
-			std::deque<std::string> params;
-			params.push_back("*");
-			params.push_back("AUTHENTICATE");
-			params.push_back(user->uuid);
+			/* Only act if theyve enabled CAP REQ sasl */
+			if (user->GetExt("sasl"))
+			{
+				/* Only allow AUTHENTICATE on unregistered clients */
+				std::deque<std::string> params;
+				params.push_back("*");
+				params.push_back("AUTHENTICATE");
+				params.push_back(user->uuid);
 
-			for (int i = 0; i < pcnt; ++i)
-				params.push_back(parameters[i]);
+				for (int i = 0; i < pcnt; ++i)
+					params.push_back(parameters[i]);
 
-			Event e((char*)&params, Creator, "send_encap");
-			e.Send(ServerInstance);
+				Event e((char*)&params, Creator, "send_encap");
+				e.Send(ServerInstance);
+			}
 		}
 		return CMD_FAILURE;
 	}
