@@ -31,8 +31,6 @@ bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &param
 		{
 			Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
 			event.Send(Instance);
-
-			return true;
 		}
 		else
 		{
