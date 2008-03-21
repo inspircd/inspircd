@@ -19,21 +19,30 @@
 
 class CommandAuthenticate : public Command
 {
+	Module* Creator;
  public:
-	CommandAuthenticate (InspIRCd* Instance) : Command(Instance,"AUTHENTICATE", 0, 1)
+	CommandAuthenticate (InspIRCd* Instance, Module* creator) : Command(Instance,"AUTHENTICATE", 0, 1, true), Creator(creator)
 	{
 		this->source = "m_sasl.so";
 	}
 
 	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
+		ServerInstance->Logs->Log("m_sasl", DEBUG,"AUTHENTICATE");
 		if (user->registered != REG_ALL)
 		{
+			ServerInstance->Logs->Log("m_sasl", DEBUG,"Sending ENCAP for AUTHENTICATE");
 			/* Only allow AUTHENTICATE on unregistered clients */
 			std::deque<std::string> params;
 			params.push_back("*");
+			params.push_back("AUTHENTICATE");
+			params.push_back(user->uuid);
+
 			for (int i = 0; i < pcnt; ++i)
-				params.push_back(parameters[0]);
+				params.push_back(parameters[i]);
+
+			Event e((char*)&params, Creator, "send_encap");
+			e.Send(ServerInstance);
 		}
 		return CMD_FAILURE;
 	}
@@ -52,7 +61,8 @@ class ModuleSASL : public Module
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 
-		sasl = new CommandAuthenticate(ServerInstance);
+		sasl = new CommandAuthenticate(ServerInstance, this);
+		ServerInstance->AddCommand(sasl);
 	}
 
 
