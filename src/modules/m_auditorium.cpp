@@ -74,12 +74,6 @@ class ModuleAuditorium : public Module
 		delete aum;
 	}
 
-	void Prioritize()
-	{
-		Module* namesx = ServerInstance->Modules->Find("m_namesx.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &namesx);
-	}
-
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader conf(ServerInstance);
