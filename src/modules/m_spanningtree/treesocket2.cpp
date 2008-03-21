@@ -521,6 +521,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 				ServerSource->FinishBurst();
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
+			else if (command == "ENCAP")
+			{
+				ServerSource->FinishBurst();
+				return this->Encap(prefix, params);
+			}
 			else if (command == "MODE")
 			{
 				// Server-prefix MODE.
