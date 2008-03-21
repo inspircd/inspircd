@@ -71,10 +71,22 @@ class ModuleSASL : public Module
 
 	virtual int OnUserRegister(User *user)
 	{
+		std::string* str = NULL;
+
 		if (user->GetExt("sasl"))
 		{
 			user->WriteServ("906 %s :SASL authentication aborted", user->nick);
 			user->Shrink("sasl");
+		}
+
+		if (user->GetExt("acountname", str))
+		{
+			std::deque<std::string> params;
+			params.push_back(user->uuid);
+			params.push_back("accountname");
+			params.push_back(*str);
+			Event e((char*)&params, this, "send_metadata");
+			e.Send(ServerInstance);
 		}
 		return 0;
 	}
