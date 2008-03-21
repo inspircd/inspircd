@@ -70,7 +70,7 @@ class SaslAuthenticator
 		{
 		 case SASL_INIT:
 			this->agent = msg[1];
-			this->user->WriteServ("AUTHENTICATE %s", msg[4].c_str());
+			this->user->Write("AUTHENTICATE %s", msg[4].c_str());
 			this->state = SASL_COMM;
 			break;
 		 case SASL_COMM:
@@ -78,7 +78,7 @@ class SaslAuthenticator
 				return this->state;
 
 			if (msg[3] != "D")
-				this->user->WriteServ("AUTHENTICATE %s", msg[4].c_str());
+				this->user->Write("AUTHENTICATE %s", msg[4].c_str());
 			else
 			{
 				this->state = SASL_DONE;
