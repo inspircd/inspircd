@@ -76,6 +76,7 @@ class ModuleSASL : public Module
 			user->WriteServ("906 %s :SASL authentication aborted", user->nick);
 			user->Shrink("sasl");
 		}
+		return 0;
 	}
 
 	virtual ~ModuleSASL()
