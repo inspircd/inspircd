@@ -63,7 +63,7 @@ class ModuleAuditorium : public Module
 
 		OnRehash(NULL, "");
 
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnUserList, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnRehash };
 		Me->Modules->Attach(eventlist, this, 6);
 
 	}
@@ -92,47 +92,32 @@ class ModuleAuditorium : public Module
 		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
+        virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
 	{
-		if (Ptr->IsModeSet('u'))
-		{
-			if (OperOverride)
-			{
-				if (IS_OPER(user))
-				{
-					/*
-					 * If user is oper and operoverride is on, don't touch the list
-					 */
-					return 0;
-				}
-			}
-			
-			if (ShowOps)
-			{
-				/* Leave the names list alone, theyre an op
-				 * doing /names on the channel after joining it
-				 */
-				if (Ptr->GetStatus(user) >= STATUS_OP)
-				{
-					nameslist = Ptr->GetUsers();
-					return 0;
-				}
+		if (!channel->IsModeSet('u'))
+			return;
 
-				/* Show all the opped users */
-				nl = *(Ptr->GetOppedUsers());
-				nl[user] = user->nick;
-				nameslist = &nl;
-				return 0;
-			}
-			else
-			{
-				/* HELLOOO, IS ANYBODY THERE? -- nope, just us. */
-				user->WriteServ("353 %s %c %s :%s", user->nick, Ptr->IsModeSet('s') ? '@' : Ptr->IsModeSet('p') ? '*' : '=', Ptr->name, user->nick);
-				user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
-				return 1;
-			}
+		/* Some module hid this from being displayed, dont bother */
+		if (nick.empty())
+			return;
+
+		/* If user is oper and operoverride is on, don't touch the list */
+		if (OperOverride && IS_OPER(user))
+			return;
+
+		if (ShowOps && (issuer != user) && (channel->GetStatus(user) < STATUS_OP))
+		{
+			/* Showops is set, hide all non-ops from the user, except themselves */
+			nick.clear();
+			return;
 		}
-		return 0;
+
+		if (!ShowOps && (issuer != user))
+		{
+			/* ShowOps is not set, hide everyone except the user whos requesting NAMES */
+			nick.clear();
+			return;
+		}
 	}
 	
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
