@@ -401,7 +401,7 @@ enum Implementation
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
-	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare, I_OnRunTestSuite,
+	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem,
 	I_END
 };
 
@@ -1357,6 +1357,12 @@ class CoreExport Module : public Extensible
 	 * via the --testsuite debugging parameter.
 	 */
 	virtual void OnRunTestSuite();
+
+	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
+	 * For example NAMESX, channel mode +u and +I, and UHNAMES. If the nick is set to an empty string by any
+	 * module, then this will cause the nickname not to be displayed at all.
+	 */
+	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
 };
 
 

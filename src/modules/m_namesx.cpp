@@ -25,7 +25,7 @@ class ModuleNamesX : public Module
 	ModuleNamesX(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnUserList, I_On005Numeric, I_OnEvent };
+		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -69,55 +69,17 @@ class ModuleNamesX : public Module
 		return 0;
 	}
 
-	virtual int OnUserList(User* user, Channel* Ptr, CUList* &ulist)
+	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
 	{
-		if (user->GetExt("NAMESX"))
-		{
-			char list[MAXBUF];
-			size_t dlen, curlen;
-			dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, Ptr->IsModeSet('s') ? '@' : Ptr->IsModeSet('p') ? '*' : '=', Ptr->name);
-			int numusers = 0;
-			char* ptr = list + dlen;
+		if (!issuer->GetExt("NAMESX"))
+			return;
 
-			if (!ulist)
-				ulist = Ptr->GetUsers();
+		/* Some module hid this from being displayed, dont bother */
+		if (nick.empty())
+			return;
 
-			bool has_user = Ptr->HasUser(user);
-			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-			{
-				if ((!has_user) && (i->first->IsModeSet('i')))
-					continue;
-
-				if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
-					continue;
-
-				size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", Ptr->GetAllPrefixChars(i->first), i->second.c_str());
-				/* OnUserList can change this - reset it back to normal */
-				i->second = i->first->nick;
-				curlen += ptrlen;
-				ptr += ptrlen;
-				numusers++;
-				if (curlen > (480-NICKMAX))
-				{
-					/* list overflowed into multiple numerics */
-					user->WriteServ(std::string(list));
-					/* reset our lengths */
-					dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, Ptr->IsModeSet('s') ? '@' : Ptr->IsModeSet('p') ? '*' : '=', Ptr->name);
-					ptr = list + dlen;
-					ptrlen = 0;
-					numusers = 0;
-				}
-			}
-			/* if whats left in the list isnt empty, send it */
-			if (numusers)
-			{
-				user->WriteServ(std::string(list));
-			}
-			user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
-			return 1;
-		}
-		return 0;		
- 	}
+		prefixes = channel->GetAllPrefixChars(user);
+	}
 
 	virtual void OnEvent(Event *ev)
 	{

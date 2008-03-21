@@ -881,9 +881,15 @@ void Channel::UserList(User *user, CUList *ulist)
 		if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
 			continue;
 
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->first), i->second.c_str());
-		/* OnUserList can change this - reset it back to normal */
-		i->second = i->first->nick;
+		std::string prefixlist = this->GetPrefixChar(i->first);
+		std::string nick = i->first->nick;
+		FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prefixlist, nick));
+
+		/* Nick was nuked, a module wants us to skip it */
+		if (nick.empty())
+			continue;
+		
+		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", prefixlist.c_str(), nick.c_str());
 
 		curlen += ptrlen;
 		ptr += ptrlen;
