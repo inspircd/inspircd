@@ -64,17 +64,17 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 		strlcpy(modulename,module_names[i].c_str(),256);
 		if (*source->oper)
 		{
-			snprintf(strbuf, MAXBUF, "::%s 900 %s :0x%08lx %d.%d.%d.%d %s (%s)",Instance->Config->ServerName,source->nick,(unsigned long)m,
+			snprintf(strbuf, MAXBUF, "::%s 702 %s :0x%08lx %d.%d.%d.%d %s (%s)",Instance->Config->ServerName,source->nick,(unsigned long)m,
 					V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{
-			snprintf(strbuf, MAXBUF, "::%s 900 %s :%s",Instance->Config->ServerName,source->nick,ServerConfig::CleanFilename(modulename));
+			snprintf(strbuf, MAXBUF, "::%s 702 %s :%s",Instance->Config->ServerName,source->nick,ServerConfig::CleanFilename(modulename));
 		}
 		par[1] = strbuf;
 		Utils->DoOneToOne(Instance->Config->GetSID(), "PUSH", par, source->server);
 	}
-	snprintf(strbuf, MAXBUF, "::%s 901 %s :End of MODULES list", Instance->Config->ServerName, source->nick);
+	snprintf(strbuf, MAXBUF, "::%s 703 %s :End of MODULES list", Instance->Config->ServerName, source->nick);
 	par[1] = strbuf;
 	Utils->DoOneToOne(Instance->Config->GetSID(), "PUSH", par, source->server);
 	return true;

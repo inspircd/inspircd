@@ -62,14 +62,14 @@ CmdResult CommandModules::Handle (const char* const*, int, User *user)
 		strlcpy(modulename,module_names[i].c_str(),256);
 		if (IS_OPER(user))
 		{
-			user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,m,V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+			user->WriteServ("702 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,m,V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{
-			user->WriteServ("900 %s :%s",user->nick,ServerConfig::CleanFilename(modulename));
+			user->WriteServ("702 %s :%s",user->nick,ServerConfig::CleanFilename(modulename));
 		}
 	}
-	user->WriteServ("901 %s :End of MODULES list",user->nick);
+	user->WriteServ("703 %s :End of MODULES list",user->nick);
 
 	return CMD_SUCCESS;
 }
