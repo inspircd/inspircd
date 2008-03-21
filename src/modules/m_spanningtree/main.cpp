@@ -884,7 +884,14 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, int target_type, void* 
 void ModuleSpanningTree::OnEvent(Event* event)
 {
 	std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
-	if (event->GetEventID() == "send_metadata")
+	if (event->GetEventID() == "send_encap")
+	{
+		if (params->size() < 2)
+			return;
+
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", *params);
+	}
+	else if (event->GetEventID() == "send_metadata")
 	{
 		if (params->size() < 3)
 			return;

@@ -292,6 +292,12 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool ForceNick(const std::string &prefix, std::deque<std::string> &params);
 
+	/** ENCAP command
+	 */
+	bool Encap(const std::string &prefix, std::deque<std::string> &params);
+
+	/** OPERQUIT command
+	 */
 	bool OperQuit(const std::string &prefix, std::deque<std::string> &params);
 
 	/** SVSJOIN
