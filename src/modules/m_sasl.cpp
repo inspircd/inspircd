@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "m_cap.h"
+#include "account.h"
 
 /* $ModDesc: Provides support for atheme SASL via AUTHENTICATE. */
 
@@ -82,6 +83,11 @@ class ModuleSASL : public Module
 				std::string line = irc::stringjoiner(" ", *parameters, 0, parameters->size() - 1).GetJoined();
 				target->WriteServ("AUTHENTICATE %s", line.c_str());
 			}
+		}
+		else if (ev->GetEventID() == "account_login")
+		{
+			AccountData* ac = (AccountData*)ev->GetData();
+			ac->user->WriteServ("903 %s :SASL authentication successful", ac->user->nick);
 		}
 	}
 };

@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "account.h"
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
@@ -304,6 +305,15 @@ class ModuleServicesAccount : public Module
 					// remove any accidental leading/trailing spaces
 					trim(*text);
 					dest->Extend("accountname", text);
+
+					if (IS_LOCAL(dest))
+						dest->WriteServ("900 %s %s %s :You are now logged in as %s", dest->nick, dest->GetFullHost(), text->c_str(), text->c_str());
+
+					AccountData ac;
+					ac.user = dest;
+					ac.account = *text;
+					Event n((char*)&ac, this, "account_login");
+					n.Send(ServerInstance);
 				}
 			}
 		}
