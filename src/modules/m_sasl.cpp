@@ -15,7 +15,131 @@
 #include "m_cap.h"
 #include "account.h"
 
-/* $ModDesc: Provides support for atheme SASL via AUTHENTICATE. */
+/* $ModDesc: Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE. */
+
+enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
+enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
+
+/**
+ * Tracks SASL authentication state like charybdis does. --nenolod
+ */
+class SaslAuthenticator
+{
+ private:
+	InspIRCd *ServerInstance;
+	Module *Creator;
+	std::string agent;
+	User *user;
+	SaslState state;
+	SaslResult result;
+	bool state_announced;
+
+ public:
+	SaslAuthenticator(User *user, std::string method, InspIRCd *instance, Module *ctor)
+		: ServerInstance(instance), Creator(ctor), user(user)
+	{
+		this->user->Extend("sasl_authenticator", this);
+
+		std::deque<std::string> params;
+		params.push_back("*");
+		params.push_back("SASL");
+		params.push_back(user->uuid);
+		params.push_back("*");
+		params.push_back("S");
+		params.push_back(method);
+
+		Event e((char*)&params, Creator, "send_encap");
+		e.Send(ServerInstance);
+	}
+
+	SaslResult GetSaslResult(std::string &result)
+	{
+		if (result == "F")
+			return SASL_FAIL;
+
+		if (result == "A")
+			return SASL_ABORT;
+
+		return SASL_OK;
+	}
+
+	/* checks for and deals with a state change. */
+	SaslState ProcessInboundMessage(std::deque<std::string> &msg)
+	{
+		switch (this->state)
+		{
+		 case SASL_INIT:
+			this->agent = msg[1];
+			this->user->WriteServ("AUTHENTICATE %s", msg[4].c_str());
+			this->state = SASL_COMM;
+			break;
+		 case SASL_COMM:
+			if (msg[1] != this->agent)
+				return this->state;
+
+			if (msg[3] != "D")
+				this->user->WriteServ("AUTHENTICATE %s", msg[4].c_str());
+			else
+			{
+				this->state = SASL_DONE;
+				this->result = this->GetSaslResult(msg[4]);
+				this->AnnounceState();
+			}
+
+			break;
+		 default:
+			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
+			break;
+		}
+
+		return this->state;
+	}
+
+	void SendClientMessage(const char* const* parameters, int pcnt)
+	{
+		if (this->state == SASL_COMM)
+			return;
+
+		std::deque<std::string> params;
+		params.push_back("*");
+		params.push_back("SASL");
+		params.push_back(this->user->uuid);
+		params.push_back(this->agent);
+		params.push_back("C");
+
+		for (int i = 0; i < pcnt; ++i)
+			params.push_back(parameters[i]);		
+
+		Event e((char*)&params, Creator, "send_encap");
+		e.Send(ServerInstance);
+	}
+
+	void AnnounceState(void)
+	{
+		if (this->state_announced)
+			return;
+
+		switch (this->result)
+		{
+		 case SASL_OK:
+			this->user->WriteServ("903 %s :SASL authentication successful", this->user->nick);
+			break;
+	 	 case SASL_ABORT:
+			this->user->WriteServ("906 %s :SASL authentication aborted", this->user->nick);
+			break;
+		 case SASL_FAIL:
+			this->user->WriteServ("904 %s :SASL authentication failed", this->user->nick);
+			break;
+		 default:
+			break;
+		}
+	}
+
+	~SaslAuthenticator()
+	{
+		this->AnnounceState();
+	}
+};
 
 class CommandAuthenticate : public Command
 {
@@ -28,23 +152,17 @@ class CommandAuthenticate : public Command
 
 	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
+		/* Only allow AUTHENTICATE on unregistered clients */
 		if (user->registered != REG_ALL)
 		{
-			/* Only act if theyve enabled CAP REQ sasl */
-			if (user->GetExt("sasl"))
-			{
-				/* Only allow AUTHENTICATE on unregistered clients */
-				std::deque<std::string> params;
-				params.push_back("*");
-				params.push_back("AUTHENTICATE");
-				params.push_back(user->uuid);
+			if (!user->GetExt("sasl"))
+				return CMD_FAILURE;
 
-				for (int i = 0; i < pcnt; ++i)
-					params.push_back(parameters[i]);
-
-				Event e((char*)&params, Creator, "send_encap");
-				e.Send(ServerInstance);
-			}
+			SaslAuthenticator *sasl;
+			if (!(user->GetExt("sasl_authenticator", sasl)))
+				sasl = new SaslAuthenticator(user, parameters[0], ServerInstance, Creator);
+			else
+				sasl->SendClientMessage(parameters, pcnt);
 		}
 		return CMD_FAILURE;
 	}
@@ -87,7 +205,7 @@ class ModuleSASL : public Module
 
 		std::string* str = NULL;
 
-		if (user->GetExt("acountname", str))
+		if (user->GetExt("accountname", str))
 		{
 			std::deque<std::string> params;
 			params.push_back(user->uuid);
@@ -114,27 +232,21 @@ class ModuleSASL : public Module
 
 		if (ev->GetEventID() == "encap_received")
 		{
-			/* Received encap reply, look for AUTHENTICATE */
 			std::deque<std::string>* parameters = (std::deque<std::string>*)ev->GetData();
 
-			User* target = ServerInstance->FindNick((*parameters)[0]);
+			if ((*parameters)[1] != "SASL")
+				return;
 
-			if (target)
-			{
-				/* Found a user */
-				parameters->pop_front();
-				std::string line = irc::stringjoiner(" ", *parameters, 0, parameters->size() - 1).GetJoined();
-				target->WriteServ("AUTHENTICATE %s", line.c_str());
-			}
-		}
-		else if (ev->GetEventID() == "account_login")
-		{
-			AccountData* ac = (AccountData*)ev->GetData();
+			User* target = ServerInstance->FindNick((*parameters)[2]);
+			SaslAuthenticator *sasl;
+			if (!target->GetExt("sasl_authenticator", sasl))
+				return;
 
-			if (ac->user->GetExt("sasl"))
+			SaslState state = sasl->ProcessInboundMessage(*parameters);
+			if (state == SASL_DONE)
 			{
-				ac->user->WriteServ("903 %s :SASL authentication successful", ac->user->nick);
-				ac->user->Shrink("sasl");
+				target->Shrink("sasl_authenticator");
+				delete sasl;
 			}
 		}
 	}
