@@ -14,8 +14,6 @@
 #include "inspircd.h"
 #include "m_cap.h"
 
-static const char* dummy = "ON";
-
 /* $ModDesc: Provides the NAMESX (CAP multi-prefix) capability. */
 
 class ModuleNamesX : public Module
@@ -62,7 +60,7 @@ class ModuleNamesX : public Module
 		{
 			if ((pcnt) && (!strcasecmp(parameters[0],"NAMESX")))
 			{
-				user->Extend("NAMESX",dummy);
+				user->Extend("NAMESX");
 				return 1;
 			}
 		}
@@ -83,40 +81,7 @@ class ModuleNamesX : public Module
 
 	virtual void OnEvent(Event *ev)
 	{
-		if (ev->GetEventID() == "cap_req")
-		{
-			CapData *data = (CapData *) ev->GetData();
-
-			std::vector<std::string>::iterator it;
-			if ((it = std::find(data->wanted.begin(), data->wanted.end(), "multi-prefix")) != data->wanted.end())
-			{
-				// we can handle this, so ACK it, and remove it from the wanted list
-				data->ack.push_back(*it);
-				data->wanted.erase(it);
-				data->user->Extend("NAMESX",dummy);
-			}
-		}
-
-		if (ev->GetEventID() == "cap_ls")
-		{
-			CapData *data = (CapData *) ev->GetData();
-			data->wanted.push_back("multi-prefix");
-		}
-
-		if (ev->GetEventID() == "cap_list")
-		{
-			CapData *data = (CapData *) ev->GetData();
-
-			if (data->user->GetExt("NAMESX"))
-				data->wanted.push_back("multi-prefix");
-		}
-
-		if (ev->GetEventID() == "cap_clear")
-		{
-			CapData *data = (CapData *) ev->GetData();
-			data->ack.push_back("-multi-prefix");
-			data->user->Shrink("NAMESX");
-		}
+		GenericCapHandler(ev, "NAMESX", "multi-prefix");
 	}
 };
 

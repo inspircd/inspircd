@@ -12,8 +12,7 @@
  */
 
 #include "inspircd.h"
-
-static const char* dummy = "ON";
+#include "m_cap.h"
 
 /* $ModDesc: Provides the UHNAMES facility. */
 
@@ -25,7 +24,7 @@ class ModuleUHNames : public Module
 	ModuleUHNames(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
+		Implementation eventlist[] = { I_OnEvent, I_OnSyncUserMetaData, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
@@ -61,7 +60,7 @@ class ModuleUHNames : public Module
 		{
 			if ((pcnt) && (!strcasecmp(parameters[0],"UHNAMES")))
 			{
-				user->Extend("UHNAMES",dummy);
+				user->Extend("UHNAMES");
 				return 1;
 			}
 		}
@@ -77,6 +76,11 @@ class ModuleUHNames : public Module
 			return;
 
 		nick = user->GetFullHost();
+	}
+
+	virtual void OnEvent(Event* ev)
+	{
+		GenericCapHandler(ev, "UHNAMES", "userhost-in-names");
 	}
 };
 
