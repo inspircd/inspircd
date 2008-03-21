@@ -97,7 +97,7 @@ class SaslAuthenticator
 
 	void SendClientMessage(const char* const* parameters, int pcnt)
 	{
-		if (this->state == SASL_COMM)
+		if (this->state != SASL_COMM)
 			return;
 
 		std::deque<std::string> params;
