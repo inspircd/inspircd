@@ -838,13 +838,15 @@ void Channel::UserList(User *user, CUList *ulist)
 	char list[MAXBUF];
 	size_t dlen, curlen;
 	int MOD_RESULT = 0;
+	bool call_modules = true;
 
 	if (!IS_LOCAL(user))
 		return;
 
 	FOREACH_RESULT(I_OnUserList,OnUserList(user, this, ulist));
 	if (MOD_RESULT == 1)
-		return;
+		call_modules = false;
+
 	if (MOD_RESULT != -1)
 	{
 		if ((this->IsModeSet('s')) && (!this->HasUser(user)))
@@ -883,11 +885,15 @@ void Channel::UserList(User *user, CUList *ulist)
 
 		std::string prefixlist = this->GetPrefixChar(i->first);
 		std::string nick = i->first->nick;
-		FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prefixlist, nick));
 
-		/* Nick was nuked, a module wants us to skip it */
-		if (nick.empty())
-			continue;
+		if (call_modules)
+		{
+			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prefixlist, nick));
+	
+			/* Nick was nuked, a module wants us to skip it */
+			if (nick.empty())
+				continue;
+		}
 		
 		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", prefixlist.c_str(), nick.c_str());
 

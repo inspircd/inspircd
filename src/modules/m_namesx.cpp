@@ -16,7 +16,7 @@
 
 static const char* dummy = "ON";
 
-/* $ModDesc: Provides aliases of commands. */
+/* $ModDesc: Provides the NAMESX (CAP multi-prefix) capability. */
 
 class ModuleNamesX : public Module
 {

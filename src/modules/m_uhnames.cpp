@@ -15,7 +15,7 @@
 
 static const char* dummy = "ON";
 
-/* $ModDesc: Provides aliases of commands. */
+/* $ModDesc: Provides the UHNAMES facility. */
 
 class ModuleUHNames : public Module
 {
@@ -25,10 +25,9 @@ class ModuleUHNames : public Module
 	ModuleUHNames(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnUserList, I_On005Numeric };
+		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
-
 
 	virtual ~ModuleUHNames()
 	{
@@ -50,12 +49,6 @@ class ModuleUHNames : public Module
 		output.append(" UHNAMES");
 	}
 
-	void Prioritize()
-	{
-		Module* namesx = ServerInstance->Modules->Find("m_namesx.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &namesx);
-	}
-
 	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string c = command.c_str();
@@ -75,19 +68,16 @@ class ModuleUHNames : public Module
 		return 0;
 	}
 
-	/* IMPORTANT: This must be prioritized above NAMESX! */
-	virtual int OnUserList(User* user, Channel* Ptr, CUList* &ulist)
+	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
 	{
-		if (user->GetExt("UHNAMES"))
-		{
-			if (!ulist)
-				ulist = Ptr->GetUsers();
+		if (!issuer->GetExt("UHNAMES"))
+			return;
 
-			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-				i->second = i->first->GetFullHost();
-		}
-		return 0;		
- 	}
+		if (nick.empty())
+			return;
+
+		nick = user->GetFullHost();
+	}
 };
 
 MODULE_INIT(ModuleUHNames)
