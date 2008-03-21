@@ -59,8 +59,8 @@ class ModuleSASL : public Module
 	ModuleSASL(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 		sasl = new CommandAuthenticate(ServerInstance, this);
 		ServerInstance->AddCommand(sasl);
@@ -71,13 +71,21 @@ class ModuleSASL : public Module
 
 	virtual int OnUserRegister(User *user)
 	{
-		std::string* str = NULL;
-
 		if (user->GetExt("sasl"))
 		{
 			user->WriteServ("906 %s :SASL authentication aborted", user->nick);
 			user->Shrink("sasl");
 		}
+
+		return 0;
+	}
+
+	virtual void OnPostConnect(User* user)
+	{
+		if (!IS_LOCAL(user))
+			return;
+
+		std::string* str = NULL;
 
 		if (user->GetExt("acountname", str))
 		{
@@ -88,7 +96,7 @@ class ModuleSASL : public Module
 			Event e((char*)&params, this, "send_metadata");
 			e.Send(ServerInstance);
 		}
-		return 0;
+		return;
 	}
 
 	virtual ~ModuleSASL()
