@@ -101,7 +101,12 @@ class ModuleSASL : public Module
 		else if (ev->GetEventID() == "account_login")
 		{
 			AccountData* ac = (AccountData*)ev->GetData();
-			ac->user->WriteServ("903 %s :SASL authentication successful", ac->user->nick);
+
+			if (ac->user->GetExt("sasl"))
+			{
+				ac->user->WriteServ("903 %s :SASL authentication successful", ac->user->nick);
+				ac->user->Shrink("sasl");
+			}
 		}
 	}
 };
