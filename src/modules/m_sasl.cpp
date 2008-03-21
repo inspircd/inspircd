@@ -59,8 +59,8 @@ class ModuleSASL : public Module
 	ModuleSASL(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 
 		sasl = new CommandAuthenticate(ServerInstance, this);
 		ServerInstance->AddCommand(sasl);
@@ -69,6 +69,14 @@ class ModuleSASL : public Module
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
+	virtual int OnUserRegister(User *user)
+	{
+		if (user->GetExt("sasl"))
+		{
+			user->WriteServ("906 %s :SASL authentication aborted", user->nick);
+			user->Shrink("sasl");
+		}
+	}
 
 	virtual ~ModuleSASL()
 	{
