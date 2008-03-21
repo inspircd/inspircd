@@ -67,7 +67,7 @@ class ModuleDelayJoin : public Module
 		djm = new DelayJoinMode(ServerInstance, this);
 		if (!ServerInstance->Modes->AddMode(djm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnUserList, I_OnText };
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnText };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 	
@@ -77,45 +77,25 @@ class ModuleDelayJoin : public Module
 		delete djm;
 	}
 
-	void Prioritize()
-	{
-		/* To ensure that we get priority over namesx for names list generation */
-		Module* namesx = ServerInstance->Modules->Find("m_namesx.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, &namesx);
-	}
-
 	virtual Version GetVersion()
 	{
-		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-
-	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
+	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
 	{
-		CUList* newlist = nameslist ? nameslist : Ptr->GetUsers();
+		if (!channel->IsModeSet('D'))
+			return;
 
-		nl.clear();
+		if (nick.empty())
+			return;
 
-		/* For +D channels ... */
-		if (Ptr->IsModeSet('D'))
-		{
-			std::string key("delayjoin_");
-			key.append(Ptr->name);
+		/* If the user is hidden by delayed join, hide them from the NAMES list */
+		std::string key("delayjoin_");
+		key.append(channel->name);
 
-			/* Modify the names list, erasing users with the delay join metadata
-			 * for this channel (havent spoken yet)
-			 */
-			for (CUListIter n = newlist->begin(); n != newlist->end(); ++n)
-			{
-				if (!n->first->GetExt(key))
-					nl.insert(*n);
-			}
-
-			/* Always show self */
-			nl[user] = user->nick;
-			nameslist = &nl;
-		}
-		return 0;
+		if (user->GetExt(key))
+			nick.clear();
 	}
 
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
