@@ -238,6 +238,12 @@ class ModuleSASL : public Module
 				return;
 
 			User* target = ServerInstance->FindNick((*parameters)[2]);
+			if (!target)
+			{
+				ServerInstance->Logs->Log("m_sasl", DEBUG,"User not found in sasl ENCAP event: %s", (*parameters)[2].c_str());
+				return;
+			}
+
 			SaslAuthenticator *sasl;
 			if (!target->GetExt("sasl_authenticator", sasl))
 				return;
