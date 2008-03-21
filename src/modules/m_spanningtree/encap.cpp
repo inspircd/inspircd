@@ -32,29 +32,13 @@ bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &param
 			Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
 			event.Send(Instance);
 		}
-		else
-		{
-			User* u = Instance->FindNick(params[0]);
-
-			if (u && IS_LOCAL(u))
-			{
-				Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
-				event.Send(Instance);
-			}
-
-			return true;
-		}
 
 		if (params[0].find('*') != std::string::npos)
 		{
-			User* u = Instance->FindNick(params[0]);
-			if (u)
-				Utils->DoOneToAllButSender(prefix, "ENCAP", params, u->server);
-			else
-				Utils->DoOneToAllButSender(prefix, "ENCAP", params, params[0]);
+			Utils->DoOneToAllButSender(prefix, "ENCAP", params, prefix);
 		}
 		else
-			Utils->DoOneToOne(prefix, "ENCAP", params, prefix);
+			Utils->DoOneToOne(prefix, "ENCAP", params, params[0]);
 	}
 	return true;
 }
