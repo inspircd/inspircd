@@ -889,8 +889,6 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		if (params->size() < 2)
 			return;
 
-		ServerInstance->Logs->Log("m_spanningtree", DEBUG, "ENCAP sending from spanningtree...");
-
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", *params);
 	}
 	else if (event->GetEventID() == "send_metadata")

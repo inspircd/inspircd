@@ -28,10 +28,8 @@ class CommandAuthenticate : public Command
 
 	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
-		ServerInstance->Logs->Log("m_sasl", DEBUG,"AUTHENTICATE");
 		if (user->registered != REG_ALL)
 		{
-			ServerInstance->Logs->Log("m_sasl", DEBUG,"Sending ENCAP for AUTHENTICATE");
 			/* Only allow AUTHENTICATE on unregistered clients */
 			std::deque<std::string> params;
 			params.push_back("*");
@@ -52,7 +50,6 @@ class CommandAuthenticate : public Command
 class ModuleSASL : public Module
 {
 	CommandAuthenticate* sasl;
-
  public:
 	
 	ModuleSASL(InspIRCd* Me)
@@ -63,6 +60,9 @@ class ModuleSASL : public Module
 
 		sasl = new CommandAuthenticate(ServerInstance, this);
 		ServerInstance->AddCommand(sasl);
+
+		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
+			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
 
