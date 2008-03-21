@@ -36,7 +36,7 @@ class SaslAuthenticator
 
  public:
 	SaslAuthenticator(User *user, std::string method, InspIRCd *instance, Module *ctor)
-		: ServerInstance(instance), Creator(ctor), user(user)
+		: ServerInstance(instance), Creator(ctor), user(user), state(SASL_INIT)
 	{
 		this->user->Extend("sasl_authenticator", this);
 
@@ -86,6 +86,8 @@ class SaslAuthenticator
 				this->AnnounceState();
 			}
 
+			break;
+		 case SASL_DONE:
 			break;
 		 default:
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
