@@ -100,7 +100,7 @@ class SaslAuthenticator
 	bool SendClientMessage(const char* const* parameters, int pcnt)
 	{
 		if (this->state != SASL_COMM)
-			return;
+			return true;
 
 		std::deque<std::string> params;
 		params.push_back("*");
