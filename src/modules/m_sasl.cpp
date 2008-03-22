@@ -96,6 +96,12 @@ class SaslAuthenticator
 		return this->state;
 	}
 
+	void Abort(void)
+	{
+		this->state = SASL_DONE;
+		this->result = SASL_ABORT;
+	}
+
 	bool SendClientMessage(const char* const* parameters, int pcnt)
 	{
 		if (this->state != SASL_COMM)
@@ -116,9 +122,7 @@ class SaslAuthenticator
 
 		if (*parameters[0] == '*')
 		{
-			this->state = SASL_DONE;
-			this->result = SASL_ABORT;
-
+			this->Abort();
 			return false;
 		}
 
@@ -203,10 +207,12 @@ class ModuleSASL : public Module
 
 	virtual int OnUserRegister(User *user)
 	{
-		if (user->GetExt("sasl"))
+		SaslAuthenticator *sasl_;
+		if (user->GetExt("sasl_authenticator", sasl_))
 		{
-			user->WriteServ("906 %s :SASL authentication aborted", user->nick);
-			user->Shrink("sasl");
+			sasl_->Abort();
+			delete sasl_;
+			user->Shrink("sasl_authenticator");
 		}
 
 		return 0;
@@ -266,7 +272,7 @@ class ModuleSASL : public Module
 			if (state == SASL_DONE)
 			{
 				delete sasl_;
-				user->Shrink("sasl");
+				target->Shrink("sasl");
 			}
 		}
 	}
