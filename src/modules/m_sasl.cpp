@@ -195,8 +195,8 @@ class ModuleSASL : public Module
 	ModuleSASL(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect, I_OnCleanup };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 
 		sasl = new CommandAuthenticate(ServerInstance, this);
 		ServerInstance->AddCommand(sasl);
@@ -216,6 +216,22 @@ class ModuleSASL : public Module
 		}
 
 		return 0;
+	}
+
+	virtual void OnCleanup(int target_type, void *item)
+	{
+		if (target_type == TYPE_USER)
+			OnUserDisconnect((User*)item);
+	}
+
+	virtual void OnUserDisconnect(User *user)
+	{
+		SaslAuthenticator *sasl_;
+		if (user->GetExt("sasl_authenticator", sasl_))
+		{
+			delete sasl_;
+			user->Shrink("sasl_authenticator");
+		}
 	}
 
 	virtual void OnPostConnect(User* user)
