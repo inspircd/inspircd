@@ -194,7 +194,7 @@ void		Module::OnBufferFlushed(User*) { }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, User*, Channel*, std::string&, std::string&) { }
-
+int		Module::OnNumeric(User*, unsigned int, const std::string&) { return 0; }
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
 {

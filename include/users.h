@@ -923,6 +923,10 @@ class CoreExport User : public connection
 	 */
 	void WriteServ(const char* text, ...);
 
+	void WriteNumeric(unsigned int numeric, const char* text, ...);
+
+	void WriteNumeric(unsigned int numeric, const std::string &text);
+
 	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
 	 * @param user The user to prepend the :nick!user@host of
 	 * @param text A std::string to send to the user

@@ -1153,6 +1153,32 @@ void User::WriteServ(const char* text, ...)
 }
 
 
+void User::WriteNumeric(unsigned int numeric, const char* text, ...)
+{
+	va_list argsPtr;
+	char textbuffer[MAXBUF];
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteNumeric(numeric, std::string(textbuffer));
+}
+
+void User::WriteNumeric(unsigned int numeric, const std::string &text)
+{
+	char textbuffer[MAXBUF];
+	int MOD_RESULT = 0;
+
+	FOREACH_RESULT(I_OnNumeric, OnNumeric(this, numeric, text));
+
+	if (MOD_RESULT)
+		return;
+
+	snprintf(textbuffer,MAXBUF,":%s %u %s %s",ServerInstance->Config->ServerName, numeric, this->nick, text.c_str());
+	this->Write(std::string(textbuffer));
+}
+
 void User::WriteFrom(User *user, const std::string &text)
 {
 	char tb[MAXBUF];
