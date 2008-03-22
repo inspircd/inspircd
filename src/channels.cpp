@@ -231,7 +231,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		{
 			if (user->chans.size() >= user->GetMaxChans())
 			{
-				user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
+				user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick, cn);
 				return NULL;
 			}
 		}
@@ -241,7 +241,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			{
 				if (user->chans.size() >= Instance->Config->OperMaxChans)
 				{
-					user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
+					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick, cn);
 					return NULL;
 				}
 			}
@@ -249,7 +249,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			{
 				if (user->chans.size() >= Instance->Config->MaxChans)
 				{
-					user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
+					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick, cn);
 					return NULL;
 				}
 			}
@@ -312,7 +312,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if ((!key) || strcmp(key,Ptr->key))
 						{
-							user->WriteServ("475 %s %s :Cannot join channel (Incorrect channel key)",user->nick, Ptr->name);
+							user->WriteNumeric(475, "%s %s :Cannot join channel (Incorrect channel key)",user->nick, Ptr->name);
 							return NULL;
 						}
 					}
@@ -325,7 +325,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if (!user->IsInvited(Ptr->name))
 						{
-							user->WriteServ("473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
+							user->WriteNumeric(473, "%s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
 							return NULL;
 						}
 					}
@@ -339,7 +339,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if (Ptr->GetUserCounter() >= Ptr->limit)
 						{
-							user->WriteServ("471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
+							user->WriteNumeric(471, "%s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
 							return NULL;
 						}
 					}
@@ -348,7 +348,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 				{
 					if (Ptr->IsBanned(user))
 					{
-						user->WriteServ("474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+						user->WriteNumeric(474, "%s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
 						return NULL;
 					}
 				}
@@ -418,8 +418,8 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 	{
 		if (Ptr->topicset)
 		{
-			user->WriteServ("332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
-			user->WriteServ("333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+			user->WriteNumeric(332, "%s %s :%s", user->nick, Ptr->name, Ptr->topic);
+			user->WriteNumeric(333, "%s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 		}
 		Ptr->UserList(user);
 	}
@@ -553,12 +553,12 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 	{
 		if (!this->HasUser(user))
 		{
-			src->WriteServ("441 %s %s %s :They are not on that channel",src->nick, user->nick, this->name);
+			src->WriteNumeric(441, "%s %s %s :They are not on that channel",src->nick, user->nick, this->name);
 			return this->GetUserCounter();
 		}
 		if ((ServerInstance->ULine(user->server)) && (!ServerInstance->ULine(src->server)))
 		{
-			src->WriteServ("482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
+			src->WriteNumeric(482, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
 			return this->GetUserCounter();
 		}
 		int MOD_RESULT = 0;
@@ -583,7 +583,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 				int us = this->GetStatus(user);
    			 	if ((them < STATUS_HOP) || (them < us))
 				{
-					src->WriteServ("482 %s %s :You must be a channel %soperator",src->nick, this->name, them == STATUS_HOP ? "" : "half-");
+					src->WriteNumeric(482, "%s %s :You must be a channel %soperator",src->nick, this->name, them == STATUS_HOP ? "" : "half-");
 					return this->GetUserCounter();
 				}
 			}
@@ -851,7 +851,7 @@ void Channel::UserList(User *user, CUList *ulist)
 	{
 		if ((this->IsModeSet('s')) && (!this->HasUser(user)))
 		{
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, this->name);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, this->name);
 			return;
 		}
 	}
@@ -922,7 +922,7 @@ void Channel::UserList(User *user, CUList *ulist)
 		user->WriteServ(std::string(list));
 	}
 
-	user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, this->name);
+	user->WriteNumeric(366, "%s %s :End of /NAMES list.", user->nick, this->name);
 }
 
 long Channel::GetMaxBans()

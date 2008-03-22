@@ -85,7 +85,7 @@ class ModuleBlockColour : public Module
 						case 21:
 						case 22:
 						case 31:
-							user->WriteServ("404 %s %s :Can't send colours to channel (+c set)",user->nick, c->name);
+							user->WriteNumeric(404, "%s %s :Can't send colours to channel (+c set)",user->nick, c->name);
 							return 1;
 						break;
 					}

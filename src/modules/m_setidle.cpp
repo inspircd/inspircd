@@ -32,7 +32,7 @@ class CommandSetidle : public Command
 		time_t idle = ServerInstance->Duration(parameters[0]);
 		if (idle < 1)
 		{
-			user->WriteServ("948 %s :Invalid idle time.",user->nick);
+			user->WriteNumeric(948, "%s :Invalid idle time.",user->nick);
 			return CMD_FAILURE;
 		}
 		user->idle_lastmsg = (ServerInstance->Time() - idle);
@@ -40,7 +40,7 @@ class CommandSetidle : public Command
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
 		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
-		user->WriteServ("944 %s :Idle time set.",user->nick);
+		user->WriteNumeric(944, "%s :Idle time set.",user->nick);
 
 		return CMD_LOCALONLY;
 	}

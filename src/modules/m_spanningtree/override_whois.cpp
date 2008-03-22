@@ -47,8 +47,8 @@ int ModuleSpanningTree::HandleRemoteWhois(const char* const* parameters, int pcn
 		}
 		else if (!remote)
 		{
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[1]);
-			user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, parameters[1]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1]);
+			user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick, parameters[1]);
 			return 1;
 		}
 	}

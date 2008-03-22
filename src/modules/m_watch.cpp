@@ -113,7 +113,7 @@ class CommandWatch : public Command
 		// removing an item from the list
 		if (!ServerInstance->IsNick(nick))
 		{
-			user->WriteServ("942 %s %s :Invalid nickname", user->nick, nick);
+			user->WriteNumeric(942, "%s %s :Invalid nickname", user->nick, nick);
 			return CMD_FAILURE;
 		}
 
@@ -129,9 +129,9 @@ class CommandWatch : public Command
 			if (n != wl->end())
 			{
 				if (!n->second.empty())
-					user->WriteServ("602 %s %s %s :stopped watching", user->nick, n->first.c_str(), n->second.c_str());
+					user->WriteNumeric(602, "%s %s %s :stopped watching", user->nick, n->first.c_str(), n->second.c_str());
 				else
-					user->WriteServ("602 %s %s * * 0 :stopped watching", user->nick, nick);
+					user->WriteNumeric(602, "%s %s * * 0 :stopped watching", user->nick, nick);
 
 				wl->erase(n);
 			}
@@ -167,7 +167,7 @@ class CommandWatch : public Command
 	{
 		if (!ServerInstance->IsNick(nick))
 		{
-			user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
+			user->WriteNumeric(942, "%s %s :Invalid nickname",user->nick,nick);
 			return CMD_FAILURE;
 		}
 
@@ -180,7 +180,7 @@ class CommandWatch : public Command
 
 		if (wl->size() == MAX_WATCH)
 		{
-			user->WriteServ("512 %s %s :Too many WATCH entries", user->nick, nick);
+			user->WriteNumeric(512, "%s %s :Too many WATCH entries", user->nick, nick);
 			return CMD_FAILURE;
 		}
 
@@ -207,17 +207,17 @@ class CommandWatch : public Command
 				if (target->Visibility && !target->Visibility->VisibleTo(user))
 				{
 					(*wl)[nick] = "";
-					user->WriteServ("605 %s %s * * 0 :is offline",user->nick, nick);
+					user->WriteNumeric(605, "%s %s * * 0 :is offline",user->nick, nick);
 					return CMD_FAILURE;
 				}
 
 				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
-				user->WriteServ("604 %s %s %s :is online",user->nick, nick, (*wl)[nick].c_str());
+				user->WriteNumeric(604, "%s %s %s :is online",user->nick, nick, (*wl)[nick].c_str());
 			}
 			else
 			{
 				(*wl)[nick] = "";
-				user->WriteServ("605 %s %s * * 0 :is offline",user->nick, nick);
+				user->WriteNumeric(605, "%s %s * * 0 :is offline",user->nick, nick);
 			}
 		}
 
@@ -241,10 +241,10 @@ class CommandWatch : public Command
 				for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 				{
 					if (!q->second.empty())
-						user->WriteServ("604 %s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
+						user->WriteNumeric(604, "%s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
 				}
 			}
-			user->WriteServ("607 %s :End of WATCH list",user->nick);
+			user->WriteNumeric(607, "%s :End of WATCH list",user->nick);
 		}
 		else if (pcnt > 0)
 		{
@@ -285,12 +285,12 @@ class CommandWatch : public Command
 						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 						{
 							if (!q->second.empty())
-								user->WriteServ("604 %s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
+								user->WriteNumeric(604, "%s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
 							else
-								user->WriteServ("605 %s %s * * 0 :is offline", user->nick, q->first.c_str());
+								user->WriteNumeric(605, "%s %s * * 0 :is offline", user->nick, q->first.c_str());
 						}
 					}
-					user->WriteServ("607 %s :End of WATCH list",user->nick);
+					user->WriteNumeric(607, "%s :End of WATCH list",user->nick);
 				}
 				else if (!strcasecmp(nick,"S"))
 				{
@@ -310,9 +310,9 @@ class CommandWatch : public Command
 					if (i2 != whos_watching_me->end())
 						youre_on = i2->second.size();
 
-					user->WriteServ("603 %s :You have %d and are on %d WATCH entries", user->nick, you_have, youre_on);
-					user->WriteServ("606 %s :%s",user->nick, list.c_str());
-					user->WriteServ("607 %s :End of WATCH S",user->nick);
+					user->WriteNumeric(603, "%s :You have %d and are on %d WATCH entries", user->nick, you_have, youre_on);
+					user->WriteNumeric(606, "%s :%s",user->nick, list.c_str());
+					user->WriteNumeric(607, "%s :End of WATCH S",user->nick);
 				}
 				else if (nick[0] == '-')
 				{
@@ -368,7 +368,7 @@ class Modulewatch : public Module
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
-					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, ServerInstance->Time());
+					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, ServerInstance->Time());
 
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
@@ -438,7 +438,7 @@ class Modulewatch : public Module
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
-					(*n)->WriteServ("600 %s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
+					(*n)->WriteNumeric(600, "%s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
 
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
@@ -461,7 +461,7 @@ class Modulewatch : public Module
 				if ((*n)->GetExt("watchlist", wl))
 				{
 					if (!user->Visibility || user->Visibility->VisibleTo(user))
-	 					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, user->age);
+	 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, user->age);
 					(*wl)[oldnick.c_str()] = "";
 				}
 			}
@@ -476,7 +476,7 @@ class Modulewatch : public Module
 				{
 					(*wl)[user->nick] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
 					if (!user->Visibility || user->Visibility->VisibleTo(user))
-						(*n)->WriteServ("600 %s %s %s :arrived online", (*n)->nick, user->nick, (*wl)[user->nick].c_str());
+						(*n)->WriteNumeric(600, "%s %s %s :arrived online", (*n)->nick, user->nick, (*wl)[user->nick].c_str());
 				}
 			}
 		}

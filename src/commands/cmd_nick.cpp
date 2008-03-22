@@ -32,7 +32,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 	if (!*parameters[0] || !*user->nick)
 	{
 		/* We cant put blanks in the parameters, so for this (extremely rare) issue we just put '*' here. */
-		user->WriteServ("432 %s * :Erroneous Nickname", *user->nick ? user->nick : "*");
+		user->WriteNumeric(432, "%s * :Erroneous Nickname", *user->nick ? user->nick : "*");
 		return CMD_FAILURE;
 	}
 
@@ -64,7 +64,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 		if (mq)
 		{
 			ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0], user->nick, user->ident, user->host, mq->reason);
-			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0], mq->reason);
+			user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick,parameters[0], mq->reason);
 			return CMD_FAILURE;
 		}
 
@@ -84,7 +84,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 			{
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
 				InUse->WriteTo(InUse, "NICK %s", InUse->uuid);
-				InUse->WriteServ("433 %s %s :Nickname overruled.", InUse->nick, InUse->nick);
+				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick, InUse->nick);
 				InUse->UpdateNickHash(InUse->uuid);
 				strlcpy(InUse->nick, InUse->uuid, NICKMAX - 1);
 				InUse->InvalidateCache();
@@ -93,7 +93,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 			else
 			{
 				/* No camping, tell the incoming user  to stop trying to change nick ;p */
-				user->WriteServ("433 %s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
+				user->WriteNumeric(433, "%s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
 				return CMD_FAILURE;
 			}
 		}
@@ -102,7 +102,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 	{
 		if (!allowinvalid)
 		{
-			user->WriteServ("432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
+			user->WriteNumeric(432, "%s %s :Erroneous Nickname",user->nick,parameters[0]);
 			return CMD_FAILURE;
 		}
 	}

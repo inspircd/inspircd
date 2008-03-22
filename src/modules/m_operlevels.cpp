@@ -76,7 +76,7 @@ class ModuleOperLevels : public Module
 				{
 					ServerInstance->SNO->WriteToSnoMask('A', "Oper %s (level %d) attempted to /kill a higher oper: %s (level %d): Reason: %s",source->nick,source_level,dest->nick,dest_level,reason.c_str());
 					dest->WriteServ("NOTICE %s :Oper %s attempted to /kill you!",dest->nick,source->nick);
-					source->WriteServ("481 %s :Permission Denied - Oper %s is a higher level than you",source->nick,dest->nick);
+					source->WriteNumeric(481, "%s :Permission Denied - Oper %s is a higher level than you",source->nick,dest->nick);
 					return 1;
 				}
 			}

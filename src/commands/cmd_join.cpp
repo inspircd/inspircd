@@ -46,6 +46,6 @@ CmdResult CommandJoin::Handle (const char* const* parameters, int pcnt, User *us
 		}
 	}
 
-	user->WriteServ("403 %s %s :Invalid channel name",user->nick, parameters[0]);
+	user->WriteNumeric(403, "%s %s :Invalid channel name",user->nick, parameters[0]);
 	return CMD_FAILURE;
 }

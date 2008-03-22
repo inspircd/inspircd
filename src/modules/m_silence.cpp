@@ -45,10 +45,10 @@ class CommandSilence : public Command
 			{
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
-					user->WriteServ("271 %s %s %s :%lu",user->nick, user->nick, c->first.c_str(), (unsigned long)c->second);
+					user->WriteNumeric(271, "%s %s %s :%lu",user->nick, user->nick, c->first.c_str(), (unsigned long)c->second);
 				}
 			}
-			user->WriteServ("272 %s :End of Silence List",user->nick);
+			user->WriteNumeric(272, "%s :End of Silence List",user->nick);
 
 			return CMD_SUCCESS;
 		}
@@ -78,7 +78,7 @@ class CommandSilence : public Command
 					if (i != sl->end())
 					{
 						sl->erase(i);
-						user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
+						user->WriteNumeric(950, "%s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
 						if (!sl->size())
 						{
 							// tidy up -- if a user's list is empty, theres no use having it
@@ -88,7 +88,7 @@ class CommandSilence : public Command
 						}
 					}
 					else
-						user->WriteServ("952 %s %s :%s does not exist on your silence list",user->nick, user->nick, mask.c_str());
+						user->WriteNumeric(952, "%s %s :%s does not exist on your silence list",user->nick, user->nick, mask.c_str());
 				}
 			}
 			else if (action == '+')
@@ -105,16 +105,16 @@ class CommandSilence : public Command
 				silencelist::iterator n = sl->find(mask.c_str());
 				if (n != sl->end())
 				{
-					user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick, mask.c_str());
+					user->WriteNumeric(952, "%s %s :%s is already on your silence list",user->nick, user->nick, mask.c_str());
 					return CMD_FAILURE;
 				}
 				if (sl->size() >= maxsilence)
 				{
-					user->WriteServ("952 %s %s :Your silence list is full",user->nick, user->nick, mask.c_str());
+					user->WriteNumeric(952, "%s %s :Your silence list is full",user->nick, user->nick, mask.c_str());
 					return CMD_FAILURE;
 				}
 				sl->insert(std::make_pair<irc::string, time_t>(mask.c_str(), ServerInstance->Time()));
-				user->WriteServ("951 %s %s :Added %s to silence list",user->nick, user->nick, mask.c_str());
+				user->WriteNumeric(951, "%s %s :Added %s to silence list",user->nick, user->nick, mask.c_str());
 				return CMD_SUCCESS;
 			}
 		}

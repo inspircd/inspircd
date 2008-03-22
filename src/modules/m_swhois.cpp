@@ -34,7 +34,7 @@ class CommandSwhois : public Command
 		
 		if (!dest)
 		{
-			user->WriteServ("401 %s %s :No such nick/channel", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 

@@ -74,7 +74,7 @@ std::string User::ProcessNoticeMasks(const char *sm)
 					}
 				}
 				else
-					this->WriteServ("501 %s %c :is unknown snomask char to me", this->nick, *c);
+					this->WriteNumeric(501, "%s %c :is unknown snomask char to me", this->nick, *c);
 
 				oldadding = adding;
 			break;
@@ -833,14 +833,14 @@ void User::FullConnect()
 	}
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
-	this->WriteServ("001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);
-	this->WriteServ("002 %s :Your host is %s, running version %s",this->nick,ServerInstance->Config->ServerName,VERSION);
-	this->WriteServ("003 %s :This server was created %s %s", this->nick, __TIME__, __DATE__);
-	this->WriteServ("004 %s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
+	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);
+	this->WriteNumeric(002, "%s :Your host is %s, running version %s",this->nick,ServerInstance->Config->ServerName,VERSION);
+	this->WriteNumeric(003, "%s :This server was created %s %s", this->nick, __TIME__, __DATE__);
+	this->WriteNumeric(004, "%s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
 
-	this->WriteServ("042 %s %s :your unique ID", this->nick, this->uuid);
+	this->WriteNumeric(42, "%s %s :your unique ID", this->nick, this->uuid);
 
 
 	this->ShowMOTD();
@@ -1175,7 +1175,7 @@ void User::WriteNumeric(unsigned int numeric, const std::string &text)
 	if (MOD_RESULT)
 		return;
 
-	snprintf(textbuffer,MAXBUF,":%s %u %s %s",ServerInstance->Config->ServerName, numeric, this->nick, text.c_str());
+	snprintf(textbuffer,MAXBUF,":%s %03u %s",ServerInstance->Config->ServerName, numeric, text.c_str());
 	this->Write(std::string(textbuffer));
 }
 
@@ -1464,7 +1464,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	}
 
 	if (IS_LOCAL(this))
-		this->WriteServ("396 %s %s :is now your displayed host",this->nick,this->dhost);
+		this->WriteNumeric(396, "%s %s :is now your displayed host",this->nick,this->dhost);
 
 	return true;
 }
@@ -1708,31 +1708,31 @@ void User::ShowMOTD()
 {
 	if (!ServerInstance->Config->MOTD.size())
 	{
-		this->WriteServ("422 %s :Message of the day file is missing.",this->nick);
+		this->WriteNumeric(422, "%s :Message of the day file is missing.",this->nick);
 		return;
 	}
-	this->WriteServ("375 %s :%s message of the day", this->nick, ServerInstance->Config->ServerName);
+	this->WriteNumeric(375, "%s :%s message of the day", this->nick, ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); i++)
-		this->WriteServ("372 %s :- %s",this->nick,i->c_str());
+		this->WriteNumeric(372, "%s :- %s",this->nick,i->c_str());
 
-	this->WriteServ("376 %s :End of message of the day.", this->nick);
+	this->WriteNumeric(376, "%s :End of message of the day.", this->nick);
 }
 
 void User::ShowRULES()
 {
 	if (!ServerInstance->Config->RULES.size())
 	{
-		this->WriteServ("434 %s :RULES File is missing",this->nick);
+		this->WriteNumeric(434, "%s :RULES File is missing",this->nick);
 		return;
 	}
 
-	this->WriteServ("308 %s :- %s Server Rules -",this->nick,ServerInstance->Config->ServerName);
+	this->WriteNumeric(308, "%s :- %s Server Rules -",this->nick,ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
-		this->WriteServ("232 %s :- %s",this->nick,i->c_str());
+		this->WriteNumeric(232, "%s :- %s",this->nick,i->c_str());
 
-	this->WriteServ("309 %s :End of RULES command.",this->nick);
+	this->WriteNumeric(309, "%s :End of RULES command.",this->nick);
 }
 
 void User::HandleEvent(EventType et, int errornum)

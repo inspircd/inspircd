@@ -26,8 +26,8 @@ CmdResult CommandMap::Handle (const char* const*, int, User *user)
 	// as with /LUSERS this does nothing without a linking
 	// module to override its behaviour and display something
 	// better.
-	user->WriteServ("006 %s :%s",user->nick,ServerInstance->Config->ServerName);
-	user->WriteServ("007 %s :End of /MAP",user->nick);
+	user->WriteNumeric(006, "%s :%s",user->nick,ServerInstance->Config->ServerName);
+	user->WriteNumeric(007, "%s :End of /MAP",user->nick);
 
 	return CMD_SUCCESS;
 }

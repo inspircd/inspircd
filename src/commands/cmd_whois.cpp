@@ -134,8 +134,8 @@ CmdResult CommandWhois::Handle (const char* const* parameters, int pcnt, User *u
 	else
 	{
 		/* no such nick/channel */
-		user->WriteServ("401 %s %s :No such nick/channel",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
-		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
+		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
 		return CMD_FAILURE;
 	}
 

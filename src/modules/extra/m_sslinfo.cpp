@@ -58,7 +58,7 @@ class cmd_sslinfo : public Command
 			}
 		}
 		else
-			user->WriteServ("401 %s %s :No such nickname", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0]);
 
 		return CMD_FAILURE;
 	}

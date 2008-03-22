@@ -31,22 +31,22 @@ CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *u
 		{
 			if ((Ptr->IsModeSet('s')) && (!Ptr->HasUser(user)))
 			{
-				user->WriteServ("401 %s %s :No such nick/channel",user->nick, Ptr->name);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, Ptr->name);
 				return CMD_FAILURE;
 			}
 			if (Ptr->topicset)
 			{
-				user->WriteServ("332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
-				user->WriteServ("333 %s %s %s %d", user->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+				user->WriteNumeric(332, "%s %s :%s", user->nick, Ptr->name, Ptr->topic);
+				user->WriteNumeric(333, "%s %s %s %d", user->nick, Ptr->name, Ptr->setby, Ptr->topicset);
 			}
 			else
 			{
-				user->WriteServ("331 %s %s :No topic is set.", user->nick, Ptr->name);
+				user->WriteNumeric(331, "%s %s :No topic is set.", user->nick, Ptr->name);
 			}
 		}
 		else
 		{
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -60,12 +60,12 @@ CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *u
 			{
 				if (!Ptr->HasUser(user))
 				{
-					user->WriteServ("442 %s %s :You're not on that channel!",user->nick, Ptr->name);
+					user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick, Ptr->name);
 					return CMD_FAILURE;
 				}
 				if ((Ptr->IsModeSet('t')) && (Ptr->GetStatus(user) < STATUS_HOP))
 				{
-					user->WriteServ("482 %s %s :You must be at least a half-operator to change the topic on this channel", user->nick, Ptr->name);
+					user->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", user->nick, Ptr->name);
 					return CMD_FAILURE;
 				}
 			}
@@ -106,7 +106,7 @@ CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *u
 		}
 		else
 		{
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 	}

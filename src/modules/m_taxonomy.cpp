@@ -36,17 +36,17 @@ class CommandTaxonomy : public Command
 		{
 			std::deque<std::string> list;
 			dest->GetExtList(list);
-			user->WriteServ("304 " + std::string(user->nick) + ":TAXONOMY ITEMS " + std::string(dest->nick) + " " +ConvToStr(list.size()));
+			user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY ITEMS " + std::string(dest->nick) + " " +ConvToStr(list.size()));
 			for (unsigned int j = 0; j < list.size(); j++)
 			{
 				claimed = false;
 				FOREACH_MOD(I_OnSyncUserMetaData, OnSyncUserMetaData(user, Creator, dest, list[j], true));
 				if (!claimed)
 				{
-					user->WriteServ("304 " + std::string(user->nick) + ":TAXONOMY METADATA " + list[j] + " = <unknown>");
+					user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY METADATA " + list[j] + " = <unknown>");
 				}
 			}
-			user->WriteServ("304 " + std::string(user->nick) + ":TAXONOMY END");
+			user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY END");
 		}
 		return CMD_LOCALONLY;
 	}

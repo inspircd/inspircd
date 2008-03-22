@@ -34,25 +34,25 @@ class CommandKnock : public Command
 
 		if (!c)
 		{
-			user->WriteServ("401 %s %s :No such channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such channel",user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 
 		if (c->HasUser(user))
 		{
-			user->WriteServ("480 %s :Can't KNOCK on %s, you are already on that channel.", user->nick, c->name);
+			user->WriteNumeric(480, "%s :Can't KNOCK on %s, you are already on that channel.", user->nick, c->name);
 			return CMD_FAILURE;
 		}
 
 		if (c->IsModeSet('K'))
 		{
-			user->WriteServ("480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
+			user->WriteNumeric(480, "%s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
 			return CMD_FAILURE;
 		}
 
 		if (!c->modes[CM_INVITEONLY])
 		{
-			user->WriteServ("480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
+			user->WriteNumeric(480, "%s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
 			return CMD_FAILURE;
 		}
 

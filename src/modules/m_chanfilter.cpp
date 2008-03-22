@@ -31,7 +31,7 @@ class ChanFilter : public ListModeBase
 	{
 		if ((word.length() > 35) || (word.empty()))
 		{
-			user->WriteServ("935 %s %s %s :word is too %s for censor list",user->nick, chan->name,word.c_str(), (word.empty() ? "short" : "long"));
+			user->WriteNumeric(935, "%s %s %s :word is too %s for censor list",user->nick, chan->name,word.c_str(), (word.empty() ? "short" : "long"));
 			return false;
 		}
 		
@@ -40,18 +40,18 @@ class ChanFilter : public ListModeBase
 	
 	virtual bool TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteServ("939 %s %s %s :Channel spamfilter list is full",user->nick, chan->name, word.c_str());
+		user->WriteNumeric(939, "%s %s %s :Channel spamfilter list is full",user->nick, chan->name, word.c_str());
 		return true;
 	}
 	
 	virtual void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteServ("937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,word.c_str());
+		user->WriteNumeric(937, "%s %s :The word %s is already on the spamfilter list",user->nick, chan->name,word.c_str());
 	}
 	
 	virtual void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteServ("938 %s %s :No such spamfilter word is set",user->nick, chan->name);
+		user->WriteNumeric(938, "%s %s :No such spamfilter word is set",user->nick, chan->name);
 	}
 };
 
@@ -101,7 +101,7 @@ class ModuleChanFilter : public Module
 			{
 				if (line.find(i->mask.c_str()) != std::string::npos)
 				{
-					user->WriteServ("936 %s %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name, i->mask.c_str());
+					user->WriteNumeric(936, "%s %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name, i->mask.c_str());
 					return 1;
 				}
 			}

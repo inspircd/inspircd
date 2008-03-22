@@ -186,7 +186,7 @@ User* ModeParser::SanityChecks(User *user, const char *dest, Channel *chan, int)
 	d = ServerInstance->FindNick(dest);
 	if (!d)
 	{
-		user->WriteServ("401 %s %s :No such nick/channel",user->nick, dest);
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	return d;
@@ -257,35 +257,35 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	if (targetchannel)
 	{
 		/* Display channel's current mode string */
-		user->WriteServ("324 %s %s +%s",user->nick, targetchannel->name, targetchannel->ChanModes(targetchannel->HasUser(user)));
-		user->WriteServ("329 %s %s %lu", user->nick, targetchannel->name, (unsigned long)targetchannel->age);
+		user->WriteNumeric(324, "%s %s +%s",user->nick, targetchannel->name, targetchannel->ChanModes(targetchannel->HasUser(user)));
+		user->WriteNumeric(329, "%s %s %lu", user->nick, targetchannel->name, (unsigned long)targetchannel->age);
 		return;
 	}
 	else if (targetuser)
 	{
 		if (targetuser->Visibility && !targetuser->Visibility->VisibleTo(user))
 		{
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, text);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, text);
 			return;
 		}
 
 		if ((targetuser == user) || (IS_OPER(user)))
 		{
 			/* Display user's current mode string */
-			user->WriteServ("221 %s :+%s",targetuser->nick,targetuser->FormatModes());
+			user->WriteNumeric(221, "%s :+%s",targetuser->nick,targetuser->FormatModes());
 			if (IS_OPER(targetuser))
-				user->WriteServ("008 %s +%s :Server notice mask", targetuser->nick, targetuser->FormatNoticeMasks());
+				user->WriteNumeric(8, "%s +%s :Server notice mask", targetuser->nick, targetuser->FormatNoticeMasks());
 			return;
 		}
 		else
 		{
-			user->WriteServ("502 %s :Can't change mode for other users", user->nick);
+			user->WriteNumeric(502, "%s :Can't change mode for other users", user->nick);
 			return;
 		}
 	}
 
 	/* No such nick/channel */
-	user->WriteServ("401 %s %s :No such nick/channel",user->nick, text);
+	user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, text);
 	return;
 }
 
@@ -350,7 +350,7 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 
 				if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
 				{
-					user->WriteServ("482 %s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
+					user->WriteNumeric(482, "%s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
 					mh->DisplayEmptyList(user, targetchannel);
 					continue;
 				}
@@ -414,14 +414,14 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 			mask = MASK_USER;
 			if ((user != targetuser) && (!ServerInstance->ULine(user->server)))
 			{
-				user->WriteServ("502 %s :Can't change mode for other users", user->nick);
+				user->WriteNumeric(502, "%s :Can't change mode for other users", user->nick);
 				return;
 			}
 		}
 		else
 		{
 			/* No such nick/channel */
-			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
 			return;
 		}
 
@@ -547,7 +547,7 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 									if (!ourmode || ourmode->GetPrefixRank() < neededrank)
 									{
 										/* Bog off */
-										user->WriteServ("482 %s %s :You must have channel privilege %c or above to %sset channel mode %c",
+										user->WriteNumeric(482, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
 												user->nick, targetchannel->name, needed, adding ? "" : "un", modechar);
 										continue;
 									}
@@ -579,7 +579,7 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 							 */
 							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!IS_OPER(user)))
 							{
-								user->WriteServ("481 %s :Permission Denied - Only IRC operators may %sset %s mode %c", user->nick,
+								user->WriteNumeric(481, "%s :Permission Denied - Only IRC operators may %sset %s mode %c", user->nick,
 										adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user",
 										modehandlers[handler_id]->GetModeChar());
 								continue;

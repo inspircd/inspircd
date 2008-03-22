@@ -26,7 +26,7 @@ class AuditoriumMode : public ModeHandler
 		{
 			if (IS_LOCAL(source) && (channel->GetStatus(source) < STATUS_OP))
 			{
-				source->WriteServ("482 %s %s :Only channel operators may %sset channel mode +u", source->nick, channel->name, adding ? "" : "un");
+				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +u", source->nick, channel->name, adding ? "" : "un");
 				return MODEACTION_DENY;
 			}
 			else

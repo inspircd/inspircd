@@ -27,12 +27,12 @@ CmdResult CommandReloadmodule::Handle (const char* const* parameters, int, User 
 		if (ServerInstance->Modules->Load(parameters[0]))
 		{
 			ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s reloaded %s",user->nick, parameters[0]);
-			user->WriteServ("975 %s %s :Module successfully reloaded.",user->nick, parameters[0]);
+			user->WriteNumeric(975, "%s %s :Module successfully reloaded.",user->nick, parameters[0]);
 			return CMD_SUCCESS;
 		}
 	}
 	
 	ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s unsuccessfully reloaded %s",user->nick, parameters[0]);
-	user->WriteServ("975 %s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
+	user->WriteNumeric(975, "%s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
 	return CMD_FAILURE;
 }

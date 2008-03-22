@@ -33,7 +33,7 @@ CmdResult CommandWhowas::Handle (const char* const* parameters, int, User* user)
 	/* if whowas disabled in config */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
 	{
-		user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());
+		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick,command.c_str());
 		return CMD_FAILURE;
 	}
 
@@ -41,8 +41,8 @@ CmdResult CommandWhowas::Handle (const char* const* parameters, int, User* user)
 
 	if (i == whowas.end())
 	{
-		user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
-		user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+		user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick,parameters[0]);
+		user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0]);
 		return CMD_FAILURE;
 	}
 	else
@@ -63,26 +63,26 @@ CmdResult CommandWhowas::Handle (const char* const* parameters, int, User* user)
 				strlcpy(b,asctime(timeinfo),MAXBUF);
 				b[24] = 0;
 
-				user->WriteServ("314 %s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
+				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
 				
 				if (IS_OPER(user))
-					user->WriteServ("379 %s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
+					user->WriteNumeric(379, "%s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
 				
 				if (*ServerInstance->Config->HideWhoisServer && !IS_OPER(user))
-					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], ServerInstance->Config->HideWhoisServer, b);
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick,parameters[0], ServerInstance->Config->HideWhoisServer, b);
 				else
-					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], u->server, b);
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick,parameters[0], u->server, b);
 			}
 		}
 		else
 		{
-			user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
-			user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+			user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick,parameters[0]);
+			user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0]);
 			return CMD_FAILURE;
 		}
 	}
 
-	user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+	user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0]);
 	return CMD_SUCCESS;
 }
 

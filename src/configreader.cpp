@@ -157,7 +157,7 @@ void ServerConfig::Update005()
 void ServerConfig::Send005(User* user)
 {
 	for (std::vector<std::string>::iterator line = ServerInstance->Config->isupport.begin(); line != ServerInstance->Config->isupport.end(); line++)
-		user->WriteServ("005 %s %s", user->nick, line->c_str());
+		user->WriteNumeric(005, "%s %s", user->nick, line->c_str());
 }
 
 bool ServerConfig::CheckOnce(const char* tag)
@@ -1213,14 +1213,14 @@ void ServerConfig::Read(bool bail, User* user)
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
 					if (user)
-						user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+						user->WriteNumeric(973, "%s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
 
 					rem++;
 				}
 				else
 				{
 					if (user)
-						user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+						user->WriteNumeric(972, "%s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1234,14 +1234,14 @@ void ServerConfig::Read(bool bail, User* user)
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH LOADED MODULE: %s",adding->c_str());
 
 					if (user)
-						user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+						user->WriteNumeric(975, "%s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
 
 					add++;
 				}
 				else
 				{
 					if (user)
-						user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+						user->WriteNumeric(974, "%s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}

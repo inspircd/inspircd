@@ -67,7 +67,7 @@ class CommandCban : public Command
 				if (parameters[0] == iter->chname)
 				{
 					long remaining = iter->length + ServerInstance->Time();
-					user->WriteServ("386 %s %s :Removed CBAN due to expire at %s (%s)", user->nick, iter->chname.c_str(), ServerInstance->TimeString(remaining).c_str(), iter->reason.c_str());
+					user->WriteNumeric(386, "%s %s :Removed CBAN due to expire at %s (%s)", user->nick, iter->chname.c_str(), ServerInstance->TimeString(remaining).c_str(), iter->reason.c_str());
 					cbans.erase(iter);
 					break;
 				}
@@ -90,18 +90,18 @@ class CommandCban : public Command
 				
 				if(length > 0)
 				{
-					user->WriteServ("385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
+					user->WriteNumeric(385, "%s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
 					ServerInstance->SNO->WriteToSnoMask('A', "%s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
 				}
 				else
 				{
-					user->WriteServ("385 %s %s :Added permanent channel ban (%s)", user->nick, parameters[0], reason.c_str());
+					user->WriteNumeric(385, "%s %s :Added permanent channel ban (%s)", user->nick, parameters[0], reason.c_str());
 					ServerInstance->SNO->WriteToSnoMask('A', "%s added permanent channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else
 			{
-				user->WriteServ("403 %s %s :Invalid channel name", user->nick, parameters[0]);
+				user->WriteNumeric(403, "%s %s :Invalid channel name", user->nick, parameters[0]);
 				return CMD_FAILURE;
 			}
 		}

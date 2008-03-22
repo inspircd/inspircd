@@ -39,11 +39,11 @@ CmdResult CommandInvite::Handle (const char* const* parameters, int pcnt, User *
 		{
 			if (!c)
 			{
-				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[1]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1]);
 			}
 			else
 			{
-				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 
 			return CMD_FAILURE;
@@ -53,20 +53,20 @@ CmdResult CommandInvite::Handle (const char* const* parameters, int pcnt, User *
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteServ("482 %s %s :You must be a channel %soperator", user->nick, c->name, c->GetStatus(u) == STATUS_HOP ? "" : "half-");
+				user->WriteNumeric(482, "%s %s :You must be a channel %soperator", user->nick, c->name, c->GetStatus(u) == STATUS_HOP ? "" : "half-");
 				return CMD_FAILURE;
 			}
 		}
 
 		if (c->HasUser(u))
 	 	{
-	 		user->WriteServ("443 %s %s %s :is already on channel",user->nick,u->nick,c->name);
+	 		user->WriteNumeric(443, "%s %s %s :is already on channel",user->nick,u->nick,c->name);
 	 		return CMD_FAILURE;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 	 	{
-			user->WriteServ("442 %s %s :You're not on that channel!",user->nick, c->name);
+			user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick, c->name);
 	  		return CMD_FAILURE;
 		}
 
@@ -79,7 +79,7 @@ CmdResult CommandInvite::Handle (const char* const* parameters, int pcnt, User *
 
 		u->InviteTo(c->name, timeout);
 		u->WriteFrom(user,"INVITE %s :%s",u->nick,c->name);
-		user->WriteServ("341 %s %s %s",user->nick,u->nick,c->name);
+		user->WriteNumeric(341, "%s %s %s",user->nick,u->nick,c->name);
 		switch (ServerInstance->Config->AnnounceInvites)
 		{
 			case ServerConfig::INVITE_ANNOUNCE_ALL:
@@ -107,9 +107,9 @@ CmdResult CommandInvite::Handle (const char* const* parameters, int pcnt, User *
 		InvitedList* il = user->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
-			user->WriteServ("346 %s :%s",user->nick,i->first.c_str());
+			user->WriteNumeric(346, "%s :%s",user->nick,i->first.c_str());
 		}
-		user->WriteServ("347 %s :End of INVITE list",user->nick);
+		user->WriteNumeric(347, "%s :End of INVITE list",user->nick);
 	}
 	return CMD_SUCCESS;
 }

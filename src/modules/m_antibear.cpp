@@ -66,8 +66,8 @@ class ModuleAntiBear : public Module
 
 	virtual int OnUserRegister(User* user)
 	{
-		user->WriteServ("439 %s :This server has anti-spambot mechanisms enabled.", user->nick);
-		user->WriteServ("931 %s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick);
+		user->WriteNumeric(439, "%s :This server has anti-spambot mechanisms enabled.", user->nick);
+		user->WriteNumeric(931, "%s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick);
 		user->WriteServ("PRIVMSG %s :\1TIME\1", user->nick);
 		user->Extend("antibear_timewait");
 		return 0;

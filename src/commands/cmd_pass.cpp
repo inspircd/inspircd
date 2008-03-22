@@ -24,7 +24,7 @@ CmdResult CommandPass::Handle (const char* const* parameters, int, User *user)
 	// Check to make sure they havnt registered -- Fix by FCS
 	if (user->registered == REG_ALL)
 	{
-		user->WriteServ("462 %s :You may not reregister",user->nick);
+		user->WriteNumeric(462, "%s :You may not reregister",user->nick);
 		return CMD_FAILURE;
 	}
 	ConnectClass* a = user->GetClass();

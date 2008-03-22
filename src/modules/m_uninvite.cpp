@@ -36,11 +36,11 @@ class CommandUninvite : public Command
 		{	
 			if (!c)
 			{
-				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[1]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1]);
 			}
 			else
 			{
-				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 				
 			return CMD_FAILURE;
@@ -50,7 +50,7 @@ class CommandUninvite : public Command
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteServ("482 %s %s :You must be at least a%soperator to change modes on this channel",user->nick, c->name,
+				user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick, c->name,
 						ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
 				return CMD_FAILURE;
 			}
@@ -60,18 +60,18 @@ class CommandUninvite : public Command
 
 		if (!u->IsInvited(xname))
 		{
-			user->WriteServ("491 %s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
+			user->WriteNumeric(491, "%s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
 			return CMD_FAILURE;
 		}
 		if (!c->HasUser(user))
 		{
-			user->WriteServ("492 %s %s :You're not on that channel!",user->nick, c->name);
+			user->WriteNumeric(492, "%s %s :You're not on that channel!",user->nick, c->name);
 			return CMD_FAILURE;
 		}
 
 		u->RemoveInvite(xname);
-		user->WriteServ("494 %s %s %s :Uninvited",user->nick,c->name,u->nick);
-		u->WriteServ("493 %s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
+		user->WriteNumeric(494, "%s %s %s :Uninvited",user->nick,c->name,u->nick);
+		u->WriteNumeric(493, "%s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
 		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.", c->name, user->nick, u->nick);
 
 		return CMD_SUCCESS;

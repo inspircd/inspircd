@@ -159,7 +159,7 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteServ("936 %s %s %s :Your message contained a censored word, and was blocked", user->nick, ((Channel*)dest)->name, index->first.c_str());
+					user->WriteNumeric(936, "%s %s %s :Your message contained a censored word, and was blocked", user->nick, ((Channel*)dest)->name, index->first.c_str());
 					return 1;
 				}
 				

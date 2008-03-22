@@ -27,7 +27,7 @@ CmdResult CommandNames::Handle (const char* const* parameters, int pcnt, User *u
 
 	if (!pcnt)
 	{
-		user->WriteServ("366 %s * :End of /NAMES list.",user->nick);
+		user->WriteNumeric(366, "%s * :End of /NAMES list.",user->nick);
 		return CMD_SUCCESS;
 	}
 
@@ -39,14 +39,14 @@ CmdResult CommandNames::Handle (const char* const* parameters, int pcnt, User *u
 	{
 		if ((c->IsModeSet('s')) && (!c->HasUser(user)))
 		{
-		      user->WriteServ("401 %s %s :No such nick/channel",user->nick, c->name);
+		      user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, c->name);
 		      return CMD_FAILURE;
 		}
 		c->UserList(user);
 	}
 	else
 	{
-		user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 
 	return CMD_SUCCESS;

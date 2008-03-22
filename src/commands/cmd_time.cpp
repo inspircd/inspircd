@@ -32,7 +32,7 @@ CmdResult CommandTime::Handle (const char* const*, int, User *user)
 	snprintf(tms,26,"%s",asctime(timeinfo));
 	tms[24] = 0;
 
-	user->WriteServ("391 %s %s :%s",user->nick,ServerInstance->Config->ServerName,tms);
+	user->WriteNumeric(391, "%s %s :%s",user->nick,ServerInstance->Config->ServerName,tms);
 
 	return CMD_SUCCESS;
 }

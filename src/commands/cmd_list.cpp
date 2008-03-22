@@ -26,7 +26,7 @@ CmdResult CommandList::Handle (const char* const* parameters, int pcnt, User *us
 {
 	int minusers = 0, maxusers = 0;
 
-	user->WriteServ("321 %s Channel :Users Name",user->nick);
+	user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
 
 	/* Work around mIRC suckyness. YOU SUCK, KHALED! */
 	if (pcnt == 1)
@@ -64,17 +64,17 @@ CmdResult CommandList::Handle (const char* const* parameters, int pcnt, User *us
 		bool n = i->second->HasUser(user);
 		if ((i->second->IsModeSet('p')) && (!n))
 		{
-			user->WriteServ("322 %s *",user->nick,i->second->name);
+			user->WriteNumeric(322, "%s *",user->nick,i->second->name);
 		}
 		else
 		{
 			if (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('s')))) || (n))
 			{
-				user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,users,i->second->ChanModes(n),i->second->topic);
+				user->WriteNumeric(322, "%s %s %d :[+%s] %s",user->nick,i->second->name,users,i->second->ChanModes(n),i->second->topic);
 			}
 		}
 	}
-	user->WriteServ("323 %s :End of channel list.",user->nick);
+	user->WriteNumeric(323, "%s :End of channel list.",user->nick);
 
 	return CMD_SUCCESS;
 }

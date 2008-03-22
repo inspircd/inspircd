@@ -135,7 +135,7 @@ class NickFlood : public ModeHandler
 				int nsecs = atoi(secs);
 				if ((nnicks<1) || (nsecs<1))
 				{
-					source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
+					source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick,channel->name);
 					parameter.clear();
 					return MODEACTION_DENY;
 				}
@@ -184,7 +184,7 @@ class NickFlood : public ModeHandler
 			}
 			else
 			{
-				source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
+				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick,channel->name);
 				return MODEACTION_DENY;
 			}
 		}
@@ -238,7 +238,7 @@ class ModuleNickFlood : public Module
 
 				if (f->islocked())
 				{
-					user->WriteServ("447 %s :%s has been locked for nickchanges for 60 seconds because there have been more than %d nick changes in %d seconds", user->nick, channel->name, f->nicks, f->secs);
+					user->WriteNumeric(447, "%s :%s has been locked for nickchanges for 60 seconds because there have been more than %d nick changes in %d seconds", user->nick, channel->name, f->nicks, f->secs);
 					return 1;
 				}
 

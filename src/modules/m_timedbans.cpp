@@ -96,11 +96,11 @@ class CommandTban : public Command
 				}
 				return CMD_FAILURE;
 			}
-			else user->WriteServ("482 %s %s :You must be at least a%soperator to change modes on this channel",user->nick, channel->name,
+			else user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick, channel->name,
 					ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
 			return CMD_FAILURE;
 		}
-		user->WriteServ("401 %s %s :No such channel",user->nick, parameters[0]);
+		user->WriteNumeric(401, "%s %s :No such channel",user->nick, parameters[0]);
 		return CMD_FAILURE;
 	}
 };

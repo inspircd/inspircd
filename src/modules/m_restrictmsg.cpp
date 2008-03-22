@@ -44,7 +44,7 @@ class ModuleRestrictMsg : public Module
 			{
 				return 0;
 			}
-			user->WriteServ("531 %s %s :You are not permitted to send private messages to this user",user->nick,u->nick);
+			user->WriteNumeric(531, "%s %s :You are not permitted to send private messages to this user",user->nick,u->nick);
 			return 1;
 		}
 

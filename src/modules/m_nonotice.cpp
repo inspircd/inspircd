@@ -80,7 +80,7 @@ class ModuleNoNotice : public Module
 				}
 				else
 				{
-					user->WriteServ("404 %s %s :Can't send NOTICE to channel (+T set)",user->nick, c->name);
+					user->WriteNumeric(404, "%s %s :Can't send NOTICE to channel (+T set)",user->nick, c->name);
 					return 1;
 				}
 			}

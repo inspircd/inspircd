@@ -167,11 +167,11 @@ void ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User
 	// dump the whole lot to the user. This is the easy bit, honest.
 	for (int t = 0; t < line; t++)
 	{
-		user->WriteServ("006 %s :%s",user->nick,&matrix[t][0]);
+		user->WriteNumeric(6, "%s :%s",user->nick,&matrix[t][0]);
 	}
 	float avg_users = totusers / totservers;
-	user->WriteServ("270 %s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
-	user->WriteServ("007 %s :End of /MAP",user->nick);
+	user->WriteNumeric(270, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+	user->WriteNumeric(7, "%s :End of /MAP",user->nick);
 	return;
 }
 

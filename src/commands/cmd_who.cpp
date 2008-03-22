@@ -336,13 +336,13 @@ CmdResult CommandWho::Handle (const char* const* parameters, int pcnt, User *use
 	{
 		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
 			user->WriteServ(*n);
-		user->WriteServ("315 %s %s :End of /WHO list.",user->nick, *parameters[0] ? parameters[0] : "*");
+		user->WriteNumeric(315, "%s %s :End of /WHO list.",user->nick, *parameters[0] ? parameters[0] : "*");
 		return CMD_SUCCESS;
 	}
 	else
 	{
 		/* BZZT! Too many results. */
-		user->WriteServ("315 %s %s :Too many results",user->nick, parameters[0]);
+		user->WriteNumeric(315, "%s %s :Too many results",user->nick, parameters[0]);
 		return CMD_FAILURE;
 	}
 }

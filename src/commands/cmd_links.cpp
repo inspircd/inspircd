@@ -23,7 +23,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandLinks::Handle (const char* const*, int, User *user)
 {
-	user->WriteServ("364 %s %s %s :0 %s",user->nick,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName,ServerInstance->Config->ServerDesc);
-	user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
+	user->WriteNumeric(364, "%s %s %s :0 %s",user->nick,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName,ServerInstance->Config->ServerDesc);
+	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick);
 	return CMD_SUCCESS;
 }

@@ -35,7 +35,7 @@ class Channel_r : public ModeHandler
 		}
 		else
 		{
-			source->WriteServ("500 %s :Only a server may modify the +r channel mode", source->nick);
+			source->WriteNumeric(500, "%s :Only a server may modify the +r channel mode", source->nick);
 			return MODEACTION_DENY;
 		}
 	}
@@ -62,7 +62,7 @@ class User_r : public ModeHandler
 		}
 		else
 		{
-			source->WriteServ("500 %s :Only a server may modify the +r user mode", source->nick);
+			source->WriteNumeric(500, "%s :Only a server may modify the +r user mode", source->nick);
 			return MODEACTION_DENY;
 		}
 	}
@@ -231,7 +231,7 @@ class ModuleServices : public Module
 					return 0;
 				}
 				// user messaging a +M channel and is not registered
-				user->WriteServ("477 %s %s :You need a registered nickname to speak on this channel", user->nick, c->name);
+				user->WriteNumeric(477, "%s %s :You need a registered nickname to speak on this channel", user->nick, c->name);
 				return 1;
 			}
 		}
@@ -246,7 +246,7 @@ class ModuleServices : public Module
 					return 0;
 				}
 				// user messaging a +R user and is not registered
-				user->WriteServ("477 %s %s :You need a registered nickname to message this user", user->nick, u->nick);
+				user->WriteNumeric(477, "%s %s :You need a registered nickname to message this user", user->nick, u->nick);
 				return 1;
 			}
 		}
@@ -272,7 +272,7 @@ class ModuleServices : public Module
 						return 0;
 					}
 					// joining a +R channel and not identified
-					user->WriteServ("477 %s %s :You need a registered nickname to join this channel", user->nick, chan->name);
+					user->WriteNumeric(477, "%s %s :You need a registered nickname to join this channel", user->nick, chan->name);
 					return 1;
 				}
 			}

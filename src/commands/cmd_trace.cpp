@@ -29,16 +29,16 @@ CmdResult CommandTrace::Handle (const char* const*, int, User *user)
 		{
 			if (IS_OPER(i->second))
 			{
-				user->WriteServ("205 %s :Oper 0 %s",user->nick,i->second->nick);
+				user->WriteNumeric(205, "%s :Oper 0 %s",user->nick,i->second->nick);
 			}
 			else
 			{
-				user->WriteServ("204 %s :User 0 %s",user->nick,i->second->nick);
+				user->WriteNumeric(204, "%s :User 0 %s",user->nick,i->second->nick);
 			}
 		}
 		else
 		{
-			user->WriteServ("203 %s :???? 0 [%s]",user->nick,i->second->host);
+			user->WriteNumeric(203, "%s :???? 0 [%s]",user->nick,i->second->host);
 		}
 	}*/
 	return CMD_SUCCESS;

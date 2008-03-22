@@ -51,7 +51,7 @@ int ModuleSpanningTree::HandleTime(const char* const* parameters, int pcnt, User
 		}
 		else
 		{
-			user->WriteServ("402 %s %s :No such server",user->nick,parameters[0]);
+			user->WriteNumeric(402, "%s %s :No such server",user->nick,parameters[0]);
 		}
 	}
 	return 1;

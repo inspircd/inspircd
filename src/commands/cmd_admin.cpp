@@ -24,10 +24,10 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandAdmin::Handle (const char* const* parameters, int pcnt, User *user)
 {
-	user->WriteServ("256 %s :Administrative info for %s",user->nick,ServerInstance->Config->ServerName);
+	user->WriteNumeric(256, "%s :Administrative info for %s",user->nick,ServerInstance->Config->ServerName);
 	if (*ServerInstance->Config->AdminName)
-		user->WriteServ("257 %s :Name     - %s",user->nick,ServerInstance->Config->AdminName);
-	user->WriteServ("258 %s :Nickname - %s",user->nick,ServerInstance->Config->AdminNick);
-	user->WriteServ("259 %s :E-Mail   - %s",user->nick,ServerInstance->Config->AdminEmail);
+		user->WriteNumeric(257, "%s :Name     - %s",user->nick,ServerInstance->Config->AdminName);
+	user->WriteNumeric(258, "%s :Nickname - %s",user->nick,ServerInstance->Config->AdminNick);
+	user->WriteNumeric(259, "%s :E-Mail   - %s",user->nick,ServerInstance->Config->AdminEmail);
 	return CMD_SUCCESS;
 }

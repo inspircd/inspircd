@@ -90,7 +90,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	else if ((Current->Hidden) && (!IS_OPER(user)))
 		return;
 
-	user->WriteServ("364 %s %s %s :%d %s",	user->nick,Current->GetName().c_str(),
+	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick,Current->GetName().c_str(),
 			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName : Parent.c_str(),
 			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
 			Current->GetDesc().c_str());
@@ -109,7 +109,7 @@ int ModuleSpanningTree::CountServs()
 void ModuleSpanningTree::HandleLinks(const char* const* parameters, int pcnt, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
-	user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
+	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick);
 	return;
 }
 
@@ -141,23 +141,23 @@ void ModuleSpanningTree::HandleLusers(const char* const* parameters, int pcnt, U
 			}
 		}
 	}
-	user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,
+	user->WriteNumeric(251, "%s :There are %d users and %d invisible on %d servers",user->nick,
 			n_users-ServerInstance->Users->ModeCount('i'),
 			ServerInstance->Users->ModeCount('i'),
 			ulined_count ? this->CountServs() - ulined_count : this->CountServs());
 
 	if (ServerInstance->Users->OperCount())
-		user->WriteServ("252 %s %d :operator(s) online",user->nick,ServerInstance->Users->OperCount());
+		user->WriteNumeric(252, "%s %d :operator(s) online",user->nick,ServerInstance->Users->OperCount());
 
 	if (ServerInstance->Users->UnregisteredUserCount())
-		user->WriteServ("253 %s %d :unknown connections",user->nick,ServerInstance->Users->UnregisteredUserCount());
+		user->WriteNumeric(253, "%s %d :unknown connections",user->nick,ServerInstance->Users->UnregisteredUserCount());
 	
 	if (ServerInstance->ChannelCount())
-		user->WriteServ("254 %s %d :channels formed",user->nick,ServerInstance->ChannelCount());
+		user->WriteNumeric(254, "%s %d :channels formed",user->nick,ServerInstance->ChannelCount());
 	
-	user->WriteServ("255 %s :I have %d clients and %d servers",user->nick,ServerInstance->Users->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
-	user->WriteServ("265 %s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->Users->LocalUserCount(),max_local);
-	user->WriteServ("266 %s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
+	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick,ServerInstance->Users->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
+	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->Users->LocalUserCount(),max_local);
+	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
 	return;
 }
 
@@ -321,7 +321,7 @@ int ModuleSpanningTree::HandleVersion(const char* const* parameters, int pcnt, U
 	if (found)
 	{
 		std::string Version = found->GetVersion();
-		user->WriteServ("351 %s :%s",user->nick,Version.c_str());
+		user->WriteNumeric(351, "%s :%s",user->nick,Version.c_str());
 		if (found == Utils->TreeRoot)
 		{
 			ServerInstance->Config->Send005(user);
@@ -329,7 +329,7 @@ int ModuleSpanningTree::HandleVersion(const char* const* parameters, int pcnt, U
 	}
 	else
 	{
-		user->WriteServ("402 %s %s :No such server",user->nick,parameters[0]);
+		user->WriteNumeric(402, "%s %s :No such server",user->nick,parameters[0]);
 	}
 	return 1;
 }

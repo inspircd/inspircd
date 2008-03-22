@@ -163,7 +163,7 @@ class ModuleServicesAccount : public Module
 				}
 
 				// user messaging a +M channel and is not registered
-				user->WriteServ("477 "+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
+				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
 				return 1;
 			}
 		}
@@ -180,7 +180,7 @@ class ModuleServicesAccount : public Module
 				}
 
 				// user messaging a +R user and is not registered
-				user->WriteServ("477 "+std::string(user->nick)+" "+std::string(u->nick)+" :You need to be identified to a registered account to message this user");
+				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(u->nick)+" :You need to be identified to a registered account to message this user");
 				return 1;
 			}
 		}
@@ -209,7 +209,7 @@ class ModuleServicesAccount : public Module
 						return 0;
 					}
 					// joining a +R channel and not identified
-					user->WriteServ("477 "+std::string(user->nick)+" "+std::string(chan->name)+" :You need to be identified to a registered account to join this channel");
+					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(chan->name)+" :You need to be identified to a registered account to join this channel");
 					return 1;
 				}
 			}
@@ -307,7 +307,7 @@ class ModuleServicesAccount : public Module
 					dest->Extend("accountname", text);
 
 					if (IS_LOCAL(dest))
-						dest->WriteServ("900 %s %s %s :You are now logged in as %s", dest->nick, dest->GetFullHost(), text->c_str(), text->c_str());
+						dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s", dest->nick, dest->GetFullHost(), text->c_str(), text->c_str());
 
 					AccountData ac;
 					ac.user = dest;

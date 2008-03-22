@@ -26,11 +26,11 @@ CmdResult CommandUnloadmodule::Handle (const char* const* parameters, int, User 
 	if (ServerInstance->Modules->Unload(parameters[0]))
 	{
 		ServerInstance->SNO->WriteToSnoMask('A', "MODULE UNLOADED: %s unloaded %s", user->nick, parameters[0]);
-		user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+		user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick, parameters[0]);
 	}
 	else
 	{
-		user->WriteServ("972 %s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
+		user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
 		return CMD_FAILURE;
 	}
 

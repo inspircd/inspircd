@@ -37,7 +37,7 @@ class SSLMode : public ModeHandler
 					{
 						if(!i->first->GetExt("ssl", dummy))
 						{
-							source->WriteServ("490 %s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
+							source->WriteNumeric(490, "%s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
 							return MODEACTION_DENY;
 						}
 					}

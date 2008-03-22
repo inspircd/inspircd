@@ -36,11 +36,11 @@ class CommandGloadmodule : public Command
 			if (ServerInstance->Modules->Load(parameters[0]))
 			{
 				ServerInstance->SNO->WriteToSnoMask('A', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
-				user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+				user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick, parameters[0]);
 			}
 			else
 			{
-				user->WriteServ("974 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(974, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 		}
 		else
@@ -70,11 +70,11 @@ class CommandGunloadmodule : public Command
 			if (ServerInstance->Modules->Unload(parameters[0]))
 			{
 				ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
-				user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+				user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick, parameters[0]);
 			}
 			else
 			{
-				user->WriteServ("972 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 		}
 		else
@@ -103,14 +103,14 @@ class CommandGreloadmodule : public Command
 		{
 			if (!ServerInstance->Modules->Unload(parameters[0]))
 			{
-				user->WriteServ("972 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 			if (!ServerInstance->Modules->Load(parameters[0]))
 			{
-				user->WriteServ("974 %s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(974, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
 			}
 			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
-			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+			user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick, parameters[0]);
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0],user->nick);

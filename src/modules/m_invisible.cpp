@@ -74,7 +74,7 @@ class InvisibleMode : public ModeHandler
 
 			if (!ok)
 			{
-				source->WriteServ("481 %s :Permission Denied - You do not have access to become invisible via user mode +Q", source->nick);
+				source->WriteNumeric(481, "%s :Permission Denied - You do not have access to become invisible via user mode +Q", source->nick);
 				return MODEACTION_DENY;
 			}
 
@@ -245,7 +245,7 @@ class ModuleInvisible : public Module
 			User* target = (User*)dest;
 			if(target->IsModeSet('Q') && !*user->oper)
 			{
-				user->WriteServ("401 %s %s :No such nick/channel",user->nick, target->nick);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, target->nick);
 				return 1;
 			}
 		}

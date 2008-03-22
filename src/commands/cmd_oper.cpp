@@ -82,7 +82,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 					/* found this oper's opertype */
 					if (!ServerInstance->IsNick(TypeName))
 					{
-						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
+						user->WriteNumeric(491, "%s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
 						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type '%s' contains invalid characters",OperType);
 						ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return CMD_FAILURE;
@@ -108,7 +108,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 	{
 		/* correct oper credentials */
 		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick,user->ident,user->host,irc::Spacify(OperType),parameters[0]);
-		user->WriteServ("381 %s :You are now %s %s",user->nick, strchr("aeiouAEIOU", *OperType) ? "an" : "a", irc::Spacify(OperType));
+		user->WriteNumeric(381, "%s :You are now %s %s",user->nick, strchr("aeiouAEIOU", *OperType) ? "an" : "a", irc::Spacify(OperType));
 		if (!user->IsModeSet('o'))
 			user->Oper(OperType, LoginName);
 	}
@@ -132,7 +132,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 			}
 
 			// tell them they suck, and lag them up to help prevent brute-force attacks
-			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
+			user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick);
 			user->IncreasePenalty(10);
 			
 			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
@@ -146,7 +146,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 		}
 		else
 		{
-			user->WriteServ("491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
+			user->WriteNumeric(491, "%s :Your oper block does not have a valid opertype associated with it",user->nick);
 
 			snprintf(broadcast, MAXBUF, "CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0],OperType);
 

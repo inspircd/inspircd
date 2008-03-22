@@ -60,7 +60,7 @@ class cmd_fingerprint : public Command
 		}
 		else
 		{
-			user->WriteServ("401 %s %s :No such nickname", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 	}
@@ -150,14 +150,14 @@ class ModuleOperSSLCert : public Module
 					{
 						if (SSLOnly && !user->GetExt("ssl", dummy))
 						{
-							user->WriteServ("491 %s :This oper login name requires an SSL connection.", user->nick);
+							user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick);
 							return 1;
 						}
 
 						/* This oper would match */
 						if ((!cert) || (cert->GetFingerprint() != FingerPrint))
 						{
-							user->WriteServ("491 %s :This oper login name requires a matching key fingerprint.",user->nick);
+							user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick);
 							ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick);
 							ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick,user->ident,user->host);
 							return 1;

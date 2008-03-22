@@ -317,7 +317,7 @@ class ListModeBase : public ModeHandler
 			/* List is full, give subclass a chance to send a custom message */
 			if (!TellListTooLong(source, channel, parameter))
 			{
-				source->WriteServ("478 %s %s %s :Channel ban/ignore list is full", source->nick, channel->name, parameter.c_str());
+				source->WriteNumeric(478, "%s %s %s :Channel ban/ignore list is full", source->nick, channel->name, parameter.c_str());
 			}
 			
 			parameter = "";

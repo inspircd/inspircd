@@ -93,8 +93,8 @@ class ModuleSafeList : public Module
 		if (global_listing >= LimitList && !IS_OPER(user))
 		{
 			user->WriteServ("NOTICE %s :*** Server load is currently too heavy. Please try again later.", user->nick);
-			user->WriteServ("321 %s Channel :Users Name",user->nick);
-			user->WriteServ("323 %s :End of channel list.",user->nick);
+			user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
+			user->WriteNumeric(323, "%s :End of channel list.",user->nick);
 			return 1;
 		}
 
@@ -132,8 +132,8 @@ class ModuleSafeList : public Module
 			if (ServerInstance->Time() < (*last_list_time)+ThrottleSecs)
 			{
 				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick);
-				user->WriteServ("321 %s Channel :Users Name",user->nick);
-				user->WriteServ("323 %s :End of channel list.",user->nick);
+				user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
+				user->WriteNumeric(323, "%s :End of channel list.",user->nick);
 				return 1;
 			}
 
@@ -152,7 +152,7 @@ class ModuleSafeList : public Module
 		*llt = ServerInstance->Time();
 		user->Extend("safelist_last", llt);
 
-		user->WriteServ("321 %s Channel :Users Name",user->nick);
+		user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
 
 		global_listing++;
 
@@ -209,7 +209,7 @@ class ModuleSafeList : public Module
 						if (!ld->list_ended)
 						{
 							ld->list_ended = true;
-							user->WriteServ("323 %s :End of channel list.",user->nick);
+							user->WriteNumeric(323, "%s :End of channel list.",user->nick);
 						}
 					}
 				}

@@ -72,8 +72,8 @@ class ModuleSecureList : public Module
 			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
 			 */
-			user->WriteServ("321 %s Channel :Users Name",user->nick);
-			user->WriteServ("323 %s :End of channel list.",user->nick);
+			user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
+			user->WriteNumeric(323, "%s :End of channel list.",user->nick);
 			return 1;
 		}
 		return 0;

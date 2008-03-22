@@ -40,7 +40,7 @@ class CommandCycle : public Command
 		
 		if (!channel)
 		{
-			user->WriteServ("403 %s %s :No such channel", user->nick, parameters[0]);
+			user->WriteNumeric(403, "%s %s :No such channel", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 		
@@ -69,7 +69,7 @@ class CommandCycle : public Command
 		}
 		else
 		{
-			user->WriteServ("442 %s %s :You're not on that channel", user->nick, channel->name);
+			user->WriteNumeric(442, "%s %s :You're not on that channel", user->nick, channel->name);
 		}
 
 		return CMD_FAILURE;

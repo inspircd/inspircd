@@ -26,12 +26,12 @@ CmdResult CommandLoadmodule::Handle (const char* const* parameters, int, User *u
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{
 		ServerInstance->SNO->WriteToSnoMask('A', "NEW MODULE: %s loaded %s",user->nick, parameters[0]);
-		user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+		user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick, parameters[0]);
 		return CMD_SUCCESS;
 	}
 	else
 	{
-		user->WriteServ("974 %s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
+		user->WriteNumeric(974, "%s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
 		return CMD_FAILURE;
 	}
 }

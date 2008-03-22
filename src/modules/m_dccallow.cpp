@@ -101,7 +101,7 @@ class CommandDccallow : public Command
 							if (i->nickname == target->nick)
 							{
 								dl->erase(i);
-								user->WriteServ("995 %s %s :Removed %s from your DCCALLOW list", user->nick, user->nick, target->nick);
+								user->WriteNumeric(995, "%s %s :Removed %s from your DCCALLOW list", user->nick, user->nick, target->nick);
 								break;
 							}
 						}
@@ -136,12 +136,12 @@ class CommandDccallow : public Command
 					{
 						if (k->nickname == target->nick)
 						{
-							user->WriteServ("996 %s %s :%s is already on your DCCALLOW list", user->nick, user->nick, target->nick);
+							user->WriteNumeric(996, "%s %s :%s is already on your DCCALLOW list", user->nick, user->nick, target->nick);
 							return CMD_FAILURE;
 						}
 						else if (ServerInstance->MatchText(user->GetFullHost(), k->hostmask))
 						{
-							user->WriteServ("996 %s %s :You cannot add yourself to your own DCCALLOW list!", user->nick, user->nick);
+							user->WriteNumeric(996, "%s %s :You cannot add yourself to your own DCCALLOW list!", user->nick, user->nick);
 							return CMD_FAILURE;
 						}
 					}
@@ -172,11 +172,11 @@ class CommandDccallow : public Command
 			
 					if (length > 0)
 					{
-						user->WriteServ("993 %s %s :Added %s to DCCALLOW list for %d seconds", user->nick, user->nick, target->nick, length);
+						user->WriteNumeric(993, "%s %s :Added %s to DCCALLOW list for %d seconds", user->nick, user->nick, target->nick, length);
 					}
 					else
 					{
-						user->WriteServ("994 %s %s :Added %s to DCCALLOW list for this session", user->nick, user->nick, target->nick);
+						user->WriteNumeric(994, "%s %s :Added %s to DCCALLOW list for this session", user->nick, user->nick, target->nick);
 					}
 
 					/* route it. */
@@ -186,7 +186,7 @@ class CommandDccallow : public Command
 			else
 			{
 				// nick doesn't exist
-				user->WriteServ("401 %s %s :No such nick/channel", user->nick, nick.c_str());
+				user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, nick.c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -195,42 +195,42 @@ class CommandDccallow : public Command
 
 	void DisplayHelp(User* user)
 	{
-		user->WriteServ("998 %s :DCCALLOW [<+|->nick [time]] [list] [help]", user->nick);
-		user->WriteServ("998 %s :You may allow DCCs from specific users by specifying a", user->nick);
-		user->WriteServ("998 %s :DCC allow for the user you want to receive DCCs from.", user->nick);
-		user->WriteServ("998 %s :For example, to allow the user Brain to send you inspircd.exe", user->nick);
-		user->WriteServ("998 %s :you would type:", user->nick);
-		user->WriteServ("998 %s :/DCCALLOW +Brain", user->nick);
-		user->WriteServ("998 %s :Brain would then be able to send you files. They would have to", user->nick);
-		user->WriteServ("998 %s :resend the file again if the server gave them an error message", user->nick);
-		user->WriteServ("998 %s :before you added them to your DCCALLOW list.", user->nick);
-		user->WriteServ("998 %s :DCCALLOW entries will be temporary by default, if you want to add", user->nick);
-		user->WriteServ("998 %s :them to your DCCALLOW list until you leave IRC, type:", user->nick);
-		user->WriteServ("998 %s :/DCCALLOW +Brain 0", user->nick);
-		user->WriteServ("998 %s :To remove the user from your DCCALLOW list, type:", user->nick);
-		user->WriteServ("998 %s :/DCCALLOW -Brain", user->nick);
-		user->WriteServ("998 %s :To see the users in your DCCALLOW list, type:", user->nick);
-		user->WriteServ("998 %s :/DCCALLOW LIST", user->nick);
-		user->WriteServ("998 %s :NOTE: If the user leaves IRC or changes their nickname", user->nick);
-		user->WriteServ("998 %s :  they will be removed from your DCCALLOW list.", user->nick);
-		user->WriteServ("998 %s :  your DCCALLOW list will be deleted when you leave IRC.", user->nick);
-		user->WriteServ("999 %s :End of DCCALLOW HELP", user->nick);
+		user->WriteNumeric(998, "%s :DCCALLOW [<+|->nick [time]] [list] [help]", user->nick);
+		user->WriteNumeric(998, "%s :You may allow DCCs from specific users by specifying a", user->nick);
+		user->WriteNumeric(998, "%s :DCC allow for the user you want to receive DCCs from.", user->nick);
+		user->WriteNumeric(998, "%s :For example, to allow the user Brain to send you inspircd.exe", user->nick);
+		user->WriteNumeric(998, "%s :you would type:", user->nick);
+		user->WriteNumeric(998, "%s :/DCCALLOW +Brain", user->nick);
+		user->WriteNumeric(998, "%s :Brain would then be able to send you files. They would have to", user->nick);
+		user->WriteNumeric(998, "%s :resend the file again if the server gave them an error message", user->nick);
+		user->WriteNumeric(998, "%s :before you added them to your DCCALLOW list.", user->nick);
+		user->WriteNumeric(998, "%s :DCCALLOW entries will be temporary by default, if you want to add", user->nick);
+		user->WriteNumeric(998, "%s :them to your DCCALLOW list until you leave IRC, type:", user->nick);
+		user->WriteNumeric(998, "%s :/DCCALLOW +Brain 0", user->nick);
+		user->WriteNumeric(998, "%s :To remove the user from your DCCALLOW list, type:", user->nick);
+		user->WriteNumeric(998, "%s :/DCCALLOW -Brain", user->nick);
+		user->WriteNumeric(998, "%s :To see the users in your DCCALLOW list, type:", user->nick);
+		user->WriteNumeric(998, "%s :/DCCALLOW LIST", user->nick);
+		user->WriteNumeric(998, "%s :NOTE: If the user leaves IRC or changes their nickname", user->nick);
+		user->WriteNumeric(998, "%s :  they will be removed from your DCCALLOW list.", user->nick);
+		user->WriteNumeric(998, "%s :  your DCCALLOW list will be deleted when you leave IRC.", user->nick);
+		user->WriteNumeric(999, "%s :End of DCCALLOW HELP", user->nick);
 	}
 	
 	void DisplayDCCAllowList(User* user)
 	{
 		 // display current DCCALLOW list
-		user->WriteServ("990 %s :Users on your DCCALLOW list:", user->nick);
+		user->WriteNumeric(990, "%s :Users on your DCCALLOW list:", user->nick);
 	
 		if (user->GetExt("dccallow_list", dl))
 		{
 			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
 			{
-				user->WriteServ("991 %s %s :%s (%s)", user->nick, user->nick, c->nickname.c_str(), c->hostmask.c_str());
+				user->WriteNumeric(991, "%s %s :%s (%s)", user->nick, user->nick, c->nickname.c_str(), c->hostmask.c_str());
 			}
 		}
 		
-		user->WriteServ("992 %s :End of DCCALLOW list", user->nick);
+		user->WriteNumeric(992, "%s :End of DCCALLOW list", user->nick);
 	}			
 
 };
@@ -381,7 +381,7 @@ class ModuleDCCAllow : public Module
 					{
 						if ((iter2->set_on + iter2->length) <= ServerInstance->Time())
 						{
-							u->WriteServ("997 %s %s :DCCALLOW entry for %s has expired", u->nick, u->nick, iter2->nickname.c_str());
+							u->WriteNumeric(997, "%s %s :DCCALLOW entry for %s has expired", u->nick, u->nick, iter2->nickname.c_str());
 							iter2 = dl->erase(iter2);
 						}
 						else
@@ -414,7 +414,7 @@ class ModuleDCCAllow : public Module
 						{
 					
 							u->WriteServ("NOTICE %s :%s left the network or changed their nickname and has been removed from your DCCALLOW list", u->nick, i->nickname.c_str());
-							u->WriteServ("995 %s %s :Removed %s from your DCCALLOW list", u->nick, u->nick, i->nickname.c_str());
+							u->WriteNumeric(995, "%s %s :Removed %s from your DCCALLOW list", u->nick, u->nick, i->nickname.c_str());
 							dl->erase(i);
 							break;
 						}

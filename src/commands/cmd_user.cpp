@@ -30,7 +30,7 @@ CmdResult CommandUser::Handle (const char* const* parameters, int, User *user)
 			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)
 			 *  -- Craig, and then w00t.
 			 */
-			user->WriteServ("461 %s USER :Your username is not valid",user->nick);
+			user->WriteNumeric(461, "%s USER :Your username is not valid",user->nick);
 			return CMD_FAILURE;
 		}
 		else
@@ -47,7 +47,7 @@ CmdResult CommandUser::Handle (const char* const* parameters, int, User *user)
 	}
 	else
 	{
-		user->WriteServ("462 %s :You may not reregister",user->nick);
+		user->WriteNumeric(462, "%s :You may not reregister",user->nick);
 		return CMD_FAILURE;
 	}
 

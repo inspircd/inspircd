@@ -34,7 +34,7 @@ class CommandSaquit : public Command
 		{
 			if (ServerInstance->ULine(dest->server))
 			{
-				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
+				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick);
 				return CMD_FAILURE;
 			}
 			
