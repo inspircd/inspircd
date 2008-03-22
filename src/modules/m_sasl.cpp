@@ -35,8 +35,8 @@ class SaslAuthenticator
 	bool state_announced;
 
  public:
-	SaslAuthenticator(User *user, std::string method, InspIRCd *instance, Module *ctor)
-		: ServerInstance(instance), Creator(ctor), user(user), state(SASL_INIT)
+	SaslAuthenticator(User *user_, std::string method, InspIRCd *instance, Module *ctor)
+		: ServerInstance(instance), Creator(ctor), user(user_), state(SASL_INIT), state_announced(false)
 	{
 		this->user->Extend("sasl_authenticator", this);
 
@@ -52,12 +52,12 @@ class SaslAuthenticator
 		e.Send(ServerInstance);
 	}
 
-	SaslResult GetSaslResult(std::string &result)
+	SaslResult GetSaslResult(std::string &result_)
 	{
-		if (result == "F")
+		if (result_ == "F")
 			return SASL_FAIL;
 
-		if (result == "A")
+		if (result_ == "A")
 			return SASL_ABORT;
 
 		return SASL_OK;
@@ -69,12 +69,12 @@ class SaslAuthenticator
 		switch (this->state)
 		{
 		 case SASL_INIT:
-			this->agent = msg[1];
+			this->agent = msg[2];
 			this->user->Write("AUTHENTICATE %s", msg[5].c_str());
 			this->state = SASL_COMM;
 			break;
 		 case SASL_COMM:
-			if (msg[1] != this->agent)
+			if (msg[2] != this->agent)
 				return this->state;
 
 			if (msg[4] != "D")
@@ -83,7 +83,6 @@ class SaslAuthenticator
 			{
 				this->state = SASL_DONE;
 				this->result = this->GetSaslResult(msg[5]);
-				this->AnnounceState();
 			}
 
 			break;
@@ -145,6 +144,8 @@ class SaslAuthenticator
 		 default:
 			break;
 		}
+
+		this->state_announced = true;
 	}
 
 	~SaslAuthenticator()
@@ -250,20 +251,23 @@ class ModuleSASL : public Module
 			if ((*parameters)[1] != "SASL")
 				return;
 
-			User* target = ServerInstance->FindNick((*parameters)[2]);
+			User* target = ServerInstance->FindNick((*parameters)[3]);
 			if (!target)
 			{
-				ServerInstance->Logs->Log("m_sasl", DEBUG,"User not found in sasl ENCAP event: %s", (*parameters)[2].c_str());
+				ServerInstance->Logs->Log("m_sasl", DEBUG,"User not found in sasl ENCAP event: %s", (*parameters)[3].c_str());
 				return;
 			}
 
-			SaslAuthenticator *sasl;
-			if (!target->GetExt("sasl_authenticator", sasl))
+			SaslAuthenticator *sasl_;
+			if (!target->GetExt("sasl_authenticator", sasl_))
 				return;
 
-			SaslState state = sasl->ProcessInboundMessage(*parameters);
+			SaslState state = sasl_->ProcessInboundMessage(*parameters);
 			if (state == SASL_DONE)
-				delete sasl;
+			{
+				delete sasl_;
+				user->Shrink("sasl");
+			}
 		}
 	}
 };
