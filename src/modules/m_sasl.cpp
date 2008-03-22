@@ -70,19 +70,19 @@ class SaslAuthenticator
 		{
 		 case SASL_INIT:
 			this->agent = msg[1];
-			this->user->Write("AUTHENTICATE %s", msg[4].c_str());
+			this->user->Write("AUTHENTICATE %s", msg[5].c_str());
 			this->state = SASL_COMM;
 			break;
 		 case SASL_COMM:
 			if (msg[1] != this->agent)
 				return this->state;
 
-			if (msg[3] != "D")
-				this->user->Write("AUTHENTICATE %s", msg[4].c_str());
+			if (msg[4] != "D")
+				this->user->Write("AUTHENTICATE %s", msg[5].c_str());
 			else
 			{
 				this->state = SASL_DONE;
-				this->result = this->GetSaslResult(msg[4]);
+				this->result = this->GetSaslResult(msg[5]);
 				this->AnnounceState();
 			}
 
