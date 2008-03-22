@@ -97,7 +97,7 @@ class SaslAuthenticator
 		return this->state;
 	}
 
-	void SendClientMessage(const char* const* parameters, int pcnt)
+	bool SendClientMessage(const char* const* parameters, int pcnt)
 	{
 		if (this->state != SASL_COMM)
 			return;
@@ -114,6 +114,16 @@ class SaslAuthenticator
 
 		Event e((char*)&params, Creator, "send_encap");
 		e.Send(ServerInstance);
+
+		if (*parameters[0] == '*')
+		{
+			this->state = SASL_DONE;
+			this->result = SASL_ABORT;
+
+			return false;
+		}
+
+		return true;
 	}
 
 	void AnnounceState(void)
@@ -139,6 +149,7 @@ class SaslAuthenticator
 
 	~SaslAuthenticator()
 	{
+		this->user->Shrink("sasl_authenticator");
 		this->AnnounceState();
 	}
 };
@@ -163,8 +174,8 @@ class CommandAuthenticate : public Command
 			SaslAuthenticator *sasl;
 			if (!(user->GetExt("sasl_authenticator", sasl)))
 				sasl = new SaslAuthenticator(user, parameters[0], ServerInstance, Creator);
-			else
-				sasl->SendClientMessage(parameters, pcnt);
+			else if (sasl->SendClientMessage(parameters, pcnt) == false)	// IAL abort extension --nenolod
+				delete sasl;
 		}
 		return CMD_FAILURE;
 	}
@@ -252,10 +263,7 @@ class ModuleSASL : public Module
 
 			SaslState state = sasl->ProcessInboundMessage(*parameters);
 			if (state == SASL_DONE)
-			{
-				target->Shrink("sasl_authenticator");
 				delete sasl;
-			}
 		}
 	}
 };
