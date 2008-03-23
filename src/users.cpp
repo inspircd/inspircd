@@ -704,8 +704,8 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 			if (!AllowedUserModes)
 				AllowedUserModes = new bool[64];
 
-			memset(AllowedUserModes, 0, 64);
-			memset(AllowedChanModes, 0, 64);
+			memset(AllowedUserModes, 0, 63);
+			memset(AllowedChanModes, 0, 63);
 
 			char* Classes = strdup(iter_opertype->second);
 			char* myclass = strtok_r(Classes," ",&savept);
@@ -727,7 +727,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					{
 						if (*c == '*')
 						{
-							memset(this->AllowedUserModes, (int)(true), sizeof(this->AllowedUserModes));
+							memset(this->AllowedUserModes, (int)(true), 63);
 						}
 						else
 						{
@@ -738,7 +738,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					{
 						if (*c == '*')
 						{
-							memset(this->AllowedChanModes, (int)(true), sizeof(this->AllowedChanModes));
+							memset(this->AllowedChanModes, (int)(true), 63);
 						}
 						else
 						{
