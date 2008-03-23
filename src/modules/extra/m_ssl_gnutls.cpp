@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -24,6 +24,7 @@
 #include "socket.h"
 #include "hashcomp.h"
 #include "transport.h"
+#include "m_cap.h"
 
 #ifdef WINDOWS
 #pragma comment(lib, "libgnutls-13.lib")
@@ -62,6 +63,34 @@ public:
 	int fd;
 };
 
+class CommandStartTLS : public Command
+{
+	Module* Caller;
+ public:
+	/* Command 'dalinfo', takes no parameters and needs no special modes */
+	CommandStartTLS (InspIRCd* Instance, Module* mod) : Command(Instance,"STARTTLS", 0, 0, true), Caller(mod)
+	{
+		this->source = "m_ssl_gnutls.so";
+	}
+
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	{
+		if (!user->GetExt("tls"))
+			return CMD_FAILURE;
+
+		for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
+		{
+			if (ServerInstance->Config->ports[i]->GetDescription() == "ssl")
+			{
+				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), ServerInstance->Config->ports[i]->GetPort());
+				user->SetSockAddr(user->GetProtocolFamily(), user->GetIPString(), ServerInstance->Config->ports[i]->GetPort());
+				break;
+			}
+		}
+		return CMD_FAILURE;
+	}
+};
+
 class ModuleSSLGnuTLS : public Module
 {
 
@@ -85,6 +114,8 @@ class ModuleSSLGnuTLS : public Module
 	int dh_bits;
 
 	int clientactive;
+
+	CommandStartTLS* starttls;
 
  public:
 
@@ -111,8 +142,11 @@ class ModuleSSLGnuTLS : public Module
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
-			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 15);
+			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect, I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 16);
+
+		starttls = new CommandStartTLS(ServerInstance, this);
+		ServerInstance->AddCommand(starttls);
 	}
 
 	virtual void OnRehash(User* user, const std::string &param)
@@ -862,6 +896,11 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_x509_crt_deinit(cert);
 
 		return;
+	}
+
+	void OnEvent(Event* ev)
+	{
+		GenericCapHandler(ev, "tls", "tls");
 	}
 
 };
