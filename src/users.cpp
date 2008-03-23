@@ -194,6 +194,8 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	ip = NULL;
 	MyClass = NULL;
 	AllowedOperCommands = NULL;
+	memset(AllowedUserModes, 0, sizeof(AllowedUserModes));
+	memset(AllowedChanModes, 0, sizeof(AllowedChanModes));
 	chans.clear();
 	invites.clear();
 	memset(modes,0,sizeof(modes));
@@ -437,6 +439,18 @@ void User::RemoveInvite(const irc::string &channel)
 	}
 }
 
+bool User::HasModePermission(unsigned char mode, ModeType type)
+{
+	if (!IS_LOCAL(this))
+		return true;
+
+	if (!IS_OPER(this))
+		return false;
+
+	return ((type == MODETYPE_USER ? AllowedUserModes : AllowedChanModes))[(mode - 'A')];
+	
+}
+
 bool User::HasPermission(const std::string &command)
 {
 	/*
@@ -676,7 +690,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 				operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
 				if (iter_operclass != ServerInstance->Config->operclass.end())
 				{
-					char* CommandList = strdup(iter_operclass->second);
+					char* CommandList = strdup(iter_operclass->second.commandlist);
 					mycmd = strtok_r(CommandList," ",&savept2);
 					while (mycmd)
 					{
@@ -684,6 +698,29 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 						mycmd = strtok_r(NULL," ",&savept2);
 					}
 					free(CommandList);
+					this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
+					for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
+					{
+						if (*c == '*')
+						{
+							memset(this->AllowedUserModes, (int)(true), sizeof(this->AllowedUserModes));
+						}
+						else
+						{
+							this->AllowedUserModes[*c - 'A'] = true;
+						}
+					}
+					for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist; *c; ++c)
+					{
+						if (*c == '*')
+						{
+							memset(this->AllowedChanModes, (int)(true), sizeof(this->AllowedChanModes));
+						}
+						else
+						{
+							this->AllowedChanModes[*c - 'A'] = true;
+						}
+					}
 				}
 				myclass = strtok_r(NULL," ",&savept);
 			}

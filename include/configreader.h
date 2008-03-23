@@ -203,9 +203,16 @@ struct MultiConfig
  */
 typedef std::map<irc::string,char*> opertype_t;
 
+struct operclass_data
+{
+	char* commandlist;
+	char* cmodelist;
+	char* umodelist;
+};
+
 /** A Set of oper classes
  */
-typedef std::map<irc::string,char*> operclass_t;
+typedef std::map<irc::string, operclass_data> operclass_t;
 
 
 /** This class holds the bulk of the runtime configuration for the ircd.

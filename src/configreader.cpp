@@ -925,9 +925,9 @@ void ServerConfig::Read(bool bail, User* user)
 				InitTypes, DoType, DoneClassesAndTypes},
 
 		{"class",
-				{"name",	"commands",	NULL},
-				{"",		"",		NULL},
-				{DT_NOSPACES,	DT_CHARPTR},
+				{"name",	"commands",	"usermodes",	"chanmodes",	NULL},
+				{"",		"",		"",		"",		NULL},
+				{DT_NOSPACES,	DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR},
 				InitClasses, DoClass, DoneClassesAndTypes},
 	
 		{NULL,
@@ -2105,8 +2105,12 @@ bool InitClasses(ServerConfig* conf, const char*)
 	{
 		for (operclass_t::iterator n = conf->operclass.begin(); n != conf->operclass.end(); n++)
 		{
-			if (n->second)
-				delete[] n->second;
+			if (n->second.commandlist)
+				delete[] n->second.commandlist;
+			if (n->second.cmodelist)
+				delete[] n->second.cmodelist;
+			if (n->second.umodelist)
+				delete[] n->second.umodelist;
 		}
 	}
 
@@ -2129,12 +2133,31 @@ bool DoType(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 /*
  * XXX should this be in a class? -- w00t
  */
-bool DoClass(ServerConfig* conf, const char*, char**, ValueList &values, int*)
+bool DoClass(ServerConfig* conf, const char* tag, char**, ValueList &values, int*)
 {
 	const char* ClassName = values[0].GetString();
 	const char* CommandList = values[1].GetString();
+	const char* UModeList = values[2].GetString();
+	const char* CModeList = values[3].GetString();
 
-	conf->operclass[ClassName] = strnewdup(CommandList);
+	for (const char* c = UModeList; *c; ++c)
+	{
+		if ((*c < 'A' || *c > 'z') && *c != '*')
+		{
+			throw CoreException("Character " + std::string(1, *c) + " is not a valid mode in <class:usermodes>");
+		}
+	}
+	for (const char* c = CModeList; *c; ++c)
+	{
+		if ((*c < 'A' || *c > 'z') && *c != '*')
+		{
+			throw CoreException("Character " + std::string(1, *c) + " is not a valid mode in <class:chanmodes>");
+		}
+	}
+
+	conf->operclass[ClassName].commandlist = strnewdup(CommandList);
+	conf->operclass[ClassName].umodelist = strnewdup(UModeList);
+	conf->operclass[ClassName].cmodelist = strnewdup(CModeList);
 	return true;
 }
 

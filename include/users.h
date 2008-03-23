@@ -18,6 +18,8 @@
 #include "connection.h"
 #include "dns.h"
 
+#include "mode.h"
+
 /** Channel status for a user
  */
 enum ChanStatus {
@@ -455,6 +457,12 @@ class CoreExport User : public connection
 
 	std::map<std::string, bool>* AllowedOperCommands;
 
+	/** Allowed user modes from oper classes. */
+	bool AllowedUserModes[64];
+
+	/** Allowed channel modes from oper classes. */
+	bool AllowedChanModes[64];
+
  public:
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
 	 * The pointer is guarenteed to *always* be valid. :)
@@ -754,6 +762,15 @@ class CoreExport User : public connection
 	 * @return True if this user can execute the command
 	 */
 	bool HasPermission(const std::string &command);
+
+	/** Returns true or false if a user can set a privileged user or channel mode.
+	 * This is done by looking up their oper type from User::oper, then referencing
+	 * this to their oper classes, and checking the modes they can set.
+	 * @param mode The mode the check
+	 * @param type ModeType (MODETYPE_CHANNEL or MODETYPE_USER).
+	 * @return True if the user can set or unset this mode.
+	 */
+	bool HasModePermission(unsigned char mode, ModeType type);
 
 	/** Calls read() to read some data for this user using their fd.
 	 * @param buffer The buffer to read into

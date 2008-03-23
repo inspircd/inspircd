@@ -14,6 +14,11 @@
 #ifndef __MODE_H
 #define __MODE_H
 
+/* Forward declarations. */
+class User;
+
+#include "channels.h"
+
 /**
  * Holds the values for different type of modes
  * that can exist, USER or CHANNEL type.
