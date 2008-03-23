@@ -196,8 +196,6 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	AllowedUserModes = NULL;
 	AllowedChanModes = NULL;
 	AllowedOperCommands = NULL;
-	memset(AllowedUserModes, 0, sizeof(AllowedUserModes));
-	memset(AllowedChanModes, 0, sizeof(AllowedChanModes));
 	chans.clear();
 	invites.clear();
 	memset(modes,0,sizeof(modes));
