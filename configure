@@ -560,6 +560,8 @@ sub svnupdate
 	{
 		print STDERR "\e[0;33;1mERROR:\e[0m You have local modifications which conflicted with the updates from SVN\n";
 		printf STDERR "Configure is not able to complete the update. Please resolve these conflicts, then run ./configure -%supdate", (($coredirchanged || $configurechanged) ? "" : "mod");
+		print "Conflicted files: " . join ", ", @conflicted;
+		exit 1;
 	}
 	if ($configurechanged || $coredirchanged)
 	{
