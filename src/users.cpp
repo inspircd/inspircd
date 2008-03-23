@@ -193,6 +193,8 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Visibility = NULL;
 	ip = NULL;
 	MyClass = NULL;
+	AllowedUserModes = NULL;
+	AllowedChanModes = NULL;
 	AllowedOperCommands = NULL;
 	memset(AllowedUserModes, 0, sizeof(AllowedUserModes));
 	memset(AllowedChanModes, 0, sizeof(AllowedChanModes));
@@ -229,6 +231,18 @@ User::~User()
 	{
 		delete AllowedOperCommands;
 		AllowedOperCommands = NULL;
+	}
+
+	if (this->AllowedUserModes)
+	{
+		delete AllowedUserModes;
+		AllowedUserModes = NULL;
+	}
+
+	if (this->AllowedChanModes)
+	{
+		delete AllowedChanModes;
+		AllowedChanModes = NULL;
 	}
 
 	this->InvalidateCache();
@@ -445,6 +459,9 @@ bool User::HasModePermission(unsigned char mode, ModeType type)
 		return true;
 
 	if (!IS_OPER(this))
+		return false;
+
+	if (!AllowedUserModes || !AllowedChanModes)
 		return false;
 
 	return ((type == MODETYPE_USER ? AllowedUserModes : AllowedChanModes))[(mode - 'A')];
@@ -682,6 +699,15 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 				AllowedOperCommands->clear();
 			else
 				AllowedOperCommands = new std::map<std::string, bool>;
+
+			if (!AllowedChanModes)
+				AllowedChanModes = new bool[64];
+
+			if (!AllowedUserModes)
+				AllowedUserModes = new bool[64];
+
+			memset(AllowedUserModes, 0, 64);
+			memset(AllowedChanModes, 0, 64);
 
 			char* Classes = strdup(iter_opertype->second);
 			char* myclass = strtok_r(Classes," ",&savept);

@@ -458,10 +458,10 @@ class CoreExport User : public connection
 	std::map<std::string, bool>* AllowedOperCommands;
 
 	/** Allowed user modes from oper classes. */
-	bool AllowedUserModes[64];
+	bool* AllowedUserModes;
 
 	/** Allowed channel modes from oper classes. */
-	bool AllowedChanModes[64];
+	bool* AllowedChanModes;
 
  public:
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
