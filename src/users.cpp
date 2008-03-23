@@ -233,13 +233,13 @@ User::~User()
 
 	if (this->AllowedUserModes)
 	{
-		delete AllowedUserModes;
+		delete[] AllowedUserModes;
 		AllowedUserModes = NULL;
 	}
 
 	if (this->AllowedChanModes)
 	{
-		delete AllowedChanModes;
+		delete[] AllowedChanModes;
 		AllowedChanModes = NULL;
 	}
 
@@ -704,8 +704,8 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 			if (!AllowedUserModes)
 				AllowedUserModes = new bool[64];
 
-			memset(AllowedUserModes, 0, 63);
-			memset(AllowedChanModes, 0, 63);
+			memset(AllowedUserModes, 0, 64);
+			memset(AllowedChanModes, 0, 64);
 
 			char* Classes = strdup(iter_opertype->second);
 			char* myclass = strtok_r(Classes," ",&savept);
@@ -727,7 +727,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					{
 						if (*c == '*')
 						{
-							memset(this->AllowedUserModes, (int)(true), 63);
+							memset(this->AllowedUserModes, (int)(true), 64);
 						}
 						else
 						{
@@ -738,7 +738,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					{
 						if (*c == '*')
 						{
-							memset(this->AllowedChanModes, (int)(true), 63);
+							memset(this->AllowedChanModes, (int)(true), 64);
 						}
 						else
 						{
@@ -792,6 +792,17 @@ void User::UnOper()
 			delete AllowedOperCommands;
 			AllowedOperCommands = NULL;
 		}
+		if (AllowedUserModes)
+		{
+			delete[] AllowedUserModes;
+			AllowedUserModes = NULL;
+		}
+		if (AllowedChanModes)
+		{
+			delete[] AllowedChanModes;
+			AllowedChanModes = NULL;
+		}
+
 	}
 }
 
