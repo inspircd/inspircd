@@ -78,7 +78,7 @@
 
 <server name="penguin.omega.org.za"
         description="Waddle World"
-	    network="Omega">
+        network="Omega">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -335,8 +335,16 @@
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-#       <class name="name" commands="oper commands">                  #
+#       <class name="name" commands="oper commands"                   #
+#       usermodes="allowed oper only usermodes"                       #
+#       chanmodes="allowed oper only channelmodes">                   #
 #                                                                     #
+# The name value indicates a name for this class.                     #
+# The commands value indicates a list of one or more commands that    #
+# are allowed by this class (see also 'READ THIS BIT' below).         #
+# The usermodes and chanmodes values indicate lists of usermodes and  #
+# channel modes this oper can execute. This only applies to modes     #
+# that are marked oper-only such as usermode +Q and channelmode +O.   #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -353,11 +361,11 @@
 #  however it is provided for fast configuration (e.g. in test nets)  #
 #                                                                     #
 
-<class name="Shutdown" commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD">
-<class name="ServerLink" commands="CONNECT SQUIT RCONNECT MKPASSWD MKSHA256">
-<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE">
-<class name="OperChat" commands="WALLOPS GLOBOPS SETIDLE SPYLIST SPYNAMES">
-<class name="HostCloak" commands="SETHOST SETIDENT SETNAME CHGHOST CHGIDENT">
+<class name="Shutdown" commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD" usermodes="*" chanmodes="*">
+<class name="ServerLink" commands="CONNECT SQUIT RCONNECT MKPASSWD MKSHA256" usermodes="*" chanmodes="*">
+<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE" usermodes="*" chanmodes="*">
+<class name="OperChat" commands="WALLOPS GLOBOPS SETIDLE SPYLIST SPYNAMES" usermodes="*" chanmodes="*">
+<class name="HostCloak" commands="SETHOST SETIDENT SETNAME CHGHOST CHGIDENT" usermodes="*" chanmodes="*">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#
