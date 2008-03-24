@@ -177,7 +177,7 @@ class ModuleHelpop : public Module
 	
 		virtual Version GetVersion()
 		{
-			return Version(1,1,0,1,VF_COMMON|VF_VENDOR,API_VERSION);
+			return Version(1,2,0,1,VF_COMMON|VF_VENDOR,API_VERSION);
 		}
 };
 
