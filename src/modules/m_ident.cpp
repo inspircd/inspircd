@@ -350,7 +350,7 @@ class ModuleIdent : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1, 1, 1, 0, VF_VENDOR, API_VERSION);
+		return Version(1, 2, 1, 0, VF_VENDOR, API_VERSION);
 	}
 	
 	
