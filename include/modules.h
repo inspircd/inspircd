@@ -1245,7 +1245,7 @@ class CoreExport Module : public Extensible
 	 */
 	virtual int OnDelBan(User* source, Channel* channel,const std::string &banmask);
 
-	virtual void OnHookUserIO(User* user);
+	virtual void OnHookUserIO(User* user, const std::string &targetip);
 
 	/** Called immediately after any  connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides

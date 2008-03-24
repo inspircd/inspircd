@@ -18,7 +18,7 @@
 #include "bancache.h"
 
 /* add a client connection to the sockets list */
-void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
+void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip, const std::string &targetip)
 {
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
@@ -43,9 +43,11 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 #endif
 		inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
 
+	New->SetFd(socket);
+	New->SetSockAddr(socketfamily, ipaddr, port);
 
 	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New));
+	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New, targetip));
 
 	if (New->io)
 	{
@@ -77,10 +79,6 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	New->registered = REG_NONE;
 	New->signon = Instance->Time() + Instance->Config->dns_timeout;
 	New->lastping = 1;
-
-	New->SetSockAddr(socketfamily, ipaddr, port);
-
-	New->SetFd(socket);
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
 	for (const char* temp = New->GetIPString(); *temp && j < 64; temp++, j++)

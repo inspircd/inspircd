@@ -41,13 +41,9 @@
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-bool isin(int port, const std::vector<int> &portlist)
+bool isin(std::string hostandport, const std::vector<std::string> &portlist)
 {
-	for(unsigned int i = 0; i < portlist.size(); i++)
-		if(portlist[i] == port)
-			return true;
-
-	return false;
+	return std::find(portlist.begin(), portlist.end(), hostandport) != portlist.end();
 }
 
 /** Represents an SSL user's extra data
@@ -79,7 +75,7 @@ class CommandStartTLS : public Command
 			return CMD_FAILURE;
 
 		user->io = Caller;
-		Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), ServerInstance->Config->ports[i]->GetPort());
+		Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
 
 		return CMD_FAILURE;
 	}
@@ -92,7 +88,7 @@ class ModuleSSLGnuTLS : public Module
 
 	char* dummy;
 
-	std::vector<int> listenports;
+	std::vector<std::string> listenports;
 
 	int inbufsize;
 	issl_session sessions[MAX_DESCRIPTORS];
@@ -147,11 +143,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		Conf = new ConfigReader(ServerInstance);
 
-		for(unsigned int i = 0; i < listenports.size(); i++)
-		{
-			ServerInstance->Config->DelIOHook(listenports[i]);
-		}
-
 		listenports.clear();
 		clientactive = 0;
 		sslports.clear();
@@ -164,6 +155,8 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", index);
+				std::string addr = Conf->ReadValue("bind", "address", index);
+
 				irc::portparser portrange(port, false);
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
@@ -171,19 +164,14 @@ class ModuleSSLGnuTLS : public Module
 					clientactive++;
 					try
 					{
-						if (ServerInstance->Config->AddIOHook(portno, this))
-						{
-							listenports.push_back(portno);
-							for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
-								if (ServerInstance->Config->ports[i]->GetPort() == portno)
-									ServerInstance->Config->ports[i]->SetDescription("ssl");
-							ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
-							sslports.append("*:").append(ConvToStr(portno)).append(";");
-						}
-						else
-						{
-							ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", portno);
-						}
+						listenports.push_back(addr + ":" + ConvToStr(portno));
+
+						for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
+							if ((ServerInstance->Config->ports[i]->GetPort() == portno) && (ServerInstance->Config->ports[i]->GetIP() == addr))
+								ServerInstance->Config->ports[i]->SetDescription("ssl");
+						ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
+
+						sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
 					}
 					catch (ModuleException &e)
 					{
@@ -284,13 +272,13 @@ class ModuleSSLGnuTLS : public Module
 		{
 			User* user = (User*)item;
 
-			if(user->GetExt("ssl", dummy) && isin(user->GetPort(), listenports))
+			if(user->io)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				User::QuitUser(ServerInstance, user, "SSL module unloading");
 			}
-			if (user->GetExt("ssl_cert", dummy) && isin(user->GetPort(), listenports))
+			if (user->GetExt("ssl_cert", dummy))
 			{
 				ssl_cert* tofree;
 				user->GetExt("ssl_cert", tofree);
@@ -308,9 +296,8 @@ class ModuleSSLGnuTLS : public Module
 		{
 			for(unsigned int i = 0; i < listenports.size(); i++)
 			{
-				ServerInstance->Config->DelIOHook(listenports[i]);
 				for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
-					if (ServerInstance->Config->ports[j]->GetPort() == listenports[i])
+					if (listenports[i] == (ServerInstance->Config->ports[j]->GetIP()+":"+ConvToStr(ServerInstance->Config->ports[j]->GetPort())))
 						ServerInstance->Config->ports[j]->SetDescription("plaintext");
 			}
 		}
@@ -327,9 +314,10 @@ class ModuleSSLGnuTLS : public Module
 		output.append(" SSL=" + sslports);
 	}
 
-	virtual void OnHookUserIO(User* user)
+	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->io && isin(user->GetPort(), listenports))
+		ServerInstance->Logs->Log("m_ssl_gnutls", DEBUG, "*** OnHookUserIO, target IP = %s", targetip.c_str());
+		if (!user->io && isin(targetip+":"+ConvToStr(user->GetPort()),listenports))
 		{
 			/* Hook the user with our module */
 			user->io = this;
@@ -625,7 +613,7 @@ class ModuleSSLGnuTLS : public Module
 			return;
 
 		// Bugfix, only send this numeric for *our* SSL users
-		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->GetPort(), listenports)))
+		if (dest->GetExt("ssl", dummy) || ((IS_LOCAL(dest) && (dest->io == this))))
 		{
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick, dest->nick);
 		}
