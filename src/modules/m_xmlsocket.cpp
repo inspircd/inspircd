@@ -30,9 +30,15 @@ class ModuleXMLSocket : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
-	bool isin(const std::string &hostandport, const std::vector<std::string> &portlist)
+	bool isin(const std::string &host, int port, const std::vector<std::string> &portlist)
 	{
-		return std::find(portlist.begin(), portlist.end(), hostandport) != portlist.end();
+		if (std::find(portlist.begin(), portlist.end(), "*:" + ConvToStr(port)) != portlist.end())
+			return true;
+
+		if (std::find(portlist.begin(), portlist.end(), ":" + ConvToStr(port)) != portlist.end())
+			return true;
+
+		return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
 	}
 
 	virtual void OnRehash(User* user, const std::string &param)
@@ -51,6 +57,7 @@ class ModuleXMLSocket : public Module
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
 				std::string addr = Conf->ReadValue("bind", "address", i);
+
 				irc::portparser portrange(port, false);
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
@@ -107,7 +114,7 @@ class ModuleXMLSocket : public Module
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->io && isin(targetip+":"+ConvToStr(user->GetPort()),listenports))
+		if (!user->io && isin(targetip,user->GetPort(),listenports))
 		{
 			/* Hook the user with our module */
 			user->io = this;

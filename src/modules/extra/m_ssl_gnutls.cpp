@@ -41,9 +41,15 @@
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-bool isin(const std::string &hostandport, const std::vector<std::string> &portlist)
+bool isin(const std::string &host, int port, const std::vector<std::string> &portlist)
 {
-	return std::find(portlist.begin(), portlist.end(), hostandport) != portlist.end();
+	if (std::find(portlist.begin(), portlist.end(), "*:" + ConvToStr(port)) != portlist.end())
+		return true;
+
+	if (std::find(portlist.begin(), portlist.end(), ":" + ConvToStr(port)) != portlist.end())
+		return true;
+
+	return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
 }
 
 /** Represents an SSL user's extra data
@@ -319,7 +325,7 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->io && isin(targetip+":"+ConvToStr(user->GetPort()),listenports))
+		if (!user->io && isin(targetip,user->GetPort(),listenports))
 		{
 			/* Hook the user with our module */
 			user->io = this;

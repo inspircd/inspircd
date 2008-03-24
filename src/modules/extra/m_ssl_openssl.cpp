@@ -46,9 +46,15 @@ enum issl_io_status { ISSL_WRITE, ISSL_READ };
 
 static bool SelfSigned = false;
 
-bool isin(const std::string &hostandport, const std::vector<std::string> &portlist)
+bool isin(const std::string &host, int port, const std::vector<std::string> &portlist)
 {
-	return std::find(portlist.begin(), portlist.end(), hostandport) != portlist.end();
+	if (std::find(portlist.begin(), portlist.end(), "*:" + ConvToStr(port)) != portlist.end())
+		return true;
+
+	if (std::find(portlist.begin(), portlist.end(), ":" + ConvToStr(port)) != portlist.end())
+		return true;
+
+	return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
 }
 
 char* get_error()
@@ -152,7 +158,7 @@ class ModuleSSLOpenSSL : public Module
 
         virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->io && isin(targetip + ":" + ConvToStr(user->GetPort()), listenports))
+		if (!user->io && isin(targetip,user->GetPort(), listenports))
 		{
 			/* Hook the user with our module */
 			user->io = this;
