@@ -41,7 +41,7 @@
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-bool isin(std::string hostandport, const std::vector<std::string> &portlist)
+bool isin(const std::string &hostandport, const std::vector<std::string> &portlist)
 {
 	return std::find(portlist.begin(), portlist.end(), hostandport) != portlist.end();
 }
@@ -181,6 +181,9 @@ class ModuleSSLGnuTLS : public Module
 			}
 		}
 
+		if (!sslports.empty())
+			sslports.erase(sslports.end() - 1);
+
 		if(param != "ssl")
 		{
 			delete Conf;
@@ -316,7 +319,6 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		ServerInstance->Logs->Log("m_ssl_gnutls", DEBUG, "*** OnHookUserIO, target IP = %s", targetip.c_str());
 		if (!user->io && isin(targetip+":"+ConvToStr(user->GetPort()),listenports))
 		{
 			/* Hook the user with our module */
