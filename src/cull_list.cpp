@@ -80,11 +80,11 @@ int CullList::Apply()
 
 		if (IS_LOCAL(u))
 		{
-			if (ServerInstance->Config->GetIOHook(u->GetPort()))
+			if (u->io)
 			{
 				try
 				{
-					ServerInstance->Config->GetIOHook(u->GetPort())->OnRawSocketClose(u->GetFd());
+					u->io->OnRawSocketClose(u->GetFd());
 				}
 				catch (CoreException& modexcept)
 				{

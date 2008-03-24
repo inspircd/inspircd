@@ -193,6 +193,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Visibility = NULL;
 	ip = NULL;
 	MyClass = NULL;
+	io = NULL;
 	AllowedUserModes = NULL;
 	AllowedChanModes = NULL;
 	AllowedOperCommands = NULL;
@@ -1165,14 +1166,14 @@ void User::Write(std::string text)
 		return;
 	}
 
-	if (ServerInstance->Config->GetIOHook(this->GetPort()))
+	if (this->io)
 	{
 		/* XXX: The lack of buffering here is NOT a bug, modules implementing this interface have to
 		 * implement their own buffering mechanisms
 		 */
 		try
 		{
-			ServerInstance->Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, text.data(), text.length());
+			this->io->OnRawSocketWrite(this->fd, text.data(), text.length());
 		}
 		catch (CoreException& modexcept)
 		{

@@ -35,19 +35,35 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 		return;
 	}
 
-	Instance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
-
-	int j = 0;
-
-	this->unregistered_count++;
-
 	char ipaddr[MAXBUF];
 #ifdef IPV6
 	if (socketfamily == AF_INET6)
 		inet_ntop(AF_INET6, &((const sockaddr_in6*)ip)->sin6_addr, ipaddr, sizeof(ipaddr));
 	else
 #endif
-	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
+		inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
+
+
+	/* Give each of the modules an attempt to hook the user for I/O */
+	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New));
+
+	if (New->io)
+	{
+		try
+		{
+			New->io->OnRawSocketAccept(socket, ipaddr, port);
+		}
+		catch (CoreException& modexcept)
+		{
+			ServerInstance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+		}
+	}
+
+	Instance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
+
+	int j = 0;
+
+	this->unregistered_count++;
 
 	(*(this->clientlist))[New->uuid] = New;
 

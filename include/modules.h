@@ -401,7 +401,7 @@ enum Implementation
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
-	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric,
+	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookUserIO,
 	I_END
 };
 
@@ -1244,6 +1244,8 @@ class CoreExport Module : public Extensible
 	 * @return 1 to block the unban, 0 to continue as normal
 	 */
 	virtual int OnDelBan(User* source, Channel* channel,const std::string &banmask);
+
+	virtual void OnHookUserIO(User* user);
 
 	/** Called immediately after any  connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides

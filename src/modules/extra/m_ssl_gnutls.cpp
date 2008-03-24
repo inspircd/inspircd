@@ -78,15 +78,9 @@ class CommandStartTLS : public Command
 		if (!user->GetExt("tls"))
 			return CMD_FAILURE;
 
-		for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
-		{
-			if (ServerInstance->Config->ports[i]->GetDescription() == "ssl")
-			{
-				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), ServerInstance->Config->ports[i]->GetPort());
-				user->SetSockAddr(user->GetProtocolFamily(), user->GetIPString(), ServerInstance->Config->ports[i]->GetPort());
-				break;
-			}
-		}
+		user->io = Caller;
+		Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), ServerInstance->Config->ports[i]->GetPort());
+
 		return CMD_FAILURE;
 	}
 };
@@ -142,8 +136,8 @@ class ModuleSSLGnuTLS : public Module
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
-			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect, I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 16);
+			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect, I_OnEvent, I_OnHookUserIO };
+		ServerInstance->Modules->Attach(eventlist, this, 17);
 
 		starttls = new CommandStartTLS(ServerInstance, this);
 		ServerInstance->AddCommand(starttls);
@@ -303,6 +297,8 @@ class ModuleSSLGnuTLS : public Module
 				delete tofree;
 				user->Shrink("ssl_cert");
 			}
+
+			user->io = NULL;
 		}
 	}
 
@@ -329,6 +325,15 @@ class ModuleSSLGnuTLS : public Module
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" SSL=" + sslports);
+	}
+
+	virtual void OnHookUserIO(User* user)
+	{
+		if (!user->io && isin(user->GetPort(), listenports))
+		{
+			/* Hook the user with our module */
+			user->io = this;
+		}
 	}
 
 	virtual const char* OnRequest(Request* request)

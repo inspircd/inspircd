@@ -464,6 +464,10 @@ class CoreExport User : public connection
 	bool* AllowedChanModes;
 
  public:
+	/** Module responsible for raw i/o
+	 */
+	Module* io;
+
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
 	 * The pointer is guarenteed to *always* be valid. :)
 	 */

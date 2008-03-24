@@ -46,14 +46,14 @@ void ProcessUserHandler::Call(User* cu)
 
 	char* ReadBuffer = Server->GetReadBuffer();
 
-	if (Server->Config->GetIOHook(cu->GetPort()))
+	if (cu->io)
 	{
 		int result2 = 0;
 		int MOD_RESULT = 0;
 
 		try
 		{
-			MOD_RESULT = Server->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,Server->Config->NetBufferSize,result2);
+			MOD_RESULT = cu->io->OnRawSocketRead(cu->GetFd(),ReadBuffer,Server->Config->NetBufferSize,result2);
 		}
 		catch (CoreException& modexcept)
 		{
