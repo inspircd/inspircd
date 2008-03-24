@@ -63,30 +63,10 @@ void ServerConfig::ClearStack()
 	include_stack.clear();
 }
 
-Module* ServerConfig::GetIOHook(int port)
-{
-	std::map<int,Module*>::iterator x = IOHookModule.find(port);
-	return (x != IOHookModule.end() ? x->second : NULL);
-}
-
 Module* ServerConfig::GetIOHook(BufferedSocket* is)
 {
 	std::map<BufferedSocket*,Module*>::iterator x = SocketIOHookModule.find(is);
 	return (x != SocketIOHookModule.end() ? x->second : NULL);
-}
-
-bool ServerConfig::AddIOHook(int port, Module* iomod)
-{
-	if (!GetIOHook(port))
-	{
-		IOHookModule[port] = iomod;
-		return true;
-	}
-	else
-	{
-		throw ModuleException("Port already hooked by another module");
-		return false;
-	}
 }
 
 bool ServerConfig::AddIOHook(Module* iomod, BufferedSocket* is)
@@ -102,17 +82,6 @@ bool ServerConfig::AddIOHook(Module* iomod, BufferedSocket* is)
 		throw ModuleException("BufferedSocket derived class already hooked by another module");
 		return false;
 	}
-}
-
-bool ServerConfig::DelIOHook(int port)
-{
-	std::map<int,Module*>::iterator x = IOHookModule.find(port);
-	if (x != IOHookModule.end())
-	{
-		IOHookModule.erase(x);
-		return true;
-	}
-	return false;
 }
 
 bool ServerConfig::DelIOHook(BufferedSocket* is)

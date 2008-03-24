@@ -18,7 +18,7 @@
 class ModuleXMLSocket : public Module
 {
 	ConfigReader* Conf;
-	std::vector<int> listenports;
+	std::vector<std::string> listenports;
 
  public:
 
@@ -26,19 +26,19 @@ class ModuleXMLSocket : public Module
 		: Module(Me)
 	{
 		OnRehash(NULL,"");
-		Implementation eventlist[] = { I_OnUnloadModule, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUnloadModule, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnRehash, I_OnHookUserIO, I_OnCleanup };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
+	}
+
+	bool isin(const std::string &hostandport, const std::vector<std::string> &portlist)
+	{
+		return std::find(portlist.begin(), portlist.end(), hostandport) != portlist.end();
 	}
 
 	virtual void OnRehash(User* user, const std::string &param)
 	{
 
 		Conf = new ConfigReader(ServerInstance);
-
-		for (unsigned int i = 0; i < listenports.size(); i++)
-		{
-			ServerInstance->Config->DelIOHook(listenports[i]);
-		}
 
 		listenports.clear();
 
@@ -50,27 +50,21 @@ class ModuleXMLSocket : public Module
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
+				std::string addr = Conf->ReadValue("bind", "address", i);
 				irc::portparser portrange(port, false);
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
 				{
 					try
 					{
-						if (ServerInstance->Config->AddIOHook(portno, this))
-						{
-							listenports.push_back(portno);
-								for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
-								if (ServerInstance->Config->ports[j]->GetPort() == portno)
-									ServerInstance->Config->ports[j]->SetDescription("xml");
-						}
-						else
-						{
-							ServerInstance->Logs->Log("m_xmlsocket",DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d, maybe you have another similar module loaded?", portno);
-						}
+						listenports.push_back(addr + ":" + ConvToStr(portno));
+						for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
+							if ((ServerInstance->Config->ports[i]->GetPort() == portno) && (ServerInstance->Config->ports[i]->GetIP() == addr))
+								ServerInstance->Config->ports[j]->SetDescription("xml");
 					}
 					catch (ModuleException &e)
 					{
-						ServerInstance->Logs->Log("m_xmlsocket",DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have another similar module loaded?", portno, e.GetReason());
+						ServerInstance->Logs->Log("m_xmlsocket",DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d: %s. Maybe you have another similar module loaded?", portno, e.GetReason());
 					}
 				}
 			}
@@ -89,11 +83,20 @@ class ModuleXMLSocket : public Module
 		{
 			for(unsigned int i = 0; i < listenports.size(); i++)
 			{
-				ServerInstance->Config->DelIOHook(listenports[i]);
 				for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
-					if (ServerInstance->Config->ports[j]->GetPort() == listenports[i])
+					if (listenports[i] == (ServerInstance->Config->ports[j]->GetIP()+":"+ConvToStr(ServerInstance->Config->ports[j]->GetPort())))
 						ServerInstance->Config->ports[j]->SetDescription("plaintext");
 			}
+		}
+	}
+
+        virtual void OnCleanup(int target_type, void* item)
+	{
+		if(target_type == TYPE_USER)
+		{
+			User* user = (User*)item;
+			if(user->io == this)
+				user->io = NULL;
 		}
 	}
 
@@ -102,6 +105,14 @@ class ModuleXMLSocket : public Module
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
+	virtual void OnHookUserIO(User* user, const std::string &targetip)
+	{
+		if (!user->io && isin(targetip+":"+ConvToStr(user->GetPort()),listenports))
+		{
+			/* Hook the user with our module */
+			user->io = this;
+		}
+	}
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{

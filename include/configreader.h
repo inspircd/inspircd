@@ -546,10 +546,8 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	std::vector<ListenSocket*> ports;
 
-	/** A list of ports claimed by IO Modules
+	/** socket objects that are attached to by modules
 	 */
-	std::map<int,Module*> IOHookModule;
-
 	std::map<BufferedSocket*, Module*> SocketIOHookModule;
 
 	/** The 005 tokens of this server (ISUPPORT)
@@ -759,27 +757,7 @@ class CoreExport ServerConfig : public Extensible
 	void ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild);
 
 	void ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val);
-	
-	/** Get a pointer to the module which has hooked the given port.
-	 * @parameter port Port number
-	 * @return Returns a pointer to the hooking module, or NULL
-	 */
-	Module* GetIOHook(int port);
 
-	/** Hook a module to a client port, so that it can receive notifications
-	 * of low-level port activity.
-	 * @param port The port number
-	 * @param Module the module to hook to the port
-	 * @return True if the hook was successful.
-	 */
-	bool AddIOHook(int port, Module* iomod);
-
-	/** Delete a module hook from a client port.
-	 * @param port The port to detatch from
-	 * @return True if successful
-	 */
-	bool DelIOHook(int port);
-	
 	/** Get a pointer to the module which has hooked the given BufferedSocket class.
 	 * @parameter port Port number
 	 * @return Returns a pointer to the hooking module, or NULL
