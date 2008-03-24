@@ -14,7 +14,7 @@
 #ifndef __SNOMASKS_H__
 #define __SNOMASKS_H__
 
-class Snomask
+class Snomask : public Extensible
 {
  private:
 	InspIRCd *ServerInstance;

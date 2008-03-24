@@ -385,7 +385,7 @@ typedef std::pair<std::string, std::string> IdentHostPair;
  * does not have to know the specifics of the internals of an XLine class
  * and/or how to call its constructor.
  */
-class CoreExport XLineFactory
+class CoreExport XLineFactory : public classbase
 {
  protected:
 
@@ -455,7 +455,7 @@ typedef XLineLookup::iterator LookupIter;
  * or any other line created by a module. It also manages XLineFactory classes which
  * can generate a specialized XLine for use by another module.
  */
-class CoreExport XLineManager
+class CoreExport XLineManager : public classbase
 {
  protected:
 	/** The owner/creator of this class

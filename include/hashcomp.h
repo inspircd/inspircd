@@ -132,7 +132,7 @@ namespace irc
 	 * std::string, or a const char* const* array, using overloaded
 	 * constructors.
 	 */
-	class CoreExport stringjoiner
+	class CoreExport stringjoiner : public classbase
 	{
 	 private:
 		/** Output string
@@ -171,7 +171,7 @@ namespace irc
 	 * It can then reproduce this list, clamped to a maximum of MAXMODES
 	 * values per line.
 	 */
-	class CoreExport modestacker
+	class CoreExport modestacker : public classbase
 	{
 	 private:
 		/** The mode sequence and its parameters
@@ -242,7 +242,7 @@ namespace irc
 	 * list will be ":item". This is to allow for parsing 'source' fields
 	 * from data.
 	 */
-	class CoreExport tokenstream
+	class CoreExport tokenstream : public classbase
 	{
 	 private:
 		/** Original string

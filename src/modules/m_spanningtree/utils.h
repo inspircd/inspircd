@@ -41,7 +41,7 @@ typedef std::map<irc::string, Module*> hookmodules;
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
-class SpanningTreeUtilities
+class SpanningTreeUtilities : public classbase
 {
  private:
 	/** Creator server

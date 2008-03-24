@@ -19,7 +19,7 @@
 /* Originally written by Om, January 2008
  */
 
-class BanRedirectEntry
+class BanRedirectEntry : public classbase
 {
  public:
 	std::string targetchan;

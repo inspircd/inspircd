@@ -72,7 +72,7 @@ typedef std::pair<unsigned char*, std::string> DNSInfo;
 
 /** Cached item stored in the query cache.
  */
-class CoreExport CachedQuery
+class CoreExport CachedQuery : public classbase
 {
  public:
 	/** The cached result data, an IP or hostname

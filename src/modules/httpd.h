@@ -22,7 +22,7 @@
 
 /** A modifyable list of HTTP header fields
  */
-class HTTPHeaders
+class HTTPHeaders : public classbase
 {
  protected:
 	std::map<std::string,std::string> headers;

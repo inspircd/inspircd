@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 
-class AccountData
+class AccountData : public classbase
 {
  public:
 	User* user;

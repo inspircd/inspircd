@@ -34,7 +34,7 @@ typedef ssl_data::iterator ssl_data_iter;
  * connected local users using Extensible::Extend() and the
  * key 'ssl_cert'.
  */
-class ssl_cert
+class ssl_cert : public Extensible
 {
 	/** Always contains an empty string
 	 */

@@ -203,7 +203,7 @@ struct MultiConfig
  */
 typedef std::map<irc::string,char*> opertype_t;
 
-struct operclass_data
+struct operclass_data : public Extensible
 {
 	char* commandlist;
 	char* cmodelist;

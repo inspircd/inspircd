@@ -24,7 +24,7 @@
 /* $ModDesc: Provides handling of DNS blacklists */
 
 /* Class holding data for a single entry */
-class DNSBLConfEntry
+class DNSBLConfEntry : public classbase
 {
 	public:
 		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE };

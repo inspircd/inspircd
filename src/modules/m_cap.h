@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 
-class CapData
+class CapData : public classbase
 {
  public:
 	irc::string type;
