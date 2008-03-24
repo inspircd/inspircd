@@ -77,9 +77,6 @@ class CommandStartTLS : public Command
 
 	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
 	{
-		if (!user->GetExt("tls"))
-			return CMD_FAILURE;
-
 		user->io = Caller;
 		Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
 
