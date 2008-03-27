@@ -111,7 +111,7 @@ void ListenSocket::HandleEvent(EventType, int)
 		if (this->family == AF_INET6)
 		{
 			in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
-			inet_ntop(AF_INET6, &((const sockaddr_in6*)ip)->sin6_addr, buf, sizeof(buf));
+			inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
 			socklen_t raddrsz = sizeof(sockaddr_in6);
 			if (getpeername(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
 				inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
