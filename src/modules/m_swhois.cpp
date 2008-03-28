@@ -206,14 +206,14 @@ class ModuleSWhois : public Module
 			std::string* text;
 			if (dest->GetExt("swhois", text))
 			{
-				user->Shrink("swhois");
+				dest->Shrink("swhois");
 				delete text;
 			}
 
 			if (extdata.empty())
 				return; // XXX does the command parser even allow sending blank mdata? it needs to here! -- w00t
 
-			text2 = new std::string(extdata);
+			text = new std::string(extdata);
 			dest->Extend("swhois", text);
 		}
 	}
