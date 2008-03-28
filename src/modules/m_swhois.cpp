@@ -192,11 +192,14 @@ class ModuleSWhois : public Module
 			userrec* dest = (userrec*)target;
 			// if they dont already have an swhois field, accept the remote server's
 			std::string* text;
-			if (!dest->GetExt("swhois", text))
+			if (dest->GetExt("swhois", text))
 			{
-				std::string* text = new std::string(extdata);
-				dest->Extend("swhois",text);
+				dest->Shrink("swhois");
+				delete text;
 			}
+
+			text = new std::string(extdata);
+			dest->Extend("swhois",text);
 		}
 	}
 	
