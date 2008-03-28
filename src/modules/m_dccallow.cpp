@@ -383,7 +383,7 @@ class ModuleDCCAllow : public Module
 					dccallowlist::iterator iter = dl->begin();
 					while (iter != dl->end())
 					{
-						if ((iter->set_on + iter->length) <= ServerInstance->Time())
+						if (iter->length != 0 && (iter->set_on + iter->length) <= ServerInstance->Time())
 						{
 							u->WriteServ("997 %s %s :DCCALLOW entry for %s has expired", u->nick, u->nick, iter->nickname.c_str());
 							iter = dl->erase(iter);
