@@ -133,6 +133,7 @@ class ModuleSWhois : public Module
 				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick,dest->nick,swhois->c_str());
 			}
 		}
+
 		/* Dont block anything */
 		return 0;
 	}
@@ -200,13 +201,17 @@ class ModuleSWhois : public Module
 		if ((target_type == TYPE_USER) && (extname == "swhois"))
 		{
 			User* dest = (User*)target;
-			// if they dont already have an swhois field, accept the remote server's
+
+			// if they already have an swhois field, trash it and replace it with the remote one.
 			std::string* text;
-			if (!dest->GetExt("swhois", text))
+			if (dest->GetExt("swhois", text))
 			{
-				std::string* text2 = new std::string(extdata);
-				dest->Extend("swhois",text2);
+				user->Shrink("swhois");
+				delete text;
 			}
+
+			text2 = new std::string(extdata);
+			dest->Extend("swhois", text);
 		}
 	}
 	
