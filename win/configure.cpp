@@ -233,7 +233,7 @@ void Run()
 #endif
 	printf_c("InspIRCd revision ID: \033[1;32m%s \033[0m\n\n", revision ? revision_text : "(Non-SVN build)");
 
-	max_fd = get_int_option("What is the maximum file descriptor count you would like to allow?", 1024);
+	max_fd = get_int_option("What is the maximum file descriptor count you would like to allow?", 10240);
 
 	// detect windows
 	if(iswinxp())
@@ -242,7 +242,7 @@ void Run()
 			     "This removes the socket number limitation of select and is much more efficent.\n"
 				 "If you are unsure, answer yes.\n\n");
 
-		use_iocp = get_bool_option("Do you want to use the IOCP implementation?", true);
+		use_iocp = get_bool_option("Do you want to use the IOCP implementation?", false);
 	}
 
 	ipv6 = get_bool_option("Would you like to enable IPV6?", false);
@@ -268,7 +268,7 @@ void Run()
 		"different servers on the network.\n\n");
 
     
-	max_clients = get_int_option("Please enter the maximum number of clients at any one time?", 1024);
+	max_clients = get_int_option("Please enter the maximum number of clients at any one time?", 10240);
 	nicklen = get_int_option("Please enter the maximum length of nicknames?", 31);
 	chanlen = get_int_option("Please enter the maximum length of channel names?", 64);
 	modechanges = get_int_option("Please enter the maximum number of mode changes in one line?", 20);
