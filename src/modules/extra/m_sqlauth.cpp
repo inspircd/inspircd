@@ -17,19 +17,17 @@
 #include "modules.h"
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
+#include "m_hash.h"
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
-/* $ModDep: m_sqlv2.h m_sqlutils.h */
+/* $ModDep: m_sqlv2.h m_sqlutils.h m_hash.h */
 
 class ModuleSQLAuth : public Module
 {
 	Module* SQLutils;
 	Module* SQLprovider;
 
-	std::string usertable;
-	std::string userfield;
-	std::string passfield;
-	std::string encryption;
+	std::string freeformquery;
 	std::string killreason;
 	std::string allowpattern;
 	std::string databaseid;
@@ -66,23 +64,13 @@ public:
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		
-		usertable	= Conf.ReadValue("sqlauth", "usertable", 0);	/* User table name */
+
 		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);			/* Database ID, given to the SQL service provider */
-		userfield	= Conf.ReadValue("sqlauth", "userfield", 0);	/* Field name where username can be found */
-		passfield	= Conf.ReadValue("sqlauth", "passfield", 0);	/* Field name where password can be found */
+		freeformquery	= Conf.ReadValue("sqlauth", "query", 0);	/* Field name where username can be found */
 		killreason	= Conf.ReadValue("sqlauth", "killreason", 0);	/* Reason to give when access is denied to a user (put your reg details here) */
-		allowpattern= Conf.ReadValue("sqlauth", "allowpattern",0 );	/* Allow nicks matching this pattern without requiring auth */
-		encryption	= Conf.ReadValue("sqlauth", "encryption", 0);	/* Name of sql function used to encrypt password, e.g. "md5" or "passwd".
-																	 * define, but leave blank if no encryption is to be used.
-																	 */
+		allowpattern	= Conf.ReadValue("sqlauth", "allowpattern",0 );	/* Allow nicks matching this pattern without requiring auth */
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
-		
-		if (encryption.find("(") == std::string::npos)
-		{
-			encryption.append("(");
-		}
-	}	
+	}
 
 	virtual int OnUserRegister(User* user)
 	{
@@ -99,11 +87,51 @@ public:
 		}
 		return 0;
 	}
+        void SearchAndReplace(std::string& newline, const std::string &find, const std::string &replace)
+	{
+		std::string::size_type x = newline.find(find);
+		while (x != std::string::npos)
+		{
+			newline.erase(x, find.length());
+			if (!replace.empty())
+				newline.insert(x, replace);
+			x = newline.find(find);
+		}
+	}
+
 
 	bool CheckCredentials(User* user)
 	{
-		SQLrequest req = SQLrequest(this, SQLprovider, databaseid, SQLquery("SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')") % userfield % usertable % userfield % user->nick %
-				passfield % encryption % user->password);
+		std::string thisquery = freeformquery;
+		std::string safepass = user->password;
+		
+		/* Search and replace the escaped nick and escaped pass into the query */
+
+		SearchAndReplace(safepass, "\"", "");
+
+		SearchAndReplace(thisquery, "$nick", user->nick);
+		SearchAndReplace(thisquery, "$pass", user->password);
+		SearchAndReplace(thisquery, "$host", user->host);
+		SearchAndReplace(thisquery, "$ip", user->GetIPString());
+
+		Module* HashMod = ServerInstance->Modules->Find("m_md5.so");
+
+		if (HashMod)
+		{
+			HashResetRequest(this, HashMod).Send();
+			SearchAndReplace(thisquery, "$md5pass", HashSumRequest(this, HashMod, user->password).Send());
+		}
+
+		HashMod = ServerInstance->Modules->Find("m_sha256.so");
+
+		if (HashMod)
+		{
+			HashResetRequest(this, HashMod).Send();
+			SearchAndReplace(thisquery, "$sha256pass", HashSumRequest(this, HashMod, user->password).Send());
+		}
+
+		/* Build the query */
+		SQLrequest req = SQLrequest(this, SQLprovider, databaseid, SQLquery(thisquery));
 			
 		if(req.Send())
 		{
