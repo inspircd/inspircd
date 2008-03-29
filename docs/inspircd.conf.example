@@ -2251,10 +2251,11 @@
 #-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # dbid       - Database ID to use (see m_sql)                         #
+# hash       - Hashing provider to use for password hashing           #
 #                                                                     #
 # See also: http://www.inspircd.org/wiki/SQL_Oper_Storage_Module      #
 #                                                                     #
-#<sqloper dbid="1">
+#<sqloper dbid="1" hash="md5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SVSHold module: Implements SVSHOLD. Like Q:Lines, but can only be   #
