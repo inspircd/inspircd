@@ -13,6 +13,7 @@
 
 /* $Install: src/inspircd $(BINPATH) */
 
+
 #include "inspircd.h"
 #include <signal.h>
 
