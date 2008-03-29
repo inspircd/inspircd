@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -23,13 +23,18 @@
 #include "commands/cmd_oper.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
-/* $ModDep: m_sqlv2.h m_sqlutils.h */
+/* $ModDep: m_sqlv2.h m_sqlutils.h m_hash.h */
+
+typedef std::map<irc::string, Module*> hashymodules;
 
 class ModuleSQLOper : public Module
 {
 	Module* SQLutils;
-	Module* HashModule;
 	std::string databaseid;
+	irc::string hashtype;
+	hashymodules hashers;
+	bool diduseiface;
+	std::deque<std::string> names;
 
 public:
 	ModuleSQLOper(InspIRCd* Me)
@@ -39,25 +44,62 @@ public:
 		ServerInstance->Modules->UseInterface("SQL");
 		ServerInstance->Modules->UseInterface("HashRequest");
 
-		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		HashModule = ServerInstance->Modules->Find("m_md5.so");
-		if (!HashModule)
-			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_sqloper.so.");
+		OnRehash(NULL, "");
+
+		diduseiface = false;
+
+		/* Find all modules which implement the interface 'HashRequest' */
+		modulelist* ml = ServerInstance->Modules->FindInterface("HashRequest");
+
+		/* Did we find any modules? */
+		if (ml)
+		{
+			/* Yes, enumerate them all to find out the hashing algorithm name */
+			for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
+			{
+				/* Make a request to it for its name, its implementing
+				 * HashRequest so we know its safe to do this
+				 */
+				std::string name = HashNameRequest(this, *m).Send();
+				/* Build a map of them */
+				hashers[name.c_str()] = *m;
+				names.push_back(name);
+			}
+			/* UseInterface doesn't do anything if there are no providers, so we'll have to call it later if a module gets loaded later on. */
+			diduseiface = true;
+			ServerInstance->Modules->UseInterface("HashRequest");
+		}
 
 		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
 
-		OnRehash(NULL,"");
-		Implementation eventlist[] = { I_OnRequest, I_OnRehash, I_OnPreCommand };
+		Implementation eventlist[] = { I_OnRequest, I_OnRehash, I_OnPreCommand, I_OnLoadModule };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
+	}
+
+	virtual void OnLoadModule(Module* mod, const std::string& name)
+	{
+		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
+		{
+			ServerInstance->Logs->Log("m_sqloper",DEBUG, "Post-load registering hasher: %s", name.c_str());
+			std::string sname = HashNameRequest(this, mod).Send();
+			hashers[sname.c_str()] = mod;
+			names.push_back(sname);
+			if (!diduseiface)
+			{
+				ServerInstance->Modules->UseInterface("HashRequest");
+				diduseiface = true;
+			}
+		}
 	}
 
 	virtual ~ModuleSQLOper()
 	{
 		ServerInstance->Modules->DoneWithInterface("SQL");
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
-		ServerInstance->Modules->DoneWithInterface("HashRequest");
+		if (diduseiface)
+			ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
 
@@ -66,6 +108,7 @@ public:
 		ConfigReader Conf(ServerInstance);
 		
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
+		hashtype = assign(Conf.ReadValue("sqloper", "hash", 0));
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
@@ -93,15 +136,18 @@ public:
 
 		if (target)
 		{
-			/* Reset hash module first back to MD5 standard state */
-			HashResetRequest(this, HashModule).Send();
-			/* Make an MD5 hash of the password for using in the query */
-			std::string md5_pass_hash = HashSumRequest(this, HashModule, password.c_str()).Send();
+			hashymodules::iterator x = hashers.find(hashtype);
+			if (x == hashers.end())
+				return false;
 
-			/* We generate our own MD5 sum here because some database providers (e.g. SQLite) dont have a builtin md5 function,
+			/* Reset hash module first back to MD5 standard state */
+			HashResetRequest(this, x->second).Send();
+			/* Make an MD5 hash of the password for using in the query */
+			std::string md5_pass_hash = HashSumRequest(this, x->second, password.c_str()).Send();
+
+			/* We generate our own sum here because some database providers (e.g. SQLite) dont have a builtin md5/sha256 function,
 			 * also hashing it in the module and only passing a remote query containing a hash is more secure.
 			 */
-
 			SQLrequest req = SQLrequest(this, target, databaseid,
 					SQLquery("SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'") % username % md5_pass_hash);
 			
