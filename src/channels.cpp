@@ -881,16 +881,15 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 			continue;
 
 		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->first), i->second.c_str());
-		/* OnUserList can change this - reset it back to normal */
-		i->second = i->first->nick;
 
 		curlen += ptrlen;
 		ptr += ptrlen;
 
 		numusers++;
 
-		if (curlen > (480-NICKMAX))
-		{
+		/* Fix for bug #506 reported by Skip, often seen by w00t :p */
+		if (curlen > (480-i->second.length()))
+			{
 			/* list overflowed into multiple numerics */
 			user->WriteServ(std::string(list));
 
@@ -901,6 +900,9 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 			ptrlen = 0;
 			numusers = 0;
 		}
+
+		/* OnUserList can change this - reset it back to normal */
+		i->second = i->first->nick;
 	}
 
 	/* if whats left in the list isnt empty, send it */
