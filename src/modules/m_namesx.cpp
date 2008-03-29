@@ -95,11 +95,7 @@ class ModuleNamesX : public Module
 				if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
 					continue;
 
-				size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", Ptr->GetAllPrefixChars(i->first), i->second.c_str());
-				/* OnUserList can change this - reset it back to normal */
-				curlen += ptrlen;
-				ptr += ptrlen;
-				numusers++;
+				size_t ptrlen = 0;
 
 				/* Fix for bug #506 reported by Skip, often seen by w00t :p */
 				if (curlen > (480-i->second.length()))
@@ -113,6 +109,14 @@ class ModuleNamesX : public Module
 					numusers = 0;
 				}
 
+				ptrlen = snprintf(ptr, MAXBUF, "%s%s ", Ptr->GetAllPrefixChars(i->first), i->second.c_str());
+
+				curlen += ptrlen;
+				ptr += ptrlen;
+
+				numusers++;
+
+				/* OnUserList can change this - reset it back to normal */
 				i->second = i->first->nick;
 			}
 			/* if whats left in the list isnt empty, send it */

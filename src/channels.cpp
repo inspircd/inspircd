@@ -880,16 +880,11 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 		if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
 			continue;
 
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->first), i->second.c_str());
-
-		curlen += ptrlen;
-		ptr += ptrlen;
-
-		numusers++;
+		size_t ptrlen = 0;
 
 		/* Fix for bug #506 reported by Skip, often seen by w00t :p */
 		if (curlen > (480-i->second.length()))
-			{
+		{
 			/* list overflowed into multiple numerics */
 			user->WriteServ(std::string(list));
 
@@ -900,6 +895,13 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 			ptrlen = 0;
 			numusers = 0;
 		}
+
+		ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->first), i->second.c_str());
+
+		curlen += ptrlen;
+		ptr += ptrlen;
+
+		numusers++;
 
 		/* OnUserList can change this - reset it back to normal */
 		i->second = i->first->nick;
