@@ -741,7 +741,7 @@ class ModuleSQL : public Module
 			rc = pthread_join(Dispatcher, &status);
 			if (rc)
 			{
-				ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is " + rc);
+				ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is %d", rc);
 			}
 			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
 		}
@@ -757,7 +757,7 @@ class ModuleSQL : public Module
 		rc = pthread_join(Dispatcher, &status);
 		if (rc)
 		{
-			ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is " + rc);
+			ServerInstance->Log(DEFAULT,"SQL: Error code from pthread_join() is %d", rc);
 		}
 		ClearAllConnections();
 		DELETE(Conf);
