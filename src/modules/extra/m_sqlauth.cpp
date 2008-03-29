@@ -110,7 +110,7 @@ public:
 		SearchAndReplace(safepass, "\"", "");
 
 		SearchAndReplace(thisquery, "$nick", user->nick);
-		SearchAndReplace(thisquery, "$pass", user->password);
+		SearchAndReplace(thisquery, "$pass", safepass);
 		SearchAndReplace(thisquery, "$host", user->host);
 		SearchAndReplace(thisquery, "$ip", user->GetIPString());
 
