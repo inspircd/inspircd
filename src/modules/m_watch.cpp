@@ -15,6 +15,32 @@
 
 /* $ModDesc: Provides support for the /WATCH command */
 
+
+/*
+ * Okay, it's nice that this was documented and all, but I at least understood very little
+ * of it, so I'm going to attempt to explain the data structures in here a bit more.
+ *
+ * For efficiency, many data structures are kept.
+ *
+ * The first is a global list `watchentries':
+ *	hash_map<irc::string, std::deque<User*> >
+ *
+ * That is, if nick 'w00t' is being watched by user pointer 'Brain' and 'Om', <w00t, (Brain, Om)>
+ * will be in the watchentries list.
+ *
+ * The second is that each user has a per-user data structure attached to their user record via Extensible:
+ *	std::map<irc::string, std::string> watchlist;
+ * So, in the above example with w00t watched by Brain and Om, we'd have:
+ * 	Brain-
+ * 	      `- w00t
+ * 	Om-
+ * 	   `- w00t
+ *
+ * Hopefully this helps any brave soul that ventures into this file other than me. :-)
+ *		-- w00t (mar 30, 2008)
+ */
+
+
 /* This module has been refactored to provide a very efficient (in terms of cpu time)
  * implementation of /WATCH.
  *
