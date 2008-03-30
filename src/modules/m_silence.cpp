@@ -56,7 +56,7 @@ class CommandSVSSilence : public Command
  public:
 	CommandSVSSilence(InspIRCd* Instance) : Command(Instance,"SVSSILENCE", 0, 2)
 	{
-		this->source = "m_watch.so";
+		this->source = "m_silence.so";
 		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
