@@ -153,7 +153,7 @@ void ModuleSpanningTree::HandleLusers(const char* const* parameters, int pcnt, U
 		user->WriteNumeric(253, "%s %d :unknown connections",user->nick,ServerInstance->Users->UnregisteredUserCount());
 	
 	if (ServerInstance->ChannelCount())
-		user->WriteNumeric(254, "%s %d :channels formed",user->nick,ServerInstance->ChannelCount());
+		user->WriteNumeric(254, "%s %ld :channels formed",user->nick,ServerInstance->ChannelCount());
 	
 	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick,ServerInstance->Users->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
 	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->Users->LocalUserCount(),max_local);

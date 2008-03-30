@@ -1116,7 +1116,7 @@ void DNS::HandleEvent(EventType, int)
 /** Add a derived Resolver to the working set */
 bool DNS::AddResolverClass(Resolver* r)
 {
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"AddResolverClass %08lx", r);
+	ServerInstance->Logs->Log("RESOLVER",DEBUG,"AddResolverClass 0x%08lx", (unsigned long)r);
 	/* Check the pointers validity and the id's validity */
 	if ((r) && (r->GetId() > -1))
 	{

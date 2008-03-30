@@ -559,8 +559,8 @@ sub svnupdate
 	if (scalar(@conflicted) > 0)
 	{
 		print STDERR "\e[0;33;1mERROR:\e[0m You have local modifications which conflicted with the updates from SVN\n";
-		printf STDERR "Configure is not able to complete the update. Please resolve these conflicts, then run ./configure -%supdate", (($coredirchanged || $configurechanged) ? "" : "mod");
-		print "Conflicted files: " . join ", ", @conflicted;
+		printf STDERR "Configure is not able to complete the update. Please resolve these conflicts, then run ./configure -%supdate\n", (($coredirchanged || $configurechanged) ? "" : "mod");
+		print "Conflicted files: " . join ", ", @conflicted . "\n";
 		exit 1;
 	}
 	if ($configurechanged || $coredirchanged)
@@ -1133,8 +1133,8 @@ sub getosflags {
 
 	# Beware: Linux sets it's own cflags below for some retarded reason
 	$config{LDLIBS} = "-pthread -lstdc++";
-	$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wall $config{OPTIMISATI}";
-	$config{DEVELOPER} = "-fPIC -Woverloaded-virtual -Wshadow -Wall -g";
+	$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall $config{OPTIMISATI}";
+	$config{DEVELOPER} = "-fPIC -Woverloaded-virtual -Wshadow -Wall -Wformat=2 -Wmissing-format-attribute -g";
 	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared" unless defined $opt_disablerpath;
 	$config{MAKEPROG} = "make";
 
@@ -1160,7 +1160,7 @@ sub getosflags {
 
 	if ($config{OSNAME} =~ /Linux/i) {
 		$config{LDLIBS} = "-ldl -lstdc++ -pthread";
-		$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wall $config{OPTIMISATI}";
+#		$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wall $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
 		$config{MAKEPROG} = "make";

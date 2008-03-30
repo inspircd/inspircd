@@ -100,7 +100,7 @@ class CoreExport SnomaskManager : public Extensible
 	 * @param text A format string containing text to send
 	 * @param ... Format arguments
 	 */
-	void WriteToSnoMask(char letter, const char* text, ...);
+	void WriteToSnoMask(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Called once per 5 seconds from the mainloop, this flushes any cached
 	 * snotices. The way the caching works is as follows:

@@ -188,7 +188,7 @@ class ModuleDelayJoin : public Module
 		user->Shrink("delayjoin");
 	}
 
-	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...)
+	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5)
 	{
 		va_list argsPtr;
 		char textbuffer[MAXBUF];

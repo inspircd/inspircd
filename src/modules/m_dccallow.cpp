@@ -172,7 +172,7 @@ class CommandDccallow : public Command
 			
 					if (length > 0)
 					{
-						user->WriteNumeric(993, "%s %s :Added %s to DCCALLOW list for %d seconds", user->nick, user->nick, target->nick, length);
+						user->WriteNumeric(993, "%s %s :Added %s to DCCALLOW list for %ld seconds", user->nick, user->nick, target->nick, length);
 					}
 					else
 					{

@@ -134,7 +134,7 @@ class ModuleSpanningTree : public Module
 
 	/** Attempt to send a message to a user
 	 */
-	void RemoteMessage(User* user, const char* format, ...);
+	void RemoteMessage(User* user, const char* format, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Returns oper-specific MAP information
 	 */

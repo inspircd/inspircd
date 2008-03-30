@@ -931,7 +931,7 @@ class CoreExport User : public connection
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
-	void Write(const char *text, ...);
+	void Write(const char *text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Write text to this user, appending CR/LF and prepending :server.name
 	 * @param text A std::string to send to the user
@@ -942,9 +942,9 @@ class CoreExport User : public connection
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
-	void WriteServ(const char* text, ...);
+	void WriteServ(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
-	void WriteNumeric(unsigned int numeric, const char* text, ...);
+	void WriteNumeric(unsigned int numeric, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	void WriteNumeric(unsigned int numeric, const std::string &text);
 
@@ -959,7 +959,7 @@ class CoreExport User : public connection
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
-	void WriteFrom(User *user, const char* text, ...);
+	void WriteFrom(User *user, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
 	 * @param dest The user to route the message to
@@ -972,7 +972,7 @@ class CoreExport User : public connection
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
-	void WriteTo(User *dest, const char *data, ...);
+	void WriteTo(User *dest, const char *data, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Write to all users that can see this user (including this user in the list), appending CR/LF
 	 * @param text A std::string to send to the users
@@ -983,13 +983,13 @@ class CoreExport User : public connection
 	 * @param text The format string for text to send to the users
 	 * @param ... POD-type format arguments
 	 */
-	void WriteCommon(const char* text, ...);
+	void WriteCommon(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
 	 * @param text The format string for text to send to the users
 	 * @param ... POD-type format arguments
 	 */
-	void WriteCommonExcept(const char* text, ...);
+	void WriteCommonExcept(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
 	 * @param text A std::string to send to the users
@@ -1008,7 +1008,7 @@ class CoreExport User : public connection
 	 * @param text The format string to send in the WALLOPS message
 	 * @param ... Format arguments
 	 */
-	void WriteWallOps(const char* text, ...);
+	void WriteWallOps(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Write a WALLOPS message from this user to all local opers.
 	 * If this user is not opered, the function will return without doing anything.
@@ -1058,7 +1058,7 @@ class CoreExport User : public connection
 	 * @param text The text format string to send
 	 * @param ... Format arguments
 	 */
-	void SendAll(const char* command, const char* text, ...);
+	void SendAll(const char* command, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Compile a channel list for this user, and send it to the user 'source'
 	 * Used internally by WHOIS

@@ -31,7 +31,7 @@ CmdResult CommandLusers::Handle (const char* const*, int, User *user)
 	if (ServerInstance->Users->UnregisteredUserCount())
 		user->WriteNumeric(253, "%s %d :unknown connections",user->nick,ServerInstance->Users->UnregisteredUserCount());
 	if (ServerInstance->ChannelCount())
-		user->WriteNumeric(254, "%s %d :channels formed",user->nick,ServerInstance->ChannelCount());
+		user->WriteNumeric(254, "%s %ld :channels formed",user->nick,ServerInstance->ChannelCount());
 	if (ServerInstance->Users->LocalUserCount())
 		user->WriteNumeric(255, "%s :I have %d clients and 0 servers",user->nick,ServerInstance->Users->LocalUserCount());
 

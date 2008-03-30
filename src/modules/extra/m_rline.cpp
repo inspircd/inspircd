@@ -91,7 +91,7 @@ class CoreExport RLine : public XLine
 
 	void DisplayExpiry()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed R-Line %s (set by %s %d seconds ago)", this->matchtext.c_str(), this->source, this->duration);
+		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed R-Line %s (set by %s %ld seconds ago)", this->matchtext.c_str(), this->source, this->duration);
 	}
 
 	const char* Displayable()

@@ -741,7 +741,7 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 			ServerInstance->SNO->WriteToSnoMask('A', "There were errors in the configuration file:");
 			while (start < errors.length())
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', errors.substr(start, 360).c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', errors.substr(start, 360));
 				start += 360;
 			}
 		}

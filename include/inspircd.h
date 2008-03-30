@@ -25,6 +25,12 @@
 #undef ERROR
 #endif
 
+#ifdef __GNUC__
+#define CUSTOM_PRINTF(STRING, FIRST) __attribute__((format(printf, STRING, FIRST)))
+#else
+#define CUSTOM_PRINTF(STRING, FIRST)
+#endif
+
 // Required system headers.
 #include <time.h>
 #include <stdarg.h>
@@ -796,7 +802,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param text Format string of to write to the log
 	 * @param ... Format arguments of text to write to the log
 	 */
-	void Log(int level, const char* text, ...);
+	void Log(int level, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Output a log message to the ircd.log file
 	 * The text will only be output if the current loglevel
@@ -821,7 +827,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param format Format string for the numeric
 	 * @param ... Parameters for the format string
 	 */
-	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...);
+	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
 
 	/** Quit a user for excess flood, and if they are not
 	 * fully registered yet, temporarily zline their IP.

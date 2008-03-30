@@ -71,7 +71,7 @@ class ModuleXMLSocket : public Module
 					}
 					catch (ModuleException &e)
 					{
-						ServerInstance->Logs->Log("m_xmlsocket",DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %d: %s. Maybe you have another similar module loaded?", portno, e.GetReason());
+						ServerInstance->Logs->Log("m_xmlsocket",DEFAULT, "m_xmlsocket.so: FAILED to enable XMLSocket on port %ld: %s. Maybe you have another similar module loaded?", portno, e.GetReason());
 					}
 				}
 			}

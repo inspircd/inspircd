@@ -224,7 +224,7 @@ User::~User()
 	if (this->MyClass)
 	{
 		this->MyClass->RefCount--;
-		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %u", this->MyClass->RefCount);
+		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %lu", this->MyClass->RefCount);
 	}
 	if (this->AllowedOperCommands)
 	{
@@ -520,7 +520,7 @@ bool User::AddBuffer(std::string a)
 		if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
 		{
 			this->SetWriteError("RecvQ exceeded");
-			ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
+			ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %d exceeds connect class maximum of %lu",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
 			return false;
 		}
 
@@ -597,7 +597,7 @@ void User::AddWriteBuf(const std::string &data)
 		 * to repeatedly add the text to the sendq!
 		 */
 		this->SetWriteError("SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->MyClass->GetSendqMax());
+		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %d exceeds connect class maximum of %lu",this->nick,sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
 
@@ -1708,7 +1708,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		/* deny change if change will take class over the limit */
 		if (found->limit && (found->RefCount + 1 >= found->limit))
 		{
-			ServerInstance->Logs->Log("USERS", DEBUG, "OOPS: Connect class limit (%u) hit, denying", found->limit);
+			ServerInstance->Logs->Log("USERS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", found->limit);
 			return this->MyClass;
 		}
 
@@ -1718,12 +1718,12 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			if (found == this->MyClass) // no point changing this shit :P
 				return this->MyClass;
 			this->MyClass->RefCount--;
-			ServerInstance->Logs->Log("USERS", DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
+			ServerInstance->Logs->Log("USERS", DEBUG, "Untying user from connect class -- refcount: %lu", this->MyClass->RefCount);
 		}
 
 		this->MyClass = found;
 		this->MyClass->RefCount++;
-		ServerInstance->Logs->Log("USERS", DEBUG, "User tied to new class -- connect refcount now: %u", this->MyClass->RefCount);
+		ServerInstance->Logs->Log("USERS", DEBUG, "User tied to new class -- connect refcount now: %lu", this->MyClass->RefCount);
 	}
 
 	return this->MyClass;

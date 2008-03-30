@@ -195,13 +195,13 @@ class ModuleSSLOpenSSL : public Module
                                                 for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
                                                         if ((ServerInstance->Config->ports[i]->GetPort() == portno) && (ServerInstance->Config->ports[i]->GetIP() == addr))
                                                                 ServerInstance->Config->ports[i]->SetDescription("ssl");
-                                                ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
+                                                ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %ld", portno);
 
                                                 sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
                                         }
                                         catch (ModuleException &e)
                                         {
-                                                ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
+                                                ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %ld: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
                                         }
                                 }
                         }

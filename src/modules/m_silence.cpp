@@ -110,7 +110,7 @@ class CommandSilence : public Command
 				}
 				if (sl->size() >= maxsilence)
 				{
-					user->WriteNumeric(952, "%s %s :Your silence list is full",user->nick, user->nick, mask.c_str());
+					user->WriteNumeric(952, "%s %s :Your silence list is full",user->nick, user->nick);
 					return CMD_FAILURE;
 				}
 				sl->insert(std::make_pair<irc::string, time_t>(mask.c_str(), ServerInstance->Time()));

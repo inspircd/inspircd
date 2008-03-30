@@ -261,7 +261,7 @@ class ModuleSVSHold : public Module
 				if ((*iter)->set_on + (*iter)->length <= ServerInstance->Time())
 				{
 					ServerInstance->Logs->Log("m_svshold",DEBUG, "m_svshold.so: hold on %s expired, removing...", (*iter)->nickname.c_str());
-					ServerInstance->SNO->WriteToSnoMask('A',"%li second SVSHOLD on %s (%s) set %u seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
+					ServerInstance->SNO->WriteToSnoMask('A',"%li second SVSHOLD on %s (%s) set %ld seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
 					HoldMap.erase(assign((*iter)->nickname));
 					delete *iter;
 					safeiter = iter;

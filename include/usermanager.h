@@ -138,13 +138,13 @@ class CoreExport UserManager : public classbase
 	 * @param text The text format string to send
 	 * @param ... The format arguments
 	 */
-	void ServerNoticeAll(const char* text, ...);
+	void ServerNoticeAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Send a server message (PRIVMSG) to all local users
 	 * @param text The text format string to send
 	 * @param ... The format arguments
 	 */
-	void ServerPrivmsgAll(const char* text, ...);
+	void ServerPrivmsgAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Send text to all users with a specific set of modes
 	 * @param modes The modes to check against, without a +, e.g. 'og'
@@ -154,7 +154,7 @@ class CoreExport UserManager : public classbase
 	 * @param text The text format string to send
 	 * @param ... The format arguments
 	 */
-	void WriteMode(const char* modes, int flags, const char* text, ...);
+	void WriteMode(const char* modes, int flags, const char* text, ...) CUSTOM_PRINTF(4, 5);
 };
 
 #endif

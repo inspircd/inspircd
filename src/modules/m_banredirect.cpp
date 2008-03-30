@@ -64,7 +64,7 @@ class BanRedirect : public ModeWatcher
 		
 			if(adding && (channel->bans.size() > static_cast<unsigned>(maxbans)))
 			{
-				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %d)", source->nick, channel->name, channel->name, maxbans);
+				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)", source->nick, channel->name, channel->name, maxbans);
 				return false;
 			}
 			

@@ -72,7 +72,7 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 		 */
 		if ((idle) || (signon))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
+			ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %lu %lu :seconds idle, signon time",user->nick, dest->nick, idle, signon);
 		}
 
 		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, dest->nick);

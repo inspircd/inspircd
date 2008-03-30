@@ -62,7 +62,7 @@ CmdResult CommandModules::Handle (const char* const*, int, User *user)
 		strlcpy(modulename,module_names[i].c_str(),256);
 		if (IS_OPER(user))
 		{
-			user->WriteNumeric(702, "%s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,m,V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+			user->WriteNumeric(702, "%s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,(unsigned long)m,V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{

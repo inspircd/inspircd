@@ -260,7 +260,7 @@ void HTTPSocket::Connect(const std::string &ip)
 {
 	this->response = new HTTPClientResponse((Module*)Mod, req.GetSource() , url.url, 0, "");
 
-	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::Connect(%s) response=%08lx", ip.c_str(), response);
+	Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::Connect(%s) response=%08lx", ip.c_str(), (unsigned long)response);
 	strlcpy(this->IP, ip.c_str(), MAXBUF);
 	strlcpy(this->host, ip.c_str(), MAXBUF);
 
@@ -354,7 +354,7 @@ void HTTPSocket::OnClose()
 	if (!closed)
 	{
 		closed = true;
-		Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::OnClose response=%08lx", response);
+		Instance->Logs->Log("m_http_client",DEBUG,"HTTPSocket::OnClose response=%08lx", (unsigned long)response);
 		std::string e;
 		if (data.empty())
 			{

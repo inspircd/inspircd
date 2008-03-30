@@ -258,7 +258,7 @@ class ModuleInvisible : public Module
 	}
 
 	/* Fix by Eric @ neowin.net, thanks :) -- Brain */
-	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...)
+	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4,5)
 	{
 		va_list argsPtr;
 		char textbuffer[MAXBUF];
