@@ -201,6 +201,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			this->SetTheirChallenge(n->second);
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
+				this->SendCapabilities();
 				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 "+
 						Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
 			}
@@ -209,7 +210,10 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 		{
 			/* They didnt specify a challenge or we don't have m_sha256.so, we use plaintext */
 			if (this->LinkState == CONNECTING)
+			{
+				this->SendCapabilities();
 				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+OutboundPass+" 0 "+Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
+			}
 		}
 
 		if (reason.length())
