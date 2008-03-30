@@ -895,12 +895,7 @@ void Channel::UserList(User *user, CUList *ulist)
 				continue;
 		}
 		
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", prefixlist.c_str(), nick.c_str());
-
-		curlen += ptrlen;
-		ptr += ptrlen;
-
-		numusers++;
+		size_t ptrlen = 0;
 
 		if (curlen > (480-NICKMAX))
 		{
@@ -914,6 +909,13 @@ void Channel::UserList(User *user, CUList *ulist)
 			ptrlen = 0;
 			numusers = 0;
 		}
+
+		ptrlen = snprintf(ptr, MAXBUF, "%s%s ", prefixlist.c_str(), nick.c_str());
+
+		curlen += ptrlen;
+		ptr += ptrlen;
+
+		numusers++;
 	}
 
 	/* if whats left in the list isnt empty, send it */
