@@ -51,6 +51,41 @@ static int SILENCE_ALL		= 0x0020; /* a  all, (pcint)          */
 static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
 
 
+class CommandSVSSilence : public Command
+{
+ public:
+	CommandSVSSilence(InspIRCd* Instance) : Command(Instance,"SVSSILENCE", 0, 2)
+	{
+		this->source = "m_watch.so";
+		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
+	}
+
+	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	{
+		/*
+		 * XXX: thought occurs to me
+		 * We may want to change the syntax of this command to
+		 * SVSSILENCE <flagsora+> +<nick> -<nick> +<nick>
+		 * style command so services can modify lots of entries at once.
+		 * leaving it backwards compatible for now as it's late. -- w
+		 */
+		if (!ServerInstance->ULine(user->server))
+			return CMD_FAILURE;
+			
+		User *u = ServerInstance->FindNick(parameters[0]);
+		if (!u)
+			return CMD_FAILURE;
+			
+		if (IS_LOCAL(u))
+		{
+			ServerInstance->Parser->CallHandler("SILENCE", &parameters[1], 1, u);
+		}
+		
+		return CMD_SUCCESS;
+	}
+};
+
 class CommandSilence : public Command
 {
 	unsigned int& maxsilence;
@@ -232,7 +267,8 @@ class CommandSilence : public Command
 
 class ModuleSilence : public Module
 {
-	CommandSilence* mycommand;
+	CommandSilence* cmdsilence;
+	CommandSVSSilence *cmdsvssilence;
 	unsigned int maxsilence;
  public:
  
@@ -240,8 +276,11 @@ class ModuleSilence : public Module
 		: Module(Me), maxsilence(32)
 	{
 		OnRehash(NULL, "");
-		mycommand = new CommandSilence(ServerInstance,maxsilence);
-		ServerInstance->AddCommand(mycommand);
+		cmdsilence = new CommandSilence(ServerInstance,maxsilence);
+		cmdsvssilence = new CommandSVSSilence(ServerInstance);
+		ServerInstance->AddCommand(cmdsilence);
+		ServerInstance->AddCommand(cmdsvssilence);
+
 		Implementation eventlist[] = { I_OnRehash, I_OnBuildExemptList, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnUserPreInvite };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
