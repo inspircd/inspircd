@@ -19,7 +19,8 @@ class ModuleOperjoin : public Module
 {
 	private:
 		std::string operChan;
-		std::vector<std::string> operChans;		
+		std::vector<std::string> operChans;
+		bool override;
 
 		int tokenize(const std::string &str, std::vector<std::string> &tokens)
 		{
@@ -52,8 +53,9 @@ class ModuleOperjoin : public Module
 		virtual void OnRehash(User* user, const std::string &parameter)
 		{
 			ConfigReader* conf = new ConfigReader(ServerInstance);
-
+    
 			operChan = conf->ReadValue("operjoin", "channel", 0);
+			override = conf->ReadFlag("operjoin", "override", "0", 0);
 			operChans.clear();
 			if (!operChan.empty())
 				tokenize(operChan,operChans);
@@ -77,7 +79,7 @@ class ModuleOperjoin : public Module
 
 			for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str()))
-					Channel::JoinUser(ServerInstance, user, it->c_str(), false, "", false, ServerInstance->Time());
+					Channel::JoinUser(ServerInstance, user, it->c_str(), override, "", false, ServerInstance->Time());
 		}
 
 };
