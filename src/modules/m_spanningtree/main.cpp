@@ -52,7 +52,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 		I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart, I_OnPostConnect,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
-		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnCancelAway, I_OnPostCommand
+		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
 	};
 	ServerInstance->Modules->Attach(eventlist, this, 29);
 
@@ -817,24 +817,25 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 	}
 }
 
-void ModuleSpanningTree::OnSetAway(User* user)
+int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 {
 	if (IS_LOCAL(user))
 	{
-		std::deque<std::string> params;
-		params.push_back(":"+std::string(user->awaymsg));
-		Utils->DoOneToMany(user->uuid,"AWAY",params);
+		if (awaymsg.empty())
+		{
+			std::deque<std::string> params;
+			params.clear();
+			Utils->DoOneToMany(user->uuid,"AWAY",params);
+		}
+		else
+		{
+			std::deque<std::string> params;
+			params.push_back(":" + awaymsg);
+			Utils->DoOneToMany(user->uuid,"AWAY",params);
+		}
 	}
-}
 
-void ModuleSpanningTree::OnCancelAway(User* user)
-{
-	if (IS_LOCAL(user))
-	{
-		std::deque<std::string> params;
-		params.clear();
-		Utils->DoOneToMany(user->uuid,"AWAY",params);
-	}
+	return 0;
 }
 
 void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline)

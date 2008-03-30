@@ -399,7 +399,7 @@ enum Implementation
 	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
+	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
 	I_OnText, I_OnReadConfig, I_OnDownloadFile, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookUserIO,
 	I_END
@@ -1299,17 +1299,15 @@ class CoreExport Module : public Extensible
 	 */
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult);
 
-	/** Called whenever a user sets away.
-	 * This method has no parameter for the away message, as it is available in the
-	 * user record as User::awaymsg.
+	/** Called whenever a user sets away or returns from being away.
+	 * The away message is available as a parameter, but should not be modified.
+	 * At this stage, it has already been copied into the user record.
+	 * If awaymsg is empty, the user is returning from away.
 	 * @param user The user setting away
+	 * @param awaymsg The away message of the user, or empty if returning from away
+	 * @return nonzero if the away message should be blocked - should ONLY be nonzero for LOCAL users (IS_LOCAL) (no output is returned by core)
 	 */
-	virtual void OnSetAway(User* user);
-
-	/** Called when a user cancels their away state.
-	 * @param user The user returning from away
-	 */
-	virtual void OnCancelAway(User* user);
+	virtual int OnSetAway(User* user, const std::string &awaymsg);
 
 	/** Called whenever a NAMES list is requested.
 	 * You can produce the nameslist yourself, overriding the current list,

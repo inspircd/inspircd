@@ -23,17 +23,28 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandAway::Handle (const char* const* parameters, int pcnt, User *user)
 {
+	int MOD_RESULT = 0;
+
 	if ((pcnt) && (*parameters[0]))
 	{
+		FOREACH_RESULT(I_OnSetAway, OnSetAway(user, parameters[0]));
+
+		if (MOD_RESULT != 0 && !IS_LOCAL(user))
+			return CMD_FAILURE;
+
 		strlcpy(user->awaymsg,parameters[0],MAXAWAY);
 		user->WriteNumeric(306, "%s :You have been marked as being away",user->nick);
-		FOREACH_MOD(I_OnSetAway,OnSetAway(user));
 	}
 	else
 	{
+		FOREACH_RESULT(I_OnSetAway, OnSetAway(user, ""));
+
+		if (MOD_RESULT != 0 && !IS_LOCAL(user))
+			return CMD_FAILURE;
+
 		*user->awaymsg = 0;
 		user->WriteNumeric(305, "%s :You are no longer marked as being away",user->nick);
-		FOREACH_MOD(I_OnCancelAway,OnCancelAway(user));
 	}
+
 	return CMD_SUCCESS;
 }

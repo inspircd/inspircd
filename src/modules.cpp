@@ -184,8 +184,7 @@ void		Module::OnExpireLine(XLine*) { }
 void 		Module::OnCleanup(int, void*) { }
 int		Module::OnChannelPreDelete(Channel*) { return 0; }
 void		Module::OnChannelDelete(Channel*) { }
-void		Module::OnSetAway(User*) { }
-void		Module::OnCancelAway(User*) { }
+void		Module::OnSetAway(User*, const std::string &) { }
 int		Module::OnUserList(User*, Channel*, CUList*&) { return 0; }
 int		Module::OnWhoisLine(User*, User*, int&, std::string&) { return 0; }
 void		Module::OnBuildExemptList(MessageType, Channel*, User*, char, CUList&, const std::string&) { }
