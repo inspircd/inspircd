@@ -556,6 +556,11 @@ class CoreExport User : public connection
 	 */
 	char awaymsg[MAXAWAY+1];
 
+	/** Time the user last went away.
+	 * This is ONLY RELIABLE if user IS_AWAY()!
+	 */
+	time_t awaytime;
+
 	/** Timestamp of current time + connection class timeout.
 	 * This user must send USER/NICK before this timestamp is
 	 * reached or they will be disconnected.

@@ -239,6 +239,10 @@ class CommandWatch : public Command
 
 				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
 				user->WriteNumeric(604, "%s %s %s :is online",user->nick, nick, (*wl)[nick].c_str());
+				if (IS_AWAY(target))
+				{
+					user->WriteNumeric(609, "%s %s %s %s %ld :is away", user->nick, target->nick, target->ident, target->dhost, target->awaytime);
+				}
 			}
 			else
 			{
@@ -311,7 +315,14 @@ class CommandWatch : public Command
 						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 						{
 							if (!q->second.empty())
+							{
 								user->WriteNumeric(604, "%s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
+								User *targ = ServerInstance->FindNick(q->first.c_str());
+								if (IS_AWAY(targ))
+								{
+									user->WriteNumeric(609, "%s %s %s %s %ld :is away", user->nick, targ->nick, targ->ident, targ->dhost, targ->awaytime);
+								}
+							}
 							else
 								user->WriteNumeric(605, "%s %s * * 0 :is offline", user->nick, q->first.c_str());
 						}
@@ -373,8 +384,8 @@ class Modulewatch : public Module
 		ServerInstance->AddCommand(mycommand);
 		sw = new CommandSVSWatch(ServerInstance);
 		ServerInstance->AddCommand(sw);
-		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnCleanup, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnCleanup, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
+		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
@@ -385,6 +396,34 @@ class Modulewatch : public Module
 			maxwatch = 32;
 	}
 
+	virtual int OnSetAway(User *user, const std::string &awaymsg)
+	{
+		std::string numeric;
+		int inum;
+
+		if (awaymsg.empty())
+		{
+			numeric = std::string(user->nick) + " " + user->ident + " " + user->dhost + " " + ConvToStr(ServerInstance->Time()) + " :is no longer away";
+			inum = 599;
+		}
+		else
+		{
+			numeric = std::string(user->nick) + " " + user->ident + " " + user->dhost + " " + ConvToStr(ServerInstance->Time()) + " :" + awaymsg;
+			inum = 598;
+		}
+
+		watchentries::iterator x = whos_watching_me->find(user->nick);
+		if (x != whos_watching_me->end())
+		{
+			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
+			{
+				if (!user->Visibility || user->Visibility->VisibleTo(user))
+					(*n)->WriteNumeric(inum, numeric);
+			}
+		}
+
+		return 0;
+	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{

@@ -54,7 +54,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
 	};
-	ServerInstance->Modules->Attach(eventlist, this, 29);
+	ServerInstance->Modules->Attach(eventlist, this, 28);
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{

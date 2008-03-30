@@ -32,6 +32,7 @@ CmdResult CommandAway::Handle (const char* const* parameters, int pcnt, User *us
 		if (MOD_RESULT != 0 && !IS_LOCAL(user))
 			return CMD_FAILURE;
 
+		user->awaytime = ServerInstance->Time();
 		strlcpy(user->awaymsg,parameters[0],MAXAWAY);
 		user->WriteNumeric(306, "%s :You have been marked as being away",user->nick);
 	}
