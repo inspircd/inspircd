@@ -1885,9 +1885,15 @@
 #
 #-#-#-#-#-#-#-#-#-#-#   OPERJOIN CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you are using the m_operjoin.so module, specify the channel here #
+# If you are using the m_operjoin.so module, specify options here:    #
 #                                                                     #
-#<operjoin channel="#channel">
+# channel     -      The channel name to join, can also be a comma    #
+#                    seperated list eg. "#channel1,#channel2".        #
+#                                                                     #
+# override    -      Lets the oper join walking thru any modes that   #
+#                    might be set, even bans. Use "yes" or "no".      #
+#                                                                     #
+#<operjoin channel="#channel" override="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for seperate message of the day
