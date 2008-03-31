@@ -919,8 +919,9 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	 */
 	if (params.size() != 8)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+"?)");
-		return true;
+		if (params.size() >= 2)
+			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+"?)");
+				return true;
 	}
 
 	time_t age = ConvToInt(params[0]);
