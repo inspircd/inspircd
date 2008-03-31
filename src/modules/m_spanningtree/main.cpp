@@ -46,16 +46,6 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	ServerInstance->AddCommand(command_rconnect);
 	command_rsquit = new cmd_rsquit(ServerInstance, this, Utils);
 	ServerInstance->AddCommand(command_rsquit);
-	if (Utils->EnableTimeSync)
-	{
-		SyncTimer = new TimeSyncTimer(ServerInstance, this);
-		ServerInstance->Timers->AddTimer(SyncTimer);
-	}
-	else
-		SyncTimer = NULL;
-
-	RefreshTimer = new CacheRefreshTimer(ServerInstance, Utils);
-	ServerInstance->Timers->AddTimer(RefreshTimer);
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, userrec* user, int hops)
@@ -979,6 +969,12 @@ void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 {
 	AutoConnectServers(curtime);
 	DoPingChecks(curtime);
+	if (curtime % 60 == 0)
+	{
+		if (Utils->EnableTimeSync)
+			BroadcastTimeSync();
+		Utils->RefreshIPCache();
+	}
 }
 
 void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silent)
@@ -1418,11 +1414,6 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	/* This will also free the listeners */
 	delete Utils;
-	if (SyncTimer)
-		ServerInstance->Timers->DelTimer(SyncTimer);
-
-	ServerInstance->Timers->DelTimer(RefreshTimer);
-
 	ServerInstance->DoneWithInterface("InspSocketHook");
 }
 
