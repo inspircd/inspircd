@@ -520,7 +520,7 @@ bool User::AddBuffer(std::string a)
 		if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
 		{
 			this->SetWriteError("RecvQ exceeded");
-			ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %d exceeds connect class maximum of %lu",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
+			ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
 			return false;
 		}
 
@@ -597,7 +597,7 @@ void User::AddWriteBuf(const std::string &data)
 		 * to repeatedly add the text to the sendq!
 		 */
 		this->SetWriteError("SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %d exceeds connect class maximum of %lu",this->nick,sendq.length() + data.length(),this->MyClass->GetSendqMax());
+		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick,sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
 
