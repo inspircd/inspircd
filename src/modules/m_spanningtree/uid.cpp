@@ -38,8 +38,9 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	 */
 	if (params.size() != 10)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
-				ConvToStr(params.size())+" of 10 parameters?)");
+		if (!params.empty())
+			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
+					ConvToStr(params.size())+" of 10 parameters?)");
 		return true;
 	}
 

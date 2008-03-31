@@ -374,6 +374,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\encap.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\fhost.cpp"
 				>
 			</File>
