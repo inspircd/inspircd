@@ -266,7 +266,7 @@ class TreeSocket : public BufferedSocket
 
 	/** Send one or more complete lines down the socket
 	 */
-	int WriteLine(std::string line);
+	void WriteLine(std::string line);
 
 	/** Handle ERROR command */
 	bool Error(std::deque<std::string> &params);

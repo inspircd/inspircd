@@ -32,11 +32,11 @@
 
 static std::map<std::string, std::string> warned;       /* Server names that have had protocol violation warnings displayed for them */
 
-int TreeSocket::WriteLine(std::string line)
+void TreeSocket::WriteLine(std::string line)
 {
 	Instance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
 	line.append("\r\n");
-	return this->Write(line);
+	this->Write(line);
 }
 
 

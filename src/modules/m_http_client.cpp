@@ -292,7 +292,9 @@ bool HTTPSocket::OnConnected()
 	
 	this->status = HTTP_REQSENT;
 	
-	return this->Write(request);
+	this->Write(request);
+
+	return true;
 }
 
 bool HTTPSocket::OnDataReady()

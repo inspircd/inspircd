@@ -332,7 +332,7 @@ class CoreExport BufferedSocket : public EventHandler
 	 * returns or linefeeds are appended to the string.
 	 * @param data The data to send
 	 */
-	virtual int Write(const std::string &data);
+	virtual void Write(const std::string &data);
 
 	/**
 	 * If your socket is a listening socket, when a new
