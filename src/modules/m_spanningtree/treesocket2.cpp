@@ -532,6 +532,16 @@ bool TreeSocket::ProcessLine(std::string &line)
 				const char* modelist[MAXPARAMETERS];
 				for (size_t i = 0; i < params.size(); i++)
 					modelist[i] = params[i].c_str();
+
+				/* We don't support this for channel mode changes any more! */
+				if (params.size() >= 1)
+				{
+					if (Instance->FindChan(params[1]))
+					{
+						this->SendError("Protocol violation by '"+prefix+"'! MODE for channel mode changes is not supported by the InspIRCd 1.2 protocol. You must use FMODE to preserve channel timestamps.");
+						return false;
+					}
+				}
 					
 				// Insert into the parser
 				this->Instance->SendMode(modelist, params.size(), this->Instance->FakeClient);
