@@ -742,7 +742,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-#   Settings to define which features are usable on your server.     #
+#   Settings to define which features are usable on your server.      #
 #                                                                     #
 #  prefixquit    - A prefix to be placed on the start of a client's   #
 #                  quit message                                       #
@@ -775,10 +775,13 @@
 #                  only useful on networks running the m_chanprotect  #
 #                  module without services.                           #
 #                                                                     #
-#  qaprefixes    - If qaprefixes is true, yes, or 1, then users       #
-#                  with +q or +a will get the ~ or & prefixes         #
-#                  used in unreal. This is only useful on networks    #
-#                  running the m_chanprotect module                   #
+#  qprefix       - qprefix is used by the chanprotect module to give  #
+#                  a visible prefix to users set +q (founder) in chan #
+#                  It should be set to something sensible like ~ or ! #
+#                  If not set, no prefix is applied to users with +q  #
+#                                                                     #
+#  aprefix       - aprefix is the same as qprefix, except it is for   #
+#                  giving users with mode +a (protected) a prefix     #
 #                                                                     #
 #  deprotectself - If this value is set to yes, true, or 1, then any  #
 #                  user with +q or +a may remove the +q or +a from    #
@@ -984,7 +987,8 @@
          netbuffersize="10240"
          maxwho="128"
          noservices="no"
-         qaprefixes="no"
+         qprefix=""
+         aprefix=""
          deprotectself="no"
          deprotectothers="no"
          somaxconn="128"

@@ -112,22 +112,26 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		const char* usr = item.c_str();
 		if (usr && *usr)
 		{
-			const char* permissions = usr;
-			/* Iterate through all the prefix values, convert them from prefixes to mode letters */
+			const char* unparsedmodes = usr;
 			std::string modes;
-			while ((*permissions) && (*permissions != ','))
+
+
+			/* Iterate through all modes for this user and check they are valid. */
+			while ((*unparsedmodes) && (*unparsedmodes != ','))
 			{
-				ModeHandler* mh = Instance->Modes->FindPrefix(*permissions);
+				ModeHandler *mh = Instance->Modes->FindMode(*unparsedmodes, MODETYPE_CHANNEL);
 				if (mh)
-					modes = modes + mh->GetModeChar();
+					modes += *unparsedmodes;
 				else
 				{
-					this->SendError(std::string("Invalid prefix '")+(*permissions)+"' in FJOIN");
+					this->SendError(std::string("Invalid prefix '")+(*unparsedmodes)+"' in FJOIN");
 					return false;
 				}
+
 				usr++;
-				permissions++;
+				unparsedmodes++;
 			}
+
 			/* Advance past the comma, to the nick */
 			usr++;
 			
@@ -140,7 +144,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				if ((!route_back_again) || (route_back_again->GetSocket() != this))
 					continue;
 
-				/* Add any permissions this user had to the mode stack */
+				/* Add any modes this user had to the mode stack */
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 

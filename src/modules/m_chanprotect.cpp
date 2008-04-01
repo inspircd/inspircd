@@ -164,8 +164,8 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
  public:
-	ChanFounder(InspIRCd* Instance, bool using_prefixes, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0, 0),
+	ChanFounder(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
+		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0),
 		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
@@ -226,8 +226,8 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
  public:
-	ChanProtect(InspIRCd* Instance, bool using_prefixes, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0, 0),
+	ChanProtect(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
+		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0),
 		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
@@ -286,7 +286,8 @@ class ModuleChanProtect : public Module
 {
 	
 	bool FirstInGetsFounder;
-	bool QAPrefixes;
+	char QPrefix;
+	char APrefix;
 	bool DeprivSelf;
 	bool DeprivOthers;
 	bool booting;
@@ -297,7 +298,7 @@ class ModuleChanProtect : public Module
  public:
  
 	ModuleChanProtect(InspIRCd* Me)
-		: Module(Me), FirstInGetsFounder(false), QAPrefixes(false), DeprivSelf(false), DeprivOthers(false), booting(true)
+		: Module(Me), FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true)
 	{	
 		/* Load config stuff */
 		OnRehash(NULL,"");
@@ -305,8 +306,8 @@ class ModuleChanProtect : public Module
 
 		/* Initialise module variables */
 
-		cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
-		cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
+		cp = new ChanProtect(ServerInstance, APrefix, DeprivSelf, DeprivOthers);
+		cf = new ChanFounder(ServerInstance, QPrefix, DeprivSelf, DeprivOthers);
 
 		if (!ServerInstance->Modes->AddMode(cp) || !ServerInstance->Modes->AddMode(cf))
 		{
@@ -315,8 +316,8 @@ class ModuleChanProtect : public Module
 			throw ModuleException("Could not add new modes!");
 		}
 
-		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnRehash, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnRehash, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
@@ -342,28 +343,42 @@ class ModuleChanProtect : public Module
 		 */
 		ConfigReader Conf(ServerInstance);
 
-		bool old_qa = QAPrefixes;
+		char old_q = QPrefix;
+		char old_a = APrefix;
 
-		FirstInGetsFounder = Conf.ReadFlag("options","noservices",0);
-		QAPrefixes = Conf.ReadFlag("options","qaprefixes",0);
+		FirstInGetsFounder = Conf.ReadFlag("options", "noservices", 0);
+
+		std::string qpre = Conf.ReadValue("options", "qprefix", 0);
+		QPrefix = qpre.empty() ? 0 : qpre[0];
+
+		std::string apre = Conf.ReadValue("options", "aprefix", 0);
+		APrefix = apre.empty() ? 0 : apre[0];
+
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
 		DeprivOthers = Conf.ReadFlag("options","deprotectothers",0);
+
+		ServerInstance->Logs->Log("chanprotect", DEBUG, "qprefix is %c and aprefix is %c", QPrefix, APrefix);
 
 		/* Did the user change the QA prefixes on the fly?
 		 * If so, remove all instances of the mode, and reinit
 		 * the module with prefixes enabled.
 		 */
-		if ((old_qa != QAPrefixes) && (!booting))
+		if ((old_q != QPrefix) && (!booting))
+		{
+			ServerInstance->Modes->DelMode(cf);
+			delete cf;
+			cf = new ChanFounder(ServerInstance, QPrefix, DeprivSelf, DeprivOthers);
+			/* These wont fail, we already owned the mode characters before */
+			ServerInstance->Modes->AddMode(cf);
+			ServerInstance->SNO->WriteToSnoMask('A', "WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
+		}
+
+		if ((old_a != APrefix) && (!booting))
 		{
 			ServerInstance->Modes->DelMode(cp);
-			ServerInstance->Modes->DelMode(cf);
 			delete cp;
-			delete cf;
-			cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
-			cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
-			/* These wont fail, we already owned the mode characters before */
+			cp = new ChanProtect(ServerInstance, APrefix, DeprivSelf, DeprivOthers);
 			ServerInstance->Modes->AddMode(cp);
-			ServerInstance->Modes->AddMode(cf);
 			ServerInstance->SNO->WriteToSnoMask('A', "WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
 		}
 	}
@@ -374,7 +389,7 @@ class ModuleChanProtect : public Module
 		// the config option for it is set
 
 		if (FirstInGetsFounder && !chan)
-			privs = "~@";
+			privs = QPrefix + "@";
 		
 		return 0;
 	}
@@ -488,43 +503,6 @@ class ModuleChanProtect : public Module
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		/* NOTE: If +qa prefix is on, this is propagated by the channel join,
-		 * so we dont need to propagate it manually
-		 */
-		if (!QAPrefixes)
-		{
-			// this is called when the server is linking into a net and wants to sync channel data.
-			// we should send our mode changes for the channel here to ensure that other servers
-			// know whos +q/+a on the channel.
-			CUList* cl = chan->GetUsers();
-			string_list commands;
-			std::string founder = "cm_founder_"+std::string(chan->name);
-			std::string protect = "cm_protect_"+std::string(chan->name);
-			irc::modestacker modestack(true);
-			std::deque<std::string> stackresult;
-			for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
-			{
-				if (i->first->GetExt(founder,dummyptr))
-				{
-					modestack.Push('q',i->first->nick);
-				}
-				if (i->first->GetExt(protect,dummyptr))
-				{
-					modestack.Push('a',i->first->nick);
-				}
-			}
-			while (modestack.GetStackedLine(stackresult))
-			{
-				irc::stringjoiner mode_join(" ", stackresult, 0, stackresult.size() - 1);
-				std::string line = mode_join.GetJoined();
-				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan, line);
-			}
-		}
-	}
-
 };
 
 MODULE_INIT(ModuleChanProtect)

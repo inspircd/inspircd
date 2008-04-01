@@ -980,6 +980,7 @@ const char* Channel::GetPrefixChar(User *user)
 	return pf;
 }
 
+
 const char* Channel::GetAllPrefixChars(User* user)
 {
 	static char prefix[MAXBUF];
@@ -992,6 +993,35 @@ const char* Channel::GetAllPrefixChars(User* user)
 		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
 		{
 			prefix[ctr++] = x->first;
+		}
+	}
+
+	prefix[ctr] = 0;
+
+	return prefix;
+}
+
+
+const char* Channel::GetAllPrefixModes(User* user)
+{
+	static char prefix[MAXBUF];
+	int ctr = 0;
+	*prefix = 0;
+
+	prefixlist::iterator n = prefixes.find(user);
+	if (n != prefixes.end())
+	{
+		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
+		{
+			ModeHandler *mh = ServerInstance->Modes->FindPrefix(x->first);
+
+			if (!mh)
+			{
+				ServerInstance->Logs->Log("MODES", DEFAULT, "WTF: Can't find mode from prefix %c", x->first);
+				throw CoreException("I can't find a mode from prefix, HALP!");
+			}
+			else
+				prefix[ctr++] = mh->GetModeChar();
 		}
 	}
 
