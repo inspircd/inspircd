@@ -779,7 +779,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
 			std::deque<std::string>* metadata = new std::deque<std::string>;
-			metadata->push_back(user->nick);
+			metadata->push_back(user->uuid);
 			metadata->push_back("ssl");		// The metadata id
 			metadata->push_back("ON");		// The value to send
 			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
@@ -885,6 +885,13 @@ class ModuleSSLOpenSSL : public Module
 
 		X509_free(cert);
 	}
+
+	void Prioritize()
+	{
+		Module* server = ServerInstance->Modules->Find("m_spanningtree.so");
+		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIO_AFTER, &server);
+	}
+
 };
 
 static int error_callback(const char *str, size_t len, void *u)

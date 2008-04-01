@@ -76,7 +76,7 @@ class CommandSwhois : public Command
 		 * -- Brain
 		 */
  		std::deque<std::string>* metadata = new std::deque<std::string>;
-		metadata->push_back(dest->nick);
+		metadata->push_back(dest->uuid);
 		metadata->push_back("swhois");          // The metadata id
 		metadata->push_back(*text);             // The value to send
 		Event event((char*)metadata,(Module*)this,"send_metadata");
@@ -263,7 +263,7 @@ class ModuleSWhois : public Module
 		std::string *text = new std::string(swhois);
 		user->Extend("swhois", text);
 		std::deque<std::string>* metadata = new std::deque<std::string>;
-		metadata->push_back(user->nick);
+		metadata->push_back(user->uuid);
 		metadata->push_back("swhois");		// The metadata id
 		metadata->push_back(*text);		// The value to send
 		Event event((char*)metadata,(Module*)this,"send_metadata");
