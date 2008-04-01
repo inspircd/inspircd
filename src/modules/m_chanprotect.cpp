@@ -165,7 +165,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 	char* dummyptr;
  public:
 	ChanFounder(InspIRCd* Instance, bool using_prefixes, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0),
+		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0, 0),
 		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
@@ -227,7 +227,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 	char* dummyptr;
  public:
 	ChanProtect(InspIRCd* Instance, bool using_prefixes, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0),
+		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0, 0),
 		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
