@@ -1032,7 +1032,6 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
  */
 void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 {
-	std::string buffer;
 	char list[MAXBUF];
 	std::string individual_halfops = std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age);
 
@@ -1057,7 +1056,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 
 		if (curlen > (480-NICKMAX))
 		{
-			buffer.append(list).append("\r\n");
+			this->WriteLine(list);
 			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
 			ptr = list + dlen;
 			ptrlen = 0;
@@ -1066,9 +1065,10 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 	}
 
 	if (numusers)
-		buffer.append(list).append("\r\n");
+		this->WriteLine(list);
 
-	buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true)).append("\r\n");
+	snprintf(list, MAXBUF, ":%s FMODE %s %lu +%s", this->Instance->Config->ServerName, c->name, (unsigned long)c->age, c->ChanModes(true));
+	this->WriteLine(list);
 
 	int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
@@ -1084,7 +1084,8 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		if ((params.length() >= MAXMODES) || (currsize > 350))
 		{
 			/* Wrap at MAXMODES */
-			buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
+			snprintf(list, MAXBUF, ":%s FMODE %s %lu +%s%s", this->Instance->Config->ServerName, c->name, (unsigned long)c->age, modes.c_str(), params.c_str());
+			this->WriteLine(list);
 			modes.clear();
 			params.clear();
 			linesize = 1;
@@ -1093,9 +1094,11 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 
 	/* Only send these if there are any */
 	if (!modes.empty())
-		buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
+	{
+		snprintf(list, MAXBUF, ":%s FMODE %s %lu +%s%s", this->Instance->Config->ServerName, c->name, (unsigned long)c->age, modes.c_str(), params.c_str());
+		this->WriteLine(list);
 
-	this->WriteLine(buffer);
+	}
 }
 
 /** Send G, Q, Z and E lines */

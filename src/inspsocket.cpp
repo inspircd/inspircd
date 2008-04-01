@@ -439,17 +439,24 @@ void InspSocket::MarkAsClosed()
 {
 }
 
-// There are two possible outcomes to this function.
-// It will either write all of the data, or an undefined amount.
-// If an undefined amount is written the connection has failed
-// and should be aborted.
-int InspSocket::Write(const std::string &data)
+ /*
+  * This function formerly tried to flush write buffer each call.
+  * While admirable in attempting to get the data out to wherever
+  * it is going, on a full socket, it's just going to syscall write() and
+  * EAGAIN constantly, instead of waiting in the SE to know if it can write
+  * which will chew a bit of CPU.
+  *
+  * So, now this function returns void (take note) and just adds to the sendq.
+  *
+  * It'll get written at a determinate point when the socketengine tells us it can write.
+  *        -- w00t (april 1, 2008)
+  */
+void InspSocket::Write(const std::string &data)
 {
 	/* Try and append the data to the back of the queue, and send it on its way
 	 */
 	outbuffer.push_back(data);
 	this->Instance->SE->WantWrite(this);
-	return (!this->FlushWriteBuffer());
 }
 
 bool InspSocket::FlushWriteBuffer()
