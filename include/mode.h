@@ -520,9 +520,11 @@ class CoreExport ModeParser : public classbase
 	 * similar purposes.
 	 * @param user The username to look up
 	 * @param channel The channel name to look up the privilages of the user for
+	 * @param nick_suffix true (the default) if you want nicknames in the mode string, for easy
+	 * use with the mode stacker, false if you just want the "avh" part of "avh nick nick nick".
 	 * @return The mode string.
 	 */
-	std::string ModeString(User* user, Channel* channel);
+	std::string ModeString(User* user, Channel* channel, bool nick_suffix = true);
 };
 
 #endif

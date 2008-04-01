@@ -879,7 +879,7 @@ ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
-std::string ModeParser::ModeString(User* user, Channel* channel)
+std::string ModeParser::ModeString(User* user, Channel* channel, bool nick_suffix)
 {
 	std::string types;
 	std::string pars;
@@ -897,14 +897,20 @@ std::string ModeParser::ModeString(User* user, Channel* channel)
 			ret = mh->ModeSet(NULL, user, channel, user->nick);
 			if ((ret.first) && (ret.second == user->nick))
 			{
-				pars.append(" ");
-				pars.append(user->nick);
+				if (nick_suffix)
+				{
+					pars.append(" ");
+					pars.append(user->nick);
+				}
 				types.push_back(mh->GetModeChar());
 			}
 		}
 	}
 
-	return types+pars;
+	if (nick_suffix)
+		return types+pars;
+	else
+		return types;
 }
 
 std::string ModeParser::ChanModes()
