@@ -67,7 +67,6 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
-	fds[fd] = 0;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
@@ -107,9 +106,12 @@ int SelectEngine::DispatchEvents()
 
 		FD_SET (a->second, &errfdset);
 	}
+
 	tval.tv_sec = 1;
 	tval.tv_usec = 0;
+
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, &errfdset, &tval);
+
 	if (sresult > 0)
 	{
 		for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
