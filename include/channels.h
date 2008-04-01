@@ -491,12 +491,6 @@ class CoreExport Channel : public Extensible
 	 */
 	const char* GetAllPrefixChars(User* user);
 
-	/** Returns all of the prefix MODES a user has on channel.
-	 * @param user The user to look up
-	 * @return A list of all prefix modes.
-	 */
-	const char *GetAllPrefixModes(User *user);
-
 	/** Get the value of a users prefix on this channel.
 	 * @param user The user to look up
 	 * @return The module or core-defined value of the users prefix.

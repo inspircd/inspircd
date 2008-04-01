@@ -97,7 +97,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		// The first parameter gets a : before it
-		size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", c->GetAllPrefixModes(i->first), i->first->uuid);
+		size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", this->Instance->Modes->ModeString(i->first, c, false).c_str(), i->first->uuid);
 
 		curlen += ptrlen;
 		ptr += ptrlen;
