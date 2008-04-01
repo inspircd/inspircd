@@ -447,13 +447,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->Modes = new ModeParser(this);
 
-	/* set up fake client (uid is incorrect at this point,
-	 * until after config is read. we set up the user again
-	 * at that point 
-	 */
-	this->FakeClient = new User(this);
-	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
-
 	if (!do_root)
 		this->CheckRoot();
 	else
@@ -519,7 +512,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->InitialiseUID();
 
 	/* set up fake client again this time with the correct uid */
-	delete FakeClient;
 	this->FakeClient = new User(this);
 	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
