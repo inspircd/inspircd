@@ -434,10 +434,6 @@ const char* BufferedSocket::Read()
 	}
 }
 
-void BufferedSocket::MarkAsClosed()
-{
-}
-
 // There are two possible outcomes to this function.
 // It will either write all of the data, or an undefined amount.
 // If an undefined amount is written the connection has failed

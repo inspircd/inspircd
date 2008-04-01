@@ -406,17 +406,6 @@ class CoreExport BufferedSocket : public EventHandler
 	 */
 	virtual bool DoConnect();
 
-	/**
-	 * This method marks the socket closed.
-	 * The next time the core examines a socket marked
-	 * as closed, the socket will be closed and the 
-	 * memory reclaimed.
-	 *
-	 * NOTE: This method is DEPRECIATED and will be
-	 * ignored if called!
-	 */
-	void MarkAsClosed();
-
 	/** Handle event from EventHandler parent class
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
