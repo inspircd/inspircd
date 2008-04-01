@@ -165,6 +165,7 @@ class CoreExport LogManager : public classbase
 
 	LogManager(InspIRCd *Instance)
 	{
+		noforkstream = NULL;
 		ServerInstance = Instance;
 		Logging = false;
 	}
