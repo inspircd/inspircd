@@ -273,7 +273,7 @@ class CoreExport InspIRCd : public classbase
  private:
 	/** Holds the current UID. Used to generate the next one.
 	 */
-	char current_uid[UUID_LENGTH + 1];
+	char current_uid[UUID_LENGTH];
 
 	/** Set up the signal handlers
 	 */

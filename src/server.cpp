@@ -141,7 +141,68 @@ bool InspIRCd::FindServerName(const std::string &servername)
  */
 std::string InspIRCd::GetUID()
 {
-	int i;
+	static int curindex = -1;
+
+	if (curindex == -1)
+	{
+		// Starting up
+		current_uid[0] = Config->sid[0];
+		current_uid[1] = Config->sid[1];
+		current_uid[2] = Config->sid[2];
+
+		for (int i = 3; i < UUID_LENGTH; i++)
+			current_uid[i] = 'Z';
+
+		current_uid[3] = 'Y'; // force fake client to get ZZZZZZZZ
+
+		curindex = 3;
+	}
+
+	while (1)
+	{
+		printf("Getting ID. curindex %d, current_uid %s\n", curindex, current_uid);
+
+		if (curindex == 3)
+		{
+			// Down to the last few.
+			if (current_uid[curindex] == 'Z')
+			{
+				// Reset.
+				for (int i = 3; i < UUID_LENGTH; i++)
+				{
+					current_uid[i] = 'A';
+					curindex  = UUID_LENGTH - 1;
+				}
+			}
+			else
+				current_uid[curindex]++;
+		}
+		else
+		{
+			if (current_uid[curindex] == 'Z')
+				current_uid[curindex] = '0';
+			else if (current_uid[curindex] == '9')
+			{
+				current_uid[curindex] = 'A';
+				curindex--;
+				continue;
+			}
+			else
+				current_uid[curindex]++;
+		}
+
+			if (this->FindUUID(current_uid))
+			{
+				/*
+				 * It's in use. We need to try the loop again.
+				 */
+				continue;
+			}
+
+			return current_uid;
+	}
+
+#if 0
 
 	/*
 	 * This will only finish once we return a UUID that is not in use.
@@ -205,7 +266,7 @@ std::string InspIRCd::GetUID()
 			return current_uid;
 		}
 	}
-
+#endif
 	/* not reached. */
 	return "";
 }

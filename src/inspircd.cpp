@@ -595,6 +595,8 @@ void InspIRCd::InitialiseUID()
 {
 	int i = 3;
 
+printf("FUCKING UID IS %s\n", current_uid);
+
 	current_uid[0] = Config->sid[0];
 	current_uid[1] = Config->sid[1];
 	current_uid[2] = Config->sid[2];
@@ -603,7 +605,11 @@ void InspIRCd::InitialiseUID()
 	for(i = 3; i < UUID_LENGTH - 1; i++)
 		current_uid[i] = 'A';
 
+printf("FUCKING UID IS %s %d\n", current_uid, strlen(current_uid));
+
 	current_uid[UUID_LENGTH] = '\0';
+
+printf("FUCKING UID IS %s %d\n", current_uid, strlen(current_uid));
 }
 
 int InspIRCd::Run()
