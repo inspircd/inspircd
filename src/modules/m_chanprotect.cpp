@@ -28,7 +28,6 @@ class FounderProtectBase
 	std::string type;
 	int list;
 	int end;
-	char* dummyptr;
  protected:
 	bool& remove_own_privs;
 	bool& remove_other_privs;
@@ -50,7 +49,7 @@ class FounderProtectBase
 			else
 			{
 				std::string item = extend+std::string(channel->name);
-				if (x->GetExt(item,dummyptr))
+				if (x->GetExt(item))
 				{
 					return std::make_pair(true, x->nick);
 				}
@@ -74,7 +73,7 @@ class FounderProtectBase
 
 		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
-			if (i->first->GetExt(item, dummyptr))
+			if (i->first->GetExt(item))
 			{
 				modestack.Push(mc, i->first->nick);
 			}
@@ -96,7 +95,7 @@ class FounderProtectBase
 		std::string item = extend+std::string(channel->name);
 		for (CUList::reverse_iterator i = cl->rbegin(); i != cl->rend(); ++i)
 		{
-			if (i->first->GetExt(item, dummyptr))
+			if (i->first->GetExt(item))
 			{
 				user->WriteServ("%d %s %s %s", list, user->nick, channel->name,i->first->nick);
 			}
@@ -118,7 +117,7 @@ class FounderProtectBase
 	bool CanRemoveOthers(User* u1, User* u2, Channel* c)
 	{
 		std::string item = extend+std::string(c->name);
-		return (u1->GetExt(item, dummyptr) && u2->GetExt(item, dummyptr));
+		return (u1->GetExt(item) && u2->GetExt(item));
 	}
 
 	ModeAction HandleChange(User* source, User* theuser, bool adding, Channel* channel, std::string &parameter)
@@ -127,16 +126,16 @@ class FounderProtectBase
 
 		if (adding)
 		{
-			if (!theuser->GetExt(item, dummyptr))
+			if (!theuser->GetExt(item))
 			{
-				theuser->Extend(item, "on");
+				theuser->Extend(item);
 				parameter = theuser->nick;
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			if (theuser->GetExt(item, dummyptr))
+			if (theuser->GetExt(item))
 			{
 				theuser->Shrink(item);
 				parameter = theuser->nick;
@@ -151,7 +150,6 @@ class FounderProtectBase
  */
 class ChanFounder : public ModeHandler, public FounderProtectBase
 {
-	char* dummyptr;
  public:
 	ChanFounder(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0),
@@ -218,7 +216,6 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
  */
 class ChanProtect : public ModeHandler, public FounderProtectBase
 {
-	char* dummyptr;
  public:
 	ChanProtect(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0),
@@ -262,7 +259,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 			(ServerInstance->ULine(source->nick)) ||
 			(ServerInstance->ULine(source->server)) ||
 			(!*source->server) ||
-			(source->GetExt(founder,dummyptr)) ||
+			(source->GetExt(founder)) ||
 			(!IS_LOCAL(source)))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
@@ -293,7 +290,6 @@ class ModuleChanProtect : public Module
 	bool booting;
 	ChanProtect* cp;
 	ChanFounder* cf;
-	char* dummyptr;
 	
  public:
  
@@ -432,12 +428,12 @@ class ModuleChanProtect : public Module
 		{
 			// a user has been deopped. Do we let them? hmmm...
 			case AC_DEOP:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -446,12 +442,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being kicked. do we chop off the end of the army boot?
 			case AC_KICK:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -460,12 +456,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being dehalfopped. Yes, we do disallow -h of a +ha user
 			case AC_DEHALFOP:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -474,12 +470,12 @@ class ModuleChanProtect : public Module
 
 			// same with devoice.
 			case AC_DEVOICE:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
 					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
