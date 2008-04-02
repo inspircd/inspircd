@@ -545,6 +545,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			printf("%d.\tIP: %s\tPort: %lu\n", j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
 		}
 	}
+
+	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
+	
 #ifndef WINDOWS
 	if (!Config->nofork)
 	{
@@ -581,7 +584,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 #endif
 
-	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
 
 	this->WritePID(Config->PID);
