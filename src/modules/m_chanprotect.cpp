@@ -18,12 +18,6 @@
 #define PROTECT_VALUE 40000
 #define FOUNDER_VALUE 50000
 
-/* When this is set to true, no restrictions apply to setting or
- * removal of +qa. This is used while unloading so that the server
- * can freely clear all of its users of the modes.
- */
-bool unload_kludge = false;
-
 /** Handles basic operation of +qa channel modes
  */
 class FounderProtectBase
@@ -71,7 +65,6 @@ class FounderProtectBase
 
 	void RemoveMode(Channel* channel, char mc)
 	{
-		unload_kludge = true;
 		CUList* cl = channel->GetUsers();
 		std::string item = extend + std::string(channel->name);
 		const char* mode_junk[MAXMODES+2];
@@ -95,8 +88,6 @@ class FounderProtectBase
 			}
 			MyInstance->SendMode(mode_junk, stackresult.size() + 1, MyInstance->FakeClient);
 		}
-		
-		unload_kludge = false;
 	}
 
 	void DisplayList(User* user, Channel* channel)
@@ -199,7 +190,12 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
 		 // source is a server, or ulined, we'll let them +-q the user.
-		if ((unload_kludge) || ((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
+		if (source == ServerInstance->FakeClient ||
+				((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
+				(ServerInstance->ULine(source->nick)) ||
+				(ServerInstance->ULine(source->server)) ||
+				(!*source->server) ||
+				(!IS_LOCAL(source)))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
@@ -261,7 +257,13 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if ((unload_kludge) || ((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
+		if (source == ServerInstance->FakeClient ||
+			((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || 
+			(ServerInstance->ULine(source->nick)) ||
+			(ServerInstance->ULine(source->server)) ||
+			(!*source->server) ||
+			(source->GetExt(founder,dummyptr)) ||
+			(!IS_LOCAL(source)))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
