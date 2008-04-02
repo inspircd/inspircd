@@ -303,6 +303,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		SSL_CTX_free(ctx);
 		SSL_CTX_free(clictx);
+		ServerInstance->Modules->UnpublishInterface("InspSocketHook", this);
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
