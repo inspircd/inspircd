@@ -108,7 +108,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 
 	this->local_users.push_back(New);
 
-	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= Instance->SE->GetMaxFds()))
+	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)Instance->SE->GetMaxFds()))
 	{
 		Instance->SNO->WriteToSnoMask('A', "Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
 		User::QuitUser(Instance, New,"No more connections allowed");
