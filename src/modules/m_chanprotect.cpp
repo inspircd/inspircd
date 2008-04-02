@@ -18,8 +18,6 @@
 #define PROTECT_VALUE 40000
 #define FOUNDER_VALUE 50000
 
-const char* fakevalue = "on";
-
 /* When this is set to true, no restrictions apply to setting or
  * removal of +qa. This is used while unloading so that the server
  * can freely clear all of its users of the modes.
@@ -140,7 +138,7 @@ class FounderProtectBase
 		{
 			if (!theuser->GetExt(item, dummyptr))
 			{
-				theuser->Extend(item, fakevalue);
+				theuser->Extend(item, "on");
 				parameter = theuser->nick;
 				return MODEACTION_ALLOW;
 			}
