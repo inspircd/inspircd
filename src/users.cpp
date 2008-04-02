@@ -314,8 +314,11 @@ char* User::MakeHostIP()
 
 void User::CloseSocket()
 {
-	ServerInstance->SE->Shutdown(this, 2);
-	ServerInstance->SE->Close(this);
+	if (this > -1)
+	{
+		ServerInstance->SE->Shutdown(this, 2);
+		ServerInstance->SE->Close(this);
+	}
 }
 
 char* User::GetFullHost()
