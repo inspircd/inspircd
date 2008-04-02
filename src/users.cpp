@@ -314,7 +314,7 @@ char* User::MakeHostIP()
 
 void User::CloseSocket()
 {
-	if (this > -1)
+	if (this->fd > -1)
 	{
 		ServerInstance->SE->Shutdown(this, 2);
 		ServerInstance->SE->Close(this);
