@@ -33,7 +33,7 @@ class EPollEngine : public SocketEngine
 private:
 	/** These are used by epoll() to hold socket events
 	 */
-	struct epoll_event events[MAX_DESCRIPTORS];
+	struct epoll_event* events;
 public:
 	/** Create a new EPollEngine
 	 * @param Instance The creator of this object

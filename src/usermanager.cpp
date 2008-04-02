@@ -126,7 +126,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	 * than about 10,000 users on ONE server!)
 	 */
 #ifndef WINDOWS
-	if ((unsigned int)socket >= MAX_DESCRIPTORS)
+	if (socket >= Instance->SE->GetMaxFds())
 	{
 		User::QuitUser(Instance, New, "Server is full");
 		return;

@@ -28,8 +28,6 @@
 
 #ifdef WINDOWS
 #pragma comment(lib, "libgnutls-13.lib")
-#undef MAX_DESCRIPTORS
-#define MAX_DESCRIPTORS 10000
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
@@ -94,7 +92,7 @@ class ModuleSSLGnuTLS : public Module
 	std::vector<std::string> listenports;
 
 	int inbufsize;
-	issl_session sessions[MAX_DESCRIPTORS];
+	issl_session* sessions;
 
 	gnutls_certificate_credentials x509_cred;
 	gnutls_dh_params dh_params;
@@ -116,6 +114,8 @@ class ModuleSSLGnuTLS : public Module
 		: Module(Me)
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
+
+		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -270,6 +270,8 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_dh_params_deinit(dh_params);
 		gnutls_certificate_free_credentials(x509_cred);
 		gnutls_global_deinit();
+		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
+		delete[] sessions;
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -383,7 +385,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return;
 
 		issl_session* session = &sessions[fd];
@@ -416,7 +418,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual void OnRawSocketConnect(int fd)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return;
 
 		issl_session* session = &sessions[fd];
@@ -438,7 +440,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual void OnRawSocketClose(int fd)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds()))
 			return;
 
 		CloseSession(&sessions[fd]);
@@ -457,7 +459,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return 0;
 
 		issl_session* session = &sessions[fd];
@@ -552,7 +554,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return 0;
 
 		issl_session* session = &sessions[fd];

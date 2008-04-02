@@ -581,8 +581,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 #endif
 
-	printf("\nInspIRCd is now running as '%s'[%s]\n", Config->ServerName,Config->GetSID().c_str());
-	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s]", Config->ServerName,Config->GetSID().c_str());
+	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
+	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
 
 	this->WritePID(Config->PID);
 }

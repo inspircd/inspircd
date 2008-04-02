@@ -15,10 +15,11 @@
 #include "exitcodes.h"
 #include <sys/epoll.h>
 #include "socketengines/socketengine_epoll.h"
+#include <ulimit.h>
 
 EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
-	EngineHandle = epoll_create(MAX_DESCRIPTORS);
+	EngineHandle = epoll_create(GetMaxFds());
 
 	if (EngineHandle == -1)
 	{
@@ -29,17 +30,24 @@ EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
+
+	ref = new EventHandler* [GetMaxFds()];
+	events = new struct epoll_event[GetMaxFds()];
+
+	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 EPollEngine::~EPollEngine()
 {
 	this->Close(EngineHandle);
+	delete[] ref;
+	delete[] events;
 }
 
 bool EPollEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
 		ServerInstance->Logs->Log("SOCKET",DEBUG,"Out of range FD");
 		return false;
@@ -83,7 +91,7 @@ void EPollEngine::WantWrite(EventHandler* eh)
 bool EPollEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
 	struct epoll_event ev;
@@ -107,19 +115,34 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 
 int EPollEngine::GetMaxFds()
 {
-	return MAX_DESCRIPTORS;
+	if (MAX_DESCRIPTORS)
+		return MAX_DESCRIPTORS;
+
+	int max = ulimit(4, 0);
+	if (max > 0)
+	{
+		MAX_DESCRIPTORS = max;
+		return max;
+	}
+	else
+	{
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+	}
+	return 0;
 }
 
 int EPollEngine::GetRemainingFds()
 {
-	return MAX_DESCRIPTORS - CurrentSetSize;
+	return GetMaxFds() - CurrentSetSize;
 }
 
 int EPollEngine::DispatchEvents()
 {
 	socklen_t codesize;
 	int errcode;
-	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 1000);
+	int i = epoll_wait(EngineHandle, events, GetMaxFds() - 1, 1000);
 
 	TotalEvents += i;
 

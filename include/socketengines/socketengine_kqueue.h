@@ -34,7 +34,7 @@ class KQueueEngine : public SocketEngine
 private:
 	/** These are used by kqueue() to hold socket events
 	 */
-	struct kevent ke_list[MAX_DESCRIPTORS];
+	struct kevent* ke_list;
 	/** This is a specialised time value used by kqueue()
 	 */
 	struct timespec ts;

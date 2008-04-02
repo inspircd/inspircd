@@ -137,7 +137,7 @@ class izip_session : public classbase
 
 class ModuleZLib : public Module
 {
-	izip_session sessions[MAX_DESCRIPTORS];
+	izip_session* sessions;
 
 	/* Used for stats z extensions */
 	float total_out_compressed;
@@ -152,6 +152,8 @@ class ModuleZLib : public Module
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
+		sessions = new izip_session[ServerInstance->SE->GetMaxFds()];
+
 		total_out_compressed = total_in_compressed = 0;
 		total_out_uncompressed = total_out_uncompressed = 0;
 		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnStats, I_OnRequest };
@@ -161,6 +163,7 @@ class ModuleZLib : public Module
 	virtual ~ModuleZLib()
 	{
 		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
+		delete[] sessions;
 	}
 
 	virtual Version GetVersion()

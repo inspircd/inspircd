@@ -107,7 +107,7 @@ class ModuleSSLOpenSSL : public Module
 	std::vector<std::string> listenports;
 
 	int inbufsize;
-	issl_session sessions[MAX_DESCRIPTORS];
+	issl_session* sessions;
 
 	SSL_CTX* ctx;
 	SSL_CTX* clictx;
@@ -132,6 +132,8 @@ class ModuleSSLOpenSSL : public Module
 	: Module(Me), PublicInstance(Me)
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
+
+		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -302,6 +304,8 @@ class ModuleSSLOpenSSL : public Module
 	{
 		SSL_CTX_free(ctx);
 		SSL_CTX_free(clictx);
+		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
+		delete[] sessions;
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -396,7 +400,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return;
 
 		issl_session* session = &sessions[fd];
@@ -423,7 +427,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnRawSocketConnect(int fd)
 	{
                 /* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() -1))
 			return;
 
 		issl_session* session = &sessions[fd];
@@ -450,7 +454,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnRawSocketClose(int fd)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return;
 
 		CloseSession(&sessions[fd]);
@@ -469,7 +473,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return 0;
 
 		issl_session* session = &sessions[fd];
@@ -546,7 +550,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return 0;
 
 		issl_session* session = &sessions[fd];

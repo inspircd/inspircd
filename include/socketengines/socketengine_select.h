@@ -37,7 +37,7 @@ private:
 	std::map<int,int> fds;
 	/** List of writeable ones (WantWrite())
 	 */
-	bool writeable[MAX_DESCRIPTORS];
+	bool* writeable;
 	/** The read set and write set, populated before each call to select().
 	 */
 	fd_set wfdset, rfdset, errfdset;

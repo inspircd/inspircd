@@ -167,7 +167,9 @@ protected:
 	int CurrentSetSize;
 	/** Reference table, contains all current handlers
 	 */
-	EventHandler* ref[MAX_DESCRIPTORS];
+	EventHandler** ref;
+
+	int MAX_DESCRIPTORS;
 public:
 
 	double TotalEvents;

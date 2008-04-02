@@ -1224,7 +1224,6 @@ sub writefiles {
 #define MAXCLIENTS $config{MAX_CLIENT}
 #define MAXCLIENTS_S "$config{MAX_CLIENT}"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
-#define MAX_DESCRIPTORS $config{MAX_DESCRIPTORS}
 #define NICKMAX $NL
 #define CHANMAX $CL
 #define MAXMODES $config{MAXI_MODES}

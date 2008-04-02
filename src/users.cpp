@@ -21,7 +21,13 @@
 #include "bancache.h"
 #include "commands/cmd_whowas.h"
 
-static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
+static unsigned long* already_sent = NULL;
+
+
+void InitializeAlreadySent(SocketEngine* SE)
+{
+	already_sent = new unsigned long[SE->GetMaxFds()];
+}
 
 /* XXX: Used for speeding up WriteCommon operations */
 unsigned long uniq_id = 0;
@@ -1322,6 +1328,9 @@ void User::WriteCommon(const std::string &text)
 
 	uniq_id++;
 
+	if (!already_sent)
+		InitializeAlreadySent(ServerInstance->SE);
+
 	/* We dont want to be doing this n times, just once */
 	snprintf(tb,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
 	std::string out = tb;
@@ -1376,6 +1385,10 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		return;
 
 	uniq_id++;
+
+	if (!already_sent)
+		InitializeAlreadySent(ServerInstance->SE);
+
 	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost(),normal_text.c_str());
 	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost(),oper_text.c_str());
 	std::string out1 = tb1;
@@ -1407,6 +1420,10 @@ void User::WriteCommonExcept(const std::string &text)
 		return;
 
 	uniq_id++;
+
+	if (!already_sent)
+		InitializeAlreadySent(ServerInstance->SE);
+
 	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
 	out1 = tb1;
 

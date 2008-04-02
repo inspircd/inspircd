@@ -36,7 +36,7 @@ class PortsEngine : public SocketEngine
 private:
 	/** These are used by epoll() to hold socket events
 	 */
-	port_event_t events[MAX_DESCRIPTORS];
+	port_event_t* events;
 public:
 	/** Create a new PortsEngine
 	 * @param Instance The creator of this object

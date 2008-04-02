@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -22,17 +22,22 @@ SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	EngineHandle = 0;
 	CurrentSetSize = 0;
+
+	writeable = new bool [GetMaxFds()];
 	memset(writeable, 0, sizeof(writeable));
+	ref = new EventHandler* [GetMaxFds()];
+	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 SelectEngine::~SelectEngine()
 {
+	delete[] ref;
 }
 
 bool SelectEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
 	if (GetRemainingFds() <= 1)
@@ -58,7 +63,7 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
 	std::map<int,int>::iterator t = fds.find(fd);
@@ -79,7 +84,7 @@ int SelectEngine::GetMaxFds()
 
 int SelectEngine::GetRemainingFds()
 {
-	return FD_SETSIZE - CurrentSetSize;
+	return GetMaxFds() - CurrentSetSize;
 }
 
 int SelectEngine::DispatchEvents()
@@ -87,7 +92,7 @@ int SelectEngine::DispatchEvents()
 	int result = 0;
 	timeval tval;
 	int sresult = 0;
-	EventHandler* ev[MAX_DESCRIPTORS];
+	EventHandler* ev[GetMaxFds()];
 	socklen_t codesize;
 	int errcode;
 

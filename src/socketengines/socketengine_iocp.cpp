@@ -32,6 +32,8 @@ IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 	/* Null variables out. */
 	CurrentSetSize = 0;
 	EngineHandle = 0;
+	MAX_DESCRIPTORS = 10240;
+	ref = new EventHandler* [10240];
 	memset(ref, 0, sizeof(EventHandler*) * MAX_DESCRIPTORS);
 }
 
@@ -40,6 +42,7 @@ IOCPEngine::~IOCPEngine()
 	/* Clean up winsock and close completion port */
 	CloseHandle(m_completionPort);
 	WSACleanup();
+	delete[] ref;
 }
 
 bool IOCPEngine::AddFd(EventHandler* eh)

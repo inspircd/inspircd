@@ -230,13 +230,9 @@ do { \
 #define FD_MAGIC_NUMBER -42
 
 /* Useful macros */
-#ifdef WINDOWS
+
 /** Is a local user */
 #define IS_LOCAL(x) ((x->GetFd() > -1))
-#else
-/** Is a local user */
-#define IS_LOCAL(x) ((x->GetFd() > -1) && (x->GetFd() <= MAX_DESCRIPTORS))
-#endif
 /** Is a remote user */
 #define IS_REMOTE(x) (x->GetFd() < 0)
 /** Is a module created user */

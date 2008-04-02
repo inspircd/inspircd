@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -17,11 +17,13 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #include "socketengines/socketengine_kqueue.h"
-
+#include <ulimit.h>
 
 KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	this->RecoverFromFork();
+	ref = new EventHandler* [GetMaxFds()];
+	ke_list = new struct kevent[GetMaxFds()];
 }
 
 void KQueueEngine::RecoverFromFork()
@@ -41,18 +43,21 @@ void KQueueEngine::RecoverFromFork()
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
+	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 KQueueEngine::~KQueueEngine()
 {
 	this->Close(EngineHandle);
+	delete[] ref;
+	delete[] ke_list;
 }
 
 bool KQueueEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
 	if (GetRemainingFds() <= 1)
@@ -81,7 +86,7 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
 	struct kevent ke;
@@ -116,12 +121,27 @@ void KQueueEngine::WantWrite(EventHandler* eh)
 
 int KQueueEngine::GetMaxFds()
 {
-	return MAX_DESCRIPTORS;
+	if (MAX_DESCRIPTORS)
+		return MAX_DESCRIPTORS;
+
+	int max = ulimit(4, 0);
+	if (max > 0)
+	{
+		MAX_DESCRIPTORS = max;
+		return max;
+	}
+	else
+	{
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+	}
+	return 0;
 }
 
 int KQueueEngine::GetRemainingFds()
 {
-	return MAX_DESCRIPTORS - CurrentSetSize;
+	return GetMaxFds() - CurrentSetSize;
 }
 
 int KQueueEngine::DispatchEvents()
@@ -129,7 +149,7 @@ int KQueueEngine::DispatchEvents()
 	ts.tv_nsec = 0;
 	ts.tv_sec = 1;
 
-	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
+	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], GetMaxFds(), &ts);
 
 	TotalEvents += i;
 

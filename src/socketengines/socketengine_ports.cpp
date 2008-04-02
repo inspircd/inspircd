@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -15,6 +15,7 @@
 #include "exitcodes.h"
 #include <port.h>
 #include "socketengines/socketengine_ports.h"
+#include <ulimit.h>
 
 PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
@@ -29,17 +30,23 @@ PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
+
+	ref = new EventHandler* [GetMaxFds()];
+	events = new port_event_t[GetMaxFds()];
+	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 PortsEngine::~PortsEngine()
 {
 	this->Close(EngineHandle);
+	delete[] ref;
+	delete[] events;
 }
 
 bool PortsEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
 	if (GetRemainingFds() <= 1)
@@ -64,7 +71,7 @@ void PortsEngine::WantWrite(EventHandler* eh)
 bool PortsEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);
@@ -78,12 +85,27 @@ bool PortsEngine::DelFd(EventHandler* eh, bool force)
 
 int PortsEngine::GetMaxFds()
 {
-	return MAX_DESCRIPTORS;
+	if (MAX_DESCRIPTORS)
+		return MAX_DESCRIPTORS;
+
+	int max = ulimit(4, 0);
+	if (max > 0)
+	{
+		MAX_DESCRIPTORS = max;
+		return max;
+	}
+	else
+	{
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+	}
+#include <ulimit.h>
 }
 
 int PortsEngine::GetRemainingFds()
 {
-	return MAX_DESCRIPTORS - CurrentSetSize;
+	return GetMaxFds() - CurrentSetSize;
 }
 
 int PortsEngine::DispatchEvents()
@@ -94,7 +116,7 @@ int PortsEngine::DispatchEvents()
 	poll_time.tv_nsec = 0;
 
 	unsigned int nget = 1; // used to denote a retrieve request.
-	int i = port_getn(EngineHandle, this->events, MAX_DESCRIPTORS, &nget, &poll_time);
+	int i = port_getn(EngineHandle, this->events, GetMaxFds() - 1, &nget, &poll_time);
 
 	// first handle an error condition
 	if (i == -1)
