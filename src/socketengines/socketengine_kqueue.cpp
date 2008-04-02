@@ -121,22 +121,20 @@ void KQueueEngine::WantWrite(EventHandler* eh)
 
 int KQueueEngine::GetMaxFds()
 {
-	if (MAX_DESCRIPTORS)
-		return MAX_DESCRIPTORS;
-
-	int max = ulimit(4, 0);
-	if (max > 0)
+	if (!MAX_DESCRIPTORS)
 	{
-		MAX_DESCRIPTORS = max;
+		int mib[2], maxfiles;
+	   	size_t len;
+
+		mib[0] = CTL_KERN;
+		mib[1] = KERN_MAXFILES;
+		len = sizeof(maxfiles);
+		sysctl(mib, 2, &maxfiles, &len, NULL, 0);
+
+		MAX_DESCRIPTORS = maxfiles;
 		return max;
 	}
-	else
-	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		printf("ERROR: Can't determine maximum number of open sockets!\n");
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
-	}
-	return 0;
+	return MAX_DESCRIPTORS;
 }
 
 int KQueueEngine::GetRemainingFds()
