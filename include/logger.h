@@ -38,10 +38,6 @@ class CoreExport FileWriter : public EventHandler
 	 */
 	FILE* log;
 
-	/** Buffer of pending log lines to be written
-	 */
-	std::string buffer;
-
 	/** Number of write operations that have occured
 	 */
 	int writeops;
@@ -50,10 +46,6 @@ class CoreExport FileWriter : public EventHandler
 	/** The constructor takes an already opened logfile.
 	 */
 	FileWriter(InspIRCd* Instance, FILE* logfile);
-
-	/** This returns false, logfiles are writeable.
-	 */
-	virtual bool Readable();
 
 	/** Handle pending write events.
 	 * This will flush any waiting data to disk.

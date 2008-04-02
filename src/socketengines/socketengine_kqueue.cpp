@@ -104,7 +104,7 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	//ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 
@@ -169,9 +169,12 @@ int KQueueEngine::DispatchEvents()
 			/* This looks wrong but its right. As above, theres no modify
 			 * call in kqueue. See the manpage.
 			 */
-			struct kevent ke;
-			EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
-			kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+			if (ref[ke_list[j].ident]->Readable())
+			{
+				struct kevent ke;
+				EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
+				kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+			}
 			WriteEvents++;
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
