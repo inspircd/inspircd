@@ -68,7 +68,7 @@ class ModuleSecureList : public Module
 					return 0;
 
 			/* Not exempt, BOOK EM DANNO! */
-			user->WriteServ("NOTICE %s :*** You cannot list within the first %ld seconds of connecting. Please try again later.",user->nick, WaitTime);
+			user->WriteServ("NOTICE %s :*** You cannot list within the first %lu seconds of connecting. Please try again later.",user->nick, (unsigned long) WaitTime);
 			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
 			 */

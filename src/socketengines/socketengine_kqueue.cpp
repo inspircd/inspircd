@@ -22,8 +22,9 @@
 KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	this->RecoverFromFork();
-	ref = new EventHandler* [GetMaxFds()];
 	ke_list = new struct kevent[GetMaxFds()];
+	ref = new EventHandler* [GetMaxFds()];
+	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 void KQueueEngine::RecoverFromFork()
@@ -43,7 +44,6 @@ void KQueueEngine::RecoverFromFork()
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 KQueueEngine::~KQueueEngine()

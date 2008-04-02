@@ -241,7 +241,7 @@ class CommandWatch : public Command
 				user->WriteNumeric(604, "%s %s %s :is online",user->nick, nick, (*wl)[nick].c_str());
 				if (IS_AWAY(target))
 				{
-					user->WriteNumeric(609, "%s %s %s %s %ld :is away", user->nick, target->nick, target->ident, target->dhost, target->awaytime);
+					user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick, target->nick, target->ident, target->dhost, (unsigned long) target->awaytime);
 				}
 			}
 			else
@@ -320,7 +320,7 @@ class CommandWatch : public Command
 								User *targ = ServerInstance->FindNick(q->first.c_str());
 								if (IS_AWAY(targ))
 								{
-									user->WriteNumeric(609, "%s %s %s %s %ld :is away", user->nick, targ->nick, targ->ident, targ->dhost, targ->awaytime);
+									user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick, targ->nick, targ->ident, targ->dhost, (unsigned long) targ->awaytime);
 								}
 							}
 							else
@@ -433,7 +433,7 @@ class Modulewatch : public Module
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
-					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, ServerInstance->Time());
+					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, (unsigned long) ServerInstance->Time());
 
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
@@ -503,7 +503,7 @@ class Modulewatch : public Module
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
-					(*n)->WriteNumeric(600, "%s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
+					(*n)->WriteNumeric(600, "%s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, (unsigned long) user->age);
 
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
@@ -526,7 +526,7 @@ class Modulewatch : public Module
 				if ((*n)->GetExt("watchlist", wl))
 				{
 					if (!user->Visibility || user->Visibility->VisibleTo(user))
-	 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, user->age);
+	 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, (unsigned long) user->age);
 					(*wl)[oldnick.c_str()] = "";
 				}
 			}

@@ -82,7 +82,7 @@ class CommandSvshold : public Command
 						if ((*iter)->length)
 						{
 							remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
-							user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, (*iter)->nickname.c_str(), remaining, (*iter)->reason.c_str());
+							user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, (*iter)->nickname.c_str(), (unsigned long)remaining, (*iter)->reason.c_str());
 						}
 						else
 						{
@@ -113,7 +113,7 @@ class CommandSvshold : public Command
 					return CMD_FAILURE;
 				}
 
-				long length = ServerInstance->Duration(parameters[1]);
+				unsigned long length = ServerInstance->Duration(parameters[1]);
 				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
 				
 				SVSHold* S = new SVSHold(parameters[0], user->nick, ServerInstance->Time(), length, reason);
@@ -261,7 +261,7 @@ class ModuleSVSHold : public Module
 				if ((*iter)->set_on + (*iter)->length <= ServerInstance->Time())
 				{
 					ServerInstance->Logs->Log("m_svshold",DEBUG, "m_svshold.so: hold on %s expired, removing...", (*iter)->nickname.c_str());
-					ServerInstance->SNO->WriteToSnoMask('A',"%li second SVSHOLD on %s (%s) set %ld seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
+					ServerInstance->SNO->WriteToSnoMask('A',"%lu second SVSHOLD on %s (%s) set %lu seconds ago expired", (unsigned long) (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), (unsigned long) ServerInstance->Time() - (*iter)->set_on);
 					HoldMap.erase(assign((*iter)->nickname));
 					delete *iter;
 					safeiter = iter;

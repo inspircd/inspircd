@@ -100,7 +100,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	if (TS <= ourTS)
 	{
 		if ((TS < ourTS) && (!dst))
-			Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG *** Channel TS sent in FMODE to %s is %lu which is not equal to %lu!", params[0].c_str(), TS, ourTS);
+			Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG *** Channel TS sent in FMODE to %s is %lu which is not equal to %lu!", params[0].c_str(), (unsigned long) TS, (unsigned long) ourTS);
 
 		if (smode)
 		{
