@@ -244,7 +244,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_dh_params_deinit(dh_params);
 		gnutls_certificate_free_credentials(x509_cred);
 		gnutls_global_deinit();
-		ServerInstance->Modules->UnpublishInterface("InspSocketHook", this);
+		ServerInstance->UnpublishInterface("InspSocketHook", this);
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
