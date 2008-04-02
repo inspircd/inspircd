@@ -184,7 +184,6 @@ void Banner()
 
 void Run()
 {
-	int max_fd = 10200;
 	bool use_iocp = false;
 	bool support_ip6links = true;
 	bool use_openssl = false;
@@ -198,7 +197,6 @@ void Run()
 	char openssl_inc_path[MAX_PATH];
 	char openssl_lib_path[MAX_PATH];
 
-	int max_clients = 10200;
 	int nicklen = 31;
 	int chanlen = 64;
 	int modechanges = 20;
@@ -237,8 +235,6 @@ void Run()
 #endif
 	printf_c("InspIRCd revision ID: \033[1;32m%s \033[0m\n\n", revision ? revision_text : "(Non-SVN build)");
 
-	max_fd = get_int_option("What is the maximum file descriptor count you would like to allow?", 10200);
-
 	// detect windows
 	if(iswinxp())
 	{
@@ -271,8 +267,6 @@ void Run()
 		"of the 'maximum number of clients' setting which may be different on\n"
 		"different servers on the network.\n\n");
 
-    
-	max_clients = get_int_option("Please enter the maximum number of clients at any one time?", 10200);
 	nicklen = get_int_option("Please enter the maximum length of nicknames?", 31);
 	chanlen = get_int_option("Please enter the maximum length of channel names?", 64);
 	modechanges = get_int_option("Please enter the maximum number of mode changes in one line?", 20);
@@ -336,8 +330,6 @@ void Run()
 	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path);
 	printf_c("\033[0mLibrary path:\033[1;32m             %s\n", library_dir);
 	printf_c("\033[0mSocket Engine:\033[1;32m            %s\n", use_iocp ? "iocp" : "select");
-	printf_c("\033[0mMax file descriptors:\033[1;32m     %u\n", max_fd);
-	printf_c("\033[0mMax connections:\033[1;32m          %u\n", max_clients);
 	printf_c("\033[0mMax nickname length:\033[1;32m      %u\n", nicklen);
 	printf_c("\033[0mMax channel length:\033[1;32m       %u\n", chanlen);
 	printf_c("\033[0mMax mode length:\033[1;32m          %u\n", modechanges);
@@ -372,9 +364,6 @@ void Run()
 
 	fprintf(f, "#define CONFIG_FILE \"%s/inspircd.conf\"\n", config_file);
 	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path);
-	fprintf(f, "#define MAX_DESCRIPTORS %u\n", max_fd);
-	fprintf(f, "#define MAXCLIENTS %u\n", max_clients);
-	fprintf(f, "#define MAXCLIENTS_S \"%u\"\n", max_clients);
 	fprintf(f, "#define SOMAXCONN_S \"128\"\n");
 	fprintf(f, "#define NICKMAX %u\n", nicklen+1);
 	fprintf(f, "#define CHANMAX %u\n", chanlen+1);

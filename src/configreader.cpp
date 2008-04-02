@@ -47,7 +47,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
-	SoftLimit = MAXCLIENTS;
+	SoftLimit = Instance->SE->GetMaxFds();
 	MaxConn = SOMAXCONN;
 	MaxWhoResults = 0;
 	debugging = 0;
@@ -261,10 +261,10 @@ bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem 
 
 bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	if ((data.GetInteger() < 1) || (data.GetInteger() > MAXCLIENTS))
+	if ((data.GetInteger() < 1) || (data.GetInteger() > conf->GetInstance()->SE->GetMaxFds()))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
-		data.Set(MAXCLIENTS);
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",conf->GetInstance()->SE->GetMaxFds(),conf->GetInstance()->SE->GetMaxFds());
+		data.Set(conf->GetInstance()->SE->GetMaxFds());
 	}
 	return true;
 }
@@ -767,7 +767,7 @@ void ServerConfig::Read(bool bail, User* user)
 
 	/* These tags can occur ONCE or not at all */
 	InitialConfig Values[] = {
-		{"options",	"softlimit",	MAXCLIENTS_S,		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
+		{"options",	"softlimit",	"0",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
 		{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
 		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
 		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME|DT_BOOTONLY, ValidateServerName},

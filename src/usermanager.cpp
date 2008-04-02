@@ -108,7 +108,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 
 	this->local_users.push_back(New);
 
-	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= MAXCLIENTS))
+	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= Instance->SE->GetMaxFds()))
 	{
 		Instance->SNO->WriteToSnoMask('A', "Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
 		User::QuitUser(Instance, New,"No more connections allowed");
@@ -125,13 +125,12 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	 * which for the time being is a physical impossibility (even the largest networks dont have more
 	 * than about 10,000 users on ONE server!)
 	 */
-#ifndef WINDOWS
 	if (socket >= Instance->SE->GetMaxFds())
 	{
 		User::QuitUser(Instance, New, "Server is full");
 		return;
 	}
-#endif
+
 	/*
 	 * even with bancache, we still have to keep User::exempt current.
 	 * besides that, if we get a positive bancache hit, we still won't fuck
