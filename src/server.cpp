@@ -206,13 +206,13 @@ std::string InspIRCd::GetUID()
 		current_uid[1] = Config->sid[1];
 		current_uid[2] = Config->sid[2];
 
-		for (int i = 3; i < UUID_LENGTH; i++)
+		for (int i = 3; i < (UUID_LENGTH - 1); i++)
 			current_uid[i] = '9';
 
-		curindex = UUID_LENGTH - 1; // look at the end of the string now kthx
+		curindex = UUID_LENGTH - 2; // look at the end of the string now kthx, ignore null
 
 		// Null terminator. Important.
-		current_uid[UUID_LENGTH] = '\0';
+		current_uid[UUID_LENGTH - 1] = '\0';
 	}
 
 	while (1)
