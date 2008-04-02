@@ -17,7 +17,7 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #include "socketengines/socketengine_kqueue.h"
-#include <ulimit.h>
+#include <sys/sysctl.h>
 
 KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
@@ -130,9 +130,8 @@ int KQueueEngine::GetMaxFds()
 		mib[1] = KERN_MAXFILES;
 		len = sizeof(maxfiles);
 		sysctl(mib, 2, &maxfiles, &len, NULL, 0);
-
 		MAX_DESCRIPTORS = maxfiles;
-		return max;
+		return maxfiles;
 	}
 	return MAX_DESCRIPTORS;
 }

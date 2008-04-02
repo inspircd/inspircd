@@ -76,7 +76,7 @@ void ModeChannelBan::DisplayList(User* user, Channel* channel)
 	/* Display the channel banlist */
 	for (BanList::reverse_iterator i = channel->bans.rbegin(); i != channel->bans.rend(); ++i)
 	{
-		user->WriteServ("367 %s %s %s %s %ld",user->nick, channel->name, i->data, i->set_by, i->set_time);
+		user->WriteServ("367 %s %s %s %s %lu",user->nick, channel->name, i->data, i->set_by, (unsigned long)i->set_time);
 	}
 	user->WriteServ("368 %s %s :End of channel ban list",user->nick, channel->name);
 	return;
