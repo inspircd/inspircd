@@ -509,8 +509,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Config->sid[2] = (char)(sid % 10 + 48);
 	}
 
-	this->InitialiseUID();
-
 	/* set up fake client again this time with the correct uid */
 	this->FakeClient = new User(this, "#INVALID");
 	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
@@ -518,7 +516,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Get XLine to do it's thing.
 	this->XLines->CheckELines();
 	this->XLines->ApplyLines();
-
 
 	CheckDie();
 	int bounditems = BindPorts(true, found_ports, pl);
@@ -588,28 +585,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s]", Config->ServerName,Config->GetSID().c_str());
 
 	this->WritePID(Config->PID);
-}
-
-/* moved to a function, as UID generation can call this also */
-void InspIRCd::InitialiseUID()
-{
-	int i = 3;
-
-printf("FUCKING UID IS %s\n", current_uid);
-
-	current_uid[0] = Config->sid[0];
-	current_uid[1] = Config->sid[1];
-	current_uid[2] = Config->sid[2];
-
-	/* Initialise UID */
-	for(i = 3; i < UUID_LENGTH - 1; i++)
-		current_uid[i] = 'A';
-
-printf("FUCKING UID IS %s %d\n", current_uid, strlen(current_uid));
-
-	current_uid[UUID_LENGTH] = '\0';
-
-printf("FUCKING UID IS %s %d\n", current_uid, strlen(current_uid));
 }
 
 int InspIRCd::Run()

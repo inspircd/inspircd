@@ -289,9 +289,9 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void DoSocketTimeouts(time_t TIME);
 
-	/** Sets up UID subsystem
+	/** Increments the current UID by one.
 	 */
-	void InitialiseUID();
+	void IncrementUID(int pos);
 
 	/** Perform background user events such as PING checks
 	 */

@@ -136,6 +136,56 @@ bool InspIRCd::FindServerName(const std::string &servername)
 	return false;
 }
 
+void InspIRCd::IncrementUID(int pos)
+{
+	/*
+	 * Okay. The rules for generating a UID go like this...
+	 * -- > ABCDEFGHIJKLMNOPQRSTUVWXYZ --> 012345679 --> WRAP
+	 * That is, we start at A. When we reach Z, we go to 0. At 9, we go to
+	 * A again, in an iterative fashion.. so..
+	 * AAA9 -> AABA, and so on. -- w00t
+	 */
+	if (pos == 3)
+	{
+		// At pos 3, if we hit '9', we've run out of available UIDs, and need to reset to AAA..AAA.
+		if (current_uid[pos] == '9')
+		{
+			for (int i = 3; i < UUID_LENGTH; i++)
+			{
+				current_uid[i] = 'A';
+				pos  = UUID_LENGTH - 1;	
+			}
+		}
+		else
+		{
+			// Buf if we haven't, just keep incrementing merrily.
+			current_uid[pos]++;
+		}
+	}
+	else
+	{
+		// If we hit Z, wrap around to 0.
+		if (current_uid[pos] == 'Z')
+		{
+			current_uid[pos] = '0';
+		}
+		else if (current_uid[pos] == '9')
+		{
+			/*
+			 * Or, if we hit 9, wrap around to pos = 'A' and (pos - 1)++,
+			 * e.g. A9 -> BA -> BB ..
+			 */
+			current_uid[pos] = 'A';
+			this->IncrementUID(pos - 1);
+		}
+		else
+		{
+			// Anything else, nobody gives a shit. Just increment.
+			current_uid[pos]++;
+		}
+	}
+}
+
 /*
  * Retrieve the next valid UUID that is free for this server.
  */
@@ -143,130 +193,44 @@ std::string InspIRCd::GetUID()
 {
 	static int curindex = -1;
 
+	/*
+	 * If -1, we're setting up. Copy SID into the first three digits, 9's to the rest, null term at the end
+	 * Why 9? Well, we increment before we find, otherwise we have an unnecessary copy, and I want UID to start at AAA..AA
+	 * and not AA..AB. So by initialising to 99999, we force it to rollover to AAAAA on the first IncrementUID call.
+	 * Kind of silly, but I like how it looks.
+	 *		-- w
+	 */
 	if (curindex == -1)
 	{
-		// Starting up
 		current_uid[0] = Config->sid[0];
 		current_uid[1] = Config->sid[1];
 		current_uid[2] = Config->sid[2];
 
 		for (int i = 3; i < UUID_LENGTH; i++)
-			current_uid[i] = 'Z';
+			current_uid[i] = '9';
 
-		current_uid[3] = 'Y'; // force fake client to get ZZZZZZZZ
+		curindex = UUID_LENGTH - 1; // look at the end of the string now kthx
 
-		curindex = 3;
+		// Null terminator. Important.
+		current_uid[UUID_LENGTH] = '\0';
 	}
 
 	while (1)
 	{
-		printf("Getting ID. curindex %d, current_uid %s\n", curindex, current_uid);
+		// Add one to the last UID
+		this->IncrementUID(curindex);
 
-		if (curindex == 3)
+		if (this->FindUUID(current_uid))
 		{
-			// Down to the last few.
-			if (current_uid[curindex] == 'Z')
-			{
-				// Reset.
-				for (int i = 3; i < UUID_LENGTH; i++)
-				{
-					current_uid[i] = 'A';
-					curindex  = UUID_LENGTH - 1;
-				}
-			}
-			else
-				current_uid[curindex]++;
-		}
-		else
-		{
-			if (current_uid[curindex] == 'Z')
-				current_uid[curindex] = '0';
-			else if (current_uid[curindex] == '9')
-			{
-				current_uid[curindex] = 'A';
-				curindex--;
-				continue;
-			}
-			else
-				current_uid[curindex]++;
+			/*
+			 * It's in use. We need to try the loop again.
+			 */
+			continue;
 		}
 
-			if (this->FindUUID(current_uid))
-			{
-				/*
-				 * It's in use. We need to try the loop again.
-				 */
-				continue;
-			}
-
-			return current_uid;
+		return current_uid;
 	}
 
-#if 0
-
-	/*
-	 * This will only finish once we return a UUID that is not in use.
-	 */
-	while (1)
-	{
-		/*
-		 * Okay. The rules for generating a UID go like this...
-		 * -- > ABCDEFGHIJKLMNOPQRSTUVWXYZ --> 012345679 --> WRAP
-		 * That is, we start at A. When we reach Z, we go to 0. At 9, we go to
-		 * A again, in an iterative fashion.. so..
-		 * AAA9 -> AABA, and so on. -- w00t
-		 */
-
-		/* start at the end of the current UID string, work backwards. don't trample on SID! */
-		for (i = UUID_LENGTH - 2; i > 3; i--)
-		{
-			if (current_uid[i] == 'Z')
-			{
-				/* reached the end of alphabetical, go to numeric range */
-				current_uid[i] = '0';
-			}
-			else if (current_uid[i] == '9')
-			{
-				/* we reached the end of the sequence, set back to A */
-				current_uid[i] = 'A';
-
-				/* we also need to increment the next digit. */
-				continue;
-			}
-			else
-			{
-				/* most common case .. increment current UID */
-				current_uid[i]++;
-			}
-
-			if (current_uid[3] == 'Z')
-			{
-				/*
-				 * Ugh. We have run out of room.. roll back around to the
-				 * start of the UUID namespace. -- w00t
-				 */
-				this->InitialiseUID();
-
-				/*
-				 * and now we need to break the inner for () to continue the while (),
-				 * which will start the checking process over again. -- w00t
-				 */
-				break;
-				
-			}
-			
-			if (this->FindUUID(current_uid))
-			{
-				/*
-				 * It's in use. We need to try the loop again.
-				 */
-				continue;
-			}
-
-			return current_uid;
-		}
-	}
-#endif
 	/* not reached. */
 	return "";
 }
