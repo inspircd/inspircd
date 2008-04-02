@@ -317,7 +317,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->s_signal = 0;
 	
 	// Create base manager classes early, so nothing breaks
-	this->Users = new UserManager(this, "#INVALID");
+	this->Users = new UserManager(this);
 	
 	this->Users->unregistered_count = 0;
 
@@ -512,7 +512,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->InitialiseUID();
 
 	/* set up fake client again this time with the correct uid */
-	this->FakeClient = new User(this);
+	this->FakeClient = new User(this, "#INVALID");
 	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
 	// Get XLine to do it's thing.
