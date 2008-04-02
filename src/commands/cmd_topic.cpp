@@ -37,7 +37,7 @@ CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *u
 			if (Ptr->topicset)
 			{
 				user->WriteNumeric(332, "%s %s :%s", user->nick, Ptr->name, Ptr->topic);
-				user->WriteNumeric(333, "%s %s %s %ld", user->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+				user->WriteNumeric(333, "%s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 			}
 			else
 			{
