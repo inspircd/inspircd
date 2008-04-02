@@ -317,7 +317,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->s_signal = 0;
 	
 	// Create base manager classes early, so nothing breaks
-	this->Users = new UserManager(this);
+	this->Users = new UserManager(this, "#INVALID");
 	
 	this->Users->unregistered_count = 0;
 
