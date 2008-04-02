@@ -98,7 +98,7 @@ our %extraobjects = ();
 our %extrasources = ();
 
 our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_nick_length,
-    $opt_chan_length, $opt_maxclients, $opt_ports, $opt_epoll, $opt_kqueue, $opt_noports,
+    $opt_chan_length, $opt_ports, $opt_epoll, $opt_kqueue, $opt_noports,
     $opt_noepoll, $opt_nokqueue, $opt_disablerpath, $opt_ipv6, $opt_ipv6links,
     $opt_noipv6links, $opt_ident, $opt_quit, $opt_topic, $opt_maxbuf, $opt_kick,
     $opt_gecos, $opt_away, $opt_modes, $opt_disable_debug, $opt_maxchans,
@@ -123,7 +123,6 @@ GetOptions (
 	'disable-interactive' => \$opt_nointeractive,
 	'with-nick-length=i' => \$opt_nick_length,
 	'with-channel-length=i' => \$opt_chan_length,
-	'with-max-clients=i' => \$opt_maxclients,
 	'enable-ports' => \$opt_ports,
 	'enable-epoll' => \$opt_epoll,
 	'enable-kqueue' => \$opt_kqueue,
@@ -181,7 +180,6 @@ our $non_interactive = (
 	(defined $opt_away) ||
 	(defined $opt_gecos) ||
 	(defined $opt_kick) ||
-	(defined $opt_maxclients) ||
 	(defined $opt_modes) ||
 	(defined $opt_topic) ||
 	(defined $opt_quit) ||
@@ -324,8 +322,6 @@ if (defined $opt_noipv6links)
 {
 	$config{SUPPORT_IP6LINKS} = "n";
 }
-chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);	   		# FD Limit
-chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);		# Hard FD Limit
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Version
 $config{_SOMAXCONN} = SOMAXCONN;					# Max connections in accept queue
 $config{OSNAME}       	    = $^O;			      		# Operating System Name
@@ -389,12 +385,6 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
 if ($config{GCCVER} eq "") {
 	print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
 	exit;
-}
-
-our $fd_scan_fail = "";
-if (!$config{MAX_CLIENT_T}) { 
-	$config{MAX_CLIENT_T} = 1024;				 # Set a reasonable 'Default'
-	$fd_scan_fail = "true";				       # Used Later
 }
 
 # Get and Set some important vars..
@@ -586,18 +576,6 @@ print "Checking for cache from previous configure... ";
 print ((!getcache()) ? "not found\n" : "found\n");
 print "Checking operating system version... ";
 print getosflags() . "\n";
-
-if (defined $opt_maxclients)
-{
-	$config{MAX_CLIENT} = $opt_maxclients;
-}
-
-if (!$config{MAX_CLIENT}) { 
-	# If the cache hasn't set the max clients, copy the variable of MAX_CLIENT_T, this
-	# allows us to keep _T for testing purposes. (ie. "Are you sure you want to go
-	# higher than the found value" :))
-	$config{MAX_CLIENT} = $config{MAX_CLIENT_T};
-}
 
 printf "Checking if stdint.h exists... ";
 $config{HAS_STDINT} = "true";
@@ -802,7 +780,6 @@ a new value. Please note: You will \e[1mHAVE\e[0m to read the docs
 dir, otherwise you won't have a config file!
 
 Your operating system is: \e[1;32m$config{OSNAME}\e[0m ($wholeos)
-Maximum file descriptors: \e[1;32m$config{MAX_CLIENT_T}\e[0m
 Your InspIRCd revision ID is \e[1;32mr$rev\e[0m
 STOP
 	if ($rev eq "r0") {
@@ -915,11 +892,6 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	print "network, or malfunctions and/or crashes may occur, with the exception\n";
 	print "of the 'maximum number of clients' setting which may be different on\n";
 	print "different servers on the network.\n\n";
-
-	# File Descriptor Settings..
-	promptnumeric("number of clients at any one time", "MAX_CLIENT_T");
-	$config{MAX_CLIENT} = $config{MAX_CLIENT_T};
-	$config{MAX_DESCRIPTORS} = $config{MAX_CLIENT_T};
 
 	promptnumeric("length of nicknames", "NICK_LENGT");
 	promptnumeric("length of channel names", "CHAN_LENGT");
@@ -1221,8 +1193,6 @@ sub writefiles {
 #define MOD_PATH "$config{MODULE_DIR}"
 #define VERSION "$version"
 #define REVISION "$revision2"
-#define MAXCLIENTS $config{MAX_CLIENT}
-#define MAXCLIENTS_S "$config{MAX_CLIENT}"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
 #define NICKMAX $NL
 #define CHANMAX $CL
