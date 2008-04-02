@@ -62,7 +62,7 @@ class FounderProtectBase
 		return std::make_pair(false, parameter);
 	}
 
-	void RemoveMode(Channel* channel, char mc)
+	void RemoveMode(Channel* channel, char mc, irc::modestacker* stack)
 	{
 		CUList* cl = channel->GetUsers();
 		std::string item = extend + std::string(channel->name);
@@ -75,9 +75,15 @@ class FounderProtectBase
 		{
 			if (i->first->GetExt(item))
 			{
-				modestack.Push(mc, i->first->nick);
+				if (stack)
+					stack->Push(mc, i->first->nick);
+				else
+					modestack.Push(mc, i->first->nick);
 			}
 		}
+
+		if (stack)
+			return;
 
 		while (modestack.GetStackedLine(stackresult))
 		{
@@ -165,12 +171,12 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
-	void RemoveMode(Channel* channel)
+	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
-		FounderProtectBase::RemoveMode(channel, this->GetModeChar());
+		FounderProtectBase::RemoveMode(channel, this->GetModeChar(), stack);
 	}
 
-	void RemoveMode(User* user)
+	void RemoveMode(User* user, irc::modestacker* stack)
 	{
 	}
 
@@ -231,12 +237,12 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
-	void RemoveMode(Channel* channel)
+	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
-		FounderProtectBase::RemoveMode(channel, this->GetModeChar());
+		FounderProtectBase::RemoveMode(channel, this->GetModeChar(), stack);
 	}
 
-	void RemoveMode(User* user)
+	void RemoveMode(User* user, irc::modestacker* stack)
 	{
 	}
 

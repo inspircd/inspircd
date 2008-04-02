@@ -46,7 +46,7 @@ ModePair ModeChannelOp::ModeSet(User*, User*, Channel* channel, const std::strin
 }
 
 
-void ModeChannelOp::RemoveMode(Channel* channel)
+void ModeChannelOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	CUList* clist = channel->GetOppedUsers();
 	CUList copy;
@@ -60,13 +60,18 @@ void ModeChannelOp::RemoveMode(Channel* channel)
 
 	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
 	{
-		sprintf(moderemove,"-%c",this->GetModeChar());
-		const char* parameters[] = { channel->name, moderemove, i->first->nick };
-		ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		if (stack)
+			stack->Push(this->GetModeChar(), i->first->nick);
+		else
+		{
+			sprintf(moderemove,"-%c",this->GetModeChar());
+			const char* parameters[] = { channel->name, moderemove, i->first->nick };
+			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		}
 	}
 }
 
-void ModeChannelOp::RemoveMode(User*)
+void ModeChannelOp::RemoveMode(User*, irc::modestacker* stack)
 {
 }
 

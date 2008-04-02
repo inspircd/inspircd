@@ -776,6 +776,9 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	if (!modehandlers[pos])
 		return false;
 
+	/* Note: We can't stack here, as we have modes potentially being removed across many different channels.
+	 * To stack here we have to make the algorithm slower. Discuss.
+	 */
 	switch (mh->GetModeType())
 	{
 		case MODETYPE_USER:
@@ -1048,30 +1051,44 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 
 /** This default implementation can remove simple user modes
  */
-void ModeHandler::RemoveMode(User* user)
+void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 {
 	char moderemove[MAXBUF];
 	const char* parameters[] = { user->nick, moderemove };
 
 	if (user->IsModeSet(this->GetModeChar()))
 	{
-		sprintf(moderemove,"-%c",this->GetModeChar());
-		ServerInstance->Parser->CallHandler("MODE", parameters, 2, user);
+		if (stack)
+		{
+			stack->Push(this->GetModeChar());
+		}
+		else
+		{
+			sprintf(moderemove,"-%c",this->GetModeChar());
+			ServerInstance->Parser->CallHandler("MODE", parameters, 2, user);
+		}
 	}
 }
 
 /** This default implementation can remove simple channel modes
  * (no parameters)
  */
-void ModeHandler::RemoveMode(Channel* channel)
+void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	char moderemove[MAXBUF];
 	const char* parameters[] = { channel->name, moderemove };
 
 	if (channel->IsModeSet(this->GetModeChar()))
 	{
-		sprintf(moderemove,"-%c",this->GetModeChar());
-		ServerInstance->SendMode(parameters, 2, ServerInstance->FakeClient);
+		if (stack)
+		{
+			stack->Push(this->GetModeChar());
+		}
+		else
+		{
+			sprintf(moderemove,"-%c",this->GetModeChar());
+			ServerInstance->SendMode(parameters, 2, ServerInstance->FakeClient);
+		}
 	}
 }
 

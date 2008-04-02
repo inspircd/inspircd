@@ -168,7 +168,7 @@ class ListModeBase : public ModeHandler
 	 * See mode.h
 	 * @param channel The channel to remove all instances of the mode from
 	 */
-	virtual void RemoveMode(Channel* channel)
+	virtual void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
 		modelist* el;
 		channel->GetExt(infokey, el);
@@ -181,8 +181,14 @@ class ListModeBase : public ModeHandler
 
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				modestack.Push(this->GetModeChar(), assign(it->mask));
+				if (stack)
+					stack->Push(this->GetModeChar(), assign(it->mask));
+				else
+					modestack.Push(this->GetModeChar(), assign(it->mask));
 			}
+
+			if (stack)
+				return;
 
 			while (modestack.GetStackedLine(stackresult))
 			{
@@ -198,7 +204,7 @@ class ListModeBase : public ModeHandler
 
 	/** See mode.h
 	 */
-	virtual void RemoveMode(User*)
+	virtual void RemoveMode(User*, irc::modestacker* stack)
 	{
 		/* Listmodes dont get set on users */
 	}

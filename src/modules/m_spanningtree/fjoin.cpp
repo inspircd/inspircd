@@ -189,11 +189,29 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 
 	if (c)
 	{
-		for (char modeletter = 'A'; modeletter <= 'z'; modeletter++)
+		irc::modestacker stack(false);
+		std::deque<std::string> stackresult;
+		const char* mode_junk[MAXMODES+2];
+		mode_junk[0] = c->name;
+
+		for (char modeletter = 'A'; modeletter <= 'z'; ++modeletter)
 		{
 			ModeHandler* mh = Instance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+
+			/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
+			 * rather than applied immediately. Module unloads require this to be done immediately,
+			 * for this function we require tidyness instead. Fixes bug #493
+			 */
 			if (mh)
-				mh->RemoveMode(c);
+				mh->RemoveMode(c, &stack);
+		}
+
+		while (stack.GetStackedLine(stackresult))
+		{
+			for (size_t j = 0; j < stackresult.size(); j++)
+				mode_junk[j+1] = stackresult[j].c_str();
+
+			Instance->SendMode(mode_junk, stackresult.size() + 1, Instance->FakeClient);
 		}
 	}
 	return true;

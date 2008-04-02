@@ -28,7 +28,7 @@ class ModeChannelVoice : public ModeHandler
 	std::string DelVoice(User *user,const char *dest,Channel *chan,int status);
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 	unsigned int GetPrefixRank();
-	void RemoveMode(User* user);
-	void RemoveMode(Channel* channel);
+	void RemoveMode(User* user, irc::modestacker* stack = NULL);
+	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
 };
 

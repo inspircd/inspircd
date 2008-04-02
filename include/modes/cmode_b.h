@@ -30,7 +30,7 @@ class ModeChannelBan : public ModeHandler
 	void DisplayList(User* user, Channel* channel);
 	void DisplayEmptyList(User* user, Channel* channel);
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
-	void RemoveMode(User* user);
-	void RemoveMode(Channel* channel);
+	void RemoveMode(User* user, irc::modestacker* stack = NULL);
+	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
 };
 

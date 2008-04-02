@@ -276,7 +276,7 @@ class CoreExport ModeHandler : public Extensible
 	 * your mode properly from each user.
 	 * @param user The user which the server wants to remove your mode from
 	 */
-	virtual void RemoveMode(User* user);
+	virtual void RemoveMode(User* user, irc::modestacker* stack = NULL);
 
 	/**
 	 * When a MODETYPE_CHANNEL mode handler is being removed, the server will call this method for every channel on the server.
@@ -286,7 +286,7 @@ class CoreExport ModeHandler : public Extensible
 	 * your mode properly from each channel. Note that in the case of listmodes, you should remove the entire list of items.
 	 * @param channel The channel which the server wants to remove your mode from
 	 */
-	virtual void RemoveMode(Channel* channel);
+	virtual void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
 
 	char GetNeededPrefix();
 

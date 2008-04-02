@@ -45,7 +45,7 @@ ModePair ModeChannelHalfOp::ModeSet(User*, User*, Channel* channel, const std::s
 	return std::make_pair(false, parameter);
 }
 
-void ModeChannelHalfOp::RemoveMode(Channel* channel)
+void ModeChannelHalfOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	CUList* clist = channel->GetHalfoppedUsers();
 	CUList copy;
@@ -59,14 +59,21 @@ void ModeChannelHalfOp::RemoveMode(Channel* channel)
 
 	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
 	{
-		sprintf(moderemove,"-%c",this->GetModeChar());
-		const char* parameters[] = { channel->name, moderemove, i->first->nick };
-		ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		if (stack)
+		{
+			stack->Push(this->GetModeChar(), i->first->nick);
+		}
+		else
+		{
+			sprintf(moderemove,"-%c",this->GetModeChar());
+			const char* parameters[] = { channel->name, moderemove, i->first->nick };
+			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		}
 	}
 
 }
 
-void ModeChannelHalfOp::RemoveMode(User*)
+void ModeChannelHalfOp::RemoveMode(User*, irc::modestacker* stack)
 {
 }
 

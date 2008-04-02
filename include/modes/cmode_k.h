@@ -24,6 +24,6 @@ class ModeChannelKey : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel);
-	void RemoveMode(Channel* channel);
-	void RemoveMode(User* user);
+	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
+	void RemoveMode(User* user, irc::modestacker* stack = NULL);
 };

@@ -33,7 +33,7 @@ ModePair ModeChannelKey::ModeSet(User*, User*, Channel* channel, const std::stri
         }
 }
 
-void ModeChannelKey::RemoveMode(Channel* channel)
+void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	/** +k needs a parameter when being removed,
 	 * so we have a special-case RemoveMode here for it
@@ -43,12 +43,17 @@ void ModeChannelKey::RemoveMode(Channel* channel)
 
 	if (channel->IsModeSet(this->GetModeChar()))
 	{
-		sprintf(moderemove,"-%c",this->GetModeChar());
-		ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		if (stack)
+			stack->Push(this->GetModeChar(), channel->key);
+		else
+		{
+			sprintf(moderemove,"-%c",this->GetModeChar());
+			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		}
 	}
 }
 
-void ModeChannelKey::RemoveMode(User*)
+void ModeChannelKey::RemoveMode(User*, irc::modestacker* stack)
 {
 }
 

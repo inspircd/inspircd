@@ -46,7 +46,7 @@ ModePair ModeChannelVoice::ModeSet(User*, User*, Channel* channel, const std::st
 	return std::make_pair(false, parameter);
 }
 
-void ModeChannelVoice::RemoveMode(Channel* channel)
+void ModeChannelVoice::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	CUList* clist = channel->GetVoicedUsers();
 	CUList copy;
@@ -60,13 +60,18 @@ void ModeChannelVoice::RemoveMode(Channel* channel)
 
 	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
 	{
-		sprintf(moderemove,"-%c",this->GetModeChar());
-		const char* parameters[] = { channel->name, moderemove, i->first->nick };
-		ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		if (stack)
+			stack->Push(this->GetModeChar(), i->first->nick);
+		else
+		{
+			sprintf(moderemove,"-%c",this->GetModeChar());
+			const char* parameters[] = { channel->name, moderemove, i->first->nick };
+			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		}
 	}
 }
 
-void ModeChannelVoice::RemoveMode(User*)
+void ModeChannelVoice::RemoveMode(User*, irc::modestacker* stack)
 {
 }
 

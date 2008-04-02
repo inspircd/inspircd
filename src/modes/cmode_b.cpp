@@ -49,7 +49,7 @@ ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, s
 	return MODEACTION_ALLOW;
 }
 
-void ModeChannelBan::RemoveMode(Channel* channel)
+void ModeChannelBan::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	BanList copy;
 	char moderemove[MAXBUF];
@@ -61,13 +61,20 @@ void ModeChannelBan::RemoveMode(Channel* channel)
 
 	for (BanList::iterator i = copy.begin(); i != copy.end(); i++)
 	{
-		sprintf(moderemove,"-%c",this->GetModeChar());
-		const char* parameters[] = { channel->name, moderemove, i->data };
-		ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		if (stack)
+		{
+			stack->Push(this->GetModeChar(), i->data);
+		}
+		else
+		{
+			sprintf(moderemove,"-%c",this->GetModeChar());
+			const char* parameters[] = { channel->name, moderemove, i->data };
+			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+		}
 	}
 }
 
-void ModeChannelBan::RemoveMode(User*)
+void ModeChannelBan::RemoveMode(User*, irc::modestacker* stack)
 {
 }
 
