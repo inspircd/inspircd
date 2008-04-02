@@ -431,8 +431,11 @@ char* userrec::MakeHostIP()
 
 void userrec::CloseSocket()
 {
-	shutdown(this->fd,2);
-	close(this->fd);
+	if (this->fd > -1)
+	{
+		shutdown(this->fd,2);
+		close(this->fd);
+	}
 }
 
 char* userrec::GetFullHost()
