@@ -651,7 +651,7 @@ int InspIRCd::Run()
 		{
 			if (TIME < OLDTIME)
 			{
-				SNO->WriteToSnoMask('A', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %ld secs.",OLDTIME-TIME);
+				SNO->WriteToSnoMask('A', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)OLDTIME-TIME);
 			}
 
 			if ((TIME % 3600) == 0)
