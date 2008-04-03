@@ -54,6 +54,11 @@ class ModuleNamesX : public Module
 		output.append(" NAMESX");
 	}
 
+        Priority Prioritize()
+	{
+		return PRIORITY_LAST;
+	}
+
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		irc::string c = command.c_str();
@@ -84,7 +89,12 @@ class ModuleNamesX : public Module
 			char* ptr = list + dlen;
 
 			if (!ulist)
+			{
+				ServerInstance->Log(DEBUG,"NAMESX: ulist empty, resetting to GetUsers() list");
 				ulist = Ptr->GetUsers();
+			}
+
+			ServerInstance->Log(DEBUG,"NAMESX: ulist size: %d", ulist->size());
 
 			bool has_user = Ptr->HasUser(user);
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)

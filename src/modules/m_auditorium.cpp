@@ -97,6 +97,7 @@ class ModuleAuditorium : public Module
 	{
 		if (Ptr->IsModeSet('u'))
 		{
+			ServerInstance->Log(DEBUG,"AUDITORIUM: nameslist: %08lx", nameslist);
 			if (ShowOps)
 			{
 				/* Leave the names list alone, theyre an op
@@ -105,6 +106,7 @@ class ModuleAuditorium : public Module
 				if (Ptr->GetStatus(user) >= STATUS_OP)
 				{
 					nameslist = Ptr->GetUsers();
+					ServerInstance->Log(DEBUG,"AUDITORIUM: new nameslist: %08lx", nameslist);
 					return 0;
 				}
 
@@ -112,6 +114,7 @@ class ModuleAuditorium : public Module
 				nl = *(Ptr->GetOppedUsers());
 				nl[user] = user->nick;
 				nameslist = &nl;
+				ServerInstance->Log(DEBUG,"AUDITORIUM: new nameslist: %08lx", nameslist);
 				return 0;
 			}
 			else

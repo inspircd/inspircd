@@ -73,6 +73,7 @@ class ModuleUHNames : public Module
 			if ((pcnt) && (!strcasecmp(parameters[0],"UHNAMES")))
 			{
 				user->Extend("UHNAMES",dummy);
+				ServerInstance->Log(DEBUG,"UHNAMES on");
 				return 1;
 			}
 		}
@@ -85,10 +86,16 @@ class ModuleUHNames : public Module
 		if (user->GetExt("UHNAMES"))
 		{
 			if (!ulist)
+			{
+				ServerInstance->Log(DEBUG,"UHNAMES: ulist empty, resetting to GetUsers() list");
 				ulist = Ptr->GetUsers();
+			}
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			{
+				ServerInstance->Log(DEBUG,"UHNAMES: %s -> %s", i->second.c_str(), i->first->GetFullHost());
 				i->second = i->first->GetFullHost();
+			}
 		}
 		return 0;		
  	}
