@@ -381,7 +381,7 @@ bool ModuleManager::Load(const char* filename)
 
 	if (!ServerConfig::DirValid(modfile))
 	{
-		LastModuleError = "Module " + filename_str + " is not within the modules directory.";
+		LastModuleError = "Module " + std::string(filename) + " is not in the module directory that i am configured to look in (is "+Instance->Config->ModPath+" really a symlink?)";
 		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
