@@ -87,6 +87,10 @@ class ModuleUHNames : public Module
 	/* IMPORTANT: This must be prioritized above NAMESX! */
 	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &ulist)
 	{
+		Module* mod = ServerInstance->FindModule("m_auditorium.so");
+		if (mod)
+			mod->OnUserList(user, Ptr, ulist);
+
 		if (user->GetExt("UHNAMES"))
 		{
 			if (!ulist)
