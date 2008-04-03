@@ -856,7 +856,7 @@ void Channel::UserList(User *user, CUList *ulist)
 		}
 	}
 
-	dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name);
+	dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name);
 
 	int numusers = 0;
 	char* ptr = list + dlen;
@@ -903,7 +903,7 @@ void Channel::UserList(User *user, CUList *ulist)
 			user->WriteServ(std::string(list));
 
 			/* reset our lengths */
-			dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name);
+			dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name);
 			ptr = list + dlen;
 
 			ptrlen = 0;
@@ -921,7 +921,7 @@ void Channel::UserList(User *user, CUList *ulist)
 	/* if whats left in the list isnt empty, send it */
 	if (numusers)
 	{
-		user->WriteServ(std::string(list));
+		user->WriteNumeric(353,std::string(list));
 	}
 
 	user->WriteNumeric(366, "%s %s :End of /NAMES list.", user->nick, this->name);
