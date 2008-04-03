@@ -80,6 +80,15 @@ class ModuleNamesX : public Module
 
 	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &ulist)
 	{
+		/* Horrid kludge, no need for this in 1.2, dont worry :-) */
+
+		Module* mod = ServerInstance->FindModule("m_auditorium.so");
+		if (mod)
+			mod->OnUserList(user, Ptr, ulist);
+		mod = ServerInstance->FindModule("m_uhnames.so");
+		if (mod)
+			mod->OnUserList(user, Ptr, ulist);
+
 		if (user->GetExt("NAMESX"))
 		{
 			char list[MAXBUF];

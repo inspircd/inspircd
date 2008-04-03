@@ -97,7 +97,6 @@ class ModuleUHNames : public Module
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				ServerInstance->Log(DEBUG,"UHNAMES: %s -> %s", i->second.c_str(), i->first->GetFullHost());
 				i->second = i->first->GetFullHost();
 			}
 		}
