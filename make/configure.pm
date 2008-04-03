@@ -185,7 +185,6 @@ sub dumphash()
 	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
 	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
 	print "\e[0mLibrary path:\e[1;32m\t\t\t$main::config{LIBRARY_DIR}\e[0m\n";
-	print "\e[0mMax connections:\e[1;32m\t\t$main::config{MAX_CLIENT}\e[0m\n";
 	print "\e[0mMax nickname length:\e[1;32m\t\t$main::config{NICK_LENGT}\e[0m\n";
 	print "\e[0mMax channel length:\e[1;32m\t\t$main::config{CHAN_LENGT}\e[0m\n";
 	print "\e[0mMax mode length:\e[1;32m\t\t$main::config{MAXI_MODES}\e[0m\n";
@@ -253,8 +252,6 @@ InspIRCd 1.0.x, are also allowed.
   --enable-openssl             Enable OpenSSL module [no]
   --with-nick-length=[n]       Specify max. nick length [32]
   --with-channel-length=[n]    Specify max. channel length [64]
-  --with-max-clients=[n]       Specify maximum number of users
-                               which may connect locally
   --enable-optimization=[n]    Optimize using -O[n] gcc flag
   --enable-epoll               Enable epoll() where supported [set]
   --enable-kqueue              Enable kqueue() where supported [set]
