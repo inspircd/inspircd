@@ -1618,9 +1618,6 @@ void userrec::WriteCommonExcept(const std::string &text)
 
 void userrec::WriteWallOps(const std::string &text)
 {
-	if (!IS_OPER(this) && IS_LOCAL(this))
-		return;
-
 	std::string wallop("WALLOPS :");
 	wallop.append(text);
 
