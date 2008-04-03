@@ -27,11 +27,13 @@ SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 	memset(writeable, 0, sizeof(writeable));
 	ref = new EventHandler* [GetMaxFds()];
 	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
+	ev = new EventHandler* [GetMaxFds()];
 }
 
 SelectEngine::~SelectEngine()
 {
 	delete[] ref;
+	delete[] ev;
 }
 
 bool SelectEngine::AddFd(EventHandler* eh)
@@ -92,7 +94,6 @@ int SelectEngine::DispatchEvents()
 	int result = 0;
 	timeval tval;
 	int sresult = 0;
-	EventHandler* ev[GetMaxFds()];
 	socklen_t codesize;
 	int errcode;
 

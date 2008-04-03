@@ -41,6 +41,8 @@ private:
 	/** The read set and write set, populated before each call to select().
 	 */
 	fd_set wfdset, rfdset, errfdset;
+
+	EventHandler** ev;
 public:
 	/** Create a new SelectEngine
 	 * @param Instance The creator of this object
