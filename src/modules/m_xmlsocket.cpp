@@ -66,7 +66,7 @@ class ModuleXMLSocket : public Module
 					{
 						listenports.push_back(addr + ":" + ConvToStr(portno));
 						for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
-							if ((ServerInstance->Config->ports[i]->GetPort() == portno) && (ServerInstance->Config->ports[i]->GetIP() == addr))
+							if ((ServerInstance->Config->ports[j]->GetPort() == portno) && (ServerInstance->Config->ports[j]->GetIP() == addr))
 								ServerInstance->Config->ports[j]->SetDescription("xml");
 					}
 					catch (ModuleException &e)
