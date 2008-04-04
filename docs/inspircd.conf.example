@@ -1888,6 +1888,12 @@
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Quietban: Implements extended ban n:, which stops anyone matching
+# a mask like +b n:nick!user@host from changing their nick on channel.
+#<module name="m_quietban.so">
+#
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nickchange flood protection module: Allows up to X nick changes in Y seconds.
 # Provides channel mode +F.
 #<module name="m_nickflood.so">
