@@ -82,7 +82,7 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 		}
 
 		/* Propogate as channel privmsg */
-		return Utils->DoOneToAllButSenderRaw(":" + prefix + " " + messagetype + " " + channel->name + " :" + text, sourceserv, prefix, assign(messagetype), params);
+		return Utils->DoOneToAllButSenderRaw(":" + prefix + " " + messagetype + " " + target + " :" + text, sourceserv, prefix, assign(messagetype), params);
 	}
 	return true;
 }
