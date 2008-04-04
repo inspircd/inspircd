@@ -347,10 +347,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->ForceJoin(prefix,params);
 			}
-			else if (command == "NOTICE" || command == "PRIVMSG")
+			else if ((command == "NOTICE" || command == "PRIVMSG") && (Utils->IsServer(prefix)))
 			{
-				if (Utils->IsServer(prefix))
-					return this->ServerMessage(assign(command), prefix, params, sourceserv);
+				return this->ServerMessage(assign(command), prefix, params, sourceserv);
 			}
 			else if (command == "STATS")
 			{
