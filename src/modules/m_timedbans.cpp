@@ -162,7 +162,7 @@ class ModuleTimedBans : public Module
 						setban[1] = "-b";
 						setban[2] = i->mask.c_str();
 
-						ServerInstance->PI->SendMode(i->channel, std::string("-b ") + setban[2]);
+						ServerInstance->PI->SendModeStr(i->channel, std::string("-b ") + setban[2]);
 						ServerInstance->SendMode(setban,3, ServerInstance->FakeClient);
 
 						CUList empty;

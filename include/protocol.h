@@ -36,7 +36,7 @@ class ProtocolInterface : public Extensible
 
 	virtual void SendMode(const std::string &target, parameterlist &modedata) { }
 
-	virtual void SendMode(const std::string &target, const std::string &modeline)
+	virtual void SendModeStr(const std::string &target, const std::string &modeline)
 	{
 		/* Convenience function */
 		irc::spacesepstream x(modeline);
