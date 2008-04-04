@@ -78,13 +78,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 				text = new std::string(title);
 				user->Extend("ctitle", text);
 
-				std::deque<std::string>* metadata = new std::deque<std::string>;
-				metadata->push_back(user->uuid);
-				metadata->push_back("ctitle");      // The metadata id
-				metadata->push_back(*text);     // The value to send
-				Event event((char*)metadata,(Module*)this,"send_metadata");
-				event.Send(ServerInstance);
-				delete metadata;
+				ServerInstance->PI->SendMetaData(user, TYPE_USER, "ctitle", *text);
 				                                                        
 				if (!vhost.empty())
 					user->ChangeDisplayedHost(vhost.c_str());

@@ -48,8 +48,7 @@ class SaslAuthenticator : public classbase
 		params.push_back("S");
 		params.push_back(method);
 
-		Event e((char*)&params, Creator, "send_encap");
-		e.Send(ServerInstance);
+		ServerInstance->PI->SendEncapsulatedData(params);
 	}
 
 	SaslResult GetSaslResult(std::string &result_)
@@ -117,8 +116,7 @@ class SaslAuthenticator : public classbase
 		for (int i = 0; i < pcnt; ++i)
 			params.push_back(parameters[i]);		
 
-		Event e((char*)&params, Creator, "send_encap");
-		e.Send(ServerInstance);
+		ServerInstance->PI->SendEncapsulatedData(params);
 
 		if (*parameters[0] == '*')
 		{
@@ -242,14 +240,8 @@ class ModuleSASL : public Module
 		std::string* str = NULL;
 
 		if (user->GetExt("accountname", str))
-		{
-			std::deque<std::string> params;
-			params.push_back(user->uuid);
-			params.push_back("accountname");
-			params.push_back(*str);
-			Event e((char*)&params, this, "send_metadata");
-			e.Send(ServerInstance);
-		}
+			ServerInstance->PI->SendMetaData(user, TYPE_USER, "accountname", *str);
+
 		return;
 	}
 

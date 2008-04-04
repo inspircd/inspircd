@@ -164,12 +164,12 @@ class ModuleTimedBans : public Module
 
 						/* Send mode remotely*/
 						std::deque<std::string> n;
-						n.push_back(setban[0]);
 						n.push_back("-b");
 						n.push_back(setban[2]);
+
+						ServerInstance->PI->SendMode(i->channel, n);
 						ServerInstance->SendMode(setban,3, ServerInstance->FakeClient);
-						Event rmode((char *)&n, NULL, "send_mode");
-						rmode.Send(ServerInstance);
+
 						CUList empty;
 						cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, i->mask.c_str());
 						if (ServerInstance->Config->AllowHalfop)

@@ -112,11 +112,10 @@ class ModuleModesOnOper : public Module
 		}
 
 		std::deque<std::string> n;
-		Event rmode((char *)&n, NULL, "send_mode_explicit");
-		for (unsigned int j = 0; j < tokens.size(); j++)
+		for (unsigned int j = 1; j < tokens.size(); j++)
 			n.push_back(modes[j]);
 
-		rmode.Send(ServerInstance);
+		ServerInstance->PI->SendMode(u->uuid, n);
 		ServerInstance->SendMode(modes, size, u);
 		delete [] modes;
 	}

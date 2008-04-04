@@ -21,7 +21,7 @@ void SpanningTreeProtocolInterface::SendMetaData(void* target, int type, const s
 			params.push_back(((Channel*)target)->name);
 		break;
 		case TYPE_SERVER:
-			params.push_back(ServerInstance->Config->GetSID());
+			params.push_back("*");
 		break;
 	}
 	params.push_back(key);

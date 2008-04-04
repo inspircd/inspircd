@@ -237,18 +237,11 @@ class ModuleMsgFlood : public Module
 					parameters[1] = "+b";
 					parameters[2] = user->MakeWildHost();
 					ServerInstance->SendMode(parameters,3,user);
-					std::deque<std::string> n;
-					/* Propogate the ban to other servers.
-					 * We dont know what protocol we may be using,
-					 * so this event is picked up by our protocol
-					 * module and formed into a ban command that
-					 * suits the protocol in use.
-					 */
-					n.push_back(dest->name);
+
+					parameterlist n;
 					n.push_back("+b");
 					n.push_back(user->MakeWildHost());
-					Event rmode((char *)&n, NULL, "send_mode");
-					rmode.Send(ServerInstance);
+					ServerInstance->PI->SendMode(dest->name, n);
 				}
 				char kickmessage[MAXBUF];
 				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);

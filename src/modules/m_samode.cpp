@@ -39,21 +39,19 @@ class CommandSamode : public Command
 
 			std::deque<std::string> n;
 			irc::spacesepstream spaced(ServerInstance->Modes->GetLastParse());
-			std::string one = "*";
+			std::string one;
 			while (spaced.GetToken(one))
 				n.push_back(one);
 
-			Event rmode((char *)&n, NULL, "send_mode");
-			rmode.Send(ServerInstance);
+			std::string channel = n[0];
+			n.pop_front();
+			ServerInstance->PI->SendMode(channel, n);
 
-			n.clear();
-			n.push_back(std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
-			Event rmode2((char *)&n, NULL, "send_opers");
-			rmode2.Send(ServerInstance);
+			ServerInstance->PI->SendOperNotice(std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
 
 			/* XXX: Yes, this is right. We dont want to propagate the
 			 * actual SAMODE command, just the MODE command generated
-			 * by the send_mode
+			 * by the Protocol Interface
 			 */
 			return CMD_LOCALONLY;
 		}

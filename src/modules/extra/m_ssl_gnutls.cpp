@@ -714,14 +714,7 @@ class ModuleSSLGnuTLS : public Module
 		if ((user->GetExt("ssl", dummy)) && (IS_LOCAL(user)))
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
-			std::deque<std::string>* metadata = new std::deque<std::string>;
-			metadata->push_back(user->uuid);
-			metadata->push_back("ssl");		// The metadata id
-			metadata->push_back("ON");		// The value to send
-			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
-			event->Send(ServerInstance);		// Trigger the event. We don't care what module picks it up.
-			delete event;
-			delete metadata;
+			ServerInstance->PI->SendMetaData(user, TYPE_USER, "SSL", "on");
 
 			VerifyCertificate(&sessions[user->GetFd()],user);
 			if (sessions[user->GetFd()].sess)

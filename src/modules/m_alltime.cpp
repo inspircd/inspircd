@@ -40,11 +40,7 @@ class CommandAlltime : public Command
 		}
 		else
 		{
-			std::deque<std::string> params;
-			params.push_back(user->nick);
-			params.push_back(msg);
-			Event ev((char *) &params, NULL, "send_push");
-			ev.Send(ServerInstance);
+			ServerInstance->PI->PushToClient(user, msg);
 		}
 
 		/* we want this routed out! */

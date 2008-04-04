@@ -75,13 +75,7 @@ class CommandSwhois : public Command
 		 * Sorry w00t i know this was your fix, but i got bored and wanted to clear down the tracker :)
 		 * -- Brain
 		 */
- 		std::deque<std::string>* metadata = new std::deque<std::string>;
-		metadata->push_back(dest->uuid);
-		metadata->push_back("swhois");          // The metadata id
-		metadata->push_back(*text);             // The value to send
-		Event event((char*)metadata,(Module*)this,"send_metadata");
-		event.Send(ServerInstance);
-		delete metadata;
+ 		ServerInstance->PI->SendMetaData(dest, TYPE_USER, "swhois", *text);
 		
 		// If it's an empty swhois, unset it (not ideal, but ok)
 		if (text->empty())
@@ -262,13 +256,7 @@ class ModuleSWhois : public Module
 		
 		std::string *text = new std::string(swhois);
 		user->Extend("swhois", text);
-		std::deque<std::string>* metadata = new std::deque<std::string>;
-		metadata->push_back(user->uuid);
-		metadata->push_back("swhois");		// The metadata id
-		metadata->push_back(*text);		// The value to send
-		Event event((char*)metadata,(Module*)this,"send_metadata");
-		event.Send(ServerInstance);
-		delete metadata;
+		ServerInstance->PI->SendMetaData(user, TYPE_USER, "swhois", *text);
 	}
 
 	virtual ~ModuleSWhois()
