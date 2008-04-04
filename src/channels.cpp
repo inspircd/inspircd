@@ -467,7 +467,6 @@ bool Channel::IsExtBanned(User *user, char type)
 		maskptr = i->data;
 		maskptr++; // past the char
 		maskptr++; // past the :
-printf("realmask: %s\n", maskptr);
 
 		/* This allows CIDR ban matching
 		 * 
