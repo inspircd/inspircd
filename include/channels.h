@@ -528,6 +528,13 @@ class CoreExport Channel : public Extensible
 	 */
 	bool IsBanned(User* user);
 
+	/** Check whether an extban of a given type matches
+	 * a given user for this channel.
+	 * @param u The user to match bans against
+	 * @param type The type of extban to check
+	 */
+	bool IsExtBanned(User *u, char type);
+
 	/** Clears the cached max bans value
 	 */
 	void ResetMaxBans();

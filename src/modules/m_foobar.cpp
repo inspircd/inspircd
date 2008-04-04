@@ -35,8 +35,8 @@ class ModuleFoobar : public Module
 		// The constructor just makes a copy of the server class
 	
 		
-		Implementation eventlist[] = { I_OnUserConnect, I_OnUserQuit, I_OnUserJoin, I_OnUserPart };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserConnect, I_OnUserQuit, I_OnUserJoin, I_OnUserPart, I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 	
 	virtual ~ModuleFoobar()
@@ -86,6 +86,13 @@ class ModuleFoobar : public Module
 		ServerInstance->Logs->Log("m_foobar",DEBUG,"Foobar: User "+b+" parted "+c);
 	}
 
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
+	{
+		if (chan->IsExtBanned(user, 'n'))
+			return 1;
+
+		return 0;
+	}
 };
 
 

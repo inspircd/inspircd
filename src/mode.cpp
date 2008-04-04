@@ -705,12 +705,12 @@ void ModeParser::CleanMask(std::string &mask)
 	std::string::size_type pos_of_pling = mask.find_first_of('!');
 	std::string::size_type pos_of_at = mask.find_first_of('@');
 	std::string::size_type pos_of_dot = mask.find_first_of('.');
-	std::string::size_type pos_of_colon = mask.find_first_of(':'); /* Because ipv6 addresses are colon delimited */
+	std::string::size_type pos_of_colons = mask.find("::"); /* Because ipv6 addresses are colon delimited -- double so it treats extban as nick */
 
 	if ((pos_of_pling == std::string::npos) && (pos_of_at == std::string::npos))
 	{
-		/* Just a nick, or just a host */
-		if ((pos_of_dot == std::string::npos) && (pos_of_colon == std::string::npos))
+		/* Just a nick, or just a host - or clearly ipv6 (starting with :) */
+		if ((pos_of_dot == std::string::npos) && (pos_of_colons == std::string::npos) && mask[0] != ':')
 		{
 			/* It has no '.' in it, it must be a nick. */
 			mask.append("!*@*");

@@ -450,6 +450,38 @@ bool Channel::IsBanned(User* user)
 	return false;
 }
 
+bool Channel::IsExtBanned(User *user, char type)
+{
+	// XXX. do we need events?
+	char mask[MAXBUF];
+	char *maskptr;
+
+	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
+
+	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+	{
+		if (i->data[0] != type || i->data[1] != ':')
+			continue;
+
+		// Iterate past char and : to get to the mask without doing a data copy(!)
+		maskptr = i->data;
+		maskptr++; // past the char
+		maskptr++; // past the :
+printf("realmask: %s\n", maskptr);
+
+		/* This allows CIDR ban matching
+		 * 
+		 *        Full masked host                             Full unmasked host                     IP with/without CIDR
+		 */
+		if ((match(user->GetFullHost(), maskptr)) || (match(user->GetFullRealHost(), maskptr)) || (match(mask, maskptr, true)))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /* Channel::PartUser
  * remove a channel from a users record, and return the number of users left.
  * Therefore, if this function returns 0 the caller should delete the Channel.
