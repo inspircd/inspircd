@@ -356,6 +356,9 @@ class ModuleChanProtect : public Module
 		std::string apre = Conf.ReadValue("options", "aprefix", 0);
 		APrefix = apre.empty() ? 0 : apre[0];
 
+		if ((APrefix && QPrefix) && APrefix == QPrefix)
+			throw CoreException("What the smeg, why are both your +q and +a prefixes the same character?");
+
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
 		DeprivOthers = Conf.ReadFlag("options","deprotectothers",0);
 
