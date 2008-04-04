@@ -224,12 +224,12 @@ class ModuleRLine : public Module
 	virtual void OnUserConnect(User* user)
 	{
 		// Apply lines on user connect
-		XLine *r = ServerInstance->XLines->MatchesLine("R", user);
+		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
 
-		if (r)
+		if (rl)
 		{
 			// Bang. :P
-			r->Apply(user);
+			rl->Apply(user);
 		}
 	}
 };

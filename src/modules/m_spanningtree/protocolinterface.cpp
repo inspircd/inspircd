@@ -42,23 +42,64 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC", params);
 }
 
-void SpanningTreeProtocolInterface::SendMode(const std::string &origin, const std::string &target, parameterlist &modedata)
+void SpanningTreeProtocolInterface::SendMode(const std::string &target, parameterlist &modedata)
 {
+	if (modedata.empty())
+		return;
+
+	/* Warning: in-place translation is only safe for type TR_NICK */
+	for (size_t n = 0; n < modedata.size(); n++)
+		ServerInstance->Parser->TranslateUIDs(TR_NICK, modedata[n], modedata[n]);
+
+	std::string uidtarget;
+	ServerInstance->Parser->TranslateUIDs(TR_NICK, target, uidtarget);
+	modedata.insert(modedata.begin(), uidtarget);
+
+	User* a = ServerInstance->FindNick(uidtarget);
+	if (a)
+	{
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",modedata);
+		return;
+	}
+	else
+	{
+		Channel* c = ServerInstance->FindChan(target);
+		if (c)
+		{
+			modedata.insert(modedata.begin() + 1, ConvToStr(c->age));
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",modedata);
+		}
+	}
 }
 
 void SpanningTreeProtocolInterface::SendOperNotice(const std::string &text)
 {
+	parameterlist p;
+	p.push_back(":" + text);
+	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "OPERNOTICE", p);
 }
 
 void SpanningTreeProtocolInterface::SendModeNotice(const std::string &modes, const std::string &text)
 {
+	parameterlist p;
+	p.push_back(modes);
+	p.push_back(":" + text);
+	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "MODENOTICE", p);
 }
 
 void SpanningTreeProtocolInterface::SendSNONotice(const std::string &snomask, const std::string &text)
 {
+	parameterlist p;
+	p.push_back(snomask);
+	p.push_back(":" + text);
+	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "SNONOTICE", p);
 }
 
 void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string &rawline)
 {
+	parameterlist p;
+	p.push_back(target->uuid);
+	p.push_back(rawline);
+	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", p, target->server);
 }
 
