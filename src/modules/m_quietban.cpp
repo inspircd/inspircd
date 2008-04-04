@@ -73,7 +73,7 @@ class ModuleQuietBan : public Module
 		if (output.find(" EXTBAN=:") == std::string::npos)
 			output.append(" EXTBAN=:q");
 		else
-			output.insert(output.find(" EXTBAN=:") + 8, "q");
+			output.insert(output.find(" EXTBAN=:") + 9, "q");
 	}
 };
 
