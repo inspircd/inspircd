@@ -1,6 +1,8 @@
 #include "inspircd.h"
 #include "m_spanningtree/main.h"
 #include "m_spanningtree/utils.h"
+#include "m_spanningtree/treeserver.h"
+#include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/protocolinterface.h"
 
 void SpanningTreeProtocolInterface::SendEncapsulatedData(parameterlist &encap)
@@ -101,5 +103,32 @@ void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string
 	p.push_back(target->uuid);
 	p.push_back(rawline);
 	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", p, target->server);
+}
+
+void SpanningTreeProtocolInterface::SendChannel(Channel* target, char status, const std::string &text)
+{
+	std::string cname = target->name;
+	if (status)
+		cname = status + cname;
+	TreeServerList list;
+	CUList exempt_list;
+	Utils->GetListOfServersForChannel(target,list,status,exempt_list);
+	for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
+	{
+		TreeSocket* Sock = i->second->GetSocket();
+		if (Sock)
+			Sock->WriteLine(text);
+	}
+}
+
+
+void SpanningTreeProtocolInterface::SendChannelPrivmsg(Channel* target, char status, const std::string &text)
+{
+	SendChannel(target, status, ServerInstance->Config->GetSID()+" PRIVMSG "+target->name+" :"+text);
+}
+
+void SpanningTreeProtocolInterface::SendChannelNotice(Channel* target, char status, const std::string &text)
+{
+	SendChannel(target, status, ServerInstance->Config->GetSID()+" NOTICE "+target->name+" :"+text);
 }
 

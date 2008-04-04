@@ -54,6 +54,10 @@ class ProtocolInterface : public Extensible
 	virtual void SendSNONotice(const std::string &snomask, const std::string &text) { }
 
 	virtual void PushToClient(User* target, const std::string &rawline) { }
+
+	virtual void SendChannelPrivmsg(Channel* target, char status, const std::string &text) { }
+
+	virtual void SendChannelNotice(Channel* target, char status, const std::string &text) { }
 };
 
 #endif
