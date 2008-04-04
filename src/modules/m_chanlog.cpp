@@ -26,18 +26,24 @@ class ChannelLogStream : public LogStream
 	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg)
 	{
 		Channel *c = ServerInstance->FindChan(channel);
+		static bool Logging = false;
 
 printf("I got called\n");
 		if (loglevel < this->loglvl)
 			return;
 
+		if (Logging)
+			return;
+
 		if (c)
 		{
+			Logging = true; // this avoids (rare chance) loops with logging server IO on networks
 			char buf[MAXBUF];
 			snprintf(buf, MAXBUF, "\2%s\2: %s", type.c_str(), msg.c_str());
 
 			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name, buf);
 			ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
+			Logging = false;
 		}
 	}
 };
