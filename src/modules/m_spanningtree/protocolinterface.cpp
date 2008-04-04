@@ -124,12 +124,12 @@ void SpanningTreeProtocolInterface::SendChannel(Channel* target, char status, co
 
 void SpanningTreeProtocolInterface::SendChannelPrivmsg(Channel* target, char status, const std::string &text)
 {
-	SendChannel(target, status, ServerInstance->Config->GetSID()+" PRIVMSG "+target->name+" :"+text);
+	SendChannel(target, status, ":" + ServerInstance->Config->GetSID()+" PRIVMSG "+target->name+" :"+text);
 }
 
 void SpanningTreeProtocolInterface::SendChannelNotice(Channel* target, char status, const std::string &text)
 {
-	SendChannel(target, status, ServerInstance->Config->GetSID()+" NOTICE "+target->name+" :"+text);
+	SendChannel(target, status, ":" + ServerInstance->Config->GetSID()+" NOTICE "+target->name+" :"+text);
 }
 
 void SpanningTreeProtocolInterface::SendUserPrivmsg(User* target, const std::string &text)
@@ -140,7 +140,7 @@ void SpanningTreeProtocolInterface::SendUserPrivmsg(User* target, const std::str
 		TreeSocket* sock = serv->GetSocket();
 		if (sock)
 		{
-			sock->WriteLine(ServerInstance->Config->GetSID() + " PRIVMSG " + target->nick + " :"+text);
+			sock->WriteLine(":" + ServerInstance->Config->GetSID() + " PRIVMSG " + target->nick + " :"+text);
 		}
 	}
 }
@@ -153,7 +153,7 @@ void SpanningTreeProtocolInterface::SendUserNotice(User* target, const std::stri
 		TreeSocket* sock = serv->GetSocket();
 		if (sock)
 		{
-			sock->WriteLine(ServerInstance->Config->GetSID() + " NOTICE " + target->nick + " :"+text);
+			sock->WriteLine(":" + ServerInstance->Config->GetSID() + " NOTICE " + target->nick + " :"+text);
 		}
 	}
 }
