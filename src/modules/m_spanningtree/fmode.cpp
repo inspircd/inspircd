@@ -33,6 +33,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 
 	bool smode = false;
 	std::string sourceserv;
+
 	/* Are we dealing with an FMODE from a user, or from a server? */
 	User* who = this->Instance->FindNick(source);
 	if (who)
@@ -44,7 +45,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	{
 		/* FMODE from a server, use a fake user to receive mode feedback */
 		who = this->Instance->FakeClient;
-		smode = true;	   /* Setting this flag tells us we should free the User later */
+		smode = true;			/* Setting this flag tells us it is a server mode*/
 		sourceserv = source;    /* Set sourceserv to the actual source string */
 	}
 	const char* modelist[64];
@@ -72,6 +73,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	User* dst = this->Instance->FindNick(params[0]);
 	Channel* chan = NULL;
 	time_t ourTS = 0;
+
 	if (dst)
 	{
 		ourTS = dst->age;
@@ -99,9 +101,6 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	 */
 	if (TS <= ourTS)
 	{
-		if ((TS < ourTS) && (!dst))
-			Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG *** Channel TS sent in FMODE to %s is %lu which is not equal to %lu!", params[0].c_str(), (unsigned long) TS, (unsigned long) ourTS);
-
 		if (smode)
 		{
 			this->Instance->SendMode(modelist, n, who);

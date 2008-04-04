@@ -83,10 +83,9 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 {
 	std::string buffer;
 	char list[MAXBUF];
-	std::string individual_halfops = std::string(":")+this->Instance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age);
 
 	size_t dlen, curlen;
-	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age);
+	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age, c->ChanModes(true));
 	int numusers = 1;
 	char* ptr = list + dlen;
 
@@ -107,7 +106,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		if (curlen > (480-NICKMAX))
 		{
 			buffer.append(list).append("\r\n");
-			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age);
+			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age, c->ChanModes(true));
 			ptr = list + dlen;
 			ptrlen = 0;
 			numusers = 0;
@@ -116,8 +115,6 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 
 	if (numusers)
 		buffer.append(list).append("\r\n");
-
-	buffer.append(":").append(this->Instance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true)).append("\r\n");
 
 	int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)

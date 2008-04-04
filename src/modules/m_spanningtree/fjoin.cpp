@@ -21,7 +21,7 @@
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 
-/** FJOIN, similar to TS6 SJOIN, but not quite. */
+/** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
 bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &params)
 {
 	/* 1.1 FJOIN works as follows:
@@ -57,23 +57,22 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	 * the losing side sends any modes for the channel which shouldnt win,
 	 * they wont as their timestamp will be too high :-)
 	 */
-
-	if (params.size() < 2)
+	if (params.size() < 3)
 		return true;
 
 	irc::modestacker modestack(true);				/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
-	irc::tokenstream users((params.size() > 2) ? params[2] : "");   /* users from the user list */
+	irc::tokenstream users((params.size() > 3) ? params[params.size() - 1] : "");   /* users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
 	Channel* chan = this->Instance->FindChan(channel);		/* The channel we're sending joins to */
 	time_t ourTS = chan ? chan->age : Instance->Time()+600;	/* The TS of our side of the link */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
-	if (params.size() > 2)
-		params[2] = ":" + params[2];
+	if (params.size() > 3)
+		params[params.size() - 1] = ":" + params[params.size() - 1];
 		
 	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
@@ -106,7 +105,27 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		}
 	}
 
-	/* Now, process every 'prefixes,nick' pair */
+	/* First up, apply their modes if they won the TS war */
+	if (apply_other_sides_modes)
+	{
+		unsigned int idx = 2;
+		int numpara = 1;
+		const char* modelist[64];
+		memset(&modelist,0,sizeof(modelist));
+
+		// Mode parser needs to know what channel to act on.
+		modelist[0] = params[0].c_str();
+
+		/* Remember, params[params.size() - 1] is nicklist, and we don't want to apply *that* */
+		for (idx = 2; idx != (params.size() - 1); idx++)
+		{
+			modelist[numpara++] = params[idx].c_str();
+		}
+
+		this->Instance->SendMode(modelist, numpara, this->Instance->FakeClient);
+	}
+
+	/* Now, process every 'modes,nick' pair */
 	while (users.GetToken(item))
 	{
 		const char* usr = item.c_str();
