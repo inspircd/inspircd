@@ -42,6 +42,7 @@ class ModuleLDAPAuth : public Module
 	std::string password;
 	int searchscope;
 	bool verbose;
+	bool useusername;
 	LDAP *conn;
 	
 public:
@@ -73,6 +74,7 @@ public:
 		username		= Conf.ReadValue("ldapauth", "binddn", 0);
 		password		= Conf.ReadValue("ldapauth", "bindauth", 0);
 		verbose			= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
+		useusername		= Conf.ReadFlag("ldapauth", "userfield", 0);
 		
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
@@ -150,7 +152,7 @@ public:
 		free(authpass);
 
 		LDAPMessage *msg, *entry;
-		std::string what = (attribute + "=" + user->nick);
+		std::string what = (attribute + "=" + (useusername ? user->ident : user->nick));
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
 			if (verbose)
