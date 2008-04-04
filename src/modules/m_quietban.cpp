@@ -36,6 +36,9 @@ class ModuleQuietBan : public Module
 
 	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		if (target_type == TYPE_CHANNEL)
 		{
 			if (((Channel *)dest)->IsExtBanned(user, 'q'))
@@ -50,6 +53,9 @@ class ModuleQuietBan : public Module
 
 	virtual int OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		if (target_type == TYPE_CHANNEL)
 		{
 			if (((Channel *)dest)->IsExtBanned(user, 'q'))
