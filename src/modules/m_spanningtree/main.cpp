@@ -453,6 +453,10 @@ void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
 
 void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
+	/* Server origin */
+	if (user == NULL)
+		return;
+
 	if (target_type == TYPE_USER)
 	{
 		User* d = (User*)dest;
@@ -501,6 +505,10 @@ void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, c
 
 void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
+	/* Server origin */
+	if (user == NULL)
+		return;
+
 	if (target_type == TYPE_USER)
 	{
 		// route private messages which are targetted at clients only to the server
