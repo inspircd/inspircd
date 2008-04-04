@@ -18,27 +18,6 @@
 #include "xline.h"
 #include "exitcodes.h"
 
-/** Log()
- *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
- *  is greater than the configured loglevel.
- */
-void InspIRCd::Log(int level, const char* text, ...)
-{
-	va_list argsPtr;
-	char textbuffer[65536];
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, 65536, text, argsPtr);
-	va_end(argsPtr);
-
-	this->Log(level, std::string(textbuffer));
-}
-
-void InspIRCd::Log(int level, const std::string &text)
-{
-	this->Logs->Log("DEPRECATED", level, "Deprecated use of InspIRCd::Log(), message = %s", text.c_str());
-}
-
 std::string InspIRCd::GetServerDescription(const char* servername)
 {
 	std::string description;

@@ -800,23 +800,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	InspIRCd(int argc, char** argv);
 
-	/** Output a log message to the ircd.log file
-	 * The text will only be output if the current loglevel
-	 * is less than or equal to the level you provide
-	 * @param level A log level from the DebugLevel enum
-	 * @param text Format string of to write to the log
-	 * @param ... Format arguments of text to write to the log
-	 */
-	void Log(int level, const char* text, ...) CUSTOM_PRINTF(3, 4);
-
-	/** Output a log message to the ircd.log file
-	 * The text will only be output if the current loglevel
-	 * is less than or equal to the level you provide
-	 * @param level A log level from the DebugLevel enum
-	 * @param text Text to write to the log
-	 */
-	void Log(int level, const std::string &text);
-
 	/** Send a line of WHOIS data to a user.
 	 * @param user user to send the line to
 	 * @param dest user being WHOISed
