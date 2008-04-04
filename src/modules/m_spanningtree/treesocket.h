@@ -292,6 +292,10 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool ForceNick(const std::string &prefix, std::deque<std::string> &params);
 
+	/** PRIVMSG or NOTICE with server origin ONLY
+	 */
+	bool ServerMessage(const std::string &messagetype, const std::string &prefix, std::deque<std::string> &params, const std::string &sourceserv);
+
 	/** ENCAP command
 	 */
 	bool Encap(const std::string &prefix, std::deque<std::string> &params);

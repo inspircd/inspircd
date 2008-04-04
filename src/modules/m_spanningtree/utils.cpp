@@ -229,7 +229,7 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 			{
 				Channel* c = ServerInstance->FindChan(params[0]);
 				User* u = ServerInstance->FindNick(prefix);
-				if (c && u)
+				if (c)
 				{
 					CUList elist;
 					TreeServerList list;

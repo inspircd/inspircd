@@ -381,6 +381,10 @@ class ModuleSilence : public Module
 
 	int MatchPattern(User* dest, User* source, int pattern)
 	{
+		/* Server source */
+		if (!source)
+			return 1;
+
 		silencelist* sl;
 		dest->GetExt("silence_list", sl);
 		if (sl)
