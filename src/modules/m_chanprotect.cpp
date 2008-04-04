@@ -362,7 +362,7 @@ class ModuleChanProtect : public Module
 		if (cp && ServerInstance->Modes->FindPrefix(APrefix) == cp)
 			throw CoreException("Looks like the +a prefix you picked for m_chanprotect is already in use. Pick another.");
 
-		if (cf && ServerInstance->Modes->FindPrefix(APrefix) == cf)
+		if (cf && ServerInstance->Modes->FindPrefix(QPrefix) == cf)
 			throw CoreException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
 
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
