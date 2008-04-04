@@ -1019,6 +1019,44 @@
 	 moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 	 exemptchanops="">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Logging
+# Logging is covered with the <log> tag, which you may use to change
+# the behaviour of the logging of the IRCd.
+#
+# In InspIRCd as of 1.2, logging is pluggable and very extensible.
+# Different files can log the same thing, different 'types' of log can
+# go to different places, and modules can even extend the log tag
+# to do what they want.
+#
+# An example log tag would be:
+#	<log method="file" type="OPER" level="default" target="opers.log">
+# which  would log all information on /oper (failed and successful) to
+# a file called opers.log.
+#
+# There are many different types which may be used, and modules may
+# generate their own. A list of useful types:
+#	- USERS - information relating to user connection and disconnection
+#	- CHANNELS - information relating to joining and parting of channels.
+# XXX someone doc more on this
+#
+# You may also log *everything* by using a type of *, and subtract things out
+# of that by using -TYPE - for example "* -USERINPUT -USEROUTPUT".
+#
+
+# Channel Logging
+# I'm aware this would probably better belong in the modules section, but this is heavily interrelated
+# to logging, and as such will be documented here.
+#
+# m_chanlog is one of the modules which can alter logging to it's own thing.
+# An example of this may be:
+#	<log method="channel" type="OPER USERS CHANNELS" level="default" target="#services">
+#<module name="m_chanlog.so">
+#
+# The following log tag is highly default and uncustomised. It is recommended you
+# sort out your own log tags. This is just here so you get some output.
+<log method="file" type="* -USERINPUT -USEROUTPUT -m_spanningtree" level="default" target="ircd.log">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # This tag lets you define the behaviour of the /whowas command of    #
