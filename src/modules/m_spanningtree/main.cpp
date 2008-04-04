@@ -888,106 +888,10 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, int target_type, void* 
 
 void ModuleSpanningTree::OnEvent(Event* event)
 {
-	std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
-	if (event->GetEventID() == "send_encap")
+	if ((event->GetEventID() == "send_encap") || (event->GetEventID() == "send_metadata") || (event->GetEventID() == "send_topic") || (event->GetEventID() == "send_mode") || (event->GetEventID() == "send_mode_explicit") || (event->GetEventID() == "send_opers")
+		|| (event->GetEventID() == "send_modeset") || (event->GetEventID() == "send_snoset") || (event->GetEventID() == "send_push"))
 	{
-		if (params->size() < 2)
-			return;
-
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", *params);
-	}
-	else if (event->GetEventID() == "send_metadata")
-	{
-		if (params->size() < 3)
-			return;
-		(*params)[2] = ":" + (*params)[2];
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"METADATA",*params);
-	}
-	else if (event->GetEventID() == "send_topic")
-	{
-		if (params->size() < 2)
-			return;
-		(*params)[1] = ":" + (*params)[1];
-		params->insert(params->begin() + 1,ServerInstance->Config->ServerName);
-		params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time()));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC",*params);
-	}
-	else if (event->GetEventID() == "send_mode")
-	{
-		if (params->size() < 2)
-			return;
-		// Insert the TS value of the object, either User or Channel
-		time_t ourTS = 0;
-		std::string output_text;
-
-		/* Warning: in-place translation is only safe for type TR_NICK */
-		for (size_t n = 0; n < params->size(); n++)
-			ServerInstance->Parser->TranslateUIDs(TR_NICK, (*params)[n], (*params)[n]);
-
-		User* a = ServerInstance->FindNick((*params)[0]);
-		if (a)
-		{
-			ourTS = a->age;
-			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",*params);
-			return;
-		}
-		else
-		{
-			Channel* c = ServerInstance->FindChan((*params)[0]);
-			if (c)
-			{
-				ourTS = c->age;
-				params->insert(params->begin() + 1,ConvToStr(ourTS));
-				Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",*params);
-			}
-		}
-	}
-	else if (event->GetEventID() == "send_mode_explicit")
-	{
-		if (params->size() < 2)
-			return;
-		std::string output_text;
-
-		/* Warning: in-place translation is only safe for type TR_NICK */
-		for (size_t n = 0; n < params->size(); n++)
-			ServerInstance->Parser->TranslateUIDs(TR_NICK, (*params)[n], (*params)[n]);
-
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",*params);
-	}
-	else if (event->GetEventID() == "send_opers")
-	{
-		if (params->size() < 1)
-			return;
-		(*params)[0] = ":" + (*params)[0];
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"OPERNOTICE",*params);
-	}
-	else if (event->GetEventID() == "send_modeset")
-	{
-		if (params->size() < 2)
-			return;
-		(*params)[1] = ":" + (*params)[1];
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODENOTICE",*params);
-	}
-	else if (event->GetEventID() == "send_snoset")
-	{
-		if (params->size() < 2)
-			return;
-		(*params)[1] = ":" + (*params)[1];
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SNONOTICE",*params);
-	}
-	else if (event->GetEventID() == "send_push")
-	{
-		if (params->size() < 2)
-			return;
-			
-		User *a = ServerInstance->FindNick((*params)[0]);
-			
-		if (!a)
-			return;
-
-		(*params)[0] = a->uuid;
-		(*params)[1] = ":" + (*params)[1];
-		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", *params, a->server);
+		ServerInstance->Logs->Log("m_spanningtree", DEBUG, "WARNING: Deprecated use of old 1.1 style m_spanningtree event ignored, type '"+event->GetEventID()+"'!");
 	}
 }
 
