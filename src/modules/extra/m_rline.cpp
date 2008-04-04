@@ -244,7 +244,7 @@ class ModuleRLine : public Module
 		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 1);
 	}
 
-	virtual int OnUserPostNick(User *user, const std::string &oldnick)
+	virtual void OnUserPostNick(User *user, const std::string &oldnick)
 	{
 		if (!IS_LOCAL(user))
 			return 0;
@@ -252,12 +252,12 @@ class ModuleRLine : public Module
 		if (!MatchOnNickChange)
 			return 0;
 
-		XLine *r = ServerInstance->XLines->MatchesLine("R", user);
+		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
 
-		if (r)
+		if (rl)
 		{
 			// Bang! :D
-			r->Apply(user);
+			rl->Apply(user);
 		}
 	}
 
