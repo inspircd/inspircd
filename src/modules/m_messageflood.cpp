@@ -238,7 +238,7 @@ class ModuleMsgFlood : public Module
 					parameters[2] = user->MakeWildHost();
 					ServerInstance->SendMode(parameters,3,user);
 
-					ServerInstance->PI->SendMode(dest->name, std::string("+b ") + user->MakeWildhost());
+					ServerInstance->PI->SendMode(dest->name, std::string("+b ") + user->MakeWildHost());
 				}
 				char kickmessage[MAXBUF];
 				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
