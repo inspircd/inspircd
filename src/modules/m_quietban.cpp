@@ -21,7 +21,7 @@ class ModuleQuietBan : public Module
  public:
 	ModuleQuietBan(InspIRCd* Me) : Module(Me)
 	{
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 	
@@ -60,6 +60,14 @@ class ModuleQuietBan : public Module
 		}
 
 		return 0;
+	}
+
+	virtual void On005Numeric(std::string &output)
+	{
+		if (output.find(" EXTBAN=:") == std::string::npos)
+			output.append(" EXTBAN=:q");
+		else
+			output.insert(output.find(" EXTBAN=:") + 8, "q");
 	}
 };
 
