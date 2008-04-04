@@ -382,7 +382,7 @@ class ModuleSilence : public Module
 	int MatchPattern(User* dest, User* source, int pattern)
 	{
 		/* Server source */
-		if (!source)
+		if (!source || !dest)
 			return 1;
 
 		silencelist* sl;
