@@ -31,8 +31,11 @@ class ChannelLogStream : public LogStream
 
 		if (c)
 		{
-			// So this won't work remotely. Oh well.
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :\2%s\2: %s", c->name, type.c_str(), msg.c_str());
+			char buf[MAXBUF];
+			snprintf(buf, MAXBUF, "\2%s\2: %s", type.c_str(), msg.c_str());
+
+			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name, buf);
+			ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
 		}
 	}
 };
@@ -64,13 +67,18 @@ class ModuleChanLog : public Module
 		std::vector<ChannelLogStream*>().swap(cls);
 		int index, max = Conf->Enumerate("log");
 		cls.reserve(max);
+
 		for (index = 0; index < max; ++index)
 		{
 			std::string method = Conf->ReadValue("log", "method", index);
-			if (method != "file") continue;
+
+			if (method != "file")
+				continue;
+
 			std::string type = Conf->ReadValue("log", "type", index);
 			std::string level = Conf->ReadValue("log", "level", index);
 			int loglevel = DEFAULT;
+
 			if (level == "debug")
 			{
 				loglevel = DEBUG;
@@ -92,6 +100,7 @@ class ModuleChanLog : public Module
 			{
 				loglevel = NONE;
 			}
+
 			std::string target = Conf->ReadValue("log", "target", index);
 			ChannelLogStream* c = new ChannelLogStream(ServerInstance, loglevel, target);
 			ServerInstance->Logs->AddLogTypes(type, c, true);
