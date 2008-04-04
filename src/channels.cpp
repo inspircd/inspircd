@@ -721,24 +721,8 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 
 void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &text)
 {
-	CUList *ulist;
+	CUList *ulist = this->GetUsers();
 	char tb[MAXBUF];
-
-	switch (status)
-	{
-		case '@':
-			ulist = this->GetOppedUsers();
-			break;
-		case '%':
-			ulist = this->GetHalfoppedUsers();
-			break;
-		case '+':
-			ulist = this->GetVoicedUsers();
-			break;
-		default:
-			ulist = this->GetUsers();
-			break;
-	}
 
 	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
 	std::string out = tb;
@@ -747,6 +731,10 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 	{
 		if ((IS_LOCAL(i->first)) && (except_list.find(i->first) == except_list.end()))
 		{
+			/* User doesnt have the status we're after */
+			if (status && !strchr(this->GetAllPrefixChars(i->first), status))
+				continue;
+
 			if (serversource)
 				i->first->WriteServ(text);
 			else

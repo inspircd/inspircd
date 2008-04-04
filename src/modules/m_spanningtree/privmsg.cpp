@@ -32,7 +32,7 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 		const char* target = params[0].c_str();
 		std::string text = params[1].c_str();
 
-		if ((*target == '@') || (*target == '%') || (*target == '+'))
+		if (Instance->Modes->FindPrefix(*target))
 		{
 			status = *target;
 			target++;

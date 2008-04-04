@@ -162,25 +162,17 @@ void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &li
 /* returns a list of DIRECT servernames for a specific channel */
 void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
 {
-	CUList *ulist;
-	switch (status)
-	{
-		case '@':
-			ulist = c->GetOppedUsers();
-		break;
-		case '%':
-			ulist = c->GetHalfoppedUsers();
-		break;
-		case '+':
-			ulist = c->GetVoicedUsers();
-		break;
-		default:
-			ulist = c->GetUsers();
-		break;
-	}
+	CUList *ulist = c->GetUsers();
+
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((i->first->GetFd() < 0) && (exempt_list.find(i->first) == exempt_list.end()))
+		if (IS_LOCAL(i->first))
+			continue;
+
+		if (status && !strchr(c->GetAllPrefixChars(i->first), status))
+			continue;
+
+		if (exempt_list.find(i->first) == exempt_list.end())
 		{
 			TreeServer* best = this->BestRouteTo(i->first->server);
 			if (best)
@@ -199,7 +191,7 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 		if (params.size() >= 2)
 		{
 			/* Prefixes */
-			if ((*(params[0].c_str()) == '@') || (*(params[0].c_str()) == '%') || (*(params[0].c_str()) == '+'))
+			if (ServerInstance->Modes->FindPrefix(params[0][0]))
 			{
 				pfx = params[0][0];
 				params[0] = params[0].substr(1, params[0].length()-1);

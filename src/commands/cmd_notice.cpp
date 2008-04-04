@@ -51,7 +51,7 @@ CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *
 	}
 	char status = 0;
 	const char* target = parameters[0];
-	if ((*target == '@') || (*target == '%') || (*target == '+'))
+	if (ServerInstance->Modes->FindPrefix(*target))
 	{
 		status = *target;
 		target++;
