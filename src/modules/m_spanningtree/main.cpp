@@ -577,7 +577,7 @@ void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, boo
 			params.push_back(channel->name);
 			params.push_back(ConvToStr(channel->age));
 			params.push_back(std::string("+") + channel->ChanModes(true));
-			params.push_back(std::string(channel->GetAllPrefixChars(user))+","+std::string(user->uuid));
+			params.push_back(ServerInstance->Modes->ModeString(user, channel, false)+","+std::string(user->uuid));
 			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 		}
 		else
