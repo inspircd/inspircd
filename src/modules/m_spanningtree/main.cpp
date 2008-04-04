@@ -30,8 +30,9 @@
 #include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/rconnect.h"
 #include "m_spanningtree/rsquit.h"
+#include "m_spanningtree/protocolinterface.h"
 
-/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
+/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h m_spanningtree/protocolinterface.h */
 
 ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	: Module(Me), max_local(0), max_global(0)
@@ -55,6 +56,9 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
 	};
 	ServerInstance->Modules->Attach(eventlist, this, 28);
+
+	delete ServerInstance->PI;
+	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
@@ -990,6 +994,9 @@ void ModuleSpanningTree::OnEvent(Event* event)
 ModuleSpanningTree::~ModuleSpanningTree()
 {
 	/* This will also free the listeners */
+	delete ServerInstance->PI;
+	ServerInstance->PI = new ProtocolInterface(ServerInstance);
+
 	delete Utils;
 
 	ServerInstance->Timers->DelTimer(RefreshTimer);

@@ -309,10 +309,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SE = SEF->Create(this);
 	delete SEF;
 
-
 	ThreadEngineFactory* tef = new ThreadEngineFactory();
 	this->Threads = tef->Create(this);
 	delete tef;
+
+	/* Default implementation does nothing */
+	this->PI = new ProtocolInterface(this);
 
 	this->s_signal = 0;
 	

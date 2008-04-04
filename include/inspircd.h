@@ -56,6 +56,7 @@
 #include "modules.h"
 #include "configreader.h"
 #include "inspstring.h"
+#include "protocol.h"
 
 /**
  * Used to define the maximum number of parameters a command may have.
@@ -462,6 +463,10 @@ class CoreExport InspIRCd : public classbase
 	/** Set to the current signal recieved
 	 */
 	int s_signal;
+
+	/** Protocol interface, overridden by server protocol modules
+	 */
+	ProtocolInterface* PI;
 
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
