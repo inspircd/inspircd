@@ -51,6 +51,10 @@ class ModuleChanLog : public Module
  public:
 	ModuleChanLog(InspIRCd* Me) : Module(Me)
 	{
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
+
+		OnRehash(NULL, "");
 	}
 
 	virtual ~ModuleChanLog()
@@ -63,23 +67,25 @@ class ModuleChanLog : public Module
 		}
 	}
 
-	virtual void OnReadConfig(ServerConfig* sc, ConfigReader* Conf)
+	virtual void OnRehash(User *user, const std::string &parameter)
 	{
+		ConfigReader Conf(ServerInstance);
+
 		/* Since the CloseLogs prior to this hook just wiped out our logstreams for us, we just need to wipe the vector. */
 		std::vector<ChannelLogStream*>().swap(cls);
-		int index, max = Conf->Enumerate("log");
+		int index, max = Conf.Enumerate("log");
 		cls.reserve(max);
 
 		for (index = 0; index < max; ++index)
 		{
-			std::string method = Conf->ReadValue("log", "method", index);
+			std::string method = Conf.ReadValue("log", "method", index);
 
 
 			//if (method != "file")
 			//	continue;
 
-			std::string type = Conf->ReadValue("log", "type", index);
-			std::string level = Conf->ReadValue("log", "level", index);
+			std::string type = Conf.ReadValue("log", "type", index);
+			std::string level = Conf.ReadValue("log", "level", index);
 			int loglevel = DEFAULT;
 
 			if (level == "debug")
@@ -104,7 +110,7 @@ class ModuleChanLog : public Module
 				loglevel = NONE;
 			}
 
-			std::string target = Conf->ReadValue("log", "target", index);
+			std::string target = Conf.ReadValue("log", "target", index);
 
 printf("looking at tag with method: %s type: %s level: %s target: %s", method.c_str(), type.c_str(), level.c_str(), target.c_str());
 
