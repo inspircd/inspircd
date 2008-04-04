@@ -247,10 +247,10 @@ class ModuleRLine : public Module
 	virtual void OnUserPostNick(User *user, const std::string &oldnick)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return;
 
 		if (!MatchOnNickChange)
-			return 0;
+			return;
 
 		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
 
