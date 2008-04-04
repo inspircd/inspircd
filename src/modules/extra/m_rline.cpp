@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *	    the file COPYING for details.
+ *            the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -196,9 +196,13 @@ class ModuleRLine : public Module
  private:
 	CommandRLine *r;
 	RLineFactory *f;
+	bool MatchOnNickChange;
+
  public:
 	ModuleRLine(InspIRCd* Me) : Module(Me)
 	{
+		OnRehash(NULL, "");
+
 		// Create a new command
 		r = new CommandRLine(ServerInstance);
 		ServerInstance->AddCommand(r);
@@ -206,8 +210,8 @@ class ModuleRLine : public Module
 		f = new RLineFactory(ServerInstance);
 		ServerInstance->XLines->RegisterFactory(f);
 
-		Implementation eventlist[] = { I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 	}
 
@@ -232,6 +236,31 @@ class ModuleRLine : public Module
 			rl->Apply(user);
 		}
 	}
+
+	virtual void OnRehash(User *user, const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+
+		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 1);
+	}
+
+	virtual int OnUserPostNick(User *user, const std::string &oldnick)
+	{
+		if (!IS_LOCAL(user))
+			return 0;
+
+		if (!MatchOnNickChange)
+			return 0;
+
+		XLine *r = ServerInstance->XLines->MatchesLine("R", user);
+
+		if (r)
+		{
+			// Bang! :D
+			r->Apply(user);
+		}
+	}
+
 };
 
 MODULE_INIT(ModuleRLine)

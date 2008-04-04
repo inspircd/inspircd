@@ -2008,6 +2008,16 @@
 #<module name="m_restrictmsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ban users through regular expression patterns
+#<module name="m_rline.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- RLINE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
+# If you wish to re-check a user when they change nickname (can be
+# useful under some situations, but *can* also use CPU with more users
+# on a server) then set the following configuration value:
+#<rline matchonnickchange="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Provide /LIST throttling (to prevent flooding) and /LIST safety to
 # prevent excess flood when the list is large.
 #<module name="m_safelist.so">
