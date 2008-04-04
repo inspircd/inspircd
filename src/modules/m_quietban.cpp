@@ -22,7 +22,7 @@ class ModuleQuietBan : public Module
 	ModuleQuietBan(InspIRCd* Me) : Module(Me)
 	{
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 	
 	virtual ~ModuleQuietBan()
