@@ -48,11 +48,11 @@ public:
 			
 			if(foo.Send())
 			{
-				ServerInstance->Log(DEBUG, "Sent query, got given ID %lu", foo.id);
+				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Sent query, got given ID %lu", foo.id);
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG, "SQLrequest failed: %s", foo.error.Str());
+				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "SQLrequest failed: %s", foo.error.Str());
 			}
 		}
 	}
@@ -61,7 +61,7 @@ public:
 	{
 		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
-			ServerInstance->Log(DEBUG, "Got SQL result (%s)", request->GetId());
+			ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got SQL result (%s)", request->GetId());
 		
 			SQLresult* res = (SQLresult*)request;
 
@@ -69,33 +69,33 @@ public:
 			{
 				if(res->Cols())
 				{
-					ServerInstance->Log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
+					ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
 
 					for (int r = 0; r < res->Rows(); r++)
 					{
-						ServerInstance->Log(DEBUG, "Row %d:", r);
+						ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Row %d:", r);
 						
 						for(int i = 0; i < res->Cols(); i++)
 						{
-							ServerInstance->Log(DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
+							ServerInstance->Logs->Log("m_testclient.so", DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
 						}
 					}
 				}
 				else
 				{
-					ServerInstance->Log(DEBUG, "%d rows affected in query", res->Rows());
+					ServerInstance->Logs->Log("m_testclient.so", DEBUG, "%d rows affected in query", res->Rows());
 				}
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG, "SQLrequest failed: %s", res->error.Str());
+				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "SQLrequest failed: %s", res->error.Str());
 				
 			}
 		
 			return SQLSUCCESS;
 		}
 		
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
+		ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got unsupported API version string: %s", request->GetId());
 		
 		return NULL;
 	}
