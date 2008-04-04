@@ -137,10 +137,10 @@ void SpanningTreeProtocolInterface::SendUserPrivmsg(User* target, const std::str
 	TreeServer* serv = Utils->FindServer(target->server);
 	if (serv)
 	{
-		TreeSocket* sock = serv->GetSock();
+		TreeSocket* sock = serv->GetSocket();
 		if (sock)
 		{
-			Sock->WriteLine(ServerInstance->Config->GetSID() + " PRIVMSG " + target->nick + " :"+text);
+			sock->WriteLine(ServerInstance->Config->GetSID() + " PRIVMSG " + target->nick + " :"+text);
 		}
 	}
 }
@@ -150,10 +150,10 @@ void SpanningTreeProtocolInterface::SendUserNotice(User* target, const std::stri
 	TreeServer* serv = Utils->FindServer(target->server);
 	if (serv)
 	{
-		TreeSocket* sock = serv->GetSock();
+		TreeSocket* sock = serv->GetSocket();
 		if (sock)
 		{
-			Sock->WriteLine(ServerInstance->Config->GetSID() + " NOTICE " + target->nick + " :"+text);
+			sock->WriteLine(ServerInstance->Config->GetSID() + " NOTICE " + target->nick + " :"+text);
 		}
 	}
 }
