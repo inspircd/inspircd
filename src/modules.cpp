@@ -106,8 +106,6 @@ std::string Event::GetEventID()
 
 		Module::Module(InspIRCd* Me) : ServerInstance(Me) { }
 		Module::~Module() { }
-void		Module::OnReadConfig(ServerConfig*, ConfigReader*) { }
-int		Module::OnDownloadFile(const std::string&, std::istream*&) { return 0; }
 void		Module::OnUserConnect(User*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }
