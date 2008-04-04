@@ -24,6 +24,8 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
         virtual void PushToClient(User* target, const std::string &rawline);
 	virtual void SendChannelPrivmsg(Channel* target, char status, const std::string &text);
 	virtual void SendChannelNotice(Channel* target, char status, const std::string &text);
+	virtual void SendUserPrivmsg(User* target, const std::string &text);
+	virtual void SendUserNotice(User* target, const std::string &text);
 };
 
 #endif

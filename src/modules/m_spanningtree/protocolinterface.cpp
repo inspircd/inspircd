@@ -132,3 +132,29 @@ void SpanningTreeProtocolInterface::SendChannelNotice(Channel* target, char stat
 	SendChannel(target, status, ServerInstance->Config->GetSID()+" NOTICE "+target->name+" :"+text);
 }
 
+void SpanningTreeProtocolInterface::SendUserPrivmsg(User* target, const std::string &text)
+{
+	TreeServer* serv = Utils->FindServer(target->server);
+	if (serv)
+	{
+		TreeSocket* sock = serv->GetSock();
+		if (sock)
+		{
+			Sock->WriteLine(ServerInstance->Config->GetSID() + " PRIVMSG " + target->nick + " :"+text);
+		}
+	}
+}
+
+void SpanningTreeProtocolInterface::SendUserNotice(User* target, const std::string &text)
+{
+	TreeServer* serv = Utils->FindServer(target->server);
+	if (serv)
+	{
+		TreeSocket* sock = serv->GetSock();
+		if (sock)
+		{
+			Sock->WriteLine(ServerInstance->Config->GetSID() + " NOTICE " + target->nick + " :"+text);
+		}
+	}
+}
+
