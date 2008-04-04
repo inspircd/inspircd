@@ -40,7 +40,7 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 
 		Channel* channel = Instance->FindChan(target);
 		
-		if (target)
+		if (channel)
 		{
 			if (messagetype == "PRIVMSG")
 			{
