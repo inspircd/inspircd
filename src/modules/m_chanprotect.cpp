@@ -300,8 +300,8 @@ class ModuleChanProtect : public Module
  public:
  
 	ModuleChanProtect(InspIRCd* Me)
-		: Module(Me), FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true)
-	{	
+		: Module(Me), FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true), cp(NULL), cf(NULL)
+	{
 		/* Load config stuff */
 		OnRehash(NULL,"");
 		booting = false;
@@ -358,6 +358,12 @@ class ModuleChanProtect : public Module
 
 		if ((APrefix && QPrefix) && APrefix == QPrefix)
 			throw CoreException("What the smeg, why are both your +q and +a prefixes the same character?");
+
+		if (cp && ServerInstance->Modes->FindPrefix(APrefix) == cp)
+			throw CoreException("Looks like the +a prefix you picked for m_chanprotect is already in use. Pick another.");
+
+		if (cf && ServerInstance->Modes->FindPrefix(APrefix) == cf)
+			throw CoreException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
 
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
 		DeprivOthers = Conf.ReadFlag("options","deprotectothers",0);
