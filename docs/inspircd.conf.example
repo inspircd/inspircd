@@ -2005,6 +2005,12 @@
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Quietban: Implements extended ban q:, which stops anyone matching
+# a mask like +b q:nick!user@host from speaking on channel.
+#<module name="m_quietban.so">
+#
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect.
 # NOTE: Some of these may mimic fatal errors and confuse users and 
 # opers alike! - BEWARE!
