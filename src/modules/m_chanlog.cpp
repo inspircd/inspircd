@@ -28,7 +28,6 @@ class ChannelLogStream : public LogStream
 		Channel *c = ServerInstance->FindChan(channel);
 		static bool Logging = false;
 
-printf("I got called\n");
 		if (loglevel < this->loglvl)
 			return;
 
@@ -117,9 +116,6 @@ class ModuleChanLog : public Module
 			}
 
 			std::string target = Conf.ReadValue("log", "target", index);
-
-printf("looking at tag with method: %s type: %s level: %s target: %s", method.c_str(), type.c_str(), level.c_str(), target.c_str());
-
 			ChannelLogStream* c = new ChannelLogStream(ServerInstance, loglevel, target);
 			ServerInstance->Logs->AddLogTypes(type, c, true);
 			cls.push_back(c);
