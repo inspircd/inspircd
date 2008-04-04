@@ -205,6 +205,10 @@ class ModuleRLine : public Module
 
 		f = new RLineFactory(ServerInstance);
 		ServerInstance->XLines->RegisterFactory(f);
+
+		Implementation eventlist[] = { I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
+
 	}
 
 	virtual ~ModuleRLine()
@@ -215,6 +219,18 @@ class ModuleRLine : public Module
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
+	}
+
+	virtual void OnUserConnect(User* user)
+	{
+		// Apply lines on user connect
+		XLine *r = ServerInstance->XLines->MatchesLine("R", user);
+
+		if (r)
+		{
+			// Bang. :P
+			r->Apply(user);
+		}
 	}
 };
 
