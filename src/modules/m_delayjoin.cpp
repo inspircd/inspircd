@@ -160,6 +160,10 @@ class ModuleDelayJoin : public Module
 
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list)
 	{
+		/* Server origin */
+		if (!user)
+			return;
+
 		if (target_type != TYPE_CHANNEL)
 			return;
 

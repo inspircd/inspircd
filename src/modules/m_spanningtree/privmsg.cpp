@@ -51,7 +51,11 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 				FOREACH_MOD_I(Instance, I_OnUserNotice, OnUserNotice(NULL, channel, TYPE_SERVER, text, status, except_list));
 			}
 			TreeServer* s = Utils->FindServer(prefix);
-			channel->WriteChannelWithServ(s->GetName().c_str(), "%s %s :%s", messagetype.c_str(), channel->name, text.c_str());
+			if (s)
+			{
+				FOREACH_MOD_I(Instance, I_OnText, OnText(NULL, channel, TYPE_SERVER, text, status, except_list));
+				channel->WriteChannelWithServ(s->GetName().c_str(), "%s %s :%s", messagetype.c_str(), channel->name, text.c_str());
+			}
 		}
 
 		/* Propogate as channel privmsg */
