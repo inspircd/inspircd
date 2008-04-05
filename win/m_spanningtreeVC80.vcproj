@@ -498,6 +498,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\privmsg.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\protocolinterface.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\protocolinterface.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\push.cpp"
 				>
 			</File>
