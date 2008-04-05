@@ -210,8 +210,13 @@
 # config file inspircd.conf, unless the filename starts with a forward#
 # slash (/) in which case it is treated as an absolute path.          #
 #                                                                     #
+# You may also include an executable file, in which case if you do so #
+# the output of the executable on the standard output will be added   #
+# to your config at the point of the include tag.                     #
+#                                                                     #
 # Syntax is as follows:                                               #
 #<include file="file.conf">                                           #
+#<include executable="/path/to/executable parameters">                #
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -983,7 +988,6 @@
 <options prefixquit="Quit: "
          prefixpart="\""
          suffixpart="\""
-         loglevel="default"
          netbuffersize="10240"
          maxwho="128"
          noservices="no"
@@ -1021,6 +1025,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Logging
+# -------
+#
 # Logging is covered with the <log> tag, which you may use to change
 # the behaviour of the logging of the IRCd.
 #
@@ -1043,15 +1049,17 @@
 # You may also log *everything* by using a type of *, and subtract things out
 # of that by using -TYPE - for example "* -USERINPUT -USEROUTPUT".
 #
-
 # Channel Logging
-# I'm aware this would probably better belong in the modules section, but this is heavily interrelated
-# to logging, and as such will be documented here.
+# ---------------
+#
+# I'm aware this would probably better belong in the modules section, but this
+# is heavily interrelated to logging, and as such will be documented here.
 #
 # m_chanlog is one of the modules which can alter logging to it's own thing.
 # An example of this may be:
-#	<log method="channel" type="OPER USERS CHANNELS" level="default" target="#services">
+#
 #<module name="m_chanlog.so">
+#<log method="channel" type="OPER USERS CHANNELS" level="default" target="#services">
 #
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
@@ -1140,8 +1148,10 @@
 # usually for cryptographic uses and security.
 #
 # IMPORTANT:
-# Other modules such as m_opermd5.so may rely on this module being
-# loaded to function.
+# Other modules such as m_password_hash.so may rely on this module being
+# loaded to function. Certain modules such as m_spanningtree.so will
+# function without this module but when it is loaded their features will
+# be enhanced (for example the addition of HMAC authentication).
 #
 #<module name="m_sha256.so">
 
