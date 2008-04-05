@@ -14,23 +14,23 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Creates a snomask with notices whenever a new channel is created */
+/* $ModDesc: Throttles the connections of any users who try quitflood the server */
 
-class ModuleChanCreate : public Module
+class ModuleQuitBan : public Module
 {
  private:
 	clonemap quits;
 	unsigned int threshold;
 	unsigned int banduration;
  public:
-	ModuleChanCreate(InspIRCd* Me) : Module(Me)
+	ModuleQuitBan(InspIRCd* Me) : Module(Me)
 	{
 		Implementation eventlist[] = { I_OnUserDisconnect, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 		OnRehash(NULL, "");
 	}
 	
-	virtual ~ModuleChanCreate()
+	virtual ~ModuleQuitBan()
 	{
 	}
 	
@@ -93,4 +93,4 @@ class ModuleChanCreate : public Module
 	}
 };
 
-MODULE_INIT(ModuleChanCreate)
+MODULE_INIT(ModuleQuitBan)
