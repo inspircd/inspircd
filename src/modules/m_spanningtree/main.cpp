@@ -218,17 +218,25 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 		}
 	}
 
+
 	/*
 	 * Cancel remote burst mode on any servers which still have it enabled due to latency/lack of data.
 	 * This prevents lost REMOTECONNECT notices
-	 * XXX this should probably not do this until server has been bursting for, say, 60 seconds or something
 	 */
+	timeval t;
+	gettimeofday(&t, NULL);
+	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+
 	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
 	{
 		if (i->second->bursting)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst.", i->second->GetName().c_str());
-			i->second->FinishBurst();
+			unsigned long bursttime = ts - i->second->StartBurst;
+			if (bursttime > 60000) // A minute
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst.", i->second->GetName().c_str());
+				i->second->FinishBurst();
+			}
 		}
 	}
 }
