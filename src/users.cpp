@@ -921,7 +921,6 @@ void User::FullConnect()
 	this->WriteNumeric(004, "%s %s InspIRCd-1.2 %s %s %s", this->nick, ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
-
 	this->WriteNumeric(42, "%s %s :your unique ID", this->nick, this->uuid);
 
 
