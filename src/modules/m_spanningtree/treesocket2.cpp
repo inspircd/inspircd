@@ -30,8 +30,6 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-static std::map<std::string, std::string> warned;       /* Server names that have had protocol violation warnings displayed for them */
-
 void TreeSocket::WriteLine(std::string line)
 {
 	Instance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
@@ -296,6 +294,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			 * First up, check for any malformed commands (e.g. MODE without a timestamp)
 			 * and rewrite commands where necessary (SVSMODE -> MODE for services). -- w
 			 */
+			if (command == "SVSMODE") // This isn't in an "else if" so we still force FMODE for changes on channels.
+				command = "MODE";
+
 			if (command == "MODE")
 			{
 				if (params.size() >= 2)
@@ -303,22 +304,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 					Channel* channel = Instance->FindChan(params[0]);
 					if (channel)
 					{
-						User* x = Instance->FindNick(prefix);
-						if (x)
-						{
-							if (warned.find(x->server) == warned.end())
-							{
-								Instance->Logs->Log("m_spanningtree",DEFAULT,"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.", params[1].c_str(), x->server);
-								Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending nonstandard modes: '%s MODE %s' where FMODE should be used, and may cause desyncs.", x->server, x->nick, params[1].c_str());
-								warned[x->server] = x->nick;
-							}
-						}
+						this->SendError("MODE may no longer be used on channels. Please use FMODE, with correct timestamp rules.");
+						return false;
 					}
 				}
-			}
-			else if (command == "SVSMODE")
-			{
-				command = "MODE";
 			}
 
 
