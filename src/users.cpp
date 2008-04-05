@@ -916,9 +916,9 @@ void User::FullConnect()
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
 	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);
-	this->WriteNumeric(002, "%s :Your host is %s, running version %s",this->nick,ServerInstance->Config->ServerName,VERSION);
+	this->WriteNumeric(002, "%s :Your host is %s, running version InspIRCd-1.2",this->nick,ServerInstance->Config->ServerName);
 	this->WriteNumeric(003, "%s :This server was created %s %s", this->nick, __TIME__, __DATE__);
-	this->WriteNumeric(004, "%s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
+	this->WriteNumeric(004, "%s %s InspIRCd-1.2 %s %s %s", this->nick, ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
 
