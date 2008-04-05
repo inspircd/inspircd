@@ -26,7 +26,6 @@ bool TreeSocket::DelLine(const std::string &prefix, std::deque<std::string> &par
 	if (params.size() < 2)
 		return true;
 
-	Instance->Logs->Log("loltree", DEBUG, "DELLINE: %s %s", params[0].c_str(), params[1].c_str());
 	std::string setter = "<unknown>";
 
 	User* user = Instance->FindNick(prefix);
@@ -41,7 +40,7 @@ bool TreeSocket::DelLine(const std::string &prefix, std::deque<std::string> &par
 
 
 	/* NOTE: No check needed on 'user', this function safely handles NULL */
-	if (Instance->XLines->DelLine(params[0].c_str(), params[1], user))
+	if (Instance->XLines->DelLine(params[1].c_str(), params[0], user))
 	{
 		this->Instance->SNO->WriteToSnoMask('x',"%s removed %s%s on %s.", setter.c_str(),
 				params[0].c_str(), params[0].length() == 1 ? "LINE" : "", params[1].c_str());
