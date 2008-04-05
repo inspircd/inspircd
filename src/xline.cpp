@@ -411,7 +411,10 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	if (bancache)
 	{
 		ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Adding positive hit (") + line + ") for " + u->GetIPString());
-		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason);
+		if (this->duration > 0)
+			ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason, this->duration);
+		else
+			ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason);
 	}
 }
 
