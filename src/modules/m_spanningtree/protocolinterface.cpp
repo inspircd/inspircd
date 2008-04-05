@@ -49,13 +49,23 @@ void SpanningTreeProtocolInterface::SendMode(const std::string &target, paramete
 	if (modedata.empty())
 		return;
 
+	std::string outdata;
+
 	/* Warning: in-place translation is only safe for type TR_NICK */
 	for (size_t n = 0; n < modedata.size(); n++)
-		ServerInstance->Parser->TranslateUIDs(TR_NICK, modedata[n], modedata[n]);
+	{
+		ServerInstance->Parser->TranslateUIDs(TR_NICK, modedata[n], outdata);
+		modedata[n] = outdata;
+	}
 
 	std::string uidtarget;
 	ServerInstance->Parser->TranslateUIDs(TR_NICK, target, uidtarget);
 	modedata.insert(modedata.begin(), uidtarget);
+
+	for (size_t n = 0; n < modedata.size(); n++)
+	{
+		ServerInstance->Logs->Log("m_spanningtree", DEBUG, "modedata[%d]=\"%s\"", n, modedata[n].c_str());
+	}
 
 	User* a = ServerInstance->FindNick(uidtarget);
 	if (a)

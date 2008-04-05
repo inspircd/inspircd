@@ -540,7 +540,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				/* We don't support this for channel mode changes any more! */
 				if (params.size() >= 1)
 				{
-					if (Instance->FindChan(params[1]))
+					if (Instance->FindChan(params[0]))
 					{
 						this->SendError("Protocol violation by '"+prefix+"'! MODE for channel mode changes is not supported by the InspIRCd 1.2 protocol. You must use FMODE to preserve channel timestamps.");
 						return false;
