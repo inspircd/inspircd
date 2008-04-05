@@ -26,7 +26,9 @@ bool TreeSocket::DelLine(const std::string &prefix, std::deque<std::string> &par
 	if (params.size() < 2)
 		return true;
 
+	Instance->Logs->Log("loltree", DEBUG, "DELLINE: %s %s", params[0].c_str(), params[1].c_str());
 	std::string setter = "<unknown>";
+
 	User* user = Instance->FindNick(prefix);
 	if (user)
 		setter = user->nick;
