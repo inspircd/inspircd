@@ -142,16 +142,19 @@ std::string& TreeServer::GetID()
 
 void TreeServer::FinishBurst()
 {
-	this->bursting = false;
-	ServerInstance->XLines->ApplyLines();
-	timeval t;
-	gettimeofday(&t, NULL);
-	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
-	unsigned long bursttime = ts - this->StartBurst;
-	ServerInstance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu %s)", ServerName.c_str(),
-						(bursttime > 1000 ? bursttime / 1000 : bursttime), (bursttime > 1000 ? "secs" : "msecs"));
-	Event rmode((char*)ServerName.c_str(),  (Module*)Utils->Creator, "new_server");
-	rmode.Send(ServerInstance);
+	if (!this->bursting)
+	{
+		this->bursting = false;
+		ServerInstance->XLines->ApplyLines();
+		timeval t;
+		gettimeofday(&t, NULL);
+		long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+		unsigned long bursttime = ts - this->StartBurst;
+		ServerInstance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu %s)", ServerName.c_str(),
+							(bursttime > 1000 ? bursttime / 1000 : bursttime), (bursttime > 1000 ? "secs" : "msecs"));
+		Event rmode((char*)ServerName.c_str(),  (Module*)Utils->Creator, "new_server");
+		rmode.Send(ServerInstance);
+	}
 }
 
 void TreeServer::SetID(const std::string &id)
