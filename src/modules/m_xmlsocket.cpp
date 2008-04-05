@@ -61,7 +61,7 @@ class ModuleXMLSocket : public Module
 						if (ServerInstance->Config->AddIOHook(portno, this))
 						{
 							listenports.push_back(portno);
-							for (size_t j = 0; i < ServerInstance->Config->ports.size(); i++)
+							for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
 							if (ServerInstance->Config->ports[j]->GetPort() == portno)
 								ServerInstance->Config->ports[j]->SetDescription("xml");
 						}
