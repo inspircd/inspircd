@@ -30,9 +30,20 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 
 	XLineFactory* xlf = Instance->XLines->GetFactory(params[0]);
 
+	std::string setter = "<unknown>";
+	User* usr = Instance->FindNick(prefix);
+	if (usr)
+		setter = usr->nick;
+	else
+	{
+		TreeServer* t = Utils->FindServer(prefix);
+		if (t)
+			setter = t->GetName().c_str();
+	}
+
 	if (!xlf)
 	{
-		this->Instance->SNO->WriteToSnoMask('x',"%s sent me an unknown ADDLINE type (%s).",prefix.c_str(),params[0].c_str());
+		this->Instance->SNO->WriteToSnoMask('x',"%s sent me an unknown ADDLINE type (%s).",setter.c_str(),params[0].c_str());
 		return true;
 	}
 
@@ -42,12 +53,12 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 	{
 		if (xl->duration)
 		{
-			this->Instance->SNO->WriteToSnoMask('x',"%s added %s%s on %s to expire on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
+			this->Instance->SNO->WriteToSnoMask('x',"%s added %s%s on %s to expire on %s (%s).",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
 					params[1].c_str(),Instance->TimeString(xl->expiry).c_str(),params[5].c_str());
 		}
 		else
 		{
-			this->Instance->SNO->WriteToSnoMask('x',"%s added permanent %s%s on %s (%s).",prefix.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
+			this->Instance->SNO->WriteToSnoMask('x',"%s added permanent %s%s on %s (%s).",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "LINE" : "",
 					params[1].c_str(),params[5].c_str());
 		}
 		params[5] = ":" + params[5];
@@ -55,7 +66,7 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		User* u = Instance->FindNick(prefix);
 		Utils->DoOneToAllButSender(prefix, "ADDLINE", params, u ? u->server : prefix);
 		TreeServer *remoteserver = Utils->FindServer(u ? u->server : prefix);
-		
+	
 		if (!remoteserver->bursting)
 		{
 			Instance->XLines->ApplyLines();
