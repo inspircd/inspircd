@@ -92,6 +92,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		{
 			/* remote client changed, make sure we change their nick for the hash too */
 			tempnick = params[0].c_str();
+			params[2] = params[0];
 		}
 	}
 
