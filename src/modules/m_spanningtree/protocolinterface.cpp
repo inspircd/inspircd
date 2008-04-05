@@ -62,11 +62,6 @@ void SpanningTreeProtocolInterface::SendMode(const std::string &target, paramete
 	ServerInstance->Parser->TranslateUIDs(TR_NICK, target, uidtarget);
 	modedata.insert(modedata.begin(), uidtarget);
 
-	for (size_t n = 0; n < modedata.size(); n++)
-	{
-		ServerInstance->Logs->Log("m_spanningtree", DEBUG, "modedata[%d]=\"%s\"", n, modedata[n].c_str());
-	}
-
 	User* a = ServerInstance->FindNick(uidtarget);
 	if (a)
 	{
