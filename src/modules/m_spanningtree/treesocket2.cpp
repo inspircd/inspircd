@@ -472,14 +472,15 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "OPERNOTICE")
 			{
 				if (params.size() >= 1)
-					Instance->SNO->WriteToSnoMask('A', "From " + prefix + ": " + params[0]);
+					Instance->SNO->WriteToSnoMask('A', "From " + (ServerSource ? ServerSource->GetName().c_str() : prefix) + ": " + params[0]);
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
 			else if (command == "MODENOTICE")
 			{
 				if (params.size() >= 2)
 				{
-					Instance->Users->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", prefix.c_str(), params[1].c_str());
+					if (ServerSource)
+						Instance->Users->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()), params[1].c_str());
 				}
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
@@ -487,7 +488,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size() >= 2)
 				{
-					Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + prefix + ": "+ params[1]);
+					Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + (ServerSource ? ServerSource->GetName().c_str() : prefix) + ": "+ params[1]);
 				}
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
@@ -496,7 +497,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				// Set prefix server as bursting
 				if (!ServerSource)
 				{
-					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got BURST from a nonexistant server(?): %s", prefix.c_str());
+					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got BURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
 					return false;
 				}
 				
@@ -507,7 +508,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (!ServerSource)
 				{
-					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a nonexistant server(?): %s", prefix.c_str());
+					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
 					return false;
 				}
 				
@@ -531,7 +532,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				{
 					if (Instance->FindChan(params[0]))
 					{
-						this->SendError("Protocol violation by '"+prefix+"'! MODE for channel mode changes is not supported by the InspIRCd 1.2 protocol. You must use FMODE to preserve channel timestamps.");
+						this->SendError("Protocol violation by '"+(ServerSource ? ServerSource->GetName().c_str() : prefix)+"'! MODE for channel mode changes is not supported by the InspIRCd 1.2 protocol. You must use FMODE to preserve channel timestamps.");
 						return false;
 					}
 				}
