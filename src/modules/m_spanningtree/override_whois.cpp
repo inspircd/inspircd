@@ -41,7 +41,7 @@ int ModuleSpanningTree::HandleRemoteWhois(const char* const* parameters, int pcn
 		if ((remote) && (remote->GetFd() < 0))
 		{
 			std::deque<std::string> params;
-			params.push_back(parameters[1]);
+			params.push_back(remote->uuid);
 			Utils->DoOneToOne(user->uuid,"IDLE",params,remote->server);
 			return 1;
 		}
