@@ -143,7 +143,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 					modes += *unparsedmodes;
 				else
 				{
-					this->SendError(std::string("Invalid prefix '")+(*unparsedmodes)+"' in FJOIN");
+					this->SendError(std::string("Unknown status mode '")+(*unparsedmodes)+"' in FJOIN");
 					return false;
 				}
 
@@ -171,7 +171,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			}
 			else
 			{
-				Instance->Logs->Log("m_spanningtree",SPARSE,"Warning! Invalid user %s in FJOIN to channel %s IGNORED", usr, channel.c_str());
+				Instance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
 				continue;
 			}
 		}
