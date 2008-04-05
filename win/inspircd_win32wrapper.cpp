@@ -390,7 +390,7 @@ void IPC::Check()
 	if (!res)
 	{
 		if (GetLastError() != ERROR_SEM_TIMEOUT)
-			Instance->Log(DEFAULT, "IPC Pipe Error %u: %s", GetLastError(), dlerror());
+			Instance->Logs->Log("win32",DEFAULT, "IPC Pipe Error %u: %s", GetLastError(), dlerror());
 		return;
 	}
 
@@ -523,7 +523,7 @@ void ClearConsole()
  */
 void ChangeWindowsSpecificPointers(InspIRCd* Instance)
 {
-	Instance->Log(DEBUG,"Changing to windows specific pointer and functor set");
+	Instance->Logs->Log("win32",DEBUG,"Changing to windows specific pointer and functor set");
 	Instance->Config->DNSServerValidator = &ValidateWindowsDnsServer;
 }
 
@@ -631,7 +631,7 @@ bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* v
 	if (!*(data.GetString()))
 	{
 		std::string nameserver;
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
+		conf->GetInstance()->Logs->Log("win32",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
 		nameserver = FindNameServerWin();
 		/* Windows stacks multiple nameservers in one registry key, seperated by commas.
 		 * Spotted by Cataclysm.
@@ -644,7 +644,7 @@ bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* v
 		if (nameserver.find(' ') != std::string::npos)
 			nameserver = nameserver.substr(0, nameserver.find(' '));
 		data.Set(nameserver.c_str());
-		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
+		conf->GetInstance()->Logs->Log("win32",DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 	}
 	return true;
 }
