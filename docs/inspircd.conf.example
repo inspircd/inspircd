@@ -1301,7 +1301,7 @@
 #<blockamsg delay="3" action="killopers">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block CAPS module: Blocking all-CAPS messages with cmode +P
+# Block CAPS module: Blocking all-CAPS messages with cmode +B
 #<module name="m_blockcaps.so">
 #                                                                     #
 #-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -1898,9 +1898,9 @@
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Quietban: Implements extended ban n:, which stops anyone matching
+# Nickban: Implements extended ban n:, which stops anyone matching
 # a mask like +b n:nick!user@host from changing their nick on channel.
-#<module name="m_quietban.so">
+#<module name="m_nickban.so">
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2008,6 +2008,14 @@
 # is SHA256).
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Permanent Channels module: Channels with the permanent channels mode
+# will remain open even after everyone else has left the channel, and
+# therefore keep things like modes, ban lists and topic. Permanent
+# channels -may- need support from your Services package to function
+# properly with them.
+#<module name="m_permchannels.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
 # through a unified API. You must copy the source for this module
 # from the directory src/modules/extra, plus the file m_sqlv2.h
@@ -2025,6 +2033,19 @@
 # a mask like +b q:nick!user@host from speaking on channel.
 #<module name="m_quietban.so">
 #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Quitban: Provides per-IP connection throttling. Any IP that disconnects
+# too many times (configurable) in an hour is zlined for a (configurable)
+# duration, and their count resets to 0.
+#
+# NOTE: This module may change name/behaviour later in 1.2. Please make sure
+# you read release announcements!
+#
+#<quitban threshold="10" duration="10m">
+# This allows for 10 quits in an hour with a 10 minute ban if that is exceeded.
+#
+#<module name="m_quitban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect.
