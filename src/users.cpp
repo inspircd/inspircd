@@ -27,10 +27,11 @@ static unsigned long* already_sent = NULL;
 void InitializeAlreadySent(SocketEngine* SE)
 {
 	already_sent = new unsigned long[SE->GetMaxFds()];
+	memset(already_sent, 0, sizeof(already_sent));
 }
 
 /* XXX: Used for speeding up WriteCommon operations */
-unsigned long uniq_id = 0;
+unsigned long uniq_id = 1;
 
 std::string User::ProcessNoticeMasks(const char *sm)
 {
