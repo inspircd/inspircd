@@ -57,7 +57,11 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 
 			/* all done, send it on its way */
 			params[3] = ":" + params[3];
-			Utils->DoOneToAllButSender(source,"FTOPIC",params,nsource);
+			User* u = Instance->FindNick(nsource);
+			if (u)
+				Utils->DoOneToAllButSender(u->uuid,"FTOPIC",params,u->server);
+			else
+				Utils->DoOneToAllButSender(source,"FTOPIC",params,nsource);
 		}
 
 	}
