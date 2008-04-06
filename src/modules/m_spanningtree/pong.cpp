@@ -72,6 +72,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 				gettimeofday(&t, NULL);
 				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 				ServerSource->rtt = ts - ServerSource->LastPingMsec;
+				ServerSource->SetPingFlag();
 			}
 		}
 		else
