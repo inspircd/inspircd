@@ -517,7 +517,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "ENCAP")
 			{
-				ServerSource->FinishBurst();
 				return this->Encap(prefix, params);
 			}
 			else if (command == "MODE")
