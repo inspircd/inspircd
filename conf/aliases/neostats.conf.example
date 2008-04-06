@@ -1,0 +1,26 @@
+# Aliases for BLSB, ConnectServ, FloodServ, NeoStats, Operlog, QuoteServ, SecureServ, SeenServ, TextServ, WarServ & YahtzeeServ
+<alias text="BLSB" replace="PRIVMSG BLSB :$2-" requires="BLSB" uline="yes" operonly="yes">
+<alias text="CONNECTSERV" replace="PRIVMSG ConnectServ :$2-" requires="ConnectServ" uline="yes" operonly="yes">
+<alias text="FLOODSERV" replace="PRIVMSG FloodServ :$2-" requires="FloodServ" uline="yes" operonly="yes">
+<alias text="NEOSTATS" replace="PRIVMSG NeoStats :$2-" requires="NeoStats" uline="yes" operonly="yes">
+<alias text="OPERLOG" replace="PRIVMSG Operlog :$2-" requires="Operlog" uline="yes" operonly="yes">
+<alias text="QUOTESERV" replace="PRIVMSG QuoteServ :$2-" requires="QuoteServ" uline="yes" operonly="yes">
+<alias text="SECURESERV" replace="PRIVMSG SecureServ :$2-" requires="SecureServ" uline="yes" operonly="yes">
+<alias text="SEENSERV" replace="PRIVMSG SeenServ :$2-" requires="SeenServ" uline="yes" operonly="yes">
+<alias text="TEXTSERV" replace="PRIVMSG TextServ :$2-" requires="TextServ" uline="yes" operonly="yes">
+<alias text="WARSERV" replace="PRIVMSG WarServ :$2-" requires="WarServ" uline="yes">
+<alias text="YAHTZEESERV" replace="PRIVMSG YahtzeeServ :$2-" requires="YahtzeeServ" uline="yes" operonly="yes">
+
+# Shorthand aliases for FloodServ, Operlog, QuoteServ, TextServ, WarServ, YahtzeeServ, SecureServ, SeenServ, NeoStats & ConnectServ
+<alias text="FS" replace="PRIVMSG FloodServ :$2-" requires="FloodServ" uline="yes" operonly="yes">
+<alias text="OL" replace="PRIVMSG Operlog :$2-" requires="Operlog" uline="yes" operonly="yes">
+<alias text="QS" replace="PRIVMSG QuoteServ :$2-" requires="QuoteServ" uline="yes" operonly="yes">
+<alias text="TS" replace="PRIVMSG TextServ :$2-" requires="TextServ" uline="yes" operonly="yes">
+<alias text="WS" replace="PRIVMSG WarServ :$2-" requires="WarServ" uline="yes">
+<alias text="YS" replace="PRIVMSG YahtzeeServ :$2-" requires="YahtzeeServ" uline="yes" operonly="yes">
+
+<alias text="SECURE" replace="PRIVMSG SecureServ :$2-" requires="SecureServ" uline="yes" operonly="yes">
+<alias text="SEEN" replace="PRIVMSG SeenServ :$2-" requires="SeenServ" uline="yes" operonly="yes">
+<alias text="NEO" replace="PRIVMSG NeoStats :$2-" requires="NeoStats" uline="yes" operonly="yes">
+<alias text="CONN" replace="PRIVMSG ConnectServ :$2-" requires="ConnectServ" uline="yes" operonly="yes">
+
