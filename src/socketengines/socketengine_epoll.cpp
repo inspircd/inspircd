@@ -19,6 +19,7 @@
 
 EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
+	MAX_DESCRIPTORS = 0;
 	EngineHandle = epoll_create(GetMaxFds());
 
 	if (EngineHandle == -1)
