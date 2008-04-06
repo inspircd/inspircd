@@ -70,7 +70,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	ServerUserCount = ServerOperCount = 0;
 	this->SetNextPingTime(time(NULL) + Utils->PingFreq);
 	this->SetPingFlag();
-	DupError = false;
+	Warned = DupError = false;
 	StartBurst = rtt = 0;
 
 	timeval t;
