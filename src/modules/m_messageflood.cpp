@@ -240,13 +240,16 @@ class ModuleMsgFlood : public Module
 
 					ServerInstance->PI->SendModeStr(dest->name, std::string("+b ") + user->MakeWildHost());
 				}
+
 				char kickmessage[MAXBUF];
 				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
+
 				if (!dest->ServerKickUser(user, kickmessage, true))
 				{
 					delete dest;
-					return 1;
 				}
+
+				return 1;
 			}
 		}
 		
