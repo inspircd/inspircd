@@ -41,11 +41,13 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 		
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
 void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char matrix[128][128], float &totusers, float &totservers)
-{	       
+{
+	ServerInstance->Logs->Log("map",DEBUG,"ShowMap depth %d totusers %0.2f totservers %0.2f", depth, totusers, totservers);
 	if (line < 128)
 	{	       
 		for (int t = 0; t < depth; t++)
 		{
+			ServerInstance->Logs->Log("map",DEBUG,"Zero to depth");
 			matrix[line][t] = ' ';
 		}
        
@@ -83,6 +85,8 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		strlcpy(&matrix[line][depth],text,126);
 		line++;
 
+		ServerInstance->Logs->Log("map",DEBUG,"Increment line to %d", line);
+
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
 			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
@@ -111,6 +115,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 // from the nodes. This is not only friendlier on CPU it uses less stack.
 int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User* user)
 {
+	ServerInstance->Logs->Log("map",DEBUG,"HandleMap");
 	if (pcnt > 0)
 	{
 		ServerInstance->Logs->Log("remotemap", DEBUG, "remote map request for %s", parameters[0]);
@@ -149,7 +154,7 @@ int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User*
 	// client does not provide for a proper terminal.
 	float totusers = 0;
 	float totservers = 0;
-	char matrix[128][128];
+	static char matrix[128][128];
 
 	for (unsigned int t = 0; t < 128; t++)
 	{
@@ -202,6 +207,7 @@ int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User*
 	// dump the whole lot to the user.
 	if (IS_LOCAL(user))
 	{
+		ServerInstance->Logs->Log("map",DEBUG,"local");
 		for (int t = 0; t < line; t++)
 		{
 			user->WriteNumeric(6, "%s :%s",user->nick,&matrix[t][0]);
@@ -213,9 +219,12 @@ int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User*
 	{
 
 		//void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string &rawline)
+		//
+		ServerInstance->Logs->Log("map", DEBUG, "remote dump lines=%d", line);
 
 		for (int t = 0; t < line; t++)
 		{
+			ServerInstance->Logs->Log("map",DEBUG,"Dump %d", line);
 			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + &matrix[t][0]);
 		}
 
