@@ -92,16 +92,16 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 			ServerInstance->Logs->Log("map",DEBUG,"Hidden? %d HideULines? %d GetName %s", Current->GetChild(q)->Hidden, Utils->HideULines, Current->GetChild(q)->GetName().c_str());
 			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
 			{
-				if (*user->oper || !IS_LOCAL(user))
+				if (*user->oper)
 				{
-					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper || !IS_LOCAL(user))) ? depth : depth+2,matrix,totusers,totservers);
+					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
 					ServerInstance->Logs->Log("map",DEBUG,"Show to oper");
 				}
 				ServerInstance->Logs->Log("map",DEBUG,"Fall through");
 			}
 			else
 			{
-				ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper || !IS_LOCAL(user))) ? depth : depth+2,matrix,totusers,totservers);
+				ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
 				ServerInstance->Logs->Log("map",DEBUG,"Show to non oper");
 			}
 		}
@@ -121,7 +121,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User* user)
 {
 	ServerInstance->Logs->Log("map",DEBUG,"HandleMap");
-	if ((pcnt > 0) && (IS_OPER(user)))
+	if (pcnt > 0)
 	{
 		ServerInstance->Logs->Log("remotemap", DEBUG, "remote map request for %s", parameters[0]);
 
