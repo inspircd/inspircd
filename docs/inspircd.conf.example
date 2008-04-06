@@ -2422,6 +2422,14 @@
 # Sets the maximum number of entries on a user's watch list.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# XLine database: Stores all *Lines (G/Z/K/R/any added by other modules)
+# in a file "xline.db" which can be re-loaded on restart. This is useful
+# for two reasons: it keeps bans so users may not evade them, and on
+# bigger networks, server connections will take less time as there will
+# be a lot less bans to apply - as most of them will already be there.
+#<module name="m_xline_db.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # XMLSocket module: Adds support for connections using the shockwave
 # flash XMLSocket. Note that this does not work if the client you are
 # using has retarded ideas of the IRC protocol. Your client must still
