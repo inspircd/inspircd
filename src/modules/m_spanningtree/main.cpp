@@ -181,44 +181,6 @@ std::string ModuleSpanningTree::TimeToStr(time_t secs)
 
 void ModuleSpanningTree::DoPingChecks(time_t curtime)
 {
-	for (unsigned int j = 0; j < Utils->TreeRoot->ChildCount(); j++)
-	{
-		TreeServer* serv = Utils->TreeRoot->GetChild(j);
-		TreeSocket* sock = serv->GetSocket();
-		if (sock)
-		{
-			if (curtime >= serv->NextPingTime())
-			{
-				if (serv->AnsweredLastPing())
-				{
-					sock->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" PING "+serv->GetID());
-					serv->SetNextPingTime(curtime + Utils->PingFreq);
-					timeval t;
-					gettimeofday(&t, NULL);
-					long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
-					serv->LastPingMsec = ts;
-					serv->Warned = false;
-				}
-				else
-				{
-					/* they didnt answer, boot them */
-					sock->SendError("Ping timeout");
-					sock->Squit(serv,"Ping timeout");
-					ServerInstance->SE->DelFd(sock);
-					sock->Close();
-					return;
-				}
-			}
-			else if ((Utils->PingWarnTime) && (!serv->Warned) && (curtime >= serv->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!serv->AnsweredLastPing()))
-			{
-				/* The server hasnt responded, send a warning to opers */
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", serv->GetName().c_str(), Utils->PingWarnTime);
-				serv->Warned = true;
-			}
-		}
-	}
-
-
 	/*
 	 * Cancel remote burst mode on any servers which still have it enabled due to latency/lack of data.
 	 * This prevents lost REMOTECONNECT notices
@@ -229,13 +191,62 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 
 	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
 	{
-		if (i->second->bursting)
+		TreeServer *s = i->second;
+
+		if (s->bursting)
 		{
-			unsigned long bursttime = ts - i->second->StartBurst;
+			unsigned long bursttime = ts - s->StartBurst;
 			if (bursttime > 60000) // A minute
 			{
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst.", i->second->GetName().c_str());
-				i->second->FinishBurst();
+				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst.", s->GetName().c_str());
+				s->FinishBurst();
+			}
+		}
+
+		// Now do PING checks on all servers
+		TreeServer *mts = Utils->BestRouteTo(s->GetID());
+
+		if (mts)
+		{
+			// Only ping if this server needs one
+			if (curtime >= s->NextPingTime())
+			{
+				// And if they answered the last
+				if (s->AnsweredLastPing())
+				{
+					// They did, send a ping to them
+					s->SetNextPingTime(curtime + Utils->PingFreq);
+					TreeSocket *tsock = mts->GetSocket();
+
+					// ... if we can find a proper route to them
+					if (tsock)
+					{
+						tsock->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " + 
+								ServerInstance->Config->GetSID() + " " + s->GetID());
+						s->LastPingMsec = ts;
+					}
+				}
+				else
+				{
+					// They didn't answer the last ping, if they are locally connected, get rid of them.
+					TreeSocket *sock = s->GetSocket();
+					if (sock)
+					{
+						sock->SendError("Ping timeout");
+						sock->Squit(s,"Ping timeout");
+						ServerInstance->SE->DelFd(sock);
+						sock->Close();
+						return;
+					}
+				}
+			}
+
+			// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
+			if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
+			{
+				/* The server hasnt responded, send a warning to opers */
+				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
+				s->Warned = true;
 			}
 		}
 	}

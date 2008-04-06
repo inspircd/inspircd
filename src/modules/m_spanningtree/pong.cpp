@@ -63,6 +63,16 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 			{
 				u->WriteServ("PONG %s %s",params[0].c_str(),params[1].c_str());
 			}
+
+			TreeServer *ServerSource = Utils->FindServer(params[0]);
+
+			if (ServerSource)
+			{
+				timeval t;
+				gettimeofday(&t, NULL);
+				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+				ServerSource->rtt = ts - ServerSource->LastPingMsec;
+			}
 		}
 		else
 		{
