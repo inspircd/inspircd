@@ -85,22 +85,27 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		strlcpy(&matrix[line][depth],text,126);
 		line++;
 
-		ServerInstance->Logs->Log("map",DEBUG,"Increment line to %d", line);
+		ServerInstance->Logs->Log("map",DEBUG,"Increment line to %d, ChildCount %d", line, Current->ChildCount());
 
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
+			ServerInstance->Logs->Log("map",DEBUG,"Hidden? %d HideULines? %d GetName %s", Current->GetChild(q)->Hidden, Utils->HideULines, Current->GetChild(q)->GetName().c_str());
 			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
 			{
 				if (*user->oper)
 				{
 					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
+					ServerInstance->Logs->Log("map",DEBUG,"Show to oper");
 				}
+				ServerInstance->Logs->Log("map",DEBUG,"Fall through");
 			}
 			else
 			{
 				ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
+				ServerInstance->Logs->Log("map",DEBUG,"Show to non oper");
 			}
 		}
+		ServerInstance->Logs->Log("map",DEBUG,"After loop");
 	}
 }
 
@@ -228,7 +233,7 @@ int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User*
 			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + &matrix[t][0]);
 		}
 
-		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(totservers) + (totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + (totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
+		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(totservers) + " user"+(totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + " server"+(totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
 		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 007 " + user->nick + " :End of /MAP");
 	}
 
