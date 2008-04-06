@@ -256,8 +256,9 @@ class ModuleMsgFlood : public Module
 				if (!dest->ServerKickUser(user, kickmessage, true))
 				{
 					delete dest;
-					return 1;
 				}
+
+				return 1;
 			}
 		}
 		
