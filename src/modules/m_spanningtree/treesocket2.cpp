@@ -363,7 +363,14 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "MAP")
 			{
-				return Utils->Creator->HandleMap(prefix, params);
+				User* user = Instance->FindNick(prefix);
+				if (user)
+				{
+					const char* ptrs[127];
+					for (size_t n = 0; (n < params.size()) && (n < 127); ++n)
+						ptrs[n] = params[n].c_str();
+					return Utils->Creator->HandleMap(ptrs, params.size(), user);
+				}
 			}
 			else if (command == "SERVER")
 			{
