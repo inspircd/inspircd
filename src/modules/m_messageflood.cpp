@@ -236,7 +236,7 @@ class ModuleMsgFlood : public Module
 					parameters[0] = dest->name;
 					parameters[1] = "+b";
 					parameters[2] = user->MakeWildHost();
-					ServerInstance->SendMode(parameters,3,user);
+					ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
 
 					ServerInstance->PI->SendModeStr(dest->name, std::string("+b ") + user->MakeWildHost());
 				}
