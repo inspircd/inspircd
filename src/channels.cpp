@@ -20,7 +20,7 @@
 
 Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : ServerInstance(Instance)
 {
-	chan_hash::iterator findchan = ServerInstance->chanlist->find(name);
+	chan_hash::iterator findchan = ServerInstance->chanlist->find(cname);
 	if (findchan != Instance->chanlist->end())
 		throw CoreException("Cannot create duplicate channel " + cname);
 
