@@ -61,8 +61,7 @@ int ModuleSpanningTree::OnPreCommand(const std::string &command, const char* con
 	}
 	else if (command == "MAP")
 	{
-		this->HandleMap(parameters,pcnt,user);
-		return 1;
+		return this->HandleMap(parameters,pcnt,user);
 	}
 	else if ((command == "TIME") && (pcnt > 0))
 	{

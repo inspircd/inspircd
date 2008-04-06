@@ -109,8 +109,41 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 // and divisons, we instead render the map onto a backplane of characters
 // (a character matrix), then draw the branches as a series of "L" shapes
 // from the nodes. This is not only friendlier on CPU it uses less stack.
-void ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User* user)
 {
+	if (pcnt > 0)
+	{
+		ServerInstance->Logs->Log("remotemap", DEBUG, "remote map request for %s", parameters[0]);
+
+		/* Remote MAP, the server is within the 1st parameter */
+		TreeServer* s = Utils->FindServerMask(parameters[0]);
+		bool ret = false;
+		if (!s)
+		{
+			ServerInstance->Logs->Log("remotemap", DEBUG, "lolnoserver %s", parameters[0]);
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+			ret = true;
+		}
+		else if (s && s != Utils->TreeRoot)
+		{
+			ServerInstance->Logs->Log("remotemap", DEBUG, "lol routing to %s", parameters[0]);
+			std::deque<std::string> params;
+			params.push_back(parameters[0]);
+
+			params[0] = s->GetName();
+			Utils->DoOneToOne(user->uuid, "MAP", params, s->GetName());
+			ret = true;
+		}
+		else
+		{
+			ServerInstance->Logs->Log("remotemap", DEBUG, "lol it's me");
+		}
+
+		// Don't return if s == Utils->TreeRoot (us)
+		if (ret)
+			return 1;
+	}
+
 	// This array represents a virtual screen which we will
 	// "scratch" draw to, as the console device of an irc
 	// client does not provide for a proper terminal.
@@ -164,14 +197,32 @@ void ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User
 		}
 	}
 
-	// dump the whole lot to the user. This is the easy bit, honest.
-	for (int t = 0; t < line; t++)
-	{
-		user->WriteNumeric(6, "%s :%s",user->nick,&matrix[t][0]);
-	}
 	float avg_users = totusers / totservers;
-	user->WriteNumeric(270, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
-	user->WriteNumeric(7, "%s :End of /MAP",user->nick);
-	return;
+
+	// dump the whole lot to the user.
+	if (IS_LOCAL(user))
+	{
+		for (int t = 0; t < line; t++)
+		{
+			user->WriteNumeric(6, "%s :%s",user->nick,&matrix[t][0]);
+		}
+		user->WriteNumeric(270, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+		user->WriteNumeric(7, "%s :End of /MAP",user->nick);
+	}
+	else
+	{
+
+		//void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string &rawline)
+
+		for (int t = 0; t < line; t++)
+		{
+			ServerInstance->PI->PushToClient(user, std::string("6 ") + user->nick + " :" + &matrix[t][0]);
+		}
+
+		ServerInstance->PI->PushToClient(user, std::string("270 ") + user->nick + " :" + ConvToStr(totservers) + (totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + (totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
+		ServerInstance->PI->PushToClient(user, std::string("7 ") + user->nick + " :End of /MAP");
+	}
+
+	return 1;
 }
 

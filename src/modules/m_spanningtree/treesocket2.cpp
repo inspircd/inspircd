@@ -361,6 +361,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Admin(prefix, params);
 			}
+			else if (command == "MAP")
+			{
+				return Utils->Creator->HandleMap(prefix, params);
+			}
 			else if (command == "SERVER")
 			{
 				return this->RemoteServer(prefix,params);

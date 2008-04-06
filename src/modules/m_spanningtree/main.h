@@ -94,7 +94,7 @@ class ModuleSpanningTree : public Module
 
 	/** Handle MAP command
 	 */
-	void HandleMap(const char* const* parameters, int pcnt, User* user);
+	int HandleMap(const char* const* parameters, int pcnt, User* user);
 
 	/** Handle SQUIT
 	 */
