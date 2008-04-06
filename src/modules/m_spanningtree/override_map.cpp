@@ -216,11 +216,11 @@ int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User*
 
 		for (int t = 0; t < line; t++)
 		{
-			ServerInstance->PI->PushToClient(user, std::string("6 ") + user->nick + " :" + &matrix[t][0]);
+			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + &matrix[t][0]);
 		}
 
-		ServerInstance->PI->PushToClient(user, std::string("270 ") + user->nick + " :" + ConvToStr(totservers) + (totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + (totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
-		ServerInstance->PI->PushToClient(user, std::string("7 ") + user->nick + " :End of /MAP");
+		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(totservers) + (totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + (totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
+		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 007 " + user->nick + " :End of /MAP");
 	}
 
 	return 1;
