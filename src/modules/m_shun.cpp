@@ -166,6 +166,9 @@ class ModuleShun : public Module
 
 		mycommand = new cmd_shun(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+
+		Implementation eventlist[] = { I_OnStats, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleShun()
@@ -173,11 +176,6 @@ class ModuleShun : public Module
 		ServerInstance->XLines->UnregisterFactory(f);
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnPreCommand] = List[I_OnStats] = 1;
-	}
-	
 	virtual int OnStats(char symbol, User* user, string_list& out)
 	{
 		// XXX write me
