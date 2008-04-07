@@ -79,7 +79,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		}
 
 		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
-		snprintf(text, 126, "%s %s%5d [%5.2f%%]%s", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
+		snprintf(text, 126, "%s (%s)%s%5d [%5.2f%%]%s", Current->GetName().c_str(), Current->GetID().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
 		totusers += Current->GetUserCount();
 		totservers++;
 		strlcpy(&matrix[line][depth],text,126);
@@ -120,33 +120,24 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 // from the nodes. This is not only friendlier on CPU it uses less stack.
 int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User* user)
 {
-	ServerInstance->Logs->Log("map",DEBUG,"HandleMap");
 	if (pcnt > 0)
 	{
-		ServerInstance->Logs->Log("remotemap", DEBUG, "remote map request for %s", parameters[0]);
-
 		/* Remote MAP, the server is within the 1st parameter */
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		bool ret = false;
 		if (!s)
 		{
-			ServerInstance->Logs->Log("remotemap", DEBUG, "lolnoserver %s", parameters[0]);
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
 			ret = true;
 		}
 		else if (s && s != Utils->TreeRoot)
 		{
-			ServerInstance->Logs->Log("remotemap", DEBUG, "lol routing to %s", parameters[0]);
 			std::deque<std::string> params;
 			params.push_back(parameters[0]);
 
 			params[0] = s->GetName();
 			Utils->DoOneToOne(user->uuid, "MAP", params, s->GetName());
 			ret = true;
-		}
-		else
-		{
-			ServerInstance->Logs->Log("remotemap", DEBUG, "lol it's me");
 		}
 
 		// Don't return if s == Utils->TreeRoot (us)
