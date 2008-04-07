@@ -539,7 +539,7 @@ long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents,
 		}
 	}
 
-	if (servername == NULL)
+	if (servername == NULL || ServerInstance->Config->HideWhoisServer)
 		servername = ServerInstance->Config->ServerName;
 
 	if (triggerevents)
