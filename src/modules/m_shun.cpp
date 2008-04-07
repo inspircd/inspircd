@@ -161,7 +161,7 @@ class ModuleShun : public Module
 		if((command != "PONG") && (command != "PING"))
 		{
 			// Don't let them issue cmd if they are shunned..
-			XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
+			XLine *rl = ServerInstance->XLines->MatchesLine("S", user);
 
 			if (rl)
 			{
