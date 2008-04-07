@@ -15,7 +15,7 @@ class Shun : public XLine
 public:
 	std::string matchtext;
 
-	Shun(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char *shunmask) : XLine(Instance, s_time, d, src, re, "S")
+	Shun(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char *shunmask) : XLine(Instance, s_time, d, src, re, "SHUN")
 	{
 		this->matchtext = shunmask;
 	}
@@ -32,9 +32,10 @@ public:
 		return false;
 	}
 
-	// XXX unused, why do we *have* to implement this
 	bool Matches(const std::string &s)
 	{
+		if (matchtext == s)
+			return true;
 		return false;
 	}
 
