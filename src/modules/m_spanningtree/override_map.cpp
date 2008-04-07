@@ -14,30 +14,20 @@
 /* $ModDesc: Provides a spanning tree server link protocol */
 		
 #include "inspircd.h"
-#include "commands/cmd_whois.h"
-#include "commands/cmd_stats.h"
-#include "socket.h"
 #include "wildcard.h"
-#include "xline.h"      
-#include "transport.h"  
-			
-#include "m_spanningtree/timesynctimer.h"
-#include "m_spanningtree/resolvers.h"
+
 #include "m_spanningtree/main.h"
 #include "m_spanningtree/utils.h"
 #include "m_spanningtree/treeserver.h"
-#include "m_spanningtree/link.h"
 #include "m_spanningtree/treesocket.h"
-#include "m_spanningtree/rconnect.h"
-#include "m_spanningtree/rsquit.h"
 
-/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
+/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
-{		       
+{
 	time_t secs_up = ServerInstance->Time() - Current->age;
-	return (" [Up: " + TimeToStr(secs_up) + " Lag: "+ConvToStr(Current->rtt)+"ms]");
-}	       
+	return (" [Up: " + TimeToStr(secs_up) + " Lag: " + (Current->rtt == 0 ? "<1ms" : ConvToStr(Current->rtt)) + "ms]");
+}
 		
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
 void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char matrix[128][128], float &totusers, float &totservers)
