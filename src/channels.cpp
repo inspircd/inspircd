@@ -184,6 +184,7 @@ CUList* Channel::GetVoicedUsers()
 
 void Channel::SetDefaultModes()
 {
+	ServerInstance->Logs->Log("CHANNELS", DEBUG, "SetDefaultModes %s", ServerInstance->Config->DefaultModes);
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
 	std::string modeseq;
 	std::string parameter;
@@ -357,7 +358,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 	}
 
 	/* As spotted by jilles, dont bother to set this on remote users */
-	if (IS_LOCAL(user) && Ptr->GetUserCounter() == 1)
+	if (IS_LOCAL(user) && Ptr->GetUserCounter() == 0)
 		Ptr->SetDefaultModes();
 
 	return Channel::ForceChan(Instance, Ptr, user, privs, bursting);
