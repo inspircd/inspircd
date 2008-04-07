@@ -56,6 +56,27 @@ public:
 	}
 };
 
+/** An XLineFactory specialized to generate shun pointers
+ */
+class ShunFactory : public XLineFactory
+{
+ public:
+	ShunFactory(InspIRCd* Instance) : XLineFactory(Instance, "SHUN") { }
+
+	/** Generate a shun
+ 	*/
+	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	{
+		return new Shun(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+	}
+
+	virtual bool AutoApplyToUserList(XLine*)
+	{
+		// No, we don't want to be applied to users automagically.
+		return false;
+	}
+};
+
 //typedef std::vector<Shun> shunlist;
 
 class cmd_shun : public Command
@@ -135,12 +156,21 @@ class cmd_shun : public Command
 class ModuleShun : public Module
 {
 	cmd_shun* mycommand;
+	ShunFactory *f;
 
  public:
 	ModuleShun(InspIRCd* Me) : Module(Me)
 	{
+		f = new ShunFactory(ServerInstance);
+		ServerInstance->XLines->RegisterFactory(f);
+
 		mycommand = new cmd_shun(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+	}
+
+	virtual ~ModuleShun()
+	{
+		ServerInstance->XLines->UnregisterFactory(f);
 	}
 
 	void Implements(char* List)
@@ -174,10 +204,6 @@ class ModuleShun : public Module
 		}
 
 		return 0;
-	}
-
-	virtual ~ModuleShun()
-	{
 	}
 
 	virtual Version GetVersion()
