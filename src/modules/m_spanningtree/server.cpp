@@ -48,9 +48,10 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	std::string sid = params[3];
 	std::string description = params[4];
 	TreeServer* ParentOfThis = Utils->FindServer(prefix);
+
 	if (!ParentOfThis)
 	{
-		this->SendError("Protocol error - Introduced remote server from unknown server "+prefix);
+		this->SendError("Protocol error - Introduced remote server from unknown server "+ParentOfThis->GetName());
 		return false;
 	}
 	if (!this->Instance->IsSID(sid))
@@ -61,8 +62,8 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	TreeServer* CheckDupe = Utils->FindServer(servername);
 	if (CheckDupe)
 	{
-		this->SendError("Server "+servername+" already exists!");
-		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + prefix + "\2 denied, already exists. Closing link with " + prefix);
+		this->SendError("Server "+CheckDupe->GetName()+" already exists!");
+		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
 		return false;
 	}
 
@@ -72,15 +73,15 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 
 	if (Node->DuplicateID())
 	{
-		this->SendError("Server ID "+sid+" already exists on the network!");
-		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + prefix + "\2 denied, server ID already exists on the network. Closing link with " + prefix);
+		this->SendError("Server ID "+servername+" already exists on the network!");
+		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
 		return false;
 	}
 
 	ParentOfThis->AddChild(Node);
 	params[4] = ":" + params[4];
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
-	this->Instance->SNO->WriteToSnoMask('l',"Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
+	this->Instance->SNO->WriteToSnoMask('l',"Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
 	return true;
 }
 
