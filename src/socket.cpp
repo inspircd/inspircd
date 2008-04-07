@@ -20,6 +20,12 @@
 
 using namespace irc::sockets;
 
+/* Private static member data must be initialized in this manner */
+unsigned int ListenSocket::socketcount = 0;
+sockaddr* ListenSocket::sock_us = NULL;
+sockaddr* ListenSocket::client = NULL;
+sockaddr* ListenSocket::raddr = NULL;
+
 /* Used when comparing CIDR masks for the modulus bits left over.
  * A lot of ircd's seem to do this:
  * ((-1) << (8 - (mask % 8)))
@@ -51,6 +57,15 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int port, char* addr) : ServerIns
 		this->family = AF_INET;
 		Instance->SE->AddFd(this);
 	}
+	/* Saves needless allocations */
+	if (socketcount == 0)
+	{
+		/* All instances of ListenSocket share these, so reference count it */
+		sock_us = new sockaddr[2];
+		client = new sockaddr[2];
+		raddr = new sockaddr[2];
+	}
+	socketcount++;
 }
 
 ListenSocket::~ListenSocket()
@@ -63,25 +78,19 @@ ListenSocket::~ListenSocket()
 			ServerInstance->Logs->Log("SOCKET", DEBUG,"Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
+	socketcount--;
+	if (socketcount == 0)
+	{
+		delete[] sock_us;
+		delete[] client;
+		delete[] raddr;
+	}
 }
-
-
-// XXX this is a bit of an untidy way to avoid reallocating this constantly. also, we leak it on shutdown.. but that's kinda minor - w
-static sockaddr *sock_us;
-static sockaddr *client;
-static bool setup_sock = false;
 
 void ListenSocket::HandleEvent(EventType, int)
 {
 	socklen_t uslen, length;		// length of our port number
 	int incomingSockfd, in_port;
-
-	if (!setup_sock)
-	{
-		sock_us = new sockaddr[2];
-		client = new sockaddr[2];
-		setup_sock = true;
-	}
 
 #ifdef IPV6
 	if (this->family == AF_INET6)
@@ -104,8 +113,6 @@ void ListenSocket::HandleEvent(EventType, int)
 		char target[MAXBUF];
 
 		*target = *buf = '\0';
-
-		sockaddr* raddr = new sockaddr[2];
 
 #ifdef IPV6
 		if (this->family == AF_INET6)
@@ -130,8 +137,6 @@ void ListenSocket::HandleEvent(EventType, int)
 				ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
 
 		}
-
-		delete[] raddr;
 
 		ServerInstance->SE->NonBlocking(incomingSockfd);
 

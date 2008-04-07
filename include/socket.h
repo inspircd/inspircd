@@ -157,6 +157,15 @@ class CoreExport ListenSocket : public EventHandler
 	std::string bind_addr;
 	/** Port socket is bound to */
 	int bind_port;
+
+	static sockaddr *sock_us;
+
+	static sockaddr *client;
+
+	static sockaddr *raddr;
+
+	static unsigned int socketcount;
+
  public:
 	/** Create a new listening socket
 	 */

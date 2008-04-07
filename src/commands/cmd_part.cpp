@@ -37,7 +37,7 @@ CmdResult CommandPart::Handle (const char* const* parameters, int pcnt, User *us
 	}
 	else
 	{
-		reason = pcnt ? parameters[1] : "";
+		reason = pcnt > 1 ? parameters[1] : "";
 	}
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
