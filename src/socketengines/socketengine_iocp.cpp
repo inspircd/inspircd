@@ -17,6 +17,8 @@
 
 IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 {
+	MAX_DESCRIPTORS = 10240;
+
 	/* Create completion port */
 	m_completionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)0, 0);
 

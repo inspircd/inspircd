@@ -19,6 +19,7 @@
 
 PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
+	MAX_DESCRIPTORS = 0;
 	EngineHandle = port_create();
 
 	if (EngineHandle == -1)

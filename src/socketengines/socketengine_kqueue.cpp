@@ -21,6 +21,7 @@
 
 KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
+	MAX_DESCRIPTORS = 0;
 	this->RecoverFromFork();
 	ke_list = new struct kevent[GetMaxFds()];
 	ref = new EventHandler* [GetMaxFds()];

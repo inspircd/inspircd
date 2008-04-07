@@ -20,6 +20,7 @@
 
 SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
+	MAX_DESCRIPTORS = FD_SETSIZE;
 	EngineHandle = 0;
 	CurrentSetSize = 0;
 
