@@ -523,7 +523,7 @@ long Channel::PartUser(User *user, const char* reason)
 	return this->GetUserCounter();
 }
 
-long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents)
+long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents, const char* servername)
 {
 	bool silent = false;
 
@@ -539,6 +539,9 @@ long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents)
 		}
 	}
 
+	if (servername == NULL)
+		servername = ServerInstance->Config->ServerName;
+
 	if (triggerevents)
 	{
 		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL, user, this, reason, silent));
@@ -548,7 +551,7 @@ long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents)
 	if (i != user->chans.end())
 	{
 		if (!silent)
-			this->WriteChannelWithServ(ServerInstance->Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
+			this->WriteChannelWithServ(servername, "KICK %s %s :%s", this->name, user->nick, reason);
 
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);

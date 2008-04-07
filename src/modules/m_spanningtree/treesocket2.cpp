@@ -452,11 +452,12 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size() == 3)
 				{
+					TreeServer* pf = Utils->FindServer(prefix);
 					User* user = this->Instance->FindNick(params[1]);
 					Channel* chan = this->Instance->FindChan(params[0]);
-					if (user && chan)
+					if (pf && user && chan)
 					{
-						if (!chan->ServerKickUser(user, params[2].c_str(), false))
+						if (!chan->ServerKickUser(user, params[2].c_str(), false, pf->GetName().c_str()))
 							/* Yikes, the channels gone! */
 							delete chan;
 					}

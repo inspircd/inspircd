@@ -989,46 +989,35 @@ void User::InvalidateCache()
 
 bool User::ForceNickChange(const char* newnick)
 {
-	/*
-	 * XXX this makes no sense..
-	 * why do we do nothing for change on users not REG_ALL?
-	 * why do we trigger events twice for everyone previously (and just them now)
-	 * i think the first if () needs removing totally, or? -- w00t
-	 */
-	if (this->registered != REG_ALL)
+	int MOD_RESULT = 0;
+
+	this->InvalidateCache();
+
+	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
+
+	if (MOD_RESULT)
 	{
-		int MOD_RESULT = 0;
-
-		this->InvalidateCache();
-
-		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
-
-		if (MOD_RESULT)
-		{
-			ServerInstance->stats->statsCollisions++;
-			return false;
-		}
-
-		if (ServerInstance->XLines->MatchesLine("Q",newnick))
-		{
-			ServerInstance->stats->statsCollisions++;
-			return false;
-		}
-	}
-	else
-	{
-		std::deque<classbase*> dummy;
-		Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
-		if (nickhandler) // wtfbbq, when would this not be here
-		{
-			nickhandler->HandleInternal(1, dummy);
-			bool result = (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
-			nickhandler->HandleInternal(0, dummy);
-			return result;
-		}
+		ServerInstance->stats->statsCollisions++;
+		return false;
 	}
 
-	// Unreachable.
+	if (ServerInstance->XLines->MatchesLine("Q",newnick))
+	{
+		ServerInstance->stats->statsCollisions++;
+		return false;
+	}
+
+	std::deque<classbase*> dummy;
+	Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
+	if (nickhandler) // wtfbbq, when would this not be here
+	{
+		nickhandler->HandleInternal(1, dummy);
+		bool result = (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
+		nickhandler->HandleInternal(0, dummy);
+		return result;
+	}
+
+	// Unreachable, we hope
 	return false;
 }
 
