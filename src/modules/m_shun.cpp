@@ -158,6 +158,9 @@ class ModuleShun : public Module
 
 	virtual int OnPreCommand(const std::string &command, const char* const*parameters, int pcnt, User* user, bool validated, const std::string &original_line)
 	{
+		if (user->registered != REG_ALL)
+			return 0;
+
 		if((command != "PONG") && (command != "PING"))
 		{
 			// Don't let them issue cmd if they are shunned..
@@ -168,7 +171,7 @@ class ModuleShun : public Module
 				return 1;
 			}
 		}
-		
+
 		return 0;
 	}
 
