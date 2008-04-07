@@ -158,7 +158,13 @@ bool XLineManager::AddLine(XLine* line, User* user)
 		return false;
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
-	pending_lines.push_back(line);
+	XLineFactory* xlf = GetFactory(line->type);
+	if (!xlf)
+		return false;
+
+	if (xlf->AutoApplyToUserList(line))
+		pending_lines.push_back(line);
+
 	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
 

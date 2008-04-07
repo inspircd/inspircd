@@ -415,6 +415,8 @@ class CoreExport XLineFactory : public classbase
 	 */
 	virtual XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask) = 0;
 
+	virtual bool AutoApplyToUserList(XLine* x) { return true; }
+
 	/** Destructor
 	 */
 	virtual ~XLineFactory() { }
