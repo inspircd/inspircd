@@ -77,7 +77,7 @@ class cmd_shun : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0], "S", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed R-Line on %s.",user->nick,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed shun on %s.",user->nick,parameters[0]);
 			}
 			else
 			{
