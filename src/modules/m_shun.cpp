@@ -41,7 +41,8 @@ public:
 
 	void Apply(User *u)
 	{
-		// Application is done by the module.
+		if (!u->GetExt("shunned"))
+			u->Extend("shunned");
 	}
 
 
@@ -68,12 +69,6 @@ class ShunFactory : public XLineFactory
 	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
 	{
 		return new Shun(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
-	}
-
-	virtual bool AutoApplyToUserList(XLine*)
-	{
-		// No, we don't want to be applied to users automagically.
-		return false;
 	}
 };
 
@@ -167,8 +162,8 @@ class ModuleShun : public Module
 		mycommand = new cmd_shun(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
-		Implementation eventlist[] = { I_OnStats, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleShun()
@@ -185,6 +180,18 @@ class ModuleShun : public Module
 		return 0;
 	}
 
+	virtual void OnUserConnect(User* user)
+	{
+		// Apply lines on user connect
+		XLine *rl = ServerInstance->XLines->MatchesLine("SHUN", user);
+
+		if (rl)
+		{
+			// Bang. :P
+			rl->Apply(user);
+		}
+	}
+
 	virtual int OnPreCommand(const std::string &command, const char* const*parameters, int pcnt, User* user, bool validated, const std::string &original_line)
 	{
 		if (user->registered != REG_ALL)
@@ -192,13 +199,8 @@ class ModuleShun : public Module
 
 		if((command != "PONG") && (command != "PING"))
 		{
-			// Don't let them issue cmd if they are shunned..
-			XLine *rl = ServerInstance->XLines->MatchesLine("SHUN", user);
-
-			if (rl)
-			{
+			if (user->GetExt("shunned"))
 				return 1;
-			}
 		}
 
 		return 0;
