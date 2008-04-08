@@ -127,43 +127,48 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
-		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password)) || (x->RecvPass == password && (this->GetTheirChallenge().empty()))))
+		if (x->Name != servername && x->Name != "*") // open link allowance
+			continue;
+
+		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge(), password)) ||
+			x->RecvPass != password && !this->GetTheirChallenge().empty())
+			continue;
+
+		TreeServer* CheckDupe = Utils->FindServer(sname);
+		if (CheckDupe)
 		{
-			TreeServer* CheckDupe = Utils->FindServer(sname);
-			if (CheckDupe)
-			{
-				this->SendError("Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
-				return false;
-			}
-
-			/*
-			 * They're in WAIT_AUTH_2 (having accepted our credentials).
-			 * Set our state to CONNECTED (since everything's peachy so far) and send our
-			 * netburst to them, which will trigger their CONNECTED state, and BURST in reply.
-			 *
-			 * While we're at it, create a treeserver object so we know about them.
-			 *   -- w
-			 */
-			this->LinkState = CONNECTED;
-
-			TreeServer *Node = new TreeServer(this->Utils, this->Instance, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
-
-			if (Node->DuplicateID())
-			{
-				this->SendError("Server ID "+sid+" already exists on the network!");
-				this->Instance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
-				return false;
-			}
-
-			Utils->TreeRoot->AddChild(Node);
-			params[4] = ":" + params[4];
-			Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,sname);
-			Node->bursting = true;
-			this->DoBurst(Node);
-			return true;
+			this->SendError("Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+			this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+			return false;
 		}
+
+		/*
+		 * They're in WAIT_AUTH_2 (having accepted our credentials).
+		 * Set our state to CONNECTED (since everything's peachy so far) and send our
+		 * netburst to them, which will trigger their CONNECTED state, and BURST in reply.
+		 *
+		 * While we're at it, create a treeserver object so we know about them.
+		 *   -- w
+		 */
+		this->LinkState = CONNECTED;
+
+		TreeServer *Node = new TreeServer(this->Utils, this->Instance, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
+
+		if (Node->DuplicateID())
+		{
+			this->SendError("Server ID "+sid+" already exists on the network!");
+			this->Instance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
+			return false;
+		}
+
+		Utils->TreeRoot->AddChild(Node);
+		params[4] = ":" + params[4];
+		Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,sname);
+		Node->bursting = true;
+		this->DoBurst(Node);
+		return true;
 	}
+
 	this->SendError("Invalid credentials");
 	this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
@@ -210,42 +215,50 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
-		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password) || x->RecvPass == password && (this->GetTheirChallenge().empty()))))
-		{
-			/* Check for fully initialized instances of the server by id */
-			Instance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
-			TreeServer* CheckDupeSID = Utils->FindServerID(sid);
-			if (CheckDupeSID)
-			{
-				this->SendError("Server ID "+CheckDupeSID->GetID()+" already exists on server "+CheckDupeSID->GetName()+"!");
-				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupeSID->GetID()+
-						"' already exists on server "+CheckDupeSID->GetName());
-				return false;
-			}
-			/* Now check for fully initialized instances of the server by name */
-			TreeServer* CheckDupe = Utils->FindServer(sname);
-			if (CheckDupe)
-			{
-				this->SendError("Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
-				return false;
-			}
-			this->Instance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
-			if (this->Hook)
-			{
-				std::string name = BufferedSocketNameRequest((Module*)Utils->Creator, this->Hook).Send();
-				this->Instance->SNO->WriteToSnoMask('l',"Connection from \2"+sname+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+name+"\2");
-			}
+		if (x->Name != servername && x->Name != "*") // open link allowance
+			continue;
 
-			// this is good. Send our details: Our server name and description and hopcount of 0,
-			// along with the sendpass from this block.
-			this->SendCapabilities();
-			this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
-			// move to the next state, we are now waiting for THEM.
-			this->LinkState = WAIT_AUTH_2;
-			return true;
+		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge(), password)) ||
+			x->RecvPass != password && !this->GetTheirChallenge().empty())
+			continue;
+
+		/* Check for fully initialized instances of the server by id */
+		Instance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
+		TreeServer* CheckDupeSID = Utils->FindServerID(sid);
+
+		if (CheckDupeSID)
+		{
+			this->SendError("Server ID "+CheckDupeSID->GetID()+" already exists on server "+CheckDupeSID->GetName()+"!");
+			this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupeSID->GetID()+
+					"' already exists on server "+CheckDupeSID->GetName());
+			return false;
 		}
+
+		/* Now check for fully initialized instances of the server by name */
+		TreeServer* CheckDupe = Utils->FindServer(sname);
+		if (CheckDupe)
+		{
+			this->SendError("Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+			this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+			return false;
+		}
+
+		this->Instance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
+		if (this->Hook)
+		{
+			std::string name = BufferedSocketNameRequest((Module*)Utils->Creator, this->Hook).Send();
+			this->Instance->SNO->WriteToSnoMask('l',"Connection from \2"+sname+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+name+"\2");
+		}
+
+		// this is good. Send our details: Our server name and description and hopcount of 0,
+		// along with the sendpass from this block.
+		this->SendCapabilities();
+		this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
+		// move to the next state, we are now waiting for THEM.
+		this->LinkState = WAIT_AUTH_2;
+		return true;
 	}
+
 	this->SendError("Invalid credentials");
 	this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
