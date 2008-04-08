@@ -1001,12 +1001,6 @@ bool User::ForceNickChange(const char* newnick)
 		return false;
 	}
 
-	if (ServerInstance->XLines->MatchesLine("Q",newnick))
-	{
-		ServerInstance->stats->statsCollisions++;
-		return false;
-	}
-
 	std::deque<classbase*> dummy;
 	Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
 	if (nickhandler) // wtfbbq, when would this not be here
