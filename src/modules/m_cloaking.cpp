@@ -74,6 +74,7 @@ class CloakUser : public ModeHandler
 
 		/* For remote clients, we dont take any action, we just allow it.
 		 * The local server where they are will set their cloak instead.
+		 * This is fine, as we will recieve it later.
 		 */
 		if (!IS_LOCAL(dest))
 			return MODEACTION_ALLOW;

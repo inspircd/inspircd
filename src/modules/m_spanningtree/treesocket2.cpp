@@ -607,18 +607,20 @@ bool TreeSocket::ProcessLine(std::string &line)
 				switch (this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
 				{
 					case CMD_INVALID:
-						// command is irc::string, hence ugliness
+						/*
+						 * XXX: command is irc::string, hence ugliness
+						 */
 						this->SendError("Unrecognised or malformed command '" + std::string(command.c_str()) + "' -- possibly loaded mismatched modules");
 						return false;
 						break;
-					/*
-					 * CMD_LOCALONLY is aliased to CMD_FAILURE, so this won't go out onto the network.
-					 */
 					case CMD_FAILURE:
+						/*
+						 * CMD_LOCALONLY is aliased to CMD_FAILURE, so this won't go out onto the network.
+						 */
 						return true;
 						break;
 					default:
-						/* CMD_SUCCESS and CMD_USER_DELETED fall through here */
+						/* CMD_SUCCESS falls through here */
 						break;
 				}
 
