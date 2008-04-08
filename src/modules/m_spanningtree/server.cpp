@@ -130,9 +130,12 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 
-		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge()), password) ||
-			(x->RecvPass != password && !this->GetTheirChallenge().empty()))
+		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge()), password) &&
+			(x->RecvPass != password && this->GetTheirChallenge().empty()))
+		{
+			this->Instance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
 			continue;
+		}
 
 		TreeServer* CheckDupe = Utils->FindServer(sname);
 		if (CheckDupe)
@@ -163,7 +166,12 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 
 		Utils->TreeRoot->AddChild(Node);
 		params[4] = ":" + params[4];
+
+
+		/* IMPORTANT: Take password/hmac hash OUT of here before we broadcast the introduction! */
+		params[1] = "*";
 		Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,sname);
+
 		Node->bursting = true;
 		this->DoBurst(Node);
 		return true;
@@ -218,9 +226,12 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 
-		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge()), password) ||
-			(x->RecvPass != password && !this->GetTheirChallenge().empty()))
+		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge()), password) &&
+			(x->RecvPass != password && this->GetTheirChallenge().empty()))
+		{
+			this->Instance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
 			continue;
+		}
 
 		/* Check for fully initialized instances of the server by id */
 		Instance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
