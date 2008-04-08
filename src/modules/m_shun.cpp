@@ -92,7 +92,7 @@ class cmd_shun : public Command
 
 		if(pcnt == 1)
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0], "S", user))
+			if (ServerInstance->XLines->DelLine(parameters[0], "SHUN", user))
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed shun on %s.",user->nick,parameters[0]);
 			}
