@@ -24,7 +24,6 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *user)
 {
-	user->WriteNumeric(382, "%s %s :Rehashing",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 	std::string old_disabled = ServerInstance->Config->DisabledCommands;
 
 	ServerInstance->Logs->Log("fuckingrehash", DEBUG, "parc %d p0 %s", pcnt, parameters[0]);
@@ -47,7 +46,10 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 	// Rehash for me.
 	FOREACH_MOD(I_OnRehash,OnRehash(user, ""));
 
-	std::string m = std::string(user->nick) + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName);
+	// XXX write this to a remote user correctly
+	user->WriteNumeric(382, "%s %s :Rehashing",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
+
+	std::string m = std::string(user->nick) + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
 	ServerInstance->SNO->WriteToSnoMask('A', m);
 	ServerInstance->PI->SendSNONotice("A", m);
 	ServerInstance->Logs->CloseLogs();
