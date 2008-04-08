@@ -130,7 +130,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 
-		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge(), password)) ||
+		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge()), password) ||
 			(x->RecvPass != password && !this->GetTheirChallenge().empty()))
 			continue;
 
@@ -218,7 +218,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 
-		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge(), password)) ||
+		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge()), password) ||
 			(x->RecvPass != password && !this->GetTheirChallenge().empty()))
 			continue;
 
