@@ -683,10 +683,6 @@ void TreeSocket::OnClose()
 
 int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 {
-	/* To prevent anyone from attempting to flood opers/DDoS by connecting to the server port,
-	 * or discovering if this port is the server port, we don't allow connections from any
-	 * IPs for which we don't have a link block.
-	 */
 	bool found = false;
 
 	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), ip) != Utils->ValidIPs.end());
