@@ -60,12 +60,20 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 	}
 	else
 	{
-		XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
-		if (mq)
+		/*
+		 * Don't check Q:Lines if it's a server-enforced change, just on the off-chance some fucking *moron*
+		 * tries to Q:Line SIDs, also, this means we just get our way period, as it really should be.
+		 * Thanks Kein for finding this. -- w00t
+		 */
+		if (!allowinvalid)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0], user->nick, user->ident, user->host, mq->reason);
-			user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick,parameters[0], mq->reason);
-			return CMD_FAILURE;
+			XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
+			if (mq)
+			{
+				ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0], user->nick, user->ident, user->host, mq->reason);
+				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick,parameters[0], mq->reason);
+				return CMD_FAILURE;
+			}
 		}
 
 		/*
