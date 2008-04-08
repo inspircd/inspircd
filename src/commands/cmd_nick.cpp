@@ -64,8 +64,11 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 		 * Don't check Q:Lines if it's a server-enforced change, just on the off-chance some fucking *moron*
 		 * tries to Q:Line SIDs, also, this means we just get our way period, as it really should be.
 		 * Thanks Kein for finding this. -- w00t
+		 *
+		 * Also don't check Q:Lines for remote nickchanges, they should have our Q:Lines anyway to enforce themselves.
+		 *		-- w00t
 		 */
-		if (!allowinvalid)
+		if (!allowinvalid || !IS_LOCAL(user))
 		{
 			XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
 			if (mq)
