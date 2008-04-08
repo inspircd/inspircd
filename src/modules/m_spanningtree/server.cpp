@@ -131,7 +131,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			continue;
 
 		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge(), password)) ||
-			x->RecvPass != password && !this->GetTheirChallenge().empty())
+			(x->RecvPass != password && !this->GetTheirChallenge().empty()))
 			continue;
 
 		TreeServer* CheckDupe = Utils->FindServer(sname);
@@ -219,7 +219,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			continue;
 
 		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge(), password)) ||
-			x->RecvPass != password && !this->GetTheirChallenge().empty())
+			(x->RecvPass != password && !this->GetTheirChallenge().empty()))
 			continue;
 
 		/* Check for fully initialized instances of the server by id */
