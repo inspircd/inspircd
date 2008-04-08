@@ -43,7 +43,9 @@ int ModuleSpanningTree::HandleSquit(const char* const* parameters, int pcnt, Use
 			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
 			return 1;
 		}
+
 		TreeSocket* sock = s->GetSocket();
+
 		if (sock)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
@@ -53,8 +55,7 @@ int ModuleSpanningTree::HandleSquit(const char* const* parameters, int pcnt, Use
 		}
 		else
 		{
-			if (IS_LOCAL(user))
-				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated. Please use RSQUIT instead.",user->nick);
+			user->WriteServ("NOTICE %s :*** SQUIT may not be used to remove remote servers. Please use RSQUIT instead.",user->nick);
 		}
 	}
 	else
