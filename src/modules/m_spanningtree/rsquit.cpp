@@ -33,7 +33,7 @@
 cmd_rsquit::cmd_rsquit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RSQUIT", "o", 1), Creator(Callback), Utils(Util)
 {
 	this->source = "m_spanningtree.so";
-	syntax = "<remote-server-mask> [target-server-mask]";
+	syntax = "<target-server-mask> [reason]";
 }
 
 CmdResult cmd_rsquit::Handle (const char* const* parameters, int pcnt, User *user)
