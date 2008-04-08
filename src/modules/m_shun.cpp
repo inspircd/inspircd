@@ -182,6 +182,9 @@ class ModuleShun : public Module
 
 	virtual void OnUserConnect(User* user)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("SHUN", user);
 
@@ -194,9 +197,6 @@ class ModuleShun : public Module
 
 	virtual int OnPreCommand(const std::string &command, const char* const*parameters, int pcnt, User* user, bool validated, const std::string &original_line)
 	{
-		if (user->registered != REG_ALL)
-			return 0;
-
 		if((command != "PONG") && (command != "PING"))
 		{
 			if (user->GetExt("shunned"))
