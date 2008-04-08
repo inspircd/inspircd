@@ -691,8 +691,13 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 	if (!found)
 	{
 		for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
-			if (irc::sockets::MatchCIDR(ip, (*i).c_str()))
+		{
+			if ((*i) == "*" || irc::sockets::MatchCIDR(ip, (*i).c_str()))
+			{
 				found = true;
+				break;
+			}
+		}
 
 		if (!found)
 		{

@@ -484,18 +484,18 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if (L.Name != ServerInstance->Config->ServerName)
 		{
+			if (L.Name.find('.') == std::string::npos)
+				throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
+
+			if (L.Name.length() > 64)
+				throw CoreException("The link name '"+assign(L.Name)+"' is longer than 64 characters!");
+
 			if ((!L.IPAddr.empty()) && (!L.RecvPass.empty()) && (!L.SendPass.empty()) && (!L.Name.empty()) && (L.Port))
 			{
-				if (L.Name.find('.') == std::string::npos)
-					throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
-
-				if (L.Name.length() > 64)
-					throw CoreException("The link name '"+assign(L.Name)+"' is longer than 64 characters!");
-
-				ValidIPs.push_back(L.IPAddr);
-
 				if (Allow.length())
 					ValidIPs.push_back(Allow);
+
+				ValidIPs.push_back(L.IPAddr);
 
 				/* Needs resolving */
 				bool ipvalid = true;
@@ -532,32 +532,39 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					{
 					}
 				}
-
-				LinkBlocks.push_back(L);
 			}
 			else
 			{
 				if (L.IPAddr.empty())
 				{
-					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', IP address not defined!");
+					L.IPAddr = "*";
+					ValidIPs.push_back("*");
+					ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 				}
-				else if (L.RecvPass.empty())
+
+				if (L.RecvPass.empty())
 				{
 					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', recvpass not defined!");
 				}
-				else if (L.SendPass.empty())
+
+				if (L.SendPass.empty())
 				{
 					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', sendpass not defined!");
 				}
-				else if (L.Name.empty())
+
+				if (L.Name.empty())
 				{
 					throw CoreException("Invalid configuration, link tag without a name! IP address: "+L.IPAddr);
 				}
-				else if (!L.Port)
+
+				if (!L.Port)
 				{
-					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', no port specified!");
+					ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no port defined, you will not be able to /connect it.");
 				}
 			}
+
+
+			LinkBlocks.push_back(L);
 		}
 		else
 		{
