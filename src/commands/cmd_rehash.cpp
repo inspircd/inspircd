@@ -25,34 +25,60 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *user)
 {
 	user->WriteNumeric(382, "%s %s :Rehashing",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
-	std::string parameter;
 	std::string old_disabled = ServerInstance->Config->DisabledCommands;
-	if (pcnt)
+
+	ServerInstance->Logs->Log("fuckingrehash", DEBUG, "parc %d p0 %s", pcnt, parameters[0]);
+	if (pcnt && parameters[0][0] != '-')
 	{
-		parameter = parameters[0];
+		if (!ServerInstance->MatchText(ServerInstance->Config->ServerName, parameters[0]))
+		{
+			ServerInstance->Logs->Log("fuckingrehash", DEBUG, "rehash for a server, and not for us");
+			FOREACH_MOD(I_OnRehash,OnRehash(user, parameters[0]));
+			return CMD_SUCCESS; // rehash for a server, and not for us
+		}
+	}
+	else if (pcnt)
+	{
+		ServerInstance->Logs->Log("fuckingrehash", DEBUG, "rehash for a subsystem, ignoring");
+		FOREACH_MOD(I_OnRehash,OnRehash(user, parameters[0]));
+		return CMD_SUCCESS;
+	}
+
+	// Rehash for me.
+	FOREACH_MOD(I_OnRehash,OnRehash(user, ""));
+
+	std::string m = std::string(user->nick) + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName);
+	ServerInstance->SNO->WriteToSnoMask('A', m);
+	ServerInstance->PI->SendSNONotice("A", m);
+	ServerInstance->Logs->CloseLogs();
+
+	if (!ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc))
+	{
+		m = std::string("ERROR: Could not open logfile ") + ServerInstance->Config->logpath + ":" + strerror(errno);
+		ServerInstance->SNO->WriteToSnoMask('A', m);
+		ServerInstance->PI->SendSNONotice("A", m);
+	}
+
+	ServerInstance->RehashUsersAndChans();
+	FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+
+	if (!ServerInstance->ConfigThread)
+	{
+		ServerInstance->Config->RehashUser = user;
+		ServerInstance->Config->RehashParameter = pcnt ? parameters[0] : "";
+
+		ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, user);
+		ServerInstance->Threads->Create(ServerInstance->ConfigThread);
 	}
 	else
 	{
-		ServerInstance->SNO->WriteToSnoMask('A', "%s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
-		ServerInstance->Logs->CloseLogs();
-		if (!ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc))
-			user->WriteServ("NOTICE %s :*** ERROR: Could not open logfile %s: %s", user->nick, ServerInstance->Config->logpath.c_str(), strerror(errno));
-		ServerInstance->RehashUsersAndChans();
-		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
-		if (!ServerInstance->ConfigThread)
-		{
-			ServerInstance->Config->RehashUser = user;
-			ServerInstance->Config->RehashParameter = parameter;
-
-			ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, user);
-			ServerInstance->Threads->Create(ServerInstance->ConfigThread);
-		}
-		else
-		{
-			/* A rehash is already in progress! ahh shit. */
+		/* A rehash is already in progress! ahh shit. */
+		if (IS_LOCAL(user))
 			user->WriteServ("NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick);
-			return CMD_FAILURE;
-		}
+		else
+			ServerInstance->PI->SendUserNotice(user, "*** Could not rehash: A rehash is already in progress.");
+
+		return CMD_FAILURE;
 	}
 
 	return CMD_SUCCESS;

@@ -741,20 +741,19 @@ void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::strin
 
 void ModuleSpanningTree::OnRehash(User* user, const std::string &parameter)
 {
-	if (!parameter.empty())
+	ServerInstance->Logs->Log("remoterehash", DEBUG, "called with param %s", parameter.c_str());
+
+	// Send out to other servers
+	if (!parameter.empty() && parameter[0] != '-')
 	{
+		ServerInstance->Logs->Log("remoterehash", DEBUG, "sending out lol");
 		std::deque<std::string> params;
 		params.push_back(parameter);
-		Utils->DoOneToMany(user ? user->nick : ServerInstance->Config->GetSID(), "REHASH", params);
-		// check for self
-		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameter))
-		{
-			ServerInstance->SNO->WriteToSnoMask('A', "Remote rehash initiated locally by \002%s\002", user ? user->nick : ServerInstance->Config->ServerName);
-			ServerInstance->RehashServer();
-		}
+		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->GetSID()); /// Can this take SID?
 	}
+
+	// Re-read config stuff
 	Utils->ReadConfiguration(true);
-	InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
 }
 
 // note: the protocol does not allow direct umode +o except

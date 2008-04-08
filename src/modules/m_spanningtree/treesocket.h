@@ -312,10 +312,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool ServicePart(const std::string &prefix, std::deque<std::string> &params);
 
-	/** REHASH
-	 */
-	bool RemoteRehash(const std::string &prefix, std::deque<std::string> &params);
-
 	/** KILL
 	 */
 	bool RemoteKill(const std::string &prefix, std::deque<std::string> &params);

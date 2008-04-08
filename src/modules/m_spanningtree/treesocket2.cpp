@@ -392,10 +392,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->ForceTopic(prefix,params);
 			}
-			else if (command == "REHASH")
-			{
-				return this->RemoteRehash(prefix,params);
-			}
 			else if (command == "METADATA")
 			{
 				return this->MetaData(prefix,params);
