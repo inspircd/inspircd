@@ -133,7 +133,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		if (!ComparePass(this->MakePass(x->RecvPass, this->GetOurChallenge()), password) &&
 			(x->RecvPass != password && this->GetTheirChallenge().empty()))
 		{
-			this->Instance->SNO->WriteToSnoMask('l',"Invalid password on link: %s %s %s", x->Name.c_str(), x->RecvPass.c_str(), password.c_str());
+			this->Instance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
 			continue;
 		}
 
