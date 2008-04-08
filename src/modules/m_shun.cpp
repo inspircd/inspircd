@@ -183,7 +183,7 @@ class ModuleShun : public Module
 	virtual void OnUserConnect(User* user)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return;
 
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("SHUN", user);
