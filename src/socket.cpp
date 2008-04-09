@@ -141,7 +141,7 @@ void ListenSocket::HandleEvent(EventType, int)
 		ServerInstance->SE->NonBlocking(incomingSockfd);
 
 		ServerInstance->stats->statsAccept++;
-		ServerInstance->Users->AddClient(ServerInstance, incomingSockfd, in_port, false, this->family, client, target);
+		ServerInstance->Users->AddUser(ServerInstance, incomingSockfd, in_port, false, this->family, client, target);
 	}
 	else
 	{

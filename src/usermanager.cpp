@@ -18,7 +18,7 @@
 #include "bancache.h"
 
 /* add a client connection to the sockets list */
-void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip, const std::string &targetip)
+void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip, const std::string &targetip)
 {
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
