@@ -186,9 +186,9 @@ int TreeServer::QuitUsers(const std::string &reason)
 		if (!IS_LOCAL(a))
 		{
 			if (ServerInstance->Config->HideSplits)
-				User::QuitUser(ServerInstance, a, "*.net *.split", reason_s);
+				ServerInstance->Users->QuitUser(a, "*.net *.split", reason_s);
 			else
-				User::QuitUser(ServerInstance, a, reason_s);
+				ServerInstance->Users->QuitUser(a, reason_s);
 
 			if (this->Utils->quiet_bursts)
 				ServerInstance->GlobalCulls.MakeSilent(a);

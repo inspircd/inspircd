@@ -84,7 +84,8 @@ public:
 				ServerInstance->SNO->WriteToSnoMask('A', "Connection throttle deactivated");
 				return 0;
 			}
-			User::QuitUser(ServerInstance, user, quitmsg);
+
+			ServerInstance->Users->QuitUser(user, quitmsg);
 			return 1;
 		}
 
@@ -94,7 +95,7 @@ public:
 			{
 				throttled = 1;
 				ServerInstance->SNO->WriteToSnoMask('A', "Connection throttle activated");
-				User::QuitUser(ServerInstance, user, quitmsg);
+				ServerInstance->Users->QuitUser(user, quitmsg);
 				return 1;
 			}
 		}

@@ -102,7 +102,7 @@ CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *us
 		}
 
 		// send the quit out
-		User::QuitUser(ServerInstance, u, killreason);
+		ServerInstance->Users->QuitUser(u, killreason);
 	}
 	else
 	{

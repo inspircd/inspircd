@@ -58,8 +58,8 @@ class CommandNicklock : public Command
 
 		if (!target->ForceNickChange(parameters[1]))
 		{
-			// ugh, nickchange failed for some reason -- possibly existing nick?
-			User::QuitUser(ServerInstance, target, "Nickname collision");
+			// ugh, nickchange failed for some reason -- possibly existing nick? XXX change to UID here
+			ServerInstance->Users->QuitUser(target, "Nickname collision");
 		}
 
 		// give them a lock flag

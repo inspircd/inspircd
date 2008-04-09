@@ -140,7 +140,7 @@ class ModuleBlockAmsg : public Module
 					ServerInstance->SNO->WriteToSnoMask('A', "%s had an /amsg or /ame denied", user->nick);
 
 				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
-					User::QuitUser(ServerInstance, user, "Global message (/amsg or /ame) detected");
+					ServerInstance->Users->QuitUser(user, "Global message (/amsg or /ame) detected");
 				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
 					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick);
 									

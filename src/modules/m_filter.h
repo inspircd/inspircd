@@ -276,7 +276,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		}
 		if (f->action == "kill")
 		{
-			User::QuitUser(ServerInstance,user,"Filtered: "+f->reason);
+			ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 		}
 		if (f->action == "gline")
 		{
@@ -364,7 +364,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char* const* para
 				if ((parting) && (f->action == "kill"))
 				{
 					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick, f->reason.c_str());
-					User::QuitUser(ServerInstance, user, "Filtered: " + f->reason);
+					ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 				}
 				if (f->action == "gline")
 				{

@@ -73,6 +73,14 @@ class CoreExport UserManager : public classbase
 	 */
 	void AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip, const std::string &targetip);
 
+	/** Disconnect a user gracefully
+ 	 * @param user The user to remove
+ 	 * @param r The quit reason to show to normal users
+ 	 * @param oreason The quit reason to show to opers
+ 	 * @return Although this function has no return type, on exit the user provided will no longer exist.
+	 */
+	void QuitUser(User *user, const std::string &quitreason, const char* operreason = "");
+
 	/** Add a user to the local clone map
 	 * @param user The user to add
 	 */

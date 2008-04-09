@@ -106,7 +106,7 @@ public:
 	{
 		if (locked)
 		{
-			User::QuitUser(ServerInstance, user, "Server is temporarily closed. Please try again later.");
+			ServerInstance->Users->QuitUser(user, "Server is temporarily closed. Please try again later.");
 			return 1;
 		}
 		return 0;

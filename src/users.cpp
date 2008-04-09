@@ -817,21 +817,6 @@ void User::UnOper()
 	}
 }
 
-void User::QuitUser(InspIRCd* Instance, User *user, const std::string &quitreason, const char* operreason)
-{
-	Instance->Logs->Log("USERS", DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
-	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
-	user->quietquit = false;
-	user->quitmsg = quitreason;
-
-	if (!*operreason)
-		user->operquitmsg = quitreason;
-	else
-		user->operquitmsg = operreason;
-
-	Instance->GlobalCulls.AddItem(user);
-}
-
 /* adds or updates an entry in the whowas list */
 void User::AddToWhoWas()
 {
@@ -853,18 +838,18 @@ void User::CheckClass()
 
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
-		User::QuitUser(ServerInstance, this, "Unauthorised connection");
+		ServerInstance->Users->QuitUser(this, "Unauthorised connection");
 		return;
 	}
 	else if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))
 	{
-		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
+		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 		ServerInstance->SNO->WriteToSnoMask('A', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
 	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
 	{
-		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (global)");
+		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 		ServerInstance->SNO->WriteToSnoMask('A', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
@@ -892,7 +877,7 @@ void User::FullConnect()
 	 */
 	if (this->MyClass && !this->MyClass->GetPass().empty() && !this->haspassed)
 	{
-		User::QuitUser(ServerInstance, this, "Invalid password");
+		ServerInstance->Users->QuitUser(this, "Invalid password");
 		return;
 	}
 
@@ -1848,7 +1833,7 @@ void User::HandleEvent(EventType et, int errornum)
 	{
 		if (!WriteError.empty())
 		{
-			User::QuitUser(ServerInstance, this, GetWriteError());
+			ServerInstance->Users->QuitUser(this, GetWriteError());
 		}
 	}
 }

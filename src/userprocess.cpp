@@ -25,7 +25,7 @@ void FloodQuitUserHandler::Call(User* current)
 	Server->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
 			current->registered == REG_ALL ? current->nick : "",
 			current->registered == REG_ALL ? "!" : "", current->ident, current->host);
-	User::QuitUser(Server, current, "Excess flood");
+	Server->Users->QuitUser(current, "Excess flood");
 
 	if (current->registered != REG_ALL)
 	{
@@ -140,7 +140,7 @@ void ProcessUserHandler::Call(User* cu)
 
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
-			User::QuitUser(Server, cu, errno ? strerror(errno) : "EOF from client");
+			Server->Users->QuitUser(cu, errno ? strerror(errno) : "EOF from client");
 			return;
 		}
 	}
@@ -152,7 +152,7 @@ void ProcessUserHandler::Call(User* cu)
 	}
 	else if (result == 0)
 	{
-		User::QuitUser(Server, cu, "Connection closed");
+		Server->Users->QuitUser(cu, "Connection closed");
 		return;
 	}
 }
@@ -190,7 +190,7 @@ void InspIRCd::DoBackgroundUserStuff()
 			 * registration timeout -- didnt send USER/NICK/HOST
 			 * in the time specified in their connection class.
 			 */
-			User::QuitUser(this, curr, "Registration timeout");
+			this->Users->QuitUser(curr, "Registration timeout");
 			continue;
 		}
 
@@ -221,9 +221,10 @@ void InspIRCd::DoBackgroundUserStuff()
 				snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
 				curr->lastping = 1;
 				curr->nping = TIME + curr->MyClass->GetPingTime();
-				User::QuitUser(this, curr, message);
+				this->Users->QuitUser(curr, message);
 				continue;
 			}
+
 			curr->Write("PING :%s",this->Config->ServerName);
 			curr->lastping = 0;
 			curr->nping = TIME  +curr->MyClass->GetPingTime();

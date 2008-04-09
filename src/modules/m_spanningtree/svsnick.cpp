@@ -54,7 +54,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 				/* buh. UID them */
 				if (!u->ForceNickChange(u->uuid))
 				{
-					User::QuitUser(this->Instance, u, "Nickname collision");
+					this->Instance->Users->QuitUser(u, "Nickname collision");
 					return true;
 				}
 			}

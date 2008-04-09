@@ -289,7 +289,7 @@ class ProxySocket : public EventHandler
 
 		if (match == true)
 		{
-			User::QuitUser(ServerInstance, this->user, "Open proxy detected.");
+			ServerInstance->Users->QuitUser(this->user, "Open proxy detected.");
 		}
 
 		/* Close (but dont delete from memory) our socket

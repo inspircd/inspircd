@@ -878,14 +878,6 @@ class CoreExport User : public connection
 	 */
 	void CloseSocket();
 
-	/** Disconnect a user gracefully
-	 * @param user The user to remove
-	 * @param r The quit reason to show to normal users
-	 * @param oreason The quit reason to show to opers
-	 * @return Although this function has no return type, on exit the user provided will no longer exist.
-	 */
-	static void QuitUser(InspIRCd* Instance, User *user, const std::string &r, const char* oreason = "");
-
 	/** Add the user to WHOWAS system
 	 */
 	void AddToWhoWas();

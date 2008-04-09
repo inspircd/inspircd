@@ -96,7 +96,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 
 	if (!i)
 	{
-		User::QuitUser(Instance, New, "Access denied by configuration");
+		this->QuitUser(New, "Access denied by configuration");
 		return;
 	}
 
@@ -111,7 +111,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)Instance->SE->GetMaxFds()))
 	{
 		Instance->SNO->WriteToSnoMask('A', "Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
-		User::QuitUser(Instance, New,"No more connections allowed");
+		this->QuitUser(New,"No more connections allowed");
 		return;
 	}
 
@@ -127,7 +127,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	 */
 	if (socket >= Instance->SE->GetMaxFds())
 	{
-		User::QuitUser(Instance, New, "Server is full");
+		this->QuitUser(New, "Server is full");
 		return;
 	}
 
@@ -146,7 +146,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 			Instance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
 			if (*Instance->Config->MoronBanner)
 				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
-			User::QuitUser(Instance, New, b->Reason);
+			this->QuitUser(New, b->Reason);
 			return;
 		}
 		else
@@ -171,7 +171,7 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 	if (!Instance->SE->AddFd(New))
 	{
 		Instance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
-		User::QuitUser(Instance, New, "Internal error handling connection");
+		this->QuitUser(New, "Internal error handling connection");
 	}
 
 	/* NOTE: even if dns lookups are *off*, we still need to display this.
@@ -188,6 +188,22 @@ void UserManager::AddClient(InspIRCd* Instance, int socket, int port, bool iscac
 		New->StartDNSLookup();
 	}
 }
+
+void UserManager::QuitUser(User *user, const std::string &quitreason, const char* operreason)
+{
+	ServerInstance->Logs->Log("USERS", DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
+	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
+	user->quietquit = false;
+	user->quitmsg = quitreason;
+
+	if (!*operreason)
+		user->operquitmsg = quitreason;
+	else
+		user->operquitmsg = operreason;
+
+	ServerInstance->GlobalCulls.AddItem(user);
+}
+
 
 void UserManager::AddLocalClone(User *user)
 {

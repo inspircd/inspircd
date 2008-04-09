@@ -409,9 +409,9 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	if (*ServerInstance->Config->MoronBanner)
 		u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 	if (ServerInstance->Config->HideBans)
-		User::QuitUser(ServerInstance, u, line + "-Lined", sreason);
+		ServerInstance->Users->QuitUser(u, line + "-Lined", sreason);
 	else
-		User::QuitUser(ServerInstance, u, sreason);
+		ServerInstance->Users->QuitUser(u, sreason);
 
 
 	if (bancache)

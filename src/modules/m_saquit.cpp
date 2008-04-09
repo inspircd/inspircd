@@ -46,7 +46,7 @@ class CommandSaquit : public Command
 			if (!IS_LOCAL(dest))
 				return CMD_SUCCESS;
 			
-			User::QuitUser(ServerInstance, dest, line);
+			ServerInstance->Users->QuitUser(dest, line);
 			return CMD_SUCCESS;
 		}
 		else
