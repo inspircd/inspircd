@@ -64,6 +64,18 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
 		}
 
+		if (user == dest || IS_OPER(user))
+		{
+			if (dest->modes[UM_SNOMASK] != 0)
+			{
+				ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick, dest->nick, dest->FormatModes(), dest->FormatNoticeMasks());
+			}
+			else
+			{
+				ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s", user->nick, dest->nick, dest->FormatModes());
+			}
+		}
+
 		FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
 
 		/*
