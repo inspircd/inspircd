@@ -73,12 +73,12 @@ class ModuleGeoIP : public Module
 			{
 				std::map<std::string, std::string>::iterator x = GeoBans.find(c);
 				if (x != GeoBans.end())
-					User::QuitUser(ServerInstance, user,  x->second);
+					ServerInstance->Users->QuitUser(user,  x->second);
 			}
 			else
 			{
 				if (banunknown)
-					User::QuitUser(ServerInstance, user, "Could not identify your country of origin. Access denied.");
+					ServerInstance->Users->QuitUser(user, "Could not identify your country of origin. Access denied.");
 			}
 		}
 		return 0;

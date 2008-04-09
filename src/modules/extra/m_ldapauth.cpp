@@ -121,7 +121,7 @@ public:
 
 		if (!CheckCredentials(user))
 		{
-			User::QuitUser(ServerInstance,user,killreason);
+			ServerInstance->Users->QuitUser(user, killreason);
 			return 1;
 		}
 		return 0;
