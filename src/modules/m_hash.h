@@ -54,9 +54,9 @@ class HashRequest : public Request
 	}
 
 	/** Get data to be hashed */
-	const char* GetHashData()
+	std::string& GetHashData()
 	{
-		return tohash.c_str();
+		return tohash;
 	}
 
 	/** Get keys (IVs) to be used */

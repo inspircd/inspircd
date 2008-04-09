@@ -245,11 +245,11 @@ class ModuleMD5 : public Module
 	}
 	
 	
-	void GenHash(const char* src, char* dest, const char* xtab, unsigned int* ikey)
+	void GenHash(const char* src, char* dest, const char* xtab, unsigned int* ikey, size_t srclen)
 	{
 		unsigned char bytes[16];
 
-		MyMD5((char*)bytes, (void*)src, strlen(src), ikey);
+		MyMD5((char*)bytes, (void*)src, srclen, ikey);
 
 		for (int i = 0; i < 16; i++)
 		{
@@ -293,7 +293,7 @@ class ModuleMD5 : public Module
 		else if (strcmp("SUM", request->GetId()) == 0)
 		{
 			static char data[MAXBUF];
-			GenHash((const char*)MD5->GetHashData(), data, chars ? chars : "0123456789abcdef", key);
+			GenHash(MD5->GetHashData().data(), data, chars ? chars : "0123456789abcdef", key, MD5->GetHashData().length());
 			return data;
 		}
 		else if (strcmp("NAME", request->GetId()) == 0)

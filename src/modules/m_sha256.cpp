@@ -285,7 +285,7 @@ class ModuleSHA256 : public Module
 		else if (strcmp("SUM", request->GetId()) == 0)
 		{
 			static char data[MAXBUF];
-			SHA256((const char*)SHA->GetHashData(), data, strlen(SHA->GetHashData()), chars ? chars : "0123456789abcdef", key);
+			SHA256((const char*)SHA->GetHashData().data(), data, SHA->GetHashData().length(), chars ? chars : "0123456789abcdef", key);
 			return data;
 		}
 		else if (strcmp("NAME", request->GetId()) == 0)

@@ -518,10 +518,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\modules\m_spanningtree\rehash.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\modules\m_spanningtree\resolvers.cpp"
 				>
 			</File>
