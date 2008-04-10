@@ -434,12 +434,12 @@ class ModuleRIPEMD160 : public Module
 		return (byte *)hashcode;
 	}
 
-	unsigned int* key;
+	unsigned int* currkey;
 	char* chars;
 
  public:
 
-	ModuleRIPEMD160(InspIRCd* Me) : Module(Me), key(NULL), chars("0123456789abcdef")
+	ModuleRIPEMD160(InspIRCd* Me) : Module(Me), currkey(NULL), chars("0123456789abcdef")
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
 		Implementation eventlist[] = { I_OnRequest };
@@ -457,7 +457,7 @@ class ModuleRIPEMD160 : public Module
 		HashRequest* SHA = (HashRequest*)request;
 		if (strcmp("KEY", request->GetId()) == 0)
 		{
-			this->key = (unsigned int*)SHA->GetKeyData();
+			this->currkey = (unsigned int*)SHA->GetKeyData();
 		}
 		else if (strcmp("HEX", request->GetId()) == 0)
 		{
@@ -465,9 +465,8 @@ class ModuleRIPEMD160 : public Module
 		}
 		else if (strcmp("SUM", request->GetId()) == 0)
 		{
-			int j = 0;
 			static char* data;
-			data = (char*)RMD((byte *)SHA->GetHashData().data(),SHA->GetHashData().length(), key);
+			data = (char*)RMD((byte *)SHA->GetHashData().data(),SHA->GetHashData().length(), currkey);
 			for (int i = 0, j = 0; i < RMDsize / 8; i++)
 			{
 				data[j++] = chars[data[i] / 16];
@@ -483,7 +482,7 @@ class ModuleRIPEMD160 : public Module
 		else if (strcmp("RESET", request->GetId()) == 0)
 		{
 			this->chars = "0123456789abcdef";
-			this->key = NULL;
+			this->currkey = NULL;
 		}
 		return NULL;
 	}
@@ -494,3 +493,6 @@ class ModuleRIPEMD160 : public Module
 	}
 
 };
+
+MODULE_INIT(ModuleRIPEMD160)
+
