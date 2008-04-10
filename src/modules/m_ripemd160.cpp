@@ -64,8 +64,8 @@
 typedef		unsigned char		byte;
 typedef		unsigned int		dword;
 #else
-typedef		uint8_t				byte;
-typedef		uint32_t			dword;
+typedef		uint8_t			byte;
+typedef		uint32_t		dword;
 #endif
 
 /* collect four bytes into one word: */
@@ -435,7 +435,7 @@ class ModuleRIPEMD160 : public Module
 	}
 
 	unsigned int* currkey;
-	char* chars;
+	const char* chars;
 
  public:
 
@@ -461,19 +461,19 @@ class ModuleRIPEMD160 : public Module
 		}
 		else if (strcmp("HEX", request->GetId()) == 0)
 		{
-			this->chars = (char*)SHA->GetOutputs();
+			this->chars = SHA->GetOutputs();
 		}
 		else if (strcmp("SUM", request->GetId()) == 0)
 		{
-			static char* data;
-			data = (char*)RMD((byte *)SHA->GetHashData().data(),SHA->GetHashData().length(), currkey);
+			static char output[MAXBUF];
+			char* data = (char*)RMD((byte *)SHA->GetHashData().data(),SHA->GetHashData().length(), currkey);
 			for (int i = 0, j = 0; i < RMDsize / 8; i++)
 			{
-				data[j++] = chars[data[i] / 16];
-				data[j++] = chars[data[i] % 16];
-				data[j] = '\0';
+				output[j++] = chars[data[i] / 16];
+				output[j++] = chars[data[i] % 16];
+				output[j] = '\0';
 			}
-			return data;
+			return output;
 		}
 		else if (strcmp("NAME", request->GetId()) == 0)
 		{
