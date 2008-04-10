@@ -433,7 +433,10 @@ bool Channel::IsBanned(User* user)
 	char mask[MAXBUF];
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnCheckBan,OnCheckBan(user, this));
-	if (!MOD_RESULT)
+
+	if (MOD_RESULT == -1)
+		return true;
+	else if (MOD_RESULT == 0)
 	{
 		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
 		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)

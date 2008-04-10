@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "wildcard.h"
 #include "m_hash.h"
 
 /* $ModDesc: Provides masking of user hostnames */
@@ -77,7 +78,10 @@ class CloakUser : public ModeHandler
 		 * This is fine, as we will recieve it later.
 		 */
 		if (!IS_LOCAL(dest))
+		{
+			dest->SetMode('x',adding);
 			return MODEACTION_ALLOW;
+		}
 
 		/* don't allow this user to spam modechanges */
 		dest->IncreasePenalty(5);
@@ -94,6 +98,16 @@ class CloakUser : public ModeHandler
 				 * naming in their hostname (e.g. if they are on a lan or
 				 * are connecting via localhost) -- this doesnt matter much.
 				 */
+
+				std::string* cloak;
+
+				if (dest->GetExt("cloaked_host", cloak))
+				{
+					/* Cloaked host has been set before on this user, don't bother to recalculate and waste cpu */
+					dest->ChangeDisplayedHost(cloak->c_str());
+					dest->SetMode('x',true);
+					return MODEACTION_ALLOW;
+				}
 
 				char* n1 = strchr(dest->host,'.');
 				char* n2 = strchr(dest->host,':');
@@ -161,6 +175,7 @@ class CloakUser : public ModeHandler
 					}
 
 					dest->ChangeDisplayedHost(b.c_str());
+					dest->Extend("cloaked_host", new std::string(b));
 				}
 				
 				dest->SetMode('x',true);
@@ -346,8 +361,44 @@ class ModuleCloaking : public Module
 
 		ServerInstance->Modules->UseInterface("HashRequest");
 
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserDisconnect, I_OnCleanup, I_OnCheckBan };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
+	}
+
+	virtual int OnCheckBan(User* user, Channel* chan)
+	{
+		char mask[MAXBUF];
+		std::string* tofree;
+		/* Check if they have a cloaked host, but are not using it */
+		if (user->GetExt("cloaked_host", tofree) && *tofree != user->dhost)
+		{
+			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, tofree->c_str());
+			for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
+			{
+				if (match(mask,i->data))
+					return -1;
+			}
+		}
+		return 0;
+	}
+
+ 	void Prioritize()
+	{
+		/* Needs to be after m_banexception etc. */
+		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIO_LAST);
+	}
+
+	virtual void OnUserDisconnect(User* user)
+	{
+		std::string* tofree;
+		if (user->GetExt("cloaked_host", tofree))
+			delete tofree;
+	}
+
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if (target_type == TYPE_USER)
+			OnUserDisconnect((User*)item);
 	}
 	
 	virtual ~ModuleCloaking()
