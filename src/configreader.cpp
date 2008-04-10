@@ -1149,6 +1149,43 @@ void ServerConfig::Read(bool bail, User* user)
 	ServerInstance->Logs->CloseLogs();
 	ServerInstance->Logs->OpenFileLogs();
 
+	ServerInstance->Threads->Mutex(true);
+	for (int i = 0; i < ConfValueEnum(this->config_data, "type"); ++i)
+	{
+		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
+		std::string classname;
+		ConfValue(this->config_data, "type", "classes", "", i, classes, MAXBUF, false);
+		irc::spacesepstream str(classes);
+		ConfValue(this->config_data, "type", "name", "", i, item, MAXBUF, false);
+		while (str.GetToken(classname))
+		{
+			std::string lost;
+			bool foundclass = false;
+			for (int j = 0; j < ConfValueEnum(this->config_data, "class"); ++j)
+			{
+				ConfValue(this->config_data, "class", "name", "", j, classn, MAXBUF, false);
+				if (!strcmp(classn, classname.c_str()))
+				{
+					foundclass = true;
+					break;
+				}
+			}
+			if (!foundclass)
+			{
+				if (user)
+					user->WriteServ("NOTICE %s :*** Warning: Oper type '%s' has a missing class named '%s', this does nothing!", user->nick, item, classname.c_str());
+				else
+				{
+					if (bail)
+						printf("Warning: Oper type '%s' has a missing class named '%s', this does nothing!\n", item, classname.c_str());
+					else
+						ServerInstance->SNO->WriteToSnoMask('A', "Warning: Oper type '%s' has a missing class named '%s', this does nothing!", item, classname.c_str());
+				}
+			}
+		}
+	}
+	ServerInstance->Threads->Mutex(false);
+
 	ServerInstance->Logs->Log("CONFIG", DEFAULT, "Done reading configuration file.");
 
 	/* If we're rehashing, let's load any new modules, and unload old ones
