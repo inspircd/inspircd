@@ -1126,7 +1126,8 @@ class CoreExport Module : public Extensible
 	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
 	 * @param user The user joining the channel
 	 * @param chan The channel being joined
-	 * @return 1 to explicitly allow the join, 0 to proceed as normal
+	 * @return 1 to explicitly allow the join, 0 to proceed as normal. Return -1 to explicitly deny the
+	 * join to the channel.
 	 */
 	virtual int OnCheckBan(User* user, Channel* chan);
 
