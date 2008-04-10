@@ -98,7 +98,7 @@ void User::StartDNSLookup()
 	try
 	{
 		bool cached;
-		const char* sip = this->GetIPString();
+		const char* sip = this->GetIPString(false);
 
 		/* Special case for 4in6 (Have i mentioned i HATE 4in6?) */
 		if (!strncmp(sip, "0::ffff:", 8))
@@ -1072,7 +1072,7 @@ int User::GetProtocolFamily()
  * XXX the duplication here is horrid..
  * do we really need two methods doing essentially the same thing?
  */
-const char* User::GetIPString()
+const char* User::GetIPString(bool translate4in6)
 {
 	static char buf[1024];
 
@@ -1096,6 +1096,12 @@ const char* User::GetIPString()
 			{
 				strlcpy(&temp[1], buf, sizeof(temp) - 1);
 				*temp = '0';
+				if (translate4in6 && !strncmp(temp, "0::ffff:", 8))
+				{
+					this->cachedip = temp + 8;
+					return temp + 8;
+				}
+
 				this->cachedip = temp;
 				return temp;
 			}
