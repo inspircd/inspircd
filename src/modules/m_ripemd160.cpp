@@ -156,6 +156,7 @@ class ModuleRIPEMD160 : public Module
 	{
 		if (key)
 		{
+			ServerInstance->Logs->Log("m_ripemd160.so", DEBUG, "initialize with custom mdbuf");
 			MDbuf[0] = key[0];
 			MDbuf[1] = key[1];
 			MDbuf[2] = key[2];
@@ -164,6 +165,7 @@ class ModuleRIPEMD160 : public Module
 		}
 		else
 		{
+			ServerInstance->Logs->Log("m_ripemd160.so", DEBUG, "initialize with default mdbuf");
 			MDbuf[0] = 0x67452301UL;
 			MDbuf[1] = 0xefcdab89UL;
 			MDbuf[2] = 0x98badcfeUL;
@@ -404,6 +406,7 @@ class ModuleRIPEMD160 : public Module
 
 	byte *RMD(byte *message, dword length, unsigned int* key)
 	{
+		ServerInstance->Logs->Log("m_ripemd160", DEBUG, "RMD: '%s' length=%u", (const char*)message, length);
 		dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(, E))   */
 		static byte   hashcode[RMDsize/8]; /* for final hash-value         */
 		dword         X[16];               /* current 16-word chunk        */
@@ -466,13 +469,15 @@ class ModuleRIPEMD160 : public Module
 		else if (strcmp("SUM", request->GetId()) == 0)
 		{
 			static char output[MAXBUF];
-			char* data = (char*)RMD((byte *)SHA->GetHashData().data(),SHA->GetHashData().length(), currkey);
-			for (int i = 0, j = 0; i < RMDsize / 8; i++)
+			unsigned char* data = (unsigned char*)RMD((byte *)SHA->GetHashData().data(),SHA->GetHashData().length(), currkey);
+			int j = 0;
+			for (int i = 0; i < RMDsize / 8; i++)
 			{
 				output[j++] = chars[data[i] / 16];
 				output[j++] = chars[data[i] % 16];
-				output[j] = '\0';
+				ServerInstance->Logs->Log("m_ripemd160", DEBUG, "Hash: %02x", data[i]);
 			}
+			output[j] = '\0';
 			return output;
 		}
 		else if (strcmp("NAME", request->GetId()) == 0)
