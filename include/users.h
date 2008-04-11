@@ -653,7 +653,7 @@ class CoreExport User : public connection
 	/** Get IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */
-	const char* GetIPString();
+	const char* GetIPString(bool translate4in6 = true);
 
 	/* Write error string
 	 */
@@ -662,6 +662,10 @@ class CoreExport User : public connection
 	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
 	 */
 	bool exempt;
+
+	/** True if the user is a 4in6 ip (0::ffff:1.2.3.4) and requires special translation in GetIPString()
+	 */
+	bool is4in6;
 
 	/** This value contains how far into the penalty threshold the user is. Once its over
 	 * the penalty threshold then commands are held and processed on-timer.

@@ -191,7 +191,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Penalty = 0;
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	quietquit = OverPenalty = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
+	is4in6 = quietquit = OverPenalty = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
@@ -1030,6 +1030,8 @@ void User::SetSockAddr(int protocol_family, const char* sip, int port)
 			ServerInstance->Logs->Log("USERS",DEBUG,"Uh oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
 		break;
 	}
+
+	is4in6 = !strncmp(GetIPString(), "0::ffff:", 8);
 }
 
 int User::GetPort()
@@ -1096,7 +1098,7 @@ const char* User::GetIPString(bool translate4in6)
 			{
 				strlcpy(&temp[1], buf, sizeof(temp) - 1);
 				*temp = '0';
-				if (translate4in6 && !strncmp(temp, "0::ffff:", 8))
+				if (translate4in6 && is4in6)
 				{
 					this->cachedip = temp + 8;
 					return temp + 8;
