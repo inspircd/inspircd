@@ -242,7 +242,7 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Check that there is only one of each configuration item
 	 */
-	bool CheckOnce(const char* tag);
+	bool CheckOnce(const char* tag, ConfigDataHash &newconf);
 
  public:
 

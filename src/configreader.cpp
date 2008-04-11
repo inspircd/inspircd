@@ -128,9 +128,9 @@ void ServerConfig::Send005(User* user)
 		user->WriteNumeric(005, "%s %s", user->nick, line->c_str());
 }
 
-bool ServerConfig::CheckOnce(const char* tag)
+bool ServerConfig::CheckOnce(const char* tag, ConfigDataHash &newconf)
 {
-	int count = ConfValueEnum(this->config_data, tag);
+	int count = ConfValueEnum(newconf, tag);
 
 	if (count > 1)
 	{
@@ -887,14 +887,7 @@ void ServerConfig::Read(bool bail, User* user)
 	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
 	newconfig.clear();
 
-	if (this->DoInclude(newconfig, ServerInstance->ConfigFileName, errstr))
-	{
-		/* If we succeeded, set the ircd config to the new one */
-		ServerInstance->Threads->Mutex(true);
-		this->config_data = newconfig;
-		ServerInstance->Threads->Mutex(false);
-	}
-	else
+	if (!this->DoInclude(newconfig, ServerInstance->ConfigFileName, errstr))
 	{
 		ReportConfigError(errstr.str(), bail, user);
 		return;
@@ -906,7 +899,7 @@ void ServerConfig::Read(bool bail, User* user)
 		/* Check we dont have more than one of singular tags, or any of them missing
 		 */
 		for (int Index = 0; Once[Index]; Index++)
-			if (!CheckOnce(Once[Index]))
+			if (!CheckOnce(Once[Index], newconfig))
 				return;
 
 		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
@@ -926,7 +919,7 @@ void ServerConfig::Read(bool bail, User* user)
 			if (bootonly && !bail)
 				continue;
 
-			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
+			ConfValue(newconfig, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
 			
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
@@ -1008,7 +1001,7 @@ void ServerConfig::Read(bool bail, User* user)
 			MultiValues[Index].init_function(this, MultiValues[Index].tag);
 			ServerInstance->Threads->Mutex(false);
 
-			int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
+			int number_of_tags = ConfValueEnum(newconfig, MultiValues[Index].tag);
 
 			for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
 			{
@@ -1031,7 +1024,7 @@ void ServerConfig::Read(bool bail, User* user)
 							case DT_NOSPACES:
 							{
 								char item[MAXBUF];
-								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1041,7 +1034,7 @@ void ServerConfig::Read(bool bail, User* user)
 							case DT_HOSTNAME:
 							{
 								char item[MAXBUF];
-								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1051,7 +1044,7 @@ void ServerConfig::Read(bool bail, User* user)
 							case DT_IPADDRESS:
 							{
 								char item[MAXBUF];
-								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1061,7 +1054,7 @@ void ServerConfig::Read(bool bail, User* user)
 							case DT_CHANNEL:
 							{
 								char item[MAXBUF];
-								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1072,7 +1065,7 @@ void ServerConfig::Read(bool bail, User* user)
 							case DT_CHARPTR:
 							{
 								char item[MAXBUF];
-								if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1081,7 +1074,7 @@ void ServerConfig::Read(bool bail, User* user)
 							case DT_INTEGER:
 							{
 								int item = 0;
-								if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
+								if (ConfValueInteger(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(0));
@@ -1089,7 +1082,7 @@ void ServerConfig::Read(bool bail, User* user)
 							break;
 							case DT_BOOLEAN:
 							{
-								bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
+								bool item = ConfValueBool(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
 								vl.push_back(ValueItem(item));
 							}
 							break;
@@ -1118,28 +1111,21 @@ void ServerConfig::Read(bool bail, User* user)
 		return;
 	}
 
-	// write once here, to try it out and make sure its ok
-	ServerInstance->WritePID(this->PID);
-
-	/* Switch over logfiles */
-	ServerInstance->Logs->CloseLogs();
-	ServerInstance->Logs->OpenFileLogs();
-
 	ServerInstance->Threads->Mutex(true);
-	for (int i = 0; i < ConfValueEnum(this->config_data, "type"); ++i)
+	for (int i = 0; i < ConfValueEnum(newconfig, "type"); ++i)
 	{
 		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
 		std::string classname;
-		ConfValue(this->config_data, "type", "classes", "", i, classes, MAXBUF, false);
+		ConfValue(newconfig, "type", "classes", "", i, classes, MAXBUF, false);
 		irc::spacesepstream str(classes);
-		ConfValue(this->config_data, "type", "name", "", i, item, MAXBUF, false);
+		ConfValue(newconfig, "type", "name", "", i, item, MAXBUF, false);
 		while (str.GetToken(classname))
 		{
 			std::string lost;
 			bool foundclass = false;
-			for (int j = 0; j < ConfValueEnum(this->config_data, "class"); ++j)
+			for (int j = 0; j < ConfValueEnum(newconfig, "class"); ++j)
 			{
-				ConfValue(this->config_data, "class", "name", "", j, classn, MAXBUF, false);
+				ConfValue(newconfig, "class", "name", "", j, classn, MAXBUF, false);
 				if (!strcmp(classn, classname.c_str()))
 				{
 					foundclass = true;
@@ -1160,7 +1146,18 @@ void ServerConfig::Read(bool bail, User* user)
 			}
 		}
 	}
+
+	/* If we succeeded, set the ircd config to the new one */
+	this->config_data = newconfig;
+
 	ServerInstance->Threads->Mutex(false);
+
+	// write once here, to try it out and make sure its ok
+	ServerInstance->WritePID(this->PID);
+
+	/* Switch over logfiles */
+	ServerInstance->Logs->CloseLogs();
+	ServerInstance->Logs->OpenFileLogs();
 
 	ServerInstance->Logs->Log("CONFIG", DEFAULT, "Done reading configuration file.");
 
