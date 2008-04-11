@@ -986,13 +986,14 @@
 #                                                                     #
 
 <options prefixquit="Quit: "
+         suffixquit=""
          prefixpart="\""
          suffixpart="\""
          netbuffersize="10240"
          maxwho="128"
          noservices="no"
-         qprefix=""
-         aprefix=""
+         qprefix="~"
+         aprefix="&"
          deprotectself="no"
          deprotectothers="no"
          somaxconn="128"
@@ -1384,10 +1385,13 @@
 # client's IP address from, for further information, please see the
 # CGI:IRC documentation.
 #
+# Old style:
 # <cgihost type="pass" mask="www.mysite.com">       # Get IP from PASS
-# <cgihost type="webirc" mask="somebox.mysite.com"> # Get IP from WEBIRC
 # <cgihost type="ident" mask="otherbox.mysite.com"> # Get IP from ident
 # <cgihost type="passfirst" mask="www.mysite.com">  # See the docs
+# New style:
+# <cgihost type="webirc" pass="foobar"
+#   mask="somebox.mysite.com">                      # Get IP from WEBIRC
 #
 # IMPORTANT NOTE:
 # ---------------
@@ -1771,7 +1775,7 @@
 # the user in a 'connecting' state until the lookup is complete.      #
 # The bind value indicates which IP to bind outbound requests to.     #
 #                                                                     #
-#<ident timeout="5" bind="">                                          #
+#<ident timeout="5" bind="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite except module: Adds support for channel invite exceptions (+I)
@@ -2012,7 +2016,7 @@
 # will remain open even after everyone else has left the channel, and
 # therefore keep things like modes, ban lists and topic. Permanent
 # channels -may- need support from your Services package to function
-# properly with them.
+# properly with them. This adds channel mode +P.
 #<module name="m_permchannels.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
