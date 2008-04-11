@@ -1096,7 +1096,7 @@ const char* User::GetIPString(bool translate4in6)
 			{
 				strlcpy(&temp[1], buf, sizeof(temp) - 1);
 				*temp = '0';
-				if (translate4in6 && !strncmp(GetIPString(), "0::ffff:", 8))
+				if (translate4in6 && !strncmp(temp, "0::ffff:", 8))
 				{
 					this->cachedip = temp + 8;
 					return temp + 8;
