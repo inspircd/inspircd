@@ -663,10 +663,6 @@ class CoreExport User : public connection
 	 */
 	bool exempt;
 
-	/** True if the user is a 4in6 ip (0::ffff:1.2.3.4) and requires special translation in GetIPString()
-	 */
-	bool is4in6;
-
 	/** This value contains how far into the penalty threshold the user is. Once its over
 	 * the penalty threshold then commands are held and processed on-timer.
 	 */
