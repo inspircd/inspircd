@@ -53,7 +53,6 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	debugging = 0;
 	MaxChans = 20;
 	OperMaxChans = 30;
-	LogLevel = DEFAULT;
 	maxbans.clear();
 	DNSServerValidator = &ValidateDnsServer;
 }
@@ -365,27 +364,6 @@ bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &dat
 		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<options:maxwhoresults> size out of range, setting to default of 128.");
 		data.Set(128);
 	}
-	return true;
-}
-
-bool ValidateLogLevel(ServerConfig* conf, const char*, const char*, ValueItem &data)
-{
-	std::string dbg = data.GetString();
-	conf->LogLevel = DEFAULT;
-
-	if (dbg == "debug")
-		conf->LogLevel = DEBUG;
-	else if (dbg  == "verbose")
-		conf->LogLevel = VERBOSE;
-	else if (dbg == "default")
-		conf->LogLevel = DEFAULT;
-	else if (dbg == "sparse")
-		conf->LogLevel = SPARSE;
-	else if (dbg == "none")
-		conf->LogLevel = NONE;
-
-	conf->debugging = (conf->LogLevel == DEBUG);
-
 	return true;
 }
 
@@ -753,7 +731,6 @@ void ServerConfig::Read(bool bail, User* user)
 {
 	int rem = 0, add = 0;	   /* Number of modules added, number of modules removed */
 
-	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
 	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
 	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
@@ -789,7 +766,6 @@ void ServerConfig::Read(bool bail, User* user)
 		{"options",	"prefixpart",	"",			new ValueContainerChar (this->PrefixPart),		DT_CHARPTR,  NoValidation},
 		{"options",	"suffixpart",	"",			new ValueContainerChar (this->SuffixPart),		DT_CHARPTR,  NoValidation},
 		{"options",	"fixedpart",	"",			new ValueContainerChar (this->FixedPart),		DT_CHARPTR,  NoValidation},
-		{"options",	"loglevel",	"default",		new ValueContainerChar (debug),				DT_CHARPTR,  ValidateLogLevel},
 		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
 		{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
 		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  NoValidation},

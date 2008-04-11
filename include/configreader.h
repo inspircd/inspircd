@@ -490,10 +490,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	int debugging;
 
-	/** The loglevel in use by the IRC server
-	 */
-	int LogLevel;
-
 	/** How many seconds to wait before exiting
 	 * the program when /DIE is correctly issued.
 	 */

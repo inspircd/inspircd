@@ -49,11 +49,11 @@ void LogManager::SetupNoFork()
 	if (!noforkstream)
 	{
 		FileWriter* fw = new FileWriter(ServerInstance, stdout);
-		noforkstream = new FileLogStream(ServerInstance, ServerInstance->Config->forcedebug ? DEBUG : ServerInstance->Config->LogLevel, fw);
+		noforkstream = new FileLogStream(ServerInstance, ServerInstance->Config->forcedebug ? DEBUG : DEFAULT, fw);
 	}
 	else
 	{
-		noforkstream->ChangeLevel(ServerInstance->Config->forcedebug ? DEBUG : ServerInstance->Config->LogLevel);
+		noforkstream->ChangeLevel(ServerInstance->Config->forcedebug ? DEBUG : DEFAULT);
 	}
 	AddLogType("*", noforkstream, false);
 }

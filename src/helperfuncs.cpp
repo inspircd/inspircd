@@ -281,38 +281,12 @@ bool InspIRCd::IsSID(const std::string &str)
 /* open the proper logfile */
 bool InspIRCd::OpenLog(char**, int)
 {
-	/* This function only happens at startup now (log reopening is done at OnReadConfig stage now instead of rehash) */
+	/* This function only happens at startup now */
 	if (Config->nofork)
 	{
 		this->Logs->SetupNoFork();
 	}
-	if (!Config->writelog) return true; // Skip opening default log if -nolog
 	Config->MyDir = Config->GetFullProgDir();
-
-	if (!*this->LogFileName)
-	{
-		if (Config->logpath.empty())
-		{
-			Config->logpath = Config->MyDir + "/ircd.log";
-		}
-
-		Config->log_file = fopen(Config->logpath.c_str(),"a+");
-	}
-	else
-	{
-		Config->log_file = fopen(this->LogFileName,"a+");
-	}
-
-	if (!Config->log_file)
-	{
-		return false;
-	}
-
-	FileWriter* fw = new FileWriter(this, Config->log_file);
-	FileLogStream *f = new FileLogStream(this, (Config->forcedebug ? DEBUG : Config->LogLevel), fw);
-
-	this->Logs->AddLogType("*", f, true);
-
 	return true;
 }
 
