@@ -769,10 +769,6 @@
 #                  parts. If specified, overrides both prefixpart     #
 #                  and suffixpart options.                            #
 #                                                                     #
-#  loglevel      - Specifies what detail of messages to log in the    #
-#                  log file. You may select from debug, verbose,      #
-#                  default, sparse and none.                          #
-#                                                                     #
 #  allowhalfop   - Allows the +h channel mode                         #
 #                                                                     #
 #  noservices    - If noservices is true, yes, or 1, then the first   #
@@ -1017,12 +1013,12 @@
          hidemodes="eI"
          quietbursts="yes"
          pingwarning="15"
-	 serverpingfreq="60"
+         serverpingfreq="60"
          allowhalfop="yes"
-	 defaultmodes="nt"
-	 announceinvites="dynamic"
-	 moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
-	 exemptchanops="">
+         defaultmodes="nt"
+         announceinvites="dynamic"
+         moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
+         exemptchanops="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Logging
