@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -14,6 +14,7 @@
 #include "inspircd.h"
 #include "users.h"
 #include "modules.h"
+#include "xline.h"
 #include "dns.h"
 #ifndef WINDOWS
 #include <sys/socket.h>
@@ -144,6 +145,36 @@ public:
 		return PRIORITY_FIRST;
 	}
 
+	void Recheck(userrec* user)
+	{
+		if (!user->exempt)
+		{
+			GLine* r = ServerInstance->XLines->matches_gline(user);
+
+			if (r)
+			{
+				char reason[MAXBUF];
+				if (*ServerInstance->Config->MoronBanner)
+					user->WriteServ("NOTICE %s :*** %s", user->nick, ServerInstance->Config->MoronBanner);
+				snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
+				userrec::QuitUser(ServerInstance, user, reason);
+				return;
+			}
+
+			KLine* n = ServerInstance->XLines->matches_kline(user);
+
+			if (n)
+			{
+				char reason[MAXBUF];
+				if (*ServerInstance->Config->MoronBanner)
+					user->WriteServ("NOTICE %s :*** %s", user->nick, ServerInstance->Config->MoronBanner);
+				snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
+				userrec::QuitUser(ServerInstance, user, reason);
+				return;
+			}
+		}
+	}
+
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
@@ -257,20 +288,24 @@ public:
 				if(iter->type == PASS)
 				{
 					CheckPass(user); // We do nothing if it fails so...
+					Recheck(user);
 				}
 				else if(iter->type == PASSFIRST && !CheckPass(user))
 				{
 					// If the password lookup failed, try the ident
 					CheckIdent(user);	// If this fails too, do nothing
+					Recheck(user);
 				}
 				else if(iter->type == IDENT)
 				{
 					CheckIdent(user); // Nothing on failure.
+					Recheck(user);
 				}
 				else if(iter->type == IDENTFIRST && !CheckIdent(user))
 				{
 					// If the ident lookup fails, try the password.
 					CheckPass(user);
+					Recheck(user);
 				}
 				else if(iter->type == WEBIRC)
 				{
@@ -313,6 +348,7 @@ public:
 			ServerInstance->AddLocalClone(user);
 			ServerInstance->AddGlobalClone(user);
 			user->CheckClass();
+			Recheck(user);
 		}
 	}
 

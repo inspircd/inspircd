@@ -1074,7 +1074,7 @@ void userrec::FullConnect()
 		{
 			char reason[MAXBUF];
 			if (*ServerInstance->Config->MoronBanner)
-				this->WriteServ("NOTICE %s :*** %s", this, ServerInstance->Config->MoronBanner);
+				this->WriteServ("NOTICE %s :*** %s", this->nick, ServerInstance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
 			userrec::QuitUser(ServerInstance, this, reason);
 			return;
