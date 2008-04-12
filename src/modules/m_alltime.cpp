@@ -29,8 +29,8 @@ class CommandAlltime : public Command
 	{
 		char fmtdate[64];
 		time_t now = ServerInstance->Time();
-		strftime(fmtdate, sizeof(fmtdate), "%F %T", gmtime(&now));
-		
+		strftime(fmtdate, sizeof(fmtdate), "%Y-%m-%d %H:%M:%S", gmtime(&now));
+
 		std::string msg = ":" + std::string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time for " +
 			ServerInstance->Config->ServerName + " is: " + fmtdate;
 		
