@@ -114,11 +114,13 @@ class ModuleStripColor : public Module
 	
 	virtual void ReplaceLine(std::string &sentence)
 	{
+		ServerInstance->Log(DEBUG,"ReplaceLine");
 		/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
 		int seq = 0;
 		std::string::iterator i,safei;
  		for (i = sentence.begin(); i != sentence.end(); ++i)
 		{
+			ServerInstance->Log(DEBUG,"char");
 			if ((*i == 3))
 				seq = 1;
 			else if (seq && ( (*i >= '0') && (*i <= '9') || (*i == ',') ) )
@@ -134,9 +136,17 @@ class ModuleStripColor : public Module
 			
 			if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
 			{
-				safei = i;
-				--i;
-				sentence.erase(safei);
+				if (i != sentence.begin())
+				{
+					safei = i;
+					--i;
+					sentence.erase(safei);
+				}
+				else
+				{
+					sentence.erase(i);
+					i = sentence.begin();
+				}
 			}
 		}
 	}
