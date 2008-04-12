@@ -239,6 +239,12 @@ public:
 		this->limit = llimit;
 	}
 
+	void Update(const std::string &n, const std::string &hst)
+	{
+		name = n;
+		host = hst;
+	}
+
 	/** Reference counter. Contains an int as to how many users are connected to this class. :)
 	 * This will be 0 if no users are connected. If a <connect> is removed from the config, and there
 	 * are 0 users on it - it will go away in RAM. :)
