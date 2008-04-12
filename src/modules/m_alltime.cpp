@@ -30,7 +30,7 @@ class cmd_alltime : public command_t
 		char fmtdate[64];
 		char fmtdate2[64];
 		time_t now = ServerInstance->Time(false);
-		strftime(fmtdate, sizeof(fmtdate), "%Y-%m-%d %H:%M:%S", gmtime(now));
+		strftime(fmtdate, sizeof(fmtdate), "%Y-%m-%d %H:%M:%S", gmtime(&now));
 		now = ServerInstance->Time(true);
 		strftime(fmtdate2, sizeof(fmtdate2), "%Y-%m-%d %H:%M:%S", gmtime(&now));
 		
