@@ -114,6 +114,7 @@ class CGIResolver : public Resolver
 			strlcpy(them->dhost, result.c_str(), 63);
 			strlcpy(them->ident, "~cgiirc", 8);
 			them->InvalidateCache();
+			them->CheckLines();
 		}
 	}
 
@@ -267,20 +268,24 @@ public:
 				if(iter->type == PASS)
 				{
 					CheckPass(user); // We do nothing if it fails so...
+					user->CheckLines();
 				}
 				else if(iter->type == PASSFIRST && !CheckPass(user))
 				{
 					// If the password lookup failed, try the ident
 					CheckIdent(user);	// If this fails too, do nothing
+					user->CheckLines();
 				}
 				else if(iter->type == IDENT)
 				{
 					CheckIdent(user); // Nothing on failure.
+					user->CheckLines();
 				}
 				else if(iter->type == IDENTFIRST && !CheckIdent(user))
 				{
 					// If the ident lookup fails, try the password.
 					CheckPass(user);
+					user->CheckLines();
 				}
 				else if(iter->type == WEBIRC)
 				{
@@ -323,6 +328,7 @@ public:
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
 			user->CheckClass();
+			user->CheckLines();
 		}
 	}
 

@@ -859,6 +859,25 @@ void User::CheckClass()
 	this->MaxChans = a->GetMaxChans();
 }
 
+void User::CheckLines()
+{
+	char* check[] = { "G" , "K", NULL };
+
+	if (!this->exempt)
+	{
+		for (int n = 0; check[n]; ++n)
+		{
+			XLine *r = ServerInstance->XLines->MatchesLine(check[n], this);
+
+			if (r)
+			{
+				r->Apply(this);
+				return;
+			}
+		}
+	}
+}
+
 void User::FullConnect()
 {
 	ServerInstance->stats->statsConnects++;
@@ -881,24 +900,7 @@ void User::FullConnect()
 		return;
 	}
 
-	if (!this->exempt)
-	{
-		GLine *r = (GLine *)ServerInstance->XLines->MatchesLine("G", this);
-
-		if (r)
-		{
-			r->Apply(this);
-			return;
-		}
-
-		KLine *n = (KLine *)ServerInstance->XLines->MatchesLine("K", this);
-
-		if (n)
-		{
-			n->Apply(this);
-			return;
-		}
-	}
+	CheckLines();
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
 	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);

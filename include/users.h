@@ -683,6 +683,10 @@ class CoreExport User : public connection
 	 */
 	User(InspIRCd* Instance, const std::string &uid = "");
 
+	/** Check if the user matches a G or K line, and disconnect them if they do
+	 */
+	void CheckLines();
+
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
 	 * on the server, in nick!ident&at;host form.
