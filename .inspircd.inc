@@ -115,7 +115,7 @@ sub debug {
 	checkgdb();
 
 	# If we are still alive here.. Try starting the IRCd..
-	system("gdb --command=$basepath/.gdbargs --args $binpath/$executable -nofork -debug -nolog");
+	system("gdb --command=$basepath/.gdbargs --args $binpath/$executable -nofork -debug");
 }
 
 sub screendebug

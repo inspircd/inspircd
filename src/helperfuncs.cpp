@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -287,6 +287,57 @@ bool InspIRCd::OpenLog(char**, int)
 		this->Logs->SetupNoFork();
 	}
 	Config->MyDir = Config->GetFullProgDir();
+
+	/* Attempt to find home directory, portable to windows */
+	const char* home = getenv("HOME");
+	if (!home)
+	{
+		/* No $HOME, log to %USERPROFILE% */
+		home = getenv("USERPROFILE");
+		if (!home)
+		{
+			/* Nothing could be found at all, log to current dir */
+			Config->logpath = "./startup.log";
+		}
+	}
+
+	if (!Config->writelog) return true; // Skip opening default log if -nolog
+
+	if (!*this->LogFileName)
+	{
+		if (Config->logpath.empty())
+		{
+			std::string path = std::string(home) + "/.inspircd";
+			if (!mkdir(path.c_str(), 0700))
+			{
+				/* Log to ~/.inspircd/ircd.log */
+				Config->logpath = path + "/startup.log";
+			}
+			else
+			{
+				/* Couldn't make ~/.inspircd directory, log to current dir */
+				Config->logpath = "./startup.log";
+				printf("\nWARNING: Unable to create directory: %s (%s)\n", path.c_str(), strerror(errno));
+			}
+		}
+
+		Config->log_file = fopen(Config->logpath.c_str(),"a+");
+	}
+	else
+	{
+		Config->log_file = fopen(this->LogFileName,"a+");
+	}
+
+	if (!Config->log_file)
+	{
+		return false;
+	}
+
+	FileWriter* fw = new FileWriter(this, Config->log_file);
+	FileLogStream *f = new FileLogStream(this, (Config->forcedebug ? DEBUG : DEFAULT), fw);
+
+	this->Logs->AddLogType("*", f, true);
+
 	return true;
 }
 
