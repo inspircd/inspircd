@@ -30,15 +30,15 @@ class cmd_alltime : public command_t
 		char fmtdate[64];
 		char fmtdate2[64];
 		time_t now = ServerInstance->Time(false);
-		strftime(fmtdate, sizeof(fmtdate), "%F %T", gmtime(&now));
+		strftime(fmtdate, sizeof(fmtdate), "%Y-%m-%d %H:%M:%S", gmtime(now));
 		now = ServerInstance->Time(true);
-		strftime(fmtdate2, sizeof(fmtdate2), "%F %T", gmtime(&now));
+		strftime(fmtdate2, sizeof(fmtdate2), "%Y-%m-%d %H:%M:%S", gmtime(&now));
 		
 		int delta = ServerInstance->GetTimeDelta();
-		
+
 		string msg = ":" + string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time for " +
 			ServerInstance->Config->ServerName + " is: " + fmtdate + " (delta " + ConvToStr(delta) + " seconds): Time with delta: "+ fmtdate2;
-		
+
 		if (IS_LOCAL(user))
 		{
 			user->Write(msg);
