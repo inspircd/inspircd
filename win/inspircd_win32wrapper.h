@@ -104,6 +104,9 @@ CoreExport const char * inet_ntop(int af, const void * src, char * dst, socklen_
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
 
+/* Since when does the ISO C++ standard *remove* C functions?! */
+#define mkdir(file,mode) _mkdir(file)
+
 /* Recursive token function doesn't exist in VC++ */
 CoreExport char * strtok_r(char *_String, const char *_Control, char **_Context);
 
