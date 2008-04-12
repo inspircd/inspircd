@@ -129,10 +129,17 @@ class ModuleStripColor : public Module
 			
 			if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
 			{
-				safei = i;
-				--i;
-				sentence.erase(safei);
-			}
+				if (i != sentence.begin())
+				{
+					safei = i;
+					--i;
+					sentence.erase(safei);
+				}
+				else
+				{
+					sentence.erase(i);
+					i = sentence.begin();
+				}			}
 		}
 	}
 
