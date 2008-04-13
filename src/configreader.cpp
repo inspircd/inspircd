@@ -1430,20 +1430,20 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 		}
 		else if (ch == '>')
 		{
+			if (!in_quote)
 			{
 				if (in_tag)
 				{
 					// errorstream << "Closing config tag on line " << linenumber << std::endl;
 					in_tag = false;
-
+	
 					/*
 					 * If this finds an <include> then ParseLine can simply call
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
-
 					if (!this->ParseLine(target, line, linenumber, errorstream))
 						return false;
-
+	
 					line.clear();
 				}
 				else
