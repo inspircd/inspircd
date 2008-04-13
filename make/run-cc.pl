@@ -39,12 +39,14 @@ my @msgfilters = (
 	[ qr/^In file included from .*[,:]$/ => sub {
 		my ($msg) = @_;
 		$location = "$msg\n";
+		return undef;
 	} ],
 
 	# Continuation of an include stack.
 	[ qr/^                 from .*[,:]$/ => sub {
 		my ($msg) = @_;
 		$location .= "$msg\n";
+		return undef;
 	} ],
 
 	# A function, method, constructor, or destructor is the site of a problem
@@ -56,22 +58,37 @@ my @msgfilters = (
 		} else {
 			$location .= "$msg\n";
 		}
+		return undef;
 	} ],
 
 	[ qr/^.* warning: / => sub {
 		my ($msg) = @_;
-		print $location;
+		my $str = $location . "\e[33;1m$msg\e[0m\n";
 		$location = "";
-		print STDERR "\e[33;1m$msg\e[0m\n";
+		return $str;
 	} ],
 
 	[ qr/^.* error: / => sub {
 		my ($msg) = @_;
-		print STDERR "An error occured when executing:\e[37;1m $cc " . join(' ', @ARGV) . "\n" unless $showncmdline;
+		my $str = "";
+		$str = "An error occured when executing:\e[37;1m $cc " . join(' ', @ARGV) . "\n" unless $showncmdline;
 		$showncmdline = 1;
-		print $location;
+		$str .= $location . "\e[31;1m$msg\e[0m\n";
 		$location = "";
-		print STDERR "\e[31;1m$msg\e[0m\n";
+		return $str;
+	} ],
+
+	[ qr/./ => sub {
+		my ($msg) = @_;
+		$msg = $location . $msg;
+		$location = "";
+		$msg =~ s/std::basic_string\<char\, std\:\:char_traits\<char\>, std::allocator\<char\> \>(\s+|)/std::string/g;
+		$msg =~ s/std::basic_string\<char\, .*?irc_char_traits\<char\>, std::allocator\<char\> \>(\s+|)/irc::string/g;
+		for my $stl (qw(deque vector list)) {
+			$msg =~ s/std::$stl\<(\S+), std::allocator\<(\1)\> \>/std::$stl\<$1\>/g;
+		}
+		$msg =~ s/std::map\<(\S+), (\S+), std::less\<\1\>, std::allocator\<std::pair\<const \1, \2\> \> \>/std::map\<$1, $2\>/g;
+		return $msg;
 	} ],
 );
 
@@ -144,24 +161,24 @@ LINE:	while (defined(my $line = <$r_stderr>)) {
 		#
 		# The order of these replacements is IMPORTANT. DO NOT REORDER THEM.
 
-		$line =~ s/std\:\:basic_string\<char\, std\:\:char_traits\<char\>, std::allocator\<char\> \>(\s+|)/std::string/g;
-		$line =~ s/std\:\:basic_string\<char\, .*?irc_char_traits\<char\>, std::allocator\<char\> \>(\s+|)/irc::string/g;
-		$line =~ s/std\:\:deque\<(\S+)\, std::allocator\<\S+\> \>/std::deque<$1>/g;
 
 		for my $filter (@msgfilters) {
 			my @caps;
 			if (@caps = ($line =~ $filter->[0])) {
 				$@ = "";
-				eval {
+				$line = eval {
 					$filter->[1]->($line, @caps);
 				};
 				if ($@) {
+					# Note that $line is undef now.
 					$fail = 1;
 					print STDERR $@;
 				}
-				next LINE;
+				next LINE unless defined($line);
 			}
 		}
+		# Chomp off newlines again, in case the filters put some back in.
+		chomp $line;
 		print STDERR "$line\n";
 	}
 	waitpid $pid, 0;
