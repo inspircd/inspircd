@@ -125,17 +125,20 @@ int get_svn_revision(char * buffer, size_t len)
 	7033
 	*/
 	char buf[1000];
-	FILE * f = fopen("..\\.svn\\entries", "r");
-	if(!f) goto bad_rev;
+	int rev = 0;
 	
-	if(!fgets(buf, 1000, f)) goto bad_rev;
-	if(!fgets(buf, 1000, f)) goto bad_rev;
-	if(!fgets(buf, 1000, f)) goto bad_rev;
-	if(!fgets(buf, 1000, f)) goto bad_rev;
-	int rev = atoi(buf);
-	if(rev == 0) goto bad_rev;
-	sprintf(buffer, "%u", rev);
-	fclose(f);
+	FILE * f = fopen("..\\.svn\\entries", "r");
+	if (f)
+	{
+		fgets(buf, 1000, f);
+		fgets(buf, 1000, f);
+		fgets(buf, 1000, f);
+		fgets(buf, 1000, f);
+		rev = atoi(buf);
+		sprintf(buffer, "%u", rev);
+		fclose(f);
+	}
+	
 	return rev;
 	
 bad_rev:
