@@ -555,6 +555,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	{
 		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n", bounditems, found_ports);
 		printf("The following port(s) failed to bind:\n");
+		printf("Hint: Try using an IP instead of blank or *");
 		int j = 1;
 		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 		{
