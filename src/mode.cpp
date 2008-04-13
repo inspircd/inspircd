@@ -577,22 +577,20 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 							/* It's an oper only mode, check if theyre an oper. If they arent,
 							 * eat any parameter that  came with the mode, and continue to next
 							 */
-							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!user->HasModePermission(modehandlers[handler_id]->GetModeChar(), type)))
+							if (adding && (IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!user->HasModePermission(modehandlers[handler_id]->GetModeChar(), type)))
 							{
 								if (IS_OPER(user))
 								{
-									user->WriteNumeric(481, "%s :Permission Denied - Oper type %s does not have access to %sset %s mode %c",
+									user->WriteNumeric(481, "%s :Permission Denied - Oper type %s does not have access to set %s mode %c",
 											user->nick,
 											user->oper,
-											adding ? "" : "un",
 											type == MODETYPE_CHANNEL ? "channel" : "user",
 											modehandlers[handler_id]->GetModeChar());
 								}
 								else
 								{
-									user->WriteNumeric(481, "%s :Permission Denied - Only operators may %sset %s mode %c",
+									user->WriteNumeric(481, "%s :Permission Denied - Only operators may set %s mode %c",
 											user->nick,
-											adding ? "" : "un",
 											type == MODETYPE_CHANNEL ? "channel" : "user",
 											modehandlers[handler_id]->GetModeChar());
 								}
