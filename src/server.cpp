@@ -23,7 +23,7 @@ void InspIRCd::SignalHandler(int signal)
 	switch (signal)
 	{
 		case SIGHUP:
-			Rehash();
+			Rehash("due to SIGHUP");
 			break;
 		case SIGTERM:
 			Exit(signal);
@@ -44,33 +44,24 @@ void InspIRCd::Exit(int status)
 	exit (status);
 }
 
-void InspIRCd::Rehash()
+void RehashHandler::Call(const std::string &reason)
 {
-	this->SNO->WriteToSnoMask('A', "Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(this->ConfigFileName));
-	this->RehashUsersAndChans();
-	FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
-	if (!this->ConfigThread)
+	Server->SNO->WriteToSnoMask('A', "Rehashing config file %s %s",ServerConfig::CleanFilename(Server->ConfigFileName), reason.c_str());
+	Server->RehashUsersAndChans();
+	FOREACH_MOD_I(Server, I_OnGarbageCollect, OnGarbageCollect());
+	if (!Server->ConfigThread)
 	{
-		Config->RehashUser = NULL;
-		Config->RehashParameter = "";
+		Server->Config->RehashUser = NULL;
+		Server->Config->RehashParameter = "";
 
-		ConfigThread = new ConfigReaderThread(this, false, NULL);
-		Threads->Create(ConfigThread);
+		Server->ConfigThread = new ConfigReaderThread(Server, false, NULL);
+		Server->Threads->Create(Server->ConfigThread);
 	}
 }
 
 void InspIRCd::RehashServer()
 {
-	this->SNO->WriteToSnoMask('A', "Rehashing config file");
-	this->RehashUsersAndChans();
-	if (!this->ConfigThread)
-	{
-		Config->RehashUser = NULL;
-		Config->RehashParameter = "";
-
-		ConfigThread = new ConfigReaderThread(this, false, NULL);
-		Threads->Create(ConfigThread);
-	}
+	this->Rehash("");
 }
 
 std::string InspIRCd::GetVersionString()

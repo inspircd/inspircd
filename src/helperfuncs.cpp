@@ -182,7 +182,7 @@ bool InspIRCd::IsValidMask(const std::string &mask)
 }
 
 /* true for valid channel name, false else */
-bool InspIRCd::IsChannel(const char *chname)
+bool IsChannelHandler::Call(const char *chname)
 {
 	char *c;
 
@@ -268,7 +268,7 @@ bool IsIdentHandler::Call(const char* n)
 	return true;
 }
 
-bool InspIRCd::IsSID(const std::string &str)
+bool IsSIDHandler::Call(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits

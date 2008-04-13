@@ -277,15 +277,29 @@ void InspIRCd::WritePID(const std::string &filename)
 InspIRCd::InspIRCd(int argc, char** argv)
 	: GlobalCulls(this),
 
-	 /* Functor initialisation. Note that the ordering here is very important. */
+	 /* Functor initialisation. Note that the ordering here is very important. 
+	  *
+	  * THIS MUST MATCH ORDER OF DECLARATION OF THE HandleWhateverFunc classes
+	  * within class InspIRCd.
+	  */
 	 HandleProcessUser(this),
 	 HandleIsNick(this),
 	 HandleIsIdent(this),
 	 HandleFindDescriptor(this),
 	 HandleFloodQuitUser(this),
+	 HandleIsChannel(this),
+	 HandleIsSID(this),
+	 HandleRehash(this),
 
-	 /* Functor pointer initialisation. Must match the order of the list above */
+	 /* Functor pointer initialisation. Must match the order of the list above
+	  *
+	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
+	  * themselves within the class.
+	  */
 	 ProcessUser(&HandleProcessUser),
+	 IsChannel(&HandleIsChannel),
+	 IsSID(&HandleIsSID),
+	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
 	 FindDescriptor(&HandleFindDescriptor),

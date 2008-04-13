@@ -234,6 +234,9 @@ DEFINE_HANDLER1(IsNickHandler, bool, const char*);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER1(FindDescriptorHandler, User*, int);
 DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
+DEFINE_HANDLER1(IsChannelHandler, bool, const char*);
+DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
+DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 
 /* Forward declaration - required */
 class XLineManager;
@@ -345,6 +348,9 @@ class CoreExport InspIRCd : public classbase
 	IsIdentHandler HandleIsIdent;
 	FindDescriptorHandler HandleFindDescriptor;
 	FloodQuitUserHandler HandleFloodQuitUser;
+	IsChannelHandler HandleIsChannel;
+	IsSIDHandler HandleIsSID;
+	RehashHandler HandleRehash;
 
 	/** BufferedSocket classes pending deletion after being closed.
 	 * We don't delete these immediately as this may cause a segmentation fault.
@@ -579,16 +585,16 @@ class CoreExport InspIRCd : public classbase
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
 	 */
-	bool IsChannel(const char *chname);
+	caller1<bool, const char*> IsChannel;
 
 	/** Return true if str looks like a server ID
 	 * @param string to check against
 	 */
-	bool IsSID(const std::string &str);
+	caller1<bool, const std::string&> IsSID;
 
 	/** Rehash the local server
 	 */
-	void Rehash();
+	caller1<void, const std::string&> Rehash;
 
 	/** Handles incoming signals after being set
 	 * @param signal the signal recieved
