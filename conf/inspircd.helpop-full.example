@@ -49,7 +49,7 @@ were removed from the channel and by whom.">
 <helpop key="devoice" value="/DEVOICE [channel]
 Devoices yourself from the specified channel.">
 
-<helpop key="silence" value="/SILENCE [+/-]<hostmask> [p|c|i|n|t|a|x]
+<helpop key="silence" value="/SILENCE [+/-][hostmask] [p|c|i|n|t|a|x]
  p        Block private messages
  c        Block channel messages
  i        Block invites
