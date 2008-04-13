@@ -118,7 +118,7 @@ class ModuleXLineDB : public Module
 		{
 			line = (*i);
 			fprintf(f, "LINE %s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
-				ServerInstance->Config->ServerName, line->set_time, line->duration, line->reason);
+				ServerInstance->Config->ServerName, (unsigned long)line->set_time, (unsigned long)line->duration, line->reason);
 		}
 
 		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
