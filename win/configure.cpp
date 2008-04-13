@@ -1,12 +1,12 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
+/*	   +------------------------------------+
+ *	   | Inspire Internet Relay Chat Daemon |
+ *	   +------------------------------------+
  *
  *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *			the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -84,7 +84,7 @@ bool escape_string(char * str, size_t size)
 {
 	size_t len = strlen(str);
 	char * d_str = (char*)malloc(len * 2);
-    
+	
 	size_t i = 0;
 	size_t j = 0;
 
@@ -103,7 +103,7 @@ bool escape_string(char * str, size_t size)
 
 	d_str[j++] = 0;
 
-    if(j > size)
+	if(j > size)
 	{
 		free(d_str);
 		return false;
@@ -127,7 +127,7 @@ int get_svn_revision(char * buffer, size_t len)
 	char buf[1000];
 	FILE * f = fopen("..\\.svn\\entries", "r");
 	if(!f) goto bad_rev;
-    
+	
 	if(!fgets(buf, 1000, f)) goto bad_rev;
 	if(!fgets(buf, 1000, f)) goto bad_rev;
 	if(!fgets(buf, 1000, f)) goto bad_rev;
@@ -173,8 +173,8 @@ void Banner()
 {
 	printf_c("\nWelcome to the \033[1mInspIRCd\033[0m Configuration program! (\033[1minteractive mode\033[0m)\n"
 			 "\033[1mPackage maintainers: Type ./configure --help for non-interactive help\033[0m\n\n");
-	printf_c("*** If you are unsure of any of these values, leave it blank for    ***\n"
-			 "*** standard settings that will work, and your server will run      ***\n"
+	printf_c("*** If you are unsure of any of these values, leave it blank for	***\n"
+			 "*** standard settings that will work, and your server will run	  ***\n"
 			 "*** using them. Please consult your IRC network admin if in doubt.  ***\n\n"
 			 "Press \033[1m<RETURN>\033[0m to accept the default for any option, or enter\n"
 			 "a new value. Please note: You will \033[1mHAVE\033[0m to read the docs\n"
@@ -239,7 +239,7 @@ void Run()
 	if(iswinxp())
 	{
 		printf_c("You are running Windows 2000 or above, and IOCP support is most likely available.\n"
-			     "Thisis much more efficent but is currently EXPERIMENTAL and UNSUPPORTED.\n"
+				 "Thisis much more efficent but is currently EXPERIMENTAL and UNSUPPORTED.\n"
 				 "If you are unsure, answer no.\n\n");
 
 		use_iocp = get_bool_option("Do you want to use the IOCP implementation?", false);
@@ -325,20 +325,20 @@ void Run()
 	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
 
 	// dump all the options back out
-	printf_c("\033[0mBase install path:\033[1;32m        %s\n", base_path);
-	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_file);
-	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path);
-	printf_c("\033[0mLibrary path:\033[1;32m             %s\n", library_dir);
-	printf_c("\033[0mSocket Engine:\033[1;32m            %s\n", use_iocp ? "iocp" : "select");
-	printf_c("\033[0mMax nickname length:\033[1;32m      %u\n", nicklen);
-	printf_c("\033[0mMax channel length:\033[1;32m       %u\n", chanlen);
-	printf_c("\033[0mMax mode length:\033[1;32m          %u\n", modechanges);
-	printf_c("\033[0mMax ident length:\033[1;32m         %u\n", identlen);
-	printf_c("\033[0mMax quit length:\033[1;32m          %u\n", quitlen);
-	printf_c("\033[0mMax topic length:\033[1;32m         %u\n", topiclen);
-	printf_c("\033[0mMax kick length:\033[1;32m          %u\n", kicklen);
-	printf_c("\033[0mMax name length:\033[1;32m          %u\n", rllen);
-	printf_c("\033[0mMax away length:\033[1;32m          %u\n", awaylen);
+	printf_c("\033[0mBase install path:\033[1;32m		%s\n", base_path);
+	printf_c("\033[0mConfig path:\033[1;32m			  %s\n", config_file);
+	printf_c("\033[0mModule path:\033[1;32m			  %s\n", mod_path);
+	printf_c("\033[0mLibrary path:\033[1;32m			 %s\n", library_dir);
+	printf_c("\033[0mSocket Engine:\033[1;32m			%s\n", use_iocp ? "iocp" : "select");
+	printf_c("\033[0mMax nickname length:\033[1;32m	  %u\n", nicklen);
+	printf_c("\033[0mMax channel length:\033[1;32m	   %u\n", chanlen);
+	printf_c("\033[0mMax mode length:\033[1;32m		  %u\n", modechanges);
+	printf_c("\033[0mMax ident length:\033[1;32m		 %u\n", identlen);
+	printf_c("\033[0mMax quit length:\033[1;32m		  %u\n", quitlen);
+	printf_c("\033[0mMax topic length:\033[1;32m		 %u\n", topiclen);
+	printf_c("\033[0mMax kick length:\033[1;32m		  %u\n", kicklen);
+	printf_c("\033[0mMax name length:\033[1;32m		  %u\n", rllen);
+	printf_c("\033[0mMax away length:\033[1;32m		  %u\n", awaylen);
 	printf("\n"); sc(TNORMAL);
 	if(get_bool_option("Are these settings correct?", true) == false)
 	{
@@ -431,12 +431,12 @@ void WriteCompileCommands()
 		{
 			strcpy(commands[command_count], fd.cFileName);
 			commands[command_count][strlen(fd.cFileName) - 4] = 0;
-			printf("    %s\n", commands[command_count]);
+			printf("	%s\n", commands[command_count]);
 			++command_count;
 		} while(FindNextFile(fh, &fd));
 		sc(TNORMAL);
 	}
-    
+	
 	// Write our spiffy new makefile :D
 	// I am such a lazy fucker :P
 	FILE * f = fopen("..\\src\\commands\\commands.mak", "w");
