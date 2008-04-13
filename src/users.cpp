@@ -861,7 +861,7 @@ void User::CheckClass()
 
 void User::CheckLines()
 {
-	char* check[] = { "G" , "K", NULL };
+	const char* check[] = { "G" , "K", NULL };
 
 	if (!this->exempt)
 	{
