@@ -239,8 +239,8 @@ void Run()
 	if(iswinxp())
 	{
 		printf_c("You are running Windows 2000 or above, and IOCP support is most likely available.\n"
-			     "This removes the socket number limitation of select and is much more efficent.\n"
-				 "If you are unsure, answer yes. (You SHOULD NOT be using this, as it MAY not work!\n\n");
+		"This removes the socket number limitation of select and is much more efficent.\n"
+		"If you are unsure, answer no. (You SHOULD NOT be using this, as it MAY not work!)\n\n");
 
 		use_iocp = get_bool_option("Do you want to use the IOCP implementation?", false);
 	}
