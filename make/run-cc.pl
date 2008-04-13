@@ -156,12 +156,6 @@ if ($pid) {
 LINE:	while (defined(my $line = <$r_stderr>)) {
 		chomp $line;
 
-		# someone come up with a better way of doing this, it cant go in message filters as message filters
-		# cant do straight-out replace.
-		#
-		# The order of these replacements is IMPORTANT. DO NOT REORDER THEM.
-
-
 		for my $filter (@msgfilters) {
 			my @caps;
 			if (@caps = ($line =~ $filter->[0])) {
