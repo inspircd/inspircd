@@ -26,9 +26,8 @@ my $location = "";
 my @msgfilters = (
 	[ qr/^(.*) warning: cannot pass objects of non-POD type `(.*)' through `\.\.\.'; call will abort at runtime/ => sub {
 		my ($msg, $where, $type) = @_;
-		print $location;
+		my $errstr = $location . "$where error: cannot pass objects of non-POD type `$type' through `...'\n";
 		$location = "";
-		my $errstr = "$where error: cannot pass objects of non-POD type `$type' through `...'\n";
 		if ($type =~ m/::(basic_)?string/) {
 			$errstr .= "$where (Did you forget to call c_str()?)\n";
 		}
@@ -85,9 +84,15 @@ my @msgfilters = (
 		$msg =~ s/std::basic_string\<char\, std\:\:char_traits\<char\>, std::allocator\<char\> \>(\s+|)/std::string/g;
 		$msg =~ s/std::basic_string\<char\, .*?irc_char_traits\<char\>, std::allocator\<char\> \>(\s+|)/irc::string/g;
 		for my $stl (qw(deque vector list)) {
-			$msg =~ s/std::$stl\<(\S+), std::allocator\<(\1)\> \>/std::$stl\<$1\>/g;
+			$msg =~ s/std::$stl\<(\S+), std::allocator\<\1\> \>/std::$stl\<$1\>/g;
+			$msg =~ s/std::$stl\<(std::pair\<\S+, \S+\>), std::allocator\<\1 \> \>/std::$stl<$1 >/g;
 		}
-		$msg =~ s/std::map\<(\S+), (\S+), std::less\<\1\>, std::allocator\<std::pair\<const \1, \2\> \> \>/std::map\<$1, $2\>/g;
+		$msg =~ s/std::map\<(\S+), (\S+), std::less\<\1\>, std::allocator\<std::pair\<const \1, \2\> \> \>/std::map<$1, $2>/g;
+		# Warning: These filters are GNU C++ specific!
+		$msg =~ s/__gnu_cxx::__normal_iterator\<(\S+)\*, std::vector\<\1\> \>/std::vector<$1>::iterator/g;
+		$msg =~ s/__gnu_cxx::__normal_iterator\<(std::pair\<\S+, \S+\>)\*, std::vector\<\1 \> \>/std::vector<$1 >::iterator/g;
+		$msg =~ s/__gnu_cxx::__normal_iterator\<char\*, std::string\>/std::string::iterator/g;
+		$msg =~ s/__gnu_cxx::__normal_iterator\<char\*, irc::string\>/irc::string::iterator/g;
 		return $msg;
 	} ],
 );
