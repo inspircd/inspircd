@@ -322,20 +322,20 @@ void Run()
 	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
 
 	// dump all the options back out
-	printf_c("\033[0mBase install path:\033[1;32m		%s\n", base_path);
-	printf_c("\033[0mConfig path:\033[1;32m			  %s\n", config_file);
-	printf_c("\033[0mModule path:\033[1;32m			  %s\n", mod_path);
-	printf_c("\033[0mLibrary path:\033[1;32m			 %s\n", library_dir);
-	printf_c("\033[0mSocket Engine:\033[1;32m			%s\n", use_iocp ? "iocp" : "select");
-	printf_c("\033[0mMax nickname length:\033[1;32m	  %u\n", nicklen);
-	printf_c("\033[0mMax channel length:\033[1;32m	   %u\n", chanlen);
-	printf_c("\033[0mMax mode length:\033[1;32m		  %u\n", modechanges);
-	printf_c("\033[0mMax ident length:\033[1;32m		 %u\n", identlen);
-	printf_c("\033[0mMax quit length:\033[1;32m		  %u\n", quitlen);
-	printf_c("\033[0mMax topic length:\033[1;32m		 %u\n", topiclen);
-	printf_c("\033[0mMax kick length:\033[1;32m		  %u\n", kicklen);
-	printf_c("\033[0mMax name length:\033[1;32m		  %u\n", rllen);
-	printf_c("\033[0mMax away length:\033[1;32m		  %u\n", awaylen);
+	printf_c("\033[0mBase install path:\033[1;32m        %s\n", base_path);
+	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_file);
+	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path);
+	printf_c("\033[0mLibrary path:\033[1;32m             %s\n", library_dir);
+	printf_c("\033[0mSocket Engine:\033[1;32m            %s\n", use_iocp ? "iocp" : "select");
+	printf_c("\033[0mMax nickname length:\033[1;32m      %u\n", nicklen);
+	printf_c("\033[0mMax channel length:\033[1;32m       %u\n", chanlen);
+	printf_c("\033[0mMax mode length:\033[1;32m          %u\n", modechanges);
+	printf_c("\033[0mMax ident length:\033[1;32m         %u\n", identlen);
+	printf_c("\033[0mMax quit length:\033[1;32m          %u\n", quitlen);
+	printf_c("\033[0mMax topic length:\033[1;32m         %u\n", topiclen);
+	printf_c("\033[0mMax kick length:\033[1;32m          %u\n", kicklen);
+	printf_c("\033[0mMax name length:\033[1;32m          %u\n", rllen);
+	printf_c("\033[0mMax away length:\033[1;32m          %u\n", awaylen);
 	printf("\n"); sc(TNORMAL);
 	if(get_bool_option("Are these settings correct?", true) == false)
 	{
