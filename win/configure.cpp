@@ -130,10 +130,9 @@ int get_svn_revision(char * buffer, size_t len)
 	FILE * f = fopen("..\\.svn\\entries", "r");
 	if (f)
 	{
-		fgets(buf, 1000, f);
-		fgets(buf, 1000, f);
-		fgets(buf, 1000, f);
-		fgets(buf, 1000, f);
+		for (int q = 0; q < 4; ++q)
+			fgets(buf, 1000, f);
+
 		rev = atoi(buf);
 		sprintf(buffer, "%u", rev);
 		fclose(f);
