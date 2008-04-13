@@ -397,7 +397,7 @@ void IPC::Check()
 	switch (action)
 	{
 		case IPC_MESSAGE_REHASH:
-			Instance->Rehash();
+			Instance->Rehash("due to IPC message");
 		break;
 		
 		case IPC_MESSAGE_DIE:
