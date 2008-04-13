@@ -139,11 +139,6 @@ int get_svn_revision(char * buffer, size_t len)
 	}
 	
 	return rev;
-	
-bad_rev:
-	strcpy(buffer, "non-svn");
-	if(f) fclose(f);
-	return 0;
 }
 
 int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPSTR lpCmdLine, IN int nShowCmd )
