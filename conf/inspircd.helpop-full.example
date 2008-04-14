@@ -270,7 +270,7 @@ Forces the user to join the channel.">
 Forces the user to part the channel.">
 
 <helpop key="samode" value="/SAMODE [#chan] +/-[modes] {[parameters for modes]}
-Gives the channel or nick the modes specified.">
+Gives the channel the modes specified.">
 
 <helpop key="sanick" value="/SANICK [nick] [new nick]
 Changes the users nick to the new nick.">
