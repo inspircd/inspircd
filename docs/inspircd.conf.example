@@ -834,58 +834,6 @@
 #                  if defined sets a soft maxconnections value, has   #
 #                  to be less than the ./configure maxclients         #
 #                                                                     #
-#  userstats     - The userstats field is optional and specifies      #
-#                  which stats characters in /STATS may be requested  #
-#                  by non-operators. Stats characters in this field   #
-#                  are case sensitive and are allowed to users        #
-#                  independent of if they are in a module or the core #
-#                                                                     #
-#  operspywhois  - If this is set then when an IRC operator uses      #
-#                  /WHOIS on a user they will see all channels, even  #
-#                  ones if channels are secret (+s), private (+p) or  #
-#                  if the target user is invisible +i.                #
-#                                                                     #
-#  customversion - If you specify this configuration item, and it is  #
-#                  not set to an empty value, then when a user does   #
-#                  a /VERSION command on the ircd, this string will   #
-#                  be displayed as the second portion of the output,  #
-#                  replacing the system 'uname', compile flags and    #
-#                  socket engine/dns engine names. You may use this   #
-#                  to enhance security, or simply for vanity.         #
-#                                                                     #
-#  maxtargets    - The maxtargets field is optional, and if not       #
-#                  defined, defaults to 20. It indicates the maximum  #
-#                  number of targets which may be given to commands   #
-#                  such as PRIVMSG, KICK etc.                         #
-#                                                                     #
-#  hidesplits    - When set to 'yes', will hide split server names    #
-#                  from non-opers. Non-opers will see '*.net *.split' #
-#                  instead of the server names in the quit message,   #
-#                  identical to the way IRCu displays them.           #
-#                                                                     #
-#  hidebans      - When set to 'yes', will hide gline, kline, zline   #
-#                  and qline quit messages from non-opers. For        #
-#                  example, user A who is not an oper will just see   #
-#                  (G-Lined) while user B who is an oper will see the #
-#                  text (G-Lined: Reason here) instead.               #
-#                                                                     #
-#  hidewhois     - When defined with a non-empty value, the given     #
-#                  text will be used in place of the user's server    #
-#                  in WHOIS, when a user is WHOISed by a non-oper.    #
-#                  For example, most nets will want to set this to    #
-#                  something like '*.netname.net' to conceal the      #
-#                  actual server the user is on.                      #
-#                                                                     #
-#  flatlinks     - When you are using m_spanningtree.so, and this     #
-#                  value is set to yes, true or 1, /MAP and /LINKS    #
-#                  will be flattened when shown to a non-opers.       #
-#                                                                     #
-#  hideulines    - When you are using m_spanningtree.so, and this     #
-#                  value is set to yes, true or 1, then U-lined       #
-#                  servers will be hidden in /LINKS and /MAP for non  #
-#                  opers. Please be aware that this will also hide    #
-#                  any leaf servers of a U-lined server, e.g. jupes.  #
-#                                                                     #
 #  nouserdns     - If set to yes, true or 1, no user DNS lookups      #
 #                  will be performed for connecting users. This can   #
 #                  save a lot of resources on very busy IRC servers.  #
@@ -910,40 +858,6 @@
 #  hostintopic   - If this is set to yes (the default) then the full  #
 #                  nick!user@host is shown for who set a TOPIC last.  #
 #                  if set to no, then only the nickname is shown.     #
-#                                                                     #
-# announceinvites                                                     #
-#                - If this option is set, then invites are announced  #
-#                  to the channel when a user invites another user.   #
-#                  If you consider this to be unnecessary noise,      #
-#                  set this to 'none'. To announce to all ops, set    #
-#                  this to 'ops' and to announce to all users set the #
-#                  value to 'all'.                                    #
-#                                                                     #
-#                  The value 'dynamic' varies between 'ops' and 'all' #
-#                  settings depending on if the channel is +i or not. #
-#                  When the channel is +i, messages go only to ops,   #
-#                  and when the channel is not +i, messages go to     #
-#                  everyone. In short, the messages will go to every  #
-#                  user who has power of INVITE on the channel. This  #
-#                  is the recommended setting.                        #
-#                                                                     #
-#  disablehmac   - If you are linking your InspIRCd to older versions #
-#                  then you can specify this option and set it to     #
-#                  yes. 1.1.6 and above support HMAC and challenge-   #
-#                  response for password authentication. These can    #
-#                  greatly enhance security of your server to server  #
-#                  connections when you are not using SSL (as is the  #
-#                  case with a lot of larger networks). Linking to    #
-#                  older versions of InspIRCd should not *usually* be #
-#                  a problem, but if you have problems with HMAC      #
-#                  authentication, this option can be used to turn it #
-#                  off.                                               #
-#                                                                     #
-#  hidemodes     - If this option is enabled, then the listmodes      #
-#                  given (e.g. +eI), will be hidden from users below  #
-#                  halfop. This is not recommended to be set on mode  #
-#                  +b, as it may break some features in popular       #
-#                  clients such as mIRC.                              #
 #                                                                     #
 #  quietbursts   - When synching or splitting from the network, a     #
 #                  server can generate a lot of connect and quit      #
@@ -994,31 +908,122 @@
          deprotectothers="no"
          somaxconn="128"
          softlimit="12800"
-         userstats="Pu"
-         operspywhois="no"
-         customversion=""
-         maxtargets="20"
-         hidesplits="no"
-         hidebans="no"
-         hidewhois=""
-         flatlinks="no"
-         hideulines="no"
          nouserdns="no"
          syntaxhints="no"
          cyclehosts="yes"
          ircumsgprefix="no"
          announcets="yes"
-         disablehmac="no"
          hostintopic="yes"
-         hidemodes="eI"
          quietbursts="yes"
          pingwarning="15"
          serverpingfreq="60"
          allowhalfop="yes"
          defaultmodes="nt"
-         announceinvites="dynamic"
          moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
          exemptchanops="">
+
+#-#-#-#-#-#-#-#-#-#-#-# SECURITY CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# announceinvites                                                     #
+#                - If this option is set, then invites are announced  #
+#                  to the channel when a user invites another user.   #
+#                  If you consider this to be unnecessary noise,      #
+#                  set this to 'none'. To announce to all ops, set    #
+#                  this to 'ops' and to announce to all users set the #
+#                  value to 'all'.                                    #
+#                                                                     #
+#                  The value 'dynamic' varies between 'ops' and 'all' #
+#                  settings depending on if the channel is +i or not. #
+#                  When the channel is +i, messages go only to ops,   #
+#                  and when the channel is not +i, messages go to     #
+#                  everyone. In short, the messages will go to every  #
+#                  user who has power of INVITE on the channel. This  #
+#                  is the recommended setting.                        #
+#                                                                     #
+#  disablehmac   - If you are linking your InspIRCd to older versions #
+#                  then you can specify this option and set it to     #
+#                  yes. 1.1.6 and above support HMAC and challenge-   #
+#                  response for password authentication. These can    #
+#                  greatly enhance security of your server to server  #
+#                  connections when you are not using SSL (as is the  #
+#                  case with a lot of larger networks). Linking to    #
+#                  older versions of InspIRCd should not *usually* be #
+#                  a problem, but if you have problems with HMAC      #
+#                  authentication, this option can be used to turn it #
+#                  off.                                               #
+#                                                                     #
+#  hidemodes     - If this option is enabled, then the listmodes      #
+#                  given (e.g. +eI), will be hidden from users below  #
+#                  halfop. This is not recommended to be set on mode  #
+#                  +b, as it may break some features in popular       #
+#                  clients such as mIRC.                              #
+#                                                                     #
+#  hidesplits    - When set to 'yes', will hide split server names    #
+#                  from non-opers. Non-opers will see '*.net *.split' #
+#                  instead of the server names in the quit message,   #
+#                  identical to the way IRCu displays them.           #
+#                                                                     #
+#  hidebans      - When set to 'yes', will hide gline, kline, zline   #
+#                  and qline quit messages from non-opers. For        #
+#                  example, user A who is not an oper will just see   #
+#                  (G-Lined) while user B who is an oper will see the #
+#                  text (G-Lined: Reason here) instead.               #
+#                                                                     #
+#  hidewhois     - When defined with a non-empty value, the given     #
+#                  text will be used in place of the user's server    #
+#                  in WHOIS, when a user is WHOISed by a non-oper.    #
+#                  For example, most nets will want to set this to    #
+#                  something like '*.netname.net' to conceal the      #
+#                  actual server the user is on.                      #
+#                                                                     #
+#  flatlinks     - When you are using m_spanningtree.so, and this     #
+#                  value is set to yes, true or 1, /MAP and /LINKS    #
+#                  will be flattened when shown to a non-opers.       #
+#                                                                     #
+#  hideulines    - When you are using m_spanningtree.so, and this     #
+#                  value is set to yes, true or 1, then U-lined       #
+#                  servers will be hidden in /LINKS and /MAP for non  #
+#                  opers. Please be aware that this will also hide    #
+#                  any leaf servers of a U-lined server, e.g. jupes.  #
+#                                                                     #
+#  userstats     - The userstats field is optional and specifies      #
+#                  which stats characters in /STATS may be requested  #
+#                  by non-operators. Stats characters in this field   #
+#                  are case sensitive and are allowed to users        #
+#                  independent of if they are in a module or the core #
+#                                                                     #
+#  operspywhois  - If this is set then when an IRC operator uses      #
+#                  /WHOIS on a user they will see all channels, even  #
+#                  ones if channels are secret (+s), private (+p) or  #
+#                  if the target user is invisible +i.                #
+#                                                                     #
+#  customversion - If you specify this configuration item, and it is  #
+#                  not set to an empty value, then when a user does   #
+#                  a /VERSION command on the ircd, this string will   #
+#                  be displayed as the second portion of the output,  #
+#                  replacing the system 'uname', compile flags and    #
+#                  socket engine/dns engine names. You may use this   #
+#                  to enhance security, or simply for vanity.         #
+#                                                                     #
+#  maxtargets    - The maxtargets field is optional, and if not       #
+#                  defined, defaults to 20. It indicates the maximum  #
+#                  number of targets which may be given to commands   #
+#                  such as PRIVMSG, KICK etc.                         #
+#                                                                     #
+
+<security announceinvites="dynamic"
+          hidemodes="eI"
+          disablehmac="no"
+          hideulines="no"
+          flatlinks="no"
+          hidewhois=""
+          hidebans="no"
+          hidekills=""
+          hidesplits="no"
+          maxtargets="20"
+          customversion=""
+          operspywhois="no"
+          userstats="Pu">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Logging
