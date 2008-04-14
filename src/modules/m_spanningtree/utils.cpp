@@ -443,7 +443,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	HideULines = Conf->ReadFlag("security","hideulines",0);
 	AnnounceTSChange = Conf->ReadFlag("options","announcets",0);
 	ChallengeResponse = !Conf->ReadFlag("security", "disablehmac", 0);
-	quiet_bursts = Conf->ReadFlag("options", "quietbursts", 0);
+	quiet_bursts = Conf->ReadFlag("performance", "quietbursts", 0);
 	PingWarnTime = Conf->ReadInteger("options", "pingwarning", 0, true);
 	PingFreq = Conf->ReadInteger("options", "serverpingfreq", 0, true);
 

@@ -763,8 +763,8 @@ void ServerConfig::Read(bool bail, User* user)
 
 	/* These tags can occur ONCE or not at all */
 	InitialConfig Values[] = {
-		{"options",	"softlimit",	"0",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
-		{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
+		{"performance",	"softlimit",	"0",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
+		{"performance",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
 		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
 		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME|DT_BOOTONLY, ValidateServerName},
 		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
@@ -785,8 +785,8 @@ void ServerConfig::Read(bool bail, User* user)
 		{"options",	"prefixpart",	"",			new ValueContainerChar (this->PrefixPart),		DT_CHARPTR,  NoValidation},
 		{"options",	"suffixpart",	"",			new ValueContainerChar (this->SuffixPart),		DT_CHARPTR,  NoValidation},
 		{"options",	"fixedpart",	"",			new ValueContainerChar (this->FixedPart),		DT_CHARPTR,  NoValidation},
-		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
-		{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
+		{"performance",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
+		{"performance",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
 		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  NoValidation},
 		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_IPADDRESS,DNSServerValidator},
 		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER,  NoValidation},
@@ -799,7 +799,7 @@ void ServerConfig::Read(bool bail, User* user)
 		{"security",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_NOSPACES, NoValidation},
 		{"security",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_NOSPACES,  NoValidation},
 		{"security",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN,  NoValidation},
-		{"options",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN,  NoValidation},
+		{"performance",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN,  NoValidation},
 		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN,  NoValidation},
 		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN,  NoValidation},
 		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN,  NoValidation},

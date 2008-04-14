@@ -803,40 +803,10 @@
 #                  especially in the case of bots, and it is          #
 #                  recommended that this option is enabled.           #
 #                                                                     #
-#  netbuffersize - Size of the buffer used to receive data from       #
-#                  clients. The ircd may only read() this amount      #
-#                  of text in one go at any time. (OPTIONAL)          #
-#                                                                     #
-#  maxwho        - The maximum number of results returned by a /WHO   #
-#                  query. This is to prevent /WHO being used as a     #
-#                  spam vector or means of flooding an ircd. The      #
-#                  default is 128, it is not recommended to raise it  #
-#                  above 1024. Values up to 65535 are permitted. If   #
-#                  this value is omitted, any size WHO is allowed by  #
-#                  anyone.                                            #
-#                                                                     #
-#  somaxconn     - The maximum number of sockets that may be waiting  #
-#                  in the accept queue. This usually allows the ircd  #
-#                  to soak up more connections in a shorter space of  #
-#                  time when increased but please be aware there is a #
-#                  system defined maximum value to this, the same way #
-#                  there is a system defined maximum number of file   #
-#                  descriptors. Some systems may only allow this to   #
-#                  be up to 5 (ugh) while others such as FreeBSD will #
-#                  default to a much nicer 128.                       #
-#                                                                     #
 #  moduledir     - This optional value indicates a runtime change of  #
 #                  the location where modules are to be found. This   #
 #                  does not add a supplementary directory. There can  #
 #                  only be one module path.                           #
-#                                                                     #
-#  softlimit     - This optional feature allows a defined softlimit.  #
-#                  if defined sets a soft maxconnections value, has   #
-#                  to be less than the ./configure maxclients         #
-#                                                                     #
-#  nouserdns     - If set to yes, true or 1, no user DNS lookups      #
-#                  will be performed for connecting users. This can   #
-#                  save a lot of resources on very busy IRC servers.  #
 #                                                                     #
 #  syntaxhints   - If set to yes, true or 1, when a user does not     #
 #                  give enough parameters for a command, a syntax     #
@@ -899,28 +869,68 @@
          suffixquit=""
          prefixpart="\""
          suffixpart="\""
-         netbuffersize="10240"
-         maxwho="128"
          noservices="no"
          qprefix="~"
          aprefix="&"
          deprotectself="no"
          deprotectothers="no"
-         somaxconn="128"
-         softlimit="12800"
-         nouserdns="no"
          syntaxhints="no"
          cyclehosts="yes"
          ircumsgprefix="no"
          announcets="yes"
          hostintopic="yes"
-         quietbursts="yes"
          pingwarning="15"
          serverpingfreq="60"
          allowhalfop="yes"
          defaultmodes="nt"
          moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
          exemptchanops="">
+
+
+#-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#  maxwho        - The maximum number of results returned by a /WHO   #
+#                  query. This is to prevent /WHO being used as a     #
+#                  spam vector or means of flooding an ircd. The      #
+#                  default is 128, it is not recommended to raise it  #
+#                  above 1024. Values up to 65535 are permitted. If   #
+#                  this value is omitted, any size WHO is allowed by  #
+#                  anyone.                                            #
+#                                                                     #
+#  somaxconn     - The maximum number of sockets that may be waiting  #
+#                  in the accept queue. This usually allows the ircd  #
+#                  to soak up more connections in a shorter space of  #
+#                  time when increased but please be aware there is a #
+#                  system defined maximum value to this, the same way #
+#                  there is a system defined maximum number of file   #
+#                  descriptors. Some systems may only allow this to   #
+#                  be up to 5 (ugh) while others such as FreeBSD will #
+#                  default to a much nicer 128.                       #
+#                                                                     #
+#  moduledir     - This optional value indicates a runtime change of  #
+#                  the location where modules are to be found. This   #
+#                  does not add a supplementary directory. There can  #
+#                  only be one module path.                           #
+#                                                                     #
+#  softlimit     - This optional feature allows a defined softlimit.  #
+#                  if defined sets a soft maxconnections value, has   #
+#                  to be less than the ./configure maxclients         #
+#                                                                     #
+#  nouserdns     - If set to yes, true or 1, no user DNS lookups      #
+#                  will be performed for connecting users. This can   #
+#                  save a lot of resources on very busy IRC servers.  #
+#                                                                     #
+#  netbuffersize - Size of the buffer used to receive data from       #
+#                  clients. The ircd may only read() this amount      #
+#                  of text in one go at any time. (OPTIONAL)          #
+#                                                                     #
+
+<performance netbuffersize="10240"
+             maxwho="128"
+             somaxconn="128"
+             softlimit="12800"
+             quietbursts="yes"
+             nouserdns="no">
 
 #-#-#-#-#-#-#-#-#-#-#-# SECURITY CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
