@@ -766,6 +766,7 @@ void ServerConfig::Read(bool bail, User* user)
 		{"options",	"hidewhois",	"has been moved to <security:hidewhois> as of 1.2a3"},
 		{"options",	"nouserdns",	"has been moved to <performance:nouserdns> as of 1.2a3"},
 		{"options",	"maxwho",	"has been moved to <performance:maxwho> as of 1.2a3"},
+		{"options",	"loglevel",	"1.2 does not use the loglevel value. Please define <log> tags instead."},
 		{NULL,		NULL,		NULL}
 	};
 
