@@ -308,7 +308,7 @@ bool InspIRCd::OpenLog(char**, int)
 		if (Config->logpath.empty())
 		{
 			std::string path = std::string(home) + "/.inspircd";
-			if (!mkdir(path.c_str(), 0700))
+			if (!mkdir(path.c_str(), 0700) && errno != EEXIST)
 			{
 				/* Log to ~/.inspircd/ircd.log */
 				Config->logpath = path + "/startup.log";

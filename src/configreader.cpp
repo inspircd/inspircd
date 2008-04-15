@@ -761,6 +761,14 @@ void ServerConfig::Read(bool bail, User* user)
 	/* These tags MUST occur and must ONLY occur once in the config file */
 	static const char* Once[] = { "server", "admin", "files", "power", "options", NULL };
 
+	Deprecated ChangedConfig[] = {
+		{"options",	"hidelinks",	"has been moved to <security:hidelinks> as of 1.2a3"},
+		{"options",	"hidewhois",	"has been moved to <security:hidewhois> as of 1.2a3"},
+		{"options",	"nouserdns",	"has been moved to <performance:nouserdns> as of 1.2a3"},
+		{"options",	"maxwho",	"has been moved to <performance:maxwho> as of 1.2a3"},
+		{NULL,		NULL,		NULL}
+	};
+
 	/* These tags can occur ONCE or not at all */
 	InitialConfig Values[] = {
 		{"performance",	"softlimit",	"0",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
@@ -920,6 +928,16 @@ void ServerConfig::Read(bool bail, User* user)
 		for (int Index = 0; Once[Index]; Index++)
 			if (!CheckOnce(Once[Index], newconfig))
 				return;
+
+		for (int Index = 0; ChangedConfig[Index].tag; Index++)
+		{
+			char item[MAXBUF];
+			*item = 0;
+			if (ConfValue(newconfig, ChangedConfig[Index].tag, ChangedConfig[Index].value, "", 0, item, MAXBUF, true) || *item)
+				throw CoreException(std::string("Your configuration contains a deprecated value: <") + ChangedConfig[Index].tag + ":" + ChangedConfig[Index].value + "> - " + ChangedConfig[Index].reason);
+			else
+				ServerInstance->Logs->Log("CONFIG",DEBUG,"Deprecated item <%s:%s> does not exist, good.", ChangedConfig[Index].tag, ChangedConfig[Index].value);
+		}
 
 		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
 		 */
@@ -1709,7 +1727,7 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 			return true;
 		}
 	}
-	else if(pos == 0)
+	else if (pos == 0)
 	{
 		if (!default_value.empty())
 		{

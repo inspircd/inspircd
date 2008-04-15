@@ -178,6 +178,13 @@ struct InitialConfig
 	Validator validation_function;
 };
 
+struct Deprecated
+{
+	const char* tag;
+	const char* value;
+	const char* reason;
+};
+
 /** Holds a core configuration item and its callbacks
  * where there may be more than one item
  */
