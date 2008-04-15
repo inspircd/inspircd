@@ -166,7 +166,7 @@ int SelectEngine::DispatchEvents()
 		}
 	}
 
-	return result;
+	return sresult;
 }
 
 std::string SelectEngine::GetName()
