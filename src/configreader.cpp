@@ -762,12 +762,25 @@ void ServerConfig::Read(bool bail, User* user)
 	static const char* Once[] = { "server", "admin", "files", "power", "options", NULL };
 
 	Deprecated ChangedConfig[] = {
-		{"options",	"hidelinks",	"has been moved to <security:hidelinks> as of 1.2a3"},
-		{"options",	"hidewhois",	"has been moved to <security:hidewhois> as of 1.2a3"},
-		{"options",	"nouserdns",	"has been moved to <performance:nouserdns> as of 1.2a3"},
-		{"options",	"maxwho",	"has been moved to <performance:maxwho> as of 1.2a3"},
-		{"options",	"loglevel",	"1.2 does not use the loglevel value. Please define <log> tags instead."},
-		{NULL,		NULL,		NULL}
+		{"options",	"hidelinks",		"has been moved to <security:hidelinks> as of 1.2a3"},
+		{"options",	"hidewhois",		"has been moved to <security:hidewhois> as of 1.2a3"},
+		{"options",     "userstats",		"has been moved to <security:userstats> as of 1.2a3"},
+		{"options",     "customversion",	"has been moved to <security:customversion> as of 1.2a3"},
+		{"options",     "hidesplits",		"has been moved to <security:hidesplits> as of 1.2a3"},
+		{"options",     "hidebans",		"has been moved to <security:hidebans> as of 1.2a3"},
+		{"options",     "hidekills",		"has been moved to <security:hidekills> as of 1.2a3"},
+		{"options",     "operspywhois",		"has been moved to <security:operspywhois> as of 1.2a3"},
+		{"options",     "announceinvites",	"has been moved to <security:announceinvites> as of 1.2a3"},
+		{"options",     "hidemodes",		"has been moved to <security:hidemodes> as of 1.2a3"},
+		{"options",     "maxtargets",		"has been moved to <security:maxtargets> as of 1.2a3"},
+		{"options",	"nouserdns",		"has been moved to <performance:nouserdns> as of 1.2a3"},
+		{"options",	"maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
+		{"options",	"softlimit",		"has been moved to <performance:softlimit> as of 1.2a3"},
+		{"options",     "somaxconn",		"has been moved to <performance:somaxconn> as of 1.2a3"},
+		{"options",     "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
+		{"options",     "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
+		{"options",	"loglevel",		"1.2 does not use the loglevel value. Please define <log> tags instead."},
+		{NULL,		NULL,			NULL}
 	};
 
 	/* These tags can occur ONCE or not at all */
