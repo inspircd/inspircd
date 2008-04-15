@@ -121,17 +121,6 @@ bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 	return true;
 }
 
-#ifdef WINDOWS
-
-int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen) { return -1; }
-int SocketEngine::Close(int fd) { return -1; }
-int SocketEngine::Close(EventHandler* fd) { return -1; }
-int SocketEngine::Blocking(int fd) { return -1; }
-int SocketEngine::NonBlocking(int fd) { return -1; }
-int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen) { return -1; }
-int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen) { return -1; }
-
-#else
 
 int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 {
@@ -140,24 +129,42 @@ int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 
 int SocketEngine::Close(EventHandler* fd)
 {
+#ifdef WINDOWS
+	return closesocket(fd->GetFd());
+#else
 	return close(fd->GetFd());
+#endif
 }
 
 int SocketEngine::Close(int fd)
 {
+#ifdef WINDOWS
+	return closesocket(fd);
+#else
 	return close(fd);
+#endif
 }
 
 int SocketEngine::Blocking(int fd)
 {
+#ifdef WINDOWS
+	unsigned long opt = 0;
+	return ioctlsocket(fd, FIONBIO, &opt);
+#else
 	int flags = fcntl(fd, F_GETFL, 0);
 	return fcntl(fd, F_SETFL, flags ^ O_NONBLOCK);
+#endif
 }
 
 int SocketEngine::NonBlocking(int fd)
 {
+#ifdef WINDOWS
+	unsigned long opt = 1;
+	return ioctlsocket(fd, FIONBIO, &opt);
+#else
 	int flags = fcntl(fd, F_GETFL, 0);
 	return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+#endif
 }
 
 int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen)
@@ -167,10 +174,8 @@ int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namel
 
 int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
 {
-	return recvfrom(fd->GetFd(), buf, len, flags, from, fromlen);
+	return recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
 }
-
-#endif
 
 int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {

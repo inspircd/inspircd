@@ -61,6 +61,7 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int port, char* addr) : ServerIns
 	if (socketcount == 0)
 	{
 		/* All instances of ListenSocket share these, so reference count it */
+		ServerInstance->Logs->Log("SOCKET", DEBUG,"Allocate sockaddr structures");
 		sock_us = new sockaddr[2];
 		client = new sockaddr[2];
 		raddr = new sockaddr[2];
@@ -87,67 +88,81 @@ ListenSocket::~ListenSocket()
 	}
 }
 
-void ListenSocket::HandleEvent(EventType, int)
+void ListenSocket::HandleEvent(EventType e, int err)
 {
-	socklen_t uslen, length;		// length of our port number
-	int incomingSockfd, in_port;
+	switch (e)
+	{
+		case EVENT_ERROR:
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for listensocket GOT AN ERROR! well shit! '%s'", strerror(err));
+		break;
+		case EVENT_WRITE:
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"*** BUG *** HandleEvent for listensocket got a WRITE event!!!");
+		break;
+		case EVENT_READ:
+		{
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket");
+			socklen_t uslen, length;		// length of our port number
+			int incomingSockfd, in_port;
 
 #ifdef IPV6
-	if (this->family == AF_INET6)
-	{
-		uslen = sizeof(sockaddr_in6);
-		length = sizeof(sockaddr_in6);
-	}
-	else
+			if (this->family == AF_INET6)
+			{
+				uslen = sizeof(sockaddr_in6);
+				length = sizeof(sockaddr_in6);
+			}
+			else
 #endif
-	{
-		uslen = sizeof(sockaddr_in);
-		length = sizeof(sockaddr_in);
-	}
+			{
+				uslen = sizeof(sockaddr_in);
+				length = sizeof(sockaddr_in);
+			}
 
-	incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"Call to accept with client=%08lx, length=%d", client, length);
+			incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"Accept returned %d: %d", WSAGetLastError());
 
-	if ((incomingSockfd > -1) && (!ServerInstance->SE->GetSockName(this, sock_us, &uslen)))
-	{
-		char buf[MAXBUF];
-		char target[MAXBUF];
+			if ((incomingSockfd > -1) && (!ServerInstance->SE->GetSockName(this, sock_us, &uslen)))
+			{
+				char buf[MAXBUF];
+				char target[MAXBUF];	
 
-		*target = *buf = '\0';
+				*target = *buf = '\0';
 
 #ifdef IPV6
-		if (this->family == AF_INET6)
-		{
-			in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
-			inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
-			socklen_t raddrsz = sizeof(sockaddr_in6);
-			if (getpeername(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
-				inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
-			else
-				ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
-		}
-		else
+				if (this->family == AF_INET6)
+				{
+					in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
+					inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
+					socklen_t raddrsz = sizeof(sockaddr_in6);
+					if (getpeername(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
+						inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
+					else
+						ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
+				}
+				else
 #endif
-		{
-			inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
-			in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
-			socklen_t raddrsz = sizeof(sockaddr_in);
-			if (getpeername(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
-				inet_ntop(AF_INET, &((const sockaddr_in*)raddr)->sin_addr, target, sizeof(target));
+				{
+					inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
+					in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
+					socklen_t raddrsz = sizeof(sockaddr_in);
+					if (getpeername(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
+						inet_ntop(AF_INET, &((const sockaddr_in*)raddr)->sin_addr, target, sizeof(target));
+					else
+						ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
+				}
+
+				ServerInstance->SE->NonBlocking(incomingSockfd);
+				ServerInstance->stats->statsAccept++;
+				ServerInstance->Users->AddUser(ServerInstance, incomingSockfd, in_port, false, this->family, client, target);	
+			}
 			else
-				ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
-
+			{
+				ServerInstance->SE->Shutdown(incomingSockfd, 2);
+				ServerInstance->SE->Close(incomingSockfd);
+				ServerInstance->stats->statsRefused++;
+			}
 		}
-
-		ServerInstance->SE->NonBlocking(incomingSockfd);
-
-		ServerInstance->stats->statsAccept++;
-		ServerInstance->Users->AddUser(ServerInstance, incomingSockfd, in_port, false, this->family, client, target);
-	}
-	else
-	{
-		ServerInstance->SE->Shutdown(incomingSockfd, 2);
-		ServerInstance->SE->Close(incomingSockfd);
-		ServerInstance->stats->statsRefused++;
+		break;
 	}
 }
 
