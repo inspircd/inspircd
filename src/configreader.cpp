@@ -344,7 +344,8 @@ bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem 
 		std::string moo = std::string(data.GetString()).append(".");
 		data.Set(moo.c_str());
 	}
-	return ValidateHostname(conf, "server", "name", data);
+	conf->ValidateHostname(data.GetString(), "server", "name");
+	return true;
 }
 
 bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, ValueItem &data)
