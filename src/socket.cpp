@@ -119,7 +119,6 @@ void ListenSocket::HandleEvent(EventType e, int err)
 
 			ServerInstance->Logs->Log("SOCKET",DEBUG,"Call to accept with client=%08lx, length=%d", client, length);
 			incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"Accept returned %d: %d", WSAGetLastError());
 
 			if ((incomingSockfd > -1) && (!ServerInstance->SE->GetSockName(this, sock_us, &uslen)))
 			{
