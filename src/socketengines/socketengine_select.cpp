@@ -92,84 +92,75 @@ int SelectEngine::GetRemainingFds()
 
 int SelectEngine::DispatchEvents()
 {
-	int result = 0;
 	timeval tval;
 	int sresult = 0;
 	socklen_t codesize;
-	int errcode;
+	int errcode = 0;
 
 	FD_ZERO(&wfdset);
 	FD_ZERO(&rfdset);
 	FD_ZERO(&errfdset);
 
+	/* Populate the select FD set (this is why select sucks compared to epoll, kqueue, IOCP) */
 	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
 		if (ref[a->second]->Readable())
+			/* Read notifications */
 			FD_SET (a->second, &rfdset);
 		else
+			/* Write notifications */
 			FD_SET (a->second, &wfdset);
+
+		/* Explicitly one-time writeable */
 		if (writeable[a->second])
 			FD_SET (a->second, &wfdset);
 
+		/* All sockets must receive error notifications regardless */
 		FD_SET (a->second, &errfdset);
 	}
 
+	/* One second waits */
 	tval.tv_sec = 1;
 	tval.tv_usec = 0;
 
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, &errfdset, &tval);
 
-	if (sresult > 0)
-	{
-		for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
-		{
-			if ((FD_ISSET (a->second, &rfdset)) || (FD_ISSET (a->second, &wfdset)) || FD_ISSET (a->second, &errfdset))
-			{
-				ev[result++] = ref[a->second];
-			}
-		}
-	}
+	/* Nothing to process this time around */
+	if (sresult < 1)
+		return 0;
 
-	/** An event handler may remove its own descriptor from the list, therefore it is not
-	 * safe to directly iterate over the list and dispatch events there with STL iterators.
-	 * Thats a shame because it makes this code slower and more resource intensive, but maybe
-	 * the user should stop using select(), as select() smells anyway.
-	 */
-	for (int i = 0; i < result; i++)
+	/* Safe assumption (as of 1.1 anyway) that a socket can't remove itself from the list in the middle of the loop */
+	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
-		if (ev[i])
+		EventHandler* ev = ref[a->second];
+		if (ev)
 		{
-			if (FD_ISSET (ev[i]->GetFd(), &errfdset))
+			if (FD_ISSET (ev->GetFd(), &errfdset))
 			{
 				ErrorEvents++;
-
-				if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
+				if (getsockopt(ev->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
 					errcode = errno;
 
-				ev[i]->HandleEvent(EVENT_ERROR, errcode);
-
+				ev->HandleEvent(EVENT_ERROR, errcode);
 				continue;
 			}
 			else
 			{
-				if (writeable[ev[i]->GetFd()])
+				/* NOTE: This is a pair of seperate if statements as the socket
+				 * may be in both read and writeable state at the same time.
+				 * If an error event occurs above it is not worth processing the
+				 * read and write states even if set.
+				 */
+				if (FD_ISSET (ev->GetFd(), &wfdset))
 				{
 					WriteEvents++;
-					writeable[ev[i]->GetFd()] = false;
-					ev[i]->HandleEvent(EVENT_WRITE);
+					writeable[ev->GetFd()] = false;
+					ev->HandleEvent(EVENT_WRITE);
 				}
-				else
+				if (FD_ISSET (ev->GetFd(), &rfdset))
 				{
-					if (ev[i]->Readable())
-					{
 						ReadEvents++;
-						ev[i]->HandleEvent(EVENT_READ);
-					}
-					else
-					{
-						WriteEvents++;
-						ev[i]->HandleEvent(EVENT_WRITE);
-					}
+						ev->HandleEvent(EVENT_READ);
 				}
 			}
 		}
