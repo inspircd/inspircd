@@ -258,7 +258,7 @@ class ModuleBanRedirect : public Module
 		ExceptionModule = ServerInstance->Modules->Find("m_banexception.so");
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		/* This prevents recursion when a user sets multiple ban redirects in a chain
 		 * (thanks Potter)

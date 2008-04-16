@@ -51,7 +51,7 @@ class ModuleRestrictChans : public Module
 	}
 
 	
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		irc::string x = cname;
 		// user is not an oper and its not in the allow list

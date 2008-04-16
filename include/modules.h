@@ -545,9 +545,10 @@ class CoreExport Module : public Extensible
 	 * @param cname The channel name being joined. For new channels this is valid where chan is not.
 	 * @param privs A string containing the users privilages when joining the channel. For new channels this will contain "@".
 	 * You may alter this string to alter the user's modes on the channel.
+	 * @param keygiven The key given to join the channel, or an empty string if none was provided
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs);
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
 	
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no

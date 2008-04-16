@@ -394,7 +394,7 @@ class ModuleChanProtect : public Module
 		}
 	}
 	
-	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs)
+	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set

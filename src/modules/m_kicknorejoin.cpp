@@ -130,7 +130,7 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{

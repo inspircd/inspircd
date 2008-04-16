@@ -114,7 +114,7 @@ void		Module::OnPostJoin(User*, Channel*) { }
 void		Module::OnUserPart(User*, Channel*, const std::string&, bool&) { }
 void		Module::OnRehash(User*, const std::string&) { }
 void		Module::OnServerRaw(std::string&, bool, User*) { }
-int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&) { return 0; }
+int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return 0; }
 void		Module::OnMode(User*, void*, int, const std::string&) { }
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR,-1); }
 void		Module::OnOper(User*, const std::string&) { }

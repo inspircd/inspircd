@@ -278,7 +278,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		if (IS_LOCAL(user) && override == false)
 		{
 			MOD_RESULT = 0;
-			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname,privs));
+			FOREACH_RESULT_I(Instance,I_OnUserPreJoin, OnUserPreJoin(user, NULL, cname, privs, key ? key : ""));
 			if (MOD_RESULT == 1)
 				return NULL;
 		}
@@ -298,7 +298,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		if (IS_LOCAL(user) && override == false)
 		{
 			MOD_RESULT = 0;
-			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,Ptr,cname,privs));
+			FOREACH_RESULT_I(Instance,I_OnUserPreJoin, OnUserPreJoin(user, Ptr, cname, privs, key ? key : ""));
 			if (MOD_RESULT == 1)
 			{
 				return NULL;

@@ -224,7 +224,7 @@ class ModuleOverride : public Module
 		return ACR_DEFAULT;
 	}
 	
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (IS_OPER(user))
 		{
@@ -243,7 +243,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 				
-				if ((*chan->key) && (CanOverride(user,"KEY")))
+				if ((*chan->key) && (CanOverride(user,"KEY")) && !strcasecmp(keygiven.c_str(), chan->key))
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel key", cname, user->nick);

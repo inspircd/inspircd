@@ -86,7 +86,7 @@ class ModuleFoobar : public Module
 		ServerInstance->Logs->Log("m_foobar",DEBUG,"Foobar: User "+b+" parted "+c);
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan->IsExtBanned(user, 'n'))
 			return 1;

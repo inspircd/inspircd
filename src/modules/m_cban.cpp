@@ -177,7 +177,7 @@ class ModuleCBan : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs)
+	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 
