@@ -180,6 +180,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Re-basing shared objects..."
+				CommandLine="$(InputDir)\rebase.bat&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration

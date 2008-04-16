@@ -26,6 +26,7 @@ void Run();
 void Banner();
 void WriteCompileModules();
 void WriteCompileCommands();
+void Rebase();
 
 /* detects if we are running windows xp or higher (5.1) */
 bool iswinxp()
@@ -143,6 +144,17 @@ int get_svn_revision(char * buffer, size_t len)
 
 int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPSTR lpCmdLine, IN int nShowCmd )
 {
+	if (!strcmp(lpCmdLine, "/rebase"))
+	{
+		AllocConsole();
+		// pipe standard handles to this console
+		freopen("CONIN$", "r", stdin);
+		freopen("CONOUT$", "w", stdout);
+		freopen("CONOUT$", "w", stderr);
+		Rebase();
+		FreeConsole();
+		return 0;
+	}
 	FILE * j = fopen("inspircd_config.h", "r");
 	if (j)
 	{
@@ -410,6 +422,52 @@ void Run()
 	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
 
 	printf("\nconfigure is done.. exiting!\n");
+}
+
+void Rebase()
+{
+	char dest[65535];
+	char command[65535];
+
+	*dest = 0;
+
+	WIN32_FIND_DATA fd;
+	HANDLE fh = FindFirstFile("..\\bin\\release\\lib\\*.so", &fd);
+	if(fh == INVALID_HANDLE_VALUE)
+		return;
+
+	do
+	{
+		strcat(dest, " ..\\bin\\release\\lib\\");
+		strcat(dest, fd.cFileName);
+	}
+	while (FindNextFile(fh, &fd));
+
+	FindClose(fh);
+
+	sprintf(command, "rebase.exe -v -b 10000000 -c baseaddr_commands.txt %s", dest);
+	printf("%s\n", command);
+	system(command);
+
+	fh = FindFirstFile("..\\bin\\release\\modules\\*.so", &fd);
+	if(fh == INVALID_HANDLE_VALUE)
+		return;
+
+	*dest = 0;
+
+	do
+	{
+		strcat(dest, " ..\\bin\\release\\modules\\");
+		strcat(dest, fd.cFileName);
+	}
+	while (FindNextFile(fh, &fd));
+
+	sprintf(command, "rebase.exe -v -b 10000000 -c baseaddr_modules.txt %s", dest);
+	printf("%s\n", command);
+	system(command);
+
+	FindClose(fh);
+
 }
 
 void WriteCompileCommands()
