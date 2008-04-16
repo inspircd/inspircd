@@ -243,7 +243,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 				
-				if ((*chan->key) && (CanOverride(user,"KEY")) && !strcasecmp(keygiven.c_str(), chan->key))
+				if ((*chan->key) && (CanOverride(user,"KEY")) && strcasecmp(keygiven.c_str(), chan->key))
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel key", cname, user->nick);
