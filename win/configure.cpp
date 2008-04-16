@@ -462,7 +462,7 @@ void Rebase()
 	}
 	while (FindNextFile(fh, &fd));
 
-	sprintf(command, "rebase.exe -v -b 10000000 -c baseaddr_modules.txt %s", dest);
+	sprintf(command, "rebase.exe -v -b 11000000 -c baseaddr_modules.txt %s", dest);
 	printf("%s\n", command);
 	system(command);
 
