@@ -93,10 +93,10 @@ void ListenSocket::HandleEvent(EventType e, int err)
 	switch (e)
 	{
 		case EVENT_ERROR:
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for listensocket GOT AN ERROR! well shit! '%s'", strerror(err));
+			ServerInstance->Logs->Log("SOCKET",DEFAULT,"ListenSocket::HandleEvent() received a socket engine error event! well shit! '%s'", strerror(err));
 		break;
 		case EVENT_WRITE:
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"*** BUG *** HandleEvent for listensocket got a WRITE event!!!");
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"*** BUG *** ListenSocket::HandleEvent() got a WRITE event!!!");
 		break;
 		case EVENT_READ:
 		{
@@ -117,7 +117,6 @@ void ListenSocket::HandleEvent(EventType e, int err)
 				length = sizeof(sockaddr_in);
 			}
 
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"Call to accept with client=%08lx, length=%d", client, length);
 			incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
 
 			if ((incomingSockfd > -1) && (!ServerInstance->SE->GetSockName(this, sock_us, &uslen)))
