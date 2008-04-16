@@ -1862,10 +1862,31 @@ class CoreExport ModuleManager : public classbase
  * and functions needed to make a module loadable by the OS.
  * It defines the class factory and external init_module function.
  */
+#ifdef WINDOWS
+
+#define MODULE_INIT(y) \
+	extern "C" DllExport Module * init_module(InspIRCd* Me) \
+	{ \
+		return new y(Me); \
+	} \
+	BOOLEAN WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) \
+	{ \
+		switch ( nReason ) \
+		{ \
+			case DLL_PROCESS_ATTACH: \
+			case DLL_PROCESS_DETACH: \
+				break; \
+		} \
+		return TRUE; \
+	}
+
+#else
+
 #define MODULE_INIT(y) \
 	extern "C" DllExport Module * init_module(InspIRCd* Me) \
 	{ \
 		return new y(Me); \
 	}
+#endif
 
 #endif
