@@ -28,7 +28,7 @@
 
 void * ::operator new(size_t iSize)
 {
-	void* ptr = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, iSize);		/* zero memory for unix compatibility */
+	void* ptr = HeapAlloc(GetProcessHeap(), 0, iSize);		/* zero memory for unix compatibility */
 	/* This is the correct behaviour according to C++ standards for out of memory,
 	 * not returning null -- Brain
 	 */
@@ -39,6 +39,19 @@ void * ::operator new(size_t iSize)
 }
 
 void ::operator delete(void * ptr)
+{
+	HeapFree(GetProcessHeap(), 0, ptr);
+}
+
+void * operator new[] (size_t iSize) {
+	void* ptr = HeapAlloc(GetProcessHeap(), 0, iSize); /* Why were we initializing the memory to zeros here? This is just a waste of cpu! */
+	if (!ptr)
+		throw std::bad_alloc();
+	else
+		return ptr;
+}
+
+void operator delete[] (void* ptr)
 {
 	HeapFree(GetProcessHeap(), 0, ptr);
 }
