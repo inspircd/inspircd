@@ -35,11 +35,11 @@ void SnomaskManager::FlushSnotices()
 	}
 }
 
-bool SnomaskManager::EnableSnomask(char letter, const std::string &type)
+bool SnomaskManager::EnableSnomask(char letter, const std::string &type, bool local)
 {
 	if (SnoMasks.find(letter) == SnoMasks.end())
 	{
-		Snomask *s = new Snomask(ServerInstance, letter, type);
+		Snomask *s = new Snomask(ServerInstance, letter, type, local);
 		SnoMasks[letter] = s;
 		return true;
 	}
@@ -87,11 +87,11 @@ bool SnomaskManager::IsEnabled(char letter)
 
 void SnomaskManager::SetupDefaults()
 {
-	this->EnableSnomask('c',"CONNECT");			/* Local connect notices */
+	this->EnableSnomask('c',"CONNECT", true);			/* Local connect notices */
 	this->EnableSnomask('C',"REMOTECONNECT");		/* Remote connect notices */
-	this->EnableSnomask('q',"QUIT");			/* Local quit notices */
+	this->EnableSnomask('q',"QUIT", true);			/* Local quit notices */
 	this->EnableSnomask('Q',"REMOTEQUIT");			/* Remote quit notices */
-	this->EnableSnomask('k',"KILL");			/* Kill notices */
+	this->EnableSnomask('k',"KILL", true);			/* Kill notices */
 	this->EnableSnomask('K',"REMOTEKILL");			/* Remote kill notices */
 	this->EnableSnomask('l',"LINK");			/* Link notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
@@ -137,9 +137,16 @@ void Snomask::Flush()
 		}
 	}
 
-	ServerInstance->PI->SendSNONotice(MySnomask, this->Description + ": " + this->LastMessage);
-	if (Count > 1)
-		ServerInstance->PI->SendSNONotice(MySnomask, this->Description + ": (last message repeated " + Count + " times)");
+	if (!LocalOnly)
+	{
+		// XXX this is a bit ugly.
+		std::string sno;
+		sno[0] = MySnomask;
+
+		ServerInstance->PI->SendSNONotice(sno, this->Description + ": " + this->LastMessage);
+		if (Count > 1)
+			ServerInstance->PI->SendSNONotice(sno, this->Description + ": (last message repeated " + ConvToStr(Count) + " times)");
+	}
 
 	LastMessage = "";
 	Count = 1;

@@ -24,10 +24,11 @@ class Snomask : public Extensible
 	std::string Description;
 	std::string LastMessage;
 	unsigned int Count;
+	bool LocalOnly; // whether or not messages are netwide
 
 	/** Create a new Snomask
 	 */
-	Snomask(InspIRCd* Instance, char snomask, const std::string &description) : ServerInstance(Instance), MySnomask(snomask), Description(description), LastMessage(""), Count(0)
+	Snomask(InspIRCd* Instance, char snomask, const std::string &description, bool local) : ServerInstance(Instance), MySnomask(snomask), Description(description), LastMessage(""), Count(0), LocalOnly(local)
 	{
 	}
 
@@ -77,10 +78,11 @@ class CoreExport SnomaskManager : public Extensible
 	 * their list, and users may add this letter to their list.
 	 * @param description The descriptive text sent along with any
 	 * server notices, at the start of the notice, e.g. "GLOBOPS".
+	 * @param local Whether or not messages should be locally broadcast only (default off)
 	 * @return True if the snomask was enabled, false if it already
 	 * exists.
 	 */
-	bool EnableSnomask(char letter, const std::string &description);
+	bool EnableSnomask(char letter, const std::string &description, bool local = false);
 
 	/** Disable a snomask.
 	 * @param letter The snomask letter to disable.
