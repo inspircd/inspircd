@@ -22,6 +22,7 @@ class ModuleOverride : public Module
 {
 	
 	override_t overrides;
+	bool RequireKey;
 	bool NoisyOverride;
 	bool OverriddenMode;
 	int OverOps, OverDeops, OverVoices, OverDevoices, OverHalfops, OverDehalfops;
@@ -33,7 +34,7 @@ class ModuleOverride : public Module
 	{		
 		// read our config options (main config file)
 		OnRehash(NULL,"");
-		ServerInstance->SNO->EnableSnomask('O',"OVERRIDE");
+		ServerInstance->SNO->EnableSnomask('O', "OVERRIDE");
 		OverriddenMode = false;
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand };
@@ -46,8 +47,11 @@ class ModuleOverride : public Module
 		ConfigReader* Conf = new ConfigReader(ServerInstance);
 		
 		// re-read our config options on a rehash
-		NoisyOverride = Conf->ReadFlag("override","noisy",0);
+		NoisyOverride = Conf->ReadFlag("override", "noisy", 0);
+		RequireKey = Conf->ReadFlag("override", "requirekey", 0);
+
 		overrides.clear();
+
 		for (int j =0; j < Conf->Enumerate("type"); j++)
 		{
 			std::string typen = Conf->ReadValue("type","name",j);
@@ -226,6 +230,12 @@ class ModuleOverride : public Module
 	
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
+		/*
+		 * XXX: this is potentially prone to desyncs (though unlikely).
+		 * Really, now we have a protocol interface, we should only do
+		 * this for *local* users and just broadcast out a SNONOTICE if
+		 * an override is perpetrated. -- w00t
+		 */
 		if (IS_OPER(user))
 		{
 			if (chan)
@@ -235,7 +245,13 @@ class ModuleOverride : public Module
 					irc::string x = chan->name;
 					if (!user->IsInvited(x))
 					{
-						/* XXX - Ugly cast for a parameter that isn't used? :< - Om */
+						if (RequireKey && keygiven != "override")
+						{
+							// Can't join normally -- must use a special key to bypass restrictions
+							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+							return 1;
+						}
+
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass invite-only", cname, user->nick);
 						ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
@@ -245,6 +261,13 @@ class ModuleOverride : public Module
 				
 				if ((*chan->key) && (CanOverride(user,"KEY")) && strcasecmp(keygiven.c_str(), chan->key))
 				{
+					if (RequireKey && keygiven != "override")
+					{
+						// Can't join normally -- must use a special key to bypass restrictions
+						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+						return 1;
+					}
+
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel key", cname, user->nick);
 					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
@@ -253,6 +276,13 @@ class ModuleOverride : public Module
 					
 				if ((chan->limit > 0) && (chan->GetUserCounter() >=  chan->limit) && (CanOverride(user,"LIMIT")))
 				{
+					if (RequireKey && keygiven != "override")
+					{
+						// Can't join normally -- must use a special key to bypass restrictions
+						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+						return 1;
+					}
+
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel limit", cname, user->nick);
 					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
@@ -263,6 +293,13 @@ class ModuleOverride : public Module
 				{
 					if (chan->IsBanned(user))
 					{
+						if (RequireKey && keygiven != "override")
+						{
+							// Can't join normally -- must use a special key to bypass restrictions
+							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+							return 1;
+						}
+
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel ban", cname, user->nick);
 						ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel ban on %s", user->nick, cname);
