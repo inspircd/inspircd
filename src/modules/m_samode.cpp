@@ -47,8 +47,6 @@ class CommandSamode : public Command
 			n.pop_front();
 			ServerInstance->PI->SendMode(channel, n);
 
-			ServerInstance->PI->SendOperNotice(std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
-
 			/* XXX: Yes, this is right. We dont want to propagate the
 			 * actual SAMODE command, just the MODE command generated
 			 * by the Protocol Interface

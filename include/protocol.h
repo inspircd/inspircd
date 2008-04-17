@@ -47,8 +47,6 @@ class ProtocolInterface : public Extensible
 		SendMode(target, n);
 	}
 
-	virtual void SendOperNotice(const std::string &text) { }
-
 	virtual void SendModeNotice(const std::string &modes, const std::string &text) { }
 
 	virtual void SendSNONotice(const std::string &snomask, const std::string &text) { }

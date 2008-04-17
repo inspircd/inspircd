@@ -477,12 +477,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 				}
 				return true;
 			}
-			else if (command == "OPERNOTICE")
-			{
-				if (params.size() >= 1)
-					Instance->SNO->WriteToSnoMask('A', "From " + (ServerSource ? ServerSource->GetName().c_str() : prefix) + ": " + params[0]);
-				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
-			}
 			else if (command == "MODENOTICE")
 			{
 				if (params.size() >= 2)
