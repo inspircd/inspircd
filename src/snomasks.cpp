@@ -122,14 +122,13 @@ void Snomask::Flush()
 	if (this->LastMessage.empty())
 		return;
 
-	ServerInstance->Logs->Log("SNOMASK", DEBUG, "Flushing snomask %s", this->Description.c_str());
-
 	/* Only opers can receive snotices, so we iterate the oper list */
 	for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
 	{
 		User* a = *i;
 		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)
 		{
+
 			a->WriteServ("NOTICE %s :*** %s: %s", a->nick, this->Description.c_str(), this->LastMessage.c_str());
 			if (Count > 1)
 			{
@@ -137,6 +136,10 @@ void Snomask::Flush()
 			}
 		}
 	}
+
+	ServerInstance->PI->SendSNONotice(MySnomask, this->Description + ": " + this->LastMessage);
+	if (Count > 1)
+		ServerInstance->PI->SendSNONotice(MySnomask, this->Description + ": (last message repeated " + Count + " times)");
 
 	LastMessage = "";
 	Count = 1;
