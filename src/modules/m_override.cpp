@@ -242,7 +242,7 @@ class ModuleOverride : public Module
 						if (RequireKey && keygiven != "override")
 						{
 							// Can't join normally -- must use a special key to bypass restrictions
-							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
 							return 1;
 						}
 
@@ -258,7 +258,7 @@ class ModuleOverride : public Module
 					if (RequireKey && keygiven != "override")
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
 						return 1;
 					}
 
@@ -273,7 +273,7 @@ class ModuleOverride : public Module
 					if (RequireKey && keygiven != "override")
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
 						return 1;
 					}
 
@@ -290,7 +290,7 @@ class ModuleOverride : public Module
 						if (RequireKey && keygiven != "override")
 						{
 							// Can't join normally -- must use a special key to bypass restrictions
-							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.");
+							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
 							return 1;
 						}
 
