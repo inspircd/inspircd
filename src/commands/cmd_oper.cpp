@@ -135,7 +135,6 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 			
 			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
 			ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
-			ServerInstance->PI->SendSNONotice("o", broadcast);
 
 			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0],fields.c_str());
 			return CMD_FAILURE;
@@ -147,7 +146,6 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 			snprintf(broadcast, MAXBUF, "CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0],OperType);
 
 			ServerInstance->SNO->WriteToSnoMask('o', std::string(broadcast));
-			ServerInstance->PI->SendSNONotice("o", broadcast);
 
 			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host,parameters[0]);
 			return CMD_FAILURE;

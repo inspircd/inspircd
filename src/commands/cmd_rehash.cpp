@@ -51,14 +51,12 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 
 	std::string m = std::string(user->nick) + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
 	ServerInstance->SNO->WriteToSnoMask('A', m);
-	ServerInstance->PI->SendSNONotice("A", m);
 	ServerInstance->Logs->CloseLogs();
 
 	if (!ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc))
 	{
 		m = std::string("ERROR: Could not open logfile ") + ServerInstance->Config->logpath + ":" + strerror(errno);
 		ServerInstance->SNO->WriteToSnoMask('A', m);
-		ServerInstance->PI->SendSNONotice("A", m);
 	}
 
 	ServerInstance->RehashUsersAndChans();
