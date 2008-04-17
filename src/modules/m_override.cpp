@@ -230,13 +230,7 @@ class ModuleOverride : public Module
 	
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
-		/*
-		 * XXX: this is potentially prone to desyncs (though unlikely).
-		 * Really, now we have a protocol interface, we should only do
-		 * this for *local* users and just broadcast out a SNONOTICE if
-		 * an override is perpetrated. -- w00t
-		 */
-		if (IS_OPER(user))
+		if (IS_LOCAL(user) && IS_OPER(user))
 		{
 			if (chan)
 			{
