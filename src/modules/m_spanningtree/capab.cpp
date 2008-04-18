@@ -80,7 +80,23 @@ void TreeSocket::SendCapabilities()
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
 
-	this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support)+" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+" PREFIX="+Instance->Modes->BuildPrefixes()+" CHANMODES="+Instance->Modes->ChanModes()+" SVSPART=1");
+	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
+			":NICKMAX="+ConvToStr(NICKMAX)+
+			" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+
+			" CHANMAX="+ConvToStr(CHANMAX)+
+			" MAXMODES="+ConvToStr(MAXMODES)+
+			" IDENTMAX="+ConvToStr(IDENTMAX)+
+			" MAXQUIT="+ConvToStr(MAXQUIT)+
+			" MAXTOPIC="+ConvToStr(MAXTOPIC)+
+			" MAXKICK="+ConvToStr(MAXKICK)+
+			" MAXGECOS="+ConvToStr(MAXGECOS)+
+			" MAXAWAY="+ConvToStr(MAXAWAY)+
+			" IP6NATIVE="+ConvToStr(ip6)+
+			" IP6SUPPORT="+ConvToStr(ip6support)+
+			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
+			" PREFIX="+Instance->Modes->BuildPrefixes()+
+			" CHANMODES="+Instance->Modes->ChanModes()+
+			" SVSPART=1");
 
 	this->WriteLine("CAPAB END");
 }
