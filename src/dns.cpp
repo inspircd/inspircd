@@ -791,6 +791,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length, int result_we_w
 	rr.type = DNS_QUERY_NONE;
 	rr.rdlength = 0;
 	rr.ttl = 1;	/* GCC is a whiney bastard -- see the XXX below. */
+	rr.rr_class = 0; /* Same for VC++ */
 
 	if (!(header.flags1 & FLAGS_MASK_QR))
 		return std::make_pair((unsigned char*)NULL,"Not a query result");
@@ -1174,4 +1175,5 @@ unsigned long DNS::PRNG()
 	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - ServerInstance->Config->ports.size();
 	return val;
 }
+
 

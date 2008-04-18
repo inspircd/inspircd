@@ -356,7 +356,7 @@ bool ModuleManager::Load(const char* filename)
 		{
 			/* Try and locate and load all modules matching the pattern */
 			dirent* entry = NULL;
-			while ((entry = readdir(library)))
+			while (0 != (entry = readdir(library)))
 			{
 				if (Instance->MatchText(entry->d_name, filename))
 				{

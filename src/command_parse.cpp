@@ -559,7 +559,7 @@ void CommandParser::SetupCommandTable(User* user)
 	if (library)
 	{
 		dirent* entry = NULL;
-		while ((entry = readdir(library)))
+		while (0 != (entry = readdir(library)))
 		{
 			if (match(entry->d_name, "cmd_*.so"))
 			{
@@ -662,4 +662,5 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 
 	return translations;
 }
+
 

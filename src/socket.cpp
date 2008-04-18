@@ -337,6 +337,7 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
  */ 
 bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 {
+	_CrtCheckMemory();
 	/* We allocate 2 of these, because sockaddr_in6 is larger than sockaddr (ugh, hax) */
 	sockaddr* servaddr = new sockaddr[2];
 	memset(servaddr,0,sizeof(sockaddr)*2);
@@ -510,7 +511,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 		{
 			irc::portparser portrange(configToken, false);
 			int portno = -1;
-			while ((portno = portrange.GetToken()))
+			while (0 != (portno = portrange.GetToken()))
 			{
 				if (*Addr == '*')
 					*Addr = 0;
@@ -582,4 +583,5 @@ int irc::sockets::insp_aton(const char* a, insp_inaddr* n)
 {
 	return inet_pton(AF_FAMILY, a, n);
 }
+
 

@@ -455,7 +455,7 @@ EventHandler * IOCPEngine::GetIntRef(int fd)
 
 int IOCPEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 {
-	SOCKET s = fd->GetFd();
+	//SOCKET s = fd->GetFd();
 
 	Overlapped* acceptevent = NULL;
 	if (!fd->GetExt("windows_acceptevent", acceptevent))
@@ -465,7 +465,7 @@ int IOCPEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 	Overlapped* ovl = acceptevent;
 	accept_overlap* ov = (accept_overlap*)ovl->m_params;
 	
-	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
+	//sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
 	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
 
 	memcpy(addr, client_address, sizeof(sockaddr_in));
@@ -484,7 +484,7 @@ int IOCPEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen
 	accept_overlap* ov = (accept_overlap*)ovl->m_params;
 
 	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
-	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
+	//sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
 
 	memcpy(name, server_address, sizeof(sockaddr_in));
 	*namelen = sizeof(sockaddr_in);
@@ -523,4 +523,5 @@ int IOCPEngine::Close(EventHandler* fd)
 {
 	return this->Close(fd->GetFd());
 }
+
 

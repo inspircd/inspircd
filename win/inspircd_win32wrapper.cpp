@@ -302,7 +302,6 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 		return -1;
 
 	const char * opt = ___argv[arg_counter];
-	int return_val = 0;
 
 	// if we're not an option, return an error.
 	if (strnicmp(opt, "--", 2) != 0)

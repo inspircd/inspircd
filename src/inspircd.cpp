@@ -12,8 +12,6 @@
  */
 
 /* $Install: src/inspircd $(BINPATH) */
-
-
 #include "inspircd.h"
 #include <signal.h>
 
@@ -27,6 +25,13 @@
 	/* Some systems don't define RUSAGE_SELF. This should fix them. */
 	#ifndef RUSAGE_SELF
 		#define RUSAGE_SELF 0
+	#endif
+
+	/* CRT memory debugging */
+	#ifdef DEBUG
+	#define _CRTDBG_MAP_ALLOC
+	#include <stdlib.h>
+	#include <crtdbg.h>
 	#endif
 #endif
 
@@ -306,7 +311,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 FloodQuitUser(&HandleFloodQuitUser)
 
 {
-
+#ifdef WIN32
+	_CrtSetDbgFlag ( _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+#endif
 	int found_ports = 0;
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,
