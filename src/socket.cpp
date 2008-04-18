@@ -337,7 +337,6 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
  */ 
 bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 {
-	_CrtCheckMemory();
 	/* We allocate 2 of these, because sockaddr_in6 is larger than sockaddr (ugh, hax) */
 	sockaddr* servaddr = new sockaddr[2];
 	memset(servaddr,0,sizeof(sockaddr)*2);
