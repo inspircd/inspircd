@@ -88,9 +88,6 @@ class ModuleFoobar : public Module
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
-		if (chan->IsExtBanned(user, 'n'))
-			return 1;
-
 		return 0;
 	}
 };
