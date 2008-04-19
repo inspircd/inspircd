@@ -135,6 +135,8 @@ Section "Binary Executable" SEC01
   Call IsDotNetInstalled
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
+  File "vcredist_x86.exe"
+  ExecWait "$INSTDIR\vcredist_x86.exe"
   File "..\bin\${BUILD}\InspGUI.exe"
   CreateDirectory "$SMPROGRAMS\InspIRCd"
   CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd.lnk" "$INSTDIR\InspGUI.exe"
