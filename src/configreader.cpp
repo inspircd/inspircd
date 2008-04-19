@@ -252,7 +252,7 @@ bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem 
 {
 	if ((data.GetInteger() < 0) || (data.GetInteger() > 31))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <security:maxtargets> value is greater than 31 or less than 0, set to 20.");
 		data.Set(20);
 	}
 	return true;
@@ -262,7 +262,7 @@ bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &
 {
 	if ((data.GetInteger() < 1) || (data.GetInteger() > conf->GetInstance()->SE->GetMaxFds()))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",conf->GetInstance()->SE->GetMaxFds(),conf->GetInstance()->SE->GetMaxFds());
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <performance:softlimit> value is greater than %d or less than 0, set to %d.",conf->GetInstance()->SE->GetMaxFds(),conf->GetInstance()->SE->GetMaxFds());
 		data.Set(conf->GetInstance()->SE->GetMaxFds());
 	}
 	return true;
@@ -271,7 +271,7 @@ bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &
 bool ValidateMaxConn(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (data.GetInteger() > SOMAXCONN)
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <performance:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	return true;
 }
 
@@ -362,7 +362,7 @@ bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &dat
 {
 	if ((data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<options:maxwhoresults> size out of range, setting to default of 128.");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<performance:maxwho> size out of range, setting to default of 128.");
 		data.Set(128);
 	}
 	return true;
