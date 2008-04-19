@@ -25,7 +25,7 @@ class ModuleUHNames : public Module
 		: Module(Me)
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnSyncUserMetaData, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	virtual ~ModuleUHNames()
