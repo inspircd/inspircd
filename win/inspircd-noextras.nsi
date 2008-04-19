@@ -144,8 +144,7 @@ Section "Binary Executable" SEC01
   CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd.lnk" "$INSTDIR\InspGUI.exe"
   SetOutPath "$INSTDIR\bin"
   SetOverwrite ifnewer
-  File "..\bin\${BUILD}\bin\inspircd.
-  exe"
+  File "..\bin\${BUILD}\bin\inspircd.exe"
 SectionEnd
 
 Section "Config Files" SEC02
