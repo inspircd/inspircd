@@ -133,10 +133,12 @@ FunctionEnd
 
 Section "Binary Executable" SEC01
   Call IsDotNetInstalled
-  SetOutPath "$INSTDIR"
+  SetOutPath "$TEMP"
   SetOverwrite ifnewer
   File "vcredist_x86.exe"
-  ExecWait "$INSTDIR\vcredist_x86.exe"
+  ExecWait "$TEMP\vcredist_x86.exe"
+  SetOutPath "$INSTDIR"
+  SetOverwrite ifnewer
   File "..\bin\${BUILD}\InspGUI.exe"
   CreateDirectory "$SMPROGRAMS\InspIRCd"
   CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd.lnk" "$INSTDIR\InspGUI.exe"
