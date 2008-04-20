@@ -388,7 +388,7 @@ void CommandParser::RemoveCommands(const char* source)
 		i++;
 		RemoveCommand(safei, source);
 	}
-	return true;
+	return;
 }
 
 void CommandParser::RemoveCommand(command_table::iterator safei, const char* source)
