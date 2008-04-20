@@ -125,6 +125,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
 				Optimization="1"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="..\include;..\win;..\src\modules\m_spanningtree;.;..\src\modules"
