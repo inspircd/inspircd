@@ -181,6 +181,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="ls -1 ../bin/release/lib/*.so &gt; commands.txt&#x0D;&#x0A;ls -1 ../bin/release/modules/*.so &gt; modules.txt&#x0D;&#x0A;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\rebase.exe&quot; -v -b 10000000 -c baseaddr_commands.txt @commands.txt&#x0D;&#x0A;&quot;C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\Bin\rebase.exe&quot; -v -b 11000000 -c baseaddr_modules.txt @modules.txt&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
