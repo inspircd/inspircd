@@ -182,9 +182,8 @@ class CoreExport CommandParser : public classbase
 
 	/** Remove all commands relating to module 'source'.
 	 * @param source A module name which has introduced new commands
-	 * @return True This function returns true if commands were removed
 	 */
-	bool RemoveCommands(const char* source);
+	void RemoveCommands(const char* source);
 
 	/** Add a new command to the commands hash
 	 * @param f The new command_t to add to the list

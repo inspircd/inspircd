@@ -379,21 +379,13 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	}
 }
 
-bool CommandParser::RemoveCommands(const char* source)
+void CommandParser::RemoveCommands(const char* source)
 {
 	command_table::iterator i,safei;
-	for (i = cmdlist.begin(); i != cmdlist.end(); i++)
+	for (i = cmdlist.begin(); i != cmdlist.end();)
 	{
 		safei = i;
-		safei++;
-		if (safei != cmdlist.end())
-		{
-			RemoveCommand(safei, source);
-		}
-	}
-	safei = cmdlist.begin();
-	if (safei != cmdlist.end())
-	{
+		i++;
 		RemoveCommand(safei, source);
 	}
 	return true;
