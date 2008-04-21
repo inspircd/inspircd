@@ -51,7 +51,7 @@ int CullList::Apply()
 		User *u = (*a);
 		user_hash::iterator iter = ServerInstance->Users->clientlist->find(u->nick);
 		const char* preset_reason = u->GetOperQuit();
-		std::string reason = u->operquitmsg;
+		std::string reason = u->quitmsg;
 		std::string oper_reason = *preset_reason ? preset_reason : u->operquitmsg;
 
 		if (reason.length() > MAXQUIT - 1)
