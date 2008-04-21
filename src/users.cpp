@@ -30,8 +30,7 @@ static unsigned long* already_sent = NULL;
 void InitializeAlreadySent(SocketEngine* SE)
 {
 	already_sent = new unsigned long[SE->GetMaxFds()];
-	memset(already_sent, 0, SE->GetMaxFds() * sizeof(long));
-	printf("\n\nInit Already Sent, uniq id = %lu\n\n", uniq_id);
+	memset(already_sent, 0, SE->GetMaxFds() * sizeof(unsigned long));
 }
 
 
@@ -622,23 +621,16 @@ void User::AddWriteBuf(const std::string &data)
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 void User::FlushWriteBuf()
 {
-	printf("\nFlush buffer on %d\n", this->GetFd());
 	try
 	{
-		printf("1\n");
 		if ((this->fd == FD_MAGIC_NUMBER) || (*this->GetWriteError()))
 		{
-			printf("Write error set, clear sendq: %s\n", this->GetWriteError());
 			sendq.clear();
 		}
-		printf("2 sendq len = %u fd = %d\n", sendq.length(), this->fd);
 		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
-			printf("3\n");
 			int old_sendq_length = sendq.length();
 			int n_sent = ServerInstance->SE->Send(this, this->sendq.data(), this->sendq.length(), 0);
-
-			printf("\nWrote %d\n", n_sent);
 
 			if (n_sent == -1)
 			{
@@ -654,7 +646,6 @@ void User::FlushWriteBuf()
 					/* Fatal error, set write error and bail
 					 */
 					this->SetWriteError(errno ? strerror(errno) : "EOF from client");
-					printf("\nError on %d\n", this->GetFd());
 					return;
 				}
 			}
@@ -677,8 +668,6 @@ void User::FlushWriteBuf()
 		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::FlushWriteBuf()");
 	}
 
-	printf("end flush\n");
-
 	if (this->sendq.empty())
 	{
 		FOREACH_MOD(I_OnBufferFlushed,OnBufferFlushed(this));
@@ -687,7 +676,6 @@ void User::FlushWriteBuf()
 
 void User::SetWriteError(const std::string &error)
 {
-	printf("SET WRITE ERROR: %s\n", error.c_str());
 	// don't try to set the error twice, its already set take the first string.
 	if (this->WriteError.empty())
 		this->WriteError = error;
@@ -1150,7 +1138,6 @@ const char* User::GetIPString(bool translate4in6)
  */
 void User::Write(std::string text)
 {
-	printf("Write Error is %s\n", *(GetWriteError()) ? "set" : "unset");
 	if (!ServerInstance->SE->BoundsCheckFd(this))
 		return;
 
