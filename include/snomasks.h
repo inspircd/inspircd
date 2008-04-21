@@ -91,6 +91,13 @@ class CoreExport SnomaskManager : public Extensible
 	 */
 	bool DisableSnomask(char letter);
 
+	/** Set the local only message state of a given snomask.
+	 * This is used by remote stuff to prevent endless recursion in sending
+	 * XXX this is currently a really shit way to do it, as it effectively
+	 * bypasses snomask compression!
+	 */
+	bool SetLocalOnly(char letter, bool local);
+
 	/** Write to all users with a given snomask.
 	 * @param letter The snomask letter to write to
 	 * @param text The text to send to the users

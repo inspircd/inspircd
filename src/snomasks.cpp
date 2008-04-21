@@ -40,6 +40,18 @@ void SnomaskManager::FlushSnotices()
 	}
 }
 
+bool SnomaskManager::SetLocalOnly(char letter, bool local)
+{
+	SnoList::iterator n = SnoMasks.find(letter);
+	if (n != SnoMasks.end())
+	{
+		n->second->LocalOnly = local;
+		return n->second->LocalOnly;
+	}
+
+	throw "snomask not found wtf";
+}
+
 bool SnomaskManager::EnableSnomask(char letter, const std::string &type, bool local)
 {
 	if (SnoMasks.find(letter) == SnoMasks.end())
