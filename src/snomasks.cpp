@@ -158,7 +158,7 @@ void Snomask::Flush()
 	{
 		// XXX this is a bit ugly.
 		std::string sno;
-		sno[0] = MySnomask;
+		sno += MySnomask;
 
 		ServerInstance->PI->SendSNONotice(sno, this->Description + ": " + this->LastMessage);
 		if (Count > 1)
