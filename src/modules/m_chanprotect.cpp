@@ -303,7 +303,7 @@ class ModuleChanProtect : public Module
 		: Module(Me), FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true), cp(NULL), cf(NULL)
 	{
 		/* Load config stuff */
-		OnRehash(NULL,"");
+		LoadSettings();
 		booting = false;
 
 		/* Initialise module variables */
@@ -318,8 +318,8 @@ class ModuleChanProtect : public Module
 			throw ModuleException("Could not add new modes!");
 		}
 
-		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnRehash, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
@@ -336,7 +336,7 @@ class ModuleChanProtect : public Module
 		user->Shrink("cm_protect_"+std::string(channel->name));
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	void LoadSettings()
 	{
 		/* Create a configreader class and read our flag,
 		 * in old versions this was heap-allocated and the
@@ -344,9 +344,6 @@ class ModuleChanProtect : public Module
 		 * stack-allocate it locally.
 		 */
 		ConfigReader Conf(ServerInstance);
-
-		char old_q = QPrefix;
-		char old_a = APrefix;
 
 		FirstInGetsFounder = Conf.ReadFlag("options", "noservices", 0);
 
@@ -367,31 +364,6 @@ class ModuleChanProtect : public Module
 
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
 		DeprivOthers = Conf.ReadFlag("options","deprotectothers",0);
-
-		ServerInstance->Logs->Log("chanprotect", DEBUG, "qprefix is %c and aprefix is %c", QPrefix, APrefix);
-
-		/* Did the user change the QA prefixes on the fly?
-		 * If so, remove all instances of the mode, and reinit
-		 * the module with prefixes enabled.
-		 */
-		if ((old_q != QPrefix) && (!booting))
-		{
-			ServerInstance->Modes->DelMode(cf);
-			delete cf;
-			cf = new ChanFounder(ServerInstance, QPrefix, DeprivSelf, DeprivOthers);
-			/* These wont fail, we already owned the mode characters before */
-			ServerInstance->Modes->AddMode(cf);
-			ServerInstance->SNO->WriteToSnoMask('A', "WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
-		}
-
-		if ((old_a != APrefix) && (!booting))
-		{
-			ServerInstance->Modes->DelMode(cp);
-			delete cp;
-			cp = new ChanProtect(ServerInstance, APrefix, DeprivSelf, DeprivOthers);
-			ServerInstance->Modes->AddMode(cp);
-			ServerInstance->SNO->WriteToSnoMask('A', "WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
-		}
 	}
 	
 	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
