@@ -164,9 +164,11 @@ class ModuleTimedBans : public Module
 					if (cr)
 					{
 						const char *setban[3];
+						std::string mask = i->mask;
+						
 						setban[0] = i->channel.c_str();
 						setban[1] = "-b";
-						setban[2] = i->mask.c_str();
+						setban[2] = mask.c_str();
 						// kludge alert!
 						// ::SendMode expects a userrec* to send the numeric replies
 						// back to, so we create it a fake user that isnt in the user
@@ -186,6 +188,15 @@ class ModuleTimedBans : public Module
 						Event rmode((char *)&n, NULL, "send_mode");
 						rmode.Send(ServerInstance);
 						DELETE(temp);
+						
+						bool was_removed = true;
+						for (BanList::iterator j = cr->bans.begin(); j != cr->bans.end(); j++)
+							if (!strcasecmp(j->data, mask.c_str()))
+								was_removed = false;
+
+						/* Fix for crash if user cycles before the ban expires */ 
+						if (!was_removed)
+							TimedBanList.erase(i);
 					}
 					else
 					{
