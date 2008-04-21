@@ -1125,9 +1125,8 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 		NULL
 	};
 
-	/* Clear mode list */
+	/* Clear mode handler list */
 	memset(modehandlers, 0, sizeof(modehandlers));
-	memset(modewatchers, 0, sizeof(modewatchers));
 
 	/* Last parse string */
 	LastParse.clear();

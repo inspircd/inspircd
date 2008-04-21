@@ -36,7 +36,7 @@ bool DoneELine(ServerConfig* conf, const char* tag);
 ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	this->ClearStack();
-	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
+	*sid = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = *FixedQuit = *HideKillsServer = '\0';
 	*DefaultModes = *CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = *SuffixQuit = '\0';
@@ -1960,7 +1960,7 @@ bool ServerConfig::DirValid(const char* dirandfile)
 {
 #ifdef WINDOWS
 	return true;
-#endif
+#else
 
 	char work[1024];
 	char buffer[1024];
@@ -2011,6 +2011,7 @@ bool ServerConfig::DirValid(const char* dirandfile)
 	{
 		return false;
 	}
+#endif
 }
 
 std::string ServerConfig::GetFullProgDir()

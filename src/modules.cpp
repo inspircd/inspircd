@@ -602,14 +602,12 @@ bool ModuleManager::PublishInterface(const std::string &InterfaceName, Module* M
 		modulelist ml;
 		ml.push_back(Mod);
 		Interfaces[InterfaceName] = std::make_pair(0, ml);
-		return true;
 	}
 	else
 	{
 		iter->second.second.push_back(Mod);
-		return true;
 	}
-	return false;
+	return true;
 }
 
 bool ModuleManager::UnpublishInterface(const std::string &InterfaceName, Module* Mod)

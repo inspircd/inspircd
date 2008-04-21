@@ -92,6 +92,4 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 
 		return MODEACTION_ALLOW;
 	}
-
-	return MODEACTION_DENY;
 }

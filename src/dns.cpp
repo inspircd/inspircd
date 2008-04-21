@@ -934,7 +934,6 @@ DNS::~DNS()
 	ServerInstance->SE->Shutdown(this, 2);
 	ServerInstance->SE->Close(this);
 	ServerInstance->Timers->DelTimer(this->PruneTimer);
-	delete this->PruneTimer;
 }
 
 CachedQuery* DNS::GetCache(const std::string &source)

@@ -24,7 +24,12 @@ SnomaskManager::SnomaskManager(InspIRCd* Instance) : ServerInstance(Instance)
 }
 
 SnomaskManager::~SnomaskManager()
-{
+{	
+	for (std::map<char, Snomask *>::iterator i = SnoMasks.begin(); i != SnoMasks.end(); i++)
+	{
+		delete i->second;
+	}
+	SnoMasks.clear();
 }
 
 void SnomaskManager::FlushSnotices()

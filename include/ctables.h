@@ -167,7 +167,10 @@ class CoreExport Command : public Extensible
 
 	/** Standard constructor gubbins
 	 */
-	virtual ~Command() {}
+	virtual ~Command()
+	{
+		syntax.clear();
+	}
 };
 
 /** A hash of commands used by the core

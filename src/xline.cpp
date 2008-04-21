@@ -391,6 +391,18 @@ XLineManager::~XLineManager()
 	delete KFact;
 	delete QFact;
 	delete ZFact;
+
+	// Delete all existing XLines
+	for (XLineContainer::iterator i = lookup_lines.begin(); i != lookup_lines.end(); i++)
+	{
+		for (XLineLookup::iterator j = i->second.begin(); j != i->second.end(); j++)
+		{
+			delete j->second;
+		}
+		i->second.clear();
+	}
+	lookup_lines.clear();
+	
 }
 
 void XLine::Apply(User* u)

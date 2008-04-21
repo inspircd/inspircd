@@ -32,7 +32,15 @@ class CoreExport UserManager : public classbase
 	{
 		ServerInstance = Instance;
 	}
-
+	
+	~UserManager()
+	{
+		for (user_hash::iterator i = clientlist->begin();i != clientlist->end();i++)
+		{
+			delete i->second;
+		}
+		clientlist->clear();
+	}
 
 	/** Client list, a hash_map containing all clients, local and remote
 	 */

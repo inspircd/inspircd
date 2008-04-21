@@ -112,15 +112,109 @@ void InspIRCd::Cleanup()
 			this->Modules->Unload(k->c_str());
 		}
 	}
-
-	/* Close logging */
-	this->Logs->CloseLogs();
+	/* Remove core commands */
+	Parser->RemoveCommands("<core>");
 
 	/* Cleanup Server Names */
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
 		delete (*itr);
 
+	/* Delete objects dynamically allocated in constructor
+	 * (destructor would be more appropriate, but we're likely exiting)
+	 */
 
+	// Must be deleted before modes as it decrements modelines
+	if (this->Users)
+	{
+		delete this->Users;
+		this->Users = 0;
+	}
+	
+	if (this->Modes)
+	{
+		delete this->Modes;
+		this->Modes = 0;
+	}
+
+	if (this->XLines)
+	{
+		delete this->XLines;
+		this->XLines = 0;
+	}
+
+	if (this->Parser)
+	{
+		delete this->Parser;
+		this->Parser = 0;
+
+	if (this->stats)
+	{
+		delete this->stats;
+		this->stats = 0;
+	}
+
+	if (this->Modules)
+	{
+		delete this->Modules;
+		this->Modules = 0;
+	}
+
+	if (this->BanCache)
+		delete this->BanCache;
+		this->BanCache = 0;
+	}
+
+	if (this->SNO)
+	{
+		delete this->SNO;
+		this->SNO = 0;
+	}
+
+	if (this->Config)
+	{
+		delete this->Config;
+		this->Config = 0;
+	}
+
+	if (this->Res)
+	{
+		delete this->Res;
+		this->Res = 0;
+	}
+
+	if (this->chanlist)
+	{
+		delete chanlist;
+		chanlist = 0;
+	}
+
+	if (this->PI)
+	{
+		delete this->PI;
+		this->PI = 0;
+	}
+	
+	if (this->Threads)
+	{
+		delete this->Threads;
+		this->Threads = 0;
+	}
+
+	/* Needs to be deleted after Res, DNS has a timer */
+	if (this->Timers)
+	{
+		delete this->Timers;
+		this->Timers = 0;
+	}
+
+	/* Close logging */
+	this->Logs->CloseLogs();
+
+	if (this->Logs)
+	{
+		delete this->Logs;
+		this->Logs = 0;
+	}
 }
 
 void InspIRCd::Restart(const std::string &reason)
@@ -312,13 +406,35 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 {
 #ifdef WIN32
+	// Strict, frequent checking of memory on debug builds
 	_CrtSetDbgFlag ( _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+	
+	// Avoid erroneous frees on early exit
+	WindowsIPC = 0;
 #endif
 	int found_ports = 0;
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,
 	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
 	char c = 0;
+
+	// Initialize so that if we exit before proper initialization they're not deleted
+	this->Logs = 0;
+	this->Threads = 0;
+	this->PI = 0;
+	this->Users = 0;
+	this->chanlist = 0;
+	this->Config = 0;
+	this->SNO = 0;
+	this->BanCache = 0;
+	this->Modules = 0;
+	this->stats = 0;
+	this->Timers = 0;
+	this->Parser = 0;
+	this->XLines = 0;
+	this->Modes = 0;
+	this->Res = 0;
+
 
 	memset(&server, 0, sizeof(server));
 	memset(&client, 0, sizeof(client));
@@ -347,8 +463,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Users->clientlist = new user_hash();
 	this->Users->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
-
-	this->Res = NULL;
 
 	this->Config = new ServerConfig(this);
 	this->SNO = new SnomaskManager(this);
@@ -530,6 +644,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Config->sid[0] = (char)(sid / 100 + 48);
 		Config->sid[1] = (char)(((sid / 10) % 10) + 48);
 		Config->sid[2] = (char)(sid % 10 + 48);
+		Config->sid[3] = '\0';
 	}
 
 	/* set up fake client again this time with the correct uid */
