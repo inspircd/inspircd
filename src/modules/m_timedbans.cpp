@@ -33,7 +33,7 @@ timedbans TimedBanList;
 class CommandTban : public Command
 {
  public:
- CommandTban (InspIRCd* Instance) : Command(Instance,"TBAN", 0, 3)
+	CommandTban (InspIRCd* Instance) : Command(Instance,"TBAN", 0, 3)
 	{
 		this->source = "m_timedbans.so";
 		syntax = "<channel> <duration> <banmask>";
@@ -91,7 +91,8 @@ class CommandTban : public Command
 					T.expire = expire;
 					TimedBanList.push_back(T);
 					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
-					channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
+					if (ServerInstance->Config->AllowHalfop)
+						channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
@@ -125,7 +126,6 @@ class ModuleTimedBans : public Module
 		TimedBanList.clear();
 	}
 
-
 	virtual int OnDelBan(User* source, Channel* chan, const std::string &banmask)
 	{
 		irc::string listitem = banmask.c_str();
@@ -145,50 +145,49 @@ class ModuleTimedBans : public Module
 
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
-		bool again = true;
-		while (again)
+		timedbans::iterator safei;
+		for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end();)
 		{
-			again = false;
-			for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+			/* Safe copy of iterator, so we can erase as we iterate */
+			safei = i;
+			++i;
+
+			if (curtime > safei->expire)
 			{
-				if (curtime > i->expire)
+				Channel* cr = ServerInstance->FindChan(safei->channel);
+				if (cr)
 				{
-					Channel* cr = ServerInstance->FindChan(i->channel);
-					again = true;
-					if (cr)
-					{
-						const char *setban[3];
-						std::string mask = i->mask;
+					const char *setban[3];
+					std::string mask = safei->mask;
 
-						setban[0] = i->channel.c_str();
-						setban[1] = "-b";
-						setban[2] = mask.c_str();
+					setban[0] = safei->channel.c_str();
+					setban[1] = "-b";
+					setban[2] = mask.c_str();
 
-						CUList empty;
-						cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, i->mask.c_str());
-						if (ServerInstance->Config->AllowHalfop)
-							cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, i->mask.c_str());
+					CUList empty;
+					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, safei->mask.c_str());
+					if (ServerInstance->Config->AllowHalfop)
+						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, safei->mask.c_str());
 
-						ServerInstance->PI->SendModeStr(i->channel, std::string("-b ") + setban[2]);
-						ServerInstance->SendMode(setban,3, ServerInstance->FakeClient);
+					ServerInstance->PI->SendModeStr(safei->channel, std::string("-b ") + setban[2]);
+					ServerInstance->SendMode(setban, 3, ServerInstance->FakeClient);
 
-						bool was_removed = true;
-						for (BanList::iterator j = cr->bans.begin(); j != cr->bans.end(); j++)
-							if (!strcasecmp(j->data, mask.c_str()))
-								was_removed = false;
+					bool was_removed = true;
+					for (BanList::iterator j = cr->bans.begin(); j != cr->bans.end(); j++)
+						if (!strcasecmp(j->data, mask.c_str()))
+							was_removed = false;
 
-						/* Fix for crash if user cycles before the ban expires */ 
-						if (!was_removed)
-							TimedBanList.erase(i);
-					}
-					else
-					{
-						/* Where the hell did our channel go?! */
-						TimedBanList.erase(i);
-					}
-					// we used to delete the item here, but we dont need to as the servermode above does it for us,
-					break;
+					/* Fix for crash if user cycles before the ban expires */ 
+					if (!was_removed)
+						TimedBanList.erase(safei);
 				}
+				else
+				{
+					/* Where the hell did our channel go?! */
+					TimedBanList.erase(safei);
+				}
+				// we used to delete the item here, but we dont need to as the servermode above does it for us,
+				break;
 			}
 		}
 	}
