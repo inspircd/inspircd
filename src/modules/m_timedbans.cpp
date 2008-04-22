@@ -169,6 +169,7 @@ class ModuleTimedBans : public Module
 					if (ServerInstance->Config->AllowHalfop)
 						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, safei->mask.c_str());
 
+					/* Removes the ban item for us, no ::erase() needed */
 					ServerInstance->PI->SendModeStr(safei->channel, std::string("-b ") + setban[2]);
 					ServerInstance->SendMode(setban, 3, ServerInstance->FakeClient);
 
@@ -186,8 +187,6 @@ class ModuleTimedBans : public Module
 					/* Where the hell did our channel go?! */
 					TimedBanList.erase(safei);
 				}
-				// we used to delete the item here, but we dont need to as the servermode above does it for us,
-				break;
 			}
 		}
 	}
