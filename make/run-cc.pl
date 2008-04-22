@@ -63,6 +63,7 @@ my @msgfilters = (
 	[ qr/^.* warning: / => sub {
 		my ($msg) = @_;
 		my $str = $location . "\e[33;1m$msg\e[0m\n";
+		$showncmdline = 1;
 		$location = "";
 		return $str;
 	} ],
