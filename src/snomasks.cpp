@@ -105,16 +105,16 @@ bool SnomaskManager::IsEnabled(char letter)
 
 void SnomaskManager::SetupDefaults()
 {
-	this->EnableSnomask('c',"CONNECT", true);			/* Local connect notices */
-	this->EnableSnomask('C',"REMOTECONNECT");		/* Remote connect notices */
+	this->EnableSnomask('c',"CONNECT", true);		/* Local connect notices */
+	this->EnableSnomask('C',"REMOTECONNECT", true);		/* Remote connect notices */
 	this->EnableSnomask('q',"QUIT", true);			/* Local quit notices */
-	this->EnableSnomask('Q',"REMOTEQUIT");			/* Remote quit notices */
+	this->EnableSnomask('Q',"REMOTEQUIT", true);		/* Remote quit notices */
 	this->EnableSnomask('k',"KILL", true);			/* Kill notices */
 	this->EnableSnomask('K',"REMOTEKILL");			/* Remote kill notices */
 	this->EnableSnomask('l',"LINK");			/* Link notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
 	this->EnableSnomask('A',"ANNOUNCEMENT");		/* formerly WriteOpers() - generic notices to all opers */
-	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
+	this->EnableSnomask('d',"DEBUG", true);			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */
 	this->EnableSnomask('f',"FLOOD");			/* Flooding notices */
