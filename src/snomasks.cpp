@@ -49,7 +49,7 @@ bool SnomaskManager::SetLocalOnly(char letter, bool local)
 		return n->second->LocalOnly;
 	}
 
-	throw "snomask not found wtf";
+	ServerInstance->Log("SNOMASK", DEFAULT, "Snomask %d not found, unmatched modules?", letter);
 }
 
 bool SnomaskManager::EnableSnomask(char letter, const std::string &type, bool local)
