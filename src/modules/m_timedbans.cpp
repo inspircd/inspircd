@@ -189,14 +189,9 @@ class ModuleTimedBans : public Module
 						rmode.Send(ServerInstance);
 						DELETE(temp);
 						
-						bool was_removed = true;
-						for (BanList::iterator j = cr->bans.begin(); j != cr->bans.end(); j++)
-							if (!strcasecmp(j->data, mask.c_str()))
-								was_removed = false;
-
-						/* Fix for crash if user cycles before the ban expires */ 
-						if (!was_removed)
-							TimedBanList.erase(i);
+						/* Fix for crash if user cycles before the ban expires */
+						if (ServerInstance->Modes->GetLastParse().empty())
+							TimedBanList.erase(i); 
 					}
 					else
 					{
