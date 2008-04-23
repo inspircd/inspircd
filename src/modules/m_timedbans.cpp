@@ -173,13 +173,7 @@ class ModuleTimedBans : public Module
 					ServerInstance->PI->SendModeStr(safei->channel, std::string("-b ") + setban[2]);
 					ServerInstance->SendMode(setban, 3, ServerInstance->FakeClient);
 
-					bool was_removed = true;
-					for (BanList::iterator j = cr->bans.begin(); j != cr->bans.end(); j++)
-						if (!strcasecmp(j->data, mask.c_str()))
-							was_removed = false;
-
-					/* Fix for crash if user cycles before the ban expires */ 
-					if (!was_removed)
+					if (ServerInstance->Modes->GetLastParse().empty())
 						TimedBanList.erase(safei);
 				}
 				else
