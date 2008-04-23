@@ -49,7 +49,8 @@ bool SnomaskManager::SetLocalOnly(char letter, bool local)
 		return n->second->LocalOnly;
 	}
 
-	ServerInstance->Log("SNOMASK", DEFAULT, "Snomask %d not found, unmatched modules?", letter);
+	ServerInstance->Logs->Log("SNOMASK", DEFAULT, "Snomask %d not found, unmatched modules?", letter);
+	return true;
 }
 
 bool SnomaskManager::EnableSnomask(char letter, const std::string &type, bool local)
