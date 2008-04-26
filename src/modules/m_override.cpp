@@ -242,13 +242,13 @@ class ModuleOverride : public Module
 						if (RequireKey && keygiven != "override")
 						{
 							// Can't join normally -- must use a special key to bypass restrictions
-							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
+							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick);
 							return 1;
 						}
 
 						if (NoisyOverride)
-							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass invite-only", cname, user->nick);
-						ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
+							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname, user->nick);
+						ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used oper override to bypass +i on "+std::string(cname));
 					}
 					return -1;
 				}
@@ -258,13 +258,13 @@ class ModuleOverride : public Module
 					if (RequireKey && keygiven != "override")
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
+						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick);
 						return 1;
 					}
 
 					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel key", cname, user->nick);
-					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname, user->nick);
+					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used oper override to bypass +k on "+std::string(cname));
 					return -1;
 				}
 					
@@ -273,13 +273,13 @@ class ModuleOverride : public Module
 					if (RequireKey && keygiven != "override")
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
+						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick);
 						return 1;
 					}
 
 					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel limit", cname, user->nick);
-					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname, user->nick);
+					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used oper override to bypass +l on "+std::string(cname));
 					return -1;
 				}
 
@@ -290,13 +290,13 @@ class ModuleOverride : public Module
 						if (RequireKey && keygiven != "override")
 						{
 							// Can't join normally -- must use a special key to bypass restrictions
-							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper-override.", user->nick);
+							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick);
 							return 1;
 						}
 
 						if (NoisyOverride)
-							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel ban", cname, user->nick);
-						ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel ban on %s", user->nick, cname);
+							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname, user->nick);
+						ServerInstance->SNO->WriteToSnoMask('O',"%s used oper override to bypass channel ban on %s", user->nick, cname);
 					}
 					return -1;
 				}
