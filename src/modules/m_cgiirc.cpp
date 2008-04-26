@@ -376,7 +376,7 @@ public:
 				catch (...)
 				{
 					if (NotifyOpers)
-						ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
+						ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick, user->host);
 				}
 			}
 			
@@ -441,7 +441,7 @@ public:
 			user->InvalidateCache();
 
 			if(NotifyOpers)
-				 ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
+				 ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick, user->host);
 		}
 		/*strlcpy(user->host, newip, 16);
 		strlcpy(user->dhost, newip, 16);
