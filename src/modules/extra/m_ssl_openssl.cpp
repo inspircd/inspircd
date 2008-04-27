@@ -34,12 +34,20 @@
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
+
+
+/* $IfUname freebsd */
+/* $LinkerFlags: -lssl -lcrypto */
+/* $Else */
 /* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */
+/* $EndIf */
+
 /* $ModDep: transport.h */
 /* $NoPedantic */
 /* $CopyInstall: conf/key.pem $(CONPATH) */
 /* $CopyInstall: conf/cert.pem $(CONPATH) */
+
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 enum issl_io_status { ISSL_WRITE, ISSL_READ };

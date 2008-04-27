@@ -30,6 +30,7 @@ our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pk
 # \e[1;32msrc/Makefile\e[0m
 
 my %already_added = ();
+my $if_skip_lines = 0;
 
 sub promptstring($$$$$)
 {
@@ -320,6 +321,60 @@ sub translate_functions($$)
 		{
 			die "Developers should no longer use backticks in configuration macros. Please use exec() and eval() macros instead. Offending line: $line (In module: $module)";
 		}
+
+		if ($line =~ /\$EndIf/)
+		{
+			if ($if_skip_lines == 1)
+			{
+				$if_skip_lines = 0;
+				return;
+			}
+			else
+			{
+				die "\$EndIf found when not in \$If/\$IfUname in $module";
+			}
+		}
+
+		if ($line =~ /\$Else/)
+		{
+			if ($if_skip_lines == 0)
+			{
+				$if_skip_lines = 1;
+			}
+			else
+			{
+				$if_skip_lines = 0;
+			}
+			return;
+		}
+
+		if ($if_skip_lines == 1)
+		{
+			return;
+		}
+
+		if ($line =~ /\$IfUname\s+(\w+)/)
+		{
+			my $uname = $1;
+			if ($uname ne $^O)
+			{
+				$if_skip_lines = 1;
+				return;
+			}
+		}
+
+		if ($line =~ /\$If:\s+(\w+)/)
+		{
+			if (defined $main::config{$1})
+			{
+				if (($main::config{$1} !~ /y/i) and ($main::config{$1} ne "1"))
+				{
+					$if_skip_lines = 1;
+					return;
+				}
+			}
+		}
+
 		while ($line =~ /exec\("(.+?)"\)/)
 		{
 			print "Executing program for module \e[1;32m$module\e[0m ... \e[1;32m$1\e[0m\n";
