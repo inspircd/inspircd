@@ -77,8 +77,10 @@ sub getcompilerflags {
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
+			my $x = translate_functions($1, $file);
+			next if ($x eq "");
 			close(FLAGS);
-			return translate_functions($1,$file);
+			return $x;
 		}
 	}
 	close(FLAGS);
@@ -90,8 +92,10 @@ sub getlinkerflags {
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
+			my $x = translate_functions($1, $file);
+			next if ($x eq "");
 			close(FLAGS);
-			return translate_functions($1,$file);
+			return $x;
 		}
 	}
 	close(FLAGS);
@@ -103,8 +107,10 @@ sub getdependencies {
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
+			my $x = translate_functions($1, $file);
+			next if ($x eq "");
 			close(FLAGS);
-			return translate_functions($1,$file);
+			return $x;
 		}
 	}
 	close(FLAGS);
@@ -116,6 +122,8 @@ sub nopedantic {
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$NoPedantic \*\/$/) {
+			my $x = translate_functions($_, $file);
+			next if ($x eq "");
 			close(FLAGS);
 			return 1;
 		}

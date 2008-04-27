@@ -114,7 +114,6 @@ sub pkgconfig_get_include_dirs($$$;$)
 	my $v = `pkg-config --modversion $packagename 2>/dev/null`;
 	my $ret = `pkg-config --cflags $packagename 2>/dev/null`;
 	my $foo = "";
-
 	if ((!defined $v) || ($v eq ""))
 	{
 		$foo = `locate "$headername" | head -n 1`;
@@ -350,12 +349,15 @@ sub translate_functions($$)
 		{
 			if (defined $main::config{$1})
 			{
-				return "" if (($main::config{$1} !~ /y/i) and ($main::config{$1} ne "1"))
+				if (($main::config{$1} !~ /y/i) and ($main::config{$1} ne "1"))
+				{
+					$line = "";
+					return "";
+				}
 			}
 
 			$line =~ s/if\("(.+?)"\)//;
 		}
-
 		while ($line =~ /exec\("(.+?)"\)/)
 		{
 			print "Executing program for module \e[1;32m$module\e[0m ... \e[1;32m$1\e[0m\n";
@@ -422,7 +424,7 @@ sub translate_functions($$)
 	if ($@)
 	{
 		my $err = $@;
-		$err =~ s/at .+? line \d+.*//g;
+		#$err =~ s/at .+? line \d+.*//g;
 		print "\n\nConfiguration failed. The following error occured:\n\n$err\n";
 		exit;
 	}
