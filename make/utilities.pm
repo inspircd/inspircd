@@ -360,17 +360,20 @@ sub translate_functions($$)
 		}
 		if ($line =~ /if\(\!"(\w+)"\)/)
 		{
-			if (!defined $main::config{$1})
+			if (!exists $main::config{$1})
 			{
 				$line = "";
 				return "";
 			}
 			else
 			{
-				if (($main::config{$1} =~ /y/i) and ($main::config{$1} eq "1"))
+				if (defined $1)
 				{
-					$line = "";
-					return "";
+					if (exists ($main::config{$1}) and (($main::config{$1} =~ /y/i) or ($main::config{$1} eq "1")))
+					{
+						$line = "";
+						return "";
+					}
 				}
 			}
 

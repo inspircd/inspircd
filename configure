@@ -242,16 +242,25 @@ if (defined $opt_library_dir)
 }
 chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
 
-if ($^O eq "freebsd")
+if (defined $opt_freebsd_port)
 {
-	# default: use base ssl
-	chomp($config{HAS_OPENSSL} = `openssl version | cut -d ' ' -f 2`);			# OpenSSL version, freebsd specific
-	chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);	# Port version, may be different
+	chomp($config{HAS_OPENSSL} = `pkg-config --modversion openssl 2>/dev/null`);
+	chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);
+	$config{USE_FREEBSD_BASE_SSL} = "n";
 }
 else
 {
-	chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version, others
-	$config{HAS_OPENSSL_PORT} = "";
+	if ($^O eq "freebsd")
+	{
+		# default: use base ssl
+		chomp($config{HAS_OPENSSL} = `openssl version | cut -d ' ' -f 2`);			# OpenSSL version, freebsd specific
+		chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);	# Port version, may be different
+	}
+	else
+	{
+		chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version, others
+		$config{HAS_OPENSSL_PORT} = "";
+	}
 }
 
 chomp(our $gnutls_ver = $config{HAS_GNUTLS});
@@ -871,18 +880,30 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		print "You have chosen to build an \e[1;32mIPV6-enabled\e[0m server.\nTo accept IPV4 users, you can still use IPV4 addresses\nin your port bindings..\n\n";
 		$config{SUPPORT_IP6LINKS} = "y";
 	} else {
-		yesno('SUPPORT_IP6LINKS',"You have chosen to build an \e[1;32mIPV4-only\e[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers?\nIf you are using a recent operating\nsystem and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)");
+		yesno('SUPPORT_IP6LINKS',"You have chosen to build an \e[1;32mIPV4-only\e[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers? If you are using a recent operating system and are\nunsure, answer yes. If you answer 'no' here, your InspIRCd server will\nbe unable to parse IPV6 addresses (e.g. for CIDR bans)\n\nEnable linking to servers which have IPV6 enabled?");
 		print "\n";
 	}
 
 	$config{USE_FREEBSD_BASE_SSL} = "n";
+	$config{USE_FREEBSD_PORTS_SSL} = "n";
 	if ($config{HAS_OPENSSL_PORT} ne "")
 	{
+		$config{USE_FREEBSD_PORTS_SSL} = "y";
 		print "I have detected the OpenSSL FreeBSD port installed on your system,\n";
-		print "version \e[1;32m".$config{HAS_OPENSSL_PORT}."\e[0m. Your base system OpenSSL is version\n";
-		print "\e[1;32m".$openssl_ver."\e[0m.\n";
-		yesno('USE_FREEBSD_PORTS_SSL', "Do you want to use the FreeBSD base version?");
+		print "version \e[1;32m".$config{HAS_OPENSSL_PORT}."\e[0m. Your base system OpenSSL is version \e[1;32m".$openssl_ver."\e[0m.\n\n";
+		yesno('USE_FREEBSD_PORTS_SSL', "Do you want to use the FreeBSD ports version?");
+		print "\n";
 		$config{USE_FREEBSD_BASE_SSL} = "y" if ($config{USE_FREEBSD_PORTS_SSL} eq "n");
+
+		if ($config{USE_FREEBSD_BASE_SSL} eq "n")
+		{
+			# update to port version
+			$openssl_ver = $config{HAS_OPENSSL_PORT};
+		}
+	}
+	else
+	{
+		$config{USE_FREEBSD_BASE_SSL} = "y" if ($^O eq "freebsd");
 	}
 
 	if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
