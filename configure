@@ -239,7 +239,16 @@ if (defined $opt_library_dir)
 	$config{LIBRARY_DIR} = $opt_library_dir;
 }
 chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
-chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version
+
+if ($^O eq "freebsd")
+{
+	chomp($config{HAS_OPENSSL} = `openssl version | cut -d ' ' -f 2`);			# OpenSSL version, freebsd specific
+}
+else
+{
+	chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version, others
+}
+
 chomp(our $gnutls_ver = $config{HAS_GNUTLS});
 chomp(our $openssl_ver = $config{HAS_OPENSSL});
 $config{USE_GNUTLS}	    = "n";
