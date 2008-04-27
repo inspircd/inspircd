@@ -35,13 +35,9 @@
 
 /* $ModDesc: Provides SSL support for clients */
 
-
-/* $IfUname freebsd */
-/* $LinkerFlags: -lssl -lcrypto */
-/* $Else */
-/* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
-/* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */
-/* $EndIf */
+/* $LinkerFlags: ifuname("freebsd") -lssl -lcrypto */
+/* $CompileFlags: ifuname(!"freebsd") pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
+/* $LinkerFlags: ifuname(!"freebsd") rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */
 
 /* $ModDep: transport.h */
 /* $NoPedantic */

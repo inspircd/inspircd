@@ -322,57 +322,38 @@ sub translate_functions($$)
 			die "Developers should no longer use backticks in configuration macros. Please use exec() and eval() macros instead. Offending line: $line (In module: $module)";
 		}
 
-		if ($line =~ /\$EndIf/)
+		if ($line =~ /ifuname\(\!"(\w+)"\)/)
 		{
-			if ($if_skip_lines == 1)
+			my $uname = $1;
+			if ($uname eq $^O)
 			{
-				$if_skip_lines = 0;
-				return;
+				$line = "";
+				return "";
 			}
-			else
-			{
-				die "\$EndIf found when not in \$If/\$IfUname in $module";
-			}
+
+			$line =~ s/ifuname\(\!"(.+?)"\)//;
 		}
 
-		if ($line =~ /\$Else/)
-		{
-			if ($if_skip_lines == 0)
-			{
-				$if_skip_lines = 1;
-			}
-			else
-			{
-				$if_skip_lines = 0;
-			}
-			return;
-		}
-
-		if ($if_skip_lines == 1)
-		{
-			return;
-		}
-
-		if ($line =~ /\$IfUname\s+(\w+)/)
+		if ($line =~ /ifuname\("(\w+)"\)/)
 		{
 			my $uname = $1;
 			if ($uname ne $^O)
 			{
-				$if_skip_lines = 1;
-				return;
+				$line = "";
+				return "";
 			}
+
+			$line =~ s/ifuname\("(.+?)"\)//;
 		}
 
-		if ($line =~ /\$If:\s+(\w+)/)
+		if ($line =~ /if\("(\w+)"\)/)
 		{
 			if (defined $main::config{$1})
 			{
-				if (($main::config{$1} !~ /y/i) and ($main::config{$1} ne "1"))
-				{
-					$if_skip_lines = 1;
-					return;
-				}
+				return "" if (($main::config{$1} !~ /y/i) and ($main::config{$1} ne "1"))
 			}
+
+			$line =~ s/if\("(.+?)"\)//;
 		}
 
 		while ($line =~ /exec\("(.+?)"\)/)
