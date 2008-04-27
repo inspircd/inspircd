@@ -102,7 +102,7 @@ our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_n
     $opt_noepoll, $opt_nokqueue, $opt_disablerpath, $opt_ipv6, $opt_ipv6links,
     $opt_noipv6links, $opt_ident, $opt_quit, $opt_topic, $opt_maxbuf, $opt_kick,
     $opt_gecos, $opt_away, $opt_modes, $opt_disable_debug, $opt_maxchans,
-    $opt_opermaxchans);
+    $opt_opermaxchans, $opt_freebsd_port);
 
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
     $opt_library_dir);
@@ -142,6 +142,7 @@ GetOptions (
 	'with-gecos-length=i' => \$opt_gecos,
 	'with-away-length=i' => \$opt_away,
 	'with-max-modes=i' => \$opt_modes,
+	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
 	'prefix=s' => \$opt_base_dir,
 	'config-dir=s' => \$opt_config_dir,
 	'module-dir=s' => \$opt_module_dir,
@@ -200,7 +201,8 @@ our $non_interactive = (
 	(defined $opt_noepoll) ||
 	(defined $opt_noports) ||
 	(defined $opt_maxbuf) ||
-	(defined $opt_use_gnutls)
+	(defined $opt_use_gnutls) ||
+	(defined $opt_freebsd_port)
 );
 our $interactive = !$non_interactive;
 
@@ -242,11 +244,14 @@ chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1
 
 if ($^O eq "freebsd")
 {
+	# default: use base ssl
 	chomp($config{HAS_OPENSSL} = `openssl version | cut -d ' ' -f 2`);			# OpenSSL version, freebsd specific
+	chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);	# Port version, may be different
 }
 else
 {
 	chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version, others
+	$config{HAS_OPENSSL_PORT} = "";
 }
 
 chomp(our $gnutls_ver = $config{HAS_GNUTLS});
@@ -868,6 +873,16 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	} else {
 		yesno('SUPPORT_IP6LINKS',"You have chosen to build an \e[1;32mIPV4-only\e[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers?\nIf you are using a recent operating\nsystem and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)");
 		print "\n";
+	}
+
+	$config{USE_FREEBSD_BASE_SSL} = "n";
+	if ($config{HAS_OPENSSL_PORT} ne "")
+	{
+		print "I have detected the OpenSSL FreeBSD port installed on your system,\n";
+		print "version \e[1;32m".$config{HAS_OPENSSL_PORT}."\e[0m. Your base system OpenSSL is version\n";
+		print "\e[1;32m".$openssl_ver."\e[0m.\n";
+		yesno('USE_FREEBSD_PORTS_SSL', "Do you want to use the FreeBSD base version?");
+		$config{USE_FREEBSD_BASE_SSL} = "y" if ($config{USE_FREEBSD_PORTS_SSL} eq "n");
 	}
 
 	if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {

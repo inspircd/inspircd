@@ -358,6 +358,24 @@ sub translate_functions($$)
 
 			$line =~ s/if\("(.+?)"\)//;
 		}
+		if ($line =~ /if\(\!"(\w+)"\)/)
+		{
+			if (!defined $main::config{$1})
+			{
+				$line = "";
+				return "";
+			}
+			else
+			{
+				if (($main::config{$1} =~ /y/i) and ($main::config{$1} eq "1"))
+				{
+					$line = "";
+					return "";
+				}
+			}
+
+			$line =~ s/if\(\!"(.+?)"\)//;
+		}
 		while ($line =~ /exec\("(.+?)"\)/)
 		{
 			print "Executing program for module \e[1;32m$module\e[0m ... \e[1;32m$1\e[0m\n";
