@@ -149,6 +149,7 @@ class ModuleStripColor : public Module
 			}
 			else
 				++i;
+		}
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
