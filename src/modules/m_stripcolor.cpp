@@ -135,13 +135,11 @@ class ModuleStripColor : public Module
 					--i;
 					sentence.erase(safei);
 					++i;
-					ServerInstance->Logs->Log("m_stripcolor", DEBUG, "Sentence: %s iter pos %c", sentence.c_str(), *i);
 				}
 				else
 				{
 					sentence.erase(i);
 					i = sentence.begin();
-					ServerInstance->Logs->Log("m_stripcolor", DEBUG, "Sentence begin(): %s iter pos %c", sentence.c_str(), *i);
 				}
 			}
 			else
