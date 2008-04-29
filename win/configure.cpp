@@ -146,13 +146,7 @@ int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPS
 {
 	if (!strcmp(lpCmdLine, "/rebase"))
 	{
-		AllocConsole();
-		// pipe standard handles to this console
-		freopen("CONIN$", "r", stdin);
-		freopen("CONOUT$", "w", stdout);
-		freopen("CONOUT$", "w", stderr);
 		Rebase();
-		FreeConsole();
 		return 0;
 	}
 	FILE * j = fopen("inspircd_config.h", "r");

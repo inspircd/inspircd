@@ -112,7 +112,7 @@ class ModuleStripColor : public Module
 		/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
 		int seq = 0;
 		std::string::iterator i,safei;
- 		for (i = sentence.begin(); i != sentence.end(); ++i)
+ 		for (i = sentence.begin(); i != sentence.end();)
 		{
 			if ((*i == 3))
 				seq = 1;
@@ -134,12 +134,18 @@ class ModuleStripColor : public Module
 					safei = i;
 					--i;
 					sentence.erase(safei);
+					++i;
+					ServerInstance->Logs->Log("m_stripcolor", DEBUG, "Sentence: %s iter pos %c", sentence.c_str(), *i);
 				}
 				else
 				{
 					sentence.erase(i);
 					i = sentence.begin();
-				}			}
+					ServerInstance->Logs->Log("m_stripcolor", DEBUG, "Sentence begin(): %s iter pos %c", sentence.c_str(), *i);
+				}
+			}
+			else
+				++i;
 		}
 	}
 
