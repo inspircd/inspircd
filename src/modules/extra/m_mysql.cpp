@@ -11,6 +11,9 @@
  * ---------------------------------------------------
  */
 
+/* Stop mysql wanting to use long long */
+#define NO_CLIENT_LONG_LONG
+
 #include "inspircd.h"
 #include <mysql.h>
 #include <pthread.h>
@@ -25,7 +28,6 @@
 /* $CompileFlags: exec("mysql_config --include") */
 /* $LinkerFlags: exec("mysql_config --libs_r") rpath("mysql_config --libs_r") */
 /* $ModDep: m_sqlv2.h */
-/* $NoPedantic */
 
 /* THE NONBLOCKING MYSQL API!
  * 
