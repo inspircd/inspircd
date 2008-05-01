@@ -17,20 +17,7 @@
 #include "users.h"
 #include "modes/cmode_n.h"
 
-ModeChannelNoExternal::ModeChannelNoExternal(InspIRCd* Instance) : ModeHandler(Instance, 'n', 0, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelNoExternal::ModeChannelNoExternal(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'n')
 {
-}
-
-ModeAction ModeChannelNoExternal::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding, bool servermode)
-{
-	if (channel->modes[CM_NOEXTERNAL] != adding)
-	{
-		channel->modes[CM_NOEXTERNAL] = adding;
-		return MODEACTION_ALLOW;
-	}
-	else
-	{
-		return MODEACTION_DENY;
-	}
 }
 

@@ -17,10 +17,9 @@ class InspIRCd;
 
 /** User mode +w
  */
-class ModeUserWallops : public ModeHandler
+class ModeUserWallops : public SimpleUserModeHandler
 {
  public:
 	ModeUserWallops(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
 	unsigned int GetCount();
 };

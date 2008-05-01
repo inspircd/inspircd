@@ -17,19 +17,7 @@
 #include "users.h"
 #include "modes/cmode_s.h"
 
-ModeChannelSecret::ModeChannelSecret(InspIRCd* Instance) : ModeHandler(Instance, 's', 0, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelSecret::ModeChannelSecret(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 's')
 {
 }
 
-ModeAction ModeChannelSecret::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding, bool servermode)
-{
-	if (channel->modes[CM_SECRET] != adding)
-	{
-		channel->modes[CM_SECRET] = adding;
-		return MODEACTION_ALLOW;
-	}
-	else
-	{
-		return MODEACTION_DENY;
-	}
-}

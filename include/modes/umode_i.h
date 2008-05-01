@@ -17,10 +17,9 @@ class InspIRCd;
 
 /** User mode +i
  */
-class ModeUserInvisible : public ModeHandler
+class ModeUserInvisible : public SimpleUserModeHandler
 {
  public:
 	ModeUserInvisible(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
 	unsigned int GetCount();
 };

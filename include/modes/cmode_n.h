@@ -17,9 +17,8 @@ class InspIRCd;
 
 /** Channel mode +n
  */
-class ModeChannelNoExternal : public ModeHandler
+class ModeChannelNoExternal : public SimpleChannelModeHandler
 {
  public:
 	ModeChannelNoExternal(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
 };

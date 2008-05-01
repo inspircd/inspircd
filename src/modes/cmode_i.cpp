@@ -17,19 +17,7 @@
 #include "users.h"
 #include "modes/cmode_i.h"
 
-ModeChannelInviteOnly::ModeChannelInviteOnly(InspIRCd* Instance) : ModeHandler(Instance, 'i', 0, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelInviteOnly::ModeChannelInviteOnly(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'i')
 {
 }
 
-ModeAction ModeChannelInviteOnly::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding, bool servermode)
-{
-	if (channel->modes[CM_INVITEONLY] != adding)
-	{
-		channel->modes[CM_INVITEONLY] = adding;
-		return MODEACTION_ALLOW;
-	}
-	else
-	{
-		return MODEACTION_DENY;
-	}
-}

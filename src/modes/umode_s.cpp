@@ -17,25 +17,8 @@
 #include "users.h"
 #include "modes/umode_s.h"
 
-ModeUserServerNotice::ModeUserServerNotice(InspIRCd* Instance) : ModeHandler(Instance, 's', 0, 0, false, MODETYPE_USER, false)
+ModeUserServerNotice::ModeUserServerNotice(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 's')
 {
-}
-
-ModeAction ModeUserServerNotice::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding, bool servermode)
-{
-	/* Only opers can change other users modes */
-	if ((source != dest) && (!*source->oper))
-		return MODEACTION_DENY;
-
-	/* Set the bitfields */
-	if (dest->modes[UM_SERVERNOTICE] != adding)
-	{
-		dest->modes[UM_SERVERNOTICE] = adding;
-		return MODEACTION_ALLOW;
-	}
-
-	/* Allow the change */
-	return MODEACTION_DENY;
 }
 
 unsigned int ModeUserServerNotice::GetCount()

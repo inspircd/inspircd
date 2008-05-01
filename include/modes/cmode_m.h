@@ -17,9 +17,8 @@ class InspIRCd;
 
 /** Channel mode +m
  */
-class ModeChannelModerated : public ModeHandler
+class ModeChannelModerated : public SimpleChannelModeHandler
 {
  public:
 	ModeChannelModerated(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
 };
