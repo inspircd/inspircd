@@ -59,22 +59,12 @@ void RemoveFromAllAccepts(InspIRCd* ServerInstance, User* who)
 	}
 }
 
-class User_g : public ModeHandler
+class User_g : public SimpleUserModeHandler
 {
 private:
 
 public:
-	User_g(InspIRCd* Instance) : ModeHandler(Instance, 'g', 0, 0, false, MODETYPE_USER, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding != dest->IsModeSet('g'))
-		{
-			dest->SetMode('g', adding);
-			return MODEACTION_ALLOW;
-		}
-		return MODEACTION_DENY;
-	}
+	User_g(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'g') { }
 };
 
 class CommandAccept : public Command

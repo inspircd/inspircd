@@ -70,92 +70,26 @@ class User_r : public ModeHandler
 
 /** Channel mode +R - registered users only
  */
-class Channel_R : public ModeHandler
+class Channel_R : public SimpleChannelModeHandler
 {
  public:
-	Channel_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('R'))
-			{
-				channel->SetMode('R',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('R'))
-			{
-				channel->SetMode('R',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	Channel_R(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'R') { }
 };
 
 /** User mode +R - only allow PRIVMSG and NOTICE from registered users
  */
-class User_R : public ModeHandler
+class User_R : public SimpleUserModeHandler
 {
  public:
-	User_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_USER, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('R'))
-			{
-				dest->SetMode('R',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('R'))
-			{
-				dest->SetMode('R',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	User_R(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'R') { }
 };
 
 /** Channel mode +M - only allow privmsg and notice to channel from registered users
  */
-class Channel_M : public ModeHandler
+class Channel_M : public SimpleChannelModeHandler
 {
  public:
-	Channel_M(InspIRCd* Instance) : ModeHandler(Instance, 'M', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('M'))
-			{
-				channel->SetMode('M',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('M'))
-			{
-				channel->SetMode('M',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	Channel_M(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'M') { }
 };
 
 /** Dreamnforge-like services support

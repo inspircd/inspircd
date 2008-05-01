@@ -15,32 +15,10 @@
 
 /* $ModDesc: Provides support for unreal-style channel mode +T */
 
-class NoNotice : public ModeHandler
+class NoNotice : public SimpleChannelModeHandler
 {
  public:
-	NoNotice(InspIRCd* Instance) : ModeHandler(Instance, 'T', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('T'))
-			{
-				channel->SetMode('T',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('T'))
-			{
-				channel->SetMode('T',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	NoNotice(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'T') { }
 };
 
 class ModuleNoNotice : public Module

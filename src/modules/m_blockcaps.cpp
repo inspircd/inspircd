@@ -18,32 +18,10 @@
 
 /** Handles the +P channel mode
  */
-class BlockCaps : public ModeHandler
+class BlockCaps : public SimpleChannelModeHandler
 {
  public:
-	BlockCaps(InspIRCd* Instance) : ModeHandler(Instance, 'B', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('B'))
-			{
-				channel->SetMode('B',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('B'))
-			{
-				channel->SetMode('B',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	BlockCaps(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'B') { }
 };
 
 class ModuleBlockCAPS : public Module

@@ -15,32 +15,10 @@
 
 /* $ModDesc: Provides support for unreal-style channel mode +Q */
 
-class NoKicks : public ModeHandler
+class NoKicks : public SimpleChannelModeHandler
 {
  public:
-	NoKicks(InspIRCd* Instance) : ModeHandler(Instance, 'Q', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('Q'))
-			{
-				channel->SetMode('Q',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('Q'))
-			{
-				channel->SetMode('Q',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	NoKicks(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'Q') { }
 };
 
 class ModuleNoKicks : public Module

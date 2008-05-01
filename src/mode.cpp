@@ -149,6 +149,71 @@ bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string&,
 	return (ours < theirs);
 }
 
+SimpleUserModeHandler::SimpleUserModeHandler(InspIRCd* Instance, char modeletter) : ModeHandler(Instance, modeletter, 0, 0, false, MODETYPE_USER, false)
+{
+}
+
+SimpleUserModeHandler::~SimpleUserModeHandler()
+{
+}
+
+SimpleChannelModeHandler::~SimpleChannelModeHandler()
+{
+}
+
+SimpleChannelModeHandler::SimpleChannelModeHandler(InspIRCd* Instance, char modeletter) : ModeHandler(Instance, modeletter, 0, 0, false, MODETYPE_CHANNEL, false)
+{
+}
+
+ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
+{
+	/* Only opers can change other users modes */
+	if (source != dest)
+		return MODEACTION_DENY;
+
+	if (adding)
+	{
+		if (!dest->IsModeSet(this->GetModeChar()))
+		{
+			dest->SetMode(this->GetModeChar(),true);
+			return MODEACTION_ALLOW;
+		}
+	}
+	else
+	{
+		if (dest->IsModeSet(this->GetModeChar()))
+		{
+			dest->SetMode(this->GetModeChar(),false);
+			return MODEACTION_ALLOW;
+		}
+	}
+
+	return MODEACTION_DENY;
+}
+
+
+ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
+{
+	if (adding)
+	{
+		if (!channel->IsModeSet(this->GetModeChar()))
+		{
+			channel->SetMode(this->GetModeChar(),true);
+			return MODEACTION_ALLOW;
+		}
+	}
+	else
+	{
+		if (channel->IsModeSet(this->GetModeChar()))
+		{
+			channel->SetMode(this->GetModeChar(),false);
+			return MODEACTION_ALLOW;
+		}
+	}
+
+	return MODEACTION_DENY;
+}
+
 ModeWatcher::ModeWatcher(InspIRCd* Instance, char modeletter, ModeType type) : ServerInstance(Instance), mode(modeletter), m_type(type)
 {
 }

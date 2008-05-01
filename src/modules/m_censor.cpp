@@ -22,62 +22,18 @@ typedef std::map<irc::string,irc::string> censor_t;
 
 /** Handles usermode +G
  */
-class CensorUser : public ModeHandler
+class CensorUser : public SimpleUserModeHandler
 {
  public:
-	CensorUser(InspIRCd* Instance) : ModeHandler(Instance, 'G', 0, 0, false, MODETYPE_USER, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('G'))
-			{
-				dest->SetMode('G',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('G'))
-			{
-				dest->SetMode('G',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	CensorUser(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'G') { }
 };
 
 /** Handles channel mode +G
  */
-class CensorChannel : public ModeHandler
+class CensorChannel : public SimpleChannelModeHandler
 {
  public:
-	CensorChannel(InspIRCd* Instance) : ModeHandler(Instance, 'G', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('G'))
-			{
-				channel->SetMode('G',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('G'))
-			{
-				channel->SetMode('G',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	CensorChannel(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'G') { }
 };
 
 class ModuleCensor : public Module

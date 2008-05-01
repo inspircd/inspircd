@@ -15,32 +15,10 @@
 
 /* $ModDesc: Provides support for unreal-style channel mode +V */
 
-class NoInvite : public ModeHandler
+class NoInvite : public SimpleChannelModeHandler
 {
  public:
-	NoInvite(InspIRCd* Instance) : ModeHandler(Instance, 'V', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('V'))
-			{
-				channel->SetMode('V',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('V'))
-			{
-				channel->SetMode('V',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	NoInvite(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'V') { }
 };
 
 class ModuleNoInvite : public Module

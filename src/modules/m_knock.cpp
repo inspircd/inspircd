@@ -70,32 +70,10 @@ class CommandKnock : public Command
 
 /** Handles channel mode +K
  */
-class Knock : public ModeHandler
+class Knock : public SimpleChannelModeHandler
 {
  public:
-	Knock(InspIRCd* Instance) : ModeHandler(Instance, 'K', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('K'))
-			{
-				channel->SetMode('K',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('K'))
-			{
-				channel->SetMode('K',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	Knock(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'K') { }
 };
 
 class ModuleKnock : public Module

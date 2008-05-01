@@ -17,32 +17,10 @@
 
 /** Handles the +c channel mode
  */
-class BlockColor : public ModeHandler
+class BlockColor : public SimpleChannelModeHandler
 {
  public:
-	BlockColor(InspIRCd* Instance) : ModeHandler(Instance, 'c', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('c'))
-			{
-				channel->SetMode('c',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('c'))
-			{
-				channel->SetMode('c',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	BlockColor(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'c') { }
 };
 
 class ModuleBlockColour : public Module

@@ -293,6 +293,32 @@ class CoreExport ModeHandler : public Extensible
 	void SetNeededPrefix(char needsprefix);
 };
 
+/** A prebuilt mode handler which handles a simple user mode, e.g. no parameters, usable by any user, with no extra
+ * behaviour to the mode beyond the basic setting and unsetting of the mode, not allowing the mode to be set if it
+ * is already set and not allowing it to be unset if it is already unset.
+ * An example of a simple user mode is user mode +w.
+ */
+class CoreExport SimpleUserModeHandler : public ModeHandler
+{
+ public:
+	SimpleUserModeHandler(InspIRCd* Instance, char modeletter);
+	virtual ~SimpleUserModeHandler();
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false);
+};
+
+/** A prebuilt mode handler which handles a simple channel mode, e.g. no parameters, usable by any user, with no extra
+ * behaviour to the mode beyond the basic setting and unsetting of the mode, not allowing the mode to be set if it
+ * is already set and not allowing it to be unset if it is already unset.
+ * An example of a simple channel mode is channel mode +s.
+ */
+class CoreExport SimpleChannelModeHandler : public ModeHandler
+{
+ public:
+	SimpleChannelModeHandler(InspIRCd* Instance, char modeletter);
+	virtual ~SimpleChannelModeHandler();
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false);
+};
+
 /**
  * The ModeWatcher class can be used to alter the behaviour of a mode implemented
  * by the core or by another module. To use ModeWatcher, derive a class from it,

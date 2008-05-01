@@ -17,66 +17,18 @@
 
 /** Handles channel mode +S
  */
-class ChannelStripColor : public ModeHandler
+class ChannelStripColor : public SimpleChannelModeHandler
 {
  public:
-	ChannelStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_CHANNEL, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('S'))
-			{
-				channel->SetMode('S',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('S'))
-			{
-				channel->SetMode('S',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	ChannelStripColor(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'S') { }
 };
 
 /** Handles user mode +S
  */
-class UserStripColor : public ModeHandler
+class UserStripColor : public SimpleUserModeHandler
 {
  public:
-	UserStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_USER, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
-	{
-		/* Only opers can change other users modes */
-		if (source != dest)
-			return MODEACTION_DENY;
-
-		if (adding)
-		{
-			if (!dest->IsModeSet('S'))
-			{
-				dest->SetMode('S',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('S'))
-			{
-				dest->SetMode('S',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	UserStripColor(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'S') { }
 };
 
 

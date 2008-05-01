@@ -17,32 +17,10 @@
 
 /** Handles user mode +B
  */
-class BotMode : public ModeHandler
+class BotMode : public SimpleUserModeHandler
 {
  public:
-	BotMode(InspIRCd* Instance) : ModeHandler(Instance, 'B', 0, 0, false, MODETYPE_USER, false) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('B'))
-			{
-				dest->SetMode('B',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('B'))
-			{
-				dest->SetMode('B',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-		
-		return MODEACTION_DENY;
-	}
+	BotMode(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'B') { }
 };
 
 class ModuleBotMode : public Module
