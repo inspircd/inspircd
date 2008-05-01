@@ -354,13 +354,13 @@ class ModuleChanProtect : public Module
 		APrefix = apre.empty() ? 0 : apre[0];
 
 		if ((APrefix && QPrefix) && APrefix == QPrefix)
-			throw CoreException("What the smeg, why are both your +q and +a prefixes the same character?");
+			throw ModuleException("What the smeg, why are both your +q and +a prefixes the same character?");
 
 		if (cp && ServerInstance->Modes->FindPrefix(APrefix) == cp)
-			throw CoreException("Looks like the +a prefix you picked for m_chanprotect is already in use. Pick another.");
+			throw ModuleException("Looks like the +a prefix you picked for m_chanprotect is already in use. Pick another.");
 
 		if (cf && ServerInstance->Modes->FindPrefix(QPrefix) == cf)
-			throw CoreException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
+			throw ModuleException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
 
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
 		DeprivOthers = Conf.ReadFlag("options","deprotectothers",0);

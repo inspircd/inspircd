@@ -74,15 +74,13 @@ class ModuleRandQuote : public Module
 
 		if (q_file.empty())
 		{
-			CoreException e("m_randquote: Quotefile not specified - Please check your config.");
-			throw(e);
+			throw ModuleException("m_randquote: Quotefile not specified - Please check your config.");
 		}
 
 		quotes = new FileReader(ServerInstance, q_file);
 		if(!quotes->Exists())
 		{
-			CoreException e("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
-			throw(e);
+			throw ModuleException("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
 		}
 		else
 		{

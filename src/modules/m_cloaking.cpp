@@ -274,7 +274,7 @@ class ModuleCloaking : public Module
 		{
 			OnRehash(NULL,"");
 		}
-		catch (CoreException &e)
+		catch (ModuleException &e)
 		{
 			delete cu;
 			throw e;

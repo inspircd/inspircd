@@ -47,7 +47,7 @@ class CoreExport RLine : public XLine
 		if (!regex)
 		{
 			ServerInstance->SNO->WriteToSnoMask('x',"Error in regular expression: %s at offset %d: %s\n", regexs, erroffset, error);
-			throw CoreException("Bad regex pattern.");
+			throw ModuleException("Bad regex pattern.");
 		}
 	}
 
