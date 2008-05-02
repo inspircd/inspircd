@@ -371,11 +371,10 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 	{
 		const char* mode = parameters[1];
 		int nonlistmodes_found = 0;
-		bool sent[256];
+
+		seq++;
 
 		mask = MASK_CHANNEL;
-
-		memset(&sent, 0, 256);
 		
 		while (mode && *mode)
 		{
@@ -390,9 +389,9 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 			/* Ensure the user doesnt request the same mode twice,
 			 * so they cant flood themselves off out of idiocy.
 			 */
-			if (!sent[mletter])
+			if (sent[mletter] != seq)
 			{
-				sent[mletter] = true;
+				sent[mletter] = seq;
 			}
 			else
 			{
@@ -1199,4 +1198,7 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	/* Initialise the RFC mode letters */
 	for (int index = 0; modes[index]; index++)
 		this->AddMode(modes[index]);
+
+	seq = 0;
+	memset(&sent, 0, 256);
 }

@@ -424,6 +424,10 @@ class CoreExport ModeParser : public classbase
 	 */
 	std::string LastParse;
 
+	unsigned int sent[256];
+
+	unsigned int seq;
+
  public:
 
 	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().
