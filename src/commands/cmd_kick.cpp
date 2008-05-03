@@ -27,6 +27,9 @@ CmdResult CommandKick::Handle (const char* const* parameters, int pcnt, User *us
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u = ServerInstance->FindNick(parameters[1]);
 
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
+		return CMD_SUCCESS;
+
 	if (!u || !c)
 	{
 		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, u ? parameters[0] : parameters[1]);
