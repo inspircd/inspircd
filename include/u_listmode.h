@@ -176,7 +176,8 @@ class ListModeBase : public ModeHandler
 		{
 			irc::modestacker modestack(false);
 			std::deque<std::string> stackresult;
-			const char* mode_junk[MAXMODES+2];
+			//const char* mode_junk[MAXMODES+2];
+			std::vector<std::string> mode_junk;
 			mode_junk[0] = channel->name;
 
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
@@ -194,10 +195,10 @@ class ListModeBase : public ModeHandler
 			{
 				for (size_t j = 0; j < stackresult.size(); j++)
 				{
-					mode_junk[j+1] = stackresult[j].c_str();
+					mode_junk[j+1] = stackresult[j];
 				}
 
-				ServerInstance->SendMode(mode_junk, stackresult.size() + 1, ServerInstance->FakeClient);		
+				ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);		
 			}
 		}
 	}
