@@ -82,7 +82,7 @@ class ModuleAntiBottler : public Module
 				modified[0] = "bottler";
 				modified[1] = local;
 				modified[2] = remote;
-				modified[3] = strgecos.c_str();
+				modified[3] = strgecos;
 				ServerInstance->Parser->CallHandler("USER", modified, user);
 				return 1;
 			}
