@@ -126,7 +126,7 @@ class ModuleAlias : public Module
 		}
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		User *u = NULL;
 
@@ -247,16 +247,15 @@ class ModuleAlias : public Module
 		SearchAndReplace(newline, "\r", "$");
 
 		irc::tokenstream ss(newline);
-		const char* parv[MAXPARAMETERS];
-		int x = 0;
 
-		while (ss.GetToken(pars[x]) && x < MAXPARAMETERS)
+		std::vector<std::string> parms;
+		int x = 1;
+		while (ss.GetToken(pars[x]) && parms.size() <= MAXPARAMETERS)
 		{
-			parv[x] = pars[x].c_str();
+			parms.push_back(pars[x]);
 			x++;
 		}
-
-		ServerInstance->Parser->CallHandler(parv[0], &parv[1], x-1, user);
+		ServerInstance->Parser->CallHandler(pars[0], parms, user);
 	}
  
 	virtual void OnRehash(User* user, const std::string &parameter)
