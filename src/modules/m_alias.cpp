@@ -249,6 +249,7 @@ class ModuleAlias : public Module
 		irc::tokenstream ss(newline);
 
 		std::vector<std::string> parms;
+		ss.GetToken(pars[0]);
 		int x = 1;
 		while (ss.GetToken(pars[x]) && parms.size() <= MAXPARAMETERS)
 		{
