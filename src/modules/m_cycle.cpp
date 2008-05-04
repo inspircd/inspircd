@@ -27,12 +27,12 @@ class CommandCycle : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		std::string reason = ConvToStr("Cycling");
 			
-		if (pcnt > 1)
+		if (parameters.size() > 1)
 		{
 			/* reason provided, use it */
 			reason = reason + ": " + parameters[1];
@@ -40,7 +40,7 @@ class CommandCycle : public Command
 		
 		if (!channel)
 		{
-			user->WriteNumeric(403, "%s %s :No such channel", user->nick, parameters[0]);
+			user->WriteNumeric(403, "%s %s :No such channel", user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		
@@ -62,7 +62,7 @@ class CommandCycle : public Command
 				if (!channel->PartUser(user, reason.c_str()))
 					delete channel;
 				
-				Channel::JoinUser(ServerInstance, user, parameters[0], true, "", false, ServerInstance->Time());
+				Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
 			}
 
 			return CMD_LOCALONLY;
