@@ -496,7 +496,6 @@ class CoreExport ModeParser : public classbase
 	/** Process a set of mode changes from a server or user.
 	 * @param parameters The parameters of the mode change, in the format
 	 * they would be from a MODE command.
-	 * @param pcnt The number of items in the parameters array
 	 * @param user The user setting or removing the modes. When the modes are set
 	 * by a server, an 'uninitialized' User is used, where *user::nick == NULL
 	 * and *user->server == NULL.
