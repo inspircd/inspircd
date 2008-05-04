@@ -27,12 +27,12 @@ class CommandClones : public Command
 		syntax = "<limit>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 
 		std::string clonesstr = "304 " + std::string(user->nick) + " :CLONES";
 
-		unsigned long limit = atoi(parameters[0]);
+		unsigned long limit = atoi(parameters[0].c_str());
 
 		/*
 		 * Syntax of a /clones reply:

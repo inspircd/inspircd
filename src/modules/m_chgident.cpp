@@ -27,35 +27,35 @@ class CommandChgident : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
-		if (!*parameters[1])
+		if (parameters[1].empty())
 		{
 			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident must be specified", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if (strlen(parameters[1]) > IDENTMAX - 1)
+		if (parameters[1].length() > IDENTMAX - 1)
 		{
 			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident is too long", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if (!ServerInstance->IsIdent(parameters[1]))
+		if (!ServerInstance->IsIdent(parameters[1].c_str()))
 		{
 			user->WriteServ("NOTICE %s :*** CHGIDENT: Invalid characters in ident", user->nick);
 			return CMD_FAILURE;
 		}
 
-		dest->ChangeIdent(parameters[1]);
+		dest->ChangeIdent(parameters[1].c_str());
 
 		if (!ServerInstance->ULine(user->server))
 			ServerInstance->SNO->WriteToSnoMask('A', "%s used CHGIDENT to change %s's ident to '%s'", user->nick, dest->nick, dest->ident);

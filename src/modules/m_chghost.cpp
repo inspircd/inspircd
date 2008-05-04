@@ -29,9 +29,9 @@ class CommandChghost : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
  
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		const char * x = parameters[1];
+		const char * x = parameters[1].c_str();
 
 		for (; *x; x++)
 		{
@@ -41,13 +41,13 @@ class CommandChghost : public Command
 				return CMD_FAILURE;
 			}
 		}
-		if (!*parameters[0])
+		if (parameters[0].empty())
 		{
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host must be specified", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if ((parameters[1] - x) > 63)
+		if ((parameters[1].c_str() - x) > 63)
 		{
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick);
 			return CMD_FAILURE;
@@ -56,11 +56,11 @@ class CommandChghost : public Command
 
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
-		if ((dest->ChangeDisplayedHost(parameters[1])) && (!ServerInstance->ULine(user->server)))
+		if ((dest->ChangeDisplayedHost(parameters[1].c_str())) && (!ServerInstance->ULine(user->server)))
 		{
 			// fix by brain - ulines set hosts silently
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);

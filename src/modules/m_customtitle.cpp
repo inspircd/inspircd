@@ -43,7 +43,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
     return false;
 }
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User* user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
 		if (!IS_LOCAL(user))
 			return CMD_LOCALONLY;
@@ -64,7 +64,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 			std::string title = Conf.ReadValue("title", "title", "", i);
 			std::string vhost = Conf.ReadValue("title", "vhost", "", i);
 
-			if (!strcmp(name.c_str(),parameters[0]) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1], hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
+			if (!strcmp(name.c_str(),parameters[0].c_str()) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
 			{
 				std::string* text;
 				user->GetExt("ctitle", text);
@@ -95,7 +95,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 
 		if (!ServerInstance->ULine(user->server))
 			// Ulines also fail TITLEs silently
-			ServerInstance->SNO->WriteToSnoMask('A', "Failed TITLE attempt by %s!%s@%s using login '%s'",user->nick,user->ident,user->host,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('A', "Failed TITLE attempt by %s!%s@%s using login '%s'",user->nick,user->ident,user->host,parameters[0].c_str());
 
 		user->WriteServ("NOTICE %s :Invalid title credentials",user->nick);
 		return CMD_SUCCESS;

@@ -71,10 +71,9 @@ class ModuleModesOnConnect : public Module
 					while (ss >> buf)
 						tokens.push_back(buf);
 
-					int size = tokens.size() + 1;
-					const char** modes = new const char*[size];
+					std::vector<std::string> modes;
 					modes[0] = user->nick;
-					modes[1] = tokens[0].c_str();
+					modes[1] = tokens[0];
 
 					if (tokens.size() > 1)
 					{
@@ -82,13 +81,12 @@ class ModuleModesOnConnect : public Module
 						int i = 2;
 						for (unsigned int k = 1; k < tokens.size(); k++)
 						{
-							modes[i] = tokens[k].c_str();
+							modes[i] = tokens[k];
 							i++;
 						}
 					}
 
-					ServerInstance->Parser->CallHandler("MODE", modes, size, user);
-					delete [] modes;
+					ServerInstance->Parser->CallHandler("MODE", modes, user);
 				}
 				break;
 			}

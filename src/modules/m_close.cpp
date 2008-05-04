@@ -24,7 +24,7 @@ class CommandClose : public Command
 		this->source = "m_close.so";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		std::map<std::string,int> closed;
 

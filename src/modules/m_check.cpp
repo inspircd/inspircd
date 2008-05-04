@@ -27,7 +27,7 @@ class CommandCheck : public Command
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User *targuser;
 		Channel *targchan;
@@ -131,13 +131,13 @@ class CommandCheck : public Command
 			/* hostname or other */
 			for (user_hash::const_iterator a = ServerInstance->Users->clientlist->begin(); a != ServerInstance->Users->clientlist->end(); a++)
 			{
-				if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
+				if (match(a->second->host, parameters[0].c_str()) || match(a->second->dhost, parameters[0].c_str()))
 				{
 					/* host or vhost matches mask */
 					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 				/* IP address */
-				else if (match(a->second->GetIPString(), parameters[0], true))
+				else if (match(a->second->GetIPString(), parameters[0].c_str(), true))
 				{
 					/* same IP. */
 					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());

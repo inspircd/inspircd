@@ -27,23 +27,23 @@ class CommandChgname : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		
-		if (!*parameters[1])
+		if (parameters[1].empty())
 		{
 			user->WriteServ("NOTICE %s :*** GECOS must be specified", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if (strlen(parameters[1]) > MAXGECOS)
+		if (parameters[1].length() > MAXGECOS)
 		{
 			user->WriteServ("NOTICE %s :*** GECOS too long", user->nick);
 			return CMD_FAILURE;
@@ -51,7 +51,7 @@ class CommandChgname : public Command
 		
 		if (IS_LOCAL(dest))
 		{
-			dest->ChangeName(parameters[1]);
+			dest->ChangeName(parameters[1].c_str());
 			ServerInstance->SNO->WriteToSnoMask('A', "%s used CHGNAME to change %s's real name to '%s'", user->nick, dest->nick, dest->fullname);
 			return CMD_LOCALONLY; /* name change routed by FNAME in spanningtree now */
 		}

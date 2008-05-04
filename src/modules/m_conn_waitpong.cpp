@@ -69,7 +69,7 @@ class ModuleWaitPong : public Module
 		return 0;
 	}
 	
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User* user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User* user, bool validated, const std::string &original_line)
 	{
 		if (command == "PONG")
 		{
@@ -78,7 +78,7 @@ class ModuleWaitPong : public Module
 			
 			if (pingrpl)
 			{
-				if (strcmp(pingrpl, parameters[0]) == 0)
+				if (strcmp(pingrpl, parameters[0].c_str()) == 0)
 				{
 					delete[] pingrpl;
 					user->Shrink(extenstr);
