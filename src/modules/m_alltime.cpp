@@ -25,7 +25,7 @@ class CommandAlltime : public Command
 		translation.push_back(TR_END);
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		char fmtdate[64];
 		time_t now = ServerInstance->Time();

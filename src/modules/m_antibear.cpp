@@ -37,12 +37,11 @@ class ModuleAntiBear : public Module
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
 
-
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
-		if (command == "NOTICE" && !validated && pcnt > 1 && user->GetExt("antibear_timewait"))
+		if (command == "NOTICE" && !validated && parameters.size() > 1 && user->GetExt("antibear_timewait"))
 		{
-			if (!strncmp(parameters[1], "\1TIME Mon May 01 18:54:20 2006", 30))
+			if (!strncmp(parameters[1].c_str(), "\1TIME Mon May 01 18:54:20 2006", 30))
 			{
 				ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), 86400, ServerInstance->Config->ServerName,
 						"Unless you're stuck in a time warp, you appear to be a bear bot!", user->GetIPString());
