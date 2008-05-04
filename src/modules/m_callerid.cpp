@@ -83,9 +83,10 @@ public:
 	 * /accept nick1,nick2,nick3 *
 	 * to add 3 nicks and then show your list
 	 */
-	CmdResult Handle(const char* const* parameters, int pcnt, User* user)
+
+	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
-		if (pcnt < 1)
+		if (parameters.size() < 1)
 		{
 			/* Command stuff should've dealt with this already */
 			return CMD_FAILURE;
@@ -93,9 +94,9 @@ public:
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
 		bool atleastonechange = false;
-		for (int i = 0; i < pcnt; ++i)
+		for (int i = 0; i < (int)parameters.size(); ++i)
 		{
-			const char* arg = parameters[i];
+			const char* arg = parameters[i].c_str();
 			irc::commasepstream css(arg);
 			std::string tok;
 			while (css.GetToken(tok))

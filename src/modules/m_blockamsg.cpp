@@ -84,7 +84,7 @@ class ModuleBlockAmsg : public Module
 			action = IBLOCK_KILLOPERS;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		// Don't do anything with unregistered users, or remote ones.
 		if(!user || (user->registered != REG_ALL) || !IS_LOCAL(user))
@@ -94,7 +94,7 @@ class ModuleBlockAmsg : public Module
 		// Add std::string contructor for irc::string :x
 		irc::string cmd = command.c_str();
 		
-		if(validated && (cmd == "PRIVMSG" || cmd == "NOTICE") && (pcnt >= 2))
+		if(validated && (cmd == "PRIVMSG" || cmd == "NOTICE") && (parameters.size() >= 2))
 		{
 			// parameters[0] should have the target(s) in it.
 			// I think it will be faster to first check if there are any commas, and if there are then try and parse it out.
@@ -103,13 +103,13 @@ class ModuleBlockAmsg : public Module
 			int targets = 1;
 			int userchans = 0;
 		
-			if(*parameters[0] != '#')
+			if(*parameters[0].c_str() != '#')
 			{
 				// Decrement if the first target wasn't a channel.
 				targets--;
 			}
 			
-			for(const char* c = parameters[0]; *c; c++)
+			for(const char* c = parameters[0].c_str(); *c; c++)
 				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
 					targets++;
 				
@@ -151,12 +151,12 @@ class ModuleBlockAmsg : public Module
 			{
 				// If there's already a BlockedMessage allocated, use it.
 				m->message = parameters[1];
-				m->target = parameters[0];
+				m->target = parameters[0].c_str();
 				m->sent = ServerInstance->Time();
 			}
 			else
 			{
-				m = new BlockedMessage(parameters[1], parameters[0], ServerInstance->Time());
+				m = new BlockedMessage(parameters[1], parameters[0].c_str(), ServerInstance->Time());
 				user->Extend("amsgblock", (char*)m);
 			}
 		}					

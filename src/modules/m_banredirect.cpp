@@ -222,7 +222,7 @@ class ModuleBanRedirect : public Module
 			{
 				irc::modestacker modestack(false);
 				StringDeque stackresult;
-				const char* mode_junk[MAXMODES+2];
+				std::vector<std::string> mode_junk;
 				
 				mode_junk[0] = chan->name;
 				
@@ -241,10 +241,10 @@ class ModuleBanRedirect : public Module
 				{
 					for(StringDeque::size_type i = 0; i < stackresult.size(); i++)
 					{
-						mode_junk[i+1] = stackresult[i].c_str();
+						mode_junk[i+1] = stackresult[i];
 					}
 					
-					ServerInstance->SendMode(mode_junk, stackresult.size() + 1, ServerInstance->FakeClient);
+					ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
 				}
 				
 				delete redirects;

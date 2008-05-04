@@ -61,7 +61,7 @@ class CommandWebirc : public Command
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
 		}
-		CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+		CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 		{
 			if(user->registered == REG_ALL)
 				return CMD_FAILURE;
@@ -75,7 +75,7 @@ class CommandWebirc : public Command
 						user->Extend("cgiirc_realhost", new std::string(user->host));
 						user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 						if (notify)
-							ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick, user->host, parameters[2], user->host);
+							ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick, user->host, parameters[2].c_str(), user->host);
 						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
 						user->Extend("cgiirc_webirc_ip", new std::string(parameters[3]));
 						return CMD_LOCALONLY;

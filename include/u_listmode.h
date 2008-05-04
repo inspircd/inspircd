@@ -176,7 +176,6 @@ class ListModeBase : public ModeHandler
 		{
 			irc::modestacker modestack(false);
 			std::deque<std::string> stackresult;
-			//const char* mode_junk[MAXMODES+2];
 			std::vector<std::string> mode_junk;
 			mode_junk[0] = channel->name;
 

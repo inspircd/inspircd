@@ -41,9 +41,9 @@ class CommandCAP : public Command
 		this->source = "m_cap.so";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		irc::string subcommand = parameters[0];
+		irc::string subcommand = parameters[0].c_str();
 
 		if (subcommand == "REQ")
 		{
@@ -53,7 +53,7 @@ class CommandCAP : public Command
 			Data.user = user;
 			Data.creator = this->Creator;
 
-			if (pcnt < 2)
+			if (parameters.size() < 2)
 				return CMD_FAILURE;
 
 			// tokenize the input into a nice list of requested caps

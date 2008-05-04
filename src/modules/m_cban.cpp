@@ -88,25 +88,25 @@ class CommandCBan : public Command
 		TRANSLATE4(TR_TEXT,TR_TEXT,TR_TEXT,TR_END);
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
-		if(pcnt == 1)
+		if (parameters.size() == 1)
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0], "CBAN", user))
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed CBan on %s.",user->nick,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed CBan on %s.",user->nick,parameters[0].c_str());
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** CBan %s not found in list, try /stats C.",user->nick,parameters[0]);
+				user->WriteServ("NOTICE %s :*** CBan %s not found in list, try /stats C.",user->nick,parameters[0].c_str());
 			}
 
 			return CMD_SUCCESS;
 		}
-		else if (pcnt >= 2)
+		else if (parameters.size() >= 2)
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration = ServerInstance->Duration(parameters[1]);
@@ -114,7 +114,7 @@ class CommandCBan : public Command
 
 			try
 			{
-				r = new CBan(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+				r = new CBan(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -127,12 +127,12 @@ class CommandCBan : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s.", user->nick, parameters[0]);
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s.", user->nick, parameters[0].c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s", user->nick, parameters[0],
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s", user->nick, parameters[0].c_str(),
 						ServerInstance->TimeString(c_requires_crap).c_str());
 					}
 
@@ -141,7 +141,7 @@ class CommandCBan : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick, parameters[0]);
+					user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick, parameters[0].c_str());
 				}
 			}
 		}
