@@ -93,8 +93,7 @@ class CoreExport CommandParser : public classbase
 
 	/** Calls the handler for a given command.
 	 * @param commandname The command to find. This should be in uppercase.
-	 * @param parameters Parameter list as an array of array of char (that's not a typo).
-	 * @param pcnt The number of items in the parameters list
+	 * @param parameters Parameter list
 	 * @param user The user to call the handler on behalf of
 	 * @return This method will return CMD_SUCCESS if the command handler was found and called,
 	 * and the command completeld successfully. It will return CMD_FAILURE if the command handler was found

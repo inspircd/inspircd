@@ -107,7 +107,6 @@ class CoreExport Command : public Extensible
 
 	/** Handle the command from a user.
 	 * @param parameters The parameters for the command.
-	 * @param pcnt The number of parameters available in 'parameters'
 	 * @param user The user who issued the command.
 	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
 	 * If the command succeeds but should remain local to this server,
@@ -130,13 +129,12 @@ class CoreExport Command : public Extensible
 	/** Handle the command from a server.
 	 * Not currently used in this version of InspIRCd.
 	 * @param parameters The parameters given
-	 * @param pcnt The number of parameters available
 	 * @param servername The server name which issued the command
 	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
 	 * If the command succeeds but should remain local to this server,
 	 * return CMD_LOCALONLY.
 	 */
-	virtual CmdResult HandleServer(const char* const* /* parameters */, int /* pcnt */, const std::string& /* servername */)
+	virtual CmdResult HandleServer(const std::vector<std::string>& /* parameters */, const std::string& /* servername */)
 	{
 		return CMD_INVALID;
 	}
