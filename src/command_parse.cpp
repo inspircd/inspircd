@@ -502,6 +502,9 @@ bool CommandParser::ReloadCommand(const char* cmd, userrec* user)
 
 CmdResult cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
 {
+	if (pcnt < 1)
+		return CMD_FAILURE;
+
 	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0]);
 	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))
 	{
