@@ -267,7 +267,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	 * the rfc says they shouldnt but also says the ircd should
 	 * discard it if they do.
 	 */
-	if (*command.c_str() == ':')
+	if (command[0] == ':')
 		tokens.GetToken(command);
 
 	while (tokens.GetToken(token) && (command_p.size() <= MAXPARAMETERS))
