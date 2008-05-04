@@ -31,12 +31,12 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandStats(Instance);
 }
 
-CmdResult CommandStats::Handle (const char* const* parameters, int /* pcnt */, User *user)
+CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	if (IS_LOCAL(user))
 	{
 		string_list values;
-		DoStats(this->ServerInstance, *parameters[0], user, values);
+		DoStats(this->ServerInstance, parameters[0][0], user, values);
 		for (size_t i = 0; i < values.size(); i++)
 			user->Write(":%s", values[i].c_str());
 	}

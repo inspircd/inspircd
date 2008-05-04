@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /LINKS
  */
-CmdResult CommandLinks::Handle (const char* const*, int, User *user)
+CmdResult CommandLinks::Handle (const std::vector<std::string>&, User *user)
 {
 	user->WriteNumeric(364, "%s %s %s :0 %s",user->nick,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName,ServerInstance->Config->ServerDesc);
 	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick);

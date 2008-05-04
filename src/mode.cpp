@@ -354,7 +354,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	return;
 }
 
-void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bool servermode)
+void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool servermode)
 {
 	std::string target = parameters[0];
 	ModeType type = MODETYPE_USER;
@@ -367,9 +367,9 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 	/* Special case for displaying the list for listmodes,
 	 * e.g. MODE #chan b, or MODE #chan +b without a parameter
 	 */
-	if ((targetchannel) && (pcnt == 2))
+	if ((targetchannel) && (parameters.size() == 2))
 	{
-		const char* mode = parameters[1];
+		const char* mode = parameters[1].c_str();
 		int nonlistmodes_found = 0;
 
 		seq++;
@@ -445,11 +445,11 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 			return;
 	}
 
-	if (pcnt == 1)
+	if (parameters.size() == 1)
 	{
-		this->DisplayCurrentModes(user, targetuser, targetchannel, parameters[0]);
+		this->DisplayCurrentModes(user, targetuser, targetchannel, parameters[0].c_str());
 	}
-	else if (pcnt > 1)
+	else if (parameters.size() > 1)
 	{
 		bool SkipAccessChecks = false;
 
@@ -485,7 +485,7 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 		else
 		{
 			/* No such nick/channel */
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 			return;
 		}
 
@@ -495,8 +495,8 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 		std::string output_sequence;
 		bool adding = true, state_change = false;
 		unsigned char handler_id = 0;
-		int parameter_counter = 2; /* Index of first parameter */
-		int parameter_count = 0;
+		unsigned int parameter_counter = 2; /* Index of first parameter */
+		unsigned int parameter_count = 0;
 		bool last_successful_state_change = false;
 
 		/* A mode sequence that doesnt start with + or -. Assume +. - Thanks for the suggestion spike (bug#132) */
@@ -559,7 +559,7 @@ void ModeParser::Process(const char* const* parameters, int pcnt, User *user, bo
 							if (modehandlers[handler_id]->GetNumParams(adding))
 							{
 								/* This mode expects a parameter, do we have any parameters left in our list to use? */
-								if (parameter_counter < pcnt)
+								if (parameter_counter < parameters.size())
 								{
 									parameter = parameters[parameter_counter++];
 
@@ -1127,7 +1127,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 {
 	char moderemove[MAXBUF];
-	const char* parameters[] = { user->nick, moderemove };
+	std::vector<std::string> parameters;
 
 	if (user->IsModeSet(this->GetModeChar()))
 	{
@@ -1138,7 +1138,9 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 		else
 		{
 			sprintf(moderemove,"-%c",this->GetModeChar());
-			ServerInstance->Parser->CallHandler("MODE", parameters, 2, user);
+			parameters.push_back(user->nick);
+			parameters.push_back(moderemove);
+			ServerInstance->Parser->CallHandler("MODE", parameters, user);
 		}
 	}
 }
@@ -1149,7 +1151,7 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	char moderemove[MAXBUF];
-	const char* parameters[] = { channel->name, moderemove };
+	std::vector<std::string> parameters;
 
 	if (channel->IsModeSet(this->GetModeChar()))
 	{
@@ -1160,7 +1162,9 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 		else
 		{
 			sprintf(moderemove,"-%c",this->GetModeChar());
-			ServerInstance->SendMode(parameters, 2, ServerInstance->FakeClient);
+			parameters.push_back(channel->name);
+			parameters.push_back(moderemove);
+			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
 }

@@ -21,13 +21,13 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /ISON
  */
-CmdResult CommandIson::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::map<User*,User*> ison_already;
 	User *u;
 	std::string reply = std::string("303 ") + user->nick + " :";
 
-	for (int i = 0; i < pcnt; i++)
+	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
 		u = ServerInstance->FindNick(parameters[i]);
 		if (ison_already.find(u) != ison_already.end())
@@ -48,7 +48,7 @@ CmdResult CommandIson::Handle (const char* const* parameters, int pcnt, User *us
 		}
 		else
 		{
-			if ((i == pcnt-1) && (strchr(parameters[i],' ')))
+			if ((i == parameters.size() - 1) && (parameters[i].find(' ') != std::string::npos))
 			{
 				/* Its a space seperated list of nicks (RFC1459 says to support this)
 				 */

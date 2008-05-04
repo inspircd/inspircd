@@ -21,17 +21,17 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /NAMES
  */
-CmdResult CommandNames::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	Channel* c;
 
-	if (!pcnt)
+	if (!parameters.size())
 	{
 		user->WriteNumeric(366, "%s * :End of /NAMES list.",user->nick);
 		return CMD_SUCCESS;
 	}
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	c = ServerInstance->FindChan(parameters[0]);
@@ -46,7 +46,7 @@ CmdResult CommandNames::Handle (const char* const* parameters, int pcnt, User *u
 	}
 	else
 	{
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 	}
 
 	return CMD_SUCCESS;

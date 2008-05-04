@@ -39,7 +39,7 @@ class CoreExport CommandParser : public classbase
 	 * @param parameters The input string
 	 * @return The number of parameters parsed into command_p
 	 */
-	int ProcessParameters(char **command_p,char *parameters);
+	int ProcessParameters(std::vector<std::string>& command_p, char* parameters);
 
 	/** Process a command from a user.
 	 * @param user The user to parse the command for
@@ -84,7 +84,7 @@ class CoreExport CommandParser : public classbase
 	 * @return True if the command was reloaded, false if it could not be found
 	 * or another error occured
 	 */
-	bool ReloadCommand(const char* cmd, User* user);
+	bool ReloadCommand(std::string cmd, User* user);
 
 	/** Default constructor.
 	 * @param Instance The creator of this class
@@ -102,7 +102,7 @@ class CoreExport CommandParser : public classbase
 	 * command simply did not exist at all or the wrong number of parameters were given, or the user
 	 * was not privilaged enough to execute the command.
 	 */
-	CmdResult CallHandler(const std::string &commandname,const char* const* parameters, int pcnt, User *user);
+	CmdResult CallHandler(const std::string &commandname, const std::vector<std::string>& parameters, User *user);
 
 	/** Get the handler function for a command.
 	 * @param commandname The command required. Always use uppercase for this parameter.
@@ -118,7 +118,7 @@ class CoreExport CommandParser : public classbase
 	 * equal to or greater than the minimum number of parameters to the given command, then this
 	 * function will return true, otherwise it will return false.
 	 */
-	bool IsValidCommand(const std::string &commandname, int pcnt, User * user);
+	bool IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user);
 	
 	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
 	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
@@ -141,7 +141,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere, unsigned int extra);
+	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra);
 
 	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
 	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
@@ -164,7 +164,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere);
+	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
@@ -219,7 +219,7 @@ class cmd_reload : public Command
 	cmd_reload (InspIRCd* Instance) : Command(Instance,"RELOAD","o",1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
 /** A lookup table of values for multiplier characters used by

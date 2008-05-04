@@ -21,30 +21,30 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /KICK
  */
-CmdResult CommandKick::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	char reason[MAXKICK];
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u = ServerInstance->FindNick(parameters[1]);
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 1))
 		return CMD_SUCCESS;
 
 	if (!u || !c)
 	{
-		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, u ? parameters[0] : parameters[1]);
+		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, u ? parameters[0].c_str() : parameters[1].c_str());
 		return CMD_FAILURE;
 	}
 
 	if ((IS_LOCAL(user)) && (!c->HasUser(user)) && (!ServerInstance->ULine(user->server)))
 	{
-		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick, parameters[0]);
+		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
-	if (pcnt > 2)
+	if (parameters.size() > 2)
 	{
-		strlcpy(reason, parameters[2], MAXKICK - 1);
+		strlcpy(reason, parameters[2].c_str(), MAXKICK - 1);
 	}
 	else
 	{

@@ -22,23 +22,20 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandRehash(Instance);
 }
 
-CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string old_disabled = ServerInstance->Config->DisabledCommands;
 
-	ServerInstance->Logs->Log("fuckingrehash", DEBUG, "parc %d p0 %s", pcnt, parameters[0]);
-	if (pcnt && parameters[0][0] != '-')
+	if (parameters.size() && parameters[0][0] != '-')
 	{
 		if (!ServerInstance->MatchText(ServerInstance->Config->ServerName, parameters[0]))
 		{
-			ServerInstance->Logs->Log("fuckingrehash", DEBUG, "rehash for a server, and not for us");
 			FOREACH_MOD(I_OnRehash,OnRehash(user, parameters[0]));
 			return CMD_SUCCESS; // rehash for a server, and not for us
 		}
 	}
-	else if (pcnt)
+	else if (parameters.size())
 	{
-		ServerInstance->Logs->Log("fuckingrehash", DEBUG, "rehash for a subsystem, ignoring");
 		FOREACH_MOD(I_OnRehash,OnRehash(user, parameters[0]));
 		return CMD_SUCCESS;
 	}
@@ -65,7 +62,7 @@ CmdResult CommandRehash::Handle (const char* const* parameters, int pcnt, User *
 	if (!ServerInstance->ConfigThread)
 	{
 		ServerInstance->Config->RehashUser = user;
-		ServerInstance->Config->RehashParameter = pcnt ? parameters[0] : "";
+		ServerInstance->Config->RehashParameter = parameters.size() ? parameters[0] : "";
 
 		ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, user);
 		ServerInstance->Threads->Create(ServerInstance->ConfigThread);

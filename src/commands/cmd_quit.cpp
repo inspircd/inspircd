@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandQuit(Instance);
 }
 
-CmdResult CommandQuit::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User *user)
 {
 
 	std::string quitmsg;
@@ -31,12 +31,12 @@ CmdResult CommandQuit::Handle (const char* const* parameters, int pcnt, User *us
 		if (*ServerInstance->Config->FixedQuit)
 			quitmsg = ServerInstance->Config->FixedQuit;
 		else
-			quitmsg = pcnt ?
+			quitmsg = parameters.size() ?
 				ServerInstance->Config->PrefixQuit + std::string(parameters[0]) + ServerInstance->Config->SuffixQuit
 				: "Client exited";
 	}
 	else
-		quitmsg = pcnt ? parameters[0] : "Client exited";
+		quitmsg = parameters.size() ? parameters[0] : "Client exited";
 
 	ServerInstance->Users->QuitUser(user, quitmsg);
 

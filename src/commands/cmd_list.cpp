@@ -22,24 +22,22 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandList(Instance);
 }
 
-CmdResult CommandList::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	int minusers = 0, maxusers = 0;
 
 	user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
 
 	/* Work around mIRC suckyness. YOU SUCK, KHALED! */
-	if (pcnt == 1)
+	if (parameters.size() == 1)
 	{
-		if (*parameters[0] == '<')
+		if (parameters[0][0] == '<')
 		{
-			maxusers = atoi(parameters[0]+1);
-			pcnt = 0;
+			maxusers = atoi((parameters[0].c_str())+1);
 		}
-		else if (*parameters[0] == '>')
+		else if (parameters[0][0] == '>')
 		{
-			minusers = atoi(parameters[0]+1);
-			pcnt = 0;
+			minusers = atoi((parameters[0].c_str())+1);
 		}
 	}
 
@@ -54,9 +52,9 @@ CmdResult CommandList::Handle (const char* const* parameters, int pcnt, User *us
 		if (too_many || too_few)
 			continue;
 
-		if (pcnt)
+		if (parameters.size() && parameters[0][0] != '<' && parameters[0][0] == '>')
 		{
-			if (!match(i->second->name, parameters[0]) && !match(i->second->topic, parameters[0]))
+			if (!match(i->second->name, parameters[0].c_str()) && !match(i->second->topic, parameters[0].c_str()))
 				continue;
 		}
 

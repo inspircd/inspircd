@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /LUSERS
  */
-CmdResult CommandLusers::Handle (const char* const*, int, User *user)
+CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 {
 	// this lusers command shows one server at all times because
 	// a protocol module must override it to show those stats.

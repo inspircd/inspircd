@@ -21,11 +21,11 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /AWAY
  */
-CmdResult CommandAway::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	int MOD_RESULT = 0;
 
-	if ((pcnt) && (*parameters[0]))
+	if ((parameters.size()) && (!parameters[0].empty()))
 	{
 		FOREACH_RESULT(I_OnSetAway, OnSetAway(user, parameters[0]));
 
@@ -33,7 +33,8 @@ CmdResult CommandAway::Handle (const char* const* parameters, int pcnt, User *us
 			return CMD_FAILURE;
 
 		user->awaytime = ServerInstance->Time();
-		strlcpy(user->awaymsg,parameters[0],MAXAWAY);
+		strlcpy(user->awaymsg, parameters[0].c_str(), MAXAWAY);
+
 		user->WriteNumeric(306, "%s :You have been marked as being away",user->nick);
 	}
 	else

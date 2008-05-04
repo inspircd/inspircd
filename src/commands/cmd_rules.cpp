@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandRules(Instance);
 }
 
-CmdResult CommandRules::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	user->ShowRULES();
 	return CMD_SUCCESS;

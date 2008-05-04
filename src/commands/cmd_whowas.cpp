@@ -28,7 +28,7 @@ CommandWhowas::CommandWhowas(InspIRCd* Instance) : Command(Instance, "WHOWAS", 0
 	Instance->Timers->AddTimer(timer);
 }
 
-CmdResult CommandWhowas::Handle (const char* const* parameters, int, User* user)
+CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
 {
 	/* if whowas disabled in config */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -37,12 +37,12 @@ CmdResult CommandWhowas::Handle (const char* const* parameters, int, User* user)
 		return CMD_FAILURE;
 	}
 
-	whowas_users::iterator i = whowas.find(parameters[0]);
+	whowas_users::iterator i = whowas.find(assign(parameters[0]));
 
 	if (i == whowas.end())
 	{
-		user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick,parameters[0]);
-		user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0]);
+		user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick,parameters[0].c_str());
+		user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 	else
@@ -63,26 +63,26 @@ CmdResult CommandWhowas::Handle (const char* const* parameters, int, User* user)
 				strlcpy(b,asctime(timeinfo),MAXBUF);
 				b[24] = 0;
 
-				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
+				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick,parameters[0].c_str(),u->ident,u->dhost,u->gecos);
 				
 				if (IS_OPER(user))
-					user->WriteNumeric(379, "%s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
+					user->WriteNumeric(379, "%s %s :was connecting from *@%s", user->nick, parameters[0].c_str(), u->host);
 				
 				if (*ServerInstance->Config->HideWhoisServer && !IS_OPER(user))
-					user->WriteNumeric(312, "%s %s %s :%s",user->nick,parameters[0], ServerInstance->Config->HideWhoisServer, b);
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick,parameters[0].c_str(), ServerInstance->Config->HideWhoisServer, b);
 				else
-					user->WriteNumeric(312, "%s %s %s :%s",user->nick,parameters[0], u->server, b);
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick,parameters[0].c_str(), u->server, b);
 			}
 		}
 		else
 		{
-			user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick,parameters[0]);
-			user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0]);
+			user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick,parameters[0].c_str());
+			user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}
 
-	user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0]);
+	user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick,parameters[0].c_str());
 	return CMD_SUCCESS;
 }
 

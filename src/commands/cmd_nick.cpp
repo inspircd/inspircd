@@ -25,21 +25,21 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
+CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	char oldnick[NICKMAX];
 
-	if (!*parameters[0] || !*user->nick)
+	if (parameters[0].empty())
 	{
 		/* We cant put blanks in the parameters, so for this (extremely rare) issue we just put '*' here. */
 		user->WriteNumeric(432, "%s * :Erroneous Nickname", *user->nick ? user->nick : "*");
 		return CMD_FAILURE;
 	}
 
-	if (irc::string(user->nick) == irc::string(parameters[0]))
+	if (irc::string(user->nick) == assign(parameters[0]))
 	{
 		/* If its exactly the same, even case, dont do anything. */
-		if (!strcmp(user->nick,parameters[0]))
+		if (parameters[0] == user->nick)
 			return CMD_SUCCESS;
 
 		/* Its a change of case. People insisted that they should be
@@ -48,12 +48,12 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 		 */
 		strlcpy(oldnick, user->nick, NICKMAX - 1);
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
+		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0].c_str()));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
 		if (user->registered == REG_ALL)
-			user->WriteCommon("NICK %s",parameters[0]);
-		strlcpy(user->nick, parameters[0], NICKMAX - 1);
+			user->WriteCommon("NICK %s",parameters[0].c_str());
+		strlcpy(user->nick, parameters[0].c_str(), NICKMAX - 1);
 		user->InvalidateCache();
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return CMD_SUCCESS;
@@ -73,8 +73,8 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 			XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
 			if (mq)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0], user->nick, user->ident, user->host, mq->reason);
-				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick,parameters[0], mq->reason);
+				ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0].c_str(), user->nick, user->ident, user->host, mq->reason);
+				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick, parameters[0].c_str(), mq->reason);
 				return CMD_FAILURE;
 			}
 		}
@@ -89,7 +89,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 		 * because the nick is already (rightfully) in use. -- w00t
 		 */
 		User* InUse = ServerInstance->FindNickOnly(parameters[0]);
-		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0]) || allowinvalid)))
+		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0].c_str()) || allowinvalid)))
 		{
 			if (InUse->registered != REG_ALL)
 			{
@@ -104,33 +104,33 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 			else
 			{
 				/* No camping, tell the incoming user  to stop trying to change nick ;p */
-				user->WriteNumeric(433, "%s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
+				user->WriteNumeric(433, "%s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
 	}
-	if (((!ServerInstance->IsNick(parameters[0]))) && (IS_LOCAL(user)))
+	if (((!ServerInstance->IsNick(parameters[0].c_str()))) && (IS_LOCAL(user)))
 	{
 		if (!allowinvalid)
 		{
-			user->WriteNumeric(432, "%s %s :Erroneous Nickname",user->nick,parameters[0]);
+			user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick,parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}
 
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
+	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user, parameters[0]));
 	if (MOD_RESULT)
 		// if a module returns true, the nick change is silently forbidden.
 		return CMD_FAILURE;
 
 	if (user->registered == REG_ALL)
-		user->WriteCommon("NICK %s",parameters[0]);
+		user->WriteCommon("NICK %s", parameters[0].c_str());
 
 	strlcpy(oldnick, user->nick, NICKMAX - 1);
 
 	/* change the nick of the user in the users_hash */
-	user = user->UpdateNickHash(parameters[0]);
+	user = user->UpdateNickHash(parameters[0].c_str());
 
 	/* actually change the nick within the record */
 	if (!user)
@@ -138,7 +138,7 @@ CmdResult CommandNick::Handle (const char* const* parameters, int, User *user)
 	if (!*user->nick)
 		return CMD_FAILURE;
 
-	strlcpy(user->nick, parameters[0], NICKMAX - 1);
+	strlcpy(user->nick, parameters[0].c_str(), NICKMAX - 1);
 
 	user->InvalidateCache();
 

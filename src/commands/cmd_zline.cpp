@@ -22,15 +22,15 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandZline(Instance);
 }
 
-CmdResult CommandZline::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string target = parameters[0];
 
-	if (pcnt >= 3)
+	if (parameters.size() >= 3)
 	{
-		if (strchr(target.c_str(),'@') || strchr(target.c_str(),'!'))
+		if (target.find('!') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** You cannot include a username or nickname in a zline, a zline must ban only an IP mask",user->nick);
+			user->WriteServ("NOTICE %s :*** You cannot include a nickname in a zline, a zline must ban only an IP mask",user->nick);
 			return CMD_FAILURE;
 		}
 
@@ -44,7 +44,7 @@ CmdResult CommandZline::Handle (const char* const* parameters, int pcnt, User *u
 		if (ServerInstance->IPMatchesEveryone(target.c_str(),user))
 			return CMD_FAILURE;
 
-		long duration = ServerInstance->Duration(parameters[1]);
+		long duration = ServerInstance->Duration(parameters[1].c_str());
 
 		const char* ipaddr = target.c_str();
 		User* find = ServerInstance->FindNick(target.c_str());
@@ -62,7 +62,7 @@ CmdResult CommandZline::Handle (const char* const* parameters, int pcnt, User *u
 				ipaddr++;
 			}
 		}
-		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
+		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{
 			if (!duration)

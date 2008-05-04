@@ -59,7 +59,7 @@ class CoreExport Command : public Extensible
 	char flags_needed;
 	/** Minimum number of parameters command takes
 	*/
-	int min_params;
+	unsigned int min_params;
 	/** used by /stats m
 	 */
 	long double use_count;
@@ -113,7 +113,7 @@ class CoreExport Command : public Extensible
 	 * If the command succeeds but should remain local to this server,
 	 * return CMD_LOCALONLY.
 	 */
-	virtual CmdResult Handle(const char* const* parameters, int pcnt, User* user) = 0;
+	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
 
 	/** Handle an internal request from another command, the core, or a module
 	 * @param Command ID

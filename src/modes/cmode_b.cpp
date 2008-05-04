@@ -52,7 +52,6 @@ ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, s
 void ModeChannelBan::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	BanList copy;
-	char moderemove[MAXBUF];
 
 	for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 	{
@@ -67,9 +66,8 @@ void ModeChannelBan::RemoveMode(Channel* channel, irc::modestacker* stack)
 		}
 		else
 		{
-			sprintf(moderemove,"-%c",this->GetModeChar());
-			const char* parameters[] = { channel->name, moderemove, i->data };
-			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-b"); parameters.push_back(i->data);
+			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
 }

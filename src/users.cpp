@@ -789,8 +789,11 @@ void User::UnOper()
 			}
 		}
 
-		const char* parameters[] = { this->nick, moderemove.c_str() };
-		ServerInstance->Parser->CallHandler("MODE", parameters, 2, this);
+		std::vector<std::string> parameters;
+		parameters.push_back(this->nick);
+		parameters.push_back(moderemove);
+
+		ServerInstance->Parser->CallHandler("MODE", parameters, this);
 
 		/* unset their oper type (what IS_OPER checks), and remove +o */
 		*this->oper = 0;
@@ -921,9 +924,9 @@ void User::FullConnect()
 
 	/* Trigger LUSERS output, give modules a chance too */
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand, OnPreCommand("LUSERS", NULL, 0, this, true, "LUSERS"));
+	FOREACH_RESULT(I_OnPreCommand, OnPreCommand("LUSERS", std::vector<std::string>(), this, true, "LUSERS"));
 	if (!MOD_RESULT)
-		ServerInstance->CallCommandHandler("LUSERS", NULL, 0, this);
+		ServerInstance->CallCommandHandler("LUSERS", std::vector<std::string>(), this);
 
 	/*
 	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
@@ -993,8 +996,10 @@ bool User::ForceNickChange(const char* newnick)
 	Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
 	if (nickhandler) // wtfbbq, when would this not be here
 	{
+		std::vector<std::string> parameters;
 		nickhandler->HandleInternal(1, dummy);
-		bool result = (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
+		parameters.push_back(newnick);
+		bool result = (ServerInstance->Parser->CallHandler("NICK", parameters, this) == CMD_SUCCESS);
 		nickhandler->HandleInternal(0, dummy);
 		return result;
 	}

@@ -22,11 +22,11 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /ELINE
  */
-CmdResult CommandEline::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string target = parameters[0];
 	
-	if (pcnt >= 3)
+	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
 		User* find = ServerInstance->FindNick(target.c_str());
@@ -48,9 +48,9 @@ CmdResult CommandEline::Handle (const char* const* parameters, int pcnt, User *u
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
-		long duration = ServerInstance->Duration(parameters[1]);
+		long duration = ServerInstance->Duration(parameters[1].c_str());
 
-		ELine* el = new ELine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
+		ELine* el = new ELine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(el, user))
 		{
 			if (!duration)

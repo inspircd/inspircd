@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandPass(Instance);
 }
 
-CmdResult CommandPass::Handle (const char* const* parameters, int, User *user)
+CmdResult CommandPass::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	// Check to make sure they havnt registered -- Fix by FCS
 	if (user->registered == REG_ALL)
@@ -31,11 +31,9 @@ CmdResult CommandPass::Handle (const char* const* parameters, int, User *user)
 	if (!a)
 		return CMD_FAILURE;
 
-	strlcpy(user->password,parameters[0],63);
-	if (!ServerInstance->PassCompare(user, a->GetPass().c_str(), parameters[0], a->GetHash().c_str()))
-	{
+	strlcpy(user->password, parameters[0].c_str(), 63);
+	if (!ServerInstance->PassCompare(user, a->GetPass().c_str(), parameters[0].c_str(), a->GetHash().c_str()))
 		user->haspassed = true;
-	}
 
 	return CMD_SUCCESS;
 }

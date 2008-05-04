@@ -20,7 +20,7 @@ extern "C" DllExport  Command* init_command(InspIRCd* Instance)
 	return new CommandPrivmsg(Instance);
 }
 
-CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	User *dest;
 	Channel *chan;
@@ -28,28 +28,31 @@ CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User 
 
 	user->idle_lastmsg = ServerInstance->Time();
 	
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 0))
 		return CMD_SUCCESS;
 
 	if ((parameters[0][0] == '$') && (IS_OPER(user) || ServerInstance->ULine(user->server)))
 	{
 		int MOD_RESULT = 0;
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,(void*)parameters[0],TYPE_SERVER,temp,0,except_list));
+		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
+
 		const char* text = temp.c_str();
-		const char* servermask = parameters[0] + 1;
-		FOREACH_MOD(I_OnText,OnText(user,(void*)parameters[0],TYPE_SERVER,text,0,except_list));
+		const char* servermask = (parameters[0].c_str()) + 1;
+
+		FOREACH_MOD(I_OnText,OnText(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
 		if (match(ServerInstance->Config->ServerName,servermask))
 		{
 			user->SendAll("PRIVMSG", "%s", text);
 		}
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,(void*)parameters[0],TYPE_SERVER,text,0,except_list));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
-	const char* target = parameters[0];
+	const char* target = parameters[0].c_str();
+
 	if (ServerInstance->Modes->FindPrefix(*target))
 	{
 		status = *target;
@@ -121,7 +124,7 @@ CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User 
 		return CMD_SUCCESS;
 	}
 
-	const char* destnick = parameters[0];
+	const char* destnick = parameters[0].c_str();
 
 	if (IS_LOCAL(user))
 	{
@@ -135,7 +138,7 @@ CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User 
 			if (dest && strcasecmp(dest->server, targetserver + 1))
 			{
 				/* Incorrect server for user */
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -147,7 +150,7 @@ CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User 
 
 	if (dest)
 	{
-		if (!*parameters[1])
+		if (parameters[1].empty())
 		{
 			user->WriteNumeric(412, "%s :No text to send", user->nick);
 			return CMD_FAILURE;
@@ -162,13 +165,13 @@ CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User 
 		int MOD_RESULT = 0;
 		
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,dest,TYPE_USER,temp,0,except_list));
+		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user, dest, TYPE_USER, temp, 0, except_list));
 		if (MOD_RESULT) {
 			return CMD_FAILURE;
 		}
 		const char* text = temp.c_str();
 
-		FOREACH_MOD(I_OnText,OnText(user,dest,TYPE_USER,text,0,except_list));
+		FOREACH_MOD(I_OnText,OnText(user, dest, TYPE_USER, text, 0, except_list));
 
 		if (IS_LOCAL(dest))
 		{
@@ -176,12 +179,12 @@ CmdResult CommandPrivmsg::Handle (const char* const* parameters, int pcnt, User 
 			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick, text);
 		}
 
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,text,0,except_list));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, dest, TYPE_USER, text, 0, except_list));
 	}
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;

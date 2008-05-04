@@ -19,20 +19,20 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandReloadmodule(Instance);
 }
 
-CmdResult CommandReloadmodule::Handle (const char* const* parameters, int, User *user)
+CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (ServerInstance->Modules->Unload(parameters[0]))
+	if (ServerInstance->Modules->Unload(parameters[0].c_str()))
 	{
-		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s unloaded %s",user->nick, parameters[0]);
-		if (ServerInstance->Modules->Load(parameters[0]))
+		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s unloaded %s",user->nick, parameters[0].c_str());
+		if (ServerInstance->Modules->Load(parameters[0].c_str()))
 		{
-			ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s reloaded %s",user->nick, parameters[0]);
-			user->WriteNumeric(975, "%s %s :Module successfully reloaded.",user->nick, parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s reloaded %s",user->nick, parameters[0].c_str());
+			user->WriteNumeric(975, "%s %s :Module successfully reloaded.",user->nick, parameters[0].c_str());
 			return CMD_SUCCESS;
 		}
 	}
 	
-	ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s unsuccessfully reloaded %s",user->nick, parameters[0]);
-	user->WriteNumeric(975, "%s %s :%s",user->nick, parameters[0], ServerInstance->Modules->LastError().c_str());
+	ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s unsuccessfully reloaded %s",user->nick, parameters[0].c_str());
+	user->WriteNumeric(975, "%s %s :%s",user->nick, parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 	return CMD_FAILURE;
 }

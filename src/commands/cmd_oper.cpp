@@ -35,7 +35,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandOper(Instance);
 }
 
-CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
+CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	char LoginName[MAXBUF];
 	char Password[MAXBUF];
@@ -65,8 +65,8 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "hash", i, HashType, MAXBUF);
 
-		match_login = !strcmp(LoginName,parameters[0]);
-		match_pass = !ServerInstance->PassCompare(user, Password,parameters[1], HashType);
+		match_login = (LoginName == parameters[0]);
+		match_pass = !ServerInstance->PassCompare(user, Password,parameters[1].c_str(), HashType);
 		match_hosts = OneOfMatches(TheHost,TheIP,HostName);
 
 		if (match_login && match_pass && match_hosts)
@@ -107,7 +107,7 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 	if (found)
 	{
 		/* correct oper credentials */
-		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick,user->ident,user->host,irc::Spacify(OperType),parameters[0]);
+		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick,user->ident,user->host,irc::Spacify(OperType),parameters[0].c_str());
 		user->WriteNumeric(381, "%s :You are now %s %s",user->nick, strchr("aeiouAEIOU", *OperType) ? "an" : "a", irc::Spacify(OperType));
 		if (!user->IsModeSet('o'))
 			user->Oper(OperType, LoginName);
@@ -133,21 +133,21 @@ CmdResult CommandOper::Handle (const char* const* parameters, int, User *user)
 			user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick);
 			user->IncreasePenalty(10);
 			
-			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
+			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0].c_str(), fields.c_str());
 			ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
 
-			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0],fields.c_str());
+			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0].c_str(),fields.c_str());
 			return CMD_FAILURE;
 		}
 		else
 		{
 			user->WriteNumeric(491, "%s :Your oper block does not have a valid opertype associated with it",user->nick);
 
-			snprintf(broadcast, MAXBUF, "CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0],OperType);
+			snprintf(broadcast, MAXBUF, "CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0].c_str(),OperType);
 
 			ServerInstance->SNO->WriteToSnoMask('o', std::string(broadcast));
 
-			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host,parameters[0]);
+			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host,parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}

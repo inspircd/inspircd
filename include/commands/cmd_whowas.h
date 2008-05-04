@@ -79,7 +79,7 @@ class CommandWhowas : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 	/** Handle an internal request from another command, the core, or a module
 	 * @param Command ID
 	 * @param Zero or more parameters, whos form is specified by the command ID.

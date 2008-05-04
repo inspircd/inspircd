@@ -19,12 +19,12 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandUserhost(Instance);
 }
 
-CmdResult CommandUserhost::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string retbuf = std::string("302 ") + user->nick + " :";
 
 	
-	for (int i = 0; i < pcnt; i++)
+	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
 		User *u = ServerInstance->FindNick(parameters[i]);
 

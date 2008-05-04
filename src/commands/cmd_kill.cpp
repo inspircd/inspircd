@@ -21,10 +21,10 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /KILL
  */
-CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 0))
 		return CMD_SUCCESS;
 
 	User *u = ServerInstance->FindNick(parameters[0]);
@@ -54,18 +54,18 @@ CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *us
 			if (*ServerInstance->Config->HideKillsServer)
 			{
 				// hidekills is on, use it
-				snprintf(killreason, MAXQUIT, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer, parameters[1]);
+				snprintf(killreason, MAXQUIT, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer, parameters[1].c_str());
 			}
 			else
 			{
 				// hidekills is off, do nothing
-				snprintf(killreason, MAXQUIT, "Killed (%s (%s))", user->nick, parameters[1]);
+				snprintf(killreason, MAXQUIT, "Killed (%s (%s))", user->nick, parameters[1].c_str());
 			}
 		}
 		else
 		{
 			/* Leave it alone, remote server has already formatted it */
-			snprintf(killreason, MAXQUIT, "%s", parameters[1]);
+			strlcpy(killreason, parameters[1].c_str(), MAXQUIT);
 		}
 
 		/*
@@ -75,7 +75,7 @@ CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *us
 		if (!IS_LOCAL(u))
 		{
 			// remote kill
-			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
+			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1].c_str());
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason, killreason));
 		}
 		else
@@ -85,8 +85,8 @@ CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *us
 			 * XXX - this isn't entirely correct, servers A - B - C, oper on A, client on C. Oper kills client, A and B will get remote kill
 			 * snotices, C will get a local kill snotice. this isn't accurate, and needs fixing at some stage. -- w00t
 			 */
-			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
-			ServerInstance->Logs->Log("KILL",DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
+			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1].c_str());
+			ServerInstance->Logs->Log("KILL",DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1].c_str());
 			/* Bug #419, make sure this message can only occur once even in the case of multiple KILL messages crossing the network, and change to show
 			 * hidekillsserver as source if possible
 			 */
@@ -97,7 +97,7 @@ CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *us
 						ServerInstance->Config->ServerName,
 						user->dhost,
 						*ServerInstance->Config->HideKillsServer ? ServerInstance->Config->HideKillsServer : user->nick,
-						parameters[1]);
+						parameters[1].c_str());
 			}
 		}
 
@@ -106,7 +106,7 @@ CmdResult CommandKill::Handle (const char* const* parameters, int pcnt, User *us
 	}
 	else
 	{
-		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, parameters[0]);
+		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 

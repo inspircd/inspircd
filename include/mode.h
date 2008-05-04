@@ -502,7 +502,7 @@ class CoreExport ModeParser : public classbase
 	 * and *user->server == NULL.
 	 * @param servermode True if a server is setting the mode.
 	 */
-	void Process(const char* const* parameters, int pcnt, User *user, bool servermode);
+	void Process(const std::vector<std::string>& parameters, User *user, bool servermode);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for

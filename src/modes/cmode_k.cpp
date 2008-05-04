@@ -38,8 +38,6 @@ void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
 	/** +k needs a parameter when being removed,
 	 * so we have a special-case RemoveMode here for it
 	 */
-	char moderemove[MAXBUF];
-	const char* parameters[] = { channel->name, moderemove, channel->key };
 
 	if (channel->IsModeSet(this->GetModeChar()))
 	{
@@ -47,8 +45,8 @@ void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
 			stack->Push(this->GetModeChar(), channel->key);
 		else
 		{
-			sprintf(moderemove,"-%c",this->GetModeChar());
-			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-k"); parameters.push_back(channel->key);
+			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
 }

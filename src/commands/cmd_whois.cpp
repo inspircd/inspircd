@@ -103,13 +103,13 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandWhois(Instance);
 }
 
-CmdResult CommandWhois::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	User *dest;
 	int userindex = 0;
 	unsigned long idle = 0, signon = 0;
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 0))
 		return CMD_SUCCESS;
 
 
@@ -117,7 +117,7 @@ CmdResult CommandWhois::Handle (const char* const* parameters, int pcnt, User *u
 	 * If 2 paramters are specified (/whois nick nick), ignore the first one like spanningtree
 	 * does, and use the second one, otherwise, use the only paramter. -- djGrrr
 	 */
-	if (pcnt > 1)
+	if (parameters.size() > 1)
 		userindex = 1;
 
 	if (IS_LOCAL(user))
@@ -130,24 +130,24 @@ CmdResult CommandWhois::Handle (const char* const* parameters, int pcnt, User *u
 		/*
 		 * Okay. Umpteenth attempt at doing this, so let's re-comment...
 		 * For local users (/w localuser), we show idletime if hidewhois is disabled
-		 * For local users (/w localuser localuser), we always show idletime, hence pcnt > 1 check.
+		 * For local users (/w localuser localuser), we always show idletime, hence parameters.size() > 1 check.
 		 * For remote users (/w remoteuser), we do NOT show idletime
 		 * For remote users (/w remoteuser remoteuser), spanningtree will handle calling do_whois, so we can ignore this case.
 		 * Thanks to djGrrr for not being impatient while I have a crap day coding. :p -- w00t
 		 */
-		if (IS_LOCAL(dest) && (!*ServerInstance->Config->HideWhoisServer || pcnt > 1))
+		if (IS_LOCAL(dest) && (!*ServerInstance->Config->HideWhoisServer || parameters.size() > 1))
 		{
 			idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
 			signon = dest->signon;
 		}
 
-		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[userindex]);
+		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[userindex].c_str());
 	}
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
-		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
+		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick, parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
 		return CMD_FAILURE;
 	}
 

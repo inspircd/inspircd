@@ -22,11 +22,11 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /KLINE
  */
-CmdResult CommandKline::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User *user)
 {
     std::string target = parameters[0];
 
-	if (pcnt >= 3)
+	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
 		User* find = ServerInstance->FindNick(target.c_str());
@@ -48,14 +48,14 @@ CmdResult CommandKline::Handle (const char* const* parameters, int pcnt, User *u
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
-		if (strchr(target.c_str(),'!'))
+		if (target.find('!') != std::string::npos)
 		{
 			user->WriteServ("NOTICE %s :*** K-Line cannot operate on nick!user@host masks",user->nick);
 			return CMD_FAILURE;
 		}
 
-		long duration = ServerInstance->Duration(parameters[1]);
-		KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], ih.first.c_str(), ih.second.c_str());
+		long duration = ServerInstance->Duration(parameters[1].c_str());
+		KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(kl,user))
 		{
 			if (!duration)

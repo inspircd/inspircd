@@ -36,7 +36,7 @@ class CommandQline : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user);
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
 #endif

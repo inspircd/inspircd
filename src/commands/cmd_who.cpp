@@ -165,7 +165,7 @@ void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch
 	whoresults.push_back(wholine);
 }
 
-CmdResult CommandWho::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	/*
 	 * XXX - RFC says:
@@ -191,13 +191,14 @@ CmdResult CommandWho::Handle (const char* const* parameters, int pcnt, User *use
 	std::vector<std::string> whoresults;
 	std::string initial = "352 " + std::string(user->nick) + " ";
 
-	const char* matchtext = NULL;
+	char matchtext[MAXBUF];
 	bool usingwildcards = false;
 
 	/* Change '0' into '*' so the wildcard matcher can grok it */
-	matchtext = parameters[0];
-	if (!strcmp(matchtext,"0"))
-		matchtext = "*";
+	if (parameters[0] == "0")
+		strlcpy(matchtext, "*", MAXBUF);
+	else
+		strlcpy(matchtext, parameters[0].c_str(), MAXBUF);
 
 	for (const char* check = matchtext; *check; check++)
 	{
@@ -208,10 +209,10 @@ CmdResult CommandWho::Handle (const char* const* parameters, int pcnt, User *use
 		}
 	}
 
-	if (pcnt > 1)
+	if (parameters.size() > 1)
 	{
 		/* parse flags */
-		const char *iter = parameters[1];
+		const char *iter = parameters[1].c_str();
 
 		/* Fix for bug #444, WHO flags count as a wildcard */
 		usingwildcards = true;
@@ -336,13 +337,13 @@ CmdResult CommandWho::Handle (const char* const* parameters, int pcnt, User *use
 	{
 		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
 			user->WriteServ(*n);
-		user->WriteNumeric(315, "%s %s :End of /WHO list.",user->nick, *parameters[0] ? parameters[0] : "*");
+		user->WriteNumeric(315, "%s %s :End of /WHO list.",user->nick, *parameters[0].c_str() ? parameters[0].c_str() : "*");
 		return CMD_SUCCESS;
 	}
 	else
 	{
 		/* BZZT! Too many results. */
-		user->WriteNumeric(315, "%s %s :Too many results",user->nick, parameters[0]);
+		user->WriteNumeric(315, "%s %s :Too many results",user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 }

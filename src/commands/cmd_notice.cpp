@@ -20,7 +20,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandNotice(Instance);
 }
 
-CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	User *dest;
 	Channel *chan;
@@ -29,28 +29,29 @@ CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *
 
 	user->idle_lastmsg = ServerInstance->Time();
 	
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 0))
 		return CMD_SUCCESS;
 	if ((parameters[0][0] == '$') && (IS_OPER(user) || ServerInstance->ULine(user->server)))
 	{
 		int MOD_RESULT = 0;
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,(void*)parameters[0],TYPE_SERVER,temp,0,exempt_list));
+		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, exempt_list));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
 		const char* text = temp.c_str();
-		const char* servermask = parameters[0] + 1;
+		const char* servermask = (parameters[0].c_str()) + 1;
 
-		FOREACH_MOD(I_OnText,OnText(user,(void*)parameters[0],TYPE_SERVER,text,0,exempt_list));
+		FOREACH_MOD(I_OnText,OnText(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, exempt_list));
 		if (match(ServerInstance->Config->ServerName,servermask))
 		{
 			user->SendAll("NOTICE", "%s", text);
 		}
-		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,text,0,exempt_list));
+		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, exempt_list));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
-	const char* target = parameters[0];
+	const char* target = parameters[0].c_str();
+
 	if (ServerInstance->Modes->FindPrefix(*target))
 	{
 		status = *target;
@@ -121,7 +122,7 @@ CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *
 		return CMD_SUCCESS;
 	}
 	
-	const char* destnick = parameters[0];
+	const char* destnick = parameters[0].c_str();
 
 	if (IS_LOCAL(user))
 	{
@@ -135,7 +136,7 @@ CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *
 			if (dest && strcasecmp(dest->server, targetserver + 1))
 			{
 				/* Incorrect server for user */
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -147,7 +148,7 @@ CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *
 
 	if (dest)
 	{
-		if (!*parameters[1])
+		if (parameters[1].empty())
 		{
 			user->WriteNumeric(412, "%s :No text to send", user->nick);
 			return CMD_FAILURE;
@@ -174,7 +175,7 @@ CmdResult CommandNotice::Handle (const char* const* parameters, int pcnt, User *
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 

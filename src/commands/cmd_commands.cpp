@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandCommands(Instance);
 }
 
-CmdResult CommandCommands::Handle (const char* const*, int, User *user)
+CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 {
 	for (Commandable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{

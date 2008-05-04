@@ -19,12 +19,12 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandUser(Instance);
 }
 
-CmdResult CommandUser::Handle (const char* const* parameters, int, User *user)
+CmdResult CommandUser::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))
 	{
-		if (!ServerInstance->IsIdent(parameters[0]))
+		if (!ServerInstance->IsIdent(parameters[0].c_str()))
 		{
 			/*
 			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)
@@ -40,8 +40,8 @@ CmdResult CommandUser::Handle (const char* const* parameters, int, User *user)
 			 * ~ character, and +1 for null termination, therefore we can safely use up to
 			 * IDENTMAX here.
 			 */
-			strlcpy(user->ident, parameters[0], IDENTMAX);
-			strlcpy(user->fullname, *parameters[3] ? parameters[3] : "No info", MAXGECOS);
+			strlcpy(user->ident, parameters[0].c_str(), IDENTMAX);
+			strlcpy(user->fullname, !parameters[3].empty() ? parameters[3].c_str() : "No info", MAXGECOS);
 			user->registered = (user->registered | REG_USER);
 		}
 	}

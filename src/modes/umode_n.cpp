@@ -38,8 +38,10 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Chan
 		dest->modes[UM_SNOMASK] = true;
 		if (!dest->modes[UM_SERVERNOTICE])
 		{
-			const char* newmodes[] = { dest->nick, "+s" };
-			ServerInstance->Modes->Process(newmodes, 2, source, true);
+			std::vector<std::string> newmodes;
+			newmodes.push_back(dest->nick);
+			newmodes.push_back("+s");
+			ServerInstance->Modes->Process(newmodes, source, true);
 		}
 		return MODEACTION_ALLOW;
 	}

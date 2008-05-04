@@ -50,7 +50,6 @@ void ModeChannelOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	CUList* clist = channel->GetOppedUsers();
 	CUList copy;
-	char moderemove[MAXBUF];
 
 	for (CUList::iterator i = clist->begin(); i != clist->end(); i++)
 	{
@@ -64,9 +63,8 @@ void ModeChannelOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 			stack->Push(this->GetModeChar(), i->first->nick);
 		else
 		{
-			sprintf(moderemove,"-%c",this->GetModeChar());
-			const char* parameters[] = { channel->name, moderemove, i->first->nick };
-			ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-o"); parameters.push_back(i->first->nick);
+			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
 }

@@ -24,7 +24,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandSquit(Instance);
 }
 
-CmdResult CommandSquit::Handle (const char* const*, int, User *user)
+CmdResult CommandSquit::Handle (const std::vector<std::string>&, User *user)
 {
 	user->WriteServ( "NOTICE %s :Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.", user->nick);
 	return CMD_FAILURE;

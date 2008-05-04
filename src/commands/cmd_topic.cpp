@@ -20,11 +20,11 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandTopic(Instance);
 }
 
-CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	Channel* Ptr;
 
-	if (pcnt == 1)
+	if (parameters.size() == 1)
 	{
 		Ptr = ServerInstance->FindChan(parameters[0]);
 		if (Ptr)
@@ -46,12 +46,12 @@ CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *u
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
 	}
-	else if (pcnt>1)
+	else if (parameters.size()>1)
 	{
 		Ptr = ServerInstance->FindChan(parameters[0]);
 		if (Ptr)
@@ -79,17 +79,17 @@ CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *u
 				 */
 				int MOD_RESULT = 0;
 
-				strlcpy(topic,parameters[1],MAXTOPIC-1);
+				strlcpy(topic, parameters[1].c_str(), MAXTOPIC-1);
 				FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
 				if (MOD_RESULT)
 					return CMD_FAILURE;
 
-				strlcpy(Ptr->topic,topic,MAXTOPIC-1);
+				strlcpy(Ptr->topic, topic, MAXTOPIC-1);
 			}
 			else
 			{
 				/* Sneaky shortcut, one string copy for a remote topic */
-				strlcpy(Ptr->topic, parameters[1], MAXTOPIC-1);
+				strlcpy(Ptr->topic, parameters[1].c_str(), MAXTOPIC-1);
 			}
 
 			if (ServerInstance->Config->FullHostInTopic)
@@ -106,7 +106,7 @@ CmdResult CommandTopic::Handle (const char* const* parameters, int pcnt, User *u
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}

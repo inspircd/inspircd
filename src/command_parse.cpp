@@ -48,12 +48,12 @@ int InspIRCd::PassCompare(Extensible* ex, const char* data,const char* input, co
  * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
  * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
  */
-int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere, unsigned int extra)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
 	 */
-	if (!strchr(parameters[splithere],','))
+	if (parameters[splithere].find(',') == std::string::npos)
 		return 0;
 
 	/** Some lame ircds will weed out dupes using some shitty O(n^2) algorithm.
@@ -78,10 +78,10 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* 
 	{
 		if (dupes.find(item.c_str()) == dupes.end())
 		{
-			const char* new_parameters[MAXPARAMETERS];
+			std::vector<std::string> new_parameters;
 
-			for (int t = 0; (t < pcnt) && (t < MAXPARAMETERS); t++)
-				new_parameters[t] = parameters[t];
+			for (unsigned int t = 0; (t < parameters.size()) && (t < MAXPARAMETERS); t++)
+				new_parameters.push_back(parameters[t]);
 
 			if (!items2.GetToken(extrastuff))
 				extrastuff = "";
@@ -89,7 +89,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* 
 			new_parameters[splithere] = item.c_str();
 			new_parameters[extra] = extrastuff.c_str();
 
-			CommandObj->Handle(new_parameters,pcnt,user);
+			CommandObj->Handle(new_parameters, user);
 
 			dupes[item.c_str()] = true;
 		}
@@ -97,12 +97,12 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* 
 	return 1;
 }
 
-int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* parameters, int pcnt, unsigned int splithere)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
 	 */
-	if (!strchr(parameters[splithere],','))
+	if (parameters[splithere].find(',') == std::string::npos)
 		return 0;
 
 	std::map<irc::string, bool> dupes;
@@ -120,10 +120,10 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* 
 	{
 		if (dupes.find(item.c_str()) == dupes.end())
 		{
-			const char* new_parameters[MAXPARAMETERS];
+			std::vector<std::string> new_parameters;
 
-			for (int t = 0; (t < pcnt) && (t < MAXPARAMETERS); t++)
-				new_parameters[t] = parameters[t];
+			for (unsigned int t = 0; (t < parameters.size()) && (t < MAXPARAMETERS); t++)
+				new_parameters.push_back(parameters[t]);
 
 			new_parameters[splithere] = item.c_str();
 
@@ -131,7 +131,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* 
 			 * record out from under us (e.g. if we /kill a comma sep list, and we're
 			 * in that list ourselves) abort if we're gone.
 			 */
-			CommandObj->Handle(new_parameters,pcnt,user);
+			CommandObj->Handle(new_parameters, user);
 
 			dupes[item.c_str()] = true;
 		}
@@ -143,13 +143,13 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const char* const* 
 	return 1;
 }
 
-bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, User * user)
+bool CommandParser::IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user)
 {
 	Commandable::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
-		if ((pcnt>=n->second->min_params) && (n->second->source != "<core>"))
+		if ((pcnt >= n->second->min_params) && (n->second->source != "<core>"))
 		{
 			if (IS_LOCAL(user) && n->second->flags_needed)
 			{
@@ -178,13 +178,13 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 // calls a handler function for a command
 
-CmdResult CommandParser::CallHandler(const std::string &commandname,const char* const* parameters, int pcnt, User *user)
+CmdResult CommandParser::CallHandler(const std::string &commandname, const std::vector<std::string>& parameters, User *user)
 {
 	Commandable::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
-		if (pcnt >= n->second->min_params)
+		if (parameters.size() >= n->second->min_params)
 		{
 			bool bOkay = false;
 
@@ -207,7 +207,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname,const char* 
 
 			if (bOkay)
 			{
-				return n->second->Handle(parameters,pcnt,user);
+				return n->second->Handle(parameters,user);
 			}
 		}
 	}
@@ -257,10 +257,9 @@ void CommandParser::DoLines(User* current, bool one_only)
 
 bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 {
-	const char *command_p[MAXPARAMETERS];
-	int items = 0;
+	std::vector<std::string> command_p;
 	irc::tokenstream tokens(cmd);
-	std::string command;
+	std::string command, token;
 	tokens.GetToken(command);
 
 	/* A client sent a nick prefix on their command (ick)
@@ -271,16 +270,13 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	if (*command.c_str() == ':')
 		tokens.GetToken(command);
 
-	while (tokens.GetToken(para[items]) && (items < MAXPARAMETERS))
-	{
-		command_p[items] = para[items].c_str();
-		items++;
-	}
+	while (tokens.GetToken(token) && (command_p.size() < MAXPARAMETERS))
+		command_p.push_back(token);
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 		
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,false,cmd));
+	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
 	if (MOD_RESULT == 1) {
 		return true;
 	}
@@ -333,7 +329,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 				command.c_str(), user->nick, user->ident, user->host);
 		return do_more;
 	}
-	if (items < cm->second->min_params)
+	if (command_p.size() < cm->second->min_params)
 	{
 		user->WriteNumeric(461, "%s %s :Not enough parameters.", user->nick, command.c_str());
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
@@ -353,16 +349,16 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 		/* module calls too */
 		MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true,cmd));
+		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, true, cmd));
 		if (MOD_RESULT == 1)
 			return do_more;
 
 		/*
 		 * WARNING: be careful, the user may be deleted soon
 		 */
-		CmdResult result = cm->second->Handle(command_p,items,user);
+		CmdResult result = cm->second->Handle(command_p, user);
 
-		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result,cmd));
+		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, user, result,cmd));
 		return do_more;
 	}
 }
@@ -448,38 +444,29 @@ bool CommandParser::FindSym(void** v, void* h, const std::string &name)
 	return true;
 }
 
-bool CommandParser::ReloadCommand(const char* cmd, User* user)
+bool CommandParser::ReloadCommand(std::string cmd, User* user)
 {
 	char filename[MAXBUF];
-	char commandname[MAXBUF];
-	int y = 0;
+	std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::toupper);
 
-	for (const char* x = cmd; *x; x++, y++)
-		commandname[y] = toupper(*x);
-
-	commandname[y] = 0;
-
-	SharedObjectList::iterator command = RFCCommands.find(commandname);
+	SharedObjectList::iterator command = RFCCommands.find(cmd);
 
 	if (command != RFCCommands.end())
 	{
-		Command* cmdptr = cmdlist.find(commandname)->second;
-		cmdlist.erase(cmdlist.find(commandname));
+		Command* cmdptr = cmdlist.find(cmd)->second;
+		cmdlist.erase(cmdlist.find(cmd));
 
-		for (char* x = commandname; *x; x++)
-			*x = tolower(*x);
-
-
+		RFCCommands.erase(cmd);
+		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 		delete cmdptr;
 		dlclose(command->second);
-		RFCCommands.erase(command);
 
-		snprintf(filename, MAXBUF, "cmd_%s.so", commandname);
+		snprintf(filename, MAXBUF, "cmd_%s.so", cmd.c_str());
 		const char* err = this->LoadCommand(filename);
 		if (err)
 		{
 			if (user)
-				user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick, cmd, err);
+				user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick, cmd.c_str(), err);
 			return false;
 		}
 
@@ -489,18 +476,21 @@ bool CommandParser::ReloadCommand(const char* cmd, User* user)
 	return false;
 }
 
-CmdResult cmd_reload::Handle(const char* const* parameters, int /* pcnt */, User *user)
+CmdResult cmd_reload::Handle(const std::vector<std::string>& parameters, User *user)
 {
-	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0]);
+	if (parameters.size() < 1)
+		return CMD_FAILURE;
+
+	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0].c_str());
 	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))
 	{
-		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick, parameters[0]);
-		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD: %s reloaded the '%s' command.", user->nick, parameters[0]);
+		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick, parameters[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD: %s reloaded the '%s' command.", user->nick, parameters[0].c_str());
 		return CMD_SUCCESS;
 	}
 	else
 	{
-		user->WriteServ("NOTICE %s :*** Could not reload command '%s' -- fix this problem, then /REHASH as soon as possible!", user->nick, parameters[0]);
+		user->WriteServ("NOTICE %s :*** Could not reload command '%s' -- fix this problem, then /REHASH as soon as possible!", user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 }

@@ -21,31 +21,23 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /INVITE
  */
-CmdResult CommandInvite::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	int MOD_RESULT = 0;
 
-	if (pcnt == 2 || pcnt == 3)
+	if (parameters.size() == 2 || parameters.size() == 3)
 	{
 		User* u = ServerInstance->FindNick(parameters[0]);
 		Channel* c = ServerInstance->FindChan(parameters[1]);
 		time_t timeout = 0;
-		if (pcnt == 3)
+		if (parameters.size() == 3)
 		{
 			timeout = time(NULL) + ServerInstance->Duration(parameters[2]);
 		}
 
 		if ((!c) || (!u))
 		{
-			if (!c)
-			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1]);
-			}
-			else
-			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
-			}
-
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, c ? parameters[0].c_str() : parameters[1].c_str());
 			return CMD_FAILURE;
 		}
 

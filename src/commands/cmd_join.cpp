@@ -21,31 +21,31 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /JOIN
  */
-CmdResult CommandJoin::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (pcnt > 1)
+	if (parameters.size() > 1)
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0, 1))
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, 1))
 			return CMD_SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0]))
+		if (ServerInstance->IsChannel(parameters[0].c_str()))
 		{
-			Channel::JoinUser(ServerInstance, user, parameters[0], false, parameters[1], false);
+			Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), false, parameters[1].c_str(), false);
 			return CMD_SUCCESS;
 		}
 	}
 	else
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0]))
+		if (ServerInstance->IsChannel(parameters[0].c_str()))
 		{
-			Channel::JoinUser(ServerInstance, user, parameters[0], false, "", false);
+			Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), false, "", false);
 			return CMD_SUCCESS;
 		}
 	}
 
-	user->WriteNumeric(403, "%s %s :Invalid channel name",user->nick, parameters[0]);
+	user->WriteNumeric(403, "%s %s :Invalid channel name",user->nick, parameters[0].c_str());
 	return CMD_FAILURE;
 }

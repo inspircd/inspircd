@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /MOTD
  */
-CmdResult CommandMotd::Handle (const char* const*, int, User *user)
+CmdResult CommandMotd::Handle (const std::vector<std::string>&, User *user)
 {
 	user->ShowMOTD();
 	return CMD_SUCCESS;

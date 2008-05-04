@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandPart(Instance);
 }
 
-CmdResult CommandPart::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string reason;
 
@@ -29,7 +29,7 @@ CmdResult CommandPart::Handle (const char* const* parameters, int pcnt, User *us
 			reason = ServerInstance->Config->FixedPart;
 		else
 		{
-			if (pcnt > 1)
+			if (parameters.size() > 1)
 				reason = ServerInstance->Config->PrefixPart + std::string(parameters[1]) + ServerInstance->Config->SuffixPart;
 			else
 				reason = "";
@@ -37,10 +37,10 @@ CmdResult CommandPart::Handle (const char* const* parameters, int pcnt, User *us
 	}
 	else
 	{
-		reason = pcnt > 1 ? parameters[1] : "";
+		reason = parameters.size() > 1 ? parameters[1] : "";
 	}
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
@@ -54,7 +54,7 @@ CmdResult CommandPart::Handle (const char* const* parameters, int pcnt, User *us
 	}
 	else
 	{
-		user->WriteServ( "401 %s %s :No such channel", user->nick, parameters[0]);
+		user->WriteServ( "401 %s %s :No such channel", user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
