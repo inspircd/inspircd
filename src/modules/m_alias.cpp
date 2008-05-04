@@ -247,16 +247,13 @@ class ModuleAlias : public Module
 		SearchAndReplace(newline, "\r", "$");
 
 		irc::tokenstream ss(newline);
-
-		std::vector<std::string> parms;
-		ss.GetToken(pars[0]);
-		int x = 1;
-		while (ss.GetToken(pars[x]) && parms.size() <= MAXPARAMETERS)
+		std::string command, token;
+		ss.GetToken(command);
+		while (ss.GetToken(token) && (pars.size() <= MAXPARAMETERS))
 		{
-			parms.push_back(pars[x]);
-			x++;
+			pars.push_back(token);
 		}
-		ServerInstance->Parser->CallHandler(pars[0], parms, user);
+		ServerInstance->Parser->CallHandler(command, pars, user);
 	}
  
 	virtual void OnRehash(User* user, const std::string &parameter)
