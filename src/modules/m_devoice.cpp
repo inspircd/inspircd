@@ -32,17 +32,17 @@ class CommandDevoice : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		Channel* c = ServerInstance->FindChan(parameters[0]);
 		if (c && c->HasUser(user))
 		{
-			const char* modes[3];
+			std::vector<std::string> modes;
 			modes[0] = parameters[0];
 			modes[1] = "-v";
 			modes[2] = user->nick;
 
-			ServerInstance->SendMode(modes, 3, ServerInstance->FakeClient);
+			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
 
 			/* route it -- SendMode doesn't distribute over the whole network */
 			return CMD_SUCCESS;

@@ -54,29 +54,29 @@ class CommandDccallow : public Command
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		/* syntax: DCCALLOW [+|-]<nick> (<time>) */
-		if (!pcnt)
+		if (!parameters.size())
 		{
 			// display current DCCALLOW list
 			DisplayDCCAllowList(user);
 			return CMD_FAILURE;
 		}
-		else if (pcnt > 0)
+		else if (parameters.size() > 0)
 		{
-			char action = *parameters[0];
+			char action = *parameters[0].c_str();
 		
 			// if they didn't specify an action, this is probably a command
 			if (action != '+' && action != '-')
 			{
-				if (!strcasecmp(parameters[0], "LIST"))
+				if (!strcasecmp(parameters[0].c_str(), "LIST"))
 				{
 					// list current DCCALLOW list
 					DisplayDCCAllowList(user);
 					return CMD_FAILURE;
 				} 
-				else if (!strcasecmp(parameters[0], "HELP"))
+				else if (!strcasecmp(parameters[0].c_str(), "HELP"))
 				{
 					// display help
 					DisplayHelp(user);
@@ -84,7 +84,7 @@ class CommandDccallow : public Command
 				}
 			}
 			
-			std::string nick = parameters[0] + 1;
+			std::string nick = parameters[0].substr(1);
 			User *target = ServerInstance->FindNick(nick);
 	
 			if (target)
@@ -150,11 +150,11 @@ class CommandDccallow : public Command
 					std::string default_length = Conf->ReadValue("dccallow", "length", 0);
 		
 					long length;
-					if (pcnt < 2)
+					if (parameters.size() < 2)
 					{
 						length = ServerInstance->Duration(default_length);
 					} 
-					else if (!atoi(parameters[1]))
+					else if (!atoi(parameters[1].c_str()))
 					{
 						length = 0;
 					}
