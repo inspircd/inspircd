@@ -50,6 +50,9 @@ int InspIRCd::PassCompare(Extensible* ex, const char* data,const char* input, co
  */
 int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra)
 {
+	if (splithere >= parameters.size())
+		return 0;
+
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
 	 */
@@ -99,6 +102,9 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 
 int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere)
 {
+	if (splithere >= parameters.size())
+		return 0;
+
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
 	 */
