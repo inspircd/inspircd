@@ -27,7 +27,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u = ServerInstance->FindNick(parameters[1]);
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 1))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, 1))
 		return CMD_SUCCESS;
 
 	if (!u || !c)

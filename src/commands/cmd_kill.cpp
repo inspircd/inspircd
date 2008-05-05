@@ -24,7 +24,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	User *u = ServerInstance->FindNick(parameters[0]);
