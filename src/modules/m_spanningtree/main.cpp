@@ -363,8 +363,6 @@ int ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters
  * sent that message remotely via PUSH.
  * If the user is NULL, then the notice is sent locally via WriteToSnoMask with snomask 'l',
  * and remotely via SNONOTICE with mask 'l'.
- *
- * XXX: this should be migrated to use the protocol interface code, most likely. -- w00t
  */
 void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 {
@@ -393,6 +391,8 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 	{
 		if (IS_LOCAL(user))
 			user->WriteServ("NOTICE %s :%s", user->nick, text);
+		else
+			ServerInstance->PI->SendUserNotice(user, text);
 	}
 	
 	SendingRemoteMessage = false;
