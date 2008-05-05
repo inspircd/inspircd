@@ -829,15 +829,6 @@
 #                  nick!user@host is shown for who set a TOPIC last.  #
 #                  if set to no, then only the nickname is shown.     #
 #                                                                     #
-#  quietbursts   - When synching or splitting from the network, a     #
-#                  server can generate a lot of connect and quit      #
-#                  snotices to the +C and +Q snomasks. Setting this   #
-#                  value to yes squelches those messages, which can   #
-#                  make them more useful for opers, however it will   #
-#                  degrade their use by certain third party programs  #
-#                  such as BOPM which rely on them to scan users when #
-#                  a split heals in certain configurations.           #
-#                                                                     #
 #  serverpingfreq- This value, when set, allows you to change the     #
 #                  frequency of server to server PING messages. This  #
 #                  can help if you are having certain network issues. #
@@ -907,11 +898,6 @@
 #                  be up to 5 (ugh) while others such as FreeBSD will #
 #                  default to a much nicer 128.                       #
 #                                                                     #
-#  moduledir     - This optional value indicates a runtime change of  #
-#                  the location where modules are to be found. This   #
-#                  does not add a supplementary directory. There can  #
-#                  only be one module path.                           #
-#                                                                     #
 #  softlimit     - This optional feature allows a defined softlimit.  #
 #                  if defined sets a soft maxconnections value, has   #
 #                  to be less than the ./configure maxclients         #
@@ -919,6 +905,15 @@
 #  nouserdns     - If set to yes, true or 1, no user DNS lookups      #
 #                  will be performed for connecting users. This can   #
 #                  save a lot of resources on very busy IRC servers.  #
+#                                                                     #
+#  quietbursts   - When synching or splitting from the network, a     #
+#                  server can generate a lot of connect and quit      #
+#                  snotices to the +C and +Q snomasks. Setting this   #
+#                  value to yes squelches those messages, which can   #
+#                  make them more useful for opers, however it will   #
+#                  degrade their use by certain third party programs  #
+#                  such as BOPM which rely on them to scan users when #
+#                  a split heals in certain configurations.           #
 #                                                                     #
 #  netbuffersize - Size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
