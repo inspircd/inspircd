@@ -488,34 +488,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size() >= 2)
 				{
-					/*
-					 * XXX:
-					 * The SetLocalOnly stuff here is to work around a bit of a nasty recursion bug.
-					 * WriteToSnoMask() sends global snotices out globally, but of course this is a problem
-				 	 * when triggering it from an already global snotice (yay loops).
-					 *
-					 * The current (horrible) solution I'm implementing here because nobody else seems to
-					 * want to look at this except me, sets the snotice local-only temporarily, sends the snotice
-					 * and then flushes the snomask.
-					 *
-					 * This works, but it is total and utter garbage, as it bypasses the snotice compression
-					 * totally for this snomask (and may well trigger other snotices to send too early.....)
-					 * but at least it won't crash the server.
-					 *
-					 * Master of hacks, we salute you!
-					 * 		-- w00t
-					 */
-
-					// If we get a SNONOTICE, it must have been global... so set it local
-					Instance->SNO->SetLocalOnly(*(params[0].c_str()), true);
-					// send the message
 					Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + (ServerSource ? ServerSource->GetName().c_str() : prefix) + ": "+ params[1]);
-					// flush the queue
-					Instance->SNO->FlushSnotices();
-					// set it global again
-					Instance->SNO->SetLocalOnly(*(params[0].c_str()), true);
+					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 				}
-				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
+
 			}
 			else if (command == "BURST")
 			{

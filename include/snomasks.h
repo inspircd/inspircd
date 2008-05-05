@@ -24,11 +24,10 @@ class Snomask : public Extensible
 	std::string Description;
 	std::string LastMessage;
 	unsigned int Count;
-	bool LocalOnly; // whether or not messages are netwide
 
 	/** Create a new Snomask
 	 */
-	Snomask(InspIRCd* Instance, char snomask, const std::string &description, bool local) : ServerInstance(Instance), MySnomask(snomask), Description(description), LastMessage(""), Count(0), LocalOnly(local)
+	Snomask(InspIRCd* Instance, char snomask, const std::string &description) : ServerInstance(Instance), MySnomask(snomask), Description(description), LastMessage(""), Count(0)
 	{
 	}
 
@@ -78,11 +77,10 @@ class CoreExport SnomaskManager : public Extensible
 	 * their list, and users may add this letter to their list.
 	 * @param description The descriptive text sent along with any
 	 * server notices, at the start of the notice, e.g. "GLOBOPS".
-	 * @param local Whether or not messages should be locally broadcast only (default off)
 	 * @return True if the snomask was enabled, false if it already
 	 * exists.
 	 */
-	bool EnableSnomask(char letter, const std::string &description, bool local = false);
+	bool EnableSnomask(char letter, const std::string &description);
 
 	/** Disable a snomask.
 	 * @param letter The snomask letter to disable.
@@ -90,13 +88,6 @@ class CoreExport SnomaskManager : public Extensible
 	 * exist.
 	 */
 	bool DisableSnomask(char letter);
-
-	/** Set the local only message state of a given snomask.
-	 * This is used by remote stuff to prevent endless recursion in sending
-	 * XXX this is currently a really shit way to do it, as it effectively
-	 * bypasses snomask compression!
-	 */
-	bool SetLocalOnly(char letter, bool local);
 
 	/** Write to all users with a given snomask.
 	 * @param letter The snomask letter to write to

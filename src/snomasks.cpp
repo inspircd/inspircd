@@ -40,24 +40,11 @@ void SnomaskManager::FlushSnotices()
 	}
 }
 
-bool SnomaskManager::SetLocalOnly(char letter, bool local)
-{
-	SnoList::iterator n = SnoMasks.find(letter);
-	if (n != SnoMasks.end())
-	{
-		n->second->LocalOnly = local;
-		return n->second->LocalOnly;
-	}
-
-	ServerInstance->Logs->Log("SNOMASK", DEFAULT, "Snomask %d not found, unmatched modules?", letter);
-	return true;
-}
-
-bool SnomaskManager::EnableSnomask(char letter, const std::string &type, bool local)
+bool SnomaskManager::EnableSnomask(char letter, const std::string &type)
 {
 	if (SnoMasks.find(letter) == SnoMasks.end())
 	{
-		Snomask *s = new Snomask(ServerInstance, letter, type, local);
+		Snomask *s = new Snomask(ServerInstance, letter, type);
 		SnoMasks[letter] = s;
 		return true;
 	}
@@ -105,16 +92,16 @@ bool SnomaskManager::IsEnabled(char letter)
 
 void SnomaskManager::SetupDefaults()
 {
-	this->EnableSnomask('c',"CONNECT", true);		/* Local connect notices */
-	this->EnableSnomask('C',"REMOTECONNECT", true);		/* Remote connect notices */
-	this->EnableSnomask('q',"QUIT", true);			/* Local quit notices */
-	this->EnableSnomask('Q',"REMOTEQUIT", true);		/* Remote quit notices */
-	this->EnableSnomask('k',"KILL", true);			/* Kill notices */
-	this->EnableSnomask('K',"REMOTEKILL");			/* Remote kill notices */
+	this->EnableSnomask('c',"CONNECT");			/* Local connect notices */
+	this->EnableSnomask('C',"REMOTECONNECT");	/* Remote connect notices */
+	this->EnableSnomask('q',"QUIT");			/* Local quit notices */
+	this->EnableSnomask('Q',"REMOTEQUIT");		/* Remote quit notices */
+	this->EnableSnomask('k',"KILL");			/* Kill notices */
+	this->EnableSnomask('K',"REMOTEKILL");		/* Remote kill notices */
 	this->EnableSnomask('l',"LINK");			/* Link notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
-	this->EnableSnomask('A',"ANNOUNCEMENT");		/* formerly WriteOpers() - generic notices to all opers */
-	this->EnableSnomask('d',"DEBUG", true);			/* Debug notices */
+	this->EnableSnomask('A',"ANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
+	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */
 	this->EnableSnomask('f',"FLOOD");			/* Flooding notices */
@@ -153,17 +140,6 @@ void Snomask::Flush()
 				a->WriteServ("NOTICE %s :*** %s: (last message repeated %u times)", a->nick, this->Description.c_str(), Count);
 			}
 		}
-	}
-
-	if (!LocalOnly)
-	{
-		// XXX this is a bit ugly.
-		std::string sno;
-		sno += MySnomask;
-
-		ServerInstance->PI->SendSNONotice(sno, this->Description + ": " + this->LastMessage);
-		if (Count > 1)
-			ServerInstance->PI->SendSNONotice(sno, this->Description + ": (last message repeated " + ConvToStr(Count) + " times)");
 	}
 
 	LastMessage = "";
