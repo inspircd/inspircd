@@ -29,7 +29,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 	user->idle_lastmsg = ServerInstance->Time();
 	
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, parameters.size(), 0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 	if ((parameters[0][0] == '$') && (IS_OPER(user) || ServerInstance->ULine(user->server)))
 	{
