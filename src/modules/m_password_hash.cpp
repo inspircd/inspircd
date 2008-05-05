@@ -52,9 +52,9 @@ class CommandMkpasswd : public Command
 		}
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		MakeHash(user, parameters[0], parameters[1]);
+		MakeHash(user, parameters[0].c_str(), parameters[1].c_str());
 		/* NOTE: Don't propagate this across the network!
 		 * We dont want plaintext passes going all over the place...
 		 * To make sure it goes nowhere, return CMD_FAILURE!

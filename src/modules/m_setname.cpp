@@ -27,23 +27,23 @@ class CommandSetname : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		if (!*parameters[0])
+		if (parameters.size() == 0)
 		{
 			user->WriteServ("NOTICE %s :*** SETNAME: GECOS must be specified", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if (strlen(parameters[0]) > MAXGECOS)
+		if (parameters[0].size() > MAXGECOS)
 		{
 			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if (user->ChangeName(parameters[0]))
+		if (user->ChangeName(parameters[0].c_str()))
 		{
-			ServerInstance->SNO->WriteToSnoMask('A', "%s used SETNAME to change their GECOS to %s", user->nick, parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('A', "%s used SETNAME to change their GECOS to %s", user->nick, parameters[0].c_str());
 			return CMD_SUCCESS;
 		}
 

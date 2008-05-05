@@ -232,11 +232,11 @@ class ModuleMsgFlood : public Module
 				f->clear(user);
 				if (f->ban)
 				{
-					const char* parameters[3];
-					parameters[0] = dest->name;
-					parameters[1] = "+b";
-					parameters[2] = user->MakeWildHost();
-					ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
+					std::vector<std::string> parameters(3);
+					parameters.push_back(dest->name);
+					parameters.push_back("+b");
+					parameters.push_back(user->MakeWildHost());
+					ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 
 					ServerInstance->PI->SendModeStr(dest->name, std::string("+b ") + user->MakeWildHost());
 				}

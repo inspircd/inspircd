@@ -28,7 +28,7 @@ class CommandNicklock : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const std::vector<const std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		irc::string server;
@@ -48,7 +48,7 @@ class CommandNicklock : public Command
 		}
 
 		// check nick is valid
-		if (!ServerInstance->IsNick(parameters[1]))
+		if (!ServerInstance->IsNick(parameters[1].c_str()))
 		{
 			return CMD_FAILURE;
 		}
@@ -56,7 +56,7 @@ class CommandNicklock : public Command
 		// let others know
 		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
 
-		if (!target->ForceNickChange(parameters[1]))
+		if (!target->ForceNickChange(parameters[1].c_str()))
 		{
 			// ugh, nickchange failed for some reason -- possibly existing nick? XXX change to UID here
 			ServerInstance->Users->QuitUser(target, "Nickname collision");
@@ -81,7 +81,7 @@ class CommandNickunlock : public Command
 		syntax = "<locked-nick>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		if (target)

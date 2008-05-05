@@ -49,7 +49,7 @@ class CommandOpermotd : public Command
 		syntax = "[<servername>]";
 	}
 
-	CmdResult Handle (const std::vector<const std::string>& parameters, User* user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User* user)
 	{
 		return ShowOperMOTD(user);
 	}

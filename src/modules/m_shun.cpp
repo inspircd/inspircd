@@ -85,26 +85,26 @@ class cmd_shun : public Command
 		this->source = "m_shun.so";
 	}
 
-	CmdResult Handle(const char* const*parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
 		/* syntax: SHUN nick!user@host time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
-		if(pcnt == 1)
+		if (parameters.size() == 1)
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0], "SHUN", user))
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SHUN", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed shun on %s.",user->nick,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed shun on %s.",user->nick,parameters[0].c_str());
 			}
 			else
 			{
 				// XXX todo implement stats
-				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats s.",user->nick,parameters[0]);
+				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats s.",user->nick,parameters[0].c_str());
 			}
 
 			return CMD_SUCCESS;
 		}
-		else if (pcnt >= 2)
+		else if (parameters.size() >= 2)
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration = ServerInstance->Duration(parameters[1]);
@@ -112,7 +112,7 @@ class cmd_shun : public Command
 
 			try
 			{
-				r = new Shun(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+				r = new Shun(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -125,12 +125,12 @@ class cmd_shun : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s.", user->nick, parameters[0]);
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s.", user->nick, parameters[0].c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s", user->nick, parameters[0],
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s", user->nick, parameters[0].c_str(),
 						ServerInstance->TimeString(c_requires_crap).c_str());
 					}
 
@@ -139,7 +139,7 @@ class cmd_shun : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick, parameters[0]);
+					user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick, parameters[0].c_str());
 				}
 			}
 		}
@@ -195,7 +195,7 @@ class ModuleShun : public Module
 		}
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char* const*parameters, int pcnt, User* user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string>& parameters, User* user, bool validated, const std::string &original_line)
 	{
 		if((command != "PONG") && (command != "PING"))
 		{

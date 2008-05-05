@@ -140,11 +140,12 @@ class ModuleServices : public Module
 		/* On nickchange, if they have +r, remove it */
 		if (user->IsModeSet('r') && irc::string(user->nick) != oldnick)
 		{
-			const char* modechange[2];
+			std::vector<std::string> modechange;
+			modechange.resize(2);
 			modechange[0] = user->nick;
 			modechange[1] = "-r";
 			kludgeme = true;
-			ServerInstance->SendMode(modechange,2,user);
+			ServerInstance->SendMode(modechange,user);
 			kludgeme = false;
 		}
 	}

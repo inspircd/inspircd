@@ -101,7 +101,7 @@ class SaslAuthenticator : public classbase
 		this->result = SASL_ABORT;
 	}
 
-	bool SendClientMessage(const char* const* parameters, int pcnt)
+	bool SendClientMessage(const std::vector<std::string>& parameters)
 	{
 		if (this->state != SASL_COMM)
 			return true;
@@ -113,12 +113,11 @@ class SaslAuthenticator : public classbase
 		params.push_back(this->agent);
 		params.push_back("C");
 
-		for (int i = 0; i < pcnt; ++i)
-			params.push_back(parameters[i]);		
+		params.insert(params.end(), parameters.begin(), parameters.end());
 
 		ServerInstance->PI->SendEncapsulatedData(params);
 
-		if (*parameters[0] == '*')
+		if (parameters[0][0] == '*')
 		{
 			this->Abort();
 			return false;
@@ -166,7 +165,7 @@ class CommandAuthenticate : public Command
 		this->source = "m_sasl.so";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		/* Only allow AUTHENTICATE on unregistered clients */
 		if (user->registered != REG_ALL)
@@ -177,7 +176,7 @@ class CommandAuthenticate : public Command
 			SaslAuthenticator *sasl;
 			if (!(user->GetExt("sasl_authenticator", sasl)))
 				sasl = new SaslAuthenticator(user, parameters[0], ServerInstance, Creator);
-			else if (sasl->SendClientMessage(parameters, pcnt) == false)	// IAL abort extension --nenolod
+			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
 				delete sasl;
 		}
 		return CMD_FAILURE;

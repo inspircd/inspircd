@@ -27,7 +27,7 @@ class CommandSanick : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		if (target)
@@ -38,9 +38,9 @@ class CommandSanick : public Command
 				return CMD_FAILURE;
 			}
 			std::string oldnick = user->nick;
-			if (ServerInstance->IsNick(parameters[1]))
+			if (ServerInstance->IsNick(parameters[1].c_str()))
 			{
-				if (target->ForceNickChange(parameters[1]))
+				if (target->ForceNickChange(parameters[1].c_str()))
 				{
 					ServerInstance->SNO->WriteToSnoMask('A', oldnick+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
 					return CMD_SUCCESS;
@@ -54,14 +54,14 @@ class CommandSanick : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick, parameters[1]);
+				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick, parameters[1].c_str());
 			}
 
 			return CMD_FAILURE;
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick, parameters[0]);
+			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick, parameters[0].c_str());
 		}
 
 		return CMD_FAILURE;

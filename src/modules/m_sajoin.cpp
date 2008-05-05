@@ -27,7 +27,7 @@ class CommandSajoin : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
@@ -37,7 +37,7 @@ class CommandSajoin : public Command
 				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick);
 				return CMD_FAILURE;
 			}
-			if (!ServerInstance->IsChannel(parameters[1]))
+			if (!ServerInstance->IsChannel(parameters[1].c_str()))
 			{
 				/* we didn't need to check this for each character ;) */
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
@@ -50,7 +50,7 @@ class CommandSajoin : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				Channel::JoinUser(ServerInstance, dest, parameters[1], true, "", false, ServerInstance->Time());
+				Channel::JoinUser(ServerInstance, dest, parameters[1].c_str(), true, "", false, ServerInstance->Time());
 				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propagate */
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (n)

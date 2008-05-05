@@ -61,7 +61,7 @@ class CommandSVSSilence : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		/*
 		 * XXX: thought occurs to me
@@ -79,7 +79,7 @@ class CommandSVSSilence : public Command
 			
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser->CallHandler("SILENCE", &parameters[1], 1, u);
+			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(++parameters.begin(), parameters.end()), u);
 		}
 		
 		return CMD_SUCCESS;
@@ -97,9 +97,9 @@ class CommandSilence : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		if (!pcnt)
+		if (!parameters.size())
 		{
 			// no parameters, show the current silence list.
 			// Use Extensible::GetExt to fetch the silence list
@@ -117,17 +117,17 @@ class CommandSilence : public Command
 
 			return CMD_LOCALONLY;
 		}
-		else if (pcnt > 0)
+		else if (parameters.size() > 0)
 		{
 			// one or more parameters, add or delete entry from the list (only the first parameter is used)
-			std::string mask = parameters[0] + 1;
-			char action = *parameters[0];
+			std::string mask = parameters[0].substr(1);
+			char action = parameters[0][0];
 			// Default is private and notice so clients do not break
 			int pattern = CompilePattern("pn");
 
 			// if pattern supplied, use it
-			if (pcnt > 1) {
-				pattern = CompilePattern(parameters[1]);
+			if (parameters.size() > 1) {
+				pattern = CompilePattern(parameters[1].c_str());
 			}
 			
 			if (!mask.length())

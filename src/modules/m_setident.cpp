@@ -27,27 +27,27 @@ class CommandSetident : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
-		if (!*parameters[0])
+		if (parameters.size() == 0)
 		{
 			user->WriteServ("NOTICE %s :*** SETIDENT: Ident must be specified", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if (strlen(parameters[0]) > IDENTMAX)
+		if (parameters[0].size() > IDENTMAX)
 		{
 			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		if (!ServerInstance->IsIdent(parameters[0]))
+		if (!ServerInstance->IsIdent(parameters[0].c_str()))
 		{
 			user->WriteServ("NOTICE %s :*** SETIDENT: Invalid characters in ident", user->nick);
 			return CMD_FAILURE;
 		}
 		
-		user->ChangeIdent(parameters[0]);
+		user->ChangeIdent(parameters[0].c_str());
 		ServerInstance->SNO->WriteToSnoMask('A', "%s used SETIDENT to change their ident to '%s'", user->nick, user->ident);
 
 		return CMD_SUCCESS;

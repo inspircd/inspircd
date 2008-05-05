@@ -31,7 +31,7 @@ class CommandRandquote : public Command
 		this->source = "m_randquote.so";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcntl, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		std::string str;
 		int fsize;
@@ -107,7 +107,7 @@ class ModuleRandQuote : public Module
 	virtual void OnUserConnect(User* user)
 	{
 		if (mycommand)
-			mycommand->Handle(NULL, 0, user);
+			mycommand->Handle(std::vector<std::string>(), user);
 	}
 };
 

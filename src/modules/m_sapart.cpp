@@ -27,7 +27,7 @@ class CommandSapart : public Command
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
@@ -35,8 +35,8 @@ class CommandSapart : public Command
 
 		if (dest && channel)
 		{
-			ServerInstance->Logs->Log("m_sapart",DEBUG, "SAPART: pcnt is %d", pcnt);
-			if (pcnt == 3)
+			ServerInstance->Logs->Log("m_sapart",DEBUG, "SAPART: pcnt is %d", parameters.size());
+			if (parameters.size() == 3)
 				reason = parameters[2];
 			else
 				reason = dest->nick;
@@ -70,7 +70,7 @@ class CommandSapart : public Command
 					}
 					else
 					{
-						user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick, dest->nick, parameters[1]);
+						user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick, dest->nick, parameters[1].c_str());
 						return CMD_FAILURE;
 					}
 				}

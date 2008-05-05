@@ -29,12 +29,12 @@ class CommandSethost : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		size_t len = 0;
-		for (const char* x = parameters[0]; *x; x++, len++)
+		for (std::string::const_iterator x = parameters[0].begin(); x != parameters[0].end(); x++, len++)
 		{
-			if (!hostmap[(unsigned char)*x])
+			if (!hostmap[(const unsigned char)*x])
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** SETHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
@@ -50,7 +50,7 @@ class CommandSethost : public Command
 			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);
 			return CMD_FAILURE;
 		}
-		if (user->ChangeDisplayedHost(parameters[0]))
+		if (user->ChangeDisplayedHost(parameters[0].c_str()))
 		{
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used SETHOST to change their displayed host to "+user->dhost);
 			return CMD_SUCCESS;

@@ -26,12 +26,12 @@ class CommandSamode : public Command
 		syntax = "<target> <modes> {<mode-parameters>}";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		/*
 		 * Handles an SAMODE request. Notifies all +s users.
 	 	 */
-		ServerInstance->SendMode(parameters, pcnt, ServerInstance->FakeClient);
+		ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 
 		if (ServerInstance->Modes->GetLastParse().length())
 		{

@@ -131,10 +131,10 @@ class CommandRLine : public Command
 		this->source = "m_rline.so";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 
-		if (pcnt >= 3)
+		if (parameters.size() >= 3)
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 
@@ -143,7 +143,7 @@ class CommandRLine : public Command
 
 			try
 			{
-				r = new RLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+				r = new RLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -156,12 +156,12 @@ class CommandRLine : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent R-Line for %s.", user->nick, parameters[0]);
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent R-Line for %s.", user->nick, parameters[0].c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-Line for %s, expires on %s", user->nick, parameters[0],
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-Line for %s, expires on %s", user->nick, parameters[0].c_str(),
 								ServerInstance->TimeString(c_requires_crap).c_str());
 					}
 
@@ -170,20 +170,20 @@ class CommandRLine : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** R-Line for %s already exists", user->nick, parameters[0]);
+					user->WriteServ("NOTICE %s :*** R-Line for %s already exists", user->nick, parameters[0].c_str());
 				}
 			}
 		}
 		else
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0], "R", user))
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed R-Line on %s.",user->nick,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed R-Line on %s.",user->nick,parameters[0].c_str());
 			}
 			else
 			{
 				// XXX todo implement stats
-				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats g.",user->nick,parameters[0]);
+				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats g.",user->nick,parameters[0].c_str());
 			}
 		}
 

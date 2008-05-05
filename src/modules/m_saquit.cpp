@@ -27,7 +27,7 @@ class CommandSaquit : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
@@ -38,7 +38,7 @@ class CommandSaquit : public Command
 				return CMD_FAILURE;
 			}
 			
-			irc::stringjoiner reason_join(" ", parameters, 1, pcnt - 1);
+			irc::stringjoiner reason_join(" ", parameters, 1, parameters.size() - 1);
 			std::string line = reason_join.GetJoined();
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
 			
@@ -51,7 +51,7 @@ class CommandSaquit : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick, parameters[0]);
+			user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick, parameters[0].c_str());
 		}
 
 		return CMD_FAILURE;

@@ -100,7 +100,8 @@ class ModuleModesOnOper : public Module
 			tokens.push_back(buf);
 
 		int size = tokens.size() + 1;
-		const char** modes = new const char*[size];
+		std::vector<std::string> modes(size);
+		modes.resize(size);
 		modes[0] = u->nick;
 
 		// process mode params
@@ -116,8 +117,7 @@ class ModuleModesOnOper : public Module
 			n.push_back(modes[j]);
 
 		ServerInstance->PI->SendMode(u->uuid, n);
-		ServerInstance->SendMode(modes, size, u);
-		delete [] modes;
+		ServerInstance->SendMode(modes, u);
 	}
 };
 

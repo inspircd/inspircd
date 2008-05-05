@@ -69,7 +69,7 @@ class RemoveBase
 		}
 	}
 	
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user, bool neworder)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user, bool neworder)
 	{
 		const char* channame;
 		const char* username;
@@ -87,8 +87,8 @@ class RemoveBase
 		 * /remove <nick> <channel> [reason ...]
 		 * /fpart <channel> <nick> [reason ...]
 		 */
-		channame = parameters[ neworder ? 0 : 1];
-		username = parameters[ neworder ? 1 : 0];
+		channame = parameters[ neworder ? 0 : 1].c_str();
+		username = parameters[ neworder ? 1 : 0].c_str();
 		
 		/* Look up the user we're meant to be removing from the channel */
 		target = ServerInstance->FindNick(username);
@@ -167,10 +167,10 @@ class RemoveBase
 				std::string reasonparam("No reason given");
 				
 				/* If a reason is given, use it */
-				if(pcnt > 2)
+				if(parameters.size() > 2)
 				{
 					/* Join params 2 ... pcnt - 1 (inclusive) into one */
-					irc::stringjoiner reason_join(" ", parameters, 2, pcnt - 1);
+					irc::stringjoiner reason_join(" ", parameters, 2, parameters.size() - 1);
 					reasonparam = reason_join.GetJoined();
 				}
 
@@ -213,9 +213,9 @@ class CommandRemove : public Command, public RemoveBase
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		return RemoveBase::Handle(parameters, pcnt, user, false);
+		return RemoveBase::Handle(parameters, user, false);
 	}
 };
 
@@ -230,9 +230,9 @@ class CommandFpart : public Command, public RemoveBase
 		syntax = "<channel> <nick> [<reason>]";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		return RemoveBase::Handle(parameters, pcnt, user, true);
+		return RemoveBase::Handle(parameters, user, true);
 	}
 };
 
