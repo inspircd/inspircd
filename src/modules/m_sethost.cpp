@@ -50,10 +50,11 @@ class CommandSethost : public Command
 			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);
 			return CMD_FAILURE;
 		}
+
 		if (user->ChangeDisplayedHost(parameters[0].c_str()))
 		{
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used SETHOST to change their displayed host to "+user->dhost);
-			return CMD_SUCCESS;
+			return CMD_LOCALONLY;
 		}
 
 		return CMD_FAILURE;
