@@ -48,10 +48,9 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 		smode = true;			/* Setting this flag tells us it is a server mode*/
 		sourceserv = source;    /* Set sourceserv to the actual source string */
 	}
-	const char* modelist[64];
+	std::vector<std::string> modelist;
 	time_t TS = 0;
 	int n = 0;
-	memset(&modelist,0,sizeof(modelist));
 	for (unsigned int q = 0; (q < params.size()) && (q < 64); q++)
 	{
 		if (q == 1)
@@ -65,7 +64,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 		else
 		{
 			/* Everything else is fine to append to the modelist */
-			modelist[n++] = params[q].c_str();
+			modelist[n++] = params[q];
 		}
 
 	}
@@ -103,11 +102,11 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	{
 		if (smode)
 		{
-			this->Instance->SendMode(modelist, n, who);
+			this->Instance->SendMode(modelist, who);
 		}
 		else
 		{
-			this->Instance->CallCommandHandler("MODE", modelist, n, who);
+			this->Instance->CallCommandHandler("MODE", modelist, who);
 		}
 		/* HOT POTATO! PASS IT ON! */
 		Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);

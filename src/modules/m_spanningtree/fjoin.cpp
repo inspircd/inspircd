@@ -110,19 +110,18 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		unsigned int idx = 2;
 		int numpara = 1;
-		const char* modelist[64];
-		memset(&modelist,0,sizeof(modelist));
+		std::vector<std::string> modelist;
 
 		// Mode parser needs to know what channel to act on.
-		modelist[0] = params[0].c_str();
+		modelist[0] = params[0];
 
 		/* Remember, params[params.size() - 1] is nicklist, and we don't want to apply *that* */
 		for (idx = 2; idx != (params.size() - 1); idx++)
 		{
-			modelist[numpara++] = params[idx].c_str();
+			modelist[numpara++] = params[idx];
 		}
 
-		this->Instance->SendMode(modelist, numpara, this->Instance->FakeClient);
+		this->Instance->SendMode(modelist, this->Instance->FakeClient);
 	}
 
 	/* Now, process every 'modes,nick' pair */
@@ -181,16 +180,16 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (apply_other_sides_modes)
 	{
 		std::deque<std::string> stackresult;
-		const char* mode_junk[MAXMODES+2];
-		mode_junk[0] = channel.c_str();
+		std::vector<std::string> mode_junk;
+		mode_junk[0] = channel;
 
 		while (modestack.GetStackedLine(stackresult))
 		{
 			for (size_t j = 0; j < stackresult.size(); j++)
 			{
-				mode_junk[j+1] = stackresult[j].c_str();
+				mode_junk[j+1] = stackresult[j];
 			}
-			Instance->SendMode(mode_junk, stackresult.size() + 1, Instance->FakeClient);
+			Instance->SendMode(mode_junk, Instance->FakeClient);
 		}
 	}
 
@@ -210,7 +209,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 	{
 		irc::modestacker stack(false);
 		std::deque<std::string> stackresult;
-		const char* mode_junk[MAXMODES+2];
+		std::vector<std::string> mode_junk;
 		mode_junk[0] = c->name;
 
 		for (char modeletter = 'A'; modeletter <= 'z'; ++modeletter)
@@ -228,9 +227,9 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 		while (stack.GetStackedLine(stackresult))
 		{
 			for (size_t j = 0; j < stackresult.size(); j++)
-				mode_junk[j+1] = stackresult[j].c_str();
+				mode_junk[j+1] = stackresult[j];
 
-			Instance->SendMode(mode_junk, stackresult.size() + 1, Instance->FakeClient);
+			Instance->SendMode(mode_junk, Instance->FakeClient);
 		}
 	}
 	return true;
