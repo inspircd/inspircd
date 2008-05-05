@@ -26,11 +26,11 @@ class CommandUserip : public Command
 		syntax = "<nick>{,<nick>}";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		std::string retbuf = std::string("340 ") + user->nick + " :";
 
-		for (int i = 0; i < pcnt; i++)
+		for (int i = 0; i < (int)parameters.size(); i++)
 		{
 			User *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))

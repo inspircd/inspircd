@@ -27,7 +27,7 @@ class CommandUninvite : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User* u = ServerInstance->FindNick(parameters[0]);
 		Channel* c = ServerInstance->FindChan(parameters[1]);
@@ -36,11 +36,11 @@ class CommandUninvite : public Command
 		{	
 			if (!c)
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1].c_str());
 			}
 			else
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0]);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
 			}
 				
 			return CMD_FAILURE;

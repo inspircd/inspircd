@@ -26,7 +26,7 @@ class CommandVhost : public Command
 		syntax = "<username> <password>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		ConfigReader *Conf = new ConfigReader(ServerInstance);
 
@@ -37,7 +37,7 @@ class CommandVhost : public Command
 			std::string pass = Conf->ReadValue("vhost","pass",index);
 			std::string hash = Conf->ReadValue("vhost","hash",index);
 
-			if ((!strcmp(parameters[0],username.c_str())) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1], hash.c_str()))
+			if ((!strcmp(parameters[0].c_str(),username.c_str())) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()))
 			{
 				if (!mask.empty())
 				{

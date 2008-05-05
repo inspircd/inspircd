@@ -27,7 +27,7 @@ class CommandTline : public Command
 		this->syntax = "<mask>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		float n_counted = 0;
 		float n_matched = 0;
@@ -37,7 +37,7 @@ class CommandTline : public Command
 		for (user_hash::const_iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			n_counted++;
-			if (match(u->second->GetFullRealHost(),parameters[0]))
+			if (match(u->second->GetFullRealHost(),parameters[0].c_str()))
 			{
 				n_matched++;
 				n_match_host++;
@@ -46,7 +46,7 @@ class CommandTline : public Command
 			{
 				char host[MAXBUF];
 				snprintf(host, MAXBUF, "%s@%s", u->second->ident, u->second->GetIPString());
-				if (match(host, parameters[0], true))
+				if (match(host, parameters[0].c_str(), true))
 				{
 					n_matched++;
 					n_match_ip++;
@@ -54,9 +54,9 @@ class CommandTline : public Command
 			}
 		}
 		if (n_matched)
-			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against %0.0f user(s) (%0.2f%% of the userbase). %0.0f by hostname and %0.0f by IP address.",user->nick, n_counted, parameters[0], n_matched, (n_matched/n_counted)*100, n_match_host, n_match_ip);
+			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against %0.0f user(s) (%0.2f%% of the userbase). %0.0f by hostname and %0.0f by IP address.",user->nick, n_counted, parameters[0].c_str(), n_matched, (n_matched/n_counted)*100, n_match_host, n_match_ip);
 		else
-			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against no user(s).", user->nick, n_counted, parameters[0]);
+			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against no user(s).", user->nick, n_counted, parameters[0].c_str());
 
 		return CMD_LOCALONLY;			
 	}

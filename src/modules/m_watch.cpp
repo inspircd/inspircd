@@ -110,7 +110,7 @@ class CommandSVSWatch : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		if (!ServerInstance->ULine(user->server))
 			return CMD_FAILURE;
@@ -121,7 +121,7 @@ class CommandSVSWatch : public Command
 			
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser->CallHandler("WATCH", &parameters[1], 1, u);
+			ServerInstance->Parser->CallHandler("WATCH", parameters, u);
 		}
 		
 		return CMD_SUCCESS;
@@ -261,9 +261,9 @@ class CommandWatch : public Command
 		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		if (!pcnt)
+		if (!parameters.size())
 		{
 			watchlist* wl;
 			if (user->GetExt("watchlist", wl))
@@ -276,11 +276,11 @@ class CommandWatch : public Command
 			}
 			user->WriteNumeric(607, "%s :End of WATCH list",user->nick);
 		}
-		else if (pcnt > 0)
+		else if (parameters.size() > 0)
 		{
-			for (int x = 0; x < pcnt; x++)
+			for (int x = 0; x < (int)parameters.size(); x++)
 			{
-				const char *nick = parameters[x];
+				const char *nick = parameters[x].c_str();
 				if (!strcasecmp(nick,"C"))
 				{
 					// watch clear
