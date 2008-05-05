@@ -113,7 +113,7 @@ protected:
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual int OnStats(char symbol, User* user, string_list &results) = 0;
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line);
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 };
 
@@ -127,26 +127,26 @@ class CommandFilter : public Command
 		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		if (pcnt == 1)
+		if (parameters.size() == 1)
 		{
 			/* Deleting a filter */
 			if (Base->DeleteFilter(parameters[0]))
 			{
-				user->WriteServ("NOTICE %s :*** Deleted filter '%s'", user->nick, parameters[0]);
+				user->WriteServ("NOTICE %s :*** Deleted filter '%s'", user->nick, parameters[0].c_str());
 				return CMD_SUCCESS;
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Filter '%s' not found on list.", user->nick, parameters[0]);
+				user->WriteServ("NOTICE %s :*** Filter '%s' not found on list.", user->nick, parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
 			/* Adding a filter */
-			if (pcnt >= 4)
+			if (parameters.size() >= 4)
 			{
 				std::string freeform = parameters[0];
 				std::string type = parameters[1];
@@ -163,7 +163,7 @@ class CommandFilter : public Command
 
 				if (type == "gline")
 				{
-					if (pcnt >= 5)
+					if (parameters.size() >= 5)
 					{
 						duration = ServerInstance->Duration(parameters[3]);
 						reason = parameters[4];
@@ -182,7 +182,7 @@ class CommandFilter : public Command
 				if (result.first)
 				{
 					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick, freeform.c_str(),
-							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[3] : ""),
+							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[3].c_str() : ""),
 							flags.c_str(), reason.c_str());
 					return CMD_SUCCESS;
 				}
@@ -295,7 +295,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 	return 0;
 }
 
-int FilterBase::OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+int FilterBase::OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 {
 	flags = 0;
 	if ((validated == 1) && (IS_LOCAL(user)))
@@ -307,7 +307,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char* const* para
 		if (command == "QUIT")
 		{
 			/* QUIT with no reason: nothing to do */
-			if (pcnt < 1)
+			if (parameters.size() < 1)
 				return 0;
 
 			checkline = parameters[0];
@@ -318,7 +318,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char* const* para
 		else if (command == "PART")
 		{
 			/* PART with no reason: nothing to do */
-			if (pcnt < 2)
+			if (parameters.size() < 2)
 				return 0;
 
 			std::vector<std::string>::iterator i = find(exemptfromfilter.begin(), exemptfromfilter.end(), parameters[0]);
@@ -345,8 +345,8 @@ int FilterBase::OnPreCommand(const std::string &command, const char* const* para
 		Command* c = ServerInstance->Parser->GetHandler(command);
 		if (c)
 		{
-			const char* params[MAXPARAMETERS];
-			for (int item = 0; item < pcnt; item++)
+			std::vector<std::string> params;
+			for (int item = 0; item < (int)parameters.size(); item++)
 				params[item] = parameters[item];
 			params[replacepoint] = "Reason filtered";
 
@@ -355,7 +355,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char* const* para
 			 */
 			if ((f->action == "block") || (((!parting) && (f->action == "kill"))) || (f->action == "silent"))
 			{
-				c->Handle(params, pcnt, user);
+				c->Handle(params, user);
 				return 1;
 			}
 			else

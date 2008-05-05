@@ -37,17 +37,17 @@ class CommandJumpserver : public Command
 		redirect_all_immediately = redirect_new_users = false;
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		int n_done = 0;
-		reason = (pcnt < 4) ? "Please use this server/port instead" : parameters[3];
+		reason = (parameters.size() < 4) ? "Please use this server/port instead" : parameters[3];
 		redirect_all_immediately = false;
 		redirect_new_users = true;
 		direction = true;
 		std::string n_done_s;
 
 		/* No parameters: jumpserver disabled */
-		if (!pcnt)
+		if (!parameters.size())
 		{
 			if (port)
 				user->WriteServ("NOTICE %s :*** Disabled jumpserver (previously set to '%s:%d')", user->nick, redirect_to.c_str(), port);
@@ -62,7 +62,7 @@ class CommandJumpserver : public Command
 		port = 0;
 		redirect_to.clear();
 
-		for (const char* n = parameters[2]; *n; n++)
+		for (const char* n = parameters[2].c_str(); *n; n++)
 		{
 			switch (*n)
 			{
@@ -89,7 +89,7 @@ class CommandJumpserver : public Command
 				User* t = *i;
 				if (!IS_OPER(t))
 				{
-					t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", user->nick, parameters[0], parameters[1]);
+					t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", user->nick, parameters[0].c_str(), parameters[1].c_str());
 					ServerInstance->Users->QuitUser(t, reason);
 					n_done++;
 				}
@@ -103,10 +103,10 @@ class CommandJumpserver : public Command
 		if (redirect_new_users)
 		{
 			redirect_to = parameters[0];
-			port = atoi(parameters[1]);
+			port = atoi(parameters[1].c_str());
 		}
 
-		user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick, parameters[0], parameters[1],
+		user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick, parameters[0].c_str(), parameters[1].c_str(),
 				redirect_all_immediately ? "a" : "",
 				redirect_new_users ? "n" : "",
 				n_done ? " (" : "",

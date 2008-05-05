@@ -29,12 +29,12 @@ class CommandGlobops : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		std::string line = "From " + std::string(user->nick) + ": ";
-		for (int i = 0; i < pcnt; i++)
+		for (int i = 0; i < (int)parameters.size(); i++)
 		{
-			line = line + std::string(parameters[i]) + " ";
+			line = line + parameters[i] + " ";
 		}
 		ServerInstance->SNO->WriteToSnoMask('g',line);
 

@@ -36,11 +36,11 @@ class CommandHelpop : public Command
 		syntax = "<any-text>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		irc::string parameter("start");
-		if (pcnt > 0)
-			parameter = parameters[0];
+		if (parameters.size() > 0)
+			parameter = parameters[0].c_str();
 
 		if (parameter == "index")
 		{

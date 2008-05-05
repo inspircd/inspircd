@@ -27,24 +27,24 @@ class CommandGloadmodule : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		std::string servername = pcnt > 1 ? parameters[1] : "*";
+		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			if (ServerInstance->Modules->Load(parameters[0]))
+			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
-				user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick, parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('A', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick);
+				user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick, parameters[0].c_str());
 			}
 			else
 			{
-				user->WriteNumeric(974, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(974, "%s %s :%s",user->nick, parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 			}
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0].c_str(), user->nick);
 
 		return CMD_SUCCESS;
 	}
@@ -61,24 +61,24 @@ class CommandGunloadmodule : public Command
 		syntax = "<modulename> [servermask]";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		std::string servername = pcnt > 1 ? parameters[1] : "*";
+		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			if (ServerInstance->Modules->Unload(parameters[0]))
+			if (ServerInstance->Modules->Unload(parameters[0].c_str()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
-				user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick, parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick);
+				user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick, parameters[0].c_str());
 			}
 			else
 			{
-				user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 			}
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick);
 
 		return CMD_SUCCESS;
 	}
@@ -95,25 +95,25 @@ class CommandGreloadmodule : public Command
 		syntax = "<modulename> [servermask]";
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		std::string servername = pcnt > 1 ? parameters[1] : "*";
+		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			if (!ServerInstance->Modules->Unload(parameters[0]))
+			if (!ServerInstance->Modules->Unload(parameters[0].c_str()))
 			{
-				user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 			}
-			if (!ServerInstance->Modules->Load(parameters[0]))
+			if (!ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
-				user->WriteNumeric(974, "%s %s :%s",user->nick, parameters[0],ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(974, "%s %s :%s",user->nick, parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 			}
-			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
-			user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick, parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0].c_str(), user->nick);
+			user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick, parameters[0].c_str());
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick);
 
 		return CMD_SUCCESS;
 	}

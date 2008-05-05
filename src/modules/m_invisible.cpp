@@ -140,8 +140,10 @@ class InvisibleDeOper : public ModeWatcher
 		/* Users who are opers and have +Q get their +Q removed when they deoper */
 		if ((!adding) && (dest->IsModeSet('Q')))
 		{
-			const char* newmodes[] = { dest->nick, "-Q" };
-			ServerInstance->Modes->Process(newmodes, 2, source, true);
+			std::vector<std::string> newmodes;
+			newmodes[0] = dest->nick;
+			newmodes[1] = "-Q";
+			ServerInstance->Modes->Process(newmodes, source, true);
 		}
 		return true;
 	}
@@ -221,7 +223,7 @@ class ModuleInvisible : public Module
 		{
 			Command* parthandler = ServerInstance->Parser->GetHandler("PART");
 			std::vector<std::string> to_leave;
-			const char* parameters[2];
+			std::vector<std::string> parameters;
 			if (parthandler)
 			{
 				for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
@@ -229,9 +231,9 @@ class ModuleInvisible : public Module
 				/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
 				for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
 				{
-					parameters[0] = n->c_str();
+					parameters[0] = *n;
 					/* This triggers our OnUserPart, above, making the PART silent */
-					parthandler->Handle(parameters, 1, user);
+					parthandler->Handle(parameters, user);
 				}
 			}
 		}
