@@ -109,16 +109,15 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (apply_other_sides_modes)
 	{
 		unsigned int idx = 2;
-		int numpara = 1;
 		std::vector<std::string> modelist;
 
 		// Mode parser needs to know what channel to act on.
-		modelist[0] = params[0];
+		modelist.push_back(params[0]);
 
 		/* Remember, params[params.size() - 1] is nicklist, and we don't want to apply *that* */
 		for (idx = 2; idx != (params.size() - 1); idx++)
 		{
-			modelist[numpara++] = params[idx];
+			modelist.push_back(params[idx]);
 		}
 
 		this->Instance->SendMode(modelist, this->Instance->FakeClient);
@@ -181,13 +180,13 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		std::deque<std::string> stackresult;
 		std::vector<std::string> mode_junk;
-		mode_junk[0] = channel;
+		mode_junk.push_back(channel);
 
 		while (modestack.GetStackedLine(stackresult))
 		{
 			for (size_t j = 0; j < stackresult.size(); j++)
 			{
-				mode_junk[j+1] = stackresult[j];
+				mode_junk.push_back(stackresult[j]);
 			}
 			Instance->SendMode(mode_junk, Instance->FakeClient);
 		}
@@ -210,7 +209,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 		irc::modestacker stack(false);
 		std::deque<std::string> stackresult;
 		std::vector<std::string> mode_junk;
-		mode_junk[0] = c->name;
+		mode_junk.push_back(c->name);
 
 		for (char modeletter = 'A'; modeletter <= 'z'; ++modeletter)
 		{
@@ -227,7 +226,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 		while (stack.GetStackedLine(stackresult))
 		{
 			for (size_t j = 0; j < stackresult.size(); j++)
-				mode_junk[j+1] = stackresult[j];
+				mode_junk.push_back(stackresult[j]);
 
 			Instance->SendMode(mode_junk, Instance->FakeClient);
 		}

@@ -72,17 +72,15 @@ class ModuleModesOnConnect : public Module
 						tokens.push_back(buf);
 
 					std::vector<std::string> modes;
-					modes[0] = user->nick;
-					modes[1] = tokens[0];
+					modes.push_back(user->nick);
+					modes.push_back(tokens[0]);
 
 					if (tokens.size() > 1)
 					{
 						// process mode params
-						int i = 2;
 						for (unsigned int k = 1; k < tokens.size(); k++)
 						{
-							modes[i] = tokens[k];
-							i++;
+							modes.push_back(tokens[k]);
 						}
 					}
 

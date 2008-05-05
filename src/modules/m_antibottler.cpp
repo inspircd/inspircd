@@ -79,10 +79,10 @@ class ModuleAntiBottler : public Module
 			{
 				std::string strgecos = std::string(gecos) + "[Possible bottler, ident: " + std::string(ident) + "]";
 				std::vector<std::string> modified;
-				modified[0] = "bottler";
-				modified[1] = local;
-				modified[2] = remote;
-				modified[3] = strgecos;
+				modified.push_back("bottler");
+				modified.push_back(local);
+				modified.push_back(remote);
+				modified.push_back(strgecos);
 				ServerInstance->Parser->CallHandler("USER", modified, user);
 				return 1;
 			}

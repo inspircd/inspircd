@@ -54,8 +54,7 @@ CmdResult cmd_rconnect::Handle (const std::vector<std::string>& parameters, User
 		/* Yes, initiate the given connect */
 		ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0].c_str(),parameters[1].c_str());
 		std::vector<std::string> para;
-		para.resize(1);
-		para[0] = parameters[1];
+		para.push_back(parameters[1]);
 		std::string original_command = std::string("CONNECT ") + parameters[1];
 		Creator->OnPreCommand("CONNECT", para, user, true, original_command);
 	}

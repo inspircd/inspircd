@@ -277,8 +277,8 @@ public:
 		if (oper_command)
 		{
 			std::vector<std::string> params;
-			params[0] = username;
-			params[1] = pass;
+			params.push_back(username);
+			params.push_back(pass);
 			oper_command->Handle(params, user);
 		}
 		else

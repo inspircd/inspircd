@@ -38,9 +38,9 @@ class CommandDevoice : public Command
 		if (c && c->HasUser(user))
 		{
 			std::vector<std::string> modes;
-			modes[0] = parameters[0];
-			modes[1] = "-v";
-			modes[2] = user->nick;
+			modes.push_back(parameters[0]);
+			modes.push_back("-v");
+			modes.push_back(user->nick);
 
 			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
 

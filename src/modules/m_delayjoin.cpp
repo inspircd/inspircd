@@ -146,12 +146,12 @@ class ModuleDelayJoin : public Module
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
-		std::vector<std::string> parameters;
 		if (parthandler && user->GetExt("delayjoin"))
 		{
 			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
 			{
-				parameters[0] = f->first->name;
+				std::vector<std::string> parameters;
+				parameters.push_back(f->first->name);
 				/* This triggers our OnUserPart, above, making the PART silent */
 				parthandler->Handle(parameters, user);
 			}

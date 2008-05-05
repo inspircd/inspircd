@@ -141,9 +141,8 @@ class ModuleServices : public Module
 		if (user->IsModeSet('r') && irc::string(user->nick) != oldnick)
 		{
 			std::vector<std::string> modechange;
-			modechange.resize(2);
-			modechange[0] = user->nick;
-			modechange[1] = "-r";
+			modechange.push_back(user->nick);
+			modechange.push_back("-r");
 			kludgeme = true;
 			ServerInstance->SendMode(modechange,user);
 			kludgeme = false;

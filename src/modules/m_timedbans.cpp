@@ -72,9 +72,9 @@ class CommandTban : public Command
 				}
 				std::string mask = parameters[2];
 				std::vector<std::string> setban;
-				setban[0] = parameters[0];
-				setban[1] = "+b";
-				setban[2] = parameters[2];
+				setban.push_back(parameters[0]);
+				setban.push_back("+b");
+				setban.push_back(parameters[2]);
 				// use CallCommandHandler to make it so that the user sets the mode
 				// themselves
 				ServerInstance->CallCommandHandler("MODE",setban,user);
@@ -159,9 +159,9 @@ class ModuleTimedBans : public Module
 				{
 					std::string mask = safei->mask;
 					std::vector<std::string> setban;
-					setban[0] = safei->channel;
-					setban[1] = "-b";
-					setban[2] = mask;
+					setban.push_back(safei->channel);
+					setban.push_back("-b");
+					setban.push_back(mask);
 
 					CUList empty;
 					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, safei->mask.c_str());

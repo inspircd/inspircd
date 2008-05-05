@@ -160,7 +160,7 @@ class ModuleAuditorium : public Module
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
-		std::vector<std::string> to_leave, parameters;
+		std::vector<std::string> to_leave;
 		if (parthandler)
 		{
 			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
@@ -171,7 +171,8 @@ class ModuleAuditorium : public Module
 			/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
 			for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
 			{
-				parameters[0] = *n;
+				std::vector<std::string> parameters;
+				parameters.push_back(*n);
 				/* This triggers our OnUserPart, above, making the PART silent */
 				parthandler->Handle(parameters, user);
 			}

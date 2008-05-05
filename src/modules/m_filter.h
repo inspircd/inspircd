@@ -347,7 +347,7 @@ int FilterBase::OnPreCommand(const std::string &command, const std::vector<std::
 		{
 			std::vector<std::string> params;
 			for (int item = 0; item < (int)parameters.size(); item++)
-				params[item] = parameters[item];
+				params.push_back(parameters[item]);
 			params[replacepoint] = "Reason filtered";
 
 			/* We're blocking, OR theyre quitting and its a KILL action

@@ -50,7 +50,6 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	}
 	std::vector<std::string> modelist;
 	time_t TS = 0;
-	int n = 0;
 	for (unsigned int q = 0; (q < params.size()) && (q < 64); q++)
 	{
 		if (q == 1)
@@ -64,7 +63,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 		else
 		{
 			/* Everything else is fine to append to the modelist */
-			modelist[n++] = params[q];
+			modelist.push_back(params[q]);
 		}
 
 	}

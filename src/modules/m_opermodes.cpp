@@ -99,17 +99,13 @@ class ModuleModesOnOper : public Module
 		while (ss >> buf)
 			tokens.push_back(buf);
 
-		int size = tokens.size() + 1;
-		std::vector<std::string> modes(size);
-		modes.resize(size);
-		modes[0] = u->nick;
+		std::vector<std::string> modes;
+		modes.push_back(u->nick);
 
 		// process mode params
-		int i = 1;
 		for (unsigned int k = 0; k < tokens.size(); k++)
 		{
-			modes[i] = tokens[k].c_str();
-			i++;
+			modes.push_back(tokens[k]);
 		}
 
 		std::deque<std::string> n;
