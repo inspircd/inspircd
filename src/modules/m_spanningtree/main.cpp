@@ -377,7 +377,6 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 		return;
 	SendingRemoteMessage = true;
 
-	std::deque<std::string> params;
 	char text[MAXBUF];
 	va_list argsPtr;
 
@@ -389,21 +388,11 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 	{
 		/* No user, target it generically at everyone */
 		ServerInstance->SNO->WriteToSnoMask('l', "%s", text);
-		params.push_back("l");
-		params.push_back(std::string(":") + text);
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "SNONOTICE", params);
 	}
 	else
 	{
 		if (IS_LOCAL(user))
 			user->WriteServ("NOTICE %s :%s", user->nick, text);
-		else
-		{
-			params.push_back(user->uuid);
-			params.push_back(std::string("::") + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :*** From " +
-					ServerInstance->Config->ServerName+ ": " + text);
-			Utils->DoOneToMany(ServerInstance->Config->GetSID(), "PUSH", params);
-		}
 	}
 	
 	SendingRemoteMessage = false;
