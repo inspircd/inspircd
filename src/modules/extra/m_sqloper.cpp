@@ -111,7 +111,7 @@ public:
 		hashtype = assign(Conf.ReadValue("sqloper", "hash", 0));
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		if ((validated) && (command == "OPER"))
 		{
@@ -276,8 +276,10 @@ public:
 
 		if (oper_command)
 		{
-			const char* params[] = { username.c_str(), pass.c_str() };
-			oper_command->Handle(params, 2, user);
+			std::vector<std::string> params;
+			params[0] = username;
+			params[1] = pass;
+			oper_command->Handle(params, user);
 		}
 		else
 		{

@@ -276,11 +276,11 @@ class ModuleSQLLog : public Module
 		return 0;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		if ((command == "GLINE" || command == "KLINE" || command == "ELINE" || command == "ZLINE") && validated)
 		{
-			AddLogEntry(LT_XLINE,user->nick,command[0]+std::string(":")+std::string(parameters[0]),user->server);
+			AddLogEntry(LT_XLINE,user->nick,command[0]+std::string(":")+parameters[0],user->server);
 		}
 		return 0;
 	}

@@ -73,7 +73,7 @@ class CommandStartTLS : public Command
 		this->source = "m_ssl_gnutls.so";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		user->io = Caller;
 		Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());

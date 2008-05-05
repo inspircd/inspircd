@@ -33,7 +33,7 @@ class cmd_sslinfo : public Command
 		this->syntax = "<nick>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		ssl_cert* cert;
@@ -58,7 +58,7 @@ class cmd_sslinfo : public Command
 			}
 		}
 		else
-			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0].c_str());
 
 		return CMD_FAILURE;
 	}

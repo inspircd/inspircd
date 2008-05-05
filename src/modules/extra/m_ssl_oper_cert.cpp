@@ -33,7 +33,7 @@ class cmd_fingerprint : public Command
 		syntax = "<nickname>";
 	}       
 	          
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		if (target)
@@ -60,7 +60,7 @@ class cmd_fingerprint : public Command
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}
@@ -112,7 +112,7 @@ class ModuleOperSSLCert : public Module
 		return false;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string cmd = command.c_str();
 		
@@ -146,7 +146,7 @@ class ModuleOperSSLCert : public Module
 
 				if (SSLOnly || !FingerPrint.empty())
 				{
-					if ((!strcmp(LoginName.c_str(),parameters[0])) && (!ServerInstance->PassCompare(user, Password.c_str(),parameters[1], HashType.c_str())) && (OneOfMatches(TheHost,TheIP,HostName.c_str())))
+					if ((!strcmp(LoginName.c_str(),parameters[0].c_str())) && (!ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str())) && (OneOfMatches(TheHost,TheIP,HostName.c_str())))
 					{
 						if (SSLOnly && !user->GetExt("ssl", dummy))
 						{
