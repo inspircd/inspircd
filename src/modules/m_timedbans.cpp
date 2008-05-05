@@ -57,7 +57,7 @@ class CommandTban : public Command
 				{
 					if (!strcasecmp(i->data,parameters[2].c_str()))
 					{
-						user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
+						user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+parameters[2]+" is already on the banlist of "+parameters[0]);
 						return CMD_FAILURE;
 					}
 				}
