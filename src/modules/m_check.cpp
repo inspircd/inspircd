@@ -147,7 +147,7 @@ class CommandCheck : public Command
 			user->WriteServ(checkstr + " matches " + ConvToStr(x));
 		}
 
-		user->WriteServ(checkstr + " END " + std::string(parameters[0]));
+		user->WriteServ(checkstr + " END " + parameters[0]);
 
 		return CMD_LOCALONLY;
 	}
