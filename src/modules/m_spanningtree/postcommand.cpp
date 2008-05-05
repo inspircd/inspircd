@@ -33,9 +33,9 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-void ModuleSpanningTree::OnPostCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, CmdResult result, const std::string &original_line)
+void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line)
 {
-	if ((result == CMD_SUCCESS) && (ServerInstance->IsValidModuleCommand(command, pcnt, user)))
+	if ((result == CMD_SUCCESS) && (ServerInstance->IsValidModuleCommand(command, parameters.size(), user)))
 	{
 		/* Safe, we know its non-null because IsValidModuleCommand returned true */
 		Command* thiscmd = ServerInstance->Parser->GetHandler(command);
@@ -46,14 +46,14 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char* c
 		// commands and linking protocols.
 		std::deque<std::string> params;
 		params.clear();
-		int n_translate = thiscmd->translation.size();
+		unsigned int n_translate = thiscmd->translation.size();
 		TranslateType translate_to;
 
 		/* To make sure that parameters with spaces, or empty
 		 * parameters, etc, are always sent properly, *always*
 		 * prefix the last parameter with a :. This also removes
 		 * an extra strchr() */
-		for (int j = 0; j < pcnt; j++)
+		for (unsigned int j = 0; j < parameters.size(); j++)
 		{
 			std::string target;
 
@@ -66,10 +66,10 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char* c
 			else
 				translate_to = TR_TEXT;
 
-			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"TRANSLATION: %s - type is %d", parameters[j], translate_to);
+			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"TRANSLATION: %s - type is %d", parameters[j].c_str(), translate_to);
 			ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
 			
-			if (j == (pcnt - 1))
+			if (j == (parameters.size() - 1))
 				params.push_back(":" + target);
 			else
 				params.push_back(target);

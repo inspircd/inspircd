@@ -28,7 +28,7 @@ class CommandNicklock : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<const std::string>& parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 		irc::string server;

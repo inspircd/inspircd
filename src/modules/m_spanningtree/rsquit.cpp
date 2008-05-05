@@ -36,7 +36,7 @@ cmd_rsquit::cmd_rsquit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilit
 	syntax = "<target-server-mask> [reason]";
 }
 
-CmdResult cmd_rsquit::Handle (const char* const* parameters, int pcnt, User *user)
+CmdResult cmd_rsquit::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	TreeServer *server_target; // Server to squit
 	TreeServer *server_linked; // Server target is linked to
@@ -44,13 +44,13 @@ CmdResult cmd_rsquit::Handle (const char* const* parameters, int pcnt, User *use
 	server_target = Utils->FindServerMask(parameters[0]);
 	if (!server_target)
 	{
-		user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0]);
+		user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
 	if (server_target == Utils->TreeRoot)
 	{
-		NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[0])+" matches local server name)");
+		NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+parameters[0]+" matches local server name)");
 		return CMD_FAILURE;
 	}
 
@@ -62,8 +62,8 @@ CmdResult cmd_rsquit::Handle (const char* const* parameters, int pcnt, User *use
 		TreeSocket* sock = server_target->GetSocket();
 		if (sock)
 		{
-			const char *reason = pcnt == 2 ? parameters[1] : "No reason";
-			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0], user->nick, reason);
+			const char *reason = parameters.size() == 2 ? parameters[1].c_str() : "No reason";
+			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick, reason);
 			sock->Squit(server_target, std::string("Server quit by ") + user->GetFullRealHost() + " (" + reason + ")");
 			ServerInstance->SE->DelFd(sock);
 			sock->Close();

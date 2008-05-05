@@ -33,11 +33,11 @@
 	
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::HandleTime(const char* const* parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleTime(const std::vector<std::string>& parameters, User* user)
 {
-	if ((IS_LOCAL(user)) && (pcnt))
+	if ((IS_LOCAL(user)) && (parameters.size() > 0))
 	{
-		TreeServer* found = Utils->FindServerMask(parameters[0]);
+		TreeServer* found = Utils->FindServerMask(parameters[0].c_str());
 		if (found)
 		{
 			// we dont' override for local server
@@ -51,7 +51,7 @@ int ModuleSpanningTree::HandleTime(const char* const* parameters, int pcnt, User
 		}
 		else
 		{
-			user->WriteNumeric(402, "%s %s :No such server",user->nick,parameters[0]);
+			user->WriteNumeric(402, "%s %s :No such server",user->nick,parameters[0].c_str());
 		}
 	}
 	return 1;

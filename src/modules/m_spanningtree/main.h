@@ -70,11 +70,11 @@ class ModuleSpanningTree : public Module
 
 	/** Handle LINKS command
 	 */
-	void HandleLinks(const char* const* parameters, int pcnt, User* user);
+	void HandleLinks(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle LUSERS command
 	 */
-	void HandleLusers(const char* const* parameters, int pcnt, User* user);
+	void HandleLusers(const std::vector<std::string>& parameters, User* user);
 
 	/** Show MAP output to a user (recursive)
 	 */
@@ -82,35 +82,35 @@ class ModuleSpanningTree : public Module
 
 	/** Handle remote MOTD
 	 */
-	int HandleMotd(const char* const* parameters, int pcnt, User* user);
+	int HandleMotd(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote ADMIN
 	 */
-	int HandleAdmin(const char* const* parameters, int pcnt, User* user);
+	int HandleAdmin(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote STATS
 	 */
-	int HandleStats(const char* const* parameters, int pcnt, User* user);
+	int HandleStats(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle MAP command
 	 */
-	int HandleMap(const char* const* parameters, int pcnt, User* user);
+	int HandleMap(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle SQUIT
 	 */
-	int HandleSquit(const char* const* parameters, int pcnt, User* user);
+	int HandleSquit(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle TIME
 	 */
-	int HandleTime(const char* const* parameters, int pcnt, User* user);
+	int HandleTime(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote WHOIS
 	 */
-	int HandleRemoteWhois(const char* const* parameters, int pcnt, User* user);
+	int HandleRemoteWhois(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote MODULES
 	 */
-	int HandleModules(const char* const* parameters, int pcnt, User* user);
+	int HandleModules(const std::vector<std::string>& parameters, User* user);
 
 	/** Ping all local servers
 	 */
@@ -126,11 +126,11 @@ class ModuleSpanningTree : public Module
 
 	/** Handle remote VERSON
 	 */
-	int HandleVersion(const char* const* parameters, int pcnt, User* user);
+	int HandleVersion(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle CONNECT
 	 */
-	int HandleConnect(const char* const* parameters, int pcnt, User* user);
+	int HandleConnect(const std::vector<std::string>& parameters, User* user);
 
 	/** Attempt to send a message to a user
 	 */
@@ -148,8 +148,8 @@ class ModuleSpanningTree : public Module
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line);
-	virtual void OnPostCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
+	virtual void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line);
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
 	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t);
 	virtual void OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic);

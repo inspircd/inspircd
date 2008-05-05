@@ -108,16 +108,16 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 // and divisons, we instead render the map onto a backplane of characters
 // (a character matrix), then draw the branches as a series of "L" shapes
 // from the nodes. This is not only friendlier on CPU it uses less stack.
-int ModuleSpanningTree::HandleMap(const char* const* parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, User* user)
 {
-	if (pcnt > 0)
+	if (parameters.size() > 0)
 	{
 		/* Remote MAP, the server is within the 1st parameter */
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		bool ret = false;
 		if (!s)
 		{
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0].c_str());
 			ret = true;
 		}
 		else if (s && s != Utils->TreeRoot)

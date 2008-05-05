@@ -33,23 +33,23 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::HandleModules(const char* const* parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleModules(const std::vector<std::string>& parameters, User* user)
 {
-	if (pcnt > 0)
+	if (parameters.size() > 0)
 	{
-		if (match(ServerInstance->Config->ServerName, parameters[0]))
+		if (match(ServerInstance->Config->ServerName, parameters[0].c_str()))
 			return 0;
 
 		std::deque<std::string> params;
 		params.push_back(parameters[0]);
-		TreeServer* s = Utils->FindServerMask(parameters[0]);
+		TreeServer* s = Utils->FindServerMask(parameters[0].c_str());
 		if (s)
 		{
 			params[0] = s->GetName();
 			Utils->DoOneToOne(user->uuid, "MODULES", params, s->GetName());
 		}
 		else
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0].c_str());
 		return 1;
 	}
 	return 0;

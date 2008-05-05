@@ -33,11 +33,11 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::HandleAdmin(const char* const* parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleAdmin(const std::vector<std::string>& parameters, User* user)
 {
-	if (pcnt > 0)
+	if (parameters.size() > 0)
 	{
-		if (match(ServerInstance->Config->ServerName, parameters[0]))
+		if (match(ServerInstance->Config->ServerName, parameters[0].c_str()))
 			return 0;
 
 		/* Remote ADMIN, the server is within the 1st parameter */
@@ -51,7 +51,7 @@ int ModuleSpanningTree::HandleAdmin(const char* const* parameters, int pcnt, Use
 			Utils->DoOneToOne(user->uuid, "ADMIN", params, s->GetName());
 		}
 		else
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0].c_str());
 		return 1;
 	}
 	return 0;

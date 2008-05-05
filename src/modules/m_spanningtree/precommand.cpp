@@ -33,7 +33,7 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+int ModuleSpanningTree::OnPreCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line)
 {
 	/* If the command doesnt appear to be valid, we dont want to mess with it. */
 	if (!validated)
@@ -41,58 +41,58 @@ int ModuleSpanningTree::OnPreCommand(const std::string &command, const char* con
 
 	if (command == "CONNECT")
 	{
-		return this->HandleConnect(parameters,pcnt,user);
+		return this->HandleConnect(parameters,user);
 	}
 	else if (command == "STATS")
 	{
-		return this->HandleStats(parameters,pcnt,user);
+		return this->HandleStats(parameters,user);
 	}
 	else if (command == "MOTD")
 	{
-		return this->HandleMotd(parameters,pcnt,user);
+		return this->HandleMotd(parameters,user);
 	}
 	else if (command == "ADMIN")
 	{
-		return this->HandleAdmin(parameters,pcnt,user);
+		return this->HandleAdmin(parameters,user);
 	}
 	else if (command == "SQUIT")
 	{
-		return this->HandleSquit(parameters,pcnt,user);
+		return this->HandleSquit(parameters,user);
 	}
 	else if (command == "MAP")
 	{
-		return this->HandleMap(parameters,pcnt,user);
+		return this->HandleMap(parameters,user);
 	}
-	else if ((command == "TIME") && (pcnt > 0))
+	else if ((command == "TIME") && (parameters.size() > 0))
 	{
-		return this->HandleTime(parameters,pcnt,user);
+		return this->HandleTime(parameters,user);
 	}
 	else if (command == "LUSERS")
 	{
-		this->HandleLusers(parameters,pcnt,user);
+		this->HandleLusers(parameters,user);
 		return 1;
 	}
 	else if (command == "LINKS")
 	{
-		this->HandleLinks(parameters,pcnt,user);
+		this->HandleLinks(parameters,user);
 		return 1;
 	}
 	else if (command == "WHOIS")
 	{
-		if (pcnt > 1)
+		if (parameters.size() > 1)
 		{
 			// remote whois
-			return this->HandleRemoteWhois(parameters,pcnt,user);
+			return this->HandleRemoteWhois(parameters,user);
 		}
 	}
-	else if ((command == "VERSION") && (pcnt > 0))
+	else if ((command == "VERSION") && (parameters.size() > 0))
 	{
-		this->HandleVersion(parameters,pcnt,user);
+		this->HandleVersion(parameters,user);
 		return 1;
 	}
-	else if ((command == "MODULES") && (pcnt > 0))
+	else if ((command == "MODULES") && (parameters.size() > 0))
 	{
-		return this->HandleModules(parameters,pcnt,user);
+		return this->HandleModules(parameters,user);
 	}
 	return 0;
 }

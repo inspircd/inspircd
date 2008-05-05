@@ -33,14 +33,14 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::HandleSquit(const char* const* parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, User* user)
 {
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
 	if (s)
 	{
 		if (s == Utils->TreeRoot)
 		{
-			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
+			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0].c_str());
 			return 1;
 		}
 
@@ -48,7 +48,7 @@ int ModuleSpanningTree::HandleSquit(const char* const* parameters, int pcnt, Use
 
 		if (sock)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
+			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick);
 			sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
 			ServerInstance->SE->DelFd(sock);
 			sock->Close();
@@ -60,7 +60,7 @@ int ModuleSpanningTree::HandleSquit(const char* const* parameters, int pcnt, Use
 	}
 	else
 	{
-		 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick,parameters[0]);
+		 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick,parameters[0].c_str());
 	}
 	return 1;
 }

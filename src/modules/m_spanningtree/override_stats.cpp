@@ -33,11 +33,11 @@
 	
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::HandleStats(const char* const* parameters, int pcnt, User* user)
+int ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, User* user)
 {
-	if (pcnt > 1)
+	if (parameters.size() > 1)
 	{
-		if (match(ServerInstance->Config->ServerName, parameters[1]))
+		if (match(ServerInstance->Config->ServerName, parameters[1].c_str()))
 			return 0;
 
 		/* Remote STATS, the server is within the 2nd parameter */
@@ -54,7 +54,7 @@ int ModuleSpanningTree::HandleStats(const char* const* parameters, int pcnt, Use
 		}
 		else
 		{
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[1]);
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[1].c_str());
 		}
 		return 1;
 	}
