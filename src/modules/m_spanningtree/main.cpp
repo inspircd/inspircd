@@ -578,25 +578,15 @@ void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, boo
 	// Only do this for local users
 	if (IS_LOCAL(user))
 	{
-		if (channel->GetUserCounter() == 1)
-		{
-			std::deque<std::string> params;
-			// set up their permissions and the channel TS with FJOIN.
-			// All users are FJOINed now, because a module may specify
-			// new joining permissions for the user.
-			params.push_back(channel->name);
-			params.push_back(ConvToStr(channel->age));
-			params.push_back(std::string("+") + channel->ChanModes(true));
-			params.push_back(ServerInstance->Modes->ModeString(user, channel, false)+","+std::string(user->uuid));
-			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
-		}
-		else
-		{
-			std::deque<std::string> params;
-			params.push_back(channel->name);
-			params.push_back(ConvToStr(channel->age));
-			Utils->DoOneToMany(user->uuid,"JOIN",params);
-		}
+		std::deque<std::string> params;
+		// set up their permissions and the channel TS with FJOIN.
+		// All users are FJOINed now, because a module may specify
+		// new joining permissions for the user.
+		params.push_back(channel->name);
+		params.push_back(ConvToStr(channel->age));
+		params.push_back(std::string("+") + channel->ChanModes(true));
+		params.push_back(ServerInstance->Modes->ModeString(user, channel, false)+","+std::string(user->uuid));
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 	}
 }
 
