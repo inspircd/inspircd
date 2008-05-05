@@ -135,6 +135,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 			
 			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0].c_str(), fields.c_str());
 			ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
+			ServerInstance->PI->SendSNONotice("o", std::string("OPER: ") + broadcast);
 
 			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0].c_str(),fields.c_str());
 			return CMD_FAILURE;
