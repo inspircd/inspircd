@@ -37,7 +37,7 @@ class ModuleOperLog : public Module
 	}
  
 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -49,8 +49,8 @@ class ModuleOperLog : public Module
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
 				std::string plist;
-				for (int j = 0; j < pcnt; j++)
-					plist.append(std::string(" ")+std::string(parameters[j]));
+				for (int j = 0; j < (int)parameters.size(); j++)
+					plist.append(std::string(" ")+parameters[j]);
 
 				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick,user->ident,user->host,command.c_str(),plist.c_str());
 			}

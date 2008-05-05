@@ -69,7 +69,7 @@ class ModuleSafeList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */ 
-	virtual int OnPreCommand(const std::string &command, const char* const* parameters, int pcnt, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -77,7 +77,7 @@ class ModuleSafeList : public Module
  
 		if (command == "LIST")
 		{
-			return this->HandleList(parameters, pcnt, user);
+			return this->HandleList(parameters, user);
 		}
 		return 0;
 	}
@@ -86,8 +86,9 @@ class ModuleSafeList : public Module
 	 * HandleList()
 	 *   Handle (override) the LIST command.
 	 */
-	int HandleList(const char* const* parameters, int pcnt, User* user)
+	int HandleList(const std::vector<std::string> &parameters, User* user)
 	{
+		int pcnt = parameters.size();
 		int minusers = 0, maxusers = 0;
 
 		if (global_listing >= LimitList && !IS_OPER(user))
@@ -111,15 +112,15 @@ class ModuleSafeList : public Module
 		/* Work around mIRC suckyness. YOU SUCK, KHALED! */
 		if (pcnt == 1)
 		{
-			if (*parameters[0] == '<')
+			if (*parameters[0].c_str() == '<')
 			{
-				maxusers = atoi(parameters[0]+1);
+				maxusers = atoi(parameters[0].c_str()+1);
 				ServerInstance->Logs->Log("m_safelist",DEBUG,"Max users: %d", maxusers);
 				pcnt = 0;
 			}
-			else if (*parameters[0] == '>')
+			else if (*parameters[0].c_str() == '>')
 			{
-				minusers = atoi(parameters[0]+1);
+				minusers = atoi(parameters[0].c_str()+1);
 				ServerInstance->Logs->Log("m_safelist",DEBUG,"Min users: %d", minusers);
 				pcnt = 0;
 			}
