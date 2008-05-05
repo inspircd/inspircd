@@ -60,10 +60,16 @@ class CommandChghost : public Command
 			return CMD_FAILURE;
 		}
 
-		if ((dest->ChangeDisplayedHost(parameters[1].c_str())) && (!ServerInstance->ULine(user->server)))
+		if (IS_LOCAL(dest))
 		{
-			// fix by brain - ulines set hosts silently
-			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
+			if ((dest->ChangeDisplayedHost(parameters[1].c_str())) && (!ServerInstance->ULine(user->server)))
+			{
+				// fix by brain - ulines set hosts silently
+				ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
+			}
+
+			/* ChangeDisplayedHost fixes it for us */
+			return CMD_LOCALONLY;
 		}
 
 		/* route it! */
