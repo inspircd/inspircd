@@ -29,7 +29,7 @@ class CommandTaxonomy : public Command
 		syntax = "<nickname>";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)

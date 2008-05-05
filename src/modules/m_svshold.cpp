@@ -57,7 +57,7 @@ class CommandSvshold : public Command
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -68,9 +68,9 @@ class CommandSvshold : public Command
 			return CMD_FAILURE;
 		}
 
-		if (pcnt == 1)
+		if (parameters.size() == 1)
 		{
-			SVSHoldMap::iterator n = HoldMap.find(parameters[0]);
+			SVSHoldMap::iterator n = HoldMap.find(parameters[0].c_str());
 			if (n != HoldMap.end())
 			{
 				/* form: svshold nickname removes a hold. */
@@ -97,40 +97,40 @@ class CommandSvshold : public Command
 				delete n->second;
 			}
 		}
-		else if (pcnt >= 2)
+		else if (parameters.size() >= 2)
 		{
 			/* full form to add a SVSHold */
-			if (ServerInstance->IsNick(parameters[0]))
+			if (ServerInstance->IsNick(parameters[0].c_str()))
 			{
 				// parameters[0] = w00t
 				// parameters[1] = 1h3m2s
 				// parameters[2] = Registered nickname
 				
 				/* Already exists? */
-				if (HoldMap.find(parameters[0]) != HoldMap.end())
+				if (HoldMap.find(parameters[0].c_str()) != HoldMap.end())
 				{
-					user->WriteServ( "385 %s %s :SVSHOLD already exists", user->nick, parameters[0]);
+					user->WriteServ( "385 %s %s :SVSHOLD already exists", user->nick, parameters[0].c_str());
 					return CMD_FAILURE;
 				}
 
 				unsigned long length = ServerInstance->Duration(parameters[1]);
-				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
+				std::string reason = (parameters.size() > 2) ? parameters[2] : "No reason supplied";
 				
 				SVSHold* S = new SVSHold(parameters[0], user->nick, ServerInstance->Time(), length, reason);
 				SVSHolds.push_back(S);
-				HoldMap[parameters[0]] = S;
+				HoldMap[parameters[0].c_str()] = S;
 
 				std::sort(SVSHolds.begin(), SVSHolds.end(), SVSHoldComp);
 
 				if(length > 0)
 				{
-					user->WriteServ( "385 %s %s :Added %lu second SVSHOLD (%s)", user->nick, parameters[0], length, reason.c_str());
-					ServerInstance->SNO->WriteToSnoMask('A', "%s added %lu second SVSHOLD on %s (%s)", user->nick, length, parameters[0], reason.c_str());
+					user->WriteServ( "385 %s %s :Added %lu second SVSHOLD (%s)", user->nick, parameters[0].c_str(), length, reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('A', "%s added %lu second SVSHOLD on %s (%s)", user->nick, length, parameters[0].c_str(), reason.c_str());
 				}
 				else
 				{
-					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], parameters[0], reason.c_str());
-					ServerInstance->SNO->WriteToSnoMask('A', "%s added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], reason.c_str());
+					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick, parameters[0].c_str(), parameters[0].c_str(), reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('A', "%s added permanent SVSHOLD on %s (%s)", user->nick, parameters[0].c_str(), reason.c_str());
 				}
 			}
 			else

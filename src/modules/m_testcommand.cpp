@@ -26,7 +26,7 @@ class CommandDalinfo : public Command
 		this->source = "m_testcommand.so";
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		user->WriteServ("NOTICE %s :*** DALNet had nothing to do with it.", user->nick);
 		return CMD_FAILURE;

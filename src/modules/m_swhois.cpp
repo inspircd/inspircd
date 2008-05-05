@@ -28,18 +28,18 @@ class CommandSwhois : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char* const* parameters, int pcnt, User* user)
+	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
 		std::string line;
-		for (int i = 1; i < pcnt; i++)
+		for (int i = 1; i < (int)parameters.size(); i++)
 		{
 			if (i != 1)
 				line.append(" ");
@@ -212,7 +212,7 @@ class ModuleSWhois : public Module
 		}
 	}
 	
-	virtual void OnPostCommand(const std::string &command, const char* const* params, int pcnt, User *user, CmdResult result, const std::string &original_line)
+	virtual void OnPostCommand(const std::string &command, const std::vector<std::string> &params, User *user, CmdResult result, const std::string &original_line)
 	{
 		if ((command != "OPER") || (result != CMD_SUCCESS))
 			return;
