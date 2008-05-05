@@ -55,7 +55,7 @@ class CommandTban : public Command
 				}
 				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 				{
-					if (!strcasecmp(i->data,parameters[2]))
+					if (!strcasecmp(i->data,parameters[2].c_str()))
 					{
 						user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
 						return CMD_FAILURE;
@@ -71,13 +71,13 @@ class CommandTban : public Command
 					return CMD_FAILURE;
 				}
 				std::string mask = parameters[2];
-				const char *setban[32];
+				std::vector<std::string> setban;
 				setban[0] = parameters[0];
 				setban[1] = "+b";
 				setban[2] = parameters[2];
 				// use CallCommandHandler to make it so that the user sets the mode
 				// themselves
-				ServerInstance->CallCommandHandler("MODE",setban,3,user);
+				ServerInstance->CallCommandHandler("MODE",setban,user);
 				/* Check if the ban was actually added (e.g. banlist was NOT full) */
 				bool was_added = false;
 				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
@@ -101,7 +101,7 @@ class CommandTban : public Command
 					ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
 			return CMD_FAILURE;
 		}
-		user->WriteNumeric(401, "%s %s :No such channel",user->nick, parameters[0]);
+		user->WriteNumeric(401, "%s %s :No such channel",user->nick, parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 };
@@ -157,12 +157,11 @@ class ModuleTimedBans : public Module
 				Channel* cr = ServerInstance->FindChan(safei->channel);
 				if (cr)
 				{
-					const char *setban[3];
 					std::string mask = safei->mask;
-
-					setban[0] = safei->channel.c_str();
+					std::vector<std::string> setban;
+					setban[0] = safei->channel;
 					setban[1] = "-b";
-					setban[2] = mask.c_str();
+					setban[2] = mask;
 
 					CUList empty;
 					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, safei->mask.c_str());
@@ -171,7 +170,7 @@ class ModuleTimedBans : public Module
 
 					/* Removes the ban item for us, no ::erase() needed */
 					ServerInstance->PI->SendModeStr(safei->channel, std::string("-b ") + setban[2]);
-					ServerInstance->SendMode(setban, 3, ServerInstance->FakeClient);
+					ServerInstance->SendMode(setban, ServerInstance->FakeClient);
 
 					if (ServerInstance->Modes->GetLastParse().empty())
 						TimedBanList.erase(safei);
