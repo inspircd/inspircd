@@ -27,14 +27,14 @@ class CommandKnock : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		Channel* c = ServerInstance->FindChan(parameters[0]);
 		std::string line;
 
 		if (!c)
 		{
-			user->WriteNumeric(401, "%s %s :No such channel",user->nick, parameters[0]);
+			user->WriteNumeric(401, "%s %s :No such channel",user->nick, parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
@@ -56,11 +56,11 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
-		for (int i = 1; i < pcnt - 1; i++)
+		for (int i = 1; i < (int)parameters.size() - 1; i++)
 		{
-			line = line + std::string(parameters[i]) + " ";
+			line = line + parameters[i] + " ";
 		}
-		line = line + std::string(parameters[pcnt-1]);
+		line = line + parameters[parameters.size()-1];
 
 		c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName,  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
 		user->WriteServ("NOTICE %s :KNOCKing on %s",user->nick,c->name);

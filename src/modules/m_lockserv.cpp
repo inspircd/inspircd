@@ -34,7 +34,7 @@ public:
 		syntax.clear();
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		locked = true;
 		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick, user->server);
@@ -57,7 +57,7 @@ public:
 		syntax.clear();
 	}
 
-	CmdResult Handle (const char* const* parameters, int pcnt, User *user)
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		locked = false;
 		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick, user->server);
