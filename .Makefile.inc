@@ -182,7 +182,7 @@ module:
 
 clean:
 	@echo Cleaning...
-	@rm -rvf src/*.so src/*.dylib src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/modules/*/*.o src/modules/*/*.so
+	@rm -rf src/*.so src/*.dylib src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/modules/*/*.o src/modules/*/*.so
 	@echo Completed.
 
 modclean:
