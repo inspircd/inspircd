@@ -201,17 +201,20 @@ public:
 		OnRehash(NULL, "");
 		mycommand = new CommandAccept(ServerInstance, maxaccepts);
 		myumode = new User_g(ServerInstance);
-		try {
+		try
+		{
 			ServerInstance->AddCommand(mycommand);
-		} catch (const ModuleException& e) {
+		}
+		catch (const ModuleException& e)
+		{
 			delete mycommand;
-			throw;
+			throw ModuleException("Could not add command!");
 		}
 		if (!ServerInstance->Modes->AddMode(myumode))
 		{
 			delete mycommand;
 			delete myumode;
-			throw new ModuleException("Could not add usermode and command!");
+			throw ModuleException("Could not add usermode +g");
 		}
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
@@ -219,6 +222,7 @@ public:
 
 	~ModuleCallerID()
 	{
+		ServerInstance->Modes->DelMode(myumode);
 		delete myumode;
 	}
 
