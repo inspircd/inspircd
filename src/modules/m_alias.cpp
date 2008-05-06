@@ -74,8 +74,6 @@ class ModuleAlias : public Module
 		: Module(Me)
 	{
 		ReadAliases();
-		pars.resize(MAXPARAMETERS);
-
 		Me->Modules->Attach(I_OnPreCommand, this);
 		Me->Modules->Attach(I_OnRehash, this);
 
@@ -247,7 +245,9 @@ class ModuleAlias : public Module
 		SearchAndReplace(newline, "\r", "$");
 
 		irc::tokenstream ss(newline);
+		pars.clear();
 		std::string command, token;
+
 		ss.GetToken(command);
 		while (ss.GetToken(token) && (pars.size() <= MAXPARAMETERS))
 		{
