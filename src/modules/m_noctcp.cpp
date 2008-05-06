@@ -16,7 +16,7 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +c */
+/* $ModDesc: Provides support for unreal-style channel mode +C */
 
 class NoCTCP : public ModeHandler
 {
