@@ -88,7 +88,7 @@ module:
 
 clean:
 	@echo Cleaning...
-	@rm -rvf src/*.so src/*.dylib src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/commands/*.so src/commands/*.o src/modules/*/*.o src/modules/*/*.so src/socketengines/*.o
+	@rm -rf src/*.so src/*.dylib src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/commands/*.so src/commands/*.o src/modules/*/*.o src/modules/*/*.so src/socketengines/*.o
 	@echo Completed.
 
 modclean:
