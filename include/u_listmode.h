@@ -87,10 +87,10 @@ class ListModeBase : public ModeHandler
 	std::string infokey;
 	/** Numeric to use when outputting the list
 	 */
-	std::string listnumeric;
+	unsigned int listnumeric;
 	/** Numeric to indicate end of list
 	 */
-	std::string endoflistnumeric;
+	unsigned int endoflistnumeric;
 	/** String to send for end of list
 	 */
 	std::string endofliststring;
@@ -115,7 +115,7 @@ class ListModeBase : public ModeHandler
 	 * @param autotidy Automatically tidy list entries on add
 	 * @param ctag Configuration tag to get limits from
 	 */
-	ListModeBase(InspIRCd* Instance, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, bool autotidy, const std::string &ctag = "banlist")
+	ListModeBase(InspIRCd* Instance, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
  	: ModeHandler(Instance, modechar, 1, 1, true, MODETYPE_CHANNEL, false), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
 	{
 		this->DoRehash();
@@ -153,15 +153,15 @@ class ListModeBase : public ModeHandler
 		{
 			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 			{
-				user->WriteServ("%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
+				user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
 			}
 		}
-		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
+		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick, channel->name, endofliststring.c_str());
 	}
 
 	virtual void DisplayEmptyList(User* user, Channel* channel)
 	{
-		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
+		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick, channel->name, endofliststring.c_str());
 	}
 
 	/** Remove all instances of the mode from a channel.

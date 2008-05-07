@@ -32,7 +32,7 @@
 class BanException : public ListModeBase
 {
  public:
-	BanException(InspIRCd* Instance) : ListModeBase(Instance, 'e', "End of Channel Exception List", "348", "349", true) { }
+	BanException(InspIRCd* Instance) : ListModeBase(Instance, 'e', "End of Channel Exception List", 348, 349, true) { }
 };
 
 
