@@ -36,6 +36,27 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
+	if (((!ServerInstance->IsNick(parameters[0].c_str()))) && (IS_LOCAL(user)))
+	{
+		if (!allowinvalid)
+		{
+			if (parameters[0] == "0")
+			{
+				// Special case, Fake a /nick UIDHERE. Useful for evading "ERR: NICK IN USE" on connect etc.
+				std::vector<std::string> p2;
+				std::deque<classbase*> dummy;
+				p2.push_back(user->uuid);
+				this->HandleInternal(1, dummy);
+				this->Handle(p2, user);
+				this->HandleInternal(0, dummy);
+				return CMD_SUCCESS;
+			}
+
+			user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick,parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+	}
+
 	if (irc::string(user->nick) == assign(parameters[0]))
 	{
 		/* If its exactly the same, even case, dont do anything. */
@@ -89,7 +110,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 * because the nick is already (rightfully) in use. -- w00t
 		 */
 		User* InUse = ServerInstance->FindNickOnly(parameters[0]);
-		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0].c_str()) || allowinvalid)))
+		if (InUse && (InUse != user))
 		{
 			if (InUse->registered != REG_ALL)
 			{
@@ -109,14 +130,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 			}
 		}
 	}
-	if (((!ServerInstance->IsNick(parameters[0].c_str()))) && (IS_LOCAL(user)))
-	{
-		if (!allowinvalid)
-		{
-			user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick,parameters[0].c_str());
-			return CMD_FAILURE;
-		}
-	}
+
 
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user, parameters[0]));
