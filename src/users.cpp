@@ -507,42 +507,74 @@ bool User::HasPermission(const std::string &command)
 	return false;
 }
 
-/** NOTE: We cannot pass a const reference to this method.
- * The string is changed by the workings of the method,
- * so that if we pass const ref, we end up copying it to
- * something we can change anyway. Makes sense to just let
- * the compiler do that copy for us.
- */
-bool User::AddBuffer(std::string a)
+bool User::AddBuffer(const std::string &a)
 {
-	try
-	{
-		std::string::size_type i = a.rfind('\r');
+	std::string::size_type start = 0;
+	std::string::size_type i = a.find('\r');
 
+	/*
+	 * The old implementation here took a copy, and rfind() on \r, removing as it found them, before
+	 * copying a second time onto the recvq. That's ok, but involves three copies minimum (recv() to buffer,
+	 * buffer to here, here to recvq) - The new method now copies twice (recv() to buffer, buffer to recvq).
+	 *
+	 * We use find() instead of rfind() for clarity, however unlike the old code, our scanning of the string is
+	 * contiguous: as we specify a startpoint, we never see characters we have scanned previously, making this
+	 * marginally faster in cases with a number of \r hidden early on in the buffer.
+	 *
+	 * How it works:
+	 * Start at first pos of string, find first \r, append everything in the chunk (excluding \r) to recvq. Set
+	 * i ahead of the \r, search for next \r, add next chunk to buffer... repeat.
+	 *		-- w00t (7 may, 2008)
+	 */
+	if (i == std::string::npos)
+	{
+		// no \r that we need to dance around, just add to buffer
+		recvq.append(a);
+	}
+	else
+	{
+		ServerInstance->Logs->Log("recvqdebug", DEBUG, "Current recvq size is %d and I got called with a string of %d\n(%s)", recvq.length(), a.length(), a.c_str());
+
+		// While we can find the end of a chunk to add
 		while (i != std::string::npos)
 		{
-			a.erase(i, 1);
-			i = a.rfind('\r');
+			// Append the chunk that we have
+			recvq.append(a, start, (i - start));
+			ServerInstance->Logs->Log("recvqdebug", DEBUG, "Appended a chunk, length is now %d", recvq.length());
+
+			// Start looking for the next one
+			start = i + 1;
+			i = a.find('\r', start);
 		}
 
-		if (a.length())
-			recvq.append(a);
-
-		if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
+		if (start != a.length())
 		{
-			this->SetWriteError("RecvQ exceeded");
-			ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick,(unsigned long int)recvq.length(),this->MyClass->GetRecvqMax());
-			return false;
+			/*
+			 * This is here to catch a corner case when we get something like:
+			 * NICK w0
+			 * 0t\r\nU
+			 * SER ...
+			 * in successive calls to us.
+			 *
+			 * Without this conditional, the 'U' on the second case will be dropped,
+			 * which is most *certainly* not the behaviour we want!
+			 *		-- w00t
+			 */
+			ServerInstance->Logs->Log("recvqdebug", DEBUG, "*** ALERT *** start != a.length, we should probably add more");
+			recvq.append(a, start, (a.length() - start));
 		}
 
-		return true;
+		ServerInstance->Logs->Log("recvqdebug", DEBUG, "Final recvq length is %d\n(%s)", recvq.length(), recvq.c_str());
 	}
 
-	catch (...)
+	if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
 	{
-		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::AddBuffer()");
+		this->SetWriteError("RecvQ exceeded");
+		ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick,(unsigned long int)recvq.length(),this->MyClass->GetRecvqMax());
 		return false;
 	}
+
+	return true;
 }
 
 bool User::BufferIsReady()

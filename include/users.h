@@ -807,7 +807,7 @@ class CoreExport User : public connection
 	 * @param a The string to add to the users read buffer
 	 * @return True if the string was successfully added to the read buffer
 	 */
-	bool AddBuffer(std::string a);
+	bool AddBuffer(const std::string &a);
 
 	/** This method returns true if the buffer contains at least one carriage return
 	 * character (e.g. one complete line may be read)
