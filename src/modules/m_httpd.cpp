@@ -33,28 +33,6 @@ enum HttpState
 	HTTP_SERVE_SEND_DATA = 3
 };
 
-class HttpServerSocket;
-
-/** This class is used to handle HTTP socket timeouts
- */
-class HttpServerTimeout : public InspTimer
-{
- private:
-	/** HttpServerSocket we are attached to
-	 */
-	HttpServerSocket* s;
-	/** Socketengine the file descriptor is in
-	 */
-	SocketEngine* SE;
- public:
-	/** Attach timeout to HttpServerSocket
-	 */
-	HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine);
-	/** Handle timer tick
-	 */
-	void Tick(time_t TIME);
-};
-
 /** A socket used for HTTP transport
  */
 class HttpServerSocket : public InspSocket
@@ -67,22 +45,17 @@ class HttpServerSocket : public InspSocket
 	std::string uri;
 	std::string http_version;
 	unsigned int postsize;
-	HttpServerTimeout* Timeout;
-	friend class HttpServerTimeout;
 	
  public:
 
 	HttpServerSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
 	{
 		InternalState = HTTP_LISTEN;
-		Timeout = NULL;
 	}
 
 	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
-		Timeout = new HttpServerTimeout(this, Instance->SE);
-		Instance->Timers->AddTimer(Timeout);
 	}
 
 	FileReader* GetIndex()
@@ -92,12 +65,6 @@ class HttpServerSocket : public InspSocket
 
 	~HttpServerSocket()
 	{
-		if (Timeout)
-		{
-			if (Instance->Time() < Timeout->GetTimer())
-				Instance->Timers->DelTimer(Timeout);
-			Timeout = NULL;
-		}
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
@@ -261,8 +228,6 @@ class HttpServerSocket : public InspSocket
 					{
 						InternalState = HTTP_SERVE_SEND_DATA;
 						SendHeaders(0, 400, "");
-						Timeout = new HttpServerTimeout(this, Instance->SE);
-						Instance->Timers->AddTimer(Timeout);
 					}
 					else
 					{
@@ -298,9 +263,6 @@ class HttpServerSocket : public InspSocket
 	{
 		/* Headers are complete */
 		InternalState = HTTP_SERVE_SEND_DATA;
-
-		Instance->Timers->DelTimer(Timeout);
-		Timeout = NULL;
 	
 		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 		{
@@ -325,8 +287,6 @@ class HttpServerSocket : public InspSocket
 				}
 			}
 		}
-		Timeout = new HttpServerTimeout(this, Instance->SE);
-		Instance->Timers->AddTimer(Timeout);
 	}
 
 	void Page(std::stringstream* n, int response, std::string& extraheaders)
@@ -335,17 +295,6 @@ class HttpServerSocket : public InspSocket
 		this->Write(n->str());
 	}
 };
-
-HttpServerTimeout::HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine) : InspTimer(60, time(NULL)), s(sock), SE(engine)
-{
-}
-
-void HttpServerTimeout::Tick(time_t TIME)
-{
-	SE->DelFd(s);
-	s->Close();
-	s->Timeout = NULL;
-}
 
 class ModuleHttpServer : public Module
 {
