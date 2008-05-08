@@ -228,6 +228,7 @@ class HttpServerSocket : public InspSocket
 					{
 						InternalState = HTTP_SERVE_SEND_DATA;
 						SendHeaders(0, 400, "");
+						Instance->SE->WantWrite(this);
 					}
 					else
 					{
@@ -267,6 +268,7 @@ class HttpServerSocket : public InspSocket
 		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 		{
 			SendHeaders(0, 505, "");
+			Instance->SE->WantWrite(this);
 		}
 		else
 		{
@@ -274,6 +276,7 @@ class HttpServerSocket : public InspSocket
 			{
 				SendHeaders(index->ContentSize(), 200, "");
 				this->Write(index->Contents());
+				Instance->SE->WantWrite(this);
 			}
 			else
 			{
@@ -284,6 +287,7 @@ class HttpServerSocket : public InspSocket
 				if (!claimed)
 				{
 					SendHeaders(0, 404, "");
+					Instance->SE->WantWrite(this);
 				}
 			}
 		}
@@ -293,6 +297,12 @@ class HttpServerSocket : public InspSocket
 	{
 		SendHeaders(n->str().length(), response, extraheaders);
 		this->Write(n->str());
+		Instance->SE->WantWrite(this);
+	}
+
+	bool OnWriteReady()
+	{
+		return false;
 	}
 };
 
