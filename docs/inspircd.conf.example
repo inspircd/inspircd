@@ -1550,6 +1550,19 @@
 #<module name="m_cycle.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Connectban: Provides per-IP connection throttling. Any IP that disconnects
+# too many times (configurable) in an hour is zlined for a (configurable)
+# duration, and their count resets to 0.
+#
+# NOTE: This module may change name/behaviour later in 1.2. Please make sure
+# you read release announcements!
+#
+#<connectban threshold="10" duration="10m">
+# This allows for 10 quits in an hour with a 10 minute ban if that is exceeded.
+#
+#<module name="m_connectbanban.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connection throttle module. Configuration:
 #<module name="m_connflood.so">
 #
@@ -2043,19 +2056,6 @@
 # a mask like +b q:nick!user@host from speaking on channel.
 #<module name="m_quietban.so">
 #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Quitban: Provides per-IP connection throttling. Any IP that disconnects
-# too many times (configurable) in an hour is zlined for a (configurable)
-# duration, and their count resets to 0.
-#
-# NOTE: This module may change name/behaviour later in 1.2. Please make sure
-# you read release announcements!
-#
-#<quitban threshold="10" duration="10m">
-# This allows for 10 quits in an hour with a 10 minute ban if that is exceeded.
-#
-#<module name="m_quitban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect.
