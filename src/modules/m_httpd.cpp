@@ -32,28 +32,6 @@ enum HttpState
 	HTTP_SERVE_SEND_DATA = 3 /* Sending response */
 };
 
-class HttpServerSocket;
-
-/** This class is used to handle HTTP socket timeouts
- */
-class HttpServerTimeout : public Timer
-{
- private:
-	/** HttpServerSocket we are attached to
-	 */
-	HttpServerSocket* s;
-	/** Socketengine the file descriptor is in
-	 */
-	SocketEngine* SE;
- public:
-	/** Attach timeout to HttpServerSocket
-	 */
-	HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine);
-	/** Handle timer tick
-	 */
-	void Tick(time_t TIME);
-};
-
 /** A socket used for HTTP transport
  */
 class HttpServerSocket : public BufferedSocket
@@ -70,23 +48,16 @@ class HttpServerSocket : public BufferedSocket
 	std::string http_version;
 	bool keepalive;
 	
-	HttpServerTimeout* Timeout;
-	bool DataSinceLastTick;
-	friend class HttpServerTimeout;
-	
  public:
 
 	HttpServerSocket(InspIRCd* SI, std::string shost, int iport, bool listening, unsigned long maxtime, FileReader* index_page) : BufferedSocket(SI, shost, iport, listening, maxtime), index(index_page), postsize(0)
 	{
 		InternalState = HTTP_LISTEN;
-		Timeout = NULL;
 	}
 
-	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0), keepalive(false), DataSinceLastTick(false)
+	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0), keepalive(false)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
-		Timeout = new HttpServerTimeout(this, Instance->SE);
-		Instance->Timers->AddTimer(Timeout);
 	}
 
 	FileReader* GetIndex()
@@ -96,26 +67,6 @@ class HttpServerSocket : public BufferedSocket
 
 	~HttpServerSocket()
 	{
-		if (Timeout)
-		{
-			if (Instance->Time() < Timeout->GetTimer())
-				Instance->Timers->DelTimer(Timeout);
-			Timeout = NULL;
-		}
-	}
-	
-	void ResetRequest()
-	{
-		headers.Clear();
-		postdata.clear();
-		postsize = 0;
-		request_type.clear();
-		uri.clear();
-		http_version.clear();
-		InternalState = HTTP_SERVE_WAIT_REQUEST;
-		
-		if (reqbuffer.size())
-			CheckRequestBuffer();
 	}
 	
 	virtual int OnIncomingConnection(int newsock, char* ip)
@@ -230,9 +181,6 @@ class HttpServerSocket : public BufferedSocket
 		
 		SendHeaders(data.length(), response, empty);
 		this->Write(data);
-		
-		if (keepalive)
-			ResetRequest();
 	}
 	
 	void SendHeaders(unsigned long size, int response, HTTPHeaders &rheaders)
@@ -254,18 +202,13 @@ class HttpServerSocket : public BufferedSocket
 		else
 			rheaders.RemoveHeader("Content-Type");
 		
-		if (rheaders.GetHeader("Connection") == "Close")
-			keepalive = false;
-		else if (rheaders.GetHeader("Connection") == "Keep-Alive" && !headers.IsSet("Connection"))
-			keepalive = true;
-		else if (!rheaders.IsSet("Connection") && !keepalive)
-			rheaders.SetHeader("Connection", "Close");
+		/* Supporting Connection: keep-alive causes a whole world of hurt syncronizing timeouts,
+		 * so remove it, its not essential for what we need.
+		 */
+		rheaders.SetHeader("Connection", "Close");
 		
 		this->Write(rheaders.GetFormattedHeaders());
 		this->Write("\r\n");
-		
-		if (!size && keepalive)
-			ResetRequest();
 	}
 
 	virtual bool OnDataReady()
@@ -275,8 +218,6 @@ class HttpServerSocket : public BufferedSocket
 		/* Check that the data read is a valid pointer and it has some content */
 		if (!data || !*data)
 			return false;
-		
-		DataSinceLastTick = true;
 		
 		if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 		{
@@ -411,33 +352,10 @@ class HttpServerSocket : public BufferedSocket
 	{
 		SendHeaders(n->str().length(), response, *hheaders);
 		this->Write(n->str());
-		
-		if (!keepalive)
-		{
-			Instance->SE->DelFd(this);
-			this->Close();
-		}
-		else
-			this->ResetRequest();
+		Instance->SE->DelFd(this);
+		this->Close();
 	}
 };
-
-HttpServerTimeout::HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine) : Timer(15, time(NULL), true), s(sock), SE(engine)
-{
-}
-
-void HttpServerTimeout::Tick(time_t TIME)
-{
-	if (!s->DataSinceLastTick)
-	{
-		SE->DelFd(s);
-		s->Close();
-		s->Timeout = NULL;
-		this->CancelRepeat();
-	}
-	else
-		s->DataSinceLastTick = false;
-}
 
 class ModuleHttpServer : public Module
 {
