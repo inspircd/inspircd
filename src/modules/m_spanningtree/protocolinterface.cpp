@@ -5,6 +5,22 @@
 #include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/protocolinterface.h"
 
+void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
+{
+	sl.clear();
+	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
+	{
+		ProtoServer ps;
+		ps.servername = i->second->GetName();
+		TreeServer* s = i->second->GetParent();
+		ps.parentname = s ? s->GetName() : ServerInstance->Config->ServerName;
+		ps.usercount = i->second->GetUserCount();
+		ps.opercount = i->second->GetOperCount();
+		ps.latencyms = i->second->rtt;
+		sl.push_back(ps);
+	}
+}
+
 void SpanningTreeProtocolInterface::SendEncapsulatedData(parameterlist &encap)
 {
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);

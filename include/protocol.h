@@ -20,6 +20,18 @@ class InspIRCd;
 
 typedef std::deque<std::string> parameterlist;
 
+class ProtoServer
+{
+ public:
+	std::string servername;
+	std::string parentname;
+	unsigned int usercount;
+	unsigned int opercount;
+	unsigned int latencyms;
+};
+
+typedef std::list<ProtoServer> ProtoServerList;
+
 class ProtocolInterface : public Extensible
 {
  protected:
@@ -60,6 +72,8 @@ class ProtocolInterface : public Extensible
 	virtual void SendUserPrivmsg(User* target, const std::string &text) { }
 
 	virtual void SendUserNotice(User* target, const std::string &text) { }
+
+	virtual void GetServerList(ProtoServerList &sl) { }
 };
 
 #endif

@@ -4,7 +4,6 @@
 class SpanningTreeUtilities;
 class ModuleSpanningTree;
 
-
 class SpanningTreeProtocolInterface : public ProtocolInterface
 {
 	SpanningTreeUtilities* Utils;
@@ -25,6 +24,8 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 	virtual void SendChannelNotice(Channel* target, char status, const std::string &text);
 	virtual void SendUserPrivmsg(User* target, const std::string &text);
 	virtual void SendUserNotice(User* target, const std::string &text);
+	virtual void GetServerList(ProtoServerList &sl);
 };
 
 #endif
+

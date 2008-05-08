@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "httpd.h"
+#include "protocol.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
 /* $ModDep: httpd.h */
@@ -25,8 +26,6 @@ typedef SortedList::iterator SortedIter;
 
 static StatsHash* sh = new StatsHash();
 static SortedList* so = new SortedList();
-
-static StatsHash* Servers = new StatsHash();
 
 class ModuleHttpStats : public Module
 {
@@ -73,18 +72,6 @@ class ModuleHttpStats : public Module
 		so->clear();
 		for (StatsIter a = sh->begin(); a != sh->end(); a++)
 			InsertOrder(a->first, a->second);
-		for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
-		{
-			StatsHash::iterator n = Servers->find(u->second->server);
-			if (n != Servers->end())
-			{
-				n->second++;
-			}
-			else
-			{
-				Servers->insert(std::make_pair<irc::string,int>(u->second->server,1));
-			}
-		}
 		this->changed = false;
 	}
 
@@ -156,11 +143,17 @@ class ModuleHttpStats : public Module
 
 				data << "<serverlist>";
 				
-				for (StatsHash::iterator b = Servers->begin(); b != Servers->end(); b++)
+				ProtoServerList sl;
+				ServerInstance->PI->GetServerList(sl);
+
+				for (ProtoServerList::iterator b = sl.begin(); b != sl.end(); ++b)
 				{
 					data << "<server>";
-					data << "<servername>" << b->first << "</servername>";
-					data << "<usercount>" << b->second << "</usercount>";
+					data << "<servername>" << b->servername << "</servername>";
+					data << "<parentname>" << b->parentname << "</parentname>";
+					data << "<usercount>" << b->usercount << "</usercount>";
+					data << "<opercount>" << b->opercount << "</opercount>";
+					data << "<lagmillisecs>" << b->latencyms << "</lagmillisecs>";
 					data << "</server>";
 				}
 				data << "</serverlist>";
