@@ -69,19 +69,21 @@ public:
 			
 			if (list)
 			{
-				char mask[MAXBUF];
-				snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
-				for (modelist::iterator it = list->begin(); it != list->end(); it++)
-				{
-					if (match(user->GetFullRealHost(), it->mask.c_str()) || match(user->GetFullHost(), it->mask.c_str()) || (match(mask, it->mask.c_str(), true)))
-					{
-						// They match an entry on the list, so let them in.
-						return 1;
-					}
-				}
+				// No list, so let them in anyway.
 				return 0;
 			}
-			// or if there wasn't a list, there can't be anyone on it, so we don't need to do anything.
+
+			char mask[MAXBUF];
+			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
+
+			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			{
+				if (match(user->GetFullRealHost(), it->mask.c_str()) || match(user->GetFullHost(), it->mask.c_str()) || (match(mask, it->mask.c_str(), true)))
+				{
+					// They match an entry on the list, so let them in.
+					return 1;
+				}
+			}
 		}
 		return 0;	
 	}
