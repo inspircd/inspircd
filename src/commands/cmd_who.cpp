@@ -209,7 +209,10 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		}
 	}
 
-	if (parameters.size() > 1)
+	if (ServerInstance->FindServerName(matchtext))
+		usingwildcards = true;
+
+	if (!parameters.empty())
 	{
 		/* parse flags */
 		const char *iter = parameters[1].c_str();
