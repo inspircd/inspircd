@@ -212,6 +212,9 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 
+	if (ServerInstance->FindServerName(matchtext))
+		usingwildcards = true;
+
 	if (pcnt > 1)
 	{
 		/* parse flags */
