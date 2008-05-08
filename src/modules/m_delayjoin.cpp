@@ -36,9 +36,9 @@ class DelayJoinMode : public ModeHandler
 			{
 				if (channel->IsModeSet('D'))
 				{
-					/* Make all delayed join users visible, or if an op removes +D
-					 * while users exist that havent spoken, they remain permenantly
-					 * invisible on this channel!
+					/*
+					 * Make all users visible, as +D is being removed. If we don't do this,
+					 * they remain permanently invisible on this channel!
 					 */
 					CUList* names = channel->GetUsers();
 					for (CUListIter n = names->begin(); n != names->end(); ++n)
