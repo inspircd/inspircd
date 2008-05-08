@@ -192,6 +192,7 @@ class ModuleDelayJoin : public Module
 		user->Shrink("delayjoin");
 	}
 
+	// .. is there a real need to duplicate WriteCommonExcept?
 	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5)
 	{
 		va_list argsPtr;
