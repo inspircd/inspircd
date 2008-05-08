@@ -46,7 +46,6 @@ class HttpServerSocket : public BufferedSocket
 	std::string request_type;
 	std::string uri;
 	std::string http_version;
-	bool keepalive;
 	
  public:
 
@@ -55,7 +54,7 @@ class HttpServerSocket : public BufferedSocket
 		InternalState = HTTP_LISTEN;
 	}
 
-	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0), keepalive(false)
+	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 	}
@@ -266,6 +265,7 @@ class HttpServerSocket : public BufferedSocket
 				if (request_type.empty() || uri.empty() || http_version.empty())
 				{
 					SendHTTPError(400);
+					Instance->SE->WantWrite(this);
 					return;
 				}
 				
@@ -279,6 +279,7 @@ class HttpServerSocket : public BufferedSocket
 			if ((fieldsep == std::string::npos) || (fieldsep == 0) || (fieldsep == cheader.length() - 1))
 			{
 				SendHTTPError(400);
+				Instance->SE->WantWrite(this);
 				return;
 			}
 			
@@ -295,12 +296,10 @@ class HttpServerSocket : public BufferedSocket
 		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 		{
 			SendHTTPError(505);
+			Instance->SE->WantWrite(this);
 			return;
 		}
-		
-		if (strcasecmp(headers.GetHeader("Connection").c_str(), "keep-alive") == 0)
-			keepalive = true;
-		
+	
 		if (headers.IsSet("Content-Length") && (postsize = atoi(headers.GetHeader("Content-Length").c_str())) != 0)
 		{
 			InternalState = HTTP_SERVE_RECV_POSTDATA;
@@ -334,6 +333,7 @@ class HttpServerSocket : public BufferedSocket
 			HTTPHeaders empty;
 			SendHeaders(index->ContentSize(), 200, empty);
 			this->Write(index->Contents());
+			Instance->SE->WantWrite(this);
 		}
 		else
 		{
@@ -344,16 +344,22 @@ class HttpServerSocket : public BufferedSocket
 			if (!claimed)
 			{
 				SendHTTPError(404);
+				Instance->SE->WantWrite(this);
 			}
 		}
+	}
+
+
+	bool OnWriteReady()
+	{
+		return false;
 	}
 
 	void Page(std::stringstream* n, int response, HTTPHeaders *hheaders)
 	{
 		SendHeaders(n->str().length(), response, *hheaders);
 		this->Write(n->str());
-		Instance->SE->DelFd(this);
-		this->Close();
+		Instance->SE->WantWrite(this);
 	}
 };
 
