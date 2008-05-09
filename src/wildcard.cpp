@@ -19,42 +19,41 @@
 
 using irc::sockets::MatchCIDR;
 
-// Wed 27 Apr 2005 - Brain
-// I've taken our our old wildcard routine -
-// although comprehensive, it was topheavy and very
-// slow, and ate masses of cpu when doing lots of
-// comparisons. This is the 'de-facto' routine used
-// by many, nobody really knows who wrote it first
-// or what license its under, i've seen examples of it
-// (unattributed to any author) all over the 'net.
-// For now, we'll just consider this public domain.
+/* Rewritten to operate on more effective C++ std::string types
+ * rather than char* to avoid data copies.
+ * - Brain
+ */
 
-CoreExport bool csmatch(const char *str, const char *mask)
+CoreExport bool csmatch(const std::string &str, const std::string &mask)
 {
-	unsigned char *cp = NULL, *mp = NULL;
-	unsigned char* string = (unsigned char*)str;
-	unsigned char* wild = (unsigned char*)mask;
+	std::string::const_iterator cp, mp;
 
-	while ((*string) && (*wild != '*'))
+	//unsigned char *cp = NULL, *mp = NULL;
+	//unsigned char* string = (unsigned char*)str;
+	//unsigned char* wild = (unsigned char*)mask;
+
+	std::string::const_iterator wild = mask.begin();
+	std::string::const_iterator string = str.begin();
+
+	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
 	{
 		if ((*wild != *string) && (*wild != '?'))
-		{
 			return 0;
-		}
+
 		wild++;
 		string++;
 	}
 
-	while (*string)
+	while (string != str.end())
 	{
 		if (*wild == '*')
 		{
-			if (!*++wild)
-			{
+			if (++wild == mask.end())
 				return 1;
-			}
+
 			mp = wild;
-			cp = string+1;
+			cp = string;
+			cp++;
 		}
 		else
 		if ((*wild == *string) || (*wild == '?'))
@@ -70,43 +69,40 @@ CoreExport bool csmatch(const char *str, const char *mask)
 
 	}
 
-	while (*wild == '*')
-	{
+	while ((wild != mask.end()) && (*wild == '*'))
 		wild++;
-	}
 
-	return !*wild;
+	return wild == mask.end();
 }
 
-CoreExport bool match(const char *str, const char *mask)
+CoreExport bool match(const std::string &str, const std::string &mask)
 {
-	unsigned char *cp = NULL, *mp = NULL;
-	unsigned char* string = (unsigned char*)str;
-	unsigned char* wild = (unsigned char*)mask;
+	std::string::const_iterator cp, mp;
+	std::string::const_iterator wild = mask.begin();
+	std::string::const_iterator string = str.begin();
 
-	while ((*string) && (*wild != '*'))
+	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
 	{
-		if ((lowermap[*wild] != lowermap[*string]) && (*wild != '?'))
-		{
+		if ((lowermap[(unsigned char)*wild] != lowermap[(unsigned char)*string]) && (*wild != '?'))
 			return 0;
-		}
+
 		wild++;
 		string++;
 	}
 
-	while (*string)
+	while (string != str.end())
 	{
 		if (*wild == '*')
 		{
-			if (!*++wild)
-			{
+			if (++wild == mask.end())
 				return 1;
-			}
+
 			mp = wild;
-			cp = string+1;
+			cp = string;
+			cp++;
 		}
 		else
-		if ((lowermap[*wild] == lowermap[*string]) || (*wild == '?'))
+		if ((lowermap[(unsigned char)*wild] == lowermap[(unsigned char)*string]) || (*wild == '?'))
 		{
 			wild++;
 			string++;
@@ -119,23 +115,21 @@ CoreExport bool match(const char *str, const char *mask)
 
 	}
 
-	while (*wild == '*')
-	{
+	while ((wild != mask.end()) && (*wild == '*'))
 		wild++;
-	}
 
-	return !*wild;
+	return wild == mask.end();
 }
 
 /* Overloaded function that has the option of using cidr */
-CoreExport bool match(const char *str, const char *mask, bool use_cidr_match)
+CoreExport bool match(const std::string &str, const std::string &mask, bool use_cidr_match)
 {
 	if (use_cidr_match && MatchCIDR(str, mask, true))
 		return true;
 	return match(str, mask);
 }
 
-CoreExport bool match(bool case_sensitive, const char *str, const char *mask, bool use_cidr_match)
+CoreExport bool match(bool case_sensitive, const std::string &str, const std::string &mask, bool use_cidr_match)
 {
 	if (use_cidr_match && MatchCIDR(str, mask, true))
 		return true;
@@ -143,7 +137,7 @@ CoreExport bool match(bool case_sensitive, const char *str, const char *mask, bo
 	return case_sensitive ? csmatch(str, mask) : match(str, mask);
 }
 
-CoreExport bool match(bool case_sensitive, const char *str, const char *mask)
+CoreExport bool match(bool case_sensitive, const std::string &str, const std::string &mask)
 {
 	return case_sensitive ? csmatch(str, mask) : match(str, mask);
 }

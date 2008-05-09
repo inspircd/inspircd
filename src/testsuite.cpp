@@ -16,6 +16,7 @@
 #include "inspircd.h"
 #include "testsuite.h"
 #include "threadengine.h"
+#include "wildcard.h"
 #include <iostream>
 
 using namespace std;
@@ -46,9 +47,7 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 	cout << "\n\n*** STARTING TESTSUITE ***\n";
 
 	std::string modname;
-	std::string choice;
-
-	ServerInstance->SE->Blocking(fileno(stdin));
+	char choice;
 
 	while (1)
 	{
@@ -56,13 +55,17 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 		cout << "(2) Load a module\n";
 		cout << "(3) Unload a module\n";
 		cout << "(4) Threading tests\n";
+		cout << "(5) Wildcard and CIDR tests\n";
 
 		cout << endl << "(X) Exit test suite\n";
 
 		cout << "\nChoice: ";
 		cin >> choice;
 
-		switch (*choice.begin())
+		if (!choice)
+			continue;
+
+		switch (choice)
 		{
 			case '1':
 				FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
@@ -80,6 +83,9 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 			case '4':
 				cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 			break;
+			case '5':
+				cout << (DoWildTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+			break;
 			case 'X':
 				return;
 			break;
@@ -89,6 +95,40 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 		}
 		cout << endl;
 	}
+}
+
+/* Test that x matches y with match() */
+#define WCTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\") " << ((passed = (match(x, y) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+/* Test that x does not match y with match() */
+#define WCTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\") " << ((passed = ((!match(x, y)) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+
+/* Test that x matches y with match() and cidr enabled */
+#define CIDRTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\", true) " << ((passed = (match(x, y, true) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+/* Test that x does not match y with match() and cidr enabled */
+#define CIDRTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\", true) " << ((passed = ((!match(x, y, true)) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+
+bool TestSuite::DoWildTests()
+{
+	cout << "\n\nWildcard and CIDR tests\n\n";
+	bool passed = false;
+
+	WCTEST("foobar", "*");
+	WCTEST("foobar", "foo*");
+	WCTEST("foobar", "*bar");
+	WCTEST("foobar", "foo??r");
+
+	WCTESTNOT("foobar", "bazqux");
+	WCTESTNOT("foobar", "*qux");
+	WCTESTNOT("foobar", "foo*x");
+	WCTESTNOT("foobar", "baz*");
+
+	CIDRTEST("brain@1.2.3.4", "*@1.2.0.0/16");
+	CIDRTEST("brain@1.2.3.4", "*@1.2.3.0/24");
+
+	CIDRTESTNOT("brain@1.2.3.4", "x*@1.2.0.0/16");
+	CIDRTESTNOT("brain@1.2.3.4", "*@1.3.4.0/24");
+
+	return passed;
 }
 
 bool TestSuite::DoThreadTests()

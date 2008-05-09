@@ -705,7 +705,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		 * e.g. we are restarting, or being launched by cron. Dont kill parent, and dont
 		 * close stdin/stdout
 		 */
-		if (!do_nofork)
+		if ((!do_nofork) && (!do_testsuite))
 		{
 			fclose(stdin);
 			fclose(stderr);

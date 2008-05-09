@@ -81,7 +81,7 @@ namespace irc
 		 * @returns True if the first mask_bits of address matches the first
 		 * mask_bits of mask.
 		 */
-		CoreExport bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits);
+		CoreExport bool MatchCIDRBits(const unsigned char* address, const unsigned char* mask, unsigned int mask_bits);
 
 		/** Match CIDR, without matching username/nickname parts.
 		 *
@@ -92,7 +92,7 @@ namespace irc
 		 * @param cidr_mask The human readable mask, e.g. 1.2.0.0/16
 		 * @return True if the mask matches the address
 		 */
-		CoreExport bool MatchCIDR(const char* address, const char* cidr_mask);
+		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask);
 
 		/** Match CIDR, including an optional username/nickname part.
 		 *
@@ -105,7 +105,7 @@ namespace irc
 		 * @param cidr_mask The human readable mask, e.g. *\@1.2.0.0/16
 		 * @return True if the mask matches the address
 		 */
-		CoreExport bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username);
+		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);
 
 		/** Convert an insp_inaddr into human readable form.
 		 * 

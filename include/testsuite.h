@@ -25,6 +25,7 @@ class TestSuite : public Extensible
 	~TestSuite();
 
 	bool DoThreadTests();
+	bool DoWildTests();
 };
 
 #endif
