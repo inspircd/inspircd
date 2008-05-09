@@ -47,7 +47,7 @@ class CommandSaquit : public Command
 				return CMD_SUCCESS;
 			
 			ServerInstance->Users->QuitUser(dest, line);
-			return CMD_SUCCESS;
+			return CMD_LOCALONLY;
 		}
 		else
 		{
