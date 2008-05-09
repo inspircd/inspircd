@@ -67,9 +67,9 @@ public:
 			modelist* list;
 			chan->GetExt(be->GetInfoKey(), list);
 			
-			if (list)
+			if (!list)
 			{
-				// No list, so let them in anyway.
+				// No list, proceed normally
 				return 0;
 			}
 
