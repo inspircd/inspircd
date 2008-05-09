@@ -87,7 +87,8 @@ public:
 		}
 		return 0;
 	}
-        void SearchAndReplace(std::string& newline, const std::string &find, const std::string &replace)
+
+	void SearchAndReplace(std::string& newline, const std::string &find, const std::string &replace)
 	{
 		std::string::size_type x = newline.find(find);
 		while (x != std::string::npos)
@@ -98,7 +99,6 @@ public:
 			x = newline.find(find);
 		}
 	}
-
 
 	bool CheckCredentials(User* user)
 	{
