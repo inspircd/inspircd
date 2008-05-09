@@ -224,8 +224,6 @@ void InspIRCd::Restart(const std::string &reason)
 	 */
 	this->SendError(reason);
 
-	this->Cleanup();
-
 	/* Figure out our filename (if theyve renamed it, we're boned) */
 	std::string me;
 
@@ -237,7 +235,11 @@ void InspIRCd::Restart(const std::string &reason)
 	me = Config->MyDir + "/inspircd";
 #endif
 
-	if (execv(me.c_str(), Config->argv) == -1)
+	char** argv = Config->argv;
+
+	this->Cleanup();
+
+	if (execv(me.c_str(), argv) == -1)
 	{
 		/* Will raise a SIGABRT if not trapped */
 		throw CoreException(std::string("Failed to execv()! error: ") + strerror(errno));
