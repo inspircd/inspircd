@@ -440,11 +440,12 @@ class SQLhost
 	bool			ssl;	/* If we should require SSL */
 
 	SQLhost()
+	: id(""), host(""), ip(""), port(0), name(""), user(""), pass(""), ssl(0)
 	{
 	}
 
 	SQLhost(const std::string& i, const std::string& h, unsigned int p, const std::string& n, const std::string& u, const std::string& pa, bool s)
-	: id(i), host(h), port(p), name(n), user(u), pass(pa), ssl(s)
+	: id(i), host(h), ip(""), port(p), name(n), user(u), pass(pa), ssl(s)
 	{
 	}
 
@@ -459,6 +460,12 @@ class SQLhost
 bool operator== (const SQLhost& l, const SQLhost& r)
 {
 	return (l.id == r.id && l.host == r.host && l.port == r.port && l.name == r.name && l.user == l.user && l.pass == r.pass && l.ssl == r.ssl);
+}
+/** Overload operator!= for two SQLhost objects for easy comparison.
+ */
+bool operator!= (const SQLhost& l, const SQLhost& r)
+{
+	return (l.id != r.id || l.host != r.host || l.port != r.port || l.name != r.name || l.user != l.user || l.pass != r.pass || l.ssl != r.ssl);
 }
 
 
