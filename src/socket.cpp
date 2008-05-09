@@ -25,7 +25,7 @@ sockaddr* ListenSocket::raddr = NULL;
 
 ListenSocket::ListenSocket(InspIRCd* Instance, int port, char* addr) : ServerInstance(Instance), desc("plaintext"), bind_addr(addr), bind_port(port)
 {
-	this->SetFd(OpenTCPSocket(addr));
+	this->SetFd(irc::sockets::OpenTCPSocket(addr));
 	if (this->GetFd() > -1)
 	{
 		if (!Instance->BindSocket(this->fd,port,addr))
