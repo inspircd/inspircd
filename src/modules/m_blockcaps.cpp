@@ -68,8 +68,16 @@ public:
 			if (c->IsModeSet('B'))
 			{
 				int caps = 0;
+				const char* actstr = "\1ACTION ";
+
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
+				{
+					/* Smart fix for suggestion from Jobe, ignore CTCP ACTION (part of /ME) */
+					if (*actstr && *i == *actstr++)
+						continue;
+
 					caps += capsmap[(unsigned char)*i];
+				}
 				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
 					user->WriteServ( "404 %s %s :Your line cannot be more than %d%% capital letters if it is %d or more letters long", user->nick, c->name, percent, minlen);
