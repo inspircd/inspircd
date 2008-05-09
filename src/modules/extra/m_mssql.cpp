@@ -257,13 +257,13 @@ class SQLConn : public classbase
 	SQLhost host;
 	TDSLOGIN* login;
 	TDSSOCKET* sock;
-	TDSCONNECTION* conn;
+	TDSCONTEXT* context;
 
   public:
 	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
-	: Instance(SI), mod(m), host(hi)
+	: Instance(SI), mod(m), host(hi), login(NULL), sock(NULL), context(NULL)
 	{
-		if (OpenDB() == TDS_SUCCEED)
+		if (OpenDB())
 		{
 			std::string query("USE " + host.name);
 			if (tds_submit_query(sock, query.c_str()) == TDS_SUCCEED)
@@ -469,16 +469,14 @@ class SQLConn : public classbase
 		res->UpdateAffectedCount();
 	}
 
-	int OpenDB()
+	bool OpenDB()
 	{
 		CloseDB();
 
-		TDSCONTEXT* cont;
-		cont = tds_alloc_context(this);
-		cont->msg_handler = HandleMessage;
-		cont->err_handler = HandleError;
+		TDSCONNECTION* conn = NULL;
 
 		login = tds_alloc_login();
+		tds_set_app(login, "TSQL");
 		tds_set_library(login,"TDS-Library");
 		tds_set_host(login, "");
 		tds_set_server(login, host.host.c_str());
@@ -488,22 +486,41 @@ class SQLConn : public classbase
 		tds_set_port(login, host.port);
 		tds_set_packet(login, 512);
 
-		sock = tds_alloc_socket(cont, 512);
-		conn = tds_read_config_info(NULL, login, cont->locale);
-		return tds_connect(sock, conn);
+		context = tds_alloc_context(this);
+		context->msg_handler = HandleMessage;
+		context->err_handler = HandleError;
+
+		sock = tds_alloc_socket(context, 512);
+		tds_set_parent(sock, NULL);
+
+		conn = tds_read_config_info(NULL, login, context->locale);
+
+		if (tds_connect(sock, conn) == TDS_SUCCEED)
+		{
+			tds_free_connection(conn);
+			return 1;
+		}
+		tds_free_connection(conn);
+		return 0;
 	}
 
 	void CloseDB()
 	{
-		if (login)
-			tds_free_login(login);
 		if (sock)
+		{
 			tds_free_socket(sock);
-		if (conn)
-			tds_free_connection(conn);
-		login = NULL;
-		sock = NULL;
-		conn = NULL;
+			sock = NULL;
+		}
+		if (context)
+		{
+			tds_free_context(context);
+			context = NULL;
+		}
+		if (login)
+		{
+			tds_free_login(login);
+			login = NULL;
+		}
 	}
 
 	SQLhost GetConfHost()
