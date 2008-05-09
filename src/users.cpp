@@ -533,14 +533,11 @@ bool User::AddBuffer(const std::string &a)
 	}
 	else
 	{
-		ServerInstance->Logs->Log("recvqdebug", DEBUG, "Current recvq size is %d and I got called with a string of %d\n(%s)", recvq.length(), a.length(), a.c_str());
-
 		// While we can find the end of a chunk to add
 		while (i != std::string::npos)
 		{
 			// Append the chunk that we have
 			recvq.append(a, start, (i - start));
-			ServerInstance->Logs->Log("recvqdebug", DEBUG, "Appended a chunk, length is now %d", recvq.length());
 
 			// Start looking for the next one
 			start = i + 1;
@@ -560,11 +557,8 @@ bool User::AddBuffer(const std::string &a)
 			 * which is most *certainly* not the behaviour we want!
 			 *		-- w00t
 			 */
-			ServerInstance->Logs->Log("recvqdebug", DEBUG, "*** ALERT *** start != a.length, we should probably add more");
 			recvq.append(a, start, (a.length() - start));
 		}
-
-		ServerInstance->Logs->Log("recvqdebug", DEBUG, "Final recvq length is %d\n(%s)", recvq.length(), recvq.c_str());
 	}
 
 	if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
