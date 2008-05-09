@@ -33,7 +33,8 @@ typedef std::deque<classbase*> paramlist;
 typedef std::deque<MsSQLResult*> ResultQueue;
 
 ResultNotifier* resultnotify = NULL;
-
+ResultNotifier* resultdispatch = NULL;
+int QueueFD = -1;
 
 class ResultNotifier : public BufferedSocket
 {
@@ -72,7 +73,18 @@ class ResultNotifier : public BufferedSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
-		Dispatch();
+		resultdispatch = new ResultNotifier(Instance, mod, newsock, ip);
+		return true;
+	}
+
+	virtual bool OnDataReady()
+	{
+		char data = 0;
+		if (Instance->SE->Recv(this, &data, 1, 0) > 0)
+		{
+			Dispatch();
+			return true;
+		}
 		return false;
 	}
 
@@ -561,32 +573,36 @@ class SQLConn : public classbase
 
 	void SendNotify()
 	{
-		int QueueFD;
-		if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
+		if (QueueFD < 0)
 		{
-			/* crap, we're out of sockets... */
-			return;
-		}
+			if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
+			{
+				/* crap, we're out of sockets... */
+				return;
+			}
 
-		insp_sockaddr addr;
+			insp_sockaddr addr;
 
 #ifdef IPV6
-		insp_aton("::1", &addr.sin6_addr);
-		addr.sin6_family = AF_FAMILY;
-		addr.sin6_port = htons(resultnotify->GetPort());
+			insp_aton("::1", &addr.sin6_addr);
+			addr.sin6_family = AF_FAMILY;
+			addr.sin6_port = htons(resultnotify->GetPort());
 #else
-		insp_inaddr ia;
-		insp_aton("127.0.0.1", &ia);
-		addr.sin_family = AF_FAMILY;
-		addr.sin_addr = ia;
-		addr.sin_port = htons(resultnotify->GetPort());
+			insp_inaddr ia;
+			insp_aton("127.0.0.1", &ia);
+			addr.sin_family = AF_FAMILY;
+			addr.sin_addr = ia;
+			addr.sin_port = htons(resultnotify->GetPort());
 #endif
 
-		if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
-		{
-			/* wtf, we cant connect to it, but we just created it! */
-			return;
+			if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
+			{
+				/* wtf, we cant connect to it, but we just created it! */
+				return;
+			}
 		}
+		char id = 0;
+		send(QueueFD, &id, 1, 0);
 	}
 
 };
@@ -622,11 +638,24 @@ class ModuleMsSQL : public Module
 	{
 		ClearQueue();
 		ClearAllConnections();
-		resultnotify->SetFd(-1);
-		resultnotify->state = I_ERROR;
-		resultnotify->OnError(I_ERR_SOCKET);
-		resultnotify->ClosePending = true;
-		delete resultnotify;
+
+		ServerInstance->SE->DelFd(resultnotify);
+		resultnotify->Close();
+		ServerInstance->BufferedSocketCull();
+
+		if (QueueFD >= 0)
+		{
+			shutdown(QueueFD, 2);
+			close(QueueFD);
+		}
+
+		if (resultdispatch)
+		{
+			ServerInstance->SE->DelFd(resultdispatch);
+			resultdispatch->Close();
+			ServerInstance->BufferedSocketCull();
+		}
+
 		ServerInstance->Modules->UnpublishInterface("SQL", this);
 		ServerInstance->Modules->UnpublishFeature("SQL");
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
