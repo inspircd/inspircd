@@ -121,12 +121,19 @@ bool TestSuite::DoWildTests()
 	WCTESTNOT("foobar", "*qux");
 	WCTESTNOT("foobar", "foo*x");
 	WCTESTNOT("foobar", "baz*");
+	WCTESTNOT("foobar", "foo???r");
+	WCTESTNOT("foobar", "");
 
 	CIDRTEST("brain@1.2.3.4", "*@1.2.0.0/16");
 	CIDRTEST("brain@1.2.3.4", "*@1.2.3.0/24");
 
 	CIDRTESTNOT("brain@1.2.3.4", "x*@1.2.0.0/16");
 	CIDRTESTNOT("brain@1.2.3.4", "*@1.3.4.0/24");
+
+	CIDRTESTNOT("brain@1.2.3.4", "*@/24");
+	CIDRTESTNOT("brain@1.2.3.4", "@1.2.3.4/9");
+	CIDRTESTNOT("brain@1.2.3.4", "@");
+	CIDRTESTNOT("brain@1.2.3.4", "");
 
 	return passed;
 }

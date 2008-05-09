@@ -35,6 +35,9 @@ CoreExport bool csmatch(const std::string &str, const std::string &mask)
 	std::string::const_iterator wild = mask.begin();
 	std::string::const_iterator string = str.begin();
 
+	if (mask.empty())
+		return false;
+
 	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
 	{
 		if ((*wild != *string) && (*wild != '?'))
@@ -80,6 +83,9 @@ CoreExport bool match(const std::string &str, const std::string &mask)
 	std::string::const_iterator cp, mp;
 	std::string::const_iterator wild = mask.begin();
 	std::string::const_iterator string = str.begin();
+
+	if (mask.empty())
+		return false;
 
 	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
 	{
