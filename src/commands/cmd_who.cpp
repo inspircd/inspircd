@@ -212,15 +212,12 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 	if (ServerInstance->FindServerName(matchtext))
 		usingwildcards = true;
 
-	if (parameters.count() > 1)
+	if (parameters.size() > 1)
 	{
-		/* parse flags */
-		const char *iter = parameters[1].c_str();
-
 		/* Fix for bug #444, WHO flags count as a wildcard */
 		usingwildcards = true;
 
-		while (*iter)
+		for (std::string::const_iterator iter = parameters[1].begin(); iter != parameters[1].end(); ++iter)
 		{
 			switch (*iter)
 			{
@@ -260,8 +257,6 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					opt_far = true;
 				break;
 			}
-
-			*iter++;
 		}
 	}
 
