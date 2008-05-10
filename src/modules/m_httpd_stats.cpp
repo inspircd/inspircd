@@ -57,6 +57,9 @@ class ModuleHttpStats : public Module
 				case '&':
 					ret += "&amp;";
 				break;
+				case '"':
+					ret += "&quot;";
+				break;
 				default:
 					if (*x < 32 || *x > 126)
 					{
