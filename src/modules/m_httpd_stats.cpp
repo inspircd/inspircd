@@ -18,15 +18,6 @@
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
 /* $ModDep: httpd.h */
 
-typedef std::map<irc::string,int> StatsHash;
-typedef StatsHash::iterator StatsIter;
-
-typedef std::vector<std::pair<int,irc::string> > SortedList;
-typedef SortedList::iterator SortedIter;
-
-static StatsHash* sh = new StatsHash();
-static SortedList* so = new SortedList();
-
 class ModuleHttpStats : public Module
 {
 	
@@ -45,34 +36,8 @@ class ModuleHttpStats : public Module
 	{
 		ReadConfig();
 		this->changed = true;
-		Implementation eventlist[] = { I_OnEvent, I_OnRequest, I_OnChannelDelete, I_OnUserJoin, I_OnUserPart, I_OnUserQuit };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
-	}
-
-	void InsertOrder(irc::string channel, int count)
-	{
-		/* This function figures out where in the sorted list to put an item from the hash */
-		SortedIter a;
-		for (a = so->begin(); a != so->end(); a++)
-		{
-			/* Found an item equal to or less than, we insert our item before it */
-			if (a->first <= count)
-			{
-				so->insert(a,std::pair<int,irc::string>(count,channel));
-				return;
-			}
-		}
-		/* There are no items in the list yet, insert something at the beginning */
-		so->insert(so->begin(), std::pair<int,irc::string>(count,channel));
-	}
-
-	void SortList()
-	{
-		/* Sorts the hash into the sorted list using an insertion sort */
-		so->clear();
-		for (StatsIter a = sh->begin(); a != sh->end(); a++)
-			InsertOrder(a->first, a->second);
-		this->changed = false;
+		Implementation eventlist[] = { I_OnEvent, I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void OnEvent(Event* event)
@@ -115,33 +80,47 @@ class ModuleHttpStats : public Module
 					data << "<module><name>" << *i << "</name><version>" << v.Major << "." <<  v.Minor << "." << v.Revision << "." << v.Build << "</version></module>";
 				}
 				data << "</modulelist>";
-
 				data << "<channellist>";
-				/* If the list has changed since last time it was displayed, re-sort it
-				 * this time only (not every time, as this would be moronic)
-				 */
-				if (this->changed)
-					this->SortList();
 
-				for (SortedIter a = so->begin(); a != so->end(); a++)
+				for (chan_hash::const_iterator a = ServerInstance->chanlist->begin(); a != ServerInstance->chanlist->end(); ++a)
 				{
-					Channel* c = ServerInstance->FindChan(a->second.c_str());
-					if (c && !c->IsModeSet('s') && !c->IsModeSet('p'))
+					Channel* c = a->second;
+
+					data << "<channel>";
+					data << "<usercount>" << c->GetUsers()->size() << "</usercount><channelname>" << c->name << "</channelname>";
+					data << "<channelops>" << c->GetOppedUsers()->size() << "</channelops>";
+					data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
+					data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
+					data << "<channeltopic>" << c->topic << "</channeltopic>";
+					data << "<channelmodes>" << c->ChanModes(false) << "</channelmodes>";
+					CUList* ulist = c->GetUsers();
+
+					for (CUList::iterator x = ulist->begin(); x != ulist->end(); ++x)
 					{
-						data << "<channel>";
-						data << "<usercount>" << c->GetUsers()->size() << "</usercount><channelname>" << c->name << "</channelname>";
-						data << "<channelops>" << c->GetOppedUsers()->size() << "</channelops>";
-						data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
-						data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
-						data << "<channeltopic>" << c->topic << "</channeltopic>";
-						data << "<channelmodes>" << c->ChanModes(false) << "</channelmodes>";
-						data << "</channel>";
+						data << "<channelmember><uid>" << x->first->uuid << "</uid><privs>" << c->GetAllPrefixChars(x->first) << "</privs></channelmember>";
 					}
+					data << "</channel>";
 				}
 
-				data << "</channellist>";
+				data << "</channellist><userlist>";
 
-				data << "<serverlist>";
+				for (user_hash::const_iterator a = ServerInstance->Users->clientlist->begin(); a != ServerInstance->Users->clientlist->end(); ++a)
+				{
+					User* u = a->second;
+
+					data << "<user>";
+					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>" << u->host << "</realhost><displayhost>" << u->dhost << "</displayhost>";
+					data << "<gecos>" << u->fullname << "</gecos><server>" << u->server << "</server><away>" << u->awaymsg << "</away><opertype>" << u->oper << "</opertype><modes>";
+					std::string modes;
+					for (unsigned char n = 'A'; n <= 'z'; ++n)
+						if (u->IsModeSet(n))
+							modes += n;
+
+					data << modes << "</modes>";
+					data << "</user>";
+				}
+
+				data << "</userlist><serverlist>";
 				
 				ProtoServerList sl;
 				ServerInstance->PI->GetServerList(sl);
@@ -170,55 +149,6 @@ class ModuleHttpStats : public Module
 		}
 	}
 
-	void OnChannelDelete(Channel* chan)
-	{
-		StatsIter a = sh->find(chan->name);
-		if (a != sh->end())
-		{
-			sh->erase(a);
-		}
-		this->changed = true;
-	}
-
-	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
-	{
-		StatsIter a = sh->find(channel->name);
-		if (a != sh->end())
-		{
-			a->second++;
-		}
-		else
-		{
-			irc::string name = channel->name;
-			sh->insert(std::pair<irc::string,int>(name,1));
-		}
-		this->changed = true;
-	}
-
-	void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
-	{
-		StatsIter a = sh->find(channel->name);
-		if (a != sh->end())
-		{
-			a->second--;
-		}
-		this->changed = true;
-	}
-
-	void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
-	{
-		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
-		{
-			Channel* c = v->first;
-			StatsIter a = sh->find(c->name);
-			if (a != sh->end())
-			{
-				a->second--;
-			}
-		}
-		this->changed = true;
-	}
-
 	const char* OnRequest(Request* request)
 	{
 		return NULL;
@@ -227,8 +157,6 @@ class ModuleHttpStats : public Module
 
 	virtual ~ModuleHttpStats()
 	{
-		delete sh;
-		delete so;
 	}
 
 	virtual Version GetVersion()
