@@ -40,6 +40,37 @@ class ModuleHttpStats : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
+	std::string Sanitize(const std::string &str)
+	{
+		std::string ret;
+
+		for (std::string::const_iterator x = str.begin(); x != str.end(); ++x)
+		{
+			switch (*x)
+			{
+				case '<':
+					ret += "&lt;";
+				break;
+				case '>':
+					ret += "&gt;";
+				break;
+				case '&':
+					ret += "&amp;";
+				break;
+				default:
+					if (*x < 32 || *x > 126)
+					{
+						int n = *x;
+						ret += ("&#" + ConvToStr(n) + ";");
+					}
+					else
+						ret += *x;
+				break;
+			}
+		}
+		return ret;
+	}
+
 	void OnEvent(Event* event)
 	{
 		std::stringstream data("");
@@ -53,7 +84,7 @@ class ModuleHttpStats : public Module
 			{
 				data << "<inspircdstats>";
 
-				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>" << ServerInstance->Config->ServerDesc << "</gecos></server>";
+				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>" << Sanitize(ServerInstance->Config->ServerDesc) << "</gecos></server>";
 
 				data << "<general>";
 				data << "<usercount>" << ServerInstance->Users->clientlist->size() << "</usercount>";
@@ -67,7 +98,7 @@ class ModuleHttpStats : public Module
 				time_t server_uptime = current_time - ServerInstance->startup_time;
 				struct tm* stime;
 				stime = gmtime(&server_uptime);
-				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs></uptime>";
+				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
 
 
 				data << "</general>";
@@ -91,13 +122,13 @@ class ModuleHttpStats : public Module
 					data << "<channelops>" << c->GetOppedUsers()->size() << "</channelops>";
 					data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
 					data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
-					data << "<channeltopic>" << c->topic << "</channeltopic>";
-					data << "<channelmodes>" << c->ChanModes(false) << "</channelmodes>";
+					data << "<channeltopic>" << Sanitize(c->topic) << "</channeltopic>";
+					data << "<channelmodes>" << Sanitize(c->ChanModes(false)) << "</channelmodes>";
 					CUList* ulist = c->GetUsers();
 
 					for (CUList::iterator x = ulist->begin(); x != ulist->end(); ++x)
 					{
-						data << "<channelmember><uid>" << x->first->uuid << "</uid><privs>" << c->GetAllPrefixChars(x->first) << "</privs></channelmember>";
+						data << "<channelmember><uid>" << x->first->uuid << "</uid><privs>" << Sanitize(c->GetAllPrefixChars(x->first)) << "</privs></channelmember>";
 					}
 					data << "</channel>";
 				}
@@ -110,13 +141,13 @@ class ModuleHttpStats : public Module
 
 					data << "<user>";
 					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>" << u->host << "</realhost><displayhost>" << u->dhost << "</displayhost>";
-					data << "<gecos>" << u->fullname << "</gecos><server>" << u->server << "</server><away>" << u->awaymsg << "</away><opertype>" << u->oper << "</opertype><modes>";
+					data << "<gecos>" << Sanitize(u->fullname) << "</gecos><server>" << u->server << "</server><away>" << Sanitize(u->awaymsg) << "</away><opertype>" << Sanitize(u->oper) << "</opertype><modes>";
 					std::string modes;
 					for (unsigned char n = 'A'; n <= 'z'; ++n)
 						if (u->IsModeSet(n))
 							modes += n;
 
-					data << modes << "</modes><ident>" << u->ident << "</ident><port>" << u->GetPort() << "</port><ipaddress>" << u->GetIPString() << "</ipaddress>";
+					data << modes << "</modes><ident>" << Sanitize(u->ident) << "</ident><port>" << u->GetPort() << "</port><ipaddress>" << u->GetIPString() << "</ipaddress>";
 					data << "</user>";
 				}
 
