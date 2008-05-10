@@ -1333,9 +1333,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 	include_stack.push_back(filename);
 
 	/* Start reading characters... */
-	while (!feof(conf))
+	while ((ch = fgetc(conf)) != EOF)
 	{
-		ch = fgetc(conf);
 		/*
 		 * Fix for moronic windows issue spotted by Adremelech.
 		 * Some windows editors save text files as utf-16, which is
