@@ -92,12 +92,18 @@ public:
 			{
 				int caps = 0;
 				char* actstr = "\1ACTION ";
+				int act = 0;
 
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
 					/* Smart fix for suggestion from Jobe, ignore CTCP ACTION (part of /ME) */
-					if (*actstr && *i == *actstr++)
+					if (*actstr && *i == *actstr++ && act != -1)
+					{
+						act++;
 						continue;
+					}
+					else
+						act = -1;
 
 					caps += capsmap[(unsigned char)*i];
 				}
