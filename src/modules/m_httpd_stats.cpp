@@ -116,7 +116,7 @@ class ModuleHttpStats : public Module
 						if (u->IsModeSet(n))
 							modes += n;
 
-					data << modes << "</modes>";
+					data << modes << "</modes><ident>" << u->ident << "</ident><port>" << u->GetPort() << "</port><ipaddress>" << u->GetIPString() << "</ipaddress>";
 					data << "</user>";
 				}
 
