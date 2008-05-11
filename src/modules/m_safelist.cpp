@@ -112,13 +112,13 @@ class ModuleSafeList : public Module
 		/* Work around mIRC suckyness. YOU SUCK, KHALED! */
 		if (pcnt == 1)
 		{
-			if (*parameters[0].c_str() == '<')
+			if (parameters[0][0] == '<')
 			{
 				maxusers = atoi(parameters[0].c_str()+1);
 				ServerInstance->Logs->Log("m_safelist",DEBUG,"Max users: %d", maxusers);
 				pcnt = 0;
 			}
-			else if (*parameters[0].c_str() == '>')
+			else if (parameters[0][0] == '>')
 			{
 				minusers = atoi(parameters[0].c_str()+1);
 				ServerInstance->Logs->Log("m_safelist",DEBUG,"Min users: %d", minusers);
@@ -183,7 +183,7 @@ class ModuleSafeList : public Module
 					continue;
 				}
 
-				if ((chan) && (chan->modes[CM_PRIVATE]))
+				if ((chan) && (chan->modes[CM_PRIVATE]) && (!IS_OPER(user)))
 				{
 					bool display = (match(chan->name, ld->glob.c_str()) || (*chan->topic && match(chan->topic, ld->glob.c_str())));
 					if ((users) && (display))
@@ -193,7 +193,7 @@ class ModuleSafeList : public Module
 						user->WriteServ(std::string(buffer));
 					}
 				}
-				else if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
+				else if ((chan) && ((((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET])))) || (has_user) || IS_OPER(user)))
 				{
 					bool display = (match(chan->name, ld->glob.c_str()) || (*chan->topic && match(chan->topic, ld->glob.c_str())));
 					if ((users) && (display))

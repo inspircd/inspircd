@@ -52,7 +52,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		if (too_many || too_few)
 			continue;
 
-		if (parameters.size() && parameters[0][0] != '<' && parameters[0][0] == '>')
+		if (parameters.size() && (parameters[0][0] != '<' || parameters[0][0] == '>'))
 		{
 			if (!match(i->second->name, parameters[0].c_str()) && !match(i->second->topic, parameters[0].c_str()))
 				continue;
@@ -60,13 +60,13 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = i->second->HasUser(user);
-		if ((i->second->IsModeSet('p')) && (!n))
+		if (!IS_OPER(user) && (i->second->IsModeSet('p')) && (!n))
 		{
 			user->WriteNumeric(322, "%s *",user->nick);
 		}
 		else
 		{
-			if (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('s')))) || (n))
+			if (IS_OPER(user) || (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('s')))) || (n)))
 			{
 				user->WriteNumeric(322, "%s %s %ld :[+%s] %s",user->nick,i->second->name,users,i->second->ChanModes(n),i->second->topic);
 			}
