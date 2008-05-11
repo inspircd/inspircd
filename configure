@@ -734,8 +734,18 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	print "of the 'maximum number of clients' setting which may be different on\n";
 	print "different servers on the network.\n\n";
 
-	# File Descriptor Settings..
-	promptnumeric("number of clients at any one time", "MAX_CLIENT_T");
+	while (1)
+	{
+		# File Descriptor Settings..
+		promptnumeric("number of connections at any one time (this\nincludes any listening sockets, open log files,\ndns lookup system, etc.)", "MAX_CLIENT_T");
+		if ($config{MAX_CLIENT_T} < 30)
+		{
+			print "\nThere are not enough file descriptors configured to boot the ircd!\nPlease define at least 30 file descriptors.\n\n";
+			next;
+		}
+		last;
+	}
+
 	$config{MAX_CLIENT} = $config{MAX_CLIENT_T};
 	$config{MAX_DESCRIPTORS} = $config{MAX_CLIENT_T};
 
