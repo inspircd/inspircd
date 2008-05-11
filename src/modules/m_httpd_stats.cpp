@@ -126,7 +126,7 @@ class ModuleHttpStats : public Module
 					data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
 					data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
 					data << "<channeltopic>" << Sanitize(c->topic) << "</channeltopic>";
-					data << "<channelmodes>" << Sanitize(c->ChanModes(false)) << "</channelmodes>";
+					data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
 					CUList* ulist = c->GetUsers();
 
 					for (CUList::iterator x = ulist->begin(); x != ulist->end(); ++x)
