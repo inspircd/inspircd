@@ -59,7 +59,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		}
 
 		// if the channel is not private/secret, OR the user is on the channel anyway
-		bool n = i->second->HasUser(user);
+		bool n = (i->second->HasUser(user) || IS_OPER(user));
 		if (!IS_OPER(user) && (i->second->IsModeSet('p')) && (!n))
 		{
 			user->WriteNumeric(322, "%s *",user->nick);
