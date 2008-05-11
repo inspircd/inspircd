@@ -28,13 +28,11 @@ SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 	memset(writeable, 0, sizeof(writeable));
 	ref = new EventHandler* [GetMaxFds()];
 	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
-	ev = new EventHandler* [GetMaxFds()];
 }
 
 SelectEngine::~SelectEngine()
 {
 	delete[] ref;
-	delete[] ev;
 }
 
 bool SelectEngine::AddFd(EventHandler* eh)

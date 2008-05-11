@@ -42,7 +42,6 @@ private:
 	 */
 	fd_set wfdset, rfdset, errfdset;
 
-	EventHandler** ev;
 public:
 	/** Create a new SelectEngine
 	 * @param Instance The creator of this object
