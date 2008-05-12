@@ -14,21 +14,73 @@
 #include "inspircd.h"
 #include "httpd.h"
 #include "protocol.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd.so dependent modules */
 /* $ModDep: httpd.h */
+
+class ACL : public Extensible
+{
+ public:
+	std::string path;
+	std::string password;
+	std::string whitelist;
+	std::string blacklist;
+
+	ACL(const std::string &set_path, const std::string &set_password,
+		const std::string &set_whitelist, const std::string &set_blacklist)
+		: path(set_path), password(set_password), whitelist(set_whitelist),
+		blacklist(set_blacklist) { }
+
+	~ACL() { }
+};
 
 class ModuleHTTPAccessList : public Module
 {
 	
 	std::string stylesheet;
 	bool changed;
+	std::vector<ACL> acl_list;
 
  public:
 
 	void ReadConfig()
 	{
+		acl_list.clear();
 		ConfigReader c(ServerInstance);
+		int n_items = c.Enumerate("httpacl");
+		for (int i = 0; i < n_items; ++i)
+		{
+			std::string path = c.ReadValue("httpacl", "path", i);
+			std::string types = c.ReadValue("httpacl", "types", i);
+			irc::commasepstream sep(types);
+			std::string type;
+			std::string password;
+			std::string whitelist;
+			std::string blacklist;
+
+			while (sep.GetToken(type))
+			{
+				if (type == "password")
+				{
+					password = c.ReadValue("httpacl", "password", i);
+				}
+				else if (type == "whitelist")
+				{
+					whitelist = c.ReadValue("httpacl", "whitelist", i);
+				}
+				else if (type == "blacklist")
+				{
+					blacklist = c.ReadValue("httpacl", "blacklist", i);
+				}
+				else
+				{
+					throw ModuleException("Invalid HTTP ACL type '" + type + "'");
+				}
+			}
+
+			acl_list.push_back(ACL(path, password, whitelist, blacklist));
+		}
 	}
 
 	ModuleHTTPAccessList(InspIRCd* Me) : Module(Me)
@@ -48,7 +100,24 @@ class ModuleHTTPAccessList : public Module
 			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd event");
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
 
-
+			for (std::vector<ACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
+			{
+				if (match(http->GetURI(), this_acl->path))
+				{
+					if (!this_acl->blacklist.empty())
+					{
+						/* Blacklist */
+					}
+					if (!this_acl->whitelist.empty())
+					{
+						/* Whitelist */
+					}
+					if (!this_acl->password.empty())
+					{
+						/* Password auth */
+					}
+				}
+			}
 
 			//if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
 			//{
