@@ -109,7 +109,8 @@ class HTTPRequest : public classbase
  public:
 
 	HTTPHeaders *headers;
-	
+	int errorcode;
+
 	/** A socket pointer, which you must return in your HTTPDocument class
 	 * if you reply to this request.
 	 */

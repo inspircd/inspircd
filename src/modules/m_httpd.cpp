@@ -339,12 +339,17 @@ class HttpServerSocket : public BufferedSocket
 		{
 			claimed = false;
 			HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
-			Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-			e.Send(this->Instance);
+			Event acl((char*)&httpr, (Module*)HttpModule, "httpd_acl");
+			acl.Send(this->Instance);
 			if (!claimed)
 			{
-				SendHTTPError(404);
-				Instance->SE->WantWrite(this);
+				Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
+				e.Send(this->Instance);
+				if (!claimed)
+				{
+					SendHTTPError(404);
+					Instance->SE->WantWrite(this);
+				}
 			}
 		}
 	}
