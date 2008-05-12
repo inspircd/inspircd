@@ -1785,7 +1785,7 @@
 # network and when the correct password is specified:
 #
 # <httpdacl path="/stats*" types="password,whitelist"
-#               password="mypasshere" whitelist="127.0.0.*,10.*">
+#    username="secretstuff" password="mypasshere" whitelist="127.0.0.*,10.*">
 # 
 # Deny all connections to all but the main index page:
 #
