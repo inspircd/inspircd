@@ -180,6 +180,7 @@ class HttpServerSocket : public BufferedSocket
 		
 		SendHeaders(data.length(), response, empty);
 		this->Write(data);
+		this->FlushWriteBuffer();
 	}
 	
 	void SendHeaders(unsigned long size, int response, HTTPHeaders &rheaders)
@@ -265,7 +266,7 @@ class HttpServerSocket : public BufferedSocket
 				if (request_type.empty() || uri.empty() || http_version.empty())
 				{
 					SendHTTPError(400);
-					Instance->SE->WantWrite(this);
+					SetWrite();
 					return;
 				}
 				
@@ -279,7 +280,7 @@ class HttpServerSocket : public BufferedSocket
 			if ((fieldsep == std::string::npos) || (fieldsep == 0) || (fieldsep == cheader.length() - 1))
 			{
 				SendHTTPError(400);
-				Instance->SE->WantWrite(this);
+				SetWrite();
 				return;
 			}
 			
@@ -296,7 +297,7 @@ class HttpServerSocket : public BufferedSocket
 		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 		{
 			SendHTTPError(505);
-			Instance->SE->WantWrite(this);
+			SetWrite();
 			return;
 		}
 	
@@ -333,7 +334,8 @@ class HttpServerSocket : public BufferedSocket
 			HTTPHeaders empty;
 			SendHeaders(index->ContentSize(), 200, empty);
 			this->Write(index->Contents());
-			Instance->SE->WantWrite(this);
+			this->FlushWriteBuffer();
+			SetWrite();
 		}
 		else
 		{
@@ -348,7 +350,7 @@ class HttpServerSocket : public BufferedSocket
 				if (!claimed)
 				{
 					SendHTTPError(404);
-					Instance->SE->WantWrite(this);
+					SetWrite();
 				}
 			}
 		}
@@ -357,6 +359,7 @@ class HttpServerSocket : public BufferedSocket
 
 	bool OnWriteReady()
 	{
+		Instance->Logs->Log("m_httpd",DEBUG,"OnWriteReady()");
 		return false;
 	}
 
@@ -364,6 +367,14 @@ class HttpServerSocket : public BufferedSocket
 	{
 		SendHeaders(n->str().length(), response, *hheaders);
 		this->Write(n->str());
+		this->FlushWriteBuffer();
+		SetWrite();
+	}
+
+	void SetWrite()
+	{
+		Instance->Logs->Log("m_httpd",DEBUG,"SetWrite()");
+		this->WaitingForWriteEvent = true;
 		Instance->SE->WantWrite(this);
 	}
 };

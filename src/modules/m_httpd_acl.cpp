@@ -98,6 +98,8 @@ class ModuleHTTPAccessList : public Module
 
 	void BlockAccess(HTTPRequest* http, Event* event, int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")
 	{
+		ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "BlockAccess (%d)", returnval);
+
 		std::stringstream data("Access to this resource is denied by an access control list. Please contact your IRC administrator.");
 		HTTPDocument response(http->sock, &data, returnval);
 		response.headers.SetHeader("X-Powered-By", "m_httpd_acl.so");
