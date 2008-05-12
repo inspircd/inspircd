@@ -388,6 +388,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\cidr.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\command_parse.cpp"
 				>
 			</File>

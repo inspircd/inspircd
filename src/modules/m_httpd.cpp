@@ -193,7 +193,7 @@ class HttpServerSocket : public BufferedSocket
 		date[strlen(date) - 1] = '\0';
 		rheaders.CreateHeader("Date", date);
 		
-		rheaders.CreateHeader("Server", "InspIRCd/m_httpd.so/1.1");
+		rheaders.CreateHeader("Server", "InspIRCd/m_httpd.so/1.2");
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
 		
 		if (size)
