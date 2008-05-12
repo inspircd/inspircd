@@ -1773,6 +1773,26 @@
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# http ACL module: Provides access control lists for m_httpd dependent
+# modules. Use this module to restrict pages by IP address and by
+# password.
+#
+#<module name="m_httpd_acl.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- HTTPD ACL CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#
+# Restrict access to the m_httpd_stats module to all but the local
+# network and when the correct password is specified:
+#
+# <httpdacl path="/stats*" types="password,whitelist"
+#               password="mypasshere" whitelist="127.0.0.*,10.*">
+# 
+# Deny all connections to all but the main index page:
+#
+# <httpdacl path="/*" types="blacklist" blacklist="*">
+#
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # http stats module: Provides basic stats pages over HTTP
 # Requires m_httpd.so to be loaded for it to function.
 #<module name="m_httpd_stats.so">
