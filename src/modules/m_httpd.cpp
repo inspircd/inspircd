@@ -187,6 +187,7 @@ class HttpServerSocket : public InspSocket
 		}
 		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(size)+
 				"\r\nConnection: close\r\n\r\n");
+		this->FlushWriteBuffer();
 	}
 
 	virtual bool OnDataReady()
@@ -228,7 +229,7 @@ class HttpServerSocket : public InspSocket
 					{
 						InternalState = HTTP_SERVE_SEND_DATA;
 						SendHeaders(0, 400, "");
-						Instance->SE->WantWrite(this);
+						SetWrite();
 					}
 					else
 					{
@@ -268,7 +269,7 @@ class HttpServerSocket : public InspSocket
 		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 		{
 			SendHeaders(0, 505, "");
-			Instance->SE->WantWrite(this);
+			SetWrite();
 		}
 		else
 		{
@@ -276,7 +277,8 @@ class HttpServerSocket : public InspSocket
 			{
 				SendHeaders(index->ContentSize(), 200, "");
 				this->Write(index->Contents());
-				Instance->SE->WantWrite(this);
+				this->FlushWriteBuffer();
+				SetWrite();
 			}
 			else
 			{
@@ -287,7 +289,7 @@ class HttpServerSocket : public InspSocket
 				if (!claimed)
 				{
 					SendHeaders(0, 404, "");
-					Instance->SE->WantWrite(this);
+					SetWrite();
 				}
 			}
 		}
@@ -297,6 +299,13 @@ class HttpServerSocket : public InspSocket
 	{
 		SendHeaders(n->str().length(), response, extraheaders);
 		this->Write(n->str());
+		this->FlushWriteBuffer();
+		SetWrite();
+	}
+
+	void SetWrite()
+	{
+		this->WaitingForWriteEvent = true;
 		Instance->SE->WantWrite(this);
 	}
 
