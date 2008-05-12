@@ -117,31 +117,29 @@ class ModuleHTTPAccessList : public Module
 	std::string Base64Decode(const std::string &base64)
 	{
 		const std::string base64_chars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-
 		int inputlen = base64.length();
+		int i = 0, j = 0, input = 0;
+		unsigned char longbuf[4], shortbuf[3];
+		std::string retval;
 
 		if (inputlen == 0)
 			return "";
 
-		int i = 0, j = 0, input = 0;
-
-		unsigned char longbuf[4], shortbuf[3];
-		std::string ret;
-
-		while (inputlen-- && ( base64[input] != '=') && IsBase64(base64[input]))
+		while (inputlen-- && (base64[input] != '=') && IsBase64(base64[input]))
 		{
-			longbuf[i++] = base64[input]; input++;
-			if (i ==4)
+			longbuf[i++] = base64[input];
+			input++;
+			if (i == 4)
 			{
-				for (i = 0; i <4; i++)
+				for (i = 0; i < 4; ++i)
 					longbuf[i] = base64_chars.find(longbuf[i]);
 
-				shortbuf[0] = (longbuf[0] << 2) + ((longbuf[1] & 0x30) >> 4);
-				shortbuf[1] = ((longbuf[1] & 0xf) << 4) + ((longbuf[2] & 0x3c) >> 2);
-				shortbuf[2] = ((longbuf[2] & 0x3) << 6) + longbuf[3];
+				shortbuf[0] = (longbuf[0] << 2)		+ ((longbuf[1] & 0x30) >> 4);
+				shortbuf[1] = ((longbuf[1] & 0xf) << 4)	+ ((longbuf[2] & 0x3c) >> 2);
+				shortbuf[2] = ((longbuf[2] & 0x3) << 6)	+ longbuf[3];
 
-				for (i = 0; (i < 3); i++)
-					ret += shortbuf[i];
+				for (i = 0; i < 3; ++i)
+					retval += shortbuf[i];
 
 				i = 0;
 			}
@@ -149,27 +147,25 @@ class ModuleHTTPAccessList : public Module
 
 		if (i)
 		{
-			for (j = i; j <4; j++)
+			for (j = i; j < 4; ++j)
 				longbuf[j] = 0;
 
-			for (j = 0; j <4; j++)
+			for (j = 0; j < 4; ++j)
 				longbuf[j] = base64_chars.find(longbuf[j]);
 
-			shortbuf[0] = (longbuf[0] << 2) + ((longbuf[1] & 0x30) >> 4);
-			shortbuf[1] = ((longbuf[1] & 0xf) << 4) + ((longbuf[2] & 0x3c) >> 2);
-			shortbuf[2] = ((longbuf[2] & 0x3) << 6) + longbuf[3];
+			shortbuf[0] = (longbuf[0] << 2)		+ ((longbuf[1] & 0x30) >> 4);
+			shortbuf[1] = ((longbuf[1] & 0xf) << 4)	+ ((longbuf[2] & 0x3c) >> 2);
+			shortbuf[2] = ((longbuf[2] & 0x3) << 6)	+ longbuf[3];
 
-			for (j = 0; (j < i - 1); j++)
-				ret += shortbuf[j];
+			for (j = 0; j < i - 1; ++j)
+				retval += shortbuf[j];
 		}
 
-		return ret;
+		return retval;
 	}
 
 	void OnEvent(Event* event)
 	{
-		std::stringstream data("");
-
 		if (event->GetEventID() == "httpd_acl")
 		{
 			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd acl event");
