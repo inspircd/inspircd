@@ -91,6 +91,15 @@ class ModuleHTTPAccessList : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
+	void BlockAccess(HTTPRequest* http, Event* event)
+	{
+		std::stringstream data("Access to this resource is denied by an access control list. Please contact your IRC administrator.");
+		HTTPDocument response(http->sock, &data, 403);
+		response.headers.SetHeader("X-Powered-By", "m_httpd_acl.so");
+		Request req((char*)&response, (Module*)this, event->GetSource());
+		req.Send();
+	}
+
 	void OnEvent(Event* event)
 	{
 		std::stringstream data("");
@@ -107,27 +116,43 @@ class ModuleHTTPAccessList : public Module
 					if (!this_acl->blacklist.empty())
 					{
 						/* Blacklist */
+						irc::commasepstream sep(this_acl->blacklist);
+						std::string entry;
+
+						while (sep.GetToken(entry))
+						{
+							if (match(http->GetIP(), entry))
+							{
+								BlockAccess(http, event);
+								return;
+							}
+						}
 					}
 					if (!this_acl->whitelist.empty())
 					{
 						/* Whitelist */
+						irc::commasepstream sep(this_acl->whitelist);
+						std::string entry;
+						bool allow_access = false;
+
+						while (sep.GetToken(entry))
+						{
+							if (match(http->GetIP(), entry))
+								allow_access = true;
+						}
+
+						if (!allow_access)
+						{
+							BlockAccess(http, event);
+							return;
+						}
 					}
 					if (!this_acl->password.empty())
 					{
-						/* Password auth */
+						/* Password auth, first look to see if we have a basic authentication header */
 					}
 				}
 			}
-
-			//if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
-			//{
-				/* Send the document back to m_httpd */
-			//	HTTPDocument response(http->sock, &data, 200);
-			//	response.headers.SetHeader("X-Powered-By", "m_httpd_stats.so");
-			//	response.headers.SetHeader("Content-Type", "text/xml");
-			//	Request req((char*)&response, (Module*)this, event->GetSource());
-			//	req.Send();
-			//}
 		}
 	}
 
