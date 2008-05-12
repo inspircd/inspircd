@@ -1505,10 +1505,12 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 		std::string confpath = ServerInstance->ConfigFileName;
 		std::string newfile = fname;
 
-		if ((pos = confpath.rfind("/")) != std::string::npos)
+		if (((pos = confpath.rfind("/"))) != std::string::npos)
 			newfile = confpath.substr(0, pos) + std::string("/") + fname;
-		else if ((pos = confpath.rfind("\\")) != std::string::npos)
+		else if (((pos = confpath.rfind("\\"))) != std::string::npos)
 			newfile = confpath.substr(0, pos) + std::string("\\") + fname;
+
+		ServerInstance->Log(DEBUG, "Filename: %s", newfile.c_str());
 
 		if (!FileExists(newfile.c_str()))
 			return false;
@@ -1530,10 +1532,7 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 			else
 				*linebuf = 0;
 
-			if (!feof(file))
-			{
-				F.push_back(*linebuf ? linebuf : " ");
-			}
+			F.push_back(*linebuf ? linebuf : " ");
 		}
 
 		fclose(file);
