@@ -67,7 +67,7 @@ CmdResult cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 		if ((i->second->IsModeSet('p')) && (!n))
 		{
 			if (users)
-				user->WriteServ("322 %s *",user->nick);
+				user->WriteServ("322 %s * %d :",user->nick, users);
 		}
 		else
 		{
