@@ -19,7 +19,7 @@
 /* $ModDesc: Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd.so dependent modules */
 /* $ModDep: httpd.h */
 
-class ACL : public Extensible
+class HTTPACL : public Extensible
 {
  public:
 	std::string path;
@@ -28,12 +28,12 @@ class ACL : public Extensible
 	std::string whitelist;
 	std::string blacklist;
 
-	ACL(const std::string &set_path, const std::string &set_username, const std::string &set_password,
+	HTTPACL(const std::string &set_path, const std::string &set_username, const std::string &set_password,
 		const std::string &set_whitelist, const std::string &set_blacklist)
 		: path(set_path), username(set_username), password(set_password), whitelist(set_whitelist),
 		blacklist(set_blacklist) { }
 
-	~ACL() { }
+	~HTTPACL() { }
 };
 
 class ModuleHTTPAccessList : public Module
@@ -41,7 +41,7 @@ class ModuleHTTPAccessList : public Module
 	
 	std::string stylesheet;
 	bool changed;
-	std::vector<ACL> acl_list;
+	std::vector<HTTPACL> acl_list;
 
  public:
 
@@ -85,7 +85,7 @@ class ModuleHTTPAccessList : public Module
 			ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "Read ACL: path=%s pass=%s whitelist=%s blacklist=%s", path.c_str(),
 					password.c_str(), whitelist.c_str(), blacklist.c_str());
 
-			acl_list.push_back(ACL(path, username, password, whitelist, blacklist));
+			acl_list.push_back(HTTPACL(path, username, password, whitelist, blacklist));
 		}
 	}
 
@@ -171,7 +171,7 @@ class ModuleHTTPAccessList : public Module
 			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd acl event");
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
 
-			for (std::vector<ACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
+			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
 			{
 				if (match(http->GetURI(), this_acl->path))
 				{
