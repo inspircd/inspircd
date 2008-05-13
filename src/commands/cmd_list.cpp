@@ -62,7 +62,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		bool n = (i->second->HasUser(user) || IS_OPER(user));
 		if (!IS_OPER(user) && (i->second->IsModeSet('p')) && (!n))
 		{
-			user->WriteNumeric(322, "%s *",user->nick);
+			user->WriteNumeric(322, "%s * %ld :",user->nick, users);
 		}
 		else
 		{

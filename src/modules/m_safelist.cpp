@@ -188,7 +188,7 @@ class ModuleSafeList : public Module
 					bool display = (match(chan->name, ld->glob.c_str()) || (*chan->topic && match(chan->topic, ld->glob.c_str())));
 					if ((users) && (display))
 					{
-						int counter = snprintf(buffer, MAXBUF, "322 %s *", user->nick);
+						int counter = snprintf(buffer, MAXBUF, "322 %s * %ld :", user->nick, users);
 						amount_sent += counter + ServerNameSize;
 						user->WriteServ(std::string(buffer));
 					}
