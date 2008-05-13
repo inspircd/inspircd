@@ -1649,6 +1649,11 @@ bool ServerConfig::DoPipe(ConfigDataHash &target, const std::string &file, std::
 	return ret;
 }
 
+bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
+{
+	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
+}
+
 bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream)
 {
 	std::string confpath;
@@ -1661,7 +1666,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 	std::replace(newfile.begin(),newfile.end(),'\\','/');
 	std::replace(confpath.begin(),confpath.end(),'\\','/');
 
-	if ((newfile[0] != '/') && (newfile.find("://") == std::string::npos))
+	if ((newfile[0] != '/') && (!StartsWithWindowsDriveLetter(newfile)))
 	{
 		if((pos = confpath.rfind("/")) != std::string::npos)
 		{
@@ -1883,7 +1888,7 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 
 	F.clear();
 
-	if ((*fname != '/') && (*fname != '\\'))
+	if ((*fname != '/') && (*fname != '\\') && (!StartsWithWindowsDriveLetter(fname)))
 	{
 		std::string::size_type pos;
 		std::string confpath = ServerInstance->ConfigFileName;

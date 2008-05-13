@@ -244,16 +244,16 @@ class ModuleSSLOpenSSL : public Module
 			dhfile = "dhparams.pem";
 
 		// Prepend relative paths with the path to the config directory.
-		if (cafile[0] != '/')
+		if ((cafile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(cafile)))
 			cafile = confdir + cafile;
 
-		if (certfile[0] != '/')
+		if ((certfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(certfile)))
 			certfile = confdir + certfile;
 
-		if (keyfile[0] != '/')
+		if ((keyfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(keyfile)))
 			keyfile = confdir + keyfile;
 
-		if (dhfile[0] != '/')
+		if ((dhfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(dhfile)))
 			dhfile = confdir + dhfile;
 
 		/* Load our keys and certificates

@@ -681,6 +681,10 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool ReadFile(file_cache &F, const char* fname);
 
+	/* Returns true if the given string starts with a windows drive letter
+	 */
+	bool StartsWithWindowsDriveLetter(const std::string &path);
+
 	/** Report a configuration error given in errormessage.
 	 * @param bail If this is set to true, the error is sent to the console, and the program exits
 	 * @param user If this is set to a non-null value, and bail is false, the errors are spooled to

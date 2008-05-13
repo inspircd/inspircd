@@ -351,7 +351,8 @@ bool InspIRCd::DaemonSeed()
 void InspIRCd::WritePID(const std::string &filename)
 {
 	std::string fname = (filename.empty() ? "inspircd.pid" : filename);
-	if (*(fname.begin()) != '/')
+	std::replace(fname.begin(), fname.end(), '\\', '/');
+	if ((fname[0] != '/') && (!Config->StartsWithWindowsDriveLetter(filename)))
 	{
 		std::string::size_type pos;
 		std::string confpath = this->ConfigFileName;
