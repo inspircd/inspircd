@@ -1,4 +1,4 @@
-# Aliases for nickserv, chanserv, operserv, memoserv
+# Aliases for nickserv, chanserv, operserv, memoserv, hostserv, botserv
 <alias text="NICKSERV" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
 <alias text="CHANSERV" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
 <alias text="OPERSERV" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
@@ -9,7 +9,7 @@
 # Note: We can't have a shorthand version of this, it conflicts with HS for helpserv
 <alias text="HELPSERV" replace="PRIVMSG HelpServ :$2-" requires="HelpServ" uline="yes">
 
-# Shorthand aliases for nickserv, chanserv, operserv, memoserv
+# Shorthand aliases for nickserv, chanserv, operserv, memoserv, hostserv, botserv
 <alias text="NS" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
 <alias text="CS" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
 <alias text="OS" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
