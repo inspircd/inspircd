@@ -24,7 +24,7 @@
 #define ENABLE_CRASHDUMPS 0
 
 /* This defaults to 64, way too small for an ircd! */
-#define FD_SETSIZE 12000
+#define FD_SETSIZE 24000
 
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
