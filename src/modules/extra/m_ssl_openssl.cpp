@@ -899,6 +899,16 @@ static int error_callback(const char *str, size_t len, void *u)
 {
 	ModuleSSLOpenSSL* mssl = (ModuleSSLOpenSSL*)u;
 	mssl->PublicInstance->Logs->Log("m_ssl_openssl",DEFAULT, "SSL error: " + std::string(str, len - 1));
+
+	//
+	// XXX: Remove this line, it causes valgrind warnings...
+	//
+	// MD_update(&m, buf, j);
+	//
+	//
+	// ... ONLY JOKING! :-)
+	//
+
 	return 0;
 }
 
