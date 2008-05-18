@@ -1715,6 +1715,8 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	}
 	else
 	{
+		ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Total classes: %d", ServerInstance->Config->Classes.size());
+
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			ConnectClass* c = *i;
