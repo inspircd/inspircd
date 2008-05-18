@@ -181,6 +181,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 
 	if (Instance->Config->NoUserDns)
 	{
+		New->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", New->nick);
 		New->dns_done = true;
 	}
 	else
