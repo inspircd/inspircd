@@ -1715,7 +1715,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	}
 	else
 	{
-		ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Total classes: %d", ServerInstance->Config->Classes.size());
+		ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Total classes: %lu", ServerInstance->Config->Classes.size());
 
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
@@ -1728,6 +1728,13 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			else
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "DENY %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
+			}
+
+			/* if it's disabled, we can't match this one. */
+			if (c->GetDisabled())
+			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class disabled");
+				continue;
 			}
 
 			/* check if host matches.. */
@@ -1744,13 +1751,6 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			if (c->limit && (c->RefCount + 1 >= c->limit))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
-				continue;
-			}
-
-			/* if it's disabled, we can't match this one. */
-			if (c->GetDisabled())
-			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class disabled");
 				continue;
 			}
 
