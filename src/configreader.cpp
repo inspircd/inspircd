@@ -525,10 +525,10 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	{
 		ConnectClass* cc = *item;
 		if (
-			 (*name && (cc->GetName() == name)) ||
-			 (*allow && (cc->GetHost() == allow)) ||
-			 (*deny && (cc->GetHost() == deny)) ||
-			 (port && (cc->GetPort() == port))
+			 ((*name && (cc->GetName() == name)) || // if the name is the same
+			 (*allow && (cc->GetHost() == allow)) || // or the allow is the same
+			 (*deny && (cc->GetHost() == deny))) && // or the deny is the same
+			 (!port || port && (cc->GetPort() == port)) // and there is no port, or there is a port and the port is the same
 		   )
 		{
 			/* reenable class so users can be shoved into it :P */
