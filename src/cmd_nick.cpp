@@ -152,6 +152,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			user->dns_done = true;
 			ServerInstance->next_call = ServerInstance->Time();
+			user->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", user->nick);
 		}
 		else
 		{
