@@ -437,19 +437,19 @@ class CoreExport User : public connection
 
 	/** Cached nick!ident@host value using the real hostname
 	 */
-	char* cached_fullhost;
+	std::string cached_fullhost;
 
 	/** Cached nick!ident@ip value using the real IP address
 	 */
-	char* cached_hostip;
+	std::string cached_hostip;
 
 	/** Cached nick!ident@host value using the masked hostname
 	 */
-	char* cached_makehost;
+	std::string cached_makehost;
 
 	/** Cached nick!ident@realhost value using the real hostname
 	 */
-	char* cached_fullrealhost;
+	std::string cached_fullrealhost;
 
 	/** When we erase the user (in the destructor),
 	 * we call this method to subtract one from all
@@ -512,27 +512,27 @@ class CoreExport User : public connection
 	 * An invalid nickname indicates an unregistered connection prior to the NICK command.
 	 * Use InspIRCd::IsNick() to validate nicknames.
 	 */
-	char nick[NICKMAX];
-
+	std::string nick;
+	
 	/** The user's unique identifier.
 	 * This is the unique identifier which the user has across the network.
 	 */
-	char uuid[UUID_LENGTH];
-
+	std::string uuid;
+	
 	/** The users ident reply.
 	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
 	 */
-	char ident[IDENTMAX+2];
-
+	std::string ident;
+	
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of User::host.
 	 */
-	char dhost[65];
-
+	std::string dhost;
+	
 	/** The users full name (GECOS).
 	 */
-	char fullname[MAXGECOS+1];
-
+	std::string fullname;
+	
 	/** The user's mode list.
 	 * This is NOT a null terminated string! In the 1.1 version of InspIRCd
 	 * this is an array of values in a similar way to channel modes.
@@ -560,8 +560,8 @@ class CoreExport User : public connection
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
 	 */
-	char awaymsg[MAXAWAY+1];
-
+	std::string awaymsg;
+	
 	/** Time the user last went away.
 	 * This is ONLY RELIABLE if user IS_AWAY()!
 	 */
@@ -578,8 +578,8 @@ class CoreExport User : public connection
 	 * we can say 'yay' or 'nay' to any commands they issue.
 	 * The value of this is the value of a valid 'type name=' tag.
 	 */
-	char oper[NICKMAX];
-
+	std::string oper;
+	
 	/** True when DNS lookups are completed.
 	 * The UserResolver classes res_forward and res_reverse will
 	 * set this value once they complete.
@@ -590,8 +590,8 @@ class CoreExport User : public connection
 	 * This is stored even if the <connect> block doesnt need a password, so that
 	 * modules may check it.
 	 */
-	char password[64];
-
+	std::string password;
+	
 	/** User's receive queue.
 	 * Lines from the IRCd awaiting processing are stored here.
 	 * Upgraded april 2005, old system a bit hairy.
@@ -698,7 +698,7 @@ class CoreExport User : public connection
 	 * on the server, in nick!ident&at;host form.
 	 * @return The full masked host of the user
 	 */
-	virtual char* GetFullHost();
+	virtual const std::string& GetFullHost();
 
 	/** Returns the full real host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -706,7 +706,7 @@ class CoreExport User : public connection
 	 * e.g. through a module, then this method will ignore it and return the true hostname.
 	 * @return The full real host of the user
 	 */
-	virtual char* GetFullRealHost();
+	virtual const std::string& GetFullRealHost();
 
 	/** This clears any cached results that are used for GetFullRealHost() etc.
 	 * The results of these calls are cached as generating them can be generally expensive.
@@ -874,13 +874,13 @@ class CoreExport User : public connection
 	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user@host
 	 * @return the usermask in the format user@host
 	 */
-	char* MakeHost();
+	const std::string& MakeHost();
 
 	/** Creates a usermask with real ip.
 	 * Takes a buffer to use and fills the given buffer with the ipmask in the format user@ip
 	 * @return the usermask in the format user@ip
 	 */
-	char* MakeHostIP();
+	const std::string& MakeHostIP();
 
 	/** Shuts down and closes the user's socket
 	 * This will not cause the user to be deleted. Use InspIRCd::QuitUser for this,
@@ -1113,7 +1113,7 @@ class CoreExport User : public connection
 	/** Get oper-specific quit message shown only to opers when the user quits.
 	 * (overrides any sent by QuitUser)
 	 */
-	const char* GetOperQuit();
+	const std::string& GetOperQuit();
 
 	/** Increases a user's command penalty by a set amount.
 	 */

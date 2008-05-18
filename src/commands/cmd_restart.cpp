@@ -21,10 +21,10 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	ServerInstance->Logs->Log("COMMAND",DEFAULT,"Restart: %s",user->nick);
+	ServerInstance->Logs->Log("COMMAND",DEFAULT,"Restart: %s",user->nick.c_str());
 	if (!ServerInstance->PassCompare(user, ServerInstance->Config->restartpass, parameters[0].c_str(), ServerInstance->Config->powerhash))
 	{
-		ServerInstance->SNO->WriteToSnoMask('A', "RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
+		ServerInstance->SNO->WriteToSnoMask('A', "RESTART command from %s!%s@%s, restarting server.",user->nick.c_str(),user->ident.c_str(),user->host);
 
 		try
 		{
@@ -38,7 +38,7 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 	}
 	else
 	{
-		ServerInstance->SNO->WriteToSnoMask('A', "Failed RESTART Command from %s!%s@%s.",user->nick,user->ident,user->host);
+		ServerInstance->SNO->WriteToSnoMask('A', "Failed RESTART Command from %s!%s@%s.",user->nick.c_str(),user->ident.c_str(),user->host);
 		return CMD_FAILURE;
 	}
 

@@ -41,7 +41,7 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 
         if (ih.first.empty())
         {
-            user->WriteServ("NOTICE %s :*** Target not found", user->nick);
+            user->WriteServ("NOTICE %s :*** Target not found", user->nick.c_str());
             return CMD_FAILURE;
         }
 
@@ -50,35 +50,35 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 
 		long duration = ServerInstance->Duration(parameters[1].c_str());
 
-		ELine* el = new ELine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
+		ELine* el = new ELine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(el, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent E-line for %s.",user->nick,target.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent E-line for %s.",user->nick.c_str(),target.c_str());
 			}
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed E-line for %s, expires on %s",user->nick,target.c_str(),
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed E-line for %s, expires on %s",user->nick.c_str(),target.c_str(),
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 		}
 		else
 		{
 			delete el;
-			user->WriteServ("NOTICE %s :*** E-Line for %s already exists",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** E-Line for %s already exists",user->nick.c_str(),target.c_str());
 		}
 	}
 	else
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(), "E", user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed E-line on %s.",user->nick,target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed E-line on %s.",user->nick.c_str(),target.c_str());
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick.c_str(),target.c_str());
 		}
 	}
 

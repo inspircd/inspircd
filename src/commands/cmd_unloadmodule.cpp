@@ -25,12 +25,12 @@ CmdResult CommandUnloadmodule::Handle (const std::vector<std::string>& parameter
 {
 	if (ServerInstance->Modules->Unload(parameters[0].c_str()))
 	{
-		ServerInstance->SNO->WriteToSnoMask('A', "MODULE UNLOADED: %s unloaded %s", user->nick, parameters[0].c_str());
-		user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick, parameters[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('A', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick.c_str(), parameters[0].c_str());
 	}
 	else
 	{
-		user->WriteNumeric(972, "%s %s :%s",user->nick, parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+		user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 		return CMD_FAILURE;
 	}
 

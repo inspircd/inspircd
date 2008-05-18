@@ -33,9 +33,9 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 			return CMD_FAILURE;
 
 		user->awaytime = ServerInstance->Time();
-		strlcpy(user->awaymsg, parameters[0].c_str(), MAXAWAY);
+		user->awaymsg.assign(parameters[0], 0, MAXAWAY);
 
-		user->WriteNumeric(306, "%s :You have been marked as being away",user->nick);
+		user->WriteNumeric(306, "%s :You have been marked as being away",user->nick.c_str());
 	}
 	else
 	{
@@ -44,8 +44,8 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 		if (MOD_RESULT != 0 && !IS_LOCAL(user))
 			return CMD_FAILURE;
 
-		*user->awaymsg = 0;
-		user->WriteNumeric(305, "%s :You are no longer marked as being away",user->nick);
+		user->awaymsg.empty();
+		user->WriteNumeric(305, "%s :You are no longer marked as being away",user->nick.c_str());
 	}
 
 	return CMD_SUCCESS;

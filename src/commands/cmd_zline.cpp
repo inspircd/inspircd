@@ -30,7 +30,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (target.find('!') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** You cannot include a nickname in a zline, a zline must ban only an IP mask",user->nick);
+			user->WriteServ("NOTICE %s :*** You cannot include a nickname in a zline, a zline must ban only an IP mask",user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -62,17 +62,17 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 				ipaddr++;
 			}
 		}
-		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), ipaddr);
+		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s.",user->nick,target.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s.",user->nick.c_str(),target.c_str());
 			}
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Z-line for %s, expires on %s",user->nick,target.c_str(),
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Z-line for %s, expires on %s",user->nick.c_str(),target.c_str(),
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 			ServerInstance->XLines->ApplyLines();
@@ -80,18 +80,18 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete zl;
-			user->WriteServ("NOTICE %s :*** Z-Line for %s already exists",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** Z-Line for %s already exists",user->nick.c_str(),target.c_str());
 		}
 	}
 	else
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(),"Z",user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Z-line on %s.",user->nick,target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Z-line on %s.",user->nick.c_str(),target.c_str());
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick.c_str(),target.c_str());
 			return CMD_FAILURE;
 		}
 	}

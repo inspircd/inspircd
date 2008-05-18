@@ -41,7 +41,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 			
         if (ih.first.empty())
         {
-            user->WriteServ("NOTICE %s :*** Target not found", user->nick);
+            user->WriteServ("NOTICE %s :*** Target not found", user->nick.c_str());
             return CMD_FAILURE;
         }
 
@@ -50,22 +50,22 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 
 		if (target.find('!') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** K-Line cannot operate on nick!user@host masks",user->nick);
+			user->WriteServ("NOTICE %s :*** K-Line cannot operate on nick!user@host masks",user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
 		long duration = ServerInstance->Duration(parameters[1].c_str());
-		KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
+		KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(kl,user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent K-line for %s.",user->nick,target.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent K-line for %s.",user->nick.c_str(),target.c_str());
 			}
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed K-line for %s, expires on %s",user->nick,target.c_str(),
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed K-line for %s, expires on %s",user->nick.c_str(),target.c_str(),
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 
@@ -74,18 +74,18 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete kl;
-			user->WriteServ("NOTICE %s :*** K-Line for %s already exists",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** K-Line for %s already exists",user->nick.c_str(),target.c_str());
 		}
 	}
 	else
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(),"K",user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed K-line on %s.",user->nick,target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed K-line on %s.",user->nick.c_str(),target.c_str());
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick.c_str(),target.c_str());
 		}
 	}
 

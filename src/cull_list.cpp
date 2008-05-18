@@ -25,7 +25,7 @@ void CullList::AddItem(User* user)
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs->Log("CULLLIST",DEBUG, "*** Warning *** - You tried to quit a user (%s) twice. Did your module call QuitUser twice?", user->nick);
+		ServerInstance->Logs->Log("CULLLIST",DEBUG, "*** Warning *** - You tried to quit a user (%s) twice. Did your module call QuitUser twice?", user->nick.c_str());
 		return;
 	}
 
@@ -50,14 +50,12 @@ int CullList::Apply()
 
 		User *u = (*a);
 		user_hash::iterator iter = ServerInstance->Users->clientlist->find(u->nick);
-		const char* preset_reason = u->GetOperQuit();
-		std::string reason = u->quitmsg;
-		std::string oper_reason = *preset_reason ? preset_reason : u->operquitmsg;
+		const std::string& preset_reason = u->GetOperQuit();
+		std::string reason;
+		std::string oper_reason;
 
-		if (reason.length() > MAXQUIT - 1)
-			reason.resize(MAXQUIT - 1);
-		if (oper_reason.length() > MAXQUIT - 1)
-			oper_reason.resize(MAXQUIT - 1);
+		reason.assign(u->quitmsg, 0, MAXQUIT - 1);
+		oper_reason.assign(preset_reason.empty() ? preset_reason : u->operquitmsg, 0, MAXQUIT - 1);
 
 		if (u->registered != REG_ALL)
 			if (ServerInstance->Users->unregistered_count)
@@ -106,14 +104,14 @@ int CullList::Apply()
 			{
 				if (!u->quietquit)
 				{
-					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick,u->ident,u->host,oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick.c_str(),u->ident.c_str(),u->host,oper_reason.c_str());
 				}
 			}
 			else
 			{
 				if ((!ServerInstance->SilentULine(u->server)) && (!u->quietquit))
 				{
-					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",u->server,u->nick,u->ident,u->host,oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",u->server,u->nick.c_str(),u->ident.c_str(),u->host,oper_reason.c_str());
 				}
 			}
 			u->AddToWhoWas();

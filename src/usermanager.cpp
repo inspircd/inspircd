@@ -70,11 +70,11 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	(*(this->clientlist))[New->uuid] = New;
 
 	/* The users default nick is their UUID */
-	strlcpy(New->nick, New->uuid, NICKMAX - 1);
+	New->nick.assign(New->uuid, 0, NICKMAX - 1);
 
 	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
-	strcpy(New->ident, "unknown");
+	New->ident.assign("unknown");
 
 	New->registered = REG_NONE;
 	New->signon = Instance->Time() + Instance->Config->dns_timeout;
@@ -145,7 +145,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 			/* user banned */
 			Instance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
 			if (*Instance->Config->MoronBanner)
-				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
+				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), Instance->Config->MoronBanner);
 			this->QuitUser(New, b->Reason);
 			return;
 		}
@@ -181,7 +181,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 
 	if (Instance->Config->NoUserDns)
 	{
-		New->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", New->nick);
+		New->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", New->nick.c_str());
 		New->dns_done = true;
 	}
 	else
@@ -192,8 +192,8 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 
 void UserManager::QuitUser(User *user, const std::string &quitreason, const char* operreason)
 {
-	ServerInstance->Logs->Log("USERS", DEBUG,"QuitUser: %s '%s'", user->nick, quitreason.c_str());
-	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, *operreason ? operreason : quitreason.c_str());
+	ServerInstance->Logs->Log("USERS", DEBUG,"QuitUser: %s '%s'", user->nick.c_str(), quitreason.c_str());
+	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident.c_str(), user->host, *operreason ? operreason : quitreason.c_str());
 	user->quietquit = false;
 	user->quitmsg = quitreason;
 
@@ -377,7 +377,7 @@ void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
 			}
 			if (send_to_user)
 			{
-				t->WriteServ("NOTICE %s :%s", t->nick, textbuffer);
+				t->WriteServ("NOTICE %s :%s", t->nick.c_str(), textbuffer);
 			}
 		}
 	}
@@ -399,7 +399,7 @@ void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
 
 			if (send_to_user)
 			{
-				t->WriteServ("NOTICE %s :%s", t->nick, textbuffer);
+				t->WriteServ("NOTICE %s :%s", t->nick.c_str(), textbuffer);
 			}
 		}
 	}

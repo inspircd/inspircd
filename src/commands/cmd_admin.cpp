@@ -24,10 +24,10 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandAdmin::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	user->WriteNumeric(256, "%s :Administrative info for %s",user->nick,ServerInstance->Config->ServerName);
+	user->WriteNumeric(256, "%s :Administrative info for %s",user->nick.c_str(),ServerInstance->Config->ServerName);
 	if (*ServerInstance->Config->AdminName)
-		user->WriteNumeric(257, "%s :Name     - %s",user->nick,ServerInstance->Config->AdminName);
-	user->WriteNumeric(258, "%s :Nickname - %s",user->nick,ServerInstance->Config->AdminNick);
-	user->WriteNumeric(259, "%s :E-Mail   - %s",user->nick,ServerInstance->Config->AdminEmail);
+		user->WriteNumeric(257, "%s :Name     - %s",user->nick.c_str(),ServerInstance->Config->AdminName);
+	user->WriteNumeric(258, "%s :Nickname - %s",user->nick.c_str(),ServerInstance->Config->AdminNick);
+	user->WriteNumeric(259, "%s :E-Mail   - %s",user->nick.c_str(),ServerInstance->Config->AdminEmail);
 	return CMD_SUCCESS;
 }

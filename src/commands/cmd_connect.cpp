@@ -27,6 +27,6 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandConnect::Handle (const std::vector<std::string>&, User *user)
 {
-	user->WriteServ( "NOTICE %s :Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.", user->nick);
+	user->WriteServ( "NOTICE %s :Look into loading a linking module (like m_spanningtree) if you want this to do anything useful.", user->nick.c_str());
 	return CMD_SUCCESS;
 }

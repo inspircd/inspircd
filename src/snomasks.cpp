@@ -138,10 +138,10 @@ void Snomask::Flush()
 		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)
 		{
 
-			a->WriteServ("NOTICE %s :*** %s: %s", a->nick, this->Description.c_str(), this->LastMessage.c_str());
+			a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), this->Description.c_str(), this->LastMessage.c_str());
 			if (Count > 1)
 			{
-				a->WriteServ("NOTICE %s :*** %s: (last message repeated %u times)", a->nick, this->Description.c_str(), Count);
+				a->WriteServ("NOTICE %s :*** %s: (last message repeated %u times)", a->nick.c_str(), this->Description.c_str(), Count);
 			}
 		}
 	}

@@ -70,12 +70,12 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			{
 				if ((chan->IsModeSet('n')) && (!chan->HasUser(user)))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name);
 					return CMD_FAILURE;
 				}
 				if ((chan->IsModeSet('m')) && (chan->GetStatus(user) < STATUS_VOICE))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick, chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name);
 					return CMD_FAILURE;
 				}
 			}
@@ -91,7 +91,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			/* Check again, a module may have zapped the input string */
 			if (temp.empty())
 			{
-				user->WriteNumeric(412, "%s :No text to send", user->nick);
+				user->WriteNumeric(412, "%s :No text to send", user->nick.c_str());
 				return CMD_FAILURE;
 			}
 
@@ -118,7 +118,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		else
 		{
 			/* no such nick/channel */
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, target);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -138,7 +138,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			if (dest && strcasecmp(dest->server, targetserver + 1))
 			{
 				/* Incorrect server for user */
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -152,14 +152,14 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	{
 		if (parameters[1].empty())
 		{
-			user->WriteNumeric(412, "%s :No text to send", user->nick);
+			user->WriteNumeric(412, "%s :No text to send", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
 		if (IS_AWAY(dest))
 		{
 			/* auto respond with aweh msg */
-			user->WriteNumeric(301, "%s %s :%s",user->nick,dest->nick,dest->awaymsg);
+			user->WriteNumeric(301, "%s %s :%s",user->nick.c_str(),dest->nick.c_str(),dest->awaymsg.c_str());
 		}
 
 		int MOD_RESULT = 0;
@@ -176,7 +176,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
-			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick, text);
+			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick.c_str(), text);
 		}
 
 		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, dest, TYPE_USER, text, 0, except_list));
@@ -184,7 +184,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;

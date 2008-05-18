@@ -26,7 +26,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 {
 	int minusers = 0, maxusers = 0;
 
-	user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
+	user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 
 	/* Work around mIRC suckyness. YOU SUCK, KHALED! */
 	if (parameters.size() == 1)
@@ -62,17 +62,17 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		bool n = (i->second->HasUser(user) || IS_OPER(user));
 		if (!IS_OPER(user) && (i->second->IsModeSet('p')) && (!n))
 		{
-			user->WriteNumeric(322, "%s * %ld :",user->nick, users);
+			user->WriteNumeric(322, "%s * %ld :",user->nick.c_str(), users);
 		}
 		else
 		{
 			if (IS_OPER(user) || (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('s')))) || (n)))
 			{
-				user->WriteNumeric(322, "%s %s %ld :[+%s] %s",user->nick,i->second->name,users,i->second->ChanModes(n),i->second->topic);
+				user->WriteNumeric(322, "%s %s %ld :[+%s] %s",user->nick.c_str(),i->second->name,users,i->second->ChanModes(n),i->second->topic);
 			}
 		}
 	}
-	user->WriteNumeric(323, "%s :End of channel list.",user->nick);
+	user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
 
 	return CMD_SUCCESS;
 }

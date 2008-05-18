@@ -32,13 +32,13 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (!u || !c)
 	{
-		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, u ? parameters[0].c_str() : parameters[1].c_str());
+		user->WriteServ( "401 %s %s :No such nick/channel", user->nick.c_str(), u ? parameters[0].c_str() : parameters[1].c_str());
 		return CMD_FAILURE;
 	}
 
 	if ((IS_LOCAL(user)) && (!c->HasUser(user)) && (!ServerInstance->ULine(user->server)))
 	{
-		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick, parameters[0].c_str());
+		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
@@ -48,7 +48,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	}
 	else
 	{
-		strlcpy(reason, user->nick, MAXKICK - 1);
+		strlcpy(reason, user->nick.c_str(), MAXKICK - 1);
 	}
 
 	if (!c->KickUser(user, u, reason))

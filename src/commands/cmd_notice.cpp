@@ -69,12 +69,12 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			{
 				if ((chan->IsModeSet('n')) && (!chan->HasUser(user)))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name);
 					return CMD_FAILURE;
 				}
 				if ((chan->IsModeSet('m')) && (chan->GetStatus(user) < STATUS_VOICE))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick, chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name);
 					return CMD_FAILURE;
 				}
 			}
@@ -89,7 +89,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 			if (temp.empty())
 			{
-				user->WriteNumeric(412, "%s :No text to send", user->nick);
+				user->WriteNumeric(412, "%s :No text to send", user->nick.c_str());
 				return CMD_FAILURE;
 			}
 
@@ -116,7 +116,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 		else
 		{
 			/* no such nick/channel */
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, target);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -136,7 +136,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			if (dest && strcasecmp(dest->server, targetserver + 1))
 			{
 				/* Incorrect server for user */
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -150,7 +150,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 	{
 		if (parameters[1].empty())
 		{
-			user->WriteNumeric(412, "%s :No text to send", user->nick);
+			user->WriteNumeric(412, "%s :No text to send", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -167,7 +167,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
-			user->WriteTo(dest, "NOTICE %s :%s", dest->nick, text);
+			user->WriteTo(dest, "NOTICE %s :%s", dest->nick.c_str(), text);
 		}
 
 		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,text,0,exempt_list));
@@ -175,7 +175,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 

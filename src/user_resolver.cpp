@@ -76,7 +76,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 
 					this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
 					this->bound_user->dns_done = true;
-					strlcpy(this->bound_user->dhost, hostname.c_str(),64);
+					this->bound_user->dhost.assign(hostname, 0, 64);
 					strlcpy(this->bound_user->host, hostname.c_str(),64);
 					/* Invalidate cache */
 					this->bound_user->InvalidateCache();

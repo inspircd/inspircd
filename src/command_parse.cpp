@@ -294,7 +294,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		if (user->registered == REG_ALL)
 		{
-			user->WriteNumeric(421, "%s %s :Unknown command",user->nick,command.c_str());
+			user->WriteNumeric(421, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
 		}
 		ServerInstance->stats->statsUnknown++;
 		return true;
@@ -318,28 +318,28 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		if (!user->IsModeSet(cm->second->flags_needed))
 		{
-			user->WriteNumeric(481, "%s :Permission Denied - You do not have the required operator privileges",user->nick);
+			user->WriteNumeric(481, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
 			return do_more;
 		}
 		if (!user->HasPermission(command))
 		{
-			user->WriteNumeric(481, "%s :Permission Denied - Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
+			user->WriteNumeric(481, "%s :Permission Denied - Oper type %s does not have access to command %s",user->nick.c_str(),user->oper.c_str(),command.c_str());
 			return do_more;
 		}
 	}
 	if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
 	{
 		/* command is disabled! */
-		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick,command.c_str());
+		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick.c_str(),command.c_str());
 		ServerInstance->SNO->WriteToSnoMask('d', "%s denied for %s (%s@%s)",
-				command.c_str(), user->nick, user->ident, user->host);
+				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host);
 		return do_more;
 	}
 	if (command_p.size() < cm->second->min_params)
 	{
-		user->WriteNumeric(461, "%s %s :Not enough parameters.", user->nick, command.c_str());
+		user->WriteNumeric(461, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
-			user->WriteNumeric(304, "%s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
+			user->WriteNumeric(304, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
 		return do_more;
 	}
 	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
@@ -404,7 +404,7 @@ bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
 
 	if (buffer.length())
 	{
-		ServerInstance->Logs->Log("USERINPUT", DEBUG,"C[%d] I :%s %s",user->GetFd(), user->nick, buffer.c_str());
+		ServerInstance->Logs->Log("USERINPUT", DEBUG,"C[%d] I :%s %s",user->GetFd(), user->nick.c_str(), buffer.c_str());
 		return this->ProcessCommand(user,buffer);
 	}
 
@@ -472,7 +472,7 @@ bool CommandParser::ReloadCommand(std::string cmd, User* user)
 		if (err)
 		{
 			if (user)
-				user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick, cmd.c_str(), err);
+				user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick.c_str(), cmd.c_str(), err);
 			return false;
 		}
 
@@ -487,16 +487,16 @@ CmdResult cmd_reload::Handle(const std::vector<std::string>& parameters, User *u
 	if (parameters.size() < 1)
 		return CMD_FAILURE;
 
-	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0].c_str());
+	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick.c_str(), parameters[0].c_str());
 	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))
 	{
-		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick, parameters[0].c_str());
-		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD: %s reloaded the '%s' command.", user->nick, parameters[0].c_str());
+		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick.c_str(), parameters[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD: %s reloaded the '%s' command.", user->nick.c_str(), parameters[0].c_str());
 		return CMD_SUCCESS;
 	}
 	else
 	{
-		user->WriteServ("NOTICE %s :*** Could not reload command '%s' -- fix this problem, then /REHASH as soon as possible!", user->nick, parameters[0].c_str());
+		user->WriteServ("NOTICE %s :*** Could not reload command '%s' -- fix this problem, then /REHASH as soon as possible!", user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 }
@@ -560,7 +560,7 @@ void CommandParser::SetupCommandTable(User* user)
 				{
 					if (user)
 					{
-						user->WriteServ("NOTICE %s :*** Failed to load core command %s: %s", user->nick, entry->d_name, err);
+						user->WriteServ("NOTICE %s :*** Failed to load core command %s: %s", user->nick.c_str(), entry->d_name, err);
 					}
 					else
 					{

@@ -32,7 +32,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (parameters[0].empty())
 	{
 		/* We cant put blanks in the parameters, so for this (extremely rare) issue we just put '*' here. */
-		user->WriteNumeric(432, "%s * :Erroneous Nickname", *user->nick ? user->nick : "*");
+		user->WriteNumeric(432, "%s * :Erroneous Nickname", user->nick.empty() ? user->nick.c_str() : "*");
 		return CMD_FAILURE;
 	}
 
@@ -52,12 +52,12 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 				return CMD_SUCCESS;
 			}
 
-			user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick,parameters[0].c_str());
+			user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick.c_str(),parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}
 
-	if (irc::string(user->nick) == assign(parameters[0]))
+	if (irc::string(user->nick.c_str()) == assign(parameters[0]))
 	{
 		/* If its exactly the same, even case, dont do anything. */
 		if (parameters[0] == user->nick)
@@ -67,14 +67,14 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 * able to do silly things like this even though the RFC says
 		 * the nick AAA is the same as the nick aaa.
 		 */
-		strlcpy(oldnick, user->nick, NICKMAX - 1);
+		strlcpy(oldnick, user->nick.c_str(), NICKMAX - 1);
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0].c_str()));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
 		if (user->registered == REG_ALL)
 			user->WriteCommon("NICK %s",parameters[0].c_str());
-		strlcpy(user->nick, parameters[0].c_str(), NICKMAX - 1);
+		user->nick.assign(parameters[0], 0, NICKMAX - 1);
 		user->InvalidateCache();
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return CMD_SUCCESS;
@@ -94,8 +94,8 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 			XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
 			if (mq)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0].c_str(), user->nick, user->ident, user->host, mq->reason);
-				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick, parameters[0].c_str(), mq->reason);
+				ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0].c_str(), user->nick.c_str(), user->ident.c_str(), user->host, mq->reason);
+				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick.c_str(), parameters[0].c_str(), mq->reason);
 				return CMD_FAILURE;
 			}
 		}
@@ -115,17 +115,17 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 			if (InUse->registered != REG_ALL)
 			{
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
-				InUse->WriteTo(InUse, "NICK %s", InUse->uuid);
-				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick, InUse->nick);
-				InUse->UpdateNickHash(InUse->uuid);
-				strlcpy(InUse->nick, InUse->uuid, NICKMAX - 1);
+				InUse->WriteTo(InUse, "NICK %s", InUse->uuid.c_str());
+				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick.c_str(), InUse->nick.c_str());
+				InUse->UpdateNickHash(InUse->uuid.c_str());
+				InUse->nick.assign(InUse->uuid, 0, NICKMAX - 1);
 				InUse->InvalidateCache();
 				InUse->registered &= ~REG_NICK;
 			}
 			else
 			{
 				/* No camping, tell the incoming user  to stop trying to change nick ;p */
-				user->WriteNumeric(433, "%s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0].c_str());
+				user->WriteNumeric(433, "%s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick.c_str() : "*", parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -141,7 +141,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (user->registered == REG_ALL)
 		user->WriteCommon("NICK %s", parameters[0].c_str());
 
-	strlcpy(oldnick, user->nick, NICKMAX - 1);
+	strlcpy(oldnick, user->nick.c_str(), NICKMAX - 1);
 
 	/* change the nick of the user in the users_hash */
 	user = user->UpdateNickHash(parameters[0].c_str());
@@ -149,10 +149,10 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	/* actually change the nick within the record */
 	if (!user)
 		return CMD_FAILURE;
-	if (!*user->nick)
+	if (!user->nick.empty())
 		return CMD_FAILURE;
 
-	strlcpy(user->nick, parameters[0].c_str(), NICKMAX - 1);
+	user->nick.assign(parameters[0], 0, NICKMAX - 1);
 
 	user->InvalidateCache();
 

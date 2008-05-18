@@ -21,10 +21,10 @@
 
 void FloodQuitUserHandler::Call(User* current)
 {
-	Server->Logs->Log("USERS",DEFAULT,"Excess flood from: %s@%s", current->ident, current->host);
+	Server->Logs->Log("USERS",DEFAULT,"Excess flood from: %s@%s", current->ident.c_str(), current->host);
 	Server->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
-			current->registered == REG_ALL ? current->nick : "",
-			current->registered == REG_ALL ? "!" : "", current->ident, current->host);
+			current->registered == REG_ALL ? current->nick.c_str() : "",
+			current->registered == REG_ALL ? "!" : "", current->ident.c_str(), current->host);
 	Server->Users->QuitUser(current, "Excess flood");
 
 	if (current->registered != REG_ALL)
@@ -120,7 +120,7 @@ void ProcessUserHandler::Call(User* cu)
 							Server->FloodQuitUser(current);
 						else
 						{
-							current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over %d chars) Please shorten it.", current->nick, MAXBUF-2);
+							current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over %d chars) Please shorten it.", current->nick.c_str(), MAXBUF-2);
 							current->recvq.clear();
 						}
 					}

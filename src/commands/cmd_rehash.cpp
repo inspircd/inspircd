@@ -44,9 +44,9 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	FOREACH_MOD(I_OnRehash,OnRehash(user, ""));
 
 	// XXX write this to a remote user correctly
-	user->WriteNumeric(382, "%s %s :Rehashing",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
+	user->WriteNumeric(382, "%s %s :Rehashing",user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 
-	std::string m = std::string(user->nick) + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
+	std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
 	ServerInstance->SNO->WriteToSnoMask('A', m);
 	ServerInstance->Logs->CloseLogs();
 
@@ -71,7 +71,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	{
 		/* A rehash is already in progress! ahh shit. */
 		if (IS_LOCAL(user))
-			user->WriteServ("NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick);
+			user->WriteServ("NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick.c_str());
 		else
 			ServerInstance->PI->SendUserNotice(user, "*** Could not rehash: A rehash is already in progress.");
 

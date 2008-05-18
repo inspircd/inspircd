@@ -19,17 +19,17 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 {
 	if (dest->Visibility && !dest->Visibility->VisibleTo(user))
 	{
-		ServerInstance->SendWhoisLine(user, dest, 401, "%s %s :No such nick/channel",user->nick, *nick ? nick : "*");
-		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, *nick ? nick : "*");
+		ServerInstance->SendWhoisLine(user, dest, 401, "%s %s :No such nick/channel",user->nick.c_str(), *nick ? nick : "*");
+		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick.c_str(), *nick ? nick : "*");
 		return;
 	}
 
 	if (dest->registered == REG_ALL)
 	{
-		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
+		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
 		if (user == dest || IS_OPER(user))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick, dest->nick, dest->ident, dest->host, dest->GetIPString());
+			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host, dest->GetIPString());
 		}
 
 		std::string cl = dest->ChannelList(user);
@@ -42,37 +42,37 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 			}
 			else
 			{
-				ServerInstance->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick, dest->nick, cl.c_str());
+				ServerInstance->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), cl.c_str());
 			}
 		}
 		if (*ServerInstance->Config->HideWhoisServer && !IS_OPER(user))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick, dest->nick, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
 		}
 		else
 		{
-			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick, dest->nick, dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
+			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
 		}
 
 		if (IS_AWAY(dest))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick, dest->nick, dest->awaymsg);
+			ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
 		}
 
 		if (IS_OPER(dest))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper[0]) ? "an" : "a"),irc::Spacify(dest->oper.c_str()), ServerInstance->Config->Network);
 		}
 
 		if (user == dest || IS_OPER(user))
 		{
 			if (dest->modes[UM_SNOMASK] != 0)
 			{
-				ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick, dest->nick, dest->FormatModes(), dest->FormatNoticeMasks());
+				ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes(), dest->FormatNoticeMasks());
 			}
 			else
 			{
-				ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s", user->nick, dest->nick, dest->FormatModes());
+				ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes());
 			}
 		}
 
@@ -84,15 +84,15 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 		 */
 		if ((idle) || (signon))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %lu %lu :seconds idle, signon time",user->nick, dest->nick, idle, signon);
+			ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %lu %lu :seconds idle, signon time",user->nick.c_str(), dest->nick.c_str(), idle, signon);
 		}
 
-		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, dest->nick);
+		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick.c_str(), dest->nick.c_str());
 	}
 	else
 	{
-		ServerInstance->SendWhoisLine(user, dest, 401, "%s %s :No such nick/channel",user->nick, *nick ? nick : "*");
-		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, *nick ? nick : "*");
+		ServerInstance->SendWhoisLine(user, dest, 401, "%s %s :No such nick/channel",user->nick.c_str(), *nick ? nick : "*");
+		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick.c_str(), *nick ? nick : "*");
 	}
 }
 
@@ -146,8 +146,8 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
-		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick, parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
+		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick.c_str(), parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
 		return CMD_FAILURE;
 	}
 

@@ -53,7 +53,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		ServerInstance->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
-				statschar, user->nick, user->ident, user->host);
+				statschar, user->nick.c_str(), user->ident.c_str(), user->host);
 		results.push_back(sn + " 481 " + user->nick + " :Permission denied - STATS " + statschar + " is oper-only");
 		return;
 	}
@@ -239,7 +239,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			results.push_back(sn+" 249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats->statsCollisions));
 			results.push_back(sn+" 249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats->statsDnsGood+ServerInstance->stats->statsDnsBad)+" succeeded "+ConvToStr(ServerInstance->stats->statsDnsGood)+" failed "+ConvToStr(ServerInstance->stats->statsDnsBad));
 			results.push_back(sn+" 249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats->statsConnects));
-			snprintf(buffer,MAXBUF," 249 %s :bytes sent %5.2fK recv %5.2fK",user->nick,ServerInstance->stats->statsSent / 1024,ServerInstance->stats->statsRecv / 1024);
+			snprintf(buffer,MAXBUF," 249 %s :bytes sent %5.2fK recv %5.2fK",user->nick.c_str(),ServerInstance->stats->statsSent / 1024,ServerInstance->stats->statsRecv / 1024);
 			results.push_back(sn+buffer);
 		}
 		break;
@@ -264,7 +264,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		  	for (std::vector<User*>::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
 			{
 				User* i = *n;
-				if (ServerInstance->IsNick(i->nick))
+				if (ServerInstance->IsNick(i->nick.c_str()))
 				{
 					results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
 				}
@@ -277,7 +277,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			for (std::vector<User*>::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
 			{
 				User* i = *n;
-				if (ServerInstance->IsNick(i->nick))
+				if (ServerInstance->IsNick(i->nick.c_str()))
 				{
 					results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
 				}
@@ -297,13 +297,13 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			if (stime->tm_year > 70)
 			{
 				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF," 242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",user->nick,(stime->tm_year-70),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+				snprintf(buffer,MAXBUF," 242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",user->nick.c_str(),(stime->tm_year-70),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
 				results.push_back(sn+buffer);
 			}
 			else
 			{
 				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF," 242 %s :Server up %d days, %.2d:%.2d:%.2d",user->nick,stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+				snprintf(buffer,MAXBUF," 242 %s :Server up %d days, %.2d:%.2d:%.2d",user->nick.c_str(),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
 				results.push_back(sn+buffer);
 			}
 		}
@@ -315,6 +315,6 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 	results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
-		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick, user->ident, user->host);
+		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host);
 	return;
 }

@@ -31,22 +31,22 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 		{
 			if ((Ptr->IsModeSet('s')) && (!Ptr->HasUser(user)))
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, Ptr->name);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), Ptr->name);
 				return CMD_FAILURE;
 			}
 			if (Ptr->topicset)
 			{
-				user->WriteNumeric(332, "%s %s :%s", user->nick, Ptr->name, Ptr->topic);
-				user->WriteNumeric(333, "%s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+				user->WriteNumeric(332, "%s %s :%s", user->nick.c_str(), Ptr->name, Ptr->topic);
+				user->WriteNumeric(333, "%s %s %s %lu", user->nick.c_str(), Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 			}
 			else
 			{
-				user->WriteNumeric(331, "%s %s :No topic is set.", user->nick, Ptr->name);
+				user->WriteNumeric(331, "%s %s :No topic is set.", user->nick.c_str(), Ptr->name);
 			}
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -60,12 +60,12 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 			{
 				if (!Ptr->HasUser(user))
 				{
-					user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick, Ptr->name);
+					user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick.c_str(), Ptr->name);
 					return CMD_FAILURE;
 				}
 				if ((Ptr->IsModeSet('t')) && (Ptr->GetStatus(user) < STATUS_HOP))
 				{
-					user->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", user->nick, Ptr->name);
+					user->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", user->nick.c_str(), Ptr->name);
 					return CMD_FAILURE;
 				}
 			}
@@ -93,9 +93,9 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 			}
 
 			if (ServerInstance->Config->FullHostInTopic)
-				strlcpy(Ptr->setby,user->GetFullHost(),127);
+				strlcpy(Ptr->setby,user->GetFullHost().c_str(),127);
 			else
-				strlcpy(Ptr->setby,user->nick,127);
+				strlcpy(Ptr->setby,user->nick.c_str(),127);
 
 			Ptr->topicset = ServerInstance->Time();
 			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name, Ptr->topic);
@@ -106,7 +106,7 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}

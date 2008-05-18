@@ -24,6 +24,6 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 CmdResult CommandClearcache::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	int n = ServerInstance->Res->ClearCache();
-	user->WriteServ("NOTICE %s :*** Cleared DNS cache of %d items.", user->nick, n);
+	user->WriteServ("NOTICE %s :*** Cleared DNS cache of %d items.", user->nick.c_str(), n);
 	return CMD_SUCCESS;
 }

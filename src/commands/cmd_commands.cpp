@@ -26,12 +26,12 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 	for (Commandable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
 		user->WriteNumeric(702, "%s :%s %s %d %d",
-				user->nick,
+				user->nick.c_str(),
 				i->second->command.c_str(),
 				i->second->source.c_str(),
 				i->second->min_params,
 				i->second->Penalty);
 	}
-	user->WriteNumeric(704, "%s :End of COMMANDS list",user->nick);
+	user->WriteNumeric(704, "%s :End of COMMANDS list",user->nick.c_str());
 	return CMD_SUCCESS;
 }

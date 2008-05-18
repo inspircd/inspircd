@@ -232,7 +232,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		{
 			if (user->chans.size() >= user->GetMaxChans())
 			{
-				user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick, cn);
+				user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 				return NULL;
 			}
 		}
@@ -242,7 +242,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			{
 				if (user->chans.size() >= Instance->Config->OperMaxChans)
 				{
-					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick, cn);
+					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 					return NULL;
 				}
 			}
@@ -250,7 +250,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			{
 				if (user->chans.size() >= Instance->Config->MaxChans)
 				{
-					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick, cn);
+					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 					return NULL;
 				}
 			}
@@ -268,7 +268,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		if (!IS_LOCAL(user))
 		{
 			if (!TS)
-				Instance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick, cn);
+				Instance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn);
 		}
 		else
 		{
@@ -313,7 +313,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if ((!key) || strcmp(key,Ptr->key))
 						{
-							user->WriteNumeric(475, "%s %s :Cannot join channel (Incorrect channel key)",user->nick, Ptr->name);
+							user->WriteNumeric(475, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name);
 							return NULL;
 						}
 					}
@@ -326,7 +326,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if (!user->IsInvited(Ptr->name))
 						{
-							user->WriteNumeric(473, "%s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
+							user->WriteNumeric(473, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name);
 							return NULL;
 						}
 					}
@@ -340,7 +340,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if (Ptr->GetUserCounter() >= Ptr->limit)
 						{
-							user->WriteNumeric(471, "%s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
+							user->WriteNumeric(471, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name);
 							return NULL;
 						}
 					}
@@ -349,7 +349,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 				{
 					if (Ptr->IsBanned(user))
 					{
-						user->WriteNumeric(474, "%s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+						user->WriteNumeric(474, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name);
 						return NULL;
 					}
 				}
@@ -419,8 +419,8 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 	{
 		if (Ptr->topicset)
 		{
-			user->WriteNumeric(332, "%s %s :%s", user->nick, Ptr->name, Ptr->topic);
-			user->WriteNumeric(333, "%s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+			user->WriteNumeric(332, "%s %s :%s", user->nick.c_str(), Ptr->name, Ptr->topic);
+			user->WriteNumeric(333, "%s %s %s %lu", user->nick.c_str(), Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 		}
 		Ptr->UserList(user);
 	}
@@ -438,7 +438,7 @@ bool Channel::IsBanned(User* user)
 		return true;
 	else if (MOD_RESULT == 0)
 	{
-		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
+		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 		{
 			/* This allows CIDR ban matching
@@ -460,7 +460,7 @@ bool Channel::IsExtBanned(User *user, char type)
 	char mask[MAXBUF];
 	char *maskptr;
 
-	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
+	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 
 	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 	{
@@ -555,7 +555,7 @@ long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents,
 	if (i != user->chans.end())
 	{
 		if (!silent)
-			this->WriteChannelWithServ(servername, "KICK %s %s :%s", this->name, user->nick, reason);
+			this->WriteChannelWithServ(servername, "KICK %s %s :%s", this->name, user->nick.c_str(), reason);
 
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);
@@ -591,12 +591,12 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 	{
 		if (!this->HasUser(user))
 		{
-			src->WriteNumeric(441, "%s %s %s :They are not on that channel",src->nick, user->nick, this->name);
+			src->WriteNumeric(441, "%s %s %s :They are not on that channel",src->nick.c_str(), user->nick.c_str(), this->name);
 			return this->GetUserCounter();
 		}
 		if ((ServerInstance->ULine(user->server)) && (!ServerInstance->ULine(src->server)))
 		{
-			src->WriteNumeric(482, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
+			src->WriteNumeric(482, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick.c_str(), this->name);
 			return this->GetUserCounter();
 		}
 		int MOD_RESULT = 0;
@@ -621,7 +621,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 				int us = this->GetStatus(user);
    			 	if ((them < STATUS_HOP) || (them < us))
 				{
-					src->WriteNumeric(482, "%s %s :You must be a channel %soperator",src->nick, this->name, them == STATUS_HOP ? "" : "half-");
+					src->WriteNumeric(482, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name, them == STATUS_HOP ? "" : "half-");
 					return this->GetUserCounter();
 				}
 			}
@@ -635,7 +635,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 	{
 		/* zap it from the channel list of the user */
 		if (!silent)
-			this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick, reason);
+			this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick.c_str(), reason);
 
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);
@@ -685,7 +685,7 @@ void Channel::WriteChannel(User* user, const std::string &text)
 	if (!user)
 		return;
 
-	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(),text.c_str());
 	std::string out = tb;
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
@@ -762,7 +762,7 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 	CUList *ulist = this->GetUsers();
 	char tb[MAXBUF];
 
-	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(),text.c_str());
 	std::string out = tb;
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
@@ -877,12 +877,12 @@ void Channel::UserList(User *user, CUList *ulist)
 	{
 		if ((this->IsModeSet('s')) && (!this->HasUser(user)))
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, this->name);
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), this->name);
 			return;
 		}
 	}
 
-	dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name);
+	dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick.c_str(), this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name);
 
 	int numusers = 0;
 	char* ptr = list + dlen;
@@ -929,7 +929,7 @@ void Channel::UserList(User *user, CUList *ulist)
 			user->WriteServ(std::string(list));
 
 			/* reset our lengths */
-			dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name);
+			dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick.c_str(), this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name);
 			ptr = list + dlen;
 
 			ptrlen = 0;
@@ -950,7 +950,7 @@ void Channel::UserList(User *user, CUList *ulist)
 		user->WriteNumeric(353,std::string(list));
 	}
 
-	user->WriteNumeric(366, "%s %s :End of /NAMES list.", user->nick, this->name);
+	user->WriteNumeric(366, "%s %s :End of /NAMES list.", user->nick.c_str(), this->name);
 }
 
 long Channel::GetMaxBans()

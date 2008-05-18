@@ -82,7 +82,7 @@ std::string User::ProcessNoticeMasks(const char *sm)
 					}
 				}
 				else
-					this->WriteNumeric(501, "%s %c :is unknown snomask char to me", this->nick, *c);
+					this->WriteNumeric(501, "%s %c :is unknown snomask char to me", this->nick.c_str(), *c);
 
 				oldadding = adding;
 			break;
@@ -185,7 +185,7 @@ void User::DecrementModes()
 
 User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
 {
-	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = *uuid = 0;
+	*host = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = ServerInstance->Time();
 	age = ServerInstance->Time();
@@ -209,15 +209,13 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	invites.clear();
 	memset(modes,0,sizeof(modes));
 	memset(snomasks,0,sizeof(snomasks));
-	/* Invalidate cache */
-	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 
 	if (uid.empty())
-		strlcpy(uuid, Instance->GetUID().c_str(), UUID_LENGTH);
+		uuid.assign(Instance->GetUID(), 0, UUID_LENGTH);
 	else
-		strlcpy(uuid, uid.c_str(), UUID_LENGTH);
+		uuid.assign(uid, 0, UUID_LENGTH);
 
-	ServerInstance->Logs->Log("USERS", DEBUG,"New UUID for user: %s (%s)", uuid, uid.empty() ? "allocated new" : "used remote");
+	ServerInstance->Logs->Log("USERS", DEBUG,"New UUID for user: %s (%s)", uuid.c_str(), uid.empty() ? "allocated new" : "used remote");
 
 	user_hash::iterator finduuid = Instance->Users->uuidlist->find(uuid);
 	if (finduuid == Instance->Users->uuidlist->end())
@@ -274,42 +272,42 @@ User::~User()
 	ServerInstance->Users->uuidlist->erase(uuid);
 }
 
-char* User::MakeHost()
+const std::string& User::MakeHost()
 {
-	if (this->cached_makehost)
+	if (!this->cached_makehost.empty())
 		return this->cached_makehost;
 
 	char nhost[MAXBUF];
 	/* This is much faster than snprintf */
 	char* t = nhost;
-	for(char* n = ident; *n; n++)
+	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(char* n = host; *n; n++)
+	for(const char* n = host; *n; n++)
 		*t++ = *n;
 	*t = 0;
 
-	this->cached_makehost = strdup(nhost);
+	this->cached_makehost.assign(nhost);
 
 	return this->cached_makehost;
 }
 
-char* User::MakeHostIP()
+const std::string& User::MakeHostIP()
 {
-	if (this->cached_hostip)
+	if (!this->cached_hostip.empty())
 		return this->cached_hostip;
 
 	char ihost[MAXBUF];
 	/* This is much faster than snprintf */
 	char* t = ihost;
-	for(char* n = ident; *n; n++)
+	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
 	for(const char* n = this->GetIPString(); *n; n++)
 		*t++ = *n;
 	*t = 0;
 
-	this->cached_hostip = strdup(ihost);
+	this->cached_hostip = ihost;
 
 	return this->cached_hostip;
 }
@@ -323,24 +321,24 @@ void User::CloseSocket()
 	}
 }
 
-char* User::GetFullHost()
+const std::string& User::GetFullHost()
 {
-	if (this->cached_fullhost)
+	if (!this->cached_fullhost.empty())
 		return this->cached_fullhost;
 
 	char result[MAXBUF];
 	char* t = result;
-	for(char* n = nick; *n; n++)
+	for(const char* n = nick.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '!';
-	for(char* n = ident; *n; n++)
+	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(char* n = dhost; *n; n++)
+	for(const char* n = dhost.c_str(); *n; n++)
 		*t++ = *n;
 	*t = 0;
 
-	this->cached_fullhost = strdup(result);
+	this->cached_fullhost = result;
 
 	return this->cached_fullhost;
 }
@@ -351,7 +349,7 @@ char* User::MakeWildHost()
 	char* t = nresult;
 	*t++ = '*';	*t++ = '!';
 	*t++ = '*';	*t++ = '@';
-	for(char* n = dhost; *n; n++)
+	for(const char* n = dhost.c_str(); *n; n++)
 		*t++ = *n;
 	*t = 0;
 	return nresult;
@@ -372,24 +370,24 @@ int User::ReadData(void* buffer, size_t size)
 }
 
 
-char* User::GetFullRealHost()
+const std::string& User::GetFullRealHost()
 {
-	if (this->cached_fullrealhost)
+	if (!this->cached_fullrealhost.empty())
 		return this->cached_fullrealhost;
 
 	char fresult[MAXBUF];
 	char* t = fresult;
-	for(char* n = nick; *n; n++)
+	for(const char* n = nick.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '!';
-	for(char* n = ident; *n; n++)
+	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
 	for(char* n = host; *n; n++)
 		*t++ = *n;
 	*t = 0;
 
-	this->cached_fullrealhost = strdup(fresult);
+	this->cached_fullrealhost = fresult;
 
 	return this->cached_fullrealhost;
 }
@@ -564,7 +562,7 @@ bool User::AddBuffer(const std::string &a)
 	if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
 	{
 		this->SetWriteError("RecvQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick,(unsigned long int)recvq.length(),this->MyClass->GetRecvqMax());
+		ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)recvq.length(),this->MyClass->GetRecvqMax());
 		return false;
 	}
 
@@ -634,7 +632,7 @@ void User::AddWriteBuf(const std::string &data)
 		 * to repeatedly add the text to the sendq!
 		 */
 		this->SetWriteError("SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick,(unsigned long int)sendq.length() + data.length(),this->MyClass->GetSendqMax());
+		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
 
@@ -721,13 +719,13 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	try
 	{
 		this->modes[UM_OPERATOR] = 1;
-		this->WriteServ("MODE %s :+o", this->nick);
+		this->WriteServ("MODE %s :+o", this->nick.c_str());
 		FOREACH_MOD(I_OnOper, OnOper(this, opertype));
-		ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
-		strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
+		ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host, opertype.c_str());
+		this->oper.assign(opertype, 0, NICKMAX - 1);
 		ServerInstance->Users->all_opers.push_back(this);
 
-		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
+		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
 		if (iter_opertype != ServerInstance->Config->opertypes.end())
 		{
 
@@ -822,7 +820,7 @@ void User::UnOper()
 		ServerInstance->Parser->CallHandler("MODE", parameters, this);
 
 		/* unset their oper type (what IS_OPER checks), and remove +o */
-		*this->oper = 0;
+		this->oper.clear();
 		this->modes[UM_OPERATOR] = 0;
 			
 		/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
@@ -933,13 +931,13 @@ void User::FullConnect()
 	CheckLines();
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
-	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);
-	this->WriteNumeric(002, "%s :Your host is %s, running version InspIRCd-1.2",this->nick,ServerInstance->Config->ServerName);
-	this->WriteNumeric(003, "%s :This server was created %s %s", this->nick, __TIME__, __DATE__);
-	this->WriteNumeric(004, "%s %s InspIRCd-1.2 %s %s %s", this->nick, ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
+	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network, this->nick.c_str(), this->ident.c_str(), this->host);
+	this->WriteNumeric(002, "%s :Your host is %s, running version InspIRCd-1.2",this->nick.c_str(),ServerInstance->Config->ServerName);
+	this->WriteNumeric(003, "%s :This server was created %s %s", this->nick.c_str(), __TIME__, __DATE__);
+	this->WriteNumeric(004, "%s %s InspIRCd-1.2 %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
-	this->WriteNumeric(42, "%s %s :your unique ID", this->nick, this->uuid);
+	this->WriteNumeric(42, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());
 
 
 	this->ShowMOTD();
@@ -964,7 +962,7 @@ void User::FullConnect()
 
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
-	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString(), this->fullname);
+	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick.c_str(), this->ident.c_str(), this->host, this->GetIPString(), this->fullname.c_str());
 	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 }
@@ -978,7 +976,7 @@ User* User::UpdateNickHash(const char* New)
 	//user_hash::iterator newnick;
 	user_hash::iterator oldnick = ServerInstance->Users->clientlist->find(this->nick);
 
-	if (!strcasecmp(this->nick,New))
+	if (!irc::string(this->nick.c_str()).compare(New))
 		return oldnick->second;
 
 	if (oldnick == ServerInstance->Users->clientlist->end())
@@ -993,15 +991,10 @@ User* User::UpdateNickHash(const char* New)
 void User::InvalidateCache()
 {
 	/* Invalidate cache */
-	if (cached_fullhost)
-		free(cached_fullhost);
-	if (cached_hostip)
-		free(cached_hostip);
-	if (cached_makehost)
-		free(cached_makehost);
-	if (cached_fullrealhost)
-		free(cached_fullrealhost);
-	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
+	cached_fullhost.clear();
+	cached_hostip.clear();
+	cached_makehost.clear();
+	cached_fullrealhost.clear();
 }
 
 bool User::ForceNickChange(const char* newnick)
@@ -1061,7 +1054,7 @@ void User::SetSockAddr(int protocol_family, const char* sip, int port)
 		}
 		break;
 		default:
-			ServerInstance->Logs->Log("USERS",DEBUG,"Uh oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
+			ServerInstance->Logs->Log("USERS",DEBUG,"Uh oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick.c_str());
 		break;
 	}
 }
@@ -1273,7 +1266,7 @@ void User::WriteFrom(User *user, const std::string &text)
 {
 	char tb[MAXBUF];
 
-	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(),text.c_str());
 
 	this->Write(std::string(tb));
 }
@@ -1343,7 +1336,7 @@ void User::WriteCommon(const std::string &text)
 		InitializeAlreadySent(ServerInstance->SE);
 
 	/* We dont want to be doing this n times, just once */
-	snprintf(tb,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
+	snprintf(tb,MAXBUF,":%s %s",this->GetFullHost().c_str(),text.c_str());
 	std::string out = tb;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
@@ -1400,8 +1393,8 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	if (!already_sent)
 		InitializeAlreadySent(ServerInstance->SE);
 
-	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost(),normal_text.c_str());
-	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost(),oper_text.c_str());
+	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),normal_text.c_str());
+	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),oper_text.c_str());
 	std::string out1 = tb1;
 	std::string out2 = tb2;
 
@@ -1435,7 +1428,7 @@ void User::WriteCommonExcept(const std::string &text)
 	if (!already_sent)
 		InitializeAlreadySent(ServerInstance->SE);
 
-	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
+	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost().c_str(),text.c_str());
 	out1 = tb1;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
@@ -1518,7 +1511,7 @@ bool User::SharesChannelWith(User *other)
 
 bool User::ChangeName(const char* gecos)
 {
-	if (!strcmp(gecos, this->fullname))
+	if (!this->fullname.compare(gecos))
 		return true;
 
 	if (IS_LOCAL(this))
@@ -1529,14 +1522,14 @@ bool User::ChangeName(const char* gecos)
 			return false;
 		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
 	}
-	strlcpy(this->fullname,gecos,MAXGECOS+1);
+	this->fullname.assign(gecos, 0, MAXGECOS+1);
 
 	return true;
 }
 
 bool User::ChangeDisplayedHost(const char* shost)
 {
-	if (!strcmp(shost, this->dhost))
+	if (!this->dhost.compare(shost))
 		return true;
 
 	if (IS_LOCAL(this))
@@ -1552,7 +1545,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 		this->WriteCommonExcept("QUIT :Changing hosts");
 
 	/* Fix by Om: User::dhost is 65 long, this was truncating some long hosts */
-	strlcpy(this->dhost,shost,64);
+	this->dhost.assign(shost, 0, 64);
 
 	this->InvalidateCache();
 
@@ -1568,20 +1561,20 @@ bool User::ChangeDisplayedHost(const char* shost)
 	}
 
 	if (IS_LOCAL(this))
-		this->WriteNumeric(396, "%s %s :is now your displayed host",this->nick,this->dhost);
+		this->WriteNumeric(396, "%s %s :is now your displayed host",this->nick.c_str(),this->dhost.c_str());
 
 	return true;
 }
 
 bool User::ChangeIdent(const char* newident)
 {
-	if (!strcmp(newident, this->ident))
+	if (!this->ident.compare(newident))
 		return true;
 
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
 
-	strlcpy(this->ident, newident, IDENTMAX+1);
+	this->ident.assign(newident, 0, IDENTMAX + 1);
 
 	this->InvalidateCache();
 
@@ -1609,7 +1602,7 @@ void User::SendAll(const char* command, const char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost(), command, textbuffer);
+	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost().c_str(), command, textbuffer);
 	std::string fmt = formatbuffer;
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
@@ -1695,7 +1688,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	if (!IS_LOCAL(this))
 		return NULL;
 
-	ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class for UID %s", this->uuid);
+	ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
 
 	if (!explicit_name.empty())
 	{
@@ -1845,31 +1838,31 @@ void User::ShowMOTD()
 {
 	if (!ServerInstance->Config->MOTD.size())
 	{
-		this->WriteNumeric(422, "%s :Message of the day file is missing.",this->nick);
+		this->WriteNumeric(422, "%s :Message of the day file is missing.",this->nick.c_str());
 		return;
 	}
-	this->WriteNumeric(375, "%s :%s message of the day", this->nick, ServerInstance->Config->ServerName);
+	this->WriteNumeric(375, "%s :%s message of the day", this->nick.c_str(), ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); i++)
-		this->WriteNumeric(372, "%s :- %s",this->nick,i->c_str());
+		this->WriteNumeric(372, "%s :- %s",this->nick.c_str(),i->c_str());
 
-	this->WriteNumeric(376, "%s :End of message of the day.", this->nick);
+	this->WriteNumeric(376, "%s :End of message of the day.", this->nick.c_str());
 }
 
 void User::ShowRULES()
 {
 	if (!ServerInstance->Config->RULES.size())
 	{
-		this->WriteNumeric(434, "%s :RULES File is missing",this->nick);
+		this->WriteNumeric(434, "%s :RULES File is missing",this->nick.c_str());
 		return;
 	}
 
-	this->WriteNumeric(308, "%s :- %s Server Rules -",this->nick,ServerInstance->Config->ServerName);
+	this->WriteNumeric(308, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
-		this->WriteNumeric(232, "%s :- %s",this->nick,i->c_str());
+		this->WriteNumeric(232, "%s :- %s",this->nick.c_str(),i->c_str());
 
-	this->WriteNumeric(309, "%s :End of RULES command.",this->nick);
+	this->WriteNumeric(309, "%s :End of RULES command.",this->nick.c_str());
 }
 
 void User::HandleEvent(EventType et, int errornum)
@@ -1916,9 +1909,9 @@ void User::SetOperQuit(const std::string &oquit)
 	operquitmsg = oquit;
 }
 
-const char* User::GetOperQuit()
+const std::string& User::GetOperQuit()
 {
-	return operquitmsg.c_str();
+	return operquitmsg;
 }
 
 void User::IncreasePenalty(int increase)

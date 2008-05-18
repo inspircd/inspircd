@@ -419,7 +419,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	char sreason[MAXBUF];
 	snprintf(sreason, MAXBUF, "%s-Lined: %s", line.c_str(), this->reason);
 	if (*ServerInstance->Config->MoronBanner)
-		u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
+		u->WriteServ("NOTICE %s :*** %s", u->nick.c_str(), ServerInstance->Config->MoronBanner);
 
 	if (ServerInstance->Config->HideBans)
 		ServerInstance->Users->QuitUser(u, line + "-Lined", sreason);
@@ -526,7 +526,7 @@ bool QLine::Matches(User *u)
 void QLine::Apply(User* u)
 {       
 	/* Force to uuid on apply of qline, no need to disconnect any more :) */
-	u->ForceNickChange(u->uuid);
+	u->ForceNickChange(u->uuid.c_str());
 }
 
 

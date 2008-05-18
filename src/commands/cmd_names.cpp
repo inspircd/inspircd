@@ -27,7 +27,7 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 
 	if (!parameters.size())
 	{
-		user->WriteNumeric(366, "%s * :End of /NAMES list.",user->nick);
+		user->WriteNumeric(366, "%s * :End of /NAMES list.",user->nick.c_str());
 		return CMD_SUCCESS;
 	}
 
@@ -39,14 +39,14 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 	{
 		if ((c->IsModeSet('s')) && (!c->HasUser(user)))
 		{
-		      user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, c->name);
+		      user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), c->name);
 		      return CMD_FAILURE;
 		}
 		c->UserList(user);
 	}
 	else
 	{
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 	}
 
 	return CMD_SUCCESS;

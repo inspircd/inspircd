@@ -30,7 +30,7 @@ CmdResult CommandUser::Handle (const std::vector<std::string>& parameters, User 
 			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)
 			 *  -- Craig, and then w00t.
 			 */
-			user->WriteNumeric(461, "%s USER :Your username is not valid",user->nick);
+			user->WriteNumeric(461, "%s USER :Your username is not valid",user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		else
@@ -40,14 +40,14 @@ CmdResult CommandUser::Handle (const std::vector<std::string>& parameters, User 
 			 * ~ character, and +1 for null termination, therefore we can safely use up to
 			 * IDENTMAX here.
 			 */
-			strlcpy(user->ident, parameters[0].c_str(), IDENTMAX);
-			strlcpy(user->fullname, !parameters[3].empty() ? parameters[3].c_str() : "No info", MAXGECOS);
+			user->ident.assign(parameters[0], 0, IDENTMAX);
+			user->fullname.assign(parameters[3].empty() ? std::string("No info") : parameters[3], 0, MAXGECOS);
 			user->registered = (user->registered | REG_USER);
 		}
 	}
 	else
 	{
-		user->WriteNumeric(462, "%s :You may not reregister",user->nick);
+		user->WriteNumeric(462, "%s :You may not reregister",user->nick.c_str());
 		return CMD_FAILURE;
 	}
 

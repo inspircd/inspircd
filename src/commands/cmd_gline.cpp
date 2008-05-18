@@ -41,7 +41,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 
 		if (ih.first.empty())
 		{
-			user->WriteServ("NOTICE %s :*** Target not found", user->nick);
+			user->WriteServ("NOTICE %s :*** Target not found", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -50,22 +50,22 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 
 		else if (target.find('!') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** G-Line cannot operate on nick!user@host masks",user->nick);
+			user->WriteServ("NOTICE %s :*** G-Line cannot operate on nick!user@host masks",user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
 		long duration = ServerInstance->Duration(parameters[1].c_str());
-		GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
+		GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(gl, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent G-line for %s.",user->nick,target.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent G-line for %s.",user->nick.c_str(),target.c_str());
 			}
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed G-line for %s, expires on %s",user->nick,target.c_str(),
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed G-line for %s, expires on %s",user->nick.c_str(),target.c_str(),
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 
@@ -74,7 +74,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete gl;
-			user->WriteServ("NOTICE %s :*** G-Line for %s already exists",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** G-Line for %s already exists",user->nick.c_str(),target.c_str());
 		}
 
 	}
@@ -82,11 +82,11 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(),"G",user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick.c_str(),target.c_str());
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** G-line %s not found in list, try /stats g.",user->nick,target.c_str());
+			user->WriteServ("NOTICE %s :*** G-line %s not found in list, try /stats g.",user->nick.c_str(),target.c_str());
 		}
 	}
 

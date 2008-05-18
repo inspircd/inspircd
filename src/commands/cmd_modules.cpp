@@ -62,14 +62,14 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 		strlcpy(modulename,module_names[i].c_str(),256);
 		if (IS_OPER(user))
 		{
-			user->WriteNumeric(702, "%s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,(unsigned long)m,V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+			user->WriteNumeric(702, "%s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick.c_str(),(unsigned long)m,V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{
-			user->WriteNumeric(702, "%s :%s",user->nick,ServerConfig::CleanFilename(modulename));
+			user->WriteNumeric(702, "%s :%s",user->nick.c_str(),ServerConfig::CleanFilename(modulename));
 		}
 	}
-	user->WriteNumeric(703, "%s :End of MODULES list",user->nick);
+	user->WriteNumeric(703, "%s :End of MODULES list",user->nick.c_str());
 
 	return CMD_SUCCESS;
 }

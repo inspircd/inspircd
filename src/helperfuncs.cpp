@@ -128,7 +128,7 @@ void InspIRCd::SendError(const std::string &s)
 	{
 		if ((*i)->registered == REG_ALL)
 		{
-		   	(*i)->WriteServ("NOTICE %s :%s",(*i)->nick,s.c_str());
+		   	(*i)->WriteServ("NOTICE %s :%s",(*i)->nick.c_str(),s.c_str());
 	   	}
 		else
 		{

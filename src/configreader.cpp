@@ -125,7 +125,7 @@ void ServerConfig::Update005()
 void ServerConfig::Send005(User* user)
 {
 	for (std::vector<std::string>::iterator line = ServerInstance->Config->isupport.begin(); line != ServerInstance->Config->isupport.end(); line++)
-		user->WriteNumeric(005, "%s %s", user->nick, line->c_str());
+		user->WriteNumeric(005, "%s %s", user->nick.c_str(), line->c_str());
 }
 
 bool ServerConfig::CheckOnce(const char* tag, ConfigDataHash &newconf)
@@ -731,11 +731,11 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 		/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
 		if (user)
 		{
-			prefixlen = strlen(this->ServerName) + strlen(user->nick) + 11;
-			user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick);
+			prefixlen = strlen(this->ServerName) + user->nick.length() + 11;
+			user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick.c_str());
 			while (start < errors.length())
 			{
-				user->WriteServ("NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
+				user->WriteServ("NOTICE %s :%s",user->nick.c_str(), errors.substr(start, 510 - prefixlen).c_str());
 				start += 510 - prefixlen;
 			}
 		}
@@ -1192,7 +1192,7 @@ void ServerConfig::Read(bool bail, User* user)
 			if (!foundclass)
 			{
 				if (user)
-					user->WriteServ("NOTICE %s :*** Warning: Oper type '%s' has a missing class named '%s', this does nothing!", user->nick, item, classname.c_str());
+					user->WriteServ("NOTICE %s :*** Warning: Oper type '%s' has a missing class named '%s', this does nothing!", user->nick.c_str(), item, classname.c_str());
 				else
 				{
 					if (bail)
@@ -1229,12 +1229,12 @@ void ServerConfig::Read(bool bail, User* user)
 		if (pl.size() && user)
 		{
 			ServerInstance->Threads->Mutex(true);
-			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick);
-			user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick);
+			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick.c_str());
+			user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick.c_str());
 			int j = 1;
 			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 			{
-				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
+				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
 			}
 			ServerInstance->Threads->Mutex(false);
 		}
@@ -1249,14 +1249,14 @@ void ServerConfig::Read(bool bail, User* user)
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
 					if (user)
-						user->WriteNumeric(973, "%s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+						user->WriteNumeric(973, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
 
 					rem++;
 				}
 				else
 				{
 					if (user)
-						user->WriteNumeric(972, "%s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+						user->WriteNumeric(972, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1270,14 +1270,14 @@ void ServerConfig::Read(bool bail, User* user)
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH LOADED MODULE: %s",adding->c_str());
 
 					if (user)
-						user->WriteNumeric(975, "%s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+						user->WriteNumeric(975, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
 
 					add++;
 				}
 				else
 				{
 					if (user)
-						user->WriteNumeric(974, "%s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+						user->WriteNumeric(974, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1294,7 +1294,7 @@ void ServerConfig::Read(bool bail, User* user)
 	ServerInstance->Threads->Mutex(false);
 
 	if (user)
-		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
+		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
 	else
 		ServerInstance->SNO->WriteToSnoMask('A', "*** Successfully rehashed server.");
 

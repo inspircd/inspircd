@@ -39,8 +39,8 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	}
 	else
 	{
-		ServerInstance->Logs->Log("COMMAND",SPARSE, "Failed /DIE command from %s!%s@%s", user->nick, user->ident, user->host);
-		ServerInstance->SNO->WriteToSnoMask('A', "Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
+		ServerInstance->Logs->Log("COMMAND",SPARSE, "Failed /DIE command from %s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->host);
+		ServerInstance->SNO->WriteToSnoMask('A', "Failed DIE Command from %s!%s@%s.",user->nick.c_str(),user->ident.c_str(),user->host);
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;
