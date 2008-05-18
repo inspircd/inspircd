@@ -54,7 +54,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 
 		if (parameters.size() && (parameters[0][0] != '<' || parameters[0][0] == '>'))
 		{
-			if (!match(i->second->name, parameters[0].c_str()) && !match(i->second->topic, parameters[0].c_str()))
+			if (!match(i->second->name, parameters[0]) && !match(i->second->topic, parameters[0]))
 				continue;
 		}
 
