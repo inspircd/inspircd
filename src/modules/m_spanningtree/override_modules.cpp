@@ -37,7 +37,7 @@ int ModuleSpanningTree::HandleModules(const std::vector<std::string>& parameters
 {
 	if (parameters.size() > 0)
 	{
-		if (match(ServerInstance->Config->ServerName, parameters[0].c_str()))
+		if (match(ServerInstance->Config->ServerName, parameters[0]))
 			return 0;
 
 		std::deque<std::string> params;

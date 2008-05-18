@@ -82,7 +82,7 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 {
 	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
 	{
-		if (match(i->first.c_str(),ServerName.c_str()))
+		if (match(i->first,ServerName))
 			return i->second;
 	}
 	return NULL;

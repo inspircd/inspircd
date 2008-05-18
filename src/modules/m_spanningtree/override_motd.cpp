@@ -37,7 +37,7 @@ int ModuleSpanningTree::HandleMotd(const std::vector<std::string>& parameters, U
 {
 	if (parameters.size() > 0)
 	{
-		if (match(ServerInstance->Config->ServerName, parameters[0].c_str()))
+		if (match(ServerInstance->Config->ServerName, parameters[0]))
 			return 0;
 
 		/* Remote MOTD, the server is within the 1st parameter */

@@ -37,7 +37,7 @@ int ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, 
 {
 	if (parameters.size() > 1)
 	{
-		if (match(ServerInstance->Config->ServerName, parameters[1].c_str()))
+		if (match(ServerInstance->Config->ServerName, parameters[1]))
 			return 0;
 
 		/* Remote STATS, the server is within the 2nd parameter */
