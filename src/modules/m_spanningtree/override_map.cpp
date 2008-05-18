@@ -82,16 +82,16 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 			ServerInstance->Logs->Log("map",DEBUG,"Hidden? %d HideULines? %d GetName %s", Current->GetChild(q)->Hidden, Utils->HideULines, Current->GetChild(q)->GetName().c_str());
 			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
 			{
-				if (*user->oper)
+				if (IS_OPER(user))
 				{
-					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
+					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!IS_OPER(user))) ? depth : depth+2,matrix,totusers,totservers);
 					ServerInstance->Logs->Log("map",DEBUG,"Show to oper");
 				}
 				ServerInstance->Logs->Log("map",DEBUG,"Fall through");
 			}
 			else
 			{
-				ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
+				ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!IS_OPER(user))) ? depth : depth+2,matrix,totusers,totservers);
 				ServerInstance->Logs->Log("map",DEBUG,"Show to non oper");
 			}
 		}
@@ -117,7 +117,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		bool ret = false;
 		if (!s)
 		{
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0].c_str());
+			user->WriteServ( "402 %s %s :No such server", user->nick.c_str(), parameters[0].c_str());
 			ret = true;
 		}
 		else if (s && s != Utils->TreeRoot)
@@ -196,10 +196,10 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		ServerInstance->Logs->Log("map",DEBUG,"local");
 		for (int t = 0; t < line; t++)
 		{
-			user->WriteNumeric(6, "%s :%s",user->nick,&matrix[t][0]);
+			user->WriteNumeric(6, "%s :%s",user->nick.c_str(),&matrix[t][0]);
 		}
-		user->WriteNumeric(270, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
-		user->WriteNumeric(7, "%s :End of /MAP",user->nick);
+		user->WriteNumeric(270, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+		user->WriteNumeric(7, "%s :End of /MAP",user->nick.c_str());
 	}
 	else
 	{

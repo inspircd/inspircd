@@ -42,17 +42,17 @@ CmdResult cmd_rconnect::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (!Utils->FindServerMask(parameters[0]))
 		{
-			user->WriteServ("NOTICE %s :*** RCONNECT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0].c_str());
+			user->WriteServ("NOTICE %s :*** RCONNECT: Server \002%s\002 isn't connected to the network!", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
-		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0].c_str(),parameters[1].c_str());
+		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
 	}
 
 	/* Is this aimed at our server? */
 	if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
 	{
 		/* Yes, initiate the given connect */
-		ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0].c_str(),parameters[1].c_str());
+		ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
 		std::vector<std::string> para;
 		para.push_back(parameters[1]);
 		std::string original_command = std::string("CONNECT ") + parameters[1];

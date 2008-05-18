@@ -54,7 +54,7 @@ int ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, 
 		}
 		else
 		{
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[1].c_str());
+			user->WriteServ( "402 %s %s :No such server", user->nick.c_str(), parameters[1].c_str());
 		}
 		return 1;
 	}
@@ -72,7 +72,7 @@ int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results
 				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+Utils->LinkBlocks[i].Name.c_str());
 		}
 		results.push_back(std::string(ServerInstance->Config->ServerName)+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
-		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
+		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick.c_str(),user->ident.c_str(),user->host);
 		return 1;
 	}
 

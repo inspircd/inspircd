@@ -97,7 +97,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		// The first parameter gets a : before it
-		size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", this->Instance->Modes->ModeString(i->first, c, false).c_str(), i->first->uuid);
+		size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", this->Instance->Modes->ModeString(i->first, c, false).c_str(), i->first->uuid.c_str());
 
 		looped_once = true;
 
@@ -221,19 +221,19 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			TreeServer* theirserver = Utils->FindServer(u->second->server);
 			if (theirserver)
 			{
-				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s %lu :%s", theirserver->GetID().c_str(), u->second->uuid,
-						(unsigned long)u->second->age, u->second->nick, u->second->host, u->second->dhost,
-						u->second->ident, u->second->FormatModes(), u->second->GetIPString(),
-						(unsigned long)u->second->signon, u->second->fullname);
+				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s %lu :%s", theirserver->GetID().c_str(), u->second->uuid.c_str(),
+						(unsigned long)u->second->age, u->second->nick.c_str(), u->second->host, u->second->dhost.c_str(),
+						u->second->ident.c_str(), u->second->FormatModes(), u->second->GetIPString(),
+						(unsigned long)u->second->signon, u->second->fullname.c_str());
 				this->WriteLine(data);
 				if (IS_OPER(u->second))
 				{
-					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid, u->second->oper);
+					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid.c_str(), u->second->oper.c_str());
 					this->WriteLine(data);
 				}
 				if (IS_AWAY(u->second))
 				{
-					snprintf(data,MAXBUF,":%s AWAY :%s", u->second->uuid, u->second->awaymsg);
+					snprintf(data,MAXBUF,":%s AWAY :%s", u->second->uuid.c_str(), u->second->awaymsg.c_str());
 					this->WriteLine(data);
 				}
 			}

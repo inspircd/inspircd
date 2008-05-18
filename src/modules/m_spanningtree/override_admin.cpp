@@ -51,7 +51,7 @@ int ModuleSpanningTree::HandleAdmin(const std::vector<std::string>& parameters, 
 			Utils->DoOneToOne(user->uuid, "ADMIN", params, s->GetName());
 		}
 		else
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0].c_str());
+			user->WriteServ( "402 %s %s :No such server", user->nick.c_str(), parameters[0].c_str());
 		return 1;
 	}
 	return 0;

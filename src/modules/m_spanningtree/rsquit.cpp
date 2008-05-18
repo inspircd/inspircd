@@ -44,7 +44,7 @@ CmdResult cmd_rsquit::Handle (const std::vector<std::string>& parameters, User *
 	server_target = Utils->FindServerMask(parameters[0]);
 	if (!server_target)
 	{
-		user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0].c_str());
+		user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
@@ -63,7 +63,7 @@ CmdResult cmd_rsquit::Handle (const std::vector<std::string>& parameters, User *
 		if (sock)
 		{
 			const char *reason = parameters.size() == 2 ? parameters[1].c_str() : "No reason";
-			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick, reason);
+			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick.c_str(), reason);
 			sock->Squit(server_target, std::string("Server quit by ") + user->GetFullRealHost() + " (" + reason + ")");
 			ServerInstance->SE->DelFd(sock);
 			sock->Close();
@@ -79,7 +79,7 @@ void cmd_rsquit::NoticeUser(User* user, const std::string &msg)
 {
 	if (IS_LOCAL(user))
 	{
-		user->WriteServ("NOTICE %s :%s",user->nick,msg.c_str());
+		user->WriteServ("NOTICE %s :%s",user->nick.c_str(),msg.c_str());
 	}
 	else
 	{

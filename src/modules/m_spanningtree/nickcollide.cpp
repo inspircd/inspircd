@@ -51,7 +51,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const char *remoteident, c
 
 	/* for brevity, don't use the User */
 	time_t localts = u->age;
-	const char *localident = u->ident;
+	const char *localident = u->ident.c_str();
 	const char *localip = u->GetIPString();
 
 	/* mmk. let's do this again. */
@@ -87,7 +87,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const char *remoteident, c
 
 	if (bChangeLocal)
 	{
-		u->ForceNickChange(u->uuid);
+		u->ForceNickChange(u->uuid.c_str());
 
 		if (!bChangeRemote)
 			return 1;
@@ -110,7 +110,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const char *remoteident, c
 		if (remote)
 		{
 			/* buh.. nick change collide. force change their nick. */
-			remote->ForceNickChange(remote->uuid);
+			remote->ForceNickChange(remote->uuid.c_str());
 		}
 		else
 		{

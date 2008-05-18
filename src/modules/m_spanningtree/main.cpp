@@ -77,7 +77,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	{
 		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
 		{
-			if (*user->oper)
+			if (IS_OPER(user))
 			{
 				 ShowLinks(Current->GetChild(q),user,hops+1);
 			}
@@ -94,7 +94,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	else if ((Current->Hidden) && (!IS_OPER(user)))
 		return;
 
-	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick,Current->GetName().c_str(),
+	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(),Current->GetName().c_str(),
 			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName : Parent.c_str(),
 			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
 			Current->GetDesc().c_str());
@@ -113,7 +113,7 @@ int ModuleSpanningTree::CountServs()
 void ModuleSpanningTree::HandleLinks(const std::vector<std::string>& parameters, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
-	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick);
+	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick.c_str());
 	return;
 }
 
@@ -133,7 +133,7 @@ void ModuleSpanningTree::HandleLusers(const std::vector<std::string>& parameters
 	/* If ulined are hidden and we're not an oper, count the number of ulined servers hidden,
 	 * locally and globally (locally means directly connected to us)
 	 */
-	if ((Utils->HideULines) && (!*user->oper))
+	if ((Utils->HideULines) && (!IS_OPER(user)))
 	{
 		for (server_hash::iterator q = Utils->serverlist.begin(); q != Utils->serverlist.end(); q++)
 		{
@@ -145,23 +145,23 @@ void ModuleSpanningTree::HandleLusers(const std::vector<std::string>& parameters
 			}
 		}
 	}
-	user->WriteNumeric(251, "%s :There are %d users and %d invisible on %d servers",user->nick,
+	user->WriteNumeric(251, "%s :There are %d users and %d invisible on %d servers",user->nick.c_str(),
 			n_users-ServerInstance->Users->ModeCount('i'),
 			ServerInstance->Users->ModeCount('i'),
 			ulined_count ? this->CountServs() - ulined_count : this->CountServs());
 
 	if (ServerInstance->Users->OperCount())
-		user->WriteNumeric(252, "%s %d :operator(s) online",user->nick,ServerInstance->Users->OperCount());
+		user->WriteNumeric(252, "%s %d :operator(s) online",user->nick.c_str(),ServerInstance->Users->OperCount());
 
 	if (ServerInstance->Users->UnregisteredUserCount())
-		user->WriteNumeric(253, "%s %d :unknown connections",user->nick,ServerInstance->Users->UnregisteredUserCount());
+		user->WriteNumeric(253, "%s %d :unknown connections",user->nick.c_str(),ServerInstance->Users->UnregisteredUserCount());
 	
 	if (ServerInstance->ChannelCount())
-		user->WriteNumeric(254, "%s %ld :channels formed",user->nick,ServerInstance->ChannelCount());
+		user->WriteNumeric(254, "%s %ld :channels formed",user->nick.c_str(),ServerInstance->ChannelCount());
 	
-	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick,ServerInstance->Users->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
-	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->Users->LocalUserCount(),max_local);
-	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
+	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
+	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),max_local);
+	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d",user->nick.c_str(),n_users,max_global);
 	return;
 }
 
@@ -344,7 +344,7 @@ int ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters
 	if (found)
 	{
 		std::string Version = found->GetVersion();
-		user->WriteNumeric(351, "%s :%s",user->nick,Version.c_str());
+		user->WriteNumeric(351, "%s :%s",user->nick.c_str(),Version.c_str());
 		if (found == Utils->TreeRoot)
 		{
 			ServerInstance->Config->Send005(user);
@@ -352,7 +352,7 @@ int ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters
 	}
 	else
 	{
-		user->WriteNumeric(402, "%s %s :No such server",user->nick,parameters[0].c_str());
+		user->WriteNumeric(402, "%s %s :No such server",user->nick.c_str(),parameters[0].c_str());
 	}
 	return 1;
 }
@@ -390,7 +390,7 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 	else
 	{
 		if (IS_LOCAL(user))
-			user->WriteServ("NOTICE %s :%s", user->nick, text);
+			user->WriteServ("NOTICE %s :%s", user->nick.c_str(), text);
 		else
 			ServerInstance->PI->SendUserNotice(user, text);
 	}
@@ -680,7 +680,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 
 		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
 		 */
-		if (irc::string(user->nick) != assign(oldnick))
+		if (irc::string(user->nick.c_str()) != assign(oldnick))
 			user->age = ServerInstance->Time();
 
 		params.push_back(ConvToStr(user->age));

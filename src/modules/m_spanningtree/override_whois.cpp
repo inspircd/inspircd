@@ -47,8 +47,8 @@ int ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parame
 		}
 		else if (!remote)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1].c_str());
-			user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick, parameters[1].c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[1].c_str());
+			user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick.c_str(), parameters[1].c_str());
 			return 1;
 		}
 	}

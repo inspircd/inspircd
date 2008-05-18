@@ -75,7 +75,7 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 				if (s)
 				{
 					FOREACH_MOD_I(Instance, I_OnText, OnText(NULL, user, TYPE_USER, text, status, except_list));
-					user->Write(":%s %s %s :%s", s->GetName().c_str(), messagetype.c_str(), user->nick, text.c_str());
+					user->Write(":%s %s %s :%s", s->GetName().c_str(), messagetype.c_str(), user->nick.c_str(), text.c_str());
 				}
 
 			}

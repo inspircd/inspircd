@@ -40,7 +40,7 @@ int ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, 
 	{
 		if (s == Utils->TreeRoot)
 		{
-			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0].c_str());
+			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick.c_str(),parameters[0].c_str());
 			return 1;
 		}
 
@@ -48,19 +48,19 @@ int ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, 
 
 		if (sock)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick);
+			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick.c_str());
 			sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
 			ServerInstance->SE->DelFd(sock);
 			sock->Close();
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** SQUIT may not be used to remove remote servers. Please use RSQUIT instead.",user->nick);
+			user->WriteServ("NOTICE %s :*** SQUIT may not be used to remove remote servers. Please use RSQUIT instead.",user->nick.c_str());
 		}
 	}
 	else
 	{
-		 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick,parameters[0].c_str());
+		 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick.c_str(),parameters[0].c_str());
 	}
 	return 1;
 }

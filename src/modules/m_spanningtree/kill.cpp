@@ -42,7 +42,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 		Utils->DoOneToAllButSender(prefix,"KILL",params,prefix);
 		// NOTE: This is safe with kill hiding on, as RemoteKill is only reached if we have a server prefix.
 		// in short this is not executed for USERS.
-		who->Write(":%s KILL %s :%s (%s)", prefix.c_str(), who->nick, prefix.c_str(), reason.c_str());
+		who->Write(":%s KILL %s :%s (%s)", prefix.c_str(), who->nick.c_str(), prefix.c_str(), reason.c_str());
 		this->Instance->Users->QuitUser(who, reason);
 	}
 	return true;

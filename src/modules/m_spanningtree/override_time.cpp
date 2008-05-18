@@ -51,7 +51,7 @@ int ModuleSpanningTree::HandleTime(const std::vector<std::string>& parameters, U
 		}
 		else
 		{
-			user->WriteNumeric(402, "%s %s :No such server",user->nick,parameters[0].c_str());
+			user->WriteNumeric(402, "%s %s :No such server",user->nick.c_str(),parameters[0].c_str());
 		}
 	}
 	return 1;

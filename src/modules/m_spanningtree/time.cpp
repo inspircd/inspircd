@@ -67,7 +67,7 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 			char tms[26];
 			snprintf(tms,26,"%s",asctime(timeinfo));
 			tms[24] = 0;
-			u->WriteNumeric(391, "%s %s :%s",u->nick,prefix.c_str(),tms);
+			u->WriteNumeric(391, "%s %s :%s",u->nick.c_str(),prefix.c_str(),tms);
 		}
 		else
 		{
