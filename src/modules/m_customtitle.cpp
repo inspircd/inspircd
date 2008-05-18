@@ -35,7 +35,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
     std::string xhost;
     while (hl >> xhost)
     {
-        if (match(host,xhost.c_str()) || match(ip,xhost.c_str(),true))
+        if (match(host, xhost) || match(ip,xhost, true))
         {
             return true;
         }

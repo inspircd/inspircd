@@ -54,12 +54,12 @@ class ModuleDenyChannels : public Module
 	
 				for (int j =0; j < Conf->Enumerate("badchan"); j++)
 				{
-					if (match(redirect.c_str(), Conf->ReadValue("badchan","name",j).c_str()))
+					if (match(redirect, Conf->ReadValue("badchan","name",j)))
 					{
 						bool goodchan = false;
 						for (int k =0; k < Conf->Enumerate("goodchan"); k++)
 						{
-							if (match(redirect.c_str(), Conf->ReadValue("goodchan","name",k).c_str()))
+							if (match(redirect, Conf->ReadValue("goodchan","name",k)))
 								goodchan = true;
 						}
 	
@@ -91,7 +91,7 @@ class ModuleDenyChannels : public Module
 	{
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{
-			if (match(cname, Conf->ReadValue("badchan","name",j).c_str()))
+			if (match(cname, Conf->ReadValue("badchan","name",j)))
 			{
 				if (IS_OPER(user) && Conf->ReadFlag("badchan","allowopers",j))
 				{
@@ -104,7 +104,7 @@ class ModuleDenyChannels : public Module
 
 					for (int i = 0; i < Conf->Enumerate("goodchan"); i++)
 					{
-						if (match(cname, Conf->ReadValue("goodchan", "name", i).c_str()))
+						if (match(cname, Conf->ReadValue("goodchan", "name", i)))
 						{
 							return 0;
 						}

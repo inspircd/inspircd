@@ -73,9 +73,7 @@ public:
 				return 0;
 			}
 
-			char mask[MAXBUF];
-			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
-
+			std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (match(user->GetFullRealHost(), it->mask) || match(user->GetFullHost(), it->mask) || (match(mask, it->mask, true)))
@@ -117,7 +115,6 @@ public:
 			LM->chan->GetExt(be->GetInfoKey(), list);
 			if (list)
 			{
-				char mask[MAXBUF];
 				std::string mask = std::string(LM->user->nick) + "!" + LM->user->ident + "@" + LM->user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{

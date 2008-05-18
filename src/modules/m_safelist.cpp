@@ -185,7 +185,7 @@ class ModuleSafeList : public Module
 
 				if ((chan) && (chan->modes[CM_PRIVATE]) && (!IS_OPER(user)))
 				{
-					bool display = (match(chan->name, ld->glob.c_str()) || (*chan->topic && match(chan->topic, ld->glob.c_str())));
+					bool display = (match(chan->name, ld->glob) || (*chan->topic && match(chan->topic, ld->glob)));
 					if ((users) && (display))
 					{
 						int counter = snprintf(buffer, MAXBUF, "322 %s * %ld :", user->nick, users);
@@ -195,7 +195,7 @@ class ModuleSafeList : public Module
 				}
 				else if ((chan) && ((((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET])))) || (has_user) || IS_OPER(user)))
 				{
-					bool display = (match(chan->name, ld->glob.c_str()) || (*chan->topic && match(chan->topic, ld->glob.c_str())));
+					bool display = (match(chan->name, ld->glob) || (*chan->topic && match(chan->topic, ld->glob)));
 					if ((users) && (display))
 					{
 						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s",user->nick, chan->name, users, chan->ChanModes(has_user || IS_OPER(user)), chan->topic);

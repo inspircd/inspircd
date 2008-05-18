@@ -31,7 +31,7 @@ class ListItem : public classbase
 {
 public:
 	std::string nick;
-	irc::string mask;
+	std::string mask;
 	std::string time;
 };
 
@@ -182,9 +182,9 @@ class ListModeBase : public ModeHandler
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
 				if (stack)
-					stack->Push(this->GetModeChar(), assign(it->mask));
+					stack->Push(this->GetModeChar(), it->mask);
 				else
-					modestack.Push(this->GetModeChar(), assign(it->mask));
+					modestack.Push(this->GetModeChar(), it->mask);
 			}
 
 			if (stack)
@@ -284,7 +284,7 @@ class ListModeBase : public ModeHandler
 
 			for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); it++)
 			{
-				if (match(channel->name, it->mask.c_str()))
+				if (match(channel->name, it->mask))
 				{
 					// We have a pattern matching the channel...
 					maxsize = el->size();
@@ -304,7 +304,7 @@ class ListModeBase : public ModeHandler
 						{
 							// And now add the mask onto the list...
 							ListItem e;
-							e.mask = assign(parameter);
+							e.mask = parameter;
 							e.nick = servermode ? ServerInstance->Config->ServerName : source->nick;
 							e.time = stringtime();
 
@@ -402,7 +402,7 @@ class ListModeBase : public ModeHandler
 		{
 			for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
 			{
-				modestack.Push(std::string(1, mode)[0], assign(it->mask));
+				modestack.Push(std::string(1, mode)[0], it->mask);
 			}
 		}
 		while (modestack.GetStackedLine(stackresult))

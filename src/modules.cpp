@@ -715,7 +715,7 @@ Channel* InspIRCd::GetChannelIndex(long index)
 
 bool InspIRCd::MatchText(const std::string &sliteral, const std::string &spattern)
 {
-	return match(sliteral.c_str(),spattern.c_str());
+	return match(sliteral, spattern);
 }
 
 CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user)

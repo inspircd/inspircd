@@ -104,7 +104,7 @@ class ModuleOperSSLCert : public Module
 		std::string xhost;
 		while (hl >> xhost)
 		{
-			if (match(host,xhost.c_str()) || match(ip,xhost.c_str(),true))
+			if (match(host, xhost) || match(ip, xhost, true))
 			{
 				return true;
 			}

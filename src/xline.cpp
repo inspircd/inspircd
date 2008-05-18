@@ -532,7 +532,7 @@ void QLine::Apply(User* u)
 
 bool ZLine::Matches(const std::string &str)
 {
-	if (match(str.c_str(), this->ipaddr, true))
+	if (match(str, this->ipaddr, true))
 		return true;
 	else
 		return false;
@@ -540,7 +540,7 @@ bool ZLine::Matches(const std::string &str)
 
 bool QLine::Matches(const std::string &str)
 {
-	if (match(str.c_str(), this->nick))
+	if (match(str, this->nick))
 		return true;
 
 	return false;
@@ -548,17 +548,17 @@ bool QLine::Matches(const std::string &str)
 
 bool ELine::Matches(const std::string &str)
 {
-	return ((match(str.c_str(), matchtext.c_str(), true)));
+	return ((match(str, matchtext, true)));
 }
 
 bool KLine::Matches(const std::string &str)
 {
-	return ((match(str.c_str(), matchtext.c_str(), true)));
+	return ((match(str.c_str(), matchtext, true)));
 }
 
 bool GLine::Matches(const std::string &str)
 {
-	return ((match(str.c_str(), matchtext.c_str(), true)));
+	return ((match(str, matchtext, true)));
 }
 
 void ELine::OnAdd()

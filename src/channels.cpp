@@ -962,7 +962,7 @@ long Channel::GetMaxBans()
 	/* If there isnt one, we have to do some O(n) hax to find it the first time. (ick) */
 	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
 	{
-		if (match(this->name,n->first.c_str()))
+		if (match(this->name,n->first))
 		{
 			this->maxbans = n->second;
 			return n->second;

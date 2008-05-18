@@ -37,16 +37,15 @@ class CommandTline : public Command
 		for (user_hash::const_iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			n_counted++;
-			if (match(u->second->GetFullRealHost(),parameters[0].c_str()))
+			if (match(u->second->GetFullRealHost(),parameters[0]))
 			{
 				n_matched++;
 				n_match_host++;
 			}
 			else
 			{
-				char host[MAXBUF];
-				snprintf(host, MAXBUF, "%s@%s", u->second->ident, u->second->GetIPString());
-				if (match(host, parameters[0].c_str(), true))
+				std::string host = std::string(u->second->ident) + "@" + u->second->GetIPString();
+				if (match(host, parameters[0], true))
 				{
 					n_matched++;
 					n_match_ip++;

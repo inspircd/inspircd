@@ -66,11 +66,10 @@ public:
 			chan->GetExt(ie->GetInfoKey(), list);
 			if (list)
 			{
-				char mask[MAXBUF];
-				snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
+				std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if(match(user->GetFullRealHost(), it->mask.c_str()) || match(user->GetFullHost(), it->mask.c_str()) || (match(mask, it->mask.c_str(), true)))
+					if(match(user->GetFullRealHost(), it->mask) || match(user->GetFullHost(), it->mask) || (match(mask, it->mask, true)))
 					{
 						// They match an entry on the list, so let them in.
 						return 1;
@@ -92,11 +91,10 @@ public:
 			LM->chan->GetExt(ie->GetInfoKey(), list);
 			if (list)
 			{
-				char mask[MAXBUF];
-				snprintf(mask, MAXBUF, "%s!%s@%s", LM->user->nick, LM->user->ident, LM->user->GetIPString());
+				std::string mask = std::string(LM->user->nick) + "!" + LM->user->ident + "@" + LM->user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if (match(LM->user->GetFullRealHost(), it->mask.c_str()) || match(LM->user->GetFullHost(), it->mask.c_str()) || (match(mask, it->mask.c_str(), true)))
+					if (match(LM->user->GetFullRealHost(), it->mask) || match(LM->user->GetFullHost(), it->mask.c_str()) || (match(mask, it->mask, true)))
 					{
 						// They match an entry
 						return (char*)it->mask.c_str();
