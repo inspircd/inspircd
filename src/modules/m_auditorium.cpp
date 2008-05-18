@@ -26,7 +26,7 @@ class AuditoriumMode : public ModeHandler
 		{
 			if (IS_LOCAL(source) && (channel->GetStatus(source) < STATUS_OP))
 			{
-				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +u", source->nick, channel->name, adding ? "" : "un");
+				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +u", source->nick.c_str(), channel->name, adding ? "" : "un");
 				return MODEACTION_DENY;
 			}
 			else
@@ -149,11 +149,11 @@ class ModuleAuditorium : public Module
 		{
 			silent = true;
 			/* Send silenced event only to the user being kicked and the user doing the kick */
-			source->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+			source->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
 			if (ShowOps)
-				chan->WriteAllExcept(source, false, chan->GetStatus(source) >= STATUS_OP ? 0 : '@', except_list, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+				chan->WriteAllExcept(source, false, chan->GetStatus(source) >= STATUS_OP ? 0 : '@', except_list, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
 			else
-				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
 		}
 	}
 
