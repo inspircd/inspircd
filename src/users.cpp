@@ -1719,6 +1719,15 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
+			if (c->GetType() == CC_ALLOW)
+			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "ALLOW %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
+			}
+			else
+			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "DENY %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
+			}
+
 			/* check if host matches.. */
 			if (((!match(this->GetIPString(),c->GetHost(),true)) && (!match(this->host,c->GetHost()))))
 			{
@@ -1746,12 +1755,12 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			/* if it requires a port ... */
 			if (c->GetPort())
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port");
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port (%d)", c->GetPort());
 
 				/* and our port doesn't match, fail. */
 				if (this->GetPort() != c->GetPort())
 				{
-					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port match failed");
+					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port match failed (%d)", this->GetPort());
 					continue;
 				}
 			}
