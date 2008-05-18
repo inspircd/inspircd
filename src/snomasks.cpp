@@ -127,7 +127,7 @@ void Snomask::Flush()
 	if (this->LastMessage.empty())
 		return;
 
-	a->WriteServ("NOTICE %s :*** %s: %s", a->nick, this->Description.c_str(), this->LastMessage.c_str());
+	ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", this->Description.c_str(), this->LastMessage.c_str());
 	if (Count > 1)
 		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: (last message repeated %u times)", this->Description.c_str(), Count);
 
