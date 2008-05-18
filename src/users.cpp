@@ -1765,8 +1765,9 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 				}
 			}
 
-			/* we match this class, BUT! we must keep checking in case a further class is type deny and also matches us. */
+			/* we stop at the first class that meets ALL critera. */
 			found = c;
+			break;
 		}
 	}
 
