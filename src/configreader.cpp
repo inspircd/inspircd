@@ -524,7 +524,12 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
 	{
 		ConnectClass* cc = *item;
-		if ((*name && (cc->GetName() == name)) || (*allow && (cc->GetHost() == allow)) || (*deny && (cc->GetHost() == deny)))
+		if (
+			 (*name && (cc->GetName() == name)) ||
+			 (*allow && (cc->GetHost() == allow)) ||
+			 (*deny && (cc->GetHost() == deny)) ||
+			 (port && (cc->GetPort() == port))
+		   )
 		{
 			/* reenable class so users can be shoved into it :P */
 			cc->SetDisabled(false);
