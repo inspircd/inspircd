@@ -1720,7 +1720,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			ConnectClass* c = *i;
 
 			/* check if host matches.. */
-			if (((!match(this->GetIPString(),c->GetHost().c_str(),true)) && (!match(this->host,c->GetHost().c_str()))))
+			if (((!match(this->GetIPString(),c->GetHost(),true)) && (!match(this->host,c->GetHost()))))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
 				continue;
