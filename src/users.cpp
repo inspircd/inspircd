@@ -1701,7 +1701,10 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
-			if (explicit_name == c->GetName() && !c->GetDisabled())
+			if (c->GetDisabled())
+				continue; // can't possibly match, removed from conf
+
+			if (explicit_name == c->GetName())
 			{
 				found = c;
 			}
@@ -1713,37 +1716,47 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
-			if (((match(this->GetIPString(),c->GetHost().c_str(),true)) || (match(this->host,c->GetHost().c_str()))))
+			/* check if host matches.. */
+			if (((!match(this->GetIPString(),c->GetHost().c_str(),true)) && (!match(this->host,c->GetHost().c_str()))))
 			{
-				if (c->GetPort())
+				continue;
+			}
+
+			/*
+			 * deny change if change will take class over the limit check it HERE, not after we found a matching class,
+			 * because we should attempt to find another class if this one doesn't match us. -- w00t
+			 */
+			if (c->limit && (c->RefCount + 1 >= c->limit))
+			{
+				ServerInstance->Logs->Log("USERS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
+				continue;
+			}
+
+			/* if it's disabled, we can't match this one. */
+			if (c->GetDisabled())
+				continue;
+
+			/* if it requires a port ... */
+			if (c->GetPort())
+			{
+				/* and our port doesn't match, fail. */
+				if (this->GetPort() != c->GetPort())
 				{
-					if (this->GetPort() == c->GetPort() && !c->GetDisabled())
-					{
-						found = c;
-					}
-					else
-						continue;
-				}
-				else
-				{
-					if (!c->GetDisabled())
-						found = c;
+					continue;
 				}
 			}
+
+			/* we match this class, BUT! we must keep checking in case a further class is type deny and also matches us. */
+			found = c;
 		}
 	}
 
-	/* ensure we don't fuck things up refcount wise, only remove them from a class if we find a new one :P */
+	/*
+	 * Okay, assuming we found a class that matches.. switch us into that class, keeping refcounts up to date.
+	 */
 	if (found)
 	{
-		/* deny change if change will take class over the limit */
-		if (found->limit && (found->RefCount + 1 >= found->limit))
-		{
-			ServerInstance->Logs->Log("USERS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", found->limit);
-			return this->MyClass;
-		}
-
-		/* should always be valid, but just in case .. */
+		/* only fiddle with refcounts if they are already in a class .. */
 		if (this->MyClass)
 		{
 			if (found == this->MyClass) // no point changing this shit :P
