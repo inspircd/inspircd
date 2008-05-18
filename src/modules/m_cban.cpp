@@ -97,11 +97,11 @@ class CommandCBan : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed CBan on %s.",user->nick,parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed CBan on %s.",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** CBan %s not found in list, try /stats C.",user->nick,parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** CBan %s not found in list, try /stats C.",user->nick.c_str(),parameters[0].c_str());
 			}
 
 			return CMD_SUCCESS;
@@ -114,7 +114,7 @@ class CommandCBan : public Command
 
 			try
 			{
-				r = new CBan(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), parameters[0].c_str());
+				r = new CBan(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -127,12 +127,12 @@ class CommandCBan : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s.", user->nick, parameters[0].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s.", user->nick.c_str(), parameters[0].c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s", user->nick, parameters[0].c_str(),
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s", user->nick.c_str(), parameters[0].c_str(),
 						ServerInstance->TimeString(c_requires_crap).c_str());
 					}
 
@@ -141,7 +141,7 @@ class CommandCBan : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick, parameters[0].c_str());
+					user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick.c_str(), parameters[0].c_str());
 				}
 			}
 		}
@@ -184,8 +184,8 @@ class ModuleCBan : public Module
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick, cname, rl->reason);
-			ServerInstance->SNO->WriteToSnoMask('A', "%s tried to join %s which is CBANed (%s)", user->nick, cname, rl->reason);
+			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname, rl->reason);
+			ServerInstance->SNO->WriteToSnoMask('A', "%s tried to join %s which is CBANed (%s)", user->nick.c_str(), cname, rl->reason);
 			return 1;
 		}
 
