@@ -1695,6 +1695,8 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	if (!IS_LOCAL(this))
 		return NULL;
 
+	ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class for UID %s", this->uuid);
+
 	if (!explicit_name.empty())
 	{
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
@@ -1706,6 +1708,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 
 			if (explicit_name == c->GetName())
 			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Explicitly set to %s", explicit_name.c_str());
 				found = c;
 			}
 		}
@@ -1719,6 +1722,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			/* check if host matches.. */
 			if (((!match(this->GetIPString(),c->GetHost().c_str(),true)) && (!match(this->host,c->GetHost().c_str()))))
 			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
 				continue;
 			}
 
@@ -1728,20 +1732,26 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			 */
 			if (c->limit && (c->RefCount + 1 >= c->limit))
 			{
-				ServerInstance->Logs->Log("USERS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
 				continue;
 			}
 
 			/* if it's disabled, we can't match this one. */
 			if (c->GetDisabled())
+			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class disabled");
 				continue;
+			}
 
 			/* if it requires a port ... */
 			if (c->GetPort())
 			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port");
+
 				/* and our port doesn't match, fail. */
 				if (this->GetPort() != c->GetPort())
 				{
+					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port match failed");
 					continue;
 				}
 			}
