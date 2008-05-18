@@ -131,13 +131,13 @@ class CommandCheck : public Command
 			/* hostname or other */
 			for (user_hash::const_iterator a = ServerInstance->Users->clientlist->begin(); a != ServerInstance->Users->clientlist->end(); a++)
 			{
-				if (match(a->second->host, parameters[0].c_str()) || match(a->second->dhost, parameters[0].c_str()))
+				if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
 				{
 					/* host or vhost matches mask */
 					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 				/* IP address */
-				else if (match(a->second->GetIPString(), parameters[0].c_str(), true))
+				else if (match(a->second->GetIPString(), parameters[0], true))
 				{
 					/* same IP. */
 					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());

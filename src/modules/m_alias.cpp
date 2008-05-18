@@ -157,7 +157,7 @@ class ModuleAlias : public Module
 				/* Does it match the pattern? */
 				if (!Aliases[i].format.empty())
 				{
-					if (!match(Aliases[i].case_sensitive, compare.c_str(), Aliases[i].format.c_str()))
+					if (!match(Aliases[i].case_sensitive, compare, Aliases[i].format))
 						continue;
 				}
 

@@ -57,7 +57,8 @@ class ModuleModesOnConnect : public Module
 		for (int j = 0; j < Conf->Enumerate("connect"); j++)
 		{
 			std::string hostn = Conf->ReadValue("connect","allow",j);
-			if ((match(user->GetIPString(),hostn.c_str(),true)) || (match(user->host,hostn.c_str())))
+			/* XXX: Fixme: does not respect port, limit, etc */
+			if ((match(user->GetIPString(),hostn,true)) || (match(user->host,hostn)))
 			{
 				std::string ThisModes = Conf->ReadValue("connect","modes",j);
 				if (!ThisModes.empty())
