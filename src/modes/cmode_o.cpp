@@ -114,7 +114,7 @@ std::string ModeChannelOp::AddOp(User *user,const char* dest,Channel *chan,int s
 			{
 				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)))
 				{
-					user->WriteServ("482 %s %s :You're not a channel operator",user->nick.c_str(), chan->name);
+					user->WriteServ("482 %s %s :You're not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
 				}
 			}
@@ -142,7 +142,7 @@ std::string ModeChannelOp::DelOp(User *user,const char *dest,Channel *chan,int s
 			{
 				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)) && (IS_LOCAL(user)))
 				{
-					user->WriteServ("482 %s %s :You are not a channel operator",user->nick.c_str(), chan->name);
+					user->WriteServ("482 %s %s :You are not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
 				}
 			}

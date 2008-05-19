@@ -95,7 +95,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		std::deque<std::string> param_list;
 		if (Utils->AnnounceTSChange && chan)
-			chan->WriteChannelWithServ(Instance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name, chan->name, (unsigned long) ourTS, (unsigned long) TS);
+			chan->WriteChannelWithServ(Instance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), chan->name.c_str(), (unsigned long) ourTS, (unsigned long) TS);
 		ourTS = TS;
 		if (!created)
 		{

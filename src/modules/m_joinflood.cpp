@@ -135,7 +135,7 @@ class JoinFlood : public ModeHandler
 				int nsecs = atoi(secs);
 				if ((njoins<1) || (nsecs<1))
 				{
-					source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name);
+					source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
 					parameter.clear();
 					return MODEACTION_DENY;
 				}
@@ -184,7 +184,7 @@ class JoinFlood : public ModeHandler
 			}
 			else
 			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name);
+				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
 				return MODEACTION_DENY;
 			}
 		}
@@ -231,7 +231,7 @@ class ModuleJoinFlood : public Module
 			{
 				if (f->islocked())
 				{
-					user->WriteNumeric(609, "%s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick.c_str(),chan->name);
+					user->WriteNumeric(609, "%s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick.c_str(),chan->name.c_str());
 					return 1;
 				}
 			}
@@ -255,7 +255,7 @@ class ModuleJoinFlood : public Module
 			{
 				f->clear();
 				f->lock();
-				channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName, "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", channel->name, f->joins, f->secs);
+				channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName, "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", channel->name.c_str(), f->joins, f->secs);
 			}
 		}
 	}

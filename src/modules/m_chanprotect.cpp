@@ -103,10 +103,10 @@ class FounderProtectBase
 		{
 			if (i->first->GetExt(item))
 			{
-				user->WriteServ("%d %s %s %s", list, user->nick.c_str(), channel->name,i->first->nick.c_str());
+				user->WriteServ("%d %s %s %s", list, user->nick.c_str(), channel->name.c_str(), i->first->nick.c_str());
 			}
 		}
-		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick.c_str(), channel->name, type.c_str());
+		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick.c_str(), channel->name.c_str(), type.c_str());
 	}
 
 	User* FindAndVerify(std::string &parameter, Channel* channel)
@@ -206,7 +206,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		else
 		{
 			// whoops, someones being naughty!
-			source->WriteNumeric(468, "%s %s :Only servers may set channel mode +q",source->nick.c_str(), channel->name);
+			source->WriteNumeric(468, "%s %s :Only servers may set channel mode +q", source->nick.c_str(), channel->name.c_str());
 			parameter.clear();
 			return MODEACTION_DENY;
 		}
@@ -273,7 +273,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		else
 		{
 			// bzzzt, wrong answer!
-			source->WriteNumeric(482, "%s %s :You are not a channel founder",source->nick.c_str(), channel->name);
+			source->WriteNumeric(482, "%s %s :You are not a channel founder", source->nick.c_str(), channel->name.c_str());
 			return MODEACTION_DENY;
 		}
 	}
@@ -388,7 +388,7 @@ class ModuleChanProtect : public Module
 		// will appear in the names list for the user.. remove if desired -Special
 
 		if (FirstInGetsFounder && channel->GetUserCounter() == 1)
-			user->WriteServ("MODE %s +q %s", channel->name, user->nick.c_str());
+			user->WriteServ("MODE %s +q %s", channel->name.c_str(), user->nick.c_str());
 	}
 	
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
@@ -408,8 +408,8 @@ class ModuleChanProtect : public Module
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 			return ACR_ALLOW;
 
-		std::string founder = "cm_founder_"+std::string(channel->name);
-		std::string protect = "cm_protect_"+std::string(channel->name);
+		std::string founder("cm_founder_"+channel->name);
+		std::string protect("cm_protect_"+channel->name);
 
 		switch (access_type)
 		{
@@ -417,12 +417,12 @@ class ModuleChanProtect : public Module
 			case AC_DEOP:
 				if (dest->GetExt(founder))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;
@@ -431,12 +431,12 @@ class ModuleChanProtect : public Module
 			case AC_KICK:
 				if (dest->GetExt(founder))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;
@@ -445,12 +445,12 @@ class ModuleChanProtect : public Module
 			case AC_DEHALFOP:
 				if (dest->GetExt(founder))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;
@@ -459,12 +459,12 @@ class ModuleChanProtect : public Module
 			case AC_DEVOICE:
 				if (dest->GetExt(founder))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				if ((dest->GetExt(protect)) && (!source->GetExt(protect)))
 				{
-					source->WriteNumeric(484, ""+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;

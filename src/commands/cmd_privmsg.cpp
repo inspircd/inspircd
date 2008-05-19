@@ -70,12 +70,12 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			{
 				if ((chan->IsModeSet('n')) && (!chan->HasUser(user)))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
 				if ((chan->IsModeSet('m')) && (chan->GetStatus(user) < STATUS_VOICE))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
 			}
@@ -101,16 +101,16 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			{
 				if (ServerInstance->Config->UndernetMsgPrefix)
 				{
-					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name, status, text);
+					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name.c_str(), status, text);
 				}
 				else
 				{
-					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%s", status, chan->name, text);
+					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%s", status, chan->name.c_str(), text);
 				}
 			}
 			else 
 			{
-				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name, text);
+				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name.c_str(), text);
 			}
 
 			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,text,status,except_list));
@@ -118,7 +118,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		else
 		{
 			/* no such nick/channel */
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target);
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), target);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -159,7 +159,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		if (IS_AWAY(dest))
 		{
 			/* auto respond with aweh msg */
-			user->WriteNumeric(301, "%s %s :%s",user->nick.c_str(),dest->nick.c_str(),dest->awaymsg.c_str());
+			user->WriteNumeric(301, "%s %s :%s", user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
 		}
 
 		int MOD_RESULT = 0;

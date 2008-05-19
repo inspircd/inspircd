@@ -322,8 +322,8 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	if (targetchannel)
 	{
 		/* Display channel's current mode string */
-		user->WriteNumeric(324, "%s %s +%s",user->nick.c_str(), targetchannel->name, targetchannel->ChanModes(targetchannel->HasUser(user)));
-		user->WriteNumeric(329, "%s %s %lu", user->nick.c_str(), targetchannel->name, (unsigned long)targetchannel->age);
+		user->WriteNumeric(324, "%s %s +%s",user->nick.c_str(), targetchannel->name.c_str(), targetchannel->ChanModes(targetchannel->HasUser(user)));
+		user->WriteNumeric(329, "%s %s %lu", user->nick.c_str(), targetchannel->name.c_str(), (unsigned long)targetchannel->age);
 		return;
 	}
 	else if (targetuser)
@@ -414,7 +414,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 
 				if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
 				{
-					user->WriteNumeric(482, "%s %s :Only half-operators and above may view the +%c list",user->nick.c_str(), targetchannel->name, *mode++);
+					user->WriteNumeric(482, "%s %s :Only half-operators and above may view the +%c list",user->nick.c_str(), targetchannel->name.c_str(), *mode++);
 					mh->DisplayEmptyList(user, targetchannel);
 					continue;
 				}
@@ -612,7 +612,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 									{
 										/* Bog off */
 										user->WriteNumeric(482, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
-												user->nick.c_str(), targetchannel->name, needed, adding ? "" : "un", modechar);
+												user->nick.c_str(), targetchannel->name.c_str(), needed, adding ? "" : "un", modechar);
 										continue;
 									}
 								}
@@ -736,7 +736,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			{
 				if (type == MODETYPE_CHANNEL)
 				{
-					targetchannel->WriteChannelWithServ(ServerInstance->Config->ServerName, "MODE %s %s%s", targetchannel->name, output_sequence.c_str(), parameter_list.str().c_str());
+					targetchannel->WriteChannelWithServ(ServerInstance->Config->ServerName, "MODE %s %s%s", targetchannel->name.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
 					this->LastParse = targetchannel->name;
 				}
 				else
@@ -749,13 +749,13 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			{
 				if (type == MODETYPE_CHANNEL)
 				{
-					targetchannel->WriteChannel(user,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
+					targetchannel->WriteChannel(user, "MODE %s %s%s", targetchannel->name.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
 					this->LastParse = targetchannel->name;
 				}
 				else
 				{
-					user->WriteTo(targetuser,"MODE %s %s%s",targetuser->nick.c_str(),output_sequence.c_str(), parameter_list.str().c_str());
+					user->WriteTo(targetuser, "MODE %s %s%s", targetuser->nick.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence + parameter_list.str()));
 					this->LastParse = targetuser->nick;
 				}

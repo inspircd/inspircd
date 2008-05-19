@@ -31,17 +31,17 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 		{
 			if ((Ptr->IsModeSet('s')) && (!Ptr->HasUser(user)))
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), Ptr->name);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), Ptr->name.c_str());
 				return CMD_FAILURE;
 			}
 			if (Ptr->topicset)
 			{
-				user->WriteNumeric(332, "%s %s :%s", user->nick.c_str(), Ptr->name, Ptr->topic);
-				user->WriteNumeric(333, "%s %s %s %lu", user->nick.c_str(), Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+				user->WriteNumeric(332, "%s %s :%s", user->nick.c_str(), Ptr->name.c_str(), Ptr->topic.c_str());
+				user->WriteNumeric(333, "%s %s %s %lu", user->nick.c_str(), Ptr->name.c_str(), Ptr->setby.c_str(), (unsigned long)Ptr->topicset);
 			}
 			else
 			{
-				user->WriteNumeric(331, "%s %s :No topic is set.", user->nick.c_str(), Ptr->name);
+				user->WriteNumeric(331, "%s %s :No topic is set.", user->nick.c_str(), Ptr->name.c_str());
 			}
 		}
 		else
@@ -60,12 +60,12 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 			{
 				if (!Ptr->HasUser(user))
 				{
-					user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick.c_str(), Ptr->name);
+					user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick.c_str(), Ptr->name.c_str());
 					return CMD_FAILURE;
 				}
 				if ((Ptr->IsModeSet('t')) && (Ptr->GetStatus(user) < STATUS_HOP))
 				{
-					user->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", user->nick.c_str(), Ptr->name);
+					user->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", user->nick.c_str(), Ptr->name.c_str());
 					return CMD_FAILURE;
 				}
 			}
@@ -79,26 +79,25 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 				 */
 				int MOD_RESULT = 0;
 
-				strlcpy(topic, parameters[1].c_str(), MAXTOPIC-1);
+				strlcpy(topic, parameters[1].c_str(), MAXTOPIC);
 				FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
 				if (MOD_RESULT)
 					return CMD_FAILURE;
 
-				strlcpy(Ptr->topic, topic, MAXTOPIC-1);
+				Ptr->topic.assign(topic, 0, MAXTOPIC);
 			}
 			else
 			{
 				/* Sneaky shortcut, one string copy for a remote topic */
-				strlcpy(Ptr->topic, parameters[1].c_str(), MAXTOPIC-1);
+				Ptr->topic.assign(parameters[1], 0, MAXTOPIC);
 			}
 
-			if (ServerInstance->Config->FullHostInTopic)
-				strlcpy(Ptr->setby,user->GetFullHost().c_str(),127);
-			else
-				strlcpy(Ptr->setby,user->nick.c_str(),127);
+			Ptr->setby.assign(ServerInstance->Config->FullHostInTopic ?
+					user->GetFullHost() : user->nick,
+					0, 128);
 
 			Ptr->topicset = ServerInstance->Time();
-			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name, Ptr->topic);
+			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name.c_str(), Ptr->topic.c_str());
 
 			if (IS_LOCAL(user))
 				/* We know 'topic' will contain valid data here */

@@ -31,11 +31,11 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 	Channel* c = this->Instance->FindChan(params[0]);
 	if (c)
 	{
-		if ((ts >= c->topicset) || (!*c->topic))
+		if ((ts >= c->topicset) || (c->topic.empty()))
 		{
 			std::string oldtopic = c->topic;
-			strlcpy(c->topic,params[3].c_str(),MAXTOPIC);
-			strlcpy(c->setby,params[2].c_str(),127);
+			c->topic.assign(params[3], 0, MAXTOPIC);
+			c->setby.assign(params[2], 0, 127);
 			c->topicset = ts;
 			/* if the topic text is the same as the current topic,
 			 * dont bother to send the TOPIC command out, just silently
@@ -46,11 +46,11 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 				User* user = this->Instance->FindNick(source);
 				if (!user)
 				{
-					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name, c->topic);
+					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
 				}
 				else
 				{
-					c->WriteChannel(user, "TOPIC %s :%s", c->name, c->topic);
+					c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
 					nsource = user->server;
 				}
 			}

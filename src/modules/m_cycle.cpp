@@ -69,7 +69,7 @@ class CommandCycle : public Command
 		}
 		else
 		{
-			user->WriteNumeric(442, "%s %s :You're not on that channel", user->nick.c_str(), channel->name);
+			user->WriteNumeric(442, "%s %s :You're not on that channel", user->nick.c_str(), channel->name.c_str());
 		}
 
 		return CMD_FAILURE;

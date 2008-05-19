@@ -64,7 +64,7 @@ class BanRedirect : public ModeWatcher
 		
 			if(adding && (channel->bans.size() > static_cast<unsigned>(maxbans)))
 			{
-				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)", source->nick.c_str(), channel->name, channel->name, maxbans);
+				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)", source->nick.c_str(), channel->name.c_str(), channel->name.c_str(), maxbans);
 				return false;
 			}
 			
@@ -116,9 +116,9 @@ class BanRedirect : public ModeWatcher
 			{
 				if(Srv->IsChannel(mask[CHAN].c_str()))
 				{
-					if(irc::string(channel->name) == irc::string(mask[CHAN].c_str()))
+					if (assign(channel->name) == mask[CHAN])
 					{
-						source->WriteNumeric(690, "%s %s :You cannot set a ban redirection to the channel the ban is on", source->nick.c_str(), channel->name);
+						source->WriteNumeric(690, "%s %s :You cannot set a ban redirection to the channel the ban is on", source->nick.c_str(), channel->name.c_str());
 						return false;
 					}
 					else
@@ -170,7 +170,7 @@ class BanRedirect : public ModeWatcher
 				}
 				else
 				{
-					source->WriteNumeric(403, "%s %s :Invalid channel name in redirection (%s)", source->nick.c_str(), channel->name, mask[CHAN].c_str());
+					source->WriteNumeric(403, "%s %s :Invalid channel name in redirection (%s)", source->nick.c_str(), channel->name.c_str(), mask[CHAN].c_str());
 					return false;
 				}
 			}
@@ -298,12 +298,12 @@ class ModuleBanRedirect : public Module
 						
 						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
 						{
-							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name);
+							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
 							return 1;
 						}
 						else
 						{
-							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name);
+							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
 							user->WriteNumeric(470, "%s :You are being automatically redirected to %s", user->nick.c_str(), redir->targetchan.c_str());
 							nofollow = true;
 							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());

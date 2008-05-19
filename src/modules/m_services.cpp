@@ -165,7 +165,7 @@ class ModuleServices : public Module
 					return 0;
 				}
 				// user messaging a +M channel and is not registered
-				user->WriteNumeric(477, "%s %s :You need a registered nickname to speak on this channel", user->nick.c_str(), c->name);
+				user->WriteNumeric(477, "%s %s :You need a registered nickname to speak on this channel", user->nick.c_str(), c->name.c_str());
 				return 1;
 			}
 		}
@@ -206,7 +206,7 @@ class ModuleServices : public Module
 						return 0;
 					}
 					// joining a +R channel and not identified
-					user->WriteNumeric(477, "%s %s :You need a registered nickname to join this channel", user->nick.c_str(), chan->name);
+					user->WriteNumeric(477, "%s %s :You need a registered nickname to join this channel", user->nick.c_str(), chan->name.c_str());
 					return 1;
 				}
 			}

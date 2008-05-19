@@ -68,7 +68,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		{
 			if (IS_OPER(user) || (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('s')))) || (n)))
 			{
-				user->WriteNumeric(322, "%s %s %ld :[+%s] %s",user->nick.c_str(),i->second->name,users,i->second->ChanModes(n),i->second->topic);
+				user->WriteNumeric(322, "%s %s %ld :[+%s] %s",user->nick.c_str(),i->second->name.c_str(),users,i->second->ChanModes(n),i->second->topic.c_str());
 			}
 		}
 	}

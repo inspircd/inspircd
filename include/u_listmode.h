@@ -153,15 +153,15 @@ class ListModeBase : public ModeHandler
 		{
 			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 			{
-				user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick.c_str(), channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
+				user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), it->nick.c_str(), it->time.c_str());
 			}
 		}
-		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name, endofliststring.c_str());
+		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
 	}
 
 	virtual void DisplayEmptyList(User* user, Channel* channel)
 	{
-		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name, endofliststring.c_str());
+		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
 	}
 
 	/** Remove all instances of the mode from a channel.
@@ -323,7 +323,7 @@ class ListModeBase : public ModeHandler
 			/* List is full, give subclass a chance to send a custom message */
 			if (!TellListTooLong(source, channel, parameter))
 			{
-				source->WriteNumeric(478, "%s %s %s :Channel ban/ignore list is full", source->nick.c_str(), channel->name, parameter.c_str());
+				source->WriteNumeric(478, "%s %s %s :Channel ban/ignore list is full", source->nick.c_str(), channel->name.c_str(), parameter.c_str());
 			}
 			
 			parameter = "";

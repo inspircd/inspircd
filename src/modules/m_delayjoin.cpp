@@ -29,7 +29,7 @@ class DelayJoinMode : public ModeHandler
 		{
 			if (IS_LOCAL(source) && (channel->GetStatus(source) < STATUS_OP))
 			{
-				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +D", source->nick.c_str(), channel->name, adding ? "" : "un");
+				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +D", source->nick.c_str(), channel->name.c_str(), adding ? "" : "un");
 				return MODEACTION_DENY;
 			}
 			else
@@ -104,10 +104,10 @@ class ModuleDelayJoin : public Module
 		{
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-			user->WriteFrom(user, "JOIN %s", channel->name);
+			user->WriteFrom(user, "JOIN %s", channel->name.c_str());
 
 			/* This metadata tells the module the user is delayed join on this specific channel */
-			user->Extend(std::string("delayjoin_")+channel->name);
+			user->Extend("delayjoin_"+channel->name);
 
 			/* This metadata tells the module the user is delayed join on at least one (or more) channels.
 			 * It is only cleared when the user is no longer on ANY +D channels.
@@ -121,11 +121,11 @@ class ModuleDelayJoin : public Module
 	{
 		if (channel->IsModeSet('D'))
 		{
-			if (user->GetExt(std::string("delayjoin_")+channel->name))
+			if (user->GetExt("delayjoin_"+channel->name))
 			{
 				silent = true;
 				/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-				user->WriteFrom(user, "PART %s%s%s", channel->name, partmessage.empty() ? "" : " :", partmessage.empty() ? "" : partmessage.c_str());
+				user->WriteFrom(user, "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :", partmessage.empty() ? "" : partmessage.c_str());
 			}
 		}
 	}
@@ -135,10 +135,10 @@ class ModuleDelayJoin : public Module
 		if (chan->IsModeSet('D'))
 		{
 			/* Send silenced event only to the user being kicked and the user doing the kick */
-			if (user->GetExt(std::string("delayjoin_")+chan->name))
+			if (user->GetExt("delayjoin_"+chan->name))
 			{
 				silent = true;
-				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
+				user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			}
 		}
 	}
@@ -169,18 +169,18 @@ class ModuleDelayJoin : public Module
 
 		Channel* channel = (Channel*) dest;
 
-		if (!user->GetExt(std::string("delayjoin_")+channel->name))
+		if (!user->GetExt("delayjoin_"+channel->name))
 			return;
 
 		/* Display the join to everyone else (the user who joined got it earlier) */
-		this->WriteCommonFrom(user, channel, "JOIN %s", channel->name);
+		this->WriteCommonFrom(user, channel, "JOIN %s", channel->name.c_str());
 
 		std::string n = this->ServerInstance->Modes->ModeString(user, channel);
 		if (n.length() > 0)
-			this->WriteCommonFrom(user, channel, "MODE %s +%s", channel->name, n.c_str());
+			this->WriteCommonFrom(user, channel, "MODE %s +%s", channel->name.c_str(), n.c_str());
 
 		/* Shrink off the neccessary metadata for a specific channel */
-		user->Shrink(std::string("delayjoin_")+channel->name);
+		user->Shrink("delayjoin_"+channel->name);
 
 		/* Check if the user is left on any other +D channels, if so don't take away the
 		 * metadata that says theyre on one or more channels 

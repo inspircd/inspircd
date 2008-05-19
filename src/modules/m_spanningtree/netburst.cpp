@@ -85,7 +85,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	char list[MAXBUF];
 
 	size_t dlen, curlen;
-	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age, c->ChanModes(true));
+	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s", this->Instance->Config->GetSID().c_str(), c->name.c_str(),(unsigned long)c->age, c->ChanModes(true));
 	int numusers = 0;
 	char* ptr = list + dlen;
 	bool looped_once = false;
@@ -109,7 +109,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		if (curlen > (480-NICKMAX))
 		{
 			buffer.append(list).append("\r\n");
-			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age, c->ChanModes(true));
+			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s", this->Instance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
 			ptr = list + dlen;
 			ptrlen = 0;
 			numusers = 0;
@@ -193,9 +193,9 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 	for (chan_hash::iterator c = this->Instance->chanlist->begin(); c != this->Instance->chanlist->end(); c++)
 	{
 		SendFJoins(Current, c->second);
-		if (*c->second->topic)
+		if (!c->second->topic.empty())
 		{
-			snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s",sn,c->second->name,(unsigned long)c->second->topicset,c->second->setby,c->second->topic);
+			snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", sn, c->second->name.c_str(), (unsigned long)c->second->topicset, c->second->setby.c_str(), c->second->topic.c_str());
 			this->WriteLine(data);
 		}
 		FOREACH_MOD_I(this->Instance,I_OnSyncChannel,OnSyncChannel(c->second,(Module*)Utils->Creator,(void*)this));

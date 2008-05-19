@@ -54,7 +54,7 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 			if (s)
 			{
 				FOREACH_MOD_I(Instance, I_OnText, OnText(NULL, channel, TYPE_CHANNEL, text, status, except_list));
-				channel->WriteChannelWithServ(s->GetName().c_str(), "%s %s :%s", messagetype.c_str(), channel->name, text.c_str());
+				channel->WriteChannelWithServ(s->GetName().c_str(), "%s %s :%s", messagetype.c_str(), channel->name.c_str(), text.c_str());
 			}
 		}
 		else

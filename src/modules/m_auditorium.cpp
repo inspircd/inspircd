@@ -26,7 +26,7 @@ class AuditoriumMode : public ModeHandler
 		{
 			if (IS_LOCAL(source) && (channel->GetStatus(source) < STATUS_OP))
 			{
-				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +u", source->nick.c_str(), channel->name, adding ? "" : "un");
+				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +u", source->nick.c_str(), channel->name.c_str(), adding ? "" : "un");
 				return MODEACTION_DENY;
 			}
 			else
@@ -120,9 +120,9 @@ class ModuleAuditorium : public Module
 		{
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-			user->WriteFrom(user, "JOIN %s", channel->name);
+			user->WriteFrom(user, "JOIN %s", channel->name.c_str());
 			if (ShowOps)
-				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "JOIN %s", channel->name);
+				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "JOIN %s", channel->name.c_str());
 		}
 	}
 
@@ -132,12 +132,12 @@ class ModuleAuditorium : public Module
 		{
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-			user->WriteFrom(user, "PART %s%s%s", channel->name,
+			user->WriteFrom(user, "PART %s%s%s", channel->name.c_str(),
 					partmessage.empty() ? "" : " :",
 					partmessage.empty() ? "" : partmessage.c_str());
 			if (ShowOps)
 			{
-				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "PART %s%s%s", channel->name, partmessage.empty() ? "" : " :",
+				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :",
 						partmessage.empty() ? "" : partmessage.c_str());
 			}
 		}
@@ -149,11 +149,11 @@ class ModuleAuditorium : public Module
 		{
 			silent = true;
 			/* Send silenced event only to the user being kicked and the user doing the kick */
-			source->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
+			source->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			if (ShowOps)
-				chan->WriteAllExcept(source, false, chan->GetStatus(source) >= STATUS_OP ? 0 : '@', except_list, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
+				chan->WriteAllExcept(source, false, chan->GetStatus(source) >= STATUS_OP ? 0 : '@', except_list, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			else
-				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
+				user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 		}
 	}
 

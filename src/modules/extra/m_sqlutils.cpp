@@ -210,13 +210,13 @@ public:
 				{
 					if(iter->second != chan)
 					{
-						ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: ID associated with channel %s doesn't have the same Channel* associated with it in the map (erasing anyway)", chan->name);
+						ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: ID associated with channel %s doesn't have the same Channel* associated with it in the map (erasing anyway)", chan->name.c_str());
 					}
 					idchan.erase(iter);					
 				}
 				else
 				{
-					ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: channel %s was extended with sqlutils_queryids but there was nothing matching in the map", chan->name);
+					ServerInstance->Logs->Log("m_sqlutils",DEBUG, "BUG: channel %s was extended with sqlutils_queryids but there was nothing matching in the map", chan->name.c_str());
 				}
 			}
 			

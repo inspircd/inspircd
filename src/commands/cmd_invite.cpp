@@ -45,20 +45,20 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteNumeric(482, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name, c->GetStatus(u) == STATUS_HOP ? "" : "half-");
+				user->WriteNumeric(482, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
 				return CMD_FAILURE;
 			}
 		}
 
 		if (c->HasUser(u))
 	 	{
-	 		user->WriteNumeric(443, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name);
+	 		user->WriteNumeric(443, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
 	 		return CMD_FAILURE;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 	 	{
-			user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick.c_str(), c->name);
+			user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
 	  		return CMD_FAILURE;
 		}
 
@@ -69,22 +69,22 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			return CMD_FAILURE;
 		}
 
-		u->InviteTo(c->name, timeout);
-		u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name);
-		user->WriteNumeric(341, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name);
+		u->InviteTo(c->name.c_str(), timeout);
+		u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
+		user->WriteNumeric(341, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
 		switch (ServerInstance->Config->AnnounceInvites)
 		{
 			case ServerConfig::INVITE_ANNOUNCE_ALL:
-				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick.c_str(), u->nick.c_str());
+				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 			break;
 			case ServerConfig::INVITE_ANNOUNCE_OPS:
-				c->WriteAllExceptSender(user, true, '@', "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick.c_str(), u->nick.c_str());
+				c->WriteAllExceptSender(user, true, '@', "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 			break;
 			case ServerConfig::INVITE_ANNOUNCE_DYNAMIC:
 				if (c->IsModeSet('i'))
-					c->WriteAllExceptSender(user, true, '@', "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick.c_str(), u->nick.c_str());
+					c->WriteAllExceptSender(user, true, '@', "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 				else
-					c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick.c_str(), u->nick.c_str());
+					c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 			break;
 			default:
 				/* Nobody */

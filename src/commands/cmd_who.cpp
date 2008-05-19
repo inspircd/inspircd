@@ -15,7 +15,9 @@
 #include "wildcard.h"
 #include "commands/cmd_who.h"
 
-static const char *get_first_visible_channel(User *u)
+static const std::string star = "*";
+
+static const std::string& get_first_visible_channel(User *u)
 {
 	UCListIter i = u->chans.begin();
 	if (i != u->chans.end())
@@ -24,7 +26,7 @@ static const char *get_first_visible_channel(User *u)
 			return i->first->name;
 	}
 
-	return "*";
+	return star;
 }
 
 bool CommandWho::whomatch(User* user, const char* matchtext)
@@ -138,7 +140,7 @@ void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch
 	if (u->Visibility && !u->Visibility->VisibleTo(user))
 		return;
 
-	std::string lcn = get_first_visible_channel(u);
+	const std::string& lcn = get_first_visible_channel(u);
 	Channel* chlast = ServerInstance->FindChan(lcn);
 
 	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +

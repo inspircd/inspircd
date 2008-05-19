@@ -65,9 +65,9 @@ class Redirect : public ModeHandler
 					{
 						for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 						{
-							if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == irc::string(channel->name)))
+							if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == channel->name))
 							{
-								source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick.c_str(),parameter.c_str(),i->second->name);
+								source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick.c_str(), parameter.c_str(), i->second->name.c_str());
 								return MODEACTION_DENY;
 							}
 						}

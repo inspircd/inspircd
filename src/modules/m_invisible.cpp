@@ -100,7 +100,7 @@ class InvisibleMode : public ModeHandler
 				CUList *ulist = f->first->GetUsers();
 				char tb[MAXBUF];
 
-				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost().c_str(), adding ? "PART" : "JOIN", f->first->name);
+				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost().c_str(), adding ? "PART" : "JOIN", f->first->name.c_str());
 				std::string out = tb;
 				std::string n = this->ServerInstance->Modes->ModeString(dest, f->first);
 
@@ -111,7 +111,7 @@ class InvisibleMode : public ModeHandler
 					{
 						i->first->Write(out);
 						if (!n.empty() && !adding)
-							i->first->WriteServ("MODE %s +%s", f->first->name, n.c_str());
+							i->first->WriteServ("MODE %s +%s", f->first->name.c_str(), n.c_str());
 					}
 				}
 			}
@@ -194,8 +194,8 @@ class ModuleInvisible : public Module
 		{
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-			this->WriteCommonFrom(user, channel, "JOIN %s", channel->name);
-			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name);
+			this->WriteCommonFrom(user, channel, "JOIN %s", channel->name.c_str());
+			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name.c_str());
 		}
 	}
 
@@ -211,7 +211,7 @@ class ModuleInvisible : public Module
 		{
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-			this->WriteCommonFrom(user, channel, "PART %s%s%s", channel->name,
+			this->WriteCommonFrom(user, channel, "PART %s%s%s", channel->name.c_str(),
 					partmessage.empty() ? "" : " :",
 					partmessage.empty() ? "" : partmessage.c_str());
 		}

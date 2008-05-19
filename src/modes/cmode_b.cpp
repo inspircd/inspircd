@@ -81,15 +81,15 @@ void ModeChannelBan::DisplayList(User* user, Channel* channel)
 	/* Display the channel banlist */
 	for (BanList::reverse_iterator i = channel->bans.rbegin(); i != channel->bans.rend(); ++i)
 	{
-		user->WriteServ("367 %s %s %s %s %lu",user->nick.c_str(), channel->name, i->data.c_str(), i->set_by.c_str(), (unsigned long)i->set_time);
+		user->WriteServ("367 %s %s %s %s %lu",user->nick.c_str(), channel->name.c_str(), i->data.c_str(), i->set_by.c_str(), (unsigned long)i->set_time);
 	}
-	user->WriteServ("368 %s %s :End of channel ban list",user->nick.c_str(), channel->name);
+	user->WriteServ("368 %s %s :End of channel ban list",user->nick.c_str(), channel->name.c_str());
 	return;
 }
 
 void ModeChannelBan::DisplayEmptyList(User* user, Channel* channel)
 {
-	user->WriteServ("368 %s %s :End of channel ban list",user->nick.c_str(), channel->name);
+	user->WriteServ("368 %s %s :End of channel ban list",user->nick.c_str(), channel->name.c_str());
 }
 
 std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan, int, bool servermode)
@@ -110,7 +110,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	long maxbans = chan->GetMaxBans();
 	if ((unsigned)chan->bans.size() > (unsigned)maxbans)
 	{
-		user->WriteServ("478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)",user->nick.c_str(), chan->name,chan->name,maxbans);
+		user->WriteServ("478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str(), maxbans);
 		dest = "";
 		return dest;
 	}

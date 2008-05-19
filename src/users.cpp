@@ -1552,10 +1552,10 @@ bool User::ChangeDisplayedHost(const char* shost)
 	{
 		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 		{
-			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name);
+			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name.c_str());
 			std::string n = this->ServerInstance->Modes->ModeString(this, i->first);
 			if (n.length() > 0)
-				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name, n.c_str());
+				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name.c_str(), n.c_str());
 		}
 	}
 
@@ -1581,10 +1581,10 @@ bool User::ChangeIdent(const char* newident)
 	{
 		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 		{
-			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name);
+			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name.c_str());
 			std::string n = this->ServerInstance->Modes->ModeString(this, i->first);
 			if (n.length() > 0)
-				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name, n.c_str());
+				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name.c_str(), n.c_str());
 		}
 	}
 

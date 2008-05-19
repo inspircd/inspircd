@@ -69,12 +69,12 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			{
 				if ((chan->IsModeSet('n')) && (!chan->HasUser(user)))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
 				if ((chan->IsModeSet('m')) && (chan->GetStatus(user) < STATUS_VOICE))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name);
+					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
 			}
@@ -99,16 +99,16 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			{
 				if (ServerInstance->Config->UndernetMsgPrefix)
 				{
-					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%c %s", status, chan->name, status, text);
+					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%c %s", status, chan->name.c_str(), status, text);
 				}
 				else
 				{
-					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%s", status, chan->name, text);
+					chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%s", status, chan->name.c_str(), text);
 				}
 			}
 			else
 			{
-				chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name, text);
+				chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name.c_str(), text);
 			}
 
 			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,text,status,exempt_list));

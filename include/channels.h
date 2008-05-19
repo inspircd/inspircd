@@ -134,7 +134,7 @@ class CoreExport Channel : public Extensible
 
 	/** The channel's name.
 	 */
-	char name[CHANMAX];
+	std::string name; /* CHANMAX */
 
 	/** Modes for the channel.
 	 * This is not a null terminated string! It is a hash where
@@ -180,7 +180,7 @@ class CoreExport Channel : public Extensible
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
 	 */
-	char topic[MAXTOPIC];
+	std::string topic; /* MAXTOPIC */
 
 	/** Creation time.
 	 * This is a timestamp (TS) value.
@@ -195,7 +195,7 @@ class CoreExport Channel : public Extensible
 	/** The last user to set the topic.
 	 * If this member is an empty string, no topic was ever set.
 	 */
-	char setby[128];
+	std::string setby; /* 128 */
 
 	/** Contains the channel user limit.
 	 * If this value is zero, there is no limit in place.
@@ -205,7 +205,7 @@ class CoreExport Channel : public Extensible
 	/** Contains the channel key.
 	 * If this value is an empty string, there is no channel key in place.
 	 */
-	char key[32];
+	std::string key; /* 32 */
 
 	/** The list of all bans set on the channel.
 	 */

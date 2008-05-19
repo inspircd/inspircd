@@ -236,7 +236,7 @@ class ModuleOverride : public Module
 			{
 				if ((chan->modes[CM_INVITEONLY]) && (CanOverride(user,"INVITE")))
 				{
-					irc::string x = chan->name;
+					irc::string x(chan->name.c_str());
 					if (!user->IsInvited(x))
 					{
 						if (RequireKey && keygiven != "override")
@@ -248,12 +248,12 @@ class ModuleOverride : public Module
 
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname, user->nick.c_str());
-						ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used oper override to bypass +i on "+std::string(cname));
+						ServerInstance->SNO->WriteToSnoMask('O', user->nick+" used oper override to bypass +i on "+std::string(cname));
 					}
 					return -1;
 				}
 				
-				if ((*chan->key) && (CanOverride(user,"KEY")) && strcasecmp(keygiven.c_str(), chan->key))
+				if ((chan->key.empty()) && (CanOverride(user,"KEY")) && keygiven != chan->key)
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -264,7 +264,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used oper override to bypass +k on "+std::string(cname));
+					ServerInstance->SNO->WriteToSnoMask('O', user->nick+" used oper override to bypass +k on "+std::string(cname));
 					return -1;
 				}
 					
@@ -279,7 +279,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used oper override to bypass +l on "+std::string(cname));
+					ServerInstance->SNO->WriteToSnoMask('O', user->nick+" used oper override to bypass +l on "+std::string(cname));
 					return -1;
 				}
 

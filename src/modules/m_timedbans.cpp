@@ -90,14 +90,14 @@ class CommandTban : public Command
 					T.mask = mask;
 					T.expire = expire;
 					TimedBanList.push_back(T);
-					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick.c_str(), mask.c_str(), duration);
+					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
 					if (ServerInstance->Config->AllowHalfop)
-						channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick.c_str(), mask.c_str(), duration);
+						channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
 			}
-			else user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick.c_str(), channel->name,
+			else user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick.c_str(), channel->name.c_str(),
 					ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
 			return CMD_FAILURE;
 		}
@@ -129,7 +129,7 @@ class ModuleTimedBans : public Module
 	virtual int OnDelBan(User* source, Channel* chan, const std::string &banmask)
 	{
 		irc::string listitem = banmask.c_str();
-		irc::string thischan = chan->name;
+		irc::string thischan = chan->name.c_str();
 		for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
 		{
 			irc::string target = i->mask.c_str();
@@ -164,9 +164,9 @@ class ModuleTimedBans : public Module
 					setban.push_back(mask);
 
 					CUList empty;
-					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, safei->mask.c_str());
+					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name.c_str(), safei->mask.c_str());
 					if (ServerInstance->Config->AllowHalfop)
-						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name, safei->mask.c_str());
+						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name.c_str(), safei->mask.c_str());
 
 					/* Removes the ban item for us, no ::erase() needed */
 					ServerInstance->PI->SendModeStr(safei->channel, std::string("-b ") + setban[2]);

@@ -125,7 +125,7 @@ std::string ModeChannelHalfOp::AddHalfOp(User *user,const char* dest,Channel *ch
 			{
 				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)))
 				{
-					user->WriteServ("482 %s %s :You're not a channel operator",user->nick.c_str(), chan->name);
+					user->WriteServ("482 %s %s :You're not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
 				}
 			}
@@ -153,7 +153,7 @@ std::string ModeChannelHalfOp::DelHalfOp(User *user,const char *dest,Channel *ch
 			{
 				if ((user != d) && ((status < STATUS_OP) && (!ServerInstance->ULine(user->server))))
 				{
-					user->WriteServ("482 %s %s :You are not a channel operator",user->nick.c_str(), chan->name);
+					user->WriteServ("482 %s %s :You are not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
 				}
 			}
