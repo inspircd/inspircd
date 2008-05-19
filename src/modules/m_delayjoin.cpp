@@ -29,7 +29,7 @@ class DelayJoinMode : public ModeHandler
 		{
 			if (IS_LOCAL(source) && (channel->GetStatus(source) < STATUS_OP))
 			{
-				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +D", source->nick, channel->name, adding ? "" : "un");
+				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +D", source->nick.c_str(), channel->name, adding ? "" : "un");
 				return MODEACTION_DENY;
 			}
 			else
@@ -138,7 +138,7 @@ class ModuleDelayJoin : public Module
 			if (user->GetExt(std::string("delayjoin_")+chan->name))
 			{
 				silent = true;
-				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick.c_str(), reason.c_str());
 			}
 		}
 	}
@@ -202,7 +202,7 @@ class ModuleDelayJoin : public Module
 		va_start(argsPtr, text);
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
-		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),textbuffer);
+		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(), textbuffer);
 
 		CUList *ulist = channel->GetUsers();
 

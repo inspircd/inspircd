@@ -48,7 +48,7 @@ class ModuleDenyChannels : public Module
 				if (!ServerInstance->IsChannel(redirect.c_str()))
 				{
 					if (user)
-						user->WriteServ("Notice %s :Invalid badchan redirect '%s'", user->nick, redirect.c_str());
+						user->WriteServ("Notice %s :Invalid badchan redirect '%s'", user->nick.c_str(), redirect.c_str());
 					throw ModuleException("Invalid badchan redirect, not a channel");
 				}
 	
@@ -67,7 +67,7 @@ class ModuleDenyChannels : public Module
 						{
 							/* <badchan:redirect> is a badchan */
 							if (user)
-								user->WriteServ("NOTICE %s :Badchan %s redirects to badchan %s", user->nick, name.c_str(), redirect.c_str());
+								user->WriteServ("NOTICE %s :Badchan %s redirects to badchan %s", user->nick.c_str(), name.c_str(), redirect.c_str());
 							throw ModuleException("Badchan redirect loop");
 						}
 					}
@@ -116,13 +116,13 @@ class ModuleDenyChannels : public Module
 						Channel *newchan = ServerInstance->FindChan(redirect);
 						if ((!newchan) || (!(newchan->IsModeSet('L'))))
 						{
-							user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick,cname,cname,redirect.c_str(), reason.c_str());
+							user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname,cname,redirect.c_str(), reason.c_str());
 							Channel::JoinUser(ServerInstance,user,redirect.c_str(),false,"",false,ServerInstance->Time());
 							return 1;
 						}
 					}
 
-					user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",user->nick,cname,cname,reason.c_str());
+					user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",user->nick.c_str(),cname,cname,reason.c_str());
 					return 1;
 				}
 			}
