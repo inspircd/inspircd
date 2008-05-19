@@ -45,16 +45,16 @@ class CommandHelpop : public Command
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
-			user->WriteServ("NOTICE %s :HELPOP topic index", user->nick);
+			user->WriteServ("NOTICE %s :HELPOP topic index", user->nick.c_str());
 			for (std::map<irc::string, std::string>::iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
 			{
-				user->WriteServ("NOTICE %s :    %s", user->nick, iter->first.c_str());				
+				user->WriteServ("NOTICE %s :    %s", user->nick.c_str(), iter->first.c_str());				
 			}
-			user->WriteServ("NOTICE %s :*** End of HELPOP topic index", user->nick);
+			user->WriteServ("NOTICE %s :*** End of HELPOP topic index", user->nick.c_str());
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** HELPOP for %s", user->nick, parameter.c_str());
+			user->WriteServ("NOTICE %s :*** HELPOP for %s", user->nick.c_str(), parameter.c_str());
 
 			std::map<irc::string, std::string>::iterator iter = helpop_map.find(parameter);
 
@@ -68,9 +68,9 @@ class CommandHelpop : public Command
 			std::string token = "*";
 
 			while (stream.GetToken(token))
-				user->WriteServ("NOTICE %s :%s", user->nick, token.c_str());
+				user->WriteServ("NOTICE %s :%s", user->nick.c_str(), token.c_str());
 
-			user->WriteServ("NOTICE %s :*** End of HELPOP", user->nick);
+			user->WriteServ("NOTICE %s :*** End of HELPOP", user->nick.c_str());
 		}
 
 		/* We dont want these going out over the network, return CMD_FAILURE

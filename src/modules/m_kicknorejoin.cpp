@@ -145,7 +145,7 @@ public:
 					{
 						if (iter->first == user)					
 						{
-							user->WriteServ( "495 %s %s :You cannot rejoin this channel yet after being kicked (+J)", user->nick, chan->name);
+							user->WriteServ( "495 %s %s :You cannot rejoin this channel yet after being kicked (+J)", user->nick.c_str(), chan->name);
 							return 1;
 						}
 					}

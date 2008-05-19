@@ -367,10 +367,9 @@ class ModuleIdent : public Module
 	{
 		/* User::ident is currently the username field from USER; with m_ident loaded, that
 		 * should be preceded by a ~. The field is actually IDENTMAX+2 characters wide. */
-		memmove(user->ident + 1, user->ident, IDENTMAX);
-		user->ident[0] = '~';
-		/* Ensure that it is null terminated */
-		user->ident[IDENTMAX + 1] = '\0';
+		if (user->ident.length() > IDENTMAX + 1)
+			user->ident.assign(user->ident, 0, IDENTMAX);
+		user->ident.insert('~', 0);
 
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
 
@@ -384,7 +383,7 @@ class ModuleIdent : public Module
 
 		if (getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0)
 		{
-			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident);
+			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident.c_str());
 			return 0;
 		}
 
@@ -416,8 +415,6 @@ class ModuleIdent : public Module
 	 */
 	virtual bool OnCheckReady(User *user)
 	{
-		ServerInstance->Logs->Log("m_ident",DEBUG,"OnCheckReady %s", user->nick);
-
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = NULL;
 		if (!user->GetExt("ident_socket", isock))
@@ -460,7 +457,7 @@ class ModuleIdent : public Module
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", isock->GetResult());
 
 		/* Copy the ident string to the user */
-		strlcpy(user->ident, isock->GetResult(), IDENTMAX+1);
+		user->ident.assign(isock->GetResult(), 0, IDENTMAX+1);
 
 		/* The user isnt actually disconnecting, we call this to clean up the user */
 		OnUserDisconnect(user);
@@ -483,7 +480,6 @@ class ModuleIdent : public Module
 			isock->Close();
 			delete isock;
 			user->Shrink("ident_socket");
-			ServerInstance->Logs->Log("m_ident",DEBUG, "Removed ident socket from %s", user->nick);
 		}
 	}
 };

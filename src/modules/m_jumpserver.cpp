@@ -50,9 +50,9 @@ class CommandJumpserver : public Command
 		if (!parameters.size())
 		{
 			if (port)
-				user->WriteServ("NOTICE %s :*** Disabled jumpserver (previously set to '%s:%d')", user->nick, redirect_to.c_str(), port);
+				user->WriteServ("NOTICE %s :*** Disabled jumpserver (previously set to '%s:%d')", user->nick.c_str(), redirect_to.c_str(), port);
 			else
-				user->WriteServ("NOTICE %s :*** jumpserver was not enabled.", user->nick);
+				user->WriteServ("NOTICE %s :*** jumpserver was not enabled.", user->nick.c_str());
 
 			port = 0;
 			redirect_to.clear();
@@ -89,7 +89,7 @@ class CommandJumpserver : public Command
 				User* t = *i;
 				if (!IS_OPER(t))
 				{
-					t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", user->nick, parameters[0].c_str(), parameters[1].c_str());
+					t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
 					ServerInstance->Users->QuitUser(t, reason);
 					n_done++;
 				}
@@ -106,7 +106,7 @@ class CommandJumpserver : public Command
 			port = atoi(parameters[1].c_str());
 		}
 
-		user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick, parameters[0].c_str(), parameters[1].c_str(),
+		user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str(),
 				redirect_all_immediately ? "a" : "",
 				redirect_new_users ? "n" : "",
 				n_done ? " (" : "",
@@ -141,7 +141,7 @@ class ModuleJumpServer : public Module
 	{
 		if (js->port && js->redirect_new_users)
 		{
-			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead", user->nick, js->redirect_to.c_str(), js->port);
+			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead", user->nick.c_str(), js->redirect_to.c_str(), js->port);
 			ServerInstance->Users->QuitUser(user, js->reason);
 			return 0;
 		}

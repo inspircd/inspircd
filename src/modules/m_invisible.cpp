@@ -74,7 +74,7 @@ class InvisibleMode : public ModeHandler
 
 			if (!ok)
 			{
-				source->WriteNumeric(481, "%s :Permission Denied - You do not have access to become invisible via user mode +Q", source->nick);
+				source->WriteNumeric(481, "%s :Permission Denied - You do not have access to become invisible via user mode +Q", source->nick.c_str());
 				return MODEACTION_DENY;
 			}
 
@@ -100,7 +100,7 @@ class InvisibleMode : public ModeHandler
 				CUList *ulist = f->first->GetUsers();
 				char tb[MAXBUF];
 
-				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost(), adding ? "PART" : "JOIN", f->first->name);
+				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost().c_str(), adding ? "PART" : "JOIN", f->first->name);
 				std::string out = tb;
 				std::string n = this->ServerInstance->Modes->ModeString(dest, f->first);
 
@@ -116,7 +116,7 @@ class InvisibleMode : public ModeHandler
 				}
 			}
 
-			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has become %svisible (%sQ)", dest->GetFullHost(), adding ? "in" : "", adding ? "+" : "-");
+			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has become %svisible (%sQ)", dest->GetFullHost().c_str(), adding ? "in" : "", adding ? "+" : "-");
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -195,7 +195,7 @@ class ModuleInvisible : public Module
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
 			this->WriteCommonFrom(user, channel, "JOIN %s", channel->name);
-			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost(), channel->name);
+			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name);
 		}
 	}
 
@@ -245,9 +245,9 @@ class ModuleInvisible : public Module
 		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 		{
 			User* target = (User*)dest;
-			if(target->IsModeSet('Q') && !*user->oper)
+			if(target->IsModeSet('Q') && !IS_OPER(user))
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, target->nick);
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target->nick.c_str());
 				return 1;
 			}
 		}
@@ -269,7 +269,7 @@ class ModuleInvisible : public Module
 		va_start(argsPtr, text);
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
-		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),textbuffer);
+		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(), textbuffer);
 		
 		CUList *ulist = channel->GetUsers();
 		
