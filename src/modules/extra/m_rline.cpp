@@ -143,7 +143,7 @@ class CommandRLine : public Command
 
 			try
 			{
-				r = new RLine(ServerInstance, ServerInstance->Time(), duration, user->nick, parameters[2].c_str(), parameters[0].c_str());
+				r = new RLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -156,12 +156,12 @@ class CommandRLine : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent R-Line for %s.", user->nick, parameters[0].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent R-Line for %s.", user->nick.c_str(), parameters[0].c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-Line for %s, expires on %s", user->nick, parameters[0].c_str(),
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-Line for %s, expires on %s", user->nick.c_str(), parameters[0].c_str(),
 								ServerInstance->TimeString(c_requires_crap).c_str());
 					}
 
@@ -170,7 +170,7 @@ class CommandRLine : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** R-Line for %s already exists", user->nick, parameters[0].c_str());
+					user->WriteServ("NOTICE %s :*** R-Line for %s already exists", user->nick.c_str(), parameters[0].c_str());
 				}
 			}
 		}
@@ -178,12 +178,12 @@ class CommandRLine : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed R-Line on %s.",user->nick,parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed R-Line on %s.",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
 				// XXX todo implement stats
-				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats g.",user->nick,parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats g.",user->nick.c_str(),parameters[0].c_str());
 			}
 		}
 

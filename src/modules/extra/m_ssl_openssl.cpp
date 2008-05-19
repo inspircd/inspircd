@@ -687,7 +687,7 @@ class ModuleSSLOpenSSL : public Module
 		// Bugfix, only send this numeric for *our* SSL users
 		if (dest->GetExt("ssl", dummy) || ((IS_LOCAL(dest) && dest->io == this)))
 		{
-			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick, dest->nick);
+			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 		}
 	}
 
@@ -790,7 +790,7 @@ class ModuleSSLOpenSSL : public Module
 
 			VerifyCertificate(&sessions[user->GetFd()], user);
 			if (sessions[user->GetFd()].sess)
-				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick, SSL_get_cipher(sessions[user->GetFd()].sess));
+				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), SSL_get_cipher(sessions[user->GetFd()].sess));
 		}
 	}
 

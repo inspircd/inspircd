@@ -622,7 +622,7 @@ class ModuleSSLGnuTLS : public Module
 		// Bugfix, only send this numeric for *our* SSL users
 		if (dest->GetExt("ssl", dummy) || ((IS_LOCAL(dest) && (dest->io == this))))
 		{
-			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick, dest->nick);
+			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 		}
 	}
 
@@ -722,7 +722,7 @@ class ModuleSSLGnuTLS : public Module
 				std::string cipher = gnutls_kx_get_name(gnutls_kx_get(sessions[user->GetFd()].sess));
 				cipher.append("-").append(gnutls_cipher_get_name(gnutls_cipher_get(sessions[user->GetFd()].sess))).append("-");
 				cipher.append(gnutls_mac_get_name(gnutls_mac_get(sessions[user->GetFd()].sess)));
-				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick, cipher.c_str());
+				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
 			}
 		}
 	}

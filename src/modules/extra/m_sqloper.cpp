@@ -306,8 +306,8 @@ public:
 				if (operhost.size())
 					user->ChangeDisplayedHost(operhost.c_str());
 
-				ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
-				user->WriteNumeric(381, "%s :You are now %s %s",user->nick, strchr("aeiouAEIOU", type[0]) ? "an" : "a", irc::Spacify(type.c_str()));
+				ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s", user->nick.c_str(), user->ident.c_str(), user->host, type.c_str());
+				user->WriteNumeric(381, "%s :You are now %s %s",user->nick.c_str(), strchr("aeiouAEIOU", type[0]) ? "an" : "a", irc::Spacify(type.c_str()));
 
 				if (!user->modes[UM_OPERATOR])
 					user->Oper(type, tname);

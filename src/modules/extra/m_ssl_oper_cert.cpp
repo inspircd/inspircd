@@ -43,24 +43,24 @@ class cmd_fingerprint : public Command
 			{
 				if (cert->GetFingerprint().length())
 				{
-					user->WriteServ("NOTICE %s :Certificate fingerprint for %s is %s",user->nick,target->nick,cert->GetFingerprint().c_str());
+					user->WriteServ("NOTICE %s :Certificate fingerprint for %s is %s",user->nick.c_str(),target->nick.c_str(),cert->GetFingerprint().c_str());
 					return CMD_SUCCESS;
 				}
 				else
 				{
-					user->WriteServ("NOTICE %s :Certificate fingerprint for %s does not exist!", user->nick,target->nick);
+					user->WriteServ("NOTICE %s :Certificate fingerprint for %s does not exist!", user->nick.c_str(),target->nick.c_str());
 					return CMD_FAILURE;
 				}
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :Certificate fingerprint for %s does not exist!", user->nick, target->nick);
+				user->WriteServ("NOTICE %s :Certificate fingerprint for %s does not exist!", user->nick.c_str(), target->nick.c_str());
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}
@@ -129,8 +129,8 @@ class ModuleOperSSLCert : public Module
 			bool SSLOnly;
 			char* dummy;
 
-			snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
-			snprintf(TheIP, MAXBUF,"%s@%s",user->ident,user->GetIPString());
+			snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host);
+			snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
 			HasCert = user->GetExt("ssl_cert",cert);
 
@@ -150,16 +150,16 @@ class ModuleOperSSLCert : public Module
 					{
 						if (SSLOnly && !user->GetExt("ssl", dummy))
 						{
-							user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick);
+							user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick.c_str());
 							return 1;
 						}
 
 						/* This oper would match */
 						if ((!cert) || (cert->GetFingerprint() != FingerPrint))
 						{
-							user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick);
-							ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick);
-							ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick,user->ident,user->host);
+							user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick.c_str());
+							ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick.c_str());
+							ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick.c_str(), user->ident.c_str(), user->host);
 							return 1;
 						}
 					}

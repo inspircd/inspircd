@@ -44,21 +44,21 @@ class cmd_sslinfo : public Command
 			{
 				if (cert->GetError().length())
 				{
-					user->WriteServ("NOTICE %s :*** Error:             %s", user->nick, cert->GetError().c_str());
+					user->WriteServ("NOTICE %s :*** Error:             %s", user->nick.c_str(), cert->GetError().c_str());
 				}
-				user->WriteServ("NOTICE %s :*** Distinguised Name: %s", user->nick, cert->GetDN().c_str());
-				user->WriteServ("NOTICE %s :*** Issuer:            %s", user->nick, cert->GetIssuer().c_str());
-				user->WriteServ("NOTICE %s :*** Key Fingerprint:   %s", user->nick, cert->GetFingerprint().c_str());
+				user->WriteServ("NOTICE %s :*** Distinguised Name: %s", user->nick.c_str(), cert->GetDN().c_str());
+				user->WriteServ("NOTICE %s :*** Issuer:            %s", user->nick.c_str(), cert->GetIssuer().c_str());
+				user->WriteServ("NOTICE %s :*** Key Fingerprint:   %s", user->nick.c_str(), cert->GetFingerprint().c_str());
 				return CMD_SUCCESS;
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** No SSL certificate information for this user.", user->nick);
+				user->WriteServ("NOTICE %s :*** No SSL certificate information for this user.", user->nick.c_str());
 				return CMD_FAILURE;
 			}
 		}
 		else
-			user->WriteNumeric(401, "%s %s :No such nickname", user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
 
 		return CMD_FAILURE;
 	}
