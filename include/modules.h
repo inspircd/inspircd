@@ -238,9 +238,9 @@ do { \
 /** Is a module created user */
 #define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
 /** Is an oper */
-#define IS_OPER(x) (x->oper.empty())
+#define IS_OPER(x) (!x->oper.empty())
 /** Is away */
-#define IS_AWAY(x) (x->awaymsg.empty())
+#define IS_AWAY(x) (!x->awaymsg.empty())
 
 /** Holds a module's Version information.
  *  The four members (set by the constructor only) indicate details as to the version number
