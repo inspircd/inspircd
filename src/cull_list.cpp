@@ -117,18 +117,45 @@ int CullList::Apply()
 			u->AddToWhoWas();
 		}
 
+		bool deleteu = true;
+
 		if (iter != ServerInstance->Users->clientlist->end())
 		{
-			if (IS_LOCAL(u))
-			{
-				std::vector<User*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),u);
-				if (x != ServerInstance->Users->local_users.end())
-					ServerInstance->Users->local_users.erase(x);
-			}
 			ServerInstance->Users->clientlist->erase(iter);
 		}
+		else
+		{
+			/*
+			 * Trying to track down Jason's issue.. this should never happen obviously.
+			 */
+			ServerInstance->Logs->Log("CULLLIST", DEBUG, "iter == clientlist->end, can't remove them from hash... problematic?");
+//			deleteu = false;
+// actually, delete them anyway.. the local vector is the real problem here
+		}
 
-		delete u;
+		if (IS_LOCAL(u))
+		{
+			std::vector<User*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),u);
+			if (x != ServerInstance->Users->local_users.end())
+				ServerInstance->Users->local_users.erase(x);
+			else
+			{
+				/*
+				 * This code is in here to monitor an issue of Jason's, where it seems to be trying to quit already quit users.
+				 * The only way that can happen is if this find fails, so log it just in case.
+				 * Also, (perhaps incorrectly, but oh well), return here so we don't delete the user and then start trampling
+				 * on deleted memory, which leads to big problems..
+				 */
+				ServerInstance->Logs->Log("CULLLIST", DEBUG, "Failed to remove user from vector, we're all gonna die!!! Not deleting the user to save our sanity");
+				deleteu = false;
+			}
+		}
+
+		if (deleteu)
+		{
+			delete u;
+		}
+
 		list.erase(list.begin());
 	}
 
