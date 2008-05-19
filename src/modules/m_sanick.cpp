@@ -34,7 +34,7 @@ class CommandSanick : public Command
 		{
 			if (ServerInstance->ULine(target->server))
 			{
-				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick);
+				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
 				return CMD_FAILURE;
 			}
 			std::string oldnick = user->nick;
@@ -54,14 +54,14 @@ class CommandSanick : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick, parameters[1].c_str());
+				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
 			}
 
 			return CMD_FAILURE;
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick, parameters[0].c_str());
+			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
 		}
 
 		return CMD_FAILURE;

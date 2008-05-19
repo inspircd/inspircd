@@ -42,7 +42,7 @@ class CommandSapart : public Command
 
 			if (ServerInstance->ULine(dest->server))
 			{
-				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick);
+				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
 				return CMD_FAILURE;
 			}
 
@@ -69,7 +69,7 @@ class CommandSapart : public Command
 					}
 					else
 					{
-						user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick, dest->nick, parameters[1].c_str());
+						user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
 						return CMD_FAILURE;
 					}
 				}
@@ -83,7 +83,7 @@ class CommandSapart : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname or channel", user->nick);
+			user->WriteServ("NOTICE %s :*** Invalid nickname or channel", user->nick.c_str());
 		}
 
 		return CMD_FAILURE;

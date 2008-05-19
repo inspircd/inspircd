@@ -34,7 +34,7 @@ class CommandSajoin : public Command
 		{
 			if (ServerInstance->ULine(dest->server))
 			{
-				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick);
+				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
 				return CMD_FAILURE;
 			}
 			if (!ServerInstance->IsChannel(parameters[1].c_str()))

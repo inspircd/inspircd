@@ -41,7 +41,7 @@ class ModuleSeeNicks : public Module
 
 	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{
-		ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N',"User %s changed their nickname to %s", oldnick.c_str(), user->nick);
+		ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N',"User %s changed their nickname to %s", oldnick.c_str(), user->nick.c_str());
 	}
 };
 

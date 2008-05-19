@@ -55,7 +55,7 @@ class CommandSamode : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid SAMODE sequence.", user->nick);
+			user->WriteServ("NOTICE %s :*** Invalid SAMODE sequence.", user->nick.c_str());
 		}
 
 		return CMD_FAILURE;

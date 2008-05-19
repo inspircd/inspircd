@@ -93,9 +93,9 @@ class ModuleSafeList : public Module
 
 		if (global_listing >= LimitList && !IS_OPER(user))
 		{
-			user->WriteServ("NOTICE %s :*** Server load is currently too heavy. Please try again later.", user->nick);
-			user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
-			user->WriteNumeric(323, "%s :End of channel list.",user->nick);
+			user->WriteServ("NOTICE %s :*** Server load is currently too heavy. Please try again later.", user->nick.c_str());
+			user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
+			user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
 			return 1;
 		}
 
@@ -132,9 +132,9 @@ class ModuleSafeList : public Module
 		{
 			if (ServerInstance->Time() < (*last_list_time)+ThrottleSecs)
 			{
-				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick);
-				user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
-				user->WriteNumeric(323, "%s :End of channel list.",user->nick);
+				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick.c_str());
+				user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
+				user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
 				return 1;
 			}
 
@@ -153,7 +153,7 @@ class ModuleSafeList : public Module
 		*llt = ServerInstance->Time();
 		user->Extend("safelist_last", llt);
 
-		user->WriteNumeric(321, "%s Channel :Users Name",user->nick);
+		user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 
 		global_listing++;
 
@@ -188,7 +188,7 @@ class ModuleSafeList : public Module
 					bool display = (match(chan->name, ld->glob) || (*chan->topic && match(chan->topic, ld->glob)));
 					if ((users) && (display))
 					{
-						int counter = snprintf(buffer, MAXBUF, "322 %s * %ld :", user->nick, users);
+						int counter = snprintf(buffer, MAXBUF, "322 %s * %ld :", user->nick.c_str(), users);
 						amount_sent += counter + ServerNameSize;
 						user->WriteServ(std::string(buffer));
 					}
@@ -198,7 +198,7 @@ class ModuleSafeList : public Module
 					bool display = (match(chan->name, ld->glob) || (*chan->topic && match(chan->topic, ld->glob)));
 					if ((users) && (display))
 					{
-						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s",user->nick, chan->name, users, chan->ChanModes(has_user || IS_OPER(user)), chan->topic);
+						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s",user->nick.c_str(), chan->name, users, chan->ChanModes(has_user || IS_OPER(user)), chan->topic);
 						amount_sent += counter + ServerNameSize;
 						user->WriteServ(std::string(buffer));
 					}
@@ -210,7 +210,7 @@ class ModuleSafeList : public Module
 						if (!ld->list_ended)
 						{
 							ld->list_ended = true;
-							user->WriteNumeric(323, "%s :End of channel list.",user->nick);
+							user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
 						}
 					}
 				}

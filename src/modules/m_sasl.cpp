@@ -134,13 +134,13 @@ class SaslAuthenticator : public classbase
 		switch (this->result)
 		{
 		 case SASL_OK:
-			this->user->WriteNumeric(903, "%s :SASL authentication successful", this->user->nick);
+			this->user->WriteNumeric(903, "%s :SASL authentication successful", this->user->nick.c_str());
 			break;
 	 	 case SASL_ABORT:
-			this->user->WriteNumeric(906, "%s :SASL authentication aborted", this->user->nick);
+			this->user->WriteNumeric(906, "%s :SASL authentication aborted", this->user->nick.c_str());
 			break;
 		 case SASL_FAIL:
-			this->user->WriteNumeric(904, "%s :SASL authentication failed", this->user->nick);
+			this->user->WriteNumeric(904, "%s :SASL authentication failed", this->user->nick.c_str());
 			break;
 		 default:
 			break;

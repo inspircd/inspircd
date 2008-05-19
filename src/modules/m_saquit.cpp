@@ -34,7 +34,7 @@ class CommandSaquit : public Command
 		{
 			if (ServerInstance->ULine(dest->server))
 			{
-				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick);
+				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
 				return CMD_FAILURE;
 			}
 			
@@ -49,7 +49,7 @@ class CommandSaquit : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick, parameters[0].c_str());
+			user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[0].c_str());
 		}
 
 		return CMD_FAILURE;
