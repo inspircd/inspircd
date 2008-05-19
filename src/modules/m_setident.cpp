@@ -31,24 +31,24 @@ class CommandSetident : public Command
 	{
 		if (parameters.size() == 0)
 		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Ident must be specified", user->nick);
+			user->WriteServ("NOTICE %s :*** SETIDENT: Ident must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (parameters[0].size() > IDENTMAX)
 		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick);
+			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (!ServerInstance->IsIdent(parameters[0].c_str()))
 		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Invalid characters in ident", user->nick);
+			user->WriteServ("NOTICE %s :*** SETIDENT: Invalid characters in ident", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		user->ChangeIdent(parameters[0].c_str());
-		ServerInstance->SNO->WriteToSnoMask('A', "%s used SETIDENT to change their ident to '%s'", user->nick, user->ident);
+		ServerInstance->SNO->WriteToSnoMask('A', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
 		return CMD_SUCCESS;
 	}

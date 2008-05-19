@@ -31,19 +31,19 @@ class CommandSetname : public Command
 	{
 		if (parameters.size() == 0)
 		{
-			user->WriteServ("NOTICE %s :*** SETNAME: GECOS must be specified", user->nick);
+			user->WriteServ("NOTICE %s :*** SETNAME: GECOS must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (parameters[0].size() > MAXGECOS)
 		{
-			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick);
+			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (user->ChangeName(parameters[0].c_str()))
 		{
-			ServerInstance->SNO->WriteToSnoMask('A', "%s used SETNAME to change their GECOS to %s", user->nick, parameters[0].c_str());
+			ServerInstance->SNO->WriteToSnoMask('A', "%s used SETNAME to change their GECOS to %s", user->nick.c_str(), parameters[0].c_str());
 			return CMD_SUCCESS;
 		}
 

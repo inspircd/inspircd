@@ -42,12 +42,12 @@ class CommandSethost : public Command
 		}
 		if (len == 0)
 		{
-			user->WriteServ("NOTICE %s :*** SETHOST: Host must be specified", user->nick);
+			user->WriteServ("NOTICE %s :*** SETHOST: Host must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		if (len > 64)
 		{
-			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);
+			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick.c_str());
 			return CMD_FAILURE;
 		}
 

@@ -84,7 +84,7 @@ class ModuleShowwhois : public Module
 		{
 			if (IS_LOCAL(dest))
 			{
-				dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick,source->nick,source->ident,source->host);
+				dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick.c_str(),source->nick.c_str(),source->ident.c_str(),source->host);
 			}
 			else
 			{

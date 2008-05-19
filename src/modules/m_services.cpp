@@ -28,14 +28,14 @@ class Channel_r : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		// only a u-lined server may add or remove the +r mode.
-		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server || (source->nick.find('.') != std::string::npos)))
 		{
 			channel->SetMode('r',adding);
 			return MODEACTION_ALLOW;
 		}
 		else
 		{
-			source->WriteNumeric(500, "%s :Only a server may modify the +r channel mode", source->nick);
+			source->WriteNumeric(500, "%s :Only a server may modify the +r channel mode", source->nick.c_str());
 			return MODEACTION_DENY;
 		}
 	}
@@ -51,7 +51,7 @@ class User_r : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
-		if ((kludgeme) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		if ((kludgeme) || (ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server || (source->nick.find('.') != std::string::npos)))
 		{
 			if ((adding && !dest->IsModeSet('r')) || (!adding && dest->IsModeSet('r')))
 			{
@@ -62,7 +62,7 @@ class User_r : public ModeHandler
 		}
 		else
 		{
-			source->WriteNumeric(500, "%s :Only a server may modify the +r user mode", source->nick);
+			source->WriteNumeric(500, "%s :Only a server may modify the +r user mode", source->nick.c_str());
 			return MODEACTION_DENY;
 		}
 	}
@@ -130,7 +130,7 @@ class ModuleServices : public Module
 		if (dest->IsModeSet('r'))
 		{
 			/* user is registered */
-			ServerInstance->SendWhoisLine(source, dest, 307, "%s %s :is a registered nick", source->nick, dest->nick);
+			ServerInstance->SendWhoisLine(source, dest, 307, "%s %s :is a registered nick", source->nick.c_str(), dest->nick.c_str());
 		}
 	}
 
@@ -138,7 +138,7 @@ class ModuleServices : public Module
 	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (user->IsModeSet('r') && irc::string(user->nick) != oldnick)
+		if (user->IsModeSet('r') && assign(user->nick) != oldnick)
 		{
 			std::vector<std::string> modechange;
 			modechange.push_back(user->nick);
@@ -159,13 +159,13 @@ class ModuleServices : public Module
 			Channel* c = (Channel*)dest;
 			if ((c->IsModeSet('M')) && (!user->IsModeSet('r')))
 			{
-				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
+				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
 				}
 				// user messaging a +M channel and is not registered
-				user->WriteNumeric(477, "%s %s :You need a registered nickname to speak on this channel", user->nick, c->name);
+				user->WriteNumeric(477, "%s %s :You need a registered nickname to speak on this channel", user->nick.c_str(), c->name);
 				return 1;
 			}
 		}
@@ -174,13 +174,13 @@ class ModuleServices : public Module
 			User* u = (User*)dest;
 			if ((u->IsModeSet('R')) && (!user->IsModeSet('r')))
 			{
-				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
+				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
 				}
 				// user messaging a +R user and is not registered
-				user->WriteNumeric(477, "%s %s :You need a registered nickname to message this user", user->nick, u->nick);
+				user->WriteNumeric(477, "%s %s :You need a registered nickname to message this user", user->nick.c_str(), u->nick.c_str());
 				return 1;
 			}
 		}
@@ -200,13 +200,13 @@ class ModuleServices : public Module
 			{
 				if (!user->IsModeSet('r'))
 				{
-					if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
+					if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 					{
 						// user is ulined, won't be stopped from joining
 						return 0;
 					}
 					// joining a +R channel and not identified
-					user->WriteNumeric(477, "%s %s :You need a registered nickname to join this channel", user->nick, chan->name);
+					user->WriteNumeric(477, "%s %s :You need a registered nickname to join this channel", user->nick.c_str(), chan->name);
 					return 1;
 				}
 			}

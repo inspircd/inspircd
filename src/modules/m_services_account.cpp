@@ -70,7 +70,7 @@ class ModuleServicesAccount : public Module
 
 		if (account)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as", source->nick, dest->nick, account->c_str());
+			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as", source->nick.c_str(), dest->nick.c_str(), account->c_str());
 		}
 	}
 
@@ -90,7 +90,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((c->IsModeSet('M')) && (!account))
 			{
-				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
+				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -107,14 +107,14 @@ class ModuleServicesAccount : public Module
 			
 			if ((u->modes['R'-65]) && (!account))
 			{
-				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
+				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
 				}
 
 				// user messaging a +R user and is not registered
-				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(u->nick)+" :You need to be identified to a registered account to message this user");
+				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
 				return 1;
 			}
 		}
@@ -137,13 +137,13 @@ class ModuleServicesAccount : public Module
 			{
 				if (!account)
 				{
-					if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
+					if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 					{
 						// user is ulined, won't be stopped from joining
 						return 0;
 					}
 					// joining a +R channel and not identified
-					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(chan->name)+" :You need to be identified to a registered account to join this channel");
+					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
 					return 1;
 				}
 			}
@@ -241,7 +241,7 @@ class ModuleServicesAccount : public Module
 					dest->Extend("accountname", text);
 
 					if (IS_LOCAL(dest))
-						dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s", dest->nick, dest->GetFullHost(), text->c_str(), text->c_str());
+						dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s", dest->nick.c_str(), dest->GetFullHost().c_str(), text->c_str(), text->c_str());
 
 					AccountData ac;
 					ac.user = dest;
