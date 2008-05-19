@@ -46,7 +46,7 @@ class ModuleNoKicks : public Module
 		{
 			if (channel->IsModeSet('Q'))
 			{
-				if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server))
+				if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 				{
 					// ulines can still kick with +Q in place
 					return ACR_ALLOW;
@@ -54,7 +54,7 @@ class ModuleNoKicks : public Module
 				else
 				{
 					// nobody else can (not even opers with override, and founders)
-					source->WriteNumeric(484, "%s %s :Can't kick user %s from channel (+Q set)",source->nick, channel->name,dest->nick);
+					source->WriteNumeric(484, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), channel->name,dest->nick.c_str());
 					return ACR_DENY;
 				}
 			}

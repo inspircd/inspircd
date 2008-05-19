@@ -85,7 +85,7 @@ class ModuleNoNickChange : public Module
 					if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
 						continue;
 
-					user->WriteNumeric(447, "%s :Can't change nickname while on %s (+N is set)", user->nick, curr->name);
+					user->WriteNumeric(447, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name);
 					return 1;
 				}
 			}

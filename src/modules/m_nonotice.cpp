@@ -58,7 +58,7 @@ class ModuleNoNotice : public Module
 				}
 				else
 				{
-					user->WriteNumeric(404, "%s %s :Can't send NOTICE to channel (+T set)",user->nick, c->name);
+					user->WriteNumeric(404, "%s %s :Can't send NOTICE to channel (+T set)",user->nick.c_str(), c->name);
 					return 1;
 				}
 			}

@@ -40,7 +40,7 @@ class ModuleNoInvite : public Module
 	{
 		if (channel->IsModeSet('V'))
 		{
-			user->WriteNumeric(492, "%s %s :Can't invite %s to channel (+V set)",user->nick, channel->name, dest->nick);
+			user->WriteNumeric(492, "%s %s :Can't invite %s to channel (+V set)",user->nick.c_str(), channel->name, dest->nick.c_str());
 			return 1;
 		}
 		return 0;
