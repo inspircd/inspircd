@@ -144,28 +144,38 @@ class ModuleOperSSLCert : public Module
 				FingerPrint = cf->ReadValue("oper", "fingerprint", i);
 				SSLOnly = cf->ReadFlag("oper", "sslonly", i);
 
-				if (SSLOnly || !FingerPrint.empty())
-				{
-					if ((!strcmp(LoginName.c_str(),parameters[0].c_str())) && (!ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str())) && (OneOfMatches(TheHost,TheIP,HostName.c_str())))
-					{
-						if (SSLOnly && !user->GetExt("ssl", dummy))
-						{
-							user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick.c_str());
-							return 1;
-						}
+				if (FingerPrint.empty() && !SSLOnly)
+					continue;
 
-						/* This oper would match */
-						if ((!cert) || (cert->GetFingerprint() != FingerPrint))
-						{
-							user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick.c_str());
-							ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick.c_str());
-							ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick.c_str(), user->ident.c_str(), user->host);
-							return 1;
-						}
-					}
+				if (LoginName != parameters[0])
+					continue;
+
+				if (!OneOfMatches(TheHost, TheIP, HostName.c_str()))
+					continue;
+
+				if (Password.length() && !ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str()))
+					continue;
+
+				if (SSLOnly && !user->GetExt("ssl", dummy))
+				{
+					user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick.c_str());
+					return 1;
+				}
+
+				/*
+				 * No cert found or the fingerprint doesn't match
+				 */
+				if ((!cert) || (cert->GetFingerprint() != FingerPrint))
+				{
+					user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick.c_str());
+					ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick.c_str());
+					ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick.c_str(), user->ident.c_str(), user->host);
+					return 1;
 				}
 			}
 		}
+
+		// Let core handle it for extra stuff
 		return 0;
 	}
 
