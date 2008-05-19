@@ -360,7 +360,8 @@ void InspSocket::Close()
 		{
 			try
 			{
-				Instance->Config->GetIOHook(this)->OnRawSocketClose(this->fd);
+				if (this->state != I_LISTENING)
+					Instance->Config->GetIOHook(this)->OnRawSocketClose(this->fd);
 			}
 			catch (CoreException& modexcept)
 			{
