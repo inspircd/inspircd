@@ -185,7 +185,6 @@ void User::DecrementModes()
 
 User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
 {
-	*host = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = ServerInstance->Time();
 	age = ServerInstance->Time();
@@ -283,7 +282,7 @@ const std::string& User::MakeHost()
 	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(const char* n = host; *n; n++)
+	for(const char* n = host.c_str(); *n; n++)
 		*t++ = *n;
 	*t = 0;
 
@@ -383,7 +382,7 @@ const std::string& User::GetFullRealHost()
 	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(char* n = host; *n; n++)
+	for(const char* n = host.c_str(); *n; n++)
 		*t++ = *n;
 	*t = 0;
 
@@ -721,7 +720,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		this->modes[UM_OPERATOR] = 1;
 		this->WriteServ("MODE %s :+o", this->nick.c_str());
 		FOREACH_MOD(I_OnOper, OnOper(this, opertype));
-		ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host, opertype.c_str());
+		ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), opertype.c_str());
 		this->oper.assign(opertype, 0, NICKMAX - 1);
 		ServerInstance->Users->all_opers.push_back(this);
 
@@ -931,7 +930,7 @@ void User::FullConnect()
 	CheckLines();
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
-	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network, this->nick.c_str(), this->ident.c_str(), this->host);
+	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network, this->nick.c_str(), this->ident.c_str(), this->host.c_str());
 	this->WriteNumeric(002, "%s :Your host is %s, running version InspIRCd-1.2",this->nick.c_str(),ServerInstance->Config->ServerName);
 	this->WriteNumeric(003, "%s :This server was created %s %s", this->nick.c_str(), __TIME__, __DATE__);
 	this->WriteNumeric(004, "%s %s InspIRCd-1.2 %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
@@ -962,7 +961,7 @@ void User::FullConnect()
 
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
-	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick.c_str(), this->ident.c_str(), this->host, this->GetIPString(), this->fullname.c_str());
+	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), this->GetIPString(), this->fullname.c_str());
 	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 }

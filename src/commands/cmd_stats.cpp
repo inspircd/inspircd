@@ -53,7 +53,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		ServerInstance->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
-				statschar, user->nick.c_str(), user->ident.c_str(), user->host);
+				statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		results.push_back(sn + " 481 " + user->nick + " :Permission denied - STATS " + statschar + " is oper-only");
 		return;
 	}
@@ -315,6 +315,6 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 	results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
-		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host);
+		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 	return;
 }

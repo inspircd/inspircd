@@ -54,7 +54,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 	bool match_pass = false;
 	bool match_hosts = false;
 
-	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host);
+	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
 	for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "oper"); i++)
@@ -84,7 +84,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 					{
 						user->WriteNumeric(491, "%s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick.c_str());
 						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type '%s' contains invalid characters",OperType);
-						ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick.c_str(),user->ident.c_str(),user->host);
+						ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 						return CMD_FAILURE;
 					}
 					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
@@ -107,7 +107,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 	if (found)
 	{
 		/* correct oper credentials */
-		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick.c_str(),user->ident.c_str(),user->host,irc::Spacify(OperType),parameters[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), irc::Spacify(OperType), parameters[0].c_str());
 		user->WriteNumeric(381, "%s :You are now %s %s",user->nick.c_str(), strchr("aeiouAEIOU", *OperType) ? "an" : "a", irc::Spacify(OperType));
 		if (!user->IsModeSet('o'))
 			user->Oper(OperType, LoginName);
@@ -133,11 +133,11 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 			user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick.c_str());
 			user->IncreasePenalty(10);
 			
-			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick.c_str(),user->ident.c_str(),user->host, parameters[0].c_str(), fields.c_str());
+			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
 			ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
 			ServerInstance->PI->SendSNONotice("o", std::string("OPER: ") + broadcast);
 
-			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick.c_str(),user->ident.c_str(),user->host,parameters[0].c_str(),fields.c_str());
+			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
 			return CMD_FAILURE;
 		}
 		else
@@ -148,7 +148,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 
 			ServerInstance->SNO->WriteToSnoMask('o', std::string(broadcast));
 
-			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick.c_str(),user->ident.c_str(),user->host,parameters[0].c_str());
+			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}

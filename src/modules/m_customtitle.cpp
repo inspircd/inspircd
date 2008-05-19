@@ -51,7 +51,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 		char TheHost[MAXBUF];
 		char TheIP[MAXBUF];
 
-		snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(), user->host);
+		snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(), user->host.c_str());
 		snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(), user->GetIPString());
 
 		ConfigReader Conf(ServerInstance);
@@ -95,7 +95,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 
 		if (!ServerInstance->ULine(user->server))
 			// Ulines also fail TITLEs silently
-			ServerInstance->SNO->WriteToSnoMask('A', "Failed TITLE attempt by %s!%s@%s using login '%s'",user->nick.c_str(),user->ident.c_str(),user->host,parameters[0].c_str());
+			ServerInstance->SNO->WriteToSnoMask('A', "Failed TITLE attempt by %s!%s@%s using login '%s'", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str());
 
 		user->WriteServ("NOTICE %s :Invalid title credentials",user->nick.c_str());
 		return CMD_SUCCESS;

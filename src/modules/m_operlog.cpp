@@ -47,13 +47,7 @@ class ModuleOperLog : public Module
 		{
 			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
-			{
-				std::string plist;
-				for (int j = 0; j < (int)parameters.size(); j++)
-					plist.append(std::string(" ")+parameters[j]);
-
-				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick.c_str(), user->ident.c_str(), user->host, command.c_str(), plist.c_str());
-			} 
+				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s %s",user->nick.c_str(), user->ident.c_str(), user->host.c_str(), command.c_str(), irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined().c_str());
 		}
 
 		return 0;

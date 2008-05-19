@@ -71,13 +71,13 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				if ((this->bound_user->registered != REG_ALL) && (!this->bound_user->dns_done))
 				{
 					/* Hostnames starting with : are not a good thing (tm) */
-					if (*(hostname.c_str()) == ':')
+					if (hostname[0] == ':')
 						hostname.insert(0, "0");
 
 					this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
 					this->bound_user->dns_done = true;
 					this->bound_user->dhost.assign(hostname, 0, 64);
-					strlcpy(this->bound_user->host, hostname.c_str(),64);
+					this->bound_user->host.assign(hostname, 0, 64);
 					/* Invalidate cache */
 					this->bound_user->InvalidateCache();
 				}

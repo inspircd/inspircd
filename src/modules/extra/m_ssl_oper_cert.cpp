@@ -129,7 +129,7 @@ class ModuleOperSSLCert : public Module
 			bool SSLOnly;
 			char* dummy;
 
-			snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host);
+			snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
 			snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
 			HasCert = user->GetExt("ssl_cert",cert);
@@ -169,7 +169,7 @@ class ModuleOperSSLCert : public Module
 				{
 					user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick.c_str());
 					ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick.c_str());
-					ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick.c_str(), user->ident.c_str(), user->host);
+					ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 					return 1;
 				}
 			}

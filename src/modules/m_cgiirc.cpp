@@ -75,7 +75,7 @@ class CommandWebirc : public Command
 						user->Extend("cgiirc_realhost", new std::string(user->host));
 						user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 						if (notify)
-							ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host, parameters[2].c_str(), user->host);
+							ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
 						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
 						user->Extend("cgiirc_webirc_ip", new std::string(parameters[3]));
 						return CMD_LOCALONLY;
@@ -108,10 +108,10 @@ class CGIResolver : public Resolver
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
-				ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host, result.c_str(), typ.c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
 
-			strlcpy(them->host, result.c_str(), 63);
-			them->dhost.assign(result, 0, 63);
+			them->host.assign(result,0, 64);
+			them->dhost.assign(result, 0, 64);
 			them->ident.assign("~cgiirc", 0, 8);
 			them->InvalidateCache();
 			them->CheckLines();
@@ -123,7 +123,7 @@ class CGIResolver : public Resolver
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
-				ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host, typ.c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
 		}
 	}
 
@@ -302,8 +302,8 @@ public:
 		std::string *webirc_hostname, *webirc_ip;
 		if(user->GetExt("cgiirc_webirc_hostname", webirc_hostname))
 		{
-			strlcpy(user->host,webirc_hostname->c_str(),63);
-			user->dhost.assign(*webirc_hostname, 0, 63);
+			user->host.assign(*webirc_hostname, 0, 64);
+			user->dhost.assign(*webirc_hostname, 0, 64);
 			delete webirc_hostname;
 			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_hostname");
@@ -338,7 +338,7 @@ public:
 		{
 			user->Extend("cgiirc_realhost", new std::string(user->host));
 			user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
-			strlcpy(user->host, user->password.c_str(), 64);
+			user->host.assign(user->password, 0, 64);
 			user->dhost.assign(user->password, 0, 64);
 			user->InvalidateCache();
 
@@ -361,7 +361,7 @@ public:
 			{
 				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
 				if(NotifyOpers)
-					ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick.c_str(), user->host, user->password.c_str());
+					ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick.c_str(), user->host.c_str(), user->password.c_str());
 			}
 			else
 			{
@@ -376,15 +376,11 @@ public:
 				catch (...)
 				{
 					if (NotifyOpers)
-						ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host);
+						ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
 				}
 			}
 			
 			user->password.clear();
-
-			/*if(NotifyOpers)
-				ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);*/
-
 			return true;
 		}
 		
@@ -425,7 +421,7 @@ public:
 		user->CheckClass();
 		try
 		{
-			strlcpy(user->host, newip, 16);
+			user->host.assign(newip, 0, 16);
 			user->dhost.assign(newip, 0, 16);
 			user->ident.assign("~cgiirc", 0, 8);
 
@@ -435,17 +431,14 @@ public:
 		}
 		catch (...)
 		{
-			strlcpy(user->host, newip, 16);
+			user->host.assign(newip, 0, 16);
 			user->dhost.assign(newip, 0, 16);
 			user->ident.assign("~cgiirc", 0, 8);
 			user->InvalidateCache();
 
 			if(NotifyOpers)
-				 ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host);
+				 ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
 		}
-		/*strlcpy(user->host, newip, 16);
-		strlcpy(user->dhost, newip, 16);
-		strlcpy(user->ident, "~cgiirc", 8);*/
 
 		return true;
 	}

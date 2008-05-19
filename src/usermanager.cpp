@@ -192,7 +192,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 void UserManager::QuitUser(User *user, const std::string &quitreason, const char* operreason)
 {
 	ServerInstance->Logs->Log("USERS", DEBUG,"QuitUser: %s '%s'", user->nick.c_str(), quitreason.c_str());
-	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident.c_str(), user->host, *operreason ? operreason : quitreason.c_str());
+	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident.c_str(), user->host.c_str(), *operreason ? operreason : quitreason.c_str());
 	user->quietquit = false;
 	user->quitmsg = quitreason;
 

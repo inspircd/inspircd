@@ -29,7 +29,7 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
 		if (user == dest || IS_OPER(user))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host, dest->GetIPString());
+			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString());
 		}
 
 		std::string cl = dest->ChannelList(user);

@@ -94,7 +94,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 			XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
 			if (mq)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0].c_str(), user->nick.c_str(), user->ident.c_str(), user->host, mq->reason);
+				ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0].c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str(), mq->reason);
 				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick.c_str(), parameters[0].c_str(), mq->reason);
 				return CMD_FAILURE;
 			}

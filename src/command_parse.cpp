@@ -332,7 +332,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		/* command is disabled! */
 		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick.c_str(),command.c_str());
 		ServerInstance->SNO->WriteToSnoMask('d', "%s denied for %s (%s@%s)",
-				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host);
+				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return do_more;
 	}
 	if (command_p.size() < cm->second->min_params)

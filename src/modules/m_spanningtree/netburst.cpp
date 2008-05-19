@@ -222,7 +222,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			if (theirserver)
 			{
 				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s %lu :%s", theirserver->GetID().c_str(), u->second->uuid.c_str(),
-						(unsigned long)u->second->age, u->second->nick.c_str(), u->second->host, u->second->dhost.c_str(),
+						(unsigned long)u->second->age, u->second->nick.c_str(), u->second->host.c_str(), u->second->dhost.c_str(),
 						u->second->ident.c_str(), u->second->FormatModes(), u->second->GetIPString(),
 						(unsigned long)u->second->signon, u->second->fullname.c_str());
 				this->WriteLine(data);

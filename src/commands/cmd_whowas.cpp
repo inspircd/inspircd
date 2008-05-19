@@ -317,7 +317,7 @@ CommandWhowas::~CommandWhowas()
 
 WhoWasGroup::WhoWasGroup(User* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
 {
-	this->host = strdup(user->host);
+	this->host = strdup(user->host.c_str());
 	this->dhost = strdup(user->dhost.c_str());
 	this->ident = strdup(user->ident.c_str());
 	this->server = user->server;

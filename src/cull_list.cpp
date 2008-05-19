@@ -104,14 +104,14 @@ int CullList::Apply()
 			{
 				if (!u->quietquit)
 				{
-					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick.c_str(),u->ident.c_str(),u->host,oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]", u->nick.c_str(), u->ident.c_str(), u->host.c_str(), oper_reason.c_str());
 				}
 			}
 			else
 			{
 				if ((!ServerInstance->SilentULine(u->server)) && (!u->quietquit))
 				{
-					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",u->server,u->nick.c_str(),u->ident.c_str(),u->host,oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]", u->server, u->nick.c_str(), u->ident.c_str(), u->host.c_str(), oper_reason.c_str());
 				}
 			}
 			u->AddToWhoWas();

@@ -117,7 +117,7 @@ class CloakUser : public ModeHandler
   				/* User is removing the mode, so just restore their real host
   				 * and make it match the displayed one.
 				 */
-				dest->ChangeDisplayedHost(dest->host);
+				dest->ChangeDisplayedHost(dest->host.c_str());
 				dest->SetMode('x',false);
 				return MODEACTION_ALLOW;
 			}
@@ -361,10 +361,7 @@ class ModuleCloaking : public Module
 
 	virtual void OnUserConnect(User* dest)
 	{
-		char* n1 = strchr(dest->host,'.');
-		char* n2 = strchr(dest->host,':');
-
-		if (n1 || n2)
+		if (dest->host.find('.') != std::string::npos || dest->host.find(':') != std::string::npos)
 		{
 			unsigned int iv[] = { cu->key1, cu->key2, cu->key3, cu->key4 };
 			std::string a = cu->LastTwoDomainParts(dest->host);
@@ -384,10 +381,10 @@ class ModuleCloaking : public Module
 				/** Reset the Hash module, and send it our IV and hex table */
 				HashResetRequest(this, cu->HashProvider).Send();
 				HashKeyRequest(this, cu->HashProvider, iv).Send();
-				HashHexRequest(this, cu->HashProvider, cu->xtab[(*dest->host) % 4]);
+				HashHexRequest(this, cu->HashProvider, cu->xtab[(dest->host[0]) % 4]);
 
 				/* Generate a cloak using specialized Hash */
-				std::string hostcloak = cu->prefix + "-" + std::string(HashSumRequest(this, cu->HashProvider, dest->host).Send()).substr(0,8) + a;
+				std::string hostcloak = cu->prefix + "-" + std::string(HashSumRequest(this, cu->HashProvider, dest->host.c_str()).Send()).substr(0,8) + a;
 
 				/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 				 * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
@@ -408,12 +405,12 @@ class ModuleCloaking : public Module
 					b = ((!strchr(dest->host,':')) ? cu->Cloak4(dest->host) : cu->Cloak6(dest->host));
 #else
 				in_addr testaddr;
-				if ((inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+				if ((inet_aton(dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
 					/* Invalid ipv4 address, and ipv4 user (resolved host) */
 					b = hostcloak;
 				else
 					/* Valid ipv4 address (not resolved) ipv4 user */
-					b = cu->Cloak4(dest->host);
+					b = cu->Cloak4(dest->host.c_str());
 #endif
 			}
 			else

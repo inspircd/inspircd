@@ -28,7 +28,7 @@ class CoreExport connection : public EventHandler
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
 	 */
-	char host[65];
+	std::string host;
 
 	/** Stats counter for bytes inbound
 	 */

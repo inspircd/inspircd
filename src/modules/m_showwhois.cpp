@@ -84,11 +84,11 @@ class ModuleShowwhois : public Module
 		{
 			if (IS_LOCAL(dest))
 			{
-				dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick.c_str(),source->nick.c_str(),source->ident.c_str(),source->host);
+				dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you.", dest->nick.c_str(), source->nick.c_str(), source->ident.c_str(), source->host.c_str());
 			}
 			else
 			{
-				std::string msg = std::string(":") + dest->server + " NOTICE " + dest->nick + " :*** " + source->nick + " (" + source->ident + "@" + source->host + ") did a /whois on you.";
+				std::string msg = std::string(":") + dest->server + " NOTICE " + dest->nick + " :*** " + source->nick + " (" + source->ident + "@" + source->host.c_str() + ") did a /whois on you.";
 				ServerInstance->PI->PushToClient(dest, msg);
 			}
 		}

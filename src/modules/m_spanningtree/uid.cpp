@@ -112,7 +112,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	(*(this->Instance->Users->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
 	_new->nick.assign(tempnick, NICKMAX - 1);
-	strlcpy(_new->host, params[3].c_str(),64);
+	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
 	_new->server = this->Instance->FindServerNamePtr(remoteserver->GetName().c_str());
 	_new->ident.assign(params[5], 0, IDENTMAX + 1);
@@ -157,7 +157,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		dosend = false;
 	
 	if (dosend)
-		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]",_new->server,_new->nick.c_str(),_new->ident.c_str(),_new->host, _new->GetIPString(), _new->fullname.c_str());
+		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
 
 	params[9] = ":" + params[9];
 	Utils->DoOneToAllButSender(source, "UID", params, source);
