@@ -113,7 +113,7 @@ void ListenSocket::HandleEvent(EventType e, int err)
 					in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
 					inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
 					socklen_t raddrsz = sizeof(sockaddr_in6);
-					if (getpeername(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
+					if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
 						inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
 					else
 						ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
@@ -124,12 +124,11 @@ void ListenSocket::HandleEvent(EventType e, int err)
 					inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
 					in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
 					socklen_t raddrsz = sizeof(sockaddr_in);
-					if (getpeername(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
+					if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
 						inet_ntop(AF_INET, &((const sockaddr_in*)raddr)->sin_addr, target, sizeof(target));
 					else
 						ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
 				}
-
 				ServerInstance->SE->NonBlocking(incomingSockfd);
 				ServerInstance->stats->statsAccept++;
 				ServerInstance->Users->AddUser(ServerInstance, incomingSockfd, in_port, false, this->family, client, target);	
