@@ -149,11 +149,8 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	/* actually change the nick within the record */
 	if (!user)
 		return CMD_FAILURE;
-	if (!user->nick.empty())
-		return CMD_FAILURE;
 
 	user->nick.assign(parameters[0], 0, NICKMAX - 1);
-
 	user->InvalidateCache();
 
 	/* Update display nicks */
