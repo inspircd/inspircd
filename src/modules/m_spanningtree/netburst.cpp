@@ -124,7 +124,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
 	{
-		int size = strlen(b->data) + 2;
+		int size = b->data.length() + 2;
 		int currsize = linesize + size;
 		if (currsize <= 350)
 		{

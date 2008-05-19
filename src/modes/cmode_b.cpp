@@ -81,7 +81,7 @@ void ModeChannelBan::DisplayList(User* user, Channel* channel)
 	/* Display the channel banlist */
 	for (BanList::reverse_iterator i = channel->bans.rbegin(); i != channel->bans.rend(); ++i)
 	{
-		user->WriteServ("367 %s %s %s %s %lu",user->nick.c_str(), channel->name, i->data, i->set_by, (unsigned long)i->set_time);
+		user->WriteServ("367 %s %s %s %s %lu",user->nick.c_str(), channel->name, i->data.c_str(), i->set_by.c_str(), (unsigned long)i->set_time);
 	}
 	user->WriteServ("368 %s %s :End of channel ban list",user->nick.c_str(), channel->name);
 	return;
@@ -125,7 +125,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{
-		if (!strcasecmp(i->data, dest.c_str()))
+		if (!strcasecmp(i->data.c_str(), dest.c_str()))
 		{
 			/* dont allow a user to set the same ban twice */
 			dest = "";
@@ -134,8 +134,8 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	}
 
 	b.set_time = ServerInstance->Time();
-	strlcpy(b.data, dest.c_str(), MAXBUF);
-	strlcpy(b.set_by, servermode ? ServerInstance->Config->ServerName : user->nick.c_str(), 63);
+	b.data.assign(dest, 0, MAXBUF);
+	b.set_by.assign(servermode ? ServerInstance->Config->ServerName : user->nick, 0, 64);
 	chan->bans.push_back(b);
 	return dest;
 }
@@ -144,7 +144,7 @@ ModePair ModeChannelBan::ModeSet(User*, User*, Channel* channel, const std::stri
 {
 	for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 	{
-		if (!strcasecmp(i->data,parameter.c_str()))
+		if (!strcasecmp(i->data.c_str(), parameter.c_str()))
 		{
 			return std::make_pair(true, i->data);
 		}
@@ -166,10 +166,10 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{
-		if (!strcasecmp(i->data,dest.c_str()))
+		if (!strcasecmp(i->data.c_str(), dest.c_str()))
 		{
 			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnDelBan,OnDelBan(user,chan,dest));
+			FOREACH_RESULT(I_OnDelBan,OnDelBan(user, chan, dest));
 			if (MOD_RESULT)
 			{
 				dest = "";

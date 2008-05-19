@@ -458,7 +458,6 @@ bool Channel::IsExtBanned(User *user, char type)
 {
 	// XXX. do we need events?
 	char mask[MAXBUF];
-	char *maskptr;
 
 	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 
@@ -468,9 +467,7 @@ bool Channel::IsExtBanned(User *user, char type)
 			continue;
 
 		// Iterate past char and : to get to the mask without doing a data copy(!)
-		maskptr = i->data;
-		maskptr++; // past the char
-		maskptr++; // past the :
+		std::string maskptr = i->data.substr(2);
 
 		/* This allows CIDR ban matching
 		 * 

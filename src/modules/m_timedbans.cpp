@@ -55,7 +55,7 @@ class CommandTban : public Command
 				}
 				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 				{
-					if (!strcasecmp(i->data,parameters[2].c_str()))
+					if (!strcasecmp(i->data.c_str(), parameters[2].c_str()))
 					{
 						user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+parameters[2]+" is already on the banlist of "+parameters[0]);
 						return CMD_FAILURE;
@@ -81,7 +81,7 @@ class CommandTban : public Command
 				/* Check if the ban was actually added (e.g. banlist was NOT full) */
 				bool was_added = false;
 				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-					if (!strcasecmp(i->data,mask.c_str()))
+					if (!strcasecmp(i->data.c_str(), mask.c_str()))
 						was_added = true;
 				if (was_added)
 				{

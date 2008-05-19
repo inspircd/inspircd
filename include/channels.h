@@ -41,10 +41,10 @@ class HostItem : public classbase
 	time_t set_time;
 	/** Who added the item
 	 */
-	char set_by[64];
+	std::string set_by;
 	/** The actual item data
 	 */
-	char data[MAXBUF];
+	std::string data;
 
 	HostItem() { /* stub */ }
 	virtual ~HostItem() { /* stub */ }
