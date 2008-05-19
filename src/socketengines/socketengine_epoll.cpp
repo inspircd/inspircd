@@ -50,7 +50,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Out of range FD");
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"Out of range FD: (fd: %d, max: %d)", fd, GetMaxFds());
 		return false;
 	}
 
