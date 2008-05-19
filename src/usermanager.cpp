@@ -73,7 +73,6 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	New->nick.assign(New->uuid, 0, NICKMAX - 1);
 
 	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
-	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
 	New->ident.assign("unknown");
 
 	New->registered = REG_NONE;
