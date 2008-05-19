@@ -171,6 +171,9 @@ void InspIRCd::DoBackgroundUserStuff()
 	{
 		User *curr = *count2;
 
+		if (curr->quitting)
+			continue;
+
 		if (curr->Penalty)
 		{
 			curr->Penalty--;
