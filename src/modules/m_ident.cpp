@@ -369,7 +369,7 @@ class ModuleIdent : public Module
 		 * should be preceded by a ~. The field is actually IDENTMAX+2 characters wide. */
 		if (user->ident.length() > IDENTMAX + 1)
 			user->ident.assign(user->ident, 0, IDENTMAX);
-		user->ident.insert('~', 0);
+		user->ident.insert(0, "~");
 
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
 
