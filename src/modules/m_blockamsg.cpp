@@ -137,12 +137,12 @@ class ModuleBlockAmsg : public Module
 			{
 				// Block it...
 				if(action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
-					ServerInstance->SNO->WriteToSnoMask('A', "%s had an /amsg or /ame denied", user->nick);
+					ServerInstance->SNO->WriteToSnoMask('A', "%s had an /amsg or /ame denied", user->nick.c_str());
 
 				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					ServerInstance->Users->QuitUser(user, "Global message (/amsg or /ame) detected");
 				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
-					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick);
+					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick.c_str());
 									
 				return 1;
 			}
