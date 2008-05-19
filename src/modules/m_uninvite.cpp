@@ -36,11 +36,11 @@ class CommandUninvite : public Command
 		{	
 			if (!c)
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[1].c_str());
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[1].c_str());
 			}
 			else
 			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick, parameters[0].c_str());
+				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 			}
 				
 			return CMD_FAILURE;
@@ -50,7 +50,7 @@ class CommandUninvite : public Command
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick, c->name,
+				user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick.c_str(), c->name,
 						ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
 				return CMD_FAILURE;
 			}
@@ -60,19 +60,19 @@ class CommandUninvite : public Command
 
 		if (!u->IsInvited(xname))
 		{
-			user->WriteNumeric(491, "%s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
+			user->WriteNumeric(491, "%s %s %s :Is not invited to channel %s",user->nick.c_str(),u->nick.c_str(),c->name,c->name);
 			return CMD_FAILURE;
 		}
 		if (!c->HasUser(user))
 		{
-			user->WriteNumeric(492, "%s %s :You're not on that channel!",user->nick, c->name);
+			user->WriteNumeric(492, "%s %s :You're not on that channel!",user->nick.c_str(), c->name);
 			return CMD_FAILURE;
 		}
 
 		u->RemoveInvite(xname);
-		user->WriteNumeric(494, "%s %s %s :Uninvited",user->nick,c->name,u->nick);
-		u->WriteNumeric(493, "%s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
-		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.", c->name, user->nick, u->nick);
+		user->WriteNumeric(494, "%s %s %s :Uninvited",user->nick.c_str(),c->name,u->nick.c_str());
+		u->WriteNumeric(493, "%s :You were uninvited from %s by %s",u->nick.c_str(),c->name,user->nick.c_str());
+		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.", c->name, user->nick.c_str(), u->nick.c_str());
 
 		return CMD_SUCCESS;
 	}

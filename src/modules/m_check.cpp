@@ -71,7 +71,7 @@ class CommandCheck : public Command
 			if (IS_OPER(targuser))
 			{
 				/* user is an oper of type ____ */
-				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper));
+				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
 			}
 
 			if (IS_LOCAL(targuser))
@@ -119,7 +119,7 @@ class CommandCheck : public Command
 				/*
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
-				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick, i->first->ident, i->first->dhost, i->first->fullname);
+				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
 				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
 		}

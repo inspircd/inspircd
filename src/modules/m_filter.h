@@ -134,12 +134,12 @@ class CommandFilter : public Command
 			/* Deleting a filter */
 			if (Base->DeleteFilter(parameters[0]))
 			{
-				user->WriteServ("NOTICE %s :*** Deleted filter '%s'", user->nick, parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** Deleted filter '%s'", user->nick.c_str(), parameters[0].c_str());
 				return CMD_SUCCESS;
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Filter '%s' not found on list.", user->nick, parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** Filter '%s' not found on list.", user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -157,7 +157,7 @@ class CommandFilter : public Command
 
 				if ((type != "gline") && (type != "none") && (type != "block") && (type != "kill") && (type != "silent"))
 				{
-					user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick, freeform.c_str());
+					user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick.c_str(), freeform.c_str());
 					return CMD_FAILURE;
 				}
 
@@ -181,14 +181,14 @@ class CommandFilter : public Command
 				std::pair<bool, std::string> result = Base->AddFilter(freeform, type, reason, duration, flags);
 				if (result.first)
 				{
-					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick, freeform.c_str(),
+					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
 							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[3].c_str() : ""),
 							flags.c_str(), reason.c_str());
 					return CMD_SUCCESS;
 				}
 				else
 				{
-					user->WriteServ("NOTICE %s :*** Filter '%s' could not be added: %s", user->nick, freeform.c_str(), result.second.c_str());
+					user->WriteServ("NOTICE %s :*** Filter '%s' could not be added: %s", user->nick.c_str(), freeform.c_str(), result.second.c_str());
 					return CMD_FAILURE;
 				}
 			}
@@ -203,7 +203,7 @@ class CommandFilter : public Command
 
 	void TooFewParams(User* user, const std::string &extra_text)
 	{
-		user->WriteServ("NOTICE %s :*** Not enough parameters%s", user->nick, extra_text.c_str());
+		user->WriteServ("NOTICE %s :*** Not enough parameters%s", user->nick.c_str(), extra_text.c_str());
 	}
 };
 
@@ -289,7 +289,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 				delete gl;
 		}
 
-		ServerInstance->Logs->Log("FILTER",DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their message filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
+		ServerInstance->Logs->Log("FILTER",DEFAULT,"FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + f->action);
 		return 1;
 	}
 	return 0;
@@ -363,7 +363,7 @@ int FilterBase::OnPreCommand(const std::string &command, const std::vector<std::
 				/* Are they parting, if so, kill is applicable */
 				if ((parting) && (f->action == "kill"))
 				{
-					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick, f->reason.c_str());
+					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick.c_str(), f->reason.c_str());
 					ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 				}
 				if (f->action == "gline")

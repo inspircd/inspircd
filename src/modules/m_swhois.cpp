@@ -34,7 +34,7 @@ class CommandSwhois : public Command
 		
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
@@ -55,7 +55,7 @@ class CommandSwhois : public Command
 			// We already had it set...
 			if (!ServerInstance->ULine(user->server))
 				// Ulines set SWHOISes silently
-				ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str(), line.c_str());
 			
 			dest->Shrink("swhois");
 			delete text;
@@ -63,7 +63,7 @@ class CommandSwhois : public Command
 		else if (!ServerInstance->ULine(user->server))
 		{
 			// Ulines set SWHOISes silently
-			ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
+			ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), line.c_str());
 		}
 		
 		text = new std::string(line);
@@ -124,7 +124,7 @@ class ModuleSWhois : public Module
 			dest->GetExt("swhois", swhois);
 			if (swhois)
 			{
-				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick,dest->nick,swhois->c_str());
+				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), swhois->c_str());
 			}
 		}
 

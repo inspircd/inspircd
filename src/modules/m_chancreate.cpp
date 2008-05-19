@@ -42,7 +42,7 @@ class ModuleChanCreate : public Module
 	{
 		if (channel->GetUserCounter() == 1)
 		{
-			ServerInstance->SNO->WriteToSnoMask('j', "Channel %s created by %s!%s@%s", channel->name, user->nick, user->ident, user->host);
+			ServerInstance->SNO->WriteToSnoMask('j', "Channel %s created by %s!%s@%s", channel->name, user->nick.c_str(), user->ident.c_str(), user->host);
 		}
 	}
 };

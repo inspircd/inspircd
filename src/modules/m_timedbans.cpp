@@ -90,18 +90,18 @@ class CommandTban : public Command
 					T.mask = mask;
 					T.expire = expire;
 					TimedBanList.push_back(T);
-					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
+					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick.c_str(), mask.c_str(), duration);
 					if (ServerInstance->Config->AllowHalfop)
-						channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
+						channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick.c_str(), mask.c_str(), duration);
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
 			}
-			else user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick, channel->name,
+			else user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick.c_str(), channel->name,
 					ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
 			return CMD_FAILURE;
 		}
-		user->WriteNumeric(401, "%s %s :No such channel",user->nick, parameters[0].c_str());
+		user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 };

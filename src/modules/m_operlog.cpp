@@ -52,8 +52,8 @@ class ModuleOperLog : public Module
 				for (int j = 0; j < (int)parameters.size(); j++)
 					plist.append(std::string(" ")+parameters[j]);
 
-				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick,user->ident,user->host,command.c_str(),plist.c_str());
-			}
+				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick.c_str(), user->ident.c_str(), user->host, command.c_str(), plist.c_str());
+			} 
 		}
 
 		return 0;

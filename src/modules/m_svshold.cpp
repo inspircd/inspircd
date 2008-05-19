@@ -82,11 +82,11 @@ class CommandSvshold : public Command
 						if ((*iter)->length)
 						{
 							remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
-							user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, (*iter)->nickname.c_str(), (unsigned long)remaining, (*iter)->reason.c_str());
+							user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick.c_str(), (*iter)->nickname.c_str(), (unsigned long)remaining, (*iter)->reason.c_str());
 						}
 						else
 						{
-							user->WriteServ( "386 %s %s :Removed permanent SVSHOLD (%s)", user->nick, (*iter)->nickname.c_str(), (*iter)->reason.c_str());
+							user->WriteServ( "386 %s %s :Removed permanent SVSHOLD (%s)", user->nick.c_str(), (*iter)->nickname.c_str(), (*iter)->reason.c_str());
 						}
 						SVSHolds.erase(iter);
 						break;
@@ -109,7 +109,7 @@ class CommandSvshold : public Command
 				/* Already exists? */
 				if (HoldMap.find(parameters[0].c_str()) != HoldMap.end())
 				{
-					user->WriteServ( "385 %s %s :SVSHOLD already exists", user->nick, parameters[0].c_str());
+					user->WriteServ( "385 %s %s :SVSHOLD already exists", user->nick.c_str(), parameters[0].c_str());
 					return CMD_FAILURE;
 				}
 
@@ -124,13 +124,13 @@ class CommandSvshold : public Command
 
 				if(length > 0)
 				{
-					user->WriteServ( "385 %s %s :Added %lu second SVSHOLD (%s)", user->nick, parameters[0].c_str(), length, reason.c_str());
-					ServerInstance->SNO->WriteToSnoMask('A', "%s added %lu second SVSHOLD on %s (%s)", user->nick, length, parameters[0].c_str(), reason.c_str());
+					user->WriteServ( "385 %s %s :Added %lu second SVSHOLD (%s)", user->nick.c_str(), parameters[0].c_str(), length, reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('A', "%s added %lu second SVSHOLD on %s (%s)", user->nick.c_str(), length, parameters[0].c_str(), reason.c_str());
 				}
 				else
 				{
-					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick, parameters[0].c_str(), parameters[0].c_str(), reason.c_str());
-					ServerInstance->SNO->WriteToSnoMask('A', "%s added permanent SVSHOLD on %s (%s)", user->nick, parameters[0].c_str(), reason.c_str());
+					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick.c_str(), parameters[0].c_str(), parameters[0].c_str(), reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('A', "%s added permanent SVSHOLD on %s (%s)", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 				}
 			}
 			else
@@ -188,7 +188,7 @@ class ModuleSVSHold : public Module
 		SVSHoldMap::iterator n = HoldMap.find(assign(newnick));
 		if (n != HoldMap.end())
 		{
-			user->WriteServ( "432 %s %s :Reserved nickname: %s", user->nick, newnick.c_str(), n->second->reason.c_str());
+			user->WriteServ( "432 %s %s :Reserved nickname: %s", user->nick.c_str(), newnick.c_str(), n->second->reason.c_str());
 			return 1;
 		}
 		return 0;

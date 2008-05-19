@@ -36,7 +36,7 @@ class ModuleRegOnlyCreate : public Module
 
 		if ((!user->IsModeSet('r')) && (!user->GetExt("accountname")))
 		{
-			user->WriteNumeric(482, "%s %s :You must have a registered nickname to create a new channel", user->nick, cname);
+			user->WriteNumeric(482, "%s %s :You must have a registered nickname to create a new channel", user->nick.c_str(), cname);
 			return 1;
 		}
 

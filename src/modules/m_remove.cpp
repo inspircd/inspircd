@@ -99,13 +99,13 @@ class RemoveBase
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, !target ? username : channame);
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), !target ? username : channame);
 			return CMD_FAILURE;
 		}
 
 		if (!channel->HasUser(target))
 		{
-			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick, target->nick, channel->name);
+			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick.c_str(), target->nick.c_str(), channel->name);
 			return CMD_FAILURE;
 		}	
 		
@@ -114,7 +114,7 @@ class RemoveBase
 		protectkey = "cm_protect_" + std::string(channel->name);
 		founderkey = "cm_founder_" + std::string(channel->name);
 		
-		if (ServerInstance->ULine(user->server) || ServerInstance->ULine(user->nick))
+		if (ServerInstance->ULine(user->server) || ServerInstance->ULine(user->nick.c_str()))
 		{
 			ulevel = chartolevel("U");
 		}
@@ -132,7 +132,7 @@ class RemoveBase
 		}
 			
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
-		if (ServerInstance->ULine(target->server) || ServerInstance->ULine(target->nick))
+		if (ServerInstance->ULine(target->server) || ServerInstance->ULine(target->nick.c_str()))
 		{
 			tlevel = chartolevel("U");
 		}
@@ -177,22 +177,22 @@ class RemoveBase
 				/* Build up the part reason string. */
 				reason = std::string("Removed by ") + user->nick + ": " + reasonparam;
 
-				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
-				target->WriteServ("NOTICE %s :*** %s removed you from %s with the message: %s", target->nick, user->nick, channel->name, reasonparam.c_str());
+				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick.c_str(), target->nick.c_str());
+				target->WriteServ("NOTICE %s :*** %s removed you from %s with the message: %s", target->nick.c_str(), user->nick.c_str(), channel->name, reasonparam.c_str());
 
 				if (!channel->PartUser(target, reason.c_str()))
 					delete channel;
 			}
 			else
 			{
-				user->WriteServ( "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick, target->nick, channel->name);
+				user->WriteServ( "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick.c_str(), target->nick.c_str(), channel->name);
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteServ( "484 %s %s :Can't remove user %s from channel (+Q set)", user->nick, channel->name, target->nick);
+			user->WriteServ( "484 %s %s :Can't remove user %s from channel (+Q set)", user->nick.c_str(), channel->name, target->nick.c_str());
 			return CMD_FAILURE;
 		}
 

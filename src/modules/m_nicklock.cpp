@@ -43,7 +43,7 @@ class CommandNicklock : public Command
 		// check if user is locked
 		if (target->GetExt("nick_locked", dummy))
 		{
-			user->WriteNumeric(946, "%s %s :This user's nickname is already locked.",user->nick,target->nick);
+			user->WriteNumeric(946, "%s %s :This user's nickname is already locked.",user->nick.c_str(),target->nick.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -87,7 +87,7 @@ class CommandNickunlock : public Command
 		if (target)
 		{
 			target->Shrink("nick_locked");
-			user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick,target->nick);
+			user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 			return CMD_SUCCESS;
 		}
@@ -132,7 +132,7 @@ class ModuleNickLock : public Module
 
 		if (user->GetExt("nick_locked", n))
 		{
-			user->WriteNumeric(447, "%s :You cannot change your nickname (your nick is locked)",user->nick);
+			user->WriteNumeric(447, "%s :You cannot change your nickname (your nick is locked)",user->nick.c_str());
 			return 1;
 		}
 		return 0;

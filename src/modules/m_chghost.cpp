@@ -43,20 +43,20 @@ class CommandChghost : public Command
 		}
 		if (parameters[0].empty())
 		{
-			user->WriteServ("NOTICE %s :*** CHGHOST: Host must be specified", user->nick);
+			user->WriteServ("NOTICE %s :*** CHGHOST: Host must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if ((parameters[1].c_str() - x) > 63)
 		{
-			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick);
+			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 

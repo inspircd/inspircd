@@ -122,7 +122,7 @@ public:
 					if (whotoadd)
 						atleastonechange = AddAccept(user, whotoadd, false) || atleastonechange;
 					else
-						user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, tok.c_str());
+						user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
 				}
 			}
 		}
@@ -135,9 +135,9 @@ public:
 		if (dat)
 		{
 			for (std::set<User*>::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
-				user->WriteNumeric(281, "%s %s", user->nick, (*i)->nick);
+				user->WriteNumeric(281, "%s %s", user->nick.c_str(), (*i)->nick.c_str());
 		}
-		user->WriteNumeric(282, "%s :End of ACCEPT list", user->nick);
+		user->WriteNumeric(282, "%s :End of ACCEPT list", user->nick.c_str());
 	}
 
 	bool AddAccept(User* user, User* whotoadd, bool quiet)
@@ -147,14 +147,14 @@ public:
 		if (accepting.size() >= maxaccepts)
 		{
 			if (!quiet)
-				user->WriteNumeric(456, "%s :Accept list is full (limit is %d)", user->nick, maxaccepts);
+				user->WriteNumeric(456, "%s :Accept list is full (limit is %d)", user->nick.c_str(), maxaccepts);
 
 			return false;
 		}
 		if (!accepting.insert(whotoadd).second)
 		{
 			if (!quiet)
-				user->WriteNumeric(457, "%s %s :is already on your accept list", user->nick, whotoadd->nick);
+				user->WriteNumeric(457, "%s %s :is already on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
 
 			return false;
 		}
@@ -167,7 +167,7 @@ public:
 		if (!dat)
 		{
 			if (!quiet)
-				user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick, whotoremove->nick);
+				user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 
 			return false;
 		}
@@ -176,7 +176,7 @@ public:
 		if (i == accepting.end())
 		{
 			if (!quiet)
-				user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick, whotoremove->nick);
+				user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 
 			return false;
 		}
@@ -256,11 +256,11 @@ public:
 		{
 			time_t now = time(NULL);
 			/* +g and *not* accepted */
-			user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick, dest->nick);
+			user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick.c_str(), dest->nick.c_str());
 			if (now > (lastnotify + (time_t)notify_cooldown))
 			{
-				user->WriteNumeric(717, "%s %s :has been informed that you messaged them.", user->nick, dest->nick);
-				dest->WriteNumeric(718, "%s %s %s@%s :is messaging you, and you have umode +g", dest->nick, user->nick, user->ident, user->dhost);
+				user->WriteNumeric(717, "%s %s :has been informed that you messaged them.", user->nick.c_str(), dest->nick.c_str());
+				dest->WriteNumeric(718, "%s %s %s@%s :is messaging you, and you have umode +g", dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str());
 				lastnotify = now;
 			}
 			return 1;

@@ -44,7 +44,7 @@ class Redirect : public ModeHandler
 
 			if (!ServerInstance->IsChannel(parameter.c_str()))
 			{
-				source->WriteNumeric(403, "%s %s :Invalid channel name",source->nick, parameter.c_str());
+				source->WriteNumeric(403, "%s %s :Invalid channel name",source->nick.c_str(), parameter.c_str());
 				parameter.clear();
 				return MODEACTION_DENY;
 			}
@@ -57,7 +57,7 @@ class Redirect : public ModeHandler
 				{
 					if ((c == channel) || (c->IsModeSet('L')))
 					{
-						source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
+						source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick.c_str(),parameter.c_str());
 						parameter.clear();
 						return MODEACTION_DENY;
 					}
@@ -67,7 +67,7 @@ class Redirect : public ModeHandler
 						{
 							if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == irc::string(channel->name)))
 							{
-								source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick,parameter.c_str(),i->second->name);
+								source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick.c_str(),parameter.c_str(),i->second->name);
 								return MODEACTION_DENY;
 							}
 						}
@@ -127,11 +127,11 @@ class ModuleRedirect : public Module
 					destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet('L'))
 					{
-						user->WriteNumeric(470, "%s :%s is full, but has a circular redirect (+L), not following redirection to %s", user->nick, cname, channel.c_str());
+						user->WriteNumeric(470, "%s :%s is full, but has a circular redirect (+L), not following redirection to %s", user->nick.c_str(), cname, channel.c_str());
 						return 1;
 					}
 
-					user->WriteNumeric(470, "%s :%s has become full, so you are automatically being transferred to the linked channel %s", user->nick, cname, channel.c_str());
+					user->WriteNumeric(470, "%s :%s has become full, so you are automatically being transferred to the linked channel %s", user->nick.c_str(), cname, channel.c_str());
 					Channel::JoinUser(ServerInstance, user, channel.c_str(), false, "", false, ServerInstance->Time());
 					return 1;
 				}

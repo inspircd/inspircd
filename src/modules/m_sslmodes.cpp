@@ -37,7 +37,7 @@ class SSLMode : public ModeHandler
 					{
 						if(!i->first->GetExt("ssl", dummy))
 						{
-							source->WriteNumeric(490, "%s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
+							source->WriteNumeric(490, "%s %s :all members of the channel must be connected via SSL", source->nick.c_str(), channel->name);
 							return MODEACTION_DENY;
 						}
 					}
@@ -94,7 +94,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick, cname);
+				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname);
 				return 1;
 			}
 		}

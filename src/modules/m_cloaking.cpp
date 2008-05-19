@@ -311,7 +311,7 @@ class ModuleCloaking : public Module
 		/* Check if they have a cloaked host, but are not using it */
 		if (user->GetExt("cloaked_host", tofree) && *tofree != user->dhost)
 		{
-			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, tofree->c_str());
+			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), tofree->c_str());
 			for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 			{
 				if (match(mask,i->data))

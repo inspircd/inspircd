@@ -28,7 +28,7 @@ class CommandDalinfo : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		user->WriteServ("NOTICE %s :*** DALNet had nothing to do with it.", user->nick);
+		user->WriteServ("NOTICE %s :*** DALNet had nothing to do with it.", user->nick.c_str());
 		return CMD_FAILURE;
 	}
 };

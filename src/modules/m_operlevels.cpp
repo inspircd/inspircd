@@ -57,7 +57,7 @@ class ModuleOperLevels : public Module
 				for (int j =0; j < conf->Enumerate("type"); j++)
 				{
 					std::string typen = conf->ReadValue("type","name",j);
-					if (!strcmp(typen.c_str(),dest->oper))
+					if (typen == dest->oper)
 					{
 						dest_level = conf->ReadInteger("type","level",j,true);
 						break;
@@ -66,7 +66,7 @@ class ModuleOperLevels : public Module
 				for (int k =0; k < conf->Enumerate("type"); k++)
 				{
 					std::string typen = conf->ReadValue("type","name",k);
-					if (!strcmp(typen.c_str(),source->oper))
+					if (typen == source->oper)
 					{
 						source_level = conf->ReadInteger("type","level",k,true);
 						break;
@@ -74,9 +74,9 @@ class ModuleOperLevels : public Module
 				}
 				if (dest_level > source_level)
 				{
-					ServerInstance->SNO->WriteToSnoMask('A', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick,source_level,dest->nick,dest_level,reason.c_str());
-					dest->WriteServ("NOTICE %s :Oper %s attempted to /kill you!",dest->nick,source->nick);
-					source->WriteNumeric(481, "%s :Permission Denied - Oper %s is a higher level than you",source->nick,dest->nick);
+					ServerInstance->SNO->WriteToSnoMask('A', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());
+					dest->WriteServ("NOTICE %s :Oper %s attempted to /kill you!",dest->nick.c_str(),source->nick.c_str());
+					source->WriteNumeric(481, "%s :Permission Denied - Oper %s is a higher level than you",source->nick.c_str(),dest->nick.c_str());
 					return 1;
 				}
 			}

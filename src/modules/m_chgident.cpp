@@ -33,32 +33,32 @@ class CommandChgident : public Command
 
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
 		if (parameters[1].empty())
 		{
-			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident must be specified", user->nick);
+			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (parameters[1].length() > IDENTMAX - 1)
 		{
-			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident is too long", user->nick);
+			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident is too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (!ServerInstance->IsIdent(parameters[1].c_str()))
 		{
-			user->WriteServ("NOTICE %s :*** CHGIDENT: Invalid characters in ident", user->nick);
+			user->WriteServ("NOTICE %s :*** CHGIDENT: Invalid characters in ident", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
 		dest->ChangeIdent(parameters[1].c_str());
 
 		if (!ServerInstance->ULine(user->server))
-			ServerInstance->SNO->WriteToSnoMask('A', "%s used CHGIDENT to change %s's ident to '%s'", user->nick, dest->nick, dest->ident);
+			ServerInstance->SNO->WriteToSnoMask('A', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
 
 		/* route it! */
 		return CMD_SUCCESS;

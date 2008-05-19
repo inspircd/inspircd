@@ -63,7 +63,7 @@ class ModuleWaitPong : public Module
 		user->Write("PING :%s", pingrpl);
 		
 		if(sendsnotice)
-			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick, pingrpl, pingrpl);
+			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick.c_str(), pingrpl, pingrpl);
 			
 		user->Extend(extenstr, pingrpl);
 		return 0;

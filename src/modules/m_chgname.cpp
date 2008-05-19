@@ -33,26 +33,26 @@ class CommandChgname : public Command
 
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick, parameters[0].c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (parameters[1].empty())
 		{
-			user->WriteServ("NOTICE %s :*** GECOS must be specified", user->nick);
+			user->WriteServ("NOTICE %s :*** GECOS must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (parameters[1].length() > MAXGECOS)
 		{
-			user->WriteServ("NOTICE %s :*** GECOS too long", user->nick);
+			user->WriteServ("NOTICE %s :*** GECOS too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1].c_str());
-			ServerInstance->SNO->WriteToSnoMask('A', "%s used CHGNAME to change %s's real name to '%s'", user->nick, dest->nick, dest->fullname);
+			ServerInstance->SNO->WriteToSnoMask('A', "%s used CHGNAME to change %s's real name to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
 			return CMD_LOCALONLY; /* name change routed by FNAME in spanningtree now */
 		}
 

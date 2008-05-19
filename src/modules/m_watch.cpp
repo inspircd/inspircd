@@ -139,7 +139,7 @@ class CommandWatch : public Command
 		// removing an item from the list
 		if (!ServerInstance->IsNick(nick))
 		{
-			user->WriteNumeric(942, "%s %s :Invalid nickname", user->nick, nick);
+			user->WriteNumeric(942, "%s %s :Invalid nickname", user->nick.c_str(), nick);
 			return CMD_FAILURE;
 		}
 
@@ -155,9 +155,9 @@ class CommandWatch : public Command
 			if (n != wl->end())
 			{
 				if (!n->second.empty())
-					user->WriteNumeric(602, "%s %s %s :stopped watching", user->nick, n->first.c_str(), n->second.c_str());
+					user->WriteNumeric(602, "%s %s %s :stopped watching", user->nick.c_str(), n->first.c_str(), n->second.c_str());
 				else
-					user->WriteNumeric(602, "%s %s * * 0 :stopped watching", user->nick, nick);
+					user->WriteNumeric(602, "%s %s * * 0 :stopped watching", user->nick.c_str(), nick);
 
 				wl->erase(n);
 			}
@@ -193,7 +193,7 @@ class CommandWatch : public Command
 	{
 		if (!ServerInstance->IsNick(nick))
 		{
-			user->WriteNumeric(942, "%s %s :Invalid nickname",user->nick,nick);
+			user->WriteNumeric(942, "%s %s :Invalid nickname",user->nick.c_str(),nick);
 			return CMD_FAILURE;
 		}
 
@@ -206,7 +206,7 @@ class CommandWatch : public Command
 
 		if (wl->size() == MAX_WATCH)
 		{
-			user->WriteNumeric(512, "%s %s :Too many WATCH entries", user->nick, nick);
+			user->WriteNumeric(512, "%s %s :Too many WATCH entries", user->nick.c_str(), nick);
 			return CMD_FAILURE;
 		}
 
@@ -233,21 +233,21 @@ class CommandWatch : public Command
 				if (target->Visibility && !target->Visibility->VisibleTo(user))
 				{
 					(*wl)[nick] = "";
-					user->WriteNumeric(605, "%s %s * * 0 :is offline",user->nick, nick);
+					user->WriteNumeric(605, "%s %s * * 0 :is offline",user->nick.c_str(), nick);
 					return CMD_FAILURE;
 				}
 
 				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
-				user->WriteNumeric(604, "%s %s %s :is online",user->nick, nick, (*wl)[nick].c_str());
+				user->WriteNumeric(604, "%s %s %s :is online",user->nick.c_str(), nick, (*wl)[nick].c_str());
 				if (IS_AWAY(target))
 				{
-					user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick, target->nick, target->ident, target->dhost, (unsigned long) target->awaytime);
+					user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick.c_str(), target->nick.c_str(), target->ident.c_str(), target->dhost.c_str(), (unsigned long) target->awaytime);
 				}
 			}
 			else
 			{
 				(*wl)[nick] = "";
-				user->WriteNumeric(605, "%s %s * * 0 :is offline",user->nick, nick);
+				user->WriteNumeric(605, "%s %s * * 0 :is offline",user->nick.c_str(), nick);
 			}
 		}
 
@@ -271,10 +271,10 @@ class CommandWatch : public Command
 				for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 				{
 					if (!q->second.empty())
-						user->WriteNumeric(604, "%s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
+						user->WriteNumeric(604, "%s %s %s :is online", user->nick.c_str(), q->first.c_str(), q->second.c_str());
 				}
 			}
-			user->WriteNumeric(607, "%s :End of WATCH list",user->nick);
+			user->WriteNumeric(607, "%s :End of WATCH list",user->nick.c_str());
 		}
 		else if (parameters.size() > 0)
 		{
@@ -299,7 +299,7 @@ class CommandWatch : public Command
 									i2->second.erase(n);
 
 								if (!i2->second.size())
-									whos_watching_me->erase(user->nick);
+									whos_watching_me->erase(user->nick.c_str());
 							}
 						}
 
@@ -316,18 +316,18 @@ class CommandWatch : public Command
 						{
 							if (!q->second.empty())
 							{
-								user->WriteNumeric(604, "%s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
+								user->WriteNumeric(604, "%s %s %s :is online", user->nick.c_str(), q->first.c_str(), q->second.c_str());
 								User *targ = ServerInstance->FindNick(q->first.c_str());
 								if (IS_AWAY(targ))
 								{
-									user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick, targ->nick, targ->ident, targ->dhost, (unsigned long) targ->awaytime);
+									user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick.c_str(), targ->nick.c_str(), targ->ident.c_str(), targ->dhost.c_str(), (unsigned long) targ->awaytime);
 								}
 							}
 							else
-								user->WriteNumeric(605, "%s %s * * 0 :is offline", user->nick, q->first.c_str());
+								user->WriteNumeric(605, "%s %s * * 0 :is offline", user->nick.c_str(), q->first.c_str());
 						}
 					}
-					user->WriteNumeric(607, "%s :End of WATCH list",user->nick);
+					user->WriteNumeric(607, "%s :End of WATCH list",user->nick.c_str());
 				}
 				else if (!strcasecmp(nick,"S"))
 				{
@@ -343,13 +343,13 @@ class CommandWatch : public Command
 						you_have = wl->size();
 					}
 
-					watchentries::iterator i2 = whos_watching_me->find(user->nick);
+					watchentries::iterator i2 = whos_watching_me->find(user->nick.c_str());
 					if (i2 != whos_watching_me->end())
 						youre_on = i2->second.size();
 
-					user->WriteNumeric(603, "%s :You have %d and are on %d WATCH entries", user->nick, you_have, youre_on);
-					user->WriteNumeric(606, "%s :%s",user->nick, list.c_str());
-					user->WriteNumeric(607, "%s :End of WATCH S",user->nick);
+					user->WriteNumeric(603, "%s :You have %d and are on %d WATCH entries", user->nick.c_str(), you_have, youre_on);
+					user->WriteNumeric(606, "%s :%s",user->nick.c_str(), list.c_str());
+					user->WriteNumeric(607, "%s :End of WATCH S",user->nick.c_str());
 				}
 				else if (nick[0] == '-')
 				{
@@ -412,7 +412,7 @@ class Modulewatch : public Module
 			inum = 598;
 		}
 
-		watchentries::iterator x = whos_watching_me->find(user->nick);
+		watchentries::iterator x = whos_watching_me->find(user->nick.c_str());
 		if (x != whos_watching_me->end())
 		{
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
@@ -427,18 +427,18 @@ class Modulewatch : public Module
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
-		watchentries::iterator x = whos_watching_me->find(user->nick);
+		watchentries::iterator x = whos_watching_me->find(user->nick.c_str());
 		if (x != whos_watching_me->end())
 		{
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
-					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, (unsigned long) ServerInstance->Time());
+					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick.c_str() ,user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) ServerInstance->Time());
 
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 					/* We were on somebody's notify list, set ourselves offline */
-					(*wl)[user->nick] = "";
+					(*wl)[user->nick.c_str()] = "";
 			}
 		}
 
@@ -459,7 +459,7 @@ class Modulewatch : public Module
 							i2->second.erase(n);
 	
 						if (!i2->second.size())
-							whos_watching_me->erase(user->nick);
+							whos_watching_me->erase(user->nick.c_str());
 				}
 			}
 
@@ -497,26 +497,26 @@ class Modulewatch : public Module
 
 	virtual void OnPostConnect(User* user)
 	{
-		watchentries::iterator x = whos_watching_me->find(user->nick);
+		watchentries::iterator x = whos_watching_me->find(user->nick.c_str());
 		if (x != whos_watching_me->end())
 		{
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
-					(*n)->WriteNumeric(600, "%s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, (unsigned long) user->age);
+					(*n)->WriteNumeric(600, "%s %s %s %s %lu :arrived online", (*n)->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) user->age);
 
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 					/* We were on somebody's notify list, set ourselves online */
-					(*wl)[user->nick] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
+					(*wl)[user->nick.c_str()] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
 			}
 		}
 	}
 
 	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{
-		watchentries::iterator new_offline = whos_watching_me->find(assign(oldnick));
-		watchentries::iterator new_online = whos_watching_me->find(user->nick);
+		watchentries::iterator new_offline = whos_watching_me->find(oldnick.c_str());
+		watchentries::iterator new_online = whos_watching_me->find(user->nick.c_str());
 
 		if (new_offline != whos_watching_me->end())
 		{
@@ -526,7 +526,7 @@ class Modulewatch : public Module
 				if ((*n)->GetExt("watchlist", wl))
 				{
 					if (!user->Visibility || user->Visibility->VisibleTo(user))
-	 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, (unsigned long) user->age);
+	 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick.c_str(), oldnick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) user->age);
 					(*wl)[oldnick.c_str()] = "";
 				}
 			}
@@ -539,9 +539,9 @@ class Modulewatch : public Module
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 				{
-					(*wl)[user->nick] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
+					(*wl)[user->nick.c_str()] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
 					if (!user->Visibility || user->Visibility->VisibleTo(user))
-						(*n)->WriteNumeric(600, "%s %s %s :arrived online", (*n)->nick, user->nick, (*wl)[user->nick].c_str());
+						(*n)->WriteNumeric(600, "%s %s %s :arrived online", (*n)->nick.c_str(), user->nick.c_str(), (*wl)[user->nick.c_str()].c_str());
 				}
 			}
 		}

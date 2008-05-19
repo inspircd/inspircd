@@ -103,10 +103,10 @@ class FounderProtectBase
 		{
 			if (i->first->GetExt(item))
 			{
-				user->WriteServ("%d %s %s %s", list, user->nick, channel->name,i->first->nick);
+				user->WriteServ("%d %s %s %s", list, user->nick.c_str(), channel->name,i->first->nick.c_str());
 			}
 		}
-		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick, channel->name, type.c_str());
+		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick.c_str(), channel->name, type.c_str());
 	}
 
 	User* FindAndVerify(std::string &parameter, Channel* channel)
@@ -196,7 +196,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if (source == ServerInstance->FakeClient ||
 				((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
-				(ServerInstance->ULine(source->nick)) ||
+				(ServerInstance->ULine(source->nick.c_str())) ||
 				(ServerInstance->ULine(source->server)) ||
 				(!*source->server) ||
 				(!IS_LOCAL(source)))
@@ -206,7 +206,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		else
 		{
 			// whoops, someones being naughty!
-			source->WriteNumeric(468, "%s %s :Only servers may set channel mode +q",source->nick, channel->name);
+			source->WriteNumeric(468, "%s %s :Only servers may set channel mode +q",source->nick.c_str(), channel->name);
 			parameter.clear();
 			return MODEACTION_DENY;
 		}
@@ -262,7 +262,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
 		if (source == ServerInstance->FakeClient ||
 			((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || 
-			(ServerInstance->ULine(source->nick)) ||
+			(ServerInstance->ULine(source->nick.c_str())) ||
 			(ServerInstance->ULine(source->server)) ||
 			(!*source->server) ||
 			(source->GetExt(founder)) ||
@@ -273,7 +273,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		else
 		{
 			// bzzzt, wrong answer!
-			source->WriteNumeric(482, "%s %s :You are not a channel founder",source->nick, channel->name);
+			source->WriteNumeric(482, "%s %s :You are not a channel founder",source->nick.c_str(), channel->name);
 			return MODEACTION_DENY;
 		}
 	}
@@ -388,7 +388,7 @@ class ModuleChanProtect : public Module
 		// will appear in the names list for the user.. remove if desired -Special
 
 		if (FirstInGetsFounder && channel->GetUserCounter() == 1)
-			user->WriteServ("MODE %s +q %s", channel->name, user->nick);
+			user->WriteServ("MODE %s +q %s", channel->name, user->nick.c_str());
 	}
 	
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
@@ -405,7 +405,7 @@ class ModuleChanProtect : public Module
 		
 		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
 		// without any access checks, we're not worthy :p
-		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server))
+		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 			return ACR_ALLOW;
 
 		std::string founder = "cm_founder_"+std::string(channel->name);

@@ -43,12 +43,12 @@ class CommandMkpasswd : public Command
 			/* Yup, reset it first (Always ALWAYS do this) */
 			HashResetRequest(Sender, x->second).Send();
 			/* Now attempt to generate a hash */
-			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick, algo, stuff, HashSumRequest(Sender, x->second, stuff).Send() );
+			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick.c_str(), algo, stuff, HashSumRequest(Sender, x->second, stuff).Send() );
 		}
 		else
 		{
 			/* I dont do flying, bob. */
-			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are: %s", user->nick, irc::stringjoiner(", ", names, 0, names.size() - 1).GetJoined().c_str() );
+			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are: %s", user->nick.c_str(), irc::stringjoiner(", ", names, 0, names.size() - 1).GetJoined().c_str() );
 		}
 	}
 

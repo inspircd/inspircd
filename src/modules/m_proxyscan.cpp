@@ -384,7 +384,7 @@ class ModuleProxy : public Module
 			p->Close();
 			delete p;
 			user->Shrink("proxy_socket");
-			ServerInstance->Logs->Log("m_proxyscan",DEBUG, "Removed proxy socket from %s", user->nick);
+			ServerInstance->Logs->Log("m_proxyscan",DEBUG, "Removed proxy socket from %s", user->nick.c_str());
 		}
 	}
 };

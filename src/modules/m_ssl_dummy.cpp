@@ -43,7 +43,7 @@ class ModuleSSLDummy : public Module
 	{
 		if(dest->GetExt("ssl", dummy))
 		{
-			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick, dest->nick);
+			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 		}
 	}
 	

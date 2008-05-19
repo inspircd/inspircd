@@ -41,13 +41,13 @@ class CommandClose : public Command
 		int total = 0;
 		for (std::map<std::string,int>::iterator ci = closed.begin(); ci != closed.end(); ci++)
 		{
-			user->WriteServ("NOTICE %s :*** Closed %d unknown connection%s from [%s]",user->nick,(*ci).second,((*ci).second>1)?"s":"",(*ci).first.c_str());
+			user->WriteServ("NOTICE %s :*** Closed %d unknown connection%s from [%s]",user->nick.c_str(),(*ci).second,((*ci).second>1)?"s":"",(*ci).first.c_str());
 			total += (*ci).second;
 		}
 		if (total)
-			user->WriteServ("NOTICE %s :*** %i unknown connection%s closed",user->nick,total,(total>1)?"s":"");
+			user->WriteServ("NOTICE %s :*** %i unknown connection%s closed",user->nick.c_str(),total,(total>1)?"s":"");
 		else
-			user->WriteServ("NOTICE %s :*** No unknown connections found",user->nick);
+			user->WriteServ("NOTICE %s :*** No unknown connections found",user->nick.c_str());
 			
 		return CMD_LOCALONLY;
 	}
