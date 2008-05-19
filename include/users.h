@@ -542,12 +542,12 @@ class CoreExport User : public connection
 	 * The following RFC characters o, w, s, i have constants defined via an
 	 * enum, such as UM_SERVERNOTICE and UM_OPETATOR.
 	 */
-	char modes[64];
+	unsigned char modes[64];
 
 	/** What snomasks are set on this user.
 	 * This functions the same as the above modes.
 	 */
-	char snomasks[64];
+	unsigned char snomasks[64];
 
 	/** Channels this user is on, and the permissions they have there
 	 */

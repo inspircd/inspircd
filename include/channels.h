@@ -142,7 +142,7 @@ class CoreExport Channel : public Extensible
 	 * for mode +A, index 0. Use modechar-65 to calculate which
 	 * field to check.
 	 */
-	char modes[64];
+	unsigned char modes[64];
 
 	/** User lists.
 	 * There are four user lists, one for 
