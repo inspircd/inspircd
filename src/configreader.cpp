@@ -961,7 +961,7 @@ void ServerConfig::Read(bool bail, User* user)
 
 		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
 		 */
-		for (int Index = 0; Values[Index].tag; Index++)
+		for (int Index = 0; Values[Index].tag; ++Index)
 		{
 			char item[MAXBUF];
 			int dt = Values[Index].datatype;
@@ -997,7 +997,6 @@ void ServerConfig::Read(bool bail, User* user)
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
 					this->ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
 					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
-					ServerInstance->Logs->Log("CONFIG",DEFAULT,"Got %s", vi.GetString());
 				}
 				break;
 				case DT_IPADDRESS:
@@ -1052,7 +1051,7 @@ void ServerConfig::Read(bool bail, User* user)
 		 * and call the callbacks associated with them. We have three
 		 * callbacks for these, a 'start', 'item' and 'end' callback.
 		 */
-		for (int Index = 0; MultiValues[Index].tag; Index++)
+		for (int Index = 0; MultiValues[Index].tag; ++Index)
 		{
 			ServerInstance->Threads->Mutex(true);
 			MultiValues[Index].init_function(this, MultiValues[Index].tag);
@@ -1060,10 +1059,10 @@ void ServerConfig::Read(bool bail, User* user)
 
 			int number_of_tags = ConfValueEnum(newconfig, MultiValues[Index].tag);
 
-			for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
+			for (int tagnum = 0; tagnum < number_of_tags; ++tagnum)
 			{
 				ValueList vl;
-				for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
+				for (int valuenum = 0; (MultiValues[Index].items[valuenum]) && (valuenum < MAX_VALUES_PER_TAG); ++valuenum)
 				{
 					int dt = MultiValues[Index].datatype[valuenum];
 					bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);

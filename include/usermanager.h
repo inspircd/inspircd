@@ -19,7 +19,7 @@
 /** A list of ip addresses cross referenced against clone counts */
 typedef std::map<irc::string, unsigned int> clonemap;
 
-class CoreExport UserManager : public classbase
+class CoreExport UserManager : public Extensible
 {
  private:
 	InspIRCd *ServerInstance;
@@ -28,9 +28,8 @@ class CoreExport UserManager : public classbase
 	 */
 	clonemap local_clones;
  public:
-	UserManager(InspIRCd *Instance)
+	UserManager(InspIRCd *Instance) : ServerInstance(Instance)
 	{
-		ServerInstance = Instance;
 	}
 	
 	~UserManager()

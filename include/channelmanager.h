@@ -14,14 +14,13 @@
 #ifndef __CHANNELMANAGER_H
 #define __CHANNELMANAGER_H
 
-class CoreExport ChannelManager : public classbase
+class CoreExport ChannelManager : public Extensible
 {
  private:
 	InspIRCd *ServerInstance;
  public:
-	UserManager(InspIRCd *Instance)
+	ChannelManager(InspIRCd *Instance) : ServerInstance(Instance)
 	{
-		ServerInstance = Instance;
 	}
 };
 

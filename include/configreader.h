@@ -53,6 +53,10 @@ enum ConfigDataType
 	DT_BOOTONLY	 = 256		/* Can only be set on startup, not on rehash */
 };
 
+/** The maximum number of values in a core configuration tag. Can be increased if needed.
+ */
+#define MAX_VALUES_PER_TAG 18
+
 /** Holds a config value, either string, integer or boolean.
  * Callback functions receive one or more of these, either on
  * their own as a reference, or in a reference to a deque of them.
@@ -193,11 +197,11 @@ struct MultiConfig
 	/** Tag name */
 	const char*	tag;
 	/** One or more items within tag */
-	const char*	items[18];
+	const char*	items[MAX_VALUES_PER_TAG];
 	/** One or more defaults for items within tags */
-	const char* items_default[18];
+	const char* items_default[MAX_VALUES_PER_TAG];
 	/** One or more data types */
-	int		datatype[18];
+	int		datatype[MAX_VALUES_PER_TAG];
 	/** Initialization function */
 	MultiNotify	init_function;
 	/** Validation function */

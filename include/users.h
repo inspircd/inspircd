@@ -143,7 +143,7 @@ public:
 		registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
 		pingtime(source->pingtime), pass(source->pass), hash(source->hash), threshold(source->threshold), sendqmax(source->sendqmax),
 		recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
-		port(source->port), RefCount(0), disabled(false), limit(0)
+		port(source->port), RefCount(0), disabled(false), limit(source->limit)
 	{
 	}
 
@@ -191,7 +191,7 @@ public:
 				registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
 				pingtime(source->pingtime), pass(source->pass), hash(source->hash), threshold(source->threshold), sendqmax(source->sendqmax),
 				recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
-				port(source->port), RefCount(0), disabled(false), limit(0)
+				port(source->port), RefCount(0), disabled(false), limit(source->limit)
 	{
 	}
 
