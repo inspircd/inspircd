@@ -133,10 +133,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 
 			new_parameters[splithere] = item.c_str();
 
-			/* Execute the command handler over and over. If someone pulls our user
-			 * record out from under us (e.g. if we /kill a comma sep list, and we're
-			 * in that list ourselves) abort if we're gone.
-			 */
+			/* Execute the command handler. */
 			CommandObj->Handle(new_parameters, user);
 
 			dupes[item.c_str()] = true;
