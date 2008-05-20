@@ -177,7 +177,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		return true;
 	}
 
-	this->SendError("Invalid credentials");
+	this->SendError("Invalid credentials (check the other server's linking snomask for more information)");
 	this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
