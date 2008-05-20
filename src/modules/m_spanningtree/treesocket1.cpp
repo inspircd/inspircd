@@ -184,7 +184,7 @@ int TreeSocket::OnDisconnect()
 void TreeSocket::SendError(const std::string &errormessage)
 {
 	/* Display the error locally as well as sending it remotely */
-	Utils->Creator->RemoteMessage(NULL, "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? "<unknown>" : this->InboundServerName.c_str()), errormessage.c_str());
+	Utils->Creator->RemoteMessage(NULL, "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? this->GetIP().c_str() : this->InboundServerName.c_str()), errormessage.c_str());
 	this->WriteLine("ERROR :"+errormessage);
 	/* One last attempt to make sure the error reaches its target */
 	this->FlushWriteBuffer();
