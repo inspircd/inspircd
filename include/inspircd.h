@@ -767,7 +767,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param hashtype The hash from the config file
 	 * @return 0 if the strings match, 1 or -1 if they do not
 	 */
-	int PassCompare(Extensible* ex, const char* data,const char* input, const char* hashtype);
+	int PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype);
 
 	/** Check if a given server is a uline.
 	 * An empty string returns true, this is by design.

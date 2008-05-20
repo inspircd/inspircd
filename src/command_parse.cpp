@@ -27,7 +27,7 @@
 #include <dlfcn.h>
 #endif
 
-int InspIRCd::PassCompare(Extensible* ex, const char* data,const char* input, const char* hashtype)
+int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 {
 	int MOD_RESULT = 0;
 	FOREACH_RESULT_I(this,I_OnPassCompare,OnPassCompare(ex, data, input, hashtype))
@@ -35,7 +35,7 @@ int InspIRCd::PassCompare(Extensible* ex, const char* data,const char* input, co
 		return 0;
 	if (MOD_RESULT == -1)
 		return 1;
-	return strcmp(data,input);
+	return data != input; // this seems back to front, but returns 0 if they *match*, 1 else
 }
 
 /* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.

@@ -66,7 +66,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "hash", i, HashType, MAXBUF);
 
 		match_login = (LoginName == parameters[0]);
-		match_pass = !ServerInstance->PassCompare(user, Password,parameters[1].c_str(), HashType);
+		match_pass = !ServerInstance->PassCompare(user, Password, parameters[1], HashType);
 		match_hosts = OneOfMatches(TheHost,TheIP,HostName);
 
 		if (match_login && match_pass && match_hosts)
