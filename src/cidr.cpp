@@ -100,6 +100,11 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 			cidr_copy = cidr_mask.substr(username_mask_pos + 1);
 		}
 	}
+	else
+	{
+		address_copy.assign(address);
+		cidr_copy.assign(cidr_mask);
+	}
 
 	in_addr  address_in4;
 	in_addr  mask_in4;
@@ -109,6 +114,7 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 	if (bits_chars != std::string::npos)
 	{
 		bits = atoi(cidr_copy.substr(bits_chars + 1).c_str());
+		cidr_copy.erase(bits_chars, cidr_copy.length() - bits_chars);
 	}
 	else
 	{

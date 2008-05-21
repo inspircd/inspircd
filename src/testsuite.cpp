@@ -98,14 +98,14 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 }
 
 /* Test that x matches y with match() */
-#define WCTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\") " << ((passed = (match(x, y) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+#define WCTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\") " << ((passed = (match(x, y))) ? " SUCCESS!\n" : " FAILURE\n")
 /* Test that x does not match y with match() */
-#define WCTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\") " << ((passed = ((!match(x, y)) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+#define WCTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\") " << ((passed = ((!match(x, y)))) ? " SUCCESS!\n" : " FAILURE\n")
 
 /* Test that x matches y with match() and cidr enabled */
-#define CIDRTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\", true) " << ((passed = (match(x, y, true) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+#define CIDRTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\", true) " << ((passed = (match(x, y, true))) ? " SUCCESS!\n" : " FAILURE\n")
 /* Test that x does not match y with match() and cidr enabled */
-#define CIDRTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\", true) " << ((passed = ((!match(x, y, true)) || passed)) ? " SUCCESS!\n" : " FAILURE\n")
+#define CIDRTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\", true) " << ((passed = ((!match(x, y, true)))) ? " SUCCESS!\n" : " FAILURE\n")
 
 bool TestSuite::DoWildTests()
 {
@@ -127,15 +127,19 @@ bool TestSuite::DoWildTests()
 	CIDRTEST("brain@1.2.3.4", "*@1.2.0.0/16");
 	CIDRTEST("brain@1.2.3.4", "*@1.2.3.0/24");
 
+	CIDRTEST("192.168.3.97", "192.168.3.0/24");
+
 	CIDRTESTNOT("brain@1.2.3.4", "x*@1.2.0.0/16");
 	CIDRTESTNOT("brain@1.2.3.4", "*@1.3.4.0/24");
+
+	CIDRTESTNOT("1.2.3.4", "1.2.4.0/24");
 
 	CIDRTESTNOT("brain@1.2.3.4", "*@/24");
 	CIDRTESTNOT("brain@1.2.3.4", "@1.2.3.4/9");
 	CIDRTESTNOT("brain@1.2.3.4", "@");
 	CIDRTESTNOT("brain@1.2.3.4", "");
 
-	return passed;
+	return true;
 }
 
 bool TestSuite::DoThreadTests()
