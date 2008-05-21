@@ -680,7 +680,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	{
 		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n", bounditems, found_ports);
 		printf("The following port(s) failed to bind:\n");
-		printf("Hint: Try using an LAN or WAN IP instead of blank or *\n\n");
+		printf("Hint: Try using a public IP instead of blank or *\n\n");
 		int j = 1;
 		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 		{
