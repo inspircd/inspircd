@@ -1995,6 +1995,11 @@
 #                    might be set, even bans. Use "yes" or "no".      #
 #                                                                     #
 #<operjoin channel="#channel" override="no">
+#
+# Alternatively you can use the autojoin="channellist" in a <type>    #
+# tag to set specific autojoins for a type of oper, for example:      #
+#
+#<type name="Helper" autojoin="#help" classes="...">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for seperate message of the day

@@ -20,6 +20,7 @@ class ModuleOperjoin : public Module
 	private:
 		std::string operChan;
 		std::vector<std::string> operChans;
+		std::map<std::string, std::vector<std::string> > operTypeChans; // Channels specific to an oper type.
 		bool override;
 
 		int tokenize(const std::string &str, std::vector<std::string> &tokens)
@@ -60,6 +61,18 @@ class ModuleOperjoin : public Module
 			if (!operChan.empty())
 				tokenize(operChan,operChans);
 
+			std::map<std::string, std::vector<std::string> >().swap(operTypeChans);
+
+			int olines = conf->Enumerate("type");
+			for (int index = 0; index < olines; ++index)
+			{
+				std::string chanList = conf->ReadValue("type", "autojoin", index);
+				if (!chanList.empty())
+				{
+					tokenize(chanList, operTypeChans[conf->ReadValue("type", "name", index)]);
+				}
+			}
+
 			delete conf;
 		}
 
@@ -80,6 +93,20 @@ class ModuleOperjoin : public Module
 			for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str()))
 					Channel::JoinUser(ServerInstance, user, it->c_str(), override, "", false, ServerInstance->Time());
+
+			std::map<std::string, std::vector<std::string> >::iterator i = operTypeChans.find(user->oper);
+
+			if (i != operTypeChans.end())
+			{
+				const std::vector<std::string>& list = i->second;
+				for (std::vector<std::string>::const_iterator it = list.begin(); it != list.end(); ++it)
+				{
+					if (ServerInstance->IsChannel(it->c_str()))
+					{
+						Channel::JoinUser(ServerInstance, user, it->c_str(), override, "", false, ServerInstance->Time());
+					}
+				}
+			}
 		}
 
 };
