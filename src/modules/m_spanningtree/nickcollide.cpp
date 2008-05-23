@@ -49,10 +49,10 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 	bool bChangeLocal = true;
 	bool bChangeRemote = true;
 
-	/* for brevity, don't use the User */
-	time_t localts = u->age;
-	const std::string localident = u->ident;
-	const std::string localip = u->GetIPString();
+	/* for brevity, don't use the User - use defines to avoid any copy */
+	#define localts u->age
+	#define localident u->ident
+	#define localip u->GetIPString()
 
 	/* mmk. let's do this again. */
 	if (remotets == localts)
