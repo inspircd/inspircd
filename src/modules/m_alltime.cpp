@@ -40,7 +40,7 @@ class CommandAlltime : public Command
 		}
 		else
 		{
-			ServerInstance->PI->PushToClient(user, msg);
+			ServerInstance->PI->PushToClient(user, ":" + msg);
 		}
 
 		/* we want this routed out! */
