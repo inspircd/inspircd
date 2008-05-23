@@ -1528,7 +1528,7 @@ bool User::ChangeName(const char* gecos)
 
 bool User::ChangeDisplayedHost(const char* shost)
 {
-	if (!this->dhost.compare(shost))
+	if (dhost == shost)
 		return true;
 
 	if (IS_LOCAL(this))
