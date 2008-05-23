@@ -46,7 +46,6 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 	time_t age_t = ConvToInt(params[1]);
 	time_t signon = ConvToInt(params[8]);
-	const char* tempnick = params[2].c_str();
 	std::string empty;
 
 	/* XXX probably validate UID length too -- w00t */
@@ -78,20 +77,19 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 
 	/* check for collision */
-	user_hash::iterator iter = this->Instance->Users->clientlist->find(tempnick);
+	user_hash::iterator iter = this->Instance->Users->clientlist->find(params[2]);
 
 	if (iter != this->Instance->Users->clientlist->end())
 	{
 		/*
 		 * Nick collision.
 		 */
-		Instance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s", tempnick);
+		Instance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s", params[2].c_str());
 		int collide = this->DoCollision(iter->second, age_t, params[5], params[7], params[0]);
 
 		if (collide == 2)
 		{
 			/* remote client changed, make sure we change their nick for the hash too */
-			tempnick = params[0].c_str();
 			params[2] = params[0];
 		}
 	}
@@ -109,9 +107,9 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
 		return false;
 	}
-	(*(this->Instance->Users->clientlist))[tempnick] = _new;
+	(*(this->Instance->Users->clientlist))[params[2]] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
-	_new->nick.assign(tempnick, 0, NICKMAX - 1);
+	_new->nick.assign(params[2], 0, NICKMAX - 1);
 	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
 	_new->server = this->Instance->FindServerNamePtr(remoteserver->GetName().c_str());
