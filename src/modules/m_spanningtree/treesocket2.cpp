@@ -575,7 +575,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					{
 						int collideret = 0;
 						/* x is local, who is remote */
-						collideret = this->DoCollision(x, who->age, who->ident.c_str(), who->GetIPString(), who->uuid.c_str());
+						collideret = this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
 						if (collideret != 1)
 						{
 							/*

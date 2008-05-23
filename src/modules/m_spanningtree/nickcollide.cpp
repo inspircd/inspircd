@@ -27,7 +27,7 @@
  * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
  * Sends SVSNICKs as appropriate and forces nickchanges too.
  */
-int TreeSocket::DoCollision(User *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid)
+int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid)
 {
 	/*
 	 *  Under old protocol rules, we would have had to kill both clients.
@@ -51,8 +51,8 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const char *remoteident, c
 
 	/* for brevity, don't use the User */
 	time_t localts = u->age;
-	const char *localident = u->ident.c_str();
-	const char *localip = u->GetIPString();
+	const std::string localident = u->ident;
+	const std::string localip = u->GetIPString();
 
 	/* mmk. let's do this again. */
 	if (remotets == localts)
@@ -64,8 +64,8 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const char *remoteident, c
 		/* fuck. now it gets complex. */
 
 		/* first, let's see if ident@host matches. */
-		bool SamePerson = !strcmp(localident, remoteident)
-				&& !strcmp(localip, remoteip);
+		bool SamePerson = (localident == remoteident)
+				&& (localip == remoteip);
 
 		/*
 		 * if ident@ip is equal, and theirs is newer, or

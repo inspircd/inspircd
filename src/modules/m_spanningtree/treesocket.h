@@ -227,7 +227,7 @@ class TreeSocket : public BufferedSocket
 	bool ForceJoin(const std::string &source, std::deque<std::string> &params);
 
 	/* Used on nick collision ... XXX ugly function HACK */
-	int DoCollision(User *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid);
+	int DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid);
 
 	/** UID command */
 	bool ParseUID(const std::string &source, std::deque<std::string> &params);
