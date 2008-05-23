@@ -210,9 +210,9 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	memset(snomasks,0,sizeof(snomasks));
 
 	if (uid.empty())
-		uuid.assign(Instance->GetUID(), 0, UUID_LENGTH);
+		uuid.assign(Instance->GetUID(), 0, UUID_LENGTH - 1);
 	else
-		uuid.assign(uid, 0, UUID_LENGTH);
+		uuid.assign(uid, 0, UUID_LENGTH - 1);
 
 	ServerInstance->Logs->Log("USERS", DEBUG,"New UUID for user: %s (%s)", uuid.c_str(), uid.empty() ? "allocated new" : "used remote");
 
