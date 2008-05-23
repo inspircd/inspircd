@@ -63,8 +63,6 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 
 	Instance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
 
-	int j = 0;
-
 	this->unregistered_count++;
 
 	(*(this->clientlist))[New->uuid] = New;
@@ -80,9 +78,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	New->lastping = 1;
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-	for (const char* temp = New->GetIPString(); *temp && j < 64; temp++, j++)
-		New->dhost[j] = New->host[j] = *temp;
-	New->dhost[j] = New->host[j] = 0;
+	New->dhost.assign(New->host.assign(New->GetIPString(), 64));
 
 	Instance->Users->AddLocalClone(New);
 	Instance->Users->AddGlobalClone(New);
