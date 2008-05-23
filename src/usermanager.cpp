@@ -78,7 +78,8 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	New->lastping = 1;
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-	New->dhost.assign(New->host.assign(New->GetIPString(), 64));
+	New->dhost.assign(New->GetIPString(), 0, 64);
+	New->host.assign(New->GetIPString(), 0, 64);
 
 	Instance->Users->AddLocalClone(New);
 	Instance->Users->AddGlobalClone(New);
