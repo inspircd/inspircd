@@ -57,11 +57,15 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	if (irc::string(user->nick.c_str()) == assign(parameters[0]))
+	if (assign(user->nick) == parameters[0])
 	{
+		ServerInstance->Logs->Log("nick", DEBUG, "Change to same nick '%s' %d '%s' '%d'", user->nick.c_str(), user->nick.length(), parameters[0].c_str(), parameters[0].length());
 		/* If its exactly the same, even case, dont do anything. */
 		if (parameters[0] == user->nick)
+		{
+			ServerInstance->Logs->Log("nick", DEBUG, "Not even a case change");
 			return CMD_SUCCESS;
+		}
 
 		/* Its a change of case. People insisted that they should be
 		 * able to do silly things like this even though the RFC says

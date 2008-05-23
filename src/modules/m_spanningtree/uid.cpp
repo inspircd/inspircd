@@ -111,7 +111,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	}
 	(*(this->Instance->Users->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
-	_new->nick.assign(tempnick, NICKMAX - 1);
+	_new->nick.assign(tempnick, 0, NICKMAX - 1);
 	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
 	_new->server = this->Instance->FindServerNamePtr(remoteserver->GetName().c_str());
