@@ -75,8 +75,15 @@ class CommandStartTLS : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		user->io = Caller;
-		Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
+		if (user->registered == REG_ALL)
+		{
+			ServerInstance->Users->QuitUser(user, "STARTTLS not allowed after client registration");
+		}
+		else
+		{
+			user->io = Caller;
+			Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
+		}
 
 		return CMD_FAILURE;
 	}
