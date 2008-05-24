@@ -56,7 +56,6 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 		cout << "(3) Unload a module\n";
 		cout << "(4) Threading tests\n";
 		cout << "(5) Wildcard and CIDR tests\n";
-		cout << "(6) irc::string -> std::string dynamic cast\n";
 
 		cout << endl << "(X) Exit test suite\n";
 
@@ -86,14 +85,6 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 			break;
 			case '5':
 				cout << (DoWildTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
-			break;
-			case '6':
-				{
-					std::string* a = new std::string("test");
-					irc::string* b = (irc::string)a;
-					cout << "std::string value: '" << *a << "' irc::string value: '" << *b << "'" << endl;
-					delete a;
-				}
 			break;
 			case 'X':
 				return;

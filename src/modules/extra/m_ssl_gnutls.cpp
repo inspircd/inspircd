@@ -390,6 +390,10 @@ class ModuleSSLGnuTLS : public Module
 
 		issl_session* session = &sessions[fd];
 
+		/* For STARTTLS: Don't try and init a session on a socket that already has a session */
+		if (session->sess)
+			return;
+
 		session->fd = fd;
 		session->inbuf = new char[inbufsize];
 		session->inbufoffset = 0;
