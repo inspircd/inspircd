@@ -844,8 +844,18 @@ void ServerConfig::Read(bool bail, User* user)
 		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR,  NoValidation},
 		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER,  NoValidation},
 		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxnick",	"32",			new ValueContainerST (&this->Limits.NickMax),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxchan",	"64",			new ValueContainerST (&this->Limits.ChanMax),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxmodes",	"20",			new ValueContainerST (&this->Limits.MaxModes),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxident",	"11",			new ValueContainerST (&this->Limits.IdentMax),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxquit",	"255",			new ValueContainerST (&this->Limits.MaxQuit),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxtopic",	"307",			new ValueContainerST (&this->Limits.MaxTopic),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxkick",	"255",			new ValueContainerST (&this->Limits.MaxKick),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxgecos",	"128",			new ValueContainerST (&this->Limits.MaxGecos),		DT_INTEGER,  NoValidation},
+		{"limits",	"maxaway",	"200",			new ValueContainerST (&this->Limits.MaxAway),		DT_INTEGER,  NoValidation},
 		{NULL,		NULL,		NULL,			NULL,							DT_NOTHING,  NoValidation}
 	};
+
 
 	/* These tags can occur multiple times, and therefore they have special code to read them
 	 * which is different to the code for reading the singular tags listed above.

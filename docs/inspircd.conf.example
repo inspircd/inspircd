@@ -1052,11 +1052,11 @@
 #                                                                     #
 # Values here should be self explanitory:                             #
 #                                                                     #
-# nickmax         - The maximum length of a nickname                  #
-# chanmax         - The maximum length of a channel name              #
-# modemax         - The maximum number of parameterized mode changes  #
+# maxnick         - The maximum length of a nickname                  #
+# maxchan         - The maximum length of a channel name              #
+# maxmodes        - The maximum number of parameterized mode changes  #
 #                   per line                                          #
-# identmax        - The maximum length of an ident/username value     #
+# maxident        - The maximum length of an ident/username value     #
 # maxquit         - The maximum length of a quit message              #
 # maxtopic        - The maximum length of a channel topic             #
 # maxkick         - The maximum length of a kick message              #
@@ -1064,10 +1064,10 @@
 # maxaway         - The maximum length of an away message             #
 #                                                                     #
 
-<limits nickmax="31"
-        chanmax="64"
-        modemax="20"
-        identmax="11"
+<limits maxnick="31"
+        maxchan="64"
+        maxmodes="20"
+        maxident="11"
         maxquit="255"
         maxtopic="307"
         maxkick="255"

@@ -150,6 +150,8 @@ typedef ValueContainer<char*> ValueContainerChar;
  */
 typedef ValueContainer<int*> ValueContainerInt;
 
+typedef ValueContainer<size_t*> ValueContainerST;
+
 /** A set of ValueItems used by multi-value validator functions
  */
 typedef std::deque<ValueItem> ValueList;
