@@ -130,8 +130,9 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 		if (targetserver)
 		{
-			char nickonly[NICKMAX+1];
-			strlcpy(nickonly, destnick, targetserver - destnick + 1);
+			std::string nickonly;
+
+			nickonly.assign(destnick, 0, targetserver - destnick + 1);
 			dest = ServerInstance->FindNickOnly(nickonly);
 			if (dest && strcasecmp(dest->server, targetserver + 1))
 			{

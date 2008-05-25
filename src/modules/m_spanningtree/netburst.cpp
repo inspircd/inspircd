@@ -96,8 +96,19 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
+		size_t ptrlen = 0;
+		std::string modestr = this->Instance->Modes->ModeString(i->first, c, false);
+
+		if ((curlen + modestr.length() + i->first->uuid.length() + 4) > 480)
+		{
+			buffer.append(list).append("\r\n");
+			dlen = curlen = snprintf(list, MAXBUF, ":%s FJOIN %s %lu +%s", this->Instance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
+			ptr = list + dlen;
+			numusers = 0;
+		}
+
 		// The first parameter gets a : before it
-		size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", this->Instance->Modes->ModeString(i->first, c, false).c_str(), i->first->uuid.c_str());
+		ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", modestr.c_str(), i->first->uuid.c_str());
 
 		looped_once = true;
 
@@ -105,15 +116,6 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		ptr += ptrlen;
 
 		numusers++;
-
-		if (curlen > (480-NICKMAX))
-		{
-			buffer.append(list).append("\r\n");
-			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s", this->Instance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
-			ptr = list + dlen;
-			ptrlen = 0;
-			numusers = 0;
-		}
 	}
 
 	// Okay, permanent channels will (of course) need this \r\n anyway, numusers check is if there
@@ -132,7 +134,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 			params.append(" ").append(b->data);
 			linesize += size; 
 		}
-		if ((params.length() >= MAXMODES) || (currsize > 350))
+		if ((params.length() >= Instance->Config->Limits.MaxModes) || (currsize > 350))
 		{
 			/* Wrap at MAXMODES */
 			buffer.append(":").append(this->Instance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");

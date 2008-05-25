@@ -182,9 +182,9 @@ bool InspIRCd::IsValidMask(const std::string &mask)
 }
 
 /* true for valid channel name, false else */
-bool IsChannelHandler::Call(const char *chname)
+bool IsChannelHandler::Call(const char *chname, size_t max)
 {
-	char *c;
+	const char *c = chname + 1;
 
 	/* check for no name - don't check for !*chname, as if it is empty, it won't be '#'! */
 	if (!chname || *chname != '#')
@@ -192,7 +192,6 @@ bool IsChannelHandler::Call(const char *chname)
 		return false;
 	}
 
-	c = (char *)chname + 1;
 	while (*c)
 	{
 		switch (*c)
@@ -205,9 +204,10 @@ bool IsChannelHandler::Call(const char *chname)
 
 		c++;
 	}
-		
+
+	size_t len = c - chname;	
 	/* too long a name - note funky pointer arithmetic here. */
-	if ((c - chname) > CHANMAX)
+	if (len > max)
 	{
 			return false;
 	}
@@ -216,13 +216,13 @@ bool IsChannelHandler::Call(const char *chname)
 }
 
 /* true for valid nickname, false else */
-bool IsNickHandler::Call(const char* n)
+bool IsNickHandler::Call(const char* n, size_t max)
 {
 	if (!n || !*n)
 		return false;
  
-	int p = 0;
-	for (char* i = (char*)n; *i; i++, p++)
+	unsigned int p = 0;
+	for (const char* i = n; *i; i++, p++)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
@@ -241,7 +241,7 @@ bool IsNickHandler::Call(const char* n)
 	}
 
 	/* too long? or not -- pointer arithmetic rocks */
-	return (p < NICKMAX - 1);
+	return (p < max);
 }
 
 /* return true for good ident, false else */
@@ -250,7 +250,7 @@ bool IsIdentHandler::Call(const char* n)
 	if (!n || !*n)
 		return false;
 
-	for (char* i = (char*)n; *i; i++)
+	for (const char* i = n; *i; i++)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{

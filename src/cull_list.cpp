@@ -54,8 +54,8 @@ int CullList::Apply()
 		std::string reason;
 		std::string oper_reason;
 
-		reason.assign(u->quitmsg, 0, MAXQUIT - 1);
-		oper_reason.assign(preset_reason.empty() ? preset_reason : u->operquitmsg, 0, MAXQUIT - 1);
+		reason.assign(u->quitmsg, 0, ServerInstance->Config->Limits.MaxQuit);
+		oper_reason.assign(preset_reason.empty() ? preset_reason : u->operquitmsg, 0, ServerInstance->Config->Limits.MaxQuit);
 
 		if (u->registered != REG_ALL)
 			if (ServerInstance->Users->unregistered_count)

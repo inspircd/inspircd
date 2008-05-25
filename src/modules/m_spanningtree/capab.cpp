@@ -81,16 +81,16 @@ void TreeSocket::SendCapabilities()
 	}
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
-			":NICKMAX="+ConvToStr(NICKMAX)+
-			" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+
-			" CHANMAX="+ConvToStr(CHANMAX)+
-			" MAXMODES="+ConvToStr(MAXMODES)+
-			" IDENTMAX="+ConvToStr(IDENTMAX)+
-			" MAXQUIT="+ConvToStr(MAXQUIT)+
-			" MAXTOPIC="+ConvToStr(MAXTOPIC)+
-			" MAXKICK="+ConvToStr(MAXKICK)+
-			" MAXGECOS="+ConvToStr(MAXGECOS)+
-			" MAXAWAY="+ConvToStr(MAXAWAY)+
+			":NICKMAX="+ConvToStr(Instance->Config->Limits.NickMax)+
+			" HALFOP="+ConvToStr(Instance->Config->AllowHalfop)+
+			" CHANMAX="+ConvToStr(Instance->Config->Limits.ChanMax)+
+			" MAXMODES="+ConvToStr(Instance->Config->Limits.MaxModes)+
+			" IDENTMAX="+ConvToStr(Instance->Config->Limits.IdentMax)+
+			" MAXQUIT="+ConvToStr(Instance->Config->Limits.MaxQuit)+
+			" MAXTOPIC="+ConvToStr(Instance->Config->Limits.MaxTopic)+
+			" MAXKICK="+ConvToStr(Instance->Config->Limits.MaxKick)+
+			" MAXGECOS="+ConvToStr(Instance->Config->Limits.MaxGecos)+
+			" MAXAWAY="+ConvToStr(Instance->Config->Limits.MaxAway)+
 			" IP6NATIVE="+ConvToStr(ip6)+
 			" IP6SUPPORT="+ConvToStr(ip6support)+
 			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
@@ -171,19 +171,6 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 				reason = "Modules loaded on these servers are not correctly matched, these modules are not loaded on " + diff;
 		}
 
-		cap_validation valid_capab[] = { 
-			{"Maximum nickname lengths differ or remote nickname length not specified", "NICKMAX", NICKMAX},
-			{"Maximum ident lengths differ or remote ident length not specified", "IDENTMAX", IDENTMAX},
-			{"Maximum channel lengths differ or remote channel length not specified", "CHANMAX", CHANMAX},
-			{"Maximum modes per line differ or remote modes per line not specified", "MAXMODES", MAXMODES},
-			{"Maximum quit lengths differ or remote quit length not specified", "MAXQUIT", MAXQUIT},
-			{"Maximum topic lengths differ or remote topic length not specified", "MAXTOPIC", MAXTOPIC},
-			{"Maximum kick lengths differ or remote kick length not specified", "MAXKICK", MAXKICK},
-			{"Maximum GECOS (fullname) lengths differ or remote GECOS length not specified", "MAXGECOS", MAXGECOS},
-			{"Maximum awaymessage lengths differ or remote awaymessage length not specified", "MAXAWAY", MAXAWAY},
-			{"", "", 0}
-		};
-
 		if (((this->CapKeys.find("IP6SUPPORT") == this->CapKeys.end()) && (ip6support)) || ((this->CapKeys.find("IP6SUPPORT") != this->CapKeys.end()) && (this->CapKeys.find("IP6SUPPORT")->second != ConvToStr(ip6support))))
 			reason = "We don't both support linking to IPV6 servers";
 		if (((this->CapKeys.find("IP6NATIVE") != this->CapKeys.end()) && (this->CapKeys.find("IP6NATIVE")->second == "1")) && (!ip6support))
@@ -201,13 +188,6 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 
 		if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (Instance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(Instance->Config->AllowHalfop))))
 			reason = "We don't both have halfop support enabled/disabled identically";
-
-		for (int x = 0; valid_capab[x].size; ++x)
-		{
-			if (((this->CapKeys.find(valid_capab[x].key) == this->CapKeys.end()) ||	((this->CapKeys.find(valid_capab[x].key) != this->CapKeys.end()) &&
-						 (this->CapKeys.find(valid_capab[x].key)->second != ConvToStr(valid_capab[x].size)))))
-				reason = valid_capab[x].reason;
-		}
 	
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->CapKeys.find("CHALLENGE");

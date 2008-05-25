@@ -34,7 +34,7 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 		if ((ts >= c->topicset) || (c->topic.empty()))
 		{
 			std::string oldtopic = c->topic;
-			c->topic.assign(params[3], 0, MAXTOPIC);
+			c->topic.assign(params[3], 0, Instance->Config->Limits.MaxTopic);
 			c->setby.assign(params[2], 0, 127);
 			c->topicset = ts;
 			/* if the topic text is the same as the current topic,

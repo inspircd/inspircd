@@ -114,7 +114,7 @@ class BanRedirect : public ModeWatcher
 	
 			if(mask[CHAN].length())
 			{
-				if(Srv->IsChannel(mask[CHAN].c_str()))
+				if(!IS_LOCAL(source) || Srv->IsChannel(mask[CHAN].c_str(), ServerInstance->Config->Limits.ChanMax))
 				{
 					if (assign(channel->name) == mask[CHAN])
 					{

@@ -23,7 +23,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	char reason[MAXKICK];
+	std::string reason;
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u = ServerInstance->FindNick(parameters[1]);
 
@@ -44,14 +44,14 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (parameters.size() > 2)
 	{
-		strlcpy(reason, parameters[2].c_str(), MAXKICK - 1);
+		reason.assign(parameters[2], 0, ServerInstance->Config->Limits.MaxKick);
 	}
 	else
 	{
-		strlcpy(reason, user->nick.c_str(), MAXKICK - 1);
+		reason.assign(user->nick, 0, ServerInstance->Config->Limits.MaxKick);
 	}
 
-	if (!c->KickUser(user, u, reason))
+	if (!c->KickUser(user, u, reason.c_str()))
 		/* Nobody left here, delete the Channel */
 		delete c;
 

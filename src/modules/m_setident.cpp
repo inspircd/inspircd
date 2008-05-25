@@ -35,7 +35,7 @@ class CommandSetident : public Command
 			return CMD_FAILURE;
 		}
 		
-		if (parameters[0].size() > IDENTMAX)
+		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{
 			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick.c_str());
 			return CMD_FAILURE;

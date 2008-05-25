@@ -226,6 +226,28 @@ struct operclass_data : public Extensible
 typedef std::map<irc::string, operclass_data> operclass_t;
 
 
+class ServerLimits : public Extensible
+{
+ public:
+	size_t NickMax;
+	size_t ChanMax;
+	size_t MaxModes;
+	size_t IdentMax;
+	size_t MaxQuit;
+	size_t MaxTopic;
+	size_t MaxKick;
+	size_t MaxGecos;
+	size_t MaxAway;
+
+	/* Creating the class initialises it to the defaults
+	 * as in 1.1's ./configure script. Reading other values
+	 * from the config will change these values.
+	 */
+	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12), MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200)
+	{
+	}
+};
+
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
  * and storage of the configuration data needed to run the ircd, such as
@@ -275,11 +297,6 @@ class CoreExport ServerConfig : public Extensible
 
 	std::map<std::string, std::istream*> IncludedFiles;
 
-	std::map<std::string, bool> CompletedFiles;
-
-	size_t TotalDownloaded;
-	size_t FileErrors;
-
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
 
@@ -294,6 +311,8 @@ class CoreExport ServerConfig : public Extensible
 	 * it's indexed by tag name to a vector of key/values.
 	 */
 	ConfigDataHash config_data;
+
+	ServerLimits Limits;
 
 	/** Max number of WhoWas entries per user.
 	 */

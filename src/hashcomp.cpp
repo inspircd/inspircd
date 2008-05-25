@@ -318,7 +318,7 @@ CoreExport const char* irc::Spacify(const char* n)
 }
 
 
-irc::modestacker::modestacker(bool add) : adding(add)
+irc::modestacker::modestacker(InspIRCd* Instance, bool add) : ServerInstance(Instance), adding(add)
 {
 	sequence.clear();
 	sequence.push_back("");
@@ -362,7 +362,7 @@ int irc::modestacker::GetStackedLine(std::deque<std::string> &result, int max_li
 	if (sequence.size() > 1)
 		nextsize = sequence[1].length() + 2;
 
-	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < MAXMODES) && ((size + nextsize) < max_line_size))
+	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < ServerInstance->Config->Limits.MaxModes) && ((size + nextsize) < max_line_size))
 	{
 		result[0] += *(sequence[0].begin());
 		if (!sequence[1].empty())

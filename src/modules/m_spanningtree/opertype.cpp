@@ -35,8 +35,8 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 		if (!u->IsModeSet('o'))
 			this->Instance->Users->all_opers.push_back(u);
 		u->modes[UM_OPERATOR] = 1;
-		u->oper.assign(opertype, 0, NICKMAX - 1);
-		Utils->DoOneToAllButSender(u->uuid,"OPERTYPE",params,u->server);
+		u->oper.assign(opertype, 0, Instance->Config->Limits.NickMax);
+		Utils->DoOneToAllButSender(u->uuid, "OPERTYPE", params, u->server);
 
 		TreeServer* remoteserver = Utils->FindServer(u->server);
 		bool dosend = true;

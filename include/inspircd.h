@@ -230,11 +230,11 @@ typedef std::vector<std::pair<std::string, long> > FailedPortList;
 class InspIRCd;
 
 DEFINE_HANDLER1(ProcessUserHandler, void, User*);
-DEFINE_HANDLER1(IsNickHandler, bool, const char*);
+DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER1(FindDescriptorHandler, User*, int);
 DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
-DEFINE_HANDLER1(IsChannelHandler, bool, const char*);
+DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 
@@ -585,7 +585,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
 	 */
-	caller1<bool, const char*> IsChannel;
+	caller2<bool, const char*, size_t> IsChannel;
 
 	/** Return true if str looks like a server ID
 	 * @param string to check against
@@ -633,7 +633,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param n A nickname to verify
 	 * @return True if the nick is valid
 	 */
-	caller1<bool, const char*> IsNick;
+	caller2<bool, const char*, size_t> IsNick;
 
 	/** Return true if an ident is valid
 	 * @param An ident to verify

@@ -25,7 +25,7 @@ Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : Serv
 		throw CoreException("Cannot create duplicate channel " + cname);
 
 	(*(ServerInstance->chanlist))[cname.c_str()] = this;
-	this->name.assign(cname, 0, CHANMAX);
+	this->name.assign(cname, 0, ServerInstance->Config->Limits.ChanMax);
 	this->created = ts ? ts : ServerInstance->Time();
 	this->age = this->created;
 
@@ -254,7 +254,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		}
 	}
 
-	strlcpy(cname, cn, CHANMAX);
+	strlcpy(cname, cn, Instance->Config->Limits.ChanMax);
 	Ptr = Instance->FindChan(cname);
 
 	if (!Ptr)
@@ -917,7 +917,7 @@ void Channel::UserList(User *user, CUList *ulist)
 		
 		size_t ptrlen = 0;
 
-		if (curlen > (480-NICKMAX))
+		if (curlen + prefixlist.length() + nick.length() + 1 > 480)
 		{
 			/* list overflowed into multiple numerics */
 			user->WriteServ(std::string(list));

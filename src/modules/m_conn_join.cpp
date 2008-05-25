@@ -81,7 +81,7 @@ class ModuleConnJoin : public Module
 				return;
 
 			for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
-				if (ServerInstance->IsChannel(it->c_str()))
+				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
 					Channel::JoinUser(ServerInstance, user, it->c_str(), false, "", false, ServerInstance->Time());
 		}
 

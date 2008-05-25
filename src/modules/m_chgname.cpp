@@ -43,7 +43,7 @@ class CommandChgname : public Command
 			return CMD_FAILURE;
 		}
 		
-		if (parameters[1].length() > MAXGECOS)
+		if (parameters[1].length() > ServerInstance->Config->Limits.MaxGecos)
 		{
 			user->WriteServ("NOTICE %s :*** GECOS too long", user->nick.c_str());
 			return CMD_FAILURE;

@@ -174,6 +174,7 @@ namespace irc
 	class CoreExport modestacker : public classbase
 	{
 	 private:
+		InspIRCd* ServerInstance;
 		/** The mode sequence and its parameters
 		 */
 		std::deque<std::string> sequence;
@@ -187,7 +188,7 @@ namespace irc
 		 * @param add True if the stack is adding modes,
 		 * false if it is removing them
 		 */
-		modestacker(bool add);
+		modestacker(InspIRCd* Instance, bool add);
 		/** Push a modeletter and its parameter onto the stack.
 		 * No checking is performed as to if this mode actually
 		 * requires a parameter. If you stack invalid mode

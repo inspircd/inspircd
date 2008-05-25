@@ -80,7 +80,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					if (!ServerInstance->IsNick(TypeName))
+					if (!ServerInstance->IsNick(TypeName, ServerInstance->Config->Limits.NickMax))
 					{
 						user->WriteNumeric(491, "%s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick.c_str());
 						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type '%s' contains invalid characters",OperType);

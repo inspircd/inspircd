@@ -27,7 +27,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	char oldnick[NICKMAX];
+	std::string oldnick;
 
 	if (parameters[0].empty())
 	{
@@ -36,7 +36,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	if (((!ServerInstance->IsNick(parameters[0].c_str()))) && (IS_LOCAL(user)))
+	if (((!ServerInstance->IsNick(parameters[0].c_str(), ServerInstance->Config->Limits.NickMax))) && (IS_LOCAL(user)))
 	{
 		if (!allowinvalid)
 		{
@@ -59,11 +59,9 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (assign(user->nick) == parameters[0])
 	{
-		ServerInstance->Logs->Log("nick", DEBUG, "Change to same nick '%s' %d '%s' '%d'", user->nick.c_str(), user->nick.length(), parameters[0].c_str(), parameters[0].length());
 		/* If its exactly the same, even case, dont do anything. */
 		if (parameters[0] == user->nick)
 		{
-			ServerInstance->Logs->Log("nick", DEBUG, "Not even a case change");
 			return CMD_SUCCESS;
 		}
 
@@ -71,14 +69,14 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 * able to do silly things like this even though the RFC says
 		 * the nick AAA is the same as the nick aaa.
 		 */
-		strlcpy(oldnick, user->nick.c_str(), NICKMAX - 1);
+		oldnick.assign(user->nick, 0, ServerInstance->Config->Limits.NickMax);
 		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0].c_str()));
+		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
 		if (user->registered == REG_ALL)
 			user->WriteCommon("NICK %s",parameters[0].c_str());
-		user->nick.assign(parameters[0], 0, NICKMAX - 1);
+		user->nick.assign(parameters[0], 0, ServerInstance->Config->Limits.NickMax);
 		user->InvalidateCache();
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return CMD_SUCCESS;
@@ -122,7 +120,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 				InUse->WriteTo(InUse, "NICK %s", InUse->uuid.c_str());
 				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick.c_str(), InUse->nick.c_str());
 				InUse->UpdateNickHash(InUse->uuid.c_str());
-				InUse->nick.assign(InUse->uuid, 0, NICKMAX - 1);
+				InUse->nick.assign(InUse->uuid, 0, ServerInstance->Config->Limits.NickMax);
 				InUse->InvalidateCache();
 				InUse->registered &= ~REG_NICK;
 			}
@@ -145,7 +143,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (user->registered == REG_ALL)
 		user->WriteCommon("NICK %s", parameters[0].c_str());
 
-	strlcpy(oldnick, user->nick.c_str(), NICKMAX - 1);
+	oldnick.assign(user->nick, 0, ServerInstance->Config->Limits.NickMax);
 
 	/* change the nick of the user in the users_hash */
 	user = user->UpdateNickHash(parameters[0].c_str());
@@ -154,7 +152,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (!user)
 		return CMD_FAILURE;
 
-	user->nick.assign(parameters[0], 0, NICKMAX - 1);
+	user->nick.assign(parameters[0], 0, ServerInstance->Config->Limits.NickMax);
 	user->InvalidateCache();
 
 	/* Update display nicks */
@@ -181,7 +179,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (user->registered == REG_ALL)
 	{
 		user->IncreasePenalty(10);
-		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
+		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user, oldnick));
 	}
 
 	return CMD_SUCCESS;

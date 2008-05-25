@@ -48,7 +48,7 @@ class CommandNicklock : public Command
 		}
 
 		// check nick is valid
-		if (!ServerInstance->IsNick(parameters[1].c_str()))
+		if (IS_LOCAL(user) && !ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
 		{
 			return CMD_FAILURE;
 		}
@@ -58,8 +58,12 @@ class CommandNicklock : public Command
 
 		if (!target->ForceNickChange(parameters[1].c_str()))
 		{
-			// ugh, nickchange failed for some reason -- possibly existing nick? XXX change to UID here
-			ServerInstance->Users->QuitUser(target, "Nickname collision");
+			// ugh, nickchange failed for some reason -- possibly existing nick?
+			if (!target->ForceNickChange(target->uuid.c_str()))
+			{
+				// Well shit, we cant even change them to their UID (this should not happen!)
+				ServerInstance->Users->QuitUser(target, "Nickname collision");
+			}
 		}
 
 		// give them a lock flag

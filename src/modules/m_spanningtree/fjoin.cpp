@@ -60,7 +60,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (params.size() < 3)
 		return true;
 
-	irc::modestacker modestack(true);				/* Modes to apply from the users in the user list */
+	irc::modestacker modestack(Instance, true);			/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */

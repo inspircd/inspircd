@@ -1009,7 +1009,7 @@ void ServerConfig::Read(bool bail, User* user)
 				case DT_CHANNEL:
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString()))
+					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString(), MAXBUF))
 					{
 						ServerInstance->Threads->Mutex(false);
 						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
@@ -1114,7 +1114,7 @@ void ServerConfig::Read(bool bail, User* user)
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
-								if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString()))
+								if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString(), MAXBUF))
 									throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
 							}
 							break;

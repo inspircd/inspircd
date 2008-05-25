@@ -54,18 +54,18 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			if (*ServerInstance->Config->HideKillsServer)
 			{
 				// hidekills is on, use it
-				snprintf(killreason, MAXQUIT, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer, parameters[1].c_str());
+				snprintf(killreason, ServerInstance->Config->Limits.MaxQuit, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer, parameters[1].c_str());
 			}
 			else
 			{
 				// hidekills is off, do nothing
-				snprintf(killreason, MAXQUIT, "Killed (%s (%s))", user->nick.c_str(), parameters[1].c_str());
+				snprintf(killreason, ServerInstance->Config->Limits.MaxQuit, "Killed (%s (%s))", user->nick.c_str(), parameters[1].c_str());
 			}
 		}
 		else
 		{
 			/* Leave it alone, remote server has already formatted it */
-			strlcpy(killreason, parameters[1].c_str(), MAXQUIT);
+			strlcpy(killreason, parameters[1].c_str(), ServerInstance->Config->Limits.MaxQuit);
 		}
 
 		/*

@@ -711,7 +711,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 								state_change = false;
 
 								if ((output_sequence.length() + parameter_list.str().length() > 450) || (output_sequence.length() > 100)
-										|| (parameter_count > MAXMODES))
+										|| (parameter_count > ServerInstance->Config->Limits.MaxModes))
 								{
 									/* We cant have a mode sequence this long */
 									letter = mode_sequence.end() - 1;

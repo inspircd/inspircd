@@ -193,21 +193,15 @@ sub dumphash()
 	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
 	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
 	print "\e[0mLibrary path:\e[1;32m\t\t\t$main::config{LIBRARY_DIR}\e[0m\n";
-	print "\e[0mMax nickname length:\e[1;32m\t\t$main::config{NICK_LENGT}\e[0m\n";
-	print "\e[0mMax channel length:\e[1;32m\t\t$main::config{CHAN_LENGT}\e[0m\n";
-	print "\e[0mMax mode length:\e[1;32m\t\t$main::config{MAXI_MODES}\e[0m\n";
-	print "\e[0mMax ident length:\e[1;32m\t\t$main::config{MAX_IDENT}\e[0m\n";
-	print "\e[0mMax quit length:\e[1;32m\t\t$main::config{MAX_QUIT}\e[0m\n";
-	print "\e[0mMax topic length:\e[1;32m\t\t$main::config{MAX_TOPIC}\e[0m\n";
-	print "\e[0mMax kick length:\e[1;32m\t\t$main::config{MAX_KICK}\e[0m\n";
-	print "\e[0mMax name length:\e[1;32m\t\t$main::config{MAX_GECOS}\e[0m\n";
-	print "\e[0mMax away length:\e[1;32m\t\t$main::config{MAX_AWAY}\e[0m\n";
 	print "\e[0mGCC Version Found:\e[1;32m\t\t$main::config{GCCVER}.x\e[0m\n";
 	print "\e[0mCompiler program:\e[1;32m\t\t$main::config{CC}\e[0m\n";
 	print "\e[0mIPv6 Support:\e[1;32m\t\t\t$main::config{IPV6}\e[0m\n";
 	print "\e[0mIPv6 to IPv4 Links:\e[1;32m\t\t$main::config{SUPPORT_IP6LINKS}\e[0m\n";
 	print "\e[0mGnuTLS Support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
 	print "\e[0mOpenSSL Support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n\n";
+	print "\e[1;32mImportant note: The maximum length values are now configured in the\e[0m\n";
+	print "\e[1;32m                configuration file, not in ./configure! See the <limits>\e[0m\n";
+	print "\e[1;32m                tag in the configuration file for more information.\e[0m\n\n";
 }
 
 sub is_dir
@@ -258,8 +252,6 @@ InspIRCd 1.0.x, are also allowed.
   --clean                      Remove .config.cache file and go interactive
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
-  --with-nick-length=[n]       Specify max. nick length [32]
-  --with-channel-length=[n]    Specify max. channel length [64]
   --enable-optimization=[n]    Optimize using -O[n] gcc flag
   --enable-epoll               Enable epoll() where supported [set]
   --enable-kqueue              Enable kqueue() where supported [set]
@@ -273,14 +265,6 @@ InspIRCd 1.0.x, are also allowed.
   --disable-remote-ipv6        Do not allow remote ipv6 servers [not set]
   --with-cc=[filename]         Use an alternative g++ binary to
                                build InspIRCd [g++]
-  --with-ident-length=[n]      Specify max length of ident [12]
-  --with-quit-length=[n]       Specify max length of quit [200]
-  --with-topic-length=[n]      Specify max length of topic [350]
-  --with-kick-length=[n]       Specify max length of kick [200]
-  --with-gecos-length=[n]      Specify max length of gecos [150]
-  --with-away-length=[n]       Specify max length of away [150]
-  --with-max-modes=[n]         Specify max modes per line which
-                               have parameters [20]
   --with-maxbuf=[n]            Change the per message buffer size [512]
                                DO NOT ALTER THIS OPTION WITHOUT GOOD REASON
                                AS IT *WILL* BREAK CLIENTS!!!

@@ -296,11 +296,11 @@ class IdentRequestSocket : public EventHandler
 			if (i < 3)
 				continue;
 
-			char ident[IDENTMAX + 2];
+			std::string ident;
 
 			/* Truncate the ident at any characters we don't like, skip leading spaces */
-			int k = 0;
-			for (const char *j = token.c_str(); *j && (k < IDENTMAX + 1); j++)
+			size_t k = 0;
+			for (const char *j = token.c_str(); *j && (k < ServerInstance->Config->Limits.IdentMax + 1); j++)
 			{
 				if (*j == ' ')
 					continue;
@@ -308,17 +308,15 @@ class IdentRequestSocket : public EventHandler
 				/* Rules taken from InspIRCd::IsIdent */
 				if (((*j >= 'A') && (*j <= '}')) || ((*j >= '0') && (*j <= '9')) || (*j == '-') || (*j == '.'))
 				{
-					ident[k++] = *j;
+					ident += *j;
 					continue;
 				}
 
 				break;
 			}
 
-			ident[k] = '\0';
-
 			/* Re-check with IsIdent, in case that changes and this doesn't (paranoia!) */
-			if (*ident && ServerInstance->IsIdent(ident))
+			if (!ident.empty() && ServerInstance->IsIdent(ident.c_str()))
 			{
 				result = ident;
 			}
@@ -366,9 +364,9 @@ class ModuleIdent : public Module
 	virtual int OnUserRegister(User *user)
 	{
 		/* User::ident is currently the username field from USER; with m_ident loaded, that
-		 * should be preceded by a ~. The field is actually IDENTMAX+2 characters wide. */
-		if (user->ident.length() > IDENTMAX + 1)
-			user->ident.assign(user->ident, 0, IDENTMAX);
+		 * should be preceded by a ~. The field is actually IdentMax+2 characters wide. */
+		if (user->ident.length() > ServerInstance->Config->Limits.IdentMax + 1)
+			user->ident.assign(user->ident, 0, ServerInstance->Config->Limits.IdentMax);
 		user->ident.insert(0, "~");
 
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
@@ -457,7 +455,7 @@ class ModuleIdent : public Module
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", isock->GetResult());
 
 		/* Copy the ident string to the user */
-		user->ident.assign(isock->GetResult(), 0, IDENTMAX+1);
+		user->ident.assign(isock->GetResult(), 0, ServerInstance->Config->Limits.IdentMax + 1);
 
 		/* The user isnt actually disconnecting, we call this to clean up the user */
 		OnUserDisconnect(user);

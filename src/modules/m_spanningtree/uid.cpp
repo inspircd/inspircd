@@ -48,9 +48,6 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	time_t signon = ConvToInt(params[8]);
 	std::string empty;
 
-	/* XXX probably validate UID length too -- w00t */
-	cmd_validation valid[] = { {"Nickname", 2, NICKMAX}, {"Hostname", 3, 64}, {"Displayed hostname", 4, 64}, {"Ident", 5, IDENTMAX + 1}, {"GECOS", 9, MAXGECOS}, {"", 0, 0} };
-
 	TreeServer* remoteserver = Utils->FindServer(source);
 
 	if (!remoteserver)
@@ -65,16 +62,6 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
 		return true;
 	}
-
-	for (size_t x = 0; valid[x].length; ++x)
-	{
-		if (params[valid[x].param].length() > valid[x].length)
-		{
-			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (" + valid[x].item + " > " + ConvToStr(valid[x].length) + ")");
-			return true;
-		}
-	}
-
 
 	/* check for collision */
 	user_hash::iterator iter = this->Instance->Users->clientlist->find(params[2]);
@@ -109,12 +96,12 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	}
 	(*(this->Instance->Users->clientlist))[params[2]] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
-	_new->nick.assign(params[2], 0, NICKMAX - 1);
+	_new->nick.assign(params[2], 0, MAXBUF);
 	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
 	_new->server = this->Instance->FindServerNamePtr(remoteserver->GetName().c_str());
-	_new->ident.assign(params[5], 0, IDENTMAX + 1);
-	_new->fullname.assign(params[9], 0, MAXGECOS);
+	_new->ident.assign(params[5], 0, MAXBUF);
+	_new->fullname.assign(params[9], 0, MAXBUF);
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;

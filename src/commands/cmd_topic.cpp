@@ -70,7 +70,7 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 				}
 			}
 
-			char topic[MAXTOPIC];
+			std::string topic;
 
 			if (IS_LOCAL(user))
 			{
@@ -79,17 +79,17 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 				 */
 				int MOD_RESULT = 0;
 
-				strlcpy(topic, parameters[1].c_str(), MAXTOPIC);
+				topic.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxTopic);
 				FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
 				if (MOD_RESULT)
 					return CMD_FAILURE;
 
-				Ptr->topic.assign(topic, 0, MAXTOPIC);
+				Ptr->topic.assign(topic, 0, ServerInstance->Config->Limits.MaxTopic);
 			}
 			else
 			{
 				/* Sneaky shortcut, one string copy for a remote topic */
-				Ptr->topic.assign(parameters[1], 0, MAXTOPIC);
+				Ptr->topic.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxTopic);
 			}
 
 			Ptr->setby.assign(ServerInstance->Config->FullHostInTopic ?

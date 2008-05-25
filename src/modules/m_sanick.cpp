@@ -38,7 +38,11 @@ class CommandSanick : public Command
 				return CMD_FAILURE;
 			}
 			std::string oldnick = user->nick;
-			if (ServerInstance->IsNick(parameters[1].c_str()))
+			if (IS_LOCAL(user) && !ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+			{
+				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
+			}
+			else
 			{
 				if (target->ForceNickChange(parameters[1].c_str()))
 				{
@@ -51,10 +55,6 @@ class CommandSanick : public Command
 					ServerInstance->SNO->WriteToSnoMask('A', oldnick+" failed SANICK (from "+parameters[0]+" to "+parameters[1]+")");
 					return CMD_FAILURE;
 				}
-			}
-			else
-			{
-				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
 			}
 
 			return CMD_FAILURE;

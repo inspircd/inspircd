@@ -91,7 +91,7 @@ class ModuleOperjoin : public Module
 				return;
 
 			for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
-				if (ServerInstance->IsChannel(it->c_str()))
+				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
 					Channel::JoinUser(ServerInstance, user, it->c_str(), override, "", false, ServerInstance->Time());
 
 			std::map<std::string, std::vector<std::string> >::iterator i = operTypeChans.find(user->oper);
@@ -101,7 +101,7 @@ class ModuleOperjoin : public Module
 				const std::vector<std::string>& list = i->second;
 				for (std::vector<std::string>::const_iterator it = list.begin(); it != list.end(); ++it)
 				{
-					if (ServerInstance->IsChannel(it->c_str()))
+					if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
 					{
 						Channel::JoinUser(ServerInstance, user, it->c_str(), override, "", false, ServerInstance->Time());
 					}

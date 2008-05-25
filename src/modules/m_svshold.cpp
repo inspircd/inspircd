@@ -100,7 +100,11 @@ class CommandSvshold : public Command
 		else if (parameters.size() >= 2)
 		{
 			/* full form to add a SVSHold */
-			if (ServerInstance->IsNick(parameters[0].c_str()))
+
+			/* NOTE: We check nicks up to 512 in length here, as a hax to allow
+			 * remote nicks that are longer than our configuration to be held
+			 */
+			if (ServerInstance->IsNick(parameters[0].c_str(), 512))
 			{
 				// parameters[0] = w00t
 				// parameters[1] = 1h3m2s

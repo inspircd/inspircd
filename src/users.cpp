@@ -721,7 +721,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		this->WriteServ("MODE %s :+o", this->nick.c_str());
 		FOREACH_MOD(I_OnOper, OnOper(this, opertype));
 		ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), opertype.c_str());
-		this->oper.assign(opertype, 0, NICKMAX - 1);
+		this->oper.assign(opertype, 0, ServerInstance->Config->Limits.NickMax);
 		ServerInstance->Users->all_opers.push_back(this);
 
 		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
@@ -1521,7 +1521,7 @@ bool User::ChangeName(const char* gecos)
 			return false;
 		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
 	}
-	this->fullname.assign(gecos, 0, MAXGECOS+1);
+	this->fullname.assign(gecos, 0, ServerInstance->Config->Limits.MaxGecos);
 
 	return true;
 }
@@ -1573,7 +1573,7 @@ bool User::ChangeIdent(const char* newident)
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
 
-	this->ident.assign(newident, 0, IDENTMAX + 1);
+	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax + 1);
 
 	this->InvalidateCache();
 

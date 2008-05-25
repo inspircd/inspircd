@@ -68,7 +68,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	(*(this->clientlist))[New->uuid] = New;
 
 	/* The users default nick is their UUID */
-	New->nick.assign(New->uuid, 0, NICKMAX - 1);
+	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
 
 	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	New->ident.assign("unknown");

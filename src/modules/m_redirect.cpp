@@ -42,9 +42,9 @@ class Redirect : public ModeHandler
 		{
 			Channel* c = NULL;
 
-			if (!ServerInstance->IsChannel(parameter.c_str()))
+			if (IS_LOCAL(source) && !ServerInstance->IsChannel(parameter.c_str(), ServerInstance->Config->Limits.ChanMax))
 			{
-				source->WriteNumeric(403, "%s %s :Invalid channel name",source->nick.c_str(), parameter.c_str());
+				source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
 				parameter.clear();
 				return MODEACTION_DENY;
 			}

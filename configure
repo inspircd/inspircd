@@ -97,12 +97,10 @@ our %extraobjects = ();
 
 our %extrasources = ();
 
-our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_nick_length,
-    $opt_chan_length, $opt_ports, $opt_epoll, $opt_kqueue, $opt_noports,
-    $opt_noepoll, $opt_nokqueue, $opt_disablerpath, $opt_ipv6, $opt_ipv6links,
-    $opt_noipv6links, $opt_ident, $opt_quit, $opt_topic, $opt_maxbuf, $opt_kick,
-    $opt_gecos, $opt_away, $opt_modes, $opt_disable_debug, $opt_maxchans,
-    $opt_opermaxchans, $opt_freebsd_port);
+our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_ports,
+    $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_disablerpath,
+    $opt_ipv6, $opt_ipv6links, $opt_noipv6links, $opt_maxbuf, $opt_disable_debug,
+    $opt_freebsd_port);
 
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
     $opt_library_dir);
@@ -121,8 +119,6 @@ GetOptions (
 	'rebuild' => \$opt_rebuild,
 	'enable-openssl' => \$opt_use_openssl,
 	'disable-interactive' => \$opt_nointeractive,
-	'with-nick-length=i' => \$opt_nick_length,
-	'with-channel-length=i' => \$opt_chan_length,
 	'enable-ports' => \$opt_ports,
 	'enable-epoll' => \$opt_epoll,
 	'enable-kqueue' => \$opt_kqueue,
@@ -134,14 +130,7 @@ GetOptions (
 	'enable-remote-ipv6' => \$opt_ipv6links,
 	'disable-remote-ipv6' => \$opt_noipv6links,
 	'with-cc=s' => \$opt_cc,
-	'with-ident-length=i' => \$opt_ident,
-	'with-quit-length=i' => \$opt_quit,
-	'with-topic-length=i' => \$opt_topic,
 	'with-maxbuf=i' => \$opt_maxbuf,
-	'with-kick-length=i' => \$opt_kick,
-	'with-gecos-length=i' => \$opt_gecos,
-	'with-away-length=i' => \$opt_away,
-	'with-max-modes=i' => \$opt_modes,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
 	'prefix=s' => \$opt_base_dir,
 	'config-dir=s' => \$opt_config_dir,
@@ -178,13 +167,6 @@ our $non_interactive = (
 	(defined $opt_base_dir) ||
 	(defined $opt_binary_dir) ||
 	(defined $opt_nointeractive) ||
-	(defined $opt_away) ||
-	(defined $opt_gecos) ||
-	(defined $opt_kick) ||
-	(defined $opt_modes) ||
-	(defined $opt_topic) ||
-	(defined $opt_quit) ||
-	(defined $opt_ident) ||
 	(defined $opt_cc) ||
 	(defined $opt_ipv6) ||
 	(defined $opt_ipv6links) ||
@@ -192,10 +174,6 @@ our $non_interactive = (
 	(defined $opt_kqueue) ||
 	(defined $opt_epoll) ||
 	(defined $opt_ports) ||
-	(defined $opt_maxchans) ||
-	(defined $opt_opermaxchans) ||
-	(defined $opt_chan_length) ||
-	(defined $opt_nick_length) ||
 	(defined $opt_use_openssl) ||
 	(defined $opt_nokqueue) ||
 	(defined $opt_noepoll) ||
@@ -287,21 +265,6 @@ else
 	$config{OPTIMISATI}	 = "-O2";				# DEBUGGING OFF!
 }
 
-$config{NICK_LENGT}	 = "31";			     		# Default Nick Length
-if (defined $opt_nick_length)
-{
-	$config{NICK_LENGT} = $opt_nick_length;
-}
-$config{CHAN_LENGT}	 = "64";			     		# Default Channel Name Length
-if (defined $opt_chan_length)
-{
-	$config{CHAN_LENGT} = $opt_chan_length;
-}
-$config{MAXI_MODES}	 = "20";			     		# Default Max. Number of Modes set at once.
-if (defined $opt_modes)
-{
-	$config{MAXI_MODES} = $opt_modes;
-}
 $config{HAS_STRLCPY}	= "false";			  		# strlcpy Check.
 $config{HAS_STDINT}	 = "false";					# stdint.h check
 $config{USE_KQUEUE}	 = "y";						# kqueue enabled
@@ -367,37 +330,7 @@ if (defined $opt_cc)
 our $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
 $config{MAKEORDER}		= "ircd mods";				# build order
-$config{MAX_IDENT}		= "12";					# max ident size
-$config{MAX_QUIT}		= "255";				# max quit message size
-$config{MAX_TOPIC}		= "307";				# max topic size
-$config{MAX_KICK}		= "255";				# max kick message size
-$config{MAX_GECOS}		= "128";				# max GECOS size
-$config{MAX_AWAY}		= "200";				# max AWAY size
 $config{MAXBUF}			= "512";				# Max buffer size
-if (defined $opt_ident)
-{
-	$config{MAX_IDENT} = $opt_ident;
-}
-if (defined $opt_quit)
-{
-	$config{MAX_QUIT} = $opt_quit;
-}
-if (defined $opt_topic)
-{
-	$config{MAX_TOPIC} = $opt_topic;
-}
-if (defined $opt_kick)
-{
-	$config{MAX_KICK} = $opt_kick;
-}
-if (defined $opt_gecos)
-{
-	$config{MAX_GECOS} = $opt_gecos;
-}
-if (defined $opt_away)
-{
-	$config{MAX_AWAY} = $opt_away;
-}
 
 if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
 	$config{HAS_OPENSSL} = $1;
@@ -929,24 +862,6 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	else {
 		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed if\nyou intend to use OpenSSL, or that GnuTLS is in your path if you intend\nto use GnuTLS.\n\n";
 	}
-
-	print "\nThe following questions will ask you for various figures relating\n";
-	print "To your IRCd install. Please note that these should usually be left\n";
-	print "as defaults unless you have a real reason to change them. If they\n";
-	print "changed, then the values must be identical on all servers on your\n";
-	print "network, or malfunctions and/or crashes may occur, with the exception\n";
-	print "of the 'maximum number of clients' setting which may be different on\n";
-	print "different servers on the network.\n\n";
-
-	promptnumeric("length of nicknames", "NICK_LENGT");
-	promptnumeric("length of channel names", "CHAN_LENGT");
-	promptnumeric("number of mode changes in one line", "MAXI_MODES");
-	promptnumeric("length of an ident (username)", "MAX_IDENT");
-	promptnumeric("length of a quit message", "MAX_QUIT");
-	promptnumeric("length of a channel topic", "MAX_TOPIC");
-	promptnumeric("length of a kick message", "MAX_KICK");
-	promptnumeric("length of a GECOS (real name)", "MAX_GECOS");
-	promptnumeric("length of an away message", "MAX_AWAY");
 }
 
 dumphash();
@@ -1223,8 +1138,6 @@ sub writefiles {
 	{
 		print "Writing \e[1;32minspircd_config.h\e[0m\n";
 		open(FILEHANDLE, ">include/inspircd_config.h");
-		my $NL = $config{NICK_LENGT}+1;
-		my $CL = $config{CHAN_LENGT}+1;
 		print FILEHANDLE <<EOF;
 /* Auto generated by configure, do not modify! */
 #ifndef __CONFIGURATION_AUTO__
@@ -1239,15 +1152,6 @@ sub writefiles {
 #define VERSION "$version"
 #define REVISION "$revision2"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
-#define NICKMAX $NL
-#define CHANMAX $CL
-#define MAXMODES $config{MAXI_MODES}
-#define IDENTMAX $config{MAX_IDENT}
-#define MAXQUIT $config{MAX_QUIT}
-#define MAXTOPIC $config{MAX_TOPIC}
-#define MAXKICK $config{MAX_KICK}
-#define MAXGECOS $config{MAX_GECOS}
-#define MAXAWAY $config{MAX_AWAY}
 #define OPTIMISATION $config{OPTIMITEMP}
 #define LIBRARYDIR "$config{LIBRARY_DIR}"
 #define SYSTEM "$incos"

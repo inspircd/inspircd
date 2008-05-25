@@ -68,7 +68,7 @@ class FounderProtectBase
 		std::string item = extend + std::string(channel->name);
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
-		irc::modestacker modestack(false);
+		irc::modestacker modestack(ServerInstance, false);
 		std::deque<std::string> stackresult;				
 
 		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)

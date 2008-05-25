@@ -40,14 +40,14 @@ CmdResult CommandUser::Handle (const std::vector<std::string>& parameters, User 
 			 * ~ character, and +1 for null termination, therefore we can safely use up to
 			 * IDENTMAX here.
 			 */
-			user->ident.assign(parameters[0], 0, IDENTMAX);
-			user->fullname.assign(parameters[3].empty() ? std::string("No info") : parameters[3], 0, MAXGECOS);
+			user->ident.assign(parameters[0], 0, ServerInstance->Config->Limits.IdentMax);
+			user->fullname.assign(parameters[3].empty() ? std::string("No info") : parameters[3], 0, ServerInstance->Config->Limits.MaxGecos);
 			user->registered = (user->registered | REG_USER);
 		}
 	}
 	else
 	{
-		user->WriteNumeric(462, "%s :You may not reregister",user->nick.c_str());
+		user->WriteNumeric(462, "%s :You may not reregister", user->nick.c_str());
 		return CMD_FAILURE;
 	}
 

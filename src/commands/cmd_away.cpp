@@ -33,7 +33,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 			return CMD_FAILURE;
 
 		user->awaytime = ServerInstance->Time();
-		user->awaymsg.assign(parameters[0], 0, MAXAWAY);
+		user->awaymsg.assign(parameters[0], 0, ServerInstance->Config->Limits.MaxAway);
 
 		user->WriteNumeric(306, "%s :You have been marked as being away",user->nick.c_str());
 	}
