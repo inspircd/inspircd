@@ -206,7 +206,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 
 	if (c)
 	{
-		irc::modestacker stack(false);
+		irc::modestacker stack(Instance, false);
 		std::deque<std::string> stackresult;
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(c->name);
