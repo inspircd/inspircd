@@ -199,16 +199,6 @@ void Run()
 	char revision_text[MAX_PATH];
 	char openssl_inc_path[MAX_PATH];
 	char openssl_lib_path[MAX_PATH];
-
-	int nicklen = 31;
-	int chanlen = 64;
-	int modechanges = 20;
-	int identlen = 12;
-	int quitlen = 255;
-	int topiclen = 500;
-	int kicklen = 255;
-	int rllen = 128;
-	int awaylen = 200;
 	int revision = get_svn_revision(revision_text, MAX_PATH);
 	char version[514];
 
@@ -270,16 +260,6 @@ void Run()
 		"of the 'maximum number of clients' setting which may be different on\n"
 		"different servers on the network.\n\n");
 
-	nicklen = get_int_option("Please enter the maximum length of nicknames?", 31);
-	chanlen = get_int_option("Please enter the maximum length of channel names?", 64);
-	modechanges = get_int_option("Please enter the maximum number of mode changes in one line?", 20);
-	identlen = get_int_option("Please enter the maximum length of an ident (username)?", 12);
-	quitlen = get_int_option("Please enter the maximum length of a quit message?", 255);
-	topiclen = get_int_option("Please enter the maximum length of a channel topic?", 307);
-	kicklen = get_int_option("Please enter the maximum length of a kick message?", 255);
-	rllen = get_int_option("Please enter the maximum length of a GECOS (real name)?", 128);
-	awaylen = get_int_option("Please enter the maximum length of an away message?", 200);
-
 	// NOTE: this may seem hackish (generating a batch build script), but it assures the user knows
 	// what they're doing, and we don't have to mess with copying files and changing around modules.mak
 	// for the extra libraries. --fez
@@ -333,15 +313,7 @@ void Run()
 	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path);
 	printf_c("\033[0mLibrary path:\033[1;32m             %s\n", library_dir);
 	printf_c("\033[0mSocket Engine:\033[1;32m            %s\n", use_iocp ? "iocp" : "select");
-	printf_c("\033[0mMax nickname length:\033[1;32m      %u\n", nicklen);
-	printf_c("\033[0mMax channel length:\033[1;32m       %u\n", chanlen);
-	printf_c("\033[0mMax mode length:\033[1;32m          %u\n", modechanges);
-	printf_c("\033[0mMax ident length:\033[1;32m         %u\n", identlen);
-	printf_c("\033[0mMax quit length:\033[1;32m          %u\n", quitlen);
-	printf_c("\033[0mMax topic length:\033[1;32m         %u\n", topiclen);
-	printf_c("\033[0mMax kick length:\033[1;32m          %u\n", kicklen);
-	printf_c("\033[0mMax name length:\033[1;32m          %u\n", rllen);
-	printf_c("\033[0mMax away length:\033[1;32m          %u\n", awaylen);
+
 	printf("\n"); sc(TNORMAL);
 	if(get_bool_option("Are these settings correct?", true) == false)
 	{
@@ -368,15 +340,6 @@ void Run()
 	fprintf(f, "#define CONFIG_FILE \"%s/inspircd.conf\"\n", config_file);
 	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path);
 	fprintf(f, "#define SOMAXCONN_S \"128\"\n");
-	fprintf(f, "#define NICKMAX %u\n", nicklen+1);
-	fprintf(f, "#define CHANMAX %u\n", chanlen+1);
-	fprintf(f, "#define MAXMODES %u\n", modechanges);
-	fprintf(f, "#define IDENTMAX %u\n", identlen);
-	fprintf(f, "#define MAXQUIT %u\n", quitlen);
-	fprintf(f, "#define MAXTOPIC %u\n", topiclen);
-	fprintf(f, "#define MAXKICK %u\n", kicklen);
-	fprintf(f, "#define MAXGECOS %u\n", rllen);
-	fprintf(f, "#define MAXAWAY %u\n", awaylen);
 	fprintf(f, "#define LIBRARYDIR \"%s\"\n", library_dir);
 	fprintf(f, "#define VERSION \"%s\"\n", version);
 	fprintf(f, "#define REVISION \"%s\"\n", revision_text);
