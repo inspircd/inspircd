@@ -174,7 +174,7 @@ class ListModeBase : public ModeHandler
 		channel->GetExt(infokey, el);
 		if (el)
 		{
-			irc::modestacker modestack(false);
+			irc::modestacker modestack(ServerInstance, false);
 			std::deque<std::string> stackresult;
 			std::vector<std::string> mode_junk;
 			mode_junk.push_back(channel->name);
@@ -396,7 +396,7 @@ class ListModeBase : public ModeHandler
 	{
 		modelist* mlist;
 		chan->GetExt(infokey, mlist);
-		irc::modestacker modestack(true);
+		irc::modestacker modestack(ServerInstance, true);
 		std::deque<std::string> stackresult;
 		if (mlist)
 		{
