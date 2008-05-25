@@ -1030,6 +1030,51 @@
           operspywhois="no"
           userstats="Pu">
 
+#-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This configuration tag defines the maximum sizes of various types   #
+# on IRC, such as the maximum length of a channel name, and the       #
+# maximum length of a channel. Note that with the exception of the    #
+# identmax value all values given here are the exact values you would #
+# expect to see on IRC. This contrasts with the older InspIRCd        #
+# releases where these values would be one character shorter than     #
+# defined to account for a null terminator on the end of the text.    #
+#                                                                     #
+# The identmax value has special meaning, as it may grow one          #
+# character longer than you specify, to accomodate for a ~ character  #
+# when m_ident is loaded.                                             #
+#                                                                     #
+# These values should match network-wide, otherwise you may end up    #
+# with desyncs, and confusing your users by being able to use a nick  #
+# of a certain length on one server but not on another. Servers will  #
+# link with mismatched values, but this is NOT recommended as a long  #
+# term measure!                                                       #
+#                                                                     #
+# Values here should be self explanitory:                             #
+#                                                                     #
+# nickmax         - The maximum length of a nickname                  #
+# chanmax         - The maximum length of a channel name              #
+# modemax         - The maximum number of parameterized mode changes  #
+#                   per line                                          #
+# identmax        - The maximum length of an ident/username value     #
+# maxquit         - The maximum length of a quit message              #
+# maxtopic        - The maximum length of a channel topic             #
+# maxkick         - The maximum length of a kick message              #
+# maxgecos        - The maximum length of a GECOS (real name)         #
+# maxaway         - The maximum length of an away message             #
+#                                                                     #
+
+<limits nickmax="31"
+        chanmax="64"
+        modemax="20"
+        identmax="11"
+        maxquit="255"
+        maxtopic="307"
+        maxkick="255"
+        maxgecos="128"
+        maxaway="200">
+
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Logging
 # -------
