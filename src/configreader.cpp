@@ -1169,6 +1169,11 @@ void ServerConfig::Read(bool bail, User* user)
 			MultiValues[Index].finish_function(this, MultiValues[Index].tag);
 		}
 
+		/* Finalise the limits, increment them all by one so that we can just put assign(str, 0, val)
+		 * rather than assign(str, 0, val + 1)
+		 */
+		Limits.Finalise();
+
 	}
 
 	catch (CoreException &ce)

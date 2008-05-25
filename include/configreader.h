@@ -248,6 +248,19 @@ class ServerLimits : public Extensible
 	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12), MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200)
 	{
 	}
+
+	void Finalise()
+	{
+		NickMax++;
+		ChanMax++;
+		MaxModes++;
+		IdentMax++;
+		MaxQuit++;
+		MaxTopic++;
+		MaxKick++;
+		MaxGecos++;
+		MaxAway++;
+	}
 };
 
 /** This class holds the bulk of the runtime configuration for the ircd.
