@@ -24,7 +24,7 @@ class CommandSwhois : public Command
 	CommandSwhois (InspIRCd* Instance) : Command(Instance,"SWHOIS","o",2)
 	{
 		this->source = "m_swhois.so";
-		syntax = "<nick> <swhois>";
+		syntax = "<nick> :<swhois>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -36,15 +36,6 @@ class CommandSwhois : public Command
 		{
 			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
-		}
-
-		std::string line;
-		for (int i = 1; i < (int)parameters.size(); i++)
-		{
-			if (i != 1)
-				line.append(" ");
-				
-			line.append(parameters[i]);
 		}
 		
 		std::string* text;
@@ -66,7 +57,7 @@ class CommandSwhois : public Command
 			ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), line.c_str());
 		}
 		
-		text = new std::string(line);
+		text = new std::string(parameters[0]);
 		dest->Extend("swhois", text);
 
 		/* Bug #376 - feature request -
