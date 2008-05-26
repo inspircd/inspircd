@@ -253,7 +253,6 @@ class ServerLimits : public Extensible
 	{
 		NickMax++;
 		ChanMax++;
-		MaxModes++;
 		IdentMax++;
 		MaxQuit++;
 		MaxTopic++;
