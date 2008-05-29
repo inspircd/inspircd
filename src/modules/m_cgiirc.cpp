@@ -346,9 +346,9 @@ public:
 			ServerInstance->Users->RemoveCloneCounts(user);
 #ifdef IPV6
 			if (user->GetProtocolFamily() == AF_INET6)
-				valid = (inet_pton(AF_INET6, user->password, &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
+				valid = (inet_pton(AF_INET6, user->password.c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
 			else
-				valid = (inet_aton(user->password, &((sockaddr_in*)user->ip)->sin_addr));
+				valid = (inet_aton(user->password.c_str(), &((sockaddr_in*)user->ip)->sin_addr));
 #else
 			if (inet_aton(user->password.c_str(), &((sockaddr_in*)user->ip)->sin_addr))
 				valid = true;
