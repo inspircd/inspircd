@@ -1,8 +1,18 @@
 /*       +------------------------------------+
- *       | UnrealIRCd v4.0                    |
+ *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- * UnrealIRCd 4.0 (C) 2008 Carsten Valdemar Munk 
+ *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
+ * See: http://www.inspircd.org/wiki/index.php/Credits
+ *
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ *
+ * Based on the UnrealIRCd 4.0 (1.1.x fork) module
+ *
+ * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk 
  * This program is free but copyrighted software; see
  *            the file COPYING for details.
  *
