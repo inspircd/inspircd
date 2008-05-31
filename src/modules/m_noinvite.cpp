@@ -65,12 +65,15 @@ class ModuleNoInvite : public Module
 
 	virtual int OnUserPreInvite(userrec* user,userrec* dest,chanrec* channel)
 	{
-		if (channel->IsModeSet('V'))
+		if (IS_LOCAL(user))
 		{
-			user->WriteServ("492 %s %s :Can't invite %s to channel (+V set)",user->nick, channel->name, dest->nick);
-			return 1;
+			if (channel->IsModeSet('V'))
+			{
+				user->WriteServ("492 %s %s :Can't invite %s to channel (+V set)",user->nick, channel->name, dest->nick);
+				return 1;
+			}
+			return 0;
 		}
-		return 0;
 	}
 
 	virtual ~ModuleNoInvite()
