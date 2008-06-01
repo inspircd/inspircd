@@ -20,7 +20,8 @@
 EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	MAX_DESCRIPTORS = 0;
-	EngineHandle = epoll_create(GetMaxFds());
+	// This is not a maximum, just a hint at the eventual number of sockets that may be polled.
+	EngineHandle = epoll_create(GetMaxFds() / 4);
 
 	if (EngineHandle == -1)
 	{
