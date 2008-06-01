@@ -45,8 +45,9 @@ class ModuleNoInvite : public Module
 				user->WriteNumeric(492, "%s %s :Can't invite %s to channel (+V set)",user->nick.c_str(), channel->name.c_str(), dest->nick.c_str());
 				return 1;
 			}
-			return 0;
 		}
+
+		return 0;
 	}
 
 	virtual ~ModuleNoInvite()
