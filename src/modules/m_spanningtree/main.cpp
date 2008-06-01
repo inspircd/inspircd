@@ -50,19 +50,19 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
-		I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart, I_OnPostConnect,
+		I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
 	};
-	ServerInstance->Modules->Attach(eventlist, this, 28);
+	ServerInstance->Modules->Attach(eventlist, this, 27);
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
-		this->OnPostConnect((*i));
+		ServerInstance->PI->Introduce(*i);
 	}
 }
 
@@ -619,31 +619,6 @@ void ModuleSpanningTree::OnUserPart(User* user, Channel* channel, const std::str
 		if (!partmessage.empty())
 			params.push_back(":"+partmessage);
 		Utils->DoOneToMany(user->uuid,"PART",params);
-	}
-}
-
-void ModuleSpanningTree::OnPostConnect(User* user)
-{
-	if (IS_LOCAL(user))
-	{
-		std::deque<std::string> params;
-		params.push_back(user->uuid);
-		params.push_back(ConvToStr(user->age));
-		params.push_back(user->nick);
-		params.push_back(user->host);
-		params.push_back(user->dhost);
-		params.push_back(user->ident);
-		params.push_back("+"+std::string(user->FormatModes()));
-		params.push_back(user->GetIPString());
-		params.push_back(ConvToStr(user->signon));
-		params.push_back(":"+std::string(user->fullname));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
-	}
-
-	TreeServer* SourceServer = Utils->FindServer(user->server);
-	if (SourceServer)
-	{
-		SourceServer->SetUserCount(1); // increment by 1
 	}
 }
 

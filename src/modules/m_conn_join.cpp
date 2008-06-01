@@ -46,8 +46,8 @@ class ModuleConnJoin : public Module
 			: Module(Me)
 		{
 			OnRehash(NULL, "");
-		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+			Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
+			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 		void Prioritize()

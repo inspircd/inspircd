@@ -17,6 +17,7 @@
 #include "hashcomp.h"
 
 class InspIRCd;
+class User;
 
 typedef std::deque<std::string> parameterlist;
 
@@ -74,6 +75,8 @@ class ProtocolInterface : public Extensible
 	virtual void SendUserNotice(User* target, const std::string &text) { }
 
 	virtual void GetServerList(ProtoServerList &sl) { }
+
+	virtual void Introduce(User* u) { }
 };
 
 #endif
