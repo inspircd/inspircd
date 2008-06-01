@@ -50,15 +50,21 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Out of range FD: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return false;
 	}
 
 	if (GetRemainingFds() <= 1)
+	{
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"No remaining FDs cannot add fd: %d", fd);
 		return false;
+	}
 
 	if (ref[fd])
+	{
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"Attempt to add duplicate fd: %d", fd);
 		return false;
+	}
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
@@ -67,6 +73,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"Error adding fd: %d to socketengine: %s", fd, strerror(errno));
 		return false;
 	}
 
@@ -93,7 +100,10 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	{
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return false;
+	}
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
