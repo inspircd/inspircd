@@ -44,7 +44,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 		if (MOD_RESULT != 0 && !IS_LOCAL(user))
 			return CMD_FAILURE;
 
-		user->awaymsg.empty();
+		user->awaymsg.clear();
 		user->WriteNumeric(305, "%s :You are no longer marked as being away",user->nick.c_str());
 	}
 
