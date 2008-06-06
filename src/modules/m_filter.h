@@ -113,7 +113,7 @@ protected:
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual int OnStats(char symbol, User* user, string_list &results) = 0;
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
+	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 };
 
@@ -295,10 +295,10 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 	return 0;
 }
 
-int FilterBase::OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 {
 	flags = 0;
-	if ((validated == 1) && (IS_LOCAL(user)))
+	if (validated && IS_LOCAL(user))
 	{
 		std::string checkline;
 		int replacepoint = 0;

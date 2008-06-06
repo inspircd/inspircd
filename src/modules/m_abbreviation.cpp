@@ -44,6 +44,8 @@ class ModuleAbbreviation : public Module
 		command.erase(command.end() - 1);
 
 		ServerInstance->Logs->Log("m_abbreviation", DEBUG, "Abbreviated command: %s", command.c_str());
+
+		return false;
 	}
 };
 
