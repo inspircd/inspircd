@@ -147,6 +147,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	params[9] = ":" + params[9];
 	Utils->DoOneToAllButSender(source, "UID", params, source);
 
+	Instance->PI->Introduce(_new);
 	FOREACH_MOD_I(Instance,I_OnPostConnect,OnPostConnect(_new));
 
 	return true;
