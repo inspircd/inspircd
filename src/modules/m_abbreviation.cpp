@@ -57,7 +57,7 @@ class ModuleAbbreviation : public Module
 				if (++matches > 10)
 				{
 					user->WriteNumeric(420, "%s :Ambiguous abbreviation and too many possible matches.", user->nick.c_str());
-					return false;
+					return true;
 				}
 
 				if (!foundmatch)
