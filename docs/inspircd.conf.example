@@ -1190,7 +1190,7 @@
 # cryptographic uses and security.
 #
 # IMPORTANT:
-# Other modules such as m_cloaking.so and m_opermd5.so may rely on
+# Other modules such as m_cloaking.so and m_password_hash.so may rely on
 # this module being loaded to function.
 #
 #<module name="m_md5.so">
@@ -1206,6 +1206,18 @@
 # be enhanced (for example the addition of HMAC authentication).
 #
 #<module name="m_sha256.so">
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# RIPEMD160 Module - Allows other modules to generate RIPEMD160 hashes,
+# usually for cryptographic uses and security.
+# 
+# IMPORTANT:
+# Other modules may rely on this module being loaded to function.
+#<module name="m_ripemd160.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Abbreviation module: Provides the ability to abbreviate commands a-la 
+# BBC BASIC keywords.
+#<module name="m_abbreviation.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alias module: Allows you to define server-side command aliases
@@ -1400,6 +1412,11 @@
 #          operoverride="no"
 #          tracknick="no"
 #          cooldown="60"
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CAP module: Provides the CAP negotiation mechanism seen in
+# ratbox-derived ircds
+#<module name="m_cap.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CBAN module: Lets you disallow channels from being used at runtime.
@@ -1605,7 +1622,7 @@
 #<connectban threshold="10" duration="10m">
 # This allows for 10 quits in an hour with a 10 minute ban if that is exceeded.
 #
-#<module name="m_connectbanban.so">
+#<module name="m_connectban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connection throttle module. Configuration:
@@ -1838,6 +1855,11 @@
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# http config module: Allows the server's configuration to be viewed
+# over HTTP. Requires m_httpd.so to be loaded for it to function.
+#<module name="m_httpd_config.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # http stats module: Provides basic stats pages over HTTP
 # Requires m_httpd.so to be loaded for it to function.
 #<module name="m_httpd_stats.so">
@@ -2026,7 +2048,11 @@
 #<module name="m_operchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper Join module: Forces opers to join a channel on oper-up
+# Oper flood module: Removes flood limits from users upon opering up
+#<module name="m_operflood.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper Join module: Auto-joins opers to a channel upon oper-up
 #<module name="m_operjoin.so">
 #
 #-#-#-#-#-#-#-#-#-#-#   OPERJOIN CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
@@ -2045,6 +2071,11 @@
 # tag to set specific autojoins for a type of oper, for example:      #
 #
 #<type name="Helper" autojoin="#help" classes="...">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper log module: Logs all oper commands to the ircd log at default
+# loglevel.
+#<module name="m_operlog.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for seperate message of the day
@@ -2122,6 +2153,10 @@
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Proxy scan module: Scans locally connecting clients for proxies.
+#<module name="m_proxyscan.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Quietban: Implements extended ban q:, which stops anyone matching
 # a mask like +b q:nick!user@host from speaking on channel.
 #<module name="m_quietban.so">
@@ -2179,6 +2214,14 @@
 #<rline matchonnickchange="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# JSON-RPC module: Encode and decode JSON-RPC requests for modules
+#<module name="m_rpc_json.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# RPC test module: A test of the RPC API
+#<module name="m_rpctest.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Provide /LIST throttling (to prevent flooding) and /LIST safety to
 # prevent excess flood when the list is large.
 #<module name="m_safelist.so">
@@ -2220,6 +2263,11 @@
 #<module name="m_saquit.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SASL authentication module: Provides support for IRC Authentication 
+# Layer (aka: atheme SASL) via AUTHENTICATE.
+#<module name="m_sasl.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Secure list module: Prevent /LIST in the first minute of connection,
 # crippling most spambots and trojan spreader bots.
 #<module name="m_securelist.so">
@@ -2237,6 +2285,11 @@
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
 #                                                                     #
 #<securelist waittime="60">                                           #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Servprotect module: Provides support for Austhex style +k /
+# UnrealIRCD +S services mode
+#<module name="m_servprotect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # See nicks module: Allow for SNOMASK +N which shows nick changes.
@@ -2286,10 +2339,13 @@
 #<module name="m_showwhois.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Spy module: Adds the commands SPYLIST and SPYNAMES that let opers
-# see who is in a +s channel, and list +s channels, show keys of keyed
-# channels the oper is not a member of etc. Like most standard 'abusive'
-# features of many other ircds, this is modular in InspIRCd.
+# Shun module: Provides the /shun command, which stops a user executing 
+# all commands except PING and PONG.
+#<module name="m_shun.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Spy module: Provides the ability to see the complete names list of 
+# channels an oper is not a member of
 #<module name="m_spy.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
