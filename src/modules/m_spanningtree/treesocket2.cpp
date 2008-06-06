@@ -679,7 +679,7 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 	{
 		for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
 		{
-			if ((*i) == "*" || irc::sockets::MatchCIDR(ip, (*i).c_str()))
+			if (*i == "*" || irc::sockets::MatchCIDR(ip, *i))
 			{
 				found = true;
 				break;
@@ -689,6 +689,7 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 		if (!found)
 		{
 			Utils->Creator->RemoteMessage(NULL,"Server connection from %s denied (no link blocks with that IP address)", ip);
+			Instance->Logs->Log("m_spanningtree", DEBUG, "There are %lu allowed ips in the ValidIPs list", ValidIPs.size());
 			Instance->SE->Close(newsock);
 			return false;
 		}

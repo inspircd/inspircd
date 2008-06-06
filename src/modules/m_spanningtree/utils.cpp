@@ -348,7 +348,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 	ValidIPs.clear();
 	for (std::vector<Link>::iterator L = LinkBlocks.begin(); L != LinkBlocks.end(); L++)
 	{
-		if (L->IPAddr.empty() || L->RecvPass.empty() || L->SendPass.empty() || L->Name.empty() || L->Port)
+		if (L->IPAddr.empty() || L->RecvPass.empty() || L->SendPass.empty() || L->Name.empty() || !L->Port)
 		{
 			if (L->Name.empty())
 			{
