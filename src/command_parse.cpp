@@ -148,7 +148,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 
 bool CommandParser::IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user)
 {
-	Commandable::iterator n = cmdlist.find(commandname);
+	Commandtable::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -172,7 +172,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, unsigned int 
 
 Command* CommandParser::GetHandler(const std::string &commandname)
 {
-	Commandable::iterator n = cmdlist.find(commandname);
+	Commandtable::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())
 		return n->second;
 
@@ -183,7 +183,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 CmdResult CommandParser::CallHandler(const std::string &commandname, const std::vector<std::string>& parameters, User *user)
 {
-	Commandable::iterator n = cmdlist.find(commandname);
+	Commandtable::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -285,7 +285,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	}
 
 	/* find the command, check it exists */
-	Commandable::iterator cm = cmdlist.find(command);
+	Commandtable::iterator cm = cmdlist.find(command);
 	
 	if (cm == cmdlist.end())
 	{
@@ -368,7 +368,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 void CommandParser::RemoveCommands(const char* source)
 {
-	Commandable::iterator i,safei;
+	Commandtable::iterator i,safei;
 	for (i = cmdlist.begin(); i != cmdlist.end();)
 	{
 		safei = i;
@@ -377,7 +377,7 @@ void CommandParser::RemoveCommands(const char* source)
 	}
 }
 
-void CommandParser::RemoveCommand(Commandable::iterator safei, const char* source)
+void CommandParser::RemoveCommand(Commandtable::iterator safei, const char* source)
 {
 	Command* x = safei->second;
 	if (x->source == std::string(source))

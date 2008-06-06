@@ -173,7 +173,7 @@ class CoreExport Command : public Extensible
 
 /** A hash of commands used by the core
  */
-typedef nspace::hash_map<std::string,Command*> Commandable;
+typedef nspace::hash_map<std::string,Command*> Commandtable;
 
 #define TRANSLATE1(x1)	translation.push_back(x1);
 #define TRANSLATE2(x1,x2)  translation.push_back(x1);translation.push_back(x2);

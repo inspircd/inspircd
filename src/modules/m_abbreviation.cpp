@@ -45,6 +45,22 @@ class ModuleAbbreviation : public Module
 
 		ServerInstance->Logs->Log("m_abbreviation", DEBUG, "Abbreviated command: %s", command.c_str());
 
+		size_t clen = command.length();
+		for (Commandtable::iterator n = ServerInstance->Parser->cmdlist.begin(); n != ServerInstance->Parser->cmdlist.end(); ++n)
+		{
+			if (n->first.length() < clen)
+				continue;
+
+			ServerInstance->Logs->Log("m_abbreviation", DEBUG, "command=%s abbr=%s", command.c_str(), n->first.substr(0, clen).c_str());
+			if (command == n->first.substr(0, clen))
+			{
+				/* Found the command */
+				command = n->first;
+				return false;
+			}
+		}
+
+		command += '.';
 		return false;
 	}
 };

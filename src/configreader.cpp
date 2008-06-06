@@ -281,13 +281,13 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 	std::string thiscmd;
 
 	/* Enable everything first */
-	for (Commandable::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
+	for (Commandtable::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
 		x->second->Disable(false);
 
 	/* Now disable all the ones which the user wants disabled */
 	while (dcmds >> thiscmd)
 	{
-		Commandable::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
+		Commandtable::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
 		if (cm != ServerInstance->Parser->cmdlist.end())
 		{
 			cm->second->Disable(true);

@@ -74,7 +74,7 @@ class CoreExport CommandParser : public classbase
  public:
 	/** Command list, a hash_map of command names to Command*
 	 */
-	Commandable cmdlist;
+	Commandtable cmdlist;
 
 	/** Reload a core command.
 	 * This will only reload commands implemented by the core,
