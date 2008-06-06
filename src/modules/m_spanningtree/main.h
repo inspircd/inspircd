@@ -148,7 +148,7 @@ class ModuleSpanningTree : public Module
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
+	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
 	virtual void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line);
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
 	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t);
