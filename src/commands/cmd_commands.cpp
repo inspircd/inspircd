@@ -23,7 +23,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 {
-	for (Commandable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+	for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
 		user->WriteNumeric(702, "%s :%s %s %d %d",
 				user->nick.c_str(),

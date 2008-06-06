@@ -163,7 +163,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':
-			for (Commandable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+			for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 			{
 				if (i->second->use_count)
 				{

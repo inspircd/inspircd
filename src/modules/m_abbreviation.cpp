@@ -44,6 +44,8 @@ class ModuleAbbreviation : public Module
 
 		/* Look for any command that starts with the same characters, if it does, replace the command string with it */
 		size_t clen = command.length();
+		std::string foundcommand, matchlist;
+		bool foundmatch = false;
 		for (Commandtable::iterator n = ServerInstance->Parser->cmdlist.begin(); n != ServerInstance->Parser->cmdlist.end(); ++n)
 		{
 			if (n->first.length() < clen)
@@ -51,14 +53,34 @@ class ModuleAbbreviation : public Module
 
 			if (command == n->first.substr(0, clen))
 			{
-				/* Found the command */
-				command = n->first;
-				return false;
+				if (!foundmatch)
+				{
+					/* Found the command */
+					foundcommand = n->first;
+					foundmatch = true;
+				}
+				else
+					matchlist.append(" ").append(n->first);
 			}
 		}
 
-		/* No match, we have to put the . back again so that the invalid command numeric looks correct. */
-		command += '.';
+		/* Ambiguous command, list the matches */
+		if (!matchlist.empty())
+		{
+			user->WriteNumeric(420, "%s :Ambiguous abbreviation, posssible matches: %s%s", user->nick.c_str(), foundcommand.c_str(), matchlist.c_str());
+			return true;
+		}
+
+		if (foundcommand.empty())
+		{
+			/* No match, we have to put the . back again so that the invalid command numeric looks correct. */
+			command += '.';
+		}
+		else
+		{
+			command = foundcommand;
+		}
+
 		return false;
 	}
 };
