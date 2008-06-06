@@ -947,9 +947,11 @@ void User::FullConnect()
 
 	/* Trigger LUSERS output, give modules a chance too */
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand, OnPreCommand("LUSERS", std::vector<std::string>(), this, true, "LUSERS"));
+	std::string command("LUSERS");
+	std::vector<std::string> parameters;
+	FOREACH_RESULT(I_OnPreCommand, OnPreCommand(command, parameters, this, true, "LUSERS"));
 	if (!MOD_RESULT)
-		ServerInstance->CallCommandHandler("LUSERS", std::vector<std::string>(), this);
+		ServerInstance->CallCommandHandler(command, parameters, this);
 
 	/*
 	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
