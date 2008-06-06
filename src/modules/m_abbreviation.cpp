@@ -12,9 +12,8 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
-/* $ModDesc: Provides the ability to abbreviate commands. */
+/* $ModDesc: Provides the ability to abbreviate commands a-la BBC BASIC keywords. */
 
 class ModuleAbbreviation : public Module
 {
@@ -43,15 +42,13 @@ class ModuleAbbreviation : public Module
 		/* Whack the . off the end */
 		command.erase(command.end() - 1);
 
-		ServerInstance->Logs->Log("m_abbreviation", DEBUG, "Abbreviated command: %s", command.c_str());
-
+		/* Look for any command that starts with the same characters, if it does, replace the command string with it */
 		size_t clen = command.length();
 		for (Commandtable::iterator n = ServerInstance->Parser->cmdlist.begin(); n != ServerInstance->Parser->cmdlist.end(); ++n)
 		{
 			if (n->first.length() < clen)
 				continue;
 
-			ServerInstance->Logs->Log("m_abbreviation", DEBUG, "command=%s abbr=%s", command.c_str(), n->first.substr(0, clen).c_str());
 			if (command == n->first.substr(0, clen))
 			{
 				/* Found the command */
@@ -60,6 +57,7 @@ class ModuleAbbreviation : public Module
 			}
 		}
 
+		/* No match, we have to put the . back again so that the invalid command numeric looks correct. */
 		command += '.';
 		return false;
 	}
