@@ -689,7 +689,6 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 		if (!found)
 		{
 			Utils->Creator->RemoteMessage(NULL,"Server connection from %s denied (no link blocks with that IP address)", ip);
-			Instance->Logs->Log("m_spanningtree", DEBUG, "There are %lu allowed ips in the ValidIPs list", Utils->ValidIPs.size());
 			Instance->SE->Close(newsock);
 			return false;
 		}
