@@ -48,7 +48,7 @@ class ModuleUHNames : public Module
 		output.append(" UHNAMES");
 	}
 
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string c = command.c_str();
 		/* We don't actually create a proper command handler class for PROTOCTL,

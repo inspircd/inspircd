@@ -132,7 +132,7 @@ int		Module::OnKill(User*, User*, const std::string&) { return 0; }
 void		Module::OnLoadModule(Module*, const std::string&) { }
 void		Module::OnUnloadModule(Module*, const std::string&) { }
 void		Module::OnBackgroundTimer(time_t) { }
-int		Module::OnPreCommand(const std::string&, const std::vector<std::string>&, User *, bool, const std::string&) { return 0; }
+int		Module::OnPreCommand(std::string&, std::vector<std::string>&, User *, bool, const std::string&) { return 0; }
 void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, User *, CmdResult, const std::string&) { }
 bool		Module::OnCheckReady(User*) { return true; }
 int		Module::OnUserRegister(User*) { return 0; }

@@ -37,7 +37,7 @@ class ModuleAntiBottler : public Module
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		char data[MAXBUF];
 		strlcpy(data,original_line.c_str(),MAXBUF);

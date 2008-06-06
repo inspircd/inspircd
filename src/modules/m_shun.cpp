@@ -195,7 +195,7 @@ class ModuleShun : public Module
 		}
 	}
 
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string>& parameters, User* user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User* user, bool validated, const std::string &original_line)
 	{
 		if((command != "PONG") && (command != "PING"))
 		{

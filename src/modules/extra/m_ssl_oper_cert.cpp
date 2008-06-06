@@ -112,7 +112,7 @@ class ModuleOperSSLCert : public Module
 		return false;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string cmd = command.c_str();
 		

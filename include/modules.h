@@ -1034,10 +1034,11 @@ class CoreExport Module : public Extensible
 	 * @param pcnt The nuimber of parameters passed to the command
 	 * @param user the user issuing the command
 	 * @param validated True if the command has passed all checks, e.g. it is recognised, has enough parameters, the user has permission to execute it, etc.
+	 * You should only change the parameter list and command string if validated == false (e.g. before the command lookup occurs).
 	 * @param original_line The entire original line as passed to the parser from the user
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
+	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
 
 	/** Called after any command has been executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,

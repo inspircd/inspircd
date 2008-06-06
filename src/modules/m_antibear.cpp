@@ -37,7 +37,7 @@ class ModuleAntiBear : public Module
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnPreCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		if (command == "NOTICE" && !validated && parameters.size() > 1 && user->GetExt("antibear_timewait"))
 		{
