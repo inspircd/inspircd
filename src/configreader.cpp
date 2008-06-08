@@ -1609,6 +1609,11 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 						current_value += *c;
 					continue;
 				}
+				else if ((*c == '\\') && (!in_quote))
+				{
+					errorstream << "You can't have an escape sequence outside of a quoted section: " << filename << ":" << linenumber << std::endl;
+					return false;
+				}
 				else if ((*c == '\n') && (in_quote))
 				{
 					/* Got a 'real' \n, treat it as part of the value */
