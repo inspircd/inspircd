@@ -1544,7 +1544,13 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 			{
 				if (*c != '<')
 				{
-					tagname += *c;
+					if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || *c == '_')
+						tagname += *c;
+					else
+					{
+						errorstream << "Invalid character in value name: '" << *c << "' in value '" << tagname << "' in filename: " << filename << ":" << linenumber << std::endl;
+						return false;
+					}
 				}
 			}
 			else
