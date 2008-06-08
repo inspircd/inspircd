@@ -704,11 +704,11 @@ std::string InspIRCd::GetVersionString()
 
 	if (*Config->CustomVersion)
 	{
-		snprintf(versiondata,MAXBUF,"%s %s :%s",VERSION,Config->ServerName,Config->CustomVersion);
+		snprintf(versiondata,MAXBUF,"InspIRCd-1.1 %s :%s",Config->ServerName,Config->CustomVersion);
 	}
 	else
 	{
-		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%s,%s,%s]",VERSION,Config->ServerName,SYSTEM,REVISION,SE->GetName().c_str(),dnsengine);
+		snprintf(versiondata,MAXBUF,"InspIRCd-1.1 %s :%s (%s) [FLAGS=%s,%s,%s]",Config->ServerName,SYSTEM,VERSION,REVISION,SE->GetName().c_str(),dnsengine);
 	}
 	return versiondata;
 }
