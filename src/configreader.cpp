@@ -1319,13 +1319,13 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 {
 	std::string line;
 	char ch;
-	long linenumber;
+	long linenumber = 1;
+	long last_successful_parse = 1;
 	bool in_tag;
 	bool in_quote;
 	bool in_comment;
 	int character_count = 0;
 
-	linenumber = 1;
 	in_tag = false;
 	in_quote = false;
 	in_comment = false;
@@ -1430,7 +1430,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 
 		if ((ch != '<') && (!in_tag) && (!in_comment) && (ch > ' ') && (ch != 9))
 		{
-			errorstream << "Stray character outside of a configuration tag: '" << ch << "': " << filename << ":" << linenumber << std::endl;
+			errorstream << "You have stray characters beyond the tag which starts at " << filename << ":" << last_successful_parse << std::endl;
 			return false;
 		}
 
@@ -1440,7 +1440,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (!in_quote)
 				{
-					errorstream << "Got another opening < when the first one wasn't closed: " << filename << ":" << linenumber << std::endl;
+					errorstream << "The tag at location " << filename << ":" << last_successful_parse << " was valid, but there is an error in the tag which comes after it. You are possibly missing a \" or >. Please check this." << std::endl;
 					return false;
 				}
 			}
@@ -1448,7 +1448,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_quote)
 				{
-					errorstream << "Parser error: Inside a quote but not within a tag!: " << filename << ":" << linenumber << std::endl;
+					errorstream << "Parser error: Inside a quote but not within the last valid tag, which was opened at: " << filename << ":" << last_successful_parse << std::endl;
 					return false;
 				}
 				else
@@ -1477,11 +1477,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_quote)
 				{
-					errorstream << "Found a closing \" outside a tag: " << filename << ":" << linenumber << std::endl;
+					errorstream << "The tag immediately after the one at " << filename << ":" << last_successful_parse << " has a missing closing \" symbol. Please check this." << std::endl;
 				}
 				else
 				{
-					errorstream << "Found a opening \" outside a tag: " << filename << ":" << linenumber << std::endl;
+					errorstream << "You have opened a quote (\") beyond the tag at " << filename << ":" << last_successful_parse << " without opening a new tag. Please check this." << std::endl;
 				}
 			}
 		}
@@ -1498,14 +1498,18 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 					 * If this finds an <include> then ParseLine can simply call
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
+					long bl = linenumber;
 					if (!this->ParseLine(target, filename, line, linenumber, errorstream))
 						return false;
+					last_successful_parse = linenumber;
+
+					linenumber = bl;
 	
 					line.clear();
 				}
 				else
 				{
-					errorstream << "Got a closing > when we weren't inside a tag: " << filename << ":" << linenumber << std::endl;
+					errorstream << "You forgot to close the tag which comes immediately after the one at " << filename << ":" << last_successful_parse << std::endl;
 					return false;
 				}
 			}
@@ -1534,6 +1538,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 	std::string current_key;
 	std::string current_value;
 	KeyValList results;
+	char last_char = 0;
 	bool got_name;
 	bool got_key;
 	bool in_quote;
@@ -1554,7 +1559,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 						tagname += *c;
 					else
 					{
-						errorstream << "Invalid character in value name: '" << *c << "' in value '" << tagname << "' in filename: " << filename << ":" << linenumber << std::endl;
+						errorstream << "Invalid character in value name of tag: '" << *c << "' in value '" << tagname << "' in filename: " << filename << ":" << linenumber << std::endl;
 						return false;
 					}
 				}
@@ -1574,11 +1579,11 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 			if (!got_key)
 			{
 				/* We're still reading the key name */
-				if (*c != '=')
+				if ((*c != '=') && (*c != '>'))
 				{
 					if (*c != ' ')
 					{
-						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_' || *c == '>')
+						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_')
 							current_key += *c;
 						else
 						{
@@ -1618,12 +1623,13 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 				{
 					/* Got a 'real' \n, treat it as part of the value */
 					current_value += '\n';
-					linenumber++;
 					continue;
 				}
 				else if ((*c == '\r') && (in_quote))
+				{
 					/* Got a \r, drop it */
 					continue;
+				}
 
 				if (*c == '"')
 				{
@@ -1662,6 +1668,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 				{
 					if (in_quote)
 					{
+						last_char = *c;
 						current_value += *c;
 					}
 				}
