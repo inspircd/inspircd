@@ -81,8 +81,11 @@ class CommandStartTLS : public Command
 		}
 		else
 		{
-			user->io = Caller;
-			Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
+			if (!user->io)
+			{
+				user->io = Caller;
+				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
+			}
 		}
 
 		return CMD_FAILURE;
