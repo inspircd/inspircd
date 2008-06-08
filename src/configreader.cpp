@@ -1307,10 +1307,13 @@ void ServerConfig::Read(bool bail, User* user)
 	ServerInstance->Parser->SetupCommandTable(user);
 	ServerInstance->Threads->Mutex(false);
 
-	if (user)
-		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
-	else
-		ServerInstance->SNO->WriteToSnoMask('A', "*** Successfully rehashed server.");
+	if (!bail)
+	{
+		if (user)
+			user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
+		else
+			ServerInstance->SNO->WriteToSnoMask('A', "*** Successfully rehashed server.");
+	}
 
 }
 
