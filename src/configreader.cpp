@@ -1428,6 +1428,12 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 		if (ch != '\r')
 			line += ch;
 
+		if ((ch != '<') && (!in_tag) && (!in_comment) && (ch > ' ') && (ch != 9))
+		{
+			errorstream << "Stray character outside of a configuration tag: '" << ch << "': " << filename << ":" << linenumber << std::endl;
+			return false;
+		}
+
 		if (ch == '<')
 		{
 			if (in_tag)
