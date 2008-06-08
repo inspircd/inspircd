@@ -285,7 +285,7 @@ class CoreExport ServerConfig : public Extensible
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream);
+	bool ParseLine(ConfigDataHash &target, const std::string &filename, std::string &line, long &linenumber, std::ostringstream &errorstream);
 
 	/** Check that there is only one of each configuration item
 	 */

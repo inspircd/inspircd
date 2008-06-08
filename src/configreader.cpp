@@ -1492,7 +1492,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 					 * If this finds an <include> then ParseLine can simply call
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
-					if (!this->ParseLine(target, line, linenumber, errorstream))
+					if (!this->ParseLine(target, filename, line, linenumber, errorstream))
 						return false;
 	
 					line.clear();
@@ -1522,7 +1522,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const std::stri
 	return this->LoadConf(target, conf, filename.c_str(), errorstream);
 }
 
-bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream)
+bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename, std::string &line, long &linenumber, std::ostringstream &errorstream)
 {
 	std::string tagname;
 	std::string current_key;
@@ -1566,7 +1566,13 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &li
 				{
 					if (*c != ' ')
 					{
-						current_key += *c;
+						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || *c == '_')
+							current_key += *c;
+						else
+						{
+							errorstream << "Invalid character in key: '" << *c << "' in key '" << current_key << "' in filename: " << filename << ":" << linenumber << std::endl;
+							return false;
+						}
 					}
 				}
 				else
