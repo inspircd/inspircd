@@ -253,7 +253,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 				
-				if ((chan->key.empty()) && (CanOverride(user,"KEY")) && keygiven != chan->key)
+				if ((!chan->key.empty()) && (CanOverride(user,"KEY")) && keygiven != chan->key)
 				{
 					if (RequireKey && keygiven != "override")
 					{
