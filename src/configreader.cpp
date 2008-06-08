@@ -1544,7 +1544,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 			{
 				if (*c != '<')
 				{
-					if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || *c == '_')
+					if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_')
 						tagname += *c;
 					else
 					{
@@ -1572,7 +1572,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 				{
 					if (*c != ' ')
 					{
-						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || *c == '_')
+						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_' || *c == '\n' || *c == '>')
 							current_key += *c;
 						else
 						{
