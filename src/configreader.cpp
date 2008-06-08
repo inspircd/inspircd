@@ -1448,7 +1448,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_quote)
 				{
-					errorstream << "We're in a quote but outside a tag, interesting. " << filename << ":" << linenumber << std::endl;
+					errorstream << "Parser error: Inside a quote but not within a tag!: " << filename << ":" << linenumber << std::endl;
 					return false;
 				}
 				else
@@ -1477,11 +1477,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_quote)
 				{
-					errorstream << "Found a (closing) \" outside a tag: " << filename << ":" << linenumber << std::endl;
+					errorstream << "Found a closing \" outside a tag: " << filename << ":" << linenumber << std::endl;
 				}
 				else
 				{
-					errorstream << "Found a (opening) \" outside a tag: " << filename << ":" << linenumber << std::endl;
+					errorstream << "Found a opening \" outside a tag: " << filename << ":" << linenumber << std::endl;
 				}
 			}
 		}
@@ -1578,7 +1578,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 				{
 					if (*c != ' ')
 					{
-						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_' || *c == '\n' || *c == '>')
+						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_' || *c == '>')
 							current_key += *c;
 						else
 						{
