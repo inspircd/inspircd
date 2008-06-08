@@ -43,6 +43,10 @@ class CommandCAP : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		/* Ignore CAP from registered clients */
+		if (user->registered == REG_ALL)
+			return CMD_FAILURE;
+
 		irc::string subcommand = parameters[0].c_str();
 
 		if (subcommand == "REQ")
