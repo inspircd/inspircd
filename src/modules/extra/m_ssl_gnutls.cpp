@@ -83,9 +83,12 @@ class CommandStartTLS : public Command
 		{
 			if (!user->io)
 			{
+				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
 				user->io = Caller;
 				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
 			}
+			else
+				user->WriteNumeric(671, "%s :STARTTLS failure", user->nick.c_str());
 		}
 
 		return CMD_FAILURE;
