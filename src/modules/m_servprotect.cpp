@@ -91,7 +91,7 @@ class ModuleServProtectMode : public Module
 				if (u->IsModeSet('k') && ServerInstance->Modes->ModeString(u, chan, false).find(mode) != std::string::npos)
 				{
 					/* BZZZT, Denied! */
-					user->WriteNumeric(482, "%s %s :You are not permitted to deop %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network);
+					user->WriteNumeric(482, "%s %s :You are not permitted to remove privileges from %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network);
 					return ACR_DENY;
 				}
 			}
