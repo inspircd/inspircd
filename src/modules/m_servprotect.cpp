@@ -48,8 +48,8 @@ class ModuleServProtectMode : public Module
 		bm = new ServProtectMode(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(bm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	
@@ -72,6 +72,23 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
+	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt, bool servermode)
+	{
+		if (!servermode && (mode == 'o') && !adding && chan && IS_LOCAL(user) && !ServerInstance->ULine(user->server))
+		{
+			User *u = ServerInstance->FindNick(param);
+			if (u)
+			{
+				if (u->IsModeSet('k'))
+				{
+					user->WriteNumeric(482, "%s %s :You are not permitted to deop %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network);
+					return ACR_DENY;
+				}
+			}
+		}
+		return 0;
+	}
+
 	virtual int OnKill(User* src, User* dst, const std::string &reason)
 	{
 		if (src == NULL)
@@ -79,7 +96,7 @@ class ModuleServProtectMode : public Module
 
 		if (dst->IsModeSet('k'))
 		{
-			src->WriteNumeric(485, "%s :You are not allowed to kill %s Services!", src->nick.c_str(), ServerInstance->Config->Network);
+			src->WriteNumeric(485, "%s :You are not permitted to kill %s services!", src->nick.c_str(), ServerInstance->Config->Network);
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(src->nick)+" tried to kill service "+dst->nick+" ("+reason+")");
 			return 1;
 		}
