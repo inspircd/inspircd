@@ -74,18 +74,29 @@ class ModuleServProtectMode : public Module
 
 	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt, bool servermode)
 	{
-		if (!servermode && (mode == 'o') && !adding && chan && IS_LOCAL(user) && !ServerInstance->ULine(user->server))
+		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
+		 * and the user making the change is not a uline
+		 */
+		if (!servermode && !adding && chan && IS_LOCAL(user) && !param.empty() && !ServerInstance->ULine(user->server))
 		{
+			/* Check if the parameter is a valid nick/uuid
+			 */
 			User *u = ServerInstance->FindNick(param);
 			if (u)
 			{
-				if (u->IsModeSet('k'))
+				/* The target user has +k set on themselves, and you are trying to remove a privilege mode the user has set on themselves.
+				 * This includes any prefix permission mode, even those registered in other modules, e.g. +qaohv. Using ::ModeString()
+				 * here means that the number of modes is restricted to only modes the user has, limiting it to as short a loop as possible.
+				 */
+				if (u->IsModeSet('k') && ServerInstance->Modes->ModeString(u, chan, false).find(mode) != std::string::npos)
 				{
+					/* BZZZT, Denied! */
 					user->WriteNumeric(482, "%s %s :You are not permitted to deop %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network);
 					return ACR_DENY;
 				}
 			}
 		}
+		/* Mode allowed */
 		return 0;
 	}
 
