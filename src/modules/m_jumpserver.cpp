@@ -126,13 +126,13 @@ class ModuleJumpServer : public Module
 	ModuleJumpServer(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		js = new CommandJumpserver(ServerInstance);
 		ServerInstance->AddCommand(js);
 		Implementation eventlist[] = { I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-	
+
 	virtual ~ModuleJumpServer()
 	{
 	}
@@ -153,7 +153,7 @@ class ModuleJumpServer : public Module
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleJumpServer)

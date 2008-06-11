@@ -37,7 +37,7 @@ class ModuleStripColor : public Module
 	bool AllowChanOps;
 	ChannelStripColor *csc;
 	UserStripColor *usc;
- 
+
  public:
 	ModuleStripColor(InspIRCd* Me) : Module(Me)
 	{
@@ -58,7 +58,7 @@ class ModuleStripColor : public Module
 		delete usc;
 		delete csc;
 	}
-	
+
 	virtual void ReplaceLine(std::string &sentence)
 	{
 		/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
@@ -78,7 +78,7 @@ class ModuleStripColor : public Module
 			}
 			else
 				seq = 0;
-			
+
 			if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
 			{
 				if (i != sentence.begin())
@@ -131,17 +131,17 @@ class ModuleStripColor : public Module
 
 		return 0;
 	}
-	
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleStripColor)

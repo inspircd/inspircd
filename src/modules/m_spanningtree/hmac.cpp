@@ -145,4 +145,4 @@ bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
 	else
 		/* Straight string compare of plaintext */
 		return ours == theirs;
-}  
+}

@@ -124,11 +124,11 @@ class ModuleGlobalLoad : public Module
 	CommandGloadmodule *mycommand;
 	CommandGunloadmodule *mycommand2;
 	CommandGreloadmodule *mycommand3;
-	
+
  public:
 	ModuleGlobalLoad(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		mycommand = new CommandGloadmodule(ServerInstance);
 		mycommand2 = new CommandGunloadmodule(ServerInstance);
 		mycommand3 = new CommandGreloadmodule(ServerInstance);
@@ -137,11 +137,11 @@ class ModuleGlobalLoad : public Module
 		ServerInstance->AddCommand(mycommand3);
 
 	}
-	
+
 	virtual ~ModuleGlobalLoad()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

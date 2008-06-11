@@ -25,7 +25,7 @@
  *  The RIPEMD-160 software is freely available for use under the terms and
  *  conditions described hereunder, which shall be deemed to be accepted by
  *  any user of the software and applicable on any use of the software:
- * 
+ *
  *  1. K.U.Leuven Department of Electrical Engineering-ESAT/COSIC shall for
  *     all purposes be considered the owner of the RIPEMD-160 software and of
  *     all copyright, trade secret, patent or other intellectual property
@@ -39,9 +39,9 @@
  *     circumstances K.U.Leuven R&D will be held liable for any deficiency,
  *     fault or other mishappening with regard to the use or performance of
  *     the software.
- *  3. User agrees to give due credit to K.U.Leuven in scientific publications 
- *     or communications in relation with the use of the RIPEMD-160 software 
- *     as follows: RIPEMD-160 software written by Antoon Bosselaers, 
+ *  3. User agrees to give due credit to K.U.Leuven in scientific publications
+ *     or communications in relation with the use of the RIPEMD-160 software
+ *     as follows: RIPEMD-160 software written by Antoon Bosselaers,
  *     available at http://www.esat.kuleuven.be/~cosicart/ps/AB-9601/.
  *
  */
@@ -80,12 +80,12 @@ typedef		uint32_t		dword;
 #define ROL(x, n)        (((x) << (n)) | ((x) >> (32-(n))))
 
 /* the five basic functions F(), G() and H() */
-#define F(x, y, z)        ((x) ^ (y) ^ (z)) 
-#define G(x, y, z)        (((x) & (y)) | (~(x) & (z))) 
+#define F(x, y, z)        ((x) ^ (y) ^ (z))
+#define G(x, y, z)        (((x) & (y)) | (~(x) & (z)))
 #define H(x, y, z)        (((x) | ~(y)) ^ (z))
-#define I(x, y, z)        (((x) & (z)) | ((y) & ~(z))) 
+#define I(x, y, z)        (((x) & (z)) | ((y) & ~(z)))
 #define J(x, y, z)        ((x) ^ ((y) | ~(z)))
-  
+
 /* the ten basic operations FF() through III() */
 
 #define FF(a, b, c, d, e, x, s)        {\
@@ -200,7 +200,7 @@ class ModuleRIPEMD160 : public Module
 		FF(cc, dd, ee, aa, bb, X[13],  7);
 		FF(bb, cc, dd, ee, aa, X[14],  9);
 		FF(aa, bb, cc, dd, ee, X[15],  8);
-                             
+
 		/* round 2 */
 		GG(ee, aa, bb, cc, dd, X[ 7],  7);
 		GG(dd, ee, aa, bb, cc, X[ 4],  6);
@@ -218,7 +218,7 @@ class ModuleRIPEMD160 : public Module
 		GG(bb, cc, dd, ee, aa, X[14],  7);
 		GG(aa, bb, cc, dd, ee, X[11], 13);
 		GG(ee, aa, bb, cc, dd, X[ 8], 12);
-	
+
 		/* round 3 */
 		HH(dd, ee, aa, bb, cc, X[ 3], 11);
 		HH(cc, dd, ee, aa, bb, X[10], 13);
@@ -236,7 +236,7 @@ class ModuleRIPEMD160 : public Module
 		HH(aa, bb, cc, dd, ee, X[11], 12);
 		HH(ee, aa, bb, cc, dd, X[ 5],  7);
 		HH(dd, ee, aa, bb, cc, X[12],  5);
-		
+
 		/* round 4 */
 		II(cc, dd, ee, aa, bb, X[ 1], 11);
 		II(bb, cc, dd, ee, aa, X[ 9], 12);
@@ -292,7 +292,7 @@ class ModuleRIPEMD160 : public Module
 		JJJ(aaa, bbb, ccc, ddd, eee, X[12],  6);
 
 		/* parallel round 2 */
-		III(eee, aaa, bbb, ccc, ddd, X[ 6],  9); 
+		III(eee, aaa, bbb, ccc, ddd, X[ 6],  9);
 		III(ddd, eee, aaa, bbb, ccc, X[11], 13);
 		III(ccc, ddd, eee, aaa, bbb, X[ 3], 15);
 		III(bbb, ccc, ddd, eee, aaa, X[ 7],  7);
@@ -327,7 +327,7 @@ class ModuleRIPEMD160 : public Module
 		HHH(eee, aaa, bbb, ccc, ddd, X[ 4],  7);
 		HHH(ddd, eee, aaa, bbb, ccc, X[13],  5);
 
-		/* parallel round 4 */   
+		/* parallel round 4 */
 		GGG(ccc, ddd, eee, aaa, bbb, X[ 8], 15);
 		GGG(bbb, ccc, ddd, eee, aaa, X[ 6],  5);
 		GGG(aaa, bbb, ccc, ddd, eee, X[ 4],  8);

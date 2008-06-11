@@ -19,14 +19,14 @@ class ModuleModesOnOper : public Module
 {
  private:
 
-	
+
 	ConfigReader *Conf;
 
  public:
 	ModuleModesOnOper(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		Conf = new ConfigReader(ServerInstance);
 		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -38,17 +38,17 @@ class ModuleModesOnOper : public Module
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
 	}
-	
+
 	virtual ~ModuleModesOnOper()
 	{
 		delete Conf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 	virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
 	{
 		// whenever a user opers, go through the oper types, find their <type:modes>,

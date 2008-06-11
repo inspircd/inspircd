@@ -55,12 +55,12 @@ class ModuleGlobops : public Module
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 
 	}
-	
+
 	virtual ~ModuleGlobops()
 	{
 		ServerInstance->SNO->DisableSnomask('g');
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);

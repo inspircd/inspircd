@@ -23,30 +23,30 @@
 class ModuleRPCTest : public Module
 {
  private:
-	
+
  public:
 	ModuleRPCTest(InspIRCd *Me) : Module(Me)
 	{
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-	
+
 	virtual ~ModuleRPCTest()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
 	}
-	
-	
+
+
 	virtual void OnEvent(Event *ev)
 	{
 		if (ev->GetEventID() == "RPCMethod")
 		{
 			RPCRequest *req = (RPCRequest*) ev->GetData();
-			
+
 			if (req->method == "test.echo")
 			{
 				req->claimed = true;
@@ -55,7 +55,7 @@ class ModuleRPCTest : public Module
 					req->error = "Insufficient parameters";
 					return;
 				}
-				
+
 				req->result->SetString(req->parameters->GetArray(0)->GetString());
 			}
 		}

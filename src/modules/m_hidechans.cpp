@@ -40,20 +40,20 @@ class HideChans : public ModeHandler
 				return MODEACTION_ALLOW;
 			}
 		}
-		
+
 		return MODEACTION_DENY;
 	}
 };
 
 class ModuleHideChans : public Module
 {
-	
+
 	HideChans* hm;
  public:
 	ModuleHideChans(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		hm = new HideChans(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(hm))
 			throw ModuleException("Could not add new modes!");
@@ -61,13 +61,13 @@ class ModuleHideChans : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	
+
 	virtual ~ModuleHideChans()
 	{
 		ServerInstance->Modes->DelMode(hm);
 		delete hm;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);

@@ -132,7 +132,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		{
 			modes.append("b");
 			params.append(" ").append(b->data);
-			linesize += size; 
+			linesize += size;
 		}
 		if ((params.length() >= Instance->Config->Limits.MaxModes) || (currsize > 350))
 		{

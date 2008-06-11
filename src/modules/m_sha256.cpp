@@ -159,7 +159,7 @@ class ModuleSHA256 : public Module
 		{
 			int j;
 			sub_block = message + ((i - 1) << 6);
-	
+
 			for (j = 0; j < 16; j++)
 				PACK32(&sub_block[j << 2], &w[j]);
 			for (j = 16; j < 64; j++)
@@ -183,7 +183,7 @@ class ModuleSHA256 : public Module
 				ctx->h[j] += wv[j];
 		}
 	}
-	
+
 	void SHA256Update(SHA256Context *ctx, unsigned char *message, unsigned int len)
 	{
 		/*
@@ -205,7 +205,7 @@ class ModuleSHA256 : public Module
 		unsigned int tmp_len = SHA256_BLOCK_SIZE - ctx->len;
 		unsigned int rem_len = len < tmp_len ? len : tmp_len;
 
-		
+
 		memcpy(&ctx->block[ctx->len], message, rem_len);
 		if (ctx->len + len < SHA256_BLOCK_SIZE)
 		{
@@ -222,7 +222,7 @@ class ModuleSHA256 : public Module
 		ctx->len = rem_len;
 		ctx->tot_len += (block_nb + 1) << 6;
 	}
-	
+
 	void SHA256Final(SHA256Context *ctx, unsigned char *digest)
 	{
 		unsigned int block_nb = (1 + ((SHA256_BLOCK_SIZE - 9) < (ctx->len % SHA256_BLOCK_SIZE)));
@@ -235,7 +235,7 @@ class ModuleSHA256 : public Module
 		for (int i = 0 ; i < 8; i++)
 			UNPACK32(ctx->h[i], &digest[i << 2]);
 	}
-	
+
 	void SHA256(const char *src, char *dest, int len, const char* hxc, const unsigned int* ikey = NULL)
 	{
 		// Generate the hash

@@ -21,17 +21,17 @@ class ModuleAntiBottler : public Module
 	ModuleAntiBottler(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		Implementation eventlist[] = { I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 
-	
+
 	virtual ~ModuleAntiBottler()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
@@ -48,7 +48,7 @@ class ModuleAntiBottler : public Module
 			{
 				if (*j == ':')
 					break;
-					
+
 				if (*j == '"')
 				{
 					not_bottler = true;

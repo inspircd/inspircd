@@ -21,7 +21,7 @@
 class ModuleTestClient : public Module
 {
 private:
-	
+
 
 public:
 	ModuleTestClient(InspIRCd* Me)
@@ -31,21 +31,21 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-		
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
 	}
-	
+
 	virtual void OnBackgroundTimer(time_t)
 	{
 		Module* target = ServerInstance->Modules->FindFeature("SQL");
-		
+
 		if(target)
 		{
 			SQLrequest foo = SQLrequest(this, target, "foo",
 					SQLquery("UPDATE rawr SET foo = '?' WHERE bar = 42") % time(NULL));
-			
+
 			if(foo.Send())
 			{
 				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Sent query, got given ID %lu", foo.id);
@@ -56,13 +56,13 @@ public:
 			}
 		}
 	}
-	
+
 	virtual const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
 			ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got SQL result (%s)", request->GetId());
-		
+
 			SQLresult* res = (SQLresult*)request;
 
 			if (res->error.Id() == NO_ERROR)
@@ -74,7 +74,7 @@ public:
 					for (int r = 0; r < res->Rows(); r++)
 					{
 						ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Row %d:", r);
-						
+
 						for(int i = 0; i < res->Cols(); i++)
 						{
 							ServerInstance->Logs->Log("m_testclient.so", DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
@@ -89,20 +89,20 @@ public:
 			else
 			{
 				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "SQLrequest failed: %s", res->error.Str());
-				
+
 			}
-		
+
 			return SQLSUCCESS;
 		}
-		
+
 		ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got unsupported API version string: %s", request->GetId());
-		
+
 		return NULL;
 	}
-	
+
 	virtual ~ModuleTestClient()
 	{
-	}	
+	}
 };
 
 MODULE_INIT(ModuleTestClient)

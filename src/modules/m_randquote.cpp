@@ -61,7 +61,7 @@ class ModuleRandQuote : public Module
 	ModuleRandQuote(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		conf = new ConfigReader(ServerInstance);
 		// Sort the Randomizer thingie..
 		srand(time(NULL));
@@ -92,18 +92,18 @@ class ModuleRandQuote : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	
+
 	virtual ~ModuleRandQuote()
 	{
 		delete conf;
 		delete quotes;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 	virtual void OnUserConnect(User* user)
 	{
 		if (mycommand)

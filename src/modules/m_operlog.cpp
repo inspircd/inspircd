@@ -18,31 +18,31 @@
 class ModuleOperLog : public Module
 {
  private:
-	 
+
  public:
 	ModuleOperLog(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
- 
+
 	virtual ~ModuleOperLog()
 	{
 	}
- 
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
- 
+
 
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
 			return 0;
- 
+
 		if ((IS_OPER(user)) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
 			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
@@ -59,6 +59,6 @@ class ModuleOperLog : public Module
 	}
 
 };
- 
- 
+
+
 MODULE_INIT(ModuleOperLog)

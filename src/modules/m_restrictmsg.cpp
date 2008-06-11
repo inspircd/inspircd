@@ -18,13 +18,13 @@
 
 class ModuleRestrictMsg : public Module
 {
-	
+
  public:
- 
+
 	ModuleRestrictMsg(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -60,7 +60,7 @@ class ModuleRestrictMsg : public Module
 	virtual ~ModuleRestrictMsg()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);

@@ -21,7 +21,7 @@ static bool kludgeme = false;
  */
 class Channel_r : public ModeHandler
 {
-	
+
  public:
 	Channel_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
@@ -45,7 +45,7 @@ class Channel_r : public ModeHandler
  */
 class User_r : public ModeHandler
 {
-	
+
  public:
 	User_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false) { }
 
@@ -96,7 +96,7 @@ class Channel_M : public SimpleChannelModeHandler
  */
 class ModuleServices : public Module
 {
-	
+
 	Channel_r* m1;
 	Channel_R* m2;
 	Channel_M* m3;
@@ -106,7 +106,7 @@ class ModuleServices : public Module
 	ModuleServices(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		m1 = new Channel_r(ServerInstance);
 		m2 = new Channel_R(ServerInstance);
 		m3 = new Channel_M(ServerInstance);
@@ -118,7 +118,7 @@ class ModuleServices : public Module
 		{
 			throw ModuleException("Could not add user and channel modes!");
 		}
-	
+
 		kludgeme = false;
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPostNick, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
@@ -148,7 +148,7 @@ class ModuleServices : public Module
 			kludgeme = false;
 		}
 	}
-	
+
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
@@ -186,12 +186,12 @@ class ModuleServices : public Module
 		}
 		return 0;
 	}
- 	
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status, exempt_list);
 	}
- 	
+
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
@@ -228,7 +228,7 @@ class ModuleServices : public Module
 		delete m4;
 		delete m5;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);

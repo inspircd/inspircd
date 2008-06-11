@@ -31,9 +31,9 @@ class JsonException : public std::exception
 		: _what(swhat)
 	{
 	}
-	
+
 	virtual ~JsonException() throw() { }
-	
+
 	virtual const char *what() const throw()
 	{
 		return _what.c_str();
@@ -43,7 +43,7 @@ class JsonException : public std::exception
 class ModuleRpcJson : public Module
 {
  private:
-	
+
  public:
 	ModuleRpcJson(InspIRCd *Me) : Module(Me)
 	{
@@ -51,52 +51,52 @@ class ModuleRpcJson : public Module
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-	
+
 	virtual ~ModuleRpcJson()
 	{
 		ServerInstance->Modules->UnpublishInterface("RPC", this);
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_SERVICEPROVIDER | VF_VENDOR, API_VERSION);
 	}
-	
-	
+
+
 	virtual void OnEvent(Event *event)
 	{
 		if (event->GetEventID() == "httpd_url")
 		{
 			HTTPRequest *req = (HTTPRequest*) event->GetData();
-			
+
 			if ((req->GetURI() == "/rpc/json") || (req->GetURI() == "/rpc/json/"))
 			{
 				std::stringstream data;
-				
+
 				RPCValue *reqobj = NULL;
-				
+
 				try
 				{
 					reqobj = this->JSONParse(req->GetPostData());
-					
+
 					if (!reqobj || (reqobj->GetType() != RPCObject))
 						throw JsonException("RPC requests must be in the form of a single object");
-					
+
 					RPCValue *method = reqobj->GetObject("method");
 					if (!method || method->GetType() != RPCString)
 						throw JsonException("RPC requests must have a 'method' string field");
-					
+
 					RPCValue *params = reqobj->GetObject("params");
 					if (!params || params->GetType() != RPCArray)
 						throw JsonException("RPC requests must have a 'params' array field");
-					
+
 					RPCRequest modreq("json", method->GetString(), params);
 					Event mev((char*) &modreq, this, "RPCMethod");
 					mev.Send(ServerInstance);
-					
+
 					if (!modreq.claimed)
 						throw JsonException("Unrecognized method");
-					
+
 					if (!modreq.error.empty())
 					{
 						data << "{\"result\":null,\"error\":\"" << modreq.error << "\"";
@@ -107,14 +107,14 @@ class ModuleRpcJson : public Module
 						this->JSONSerialize(modreq.result, data);
 						data << ",\"error\":null";
 					}
-					
+
 					if (reqobj->GetObject("id"))
 					{
 						data << ",\"id\":";
 						this->JSONSerialize(reqobj->GetObject("id"), data);
 					}
 					data << "}";
-										
+
 					delete reqobj;
 					reqobj = NULL;
 				}
@@ -124,23 +124,23 @@ class ModuleRpcJson : public Module
 						delete reqobj;
 					data << "{\"result\":null,\"error\":\"" << e.what() << "\"}";
 				}
-				
+
 				HTTPDocument response(req->sock, &data, 200);
 				response.headers.SetHeader("X-Powered-By", "m_rpc_json.so");
 				response.headers.SetHeader("Content-Type", "application/json");
 				response.headers.SetHeader("Connection", "Keep-Alive");
-				
+
 				Request rreq((char*) &response, (Module*) this, event->GetSource());
 				rreq.Send();
 			}
 		}
 	}
-	
+
 	void AttachToParent(RPCValue *parent, RPCValue *child, const std::string &key = "")
 	{
 		if (!parent || !child)
 			return;
-		
+
 		if (parent->GetType() == RPCArray)
 			parent->ArrayAdd(child);
 		else if (parent->GetType() == RPCObject)
@@ -148,14 +148,14 @@ class ModuleRpcJson : public Module
 		else
 			throw JsonException("Cannot add a value to a non-container");
 	}
-	
+
 	void AttachToParentReset(RPCValue *parent, RPCValue *&child, std::string &key)
 	{
 		AttachToParent(parent, child, key);
 		child = NULL;
 		key.clear();
 	}
-	
+
 	RPCValue *JSONParse(const std::string &data)
 	{
 		bool pisobject = false;
@@ -165,7 +165,7 @@ class ModuleRpcJson : public Module
 		std::string pvkey;
 		RPCValue *aparent = NULL;
 		RPCValue *value = NULL;
-		
+
 		for (std::string::const_iterator i = data.begin(); i != data.end(); i++)
 		{
 			if (instring)
@@ -174,29 +174,29 @@ class ModuleRpcJson : public Module
 				if (*i == '"')
 				{
 					instring = false;
-					
+
 					if (pisobject && vkey.empty())
 						vkey = stmp;
 					else
 						value = new RPCValue(stmp);
-					
+
 					stmp.clear();
 				}
 				else
 					stmp += *i;
-				
+
 				continue;
 			}
-			
+
 			if ((*i == ' ') || (*i == '\t') || (*i == '\r') || (*i == '\n'))
 				continue;
-			
+
 			if (*i == '{')
 			{
 				// Begin object
 				if ((value) || (pisobject && vkey.empty()))
 					throw JsonException("Unexpected begin object token ('{')");
-				
+
 				RPCValue *nobj = new RPCValue(RPCObject, aparent);
 				aparent = nobj;
 				pvkey = vkey;
@@ -208,14 +208,14 @@ class ModuleRpcJson : public Module
 				// End object
 				if ((!aparent) || (!pisobject) || (!vkey.empty() && !value))
 					throw JsonException("Unexpected end object token ('}')");
-				
+
 				// End value
 				if (value)
 					AttachToParentReset(aparent, value, vkey);
-				
+
 				if (!aparent->parent)
 					return aparent;
-				
+
 				value = aparent;
 				aparent = aparent->parent;
 				vkey = pvkey;
@@ -227,7 +227,7 @@ class ModuleRpcJson : public Module
 				// Begin string
 				if (value)
 					throw JsonException("Unexpected begin string token ('\"')");
-				
+
 				instring = true;
 			}
 			else if (*i == ':')
@@ -239,7 +239,7 @@ class ModuleRpcJson : public Module
 			{
 				if ((!aparent) || (!value) || ((pisobject) && (vkey.empty())))
 					throw JsonException("Unexpected value seperator token (',')");
-				
+
 				AttachToParentReset(aparent, value, vkey);
 			}
 			else if (*i == '[')
@@ -247,7 +247,7 @@ class ModuleRpcJson : public Module
 				// Begin array
 				if ((value) || (pisobject && vkey.empty()))
 					throw JsonException("Unexpected begin array token ('[')");
-				
+
 				RPCValue *nar = new RPCValue(RPCArray, aparent);
 				aparent = nar;
 				pvkey = vkey;
@@ -259,13 +259,13 @@ class ModuleRpcJson : public Module
 				// End array (also an end value delimiter)
 				if (!aparent || pisobject)
 					throw JsonException("Unexpected end array token (']')");
-				
+
 				if (value)
 					AttachToParentReset(aparent, value, vkey);
-				
+
 				if (!aparent->parent)
 					return aparent;
-				
+
 				value = aparent;
 				aparent = aparent->parent;
 				vkey = pvkey;
@@ -294,36 +294,36 @@ class ModuleRpcJson : public Module
 				{
 					std::string ds = std::string(i, data.end());
 					char *eds = NULL;
-					
+
 					errno = 0;
 					double v = strtod(ds.c_str(), &eds);
-					
+
 					if (errno != 0)
 						throw JsonException("Error parsing numeric value");
-					
+
 					value = new RPCValue(v);
-					
+
 					i += eds - ds.c_str() - 1;
 				}
 				else
 					throw JsonException("Unknown data in value portion");
 			}
 		}
-		
+
 		if (instring)
 			throw JsonException("Unterminated string");
-		
+
 		if (aparent && pisobject)
 			throw JsonException("Unterminated object");
 		else if (aparent && !pisobject)
 			throw JsonException("Unterminated array");
-		
+
 		if (value)
 			return value;
 		else
 			throw JsonException("No JSON data found");
 	}
-	
+
 	void JSONSerialize(RPCValue *value, std::stringstream &re)
 	{
 		int ac;

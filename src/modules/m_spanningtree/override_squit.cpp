@@ -12,14 +12,14 @@
  */
 
 /* $ModDesc: Provides a spanning tree server link protocol */
-		
+
 #include "inspircd.h"
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
 #include "wildcard.h"
-#include "xline.h"      
-#include "transport.h"  
+#include "xline.h"
+#include "transport.h"
 
 #include "m_spanningtree/timesynctimer.h"
 #include "m_spanningtree/resolvers.h"

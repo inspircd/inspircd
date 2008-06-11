@@ -69,16 +69,16 @@ class ModuleSaMode : public Module
 	ModuleSaMode(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandSamode(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleSaMode()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

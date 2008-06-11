@@ -20,7 +20,7 @@
 
 class ModuleHttpStats : public Module
 {
-	
+
 	std::string stylesheet;
 	bool changed;
 
@@ -155,7 +155,7 @@ class ModuleHttpStats : public Module
 				}
 
 				data << "</userlist><serverlist>";
-				
+
 				ProtoServerList sl;
 				ServerInstance->PI->GetServerList(sl);
 

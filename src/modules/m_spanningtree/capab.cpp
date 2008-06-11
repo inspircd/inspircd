@@ -188,7 +188,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 
 		if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (Instance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(Instance->Config->AllowHalfop))))
 			reason = "We don't both have halfop support enabled/disabled identically";
-	
+
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->CapKeys.find("CHALLENGE");
 		if (Utils->ChallengeResponse && (n != this->CapKeys.end()) && (Instance->Modules->Find("m_sha256.so")))

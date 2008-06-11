@@ -137,10 +137,10 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	Instance->Users->AddGlobalClone(_new);
 
 	bool dosend = true;
-	
+
 	if ((this->Utils->quiet_bursts && remoteserver->bursting) || this->Instance->SilentULine(_new->server))
 		dosend = false;
-	
+
 	if (dosend)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
 

@@ -69,7 +69,7 @@ class ModuleSetHost : public Module
  public:
 	ModuleSetHost(InspIRCd* Me)
 		: Module(Me)
-	{	
+	{
 		OnRehash(NULL,"");
 		mycommand = new CommandSethost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
@@ -94,12 +94,12 @@ class ModuleSetHost : public Module
 	virtual ~ModuleSetHost()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSetHost)

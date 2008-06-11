@@ -26,7 +26,7 @@ class CommandKnock : public Command
 		syntax = "<channel> <reason>";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
-	
+
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		Channel* c = ServerInstance->FindChan(parameters[0]);

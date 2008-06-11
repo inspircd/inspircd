@@ -144,9 +144,9 @@ class ModuleZLib : public Module
 	float total_in_compressed;
 	float total_out_uncompressed;
 	float total_in_uncompressed;
-	
+
  public:
-	
+
 	ModuleZLib(InspIRCd* Me)
 		: Module::Module(Me)
 	{
@@ -261,7 +261,7 @@ class ModuleZLib : public Module
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
 		izip_session* session = &sessions[fd];
-	
+
 		/* allocate state and buffers */
 		session->fd = fd;
 		session->status = IZIP_OPEN;
@@ -308,7 +308,7 @@ class ModuleZLib : public Module
 			/* Add it to the frame queue */
 			session->inbuf->AddData(compr, readresult);
 			total_in_compressed += readresult;
-	
+
 			/* Parse all completed frames */
 			int size = 0;
 			while ((size = session->inbuf->GetFrame(compr, CHUNK)) != 0)
@@ -320,14 +320,14 @@ class ModuleZLib : public Module
 				/* If we cant call this, well, we're boned. */
 				if (inflateInit(&session->d_stream) != Z_OK)
 					return 0;
-	
+
 				while ((session->d_stream.total_out < count) && (session->d_stream.total_in < (unsigned int)size))
 				{
 					session->d_stream.avail_in = session->d_stream.avail_out = 1;
 					if (inflate(&session->d_stream, Z_NO_FLUSH) == Z_STREAM_END)
 						break;
 				}
-	
+
 				/* Stick a fork in me, i'm done */
 				inflateEnd(&session->d_stream);
 
@@ -435,7 +435,7 @@ class ModuleZLib : public Module
 		 */
 		return ocount;
 	}
-	
+
 	void CloseSession(izip_session* session)
 	{
 		if (session->status == IZIP_OPEN)

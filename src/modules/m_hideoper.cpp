@@ -40,20 +40,20 @@ class HideOper : public ModeHandler
 				return MODEACTION_ALLOW;
 			}
 		}
-		
+
 		return MODEACTION_DENY;
 	}
 };
 
 class ModuleHideOper : public Module
 {
-	
+
 	HideOper* hm;
  public:
 	ModuleHideOper(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		hm = new HideOper(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(hm))
 			throw ModuleException("Could not add new modes!");
@@ -61,13 +61,13 @@ class ModuleHideOper : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	
+
 	virtual ~ModuleHideOper()
 	{
 		ServerInstance->Modes->DelMode(hm);
 		delete hm;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);

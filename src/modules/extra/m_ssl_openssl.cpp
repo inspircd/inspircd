@@ -162,7 +162,7 @@ class ModuleSSLOpenSSL : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 16);
 	}
 
-        virtual void OnHookUserIO(User* user, const std::string &targetip)
+	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
 		if (!user->io && isin(targetip,user->GetPort(), listenports))
 		{
@@ -175,43 +175,43 @@ class ModuleSSLOpenSSL : public Module
 	{
 		ConfigReader Conf(ServerInstance);
 
-                listenports.clear();
-                clientactive = 0;
-                sslports.clear();
+		listenports.clear();
+		clientactive = 0;
+		sslports.clear();
 
-                for(int index = 0; index < Conf.Enumerate("bind"); index++)
-                {
-                        // For each <bind> tag
-                        std::string x = Conf.ReadValue("bind", "type", index);
-                        if(((x.empty()) || (x == "clients")) && (Conf.ReadValue("bind", "ssl", index) == "openssl"))
-                        {
-                                // Get the port we're meant to be listening on with SSL
-                                std::string port = Conf.ReadValue("bind", "port", index);
-                                std::string addr = Conf.ReadValue("bind", "address", index);
+		for(int index = 0; index < Conf.Enumerate("bind"); index++)
+		{
+			// For each <bind> tag
+			std::string x = Conf.ReadValue("bind", "type", index);
+			if(((x.empty()) || (x == "clients")) && (Conf.ReadValue("bind", "ssl", index) == "openssl"))
+			{
+				// Get the port we're meant to be listening on with SSL
+				std::string port = Conf.ReadValue("bind", "port", index);
+				std::string addr = Conf.ReadValue("bind", "address", index);
 
-                                irc::portparser portrange(port, false);
-                                long portno = -1;
-                                while ((portno = portrange.GetToken()))
-                                {
-                                        clientactive++;
-                                        try
-                                        {
-                                                listenports.push_back(addr + ":" + ConvToStr(portno));
+				irc::portparser portrange(port, false);
+				long portno = -1;
+				while ((portno = portrange.GetToken()))
+				{
+					clientactive++;
+					try
+					{
+						listenports.push_back(addr + ":" + ConvToStr(portno));
 
-                                                for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
-                                                        if ((ServerInstance->Config->ports[i]->GetPort() == portno) && (ServerInstance->Config->ports[i]->GetIP() == addr))
-                                                                ServerInstance->Config->ports[i]->SetDescription("ssl");
-                                                ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %ld", portno);
+						for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
+							if ((ServerInstance->Config->ports[i]->GetPort() == portno) && (ServerInstance->Config->ports[i]->GetIP() == addr))
+								ServerInstance->Config->ports[i]->SetDescription("ssl");
+						ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %ld", portno);
 
-                                                sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
-                                        }
-                                        catch (ModuleException &e)
-                                        {
-                                                ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %ld: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
-                                        }
-                                }
-                        }
-                }
+						sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
+					}
+					catch (ModuleException &e)
+					{
+						ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %ld: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
+					}
+				}
+			}
+		}
 
 		if (!sslports.empty())
 			sslports.erase(sslports.end() - 1);
@@ -430,7 +430,7 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketConnect(int fd)
 	{
-                /* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
+		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() -1))
 			return;
 
@@ -636,7 +636,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-		
+
 		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
 		if (ret == 0)

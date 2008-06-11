@@ -52,12 +52,12 @@ public:
 		Implementation eventlist[] = { I_OnRequest, I_On005Numeric, I_OnCheckInvite };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-	
+
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" INVEX=I");
 	}
-	 
+
 	virtual int OnCheckInvite(User* user, Channel* chan)
 	{
 		if(chan != NULL)
@@ -79,7 +79,7 @@ public:
 			// or if there wasn't a list, there can't be anyone on it, so we don't need to do anything.
 		}
 
-		return 0;		
+		return 0;
 	}
 
 	virtual const char* OnRequest(Request* request)
@@ -125,7 +125,7 @@ public:
 	{
 		ie->DoRehash();
 	}
-		
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 3, VF_VENDOR | VF_COMMON, API_VERSION);

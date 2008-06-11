@@ -17,7 +17,7 @@
 /* $ModDesc: Provides /tline command used to test who a mask matches */
 
 /** Handle /TLINE
- */ 
+ */
 class CommandTline : public Command
 {
  public:
@@ -57,7 +57,7 @@ class CommandTline : public Command
 		else
 			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against no user(s).", user->nick.c_str(), n_counted, parameters[0].c_str());
 
-		return CMD_LOCALONLY;			
+		return CMD_LOCALONLY;
 	}
 };
 
@@ -68,7 +68,7 @@ class ModuleTLine : public Module
 	ModuleTLine(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		newcommand = new CommandTline(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 
@@ -78,7 +78,7 @@ class ModuleTLine : public Module
 	virtual ~ModuleTLine()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR,API_VERSION);

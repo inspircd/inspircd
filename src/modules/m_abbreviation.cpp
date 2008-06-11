@@ -19,7 +19,7 @@ class ModuleAbbreviation : public Module
 {
 
  public:
-	
+
 	ModuleAbbreviation(InspIRCd* Me)
 		: Module(Me)
 	{

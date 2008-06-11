@@ -13,7 +13,7 @@
  * Taken from the UnrealIRCd 4.0 SVN version, based on
  * InspIRCd 1.1.x.
  *
- * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk 
+ * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk
  * This program is free but copyrighted software; see
  *	    the file COPYING for details.
  *
@@ -44,7 +44,7 @@ class ModuleLDAPAuth : public Module
 	bool verbose;
 	bool useusername;
 	LDAP *conn;
-	
+
 public:
 	ModuleLDAPAuth(InspIRCd* Me)
 	: Module::Module(Me)
@@ -64,9 +64,9 @@ public:
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		
+
 		base 			= Conf.ReadValue("ldapauth", "baserdn", 0);
-		attribute		= Conf.ReadValue("ldapauth", "attribute", 0); 
+		attribute		= Conf.ReadValue("ldapauth", "attribute", 0);
 		ldapserver		= Conf.ReadValue("ldapauth", "server", 0);
 		allowpattern		= Conf.ReadValue("ldapauth", "allowpattern", 0);
 		killreason		= Conf.ReadValue("ldapauth", "killreason", 0);
@@ -75,13 +75,13 @@ public:
 		password		= Conf.ReadValue("ldapauth", "bindauth", 0);
 		verbose			= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 		useusername		= Conf.ReadFlag("ldapauth", "userfield", 0);
-		
+
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
 		else if (scope == "onelevel")
 			searchscope = LDAP_SCOPE_ONELEVEL;
 		else searchscope = LDAP_SCOPE_SUBTREE;
-		
+
 		Connect();
 	}
 
@@ -96,9 +96,9 @@ public:
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('A', "LDAP connection failed: %s", ldap_err2string(res));
 			conn = NULL;
-			return false;			
+			return false;
 		}
-		
+
 		res = ldap_set_option(conn, LDAP_OPT_PROTOCOL_VERSION, (void *)&v);
 		if (res != LDAP_SUCCESS)
 		{
@@ -188,16 +188,16 @@ public:
 			ldap_msgfree(msg);
 			user->Extend("ldapauth_failed");
 			return false;
-		} 
+		}
 	}
-	
-	
+
+
 	virtual void OnUserDisconnect(User* user)
 	{
 		user->Shrink("ldapauthed");
-		user->Shrink("ldapauth_failed");		
+		user->Shrink("ldapauth_failed");
 	}
-	
+
 	virtual bool OnCheckReady(User* user)
 	{
 		return user->GetExt("ldapauthed");
@@ -207,7 +207,7 @@ public:
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleLDAPAuth)

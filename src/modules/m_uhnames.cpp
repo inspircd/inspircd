@@ -20,7 +20,7 @@ class ModuleUHNames : public Module
 {
 	CUList nl;
  public:
-	
+
 	ModuleUHNames(InspIRCd* Me)
 		: Module(Me)
 	{

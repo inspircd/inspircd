@@ -42,7 +42,7 @@ class ModuleBlockAmsg : public Module
 {
 	int ForgetDelay;
 	BlockAction action;
-	
+
  public:
 	ModuleBlockAmsg(InspIRCd* Me) : Module(Me)
 	{
@@ -51,27 +51,27 @@ class ModuleBlockAmsg : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	
+
 	virtual ~ModuleBlockAmsg()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		
+
 		ForgetDelay = Conf.ReadInteger("blockamsg", "delay", 0, false);
-		
+
 		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
 			ForgetDelay = -1;
-			
+
 		std::string act = Conf.ReadValue("blockamsg", "action", 0);
-		
+
 		if(act == "notice")
 			action = IBLOCK_NOTICE;
 		else if(act == "noticeopers")
@@ -89,30 +89,30 @@ class ModuleBlockAmsg : public Module
 		// Don't do anything with unregistered users, or remote ones.
 		if(!user || (user->registered != REG_ALL) || !IS_LOCAL(user))
 			return 0;
-			
+
 		// We want case insensitive command comparison.
 		// Add std::string contructor for irc::string :x
 		irc::string cmd = command.c_str();
-		
+
 		if(validated && (cmd == "PRIVMSG" || cmd == "NOTICE") && (parameters.size() >= 2))
 		{
 			// parameters[0] should have the target(s) in it.
 			// I think it will be faster to first check if there are any commas, and if there are then try and parse it out.
 			// Most messages have a single target so...
-			
+
 			int targets = 1;
 			int userchans = 0;
-		
+
 			if(*parameters[0].c_str() != '#')
 			{
 				// Decrement if the first target wasn't a channel.
 				targets--;
 			}
-			
+
 			for(const char* c = parameters[0].c_str(); *c; c++)
 				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
 					targets++;
-				
+
 			/* targets should now contain the number of channel targets the msg/notice was pointed at.
 			 * If the msg/notice was a PM there should be no channel targets and 'targets' should = 0.
 			 * We don't want to block PMs so...
@@ -121,13 +121,13 @@ class ModuleBlockAmsg : public Module
 			{
 				return 0;
 			}
-					
+
 			userchans = user->chans.size();
 
 			// Check that this message wasn't already sent within a few seconds.
 			BlockedMessage* m;
 			user->GetExt("amsgblock", m);
-			
+
 			// If the message is identical and within the time.
 			// We check the target is *not* identical, that'd straying into the realms of flood control. Which isn't what we're doing...
 			// OR
@@ -143,10 +143,10 @@ class ModuleBlockAmsg : public Module
 					ServerInstance->Users->QuitUser(user, "Global message (/amsg or /ame) detected");
 				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
 					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick.c_str());
-									
+
 				return 1;
 			}
-			
+
 			if(m)
 			{
 				// If there's already a BlockedMessage allocated, use it.
@@ -159,10 +159,10 @@ class ModuleBlockAmsg : public Module
 				m = new BlockedMessage(parameters[1], parameters[0].c_str(), ServerInstance->Time());
 				user->Extend("amsgblock", (char*)m);
 			}
-		}					
+		}
 		return 0;
 	}
-	
+
 	void OnCleanup(int target_type, void* item)
 	{
 		if(target_type == TYPE_USER)

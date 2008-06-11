@@ -17,21 +17,21 @@
 
 class ModuleSSLDummy : public Module
 {
-	
+
 	char* dummy;
  public:
-	
+
 	ModuleSSLDummy(InspIRCd* Me)	: Module(Me)
 	{
-		
+
 		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnWhois };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-	
+
 	virtual ~ModuleSSLDummy()
 	{
 	}
-		
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 0, 0, 0, VF_VENDOR, API_VERSION);
@@ -46,7 +46,7 @@ class ModuleSSLDummy : public Module
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 		}
 	}
-	
+
 	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		// check if the linking module wants to know about OUR metadata
@@ -61,7 +61,7 @@ class ModuleSSLDummy : public Module
 			}
 		}
 	}
-	
+
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		// check if its our metadata key, and its associated with a user

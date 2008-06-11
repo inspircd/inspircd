@@ -53,7 +53,7 @@ class ModuleUserIP : public Module
 	ModuleUserIP(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandUserip(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		Implementation eventlist[] = { I_On005Numeric };
@@ -65,16 +65,16 @@ class ModuleUserIP : public Module
 	{
 		output = output + std::string(" USERIP");
 	}
-	
+
 	virtual ~ModuleUserIP()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleUserIP)

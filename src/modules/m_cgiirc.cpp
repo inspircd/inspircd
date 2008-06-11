@@ -65,7 +65,7 @@ class CommandWebirc : public Command
 		{
 			if(user->registered == REG_ALL)
 				return CMD_FAILURE;
-			
+
 			for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 			{
 				if(ServerInstance->MatchText(user->host, iter->hostmask) || ServerInstance->MatchText(user->GetIPString(), iter->hostmask))
@@ -140,7 +140,7 @@ class ModuleCgiIRC : public Module
 public:
 	ModuleCgiIRC(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		OnRehash(NULL,"");
 		mycommand = new CommandWebirc(Me, Hosts, NotifyOpers);
 		ServerInstance->AddCommand(mycommand);
@@ -149,7 +149,7 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
-	
+
 	virtual void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIO_FIRST);
@@ -159,18 +159,18 @@ public:
 	{
 		ConfigReader Conf(ServerInstance);
 		Hosts.clear();
-		
+
 		NotifyOpers = Conf.ReadFlag("cgiirc", "opernotice", 0);	// If we send an oper notice when a CGI:IRC has their host changed.
-		
+
 		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
 			NotifyOpers = true;
-		
+
 		for(int i = 0; i < Conf.Enumerate("cgihost"); i++)
 		{
 			std::string hostmask = Conf.ReadValue("cgihost", "mask", i); // An allowed CGI:IRC host
 			std::string type = Conf.ReadValue("cgihost", "type", i); // What type of user-munging we do on this host.
 			std::string password = Conf.ReadValue("cgihost", "password", i);
-			
+
 			if(hostmask.length())
 			{
 				if (type == "webirc" && !password.length()) {
@@ -211,13 +211,13 @@ public:
 			User* user = (User*)item;
 			std::string* realhost;
 			std::string* realip;
-			
+
 			if(user->GetExt("cgiirc_realhost", realhost))
 			{
 				delete realhost;
 				user->Shrink("cgiirc_realhost");
 			}
-			
+
 			if(user->GetExt("cgiirc_realip", realip))
 			{
 				delete realip;
@@ -225,13 +225,13 @@ public:
 			}
 		}
 	}
-	
+
 	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		if((extname == "cgiirc_realhost") || (extname == "cgiirc_realip"))
 		{
 			std::string* data;
-			
+
 			if(user->GetExt(extname, data))
 			{
 				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, *data);
@@ -256,12 +256,12 @@ public:
 	{
 		OnCleanup(TYPE_USER, user);
 	}
-	
+
 
 	virtual int OnUserRegister(User* user)
-	{	
+	{
 		for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
-		{			
+		{
 			if(ServerInstance->MatchText(user->host, iter->hostmask) || ServerInstance->MatchText(user->GetIPString(), iter->hostmask))
 			{
 				// Deal with it...
@@ -313,7 +313,7 @@ public:
 			bool valid=false;
 			ServerInstance->Users->RemoveCloneCounts(user);
 #ifdef IPV6
-			valid = (inet_pton(AF_INET6, webirc_ip->c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0); 
+			valid = (inet_pton(AF_INET6, webirc_ip->c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
 
 			if(!valid)
 				valid = (inet_aton(webirc_ip->c_str(), &((sockaddr_in*)user->ip)->sin_addr));
@@ -379,34 +379,34 @@ public:
 						ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
 				}
 			}
-			
+
 			user->password.clear();
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	bool CheckIdent(User* user)
 	{
 		int ip[4];
 		const char* ident;
 		char newip[16];
 		int len = user->ident.length();
-		
+
 		if(len == 8)
 			ident = user->ident.c_str();
 		else if(len == 9 && user->ident[0] == '~')
 			ident = user->ident.c_str() + 1;
 		else
 			return false;
-	
+
 		for(int i = 0; i < 4; i++)
 			if(!HexToInt(ip[i], ident + i*2))
 				return false;
 
 		snprintf(newip, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-			
+
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 		ServerInstance->Users->RemoveCloneCounts(user);
@@ -442,12 +442,12 @@ public:
 
 		return true;
 	}
-	
+
 	bool IsValidHost(const std::string &host)
 	{
 		if(!host.size())
 			return false;
-	
+
 		for(unsigned int i = 0; i < host.size(); i++)
 		{
 			if(	((host[i] >= '0') && (host[i] <= '9')) ||
@@ -455,12 +455,12 @@ public:
 					((host[i] >= 'a') && (host[i] <= 'z')) ||
 					((host[i] == '-') && (i > 0) && (i+1 < host.size()) && (host[i-1] != '.') && (host[i+1] != '.')) ||
 					((host[i] == '.') && (i > 0) && (i+1 < host.size())) )
-					
+
 				continue;
 			else
 				return false;
 		}
-		
+
 		return true;
 	}
 
@@ -468,10 +468,10 @@ public:
 	{
 		if(ip.size() < 7 || ip.size() > 15)
 			return false;
-	
+
 		short sincedot = 0;
 		short dots = 0;
-	
+
 		for(unsigned int i = 0; i < ip.size(); i++)
 		{
 			if((dots <= 3) && (sincedot <= 3))
@@ -489,16 +489,16 @@ public:
 			else
 			{
 				return false;
-			
+
 			}
 		}
-		
+
 		if(dots != 3)
 			return false;
-		
+
 		return true;
 	}
-	
+
 	bool HexToInt(int &out, const char* in)
 	{
 		char ip[3];
@@ -506,22 +506,22 @@ public:
 		ip[1] = in[1];
 		ip[2] = 0;
 		out = strtol(ip, NULL, 16);
-		
+
 		if(out > 255 || out < 0)
 			return false;
 
 		return true;
 	}
-	
+
 	virtual ~ModuleCgiIRC()
 	{
 	}
-	 
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleCgiIRC)

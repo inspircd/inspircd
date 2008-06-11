@@ -20,7 +20,7 @@ class ModuleConnJoin : public Module
 	private:
 		std::string JoinChan;
 		std::vector<std::string> Joinchans;
-		
+
 
 		int tokenize(const std::string &str, std::vector<std::string> &tokens)
 		{

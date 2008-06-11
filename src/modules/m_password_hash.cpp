@@ -65,7 +65,7 @@ class CommandMkpasswd : public Command
 
 class ModuleOperHash : public Module
 {
-	
+
 	CommandMkpasswd* mycommand;
 	hashymodules hashers; /* List of modules which implement HashRequest */
 	std::deque<std::string> names; /* Module names which implement HashRequest */
@@ -109,7 +109,7 @@ class ModuleOperHash : public Module
 		Implementation eventlist[] = { I_OnPassCompare, I_OnLoadModule };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-	
+
 	virtual ~ModuleOperHash()
 	{
 		if (diduseiface) ServerInstance->Modules->DoneWithInterface("HashRequest");

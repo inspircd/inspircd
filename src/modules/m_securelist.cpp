@@ -27,11 +27,11 @@ class ModuleSecureList : public Module
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
- 
+
 	virtual ~ModuleSecureList()
 	{
 	}
- 
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
@@ -48,18 +48,18 @@ class ModuleSecureList : public Module
 		WaitTime = MyConf->ReadInteger("securelist", "waittime", "60", 0, true);
 		delete MyConf;
 	}
- 
+
 
 	/*
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
-	 */ 
+	 */
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
 			return 0;
- 
+
 		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!IS_OPER(user)))
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
@@ -91,5 +91,5 @@ class ModuleSecureList : public Module
 	}
 
 };
- 
+
 MODULE_INIT(ModuleSecureList)

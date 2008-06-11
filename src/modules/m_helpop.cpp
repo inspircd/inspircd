@@ -48,7 +48,7 @@ class CommandHelpop : public Command
 			user->WriteServ("NOTICE %s :HELPOP topic index", user->nick.c_str());
 			for (std::map<irc::string, std::string>::iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
 			{
-				user->WriteServ("NOTICE %s :    %s", user->nick.c_str(), iter->first.c_str());				
+				user->WriteServ("NOTICE %s :    %s", user->nick.c_str(), iter->first.c_str());
 			}
 			user->WriteServ("NOTICE %s :*** End of HELPOP topic index", user->nick.c_str());
 		}
@@ -152,7 +152,7 @@ class ModuleHelpop : public Module
 			ServerInstance->Modes->DelMode(ho);
 			delete ho;
 		}
-	
+
 		virtual Version GetVersion()
 		{
 			return Version(1,2,0,1,VF_COMMON|VF_VENDOR,API_VERSION);

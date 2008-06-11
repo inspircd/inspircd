@@ -38,27 +38,27 @@ class KickRejoin : public ModeHandler
 			return std::make_pair(true, channel->GetModeParameter('J'));
 		else
 			return std::make_pair(false, parameter);
-	} 
+	}
 
 	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
 	}
-	
+
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		if (!adding)
 		{
 			// Taking the mode off, we need to clean up.
 			delaylist* dl;
-			
+
 			if (channel->GetExt("norejoinusers", dl))
 			{
 				delete dl;
 				channel->Shrink("norejoinusers");
 			}
-			
+
 			if (!channel->IsModeSet('J'))
 			{
 				return MODEACTION_DENY;
@@ -114,15 +114,15 @@ class KickRejoin : public ModeHandler
 
 class ModuleKickNoRejoin : public Module
 {
-	
+
 	KickRejoin* kr;
-	
+
 public:
- 
+
 	ModuleKickNoRejoin(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		kr = new KickRejoin(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(kr))
 			throw ModuleException("Could not add new modes!");
@@ -138,12 +138,12 @@ public:
 			if (chan->GetExt("norejoinusers", dl))
 			{
 				std::vector<User*> itemstoremove;
-			
+
 				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
 				{
 					if (iter->second > time(NULL))
 					{
-						if (iter->first == user)					
+						if (iter->first == user)
 						{
 							user->WriteNumeric(495, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)", user->nick.c_str(), chan->name.c_str(), chan->GetModeParameter('J').c_str());
 							return 1;
@@ -155,10 +155,10 @@ public:
 						itemstoremove.push_back(iter->first);
 					}
 				}
-				
+
 				for (unsigned int i = 0; i < itemstoremove.size(); i++)
 					dl->erase(itemstoremove[i]);
-																	
+
 				if (!dl->size())
 				{
 					// Now it's empty..
@@ -169,7 +169,7 @@ public:
 		}
 		return 0;
 	}
-		
+
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 	{
 		if (chan->IsModeSet('J') && (source != user))
@@ -183,18 +183,18 @@ public:
 			(*dl)[user] = time(NULL) + strtoint(chan->GetModeParameter('J'));
 		}
 	}
-	
+
 	virtual void OnChannelDelete(Channel* chan)
 	{
 		delaylist* dl;
-			
+
 		if (chan->GetExt("norejoinusers", dl))
 		{
 			delete dl;
 			chan->Shrink("norejoinusers");
 		}
 	}
-	
+
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		if(target_type == TYPE_CHANNEL)
@@ -207,7 +207,7 @@ public:
 		ServerInstance->Modes->DelMode(kr);
 		delete kr;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

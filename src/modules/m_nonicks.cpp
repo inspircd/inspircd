@@ -50,19 +50,19 @@ class ModuleNoNickChange : public Module
 	ModuleNoNickChange(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		nn = new NoNicks(ServerInstance);
 		ServerInstance->Modes->AddMode(nn);
 		Implementation eventlist[] = { I_OnUserPreNick };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-	
+
 	virtual ~ModuleNoNickChange()
 	{
 		ServerInstance->Modes->DelMode(nn);
 		delete nn;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_COMMON|VF_VENDOR,API_VERSION);

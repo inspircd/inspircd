@@ -31,7 +31,7 @@ class ModuleBlockCAPS : public Module
 	unsigned int minlen;
 	char capsmap[256];
 public:
-	
+
 	ModuleBlockCAPS(InspIRCd* Me) : Module(Me)
 	{
 		OnRehash(NULL,"");

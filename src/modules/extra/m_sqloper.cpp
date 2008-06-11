@@ -106,7 +106,7 @@ public:
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		
+
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
 		hashtype = assign(Conf.ReadValue("sqloper", "hash", 0));
 	}
@@ -116,7 +116,7 @@ public:
 		if ((validated) && (command == "OPER"))
 		{
 			if (LookupOper(user, parameters[0], parameters[1]))
-			{	
+			{
 				/* Returning true here just means the query is in progress, or on it's way to being
 				 * in progress. Nothing about the /oper actually being successful..
 				 * If the oper lookup fails later, we pass the command to the original handler
@@ -131,7 +131,7 @@ public:
 	bool LookupOper(User* user, const std::string &username, const std::string &password)
 	{
 		Module* target;
-		
+
 		target = ServerInstance->Modules->FindFeature("SQL");
 
 		if (target)
@@ -150,7 +150,7 @@ public:
 			 */
 			SQLrequest req = SQLrequest(this, target, databaseid,
 					SQLquery("SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'") % username % md5_pass_hash);
-			
+
 			if (req.Send())
 			{
 				/* When we get the query response from the service provider we will be given an ID to play with,
@@ -164,7 +164,7 @@ public:
 
 				user->Extend("oper_user", strdup(username.c_str()));
 				user->Extend("oper_pass", strdup(password.c_str()));
-					
+
 				return true;
 			}
 			else
@@ -178,7 +178,7 @@ public:
 			return false;
 		}
 	}
-	
+
 	virtual const char* OnRequest(Request* request)
 	{
 		if (strcmp(SQLRESID, request->GetId()) == 0)
@@ -193,7 +193,7 @@ public:
 
 			user->GetExt("oper_user", tried_user);
 			user->GetExt("oper_pass", tried_pass);
-			
+
 			if (user)
 			{
 				if (res->error.Id() == NO_ERROR)
@@ -203,18 +203,18 @@ public:
 						/* We got a row in the result, this means there was a record for the oper..
 						 * now we just need to check if their host matches, and if it does then
 						 * oper them up.
-						 * 
+						 *
 						 * We now (previous versions of the module didn't) support multiple SQL
 						 * rows per-oper in the same way the config file does, all rows will be tried
 						 * until one is found which matches. This is useful to define several different
 						 * hosts for a single oper.
-						 * 
+						 *
 						 * The for() loop works as SQLresult::GetRowMap() returns an empty map when there
 						 * are no more rows to return.
 						 */
-						
+
 						for (SQLfieldMap& row = res->GetRowMap(); row.size(); row = res->GetRowMap())
-						{							
+						{
 							if (OperUser(user, row["username"].d, row["password"].d, row["hostname"].d, row["type"].d))
 							{
 								/* If/when one of the rows matches, stop checking and return */
@@ -263,7 +263,7 @@ public:
 
 				}
 			}
-		
+
 			return SQLSUCCESS;
 		}
 
@@ -290,14 +290,14 @@ public:
 	bool OperUser(User* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
 	{
 		ConfigReader Conf(ServerInstance);
-		
+
 		for (int j = 0; j < Conf.Enumerate("type"); j++)
 		{
 			std::string tname = Conf.ReadValue("type","name",j);
 			std::string hostname(user->ident);
 
 			hostname.append("@").append(user->host);
-							
+
 			if ((tname == type) && OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
 			{
 				/* Opertype and host match, looks like this is it. */
@@ -315,7 +315,7 @@ public:
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -323,7 +323,7 @@ public:
 	{
 		return Version(1,2,1,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSQLOper)

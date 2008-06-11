@@ -25,7 +25,7 @@
 
 class CoreExport RLine : public XLine
 {
-  public:
+ public:
 
 	/** Create a R-Line.
 	 * @param s_time The set time

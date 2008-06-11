@@ -39,11 +39,11 @@ class CensorChannel : public SimpleChannelModeHandler
 class ModuleCensor : public Module
 {
 
-	
+
 	censor_t censors;
 	CensorUser *cu;
 	CensorChannel *cc;
- 
+
  public:
 	ModuleCensor(InspIRCd* Me)
 		: Module(Me)
@@ -110,7 +110,7 @@ class ModuleCensor : public Module
 
 		irc::string text2 = text.c_str();
 		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
-		{ 
+		{
 			if (text2.find(index->first) != irc::string::npos)
 			{
 				if (index->second.empty())
@@ -118,19 +118,19 @@ class ModuleCensor : public Module
 					user->WriteNumeric(936, "%s %s %s :Your message contained a censored word, and was blocked", user->nick.c_str(), ((Channel*)dest)->name.c_str(), index->first.c_str());
 					return 1;
 				}
-				
+
 				this->ReplaceLine(text2,index->first,index->second);
 			}
 		}
 		text = text2.c_str();
 		return 0;
 	}
-	
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
-	
+
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		/*
@@ -149,12 +149,12 @@ class ModuleCensor : public Module
 
 		delete MyConf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleCensor)

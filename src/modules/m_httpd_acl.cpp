@@ -38,7 +38,7 @@ class HTTPACL : public Extensible
 
 class ModuleHTTPAccessList : public Module
 {
-	
+
 	std::string stylesheet;
 	bool changed;
 	std::vector<HTTPACL> acl_list;
@@ -226,7 +226,7 @@ class ModuleHTTPAccessList : public Module
 							irc::spacesepstream sep(authorization);
 							std::string authtype;
 							std::string base64;
-							
+
 							sep.GetToken(authtype);
 							if (authtype == "Basic")
 							{

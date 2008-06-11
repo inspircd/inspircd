@@ -24,11 +24,11 @@ class ModuleQuietBan : public Module
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-	
+
 	virtual ~ModuleQuietBan()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
@@ -47,7 +47,7 @@ class ModuleQuietBan : public Module
 				return 1;
 			}
 		}
-		
+
 		return 0;
 	}
 

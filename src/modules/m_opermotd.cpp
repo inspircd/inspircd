@@ -74,7 +74,7 @@ class ModuleOpermotd : public Module
 		opermotd = new FileReader(ServerInstance, filename);
 		delete conf;
 	}
-	
+
 	ModuleOpermotd(InspIRCd* Me)
 		: Module(Me)
 	{

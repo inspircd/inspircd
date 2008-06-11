@@ -21,7 +21,7 @@ typedef std::map<std::string,FilterResult*> filter_t;
 
 class ModuleFilter : public FilterBase
 {
- 
+
  filter_t filters;
 
  public:
@@ -31,7 +31,7 @@ class ModuleFilter : public FilterBase
 		OnRehash(NULL,"");
 
 	}
-	
+
 	virtual ~ModuleFilter()
 	{
 	}

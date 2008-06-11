@@ -33,17 +33,17 @@ class ModuleSpy : public Module
 		return 0;
 	}
 
-	void Prioritize()       
-	{		       
+	void Prioritize()
+	{
 		/* To ensure that we get priority over namesx and delayjoin for names list generation */
 		Module* list[] = { ServerInstance->Modules->Find("m_namesx.so"), ServerInstance->Modules->Find("m_delayjoin.so") };
 		ServerInstance->Modules->SetPriority(this, I_OnUserList, PRIO_BEFORE, list, 2);
 	}
-	
+
 	virtual ~ModuleSpy()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);

@@ -83,9 +83,9 @@ std::string SQLhost::GetDSN()
 
 class ReconnectTimer : public Timer
 {
-  private:
+ private:
 	Module* mod;
-  public:
+ public:
 	ReconnectTimer(InspIRCd* SI, Module* m)
 	: Timer(5, SI->Time(), false), mod(m)
 	{
@@ -314,8 +314,8 @@ public:
  */
 class SQLConn : public EventHandler
 {
-  private:
-  	InspIRCd*		Instance;
+ private:
+	InspIRCd*		Instance;
 	SQLhost			confhost;	/* The <database> entry */
 	Module*			us;			/* Pointer to the SQL provider itself */
 	PGconn* 		sql;		/* PgSQL database connection handle */
@@ -324,7 +324,7 @@ class SQLConn : public EventHandler
 	QueryQueue		queue;		/* Queue of queries waiting to be executed on this connection */
 	time_t			idle;		/* Time we last heard from the database */
 
-  public:
+ public:
 	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
 	: EventHandler(), Instance(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
 	{
@@ -713,13 +713,13 @@ class SQLConn : public EventHandler
 
 class ModulePgSQL : public Module
 {
-  private:
+ private:
 	ConnMap connections;
 	unsigned long currid;
 	char* sqlsuccess;
 	ReconnectTimer* retimer;
 
-  public:
+ public:
 	ModulePgSQL(InspIRCd* Me)
 	: Module::Module(Me), currid(0)
 	{

@@ -45,15 +45,15 @@ class NoCTCP : public ModeHandler
 
 class ModuleNoCTCP : public Module
 {
-	
+
 	NoCTCP* nc;
-	
+
  public:
- 
+
 	ModuleNoCTCP(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		nc = new NoCTCP(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(nc))
 			throw ModuleException("Could not add new modes!");
@@ -66,18 +66,18 @@ class ModuleNoCTCP : public Module
 	{
 		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 	}
-	
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			
+
 			if (CHANOPS_EXEMPT(ServerInstance, 'C') && c->GetStatus(user) == STATUS_OP)
 			{
 				return 0;
 			}
-			
+
 			if (c->IsModeSet('C'))
 			{
 				if ((text.length()) && (text[0] == '\1'))

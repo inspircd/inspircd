@@ -26,7 +26,7 @@ class CommandChgname : public Command
 		syntax = "<nick> <newname>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
-	
+
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
@@ -36,19 +36,19 @@ class CommandChgname : public Command
 			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (parameters[1].empty())
 		{
 			user->WriteServ("NOTICE %s :*** GECOS must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxGecos)
 		{
 			user->WriteServ("NOTICE %s :*** GECOS too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1].c_str());
@@ -65,8 +65,8 @@ class CommandChgname : public Command
 class ModuleChgName : public Module
 {
 	CommandChgname* mycommand;
-	
-	
+
+
 public:
 	ModuleChgName(InspIRCd* Me) : Module(Me)
 	{
@@ -74,16 +74,16 @@ public:
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleChgName()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleChgName)

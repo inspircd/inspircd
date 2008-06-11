@@ -34,19 +34,19 @@ class CommandSetident : public Command
 			user->WriteServ("NOTICE %s :*** SETIDENT: Ident must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{
 			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (!ServerInstance->IsIdent(parameters[0].c_str()))
 		{
 			user->WriteServ("NOTICE %s :*** SETIDENT: Invalid characters in ident", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		user->ChangeIdent(parameters[0].c_str());
 		ServerInstance->SNO->WriteToSnoMask('A', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
@@ -58,25 +58,25 @@ class CommandSetident : public Command
 class ModuleSetIdent : public Module
 {
 	CommandSetident*	mycommand;
-	
+
  public:
 	ModuleSetIdent(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		mycommand = new CommandSetident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleSetIdent()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 

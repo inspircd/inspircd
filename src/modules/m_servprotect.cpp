@@ -38,13 +38,13 @@ class ServProtectMode : public ModeHandler
 
 class ModuleServProtectMode : public Module
 {
-	
+
 	ServProtectMode* bm;
  public:
 	ModuleServProtectMode(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		bm = new ServProtectMode(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(bm))
 			throw ModuleException("Could not add new modes!");
@@ -52,13 +52,13 @@ class ModuleServProtectMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	
+
 	virtual ~ModuleServProtectMode()
 	{
 		ServerInstance->Modes->DelMode(bm);
 		delete bm;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON,API_VERSION);

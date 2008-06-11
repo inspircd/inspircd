@@ -98,21 +98,21 @@ class ModuleSapart : public Module
 	ModuleSapart(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandSapart(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleSapart()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSapart)

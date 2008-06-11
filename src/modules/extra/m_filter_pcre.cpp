@@ -133,7 +133,7 @@ class ModuleFilterPCRE : public FilterBase
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
-	{		
+	{
 		ConfigReader MyConf(ServerInstance);
 
 		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)

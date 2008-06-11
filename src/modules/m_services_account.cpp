@@ -42,14 +42,14 @@ class AChannel_M : public SimpleChannelModeHandler
 
 class ModuleServicesAccount : public Module
 {
-	 
+
 	AChannel_R* m1;
 	AChannel_M* m2;
 	AUser_R* m3;
  public:
 	ModuleServicesAccount(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		m1 = new AChannel_R(ServerInstance);
 		m2 = new AChannel_M(ServerInstance);
 		m3 = new AUser_R(ServerInstance);
@@ -83,11 +83,11 @@ class ModuleServicesAccount : public Module
 			return 0;
 
 		user->GetExt("accountname", account);
-		
+
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
-			
+
 			if ((c->IsModeSet('M')) && (!account))
 			{
 				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
@@ -104,7 +104,7 @@ class ModuleServicesAccount : public Module
 		if (target_type == TYPE_USER)
 		{
 			User* u = (User*)dest;
-			
+
 			if ((u->modes['R'-65]) && (!account))
 			{
 				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
@@ -120,17 +120,17 @@ class ModuleServicesAccount : public Module
 		}
 		return 0;
 	}
-	 
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
-	 
+
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		std::string *account;
 		user->GetExt("accountname", account);
-		
+
 		if (chan)
 		{
 			if (chan->IsModeSet('R'))
@@ -150,7 +150,7 @@ class ModuleServicesAccount : public Module
 		}
 		return 0;
 	}
-	
+
 	// Whenever the linking module wants to send out data, but doesnt know what the data
 	// represents (e.g. it is metadata, added to a User or Channel by a module) then
 	// this method is called. We should use the ProtoSendMetaData function after we've
@@ -215,9 +215,9 @@ class ModuleServicesAccount : public Module
 	{
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "accountname"))
-		{	
+		{
 			User* dest = (User*)target;
-			
+
 			/* logging them out? */
 			if (extdata.empty())
 			{
@@ -262,7 +262,7 @@ class ModuleServicesAccount : public Module
 		delete m2;
 		delete m3;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);

@@ -29,16 +29,16 @@ class ModuleWaitPong : public Module
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash, I_OnUserDisconnect, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
-	
+
 	virtual void OnRehash(User* user, const std::string &param)
 	{
 		ConfigReader Conf(ServerInstance);
-		
+
 		sendsnotice = Conf.ReadFlag("waitpong", "sendsnotice", 0);
-		
+
 		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
 			sendsnotice = true;
-		
+
 		killonbadreply = Conf.ReadFlag("waitpong", "killonbadreply", 0);
 
 		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
@@ -52,30 +52,30 @@ class ModuleWaitPong : public Module
 		for(unsigned int i = 0; i < length; i++)
 			out[i] = ((rand() % 26) + 65);
 		out[length] = '\0';
-	
+
 		return (char*)out;
 	}
-	
+
 	virtual int OnUserRegister(User* user)
 	{
 		char* pingrpl = RandString(10);
-		
+
 		user->Write("PING :%s", pingrpl);
-		
+
 		if(sendsnotice)
 			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick.c_str(), pingrpl, pingrpl);
-			
+
 		user->Extend(extenstr, pingrpl);
 		return 0;
 	}
-	
+
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User* user, bool validated, const std::string &original_line)
 	{
 		if (command == "PONG")
 		{
 			char* pingrpl;
 			user->GetExt(extenstr, pingrpl);
-			
+
 			if (pingrpl)
 			{
 				if (strcmp(pingrpl, parameters[0].c_str()) == 0)
@@ -100,7 +100,7 @@ class ModuleWaitPong : public Module
 		char* pingrpl;
 		return (!user->GetExt(extenstr, pingrpl));
 	}
-	
+
 	virtual void OnUserDisconnect(User* user)
 	{
 		char* pingrpl;
@@ -112,7 +112,7 @@ class ModuleWaitPong : public Module
 			user->Shrink(extenstr);
 		}
 	}
-	
+
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		if (target_type == TYPE_USER)
@@ -120,24 +120,24 @@ class ModuleWaitPong : public Module
 			User* user = (User*)item;
 			char* pingrpl;
 			user->GetExt(extenstr, pingrpl);
-			
+
 			if (pingrpl)
 			{
 				delete[] pingrpl;
 				user->Shrink(extenstr);
-			} 
+			}
 		}
 	}
-	
+
 	virtual ~ModuleWaitPong()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleWaitPong)

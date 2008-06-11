@@ -20,7 +20,7 @@ typedef std::map<std::string,std::string> override_t;
 
 class ModuleOverride : public Module
 {
-	
+
 	override_t overrides;
 	bool RequireKey;
 	bool NoisyOverride;
@@ -28,10 +28,10 @@ class ModuleOverride : public Module
 	int OverOps, OverDeops, OverVoices, OverDevoices, OverHalfops, OverDehalfops;
 
  public:
- 
+
 	ModuleOverride(InspIRCd* Me)
 		: Module(Me)
-	{		
+	{
 		// read our config options (main config file)
 		OnRehash(NULL,"");
 		ServerInstance->SNO->EnableSnomask('O', "OVERRIDE");
@@ -40,12 +40,12 @@ class ModuleOverride : public Module
 		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
-	
+
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		ConfigReader* Conf = new ConfigReader(ServerInstance);
-		
+
 		// re-read our config options on a rehash
 		NoisyOverride = Conf->ReadFlag("override", "noisy", 0);
 		RequireKey = Conf->ReadFlag("override", "requirekey", 0);
@@ -58,7 +58,7 @@ class ModuleOverride : public Module
 			std::string tokenlist = Conf->ReadValue("type","override",j);
 			overrides[typen] = tokenlist;
 		}
-		
+
 		delete Conf;
 	}
 
@@ -116,7 +116,7 @@ class ModuleOverride : public Module
 		}
 		return 0;
 	}
-	
+
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		if (IS_OPER(source))
@@ -207,7 +207,7 @@ class ModuleOverride : public Module
 						}
 					break;
 				}
-			
+
 				if (CanOverride(source,"OTHERMODE"))
 				{
 					if (NoisyOverride)
@@ -227,7 +227,7 @@ class ModuleOverride : public Module
 
 		return ACR_DEFAULT;
 	}
-	
+
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (IS_LOCAL(user) && IS_OPER(user))
@@ -252,7 +252,7 @@ class ModuleOverride : public Module
 					}
 					return -1;
 				}
-				
+
 				if ((!chan->key.empty()) && (CanOverride(user,"KEY")) && keygiven != chan->key)
 				{
 					if (RequireKey && keygiven != "override")
@@ -267,7 +267,7 @@ class ModuleOverride : public Module
 					ServerInstance->SNO->WriteToSnoMask('O', user->nick+" used oper override to bypass +k on "+std::string(cname));
 					return -1;
 				}
-					
+
 				if ((chan->limit > 0) && (chan->GetUserCounter() >=  chan->limit) && (CanOverride(user,"LIMIT")))
 				{
 					if (RequireKey && keygiven != "override")
@@ -304,12 +304,12 @@ class ModuleOverride : public Module
 		}
 		return 0;
 	}
-	
+
 	virtual ~ModuleOverride()
 	{
 		ServerInstance->SNO->DisableSnomask('O');
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);

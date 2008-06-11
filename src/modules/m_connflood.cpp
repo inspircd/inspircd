@@ -25,12 +25,12 @@ private:
 	std::string quitmsg;
 
 	ConfigReader* conf;
-	
+
 
 public:
 	ModuleConnFlood(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		InitConf();
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -45,7 +45,6 @@ public:
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
 
-   
 	void InitConf()
 	{
 		/* read configuration variables */
@@ -61,14 +60,14 @@ public:
 
 		first = ServerInstance->Time();
 	}
- 
+
 	virtual int OnUserRegister(User* user)
 	{
 		time_t next = ServerInstance->Time();
-		
+
 		if ((ServerInstance->startup_time + boot_wait) > next)
 			return 0;
-		
+
 		/* time difference between first and latest connection */
 		time_t tdiff = next - first;
 

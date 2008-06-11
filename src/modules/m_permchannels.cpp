@@ -50,7 +50,7 @@ class ModulePermanentChannels : public Module
 {
 	PermChannel *p;
 public:
-	
+
 	ModulePermanentChannels(InspIRCd* Me) : Module(Me)
 	{
 		p = new PermChannel(ServerInstance);

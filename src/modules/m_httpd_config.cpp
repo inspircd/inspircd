@@ -20,7 +20,7 @@
 
 class ModuleHttpStats : public Module
 {
-	
+
 	std::string stylesheet;
 	bool changed;
 

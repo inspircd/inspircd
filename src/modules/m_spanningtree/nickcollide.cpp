@@ -35,15 +35,15 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 	 * These days, we have UID. And, so what we do is, force nick change client(s)
 	 * involved according to timestamp rules.
 	 *
-	 * RULES: 	 
-	 *  user@ip equal: 	 
-	 *   Force nick change on OLDER timestamped client 	 
-	 *  user@ip differ: 	 
-	 *   Force nick change on NEWER timestamped client 	 
-	 *  TS EQUAL: 	 
-	 *   FNC both. 	 
-	 * 	 
-	 * This stops abusive use of collisions, simplifies problems with loops, and so on. 	 
+	 * RULES:
+	 *  user@ip equal:
+	 *   Force nick change on OLDER timestamped client
+	 *  user@ip differ:
+	 *   Force nick change on NEWER timestamped client
+	 *  TS EQUAL:
+	 *   FNC both.
+	 *
+	 * This stops abusive use of collisions, simplifies problems with loops, and so on.
 	 *   -- w00t
 	 */
 	bool bChangeLocal = true;

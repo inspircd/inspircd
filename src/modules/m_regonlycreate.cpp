@@ -42,11 +42,11 @@ class ModuleRegOnlyCreate : public Module
 
 		return 0;
 	}
-	
+
 	virtual ~ModuleRegOnlyCreate()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);

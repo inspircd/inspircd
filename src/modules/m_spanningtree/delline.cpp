@@ -32,7 +32,7 @@ bool TreeSocket::DelLine(const std::string &prefix, std::deque<std::string> &par
 	if (user)
 		setter = user->nick;
 	else
-        {
+	{
 		TreeServer* t = Utils->FindServer(prefix);
 		if (t)
 			setter = t->GetName().c_str();

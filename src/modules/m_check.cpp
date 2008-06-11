@@ -107,7 +107,7 @@ class CommandCheck : public Command
 
 			user->WriteServ(checkstr + " modes " + targchan->ChanModes(true));
 			user->WriteServ(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
-			
+
 			/* now the ugly bit, spool current members of a channel. :| */
 
 			CUList *ulist= targchan->GetUsers();
@@ -161,22 +161,22 @@ class ModuleCheck : public Module
  public:
 	ModuleCheck(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		mycommand = new CommandCheck(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleCheck()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
-	
+
 };
 
 MODULE_INIT(ModuleCheck)

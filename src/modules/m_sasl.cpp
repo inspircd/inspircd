@@ -188,7 +188,7 @@ class ModuleSASL : public Module
 {
 	CommandAuthenticate* sasl;
  public:
-	
+
 	ModuleSASL(InspIRCd* Me)
 		: Module(Me)
 	{

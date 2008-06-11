@@ -40,7 +40,7 @@
  * Using this framework we have a much more stable module.
  *
  * A few things to note:
- * 
+ *
  *   O  The only place that may *delete* an active or inactive
  *      ident socket is OnUserDisconnect in the module class.
  *      Because this is out of scope of the socket class there is
@@ -49,7 +49,7 @@
  *
  *   O  Closure of the ident socket with the Close() method will
  *      not cause removal of the socket from memory or detatchment
- *      from its 'parent' User class. It will only flag it as an 
+ *      from its 'parent' User class. It will only flag it as an
  *      inactive socket in the socket engine.
  *
  *   O  Timeouts are handled in OnCheckReaady at the same time as
@@ -106,7 +106,7 @@ class IdentRequestSocket : public EventHandler
 		/* We allocate two of these because sizeof(sockaddr_in6) > sizeof(sockaddr_in) */
 		sockaddr* s = new sockaddr[2];
 		sockaddr* addr = new sockaddr[2];
-	
+
 #ifdef IPV6
 		/* Horrid icky nasty ugly berkely socket crap. */
 		if (v6)
@@ -208,7 +208,7 @@ class IdentRequestSocket : public EventHandler
 		#else
 		int req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin6_port), ntohs(laddr.sin6_port));
 		#endif
-		
+
 		/* Send failed if we didnt write the whole ident request --
 		 * might as well give up if this happens!
 		 */
@@ -345,22 +345,22 @@ class ModuleIdent : public Module
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnCleanup, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 1, 0, VF_VENDOR, API_VERSION);
 	}
-	
-	
+
+
 	virtual void OnRehash(User *user, const std::string &param)
 	{
 		ConfigReader MyConf(ServerInstance);
-		
+
 		RequestTimeout = MyConf.ReadInteger("ident", "timeout", 0, true);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
 	}
-	
+
 	virtual int OnUserRegister(User *user)
 	{
 		/* User::ident is currently the username field from USER; with m_ident loaded, that

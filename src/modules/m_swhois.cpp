@@ -19,7 +19,7 @@
  */
 class CommandSwhois : public Command
 {
-	
+
  public:
 	CommandSwhois (InspIRCd* Instance) : Command(Instance,"SWHOIS","o",2)
 	{
@@ -31,13 +31,13 @@ class CommandSwhois : public Command
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
-		
+
 		if (!dest)
 		{
 			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		std::string* text;
 		dest->GetExt("swhois", text);
 
@@ -47,7 +47,7 @@ class CommandSwhois : public Command
 			if (!ServerInstance->ULine(user->server))
 				// Ulines set SWHOISes silently
 				ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str(), parameters[0].c_str());
-			
+
 			dest->Shrink("swhois");
 			delete text;
 		}
@@ -56,7 +56,7 @@ class CommandSwhois : public Command
 			// Ulines set SWHOISes silently
 			ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[0].c_str());
 		}
-		
+
 		text = new std::string(parameters[0]);
 		dest->Extend("swhois", text);
 
@@ -67,7 +67,7 @@ class CommandSwhois : public Command
 		 * -- Brain
 		 */
  		ServerInstance->PI->SendMetaData(dest, TYPE_USER, "swhois", *text);
-		
+
 		// If it's an empty swhois, unset it (not ideal, but ok)
 		if (text->empty())
 		{
@@ -83,13 +83,13 @@ class CommandSwhois : public Command
 class ModuleSWhois : public Module
 {
 	CommandSwhois* mycommand;
-	
+
 	ConfigReader* Conf;
-	
+
  public:
 	ModuleSWhois(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		Conf = new ConfigReader(ServerInstance);
 		mycommand = new CommandSwhois(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
@@ -202,31 +202,31 @@ class ModuleSWhois : public Module
 			dest->Extend("swhois", text);
 		}
 	}
-	
+
 	virtual void OnPostCommand(const std::string &command, const std::vector<std::string> &params, User *user, CmdResult result, const std::string &original_line)
 	{
 		if ((command != "OPER") || (result != CMD_SUCCESS))
 			return;
-		
+
 		std::string swhois;
-		
+
 		for (int i = 0; i < Conf->Enumerate("oper"); i++)
 		{
 			std::string name = Conf->ReadValue("oper", "name", i);
-			
+
 			if (name == params[0])
 			{
 				swhois = Conf->ReadValue("oper", "swhois", i);
 				break;
 			}
 		}
-		
+
 		if (!swhois.length())
 		{
 			for (int i = 0; i < Conf->Enumerate("type"); i++)
 			{
 				std::string type = Conf->ReadValue("type", "name", i);
-				
+
 				if (type == user->oper)
 				{
 					swhois = Conf->ReadValue("type", "swhois", i);
@@ -241,10 +241,10 @@ class ModuleSWhois : public Module
 			user->Shrink("swhois");
 			delete old;
 		}
-		
+
 		if (!swhois.length())
 			return;
-		
+
 		std::string *text = new std::string(swhois);
 		user->Extend("swhois", text);
 		ServerInstance->PI->SendMetaData(user, TYPE_USER, "swhois", *text);
@@ -254,7 +254,7 @@ class ModuleSWhois : public Module
 	{
 		delete Conf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

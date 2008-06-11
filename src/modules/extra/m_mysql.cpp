@@ -30,7 +30,7 @@
 /* $ModDep: m_sqlv2.h */
 
 /* THE NONBLOCKING MYSQL API!
- * 
+ *
  * MySQL provides no nonblocking (asyncronous) API of its own, and its developers recommend
  * that instead, you should thread your program. This is what i've done here to allow for
  * asyncronous SQL requests via mysql. The way this works is as follows:
@@ -137,7 +137,7 @@ class MySQLresult : public SQLresult
 						std::string b = (row[field_count] ? row[field_count] : "");
 						SQLfield sqlf(b, !row[field_count]);
 						colnames.push_back(a);
-						fieldlists[n].push_back(sqlf); 
+						fieldlists[n].push_back(sqlf);
 						field_count++;
 					}
 					n++;
@@ -247,7 +247,7 @@ class MySQLresult : public SQLresult
 	virtual SQLfieldMap* GetRowMapPtr()
 	{
 		fieldmap = new SQLfieldMap();
-		
+
 		if (currentrow < rows)
 		{
 			for (int i = 0; i < Cols(); i++)
@@ -632,7 +632,7 @@ class Notifier : public BufferedSocket
 {
 	insp_sockaddr sock_us;
 	socklen_t uslen;
-	
+
 
  public:
 
@@ -707,7 +707,7 @@ class Notifier : public BufferedSocket
 class ModuleSQL : public Module
 {
  public:
-	
+
 	ConfigReader *Conf;
 	InspIRCd* PublicServerInstance;
 	pthread_t Dispatcher;
@@ -725,7 +725,7 @@ class ModuleSQL : public Module
 		SQLModule = this;
 
 		MessagePipe = new Notifier(ServerInstance);
-		
+
 		pthread_attr_t attribs;
 		pthread_attr_init(&attribs);
 		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
@@ -817,12 +817,12 @@ class ModuleSQL : public Module
 	{
 		rehashing = true;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR|VF_SERVICEPROVIDER,API_VERSION);
 	}
-	
+
 };
 
 void* DispatcherThread(void* arg)

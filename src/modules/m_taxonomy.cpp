@@ -60,7 +60,7 @@ class ModuleTaxonomy : public Module
 	ModuleTaxonomy(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		// Create a new command
 		newcommand = new CommandTaxonomy(ServerInstance, this, claimed);
 		ServerInstance->AddCommand(newcommand);

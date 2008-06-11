@@ -113,14 +113,14 @@ class ModuleTimedBans : public Module
 	ModuleTimedBans(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandTban(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		TimedBanList.clear();
 		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-	
+
 	virtual ~ModuleTimedBans()
 	{
 		TimedBanList.clear();
@@ -183,7 +183,7 @@ class ModuleTimedBans : public Module
 			}
 		}
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

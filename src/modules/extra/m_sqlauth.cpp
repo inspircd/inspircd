@@ -31,9 +31,9 @@ class ModuleSQLAuth : public Module
 	std::string killreason;
 	std::string allowpattern;
 	std::string databaseid;
-	
+
 	bool verbose;
-	
+
 public:
 	ModuleSQLAuth(InspIRCd* Me)
 	: Module::Module(Me)
@@ -79,7 +79,7 @@ public:
 			user->Extend("sqlauthed");
 			return 0;
 		}
-		
+
 		if (!CheckCredentials(user))
 		{
 			ServerInstance->Users->QuitUser(user, killreason);
@@ -104,7 +104,7 @@ public:
 	{
 		std::string thisquery = freeformquery;
 		std::string safepass = user->password;
-		
+
 		/* Search and replace the escaped nick and escaped pass into the query */
 
 		SearchAndReplace(safepass, "\"", "");
@@ -132,7 +132,7 @@ public:
 
 		/* Build the query */
 		SQLrequest req = SQLrequest(this, SQLprovider, databaseid, SQLquery(thisquery));
-			
+
 		if(req.Send())
 		{
 			/* When we get the query response from the service provider we will be given an ID to play with,
@@ -143,7 +143,7 @@ public:
 			 * us to discard the query.
 		 	 */
 			AssociateUser(this, SQLutils, req.id, user).Send();
-				
+
 			return true;
 		}
 		else
@@ -153,7 +153,7 @@ public:
 			return false;
 		}
 	}
-	
+
 	virtual const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLRESID, request->GetId()) == 0)
@@ -162,7 +162,7 @@ public:
 
 			User* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
-			
+
 			if(user)
 			{
 				if(res->error.Id() == NO_ERROR)
@@ -195,16 +195,16 @@ public:
 				ServerInstance->Users->QuitUser(user, killreason);
 			}
 			return SQLSUCCESS;
-		}		
+		}
 		return NULL;
 	}
-	
+
 	virtual void OnUserDisconnect(User* user)
 	{
 		user->Shrink("sqlauthed");
-		user->Shrink("sqlauth_failed");		
+		user->Shrink("sqlauth_failed");
 	}
-	
+
 	virtual bool OnCheckReady(User* user)
 	{
 		return user->GetExt("sqlauthed");
@@ -214,7 +214,7 @@ public:
 	{
 		return Version(1,2,1,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSQLAuth)

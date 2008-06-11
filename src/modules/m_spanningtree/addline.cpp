@@ -66,7 +66,7 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		User* u = Instance->FindNick(prefix);
 		Utils->DoOneToAllButSender(prefix, "ADDLINE", params, u ? u->server : prefix);
 		TreeServer *remoteserver = Utils->FindServer(u ? u->server : prefix);
-	
+
 		if (!remoteserver->bursting)
 		{
 			Instance->XLines->ApplyLines();

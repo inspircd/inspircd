@@ -35,7 +35,7 @@ class Redirect : public ModeHandler
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
 	}
-	
+
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		if (adding)
@@ -89,28 +89,28 @@ class Redirect : public ModeHandler
 		}
 
 		return MODEACTION_DENY;
-		
+
 	}
 };
 
 class ModuleRedirect : public Module
 {
-	
+
 	Redirect* re;
-	
+
  public:
- 
+
 	ModuleRedirect(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		re = new Redirect(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(re))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-	
+
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
@@ -145,7 +145,7 @@ class ModuleRedirect : public Module
 		ServerInstance->Modes->DelMode(re);
 		delete re;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

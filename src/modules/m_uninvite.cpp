@@ -16,7 +16,7 @@
 #include "inspircd.h"
 
 /** Handle /UNINVITE
- */	 
+ */
 class CommandUninvite : public Command
 {
  public:
@@ -31,9 +31,9 @@ class CommandUninvite : public Command
 	{
 		User* u = ServerInstance->FindNick(parameters[0]);
 		Channel* c = ServerInstance->FindChan(parameters[1]);
-			 
+
 		if ((!c) || (!u))
-		{	
+		{
 			if (!c)
 			{
 				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[1].c_str());
@@ -42,9 +42,9 @@ class CommandUninvite : public Command
 			{
 				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
 			}
-				
+
 			return CMD_FAILURE;
-		}	
+		}
 
 		if (c->modes[CM_INVITEONLY])
 		{
@@ -86,16 +86,16 @@ class ModuleUninvite : public Module
 
 	ModuleUninvite(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		mycommand = new CommandUninvite(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleUninvite()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);

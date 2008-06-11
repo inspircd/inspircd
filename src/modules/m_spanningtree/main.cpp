@@ -155,10 +155,10 @@ void ModuleSpanningTree::HandleLusers(const std::vector<std::string>& parameters
 
 	if (ServerInstance->Users->UnregisteredUserCount())
 		user->WriteNumeric(253, "%s %d :unknown connections",user->nick.c_str(),ServerInstance->Users->UnregisteredUserCount());
-	
+
 	if (ServerInstance->ChannelCount())
 		user->WriteNumeric(254, "%s %ld :channels formed",user->nick.c_str(),ServerInstance->ChannelCount());
-	
+
 	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
 	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),max_local);
 	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d",user->nick.c_str(),n_users,max_global);
@@ -221,7 +221,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 					// ... if we can find a proper route to them
 					if (tsock)
 					{
-						tsock->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " + 
+						tsock->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " +
 								ServerInstance->Config->GetSID() + " " + s->GetID());
 						s->LastPingMsec = ts;
 					}
@@ -394,10 +394,10 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 		else
 			ServerInstance->PI->SendUserNotice(user, text);
 	}
-	
+
 	SendingRemoteMessage = false;
 }
-	
+
 int ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters, User* user)
 {
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
@@ -731,7 +731,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 		return;
 
 	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(), 
+	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(),
 	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason);
 	std::deque<std::string> params;
 	params.push_back(data);

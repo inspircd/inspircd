@@ -65,22 +65,22 @@ class ModuleClones : public Module
  public:
 	ModuleClones(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		mycommand = new CommandClones(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleClones()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
 	}
 
-	
+
 };
 
 MODULE_INIT(ModuleClones)

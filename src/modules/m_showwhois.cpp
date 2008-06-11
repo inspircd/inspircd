@@ -51,14 +51,14 @@ class SeeWhois : public ModeHandler
 
 class ModuleShowwhois : public Module
 {
-	
+
 	SeeWhois* sw;
 
  public:
 
 	ModuleShowwhois(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		sw = new SeeWhois(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(sw))
 			throw ModuleException("Could not add new modes!");

@@ -97,7 +97,7 @@ class JoinFlood : public ModeHandler
 			return std::make_pair(true, ConvToStr(x->joins)+":"+ConvToStr(x->secs));
 		else
 			return std::make_pair(false, parameter);
-	} 
+	}
 
 	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
@@ -206,22 +206,22 @@ class JoinFlood : public ModeHandler
 
 class ModuleJoinFlood : public Module
 {
-	
+
 	JoinFlood* jf;
-	
+
  public:
- 
+
 	ModuleJoinFlood(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		jf = new JoinFlood(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreJoin, I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-	
+
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
@@ -276,7 +276,7 @@ class ModuleJoinFlood : public Module
 		ServerInstance->Modes->DelMode(jf);
 		delete jf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

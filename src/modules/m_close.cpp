@@ -12,7 +12,7 @@
  *
  * Based on the UnrealIRCd 4.0 (1.1.x fork) module
  *
- * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk 
+ * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk
  * This program is free but copyrighted software; see
  *            the file COPYING for details.
  *
@@ -58,7 +58,7 @@ class CommandClose : public Command
 			user->WriteServ("NOTICE %s :*** %i unknown connection%s closed",user->nick.c_str(),total,(total>1)?"s":"");
 		else
 			user->WriteServ("NOTICE %s :*** No unknown connections found",user->nick.c_str());
-			
+
 		return CMD_LOCALONLY;
 	}
 };

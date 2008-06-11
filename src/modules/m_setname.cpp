@@ -34,13 +34,13 @@ class CommandSetname : public Command
 			user->WriteServ("NOTICE %s :*** SETNAME: GECOS must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxGecos)
 		{
 			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (user->ChangeName(parameters[0].c_str()))
 		{
 			ServerInstance->SNO->WriteToSnoMask('A', "%s used SETNAME to change their GECOS to %s", user->nick.c_str(), parameters[0].c_str());
@@ -59,21 +59,21 @@ class ModuleSetName : public Module
 	ModuleSetName(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandSetname(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleSetName()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSetName)

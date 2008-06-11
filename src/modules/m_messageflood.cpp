@@ -192,29 +192,29 @@ class MsgFlood : public ModeHandler
 				return MODEACTION_ALLOW;
 			}
 		}
-		
+
 		return MODEACTION_DENY;
 	}
 };
 
 class ModuleMsgFlood : public Module
 {
-	
+
 	MsgFlood* mf;
-	
+
  public:
- 
+
 	ModuleMsgFlood(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mf = new MsgFlood(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(mf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-	
+
 	int ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
 		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP)
@@ -252,7 +252,7 @@ class ModuleMsgFlood : public Module
 				return 1;
 			}
 		}
-		
+
 		return 0;
 	}
 
@@ -260,7 +260,7 @@ class ModuleMsgFlood : public Module
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
-		
+
 		return 0;
 	}
 
@@ -268,7 +268,7 @@ class ModuleMsgFlood : public Module
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
-			
+
 		return 0;
 	}
 
@@ -288,7 +288,7 @@ class ModuleMsgFlood : public Module
 		ServerInstance->Modes->DelMode(mf);
 		delete mf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

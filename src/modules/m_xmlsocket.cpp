@@ -97,7 +97,7 @@ class ModuleXMLSocket : public Module
 		}
 	}
 
-        virtual void OnCleanup(int target_type, void* item)
+	virtual void OnCleanup(int target_type, void* item)
 	{
 		if(target_type == TYPE_USER)
 		{

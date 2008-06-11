@@ -23,15 +23,15 @@ class ModuleAntiBear : public Module
  public:
 	ModuleAntiBear(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		Implementation eventlist[] = { I_OnUserRegister, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-	
+
 	virtual ~ModuleAntiBear()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
@@ -54,12 +54,12 @@ class ModuleAntiBear : public Module
 
 				return 1;
 			}
-			
+
 			user->Shrink("antibear_timewait");
 			// Block the command, so the user doesn't receive a no such nick notice
 			return 1;
 		}
-		
+
 		return 0;
 	}
 

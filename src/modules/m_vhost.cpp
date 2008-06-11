@@ -60,7 +60,7 @@ class ModuleVHost : public Module
  private:
 
 	CommandVhost* mycommand;
-	 
+
  public:
 	ModuleVHost(InspIRCd* Me) : Module(Me)
 	{
@@ -68,7 +68,7 @@ class ModuleVHost : public Module
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleVHost()
 	{
 	}
@@ -78,7 +78,7 @@ class ModuleVHost : public Module
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleVHost)

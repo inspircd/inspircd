@@ -54,7 +54,7 @@ class ModuleOperjoin : public Module
 		virtual void OnRehash(User* user, const std::string &parameter)
 		{
 			ConfigReader* conf = new ConfigReader(ServerInstance);
-    
+
 			operChan = conf->ReadValue("operjoin", "channel", 0);
 			override = conf->ReadFlag("operjoin", "override", "0", 0);
 			operChans.clear();

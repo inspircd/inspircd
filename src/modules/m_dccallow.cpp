@@ -66,7 +66,7 @@ class CommandDccallow : public Command
 		else if (parameters.size() > 0)
 		{
 			char action = *parameters[0].c_str();
-		
+
 			// if they didn't specify an action, this is probably a command
 			if (action != '+' && action != '-')
 			{
@@ -75,7 +75,7 @@ class CommandDccallow : public Command
 					// list current DCCALLOW list
 					DisplayDCCAllowList(user);
 					return CMD_FAILURE;
-				} 
+				}
 				else if (!strcasecmp(parameters[0].c_str(), "HELP"))
 				{
 					// display help
@@ -83,13 +83,13 @@ class CommandDccallow : public Command
 					return CMD_FAILURE;
 				}
 			}
-			
+
 			std::string nick = parameters[0].substr(1);
 			User *target = ServerInstance->FindNick(nick);
-	
+
 			if (target)
 			{
-				
+
 				if (action == '-')
 				{
 					// check if it contains any entries
@@ -110,7 +110,7 @@ class CommandDccallow : public Command
 					{
 						delete  dl;
 						user->Shrink("dccallow_list");
-				
+
 						// remove from userlist
 						for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)
 						{
@@ -145,15 +145,15 @@ class CommandDccallow : public Command
 							return CMD_FAILURE;
 						}
 					}
-				
+
 					std::string mask = std::string(target->nick)+"!"+std::string(target->ident)+"@"+std::string(target->dhost);
 					std::string default_length = Conf->ReadValue("dccallow", "length", 0);
-		
+
 					long length;
 					if (parameters.size() < 2)
 					{
 						length = ServerInstance->Duration(default_length);
-					} 
+					}
 					else if (!atoi(parameters[1].c_str()))
 					{
 						length = 0;
@@ -162,14 +162,14 @@ class CommandDccallow : public Command
 					{
 						length = ServerInstance->Duration(parameters[1]);
 					}
-	
+
 					if (!ServerInstance->IsValidMask(mask.c_str()))
 					{
 						return CMD_FAILURE;
 					}
-			
+
 					dl->push_back(DCCAllow(target->nick, mask, ServerInstance->Time(), length));
-			
+
 					if (length > 0)
 					{
 						user->WriteNumeric(993, "%s %s :Added %s to DCCALLOW list for %ld seconds", user->nick.c_str(), user->nick.c_str(), target->nick.c_str(), length);
@@ -216,12 +216,12 @@ class CommandDccallow : public Command
 		user->WriteNumeric(998, "%s :  your DCCALLOW list will be deleted when you leave IRC.", user->nick.c_str());
 		user->WriteNumeric(999, "%s :End of DCCALLOW HELP", user->nick.c_str());
 	}
-	
+
 	void DisplayDCCAllowList(User* user)
 	{
 		 // display current DCCALLOW list
 		user->WriteNumeric(990, "%s :Users on your DCCALLOW list:", user->nick.c_str());
-	
+
 		if (user->GetExt("dccallow_list", dl))
 		{
 			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
@@ -229,12 +229,12 @@ class CommandDccallow : public Command
 				user->WriteNumeric(991, "%s %s :%s (%s)", user->nick.c_str(), user->nick.c_str(), c->nickname.c_str(), c->hostmask.c_str());
 			}
 		}
-		
+
 		user->WriteNumeric(992, "%s :End of DCCALLOW list", user->nick.c_str());
-	}			
+	}
 
 };
-	
+
 class ModuleDCCAllow : public Module
 {
 	CommandDccallow* mycommand;
@@ -261,7 +261,7 @@ class ModuleDCCAllow : public Module
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		dccallowlist* udl;
-	
+
 		// remove their DCCALLOW list if they have one
 		if (user->GetExt("dccallow_list", udl))
 		{
@@ -269,7 +269,7 @@ class ModuleDCCAllow : public Module
 			user->Shrink("dccallow_list");
 			RemoveFromUserlist(user);
 		}
-		
+
 		// remove them from any DCCALLOW lists
 		// they are currently on
 		RemoveNick(user);
@@ -299,43 +299,43 @@ class ModuleDCCAllow : public Module
 			/* Always allow a user to dcc themselves (although... why?) */
 			if (user == u)
 				return 0;
-		
+
 			if ((text.length()) && (text[0] == '\1'))
 			{
 				Expire();
 
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :DCC SEND m_dnsbl.cpp 3232235786 52650 9676
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :VERSION
-					
+
 				if (strncmp(text.c_str(), "\1DCC ", 5) == 0)
-				{	
+				{
 					if (u->GetExt("dccallow_list", dl) && dl->size())
 					{
 						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
 							if (ServerInstance->MatchText(user->GetFullHost(), iter->hostmask))
 								return 0;
 					}
-		
+
 					// tokenize
 					std::stringstream ss(text);
 					std::string buf;
 					std::vector<std::string> tokens;
-		
+
 					while (ss >> buf)
 						tokens.push_back(buf);
-		
+
 					irc::string type = tokens[1].c_str();
-		
+
 					bool blockchat = Conf->ReadFlag("dccallow", "blockchat", 0);
-		
+
 					if (type == "SEND")
 					{
 						std::string defaultaction = Conf->ReadValue("dccallow", "action", 0);
 						std::string filename = tokens[2];
-					
-						if (defaultaction == "allow") 
+
+						if (defaultaction == "allow")
 							return 0;
-				
+
 						for (unsigned int i = 0; i < bfl.size(); i++)
 						{
 							if (ServerInstance->MatchText(filename, bfl[i].filemask))
@@ -366,7 +366,7 @@ class ModuleDCCAllow : public Module
 		}
 		return 0;
 	}
-	
+
 	void Expire()
 	{
 		for (userlist::iterator iter = ul.begin(); iter != ul.end(); ++iter)
@@ -397,7 +397,7 @@ class ModuleDCCAllow : public Module
 			}
 		}
 	}
-	
+
 	void RemoveNick(User* user)
 	{
 		/* Iterate through all DCCALLOW lists and remove user */
@@ -412,7 +412,7 @@ class ModuleDCCAllow : public Module
 					{
 						if (i->nickname == user->nick)
 						{
-					
+
 							u->WriteServ("NOTICE %s :%s left the network or changed their nickname and has been removed from your DCCALLOW list", u->nick.c_str(), i->nickname.c_str());
 							u->WriteNumeric(995, "%s %s :Removed %s from your DCCALLOW list", u->nick.c_str(), u->nick.c_str(), i->nickname.c_str());
 							dl->erase(i);
@@ -454,7 +454,7 @@ class ModuleDCCAllow : public Module
 			bf.action = action;
 			bfl.push_back(bf);
 		}
-	
+
 	}
 
 	virtual ~ModuleDCCAllow()

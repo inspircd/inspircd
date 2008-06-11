@@ -71,7 +71,7 @@ class ModuleSSLInfo : public Module
 	ModuleSSLInfo(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		newcommand = new cmd_sslinfo(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 
@@ -81,7 +81,7 @@ class ModuleSSLInfo : public Module
 	virtual ~ModuleSSLInfo()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);

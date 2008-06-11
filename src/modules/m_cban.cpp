@@ -171,7 +171,7 @@ class ModuleCBan : public Module
 	{
 		ServerInstance->XLines->UnregisterFactory(f);
 	}
-	
+
 	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		return 0;

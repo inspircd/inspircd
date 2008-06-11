@@ -51,7 +51,7 @@ void RemoveFromAllAccepts(InspIRCd* ServerInstance, User* who)
 	for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
 	{
 		callerid_data* dat = GetData(i->second, false);
-		
+
 		if (!dat)
 			continue;
 

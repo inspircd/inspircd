@@ -94,7 +94,7 @@ class ResultNotifier : public BufferedSocket
 
 class MsSQLResult : public SQLresult
 {
-  private:
+ private:
 	int currentrow;
 	int rows;
 	int cols;
@@ -106,7 +106,7 @@ class MsSQLResult : public SQLresult
 	SQLfieldList* fieldlist;
 	SQLfieldMap* fieldmap;
 
-  public:
+ public:
 	MsSQLResult(Module* self, Module* to, unsigned int rid)
 	: SQLresult(self, to, rid), currentrow(0), rows(0), cols(0), fieldlist(NULL), fieldmap(NULL)
 	{
@@ -262,16 +262,16 @@ class MsSQLResult : public SQLresult
 
 class SQLConn : public classbase
 {
-  private:
+ private:
 	ResultQueue results;
-  	InspIRCd* Instance;
+ 	InspIRCd* Instance;
 	Module* mod;
 	SQLhost host;
 	TDSLOGIN* login;
 	TDSSOCKET* sock;
 	TDSCONTEXT* context;
 
-  public:
+ public:
 	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
 	: Instance(SI), mod(m), host(hi), login(NULL), sock(NULL), context(NULL)
 	{
@@ -308,7 +308,7 @@ class SQLConn : public classbase
 	{
 		if (!sock)
 			return SQLerror(BAD_CONN, "Socket was NULL, check if SQL server is running.");
-			
+
 		/* Pointer to the buffer we screw around with substitution in */
 		char* query;
 
@@ -357,7 +357,7 @@ class SQLConn : public classbase
 						escend++;
 					}
 					*escend = 0;
-					
+
 					for (char* n = escaped; *n; n++)
 					{
 						*queryend = *n;
@@ -395,7 +395,7 @@ class SQLConn : public classbase
 		}
 		delete[] query;
 		free(msquery);
-		
+
 		int tds_res;
 		while (tds_process_tokens(sock, &tds_res, NULL, TDS_TOKEN_RESULTS) == TDS_SUCCEED)
 		{
@@ -450,7 +450,7 @@ class SQLConn : public classbase
 
 				default:
 					break;
-			}	
+			}
 		}
 		results.push_back(res);
 		SendNotify();
@@ -610,11 +610,11 @@ class SQLConn : public classbase
 
 class ModuleMsSQL : public Module
 {
-  private:
+ private:
 	ConnMap connections;
 	unsigned long currid;
 
-  public:
+ public:
 	ModuleMsSQL(InspIRCd* Me)
 	: Module::Module(Me), currid(0)
 	{
@@ -705,7 +705,7 @@ class ModuleMsSQL : public Module
 		}
 		return false;
 	}
-    
+
 	void ReadConf()
 	{
 		ClearOldConnections();

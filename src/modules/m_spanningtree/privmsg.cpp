@@ -39,7 +39,7 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 		}
 
 		Channel* channel = Instance->FindChan(target);
-		
+
 		if (channel)
 		{
 			if (messagetype == "PRIVMSG")
@@ -60,7 +60,7 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 		else
 		{
 			User* user = Instance->FindNick(target);
-			
+
 			if (user)
 			{
 				if (messagetype == "PRIVMSG")

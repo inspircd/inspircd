@@ -26,7 +26,7 @@ class ChanFilter : public ListModeBase
 {
  public:
 	ChanFilter(InspIRCd* Instance) : ListModeBase(Instance, 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
-	
+
 	virtual bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
 		if ((word.length() > 35) || (word.empty()))
@@ -34,21 +34,21 @@ class ChanFilter : public ListModeBase
 			user->WriteNumeric(935, "%s %s %s :word is too %s for censor list",user->nick.c_str(), chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	virtual bool TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(939, "%s %s %s :Channel spamfilter list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
 		return true;
 	}
-	
+
 	virtual void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(937, "%s %s :The word %s is already on the spamfilter list",user->nick.c_str(), chan->name.c_str(), word.c_str());
 	}
-	
+
 	virtual void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(938, "%s %s :No such spamfilter word is set",user->nick.c_str(), chan->name.c_str());
@@ -57,11 +57,11 @@ class ChanFilter : public ListModeBase
 
 class ModuleChanFilter : public Module
 {
-	
+
 	ChanFilter* cf;
-	
+
  public:
- 
+
 	ModuleChanFilter(InspIRCd* Me)
 		: Module(Me)
 	{
@@ -123,12 +123,12 @@ class ModuleChanFilter : public Module
 	{
 		cf->DoCleanup(target_type, item);
 	}
-	
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
-	
+
 	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		cf->DoSyncChannel(chan, proto, opaque);
@@ -138,7 +138,7 @@ class ModuleChanFilter : public Module
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 	virtual ~ModuleChanFilter()
 	{
 		ServerInstance->Modes->DelMode(cf);

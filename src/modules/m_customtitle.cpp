@@ -20,7 +20,6 @@
  */
 class CommandTitle : public Command
 {
-	
  public:
 	CommandTitle (InspIRCd* Instance) : Command(Instance,"TITLE",0,2)
 	{
@@ -29,25 +28,25 @@ class CommandTitle : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
-{
-    std::stringstream hl(hostlist);
-    std::string xhost;
-    while (hl >> xhost)
-    {
-        if (match(host, xhost) || match(ip,xhost, true))
-        {
-            return true;
-        }
-    }
-    return false;
-}
+	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
+	{
+		std::stringstream hl(hostlist);
+		std::string xhost;
+		while (hl >> xhost)
+		{
+			if (match(host, xhost) || match(ip,xhost, true))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
 		if (!IS_LOCAL(user))
 			return CMD_LOCALONLY;
-	
+
 		char TheHost[MAXBUF];
 		char TheIP[MAXBUF];
 
@@ -79,7 +78,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 				user->Extend("ctitle", text);
 
 				ServerInstance->PI->SendMetaData(user, TYPE_USER, "ctitle", *text);
-				                                                        
+
 				if (!vhost.empty())
 					user->ChangeDisplayedHost(vhost.c_str());
 
@@ -106,11 +105,11 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 class ModuleCustomTitle : public Module
 {
 	CommandTitle* mycommand;
-	
+
  public:
 	ModuleCustomTitle(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		mycommand = new CommandTitle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup };
@@ -208,11 +207,11 @@ class ModuleCustomTitle : public Module
 			}
 		}
 	}
-	
+
 	virtual ~ModuleCustomTitle()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

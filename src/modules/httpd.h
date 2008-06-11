@@ -27,7 +27,7 @@ class HTTPHeaders : public classbase
  protected:
 	std::map<std::string,std::string> headers;
  public:
-	
+
 	/** Set the value of a header
 	 * Sets the value of the named header. If the header is already present, it will be replaced
 	 */
@@ -35,7 +35,7 @@ class HTTPHeaders : public classbase
 	{
 		headers[name] = data;
 	}
-	
+
 	/** Set the value of a header, only if it doesn't exist already
 	 * Sets the value of the named header. If the header is already present, it will NOT be updated
 	 */
@@ -44,21 +44,21 @@ class HTTPHeaders : public classbase
 		if (!IsSet(name))
 			SetHeader(name, data);
 	}
-	
+
 	/** Remove the named header
 	 */
 	void RemoveHeader(const std::string &name)
 	{
 		headers.erase(name);
 	}
-	
+
 	/** Remove all headers
 	 */
 	void Clear()
 	{
 		headers.clear();
 	}
-	
+
 	/** Get the value of a header
 	 * @return The value of the header, or an empty string
 	 */
@@ -67,10 +67,10 @@ class HTTPHeaders : public classbase
 		std::map<std::string,std::string>::iterator it = headers.find(name);
 		if (it == headers.end())
 			return std::string();
-		
+
 		return it->second;
 	}
-	
+
 	/** Check if the given header is specified
 	 * @return true if the header is specified
 	 */
@@ -79,17 +79,17 @@ class HTTPHeaders : public classbase
 		std::map<std::string,std::string>::iterator it = headers.find(name);
 		return (it != headers.end());
 	}
-	
+
 	/** Get all headers, formatted by the HTTP protocol
 	 * @return Returns all headers, formatted according to the HTTP protocol. There is no request terminator at the end
 	 */
 	std::string GetFormattedHeaders()
 	{
 		std::string re;
-		
+
 		for (std::map<std::string,std::string>::iterator i = headers.begin(); i != headers.end(); i++)
 			re += i->first + ": " + i->second + "\r\n";
-		
+
 		return re;
 	}
 };
@@ -105,7 +105,7 @@ class HTTPRequest : public classbase
 	std::string document;
 	std::string ipaddr;
 	std::string postdata;
-	
+
  public:
 
 	HTTPHeaders *headers;
@@ -181,7 +181,7 @@ class HTTPDocument : public classbase
  public:
 
 	HTTPHeaders headers;
-	
+
 	/** The socket pointer from an earlier HTTPRequest
 	 */
 	void* sock;

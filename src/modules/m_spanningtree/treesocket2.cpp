@@ -74,22 +74,22 @@ bool TreeSocket::ProcessLine(std::string &line)
 	Instance->Logs->Log("m_spanningtree",DEBUG, "S[%d] I %s", this->GetFd(), line.c_str());
 
 	this->Split(line.c_str(),params);
-	
+
 	if (params.empty())
 		return true;
-	
+
 	if ((params[0][0] == ':') && (params.size() > 1))
 	{
 		prefix = params[0].substr(1);
 		params.pop_front();
-		
+
 		if (prefix.empty())
 		{
 			this->SendError("BUG (?) Empty prefix recieved.");
 			return false;
 		}
 	}
-	
+
 	command = params[0].c_str();
 	params.pop_front();
 
@@ -313,8 +313,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 			/*
 			 * Now, check for (and parse) commands as appropriate. -- w
-			 */	
-		
+			 */
+
 			/* Find the server that this command originated from, used in the handlers below */
 			TreeServer *ServerSource = Utils->FindServer(prefix);
 
@@ -501,7 +501,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got BURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
 					return false;
 				}
-				
+
 				ServerSource->bursting = true;
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
@@ -512,7 +512,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
 					return false;
 				}
-				
+
 				ServerSource->FinishBurst();
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
@@ -534,10 +534,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 						return false;
 					}
 				}
-					
+
 				// Insert into the parser
 				this->Instance->SendMode(modelist, this->Instance->FakeClient);
-				
+
 				// Pass out to the network
 				return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 			}
@@ -587,7 +587,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 						}
 					}
 				}
-					
+
 				// its a user
 				std::vector<std::string> strparams(params.begin(), params.end());
 
@@ -664,7 +664,7 @@ void TreeSocket::OnClose()
 	if (!quitserver.empty())
 	{
 		Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' failed.",quitserver.c_str());
-		time_t server_uptime = Instance->Time() - this->age;	
+		time_t server_uptime = Instance->Time() - this->age;
 		if (server_uptime)
 			Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
 	}

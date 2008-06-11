@@ -19,7 +19,7 @@
 class ModuleNamesX : public Module
 {
  public:
-	
+
 	ModuleNamesX(InspIRCd* Me)
 		: Module(Me)
 	{

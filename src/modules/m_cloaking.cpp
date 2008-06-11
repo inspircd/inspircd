@@ -39,7 +39,7 @@ class CloakUser : public ModeHandler
 	 * For example, if it is passed "svn.inspircd.org" it will return ".inspircd.org".
 	 * If it is passed "brainbox.winbot.co.uk" it will return ".co.uk",
 	 * and if it is passed "localhost.localdomain" it will return ".localdomain".
-	 * 
+	 *
 	 * This is used to ensure a significant part of the host is always cloaked (see Bug #216)
 	 */
 	std::string LastTwoDomainParts(const std::string &host)
@@ -111,11 +111,11 @@ class CloakUser : public ModeHandler
 			}
 		}
 		else
-  		{
+		{
 			if (dest->IsModeSet('x'))
 			{
-  				/* User is removing the mode, so just restore their real host
-  				 * and make it match the displayed one.
+				/* User is removing the mode, so just restore their real host
+				 * and make it match the displayed one.
 				 */
 				dest->ChangeDisplayedHost(dest->host.c_str());
 				dest->SetMode('x',false);
@@ -196,13 +196,13 @@ class CloakUser : public ModeHandler
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
 	}
-	
+
 	void DoRehash()
 	{
 		ConfigReader Conf(ServerInstance);
 		bool lowercase;
-		
-		/* These are *not* using the need_positive parameter of ReadInteger - 
+
+		/* These are *not* using the need_positive parameter of ReadInteger -
 		 * that will limit the valid values to only the positive values in a
 		 * signed int. Instead, accept any value that fits into an int and
 		 * cast it to an unsigned int. That will, a bit oddly, give us the full
@@ -215,7 +215,7 @@ class CloakUser : public ModeHandler
 		prefix = Conf.ReadValue("cloak","prefix",0);
 		ipalways = Conf.ReadFlag("cloak", "ipalways", 0);
 		lowercase = Conf.ReadFlag("cloak", "lowercase", 0);
-		
+
 		if (!lowercase)
 		{
 			xtab[0] = "F92E45D871BCA630";
@@ -255,7 +255,7 @@ class CloakUser : public ModeHandler
 class ModuleCloaking : public Module
 {
  private:
-	
+
  	CloakUser* cu;
 	Module* HashModule;
 
@@ -339,14 +339,14 @@ class ModuleCloaking : public Module
 		if (target_type == TYPE_USER)
 			OnUserDisconnect((User*)item);
 	}
-	
+
 	virtual ~ModuleCloaking()
 	{
 		ServerInstance->Modes->DelMode(cu);
 		delete cu;
 		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		// returns the version number of the module to be
@@ -387,7 +387,7 @@ class ModuleCloaking : public Module
 				std::string hostcloak = cu->prefix + "-" + std::string(HashSumRequest(this, cu->HashProvider, dest->host.c_str()).Send()).substr(0,8) + a;
 
 				/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
-				 * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
+				 * according to the DNS RFC) then tough titty, they get cloaked as an IP.
 				 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
 				 * vhost.
 				 */

@@ -93,21 +93,21 @@ class ModuleSajoin : public Module
 	ModuleSajoin(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandSajoin(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleSajoin()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSajoin)

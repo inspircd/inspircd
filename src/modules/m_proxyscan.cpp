@@ -31,7 +31,7 @@
 
 /*
  * A few things to note:
- * 
+ *
  *   O  The only place that may *delete* an active or inactive
  *      ident socket is OnUserDisconnect in the module class.
  *      Because this is out of scope of the socket class there is
@@ -40,7 +40,7 @@
  *
  *   O  Closure of the ident socket with the Close() method will
  *      not cause removal of the socket from memory or detatchment
- *      from its 'parent' User class. It will only flag it as an 
+ *      from its 'parent' User class. It will only flag it as an
  *      inactive socket in the socket engine.
  *
  *   O  Timeouts are handled in OnCheckReaady at the same time as
@@ -95,7 +95,7 @@ class ProxySocket : public EventHandler
 		{
 			this->response[i] = rstr[i];
 		}
-		
+
 		socklen_t size = 0;
 #ifdef IPV6
 		/* Does this look like a v6 ip address? */
@@ -115,7 +115,7 @@ class ProxySocket : public EventHandler
 		/* We allocate two of these because sizeof(sockaddr_in6) > sizeof(sockaddr_in) */
 		sockaddr* s = new sockaddr[2];
 		sockaddr* addr = new sockaddr[2];
-	
+
 #ifdef IPV6
 		/* Horrid icky nasty ugly berkely socket crap. */
 		if (v6)
@@ -313,22 +313,22 @@ class ModuleProxy : public Module
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 1, 0, VF_VENDOR, API_VERSION);
 	}
-	
-	
+
+
 	virtual void OnRehash(User *user, const std::string &param)
 	{
 		ConfigReader MyConf(ServerInstance);
-		
+
 		RequestTimeout = MyConf.ReadInteger("ident", "timeout", 0, true);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
 	}
-	
+
 	virtual int OnUserRegister(User *user)
 	{
 		user->WriteServ("NOTICE Auth :*** Checking you for proxies...");

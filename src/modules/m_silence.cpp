@@ -72,16 +72,16 @@ class CommandSVSSilence : public Command
 		 */
 		if (!ServerInstance->ULine(user->server))
 			return CMD_FAILURE;
-			
+
 		User *u = ServerInstance->FindNick(parameters[0]);
 		if (!u)
 			return CMD_FAILURE;
-			
+
 		if (IS_LOCAL(u))
 		{
 			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(++parameters.begin(), parameters.end()), u);
 		}
-		
+
 		return CMD_SUCCESS;
 	}
 };
@@ -129,13 +129,13 @@ class CommandSilence : public Command
 			if (parameters.size() > 1) {
 				pattern = CompilePattern(parameters[1].c_str());
 			}
-			
+
 			if (!mask.length())
 			{
 				// 'SILENCE +' or 'SILENCE -', assume *!*@*
 				mask = "*!*@*";
 			}
-			
+
 			ModeParser::CleanMask(mask);
 
 			if (action == '-')
@@ -219,7 +219,7 @@ class CommandSilence : public Command
 				case 'c':
 					p |= SILENCE_CHANNEL;
 					break;
-				case 'i': 
+				case 'i':
 					p |= SILENCE_INVITE;
 					break;
 				case 'n':
@@ -271,7 +271,7 @@ class ModuleSilence : public Module
 	CommandSVSSilence *cmdsvssilence;
 	unsigned int maxsilence;
  public:
- 
+
 	ModuleSilence(InspIRCd* Me)
 		: Module(Me), maxsilence(32)
 	{
@@ -401,7 +401,7 @@ class ModuleSilence : public Module
 	virtual ~ModuleSilence()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);

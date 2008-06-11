@@ -17,7 +17,7 @@
 
 class ModuleRestrictChans : public Module
 {
-	
+
 
 	std::map<irc::string,int> allowchans;
 
@@ -39,7 +39,7 @@ class ModuleRestrictChans : public Module
 	ModuleRestrictChans(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		ReadConfig();
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -50,7 +50,7 @@ class ModuleRestrictChans : public Module
 		ReadConfig();
 	}
 
-	
+
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		irc::string x = cname;
@@ -66,11 +66,11 @@ class ModuleRestrictChans : public Module
 		}
 		return 0;
 	}
-	
+
 	virtual ~ModuleRestrictChans()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);

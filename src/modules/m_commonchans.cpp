@@ -40,7 +40,7 @@ class PrivacyMode : public ModeHandler
 				return MODEACTION_ALLOW;
 			}
 		}
-		
+
 		return MODEACTION_DENY;
 	}
 };
@@ -58,13 +58,13 @@ class ModulePrivacyMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	
+
 	virtual ~ModulePrivacyMode()
 	{
 		ServerInstance->Modes->DelMode(pm);
 		delete pm;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0, VF_COMMON|VF_VENDOR, API_VERSION);

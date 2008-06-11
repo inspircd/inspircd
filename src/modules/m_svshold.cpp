@@ -109,7 +109,7 @@ class CommandSvshold : public Command
 				// parameters[0] = w00t
 				// parameters[1] = 1h3m2s
 				// parameters[2] = Registered nickname
-				
+
 				/* Already exists? */
 				if (HoldMap.find(parameters[0].c_str()) != HoldMap.end())
 				{
@@ -119,7 +119,7 @@ class CommandSvshold : public Command
 
 				unsigned long length = ServerInstance->Duration(parameters[1]);
 				std::string reason = (parameters.size() > 2) ? parameters[2] : "No reason supplied";
-				
+
 				SVSHold* S = new SVSHold(parameters[0], user->nick, ServerInstance->Time(), length, reason);
 				SVSHolds.push_back(S);
 				HoldMap[parameters[0].c_str()] = S;
@@ -156,7 +156,7 @@ bool SVSHoldComp(const SVSHold* ban1, const SVSHold* ban2)
 class ModuleSVSHold : public Module
 {
 	CommandSvshold *mycommand;
-	
+
 
  public:
 	ModuleSVSHold(InspIRCd* Me) : Module(Me)
@@ -167,11 +167,11 @@ class ModuleSVSHold : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	
+
 	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		ExpireBans();
-	
+
 		if(symbol == 'S')
 		{
 			for(SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
@@ -180,14 +180,14 @@ class ModuleSVSHold : public Module
 				results.push_back(std::string(ServerInstance->Config->ServerName)+" 210 "+user->nick+" "+(*iter)->nickname.c_str()+" "+(*iter)->set_by+" "+ConvToStr((*iter)->set_on)+" "+ConvToStr((*iter)->length)+" "+ConvToStr(remaining)+" :"+(*iter)->reason);
 			}
 		}
-		
+
 		return 0;
 	}
 
 	virtual int OnUserPreNick(User *user, const std::string &newnick)
 	{
 		ExpireBans();
-	
+
 		/* check SVSHolds in here, and apply as necessary. */
 		SVSHoldMap::iterator n = HoldMap.find(assign(newnick));
 		if (n != HoldMap.end())
@@ -197,7 +197,7 @@ class ModuleSVSHold : public Module
 		}
 		return 0;
 	}
-	
+
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable)
 	{
 		for(SVSHoldMap::iterator iter = HoldMap.begin(); iter != HoldMap.end(); iter++)
@@ -227,7 +227,7 @@ class ModuleSVSHold : public Module
 	virtual ~ModuleSVSHold()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
@@ -235,9 +235,9 @@ class ModuleSVSHold : public Module
 
 	std::string EncodeSVSHold(const SVSHold* ban)
 	{
-		std::ostringstream stream;	
+		std::ostringstream stream;
 		stream << ban->nickname << " " << ban->set_by << " " << ban->set_on << " " << ban->length << " :" << ban->reason;
-		return stream.str();	
+		return stream.str();
 	}
 
 	SVSHold* DecodeSVSHold(const std::string &data)

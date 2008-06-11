@@ -13,7 +13,7 @@
  * Taken from the UnrealIRCd 4.0 SVN version, based on
  * InspIRCd 1.1.x.
  *
- * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk 
+ * UnrealIRCd 4.0 (C) 2007 Carsten Valdemar Munk
  * This program is free but copyrighted software; see
  *	    the file COPYING for details.
  *
@@ -39,7 +39,7 @@ class ModuleLDAPAuth : public Module
 	std::string password;
 	int searchscope;
 	LDAP *conn;
-	
+
 public:
 	ModuleLDAPAuth(InspIRCd* Me)
 	: Module::Module(Me)
@@ -59,19 +59,19 @@ public:
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		
+
 		base 			= Conf.ReadValue("ldapoper", "baserdn", 0);
 		ldapserver		= Conf.ReadValue("ldapoper", "server", 0);
 		std::string scope	= Conf.ReadValue("ldapoper", "searchscope", 0);
 		username		= Conf.ReadValue("ldapoper", "binddn", 0);
 		password		= Conf.ReadValue("ldapoper", "bindauth", 0);
-		
+
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
 		else if (scope == "onelevel")
 			searchscope = LDAP_SCOPE_ONELEVEL;
 		else searchscope = LDAP_SCOPE_SUBTREE;
-		
+
 		Connect();
 	}
 
@@ -84,9 +84,9 @@ public:
 		if (res != LDAP_SUCCESS)
 		{
 			conn = NULL;
-			return false;			
+			return false;
 		}
-		
+
 		res = ldap_set_option(conn, LDAP_OPT_PROTOCOL_VERSION, (void *)&v);
 		if (res != LDAP_SUCCESS)
 		{
@@ -97,20 +97,20 @@ public:
 		return true;
 	}
 
-        virtual int OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
-        {
+	virtual int OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
+	{
 		User* user = dynamic_cast<User*>(ex);
-                if (hashtype == "ldap")
+		if (hashtype == "ldap")
 		{
-                        if (LookupOper(user, data, input))
-                        {
+			if (LookupOper(user, data, input))
+			{
 				/* This is an ldap oper and has been found, claim the OPER command */
-                                return 1;
-                        }
-                }
+				return 1;
+			}
+		}
 		/* We don't know this oper! */
-                return 0;
-        }
+		return 0;
+	}
 
 	bool LookupOper(User* user, const std::string &what, const std::string &opassword)
 	{
@@ -163,14 +163,14 @@ public:
 			free(authpass);
 			ldap_msgfree(msg);
 			return false;
-		} 
+		}
 	}
 
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleLDAPAuth)

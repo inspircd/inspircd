@@ -94,7 +94,7 @@ class ResultNotifier : public BufferedSocket
 
 class SQLite3Result : public SQLresult
 {
-  private:
+ private:
 	int currentrow;
 	int rows;
 	int cols;
@@ -106,7 +106,7 @@ class SQLite3Result : public SQLresult
 	SQLfieldList* fieldlist;
 	SQLfieldMap* fieldmap;
 
-  public:
+ public:
 	SQLite3Result(Module* self, Module* to, unsigned int rid)
 	: SQLresult(self, to, rid), currentrow(0), rows(0), cols(0), fieldlist(NULL), fieldmap(NULL)
 	{
@@ -262,14 +262,14 @@ class SQLite3Result : public SQLresult
 
 class SQLConn : public classbase
 {
-  private:
+ private:
 	ResultQueue results;
-  	InspIRCd* Instance;
+	InspIRCd* Instance;
 	Module* mod;
 	SQLhost host;
 	sqlite3* conn;
 
-  public:
+ public:
 	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
 	: Instance(SI), mod(m), host(hi)
 	{
@@ -475,11 +475,11 @@ class SQLConn : public classbase
 
 class ModuleSQLite3 : public Module
 {
-  private:
+ private:
 	ConnMap connections;
 	unsigned long currid;
 
-  public:
+ public:
 	ModuleSQLite3(InspIRCd* Me)
 	: Module::Module(Me), currid(0)
 	{
@@ -507,20 +507,20 @@ class ModuleSQLite3 : public Module
 		ServerInstance->SE->DelFd(resultnotify);
 		resultnotify->Close();
 		ServerInstance->BufferedSocketCull();
-		
+
 		if (QueueFD >= 0)
 		{
 			shutdown(QueueFD, 2);
 			close(QueueFD);
 		}
-		
+
 		if (resultdispatch)
 		{
 			ServerInstance->SE->DelFd(resultdispatch);
 			resultdispatch->Close();
 			ServerInstance->BufferedSocketCull();
 		}
-		
+
 		ServerInstance->Modules->UnpublishInterface("SQL", this);
 		ServerInstance->Modules->UnpublishFeature("SQL");
 		ServerInstance->Modules->DoneWithInterface("SQLutils");

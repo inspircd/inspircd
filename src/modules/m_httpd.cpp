@@ -38,7 +38,7 @@ class HttpServerSocket : public BufferedSocket
 {
 	FileReader* index;
 	HttpState InternalState;
-	
+
 	HTTPHeaders headers;
 	std::string reqbuffer;
 	std::string postdata;
@@ -46,7 +46,7 @@ class HttpServerSocket : public BufferedSocket
 	std::string request_type;
 	std::string uri;
 	std::string http_version;
-	
+
  public:
 
 	HttpServerSocket(InspIRCd* SI, std::string shost, int iport, bool listening, unsigned long maxtime, FileReader* index_page) : BufferedSocket(SI, shost, iport, listening, maxtime), index(index_page), postsize(0)
@@ -67,7 +67,7 @@ class HttpServerSocket : public BufferedSocket
 	~HttpServerSocket()
 	{
 	}
-	
+
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
 		if (InternalState == HTTP_LISTEN)
@@ -168,21 +168,21 @@ class HttpServerSocket : public BufferedSocket
 			default:
 				return "WTF";
 			break;
-				
+
 		}
 	}
-	
+
 	void SendHTTPError(int response)
 	{
 		HTTPHeaders empty;
 		std::string data = "<html><head></head><body>Server error "+ConvToStr(response)+": "+Response(response)+"<br>"+
 		                   "<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>";
-		
+
 		SendHeaders(data.length(), response, empty);
 		this->Write(data);
 		this->FlushWriteBuffer();
 	}
-	
+
 	void SendHeaders(unsigned long size, int response, HTTPHeaders &rheaders)
 	{
 
@@ -193,20 +193,20 @@ class HttpServerSocket : public BufferedSocket
 		char *date = asctime(timeinfo);
 		date[strlen(date) - 1] = '\0';
 		rheaders.CreateHeader("Date", date);
-		
+
 		rheaders.CreateHeader("Server", "InspIRCd/m_httpd.so/1.2");
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
-		
+
 		if (size)
 			rheaders.CreateHeader("Content-Type", "text/html");
 		else
 			rheaders.RemoveHeader("Content-Type");
-		
+
 		/* Supporting Connection: keep-alive causes a whole world of hurt syncronizing timeouts,
 		 * so remove it, its not essential for what we need.
 		 */
 		rheaders.SetHeader("Connection", "Close");
-		
+
 		this->Write(rheaders.GetFormattedHeaders());
 		this->Write("\r\n");
 	}
@@ -218,7 +218,7 @@ class HttpServerSocket : public BufferedSocket
 		/* Check that the data read is a valid pointer and it has some content */
 		if (!data || !*data)
 			return false;
-		
+
 		if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 		{
 			postdata.append(data);
@@ -228,54 +228,54 @@ class HttpServerSocket : public BufferedSocket
 		else
 		{
 			reqbuffer.append(data);
-			
+
 			if (reqbuffer.length() >= 8192)
 			{
 				Instance->Logs->Log("m_httpd",DEBUG, "m_httpd dropped connection due to an oversized request buffer");
 				reqbuffer.clear();
 				return false;
 			}
-			
+
 			if (InternalState == HTTP_SERVE_WAIT_REQUEST)
 				CheckRequestBuffer();
 		}
-		
+
 		return true;
 	}
-	
+
 	void CheckRequestBuffer()
 	{
 		std::string::size_type reqend = reqbuffer.find("\r\n\r\n");
 		if (reqend == std::string::npos)
 			return;
-		
+
 		// We have the headers; parse them all
 		std::string::size_type hbegin = 0, hend;
 		while ((hend = reqbuffer.find("\r\n", hbegin)) != std::string::npos)
 		{
 			if (hbegin == hend)
 				break;
-			
+
 			if (request_type.empty())
 			{
 				std::istringstream cheader(std::string(reqbuffer, hbegin, hend - hbegin));
 				cheader >> request_type;
 				cheader >> uri;
 				cheader >> http_version;
-				
+
 				if (request_type.empty() || uri.empty() || http_version.empty())
 				{
 					SendHTTPError(400);
 					SetWrite();
 					return;
 				}
-				
+
 				hbegin = hend + 2;
 				continue;
 			}
-			
+
 			std::string cheader = reqbuffer.substr(hbegin, hend - hbegin);
-			
+
 			std::string::size_type fieldsep = cheader.find(':');
 			if ((fieldsep == std::string::npos) || (fieldsep == 0) || (fieldsep == cheader.length() - 1))
 			{
@@ -283,28 +283,28 @@ class HttpServerSocket : public BufferedSocket
 				SetWrite();
 				return;
 			}
-			
+
 			headers.SetHeader(cheader.substr(0, fieldsep), cheader.substr(fieldsep + 2));
-			
+
 			hbegin = hend + 2;
 		}
-		
+
 		reqbuffer.erase(0, reqend + 4);
-		
+
 		std::transform(request_type.begin(), request_type.end(), request_type.begin(), ::toupper);
 		std::transform(http_version.begin(), http_version.end(), http_version.begin(), ::toupper);
-		
+
 		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 		{
 			SendHTTPError(505);
 			SetWrite();
 			return;
 		}
-	
+
 		if (headers.IsSet("Content-Length") && (postsize = atoi(headers.GetHeader("Content-Length").c_str())) != 0)
 		{
 			InternalState = HTTP_SERVE_RECV_POSTDATA;
-			
+
 			if (reqbuffer.length() >= postsize)
 			{
 				postdata = reqbuffer.substr(0, postsize);
@@ -315,13 +315,13 @@ class HttpServerSocket : public BufferedSocket
 				postdata = reqbuffer;
 				reqbuffer.clear();
 			}
-			
+
 			if (postdata.length() >= postsize)
 				ServeData();
-			
+
 			return;
 		}
-		
+
 		ServeData();
 	}
 

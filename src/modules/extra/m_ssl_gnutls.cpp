@@ -913,7 +913,7 @@ class ModuleSSLGnuTLS : public Module
 		GenericCapHandler(ev, "tls", "tls");
 	}
 
-        void Prioritize()
+	void Prioritize()
 	{
 		Module* server = ServerInstance->Modules->Find("m_spanningtree.so");
 		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIO_AFTER, &server);

@@ -25,13 +25,13 @@ class BotMode : public SimpleUserModeHandler
 
 class ModuleBotMode : public Module
 {
-	
+
 	BotMode* bm;
  public:
 	ModuleBotMode(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		bm = new BotMode(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(bm))
 			throw ModuleException("Could not add new modes!");
@@ -39,13 +39,13 @@ class ModuleBotMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	
+
 	virtual ~ModuleBotMode()
 	{
 		ServerInstance->Modes->DelMode(bm);
 		delete bm;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);

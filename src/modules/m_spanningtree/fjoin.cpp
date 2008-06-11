@@ -73,7 +73,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 
 	if (params.size() > 3)
 		params[params.size() - 1] = ":" + params[params.size() - 1];
-		
+
 	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
 	if (!TS)
@@ -151,7 +151,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 
 			/* Advance past the comma, to the nick */
 			usr++;
-			
+
 			/* Check the user actually exists */
 			who = this->Instance->FindUUID(usr);
 			if (who)
@@ -233,4 +233,4 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 	}
 	return true;
 }
- 
+

@@ -39,7 +39,7 @@ class BanException : public ListModeBase
 class ModuleBanException : public Module
 {
 	BanException* be;
-	
+
 
 public:
 	ModuleBanException(InspIRCd* Me) : Module(Me)
@@ -54,7 +54,7 @@ public:
 		Me->Modules->Attach(list, this, 4);
 
 	}
-	
+
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" EXCEPTS=e");
@@ -66,7 +66,7 @@ public:
 		{
 			modelist* list;
 			chan->GetExt(be->GetInfoKey(), list);
-			
+
 			if (!list)
 			{
 				// No list, proceed normally
@@ -83,7 +83,7 @@ public:
 				}
 			}
 		}
-		return 0;	
+		return 0;
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -134,7 +134,7 @@ public:
 	{
 		return Version(1, 2, 0, 3, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 	virtual ~ModuleBanException()
 	{
 		ServerInstance->Modes->DelMode(be);

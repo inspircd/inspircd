@@ -69,7 +69,7 @@ class FounderProtectBase
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
 		irc::modestacker modestack(MyInstance, false);
-		std::deque<std::string> stackresult;				
+		std::deque<std::string> stackresult;
 
 		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
@@ -261,7 +261,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		}
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
 		if (source == ServerInstance->FakeClient ||
-			((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || 
+			((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
 			(ServerInstance->ULine(source->nick.c_str())) ||
 			(ServerInstance->ULine(source->server)) ||
 			(!*source->server) ||
@@ -287,7 +287,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 class ModuleChanProtect : public Module
 {
-	
+
 	bool FirstInGetsFounder;
 	char QPrefix;
 	char APrefix;
@@ -296,9 +296,9 @@ class ModuleChanProtect : public Module
 	bool booting;
 	ChanProtect* cp;
 	ChanFounder* cf;
-	
+
  public:
- 
+
 	ModuleChanProtect(InspIRCd* Me)
 		: Module(Me), FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true), cp(NULL), cf(NULL)
 	{
@@ -365,7 +365,7 @@ class ModuleChanProtect : public Module
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
 		DeprivOthers = Conf.ReadFlag("options","deprotectothers",0);
 	}
-	
+
 	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
@@ -373,15 +373,15 @@ class ModuleChanProtect : public Module
 
 		if (FirstInGetsFounder && !chan)
 			privs = QPrefix + "@";
-		
+
 		return 0;
 	}
-	
+
 	virtual void OnPostJoin(User *user, Channel *channel)
 	{
 		// This *must* be in PostJoin, not UserJoin - the former will make it appear to happen
 		// before the client is in the channel
-		
+
 		// This notice was here originally because it was all done prior to the creation of
 		// privs in OnUserPreJoin. I've left it because it might still be wanted, but i'm
 		// not sure it really should be here - ops don't get shown, obviously, and the prefix
@@ -390,7 +390,7 @@ class ModuleChanProtect : public Module
 		if (FirstInGetsFounder && channel->GetUserCounter() == 1)
 			user->WriteServ("MODE %s +q %s", channel->name.c_str(), user->nick.c_str());
 	}
-	
+
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		// here we perform access checks, this is the important bit that actually stops kicking/deopping
@@ -401,8 +401,8 @@ class ModuleChanProtect : public Module
 		// (B) Theyre protected, and you're not
 		// always allow the action if:
 		// (A) The source is ulined
-		
-		
+
+
 		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
 		// without any access checks, we're not worthy :p
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
@@ -469,11 +469,11 @@ class ModuleChanProtect : public Module
 				}
 			break;
 		}
-		
+
 		// we dont know what this access check is, or dont care. just carry on, nothing to see here.
 		return ACR_DEFAULT;
 	}
-	
+
 	virtual ~ModuleChanProtect()
 	{
 		ServerInstance->Modes->DelMode(cp);
@@ -481,7 +481,7 @@ class ModuleChanProtect : public Module
 		delete cp;
 		delete cf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

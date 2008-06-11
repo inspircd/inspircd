@@ -29,11 +29,11 @@ class ModuleQuitBan : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 		OnRehash(NULL, "");
 	}
-	
+
 	virtual ~ModuleQuitBan()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);

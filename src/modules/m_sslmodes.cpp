@@ -65,14 +65,14 @@ class SSLMode : public ModeHandler
 
 class ModuleSSLModes : public Module
 {
-	
+
 	SSLMode* sslm;
-	
+
  public:
 	ModuleSSLModes(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 
 		sslm = new SSLMode(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(sslm))
@@ -98,7 +98,7 @@ class ModuleSSLModes : public Module
 				return 1;
 			}
 		}
-		
+
 		return 0;
 	}
 
@@ -107,7 +107,7 @@ class ModuleSSLModes : public Module
 		ServerInstance->Modes->DelMode(sslm);
 		delete sslm;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

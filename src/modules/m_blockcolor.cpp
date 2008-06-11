@@ -25,10 +25,10 @@ class BlockColor : public SimpleChannelModeHandler
 
 class ModuleBlockColour : public Module
 {
-	bool AllowChanOps;	
+	bool AllowChanOps;
 	BlockColor *bc;
  public:
- 
+
 	ModuleBlockColour(InspIRCd* Me) : Module(Me)
 	{
 		bc = new BlockColor(ServerInstance);
@@ -50,7 +50,7 @@ class ModuleBlockColour : public Module
 			{
 				return 0;
 			}
-			
+
 			if(c->IsModeSet('c'))
 			{
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
@@ -72,7 +72,7 @@ class ModuleBlockColour : public Module
 		}
 		return 0;
 	}
-	
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
@@ -83,7 +83,7 @@ class ModuleBlockColour : public Module
 		ServerInstance->Modes->DelMode(bc);
 		delete bc;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);

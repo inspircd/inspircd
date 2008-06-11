@@ -45,7 +45,7 @@ class ModuleSafeList : public Module
 		Implementation eventlist[] = { I_OnBufferFlushed, I_OnPreCommand, I_OnCleanup, I_OnUserQuit, I_On005Numeric, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
- 
+
 	virtual ~ModuleSafeList()
 	{
 	}
@@ -58,30 +58,30 @@ class ModuleSafeList : public Module
 		ServerNameSize = strlen(ServerInstance->Config->ServerName) + 4;
 		global_listing = 0;
 	}
- 
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
- 
+
 
 	/*
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
-	 */ 
+	 */
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
 			return 0;
- 
+
 		if (command == "LIST")
 		{
 			return this->HandleList(parameters, user);
 		}
 		return 0;
 	}
-	
+
 	/*
 	 * HandleList()
 	 *   Handle (override) the LIST command.
@@ -102,7 +102,7 @@ class ModuleSafeList : public Module
 		/* First, let's check if the user is currently /list'ing */
 		ListData *ld;
 		user->GetExt("safelist_cache", ld);
- 
+
 		if (ld)
 		{
 			/* user is already /list'ing, we don't want to do shit. */
@@ -142,7 +142,7 @@ class ModuleSafeList : public Module
 			user->Shrink("safelist_last");
 		}
 
- 
+
 		/*
 		 * start at channel 0! ;)
 		 */

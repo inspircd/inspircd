@@ -15,7 +15,7 @@
 
 /* $ModDesc: Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel */
 
-/*	
+/*
  * This module supports the use of the +q and +a usermodes, but should work without them too.
  * Usage of the command is restricted to +hoaq, and you cannot remove a user with a "higher" level than yourself.
  * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
@@ -25,17 +25,17 @@
  */
 class RemoveBase
 {
- private: 
+ private:
 	bool& supportnokicks;
 	InspIRCd* ServerInstance;
- 
+
  protected:
 	RemoveBase(InspIRCd* Instance, bool& snk) : supportnokicks(snk), ServerInstance(Instance)
 	{
-	}		
- 
-	enum ModeLevel { PEON = 0, HALFOP = 1, OP = 2, ADMIN = 3, OWNER = 4, ULINE = 5 };	 
- 
+	}
+
+	enum ModeLevel { PEON = 0, HALFOP = 1, OP = 2, ADMIN = 3, OWNER = 4, ULINE = 5 };
+
 	/* This little function just converts a chanmode character (U ~ & @ & +) into an integer (5 4 3 2 1 0) */
 	/* XXX - We should probably use the new mode prefix rank stuff
 	 * for this instead now -- Brain */
@@ -45,7 +45,7 @@ class RemoveBase
 		{
 			return PEON;
 		}
-	
+
 		switch (privs[0])
 		{
 			case 'U':
@@ -68,7 +68,7 @@ class RemoveBase
 				return PEON;
 		}
 	}
-	
+
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user, bool neworder)
 	{
 		const char* channame;
@@ -81,7 +81,7 @@ class RemoveBase
 		std::string protectkey;
 		std::string founderkey;
 		bool hasnokicks;
-		
+
 		/* Set these to the parameters needed, the new version of this module switches it's parameters around
 		 * supplying a new command with the new order while keeping the old /remove with the older order.
 		 * /remove <nick> <channel> [reason ...]
@@ -89,10 +89,10 @@ class RemoveBase
 		 */
 		channame = parameters[ neworder ? 0 : 1].c_str();
 		username = parameters[ neworder ? 1 : 0].c_str();
-		
+
 		/* Look up the user we're meant to be removing from the channel */
 		target = ServerInstance->FindNick(username);
-		
+
 		/* And the channel we're meant to be removing them from */
 		channel = ServerInstance->FindChan(channame);
 
@@ -107,13 +107,13 @@ class RemoveBase
 		{
 			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick.c_str(), target->nick.c_str(), channel->name.c_str());
 			return CMD_FAILURE;
-		}	
-		
+		}
+
 		/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set.
 		 * Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
 		protectkey = "cm_protect_" + std::string(channel->name);
 		founderkey = "cm_founder_" + std::string(channel->name);
-		
+
 		if (ServerInstance->ULine(user->server) || ServerInstance->ULine(user->nick.c_str()))
 		{
 			ulevel = chartolevel("U");
@@ -130,7 +130,7 @@ class RemoveBase
 		{
 			ulevel = chartolevel(channel->GetPrefixChar(user));
 		}
-			
+
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
 		if (ServerInstance->ULine(target->server) || ServerInstance->ULine(target->nick.c_str()))
 		{
@@ -148,9 +148,9 @@ class RemoveBase
 		{
 			tlevel = chartolevel(channel->GetPrefixChar(target));
 		}
-		
+
 		hasnokicks = (ServerInstance->Modules->Find("m_nokicks.so") && channel->IsModeSet('Q'));
-		
+
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
 		if ((!IS_LOCAL(user)) || (!supportnokicks || !hasnokicks || (ulevel == ULINE)))
 		{
@@ -165,7 +165,7 @@ class RemoveBase
 				// but you can do this, nenolod -brain
 
 				std::string reasonparam("No reason given");
-				
+
 				/* If a reason is given, use it */
 				if(parameters.size() > 2)
 				{
@@ -212,7 +212,7 @@ class CommandRemove : public Command, public RemoveBase
 		syntax = "<nick> <channel> [<reason>]";
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
-	
+
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		return RemoveBase::Handle(parameters, user, false);
@@ -241,8 +241,8 @@ class ModuleRemove : public Module
 	CommandRemove* mycommand;
 	CommandFpart* mycommand2;
 	bool supportnokicks;
-	
-	
+
+
  public:
 	ModuleRemove(InspIRCd* Me)
 	: Module(Me)
@@ -261,22 +261,22 @@ class ModuleRemove : public Module
 	{
 		output.append(" REMOVE");
 	}
-	
+
 	virtual void OnRehash(User* user, const std::string&)
 	{
 		ConfigReader conf(ServerInstance);
 		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);
 	}
-	
+
 	virtual ~ModuleRemove()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 1, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleRemove)

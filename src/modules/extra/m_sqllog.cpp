@@ -304,7 +304,7 @@ class ModuleSQLLog : public Module
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSQLLog)

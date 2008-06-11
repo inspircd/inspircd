@@ -31,19 +31,19 @@ class CommandCycle : public Command
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		std::string reason = ConvToStr("Cycling");
-			
+
 		if (parameters.size() > 1)
 		{
 			/* reason provided, use it */
 			reason = reason + ": " + parameters[1];
 		}
-		
+
 		if (!channel)
 		{
 			user->WriteNumeric(403, "%s %s :No such channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (channel->HasUser(user))
 		{
 			/*
@@ -57,11 +57,11 @@ class CommandCycle : public Command
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** You may not cycle, as you are banned on channel " + channel->name);
 					return CMD_FAILURE;
 				}
-				
+
 				/* XXX in the future, this may move to a static Channel method (the delete.) -- w00t */
 				if (!channel->PartUser(user, reason.c_str()))
 					delete channel;
-				
+
 				Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
 			}
 
@@ -84,21 +84,21 @@ class ModuleCycle : public Module
 	ModuleCycle(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandCycle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleCycle()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleCycle)

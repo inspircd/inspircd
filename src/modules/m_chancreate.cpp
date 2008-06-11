@@ -26,18 +26,18 @@ class ModuleChanCreate : public Module
 		Implementation eventlist[] = { I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-	
+
 	virtual ~ModuleChanCreate()
 	{
 		ServerInstance->SNO->DisableSnomask('j');
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
 	}
 
-	
+
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		if (channel->GetUserCounter() == 1)

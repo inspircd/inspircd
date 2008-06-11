@@ -46,13 +46,13 @@ class OperChans : public ModeHandler
 
 class ModuleOperChans : public Module
 {
-	
+
 	OperChans* oc;
  public:
 	ModuleOperChans(InspIRCd* Me)
 		: Module(Me)
 	{
-				
+
 		oc = new OperChans(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(oc))
 			throw ModuleException("Could not add new modes!");
@@ -76,13 +76,13 @@ class ModuleOperChans : public Module
 		}
 		return 0;
 	}
-	
+
 	virtual ~ModuleOperChans()
 	{
 		ServerInstance->Modes->DelMode(oc);
 		delete oc;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_VENDOR|VF_COMMON,API_VERSION);

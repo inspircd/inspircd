@@ -97,7 +97,7 @@ class NickFlood : public ModeHandler
 			return std::make_pair(true, ConvToStr(x->nicks)+":"+ConvToStr(x->secs));
 		else
 			return std::make_pair(false, parameter);
-	} 
+	}
 
 	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
@@ -207,13 +207,13 @@ class NickFlood : public ModeHandler
 class ModuleNickFlood : public Module
 {
 	NickFlood* jf;
-	
+
  public:
- 
+
 	ModuleNickFlood(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		jf = new NickFlood(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
@@ -255,7 +255,7 @@ class ModuleNickFlood : public Module
 
 		return 0;
 	}
-	
+
 	void OnChannelDelete(Channel* chan)
 	{
 		nickfloodsettings *f;
@@ -272,7 +272,7 @@ class ModuleNickFlood : public Module
 		ServerInstance->Modes->DelMode(jf);
 		delete jf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

@@ -67,7 +67,7 @@ class ModuleAuditorium : public Module
 		Me->Modules->Attach(eventlist, this, 6);
 
 	}
-	
+
 	virtual ~ModuleAuditorium()
 	{
 		ServerInstance->Modes->DelMode(aum);
@@ -86,7 +86,7 @@ class ModuleAuditorium : public Module
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-        virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
+	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
 	{
 		if (!channel->IsModeSet('u'))
 			return;
@@ -113,7 +113,7 @@ class ModuleAuditorium : public Module
 			return;
 		}
 	}
-	
+
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		if (channel->IsModeSet('u'))

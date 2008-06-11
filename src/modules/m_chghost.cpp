@@ -28,7 +28,7 @@ class CommandChghost : public Command
 		syntax = "<nick> <newhost>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
- 
+
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		const char * x = parameters[1].c_str();
@@ -46,7 +46,7 @@ class CommandChghost : public Command
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if ((parameters[1].c_str() - x) > 63)
 		{
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick.c_str());
@@ -94,7 +94,7 @@ class ModuleChgHost : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	
+
 	void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
@@ -111,12 +111,12 @@ class ModuleChgHost : public Module
 	~ModuleChgHost()
 	{
 	}
-	
+
 	Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleChgHost)

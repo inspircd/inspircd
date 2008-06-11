@@ -76,21 +76,21 @@ class ModuleSanick : public Module
 	ModuleSanick(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandSanick(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleSanick()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSanick)

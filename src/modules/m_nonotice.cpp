@@ -23,14 +23,14 @@ class NoNotice : public SimpleChannelModeHandler
 
 class ModuleNoNotice : public Module
 {
-	
+
 	NoNotice* nt;
  public:
- 
+
 	ModuleNoNotice(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		nt = new NoNotice(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(nt))
 			throw ModuleException("Could not add new modes!");
@@ -38,7 +38,7 @@ class ModuleNoNotice : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
@@ -71,7 +71,7 @@ class ModuleNoNotice : public Module
 		ServerInstance->Modes->DelMode(nt);
 		delete nt;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);

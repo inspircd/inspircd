@@ -187,7 +187,7 @@ class ModuleInvisible : public Module
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	
+
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		if (user->IsModeSet('Q'))
@@ -253,7 +253,7 @@ class ModuleInvisible : public Module
 		}
 		return 0;
 	}
-	
+
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
@@ -265,14 +265,14 @@ class ModuleInvisible : public Module
 		va_list argsPtr;
 		char textbuffer[MAXBUF];
 		char tb[MAXBUF];
-	
+
 		va_start(argsPtr, text);
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
 		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(), textbuffer);
-		
+
 		CUList *ulist = channel->GetUsers();
-		
+
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			/* User only appears to vanish for non-opers */

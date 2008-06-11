@@ -24,11 +24,11 @@ class ModuleRestrictBanned : public Module
 		Implementation eventlist[] = { I_OnLocalTopicChange, I_OnUserPreNick, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
-	
+
 	virtual ~ModuleRestrictBanned()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
@@ -75,7 +75,7 @@ class ModuleRestrictBanned : public Module
 	{
 		return CheckRestricted(user, channel, "change the topic");
 	}
-	
+
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);

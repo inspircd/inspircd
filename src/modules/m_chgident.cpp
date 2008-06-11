@@ -26,7 +26,7 @@ class CommandChgident : public Command
 		syntax = "<nick> <newident>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
-	
+
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
@@ -42,13 +42,13 @@ class CommandChgident : public Command
 			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (parameters[1].length() > ServerInstance->Config->Limits.IdentMax)
 		{
 			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident is too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		
+
 		if (!ServerInstance->IsIdent(parameters[1].c_str()))
 		{
 			user->WriteServ("NOTICE %s :*** CHGIDENT: Invalid characters in ident", user->nick.c_str());
@@ -69,8 +69,8 @@ class CommandChgident : public Command
 class ModuleChgIdent : public Module
 {
 	CommandChgident* mycommand;
-	
-	
+
+
 public:
 	ModuleChgIdent(InspIRCd* Me) : Module(Me)
 	{
@@ -78,16 +78,16 @@ public:
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleChgIdent()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleChgIdent)

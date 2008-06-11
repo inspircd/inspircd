@@ -52,22 +52,22 @@ class BanRedirect : public ModeWatcher
 		 * nick!ident#chan -> nick!ident@*#chan
 		 * nick#chan -> nick!*@*#chan
 		 */
-		
+
 		if(channel && (type == MODETYPE_CHANNEL) && param.length())
 		{
 			BanRedirectList* redirects;
-			
+
 			std::string mask[4];
 			enum { NICK, IDENT, HOST, CHAN } current = NICK;
 			std::string::iterator start_pos = param.begin();
 			long maxbans = channel->GetMaxBans();
-		
+
 			if(adding && (channel->bans.size() > static_cast<unsigned>(maxbans)))
 			{
 				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)", source->nick.c_str(), channel->name.c_str(), channel->name.c_str(), maxbans);
 				return false;
 			}
-			
+
 			for(std::string::iterator curr = start_pos; curr != param.end(); curr++)
 			{
 				switch(*curr)
@@ -89,19 +89,19 @@ class BanRedirect : public ModeWatcher
 						break;
 				}
 			}
-				
+
 			if(mask[current].empty())
 			{
-				mask[current].assign(start_pos, param.end());	
+				mask[current].assign(start_pos, param.end());
 			}
-			
+
 			/* nick@host wants to be changed to *!nick@host rather than nick!*@host... */
 			if(mask[NICK].length() && mask[HOST].length() && mask[IDENT].empty())
 			{
 				/* std::string::swap() is fast - it runs in constant time */
 				mask[NICK].swap(mask[IDENT]);
 			}
-				
+
 			for(int i = 0; i < 3; i++)
 			{
 				if(mask[i].empty())
@@ -109,9 +109,9 @@ class BanRedirect : public ModeWatcher
 					mask[i].assign("*");
 				}
 			}
-				
+
 			param.assign(mask[NICK]).append(1, '!').append(mask[IDENT]).append(1, '@').append(mask[HOST]);
-	
+
 			if(mask[CHAN].length())
 			{
 				if(!IS_LOCAL(source) || Srv->IsChannel(mask[CHAN].c_str(), ServerInstance->Config->Limits.ChanMax))
@@ -131,10 +131,10 @@ class BanRedirect : public ModeWatcher
 								redirects = new BanRedirectList;
 								channel->Extend("banredirects", redirects);
 							}
-				
+
 							/* Here 'param' doesn't have the channel on it yet */
 							redirects->push_back(BanRedirectEntry(mask[CHAN].c_str(), param.c_str()));
-							
+
 							/* Now it does */
 							param.append(mask[CHAN]);
 						}
@@ -144,25 +144,25 @@ class BanRedirect : public ModeWatcher
 							if(channel->GetExt("banredirects", redirects))
 							{
 								/* But there were, so we need to remove the matching one if there is one */
-					
+
 								for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 								{
 									/* Ugly as fuck */
 									if((irc::string(redir->targetchan.c_str()) == irc::string(mask[CHAN].c_str())) && (irc::string(redir->banmask.c_str()) == irc::string(param.c_str())))
 									{
 										redirects->erase(redir);
-										
+
 										if(redirects->empty())
 										{
 											delete redirects;
 											channel->Shrink("banredirects");
 										}
-										
+
 										break;
 									}
 								}
 							}
-							
+
 							/* Append the channel so the default +b handler can remove the entry too */
 							param.append(mask[CHAN]);
 						}
@@ -175,7 +175,7 @@ class BanRedirect : public ModeWatcher
 				}
 			}
 		}
-		
+
 		return true;
 	}
 };
@@ -192,7 +192,7 @@ class ModuleBanRedirect : public Module
 	{
 		re = new BanRedirect(Me);
 		nofollow = false;
-		
+
 		if(!ServerInstance->Modes->AddModeWatcher(re))
 		{
 			delete re;
@@ -205,47 +205,47 @@ class ModuleBanRedirect : public Module
 		Me->Modules->Attach(list, this, 4);
 
 	}
-	
+
 	virtual void OnChannelDelete(Channel* chan)
 	{
 		OnCleanup(TYPE_CHANNEL, chan);
 	}
-	
+
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		if(target_type == TYPE_CHANNEL)
 		{
 			Channel* chan = static_cast<Channel*>(item);
 			BanRedirectList* redirects;
-			
+
 			if(chan->GetExt("banredirects", redirects))
 			{
 				irc::modestacker modestack(ServerInstance, false);
 				StringDeque stackresult;
 				std::vector<std::string> mode_junk;
 				mode_junk.push_back(chan->name);
-				
+
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
 					modestack.Push('b', i->targetchan.insert(0, i->banmask));
 				}
-				
+
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
 					modestack.PushPlus();
 					modestack.Push('b', i->banmask);
 				}
-				
+
 				while(modestack.GetStackedLine(stackresult))
 				{
 					for(StringDeque::size_type i = 0; i < stackresult.size(); i++)
 					{
 						mode_junk.push_back(stackresult[i]);
 					}
-					
+
 					ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
 				}
-				
+
 				delete redirects;
 				chan->Shrink("banredirects");
 			}
@@ -269,11 +269,11 @@ class ModuleBanRedirect : public Module
 		if (chan)
 		{
 			BanRedirectList* redirects;
-			
+
 			if(chan->GetExt("banredirects", redirects))
 			{
 				/* We actually had some ban redirects to check */
-				
+
 				/* This was replaced with user->MakeHostIP() when I had a snprintf(), but MakeHostIP() doesn't seem to add the nick.
 				 * Maybe we should have a GetFullIPHost() or something to match GetFullHost() and GetFullRealHost?
 				 */
@@ -288,14 +288,14 @@ class ModuleBanRedirect : public Module
 
 				std::string ipmask(user->nick);
 				ipmask.append(1, '!').append(user->MakeHostIP());
-				
+
 				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 				{
 					if(ServerInstance->MatchText(user->GetFullRealHost(), redir->banmask) || ServerInstance->MatchText(user->GetFullHost(), redir->banmask) || ServerInstance->MatchText(ipmask, redir->banmask))
 					{
 						/* tell them they're banned and are being transferred */
 						Channel* destchan = ServerInstance->FindChan(redir->targetchan);
-						
+
 						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
 						{
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
@@ -322,12 +322,12 @@ class ModuleBanRedirect : public Module
 		ServerInstance->Modes->DelModeWatcher(re);
 		delete re;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 	void Prioritize()
 	{
 		Module* banex = ServerInstance->Modules->Find("m_banexception.so");

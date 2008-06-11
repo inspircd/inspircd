@@ -35,7 +35,7 @@ class ModuleHostChange : public Module
 	std::string MySuffix;
 	std::string MyPrefix;
 	std::string MySeparator;
-	 
+
  public:
 	ModuleHostChange(InspIRCd* Me)
 		: Module(Me)
@@ -44,7 +44,7 @@ class ModuleHostChange : public Module
 		Implementation eventlist[] = { I_OnRehash, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-	
+
 	virtual ~ModuleHostChange()
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
@@ -85,14 +85,14 @@ class ModuleHostChange : public Module
 			hostchanges[mask] = x;
 		}
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 	virtual void OnUserConnect(User* user)
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
@@ -142,7 +142,7 @@ class ModuleHostChange : public Module
 					}
 					if (complete.empty())
 						complete = "i-have-a-lame-nick";
-						
+
 					if (!MyPrefix.empty())
 						newhost = MyPrefix + MySeparator + complete;
 					else

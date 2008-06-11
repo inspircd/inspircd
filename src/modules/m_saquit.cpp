@@ -37,13 +37,13 @@ class CommandSaquit : public Command
 				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
 				return CMD_FAILURE;
 			}
-			
+
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+parameters[1]);
-			
+
 			// Pass the command on, so the client's server can quit it properly.
 			if (!IS_LOCAL(dest))
 				return CMD_SUCCESS;
-			
+
 			ServerInstance->Users->QuitUser(dest, parameters[1]);
 			return CMD_LOCALONLY;
 		}
@@ -63,21 +63,21 @@ class ModuleSaquit : public Module
 	ModuleSaquit(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		mycommand = new CommandSaquit(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~ModuleSaquit()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSaquit)

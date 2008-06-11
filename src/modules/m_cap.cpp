@@ -20,11 +20,11 @@
 CAP LS
 :alfred.staticbox.net CAP * LS :multi-prefix sasl
 CAP REQ :multi-prefix
-:alfred.staticbox.net CAP * ACK :multi-prefix 
+:alfred.staticbox.net CAP * ACK :multi-prefix
 CAP CLEAR
 :alfred.staticbox.net CAP * ACK :-multi-prefix
 CAP REQ :multi-prefix
-:alfred.staticbox.net CAP * ACK :multi-prefix 
+:alfred.staticbox.net CAP * ACK :multi-prefix
 CAP LIST
 :alfred.staticbox.net CAP * LIST :multi-prefix
 CAP END

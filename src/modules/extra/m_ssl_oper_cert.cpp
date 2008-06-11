@@ -31,8 +31,8 @@ class cmd_fingerprint : public Command
 	{
 		this->source = "m_ssl_oper_cert.so";
 		syntax = "<nickname>";
-	}       
-	          
+	}
+
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
@@ -115,7 +115,7 @@ class ModuleOperSSLCert : public Module
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string cmd = command.c_str();
-		
+
 		if ((cmd == "OPER") && (validated))
 		{
 			char TheHost[MAXBUF];

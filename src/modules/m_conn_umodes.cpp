@@ -26,7 +26,7 @@ class ModuleModesOnConnect : public Module
 	ModuleModesOnConnect(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		Conf = new ConfigReader(ServerInstance);
 		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -38,17 +38,17 @@ class ModuleModesOnConnect : public Module
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
 	}
-	
+
 	virtual ~ModuleModesOnConnect()
 	{
 		delete Conf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
 	}
-	
+
 	virtual void OnPostConnect(User* user)
 	{
 		if (!IS_LOCAL(user))

@@ -20,18 +20,18 @@ class ModuleDenyChannels : public Module
 {
  private:
 
-	
+
 	ConfigReader *Conf;
 
  public:
 	ModuleDenyChannels(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		Conf = new ConfigReader(ServerInstance);
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-	
+
 	virtual void OnRehash(User* user, const std::string &param)
 	{
 		delete Conf;
@@ -41,17 +41,17 @@ class ModuleDenyChannels : public Module
 		{
 			std::string name = Conf->ReadValue("badchan","name",i);
 			std::string redirect = Conf->ReadValue("badchan","redirect",i);
-			
+
 			if (!redirect.empty())
 			{
-			
+
 				if (!ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
 				{
 					if (user)
 						user->WriteServ("Notice %s :Invalid badchan redirect '%s'", user->nick.c_str(), redirect.c_str());
 					throw ModuleException("Invalid badchan redirect, not a channel");
 				}
-	
+
 				for (int j =0; j < Conf->Enumerate("badchan"); j++)
 				{
 					if (match(redirect, Conf->ReadValue("badchan","name",j)))
@@ -62,7 +62,7 @@ class ModuleDenyChannels : public Module
 							if (match(redirect, Conf->ReadValue("goodchan","name",k)))
 								goodchan = true;
 						}
-	
+
 						if (!goodchan)
 						{
 							/* <badchan:redirect> is a badchan */
@@ -80,7 +80,7 @@ class ModuleDenyChannels : public Module
 	{
 		delete Conf;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
@@ -109,7 +109,7 @@ class ModuleDenyChannels : public Module
 							return 0;
 						}
 					}
-					
+
 					if (ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
 					{
 						/* simple way to avoid potential loops: don't redirect to +L channels */

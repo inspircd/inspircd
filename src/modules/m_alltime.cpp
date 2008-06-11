@@ -33,7 +33,7 @@ class CommandAlltime : public Command
 
 		std::string msg = ":" + std::string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time for " +
 			ServerInstance->Config->ServerName + " is: " + fmtdate;
-		
+
 		if (IS_LOCAL(user))
 		{
 			user->Write(msg);
@@ -60,16 +60,16 @@ class Modulealltime : public Module
 		ServerInstance->AddCommand(mycommand);
 
 	}
-	
+
 	virtual ~Modulealltime()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(Modulealltime)

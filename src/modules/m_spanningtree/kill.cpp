@@ -24,7 +24,7 @@
 
 
 bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &params)
-{ 	 
+{
 	if (params.size() != 2)
 		return true;
 
@@ -32,7 +32,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 
 	if (who)
 	{
-		/* Prepend kill source, if we don't have one */ 	 
+		/* Prepend kill source, if we don't have one */
 		if (*(params[1].c_str()) != '[')
 		{
 			params[1] = "[" + prefix + "] Killed (" + params[1] +")";

@@ -49,7 +49,7 @@
  *
  * KEY: Brain   --->  Watched by:  Boo, w00t, Om
  * KEY: Boo     --->  Watched by:  Brain, w00t
- * 
+ *
  * This is used when we want to tell all the users that are watching someone that
  * they are now available or no longer available. For example, if the hash was
  * populated as shown above, then when Brain signs on, messages are sent to Boo, w00t
@@ -114,16 +114,16 @@ class CommandSVSWatch : public Command
 	{
 		if (!ServerInstance->ULine(user->server))
 			return CMD_FAILURE;
-			
+
 		User *u = ServerInstance->FindNick(parameters[0]);
 		if (!u)
 			return CMD_FAILURE;
-			
+
 		if (IS_LOCAL(u))
 		{
 			ServerInstance->Parser->CallHandler("WATCH", parameters, u);
 		}
-		
+
 		return CMD_SUCCESS;
 	}
 };
@@ -373,7 +373,7 @@ class Modulewatch : public Module
 	CommandWatch* mycommand;
 	CommandSVSWatch *sw;
 	unsigned int maxwatch;
-	
+
  public:
 	Modulewatch(InspIRCd* Me)
 		: Module(Me), maxwatch(32)
@@ -457,7 +457,7 @@ class Modulewatch : public Module
 						if (n != i2->second.end())
 							/* I'm no longer watching you... */
 							i2->second.erase(n);
-	
+
 						if (!i2->second.size())
 							whos_watching_me->erase(user->nick.c_str());
 				}
@@ -545,19 +545,19 @@ class Modulewatch : public Module
 				}
 			}
 		}
-	}	
+	}
 
 	virtual void On005Numeric(std::string &output)
 	{
 		// we don't really have a limit...
 		output = output + " WATCH=" + ConvToStr(maxwatch);
 	}
-	
+
 	virtual ~Modulewatch()
 	{
 		delete whos_watching_me;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);

@@ -235,7 +235,7 @@ class ModuleXLineDB : public Module
 		return true;
 	}
 
-	
+
 
 	virtual Version GetVersion()
 	{

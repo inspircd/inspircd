@@ -174,9 +174,9 @@ class ModuleShun : public Module
 	virtual int OnStats(char symbol, User* user, string_list& out)
 	{
 		// XXX write me
-//format << Srv->Config->ServerName << " 223 " << user->nick << " :" << iter->banmask << " " << iter->set_on << " " << iter->length << " " << 
-//iter->set_by << " " << iter->reason; 
-		
+//format << Srv->Config->ServerName << " 223 " << user->nick << " :" << iter->banmask << " " << iter->set_on << " " << iter->length << " " <<
+//iter->set_by << " " << iter->reason;
+
 		return 0;
 	}
 

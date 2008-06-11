@@ -110,7 +110,7 @@ class ModuleNickLock : public Module
 	ModuleNickLock(InspIRCd* Me)
 		: Module(Me)
 	{
-		
+
 		cmd1 = new CommandNicklock(ServerInstance);
 		cmd2 = new CommandNickunlock(ServerInstance);
 		ServerInstance->AddCommand(cmd1);
@@ -118,11 +118,11 @@ class ModuleNickLock : public Module
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserQuit, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-	
+
 	virtual ~ModuleNickLock()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);

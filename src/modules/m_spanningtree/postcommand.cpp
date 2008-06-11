@@ -12,15 +12,15 @@
  */
 
 /* $ModDesc: Provides a spanning tree server link protocol */
-		
+
 #include "inspircd.h"
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
 #include "wildcard.h"
-#include "xline.h"      
-#include "transport.h"  
-			
+#include "xline.h"
+#include "transport.h"
+
 #include "m_spanningtree/timesynctimer.h"
 #include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/main.h"
@@ -68,7 +68,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 
 			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"TRANSLATION: %s - type is %d", parameters[j].c_str(), translate_to);
 			ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
-			
+
 			if (j == (parameters.size() - 1))
 				params.push_back(":" + target);
 			else

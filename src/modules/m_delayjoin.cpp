@@ -70,7 +70,7 @@ class ModuleDelayJoin : public Module
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnText };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
-	
+
 	virtual ~ModuleDelayJoin()
 	{
 		ServerInstance->Modes->DelMode(djm);
@@ -183,7 +183,7 @@ class ModuleDelayJoin : public Module
 		user->Shrink("delayjoin_"+channel->name);
 
 		/* Check if the user is left on any other +D channels, if so don't take away the
-		 * metadata that says theyre on one or more channels 
+		 * metadata that says theyre on one or more channels
 		 */
 		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
 			if (f->first->IsModeSet('D'))

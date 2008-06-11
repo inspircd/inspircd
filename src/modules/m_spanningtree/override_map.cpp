@@ -12,7 +12,7 @@
  */
 
 /* $ModDesc: Provides a spanning tree server link protocol */
-		
+
 #include "inspircd.h"
 #include "wildcard.h"
 
@@ -28,19 +28,19 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 	time_t secs_up = ServerInstance->Time() - Current->age;
 	return (" [Up: " + TimeToStr(secs_up) + " Lag: " + (Current->rtt == 0 ? "<1" : ConvToStr(Current->rtt)) + "ms]");
 }
-		
+
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
 void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char matrix[128][128], float &totusers, float &totservers)
 {
 	ServerInstance->Logs->Log("map",DEBUG,"ShowMap depth %d totusers %0.2f totservers %0.2f", depth, totusers, totservers);
 	if (line < 128)
-	{	       
+	{
 		for (int t = 0; t < depth; t++)
 		{
 			ServerInstance->Logs->Log("map",DEBUG,"Zero to depth");
 			matrix[line][t] = ' ';
 		}
-       
+
 		// For Aligning, we need to work out exactly how deep this thing is, and produce
 		// a 'Spacer' String to compensate.
 		char spacer[40];
@@ -51,7 +51,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		else
 		{
 			spacer[5] = '\0';
-		}       
+		}
 
 		float percent;
 		char text[128];
