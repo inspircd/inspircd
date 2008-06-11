@@ -116,7 +116,7 @@ class ModuleChanFilter : public Module
 		{
 			return ProcessMessages(user,(Channel*)dest,text);
 		}
-		else return 0;
+		return 0;
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
