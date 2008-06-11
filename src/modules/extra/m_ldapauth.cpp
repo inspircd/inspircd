@@ -173,6 +173,13 @@ public:
 			ldap_msgfree(msg);
 			return false;
 		}
+		if (user->password.empty())
+		{
+			if (verbose)
+				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (No password provided)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+			user->Extend("ldapauth_failed");
+			return false;
+		}
 		cred.bv_val = (char*)user->password.data();
 		cred.bv_len = user->password.length();
 		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
