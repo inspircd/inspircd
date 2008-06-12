@@ -157,7 +157,7 @@ class MsgFlood : public ModeHandler
 						}
 						else
 						{
-							if (((nlines != f->lines) || (nsecs != f->secs)) && ((nsecs > 0) && (nlines > 0)) || (ban != f->ban))
+							if ((((nlines != f->lines) || (nsecs != f->secs) || (ban != f->ban))) && (((nsecs > 0) && (nlines > 0))))
 							{
 								delete f;
 								floodsettings *fs = new floodsettings(ban,nsecs,nlines);
@@ -217,7 +217,7 @@ class ModuleMsgFlood : public Module
 
 	int ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
-		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP)
+		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP))
 		{
 			return 0;
 		}

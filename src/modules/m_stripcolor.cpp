@@ -68,7 +68,7 @@ class ModuleStripColor : public Module
 		{
 			if ((*i == 3))
 				seq = 1;
-			else if (seq && ( (*i >= '0') && (*i <= '9') || (*i == ',') ) )
+			else if (seq && (( ((*i >= '0') && (*i <= '9')) || (*i == ',') ) ))
 			{
 				seq++;
 				if ( (seq <= 4) && (*i == ',') )

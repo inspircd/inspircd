@@ -15,19 +15,18 @@
 #define __TYPEDEF_H__
 
 #ifndef WIN32
-/** User hash (POSIX systems with GCC)
- */
-typedef nspace::hash_map<std::string, User*, nspace::hash<std::string>, irc::StrHashComp> user_hash;
-/** Channel hash (POSIX systems with GCC)
- */
-typedef nspace::hash_map<std::string, Channel*, nspace::hash<std::string>, irc::StrHashComp> chan_hash;
+
+	#ifdef HASHMAP_DEPRECATED
+		typedef nspace::hash_map<std::string, User*, nspace::insensitive, irc::StrHashComp> user_hash;
+		typedef nspace::hash_map<std::string, Channel*, nspace::insensitive, irc::StrHashComp> chan_hash;
+	#else
+		typedef nspace::hash_map<std::string, User*, nspace::hash<std::string>, irc::StrHashComp> user_hash;
+		typedef nspace::hash_map<std::string, Channel*, nspace::hash<std::string>, irc::StrHashComp> chan_hash;
+	#endif
 #else
-/** User hash (windows systems with visual studio)
- */
-typedef nspace::hash_map<std::string, User*, nspace::hash_compare<std::string, std::less<std::string> > > user_hash;
-/** Channel hash (windows systems with visual studio)
- */
-typedef nspace::hash_map<std::string, Channel*, nspace::hash_compare<std::string, std::less<std::string> > > chan_hash;
+
+	typedef nspace::hash_map<std::string, User*, nspace::hash_compare<std::string, std::less<std::string> > > user_hash;
+	typedef nspace::hash_map<std::string, Channel*, nspace::hash_compare<std::string, std::less<std::string> > > chan_hash;
 #endif
 
 /** Server name cache

@@ -34,6 +34,8 @@
 // Required system headers.
 #include <time.h>
 #include <stdarg.h>
+#include <algorithm>
+#include <cmath>
 
 #include "inspircd_config.h"
 #include "uid.h"

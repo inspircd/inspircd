@@ -688,6 +688,7 @@ BEGIN_HASHMAP_NAMESPACE
 		size_t operator()(const std::string & s) const;
 	};
 #else
+
 	template<> struct hash<irc::string>
 	{
 		/** Hash an irc::string using RFC1459 case sensitivity rules
@@ -697,14 +698,17 @@ BEGIN_HASHMAP_NAMESPACE
 		size_t operator()(const irc::string &s) const;
 	};
 
+	/* XXX FIXME: Implement a hash function overriding std::string's that works with TR1! */
+
+#ifdef HASHMAP_DEPRECATED
+	struct insensitive
+#else
 	template<> struct hash<std::string>
+#endif
 	{
-		/** Hash a std::string using RFC1459 case sensitivity rules
-		* @param s A string to hash
-		* @return The hash value
-		*/
 		size_t operator()(const std::string &s) const;
 	};
+
 #endif
 
 	/** Convert a string to lower case respecting RFC1459

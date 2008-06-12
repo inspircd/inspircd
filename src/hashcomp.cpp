@@ -15,14 +15,7 @@
 
 #include "inspircd.h"
 #include "hashcomp.h"
-#ifndef WIN32
-#include <ext/hash_map>
-#define nspace __gnu_cxx
-#else
-#include <hash_map>
-#define nspace stdext
-using stdext::hash_map;
-#endif
+#include "hash_map.h"
 
 /******************************************************
  *
@@ -68,9 +61,13 @@ void nspace::strlower(char *n)
 }
 
 #ifndef WIN32
-size_t nspace::hash<std::string>::operator()(const std::string &s) const
+	#ifdef HASHMAP_DEPRECATED
+		size_t nspace::insensitive::operator()(const std::string &s) const
+	#else
+		size_t nspace::hash<std::string>::operator()(const std::string &s) const
+	#endif
 #else
-size_t nspace::hash_compare<std::string, std::less<std::string> >::operator()(const std::string &s) const
+	size_t nspace::hash_compare<std::string, std::less<std::string> >::operator()(const std::string &s) const
 #endif
 {
 	/* XXX: NO DATA COPIES! :)
@@ -84,6 +81,7 @@ size_t nspace::hash_compare<std::string, std::less<std::string> >::operator()(co
 		t = 5 * t + lowermap[(unsigned char)*x];
 	return t;
 }
+
 
 #ifndef WIN32
 size_t nspace::hash<irc::string>::operator()(const irc::string &s) const
