@@ -18,14 +18,23 @@
  * as it is not standard.
  */
 #ifndef WIN32
-#include <ext/hash_map>
-/** Oddball linux namespace for hash_map */
-#define nspace __gnu_cxx
+	#ifndef HASHMAP_DEPRECATED
+		#include <ext/hash_map>
+		/** Oddball linux namespace for hash_map */
+		#define nspace __gnu_cxx
+	#else
+		#include <tr1/unordered_map>
+		#define hash_map unordered_map
+		#define nspace std::tr1
+	#endif
 #else
-#include <hash_map>
-#define nspace stdext
-/** Oddball windows namespace for hash_map */
-using stdext::hash_map;
+	#include <hash_map>
+	#define nspace stdext
+	/** Oddball windows namespace for hash_map */
+	using stdext::hash_map;
 #endif
 
+
+
 #endif
+
