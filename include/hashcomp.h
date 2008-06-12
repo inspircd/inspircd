@@ -14,6 +14,7 @@
 #ifndef _HASHCOMP_H_
 #define _HASHCOMP_H_
 
+#include <cstring>
 //#include "inspircd_config.h"
 //#include "socket.h"
 #include "hash_map.h"
@@ -618,6 +619,30 @@ inline bool operator!= (const irc::string& leftval, const std::string& rightval)
 inline bool operator!= (const std::string& leftval, const irc::string& rightval)
 {
 	return !(leftval.c_str() == rightval);
+}
+
+template<std::size_t N>
+static inline bool operator == (std::string const &lhs, char const (&rhs)[N])
+{
+	return lhs.length() == N - 1 && !std::memcmp(lhs.data(), rhs, N - 1);
+}
+
+template<std::size_t N>
+static inline bool operator != (std::string const &lhs, char const (&rhs)[N])
+{
+	return !(lhs == rhs);
+}
+
+template<std::size_t N>
+static inline bool operator == (irc::string const &lhs, char const (&rhs)[N])
+{
+	return lhs.length() == N - 1 && !std::memcmp(lhs.data(), rhs, N - 1);
+}
+
+template<std::size_t N>
+static inline bool operator != (irc::string const &lhs, char const (&rhs)[N])
+{
+	return !(lhs == rhs);
 }
 
 /** Assign an irc::string to a std::string.
