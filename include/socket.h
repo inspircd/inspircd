@@ -33,7 +33,7 @@
 
 #endif
 
-#include <errno.h>
+#include <cerrno>
 #include "socketengine.h"
 
 /* Contains irc-specific definitions */
@@ -69,7 +69,7 @@ namespace irc
 
 #endif
 		/** Match raw binary data using CIDR rules.
-		 * 
+		 *
 		 * This function will use binary comparison to compare the
 		 * two bit sequences, address and mask, up to mask_bits
 		 * bits in size. If they match, it will return true.
@@ -108,7 +108,7 @@ namespace irc
 		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);
 
 		/** Convert an insp_inaddr into human readable form.
-		 * 
+		 *
 		 * @param n An insp_inaddr (IP address) structure
 		 * @return A human-readable address. IPV6 addresses
 		 * will be shortened to remove fields which are 0.
@@ -116,7 +116,7 @@ namespace irc
 		CoreExport const char* insp_ntoa(insp_inaddr n);
 
 		/** Convert a human-readable address into an insp_inaddr.
-		 * 
+		 *
 		 * @param a A human-readable address
 		 * @param n An insp_inaddr struct which the result
 		 * will be copied into on success.

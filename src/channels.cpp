@@ -14,7 +14,7 @@
 /* $Core: libIRCDchannels */
 
 #include "inspircd.h"
-#include <stdarg.h>
+#include <cstdarg>
 #include "wildcard.h"
 #include "mode.h"
 
@@ -44,7 +44,7 @@ void Channel::SetMode(char mode,bool mode_on)
 
 void Channel::SetModeParam(char mode,const char* parameter,bool mode_on)
 {
-	CustomModeList::iterator n = custom_mode_params.find(mode);	
+	CustomModeList::iterator n = custom_mode_params.find(mode);
 
 	if (mode_on)
 	{
@@ -96,7 +96,7 @@ void Channel::AddUser(User* user)
 unsigned long Channel::DelUser(User* user)
 {
 	CUListIter a = internal_userlist.find(user);
-	
+
 	if (a != internal_userlist.end())
 	{
 		internal_userlist.erase(a);
@@ -105,7 +105,7 @@ unsigned long Channel::DelUser(User* user)
 		DelHalfoppedUser(user);
 		DelVoicedUser(user);
 	}
-	
+
 	return internal_userlist.size();
 }
 
@@ -139,7 +139,7 @@ void Channel::DelHalfoppedUser(User* user)
 	CUListIter a = internal_halfop_userlist.find(user);
 
 	if (a != internal_halfop_userlist.end())
-	{   
+	{
 		internal_halfop_userlist.erase(a);
 	}
 }
@@ -152,7 +152,7 @@ void Channel::AddVoicedUser(User* user)
 void Channel::DelVoicedUser(User* user)
 {
 	CUListIter a = internal_voice_userlist.find(user);
-	
+
 	if (a != internal_voice_userlist.end())
 	{
 		internal_voice_userlist.erase(a);
@@ -203,9 +203,9 @@ void Channel::SetDefaultModes()
 	}
 }
 
-/* 
+/*
  * add a channel to a user, creating the record for it if needed and linking
- * it to the user record 
+ * it to the user record
  */
 Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS)
 {
@@ -439,7 +439,7 @@ bool Channel::IsBanned(User* user)
 		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 		{
 			/* This allows CIDR ban matching
-			 * 
+			 *
 			 *        Full masked host                      Full unmasked host                   IP with/without CIDR
 			 */
 			if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
@@ -467,7 +467,7 @@ bool Channel::IsExtBanned(User *user, char type)
 		std::string maskptr = i->data.substr(2);
 
 		/* This allows CIDR ban matching
-		 * 
+		 *
 		 *        Full masked host                             Full unmasked host                     IP with/without CIDR
 		 */
 		if ((match(user->GetFullHost(), maskptr)) || (match(user->GetFullRealHost(), maskptr)) || (match(mask, maskptr, true)))
@@ -608,7 +608,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,this,AC_KICK));
 			if ((MOD_RESULT == ACR_DENY) && (!ServerInstance->ULine(src->server)))
 				return this->GetUserCounter();
-	
+
 			if ((MOD_RESULT == ACR_DEFAULT) || (!ServerInstance->ULine(src->server)))
 			{
 				int them = this->GetStatus(src);
@@ -909,12 +909,12 @@ void Channel::UserList(User *user, CUList *ulist)
 		if (call_modules)
 		{
 			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prefixlist, nick));
-	
+
 			/* Nick was nuked, a module wants us to skip it */
 			if (nick.empty())
 				continue;
 		}
-		
+
 		size_t ptrlen = 0;
 
 		if (curlen + prefixlist.length() + nick.length() + 1 > 480)
@@ -980,7 +980,7 @@ void Channel::ResetMaxBans()
 const char* Channel::GetPrefixChar(User *user)
 {
 	static char pf[2] = {0, 0};
-	
+
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
 	{

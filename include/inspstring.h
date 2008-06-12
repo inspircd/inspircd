@@ -16,7 +16,7 @@
 
 // This (inspircd_config) is needed as inspstring doesn't pull in the central header
 #include "inspircd_config.h"
-#include <string.h>
+#include <cstring>
 //#include <cstddef>
 
 #ifndef HAS_STRLCPY

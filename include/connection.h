@@ -14,7 +14,7 @@
 #ifndef __CONNECTION_H__
 #define __CONNECTION_H__
 
-#include <time.h>
+#include <ctime>
 #include "inspircd_config.h"
 #include "base.h"
 #include "socketengine.h"
@@ -55,21 +55,21 @@ class CoreExport connection : public EventHandler
 	 * the connection state.
 	 */
 	char registered;
-	
+
 	/** Time the connection was last pinged
 	 */
 	time_t lastping;
-	
+
 	/** Time the connection was created, set in the constructor. This
 	 * may be different from the time the user's classbase object was
 	 * created.
 	 */
 	time_t signon;
-	
+
 	/** Time that the connection last sent a message, used to calculate idle time
 	 */
 	time_t idle_lastmsg;
-	
+
 	/** Used by PING checking code
 	 */
 	time_t nping;
