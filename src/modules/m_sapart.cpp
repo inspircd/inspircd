@@ -35,10 +35,8 @@ class CommandSapart : public Command
 
 		if (dest && channel)
 		{
-			if (parameters.size() == 3)
+			if (parameters.size() > 2)
 				reason = parameters[2];
-			else
-				reason = dest->nick;
 
 			if (ServerInstance->ULine(dest->server))
 			{
@@ -52,8 +50,9 @@ class CommandSapart : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				if (!channel->PartUser(dest, reason.c_str()))
+				if (!channel->PartUser(dest, reason.empty() ? NULL : reason.c_str()))
 					delete channel;
+
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (!n)
 				{
