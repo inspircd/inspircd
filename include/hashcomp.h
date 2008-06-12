@@ -621,6 +621,8 @@ inline bool operator!= (const std::string& leftval, const irc::string& rightval)
 	return !(leftval.c_str() == rightval);
 }
 
+// FIXME MAXBUF messes up these
+#if 0
 template<std::size_t N>
 static inline bool operator == (std::string const &lhs, char const (&rhs)[N])
 {
@@ -632,6 +634,7 @@ static inline bool operator != (std::string const &lhs, char const (&rhs)[N])
 {
 	return !(lhs == rhs);
 }
+#endif
 
 /** Assign an irc::string to a std::string.
  */
