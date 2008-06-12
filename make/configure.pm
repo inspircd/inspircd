@@ -193,7 +193,7 @@ sub dumphash()
 	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
 	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
 	print "\e[0mLibrary path:\e[1;32m\t\t\t$main::config{LIBRARY_DIR}\e[0m\n";
-	print "\e[0mGCC Version Found:\e[1;32m\t\t$main::config{GCCVER}.x\e[0m\n";
+	print "\e[0mGCC Version Found:\e[1;32m\t\t$main::config{GCCVER}.$main::config{GCCMINOR}\e[0m\n";
 	print "\e[0mCompiler program:\e[1;32m\t\t$main::config{CC}\e[0m\n";
 	print "\e[0mIPv6 Support:\e[1;32m\t\t\t$main::config{IPV6}\e[0m\n";
 	print "\e[0mIPv6 to IPv4 Links:\e[1;32m\t\t$main::config{SUPPORT_IP6LINKS}\e[0m\n";

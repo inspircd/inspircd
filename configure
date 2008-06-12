@@ -309,6 +309,7 @@ if (defined $opt_noipv6links)
 	$config{SUPPORT_IP6LINKS} = "n";
 }
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Version
+chomp($config{GCCMINOR}     = `g++ -dumpversion | cut -c 3`);
 $config{_SOMAXCONN} = SOMAXCONN;					# Max connections in accept queue
 $config{OSNAME}       	    = $^O;			      		# Operating System Name
 $config{IS_DARWIN}	  = "NO";					# Is OSX?
@@ -329,6 +330,8 @@ if (defined $opt_cc)
 }
 our $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
+$exec = $config{CC} . " -dumpversion | cut -c 3";
+chomp($config{GCCMINOR}		= `$exec`);
 $config{MAKEORDER}		= "ircd mods";				# build order
 $config{MAXBUF}			= "512";				# Max buffer size
 
@@ -338,7 +341,7 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
 	$config{HAS_OPENSSL} = "";
 }
 
-if ($config{GCCVER} eq "") {
+if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
 	print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
 	exit;
 }
@@ -744,7 +747,7 @@ STOP
 	print ".\n\n";
 
 	$config{CHANGE_COMPILER} = "n";
-	print "I have detected the following compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.x\e[0m)\n";
+	print "I have detected the following compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.$config{GCCMINOR}\e[0m)\n";
 
 	while (($config{GCCVER} < 3) || ($config{GCCVER} eq "")) {
 		print "\e[1;32mIMPORTANT!\e[0m A GCC 2.x compiler has been detected, and
@@ -760,7 +763,8 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 			chomp(my $foo = `$config{CC} -dumpversion | cut -c 1`);
 			if ($foo ne "") {
 				chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
-				print "Queried compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.x\e[0m)\n";
+				chomp($config{GCCMINOR}     = `$config{CC} -dumpversion | cut -c 3`);
+				print "Queried compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.$config{GCCMINOR}\e[0m)\n";
 				if ($config{GCCVER} < 3) {
 					print "\e[1;32mGCC 2.x WILL NOT WORK!\e[0m. Let's try that again, shall we?\n";
 				}
@@ -1086,6 +1090,7 @@ sub getosflags {
 		if ($foo ne "") {
 			$config{CC} = "eg++";
 			chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change the compiler path
+			chomp($config{GCCMINOR}     = `eg++ -dumpversion | cut -c 3`);
 		}
 		return "OpenBSD";
 	}
@@ -1168,6 +1173,13 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		if ($config{GCCVER} >= 3) {
 			print FILEHANDLE "#define GCC3\n";
 		}
+		if (
+			(($config{GCCVER} == 4) && ($config{GCCMINOR} >= 3))
+				||
+			($config{GCCVER} > 4)
+		) {
+			print FILEHANDLE "#define HASHMAP_DEPRECATED\n";
+		}
 		if ($config{HAS_STRLCPY} eq "true") {
 			print FILEHANDLE "#define HAS_STRLCPY\n";
 		}
@@ -1231,12 +1243,12 @@ EOF
 	chomp($modules);   # Remove Redundant whitespace..
 
 	opendir(DIRHANDLE, "src/modules");
-	foreach my $name (sort readdir(DIRHANDLE)) {
-		if ($name =~ /^m_(.+?)$/) {
-			if (defined(opendir(MDIRHANDLE, "src/modules/$name"))) {
+	foreach my $name2 (sort readdir(DIRHANDLE)) {
+		if ($name2 =~ /^m_(.+?)$/) {
+			if (defined(opendir(MDIRHANDLE, "src/modules/$name2"))) {
 				closedir(MDIRHANDLE);
-				$modules .= "$name.so ";
-				$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/$name.so\n";
+				$modules .= "$name2.so ";
+				$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/$name2.so\n";
 			}
 		}
 	}
