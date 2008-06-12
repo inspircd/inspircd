@@ -320,12 +320,12 @@ namespace irc
 		 * @return True if tokens still remain, false if there are none left
 		 */
 		virtual bool GetToken(std::string &token);
-		
+
 		/** Fetch the entire remaining stream, without tokenizing
 		 * @return The remaining part of the stream
 		 */
 		virtual const std::string GetRemaining();
-		
+
 		/** Returns true if the end of the stream has been reached
 		 * @return True if the end of the stream has been reached, otherwise false
 		 */
@@ -662,7 +662,7 @@ BEGIN_HASHMAP_NAMESPACE
 			if(s1.length() != s2.length()) return true;
 			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), s1.length()) < 0);
 		}
-		
+
 		/** Hash an irc::string value for hash_map
 		 */
 		size_t operator()(const irc::string & s) const;
@@ -680,7 +680,7 @@ BEGIN_HASHMAP_NAMESPACE
 			if(s1.length() != s2.length()) return true;
 			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), s1.length()) < 0);
 		}
-		
+
 		/** Hash a std::string using RFC1459 case sensitivity rules
 		* @param s A string to hash
 		* @return The hash value

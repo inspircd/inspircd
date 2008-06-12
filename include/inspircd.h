@@ -149,18 +149,6 @@ template<typename T> inline long ConvToInt(const T &in)
 	return atoi(tmp.str().c_str());
 }
 
-template<typename CharT, typename TraitsT, std::size_t N>
-static inline bool operator == (std::basic_string<CharT, TraitsT> const &lhs, char const (&rhs)[N])
-{
-	return lhs.length() == N - 1 && !std::memcmp(lhs.data(), rhs, N - 1);
-}
-
-template<typename CharT, typename TraitsT, std::size_t N>
-static inline bool operator != (std::basic_string<CharT, TraitsT> const &lhs, char const (&rhs)[N])
-{
-	return !(lhs == rhs);
-}
-
 /** Template function to convert integer to char, storing result in *res and
  * also returning the pointer to res. Based on Stuart Lowe's C/C++ Pages.
  * @param T input value
