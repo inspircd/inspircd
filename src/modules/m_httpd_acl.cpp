@@ -207,8 +207,8 @@ class ModuleHTTPAccessList : public Module
 
 						if (!allow_access)
 						{
-							ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
-									http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
+							ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
+									http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str());
 							BlockAccess(http, event, 403);
 							return;
 						}
