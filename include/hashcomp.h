@@ -633,18 +633,6 @@ static inline bool operator != (std::string const &lhs, char const (&rhs)[N])
 	return !(lhs == rhs);
 }
 
-template<std::size_t N>
-static inline bool operator == (irc::string const &lhs, char const (&rhs)[N])
-{
-	return lhs.length() == N - 1 && !std::memcmp(lhs.data(), rhs, N - 1);
-}
-
-template<std::size_t N>
-static inline bool operator != (irc::string const &lhs, char const (&rhs)[N])
-{
-	return !(lhs == rhs);
-}
-
 /** Assign an irc::string to a std::string.
  */
 inline std::string assign(const irc::string &other) { return other.c_str(); }
