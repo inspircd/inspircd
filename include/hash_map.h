@@ -22,16 +22,22 @@
 		#include <ext/hash_map>
 		/** Oddball linux namespace for hash_map */
 		#define nspace __gnu_cxx
+		#define BEGIN_HASHMAP_NAMESPACE namespace nspace {
+		#define END_HASHMAP_NAMESPACE }
 	#else
 		#include <tr1/unordered_map>
 		#define hash_map unordered_map
 		#define nspace std::tr1
+		#define BEGIN_HASHMAP_NAMESPACE namespace std { namespace tr1 {
+		#define END_HASHMAP_NAMESPACE } } 
 	#endif
 #else
 	#include <hash_map>
 	#define nspace stdext
 	/** Oddball windows namespace for hash_map */
 	using stdext::hash_map;
+	#define BEGIN_HASHMAP_NAMESPACE namespace nspace {
+	#define END_HASHMAP_NAMESPACE }
 #endif
 
 

@@ -645,8 +645,8 @@ inline std::string& trim(std::string &str)
 /** Hashing stuff is totally different on vc++'s hash_map implementation, so to save a buttload of
  * #ifdefs we'll just do it all at once
  */
-namespace nspace
-{
+BEGIN_HASHMAP_NAMESPACE
+
 	/** Hashing function to hash irc::string
 	 */
 #ifdef WINDOWS
@@ -711,7 +711,8 @@ namespace nspace
 	* @param n A string to lowercase
 	*/
 	void strlower(char *n);
-}
+
+END_HASHMAP_NAMESPACE
 
 #endif
 
