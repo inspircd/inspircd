@@ -15,8 +15,8 @@
 #define __INSPIRCD_H__
 
 #ifndef WIN32
-#define DllExport 
-#define CoreExport 
+#define DllExport
+#define CoreExport
 #define printf_c printf
 #else
 #include "inspircd_win32wrapper.h"
@@ -146,6 +146,18 @@ template<typename T> inline long ConvToInt(const T &in)
 	std::stringstream tmp;
 	if (!(tmp << in)) return 0;
 	return atoi(tmp.str().c_str());
+}
+
+template<typename CharT, typename TraitsT, std::size_t N>
+static inline bool operator == (std::basic_string<CharT, TraitsT> const &lhs, char const (&rhs)[N])
+{
+	return lhs.length() == N - 1 && !std::memcmp(lhs.data(), rhs, N - 1);
+}
+
+template<typename CharT, typename TraitsT, std::size_t N>
+static inline bool operator != (std::basic_string<CharT, TraitsT> const &lhs, char const (&rhs)[N])
+{
+	return !(lhs == rhs);
 }
 
 /** Template function to convert integer to char, storing result in *res and
@@ -424,7 +436,7 @@ class CoreExport InspIRCd : public classbase
 	/** LogManager handles logging.
 	 */
 	LogManager *Logs;
-	
+
 	/** ModuleManager contains everything related to loading/unloading
 	 * modules.
 	 */
@@ -603,7 +615,7 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void SignalHandler(int signal);
 
-	/** Sets the signal recieved	
+	/** Sets the signal recieved
 	 * @param signal the signal recieved
 	 */
 	static void SetSignal(int signal);
