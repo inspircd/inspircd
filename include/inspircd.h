@@ -32,10 +32,11 @@
 #endif
 
 // Required system headers.
-#include <time.h>
-#include <stdarg.h>
+#include <ctime>
+#include <cstdarg>
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 
 #include "inspircd_config.h"
 #include "uid.h"
