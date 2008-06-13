@@ -252,14 +252,6 @@ void Run()
 	get_string_option("In what directory is the IRCd binary to be placed?", ".", bin_dir);
 	get_string_option("In what directory are the IRCd libraries to be placed?", "../lib", library_dir);
 
-	printf_c("The following questions will ask you for various figures relating\n"
-		"To your IRCd install. Please note that these should usually be left\n"
-		"as defaults unless you have a real reason to change them. If they\n"
-		"changed, then the values must be identical on all servers on your\n"
-		"network, or malfunctions and/or crashes may occur, with the exception\n"
-		"of the 'maximum number of clients' setting which may be different on\n"
-		"different servers on the network.\n\n");
-
 	// NOTE: this may seem hackish (generating a batch build script), but it assures the user knows
 	// what they're doing, and we don't have to mess with copying files and changing around modules.mak
 	// for the extra libraries. --fez

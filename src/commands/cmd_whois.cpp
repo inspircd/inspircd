@@ -137,7 +137,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 		 */
 		if (IS_LOCAL(dest) && (!*ServerInstance->Config->HideWhoisServer || parameters.size() > 1))
 		{
-			idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
+			idle = abs((long)((dest->idle_lastmsg)-ServerInstance->Time()));
 			signon = dest->signon;
 		}
 
@@ -153,4 +153,5 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
+
 

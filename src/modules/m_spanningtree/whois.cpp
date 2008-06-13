@@ -46,7 +46,7 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 				char signon[MAXBUF];
 				char idle[MAXBUF];
 				snprintf(signon, MAXBUF, "%lu", (unsigned long)x->signon);
-				snprintf(idle, MAXBUF, "%lu", (unsigned long)abs((x->idle_lastmsg) - Instance->Time()));
+				snprintf(idle, MAXBUF, "%lu", (unsigned long)abs((long)((x->idle_lastmsg) - Instance->Time())));
 				std::deque<std::string> par;
 				par.push_back(prefix);
 				par.push_back(signon);
@@ -86,4 +86,5 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 	}
 	return true;
 }
+
 
