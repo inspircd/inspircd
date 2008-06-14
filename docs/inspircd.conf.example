@@ -1015,6 +1015,10 @@
 #                  number of targets which may be given to commands   #
 #                  such as PRIVMSG, KICK etc.                         #
 #                                                                     #
+#  hidekills     - The hidekills value, if set, replaces the source   #
+#                  of all oper-generated kills to be the given text   #
+#                  to provide anonimity to your opers.                #
+#                                                                     #
 
 <security announceinvites="dynamic"
           hidemodes="eI"
