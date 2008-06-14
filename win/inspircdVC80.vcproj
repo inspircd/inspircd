@@ -2754,6 +2754,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_sasl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_securelist.cpp"
 				>
 				<FileConfiguration
@@ -2955,6 +2975,26 @@
 			</File>
 			<File
 				RelativePath="..\src\modules\m_showwhois.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_shun.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"

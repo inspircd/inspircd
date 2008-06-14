@@ -173,11 +173,11 @@ class ModuleShun : public Module
 
 	virtual int OnStats(char symbol, User* user, string_list& out)
 	{
-		// XXX write me
-//format << Srv->Config->ServerName << " 223 " << user->nick << " :" << iter->banmask << " " << iter->set_on << " " << iter->length << " " <<
-//iter->set_by << " " << iter->reason;
+		if (symbol != 'S')
+			return 0;
 
-		return 0;
+		ServerInstance->XLines->InvokeStats("SHUN", 223, user, out);
+		return 1;
 	}
 
 	virtual void OnUserConnect(User* user)
@@ -197,18 +197,33 @@ class ModuleShun : public Module
 
 	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User* user, bool validated, const std::string &original_line)
 	{
-		if((command != "PONG") && (command != "PING"))
+		if (validated || !user->GetExt("shunned"))
+			return 0;
+
+		if (!ServerInstance->XLines->MatchesLine("SHUN", user))
 		{
-			if (user->GetExt("shunned"))
-				return 1;
+			/* The shun previously set on this user has expired or been removed */
+			user->Shrink("shunned");
+			return 0;
 		}
 
-		return 0;
+		if (command == "QUIT")
+		{
+			/* Allow QUIT but dont show any quit message */
+			parameters.clear();
+			return 0;
+		}
+
+		/* Always allow PONG and PING */
+		if (command == "PONG" || command == "PING")
+			return 0;
+
+		return 1;
 	}
 
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,0,API_VERSION);
+		return Version(1,2,0,0,VF_VENDOR|VF_COMMON,API_VERSION);
 	}
 };
 
