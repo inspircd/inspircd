@@ -31,10 +31,6 @@
 #define CUSTOM_PRINTF(STRING, FIRST)
 #endif
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
-
 // Required system headers.
 #include <ctime>
 #include <cstdarg>
@@ -64,6 +60,10 @@
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 /**
  * Used to define the maximum number of parameters a command may have.
