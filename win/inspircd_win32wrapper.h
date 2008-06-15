@@ -193,17 +193,6 @@ class InspIRCd;
 class ValueItem;
 class ServerConfig;
 
-class IPC
-{
- private:
-	InspIRCd* Instance;
-	HANDLE hIPCPipe;
- public:
-	IPC(InspIRCd* Srv);
-	void Check();
-	~IPC();
-};
-
 /* Look up the nameserver in use from the registry on windows */
 std::string FindNameServerWin();
 

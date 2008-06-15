@@ -363,21 +363,7 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 	return 1;
 }
 
-/* IPC Messages */
-#define IPC_MESSAGE_REHASH	1
-#define IPC_MESSAGE_DIE		2
-#define IPC_MESSAGE_RESTART	3
-
-IPC::IPC(InspIRCd* Srv) : Instance(Srv)
-{
-	static DWORD buflen = 1024;
-	static const char * pipename = "\\\\.\\mailslot\\Inspircd";
-	hIPCPipe = CreateMailslot(pipename, buflen, 0, 0);
-	if (hIPCPipe == INVALID_HANDLE_VALUE)
-		printf("IPC Pipe could not be created. Are you sure you didn't start InspIRCd twice?\n");
-}
-
-void IPC::Check()
+/*void IPC::Check()
 {
 	if (hIPCPipe == INVALID_HANDLE_VALUE)
 		return;
@@ -407,12 +393,7 @@ void IPC::Check()
 			Instance->Restart("IPC_MESSAGE_RESTART received by mailslot.");
 		break;
 	}
-}
-
-IPC::~IPC()
-{
-	CloseHandle(hIPCPipe);
-}
+}*/
 
 
 /* These three functions were created from looking at how ares does it

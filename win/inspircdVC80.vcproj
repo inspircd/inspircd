@@ -432,6 +432,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\inspircd_namedpipe.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\inspsocket.cpp"
 				>
 			</File>
@@ -631,6 +635,10 @@
 			</File>
 			<File
 				RelativePath="..\include\inspircd_config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\inspircd_namedpipe.h"
 				>
 			</File>
 			<File
