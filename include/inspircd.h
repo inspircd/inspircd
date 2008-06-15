@@ -39,6 +39,10 @@
 #include "snomasks.h"
 #include "cull_list.h"
 
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 /** Returned by some functions to indicate failure.
  */
 #define ERROR -1
