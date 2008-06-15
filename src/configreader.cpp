@@ -2071,7 +2071,7 @@ bool ServerConfig::DirValid(const char* dirandfile)
 
 std::string ServerConfig::GetFullProgDir()
 {
-	char buffer[4096];
+	char buffer[PATH_MAX];
 #ifdef WINDOWS
 	/* Windows has specific api calls to get the exe path that never fail.
 	 * For once, windows has something of use, compared to the POSIX code
@@ -2085,7 +2085,7 @@ std::string ServerConfig::GetFullProgDir()
 	}
 #else
 	// Get the current working directory
-	if (getcwd(buffer, 4096))
+	if (getcwd(buffer, PATH_MAX))
 	{
 		std::string remainder = this->argv[0];
 
