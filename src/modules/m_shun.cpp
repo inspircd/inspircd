@@ -1,11 +1,4 @@
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <sstream>
 #include "inspircd.h"
-#include "modules.h"
-#include "hashcomp.h"
-#include "configreader.h"
 #include "xline.h"
 
 /* $ModDesc: Provides the /shun command, which stops a user executing all commands except PING and PONG. */

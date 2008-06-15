@@ -5,9 +5,13 @@
 
 void IPCThread::Run()
 {
+
+	printf("*** IPCThread::Run() *** \n");
 	LPTSTR Pipename = "\\\\.\\pipe\\InspIRCdStatus";
 
-	Pipe = CreateNamedPipe ( Pipename,
+	while (GetExitFlag() == false)
+	{
+		Pipe = CreateNamedPipe (Pipename,
                                           PIPE_ACCESS_DUPLEX, // read/write access
                                           PIPE_TYPE_MESSAGE | // message type pipe
                                           PIPE_READMODE_MESSAGE | // message-read mode
@@ -18,20 +22,25 @@ void IPCThread::Run()
                                           1000, // client time-out
                                           NULL); // no security attribute
 
+	printf("*** After CreateNamedPipe *** \n");
+
 	if (Pipe == INVALID_HANDLE_VALUE)
-		return;
-
-	while (GetExitFlag() == false)
 	{
-		// Trying connectnamedpipe in sample for CreateNamedPipe
-		// Wait for the client to connect; if it succeeds,
-		// the function returns a nonzero value. If the function returns
-		// zero, GetLastError returns ERROR_PIPE_CONNECTED.
+		printf("*** IPC failure creating named pipe: %s\n", dlerror());
+		return;
+	}
 
+	printf("*** After check, exit flag=%d *** \n", GetExitFlag());
+
+		printf("*** Loop *** \n");
 		Connected = ConnectNamedPipe(Pipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
+
+		printf("*** After ConnectNamedPipe *** \n");
 
 		if (Connected)
 		{
+			ServerInstance->Logs->Log("IPC", DEBUG, "About to ReadFile from pipe");
+
 			Success = ReadFile (Pipe, // handle to pipe
 				Request, // buffer to receive data
 				MAXBUF, // size of buffer
@@ -39,10 +48,14 @@ void IPCThread::Run()
 				NULL); // not overlapped I/O
 
 			Request[BytesRead] = '\0';
+			ServerInstance->Logs->Log("IPC", DEBUG, "Received from IPC: %s", Request);
 			//printf("Data Received: %s\n",chRequest);
 
 			if (!Success || !BytesRead)
-				break;
+			{
+				printf("*** IPC failure reading client named pipe: %s\n", dlerror());
+				continue;
+			}
 
 			FlushFileBuffers(Pipe);
 			DisconnectNamedPipe(Pipe);
@@ -50,12 +63,13 @@ void IPCThread::Run()
 		else
 		{
 			// The client could not connect.
-			CloseHandle(Pipe);
+			printf("*** IPC failure connecting named pipe: %s\n", dlerror());
 		}
 
-		SleepEx(100, FALSE);
+		printf("*** sleep for next client ***\n");
+		printf("*** Closing pipe handle\n");
+		CloseHandle(Pipe);
 	}
-	CloseHandle(Pipe);
 }
 
 IPC::IPC(InspIRCd* Srv) : ServerInstance(Srv)
@@ -63,10 +77,18 @@ IPC::IPC(InspIRCd* Srv) : ServerInstance(Srv)
 	/* The IPC pipe is threaded */
 	thread = new IPCThread(Srv);
 	Srv->Threads->Create(thread);
+	printf("*** CREATE IPC THREAD ***\n");
 }
 
 void IPC::Check()
 {
+	ServerInstance->Threads->Mutex(true);
+
+	/* Check the state of the thread, safe in here */
+
+
+
+	ServerInstance->Threads->Mutex(false);
 }
 
 IPC::~IPC()
