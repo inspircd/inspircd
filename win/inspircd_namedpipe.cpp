@@ -22,15 +22,15 @@ void IPCThread::Run()
                                           1000, // client time-out
                                           NULL); // no security attribute
 
-	printf("*** After CreateNamedPipe *** \n");
+		printf("*** After CreateNamedPipe *** \n");
 
-	if (Pipe == INVALID_HANDLE_VALUE)
-	{
-		printf("*** IPC failure creating named pipe: %s\n", dlerror());
-		return;
-	}
+		if (Pipe == INVALID_HANDLE_VALUE)
+		{
+			printf("*** IPC failure creating named pipe: %s\n", dlerror());
+			return;
+		}
 
-	printf("*** After check, exit flag=%d *** \n", GetExitFlag());
+		printf("*** After check, exit flag=%d *** \n", GetExitFlag());
 
 		printf("*** Loop *** \n");
 		Connected = ConnectNamedPipe(Pipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
@@ -56,6 +56,18 @@ void IPCThread::Run()
 				printf("*** IPC failure reading client named pipe: %s\n", dlerror());
 				continue;
 			}
+
+			std::stringstream status;
+			DWORD Written = 0;
+			ServerInstance->Threads->Mutex(true);
+
+			status << "name " << ServerInstance->Config->ServerName << std::endl;
+			status << "END" << std::endl;
+
+			ServerInstance->Threads->Mutex(false);
+
+			/* This is a blocking call and will succeed, so long as the client doesnt disconnect */
+			Success = WriteFile(Pipe, status.str().data(), status.str().length(), &Written, NULL);
 
 			FlushFileBuffers(Pipe);
 			DisconnectNamedPipe(Pipe);
