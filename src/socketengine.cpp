@@ -229,7 +229,7 @@ void SocketEngine::RecoverFromFork()
 
 void SocketEngine::UpdateStats(size_t len_in, size_t len_out)
 {
-	if (lastempty + 1 > time(NULL))
+	if (lastempty != time(NULL))
 	{
 		lastempty = time(NULL);
 		indata = outdata = 0;
