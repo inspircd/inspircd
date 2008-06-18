@@ -202,6 +202,8 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
+			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
+
 			ServerInstance->SE->GetStats(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
 			snprintf(kbitspersec_total_s, 30, "%03.5f%%", kbitspersec_total);
