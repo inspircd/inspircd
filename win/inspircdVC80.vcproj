@@ -155,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib ws2_32.lib mswsock.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
+				AdditionalDependencies="psapi.lib ws2_32.lib mswsock.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="$(OutDir)/inspircd.exe"
 				LinkIncremental="1"
 				EmbedManagedResourceFile="inspircd.ico"

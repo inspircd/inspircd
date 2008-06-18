@@ -1302,12 +1302,14 @@ void ServerConfig::Read(bool bail, User* user)
 
 	}
 
-	/** Note: This is safe, the method checks for user == NULL */
-	ServerInstance->Threads->Mutex(true);
-	ServerInstance->Parser->SetupCommandTable(user);
-	ServerInstance->Threads->Mutex(false);
-
-	if (!bail)
+	if (bail)
+	{
+		/** Note: This is safe, the method checks for user == NULL */
+		ServerInstance->Threads->Mutex(true);
+		ServerInstance->Parser->SetupCommandTable(user);
+		ServerInstance->Threads->Mutex(false);
+	}
+	else
 	{
 		if (user)
 			user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());

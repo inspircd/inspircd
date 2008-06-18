@@ -9,21 +9,20 @@ class InspIRCd;
 class IPCThread : public Thread
 {
 	BOOL Connected;
-	CHAR Request[MAXBUF];
 	DWORD BytesRead;
 	BOOL Success;
 	HANDLE Pipe;
 	InspIRCd* ServerInstance;
+	char status[MAXBUF];
+	int result;
  public:
-	IPCThread(InspIRCd* Instance) : Thread(), ServerInstance(Instance)
-	{
-	}
-
-	virtual ~IPCThread()
-	{
-	}
-
+	IPCThread(InspIRCd* Instance);
+	virtual ~IPCThread();
 	virtual void Run();
+	const char GetStatus();
+	int GetResult();
+	void ClearStatus();
+	void SetResult(int newresult);
 };
 
 class IPC

@@ -227,6 +227,14 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 				snprintf(percent, 30, "%03.5f%%", per);
 				results.push_back(sn+" 249 "+user->nick+" :CPU Usage: "+percent);
 			}
+#else
+			PROCESS_MEMORY_COUNTERS MemCounters;
+			if (GetProcessMemoryInfo(GetCurrentProcess(), &MemCounters, sizeof(MemCounters)))
+			{
+				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr((MemCounters.WorkingSetSize + MemCounters.PagefileUsage) / 1024)+"K");
+				results.push_back(sn+" 249 "+user->nick+" :Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage / 1024)+"K");
+				results.push_back(sn+" 249 "+user->nick+" :Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
+			}
 #endif
 		}
 		break;
