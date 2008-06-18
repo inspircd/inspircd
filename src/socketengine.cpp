@@ -242,7 +242,7 @@ void SocketEngine::GetStats(float &kbitpersec_in, float &kbitpersec_out, float &
 {
 	float in_kbit = indata * 8;
 	float out_kbit = outdata * 8;
-	kbitpersec_total = ((in_kbit + out_kbit)) / 1024);
+	kbitpersec_total = ((in_kbit + out_kbit) / 1024);
 	kbitpersec_in = in_kbit / 1024;
 	kbitpersec_out = out_kbit / 1024;
 }
