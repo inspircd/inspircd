@@ -240,6 +240,7 @@ void SocketEngine::UpdateStats(size_t len_in, size_t len_out)
 
 void SocketEngine::GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total)
 {
+	UpdateStats(0, 0); /* Forces emptying of the values if its been more than a second */
 	float in_kbit = indata * 8;
 	float out_kbit = outdata * 8;
 	kbitpersec_total = ((in_kbit + out_kbit) / 1024);
