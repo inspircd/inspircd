@@ -13,14 +13,16 @@
 
 #include "inspircd.h"
 #ifndef WIN32
-#include <sys/resource.h>
-
-/* This is just to be completely certain that the change which fixed getrusage on RH7 doesn't break anything else -- Om */
-#ifndef RUSAGE_SELF
-#define RUSAGE_SELF 0
+	#include <sys/resource.h>
+	/* This is just to be completely certain that the change which fixed getrusage on RH7 doesn't break anything else -- Om */
+	#ifndef RUSAGE_SELF
+	#define RUSAGE_SELF 0
+	#endif
+#else
+	#include <psapi.h>
+	#pragma comment(lib, "psapi.lib")
 #endif
 
-#endif
 #include "xline.h"
 #include "commands/cmd_stats.h"
 #include "commands/cmd_whowas.h"
@@ -206,13 +208,13 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 			ServerInstance->SE->GetStats(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
-			snprintf(kbitspersec_total_s, 30, "%03.5f%%", kbitspersec_total);
-			snprintf(kbitspersec_out_s, 30, "%03.5f%%", kbitspersec_out);
-			snprintf(kbitspersec_in_s, 30, "%03.5f%%", kbitspersec_in);
+			snprintf(kbitpersec_total_s, 30, "%03.5f%%", kbitpersec_total);
+			snprintf(kbitpersec_out_s, 30, "%03.5f%%", kbitpersec_out);
+			snprintf(kbitpersec_in_s, 30, "%03.5f%%", kbitpersec_in);
 
-			results.push_back(sn+" 249 "+user->nick+" :Bandwidth total:  "+ConvToStr(kbitspersec_total_s)+" kilobits/sec");
-			results.push_back(sn+" 249 "+user->nick+" :Bandwidth out:    "+ConvToStr(kbitspersec_out_s)+" kilobits/sec");
-			results.push_back(sn+" 249 "+user->nick+" :Bandwidth in:     "+ConvToStr(kbitspersec_in_s)+" kilobits/sec");
+			results.push_back(sn+" 249 "+user->nick+" :Bandwidth total:  "+ConvToStr(kbitpersec_total_s)+" kilobits/sec");
+			results.push_back(sn+" 249 "+user->nick+" :Bandwidth out:    "+ConvToStr(kbitpersec_out_s)+" kilobits/sec");
+			results.push_back(sn+" 249 "+user->nick+" :Bandwidth in:     "+ConvToStr(kbitpersec_in_s)+" kilobits/sec");
 
 #ifndef WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
