@@ -62,8 +62,11 @@ void IPCThread::Run()
 
 			std::stringstream stat;
 			DWORD Written = 0;
+			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 
 			PROCESS_MEMORY_COUNTERS MemCounters;
+
+			ServerInstance->SE->GetStats(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
 			bool HaveMemoryStats = GetProcessMemoryInfo(GetCurrentProcess(), &MemCounters, sizeof(MemCounters));
 
@@ -77,6 +80,9 @@ void IPCThread::Run()
 			stat << "pid " << GetProcessId(GetCurrentProcess()) << std::endl;
 			stat << "request " << oldrequest << std::endl;
 			stat << "result " << this->GetResult() << std::endl;
+			stat << "kbitspersectotal " << kbitpersec_total << std::endl;
+			stat << "kbitspersecout " << kbitpersec_out << std::endl;
+			stat << "kbitspersecin " << kbitpersec_in << std::endl;
 			if (HaveMemoryStats)
 			{
 				stat << "workingset " << MemCounters.WorkingSetSize << std::endl;

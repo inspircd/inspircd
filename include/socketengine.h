@@ -170,6 +170,12 @@ protected:
 	EventHandler** ref;
 
 	int MAX_DESCRIPTORS;
+
+	size_t indata;
+	size_t outdata;
+	time_t lastempty;
+
+	void UpdateStats(size_t len_in, size_t len_out);
 public:
 
 	double TotalEvents;
@@ -396,6 +402,10 @@ public:
 	 * the shell or operating system on fatal error.
 	 */
 	virtual void RecoverFromFork();
+
+	/** Get data transfer statistics, kilobits per second in and out and total.
+	 */
+	void GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total);
 };
 
 #endif

@@ -494,6 +494,7 @@ int IOCPEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen
 
 int IOCPEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen)
 {
+	this->UpdateStats(len, 0);
 	udp_overlap * ov = NULL;
 	if (!fd->GetExt("windows_readevent", ov))
 		return -1;

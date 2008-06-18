@@ -62,6 +62,8 @@ void SocketEngine::WantWrite(EventHandler* eh)
 SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	TotalEvents = WriteEvents = ReadEvents = ErrorEvents = 0;
+	lastempty = time(NULL);
+	indata = outdata = 0;
 }
 
 SocketEngine::~SocketEngine()
@@ -174,21 +176,25 @@ int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namel
 
 int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
 {
+	this->UpdateStats(len, 0);
 	return recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
 }
 
 int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {
+	this->UpdateStats(0, len);
 	return send(fd->GetFd(), (const char*)buf, len, flags);
 }
 
 int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 {
+	this->UpdateStats(len, 0);
 	return recv(fd->GetFd(), (char*)buf, len, flags);
 }
 
 int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen)
 {
+	this->UpdateStats(0, len);
 	return sendto(fd->GetFd(), (const char*)buf, len, flags, to, tolen);
 }
 
@@ -221,3 +227,22 @@ void SocketEngine::RecoverFromFork()
 {
 }
 
+void SocketEngine::UpdateStats(size_t len_in, size_t len_out)
+{
+	if (lastempty + 1 > time(NULL))
+	{
+		lastempty = time(NULL);
+		indata = outdata = 0;
+	}
+	indata += len_in;
+	outdata += len_out;
+}
+
+void SocketEngine::GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total)
+{
+	float in_kbit = indata * 8;
+	float out_kbit = outdata * 8;
+	kbitpersec_total = ((in_kbit + out_kbit)) / 1024);
+	kbitpersec_in = in_kbit / 1024;
+	kbitpersec_out = out_kbit / 1024;
+}
