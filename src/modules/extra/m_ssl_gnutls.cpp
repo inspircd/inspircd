@@ -496,7 +496,7 @@ class ModuleSSLGnuTLS : public Module
 				{
 					memcpy(buffer, session->inbuf, count);
 					// Move the stuff left in inbuf to the beginning of it
-					memcpy(session->inbuf, session->inbuf + count, (length - count));
+					memmove(session->inbuf, session->inbuf + count, (length - count));
 					// Now we need to set session->inbufoffset to the amount of data still waiting to be handed to insp.
 					session->inbufoffset = length - count;
 					// Insp uses readresult as the count of how much data there is in buffer, so:
