@@ -494,7 +494,7 @@ class ModuleSSLGnuTLS : public Module
 
 				if(count <= length)
 				{
-					memcpy(buffer, session->inbuf, count);
+					memmove(buffer, session->inbuf, count);
 					// Move the stuff left in inbuf to the beginning of it
 					memmove(session->inbuf, session->inbuf + count, (length - count));
 					// Now we need to set session->inbufoffset to the amount of data still waiting to be handed to insp.
@@ -505,7 +505,7 @@ class ModuleSSLGnuTLS : public Module
 				else
 				{
 					// There's not as much in the inbuf as there is space in the buffer, so just copy the whole thing.
-					memcpy(buffer, session->inbuf, length);
+					memmove(buffer, session->inbuf, length);
 					// Zero the offset, as there's nothing there..
 					session->inbufoffset = 0;
 					// As above

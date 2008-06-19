@@ -1175,18 +1175,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\modules\extra\m_filter_pcre.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\src\modules\m_filter_pcre.cpp"
 				>
 				<FileConfiguration
@@ -1206,6 +1194,18 @@
 						Name="VCCLCompilerTool"
 						ObjectFile="$(IntDir)\$(InputName)1.obj"
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\modules\extra\m_filter_pcre.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
 			</File>
@@ -2110,30 +2110,19 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\modules\m_ssl_gnutls.cpp"
+				RelativePath="..\src\modules\extra\m_ssl_openssl.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\modules\extra\m_ssl_openssl.cpp"
+				RelativePath="..\src\modules\extra\m_ssl_oper_cert.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -2168,7 +2157,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\modules\extra\m_ssl_oper_cert.cpp"
+				RelativePath="..\src\modules\extra\m_sslinfo.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -2199,18 +2188,6 @@
 						Name="VCCLCompilerTool"
 						ObjectFile="$(IntDir)\$(InputName)1.obj"
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\modules\extra\m_sslinfo.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
 			</File>
