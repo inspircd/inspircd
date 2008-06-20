@@ -523,7 +523,7 @@ class ModuleSSLOpenSSL : public Module
 				{
 					if (count <= session->inbufoffset)
 					{
-						memmove(buffer, session->inbuf, count);
+						memcpy(buffer, session->inbuf, count);
 						// Move the stuff left in inbuf to the beginning of it
 						memmove(session->inbuf, session->inbuf + count, (session->inbufoffset - count));
 						// Now we need to set session->inbufoffset to the amount of data still waiting to be handed to insp.
@@ -534,7 +534,7 @@ class ModuleSSLOpenSSL : public Module
 					else
 					{
 						// There's not as much in the inbuf as there is space in the buffer, so just copy the whole thing.
-						memmove(buffer, session->inbuf, session->inbufoffset);
+						memcpy(buffer, session->inbuf, session->inbufoffset);
 
 						readresult = session->inbufoffset;
 						// Zero the offset, as there's nothing there..
