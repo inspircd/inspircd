@@ -46,7 +46,7 @@ class CommandSwhois : public Command
 			// We already had it set...
 			if (!ServerInstance->ULine(user->server))
 				// Ulines set SWHOISes silently
-				ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str(), parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick.c_str(), dest->nick.c_str(), text->c_str(), parameters[1].c_str());
 
 			dest->Shrink("swhois");
 			delete text;
@@ -54,10 +54,10 @@ class CommandSwhois : public Command
 		else if (!ServerInstance->ULine(user->server))
 		{
 			// Ulines set SWHOISes silently
-			ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[0].c_str());
+			ServerInstance->SNO->WriteToSnoMask('A', "%s used SWHOIS to set %s's extra whois to '%s'", user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
 		}
 
-		text = new std::string(parameters[0]);
+		text = new std::string(parameters[1]);
 		dest->Extend("swhois", text);
 
 		/* Bug #376 - feature request -
