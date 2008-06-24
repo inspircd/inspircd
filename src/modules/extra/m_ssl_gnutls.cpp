@@ -293,11 +293,12 @@ class ModuleSSLGnuTLS : public Module
 		{
 			User* user = (User*)item;
 
-			if(user->io)
+			if (user->io == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
+				user->io = NULL;
 			}
 			if (user->GetExt("ssl_cert", dummy))
 			{
@@ -306,8 +307,6 @@ class ModuleSSLGnuTLS : public Module
 				delete tofree;
 				user->Shrink("ssl_cert");
 			}
-
-			user->io = NULL;
 		}
 	}
 
