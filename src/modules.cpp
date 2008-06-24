@@ -332,7 +332,14 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 
 	/* Do we need to swap? */
 	if (swap && (swap_pos != source))
-		std::swap(EventHandlers[i][swap_pos], EventHandlers[i][source]);
+	{
+		/* Suggestion from Phoenix, "shuffle" the modules to better retain call order */
+		int incrmnt = 1;
+		if (source > swap_pos)
+			incrmnt = -1;
+		for (unsigned int j = source; j != swap_pos; j += incrmnt)
+			std::swap(EventHandlers[i][j], EventHandlers[i][j+incrmnt]);
+	}
 
 	return true;
 }
