@@ -335,10 +335,17 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 	{
 		/* Suggestion from Phoenix, "shuffle" the modules to better retain call order */
 		int incrmnt = 1;
+
 		if (source > swap_pos)
 			incrmnt = -1;
+
 		for (unsigned int j = source; j != swap_pos; j += incrmnt)
+		{
+			if (( j + incrmnt > EventHandlers[i].size() - 1) || (j - incrmnt < 0))
+				continue;
+
 			std::swap(EventHandlers[i][j], EventHandlers[i][j+incrmnt]);
+		}
 	}
 
 	return true;
