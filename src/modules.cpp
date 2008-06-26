@@ -341,7 +341,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 
 		for (unsigned int j = source; j != swap_pos; j += incrmnt)
 		{
-			if (( j + incrmnt > EventHandlers[i].size() - 1) || (j - incrmnt < 0))
+			if (( j + incrmnt > EventHandlers[i].size() - 1) || (j + incrmnt < 0))
 				continue;
 
 			std::swap(EventHandlers[i][j], EventHandlers[i][j+incrmnt]);
