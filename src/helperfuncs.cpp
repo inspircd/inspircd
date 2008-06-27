@@ -450,11 +450,7 @@ bool InspIRCd::OpenLog(char** argv, int argc)
 	{
 		if (Config->logpath.empty())
 		{
-#ifndef DARWIN
 			Config->logpath = Config->MyDir + "/ircd.log";
-#else
-			Config->logpath = "/var/log/ircd.log";
-#endif
 		}
 
 		Config->log_file = fopen(Config->logpath.c_str(),"a+");
@@ -476,17 +472,10 @@ bool InspIRCd::OpenLog(char** argv, int argc)
 
 void InspIRCd::CheckRoot()
 {
-#ifndef DARWIN
 	if (geteuid() == 0)
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
 		this->Log(DEFAULT,"Cant start as root");
-#else
-	if (geteuid() != 16)
-	{
-		printf("WARNING!!! You are not running inspircd as the ircdaemon user!!! YOU CAN NOT DO THIS!!!\n\n");
-		this->Log(DEFAULT,"Must start as user ircdaemon");
-#endif
 		Exit(EXIT_STATUS_ROOT);
 	}
 }
