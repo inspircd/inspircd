@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <climits>
 
 #include "inspircd_config.h"
 #include "uid.h"
