@@ -29,6 +29,7 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include <climits>
 #include "inspircd_config.h"
 #include "users.h"
 #include "channels.h"
