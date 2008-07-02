@@ -400,7 +400,7 @@ char* InspSocket::Read()
 		int MOD_RESULT = 0;
 		try
 		{
-			MOD_RESULT = Instance->Config->GetIOHook(this)->OnRawSocketRead(this->fd,this->ibuf,sizeof(this->ibuf),result2);
+			MOD_RESULT = Instance->Config->GetIOHook(this)->OnRawSocketRead(this->fd,this->ibuf,sizeof(this->ibuf) - 1,result2);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -418,10 +418,16 @@ char* InspSocket::Read()
 	}
 	else
 	{
-		n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
+		n = recv(this->fd,this->ibuf,sizeof(this->ibuf) - 1,0);
 	}
 
-	if ((n > 0) && (n <= (int)sizeof(this->ibuf)))
+	/*
+	 * This used to do some silly bounds checking instead of just passing bufsize - 1 to recv.
+	 * Not only does that make absolutely no sense, but it could potentially result in a read buffer's worth
+	 * of data being thrown into the bit bucket for no good reason, which is just *stupid*.. do things correctly now.
+	 * --w00t (july 2, 2008)
+	 */
+	if (n > 0)
 	{
 		ibuf[n] = 0;
 		return ibuf;
