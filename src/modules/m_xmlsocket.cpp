@@ -170,7 +170,10 @@ class ModuleXMLSocket : public Module
 			if ((tmpbuffer[n] == '\r') || (tmpbuffer[n] == '\n'))
 				tmpbuffer[n] = 0;
 
-		user->AddWriteBuf(std::string(tmpbuffer,count));
+		std::string buf(tmpbuffer, count);
+		LineBuffer *l = new LineBuffer(buf);
+		l->SetRefcount(1);
+		user->AddWriteBuf(l);
 		delete [] tmpbuffer;
 
 		return 1;

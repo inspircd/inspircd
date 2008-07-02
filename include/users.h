@@ -17,12 +17,17 @@
 #include "socket.h"
 #include "connection.h"
 #include "dns.h"
-
 #include "mode.h"
+#include "linebuffer.h"
+
+#include <list> // XXX XXX XXX this should probably be moved to globals.h, and globals.h should probably be merged in with inspircd.h sometime. -- w00t
+#define _GLIBCXX_FORCE_NEW 1
+
 
 /** Channel status for a user
  */
-enum ChanStatus {
+enum ChanStatus
+{
 	/** Op */
 	STATUS_OP     = 4,
 	/** Halfop */
@@ -35,7 +40,8 @@ enum ChanStatus {
 
 /** connect class types
  */
-enum ClassTypes {
+enum ClassTypes
+{
 	/** connect:allow */
 	CC_ALLOW = 0,
 	/** connect:deny */
@@ -44,7 +50,8 @@ enum ClassTypes {
 
 /** RFC1459 channel modes
  */
-enum UserModes {
+enum UserModes
+{
 	/** +s: Server notices */
 	UM_SERVERNOTICE = 's' - 65,
 	/** +w: WALLOPS */
@@ -60,16 +67,17 @@ enum UserModes {
 /** Registration state of a user, e.g.
  * have they sent USER, NICK, PASS yet?
  */
-enum RegistrationState {
-
-#ifndef WIN32   // Burlex: This is already defined in win32, luckily it is still 0.
+enum RegistrationState
+{
+#ifndef REG_NONE		/* This is already defined in win32, luckily it is still 0. -- Burlex 
+							XXX perhaps we should undef it just in case.. Relying on magic numbers... -- w00t */
 	REG_NONE = 0,		/* Has sent nothing */
 #endif
 
 	REG_USER = 1,		/* Has sent USER */
 	REG_NICK = 2,		/* Has sent NICK */
 	REG_NICKUSER = 3, 	/* Bitwise combination of REG_NICK and REG_USER */
-	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
+	REG_ALL = 7		  	/* REG_NICKUSER plus next bit along */
 };
 
 /* Required forward declaration */
@@ -598,10 +606,15 @@ class CoreExport User : public connection
 	 */
 	std::string recvq;
 
-	/** User's send queue.
-	 * Lines waiting to be sent are stored here until their buffer is flushed.
+	/** How many bytes are currently in the user's sendq.
 	 */
-	std::string sendq;
+	unsigned long sendqlength;
+	/** List of pointers to buffer objects, this is the actual user's sendq.
+	 */
+	std::list<LineBuffer*, __gnu_cxx::new_allocator<LineBuffer*> > sendq;
+	/** How far into the current sendq line is the user?
+	 */
+	unsigned long sendqpos;
 
 	/** Message user will quit with. Not to be set externally.
 	 */
@@ -843,13 +856,13 @@ class CoreExport User : public connection
 	 */
 	const char* GetWriteError();
 
-	/** Adds to the user's write buffer.
+	/** Adds a line buffer to the user's sendq.
 	 * You may add any amount of text up to this users sendq value, if you exceed the
 	 * sendq value, SetWriteError() will be called to set the users error string to
 	 * "SendQ exceeded", and further buffer adds will be dropped.
 	 * @param data The data to add to the write buffer
 	 */
-	void AddWriteBuf(const std::string &data);
+	void AddWriteBuf(LineBuffer *l);
 
 	/** Flushes as much of the user's buffer to the file descriptor as possible.
 	 * This function may not always flush the entire buffer, rather instead as much of it
