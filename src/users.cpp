@@ -189,11 +189,12 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	reset_due = ServerInstance->Time();
 	age = ServerInstance->Time();
 	Penalty = 0;
-	sendqpos = sendqlength = lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
+	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	quietquit = OverPenalty = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
+	sendq.clear();
 	WriteError.clear();
 	res_forward = res_reverse = NULL;
 	Visibility = NULL;
@@ -617,12 +618,12 @@ std::string User::GetBuffer()
 	}
 }
 
-void User::AddWriteBuf(LineBuffer *l)
+void User::AddWriteBuf(const std::string &data)
 {
 	if (*this->GetWriteError())
 		return;
 
-	if (this->MyClass && (sendqlength + l->GetMessageLength() > this->MyClass->GetSendqMax()))
+	if (this->MyClass && (sendq.length() + data.length() > this->MyClass->GetSendqMax()))
 	{
 		/*
 		 * Fix by brain - Set the error text BEFORE calling, because
@@ -630,79 +631,69 @@ void User::AddWriteBuf(LineBuffer *l)
 		 * to repeatedly add the text to the sendq!
 		 */
 		this->SetWriteError("SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(), sendqlength + l->GetMessageLength(), this->MyClass->GetSendqMax());
+		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
 
-	sendq.push_back(l);
-	ServerInstance->stats->statsSent += l->GetMessageLength();
-	this->ServerInstance->SE->WantWrite(this);
+	if (data.length() > MAXBUF - 2) /* MAXBUF has a value of 514, to account for line terminators */
+		sendq.append(data.substr(0,MAXBUF - 4)).append("\r\n"); /* MAXBUF-4 = 510 */
+	else
+		sendq.append(data);
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 void User::FlushWriteBuf()
 {
-	if ((this->fd == FD_MAGIC_NUMBER) || (*this->GetWriteError()))
+	try
 	{
-		return; // Don't do this for module created users, nor for users with a write error.
-	}
-
-	// While the sendq has lines to send..
-	while (!sendq.empty())
-	{
-		LineBuffer *l = sendq.front();
-
-		int s = 0;
-
-		// We want to send from where we're up to to the end of the line if possible. I know this looks confusing. Where we're up to is sendqpos,
-		// which makes message length total length - sendqpos.
-		s = ServerInstance->SE->Send(this, l->GetMessage().substr(sendqpos, (l->GetMessageLength() - sendqpos)).data(), l->GetMessageLength() - sendqpos, 0);
-
-		if (s == -1)
+		if ((this->fd == FD_MAGIC_NUMBER) || (*this->GetWriteError()))
 		{
-			// Write error.
-			if (errno == EAGAIN)
-			{
-
-				// Non-fatal; writing would just block. We don't want to block.
-				// So try write again later.
-				this->ServerInstance->SE->WantWrite(this);
-			}
-			else
-			{
-				this->SetWriteError(errno ? strerror(errno) : "Write error");
-				return;
-			}
+			sendq.clear();
 		}
-		else
+		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
-			// Update bytes sent.
-			this->bytes_out += s;
+			int old_sendq_length = sendq.length();
+			int n_sent = ServerInstance->SE->Send(this, this->sendq.data(), this->sendq.length(), 0);
 
-			// If what was just written + already written is not the whole message
-			if ((s + sendqpos) != l->GetMessageLength())
+			if (n_sent == -1)
 			{
-				sendqpos = s; // save our current position
-			}
-			else
-			{
-				sendqpos = 0; // it was the full message.
-				this->cmds_out++;
-				sendq.pop_front();
-
-				// If we're the last one to use this line buffer, delete it
-				if (l->DecrementCount() == 0)
+				if (errno == EAGAIN)
 				{
-					delete l;
+					/* The socket buffer is full. This isnt fatal,
+					 * try again later.
+					 */
+					this->ServerInstance->SE->WantWrite(this);
+				}
+				else
+				{
+					/* Fatal error, set write error and bail
+					 */
+					this->SetWriteError(errno ? strerror(errno) : "EOF from client");
+					return;
 				}
 			}
+			else
+			{
+				/* advance the queue */
+				if (n_sent)
+					this->sendq = this->sendq.substr(n_sent);
+				/* update the user's stats counters */
+				this->bytes_out += n_sent;
+				this->cmds_out++;
+				if (n_sent != old_sendq_length)
+					this->ServerInstance->SE->WantWrite(this);
+			}
 		}
+	}
+
+	catch (...)
+	{
+		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::FlushWriteBuf()");
 	}
 
 	if (this->sendq.empty())
 	{
-		sendq.resize(0);
-		FOREACH_MOD(I_OnBufferFlushed, OnBufferFlushed(this));
+		FOREACH_MOD(I_OnBufferFlushed,OnBufferFlushed(this));
 	}
 }
 
@@ -1204,10 +1195,10 @@ void User::Write(std::string text)
 	}
 	else
 	{
-		LineBuffer *l = new LineBuffer(text);
-		l->SetRefcount(1);
-		this->AddWriteBuf(l);
+		this->AddWriteBuf(text);
 	}
+	ServerInstance->stats->statsSent += text.length();
+	this->ServerInstance->SE->WantWrite(this);
 }
 
 /** Write()
@@ -1348,13 +1339,8 @@ void User::WriteCommon(const std::string &text)
 		InitializeAlreadySent(ServerInstance->SE);
 
 	/* We dont want to be doing this n times, just once */
-	std::string buf = ":";
-	buf.append(this->GetFullHost());
-	buf.append(" ");
-	buf.append(text);
-
-	LineBuffer *l = NULL;
-	unsigned long total = 0;
+	snprintf(tb,MAXBUF,":%s %s",this->GetFullHost().c_str(),text.c_str());
+	std::string out = tb;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
@@ -1363,14 +1349,8 @@ void User::WriteCommon(const std::string &text)
 		{
 			if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 			{
-				if (!l)
-				{
-					// sending to the first user
-					l = new LineBuffer(buf);
-				}
 				already_sent[i->first->fd] = uniq_id;
-				i->first->AddWriteBuf(l);
-				total++;
+				i->first->Write(out);
 				sent_to_at_least_one = true;
 			}
 		}
@@ -1383,10 +1363,6 @@ void User::WriteCommon(const std::string &text)
 	if (!sent_to_at_least_one)
 	{
 		this->Write(std::string(tb));
-	}
-	else
-	{
-		l->SetRefcount(total);
 	}
 }
 
@@ -1409,6 +1385,9 @@ void User::WriteCommonExcept(const char* text, ...)
 
 void User::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
 {
+	char tb1[MAXBUF];
+	char tb2[MAXBUF];
+
 	if (this->registered != REG_ALL)
 		return;
 
@@ -1417,21 +1396,10 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	if (!already_sent)
 		InitializeAlreadySent(ServerInstance->SE);
 
-	unsigned int opercount = 0;
-	unsigned int usercount = 0;
-
-	std::string operquit = ":";
-	operquit.append(this->GetFullHost());
-	operquit.append(" QUIT :");
-	operquit.append(oper_text);
-
-	std::string userquit = ":";
-	userquit.append(this->GetFullHost());
-	userquit.append(" QUIT :");
-	userquit.append(normal_text);
-
-	LineBuffer *ol = new LineBuffer(operquit);
-	LineBuffer *ul = new LineBuffer(userquit);
+	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),normal_text.c_str());
+	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),oper_text.c_str());
+	std::string out1 = tb1;
+	std::string out2 = tb2;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
@@ -1443,35 +1411,18 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 				{
 					already_sent[i->first->fd] = uniq_id;
-
-					if (IS_OPER(i->first))
-					{
-						i->first->AddWriteBuf(ol);
-						opercount++;
-					}
-					else
-					{
-						i->first->AddWriteBuf(ul);
-						usercount++;
-					}
+					i->first->Write(IS_OPER(i->first) ? out2 : out1);
 				}
 			}
 		}
 	}
-
-	if (opercount == 0)
-		free(ol);
-	else
-		ol->SetRefcount(opercount);
-
-	if (usercount == 0)
-		free(ul);
-	else
-		ul->SetRefcount(usercount);
 }
 
 void User::WriteCommonExcept(const std::string &text)
 {
+	char tb1[MAXBUF];
+	std::string out1;
+
 	if (this->registered != REG_ALL)
 		return;
 
@@ -1480,13 +1431,8 @@ void User::WriteCommonExcept(const std::string &text)
 	if (!already_sent)
 		InitializeAlreadySent(ServerInstance->SE);
 
-	unsigned long total = 0;
-	LineBuffer *l = NULL;
-
-	std::string buf = ":";
-	buf.append(this->GetFullHost());
-	buf.append(" ");
-	buf.append(text);
+	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost().c_str(),text.c_str());
+	out1 = tb1;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
@@ -1497,26 +1443,17 @@ void User::WriteCommonExcept(const std::string &text)
 			{
 				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 				{
-					if (!l)
-						l = new LineBuffer(buf);
-
 					already_sent[i->first->fd] = uniq_id;
-					i->first->AddWriteBuf(l);
-					total++;
+					i->first->Write(out1);
 				}
 			}
 		}
 	}
 
-	if (l)
-	{
-		l->SetRefcount(total);
-	}
 }
 
 void User::WriteWallOps(const std::string &text)
 {
-	// XXX: this does not yet abuse refcounted linebuffers for sending -- w00t
 	if (!IS_LOCAL(this))
 		return;
 
@@ -1661,29 +1598,20 @@ bool User::ChangeIdent(const char* newident)
 void User::SendAll(const char* command, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	std::string buf = ":";
-	buf.append(this->GetFullHost());
-	buf.append(" ");
-	buf.append(command);
-	buf.append(" $* :");
-	buf.append(textbuffer);
-	LineBuffer *l = NULL;
+	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost().c_str(), command, textbuffer);
+	std::string fmt = formatbuffer;
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
-		if (!l)
-			l = new LineBuffer(buf);
-		(*i)->AddWriteBuf(l);
+		(*i)->Write(fmt);
 	}
-
-	if (l)
-		l->SetRefcount(ServerInstance->Users->local_users.size());
 }
 
 
