@@ -199,9 +199,6 @@ static std::map<char, char const*> const &init_entities()
         entities['>'] = "gt";
         entities['&'] = "amp";
         entities['"'] = "quot";
-        entities[246] = "ouml";
-        entities[228] = "auml";
-        entities[252] = "uuml";
         return entities;
 }
 
