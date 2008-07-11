@@ -111,7 +111,7 @@ void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }
 void		Module::OnUserJoin(User*, Channel*, bool, bool&) { }
 void		Module::OnPostJoin(User*, Channel*) { }
-void		Module::OnUserPart(User*, Channel*, const std::string&, bool&) { }
+void		Module::OnUserPart(User*, Channel*, std::string&, bool&) { }
 void		Module::OnRehash(User*, const std::string&) { }
 void		Module::OnServerRaw(std::string&, bool, User*) { }
 int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return 0; }

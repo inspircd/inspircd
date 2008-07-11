@@ -35,15 +35,13 @@ class ModulePartMsgBan : public Module
 	}
 
 
-    virtual void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
+    virtual void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
 	{
 		if (!IS_LOCAL(user))
 			return;
 
-#if 0
 		if (channel->IsExtBanned(user, 'p'))
 			partmessage = "";
-#endif
 
 		return;
 	}

@@ -205,7 +205,7 @@ class ModuleInvisible : public Module
 		conf = new ConfigReader(ServerInstance);
 	}
 
-	void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
+	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
 	{
 		if (user->IsModeSet('Q'))
 		{

@@ -498,11 +498,11 @@ class CoreExport Module : public Extensible
 	 * and the details of the channel they have left is available in the variable Channel *channel
 	 * @param user The user who is parting
 	 * @param channel The channel being parted
-	 * @param partmessage The part message, or an empty string
+	 * @param partmessage The part message, or an empty string (may be modified)
 	 * @param silent Change this to true if you want to conceal the PART command from the other users
 	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent);
+	virtual void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating

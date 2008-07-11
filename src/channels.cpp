@@ -482,10 +482,18 @@ bool Channel::IsExtBanned(User *user, char type)
 /* Channel::PartUser
  * remove a channel from a users record, and return the number of users left.
  * Therefore, if this function returns 0 the caller should delete the Channel.
+ *
+ * XXX: bleh, string copy of reason, fixme! -- w00t
  */
 long Channel::PartUser(User *user, const char* reason)
 {
 	bool silent = false;
+	std::string freason;
+
+	if (reason)
+		freason = reason;
+	else
+		freason = "";
 
 	if (!user)
 		return this->GetUserCounter();
@@ -493,7 +501,7 @@ long Channel::PartUser(User *user, const char* reason)
 	UCListIter i = user->chans.find(this);
 	if (i != user->chans.end())
 	{
-		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason ? reason : "", silent));
+		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, freason, silent));
 
 		if (!silent)
 			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason ? " :" : "", reason ? reason : "");

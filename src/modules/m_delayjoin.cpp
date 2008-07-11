@@ -117,7 +117,7 @@ class ModuleDelayJoin : public Module
 		}
 	}
 
-	void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
+	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
 	{
 		if (channel->IsModeSet('D'))
 		{

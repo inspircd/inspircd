@@ -610,7 +610,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	Utils->DoOneToMany(user->uuid,"FNAME",params);
 }
 
-void ModuleSpanningTree::OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
+void ModuleSpanningTree::OnUserPart(User* user, Channel* channel,  std::string &partmessage, bool &silent)
 {
 	if (IS_LOCAL(user))
 	{
