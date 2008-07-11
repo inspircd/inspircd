@@ -50,14 +50,43 @@ public:
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
 		be->DoImplements(this);
-		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnCheckBan };
-		Me->Modules->Attach(list, this, 4);
+		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnCheckBan, I_OnCheckExtBan };
+		Me->Modules->Attach(list, this, 5);
 
 	}
 
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" EXCEPTS=e");
+	}
+
+	virtual int OnCheckExtBan(User *user, Channel *chan, char type)
+	{
+		if (chan != NULL)
+		{
+			modelist *list;
+			chan->GetExt(be->GetInfoKey(), list);
+
+			if (!list)
+				return 0;
+
+			std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
+			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			{
+				if (it->mask[0] != type || it->mask[1] != ':')
+					continue;
+
+				std::string maskptr = it->mask.substr(2);
+
+				if (match(user->GetFullRealHost(), maskptr) || match(user->GetFullHost(), maskptr) || (match(mask, maskptr, true)))
+				{
+					// They match an entry on the list, so let them pass this.
+					return 1;
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	virtual int OnCheckBan(User* user, Channel* chan)
