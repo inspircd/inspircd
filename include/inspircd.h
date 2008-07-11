@@ -40,7 +40,9 @@
 #include "snomasks.h"
 #include "cull_list.h"
 
+#include <limits.h> // needed for PATH_MAX on some POSIX systems, may break windows
 #ifndef PATH_MAX
+#warning PATH_MAX undefined, potentially broken system
 #define PATH_MAX 4096
 #endif
 
