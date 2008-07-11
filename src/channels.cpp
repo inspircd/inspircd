@@ -453,26 +453,32 @@ bool Channel::IsBanned(User* user)
 
 bool Channel::IsExtBanned(User *user, char type)
 {
-	// XXX. do we need events?
 	char mask[MAXBUF];
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnCheckExtBan,OnCheckExtBan(user, this, type));
 
-	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
-
-	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+	if (MOD_RESULT == -1)
+		return true;
+	else if (MOD_RESULT == 0)
 	{
-		if (i->data[0] != type || i->data[1] != ':')
-			continue;
+		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 
-		// Iterate past char and : to get to the mask without doing a data copy(!)
-		std::string maskptr = i->data.substr(2);
-
-		/* This allows CIDR ban matching
-		 *
-		 *        Full masked host                             Full unmasked host                     IP with/without CIDR
-		 */
-		if ((match(user->GetFullHost(), maskptr)) || (match(user->GetFullRealHost(), maskptr)) || (match(mask, maskptr, true)))
+		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 		{
-			return true;
+			if (i->data[0] != type || i->data[1] != ':')
+				continue;
+
+			// Iterate past char and : to get to the mask without doing a data copy(!)
+			std::string maskptr = i->data.substr(2);
+
+			/* This allows CIDR ban matching
+			 *
+			 *        Full masked host                             Full unmasked host                     IP with/without CIDR
+		 	*/
+			if ((match(user->GetFullHost(), maskptr)) || (match(user->GetFullRealHost(), maskptr)) || (match(mask, maskptr, true)))
+			{
+				return true;
+			}
 		}
 	}
 

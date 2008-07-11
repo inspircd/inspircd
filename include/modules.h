@@ -392,7 +392,7 @@ enum Implementation
 	I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddLine,
 	I_OnDelLine, I_OnExpireLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
 	I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite, I_OnRawMode,
-	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
+	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckExtBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnUserList,
@@ -1132,6 +1132,13 @@ class CoreExport Module : public Extensible
 	 * join to the channel.
 	 */
 	virtual int OnCheckBan(User* user, Channel* chan);
+
+	/* Called whenever checking whether or not a user is matched by an applicable extended bantype.
+	 * @param u The user to check
+	 * @param c The channel the user is on
+	 * @param type The type of extended ban to check for.
+	 */
+	virtual int OnCheckExtBan(User *u, Channel *c, char type);
 
 	/** Called on all /STATS commands
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
