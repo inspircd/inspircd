@@ -47,8 +47,7 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 	
 	if (c)
 	{
-		const char *rreason = reason.empty() ? NULL : reason.c_str();
-		if (!c->PartUser(user, rreason))
+		if (!c->PartUser(user, reason))
 			/* Arse, who stole our channel! :/ */
 			delete c;
 	}

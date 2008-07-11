@@ -485,15 +485,9 @@ bool Channel::IsExtBanned(User *user, char type)
  *
  * XXX: bleh, string copy of reason, fixme! -- w00t
  */
-long Channel::PartUser(User *user, const char* reason)
+long Channel::PartUser(User *user, std::string &reason)
 {
 	bool silent = false;
-	std::string freason;
-
-	if (reason)
-		freason = reason;
-	else
-		freason = "";
 
 	if (!user)
 		return this->GetUserCounter();
@@ -501,10 +495,10 @@ long Channel::PartUser(User *user, const char* reason)
 	UCListIter i = user->chans.find(this);
 	if (i != user->chans.end())
 	{
-		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, freason, silent));
+		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason, silent));
 
 		if (!silent)
-			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason ? " :" : "", reason ? reason : "");
+			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : ":", reason.c_str());
 
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);

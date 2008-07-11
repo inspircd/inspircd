@@ -59,7 +59,7 @@ class CommandCycle : public Command
 				}
 
 				/* XXX in the future, this may move to a static Channel method (the delete.) -- w00t */
-				if (!channel->PartUser(user, reason.c_str()))
+				if (!channel->PartUser(user, reason))
 					delete channel;
 
 				Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), true, "", false, ServerInstance->Time());

@@ -349,11 +349,11 @@ class CoreExport Channel : public Extensible
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
 	 * @param user The user who is parting (must be on this channel)
-	 * @param reason The (optional) part reason
+	 * @param reason The part reason
 	 * @return The number of users left on the channel. If this is zero
 	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long PartUser(User *user, const char* reason = NULL);
+	long PartUser(User *user, std::string &reason);
 
 	/* Join a user to a channel. May be a channel that doesnt exist yet.
 	 * @param user The user to join to the channel.

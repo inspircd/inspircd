@@ -31,7 +31,7 @@ class CommandSapart : public Command
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
-		std::string reason;
+		std::string reason = "";
 
 		if (dest && channel)
 		{
@@ -50,7 +50,7 @@ class CommandSapart : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				if (!channel->PartUser(dest, reason.empty() ? NULL : reason.c_str()))
+				if (!channel->PartUser(dest, reason))
 					delete channel;
 
 				Channel* n = ServerInstance->FindChan(parameters[1]);
