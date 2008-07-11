@@ -61,8 +61,9 @@
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
-
+#include <limits.h> // required for PATH_MAX under gcc 4.3, may break windows
 #ifndef PATH_MAX
+#warning Potentially broken system, PATH_MAX undefined
 #define PATH_MAX 4096
 #endif
 
