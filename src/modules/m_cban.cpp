@@ -173,9 +173,13 @@ class ModuleCBan : public Module
 		ServerInstance->XLines->UnregisterFactory(f);
 	}
 
-	virtual int OnStats(char symbol, User* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &out)
 	{
-		return 0;
+		if (symbol != 'C')
+			return 0;
+
+		ServerInstance->XLines->InvokeStats("CBAN", 210, user, out);
+		return 1;
 	}
 
 	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
