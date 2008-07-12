@@ -26,6 +26,7 @@ class ProtoServer
  public:
 	std::string servername;
 	std::string parentname;
+	std::string gecos;
 	unsigned int usercount;
 	unsigned int opercount;
 	unsigned int latencyms;

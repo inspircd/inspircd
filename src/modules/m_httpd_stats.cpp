@@ -121,7 +121,7 @@ class ModuleHttpStats : public Module
                                         data << "<channeltopic>";
 						data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
 						data << "<setby>" << Sanitize(c->setby) << "</setby>";
-						data << "<settime>" << Sanitize(c->topicset) << "</settime>";
+						data << "<settime>" << c->topicset << "</settime>";
 					data << "</channeltopic>";
                                         data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
                                         CUList* ulist = c->GetUsers();
@@ -161,6 +161,7 @@ class ModuleHttpStats : public Module
                                         data << "<server>";
                                         data << "<servername>" << b->servername << "</servername>";
                                         data << "<parentname>" << b->parentname << "</parentname>";
+					data << "<gecos>" << b->gecos << "</gecos>";
                                         data << "<usercount>" << b->usercount << "</usercount>";
                                         data << "<opercount>" << b->opercount << "</opercount>";
                                         data << "<lagmillisecs>" << b->latencyms << "</lagmillisecs>";
