@@ -304,6 +304,11 @@
 #   but if they can connect again to B, there are three. You get the  #
 #   idea (i hope).                                                    #
 #                                                                     #
+#   NOTE NOTE NOTE NOTE NOTE NOTE!                                    #
+#    The maximum limits by default apply to individual IP addresses   #
+#    This *MAY* be changed by modifying the <cidr> block, in order    #
+#    to detect cloning across an ISP.                                 #
+#                                                                     #
 #   The optional port value determines which port the connect tag is  #
 #   handling. If left out the connect tag covers all bound ports else #
 #   only incoming connections on the specified port will match. Port  #
@@ -331,6 +336,33 @@
 <connect deny="69.254.*">
 <connect deny="3ffe::0/32">
 
+#-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
+#                                                                     #
+# CIDR configuration allows detection of clones and applying of       #
+# throttle limits across a CIDR range. (A CIDR range is a group of    #
+# IPs, for example, the CIDR range 192.168.1.0-192.168.1.255 may be   #
+# represented as 192.168.1.0/24). This means that abuse across an ISP #
+# is detected and curtailed much easier.                              #
+#                                                                     #
+# ipv4clone:                                                          #
+#  This specifies how many bits of an IP address should be checked    #
+#  against cloning in the <connect> tags, for example, if <connect>   #
+#  tags specified a limit of 2 (low!), and three users attempted to   #
+#  connect in the IP range 192.168.1.0-192.168.1.255, and ipv4clone   #
+#  was set to '24', the third connection would be disconnected.       #
+#                                                                     #
+#  Valid values are 0-32, but you *don't* want 0.                     #
+#                                                                     #
+# ipv6clone works in the same way, except for ipv6 addresses. Valid   #
+# range is 0-128, but you *don't* want anything too small.            #
+#                                                                     #
+# Setting these to their maximum value (32, 128) will result in       #
+# no actual CIDR checking being done, and clone checking will only be #
+# done across individual IPs. This is the default behaviour.          #
+
+<cidr
+	ipv4clone="32"
+	ipv6clone="128">
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #

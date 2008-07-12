@@ -292,7 +292,6 @@ class CoreExport ServerConfig : public Extensible
 	bool CheckOnce(const char* tag, ConfigDataHash &newconf);
 
  public:
-
 	/** Process an include executable directive
 	 */
 	bool DoPipe(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
@@ -327,6 +326,16 @@ class CoreExport ServerConfig : public Extensible
 	ConfigDataHash config_data;
 
 	ServerLimits Limits;
+
+	/** Clones CIDR range for ipv4 (0-32)
+	 * Defaults to 32 (checks clones on all IPs seperately)
+	 */
+	int c_ipv4_range;
+
+	/** Clones CIDR range for ipv6 (0-128)
+	 * Defaults to 128 (checks on all IPs seperately)
+	 */
+	int c_ipv6_range;
 
 	/** Max number of WhoWas entries per user.
 	 */

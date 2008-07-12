@@ -54,6 +54,8 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	debugging = 0;
 	MaxChans = 20;
 	OperMaxChans = 30;
+	c_ipv4_range = 32;
+	c_ipv6_range = 128;
 	maxbans.clear();
 	DNSServerValidator = &ValidateDnsServer;
 }
@@ -845,6 +847,8 @@ void ServerConfig::Read(bool bail, User* user)
 		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR,  NoValidation},
 		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER,  NoValidation},
 		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER,  NoValidation},
+		{"cidr",	"ipv4clone",	"32",			new ValueContainerInt (&this->c_ipv4_range),		DT_INTEGER,  NoValidation},
+		{"cidr",	"ipv6clone",	"128",			new ValueContainerInt (&this->c_ipv6_range),		DT_INTEGER,  NoValidation},
 		{"limits",	"maxnick",	"32",			new ValueContainerST (&this->Limits.NickMax),		DT_INTEGER,  NoValidation},
 		{"limits",	"maxchan",	"64",			new ValueContainerST (&this->Limits.ChanMax),		DT_INTEGER,  NoValidation},
 		{"limits",	"maxmodes",	"20",			new ValueContainerST (&this->Limits.MaxModes),		DT_INTEGER,  NoValidation},
