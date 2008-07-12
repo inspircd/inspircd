@@ -116,6 +116,22 @@ XLineLookup* XLineManager::GetAll(const std::string &type)
 	return &(n->second);
 }
 
+void XLineManager::DelAll(const std::string &type)
+{
+	ContainerIter n = lookup_lines.find(type);
+
+	if (n == lookup_lines.end())
+		return;
+
+	LookupIter x;
+
+	/* Delete all of a given type (this should probably use DelLine, but oh well) */
+	while ((x = n->second.begin()) != n->second.end())
+	{
+		ExpireLine(n, x);
+	}
+}
+
 std::vector<std::string> XLineManager::GetAllTypes()
 {
 	std::vector<std::string> items;
