@@ -118,6 +118,7 @@ class ModuleSSLGnuTLS : public Module
 	int dh_bits;
 
 	int clientactive;
+	bool cred_alloc;
 
 	CommandStartTLS* starttls;
 
@@ -135,13 +136,7 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_global_init(); // This must be called once in the program
 
-		if(gnutls_certificate_allocate_credentials(&x509_cred) != 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to allocate certificate credentials");
-
-		// Guessing return meaning
-		if(gnutls_dh_params_init(&dh_params) < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters");
-
+		cred_alloc = false;
 		// Needs the flag as it ignores a plain /rehash
 		OnRehash(NULL,"ssl");
 
@@ -246,7 +241,22 @@ class ModuleSSLGnuTLS : public Module
 			keyfile = confdir + keyfile;
 
 		int ret;
-
+		
+		if (cred_alloc)
+		{
+			// Deallocate the old credentials
+			gnutls_dh_params_deinit(dh_params);
+			gnutls_certificate_free_credentials(x509_cred);
+		}
+		else
+			cred_alloc = true;
+		
+		if((ret = gnutls_certificate_allocate_credentials(&x509_cred)) < 0)
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
+		
+		if((ret = gnutls_dh_params_init(&dh_params)) < 0)
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
+		
 		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
 
