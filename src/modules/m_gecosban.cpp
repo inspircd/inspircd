@@ -42,8 +42,6 @@ class ModuleNickBan : public Module
 		if (!c)
 			return 0;
 
-		ServerInstance->Logs->Log("EXTBANS", DEBUG, "Checking if %s is banned", user->fullname.c_str());
-
 		if (c->IsExtBanned(user->fullname, 'r'))
 		{
 			// XXX: send a numeric here
