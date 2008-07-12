@@ -47,7 +47,7 @@ class ModuleOperLog : public Module
 		{
 			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
-				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s %s",user->nick.c_str(), user->ident.c_str(), user->host.c_str(), command.c_str(), irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined().c_str());
+				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s %s",user->nick.c_str(), user->ident.c_str(), user->host.c_str(), command.c_str(), parameters.empty() ? "" : irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined().c_str());
 		}
 
 		return 0;

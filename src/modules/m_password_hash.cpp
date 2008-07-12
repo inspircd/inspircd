@@ -45,6 +45,11 @@ class CommandMkpasswd : public Command
 			/* Now attempt to generate a hash */
 			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick.c_str(), algo, stuff, HashSumRequest(Sender, x->second, stuff).Send() );
 		}
+		else if (names.empty())
+		{
+			/* same idea as bug #569 */
+			user->WriteServ("NOTICE %s :No hash provider modules are loaded", user->nick.c_str());
+		}
 		else
 		{
 			/* I dont do flying, bob. */
