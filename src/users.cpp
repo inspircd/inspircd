@@ -1120,87 +1120,85 @@ const char* User::GetCIDRMask(int range)
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
+			/* unsigned char s6_addr[16]; */
 			struct in6_addr v6;
-	 
+			sockaddr_in6* sin;
+			int i, bytestozero, extrabits;
+			char buffer[40];
+			
 			if(range > 128)
+				throw "CIDR mask width greater than address width (IPv6, 128 bit)";
+
+			/* Access the user's IP structure directly */
+			sin = (sockaddr_in6*)this->ip;
+
+			/* To create the CIDR mask we want to set all the bits after 'range' bits of the address
+			 * to zero. This means the last (128 - range) bits of the address must be set to zero.
+			 * Hence this number divided by 8 is the number of whole bytes from the end of the address
+			 * which must be set to zero.
+			 */
+			bytestozero = (128 - range) / 8;
+			
+			/* Some of the least significant bits of the next most significant byte may also have to
+			 * be zeroed. The number of bits is the remainder of the above division.
+			 */
+			extrabits = (128 - range) % 8;
+			
+			/* Populate our working struct with the parts of the user's IP which are required in the
+			 * final CIDR mask. Set all the subsequent bytes to zero.
+			 * (16 - bytestozero) is the number of bytes which must be populated with actual IP data.
+			 */
+			for(i = 0; i < (16 - bytestozero); i++)
 			{
-				printf("Error, range given (%d) larger than address length (128)\n", range);
-				return 0;
+				v6.s6_addr[i] = sin->sin6_addr.s6_addr[i];
 			}
-	 
-			if(inet_pton(AF_INET6, this->GetIPString(), &v6))
+			
+			/* And zero all the remaining bytes in the IP. */
+			for(; i < 16; i++)
 			{
-				/* unsigned char s6_addr[16]; */
-				int i;
-				int bytestoblank;
-				int extrabits;
-				char buffer[64];
-
-				if(range > 0)
-				{
-					/* (128 - range) bits must be blanked, so ((128 - range) / 8) of the bytes, working backwards, must be blanked. */
-					bytestoblank = (128 - range) / 8;
-	 
-					/* ((128 - range) % 8) bits of the next byte must also be blanked. */
-					extrabits = (128 - range) % 8;
-					v6.s6_addr[15 - bytestoblank] = (v6.s6_addr[15 - bytestoblank] >> extrabits) << extrabits;
-
-					for(i = 0; i < bytestoblank; i++)
-					{
-						v6.s6_addr[15 - i] = 0;
-					}
-				}
-				else
-				{
-					for(i = 0; i < 15; i++)
-					{
-						v6.s6_addr[i] = 0;
-					}
-				}
-
-				sprintf(buf, "%s/%d\n", inet_ntop(AF_INET6, &v6, buffer, 64), range);
-				return buf;
+				v6.s6_addr[i] = 0;
 			}
-			else
-			{
-				throw "CIDR mask for v6 failed";
-			}
+					
+			/* And finally, zero the extra bits required. */
+			v6.s6_addr[15 - bytestozero] = (v6.s6_addr[15 - bytestozero] >> extrabits) << extrabits;
 
+			sprintf(buf, "%s/%d\n", inet_ntop(AF_INET6, &v6, buffer, 40), range);
+			return buf;
 		}
 		break;
 #endif
 		case AF_INET:
 		{
 			struct in_addr v4;
+			sockaddr_in* sin;
+			uint32_t temp;
+			char buffer[16];
 
 			if (range > 32)
-				throw "more than 32 bits on an ipv4 connection, can't do that..";
+				throw "CIDR mask width greater than address width (IPv4, 32 bit)";
 
-			if(inet_pton(AF_INET, this->GetIPString(), &v4))
+			/* Users already have a sockaddr* pointer (User::ip) which contains either a v4 or v6 structure */
+			sin = (sockaddr_in*)this->ip;
+			v4.s_addr = sin->sin_addr.s_addr;
+
+			/* (32 - range) is the number of bits we are *ignoring*. We shift this left and then right to wipe off these bits. */
+			if(range > 0)
 			{
-				char buffer[16];
-				uint32_t temp;
-
-				/* (32 - range) is the number of bits we are *ignoring*. We shift this left and then right to wipe off these bits. */
-
-				if(range > 0)
-				{
-					temp = ntohl(v4.s_addr);
-					temp = (temp >> (32 - range)) << (32 - range);
-					v4.s_addr = htonl(temp);
-				}
-				else
-				{
-					v4.s_addr = 0;
-				}
-
-				sprintf(buf, "%s/%d\n", inet_ntop(AF_INET, &v4, buffer, 16), range);
-				return buf;
+				temp = ntohl(v4.s_addr);
+				temp = (temp >> (32 - range)) << (32 - range);
+				v4.s_addr = htonl(temp);
 			}
 			else
 			{
-				throw "CIDR mask for v4 failed";
+				/* a range of zero would cause a 32 bit value to be shifted by 32 bits.
+				 * this has undefined behaviour, but for CIDR purposes the resulting mask
+				 * from a.b.c.d/0 is 0.0.0.0/0
+				 */
+				v4.s_addr = 0;
 			}
+
+			sprintf(buf, "%s/%d\n", inet_ntop(AF_INET, &v4, buffer, 16), range);
+			return buf;
 		}
 		break;
 	}
