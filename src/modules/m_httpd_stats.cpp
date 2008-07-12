@@ -118,7 +118,11 @@ class ModuleHttpStats : public Module
                                         data << "<channelops>" << c->GetOppedUsers()->size() << "</channelops>";
                                         data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
                                         data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
-                                        data << "<channeltopic>" << Sanitize(c->topic) << "</channeltopic>";
+                                        data << "<channeltopic>";
+						data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
+						data << "<setby>" << Sanitize(c->setby) << "</setby>";
+						data << "<settime>" << Sanitize(c->topicset) << "</settime>";
+					data << "</channeltopic>";
                                         data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
                                         CUList* ulist = c->GetUsers();
 
