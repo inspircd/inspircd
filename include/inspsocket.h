@@ -159,15 +159,6 @@ class CoreExport BufferedSocket : public EventHandler
 	 * socket has timed out.
 	 */
 	bool timeout;
-	
-	/**
-	 * Socket input buffer, used by read(). The class which
-	 * extends BufferedSocket is expected to implement an extendable
-	 * buffer which can grow much larger than 64k,
-	 * this buffer is just designed to be temporary storage.
-	 * space.
-	 */
-	char ibuf[65535];
 
 	/**
 	 * The IP address being connected
