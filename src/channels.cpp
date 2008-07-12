@@ -467,6 +467,7 @@ bool Channel::IsExtBanned(const std::string &str, char type)
 
 			// Iterate past char and : to get to the mask without doing a data copy(!)
 			std::string maskptr = i->data.substr(2);
+			ServerInstance->Logs->Log("EXTBANS", DEBUG, "Checking %s against %s, type is %c", str.c_str(), maskptr.c_str(), type);
 
 			if (match(str, maskptr))
 				return true;
