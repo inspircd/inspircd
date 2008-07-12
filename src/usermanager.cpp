@@ -204,25 +204,78 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 void UserManager::AddLocalClone(User *user)
 {
-	clonemap::iterator x = local_clones.find(user->GetIPString());
+	int range = 32;
+	clonemap::iterator x;
+	switch (user->GetProtocolFamily())
+	{
+#ifdef SUPPORT_IP6LINKS
+		case AF_INET6:
+		{
+			range = ServerInstance->Config->c_ipv6_range;
+		}
+		break;
+#endif
+		case AF_INET:
+		{
+			range = ServerInstance->Config->c_ipv4_range;
+		}
+		break;
+	}
+
+	x = local_clones.find(user->GetCIDRMask(range));
 	if (x != local_clones.end())
 		x->second++;
 	else
-		local_clones[user->GetIPString()] = 1;
+		local_clones[user->GetCIDRMask(range)] = 1;
 }
 
 void UserManager::AddGlobalClone(User *user)
 {
-	clonemap::iterator y = global_clones.find(user->GetIPString());
-	if (y != global_clones.end())
-		y->second++;
+	int range = 32;
+	clonemap::iterator x;
+	switch (user->GetProtocolFamily())
+	{
+#ifdef SUPPORT_IP6LINKS
+		case AF_INET6:
+		{
+			range = ServerInstance->Config->c_ipv6_range;
+		}
+		break;
+#endif
+		case AF_INET:
+		{
+			range = ServerInstance->Config->c_ipv4_range;
+		}
+		break;
+	}
+
+	x = global_clones.find(user->GetCIDRMask(range));
+	if (x != global_clones.end())
+		x->second++;
 	else
-		global_clones[user->GetIPString()] = 1;
+		global_clones[user->GetCIDRMask(range)] = 1;
 }
 
 void UserManager::RemoveCloneCounts(User *user)
 {
-	clonemap::iterator x = local_clones.find(user->GetIPString());
+	int range = 32;
+	switch (user->GetProtocolFamily())
+	{
+#ifdef SUPPORT_IP6LINKS
+		case AF_INET6:
+		{
+			range = ServerInstance->Config->c_ipv6_range;
+		}
+		break;
+#endif
+		case AF_INET:
+		{
+			range = ServerInstance->Config->c_ipv4_range;
+		}
+		break;
+	}
+
+	clonemap::iterator x = local_clones.find(user->GetCIDRMask(range));
 	if (x != local_clones.end())
 	{
 		x->second--;
@@ -232,7 +285,7 @@ void UserManager::RemoveCloneCounts(User *user)
 		}
 	}
 	
-	clonemap::iterator y = global_clones.find(user->GetIPString());
+	clonemap::iterator y = global_clones.find(user->GetCIDRMask(range));
 	if (y != global_clones.end())
 	{
 		y->second--;
