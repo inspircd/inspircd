@@ -38,6 +38,9 @@ class PermChannel : public ModeHandler
 			if (channel->IsModeSet('P'))
 			{
 				channel->SetMode('P',false);
+
+				if (channel->GetUserCounter() == 0)
+					delete channel;
 				return MODEACTION_ALLOW;
 			}
 		}
