@@ -161,6 +161,7 @@ class ModuleShun : public Module
 
 	virtual ~ModuleShun()
 	{
+		ServerInstance->XLines->DelAll("SHUN");
 		ServerInstance->XLines->UnregisterFactory(f);
 	}
 

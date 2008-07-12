@@ -169,6 +169,7 @@ class ModuleCBan : public Module
 
 	virtual ~ModuleCBan()
 	{
+		ServerInstance->XLines->DelAll("CBAN");
 		ServerInstance->XLines->UnregisterFactory(f);
 	}
 
