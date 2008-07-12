@@ -1162,7 +1162,7 @@ const char* User::GetCIDRMask(int range)
 			/* And finally, zero the extra bits required. */
 			v6.s6_addr[15 - bytestozero] = (v6.s6_addr[15 - bytestozero] >> extrabits) << extrabits;
 
-			sprintf(buf, "%s/%d", inet_ntop(AF_INET6, &v6, buffer, 40), range);
+			snprintf(buf, 44, "%s/%d", inet_ntop(AF_INET6, &v6, buffer, 40), range);
 			return buf;
 		}
 		break;
@@ -1181,7 +1181,10 @@ const char* User::GetCIDRMask(int range)
 			sin = (sockaddr_in*)this->ip;
 			v4.s_addr = sin->sin_addr.s_addr;
 
-			/* (32 - range) is the number of bits we are *ignoring*. We shift this left and then right to wipe off these bits. */
+			/* To create the CIDR mask we want to set all the bits after 'range' bits of the address
+			 * to zero. This means the last (32 - range) bits of the address must be set to zero.
+			 * This is done by shifting the value right and then back left by (32 - range) bits.
+			 */
 			if(range > 0)
 			{
 				temp = ntohl(v4.s_addr);
@@ -1197,7 +1200,7 @@ const char* User::GetCIDRMask(int range)
 				v4.s_addr = 0;
 			}
 
-			sprintf(buf, "%s/%d", inet_ntop(AF_INET, &v4, buffer, 16), range);
+			snprintf(buf, 44, "%s/%d", inet_ntop(AF_INET, &v4, buffer, 16), range);
 			return buf;
 		}
 		break;
