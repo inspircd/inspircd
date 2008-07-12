@@ -886,7 +886,7 @@ void User::CheckClass()
 	this->MaxChans = a->GetMaxChans();
 }
 
-void User::CheckLines()
+bool User::CheckLines()
 {
 	const char* check[] = { "G" , "K", NULL };
 
@@ -899,10 +899,12 @@ void User::CheckLines()
 			if (r)
 			{
 				r->Apply(this);
-				return;
+				return true;
 			}
 		}
 	}
+
+	return false;
 }
 
 void User::FullConnect()
@@ -927,7 +929,8 @@ void User::FullConnect()
 		return;
 	}
 
-	CheckLines();
+	if (this->CheckLines())
+		return;
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
 	this->WriteNumeric(001, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network, this->nick.c_str(), this->ident.c_str(), this->host.c_str());
