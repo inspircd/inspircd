@@ -40,7 +40,7 @@ class ModuleChanCreate : public Module
 
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
-		if (channel->GetUserCounter() == 1)
+		if (channel->GetUserCounter() == 1 && !channel->IsModeSet('P'))
 			ServerInstance->SNO->WriteToSnoMask('j', "Channel %s created by %s!%s@%s", channel->name.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 	}
 };
