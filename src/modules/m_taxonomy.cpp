@@ -40,7 +40,7 @@ class CommandTaxonomy : public Command
 			for (unsigned int j = 0; j < list.size(); j++)
 			{
 				claimed = false;
-				FOREACH_MOD(I_OnSyncUserMetaData, OnSyncUserMetaData(user, Creator, dest, list[j], true));
+				FOREACH_MOD(I_OnSyncUserMetaData, OnSyncUserMetaData(dest, Creator, user, list[j], true));
 				if (!claimed)
 				{
 					user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY METADATA " + list[j] + " = <unknown>");
