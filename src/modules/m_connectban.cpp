@@ -22,6 +22,8 @@ class ModuleQuitBan : public Module
 	clonemap connects;
 	unsigned int threshold;
 	unsigned int banduration;
+	unsigned int ipv4_cidr;
+	unsigned int ipv6_cidr;
  public:
 	ModuleQuitBan(InspIRCd* Me) : Module(Me)
 	{
@@ -44,6 +46,14 @@ class ModuleQuitBan : public Module
 		ConfigReader Conf(ServerInstance);
 		std::string duration;
 
+		ipv4_cidr = Conf.ReadInteger("connectban", "ipv4cidr", 0, true);
+		if (ipv4_cidr == 0)
+			ipv4_cidr = 32;
+
+		ipv6_cidr = Conf.ReadInteger("connectban", "ipv6cidr", 0, true);
+		if (ipv6_cidr == 0)
+			ipv6_cidr = 128;
+
 		threshold = Conf.ReadInteger("connectban", "threshold", 0, true);
 
 		if (threshold == 0)
@@ -59,30 +69,47 @@ class ModuleQuitBan : public Module
 
 	virtual void OnUserConnect(User *u)
 	{
-		clonemap::iterator i = connects.find(u->GetIPString());
+		int range = 32;
+		clonemap::iterator i;
+
+		switch (u->GetProtocolFamily())
+		{
+	#ifdef SUPPORT_IP6LINKS
+			case AF_INET6:
+			{
+				range = ipv6_cidr;
+			}
+			break;
+	#endif
+			case AF_INET:
+			{
+				range = ipv4_cidr;
+			}
+			break;
+		}
+
+		i = connects.find(u->GetCIDRMask(range));
 
 		if (i != connects.end())
 		{
 			i->second++;
-			ServerInstance->Logs->Log("m_connectban",DEBUG, "Count for IP is now %d", i->second);
 
 			if (i->second >= threshold)
 			{
 				// Create zline for set duration.
-				ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Connect flooding", u->GetIPString());
+				ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Connect flooding", u->GetCIDRMask(range));
 				if (ServerInstance->XLines->AddLine(zl,NULL))
 					ServerInstance->XLines->ApplyLines();
 				else
 					delete zl;
 
-				ServerInstance->SNO->WriteToSnoMask('x', "Connect flooding from IP %s (%d)", u->GetIPString(), threshold);
+				ServerInstance->SNO->WriteToSnoMask('x', "Connect flooding from IP range %s (%d)", u->GetCIDRMask(range), threshold);
 				connects.erase(i);
 			}
 		}
 		else
 		{
-			connects[u->GetIPString()] = 1;
-			ServerInstance->Logs->Log("m_quitban",DEBUG, "Added new record");
+			connects[u->GetCIDRMask(range)] = 1;
 		}
 	}
 

@@ -463,14 +463,15 @@
 #<module name="m_cycle.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Connectban: Provides per-IP connection throttling. Any IP that disconnects
+# Connectban: Provides IP connection throttling. Any IP range that connects
 # too many times (configurable) in an hour is zlined for a (configurable)
 # duration, and their count resets to 0.
 #
-# NOTE: This module may change name/behaviour later in 1.2. Please make sure
-# you read release announcements!
+# ipv4cidr and ipv6cidr allow you to turn the comparison from individual
+# IP addresses (32 and 128 bits) into CIDR masks, to allow for throttling
+# over whole ISPs/blocks of IPs, which may be needed to prevent attacks.
 #
-#<connectban threshold="10" duration="10m">
+#<connectban threshold="10" duration="10m" ipv4cidr="32" ipv6cidr="128">
 # This allows for 10 quits in an hour with a 10 minute ban if that is exceeded.
 #
 #<module name="m_connectban.so">
