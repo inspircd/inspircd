@@ -412,11 +412,14 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 					continue;
 				}
 
-				if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
+				if (!IS_OPER(user))
 				{
-					user->WriteNumeric(482, "%s %s :Only half-operators and above may view the +%c list",user->nick.c_str(), targetchannel->name.c_str(), *mode++);
-					mh->DisplayEmptyList(user, targetchannel);
-					continue;
+					if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
+					{
+						user->WriteNumeric(482, "%s %s :Only half-operators and above may view the +%c list",user->nick.c_str(), targetchannel->name.c_str(), *mode++);
+						mh->DisplayEmptyList(user, targetchannel);
+						continue;
+					}
 				}
 
 				/** See below for a description of what craq this is :D
