@@ -20,7 +20,7 @@
 /* $CopyInstall: conf/inspircd.censor.example $(CONPATH) */
 /* $CopyInstall: conf/inspircd.filter.example $(CONPATH) */
 /* $CopyInstall: conf/inspircd.conf.example $(CONPATH) */
-/* $CopyInstall: conf/modules.conf $(CONPATH) */
+/* $CopyInstall: conf/modules.conf.example $(CONPATH) */
 
 #include "inspircd.h"
 #include <fstream>
