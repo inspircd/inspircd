@@ -451,6 +451,32 @@ bool Channel::IsBanned(User* user)
 	return false;
 }
 
+bool Channel::IsExtBanned(const std::string &str, char type)
+{
+// XXX XXX XXX need to figure out how to get this to work with string types...
+//	int MOD_RESULT = 0;
+//	FOREACH_RESULT(I_OnCheckExtBan,OnCheckExtBan(user, this, type));
+
+//	if (MOD_RESULT == -1)
+//		return true;
+//	else if (MOD_RESULT == 0)
+//	{
+		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+		{
+			if (i->data[0] != type || i->data[1] != ':')
+				continue;
+
+			// Iterate past char and : to get to the mask without doing a data copy(!)
+			std::string maskptr = i->data.substr(2);
+
+			if (match(str, maskptr))
+				return true;
+		}
+//	}
+
+	return false;
+}
+
 bool Channel::IsExtBanned(User *user, char type)
 {
 	char mask[MAXBUF];

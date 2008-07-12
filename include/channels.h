@@ -535,6 +535,10 @@ class CoreExport Channel : public Extensible
 	 */
 	bool IsExtBanned(User *u, char type);
 
+	/** Overloaded version to check whether a particular string is extbanned
+	 */
+	bool IsExtBanned(const std::string &str, char type);
+
 	/** Clears the cached max bans value
 	 */
 	void ResetMaxBans();
