@@ -486,7 +486,7 @@ Globally unloads and reloads a module in the network. This module
 cannot have the static flag set (see the output of /MODULES).">
 
 <helpop key="kline" value="/KLINE [user@host] {[duration] :[reason]}
-Sets or removes a k-line (host based ban) on a host and ident mask.
+Sets or removes a k-line (local host based ban) on a host and ident mask.
 You must specify at least 3 parameters to add a ban, and one
 parameter to remove a ban (just the user@host section).
 The duration may be specified in seconds, or in the following format
@@ -510,7 +510,7 @@ The duration may be specified in seconds, or in the following format
 5 minutes and 6 seconds. All fields in this format are optional.">
 
 <helpop key="gline" value="/GLINE [user@host] {[duration] :[reason]}
-Sets or removes a g-line (global host based ban) on host mask.
+Sets or removes a g-line (host based ban) on host mask.
 You must specify at least 3 parameters to add a ban, and one
 parameter to remove a ban (just the user@host section).
 The duration may be specified in seconds, or in the following format
@@ -610,8 +610,8 @@ z  Show memory usage statistics
 o  Show a list of all valid oper usernames and hostmasks
 l  Show all inbound and outbound server and client connections
 u  Show server uptime
-k  Show k-lines (local bans)
-g  Show g-lines (global bans)
+k  Show k-lines (local host bans)
+g  Show g-lines (host bans)
 q  Show q-lines (nick mask bans)
 Z  Show z-lines (ip mask bans)
 Y  Show connection classes
