@@ -274,12 +274,7 @@ class CoreExport ConfigReaderThread : public Thread
  * classbase. Amongst other things, it contains a ModeParser,
  * a DNS object, a CommandParser object, and a list of active
  * Module objects, and facilities for Module objects to
- * interact with the core system it implements. You should
- * NEVER attempt to instantiate a class of type InspIRCd
- * yourself. If you do, this is equivalent to spawning a second
- * IRC server, and could have catastrophic consequences for the
- * program in terms of ram usage (basically, you could create
- * an obese forkbomb built from recursively spawning irc servers!)
+ * interact with the core system it implements.
  */
 class CoreExport InspIRCd : public classbase
 {
