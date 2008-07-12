@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* w00t was here. ;p */
+
 /* $Install: src/inspircd $(BINPATH) */
 #include "inspircd.h"
 #include <signal.h>
