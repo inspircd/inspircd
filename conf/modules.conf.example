@@ -607,6 +607,11 @@
 #<module name="m_foobar.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Nickban: Implements extended ban r:, which stops anyone matching
+# a mask like +b r:*realname?here* from joining a channel.
+#<module name="m_gecosban.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GeoIP module: Allows the server admin to ban users by country code.
 #<module name="m_geoip.so">
 #
