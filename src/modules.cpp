@@ -144,6 +144,7 @@ int		Module::OnCheckKey(User*, Channel*, const std::string&) { return 0; }
 int		Module::OnCheckLimit(User*, Channel*) { return 0; }
 int		Module::OnCheckBan(User*, Channel*) { return 0; }
 int		Module::OnCheckExtBan(User *, Channel *, char) { return 0; }
+int		Module::OnCheckStringExtBan(const std::string &s, Channel *c, char type) { return 0; }
 int		Module::OnStats(char, User*, string_list&) { return 0; }
 int		Module::OnChangeLocalUserHost(User*, const std::string&) { return 0; }
 int		Module::OnChangeLocalUserGECOS(User*, const std::string&) { return 0; }

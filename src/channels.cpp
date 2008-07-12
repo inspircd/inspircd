@@ -453,14 +453,13 @@ bool Channel::IsBanned(User* user)
 
 bool Channel::IsExtBanned(const std::string &str, char type)
 {
-// XXX XXX XXX need to figure out how to get this to work with string types...
-//	int MOD_RESULT = 0;
-//	FOREACH_RESULT(I_OnCheckExtBan,OnCheckExtBan(user, this, type));
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnCheckStringExtBan, OnCheckStringExtBan(str, this, type));
 
-//	if (MOD_RESULT == -1)
-//		return true;
-//	else if (MOD_RESULT == 0)
-//	{
+	if (MOD_RESULT == -1)
+		return true;
+	else if (MOD_RESULT == 0)
+	{
 		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 		{
 			if (i->data[0] != type || i->data[1] != ':')
@@ -472,40 +471,32 @@ bool Channel::IsExtBanned(const std::string &str, char type)
 			if (match(str, maskptr))
 				return true;
 		}
-//	}
+	}
 
 	return false;
 }
 
 bool Channel::IsExtBanned(User *user, char type)
 {
-	char mask[MAXBUF];
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnCheckExtBan,OnCheckExtBan(user, this, type));
+	FOREACH_RESULT(I_OnCheckExtBan, OnCheckExtBan(user, this, type));
 
 	if (MOD_RESULT == -1)
 		return true;
 	else if (MOD_RESULT == 0)
 	{
+		char mask[MAXBUF];
 		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 
-		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
-		{
-			if (i->data[0] != type || i->data[1] != ':')
-				continue;
+		// XXX: we should probably hook cloaked hosts in here somehow too..
+		if (this->IsExtBanned(mask, type))
+			return true;
 
-			// Iterate past char and : to get to the mask without doing a data copy(!)
-			std::string maskptr = i->data.substr(2);
+		if (this->IsExtBanned(user->GetFullHost(), type))
+			return true;
 
-			/* This allows CIDR ban matching
-			 *
-			 *        Full masked host                             Full unmasked host                     IP with/without CIDR
-		 	*/
-			if ((match(user->GetFullHost(), maskptr)) || (match(user->GetFullRealHost(), maskptr)) || (match(mask, maskptr, true)))
-			{
-				return true;
-			}
-		}
+		if (this->IsExtBanned(user->GetFullRealHost(), type))
+			return true;
 	}
 
 	return false;
