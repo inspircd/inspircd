@@ -12,38 +12,65 @@
  */
 
 #include "inspircd.h"
+#include "xline.h"
 
 /* $ModDesc: Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services. */
 
 /** Holds a SVSHold item
  */
-class SVSHold : public classbase
+class SVSHold : public XLine
 {
 public:
-	std::string nickname;
-	std::string set_by;
-	time_t set_on;
-	long length;
-	std::string reason;
+	irc::string nickname;
 
-	SVSHold()
+	SVSHold(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char *nick) : XLine(Instance, s_time, d, src, re, "SVSHOLD")
+	{
+		this->nickname = nick;
+	}
+
+	~SVSHold()
 	{
 	}
 
-	SVSHold(const std::string &nn, const std::string &sb, const time_t so, const long ln, const std::string &rs) : nickname(nn), set_by(sb), set_on(so), length(ln), reason(rs)
+	bool Matches(User *u)
 	{
+		if (u->nick == nickname)
+			return true;
+		return false;
+	}
+
+	bool Matches(const std::string &s)
+	{
+		if (nickname == s)
+			return true;
+		return false;
+	}
+
+	void DisplayExpiry()
+	{
+		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed SVSHOLD %s (set by %s %ld seconds ago)", this->nickname.c_str(), this->source, this->duration);
+	}
+
+	const char* Displayable()
+	{
+		return nickname.c_str();
 	}
 };
 
+/** An XLineFactory specialized to generate SVSHOLD pointers
+ */
+class SVSHoldFactory : public XLineFactory
+{
+ public:
+	SVSHoldFactory(InspIRCd* Instance) : XLineFactory(Instance, "SVSHOLD") { }
 
-bool SVSHoldComp(const SVSHold* ban1, const SVSHold* ban2);
-
-typedef std::vector<SVSHold*> SVSHoldlist;
-typedef std::map<irc::string, SVSHold*> SVSHoldMap;
-
-/* SVSHolds is declared here, as our type is right above. Don't try move it. */
-SVSHoldlist SVSHolds;
-SVSHoldMap HoldMap;
+	/** Generate a shun
+ 	*/
+	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	{
+		return new SVSHold(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+	}
+};
 
 /** Handle /SVSHold
  */
@@ -70,75 +97,42 @@ class CommandSvshold : public Command
 
 		if (parameters.size() == 1)
 		{
-			SVSHoldMap::iterator n = HoldMap.find(parameters[0].c_str());
-			if (n != HoldMap.end())
+			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", user))
 			{
-				/* form: svshold nickname removes a hold. */
-				for (SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
-				{
-					if (parameters[0] == assign((*iter)->nickname))
-					{
-						unsigned long remaining = 0;
-						if ((*iter)->length)
-						{
-							remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
-							user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick.c_str(), (*iter)->nickname.c_str(), (unsigned long)remaining, (*iter)->reason.c_str());
-						}
-						else
-						{
-							user->WriteServ( "386 %s %s :Removed permanent SVSHOLD (%s)", user->nick.c_str(), (*iter)->nickname.c_str(), (*iter)->reason.c_str());
-						}
-						SVSHolds.erase(iter);
-						break;
-					}
-				}
-
-				HoldMap.erase(n);
-				delete n->second;
-			}
-		}
-		else if (parameters.size() >= 2)
-		{
-			/* full form to add a SVSHold */
-
-			/* NOTE: We check nicks up to 512 in length here, as a hax to allow
-			 * remote nicks that are longer than our configuration to be held
-			 */
-			if (ServerInstance->IsNick(parameters[0].c_str(), 512))
-			{
-				// parameters[0] = w00t
-				// parameters[1] = 1h3m2s
-				// parameters[2] = Registered nickname
-
-				/* Already exists? */
-				if (HoldMap.find(parameters[0].c_str()) != HoldMap.end())
-				{
-					user->WriteServ( "385 %s %s :SVSHOLD already exists", user->nick.c_str(), parameters[0].c_str());
-					return CMD_FAILURE;
-				}
-
-				unsigned long length = ServerInstance->Duration(parameters[1]);
-				std::string reason = (parameters.size() > 2) ? parameters[2] : "No reason supplied";
-
-				SVSHold* S = new SVSHold(parameters[0], user->nick, ServerInstance->Time(), length, reason);
-				SVSHolds.push_back(S);
-				HoldMap[parameters[0].c_str()] = S;
-
-				std::sort(SVSHolds.begin(), SVSHolds.end(), SVSHoldComp);
-
-				if(length > 0)
-				{
-					user->WriteServ( "385 %s %s :Added %lu second SVSHOLD (%s)", user->nick.c_str(), parameters[0].c_str(), length, reason.c_str());
-				}
-				else
-				{
-					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick.c_str(), parameters[0].c_str(), parameters[0].c_str(), reason.c_str());
-				}
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed SVSHOLD on %s.",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
-				/* as this is primarily a Services command, do not provide an error */
-				return CMD_FAILURE;
+				user->WriteServ("NOTICE %s :*** SVSHOLD %s not found in list, try /stats S.",user->nick.c_str(),parameters[0].c_str());
+			}
+
+			return CMD_SUCCESS;
+		}
+		else if (parameters.size() >= 2)
+		{
+			// Adding - XXX todo make this respect <insane> tag perhaps..
+			long duration = ServerInstance->Duration(parameters[1]);
+			SVSHold *r = NULL;
+
+			try
+			{
+				r = new SVSHold(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+			}
+			catch (...)
+			{
+				; // Do nothing.
+			}
+
+			if (r)
+			{
+				if (ServerInstance->XLines->AddLine(r, user))
+				{
+					ServerInstance->XLines->ApplyLines();
+				}
+				else
+				{
+					delete r;
+				}
 			}
 		}
 
@@ -146,19 +140,17 @@ class CommandSvshold : public Command
 	}
 };
 
-bool SVSHoldComp(const SVSHold* ban1, const SVSHold* ban2)
-{
-	return ((ban1->set_on + ban1->length) < (ban2->set_on + ban2->length));
-}
-
 class ModuleSVSHold : public Module
 {
 	CommandSvshold *mycommand;
+	SVSHoldFactory *s;
 
 
  public:
 	ModuleSVSHold(InspIRCd* Me) : Module(Me)
 	{
+		s = new SVSHoldFactory(ServerInstance);
+		ServerInstance->XLines->RegisterFactory(s);
 		mycommand = new CommandSvshold(Me);
 		ServerInstance->AddCommand(mycommand);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnStats };
@@ -166,111 +158,37 @@ class ModuleSVSHold : public Module
 	}
 
 
-	virtual int OnStats(char symbol, User* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &out)
 	{
-		ExpireBans();
+		if(symbol != 'S')
+			return 0;
 
-		if(symbol == 'S')
-		{
-			for(SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
-			{
-				unsigned long remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 210 "+user->nick+" "+(*iter)->nickname.c_str()+" "+(*iter)->set_by+" "+ConvToStr((*iter)->set_on)+" "+ConvToStr((*iter)->length)+" "+ConvToStr(remaining)+" :"+(*iter)->reason);
-			}
-		}
-
-		return 0;
+		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, user, out);
+		return 1;
 	}
 
 	virtual int OnUserPreNick(User *user, const std::string &newnick)
 	{
-		ExpireBans();
+		XLine *rl = ServerInstance->XLines->MatchesLine("SVSHOLD", newnick);
 
-		/* check SVSHolds in here, and apply as necessary. */
-		SVSHoldMap::iterator n = HoldMap.find(assign(newnick));
-		if (n != HoldMap.end())
+		if (rl)
 		{
-			user->WriteServ( "432 %s %s :Reserved nickname: %s", user->nick.c_str(), newnick.c_str(), n->second->reason.c_str());
+			user->WriteServ( "432 %s %s :Services reserved nickname: %s", user->nick.c_str(), newnick.c_str(), rl->reason);
 			return 1;
 		}
+
 		return 0;
-	}
-
-	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable)
-	{
-		for(SVSHoldMap::iterator iter = HoldMap.begin(); iter != HoldMap.end(); iter++)
-		{
-			proto->ProtoSendMetaData(opaque, TYPE_OTHER, NULL, "SVSHold", EncodeSVSHold(iter->second));
-		}
-	}
-
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
-	{
-		if((target_type == TYPE_OTHER) && (extname == "SVSHold"))
-		{
-			SVSHold* S = DecodeSVSHold(extdata); /* NOTE: Allocates a new SVSHold* */
-			if (HoldMap.find(assign(S->nickname)) == HoldMap.end())
-			{
-				SVSHolds.push_back(S);
-				HoldMap[assign(S->nickname)] = S;
-				std::sort(SVSHolds.begin(), SVSHolds.end(), SVSHoldComp);
-			}
-			else
-			{
-				delete S;
-			}
-		}
 	}
 
 	virtual ~ModuleSVSHold()
 	{
+		ServerInstance->XLines->DelAll("SVSHOLD");
+		ServerInstance->XLines->UnregisterFactory(s);
 	}
 
 	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
-	}
-
-	std::string EncodeSVSHold(const SVSHold* ban)
-	{
-		std::ostringstream stream;
-		stream << ban->nickname << " " << ban->set_by << " " << ban->set_on << " " << ban->length << " :" << ban->reason;
-		return stream.str();
-	}
-
-	SVSHold* DecodeSVSHold(const std::string &data)
-	{
-		SVSHold* res = new SVSHold();
-		int set_on;
-		irc::tokenstream tokens(data);
-		tokens.GetToken(res->nickname);
-		tokens.GetToken(res->set_by);
-		tokens.GetToken(set_on);
-		res->set_on = set_on;
-		tokens.GetToken(res->length);
-		tokens.GetToken(res->reason);
-		return res;
-	}
-
-	void ExpireBans()
-	{
-		SVSHoldlist::iterator iter,safeiter;
-		for (iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
-		{
-			/* 0 == permanent, don't mess with them! -- w00t */
-			if ((*iter)->length != 0)
-			{
-				if ((*iter)->set_on + (*iter)->length <= ServerInstance->Time())
-				{
-					ServerInstance->Logs->Log("m_svshold",DEBUG, "m_svshold.so: hold on %s expired, removing...", (*iter)->nickname.c_str());
-					HoldMap.erase(assign((*iter)->nickname));
-					delete *iter;
-					safeiter = iter;
-					--iter;
-					SVSHolds.erase(safeiter);
-				}
-			}
-		}
 	}
 };
 
