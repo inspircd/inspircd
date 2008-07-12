@@ -1103,7 +1103,7 @@ int User::GetProtocolFamily()
 
 const char* User::GetCIDRMask(int range)
 {
-	static char buf[40];
+	static char buf[44];
 
 	if (this->ip == NULL)
 		return "";
@@ -1162,7 +1162,7 @@ const char* User::GetCIDRMask(int range)
 			/* And finally, zero the extra bits required. */
 			v6.s6_addr[15 - bytestozero] = (v6.s6_addr[15 - bytestozero] >> extrabits) << extrabits;
 
-			sprintf(buf, "%s/%d\n", inet_ntop(AF_INET6, &v6, buffer, 40), range);
+			sprintf(buf, "%s/%d", inet_ntop(AF_INET6, &v6, buffer, 40), range);
 			return buf;
 		}
 		break;
@@ -1197,7 +1197,7 @@ const char* User::GetCIDRMask(int range)
 				v4.s_addr = 0;
 			}
 
-			sprintf(buf, "%s/%d\n", inet_ntop(AF_INET, &v4, buffer, 16), range);
+			sprintf(buf, "%s/%d", inet_ntop(AF_INET, &v4, buffer, 16), range);
 			return buf;
 		}
 		break;
