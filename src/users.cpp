@@ -1098,13 +1098,116 @@ int User::GetProtocolFamily()
 	return sin->sin_family;
 }
 
-/*
- * XXX the duplication here is horrid..
- * do we really need two methods doing essentially the same thing?
- */
+const char* User::GetCIDRMask(int range)
+{
+	static char buf[40];
+
+	if (this->ip == NULL)
+		return "";
+
+	if (range < 0)
+		throw "Negative range, sorry, no.";
+
+	/*
+	 * Original code written by Oliver Lupton (Om).
+	 * Integrated by me. Thanks. :) -- w00t
+	 */
+	switch (this->GetProtocolFamily())
+	{
+#ifdef SUPPORT_IP6LINKS
+		case AF_INET6:
+		{
+			struct in6_addr v6;
+	 
+			if(range > 128)
+			{
+				printf("Error, range given (%d) larger than address length (128)\n", range);
+				return 0;
+			}
+	 
+			if(inet_pton(AF_INET6, this->GetIPString(), &v6))
+			{
+				/* unsigned char s6_addr[16]; */
+				int i;
+				int bytestoblank;
+				int extrabits;
+				char buffer[64];
+
+				if(range > 0)
+				{
+					/* (128 - range) bits must be blanked, so ((128 - range) / 8) of the bytes, working backwards, must be blanked. */
+					bytestoblank = (128 - range) / 8;
+	 
+					/* ((128 - range) % 8) bits of the next byte must also be blanked. */
+					extrabits = (128 - range) % 8;
+					v6.s6_addr[15 - bytestoblank] = (v6.s6_addr[15 - bytestoblank] >> extrabits) << extrabits;
+
+					for(i = 0; i < bytestoblank; i++)
+					{
+						v6.s6_addr[15 - i] = 0;
+					}
+				}
+				else
+				{
+					for(i = 0; i < 15; i++)
+					{
+						v6.s6_addr[i] = 0;
+					}
+				}
+
+				sprintf(buf, "%s/%d\n", inet_ntop(AF_INET6, &v6, buffer, 64), range);
+				return buf;
+			}
+			else
+			{
+				throw "CIDR mask for v6 failed";
+			}
+
+		}
+		break;
+#endif
+		case AF_INET:
+		{
+			struct in_addr v4;
+
+			if (range > 32)
+				throw "more than 32 bits on an ipv4 connection, can't do that..";
+
+			if(inet_pton(AF_INET, this->GetIPString(), &v4))
+			{
+				char buffer[16];
+				uint32_t temp;
+
+				/* (32 - range) is the number of bits we are *ignoring*. We shift this left and then right to wipe off these bits. */
+
+				if(range > 0)
+				{
+					temp = ntohl(v4.s_addr);
+					temp = (temp >> (32 - range)) << (32 - range);
+					v4.s_addr = htonl(temp);
+				}
+				else
+				{
+					v4.s_addr = 0;
+				}
+
+				sprintf(buf, "%s/%d\n", inet_ntop(AF_INET, &v4, buffer, 16), range);
+				return buf;
+			}
+			else
+			{
+				throw "CIDR mask for v4 failed";
+			}
+		}
+		break;
+	}
+
+	return ""; // unused, but oh well
+}
+
 const char* User::GetIPString(bool translate4in6)
 {
-	static char buf[1024];
+	static char buf[40];
 
 	if (this->ip == NULL)
 		return "";

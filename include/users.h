@@ -661,6 +661,15 @@ class CoreExport User : public connection
 	 */
 	const char* GetIPString(bool translate4in6 = true);
 
+	/** Get a CIDR mask from the IP of this user, using a static internal buffer.
+	 * e.g., GetCIDRMask(16) for 223.254.214.52 returns 223.254.0.0/16
+	 * This may be used for CIDR clone detection, etc.
+	 *
+	 * (XXX, brief note: when we do the sockets rewrite, this should move down a
+	 * level so it may be used on more derived objects. -- w00t)
+	 */
+	const char *GetCIDRMask(int range);
+
 	/* Write error string
 	 */
 	std::string WriteError;
