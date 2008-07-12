@@ -686,6 +686,7 @@ class Notifier : public InspSocket
 				pthread_mutex_lock(&results_mutex);
 				ResultQueue::iterator n = iter->second->rq.begin();
 				(*n)->Send();
+				delete (*n);
 				iter->second->rq.pop_front();
 				pthread_mutex_unlock(&results_mutex);
 				return true;
