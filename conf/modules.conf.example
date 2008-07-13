@@ -358,7 +358,7 @@
 # charmap        - A list of chars accepted as valid by the /CHGHOST #
 #                  and /SETHOST commands. Also note that the list is # 
 #                  case-sensitive.                                   #
-#<hostname charmap="abcdefghijklmnopqrstuvwxyz.-_/0123456789">
+#<hostname charmap="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_/0123456789">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CHGIDENT module: Adds the /CHGIDENT command
