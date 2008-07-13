@@ -104,7 +104,7 @@ public:
 					continue;
 
 				std::string maskptr = it->mask.substr(2);
-				if (match(maskptr, str))
+				if (match(str, maskptr))
 					return 1; // matches
 			}
 		}
