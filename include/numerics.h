@@ -26,6 +26,13 @@ enum Numerics
 	/*
 	 * Reply range of numerics.
 	 */
+	RPL_WELCOME						=	001,
+	RPL_YOURHOSTIS					=	002,
+	RPL_SERVERCREATED				=	003,
+	RPL_SERVERVERSION				=	004,
+
+	RPL_YOURUUID					=	042, // taken from ircnet
+
 	RPL_TOPIC						=	332,
 	RPL_TOPICTIME					=	333,
 	RPL_NAMREPLY					=	353,
@@ -42,5 +49,7 @@ enum Numerics
 	ERR_INVITEONLYCHAN				=	473,
 	ERR_CHANNELISFULL				=	471,
 	ERR_BANNEDFROMCHAN				=	474,
-	ERR_CHANOPRIVSNEEDED			=	482
+	ERR_CHANOPRIVSNEEDED			=	482,
+
+	ERR_UNKNOWNSNOMASK				=	501
 };
