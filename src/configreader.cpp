@@ -128,7 +128,7 @@ void ServerConfig::Update005()
 void ServerConfig::Send005(User* user)
 {
 	for (std::vector<std::string>::iterator line = ServerInstance->Config->isupport.begin(); line != ServerInstance->Config->isupport.end(); line++)
-		user->WriteNumeric(005, "%s %s", user->nick.c_str(), line->c_str());
+		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
 }
 
 bool ServerConfig::CheckOnce(const char* tag, ConfigDataHash &newconf)
@@ -1268,14 +1268,14 @@ void ServerConfig::Read(bool bail, User* user)
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
 					if (user)
-						user->WriteNumeric(973, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
+						user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
 
 					rem++;
 				}
 				else
 				{
 					if (user)
-						user->WriteNumeric(972, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+						user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1289,14 +1289,14 @@ void ServerConfig::Read(bool bail, User* user)
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH LOADED MODULE: %s",adding->c_str());
 
 					if (user)
-						user->WriteNumeric(975, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
+						user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
 
 					add++;
 				}
 				else
 				{
 					if (user)
-						user->WriteNumeric(974, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+						user->WriteNumeric(RPL_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}

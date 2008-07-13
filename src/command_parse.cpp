@@ -291,7 +291,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		if (user->registered == REG_ALL)
 		{
-			user->WriteNumeric(421, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
 		}
 		ServerInstance->stats->statsUnknown++;
 		return true;
@@ -315,33 +315,33 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		if (!user->IsModeSet(cm->second->flags_needed))
 		{
-			user->WriteNumeric(481, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
+			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
 			return do_more;
 		}
 		if (!user->HasPermission(command))
 		{
-			user->WriteNumeric(481, "%s :Permission Denied - Oper type %s does not have access to command %s",user->nick.c_str(),user->oper.c_str(),command.c_str());
+			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to command %s",user->nick.c_str(),user->oper.c_str(),command.c_str());
 			return do_more;
 		}
 	}
 	if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
 	{
 		/* command is disabled! */
-		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick.c_str(),command.c_str());
+		user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :This command has been disabled.",user->nick.c_str(),command.c_str());
 		ServerInstance->SNO->WriteToSnoMask('d', "%s denied for %s (%s@%s)",
 				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return do_more;
 	}
 	if (command_p.size() < cm->second->min_params)
 	{
-		user->WriteNumeric(461, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
+		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
 			user->WriteNumeric(304, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
 		return do_more;
 	}
 	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
 	{
-		user->WriteNumeric(451, "%s :You have not registered",command.c_str());
+		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You have not registered",command.c_str());
 		return do_more;
 	}
 	else
