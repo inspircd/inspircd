@@ -44,7 +44,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	FOREACH_MOD(I_OnRehash,OnRehash(user, ""));
 
 	// XXX write this to a remote user correctly
-	user->WriteNumeric(382, "%s %s :Rehashing",user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
+	user->WriteNumeric(RPL_REHASHING, "%s %s :Rehashing",user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 
 	std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
 	ServerInstance->SNO->WriteToSnoMask('A', m);
@@ -69,7 +69,10 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	}
 	else
 	{
-		/* A rehash is already in progress! ahh shit. */
+		/*
+		 * A rehash is already in progress! ahh shit.
+		 * XXX, todo: we should find some way to kill runaway rehashes that are blocking, this is a major problem for unrealircd users
+		 */
 		if (IS_LOCAL(user))
 			user->WriteServ("NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick.c_str());
 		else

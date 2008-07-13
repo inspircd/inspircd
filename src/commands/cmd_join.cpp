@@ -46,6 +46,6 @@ CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	user->WriteNumeric(403, "%s %s :Invalid channel name",user->nick.c_str(), parameters[0].c_str());
+	user->WriteNumeric(ERR_NOSUCHCHANNEL, "%s %s :Invalid channel name",user->nick.c_str(), parameters[0].c_str());
 	return CMD_FAILURE;
 }

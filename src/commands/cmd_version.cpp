@@ -23,7 +23,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 CmdResult CommandVersion::Handle (const std::vector<std::string>&, User *user)
 {
-	user->WriteNumeric(351, "%s :%s",user->nick.c_str(),ServerInstance->GetVersionString().c_str());
+	user->WriteNumeric(RPL_VERSION, "%s :%s",user->nick.c_str(),ServerInstance->GetVersionString().c_str());
 	ServerInstance->Config->Send005(user);
 	return CMD_SUCCESS;
 }

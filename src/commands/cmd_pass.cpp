@@ -24,7 +24,7 @@ CmdResult CommandPass::Handle (const std::vector<std::string>& parameters, User 
 	// Check to make sure they havnt registered -- Fix by FCS
 	if (user->registered == REG_ALL)
 	{
-		user->WriteNumeric(462, "%s :You may not reregister",user->nick.c_str());
+		user->WriteNumeric(ERR_ALREADYREGISTERED, "%s :You may not reregister",user->nick.c_str());
 		return CMD_FAILURE;
 	}
 	ConnectClass* a = user->GetClass();

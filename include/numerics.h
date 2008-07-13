@@ -45,6 +45,7 @@ enum Numerics
 	RPL_CHANNELCREATED				=	329, // ???
 	RPL_TOPIC					=	332,
 	RPL_TOPICTIME					=	333, // not RFC, extremely common though
+	RPL_VERSION						=	351,
 	RPL_NAMREPLY					=	353,
 	RPL_ENDOFNAMES					=	366,
 
@@ -52,12 +53,15 @@ enum Numerics
 	RPL_MOTDSTART					=	375,
 	RPL_ENDOFMOTD					=	376,
 
+	RPL_REHASHING						=	382,
+	RPL_TIME							=	391,
 	RPL_YOURDISPLAYEDHOST				=	396, // from charybdis/etc, common convention
 
 	/*
 	 * Error range of numerics.
 	 */
 	ERR_NOSUCHNICK					=	401,
+	ERR_NOSUCHCHANNEL				=	403, // used to indicate an invalid channel name also, so don't rely on RFC text (don't do that anyway!)
 	ERR_TOOMANYCHANNELS				=	405,
 	ERR_UNKNOWNCOMMAND				=	421,
 	ERR_NOMOTD					=	422,
@@ -65,6 +69,7 @@ enum Numerics
 	ERR_USERNOTINCHANNEL				=	441,
 	ERR_NOTREGISTERED				=	451,
 	ERR_NEEDMOREPARAMS				=	461,
+	ERR_ALREADYREGISTERED			=	462,
 
 	/*
 	 * A quick side-rant about the next group of numerics..
