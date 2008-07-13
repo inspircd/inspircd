@@ -40,6 +40,7 @@
 #include <climits>
 
 #include "inspircd_config.h"
+#include "numerics.h"
 #include "uid.h"
 #include "users.h"
 #include "channels.h"

@@ -229,7 +229,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		{
 			if (user->chans.size() >= user->GetMaxChans())
 			{
-				user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 				return NULL;
 			}
 		}
@@ -239,7 +239,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			{
 				if (user->chans.size() >= Instance->Config->OperMaxChans)
 				{
-					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+					user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 					return NULL;
 				}
 			}
@@ -247,7 +247,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			{
 				if (user->chans.size() >= Instance->Config->MaxChans)
 				{
-					user->WriteNumeric(405, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+					user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 					return NULL;
 				}
 			}
@@ -310,7 +310,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if ((!key) || Ptr->key == key)
 						{
-							user->WriteNumeric(475, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
+							user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
 						}
 					}
@@ -323,7 +323,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if (!user->IsInvited(Ptr->name.c_str()))
 						{
-							user->WriteNumeric(473, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
+							user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
 						}
 					}
@@ -337,7 +337,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					{
 						if (Ptr->GetUserCounter() >= Ptr->limit)
 						{
-							user->WriteNumeric(471, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
+							user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
 						}
 					}
@@ -346,7 +346,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 				{
 					if (Ptr->IsBanned(user))
 					{
-						user->WriteNumeric(474, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
+						user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
 						return NULL;
 					}
 				}
@@ -416,8 +416,8 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 	{
 		if (Ptr->topicset)
 		{
-			user->WriteNumeric(332, "%s %s :%s", user->nick.c_str(), Ptr->name.c_str(), Ptr->topic.c_str());
-			user->WriteNumeric(333, "%s %s %s %lu", user->nick.c_str(), Ptr->name.c_str(), Ptr->setby.c_str(), (unsigned long)Ptr->topicset);
+			user->WriteNumeric(RPL_TOPIC, "%s %s :%s", user->nick.c_str(), Ptr->name.c_str(), Ptr->topic.c_str());
+			user->WriteNumeric(RPL_TOPICTIME, "%s %s %s %lu", user->nick.c_str(), Ptr->name.c_str(), Ptr->setby.c_str(), (unsigned long)Ptr->topicset);
 		}
 		Ptr->UserList(user);
 	}
