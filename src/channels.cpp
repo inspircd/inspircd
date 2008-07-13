@@ -611,12 +611,12 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 	{
 		if (!this->HasUser(user))
 		{
-			src->WriteNumeric(441, "%s %s %s :They are not on that channel",src->nick.c_str(), user->nick.c_str(), this->name.c_str());
+			src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), user->nick.c_str(), this->name.c_str());
 			return this->GetUserCounter();
 		}
 		if ((ServerInstance->ULine(user->server)) && (!ServerInstance->ULine(src->server)))
 		{
-			src->WriteNumeric(482, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick.c_str(), this->name.c_str());
+			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick.c_str(), this->name.c_str());
 			return this->GetUserCounter();
 		}
 		int MOD_RESULT = 0;
@@ -641,7 +641,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 				int us = this->GetStatus(user);
    			 	if ((them < STATUS_HOP) || (them < us))
 				{
-					src->WriteNumeric(482, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them == STATUS_HOP ? "" : "half-");
+					src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them == STATUS_HOP ? "" : "half-");
 					return this->GetUserCounter();
 				}
 			}
@@ -897,7 +897,7 @@ void Channel::UserList(User *user, CUList *ulist)
 	{
 		if ((this->IsModeSet('s')) && (!this->HasUser(user)))
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
 			return;
 		}
 	}
@@ -967,10 +967,10 @@ void Channel::UserList(User *user, CUList *ulist)
 	/* if whats left in the list isnt empty, send it */
 	if (numusers)
 	{
-		user->WriteNumeric(353,std::string(list));
+		user->WriteNumeric(RPL_NAMREPLY, std::string(list));
 	}
 
-	user->WriteNumeric(366, "%s %s :End of /NAMES list.", user->nick.c_str(), this->name.c_str());
+	user->WriteNumeric(RPL_ENDOFNAMES, "%s %s :End of /NAMES list.", user->nick.c_str(), this->name.c_str());
 }
 
 long Channel::GetMaxBans()
