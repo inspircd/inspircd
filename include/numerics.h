@@ -33,17 +33,28 @@ enum Numerics
 
 	RPL_YOURUUID					=	042, // taken from ircnet
 
+	RPL_RULES						=	232,
+
+	RPL_RULESTART					=	308,
+	RPL_RULESEND					=	309,
 	RPL_TOPIC						=	332,
 	RPL_TOPICTIME					=	333,
 	RPL_NAMREPLY					=	353,
 	RPL_ENDOFNAMES					=	366,
 
+	RPL_MOTD						=	372,
+	RPL_MOTDSTART					=	375,
+	RPL_ENDOFMOTD					=	376,
+
+	RPL_YOURDISPLAYEDHOST			=	396, // from charybdis/etc, common convention
 
 	/*
 	 * Error range of numerics.
 	 */
 	ERR_NOSUCHNICK					=	401,
 	ERR_TOOMANYCHANNELS				=	405,
+	ERR_NOMOTD						=	422,
+	ERR_NORULES						=	434,
 	ERR_USERNOTINCHANNEL			=	441,
 	ERR_BADCHANNELKEY				=	475,
 	ERR_INVITEONLYCHAN				=	473,

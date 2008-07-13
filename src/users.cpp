@@ -1671,7 +1671,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	}
 
 	if (IS_LOCAL(this))
-		this->WriteNumeric(396, "%s %s :is now your displayed host",this->nick.c_str(),this->dhost.c_str());
+		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, "%s %s :is now your displayed host",this->nick.c_str(),this->dhost.c_str());
 
 	return true;
 }
@@ -1948,31 +1948,31 @@ void User::ShowMOTD()
 {
 	if (!ServerInstance->Config->MOTD.size())
 	{
-		this->WriteNumeric(422, "%s :Message of the day file is missing.",this->nick.c_str());
+		this->WriteNumeric(ERR_NOMOTD, "%s :Message of the day file is missing.",this->nick.c_str());
 		return;
 	}
-	this->WriteNumeric(375, "%s :%s message of the day", this->nick.c_str(), ServerInstance->Config->ServerName);
+	this->WriteNumeric(RPL_MOTDSTART, "%s :%s message of the day", this->nick.c_str(), ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); i++)
-		this->WriteNumeric(372, "%s :- %s",this->nick.c_str(),i->c_str());
+		this->WriteNumeric(RPL_MOTD, "%s :- %s",this->nick.c_str(),i->c_str());
 
-	this->WriteNumeric(376, "%s :End of message of the day.", this->nick.c_str());
+	this->WriteNumeric(RPL_ENDOFMOTD, "%s :End of message of the day.", this->nick.c_str());
 }
 
 void User::ShowRULES()
 {
 	if (!ServerInstance->Config->RULES.size())
 	{
-		this->WriteNumeric(434, "%s :RULES File is missing",this->nick.c_str());
+		this->WriteNumeric(RPL_NORULES, "%s :RULES File is missing",this->nick.c_str());
 		return;
 	}
 
-	this->WriteNumeric(308, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName);
+	this->WriteNumeric(RUL_RULESTART, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
-		this->WriteNumeric(232, "%s :- %s",this->nick.c_str(),i->c_str());
+		this->WriteNumeric(RPL_RULES, "%s :- %s",this->nick.c_str(),i->c_str());
 
-	this->WriteNumeric(309, "%s :End of RULES command.",this->nick.c_str());
+	this->WriteNumeric(RPL_RULESEND, "%s :End of RULES command.",this->nick.c_str());
 }
 
 void User::HandleEvent(EventType et, int errornum)
