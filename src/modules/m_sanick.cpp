@@ -34,7 +34,7 @@ class CommandSanick : public Command
 		{
 			if (ServerInstance->ULine(target->server))
 			{
-				user->WriteNumeric(990, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
+				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
 				return CMD_FAILURE;
 			}
 			std::string oldnick = user->nick;

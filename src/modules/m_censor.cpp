@@ -38,8 +38,6 @@ class CensorChannel : public SimpleChannelModeHandler
 
 class ModuleCensor : public Module
 {
-
-
 	censor_t censors;
 	CensorUser *cu;
 	CensorChannel *cc;
@@ -115,7 +113,7 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteNumeric(936, "%s %s %s :Your message contained a censored word, and was blocked", user->nick.c_str(), ((Channel*)dest)->name.c_str(), index->first.c_str());
+					user->WriteNumeric(ERR_WORDFILTERED, "%s %s %s :Your message contained a censored word, and was blocked", user->nick.c_str(), ((Channel*)dest)->name.c_str(), index->first.c_str());
 					return 1;
 				}
 

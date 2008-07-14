@@ -29,7 +29,7 @@ class DelayJoinMode : public ModeHandler
 		{
 			if (IS_LOCAL(source) && (channel->GetStatus(source) < STATUS_OP))
 			{
-				source->WriteNumeric(482, "%s %s :Only channel operators may %sset channel mode +D", source->nick.c_str(), channel->name.c_str(), adding ? "" : "un");
+				source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only channel operators may %sset channel mode +D", source->nick.c_str(), channel->name.c_str(), adding ? "" : "un");
 				return MODEACTION_DENY;
 			}
 			else

@@ -84,7 +84,7 @@ class ModuleNoCTCP : public Module
 				{
 					if (strncmp(text.c_str(),"\1ACTION ",8))
 					{
-						user->WriteNumeric(492, "%s %s :Can't send CTCP to channel (+C set)",user->nick.c_str(), c->name.c_str());
+						user->WriteNumeric(ERR_NOCTCPALLOWED, "%s %s :Can't send CTCP to channel (+C set)",user->nick.c_str(), c->name.c_str());
 						return 1;
 					}
 				}

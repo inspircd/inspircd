@@ -1296,7 +1296,7 @@ void ServerConfig::Read(bool bail, User* user)
 				else
 				{
 					if (user)
-						user->WriteNumeric(RPL_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+						user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}

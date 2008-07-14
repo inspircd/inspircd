@@ -37,7 +37,6 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 	{
 		for (int t = 0; t < depth; t++)
 		{
-			ServerInstance->Logs->Log("map",DEBUG,"Zero to depth");
 			matrix[line][t] = ' ';
 		}
 
@@ -75,27 +74,20 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		strlcpy(&matrix[line][depth],text,126);
 		line++;
 
-		ServerInstance->Logs->Log("map",DEBUG,"Increment line to %d, ChildCount %d", line, Current->ChildCount());
-
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			ServerInstance->Logs->Log("map",DEBUG,"Hidden? %d HideULines? %d GetName %s", Current->GetChild(q)->Hidden, Utils->HideULines, Current->GetChild(q)->GetName().c_str());
 			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
 			{
 				if (IS_OPER(user))
 				{
 					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!IS_OPER(user))) ? depth : depth+2,matrix,totusers,totservers);
-					ServerInstance->Logs->Log("map",DEBUG,"Show to oper");
 				}
-				ServerInstance->Logs->Log("map",DEBUG,"Fall through");
 			}
 			else
 			{
 				ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!IS_OPER(user))) ? depth : depth+2,matrix,totusers,totservers);
-				ServerInstance->Logs->Log("map",DEBUG,"Show to non oper");
 			}
 		}
-		ServerInstance->Logs->Log("map",DEBUG,"After loop");
 	}
 }
 
@@ -117,7 +109,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		bool ret = false;
 		if (!s)
 		{
-			user->WriteServ( "402 %s %s :No such server", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHSERVER, "%s %s :No such server", user->nick.c_str(), parameters[0].c_str());
 			ret = true;
 		}
 		else if (s && s != Utils->TreeRoot)
@@ -196,21 +188,18 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		ServerInstance->Logs->Log("map",DEBUG,"local");
 		for (int t = 0; t < line; t++)
 		{
-			user->WriteNumeric(6, "%s :%s",user->nick.c_str(),&matrix[t][0]);
+			user->WriteNumeric(RPL_MAP, "%s :%s",user->nick.c_str(),&matrix[t][0]);
 		}
-		user->WriteNumeric(270, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
-		user->WriteNumeric(7, "%s :End of /MAP",user->nick.c_str());
+		user->WriteNumeric(RPL_MAPUSERS, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+		user->WriteNumeric(RPL_ENDMAP, "%s :End of /MAP",user->nick.c_str());
 	}
 	else
 	{
-
-		//void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string &rawline)
-		//
 		ServerInstance->Logs->Log("map", DEBUG, "remote dump lines=%d", line);
 
+		// XXX: annoying that we have to use hardcoded numerics here..
 		for (int t = 0; t < line; t++)
 		{
-			ServerInstance->Logs->Log("map",DEBUG,"Dump %d", line);
 			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + &matrix[t][0]);
 		}
 

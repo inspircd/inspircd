@@ -127,7 +127,7 @@ class CommandCAP : public Command
 		}
 		else
 		{
-			user->WriteNumeric(410, "* %s :Invalid CAP subcommand", subcommand.c_str());
+			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, "* %s :Invalid CAP subcommand", subcommand.c_str());
 		}
 
 		return CMD_FAILURE;

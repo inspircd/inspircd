@@ -69,7 +69,7 @@ class ModuleOperChans : public Module
 			{
 				if (chan->IsModeSet('O'))
 				{
-					user->WriteNumeric(520, "%s %s :Only IRC operators may join the channel %s (+O is set)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
+					user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join the channel %s (+O is set)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
 					return 1;
 				}
 			}

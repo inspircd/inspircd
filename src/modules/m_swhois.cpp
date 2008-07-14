@@ -34,7 +34,7 @@ class CommandSwhois : public Command
 
 		if (!dest)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 

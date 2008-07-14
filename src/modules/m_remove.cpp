@@ -99,7 +99,7 @@ class RemoveBase
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), !target ? username : channame);
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), !target ? username : channame);
 			return CMD_FAILURE;
 		}
 

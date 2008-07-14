@@ -26,18 +26,21 @@ enum Numerics
 	/*
 	 * Reply range of numerics.
 	 */
-	RPL_WELCOME					=	001, // not RFC, extremely common though
-	RPL_YOURHOSTIS					=	002, // not RFC, extremely common though
-	RPL_SERVERCREATED				=	003, // not RFC, extremely common though
-	RPL_SERVERVERSION				=	004, // not RFC, extremely common though
-	RPL_ISUPPORT					=	005, // not RFC, extremely common though
+	RPL_WELCOME					=	1, // not RFC, extremely common though
+	RPL_YOURHOSTIS					=	2, // not RFC, extremely common though
+	RPL_SERVERCREATED				=	3, // not RFC, extremely common though
+	RPL_SERVERVERSION				=	4, // not RFC, extremely common though
+	RPL_ISUPPORT					=	5, // not RFC, extremely common though
 
-	RPL_SNOMASKIS					=	8, // unrealircd - cant put 008 as it will be interpreted as octal
+	RPL_MAP								=	6, // unrealircd
+	RPL_ENDMAP							=	7, // unrealircd
+	RPL_SNOMASKIS					=	8, // unrealircd
 
-	RPL_YOURUUID					=	42, // taken from ircnet - see above
+	RPL_YOURUUID					=	42, // taken from ircnet
 
 	RPL_UMODEIS					=	221,
 	RPL_RULES					=	232, // unrealircd
+	RPL_MAPUSERS				=	270, // insp-specific(?)
 
 	RPL_RULESTART					=	308, // unrealircd
 	RPL_RULESEND					=	309, // unrealircd
@@ -53,6 +56,7 @@ enum Numerics
 	RPL_MOTDSTART					=	375,
 	RPL_ENDOFMOTD					=	376,
 
+	RPL_YOUAREOPER						=	381,
 	RPL_REHASHING						=	382,
 	RPL_TIME							=	391,
 	RPL_YOURDISPLAYEDHOST				=	396, // from charybdis/etc, common convention
@@ -61,12 +65,16 @@ enum Numerics
 	 * Error range of numerics.
 	 */
 	ERR_NOSUCHNICK					=	401,
+	ERR_NOSUCHSERVER				=	402,
 	ERR_NOSUCHCHANNEL				=	403, // used to indicate an invalid channel name also, so don't rely on RFC text (don't do that anyway!)
+	ERR_CANNOTSENDTOCHAN			=	404,
 	ERR_TOOMANYCHANNELS				=	405,
+	ERR_INVALIDCAPSUBCOMMAND		=	410, // ratbox/charybdis(?)
 	ERR_UNKNOWNCOMMAND				=	421,
 	ERR_NOMOTD					=	422,
 	ERR_NORULES					=	434, // unrealircd
 	ERR_USERNOTINCHANNEL				=	441,
+	ERR_CANTCHANGENICK					=	447, // unrealircd, probably
 	ERR_NOTREGISTERED				=	451,
 	ERR_NEEDMOREPARAMS				=	461,
 	ERR_ALREADYREGISTERED			=	462,
@@ -95,9 +103,16 @@ enum Numerics
 	ERR_NOPRIVILEGES				=	481, // rfc, beware though, we use this for other things opers may not do also
 	ERR_CHANOPRIVSNEEDED				=	482, // rfc, beware though, we use this for other things like trying to kick a uline
 
+	ERR_ALLMUSTSSL					=	490, // unrealircd	
+	ERR_NOCTCPALLOWED				=	492, // XXX: bzzzz. 1459 defines this as ERR_NOSERVICEHOST, research it more and perhaps change this! (ERR_CANNOTSENDTOCHAN?)
+											// wtf, we also use this for m_noinvite. UGLY!
+	ERR_DELAYREJOIN					=	495, // insp-specific, XXX: we should use 'resource temporarily unavailable' from ircnet/ratbox or whatever
 	ERR_UNKNOWNSNOMASK				=	501, // insp-specific
 	ERR_USERSDONTMATCH				=	502,
+	ERR_CANTJOINOPERSONLY			=	520, // unrealircd, but crap to have so many numerics for cant join..
+	ERR_CANTSENDTOUSER				=	531, // ???
 
+	ERR_WORDFILTERED					=	936, // insp-specific, would be nice if we could get rid of this..
 	ERR_CANTUNLOADMODULE				=	972, // insp-specific
 	RPL_UNLOADEDMODULE				=	973, // insp-specific
 	ERR_CANTLOADMODULE				=	974, // insp-specific

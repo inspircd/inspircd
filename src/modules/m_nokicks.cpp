@@ -54,7 +54,7 @@ class ModuleNoKicks : public Module
 				else
 				{
 					// nobody else can (not even opers with override, and founders)
-					source->WriteNumeric(484, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), channel->name.c_str(), dest->nick.c_str());
+					source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), channel->name.c_str(), dest->nick.c_str());
 					return ACR_DENY;
 				}
 			}
