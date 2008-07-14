@@ -351,7 +351,9 @@
 #  connect in the IP range 192.168.1.0-192.168.1.255, and ipv4clone   #
 #  was set to '24', the third connection would be disconnected.       #
 #                                                                     #
-#  Valid values are 0-32, but you *don't* want 0.                     #
+#  Valid values are 0-32, but you *don't* want 0. Using values which  #
+#  are not multiples of 8 can give confusing behaviour.               #
+#  For more info, see: http://www.inspircd.org/wiki/CIDR_Tutorial     #
 #                                                                     #
 # ipv6clone works in the same way, except for ipv6 addresses. Valid   #
 # range is 0-128, but you *don't* want anything too small.            #
