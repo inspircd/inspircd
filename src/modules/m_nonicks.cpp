@@ -70,7 +70,7 @@ class ModuleNoNickChange : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->AddExtBanChar("n");
+		ServerInstance->AddExtBanChar("N");
 	}
 
 	virtual int OnUserPreNick(User* user, const std::string &newnick)

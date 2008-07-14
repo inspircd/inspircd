@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b q: - quiet bans */
+/* $ModDesc: Implements extban +b m: - mute bans */
 
 class ModuleQuietBan : public Module
 {
@@ -41,7 +41,7 @@ class ModuleQuietBan : public Module
 
 		if (target_type == TYPE_CHANNEL)
 		{
-			if (((Channel *)dest)->IsExtBanned(user, 'q'))
+			if (((Channel *)dest)->IsExtBanned(user, 'm'))
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Cannot send to " + ((Channel *)dest)->name + ", as you are muted");
 				return 1;
@@ -58,7 +58,7 @@ class ModuleQuietBan : public Module
 
 		if (target_type == TYPE_CHANNEL)
 		{
-			if (((Channel *)dest)->IsExtBanned(user, 'q'))
+			if (((Channel *)dest)->IsExtBanned(user, 'm'))
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Cannot send to " + ((Channel *)dest)->name + ", as you are muted");
 				return 1;
@@ -70,10 +70,7 @@ class ModuleQuietBan : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		if (output.find(" EXTBAN=:") == std::string::npos)
-			output.append(" EXTBAN=:q");
-		else
-			output.insert(output.find(" EXTBAN=:") + 9, "q");
+		ServerInstance->AddExtBanChar("m");
 	}
 };
 

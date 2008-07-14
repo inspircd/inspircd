@@ -1011,9 +1011,9 @@
 #<module name="m_proxyscan.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Quietban: Implements extended ban q:, which stops anyone matching
-# a mask like +b q:nick!user@host from speaking on channel.
-#<module name="m_quietban.so">
+# Muteban: Implements extended ban m:, which stops anyone matching
+# a mask like +b n:nick!user@host from speaking on channel.
+#<module name="m_muteban.so">
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
