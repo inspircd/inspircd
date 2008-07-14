@@ -1171,7 +1171,6 @@ const char* User::GetCIDRMask(int range)
 		{
 			struct in_addr v4;
 			sockaddr_in* sin;
-			uint32_t temp;
 			char buffer[16];
 
 			if (range > 32)
@@ -1187,9 +1186,9 @@ const char* User::GetCIDRMask(int range)
 			 */
 			if(range > 0)
 			{
-				temp = ntohl(v4.s_addr);
-				temp = (temp >> (32 - range)) << (32 - range);
-				v4.s_addr = htonl(temp);
+				v4.s_addr = ntohl(v4.s_addr);
+				v4.s_addr = (v4.s_addr >> (32 - range)) << (32 - range);
+				v4.s_addr = htonl(v4.s_addr);
 			}
 			else
 			{
