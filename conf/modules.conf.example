@@ -1168,6 +1168,10 @@
 # Services support module: Adds several usermodes such as +R and +M
 # this module implements the 'identified' state via account names (AC)
 # and is similar in operation to the way asuka and ircu handle services.
+#
+# Also of note is that this module implements two extbans:
+# +b R: (stop matching account names from joining)
+# +b M: (stop matching account names from speaking)
 #                                                                       
 # N O T E!!
 #  >>  This CAN NOT be used at the same time as m_services <<

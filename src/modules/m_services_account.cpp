@@ -57,9 +57,15 @@ class ModuleServicesAccount : public Module
 			throw ModuleException("Could not add new modes!");
 
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin,
-			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData };
+			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric };
 
-		ServerInstance->Modules->Attach(eventlist, this, 8);
+		ServerInstance->Modules->Attach(eventlist, this, 9);
+	}
+
+	virtual void On005Numeric(std::string &t)
+	{
+		ServerInstance->AddExtBanChar("R");
+		ServerInstance->AddExtBanChar("M");
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
@@ -84,35 +90,40 @@ class ModuleServicesAccount : public Module
 
 		user->GetExt("accountname", account);
 
+		if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
+		{
+			// user is ulined, can speak regardless
+			return 0;
+		}
+
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
 
 			if ((c->IsModeSet('M')) && (!account))
 			{
-				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
-				{
-					// user is ulined, can speak regardless
-					return 0;
-				}
-
 				// user messaging a +M channel and is not registered
 				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
 				return 1;
 			}
+
+			if (account)
+			{
+				if (c->IsExtBanned(*account, 'M'))
+				{
+					// may not speak
+					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You may not speak in this channel");
+					return 1;
+				}
+			}
 		}
+
 		if (target_type == TYPE_USER)
 		{
 			User* u = (User*)dest;
 
 			if ((u->modes['R'-65]) && (!account))
 			{
-				if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
-				{
-					// user is ulined, can speak regardless
-					return 0;
-				}
-
 				// user messaging a +R user and is not registered
 				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
 				return 1;
@@ -144,6 +155,16 @@ class ModuleServicesAccount : public Module
 					}
 					// joining a +R channel and not identified
 					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
+					return 1;
+				}
+			}
+
+			if (account)
+			{
+				if (chan->IsExtBanned(*account, 'R'))
+				{
+					// may not join
+					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(chan->name)+" :You may not join. this channel");
 					return 1;
 				}
 			}
