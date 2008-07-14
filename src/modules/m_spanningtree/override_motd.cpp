@@ -51,7 +51,7 @@ int ModuleSpanningTree::HandleMotd(const std::vector<std::string>& parameters, U
 			Utils->DoOneToOne(user->uuid, "MOTD", params, s->GetName());
 		}
 		else
-			user->WriteServ(ERR_NOSUCHSERVER, "%s %s :No such server", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHSERVER, "%s %s :No such server", user->nick.c_str(), parameters[0].c_str());
 		return 1;
 	}
 	return 0;

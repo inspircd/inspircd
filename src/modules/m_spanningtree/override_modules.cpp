@@ -49,7 +49,7 @@ int ModuleSpanningTree::HandleModules(const std::vector<std::string>& parameters
 			Utils->DoOneToOne(user->uuid, "MODULES", params, s->GetName());
 		}
 		else
-			user->WriteServ(ERR_NOSUCHSERVER, "%s %s :No such server", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHSERVER, "%s %s :No such server", user->nick.c_str(), parameters[0].c_str());
 		return 1;
 	}
 	return 0;
