@@ -875,6 +875,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void BufferedSocketCull();
 
+	/** Adds an extban char to the 005 token.
+	 */
+	void AddExtBanChar(const char *c);
+
 	char* GetReadBuffer()
 	{
 		return this->ReadBuffer;
