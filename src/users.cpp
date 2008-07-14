@@ -1963,11 +1963,11 @@ void User::ShowRULES()
 {
 	if (!ServerInstance->Config->RULES.size())
 	{
-		this->WriteNumeric(RPL_NORULES, "%s :RULES File is missing",this->nick.c_str());
+		this->WriteNumeric(ERR_NORULES, "%s :RULES File is missing",this->nick.c_str());
 		return;
 	}
 
-	this->WriteNumeric(RUL_RULESTART, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName);
+	this->WriteNumeric(RPL_RULESTART, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
 		this->WriteNumeric(RPL_RULES, "%s :- %s",this->nick.c_str(),i->c_str());

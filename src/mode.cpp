@@ -330,7 +330,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	{
 		if (targetuser->Visibility && !targetuser->Visibility->VisibleTo(user))
 		{
-			user->WriteNumeric(RPL_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), text);
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), text);
 			return;
 		}
 
