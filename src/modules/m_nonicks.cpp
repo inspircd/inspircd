@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for channel mode +N which prevents nick changes on channel */
+/* $ModDesc: Provides support for channel mode +N & extban +b N: which prevents nick changes on channel */
 
 class NoNicks : public ModeHandler
 {
@@ -47,14 +47,13 @@ class ModuleNoNickChange : public Module
 {
 	NoNicks* nn;
  public:
-	ModuleNoNickChange(InspIRCd* Me)
-		: Module(Me)
+	ModuleNoNickChange(InspIRCd* Me) : Module(Me)
 	{
 
 		nn = new NoNicks(ServerInstance);
 		ServerInstance->Modes->AddMode(nn);
-		Implementation eventlist[] = { I_OnUserPreNick };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleNoNickChange()
@@ -69,25 +68,36 @@ class ModuleNoNickChange : public Module
 	}
 
 
+	virtual void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar("n");
+	}
+
 	virtual int OnUserPreNick(User* user, const std::string &newnick)
 	{
-		if (IS_LOCAL(user))
+		if (!IS_LOCAL(user))
+			return 0;
+
+		if (isdigit(newnick[0])) /* don't even think about touching a switch to uid! */
+			return 0;
+
+		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			if (isdigit(newnick[0])) /* don't even think about touching a switch to uid! */
-				return 0;
+			Channel* curr = i->first;
 
-			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+			if (curr->IsModeSet('N'))
 			{
-				Channel* curr = i->first;
+				if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
+					continue;
 
-				if (curr->IsModeSet('N'))
-				{
-					if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
-						continue;
+				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name.c_str());
+				return 1;
+			}
 
-					user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name.c_str());
-					return 1;
-				}
+			if (curr->IsExtBanned(user, 'N'))
+			{
+				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name.c_str());
+				return 1;
 			}
 		}
 

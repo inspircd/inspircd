@@ -865,12 +865,6 @@
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Nickban: Implements extended ban n:, which stops anyone matching
-# a mask like +b n:nick!user@host from changing their nick on channel.
-#<module name="m_nickban.so">
-#
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nickchange flood protection module: Allows up to X nick changes in Y seconds.
 # Provides channel mode +F.
 #<module name="m_nickflood.so">
@@ -893,7 +887,10 @@
 #<module name="m_nokicks.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No nicks module: Adds the +N channel mode
+# No nicks module: Adds the +N channel mode, as well as the +b N:
+# extended bantype. +N stops all users from changing their nick,
+# the +b N: extban stops anyone from matching a +b N:nick!user@host
+# mask from changing their nick.
 #<module name="m_nonicks.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
