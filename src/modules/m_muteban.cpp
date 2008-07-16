@@ -70,7 +70,7 @@ class ModuleQuietBan : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->AddExtBanChar("m");
+		ServerInstance->AddExtBanChar('m');
 	}
 };
 

@@ -470,15 +470,16 @@ std::string InspIRCd::TimeString(time_t curtime)
 }
 
 // You should only pass a single character to this.
-void InspIRCd::AddExtBanChar(const char *c)
+void InspIRCd::AddExtBanChar(char c)
 {
 	std::string &tok = Config->data005;
+	std::string::size_type ebpos;
 	
-	if (tok.find(" EXTBAN=:") == std::string::npos)
+	if ((ebpos = tok.find(" EXTBAN=:")) == std::string::npos)
 	{
 		tok.append(" EXTBAN=:");
-		tok.append(c);
+		tok.push_back(c);
 	}
 	else
-		tok.insert(tok.find(" EXTBAN=:") + 9, c);
+		tok.insert(ebpos + 9, 1, c);
 }

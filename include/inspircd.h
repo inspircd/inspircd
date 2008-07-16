@@ -877,7 +877,7 @@ class CoreExport InspIRCd : public classbase
 
 	/** Adds an extban char to the 005 token.
 	 */
-	void AddExtBanChar(const char *c);
+	void AddExtBanChar(char c);
 
 	char* GetReadBuffer()
 	{

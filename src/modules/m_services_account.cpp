@@ -64,8 +64,8 @@ class ModuleServicesAccount : public Module
 
 	virtual void On005Numeric(std::string &t)
 	{
-		ServerInstance->AddExtBanChar("R");
-		ServerInstance->AddExtBanChar("M");
+		ServerInstance->AddExtBanChar('R');
+		ServerInstance->AddExtBanChar('M');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
