@@ -522,7 +522,7 @@ long Channel::PartUser(User *user, std::string &reason)
 		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason, silent));
 
 		if (!silent)
-			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : ":", reason.c_str());
+			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);
