@@ -38,10 +38,10 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>&, User *user)
 	user->WriteServ( "371 %s :    Eric Dietz,             fez,       <fez@inspircd.org>", user->nick.c_str());
 	user->WriteServ( "371 %s : ", user->nick.c_str());
 	user->WriteServ( "371 %s :\2Regular Contributors\2:", user->nick.c_str());
-	user->WriteServ( "371 %s :    satmd          nenolod         John2          Skip", user->nick.c_str());
-	user->WriteServ( "371 %s :    jilles         Majic           eggy           Trystan", user->nick.c_str());
+	user->WriteServ( "371 %s :    satmd          nenolod         John2           Skip", user->nick.c_str());
+	user->WriteServ( "371 %s :    jilles         Majic           eggy            Trystan", user->nick.c_str());
 	user->WriteServ( "371 %s :    Quension       danieldg        praetorian", user->nick.c_str());
-	user->WriteServ( "371 %s :    GreenReaper    searchirc.com   irc-junkie.org", user->nick.c_str());
+	user->WriteServ( "371 %s :    GreenReaper    psychon         searchirc.com   irc-junkie.org", user->nick.c_str());
 	user->WriteServ( "371 %s : ", user->nick.c_str());
 	user->WriteServ( "371 %s :\2Other Contributors\2:", user->nick.c_str());
 	user->WriteServ( "371 %s :   dmb             Zaba            skenmy         LeaChim", user->nick.c_str());
