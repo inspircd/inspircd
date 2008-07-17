@@ -304,7 +304,7 @@ class CoreExport FileLogger : public EventHandler
 };
 
 /** A list of failed port bindings, used for informational purposes on startup */
-typedef std::vector<std::pair<std::string, long> > FailedPortList;
+typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
 
 /** A list of ip addresses cross referenced against clone counts */
 typedef std::map<irc::string, unsigned int> clonemap;

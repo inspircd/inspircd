@@ -885,7 +885,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 			int j = 1;
 			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 			{
-				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
+				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %s", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
 			}
 		}
 
