@@ -1253,7 +1253,7 @@ void ServerConfig::Read(bool bail, User* user)
 			int j = 1;
 			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 			{
-				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
+				user->WriteServ("NOTICE %s :*** %d.   Address: %s        Reason: %s", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
 			}
 			ServerInstance->Threads->Mutex(false);
 		}

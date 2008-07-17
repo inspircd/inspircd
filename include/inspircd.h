@@ -235,7 +235,7 @@ class serverstats : public classbase
 };
 
 /** A list of failed port bindings, used for informational purposes on startup */
-typedef std::vector<std::pair<std::string, long> > FailedPortList;
+typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
 
 class InspIRCd;
 
