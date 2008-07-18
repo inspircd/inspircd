@@ -98,7 +98,7 @@ our %extraobjects = ();
 our %extrasources = ();
 
 our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_ports,
-    $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_disablerpath,
+    $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue,
     $opt_ipv6, $opt_ipv6links, $opt_noipv6links, $opt_maxbuf, $opt_disable_debug,
     $opt_freebsd_port);
 
@@ -125,7 +125,6 @@ GetOptions (
 	'disable-ports' => \$opt_noports,
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
-	'disable-rpath' => \$opt_disablerpath,
 	'enable-ipv6' => \$opt_ipv6,
 	'enable-remote-ipv6' => \$opt_ipv6links,
 	'disable-remote-ipv6' => \$opt_noipv6links,
@@ -1071,7 +1070,7 @@ sub getosflags {
 	$config{LDLIBS} = "-pthread -lstdc++";
 	$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall $config{OPTIMISATI}";
 	$config{DEVELOPER} = "-fPIC -Woverloaded-virtual -Wshadow -Wall -Wformat=2 -Wmissing-format-attribute -g";
-	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared" unless defined $opt_disablerpath;
+	$SHARED = "-shared";
 	$config{MAKEPROG} = "make";
 
 	if ($config{OSNAME} =~ /darwin/i) {
@@ -1498,6 +1497,8 @@ sub write_dynamic_makefile
 	my $i = 0;
 	my @cmdlist = ();
 	my %existing_install_list = ();
+	my %core_files_list = ();
+
 	opendir(DIRHANDLE, "src/commands");
 	foreach my $name (sort readdir(DIRHANDLE))
 	{
@@ -1523,6 +1524,9 @@ sub write_dynamic_makefile
 		$config{USE_PORTS} = 0;
 	}
 
+	# formerly generated below this foreach, now it's not! magic.
+	my $all_core = "";
+
 	foreach my $dir (("src","src/commands","src/modes","src/socketengines","src/modules"))
 	{
 		print "Scanning \e[1;32m$dir\e[0m for core files ";
@@ -1538,7 +1542,18 @@ sub write_dynamic_makefile
 					chomp($line);
 					if ($line =~ /\/\* \$Core: (\w+) \*\//i)
 					{
-						$filelist{$name} = $1;
+						my $sname = $name;
+						$sname =~ s/\.cpp$/.o/;
+
+						# append it to list to be built
+						$all_core = $all_core . $sname . " ";
+						$filelist{$name} = $sname;
+
+						# mark it as a core file, so it won't get shared object cflags
+						if (!exists($core_files_list{$name}))
+						{
+							$core_files_list{$name} = 1;
+						}
 					}
 					elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//i)
 					{
@@ -1604,36 +1619,24 @@ sub write_dynamic_makefile
 		print " done!\n";
 	}
 
+	# modes need to be compiled in too
+	$all_core = $all_core . "modes/modeclasses.a";
+
 	my $freebsd4libs = (defined $config{CRAQ} ? $config{CRAQ} : "");
 
-	my $all = "all: ";
-	my $all_libsonly = "";
 	my $libraryext = "";
-	my $othercrap = "";
-	my $RPATH = "";
+	my $binary_rule = "";
 
 	if ($config{IS_DARWIN} eq "YES")
 	{
 		$libraryext = "dylib";
-		$othercrap = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspircd.cpp\n	\@../make/run-cc.pl \$(CC) -pipe -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
+		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspircd.cpp\n	\@../make/run-cc.pl \$(CC) -pipe -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
 	}
 	else
 	{
 		$libraryext = "so";
-		$RPATH = "-Wl,--rpath -Wl,$config{LIBRARY_DIR}" unless defined $opt_disablerpath;
-		$othercrap = "	\@../make/run-cc.pl \$(CC) -pipe -I../include $RPATH \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) ";
+		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) ";
 	}
-
-	foreach my $cpp (sort keys %filelist)
-	{
-		$all = $all . $filelist{$cpp} . "." . $libraryext . " ";
-		$all_libsonly = $all_libsonly . $filelist{$cpp} . "." . $libraryext . " ";
-		$install_list = $install_list . "	-install -m \$(INSTMODE) src/" . $filelist{$cpp} . "." . $libraryext . " \$(LIBPATH)\n";
-		$uninstall_list = $uninstall_list . "	-rm \$(LIBPATH)/" . $filelist{$cpp} . "." . $libraryext . "\n";
-	}
-	$all = $all . "moo inspircd\n";
-
-	$othercrap = $othercrap . " $all_libsonly\n\n";
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
 	print FH <<EOM;
@@ -1645,42 +1648,24 @@ RELCPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* /modes\\//
 
 EOM
 
-	print FH "$all\n\n";
-
-	my $deps = calcdeps("src/inspircd.cpp");
-	print FH "inspircd: inspircd.cpp $deps $all_libsonly\n";
-	print FH "$othercrap\n";
+	my $buildstring = "";
+	my $deps = "";
 
 	foreach my $cpp (sort keys %filelist)
 	{
-		my $thislib = $filelist{$cpp} . "." . $libraryext; 
 		my $objs = $cpp;
 		my $rawcpp = $cpp;
-		my $libcrap = "";
 		$objs =~ s/\.cpp$/.o/;
 		if (exists($extraobjects{$cpp}))
 		{
 			$objs = $objs . " " . $extraobjects{$cpp};
+			$all_core = $all_core . " " . $extraobjects{$cpp};
 		}
 		if (exists($extrasources{$cpp}))
 		{
 			$rawcpp = $rawcpp . " " . $extrasources{$cpp};
 		}
-		if ($config{IS_DARWIN} eq "YES")
-		{
-			$libcrap = "-install_name " . $config{LIBRARY_DIR} . "/" . $thislib . " -dynamiclib -twolevel_namespace -undefined dynamic_lookup";
-		}
-		else
-		{
-			if (defined $opt_disablerpath)
-			{
-				$libcrap = " -shared";
-			}
-			else
-			{
-				$libcrap = "-Wl,--rpath -Wl," . $config{LIBRARY_DIR} . " -shared";
-			}
-		}
+
 		$deps = calcdeps("src/$cpp");
 		if (exists($extrasources{$cpp}))
 		{
@@ -1693,15 +1678,31 @@ EOM
 				}
 			}
 		}
-		print FH $thislib . ": $cpp $deps ". (defined($specialdeps{$cpp}) ? $specialdeps{$cpp} : "") . "\n";
-		print FH "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c $rawcpp\n";
+		$buildstring = $buildstring . $objs . ": $cpp $deps ". (defined($specialdeps{$cpp}) ? $specialdeps{$cpp} : "") . "\n";
+
+		if (exists($core_files_list{$cpp}))
+		{
+			# core files are statically linked into the binary and do not require -export-dynamic
+			$buildstring = $buildstring . "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -c $rawcpp\n";
+		}
+		else
+		{
+			$buildstring = $buildstring . "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c $rawcpp\n";
+		}
+
 		if (exists($extrabuildlines{$cpp}))
 		{
-			print FH "	" . $extrabuildlines{$cpp} . "\n";
+			$buildstring = $buildstring . "	" . $extrabuildlines{$cpp} . "\n";
 		}
-		print FH "	\@../make/run-cc.pl \$(CC) -pipe $libcrap -o " . $thislib . " " . $objs . "\n\n";
 	}
 
+	print FH "all: inspircd moo\n\n\n";
+
+	$deps = calcdeps("src/inspircd.cpp");
+	print FH "inspircd: inspircd.cpp $deps $all_core\n";
+	print FH "$binary_rule $all_core\n\n";
+
+	print FH $buildstring;
 	print FH "moo:\n	\@\${MAKE} -C \"commands\" DIRNAME=\"src/commands\" CC=\"\$(CC)\" \$(MAKEARGS)\n\n";
 
 	# close main makefile
