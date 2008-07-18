@@ -13,7 +13,7 @@ void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 		ProtoServer ps;
 		ps.servername = i->second->GetName();
 		TreeServer* s = i->second->GetParent();
-		ps.parentname = s ? s->GetName() : ServerInstance->Config->ServerName;
+		ps.parentname = s ? s->GetName() : "";
 		ps.usercount = i->second->GetUserCount();
 		ps.opercount = i->second->GetOperCount();
 		ps.gecos = i->second->GetDesc();
