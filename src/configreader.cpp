@@ -299,6 +299,28 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 	return true;
 }
 
+bool ValidateDisabledUModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
+{
+	memset(conf->DisabledUModes, 0, 64);
+	for (const unsigned char* p = (const unsigned char*)data.GetString(); *p; ++p)
+	{
+		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid usermode ")+(char)*p+" was found.");
+		conf->DisabledUModes[*p - 'A'] = 1;
+	}
+	return true;
+}
+
+bool ValidateDisabledCModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
+{
+	memset(conf->DisabledCModes, 0, 64);
+	for (const unsigned char* p = (const unsigned char*)data.GetString(); *p; ++p)
+	{
+		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid chanmode ")+(char)*p+" was found.");
+		conf->DisabledCModes[*p - 'A'] = 1;
+	}
+	return true;
+}
+
 bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (!*(data.GetString()))
@@ -763,6 +785,8 @@ void ServerConfig::Read(bool bail, User* user)
 	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
 	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
 	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
+	static char disabledumodes[MAXBUF]; /* Disabled usermodes */
+	static char disabledcmodes[MAXBUF]; /* Disabled chanmodes */
 	errstr.clear();
 
 	include_stack.clear();
@@ -823,6 +847,8 @@ void ServerConfig::Read(bool bail, User* user)
 		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER,  NoValidation},
 		{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR,  NoValidation},
 		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR,  NoValidation},
+		{"disabled",	"usermodes",	"",			new ValueContainerChar (disabledumodes),		DT_CHARPTR,  ValidateDisabledUModes},
+		{"disabled",	"chanmodes",	"",			new ValueContainerChar (disabledcmodes),		DT_CHARPTR,  ValidateDisabledCModes},
 		{"security",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR,  NoValidation},
 		{"security",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR,  NoValidation},
 		{"security",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN,  NoValidation},

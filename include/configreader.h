@@ -446,6 +446,15 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	char DisabledCommands[MAXBUF];
 
+	/** This variable identifies which usermodes have been diabled.
+	 */
+
+	char DisabledUModes[64];
+
+	/** This variable identifies which chanmodes have been disabled.
+	 */
+	char DisabledCModes[64];
+
 	/** The full path to the modules directory.
 	 * This is either set at compile time, or
 	 * overridden in the configuration file via

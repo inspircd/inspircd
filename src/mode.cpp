@@ -641,6 +641,17 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 							if (abort)
 								continue;
 
+							/* If it's disabled, they have to be an oper.
+							 */
+							if (IS_LOCAL(user) && !IS_OPER(user) && ((type == MODETYPE_CHANNEL ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes)[modehandlers[handler_id]->GetModeChar() - 'A']))
+							{
+								user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - %s mode %c has been locked by the administrator",
+										user->nick.c_str(),
+										type == MODETYPE_CHANNEL ? "channel" : "user",
+										modehandlers[handler_id]->GetModeChar());
+								continue;
+							}
+
 							/* It's an oper only mode, check if theyre an oper. If they arent,
 							 * eat any parameter that  came with the mode, and continue to next
 							 */

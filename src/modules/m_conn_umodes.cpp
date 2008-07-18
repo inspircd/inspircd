@@ -54,6 +54,11 @@ class ModuleModesOnConnect : public Module
 		if (!IS_LOCAL(user))
 			return;
 
+		// Backup and zero out the disabled usermodes, so that we can override them here.
+		char save[64];
+		memcpy(save, ServerInstance->Config->DisabledUModes, 64);
+		memset(ServerInstance->Config->DisabledUModes, 0, 64);
+
 		for (int j = 0; j < Conf->Enumerate("connect"); j++)
 		{
 			std::string hostn = Conf->ReadValue("connect","allow",j);
@@ -90,6 +95,8 @@ class ModuleModesOnConnect : public Module
 				break;
 			}
 		}
+
+		memcpy(ServerInstance->Config->DisabledUModes, save, 64);
 	}
 };
 
