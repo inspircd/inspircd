@@ -95,7 +95,7 @@ void InspIRCd::Cleanup()
 	/* Close all client sockets, or the new process inherits them */
 	for (std::vector<User*>::const_iterator i = this->Users->local_users.begin(); i != this->Users->local_users.end(); i++)
 	{
-		(*i)->SetWriteError("Server shutdown");
+		this->Users->QuitUser((*i), "Server shutdown");
 		(*i)->CloseSocket();
 	}
 

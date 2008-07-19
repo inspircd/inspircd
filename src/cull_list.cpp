@@ -63,7 +63,7 @@ int CullList::Apply()
 
 		if (IS_LOCAL(u))
 		{
-			if ((!u->sendq.empty()) && (!(*u->GetWriteError())))
+			if (!u->sendq.empty())
 				u->FlushWriteBuf();
 		}
 

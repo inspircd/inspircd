@@ -447,6 +447,10 @@ class CoreExport User : public connection
 	 */
 	std::string cached_fullrealhost;
 
+	/** Set by GetIPString() to avoid constantly re-grabbing IP via sockets voodoo.
+	 */
+	std::string cachedip;
+
 	/** When we erase the user (in the destructor),
 	 * we call this method to subtract one from all
 	 * mode characters this user is making use of.
@@ -624,10 +628,6 @@ class CoreExport User : public connection
 	 * GetIPString/GetPort to obtain its values.
 	 */
 	sockaddr* ip;
-	
-	/** Set by GetIPString() to avoid constantly re-grabbing IP via sockets voodoo.
-	 */
-	std::string cachedip;
 
 	/** Initialize the clients sockaddr
 	 * @param protocol_family The protocol family of the IP address, AF_INET or AF_INET6
@@ -659,10 +659,6 @@ class CoreExport User : public connection
 	 * level so it may be used on more derived objects. -- w00t)
 	 */
 	const char *GetCIDRMask(int range);
-
-	/* Write error string
-	 */
-	std::string WriteError;
 
 	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
 	 */
@@ -829,24 +825,9 @@ class CoreExport User : public connection
 	 */
 	std::string GetBuffer();
 
-	/** Sets the write error for a connection. This is done because the actual disconnect
-	 * of a client may occur at an inopportune time such as half way through /LIST output.
-	 * The WriteErrors of clients are checked at a more ideal time (in the mainloop) and
-	 * errored clients purged.
-	 * @param error The error string to set.
-	 */
-	void SetWriteError(const std::string &error);
-
-	/** Returns the write error which last occured on this connection or an empty string
-	 * if none occured.
-	 * @return The error string which has occured for this user
-	 */
-	const char* GetWriteError();
-
 	/** Adds to the user's write buffer.
 	 * You may add any amount of text up to this users sendq value, if you exceed the
-	 * sendq value, SetWriteError() will be called to set the users error string to
-	 * "SendQ exceeded", and further buffer adds will be dropped.
+	 * sendq value, the user will be removed, and further buffer adds will be dropped.
 	 * @param data The data to add to the write buffer
 	 */
 	void AddWriteBuf(const std::string &data);

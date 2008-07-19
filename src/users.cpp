@@ -190,12 +190,11 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	age = ServerInstance->Time();
 	Penalty = 0;
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
-	ChannelCount = timeout = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	quietquit = OverPenalty = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
-	WriteError.clear();
 	res_forward = res_reverse = NULL;
 	Visibility = NULL;
 	ip = NULL;
@@ -560,7 +559,7 @@ bool User::AddBuffer(const std::string &a)
 
 	if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
 	{
-		this->SetWriteError("RecvQ exceeded");
+		ServerInstance->Users->QuitUser(this, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)recvq.length(),this->MyClass->GetRecvqMax());
 		return false;
 	}
@@ -620,7 +619,7 @@ std::string User::GetBuffer()
 
 void User::AddWriteBuf(const std::string &data)
 {
-	if (*this->GetWriteError())
+	if (this->quitting)
 		return;
 
 	if (this->MyClass && (sendq.length() + data.length() > this->MyClass->GetSendqMax()))
@@ -630,7 +629,7 @@ void User::AddWriteBuf(const std::string &data)
 		 * if we dont it'll recursively  call here over and over again trying
 		 * to repeatedly add the text to the sendq!
 		 */
-		this->SetWriteError("SendQ exceeded");
+		ServerInstance->Users->QuitUser(this, "SendQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
@@ -644,69 +643,51 @@ void User::AddWriteBuf(const std::string &data)
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 void User::FlushWriteBuf()
 {
-	try
+	if (this->fd == FD_MAGIC_NUMBER)
 	{
-		if ((this->fd == FD_MAGIC_NUMBER) || (*this->GetWriteError()))
-		{
-			sendq.clear();
-		}
-		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
-		{
-			int old_sendq_length = sendq.length();
-			int n_sent = ServerInstance->SE->Send(this, this->sendq.data(), this->sendq.length(), 0);
+		sendq.clear();
+		return;
+	}
 
-			if (n_sent == -1)
+	if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
+	{
+		int old_sendq_length = sendq.length();
+		int n_sent = ServerInstance->SE->Send(this, this->sendq.data(), this->sendq.length(), 0);
+
+		if (n_sent == -1)
+		{
+			if (errno == EAGAIN)
 			{
-				if (errno == EAGAIN)
-				{
-					/* The socket buffer is full. This isnt fatal,
-					 * try again later.
-					 */
-					this->ServerInstance->SE->WantWrite(this);
-				}
-				else
-				{
-					/* Fatal error, set write error and bail
-					 */
-					this->SetWriteError(errno ? strerror(errno) : "EOF from client");
-					return;
-				}
+				/* The socket buffer is full. This isnt fatal,
+				 * try again later.
+				 */
+				ServerInstance->SE->WantWrite(this);
 			}
 			else
 			{
-				/* advance the queue */
-				if (n_sent)
-					this->sendq = this->sendq.substr(n_sent);
-				/* update the user's stats counters */
-				this->bytes_out += n_sent;
-				this->cmds_out++;
-				if (n_sent != old_sendq_length)
-					this->ServerInstance->SE->WantWrite(this);
+				/* Fatal error, set write error and bail */
+				ServerInstance->Users->QuitUser(this, errno ? strerror(errno) : "Write error");
+				return;
 			}
+		}
+		else
+		{
+			/* advance the queue */
+			if (n_sent)
+				this->sendq = this->sendq.substr(n_sent);
+			/* update the user's stats counters */
+			this->bytes_out += n_sent;
+			this->cmds_out++;
+			if (n_sent != old_sendq_length)
+				this->ServerInstance->SE->WantWrite(this);
 		}
 	}
 
-	catch (...)
-	{
-		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::FlushWriteBuf()");
-	}
-
+	/* note: NOT else if! */
 	if (this->sendq.empty())
 	{
 		FOREACH_MOD(I_OnBufferFlushed,OnBufferFlushed(this));
 	}
-}
-
-void User::SetWriteError(const std::string &error)
-{
-	// don't try to set the error twice, its already set take the first string.
-	if (this->WriteError.empty())
-		this->WriteError = error;
-}
-
-const char* User::GetWriteError()
-{
-	return this->WriteError.c_str();
 }
 
 void User::Oper(const std::string &opertype, const std::string &opername)
@@ -882,7 +863,6 @@ void User::CheckClass()
 	}
 
 	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
-	this->timeout = ServerInstance->Time() + a->GetRegTimeout();
 	this->MaxChans = a->GetMaxChans();
 }
 
@@ -1979,37 +1959,17 @@ void User::HandleEvent(EventType et, int errornum)
 	if (this->quitting) // drop everything, user is due to be quit
 		return;
 
-	/* WARNING: May delete this user! */
-	int thisfd = this->GetFd();
-
-	try
+	switch (et)
 	{
-		switch (et)
-		{
-			case EVENT_READ:
-				ServerInstance->ProcessUser(this);
-			break;
-			case EVENT_WRITE:
-				this->FlushWriteBuf();
-			break;
-			case EVENT_ERROR:
-				/** This should be safe, but dont DARE do anything after it -- Brain */
-				this->SetWriteError(errornum ? strerror(errornum) : "EOF from client");
-			break;
-		}
-	}
-	catch (...)
-	{
-		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::HandleEvent intercepted");
-	}
-
-	/* If the user has raised an error whilst being processed, quit them now we're safe to */
-	if ((ServerInstance->SE->GetRef(thisfd) == this))
-	{
-		if (!WriteError.empty())
-		{
-			ServerInstance->Users->QuitUser(this, GetWriteError());
-		}
+		case EVENT_READ:
+			ServerInstance->ProcessUser(this);
+		break;
+		case EVENT_WRITE:
+			this->FlushWriteBuf();
+		break;
+		case EVENT_ERROR:
+			ServerInstance->Users->QuitUser(this, errornum ? strerror(errornum) : "Client closed the connection");
+		break;
 	}
 }
 
