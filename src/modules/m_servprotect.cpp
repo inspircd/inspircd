@@ -48,8 +48,8 @@ class ModuleServProtectMode : public Module
 		bm = new ServProtectMode(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(bm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnUserPreKick };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 
@@ -111,6 +111,17 @@ class ModuleServProtectMode : public Module
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(src->nick)+" tried to kill service "+dst->nick+" ("+reason+")");
 			return 1;
 		}
+		return 0;
+	}
+
+	virtual int OnUserPreKick(User *src, User *dst, Channel *c, const std::string &reason)
+	{
+		if (dst->IsModeSet('k'))
+		{
+			src->WriteNumeric(484, "%s %s :You are not permitted to kick services", src->nick.c_str(), c->name.c_str());
+			return 1;
+		}
+
 		return 0;
 	}
 
