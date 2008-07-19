@@ -431,10 +431,6 @@ class CoreExport User : public connection
 	 */
 	InvitedList invites;
 
-	/** Number of channels this user is currently on
-	 */
-	unsigned int ChannelCount;
-
 	/** Cached nick!ident@host value using the real hostname
 	 */
 	std::string cached_fullhost;
