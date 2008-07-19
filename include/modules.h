@@ -14,7 +14,6 @@
 #ifndef __MODULES_H
 #define __MODULES_H
 
-#include "globals.h"
 #include "dynamic.h"
 #include "base.h"
 #include "ctables.h"

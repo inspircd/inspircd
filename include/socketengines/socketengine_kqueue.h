@@ -18,7 +18,6 @@
 #include <string>
 #include <map>
 #include "inspircd_config.h"
-#include "globals.h"
 #include "inspircd.h"
 #include <sys/types.h>
 #include <sys/event.h>

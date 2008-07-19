@@ -21,7 +21,6 @@
 #include <sys/select.h>
 #endif // WINDOWS
 #include "inspircd_config.h"
-#include "globals.h"
 #include "inspircd.h"
 #include "socketengine.h"
 

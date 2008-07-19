@@ -26,7 +26,6 @@
 #include <vector>
 #include <map>
 #include "inspircd.h"
-#include "globals.h"
 #include "modules.h"
 #include "socketengine.h"
 #include "socket.h"

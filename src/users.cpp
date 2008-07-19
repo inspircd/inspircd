@@ -205,8 +205,6 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	AllowedOperCommands = NULL;
 	chans.clear();
 	invites.clear();
-	memset(modes,0,sizeof(modes));
-	memset(snomasks,0,sizeof(snomasks));
 
 	if (uid.empty())
 		uuid.assign(Instance->GetUID(), 0, UUID_LENGTH - 1);

@@ -19,7 +19,6 @@
 
 #include "inspircd_config.h"
 #include "inspircd_win32wrapper.h"
-#include "globals.h"
 #include "inspircd.h"
 #include "socketengine.h"
 

@@ -38,6 +38,31 @@
 #include <cmath>
 #include <cstring>
 #include <climits>
+#include <vector>
+#include <deque>
+#include <map>
+#include <bitset>
+
+
+/** A list of failed port bindings, used for informational purposes on startup */
+typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
+
+/** A cached text file stored with its contents as lines
+ */
+typedef std::deque< std::string > file_cache;
+
+/** A configuration key and value pair
+ */
+typedef std::pair< std::string, std::string > KeyVal;
+
+/** A list of related configuration keys and values
+ */
+typedef std::vector< KeyVal > KeyValList;
+
+/** An entire config file, built up of KeyValLists
+ */
+typedef std::multimap< std::string, KeyValList > ConfigDataHash;
+
 
 #include "inspircd_config.h"
 #include "numerics.h"
@@ -233,9 +258,6 @@ class serverstats : public classbase
 	{
 	}
 };
-
-/** A list of failed port bindings, used for informational purposes on startup */
-typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
 
 class InspIRCd;
 

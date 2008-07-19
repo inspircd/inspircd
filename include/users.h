@@ -17,7 +17,6 @@
 #include "socket.h"
 #include "connection.h"
 #include "dns.h"
-
 #include "mode.h"
 
 /** Channel status for a user
@@ -534,20 +533,21 @@ class CoreExport User : public connection
 	std::string fullname;
 	
 	/** The user's mode list.
-	 * This is NOT a null terminated string! In the 1.1 version of InspIRCd
-	 * this is an array of values in a similar way to channel modes.
-	 * A value of 1 in field (modeletter-65) indicates that the mode is
+	 * NOT a null terminated string.
+	 * Also NOT an array.
+	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
+	 * if (modes[modeletter-65]) is set, then the mode is
 	 * set, for example, to work out if mode +s is set, we  check the field
 	 * User::modes['s'-65] != 0.
 	 * The following RFC characters o, w, s, i have constants defined via an
 	 * enum, such as UM_SERVERNOTICE and UM_OPETATOR.
 	 */
-	unsigned char modes[64];
+	std::bitset<64> modes;
 
 	/** What snomasks are set on this user.
 	 * This functions the same as the above modes.
 	 */
-	unsigned char snomasks[64];
+	std::bitset<64> snomasks;
 
 	/** Channels this user is on, and the permissions they have there
 	 */

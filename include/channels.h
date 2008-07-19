@@ -137,12 +137,12 @@ class CoreExport Channel : public Extensible
 	std::string name; /* CHANMAX */
 
 	/** Modes for the channel.
-	 * This is not a null terminated string! It is a hash where
+	 * This is not a null terminated string! It is a bitset where
 	 * each item in it represents if a mode is set. For example
 	 * for mode +A, index 0. Use modechar-65 to calculate which
 	 * field to check.
 	 */
-	unsigned char modes[64];
+	std::bitset<64> modes;
 
 	/** User lists.
 	 * There are four user lists, one for 

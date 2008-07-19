@@ -1728,7 +1728,7 @@ ITEM
 	# now print the command file details.
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
-cmd_$cmd.so: cmd_$cmd.cpp ../../include/base.h ../../include/modules.h ../../include/inspircd.h ../../include/channels.h ../../include/users.h ../../include/globals.h ../../include/inspircd_config.h ../../include/commands/cmd_$cmd.h
+cmd_$cmd.so: cmd_$cmd.cpp ../../include/base.h ../../include/modules.h ../../include/inspircd.h ../../include/channels.h ../../include/users.h ../../include/inspircd_config.h ../../include/commands/cmd_$cmd.h
 	\@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(FLAGS) -export-dynamic $SHARED -o cmd_$cmd.so cmd_$cmd.cpp
 
 ITEM
