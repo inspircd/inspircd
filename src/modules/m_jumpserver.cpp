@@ -65,57 +65,61 @@ class cmd_jumpserver : public command_t
 		port = 0;
 		redirect_to.clear();
 
-		for (const char* n = parameters[2]; *n; n++)
+		if (pcnt >= 3)
 		{
-			switch (*n)
+			for (const char* n = parameters[2]; *n; n++)
 			{
-				case '+':
-					direction = true;
-				break;
-				case '-':
-					direction = false;
-				break;
-				case 'a':
-					redirect_all_immediately = direction;
-				break;
-				case 'n':
-					redirect_new_users = direction;
-				break;
-			}
-		}
-
-		if (redirect_all_immediately)
-		{
-			/* Redirect everyone but the oper sending the command */
-			for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
-			{
-				userrec* t = *i;
-				if (!IS_OPER(t))
+				switch (*n)
 				{
-					t->WriteServ("010 %s %s %s :Please use this Server/Port instead", user->nick, parameters[0], parameters[1]);
-					userrec::QuitUser(ServerInstance, t, reason);
-					n_done++;
+					case '+':
+						direction = true;
+					break;
+					case '-':
+						direction = false;
+					break;
+					case 'a':
+						redirect_all_immediately = direction;
+					break;
+					case 'n':
+						redirect_new_users = direction;
+					break;
 				}
 			}
-			if (n_done)
+
+			if (redirect_all_immediately)
 			{
-				n_done_s = ConvToStr(n_done);
+				/* Redirect everyone but the oper sending the command */
+				for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+				{
+					userrec* t = *i;
+					if (!IS_OPER(t))
+					{
+						t->WriteServ("010 %s %s %s :Please use this Server/Port instead", user->nick, parameters[0], parameters[1]);
+						userrec::QuitUser(ServerInstance, t, reason);
+						n_done++;
+					}
+				}
+				if (n_done)
+				{
+					n_done_s = ConvToStr(n_done);
+				}
 			}
-		}
 
-		if (redirect_new_users)
-		{
-			redirect_to = parameters[0];
-			port = atoi(parameters[1]);
-		}
+			if (redirect_new_users)
+			{
+				redirect_to = parameters[0];
+				port = atoi(parameters[1]);
+			}
 
-		user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick, parameters[0], parameters[1],
-				redirect_all_immediately ? "a" : "",
-				redirect_new_users ? "n" : "",
-				n_done ? " (" : "",
-				n_done ? n_done_s.c_str() : "",
-				n_done ? " user(s) redirected)" : "",
-				reason.c_str());
+			user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick, parameters[0], parameters[1],
+					redirect_all_immediately ? "a" : "",
+					redirect_new_users ? "n" : "",
+					n_done ? " (" : "",
+					n_done ? n_done_s.c_str() : "",
+					n_done ? " user(s) redirected)" : "",
+					reason.c_str());
+	
+		}
 
 		return CMD_LOCALONLY;
 	}
