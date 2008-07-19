@@ -392,7 +392,7 @@ const char* BufferedSocket::Read()
 		return NULL;
 
 	int n = 0;
-	char *ReadBuffer = Instance->GetReadBuffer();
+	char* ReadBuffer = Instance->GetReadBuffer();
 
 	if (this->IsIOHooked)
 	{
@@ -400,7 +400,7 @@ const char* BufferedSocket::Read()
 		int MOD_RESULT = 0;
 		try
 		{
-			MOD_RESULT = Instance->Config->GetIOHook(this)->OnRawSocketRead(this->fd, ReadBuffer, sizeof(ReadBuffer) - 1,result2);
+			MOD_RESULT = Instance->Config->GetIOHook(this)->OnRawSocketRead(this->fd, ReadBuffer, Instance->Config->NetBufferSize, result2);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -418,7 +418,7 @@ const char* BufferedSocket::Read()
 	}
 	else
 	{
-		n = recv(this->fd, ReadBuffer, sizeof(ReadBuffer) - 1, 0);
+		n = recv(this->fd, ReadBuffer, Instance->Config->NetBufferSize, 0);
 	}
 
 	/*

@@ -53,7 +53,7 @@ void ProcessUserHandler::Call(User* cu)
 
 		try
 		{
-			MOD_RESULT = cu->io->OnRawSocketRead(cu->GetFd(),ReadBuffer,Server->Config->NetBufferSize,result2);
+			MOD_RESULT = cu->io->OnRawSocketRead(cu->GetFd(), ReadBuffer, Server->Config->NetBufferSize, result2);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -71,7 +71,7 @@ void ProcessUserHandler::Call(User* cu)
 	}
 	else
 	{
-		result = cu->ReadData(ReadBuffer, sizeof(ReadBuffer));
+		result = cu->ReadData(ReadBuffer, Server->Config->NetBufferSize);
 	}
 
 	if ((result) && (result != -EAGAIN))
