@@ -13,9 +13,9 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style SAPART command */
+/* $ModDesc: Provides support for the RPL_REDIR numeric */
 
-/** Handle /SAPART
+/** Handle /JUMPSERVER
  */
 class CommandJumpserver : public Command
 {
@@ -62,22 +62,25 @@ class CommandJumpserver : public Command
 		port = 0;
 		redirect_to.clear();
 
-		for (const char* n = parameters[2].c_str(); *n; n++)
+		if (parameters.size() >= 3)
 		{
-			switch (*n)
+			for (const char* n = parameters[2].c_str(); *n; n++)
 			{
-				case '+':
-					direction = true;
-				break;
-				case '-':
-					direction = false;
-				break;
-				case 'a':
-					redirect_all_immediately = direction;
-				break;
-				case 'n':
-					redirect_new_users = direction;
-				break;
+				switch (*n)
+				{
+					case '+':
+						direction = true;
+					break;
+					case '-':
+						direction = false;
+					break;
+					case 'a':
+						redirect_all_immediately = direction;
+					break;
+					case 'n':
+						redirect_new_users = direction;
+					break;
+				}
 			}
 		}
 
