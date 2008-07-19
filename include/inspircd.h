@@ -38,6 +38,7 @@
 #include <cmath>
 #include <cstring>
 #include <climits>
+#include <string>
 #include <vector>
 #include <deque>
 #include <map>
