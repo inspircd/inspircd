@@ -82,40 +82,40 @@ class CommandJumpserver : public Command
 					break;
 				}
 			}
-		}
 
-		if (redirect_all_immediately)
-		{
-			/* Redirect everyone but the oper sending the command */
-			for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+			if (redirect_all_immediately)
 			{
-				User* t = *i;
-				if (!IS_OPER(t))
+				/* Redirect everyone but the oper sending the command */
+				for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 				{
-					t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
-					ServerInstance->Users->QuitUser(t, reason);
-					n_done++;
+					User* t = *i;
+					if (!IS_OPER(t))
+					{
+						t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
+						ServerInstance->Users->QuitUser(t, reason);
+						n_done++;
+					}
+				}
+				if (n_done)
+				{
+					n_done_s = ConvToStr(n_done);
 				}
 			}
-			if (n_done)
+
+			if (redirect_new_users)
 			{
-				n_done_s = ConvToStr(n_done);
+				redirect_to = parameters[0];
+				port = atoi(parameters[1].c_str());
 			}
-		}
 
-		if (redirect_new_users)
-		{
-			redirect_to = parameters[0];
-			port = atoi(parameters[1].c_str());
+			user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str(),
+					redirect_all_immediately ? "a" : "",
+					redirect_new_users ? "n" : "",
+					n_done ? " (" : "",
+					n_done ? n_done_s.c_str() : "",
+					n_done ? " user(s) redirected)" : "",
+					reason.c_str());
 		}
-
-		user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str(),
-				redirect_all_immediately ? "a" : "",
-				redirect_new_users ? "n" : "",
-				n_done ? " (" : "",
-				n_done ? n_done_s.c_str() : "",
-				n_done ? " user(s) redirected)" : "",
-				reason.c_str());
 
 		return CMD_LOCALONLY;
 	}
