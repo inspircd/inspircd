@@ -278,7 +278,7 @@ public:
 
 	/** Returns the registration timeout
 	 */
-	unsigned int GetRegTimeout()
+	time_t GetRegTimeout()
 	{
 		return (registration_timeout ? registration_timeout : 90);
 	}
@@ -562,12 +562,6 @@ class CoreExport User : public connection
 	 * This is ONLY RELIABLE if user IS_AWAY()!
 	 */
 	time_t awaytime;
-
-	/** Timestamp of current time + connection class timeout.
-	 * This user must send USER/NICK before this timestamp is
-	 * reached or they will be disconnected.
-	 */
-	time_t timeout;
 
 	/** The oper type they logged in as, if they are an oper.
 	 * This is used to check permissions in operclasses, so that

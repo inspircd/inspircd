@@ -187,7 +187,39 @@ void InspIRCd::DoBackgroundUserStuff()
 				curr->OverPenalty = false;
 		}
 
-		if ((curr->registered != REG_ALL) && (TIME > curr->timeout))
+		switch (curr->registered)
+		{
+			case REG_ALL:
+				if (TIME > curr->nping)
+				{
+					// This user didn't answer the last ping, remove them
+					if (!curr->lastping)
+					{
+						time_t time = this->Time() - (curr->nping - curr->MyClass->GetPingTime());
+						char message[MAXBUF];
+						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
+						curr->lastping = 1;
+						curr->nping = TIME + curr->MyClass->GetPingTime();
+						this->Users->QuitUser(curr, message);
+						continue;
+					}
+
+					curr->Write("PING :%s",this->Config->ServerName);
+					curr->lastping = 0;
+					curr->nping = TIME  +curr->MyClass->GetPingTime();
+				}
+				break;
+			case REG_NICKUSER:
+				if (AllModulesReportReady(curr) && curr->dns_done)
+				{
+					/* User has sent NICK/USER, modules are okay, DNS finished. */
+					curr->FullConnect();
+					continue;
+				}
+				break;
+		}
+
+		if (curr->registered != REG_ALL && (TIME > (curr->age + curr->MyClass->GetRegTimeout())))
 		{
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
@@ -195,42 +227,6 @@ void InspIRCd::DoBackgroundUserStuff()
 			 */
 			this->Users->QuitUser(curr, "Registration timeout");
 			continue;
-		}
-
-		/*
-		 * `ready` means that the user has provided NICK/USER(/PASS), and all modules agree
-		 * that the user is okay to proceed. The one thing we are then waiting for now is DNS...
-		 */
-		bool ready = ((curr->registered == REG_NICKUSER) && AllModulesReportReady(curr));
-
-		if (ready)
-		{
-			if (curr->dns_done)
-			{
-				/* DNS passed, connect the user */
-				curr->FullConnect();
-				continue;
-			}
-		}
-
-		// It's time to PING this user. Send them a ping.
-		if ((TIME > curr->nping) && (curr->registered == REG_ALL))
-		{
-			// This user didn't answer the last ping, remove them
-			if (!curr->lastping)
-			{
-				time_t time = this->Time() - (curr->nping - curr->MyClass->GetPingTime());
-				char message[MAXBUF];
-				snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
-				curr->lastping = 1;
-				curr->nping = TIME + curr->MyClass->GetPingTime();
-				this->Users->QuitUser(curr, message);
-				continue;
-			}
-
-			curr->Write("PING :%s",this->Config->ServerName);
-			curr->lastping = 0;
-			curr->nping = TIME  +curr->MyClass->GetPingTime();
 		}
 	}
 }
