@@ -21,17 +21,12 @@
 #include "xline.h"
 #include "transport.h"
 
-#include "m_spanningtree/timesynctimer.h"
-#include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/main.h"
 #include "m_spanningtree/utils.h"
 #include "m_spanningtree/treeserver.h"
-#include "m_spanningtree/link.h"
 #include "m_spanningtree/treesocket.h"
-#include "m_spanningtree/rconnect.h"
-#include "m_spanningtree/rsquit.h"
 
-/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
+/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 int ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, User* user)
 {

@@ -26,7 +26,7 @@
 #include "m_spanningtree/link.h"
 #include "m_spanningtree/treesocket.h"
 
-/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
+/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
  * As of 1.1, the resolver system is seperated out from BufferedSocket, so we must do this

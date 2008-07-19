@@ -19,7 +19,6 @@
 #include "xline.h"
 #include "transport.h"
 
-#include "m_spanningtree/timesynctimer.h"
 #include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/main.h"
 #include "m_spanningtree/utils.h"
@@ -28,7 +27,7 @@
 #include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/rconnect.h"
 
-/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h */
+/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h */
 
 cmd_rconnect::cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RCONNECT", "o", 2), Creator(Callback), Utils(Util)
 {
