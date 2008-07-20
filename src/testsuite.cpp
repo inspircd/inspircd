@@ -59,7 +59,7 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 
 		cout << endl << "(X) Exit test suite\n";
 
-		cout << "\nChoice: ";
+		cout << "\nChoices (Enter one or more options as a list then press enter, e.g. 15X): ";
 		cin >> choice;
 
 		if (!choice)
