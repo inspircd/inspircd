@@ -49,10 +49,10 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>&, User *user)
 	user->WriteNumeric(RPL_INFO, "%s :   Adremelech      dz              BuildSmart     HiroP", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :   ThaPrince       Bricker         AnMaster       djGrrr", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s : ", user->nick.c_str());
-	user->WriteNumeric(RPL_INFO, " %s :\2Former Contributors\2:", user->nick.c_str());
-	user->WriteNumeric(RPL_INFO, " %s :   CC              jamie           typobox43      Burlex (win32)", user->nick.c_str());
-	user->WriteNumeric(RPL_INFO, " %s :   Stskeeps        ", user->nick.c_str());
-	user->WriteNumeric(RPL_INFO, " %s : ", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s :\2Former Contributors\2:", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s :   CC              jamie           typobox43      Burlex (win32)", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s :   Stskeeps        ", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s : ", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s : Best experienced with: \2An IRC client\2", user->nick.c_str());
 	FOREACH_MOD(I_OnInfo,OnInfo(user));
 	user->WriteNumeric(RPL_ENDOFINFO, "%s :End of /INFO list", user->nick.c_str());
