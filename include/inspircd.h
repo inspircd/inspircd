@@ -349,7 +349,8 @@ class CoreExport InspIRCd : public classbase
 	 */
 	time_t OLDTIME;
 
-	/** A 64k buffer used to read client lines into
+	/** A 64k buffer used to read socket data into
+	 * NOTE: update ValidateNetBufferSize if you change this
 	 */
 	char ReadBuffer[65535];
 

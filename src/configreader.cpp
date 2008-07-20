@@ -375,7 +375,8 @@ bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem 
 
 bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	if ((!data.GetInteger()) || (data.GetInteger() > 65535) || (data.GetInteger() < 1024))
+	// 65534 not 65535 because of null terminator
+	if ((!data.GetInteger()) || (data.GetInteger() > 65534) || (data.GetInteger() < 1024))
 	{
 		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
 		data.Set(10240);
