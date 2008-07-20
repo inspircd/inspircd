@@ -52,8 +52,9 @@ enum Numerics
 	RPL_ADMINLOC1				=	257,
 	RPL_ADMINLOC2				=	258,
 	RPL_ADMINEMAIL				=	259,
-	RPL_MAPUSERS				=	270, // insp-specific(?)
+	RPL_MAPUSERS				=	270, // insp-specific
 
+	RPL_SYNTAX					=	304,	// insp-specific
 
 	RPL_NOWAWAY						=	305,
 	RPL_UNAWAY						=	306,

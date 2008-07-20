@@ -336,7 +336,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
-			user->WriteNumeric(304, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
+			user->WriteNumeric(RPL_SYNTAX, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
 		return do_more;
 	}
 	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
