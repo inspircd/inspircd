@@ -29,8 +29,7 @@ Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : Serv
 	this->created = ts ? ts : ServerInstance->Time();
 	this->age = this->created;
 
-
-	maxbans = topicset = limit = 0;
+	maxbans = topicset = 0;
 	modes.reset();
 }
 
@@ -68,19 +67,10 @@ bool Channel::IsModeSet(char mode)
 
 std::string Channel::GetModeParameter(char mode)
 {
-	switch (mode)
-	{
-		case 'k':
-			return this->key;
-		case 'l':
-			return ConvToStr(this->limit);
-		default:
-			CustomModeList::iterator n = custom_mode_params.find(mode);
-			if (n != custom_mode_params.end())
-				return n->second;
-			return "";
-		break;
-	}
+	CustomModeList::iterator n = custom_mode_params.find(mode);
+	if (n != custom_mode_params.end())
+		return n->second;
+	return "";
 }
 
 long Channel::GetUserCounter()
@@ -302,13 +292,14 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			}
 			else if (MOD_RESULT == 0)
 			{
-				if (!Ptr->key.empty())
+				std::string ckey = Ptr->GetModeParameter('k');
+				if (!ckey.empty())
 				{
 					MOD_RESULT = 0;
-					FOREACH_RESULT_I(Instance,I_OnCheckKey,OnCheckKey(user, Ptr, key ? key : ""));
+					FOREACH_RESULT_I(Instance, I_OnCheckKey, OnCheckKey(user, Ptr, key ? key : ""));
 					if (!MOD_RESULT)
 					{
-						if ((!key) || Ptr->key == key)
+						if ((!key) || ckey != key)
 						{
 							user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
@@ -329,19 +320,23 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					}
 					user->RemoveInvite(Ptr->name.c_str());
 				}
-				if (Ptr->limit)
+
+				std::string limit = Ptr->GetModeParameter('l');
+				if (!limit.empty())
 				{
 					MOD_RESULT = 0;
-					FOREACH_RESULT_I(Instance,I_OnCheckLimit,OnCheckLimit(user, Ptr));
+					FOREACH_RESULT_I(Instance, I_OnCheckLimit, OnCheckLimit(user, Ptr));
 					if (!MOD_RESULT)
 					{
-						if (Ptr->GetUserCounter() >= Ptr->limit)
+						long llimit = atol(limit.c_str());
+						if (Ptr->GetUserCounter() >= llimit)
 						{
 							user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
 						}
 					}
 				}
+
 				if (Ptr->bans.size())
 				{
 					if (Ptr->IsBanned(user))
@@ -362,7 +357,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 }
 
 Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting)
-{
+{	
 	std::string nick = user->nick;
 	bool silent = false;
 
@@ -845,11 +840,16 @@ char* Channel::ChanModes(bool showkey)
 			switch (n)
 			{
 				case CM_KEY:
-					extparam = (showkey ? this->key : "<key>");
-				break;
-				case CM_LIMIT:
-					extparam = ConvToStr(this->limit);
-				break;
+					// Unfortunately this must be special-cased, as we definitely don't want to always display key.
+					if (showkey)
+					{
+						extparam = this->GetModeParameter('k');
+					}
+					else
+					{
+						extparam = "<key>";
+					}
+					break;
 				case CM_NOEXTERNAL:
 				case CM_TOPICLOCK:
 				case CM_INVITEONLY:

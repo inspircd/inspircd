@@ -23,14 +23,15 @@ ModeChannelKey::ModeChannelKey(InspIRCd* Instance) : ModeHandler(Instance, 'k', 
 
 ModePair ModeChannelKey::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 {       
-        if (channel->modes[CM_KEY])
-        {
-                return std::make_pair(true, channel->key);
-        }
-        else
-        {
-                return std::make_pair(false, parameter);
-        }
+    if (channel->modes[CM_KEY])
+    {
+		std::string ckey = channel->GetModeParameter('k');
+		return std::make_pair(true, ckey);
+    }
+    else
+    {
+		return std::make_pair(false, parameter);
+    }
 }
 
 void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
@@ -42,10 +43,12 @@ void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
 	if (channel->IsModeSet(this->GetModeChar()))
 	{
 		if (stack)
-			stack->Push(this->GetModeChar(), channel->key);
+		{
+			stack->Push(this->GetModeChar(), channel->GetModeParameter('k'));
+		}
 		else
 		{
-			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-k"); parameters.push_back(channel->key);
+			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-k"); parameters.push_back(channel->GetModeParameter('k'));
 			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
@@ -65,7 +68,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 {
 	if ((channel->IsModeSet('k') != adding) || (!IS_LOCAL(source)))
 	{
-		if (((channel->IsModeSet('k')) && (parameter != channel->key)) && (IS_LOCAL(source)))
+		if (((channel->IsModeSet('k')) && (parameter != channel->GetModeParameter('k'))) && (IS_LOCAL(source)))
 		{
 			/* Key is currently set and the correct key wasnt given */
 			return MODEACTION_DENY;
@@ -75,18 +78,18 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 			/* Key isnt currently set */
 			if ((parameter.length()) && (parameter.rfind(' ') == std::string::npos))
 			{
-				channel->key.assign(parameter, 0, 32);
-				channel->SetMode('k', adding);
-				parameter = channel->key;
+				std::string ckey;
+				ckey.assign(parameter, 0, 32);
+				channel->SetMode('k', ckey.c_str());
+				parameter = ckey;
 				return MODEACTION_ALLOW;
 			}
 			else
 				return MODEACTION_DENY;
 		}
-		else if (((channel->IsModeSet('k')) && (parameter == channel->key)) || ((!adding) && (!IS_LOCAL(source))))
+		else if (((channel->IsModeSet('k')) && (parameter == channel->GetModeParameter('k'))) || ((!adding) && (!IS_LOCAL(source))))
 		{
 			/* Key is currently set, and correct key was given */
-			channel->key.clear();
 			channel->SetMode('k', adding);
 			return MODEACTION_ALLOW;
 		}

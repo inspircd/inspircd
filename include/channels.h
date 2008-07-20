@@ -197,16 +197,6 @@ class CoreExport Channel : public Extensible
 	 */
 	std::string setby; /* 128 */
 
-	/** Contains the channel user limit.
-	 * If this value is zero, there is no limit in place.
-	 */
-	short int limit;
-	
-	/** Contains the channel key.
-	 * If this value is an empty string, there is no channel key in place.
-	 */
-	std::string key; /* 32 */
-
 	/** The list of all bans set on the channel.
 	 */
 	BanList bans;

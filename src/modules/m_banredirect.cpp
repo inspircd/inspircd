@@ -295,8 +295,12 @@ class ModuleBanRedirect : public Module
 					{
 						/* tell them they're banned and are being transferred */
 						Channel* destchan = ServerInstance->FindChan(redir->targetchan);
+						std::string destlimit;
 
-						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
+						if (destchan)
+							destlimit = destchan->GetModeParameter('l');
+
+						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
 						{
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
 							return 1;

@@ -23,9 +23,10 @@ ModeChannelLimit::ModeChannelLimit(InspIRCd* Instance) : ModeHandler(Instance, '
 
 ModePair ModeChannelLimit::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 {
-	if (channel->limit)
+	std::string climit = channel->GetModeParameter('l');
+	if (!climit.empty())
 	{
-		return std::make_pair(true, ConvToStr(channel->limit));
+		return std::make_pair(true, climit);
 	}
 	else
 	{
@@ -52,7 +53,8 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 
 		/* If the new limit is the same as the old limit,
 		 * and the old limit isnt 0, disallow */
-		if ((limit == channel->limit) && (channel->limit > 0))
+		std::string oldlimit = channel->GetModeParameter('l');
+		if (limit == atoi(oldlimit.c_str()) && oldlimit != "0")
 		{
 			parameter = "";
 			return MODEACTION_DENY;
@@ -70,7 +72,7 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 		parameter = ConvToStr(limit);
 
 		/* Set new limit */
-		channel->limit = limit;
+		channel->SetModeParam('l', parameter.c_str(), true);
 		channel->modes[CM_LIMIT] = 1;
 
 		return MODEACTION_ALLOW;
@@ -80,14 +82,14 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 		/* Check if theres a limit here to remove.
 		 * If there isnt, dont allow the -l
 		 */
-		if (!channel->limit)
+		if (channel->GetModeParameter('l').empty())
 		{
 			parameter = "";
 			return MODEACTION_DENY;
 		}
 
 		/* Removing old limit, no checks here */
-		channel->limit = 0;
+		channel->SetModeParam('l', "", false);
 		channel->modes[CM_LIMIT] = 0;
 
 		return MODEACTION_ALLOW;

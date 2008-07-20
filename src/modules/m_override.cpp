@@ -253,7 +253,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 
-				if ((!chan->key.empty()) && (CanOverride(user,"KEY")) && keygiven != chan->key)
+				if ((chan->modes[CM_KEY]) && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter('k'))
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -268,7 +268,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 
-				if ((chan->limit > 0) && (chan->GetUserCounter() >=  chan->limit) && (CanOverride(user,"LIMIT")))
+				if ((chan->modes[CM_LIMIT]) && (chan->GetUserCounter() >=  atoi(chan->GetModeParameter('l').c_str())) && (CanOverride(user,"LIMIT")))
 				{
 					if (RequireKey && keygiven != "override")
 					{

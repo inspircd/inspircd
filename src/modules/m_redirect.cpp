@@ -116,9 +116,9 @@ class ModuleRedirect : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsModeSet('L') && chan->limit)
+			if (chan->IsModeSet('L') && chan->modes[CM_LIMIT])
 			{
-				if (chan->GetUserCounter() >= chan->limit)
+				if (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str()))
 				{
 					std::string channel = chan->GetModeParameter('L');
 
