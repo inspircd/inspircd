@@ -40,7 +40,15 @@ enum Numerics
 
 	RPL_UMODEIS					=	221,
 	RPL_RULES					=	232, // unrealircd
+	RPL_ADMINME					=	256,
+	RPL_ADMINLOC1				=	257,
+	RPL_ADMINLOC2				=	258,
+	RPL_ADMINEMAIL				=	259,
 	RPL_MAPUSERS				=	270, // insp-specific(?)
+
+
+	RPL_NOWAWAY						=	305,
+	RPL_UNAWAY						=	306,
 
 	RPL_RULESTART					=	308, // unrealircd
 	RPL_RULESEND					=	309, // unrealircd
@@ -48,10 +56,16 @@ enum Numerics
 	RPL_CHANNELCREATED				=	329, // ???
 	RPL_TOPIC					=	332,
 	RPL_TOPICTIME					=	333, // not RFC, extremely common though
+
+	RPL_INVITING					=	341,
+	RPL_INVITELIST					=	346, // insp-specific (stolen from ircu)
+	RPL_ENDOFINVITELIST				=	347, // insp-specific (stolen from ircu)
 	RPL_VERSION						=	351,
 	RPL_NAMREPLY					=	353,
 	RPL_ENDOFNAMES					=	366,
 
+	RPL_INFO					=	371,
+	RPL_ENDOFINFO				=	374,
 	RPL_MOTD					=	372,
 	RPL_MOTDSTART					=	375,
 	RPL_ENDOFMOTD					=	376,
@@ -74,6 +88,8 @@ enum Numerics
 	ERR_NOMOTD					=	422,
 	ERR_NORULES					=	434, // unrealircd
 	ERR_USERNOTINCHANNEL				=	441,
+	ERR_NOTONCHANNEL					=	442,
+	ERR_USERONCHANNEL					=	443,
 	ERR_CANTCHANGENICK					=	447, // unrealircd, probably
 	ERR_NOTREGISTERED				=	451,
 	ERR_NEEDMOREPARAMS				=	461,
@@ -111,6 +127,9 @@ enum Numerics
 	ERR_USERSDONTMATCH				=	502,
 	ERR_CANTJOINOPERSONLY			=	520, // unrealircd, but crap to have so many numerics for cant join..
 	ERR_CANTSENDTOUSER				=	531, // ???
+
+	RPL_COMMANDS						=	702, // insp-specific
+	RPL_COMMANDSEND						=	703, // insp-specific
 
 	ERR_WORDFILTERED					=	936, // insp-specific, would be nice if we could get rid of this..
 	ERR_CANTUNLOADMODULE				=	972, // insp-specific

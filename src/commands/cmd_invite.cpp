@@ -37,7 +37,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		if ((!c) || (!u))
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), c ? parameters[0].c_str() : parameters[1].c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), c ? parameters[0].c_str() : parameters[1].c_str());
 			return CMD_FAILURE;
 		}
 
@@ -45,33 +45,33 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteNumeric(482, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
 				return CMD_FAILURE;
 			}
 		}
 
 		if (c->HasUser(u))
 	 	{
-	 		user->WriteNumeric(443, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+	 		user->WriteNumeric(ERR_USERONCHANNEL, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
 	 		return CMD_FAILURE;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 	 	{
-			user->WriteNumeric(442, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(ERR_NOTONCHANNEL, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
 	  		return CMD_FAILURE;
 		}
+		{
 
 		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c,timeout));
 
 		if (MOD_RESULT == 1)
-		{
 			return CMD_FAILURE;
 		}
 
 		u->InviteTo(c->name.c_str(), timeout);
 		u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
-		user->WriteNumeric(341, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+		user->WriteNumeric(RPL_INVITING, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
 		switch (ServerInstance->Config->AnnounceInvites)
 		{
 			case ServerConfig::INVITE_ANNOUNCE_ALL:
@@ -99,9 +99,9 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		InvitedList* il = user->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
-			user->WriteNumeric(346, "%s :%s",user->nick.c_str(),i->first.c_str());
+			user->WriteNumeric(RPL_INVITELIST, "%s :%s",user->nick.c_str(),i->first.c_str());
 		}
-		user->WriteNumeric(347, "%s :End of INVITE list",user->nick.c_str());
+		user->WriteNumeric(RPL_ENDOFINVITELIST, "%s :End of INVITE list",user->nick.c_str());
 	}
 	return CMD_SUCCESS;
 }
