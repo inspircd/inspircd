@@ -32,7 +32,7 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>&, User *user)
 	user->WriteNumeric(RPL_INFO, "%s :    Robin Burchell,         w00t,      <w00t@inspircd.org>", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    Oliver Lupton,          Om,        <om@inspircd.org>", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    John Brooks,            Special,   <special@inspircd.org>", user->nick.c_str());
-	user->WriteNumeric(RPL_INFO, "%s :    Pippijn van Steenhoven, pippijn,   <pippijn@one09.net>", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s :    Pippijn van Steenhoven, pippijn,   <pip88nl@gmail.com>", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    Dennis Friis,           peavey,    <peavey@inspircd.org>", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    Thomas Stagner,         aquanight, <aquanight@inspircd.org>", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    Eric Dietz,             fez,       <fez@inspircd.org>", user->nick.c_str());
