@@ -1,7 +1,7 @@
 /*       +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
- *
+ *  
  *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
@@ -15,22 +15,30 @@
  * This file is aimed providing a string that is easier to use than using the numeric
  * directly.
  *
+ * Module authors, please note!
+ *  While you are free to use any numerics on this list, like the rest of the core, you
+ *  *should not* be editing it!
+ *  You should just WriteNumeric(444, .. or whatever as you would before this file, OR:
+ *  #define RPL_MYNUMERIC 444 & WriteNumeric(RPL_MYNUMERIC, ...
+ *
+ *  If you *do* have a suggestion for a numeric you genuinely believe would be useful,
+ *  please speak to us. :)
+ *
  * Thanks to Darom, jackmcbarn and Brain for suggesting and discussing this.
  *
  * Please note that the list may not be exhaustive, it'll be done when I have
  * nothing better to do with my time. -- w00t (jul 13, 2008)
  */
-
 enum Numerics
 {
 	/*
 	 * Reply range of numerics.
 	 */
-	RPL_WELCOME					=	1, // not RFC, extremely common though
-	RPL_YOURHOSTIS					=	2, // not RFC, extremely common though
-	RPL_SERVERCREATED				=	3, // not RFC, extremely common though
-	RPL_SERVERVERSION				=	4, // not RFC, extremely common though
-	RPL_ISUPPORT					=	5, // not RFC, extremely common though
+	RPL_WELCOME					=	1, // 2812, not 1459
+	RPL_YOURHOSTIS					=	2, // 2812, not 1459
+	RPL_SERVERCREATED				=	3, // 2812, not 1459
+	RPL_SERVERVERSION				=	4, // 2812, not 1459
+	RPL_ISUPPORT					=	5, // not RFC, extremely common though (defined as RPL_BOUNCE in 2812, widely ignored)
 
 	RPL_MAP								=	6, // unrealircd
 	RPL_ENDMAP							=	7, // unrealircd
