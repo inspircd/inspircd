@@ -371,6 +371,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\cachetimer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\capab.cpp"
 				>
 			</File>
@@ -563,10 +567,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\modules\m_spanningtree\timesynctimer.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\modules\m_spanningtree\treeserver.cpp"
 				>
 			</File>
@@ -601,6 +601,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\cachetimer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\handshaketimer.h"
 				>
 			</File>
@@ -622,10 +626,6 @@
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\rsquit.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\modules\m_spanningtree\timesynctimer.h"
 				>
 			</File>
 			<File

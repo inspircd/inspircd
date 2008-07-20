@@ -662,6 +662,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\numerics.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\snomasks.h"
 				>
 			</File>
