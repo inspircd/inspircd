@@ -68,7 +68,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	}
 
 	struct epoll_event ev;
-	memset(&ev,0,sizeof(struct epoll_event));
+	memset(&ev,0,sizeof(ev));
 	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
@@ -91,7 +91,7 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	 * status for us and saves us a call.
 	 */
 	struct epoll_event ev;
-	memset(&ev,0,sizeof(struct epoll_event));
+	memset(&ev,0,sizeof(ev));
 	ev.events = EPOLLOUT;
 	ev.data.fd = eh->GetFd();
 	epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
@@ -107,7 +107,7 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	}
 
 	struct epoll_event ev;
-	memset(&ev,0,sizeof(struct epoll_event));
+	memset(&ev,0,sizeof(ev));
 	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
@@ -181,7 +181,7 @@ int EPollEngine::DispatchEvents()
 		{
 			WriteEvents++;
 			struct epoll_event ev;
-			memset(&ev,0,sizeof(struct epoll_event));
+			memset(&ev,0,sizeof(ev));
 			ev.events = EPOLLIN;
 			ev.data.fd = events[j].data.fd;
 			epoll_ctl(EngineHandle, EPOLL_CTL_MOD, events[j].data.fd, &ev);

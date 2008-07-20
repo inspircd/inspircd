@@ -38,6 +38,8 @@
 #include <cmath>
 #include <cstring>
 #include <climits>
+
+#include <sstream>
 #include <string>
 #include <vector>
 #include <deque>

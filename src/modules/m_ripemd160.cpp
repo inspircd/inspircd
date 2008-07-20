@@ -379,7 +379,7 @@ class ModuleRIPEMD160 : public Module
 		unsigned int i;                                 /* counter       */
 		dword        X[16];                             /* message words */
 
-		memset(X, 0, 16*sizeof(dword));
+		memset(X, 0, sizeof(X));
 
 		/* put bytes from strptr into X */
 		for (i=0; i<(lswlen&63); i++) {
@@ -393,7 +393,7 @@ class ModuleRIPEMD160 : public Module
 		if ((lswlen & 63) > 55) {
 			/* length goes to next block */
 			compress(MDbuf, X);
-			memset(X, 0, 16*sizeof(dword));
+			memset(X, 0, sizeof(X));
 		}
 
 		/* append length in bits*/

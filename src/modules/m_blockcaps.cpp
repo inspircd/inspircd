@@ -107,7 +107,7 @@ public:
 		std::string hmap = Conf.ReadValue("blockcaps", "capsmap", 0);
 		if (hmap.empty())
 			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		memset(&capsmap, 0, 255);
+		memset(capsmap, 0, sizeof(capsmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			capsmap[(unsigned char)*n] = 1;
 		if (percent < 1 || percent > 100)

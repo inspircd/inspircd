@@ -103,7 +103,7 @@ class ModuleChgHost : public Module
 		if (hmap.empty())
 			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
 
-		memset(&hostmap, 0, 255);
+		memset(hostmap, 0, sizeof(hostmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			hostmap[(unsigned char)*n] = 1;
 	}

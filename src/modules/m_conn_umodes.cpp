@@ -56,7 +56,8 @@ class ModuleModesOnConnect : public Module
 
 		// Backup and zero out the disabled usermodes, so that we can override them here.
 		char save[64];
-		memcpy(save, ServerInstance->Config->DisabledUModes, 64);
+		memcpy(save, ServerInstance->Config->DisabledUModes,
+				sizeof(ServerInstance->Config->DisabledUModes));
 		memset(ServerInstance->Config->DisabledUModes, 0, 64);
 
 		for (int j = 0; j < Conf->Enumerate("connect"); j++)

@@ -43,7 +43,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		// For Aligning, we need to work out exactly how deep this thing is, and produce
 		// a 'Spacer' String to compensate.
 		char spacer[40];
-		memset(spacer,' ',40);
+		memset(spacer,' ',sizeof(spacer));
 		if ((40 - Current->GetName().length() - depth) > 1) {
 			spacer[40 - Current->GetName().length() - depth] = '\0';
 		}
@@ -55,7 +55,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		float percent;
 		char text[128];
 		/* Neat and tidy default values, as we're dealing with a matrix not a simple string */
-		memset(text, 0, 128);
+		memset(text, 0, sizeof(text));
 
 		if (ServerInstance->Users->clientlist->size() == 0)
 		{

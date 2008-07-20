@@ -247,7 +247,7 @@ class ModuleDNSBL : public Module
 			}
 			else
 			{
-				memset(e->records, 0, 256);
+				memset(e->records, 0, sizeof(e->records));
 				e->type = DNSBLConfEntry::A_RECORD;
 				irc::portparser portrange(MyConf->ReadValue("dnsbl", "records", i), false);
 				long item = -1;

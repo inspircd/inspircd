@@ -31,7 +31,7 @@ Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : Serv
 
 
 	maxbans = topicset = limit = 0;
-	memset(&modes, 0, 64);
+	modes.reset();
 }
 
 void Channel::SetMode(char mode,bool mode_on)

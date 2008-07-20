@@ -1221,5 +1221,5 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 		this->AddMode(modes[index]);
 
 	seq = 0;
-	memset(&sent, 0, 256);
+	memset(&sent, 0, sizeof(sent));
 }

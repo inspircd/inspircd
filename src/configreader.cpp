@@ -301,7 +301,7 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 
 bool ValidateDisabledUModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	memset(conf->DisabledUModes, 0, 64);
+	memset(conf->DisabledUModes, 0, sizeof(conf->DisabledUModes));
 	for (const unsigned char* p = (const unsigned char*)data.GetString(); *p; ++p)
 	{
 		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid usermode ")+(char)*p+" was found.");
@@ -312,7 +312,7 @@ bool ValidateDisabledUModes(ServerConfig* conf, const char*, const char*, ValueI
 
 bool ValidateDisabledCModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	memset(conf->DisabledCModes, 0, 64);
+	memset(conf->DisabledCModes, 0, sizeof(conf->DisabledCModes));
 	for (const unsigned char* p = (const unsigned char*)data.GetString(); *p; ++p)
 	{
 		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid chanmode ")+(char)*p+" was found.");
@@ -414,7 +414,7 @@ bool ValidateRules(ServerConfig* conf, const char*, const char*, ValueItem &data
 
 bool ValidateModeLists(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	memset(conf->HideModeLists, 0, 256);
+	memset(conf->HideModeLists, 0, sizeof(conf->HideModeLists));
 	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
 		conf->HideModeLists[*x] = true;
 	return true;
@@ -422,7 +422,7 @@ bool ValidateModeLists(ServerConfig* conf, const char*, const char*, ValueItem &
 
 bool ValidateExemptChanOps(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	memset(conf->ExemptChanOps, 0, 256);
+	memset(conf->ExemptChanOps, 0, sizeof(conf->ExemptChanOps));
 	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
 		conf->ExemptChanOps[*x] = true;
 	return true;
