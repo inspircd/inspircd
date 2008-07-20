@@ -355,7 +355,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 					}
 					else
 					{
-						failed_ports.push_back(std::make_pair(Addr + portno, strerror(errno)));
+						failed_ports.push_back(std::make_pair((*Addr ? Addr : "*") + std::string(":") + ConvToStr(portno), strerror(errno)));
 					}
 					ports_found++;
 				}
