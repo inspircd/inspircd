@@ -41,10 +41,14 @@ public:
 			delete bc;
 			throw ModuleException("Could not add new modes!");
 		}
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
+	virtual void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('B');
+	}
 
 	virtual void OnRehash(User* user, const std::string &param)
 	{
@@ -65,7 +69,7 @@ public:
 				return 0;
 			}
 
-			if (c->IsModeSet('B'))
+			if (c->IsModeSet('B') || c->IsExtBanned(user, 'B'))
 			{
 				int caps = 0;
 				const char* actstr = "\1ACTION ";

@@ -85,16 +85,10 @@ class ModuleNoNickChange : public Module
 		{
 			Channel* curr = i->first;
 
-			if (curr->IsModeSet('N'))
-			{
-				if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
-					continue;
+			if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
+				continue;
 
-				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name.c_str());
-				return 1;
-			}
-
-			if (curr->IsExtBanned(user, 'N'))
+			if (curr->IsModeSet('N') || curr->IsExtBanned(user, 'N'))
 			{
 				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name.c_str());
 				return 1;
