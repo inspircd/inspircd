@@ -31,16 +31,25 @@ class ModuleNoInvite : public Module
 		ni = new NoInvite(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(ni))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreInvite };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnUserPreInvite, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
+	virtual void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('V');
+	}
 
 	virtual int OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
 	{
 		if (IS_LOCAL(user))
 		{
-			if (channel->IsModeSet('V'))
+			if (CHANOPS_EXEMPT(ServerInstance, 'c') && channel->GetStatus(user) == STATUS_OP)
+			{
+				return 0;
+			}
+
+			if (channel->IsModeSet('V') || channel->IsExtBanned(user, 'V'))
 			{
 				user->WriteNumeric(ERR_NOCTCPALLOWED, "%s %s :Can't invite %s to channel (+V set)",user->nick.c_str(), channel->name.c_str(), dest->nick.c_str());
 				return 1;
