@@ -861,7 +861,6 @@ void User::CheckClass()
 	}
 
 	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
-	this->MaxChans = a->GetMaxChans();
 }
 
 bool User::CheckLines()
@@ -1754,12 +1753,6 @@ void User::SplitChanList(User* dest, const std::string &cl)
 		ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
 	}
 }
-
-unsigned int User::GetMaxChans()
-{
-	return this->MaxChans;
-}
-
 
 /*
  * Sets a user's connection class.

@@ -215,9 +215,10 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 	 */
 	if (IS_LOCAL(user) && !override)
 	{
-		if (user->GetMaxChans())
+		// Checking MyClass exists because we *may* get here with NULL, not 100% sure.
+		if (user->MyClass && user->MyClass->GetMaxChans())
 		{
-			if (user->chans.size() >= user->GetMaxChans())
+			if (user->chans.size() >= user->MyClass->GetMaxChans())
 			{
 				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 				return NULL;

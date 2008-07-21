@@ -258,7 +258,7 @@ public:
 	 */
 	unsigned long limit;
 
-	int GetMaxChans()
+	size_t GetMaxChans()
 	{
 		return maxchans;
 	}
@@ -456,10 +456,6 @@ class CoreExport User : public connection
 	 */
 	void DecrementModes();
 
-	/** Max channels for this user
-	 */
-	unsigned int MaxChans;
-
 	std::map<std::string, bool>* AllowedOperCommands;
 
 	/** Allowed user modes from oper classes. */
@@ -504,8 +500,6 @@ class CoreExport User : public connection
 	 * When complete, these objects set User::dns_done to true.
 	 */
 	void StartDNSLookup();
-
-	unsigned int GetMaxChans();
 
 	/** The users nickname.
 	 * An invalid nickname indicates an unregistered connection prior to the NICK command.
