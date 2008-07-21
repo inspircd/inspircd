@@ -46,10 +46,9 @@ class ModuleStripColor : public Module
 
 		if (!ServerInstance->Modes->AddMode(usc) || !ServerInstance->Modes->AddMode(csc))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-
 
 	virtual ~ModuleStripColor()
 	{
@@ -57,6 +56,11 @@ class ModuleStripColor : public Module
 		ServerInstance->Modes->DelMode(csc);
 		delete usc;
 		delete csc;
+	}
+
+	virtual void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('S');
 	}
 
 	virtual void ReplaceLine(std::string &sentence)
@@ -121,7 +125,7 @@ class ModuleStripColor : public Module
 				return 0;
 			}
 
-			active = t->IsModeSet('S');
+			active = t->IsModeSet('S') || t->IsExtBanned(user, 'S');
 		}
 
 		if (active)
