@@ -34,11 +34,14 @@ class ModuleBlockColour : public Module
 		bc = new BlockColor(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(bc))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-
+	virtual void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('c');
+	}
 
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
@@ -51,7 +54,7 @@ class ModuleBlockColour : public Module
 				return 0;
 			}
 
-			if(c->IsModeSet('c'))
+			if(c->IsModeSet('c') || c->IsExtBanned(user, 'c'))
 			{
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
