@@ -35,16 +35,20 @@ class ModuleNoKicks : public Module
 		nk = new NoKicks(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(nk))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnAccessCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnAccessCheck, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
+	virtual void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('Q');
+	}
 
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		if (access_type == AC_KICK)
 		{
-			if (channel->IsModeSet('Q'))
+			if (channel->IsModeSet('Q') || channel->IsExtBanned(source, 'Q'))
 			{
 				if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 				{
