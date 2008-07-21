@@ -34,17 +34,21 @@ class ModuleNoNotice : public Module
 		nt = new NoNotice(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(nt))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnUserPreNotice, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
+	virtual void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('T');
+	}
 
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if (c->IsModeSet('T'))
+			if (c->IsModeSet('T') || c->IsExtBanned(user, 'T'))
 			{
 				if (ServerInstance->ULine(user->server))
 				{
