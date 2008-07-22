@@ -61,9 +61,14 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 	}
 	
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnStats,OnStats(statschar,user,results));
+	FOREACH_RESULT(I_OnStats,OnStats(statschar, user, results));
 	if (MOD_RESULT)
+	{
+		results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
+		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
+			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return;
+	}
 
 	switch (statschar)
 	{
