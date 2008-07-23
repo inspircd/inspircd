@@ -459,13 +459,13 @@ class SQLhost
  */
 bool operator== (const SQLhost& l, const SQLhost& r)
 {
-	return (l.id == r.id && l.host == r.host && l.port == r.port && l.name == r.name && l.user == l.user && l.pass == r.pass && l.ssl == r.ssl);
+	return (l.id == r.id && l.host == r.host && l.port == r.port && l.name == r.name && l.user == r.user && l.pass == r.pass && l.ssl == r.ssl);
 }
 /** Overload operator!= for two SQLhost objects for easy comparison.
  */
 bool operator!= (const SQLhost& l, const SQLhost& r)
 {
-	return (l.id != r.id || l.host != r.host || l.port != r.port || l.name != r.name || l.user != l.user || l.pass != r.pass || l.ssl != r.ssl);
+	return (l.id != r.id || l.host != r.host || l.port != r.port || l.name != r.name || l.user != r.user || l.pass != r.pass || l.ssl != r.ssl);
 }
 
 
