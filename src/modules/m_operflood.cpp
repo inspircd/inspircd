@@ -20,7 +20,11 @@
 class ModuleOperFlood : public Module
 {
 public:
-	ModuleOperFlood(InspIRCd * Me) : Module(Me) {}
+	ModuleOperFlood(InspIRCd * Me) : Module(Me)
+	{
+                Implementation eventlist[] = { I_OnPostOper };
+                ServerInstance->Modules->Attach(eventlist, this, 1);
+	}
 
 
 	Version GetVersion()
