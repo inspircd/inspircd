@@ -1012,7 +1012,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Muteban: Implements extended ban m:, which stops anyone matching
-# a mask like +b n:nick!user@host from speaking on channel.
+# a mask like +b m:nick!user@host from speaking on channel.
 #<module name="m_muteban.so">
 #
 
