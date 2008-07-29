@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDusers */
+/* $Core */
 
 #include "inspircd.h"
 #include <stdarg.h>

@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDxline */
+/* $Core */
 
 #include "inspircd.h"
 #include "wildcard.h"

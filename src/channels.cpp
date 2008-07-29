@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDchannels */
+/* $Core */
 
 #include "inspircd.h"
 #include <cstdarg>

@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDbase */
+/* $Core */
 
 #include "inspircd_config.h"
 #include "base.h"

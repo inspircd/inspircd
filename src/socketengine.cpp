@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDsocketengine */
+/* $Core */
 
 /*********        DEFAULTS       **********/
 /* $ExtraSources: socketengines/socketengine_select.cpp */

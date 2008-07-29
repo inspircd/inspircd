@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDfilelogger */
+/* $Core */
 
 #include "inspircd.h"
 #include <fstream>

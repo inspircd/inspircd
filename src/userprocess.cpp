@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDuserprocess */
+/* $Core */
 
 #include "inspircd.h"
 #include "wildcard.h"

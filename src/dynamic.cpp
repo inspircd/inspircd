@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDdynamic */
+/* $Core */
 
 #include "inspircd.h"
 #include "dynamic.h"

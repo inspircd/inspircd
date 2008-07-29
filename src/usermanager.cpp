@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDusermanager */
+/* $Core */
 
 #include "inspircd.h"
 #include "xline.h"

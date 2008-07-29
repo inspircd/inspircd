@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDsocket */
+/* $Core */
 
 #include "inspircd.h"
 #include "socket.h"

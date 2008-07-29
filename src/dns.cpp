@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDasyncdns */
+/* $Core */
 
 /*
 dns.cpp - Nonblocking DNS functions.

@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDstring */
+/* $Core */
 
 #include "inspstring.h"
 

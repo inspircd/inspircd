@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDuserresolver */
+/* $Core */
 
 #include "inspircd.h"
 

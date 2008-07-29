@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDmode */
+/* $Core */
 /* $ExtraDeps: $(RELCPPFILES) */
 /* $ExtraObjects: modes/modeclasses.a */
 /* $ExtraBuild: @${MAKE} -C "modes" DIRNAME="src/modes" CC="$(CC)" $(MAKEARGS) CPPFILES="$(CPPFILES)" */

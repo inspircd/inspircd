@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDcull_list */
+/* $Core */
 
 #include "inspircd.h"
 #include "cull_list.h"

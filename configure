@@ -70,7 +70,7 @@ our $uninstall_list = "";
 
 # This is a list of all files in the core. Each cpp file is mapped to a shared object file,
 # whos file extension is omitted (these can vary from system to system). Auto detected by
-# scanning the src/*.cpp files for files containing /* $Core: */ identifiers.
+# scanning the src/*.cpp files for files containing /* $Core */ identifiers.
 
 our %filelist = ();
 
@@ -1540,7 +1540,7 @@ sub write_dynamic_makefile
 				while (defined(my $line = <CPP>))
 				{
 					chomp($line);
-					if ($line =~ /\/\* \$Core: (\w+) \*\//i)
+					if ($line =~ /\/\* \$Core \*\//i)
 					{
 						my $sname = $name;
 						$sname =~ s/\.cpp$/.o/;

@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDconfigreader */
+/* $Core */
 /* $CopyInstall: conf/inspircd.quotes.example $(CONPATH) */
 /* $CopyInstall: conf/inspircd.rules.example $(CONPATH) */
 /* $CopyInstall: conf/inspircd.motd.example $(CONPATH) */

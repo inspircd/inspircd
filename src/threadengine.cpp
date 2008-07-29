@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDthreadengine */
+/* $Core */
 
 /*********        DEFAULTS       **********/
 /* $ExtraSources: threadengines/threadengine_pthread.cpp */

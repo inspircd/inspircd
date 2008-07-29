@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDhash */
+/* $Core */
 
 #include "inspircd.h"
 #include "hashcomp.h"

@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core: libIRCDtestsuite */
+/* $Core */
 
 #include "inspircd.h"
 #include "testsuite.h"
