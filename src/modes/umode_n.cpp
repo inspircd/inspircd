@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/umode_n.h"
 
-ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHandler(Instance, 'n', 1, 0, false, MODETYPE_USER, true)
+ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHandler(Instance, 's', 1, 0, false, MODETYPE_USER, true)
 {
 }
 
@@ -36,13 +36,6 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Chan
 
 		parameter = dest->ProcessNoticeMasks(parameter.c_str());
 		dest->modes[UM_SNOMASK] = true;
-		if (!dest->modes[UM_SERVERNOTICE])
-		{
-			std::vector<std::string> newmodes;
-			newmodes.push_back(dest->nick);
-			newmodes.push_back("+s");
-			ServerInstance->Modes->Process(newmodes, source, true);
-		}
 		return MODEACTION_ALLOW;
 	}
 	else

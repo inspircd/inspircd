@@ -44,16 +44,14 @@ enum ClassTypes {
 /** RFC1459 channel modes
  */
 enum UserModes {
-	/** +s: Server notices */
-	UM_SERVERNOTICE = 's' - 65,
+	/** +s: Server notice mask */
+	UM_SNOMASK = 's' - 65,
 	/** +w: WALLOPS */
 	UM_WALLOPS = 'w' - 65,
 	/** +i: Invisible */
 	UM_INVISIBLE = 'i' - 65,
 	/** +o: Operator */
-	UM_OPERATOR = 'o' - 65,
-	/** +n: Server notice mask */
-	UM_SNOMASK = 'n' - 65
+	UM_OPERATOR = 'o' - 65
 };
 
 /** Registration state of a user, e.g.

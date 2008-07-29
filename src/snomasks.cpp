@@ -135,7 +135,7 @@ void Snomask::Flush()
 	for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
 	{
 		User* a = *i;
-		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)
+		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)
 		{
 
 			a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), this->Description.c_str(), this->LastMessage.c_str());

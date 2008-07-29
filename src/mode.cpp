@@ -43,15 +43,13 @@
 #include "modes/cmode_h.h"
 /* +v (channel voice) */
 #include "modes/cmode_v.h"
-/* +s (server notices) */
-#include "modes/umode_s.h"
 /* +w (see wallops) */
 #include "modes/umode_w.h"
 /* +i (invisible) */
 #include "modes/umode_i.h"
 /* +o (operator) */
 #include "modes/umode_o.h"
-/* +n (notice mask - our implementation of snomasks) */
+/* +n (server notice masks) */
 #include "modes/umode_n.h"
 
 ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired)
@@ -1202,7 +1200,6 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 		new ModeChannelOp(Instance),
 		new ModeChannelHalfOp(Instance),
 		new ModeChannelVoice(Instance),
-		new ModeUserServerNotice(Instance),
 		new ModeUserWallops(Instance),
 		new ModeUserInvisible(Instance),
 		new ModeUserOperator(Instance),
