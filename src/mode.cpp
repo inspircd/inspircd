@@ -49,8 +49,8 @@
 #include "modes/umode_i.h"
 /* +o (operator) */
 #include "modes/umode_o.h"
-/* +n (server notice masks) */
-#include "modes/umode_n.h"
+/* +s (server notice masks) */
+#include "modes/umode_s.h"
 
 ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired)
 	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly), prefix(mprefix), count(0), prefixneeded(prefixrequired)
