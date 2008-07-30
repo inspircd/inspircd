@@ -63,17 +63,32 @@ class ModuleOperChans : public Module
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
+		bool banned = false;
+
 		if (!IS_OPER(user))
 		{
 			if (chan)
 			{
 				if (chan->IsModeSet('O'))
 				{
-					user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join the channel %s (+O is set)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
-					return 1;
+					banned = true;
 				}
 			}
 		}
+		else
+		{
+			if (chan && chan->IsExtBanned(user->oper, 'O'))
+			{
+				banned = true;
+			}
+		}
+
+		if (banned)
+		{
+			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join the channel %s (+O is set)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
+			return 1;
+		}
+
 		return 0;
 	}
 
