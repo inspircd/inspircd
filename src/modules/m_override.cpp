@@ -37,8 +37,8 @@ class ModuleOverride : public Module
 		ServerInstance->SNO->EnableSnomask('O', "OVERRIDE");
 		OverriddenMode = false;
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
-		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnLocalTopicChange };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
@@ -101,6 +101,23 @@ class ModuleOverride : public Module
 
 		// its not defined at all, count as false
 		return false;
+	}
+
+
+	virtual int OnLocalTopicChange(User *source, Channel *channel, const std::string &topic)
+	{
+		if (IS_OPER(source) && CanOverride(source, "TOPIC"))
+		{
+			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetStatus(source) < STATUS_HOP))
+			{
+				ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Overrided a topic change on "+std::string(channel->name));
+			}
+
+			// Explicit allow
+			return -1;
+		}
+
+		return 0;
 	}
 
 	virtual int OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason)
