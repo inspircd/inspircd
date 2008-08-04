@@ -232,6 +232,12 @@ class CoreExport Channel : public Extensible
 	  */
 	std::string GetModeParameter(char mode);
 
+	/** Sets the channel topic.
+	 * @param u The user setting the topic
+	 * @param t The topic to set it to. Non-const, as it may be modified by a hook.
+	 */
+	int SetTopic(User *u, std::string &t);
+
 	/** Obtain the channel "user counter"
 	 * This returns the channel reference counter, which is initialized
 	 * to 0 when the channel is created and incremented/decremented

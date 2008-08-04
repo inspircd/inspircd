@@ -73,6 +73,45 @@ std::string Channel::GetModeParameter(char mode)
 	return "";
 }
 
+int Channel::SetTopic(User *u, std::string &ntopic)
+{
+	if (IS_LOCAL(u))
+	{
+		int MOD_RESULT = 0;
+		/* 0: check status, 1: don't, -1: disallow change silently */
+
+		FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(u,this,ntopic));
+		if (MOD_RESULT == -1)
+			return CMD_FAILURE;
+		else if (MOD_RESULT == 0)
+		{
+			if (!this->HasUser(u))
+			{
+				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+				return CMD_FAILURE;
+			}
+			if ((this->IsModeSet('t')) && (this->GetStatus(u) < STATUS_HOP))
+			{
+				u->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+				return CMD_FAILURE;
+			}
+		}
+
+		this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
+	}
+
+	this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
+	this->topicset = ServerInstance->Time();
+	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
+
+	if (IS_LOCAL(u))
+	{
+		FOREACH_MOD(I_OnPostLocalTopicChange,OnPostLocalTopicChange(u, this, this->topic));
+	}
+
+	return CMD_SUCCESS;
+}
+
 long Channel::GetUserCounter()
 {
 	return (this->internal_userlist.size());
