@@ -73,27 +73,31 @@ std::string Channel::GetModeParameter(char mode)
 	return "";
 }
 
-int Channel::SetTopic(User *u, std::string &ntopic)
+int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 {
 	if (IS_LOCAL(u))
 	{
-		int MOD_RESULT = 0;
-		/* 0: check status, 1: don't, -1: disallow change silently */
-
-		FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(u,this,ntopic));
-		if (MOD_RESULT == 1)
-			return CMD_FAILURE;
-		else if (MOD_RESULT == 0)
+		if(!forceset)
 		{
-			if (!this->HasUser(u))
-			{
-				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+			int MOD_RESULT = 0;
+			/* 0: check status, 1: don't, -1: disallow change silently */
+
+			FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(u,this,ntopic));
+		
+			if (MOD_RESULT == 1)
 				return CMD_FAILURE;
-			}
-			if ((this->IsModeSet('t')) && (this->GetStatus(u) < STATUS_HOP))
+			else if (MOD_RESULT == 0)
 			{
-				u->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", u->nick.c_str(), this->name.c_str());
-				return CMD_FAILURE;
+				if (!this->HasUser(u))
+				{
+					u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+					return CMD_FAILURE;
+				}
+				if ((this->IsModeSet('t')) && (this->GetStatus(u) < STATUS_HOP))
+				{
+					u->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+					return CMD_FAILURE;
+				}
 			}
 		}
 

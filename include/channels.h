@@ -235,8 +235,9 @@ class CoreExport Channel : public Extensible
 	/** Sets the channel topic.
 	 * @param u The user setting the topic
 	 * @param t The topic to set it to. Non-const, as it may be modified by a hook.
+	 * @param forceset If set to true then all access checks will be bypassed.
 	 */
-	int SetTopic(User *u, std::string &t);
+	int SetTopic(User *u, std::string &t, bool forceset = false);
 
 	/** Obtain the channel "user counter"
 	 * This returns the channel reference counter, which is initialized
