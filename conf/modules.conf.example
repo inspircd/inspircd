@@ -629,7 +629,7 @@
 # code such as TR, GB, or US.                                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Globops module: gives /GLOBOPS and usermode +g
+# Globops module: gives /GLOBOPS and SNOMASK +g
 #<module name="m_globops.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
