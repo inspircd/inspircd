@@ -107,8 +107,9 @@ class ModuleOverride : public Module
 	{
 		if (IS_OPER(source) && CanOverride(source,"KICK"))
 		{
-			if (((chan->GetStatus(source) == STATUS_HOP) && (chan->GetStatus(user) == STATUS_OP)) || (chan->GetStatus(source) < STATUS_VOICE))
-			{
+			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
+			if ((chan->GetStatus(source) < chan->GetStatus(user))			|| (chan->GetStatus(source) <= STATUS_VOICE))
+			{				
 				ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
 			/* Returning -1 explicitly allows the kick */
