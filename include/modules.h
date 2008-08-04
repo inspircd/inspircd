@@ -1173,7 +1173,7 @@ class CoreExport Module : public Extensible
 	virtual int OnChangeLocalUserGECOS(User* user, const std::string &newhost); 
 
 	/** Called whenever a topic is changed by a local user.
-	 * Return 1 to deny the topic change, or 0 to allow it.
+	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks
 	 * @param user The user changing the topic
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text
