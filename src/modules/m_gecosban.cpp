@@ -54,10 +54,7 @@ class ModuleGecosBan : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		if (output.find(" EXTBAN=:") == std::string::npos)
-			output.append(" EXTBAN=:r");
-		else
-			output.insert(output.find(" EXTBAN=:") + 9, "r");
+		ServerInstance->AddExtBanChar('r');
 	}
 };
 

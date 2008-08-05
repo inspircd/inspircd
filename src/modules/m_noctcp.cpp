@@ -57,10 +57,20 @@ class ModuleNoCTCP : public Module
 		nc = new NoCTCP(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(nc))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
+	virtual ~ModuleNoCTCP()
+	{
+		ServerInstance->Modes->DelMode(nc);
+		delete nc;
+	}
+
+	virtual Version GetVersion()
+	{
+		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
+	}
 
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
@@ -93,15 +103,9 @@ class ModuleNoCTCP : public Module
 		return 0;
 	}
 
-	virtual ~ModuleNoCTCP()
+	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->DelMode(nc);
-		delete nc;
-	}
-
-	virtual Version GetVersion()
-	{
-		return Version(1,2,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
+		ServerInstance->AddExtBanChar('C');
 	}
 };
 
