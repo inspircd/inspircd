@@ -110,7 +110,7 @@ class ModuleOverride : public Module
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetStatus(source) < STATUS_HOP))
 			{
-				ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Overrided a topic change on "+std::string(channel->name));
+				ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+"  used oper override to change a topic on "+std::string(channel->name));
 			}
 
 			// Explicit allow
@@ -127,7 +127,7 @@ class ModuleOverride : public Module
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((chan->GetStatus(source) < chan->GetStatus(user))			|| (chan->GetStatus(source) <= STATUS_VOICE))
 			{				
-				ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
+				ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" used oper override to kick "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
 			/* Returning -1 explicitly allows the kick */
 			return -1;

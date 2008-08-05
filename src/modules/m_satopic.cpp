@@ -41,6 +41,7 @@ class CommandSATopic : public Command
 			// 3rd parameter overrides access checks
 			target->SetTopic(user, newTopic, true);
 			ServerInstance->SNO->WriteToSnoMask('A', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
+			ServerInstance->PI->SendSNONotice("A", user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
 			/* I think this is right, the TOPIC message generated should be
 			 * propogated without the SATOPIC command itself having to be.
