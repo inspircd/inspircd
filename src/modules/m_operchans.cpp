@@ -78,7 +78,7 @@ class ModuleOperChans : public Module
 		{
 			if (chan && chan->IsExtBanned(user->oper, 'O'))
 			{
-				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  c->name.c_str());
+				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  chan->name.c_str());
 				return 1;
 			}
 		}
