@@ -100,7 +100,7 @@ CmdResult cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 			else
 				strlcpy(Ptr->setby,user->nick,127);
 
-			Ptr->topicset = ServerInstance->Time();
+			Ptr->topicset = ServerInstance->Time(true);
 			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name, Ptr->topic);
 
 			if (IS_LOCAL(user))
