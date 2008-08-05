@@ -15,17 +15,17 @@
 
 /* $ModDesc: Implements extban +b r: - realname (gecos) bans */
 
-class ModuleNickBan : public Module
+class ModuleGecosBan : public Module
 {
  private:
  public:
-	ModuleNickBan(InspIRCd* Me) : Module(Me)
+	ModuleGecosBan(InspIRCd* Me) : Module(Me)
 	{
 		Implementation eventlist[] = { I_OnUserPreJoin, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleNickBan()
+	virtual ~ModuleGecosBan()
 	{
 	}
 
@@ -62,5 +62,5 @@ class ModuleNickBan : public Module
 };
 
 
-MODULE_INIT(ModuleNickBan)
+MODULE_INIT(ModuleGecosBan)
 
