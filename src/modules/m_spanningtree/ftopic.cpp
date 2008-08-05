@@ -33,17 +33,12 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 	{
 		if ((ts >= c->topicset) || (c->topic.empty()))
 		{
-			std::string oldtopic = c->topic;
-			c->topic.assign(params[3], 0, Instance->Config->Limits.MaxTopic);
-			c->setby.assign(params[2], 0, 127);
-			c->topicset = ts;
-			/* if the topic text is the same as the current topic,
-			 * dont bother to send the TOPIC command out, just silently
-			 * update the set time and set nick.
-			 */
-			if (oldtopic != params[3])
+			User* user = this->Instance->FindNick(source);
+
+			if (c->topic != params[3])
 			{
-				User* user = this->Instance->FindNick(source);
+				// Update topic only when it differs from current topic
+				c->topic.assign(params[3], 0, Instance->Config->Limits.MaxTopic);
 				if (!user)
 				{
 					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
@@ -51,8 +46,25 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 				else
 				{
 					c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
-					nsource = user->server;
 				}
+			}
+
+			// Always update setter and settime.
+			c->setby.assign(params[2], 0, 127);
+			c->topicset = ts;
+
+			/*
+			 * Take careful note of what happens here;
+			 * Above, we display the topic change to the server IF the topic incoming is different to the topic already set.
+			 * HERE, we find the server the user that sent this topic is on, so we *do not* send topics back to the link they just
+			 * came from. This *cannot* be easily merged with the above check!
+			 *
+			 * Thanks to Anope and Namegduf for finally helping me isolate this
+			 *			-- w00t (5th/aug/2008)
+			 */
+			if (user)
+			{
+				nsource = user->server;
 			}
 
 			/* all done, send it on its way */
