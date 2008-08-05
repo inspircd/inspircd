@@ -164,7 +164,7 @@ class ModuleServicesAccount : public Module
 				if (chan->IsExtBanned(*account, 'R'))
 				{
 					// may not join
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  c->name.c_str());
+					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  chan->name.c_str());
 					return 1;
 				}
 			}
