@@ -728,18 +728,13 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 	{
 		if ((ts >= c->topicset) || (!*c->topic))
 		{
-			std::string oldtopic = c->topic;
-			strlcpy(c->topic,params[3].c_str(),MAXTOPIC);
-			strlcpy(c->setby,params[2].c_str(),127);
-			c->topicset = ts;
-			/* if the topic text is the same as the current topic,
-			 * dont bother to send the TOPIC command out, just silently
-			 * update the set time and set nick.
-			 */
 			userrec* user = this->Instance->FindNick(source);
 
-			if (oldtopic != params[3])
+			if (c->topic != params[3])
 			{
+				// Update topic only when it differs from current topic
+				strlcpy(c->topic, params[3].c_str(), MAXTOPIC);
+
 				if (!user)
 				{
 					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name, c->topic);
@@ -749,6 +744,10 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 					c->WriteChannel(user, "TOPIC %s :%s", c->name, c->topic);
 				}
 			}
+
+			// But always update set time and setter
+			strlcpy(c->setby, params[2].c_str(), 127);
+			c->topicset = ts;
 
 			/*
 			 * Take careful note of what happens here;
