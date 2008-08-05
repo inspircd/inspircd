@@ -74,7 +74,7 @@ TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 		{
 			Found = FindServer(u->server);
 			if (Found)
-				return Found;
+				return Found->GetRoute();
 		}
 
 		return NULL;
