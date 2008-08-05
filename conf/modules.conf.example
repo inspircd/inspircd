@@ -1197,6 +1197,11 @@
 #<module name="m_setname.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Serverban: Implements extended ban s:, which stops anyone connected
+# to a server matching a mask like +b s:server.mask.here from joining.
+#<module name="m_serverban.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Show Whois module: Adds the +W usermode which allows opers
 # to see when they are whois'ed (can be annoying).
 #<module name="m_showwhois.so">
