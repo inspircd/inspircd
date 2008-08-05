@@ -338,6 +338,11 @@
 #<module name="m_chanfilter.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channelban: Implements extended ban j:, which stops anyone in already
+# in a channel matching a mask like +b j:#channel*mask from joining.
+#<module name="m_channelban.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Chanprotect module: gives +q and +a channel modes
 #<module name="m_chanprotect.so">
 
@@ -607,7 +612,7 @@
 #<module name="m_foobar.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Nickban: Implements extended ban r:, which stops anyone matching
+# Gecosban: Implements extended ban r:, which stops anyone matching
 # a mask like +b r:*realname?here* from joining a channel.
 #<module name="m_gecosban.so">
 
