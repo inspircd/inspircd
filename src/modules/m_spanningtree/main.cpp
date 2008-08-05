@@ -705,7 +705,7 @@ void ModuleSpanningTree::OnRehash(User* user, const std::string &parameter)
 		ServerInstance->Logs->Log("remoterehash", DEBUG, "sending out lol");
 		std::deque<std::string> params;
 		params.push_back(parameter);
-		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->GetSID()); /// Can this take SID?
+		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->ServerName);
 	}
 
 	// Re-read config stuff
