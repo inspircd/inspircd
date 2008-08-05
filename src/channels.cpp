@@ -100,10 +100,9 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 				}
 			}
 		}
-
-		this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
 	}
 
+	this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
 	this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
 	this->topicset = ServerInstance->Time();
 	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
