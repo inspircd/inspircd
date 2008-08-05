@@ -68,6 +68,15 @@ TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 	}
 	else
 	{
+		// Cheat a bit. This allows for (better) working versions of routing commands with nick based prefixes, without hassle
+		User *u = ServerInstance->FindNick(ServerName);
+		if (u)
+		{
+			Found = FindServer(u->server);
+			if (Found)
+				return Found;
+		}
+
 		return NULL;
 	}
 }
