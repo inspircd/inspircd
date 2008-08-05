@@ -47,8 +47,7 @@ class ModuleBadChannelExtban : public Module
 		{
 			if (c->IsExtBanned(i->first->name, 'j'))
 			{
-				// XXX: send a numeric here
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Cannot join " + c->name + ", as you match a ban");
+				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  c->name.c_str());
 				return 1;
 			}
 		}
