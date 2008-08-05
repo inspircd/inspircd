@@ -78,7 +78,7 @@ class ModuleNoCTCP : public Module
 				return 0;
 			}
 
-			if (c->IsModeSet('C'))
+			if (c->IsModeSet('C') || c->IsExtBanned(user, 'C'))
 			{
 				if ((text.length()) && (text[0] == '\1'))
 				{
