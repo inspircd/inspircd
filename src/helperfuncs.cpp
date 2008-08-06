@@ -475,9 +475,9 @@ void InspIRCd::AddExtBanChar(char c)
 	std::string &tok = Config->data005;
 	std::string::size_type ebpos;
 	
-	if ((ebpos = tok.find(" EXTBAN=:")) == std::string::npos)
+	if ((ebpos = tok.find(" EXTBAN=,")) == std::string::npos)
 	{
-		tok.append(" EXTBAN=:");
+		tok.append(" EXTBAN=,");
 		tok.push_back(c);
 	}
 	else
