@@ -36,7 +36,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			/* Check we didnt time out */
 			if (this->bound_user->registered != REG_ALL)
 			{
-				bool lcached;
+				bool lcached = false;
 #ifdef IPV6
 				if (this->bound_user->GetProtocolFamily() == AF_INET6)
 				{

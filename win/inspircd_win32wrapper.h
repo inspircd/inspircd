@@ -175,6 +175,8 @@ CoreExport int gettimeofday(struct timeval * tv, void * tz);
 #pragma warning(disable:4312)		// warning C4312: 'type cast' : conversion from 'int' to 'HANDLE' of greater size
 #pragma warning(disable:4355)		// warning C4355: 'this' : used in base member initializer list
 #pragma warning(disable:4996)		// warning C4996: 'std::_Traits_helper::move_s' was declared deprecated
+#pragma warning(disable:4706)		// warning C4706: assignment within conditional expression
+#pragma warning(disable:4201)		// mmsystem.h generates this warning
 
 /* Mehhhh... typedefs. */
 

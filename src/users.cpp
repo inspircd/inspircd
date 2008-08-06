@@ -98,7 +98,7 @@ void User::StartDNSLookup()
 {
 	try
 	{
-		bool cached;
+		bool cached = false;
 		const char* sip = this->GetIPString(false);
 
 		/* Special case for 4in6 (Have i mentioned i HATE 4in6?) */

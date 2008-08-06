@@ -82,7 +82,6 @@ bool ServerConfig::AddIOHook(Module* iomod, BufferedSocket* is)
 	else
 	{
 		throw ModuleException("BufferedSocket derived class already hooked by another module");
-		return false;
 	}
 }
 
@@ -136,15 +135,9 @@ bool ServerConfig::CheckOnce(const char* tag, ConfigDataHash &newconf)
 	int count = ConfValueEnum(newconf, tag);
 
 	if (count > 1)
-	{
 		throw CoreException("You have more than one <"+std::string(tag)+"> tag, this is not permitted.");
-		return false;
-	}
 	if (count < 1)
-	{
 		throw CoreException("You have not defined a <"+std::string(tag)+"> tag, this is required.");
-		return false;
-	}
 	return true;
 }
 
