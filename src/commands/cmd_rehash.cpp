@@ -46,7 +46,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	if (IS_LOCAL(user))
 		user->WriteNumeric(RPL_REHASHING, "%s %s :Rehashing",user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 	else
-		ServerInstance->PI->SendUserNotice(user, "*** Rehashing server %s", ServerInstance->ConfigFileName);
+		ServerInstance->PI->SendUserNotice(user, std::string("*** Rehashing server ") + ServerInstance->ConfigFileName);
 
 
 	std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
