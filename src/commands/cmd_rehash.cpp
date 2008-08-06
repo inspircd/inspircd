@@ -43,8 +43,11 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	// Rehash for me.
 	FOREACH_MOD(I_OnRehash,OnRehash(user, ""));
 
-	// XXX write this to a remote user correctly
-	user->WriteNumeric(RPL_REHASHING, "%s %s :Rehashing",user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
+	if (IS_LOCAL(user))
+		user->WriteNumeric(RPL_REHASHING, "%s %s :Rehashing",user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
+	else
+		ServerInstance->PI->SendUserNotice(user, "*** Rehashing server %s", ServerInstance->ConfigFileName);
+
 
 	std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
 	ServerInstance->SNO->WriteToSnoMask('A', m);
