@@ -619,7 +619,7 @@ class CoreExport Module : public Extensible
 	 * @param dest The user being invited
 	 * @param channel The channel the user is being invited to
 	 * @param timeout The time the invite will expire (0 == never)
-	 * @return 1 to deny the invite, 0 to allow
+	 * @return 1 to deny the invite, 0 to check whether or not the user has permission to invite, -1 to explicitly allow the invite
 	 */
 	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout);
 	

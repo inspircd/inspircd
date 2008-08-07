@@ -41,15 +41,6 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			return CMD_FAILURE;
 		}
 
-		if ((c->IsModeSet('i')) && (IS_LOCAL(user)))
-		{
-			if (c->GetStatus(user) < STATUS_HOP)
-			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
-				return CMD_FAILURE;
-			}
-		}
-
 		if (c->HasUser(u))
 	 	{
 	 		user->WriteNumeric(ERR_USERONCHANNEL, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
@@ -61,12 +52,23 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			user->WriteNumeric(ERR_NOTONCHANNEL, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
 	  		return CMD_FAILURE;
 		}
-		{
 
 		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c,timeout));
 
 		if (MOD_RESULT == 1)
+		{
 			return CMD_FAILURE;
+		}
+		else if (MOD_RESULT == 0)
+		{
+			if (IS_LOCAL(user))
+			{
+				if (c->GetStatus(user) < STATUS_HOP)
+				{
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
+					return CMD_FAILURE;
+				}
+			}
 		}
 
 		u->InviteTo(c->name.c_str(), timeout);
