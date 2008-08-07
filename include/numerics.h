@@ -56,8 +56,8 @@ enum Numerics
 
 	RPL_SYNTAX					=	304,	// insp-specific
 
-	RPL_NOWAWAY						=	305,
-	RPL_UNAWAY						=	306,
+	RPL_UNAWAY						=	305,
+	RPL_NOWAWAY						=	306,
 
 	RPL_RULESTART					=	308, // unrealircd
 	RPL_RULESEND					=	309, // unrealircd
