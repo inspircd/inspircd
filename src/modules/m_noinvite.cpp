@@ -44,7 +44,7 @@ class ModuleNoInvite : public Module
 	{
 		if (IS_LOCAL(user))
 		{
-			if (CHANOPS_EXEMPT(ServerInstance, 'c') && channel->GetStatus(user) == STATUS_OP)
+			if (CHANOPS_EXEMPT(ServerInstance, 'V') && channel->GetStatus(user) == STATUS_OP)
 			{
 				return 0;
 			}
