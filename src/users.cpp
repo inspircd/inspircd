@@ -528,6 +528,13 @@ InvitedList* userrec::GetInviteList()
 
 void userrec::InviteTo(const irc::string &channel)
 {
+	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+	{
+		if (channel == *i)
+		{
+			return;
+		}
+	}
 	invites.push_back(channel);
 }
 
