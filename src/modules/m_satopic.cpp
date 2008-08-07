@@ -43,14 +43,11 @@ class CommandSATopic : public Command
 			ServerInstance->SNO->WriteToSnoMask('A', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 			ServerInstance->PI->SendSNONotice("A", user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
-			/* I think this is right, the TOPIC message generated should be
-			 * propogated without the SATOPIC command itself having to be.
-			 */
 			return CMD_LOCALONLY;
 		}
 		else
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), target->name.c_str());
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 	}
@@ -73,7 +70,7 @@ class ModuleSATopic : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
 	}
 };
 
