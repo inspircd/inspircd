@@ -46,12 +46,11 @@ class CommandUninvite : public Command
 			return CMD_FAILURE;
 		}
 
-		if (c->modes[CM_INVITEONLY])
+		if (IS_LOCAL(user))
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick.c_str(), c->name.c_str(),
-						ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
 				return CMD_FAILURE;
 			}
 		}
