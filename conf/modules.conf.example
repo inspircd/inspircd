@@ -157,6 +157,11 @@
 #  requires="NickServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Allowinvite module: Gives channel mode +A to allow all users to use
+# /invite, and extban A to deny invite from specific masks
+#<module name="m_allowinvite.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alltime module: Shows time on all connected servers at once
 #<module name="m_alltime.so">
 
@@ -882,10 +887,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # No ctcp module: Adds the channel mode +C to block CTCPs
 #<module name="m_noctcp.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Noinvite module: Gives channel mode +V
-#<module name="m_noinvite.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # No kicks module: Adds the +Q channel mode
