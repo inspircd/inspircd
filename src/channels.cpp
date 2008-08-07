@@ -336,32 +336,36 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			else if (MOD_RESULT == 0)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
+				bool invited = user->IsInvited(Ptr->name.c_str());
+				bool can_bypass = Instance->Config->InvBypassModes && invited;
+
 				if (!ckey.empty())
 				{
 					MOD_RESULT = 0;
 					FOREACH_RESULT_I(Instance, I_OnCheckKey, OnCheckKey(user, Ptr, key ? key : ""));
 					if (!MOD_RESULT)
 					{
-						if ((!key) || ckey != key)
+						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
+						if ((!key || ckey != key) && !can_bypass)
 						{
 							user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
 						}
 					}
 				}
+
 				if (Ptr->IsModeSet('i'))
 				{
 					MOD_RESULT = 0;
 					FOREACH_RESULT_I(Instance,I_OnCheckInvite,OnCheckInvite(user, Ptr));
 					if (!MOD_RESULT)
 					{
-						if (!user->IsInvited(Ptr->name.c_str()))
+						if (!invited)
 						{
 							user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
 						}
 					}
-					user->RemoveInvite(Ptr->name.c_str());
 				}
 
 				std::string limit = Ptr->GetModeParameter('l');
@@ -372,7 +376,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					if (!MOD_RESULT)
 					{
 						long llimit = atol(limit.c_str());
-						if (Ptr->GetUserCounter() >= llimit)
+						if (Ptr->GetUserCounter() >= llimit && !can_bypass)
 						{
 							user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
 							return NULL;
@@ -382,11 +386,20 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 
 				if (Ptr->bans.size())
 				{
-					if (Ptr->IsBanned(user))
+					if (Ptr->IsBanned(user) && !can_bypass)
 					{
 						user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
 						return NULL;
 					}
+				}
+
+				/*
+				 * If the user has invites for this channel, remove them now
+				 * after a successful join so they don't build up.
+				 */
+				if (invited)
+				{
+					user->RemoveInvite(Ptr->name.c_str());
 				}
 			}
 		}

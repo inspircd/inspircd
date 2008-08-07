@@ -874,10 +874,6 @@
 #                  This can be useful for finding servers which are   #
 #                  at risk of pinging out due to network issues.      #
 #                                                                     #
-#  exemptchanops - This option allows channel operators to be exempted#
-#                  from certain channel modes.                        #
-#                  Supported modes are +SfFgNc. Defaults to off.      #
-#                                                                     #
 #  defaultmodes  - The default modes to be given to each channel on   #
 #                  creation. Defaults to 'nt'. There should be no +   #
 #                  or - symbols in this sequence, if you add them     #
@@ -888,6 +884,14 @@
 #                  klined or qlined when they are disconnected. This  #
 #                  is totally freeform, you may place any text here   #
 #                  you wish.                                          #
+#                                                                     #
+#  exemptchanops - This option allows channel operators to be exempted#
+#                  from certain channel modes.                        #
+#                  Supported modes are +SfFgNc. Defaults to off.      #
+#                                                                     #
+#  invitebypassmodes - This option allows /invite to bypass modes     #
+#    other than +i.                                                   #
+#                                                                     #
 #                                                                     #
 
 <options prefixquit="Quit: "
@@ -909,7 +913,8 @@
          allowhalfop="yes"
          defaultmodes="nt"
          moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
-         exemptchanops="">
+         exemptchanops=""
+	 invitebypassmodes="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#

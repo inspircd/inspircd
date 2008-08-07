@@ -861,7 +861,11 @@ class CoreExport ServerConfig : public Extensible
 	 * @return True if the file exists and is readable.
 	 */
 	static bool FileExists(const char* file);
-	
+
+	/** If this value is true, invites will bypass more than just +i
+	 */
+	bool InvBypassModes;
+
 };
 
 /** Initialize the disabled commands list

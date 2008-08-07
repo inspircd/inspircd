@@ -44,7 +44,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
 	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
-	CycleHosts = writelog = AllowHalfop = true;
+	CycleHosts = writelog = AllowHalfop = InvBypassModes = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -878,6 +878,7 @@ void ServerConfig::Read(bool bail, User* user)
 		{"limits",	"maxkick",	"255",			new ValueContainerST (&this->Limits.MaxKick),		DT_INTEGER,  NoValidation},
 		{"limits",	"maxgecos",	"128",			new ValueContainerST (&this->Limits.MaxGecos),		DT_INTEGER,  NoValidation},
 		{"limits",	"maxaway",	"200",			new ValueContainerST (&this->Limits.MaxAway),		DT_INTEGER,  NoValidation},
+		{"options",	"invitebypassmodes",	"1",			new ValueContainerBool (&this->InvBypassModes),		DT_BOOLEAN,  NoValidation},
 		{NULL,		NULL,		NULL,			NULL,							DT_NOTHING,  NoValidation}
 	};
 
