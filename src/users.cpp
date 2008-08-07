@@ -439,8 +439,9 @@ void User::InviteTo(const irc::string &channel, time_t invtimeout)
 			if (i->second != 0 && invtimeout > i->second)
 			{
 				i->second = invtimeout;
-				return;
 			}
+
+			return;
 		}
 	}
 	invites.push_back(std::make_pair(channel, invtimeout));
