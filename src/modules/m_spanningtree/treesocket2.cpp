@@ -344,13 +344,22 @@ bool TreeSocket::RemoteRehash(const std::string &prefix, std::deque<std::string>
 		return false;
 
 	std::string servermask = params[0];
+	std::string parameter;
+
+	if (params.size() > 1)
+	{
+		parameter = params[1];
+	}
 
 	if (this->Instance->MatchText(this->Instance->Config->ServerName,servermask))
 	{
 		this->Instance->SNO->WriteToSnoMask('l',"Remote rehash initiated by \002"+prefix+"\002.");
 		this->Instance->RehashServer();
 		Utils->ReadConfiguration(true);
+		FOREACH_MOD_I(this->Instance, I_OnRehash, OnRehash(NULL, parameter));
 		InitializeDisabledCommands(Instance->Config->DisabledCommands, Instance);
+		userrec *u = this->Instance->FindNick(prefix);
+		FOREACH_MOD(I_OnRehash,OnRehash(u, parameter));
 	}
 	Utils->DoOneToAllButSender(prefix,"REHASH",params,prefix);
 	return true;

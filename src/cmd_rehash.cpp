@@ -33,7 +33,9 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		parameter = parameters[0];
 	}
-	else
+
+	// If it's not got a param or the param doesn't look like a module-owned one (e.g. servermask)
+	if (!pcnt || parameter[0][0] != "-")
 	{
 		ServerInstance->WriteOpers("*** %s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 		ServerInstance->CloseLog();
