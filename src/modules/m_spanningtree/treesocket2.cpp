@@ -358,8 +358,6 @@ bool TreeSocket::RemoteRehash(const std::string &prefix, std::deque<std::string>
 		Utils->ReadConfiguration(true);
 		FOREACH_MOD_I(this->Instance, I_OnRehash, OnRehash(NULL, parameter));
 		InitializeDisabledCommands(Instance->Config->DisabledCommands, Instance);
-		userrec *u = this->Instance->FindNick(prefix);
-		FOREACH_MOD(I_OnRehash,OnRehash(u, parameter));
 	}
 	Utils->DoOneToAllButSender(prefix,"REHASH",params,prefix);
 	return true;
