@@ -30,7 +30,7 @@ enum TranslateType
 	TR_NICK,		/* Nickname, translate to UUID for server->server */
 	TR_NICKLIST,		/* Comma seperated nickname list, translate to UUIDs */
 	TR_SPACENICKLIST,	/* Space seperated nickname list, translate to UUIDs */
-	TR_CUSTOM,		/* Custom translation handled by EncodeParameter/DecodeParameter */
+	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */
 };
 
 /** For commands which should not be replicated to other
