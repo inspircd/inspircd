@@ -208,7 +208,7 @@ class MySQLresult : public SQLresult
 	virtual SQLfieldList& GetRow()
 	{
 		if (currentrow < rows)
-			return fieldlists[currentrow];
+			return fieldlists[currentrow++];
 		else
 			return emptyfieldlist;
 	}
