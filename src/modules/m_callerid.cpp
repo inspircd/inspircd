@@ -174,7 +174,8 @@ public:
 			return CMD_SUCCESS;
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
-		bool atleastonechange = false;
+
+		std::string tok = parameters[0];
 
 		if (tok == "*")
 		{
@@ -187,6 +188,8 @@ public:
 			User* whotoremove = ServerInstance->FindNick(tok.substr(1));
 			if (whotoremove)
 				return (RemoveAccept(user, whotoremove, false) ? CMD_SUCCESS : CMD_FAILURE);
+			else
+				return CMD_FAILURE;
 		}
 		else
 		{
