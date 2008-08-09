@@ -62,7 +62,15 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 				translate_to = TR_TEXT;
 
 			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"TRANSLATION: %s - type is %d", parameters[j].c_str(), translate_to);
-			ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
+			if (translate_to == TR_CUSTOM)
+			{
+				target = parameters[j];
+				thiscmd->EncodeParameter(target, j);
+			}
+			else
+			{
+				ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
+			}
 
 			if (j == (parameters.size() - 1))
 				params.push_back(":" + target);

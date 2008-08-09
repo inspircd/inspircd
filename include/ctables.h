@@ -29,7 +29,8 @@ enum TranslateType
 	TR_TEXT,		/* Raw text, leave as-is */
 	TR_NICK,		/* Nickname, translate to UUID for server->server */
 	TR_NICKLIST,		/* Comma seperated nickname list, translate to UUIDs */
-	TR_SPACENICKLIST	/* Space seperated nickname list, translate to UUIDs */
+	TR_SPACENICKLIST,	/* Space seperated nickname list, translate to UUIDs */
+	TR_CUSTOM,		/* Custom translation handled by EncodeParameter/DecodeParameter */
 };
 
 /** For commands which should not be replicated to other
@@ -137,6 +138,25 @@ class CoreExport Command : public Extensible
 	virtual CmdResult HandleServer(const std::vector<std::string>& /* parameters */, const std::string& /* servername */)
 	{
 		return CMD_INVALID;
+	}
+
+	/** Encode a parameter for server->server transmission.
+	 * Used for parameters for which the translation type is TR_CUSTOM.
+	 * @param parameter The parameter to encode. Can be modified in place.
+	 * @param index The parameter index (0 == first parameter).
+	 */
+	virtual void EncodeParameter(std::string& parameter, int index)
+	{
+	}
+
+	/** Decode a parameter from server->server transmission.
+	 * Not currently used in this version of InspIRCd.
+	 * Used for parameters for which the translation type is TR_CUSTOM.
+	 * @param parameter The parameter to decode. Can be modified in place.
+	 * @param index The parameter index (0 == first parameter).
+	 */
+	virtual void DecodeParameter(std::string& parameter, int index)
+	{
 	}
 
 	/** Disable or enable this command.

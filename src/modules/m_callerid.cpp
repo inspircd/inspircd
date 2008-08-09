@@ -5,6 +5,10 @@
 
 #include <set>
 
+#include <sstream>
+
+#include <algorithm>
+
 /* $ModDesc: Implementation of callerid (umode +g & /accept, ala hybrid etc) */
 
 class callerid_data : public classbase
@@ -14,6 +18,45 @@ class callerid_data : public classbase
 	std::set<User*> accepting;
 
 	callerid_data() : lastnotify(0) { }
+	callerid_data(const std::string& str, InspIRCd* ServerInstance)
+	{
+		irc::commasepstream s(str);
+		std::string tok;
+		if (s.GetToken(tok))
+		{
+			lastnotify = ConvToInt(tok);
+		}
+		while (s.GetToken(tok))
+		{
+			if (tok.empty())
+			{
+				continue;
+			}
+			User* u = ServerInstance->FindUUID(tok);
+			if (!u)
+			{
+				u = ServerInstance->FindNick(tok);
+			}
+			if (!u)
+			{
+				continue;
+			}
+			accepting.insert(u);
+		}
+	}
+
+	std::string ToString(bool displayable) const
+	{
+		std::ostringstream oss;
+		oss << lastnotify;
+		for (std::set<User*>::iterator i = accepting.begin(); i != accepting.end(); ++i)
+		{
+			// Encode UIDs.
+			oss << "," << (displayable ? (*i)->nick : (*i)->uuid);
+		}
+		oss << std::ends;
+		return oss.str();
+	}
 };
 
 callerid_data* GetData(User* who, bool extend = true)
@@ -55,13 +98,12 @@ void RemoveFromAllAccepts(InspIRCd* ServerInstance, User* who)
 		if (!dat)
 			continue;
 
-		std::set<User*>& accepting = dat->accepting;
-		std::set<User*>::iterator iter = accepting.find(who);
+		std::set<User*>::iterator iter = dat->accepting.find(who);
 
-		if (iter == accepting.end())
+		if (iter == dat->accepting.end())
 			continue;
 
-		accepting.erase(iter);
+		dat->accepting.erase(iter);
 	}
 }
 
@@ -80,53 +122,83 @@ public:
 	{
 		source = "m_callerid.so";
 		syntax = "{[+|-]<nicks>}|*}";
+		TRANSLATE2(TR_CUSTOM, TR_END);
 	}
 
-	/** Will take any number of nicks, which can be seperated by spaces, commas, or a mix.
+	virtual void EncodeParameter(std::string& parameter, int index)
+	{
+		if (index != 0)
+			return;
+		std::string out = "";
+		irc::commasepstream nicks(parameter);
+		std::string tok;
+		while (nicks.GetToken(tok))
+		{
+			if (tok == "*")
+			{
+				continue; // Drop list requests, since remote servers ignore them anyway.
+			}
+			if (!out.empty())
+				out.append(",");
+			bool dash = false;
+			if (tok[0] == '-')
+			{
+				dash = true;
+				tok.erase(0, 1); // Remove the dash.
+			}
+			User* u = ServerInstance->FindNick(tok);
+			if (u)
+			{
+				if (dash)
+					out.append("-");
+				out.append(u->uuid);
+			}
+			else
+			{
+				if (dash)
+					out.append("-");
+				out.append(tok);
+			}
+		}
+		parameter = out;
+	}
+
+	/** Will take any number of nicks (up to MaxTargets), which can be seperated by commas.
 	 * - in front of any nick removes, and an * lists. This effectively means you can do:
 	 * /accept nick1,nick2,nick3,*
 	 * to add 3 nicks and then show your list
 	 */
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+			return CMD_SUCCESS;
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
 		bool atleastonechange = false;
-		for (unsigned int i = 0; i < parameters.size(); ++i)
+
+		if (tok == "*")
 		{
-			const char* arg = parameters[i].c_str();
-			irc::commasepstream css(arg);
-			std::string tok;
-
-			while (css.GetToken(tok))
+			if (IS_LOCAL(user))
+				ListAccept(user);
+			return CMD_LOCALONLY;
+		}
+		else if (tok[0] == '-')
+		{
+			User* whotoremove = ServerInstance->FindNick(tok.substr(1));
+			if (whotoremove)
+				return (RemoveAccept(user, whotoremove, false) ? CMD_SUCCESS : CMD_FAILURE);
+		}
+		else
+		{
+			User* whotoadd = ServerInstance->FindNick(tok[0] == '+' ? tok.substr(1) : tok);
+			if (whotoadd)
+				return (AddAccept(user, whotoadd, false) ? CMD_SUCCESS : CMD_FAILURE);
+			else
 			{
-				if (tok.empty())
-					continue;
-
-				if (tok == "*")
-				{
-					if (IS_LOCAL(user))
-						continue;
-
-					ListAccept(user);
-				}
-				else if (tok[0] == '-')
-				{
-					User* whotoremove = ServerInstance->FindNick(tok.substr(1));
-					if (whotoremove)
-						atleastonechange = RemoveAccept(user, whotoremove, false) || atleastonechange;
-				}
-				else
-				{
-					User* whotoadd = ServerInstance->FindNick(tok[0] == '+' ? tok.substr(1) : tok);
-					if (whotoadd)
-						atleastonechange = AddAccept(user, whotoadd, false) || atleastonechange;
-					else
-						user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
-				}
+				user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
+				return CMD_FAILURE;
 			}
 		}
-		return atleastonechange ? CMD_FAILURE : CMD_SUCCESS;
 	}
 
 	void ListAccept(User* user)
@@ -143,15 +215,14 @@ public:
 	bool AddAccept(User* user, User* whotoadd, bool quiet)
 	{
 		callerid_data* dat = GetData(user, true);
-		std::set<User*>& accepting = dat->accepting;
-		if (accepting.size() >= maxaccepts)
+		if (dat->accepting.size() >= maxaccepts)
 		{
 			if (!quiet)
 				user->WriteNumeric(456, "%s :Accept list is full (limit is %d)", user->nick.c_str(), maxaccepts);
 
 			return false;
 		}
-		if (!accepting.insert(whotoadd).second)
+		if (!dat->accepting.insert(whotoadd).second)
 		{
 			if (!quiet)
 				user->WriteNumeric(457, "%s %s :is already on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
@@ -171,16 +242,15 @@ public:
 
 			return false;
 		}
-		std::set<User*>& accepting = dat->accepting;
-		std::set<User*>::iterator i = accepting.find(whotoremove);
-		if (i == accepting.end())
+		std::set<User*>::iterator i = dat->accepting.find(whotoremove);
+		if (i == dat->accepting.end())
 		{
 			if (!quiet)
 				user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 
 			return false;
 		}
-		accepting.erase(i);
+		dat->accepting.erase(i);
 		return true;
 	}
 };
@@ -204,6 +274,12 @@ public:
 		mycommand = new CommandAccept(ServerInstance, maxaccepts);
 		myumode = new User_g(ServerInstance);
 
+		if (!ServerInstance->Modes->AddMode(myumode))
+		{
+			delete mycommand;
+			delete myumode;
+			throw ModuleException("Could not add usermode +g");
+		}
 		try
 		{
 			ServerInstance->AddCommand(mycommand);
@@ -211,30 +287,26 @@ public:
 		catch (const ModuleException& e)
 		{
 			delete mycommand;
+			delete myumode;
 			throw ModuleException("Could not add command!");
 		}
-		if (!ServerInstance->Modes->AddMode(myumode))
-		{
-			delete mycommand;
-			delete myumode;
-			throw ModuleException("Could not add usermode +g");
-		}
+
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
-	~ModuleCallerID()
+	virtual ~ModuleCallerID()
 	{
 		ServerInstance->Modes->DelMode(myumode);
 		delete myumode;
 	}
 
-	Version GetVersion()
+	virtual Version GetVersion()
 	{
 		return Version(1, 2, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	void On005Numeric(std::string& output)
+	virtual void On005Numeric(std::string& output)
 	{
 		output += " CALLERID=g";
 	}
@@ -248,27 +320,25 @@ public:
 			return 0;
 
 		callerid_data* dat = GetData(dest, true);
-		std::set<User*>& accepting = dat->accepting;
-		time_t& lastnotify = dat->lastnotify;
-		std::set<User*>::iterator i = accepting.find(dest);
+		std::set<User*>::iterator i = dat->accepting.find(dest);
 
-		if (i == accepting.end())
+		if (i == dat->accepting.end())
 		{
 			time_t now = time(NULL);
 			/* +g and *not* accepted */
 			user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick.c_str(), dest->nick.c_str());
-			if (now > (lastnotify + (time_t)notify_cooldown))
+			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
 				user->WriteNumeric(717, "%s %s :has been informed that you messaged them.", user->nick.c_str(), dest->nick.c_str());
 				dest->WriteNumeric(718, "%s %s %s@%s :is messaging you, and you have umode +g", dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str());
-				lastnotify = now;
+				dat->lastnotify = now;
 			}
 			return 1;
 		}
 		return 0;
 	}
 
-	int OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text, true);
@@ -276,7 +346,7 @@ public:
 		return 0;
 	}
 
-	int OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text, true);
@@ -284,7 +354,7 @@ public:
 		return 0;
 	}
 
-	void OnCleanup(int type, void* item)
+	virtual void OnCleanup(int type, void* item)
 	{
 		if (type != TYPE_USER)
 			return;
@@ -294,20 +364,43 @@ public:
 		RemoveData(u);
 	}
 
-	int OnUserPreNick(User* user, const std::string& newnick)
+	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string& extname, bool displayable)
+	{
+		if (extname == "callerid_data")
+		{
+			callerid_data* dat = GetData(user, false);
+			if (dat)
+			{
+				std::string str = dat->ToString(displayable);
+				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, str);
+			}
+		}
+	}
+
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string& extname, const std::string& extdata)
+	{
+		if (target_type == TYPE_USER && extname == "callerid_data")
+		{
+			User* u = (User*)target;
+			callerid_data* dat = new callerid_data(extdata, ServerInstance);
+			u->Extend("callerid_data", dat);
+		}
+	}
+
+	virtual int OnUserPreNick(User* user, const std::string& newnick)
 	{
 		if (!tracknick)
 			RemoveFromAllAccepts(ServerInstance, user);
 		return 0;
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
 	{
 		RemoveData(user);
 		RemoveFromAllAccepts(ServerInstance, user);
 	}
 
-	void OnRehash(User* user, const std::string& parameter)
+	virtual void OnRehash(User* user, const std::string& parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
