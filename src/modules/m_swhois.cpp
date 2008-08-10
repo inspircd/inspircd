@@ -117,8 +117,7 @@ class ModuleSWhois : public Module
 		{
 			/* Insert our numeric before 312 */
 			std::string* swhois;
-			dest->GetExt("swhois", swhois);
-			if (swhois)
+			if (dest->GetExt("swhois", swhois))
 			{
 				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick,dest->nick,swhois->c_str());
 			}

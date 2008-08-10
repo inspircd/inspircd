@@ -135,8 +135,7 @@ class ModuleCustomTitle : public Module
 		{
 			/* Insert our numeric before 312 */
 			std::string* ctitle;
-			dest->GetExt("ctitle", ctitle);
-			if (ctitle)
+			if (dest->GetExt("ctitle", ctitle))
 			{
 				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick,dest->nick,ctitle->c_str());
 			}
