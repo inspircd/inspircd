@@ -66,9 +66,7 @@ class CommandTitle : public Command
 			if (!strcmp(name.c_str(),parameters[0].c_str()) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
 			{
 				std::string* text;
-				user->GetExt("ctitle", text);
-
-				if (text)
+				if (user->GetExt("ctitle", text))
 				{
 					user->Shrink("ctitle");
 					delete text;
@@ -146,8 +144,7 @@ class ModuleCustomTitle : public Module
 		{
 			// check if this user has an ctitle field to send
 			std::string* ctitle;
-			user->GetExt("ctitle", ctitle);
-			if (ctitle)
+			if (user->GetExt("ctitle", ctitle))
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
@@ -160,8 +157,7 @@ class ModuleCustomTitle : public Module
 	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
 	{
 		std::string* ctitle;
-		user->GetExt("ctitle", ctitle);
-		if (ctitle)
+		if (user->GetExt("ctitle", ctitle))
 		{
 			user->Shrink("ctitle");
 			delete ctitle;
@@ -175,8 +171,7 @@ class ModuleCustomTitle : public Module
 		{
 			User* user = (User*)item;
 			std::string* ctitle;
-			user->GetExt("ctitle", ctitle);
-			if (ctitle)
+			if (user->GetExt("ctitle", ctitle))
 			{
 				user->Shrink("ctitle");
 				delete ctitle;
