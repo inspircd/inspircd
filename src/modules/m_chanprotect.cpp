@@ -135,7 +135,7 @@ class FounderProtectBase
 	bool CanRemoveOthers(userrec* u1, userrec* u2, chanrec* c)
 	{
 		std::string item = extend+std::string(c->name);
-		return (u1->GetExt(item, dummyptr) && u2->GetExt(item, dummyptr));
+		return (remove_other_privs && u1->GetExt(item, dummyptr) && u2->GetExt(item, dummyptr));
 	}
 
 	ModeAction HandleChange(userrec* source, userrec* theuser, bool adding, chanrec* channel, std::string &parameter)
@@ -408,11 +408,10 @@ class ModuleChanProtect : public Module
 		// a relatively small number of them relevent to our module using a switch statement.
 		// don't allow action if:
 		// (A) Theyre founder (no matter what)
-		// (B) Theyre protected, and you're not
+		// (B) Theyre protected, unless you're founder or are protected and DeprivOthers is enabled
 		// always allow the action if:
 		// (A) The source is ulined
-		
-		
+				
 		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
 		// without any access checks, we're not worthy :p
 		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server))
@@ -421,16 +420,22 @@ class ModuleChanProtect : public Module
 		std::string founder = "cm_founder_"+std::string(channel->name);
 		std::string protect = "cm_protect_"+std::string(channel->name);
 
+		if (DeprivSelf && source == dest)
+			return ACR_DEFAULT;
+
+		bool candepriv_founder = (DeprivOthers && source->GetExt(founder,dummyptr));
+		bool candepriv_protected = (source->GetExt(founder,dummyptr) || (DeprivOthers && source->GetExt(protect,dummyptr))); // Can the source remove +a?
+
 		switch (access_type)
 		{
 			// a user has been deopped. Do we let them? hmmm...
 			case AC_DEOP:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder,dummyptr) && !candepriv_founder)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect,dummyptr)) && !candepriv_protected)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -439,12 +444,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being kicked. do we chop off the end of the army boot?
 			case AC_KICK:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder,dummyptr) && !candepriv_founder)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect,dummyptr)) && !candepriv_protected)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -453,12 +458,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being dehalfopped. Yes, we do disallow -h of a +ha user
 			case AC_DEHALFOP:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder,dummyptr) && !candepriv_founder)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect,dummyptr)) && !candepriv_protected)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -467,12 +472,12 @@ class ModuleChanProtect : public Module
 
 			// same with devoice.
 			case AC_DEVOICE:
-				if (dest->GetExt(founder,dummyptr))
+				if (dest->GetExt(founder,dummyptr) && !candepriv_founder)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
+				if ((dest->GetExt(protect,dummyptr)) && !candepriv_protected)
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
