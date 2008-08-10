@@ -1002,7 +1002,7 @@ void Channel::UserList(User *user, CUList *ulist)
 		if (curlen + prefixlist.length() + nick.length() + 1 > 480)
 		{
 			/* list overflowed into multiple numerics */
-			user->WriteServ(std::string(list));
+			user->WriteNumeric(RPL_NAMREPLY, std::string(list));
 
 			/* reset our lengths */
 			dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick.c_str(), this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name.c_str());
