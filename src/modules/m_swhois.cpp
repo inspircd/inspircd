@@ -56,9 +56,7 @@ class cmd_swhois : public command_t
 		}
 		
 		std::string* text;
-		dest->GetExt("swhois", text);
-
-		if (text)
+		if (dest->GetExt("swhois", text))
 		{
 			// We already had it set...
 			
@@ -138,8 +136,7 @@ class ModuleSWhois : public Module
 		{
 			// check if this user has an swhois field to send
 			std::string* swhois;
-			user->GetExt("swhois", swhois);
-			if (swhois)
+			if (user->GetExt("swhois", swhois))
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
@@ -152,8 +149,7 @@ class ModuleSWhois : public Module
 	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
 	{
 		std::string* swhois;
-		user->GetExt("swhois", swhois);
-		if (swhois)
+		if (user->GetExt("swhois", swhois))
 		{
 			user->Shrink("swhois");
 			DELETE(swhois);
@@ -167,8 +163,7 @@ class ModuleSWhois : public Module
 		{
 			userrec* user = (userrec*)item;
 			std::string* swhois;
-			user->GetExt("swhois", swhois);
-			if (swhois)
+			if (user->GetExt("swhois", swhois))
 			{
 				user->Shrink("swhois");
 				DELETE(swhois);

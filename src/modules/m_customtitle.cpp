@@ -68,9 +68,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 			if (!strcmp(name.c_str(),parameters[0]) && !strcmp(pass.c_str(),parameters[1]) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
 			{
 				std::string* text;
-				user->GetExt("ctitle", text);
-
-				if (text)
+				if (user->GetExt("ctitle", text))
 				{
 					user->Shrink("ctitle");
 					DELETE(text);
@@ -156,8 +154,7 @@ class ModuleCustomTitle : public Module
 		{
 			// check if this user has an ctitle field to send
 			std::string* ctitle;
-			user->GetExt("ctitle", ctitle);
-			if (ctitle)
+			if (user->GetExt("ctitle", ctitle))
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
@@ -170,8 +167,7 @@ class ModuleCustomTitle : public Module
 	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
 	{
 		std::string* ctitle;
-		user->GetExt("ctitle", ctitle);
-		if (ctitle)
+		if (user->GetExt("ctitle", ctitle))
 		{
 			user->Shrink("ctitle");
 			DELETE(ctitle);
@@ -185,8 +181,7 @@ class ModuleCustomTitle : public Module
 		{
 			userrec* user = (userrec*)item;
 			std::string* ctitle;
-			user->GetExt("ctitle", ctitle);
-			if (ctitle)
+			if (user->GetExt("ctitle", ctitle))
 			{
 				user->Shrink("ctitle");
 				DELETE(ctitle);
