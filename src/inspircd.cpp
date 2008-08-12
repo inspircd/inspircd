@@ -639,13 +639,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->BuildISupport();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 
-	if ((Config->ports.size() == 0) && (found_ports > 0))
-	{
-		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
-		Log(DEFAULT,"ERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?");
-		Exit(EXIT_STATUS_BIND);
-	}
-
 	if (Config->ports.size() != (unsigned int)found_ports)
 	{
 		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n", bounditems, found_ports);
@@ -656,6 +649,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			printf("%d.\tAddress: %s\tReason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
 		}
 	}
+
+	if ((Config->ports.size() == 0) && (found_ports > 0))
+	{
+		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
+		Log(DEFAULT,"ERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?");
+		Exit(EXIT_STATUS_BIND);
+	}
+
 #ifndef WINDOWS
 	if (!Config->nofork)
 	{
