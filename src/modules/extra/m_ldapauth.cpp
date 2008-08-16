@@ -175,6 +175,13 @@ public:
 			ldap_msgfree(msg);
 			return false;
 		}
+		if (!*user->password)
+		{
+			if (verbose)
+				ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (No password provided)", user->nick, user->ident, user->host);
+			ldap_msgfree(msg);
+			return false;
+		}
 		cred.bv_val = user->password;
 		cred.bv_len = strlen(user->password);
 		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
