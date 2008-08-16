@@ -218,6 +218,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 					strlcpy(this->bound_user->host, hostname.c_str(),64);
 					/* Invalidate cache */
 					this->bound_user->InvalidateCache();
+					ServerInstance->next_call = ServerInstance->Time();
 				}
 			}
 			else
