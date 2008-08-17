@@ -49,7 +49,7 @@ class callerid_data : public classbase
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
-		for (std::set<User*>::iterator i = accepting.begin(); i != accepting.end(); ++i)
+		for (std::set<User*>::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
 		{
 			// Encode UIDs.
 			oss << "," << (displayable ? (*i)->nick : (*i)->uuid);
