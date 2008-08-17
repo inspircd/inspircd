@@ -118,6 +118,7 @@ bool TestSuite::DoWildTests()
 	WCTEST("foobar", "foo??r");
 	WCTEST("foobar.test", "fo?bar.*t");
 	WCTEST("foobar", "foobar");
+	WCTEST("foobar", "foo***bar");
 
 	WCTESTNOT("foobar", "bazqux");
 	WCTESTNOT("foobar", "*qux");
