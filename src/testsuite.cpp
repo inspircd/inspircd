@@ -116,6 +116,8 @@ bool TestSuite::DoWildTests()
 	WCTEST("foobar", "foo*");
 	WCTEST("foobar", "*bar");
 	WCTEST("foobar", "foo??r");
+	WCTEST("foobar.test", "fo?bar.*t");
+	WCTEST("foobar", "foobar");
 
 	WCTESTNOT("foobar", "bazqux");
 	WCTESTNOT("foobar", "*qux");
@@ -123,6 +125,10 @@ bool TestSuite::DoWildTests()
 	WCTESTNOT("foobar", "baz*");
 	WCTESTNOT("foobar", "foo???r");
 	WCTESTNOT("foobar", "");
+	WCTESTNOT("", "foobar");
+	WCTESTNOT("OperServ", "O");
+	WCTESTNOT("O", "OperServ");
+	WCTESTNOT("foobar.tst", "fo?bar.*g");
 
 	CIDRTEST("brain@1.2.3.4", "*@1.2.0.0/16");
 	CIDRTEST("brain@1.2.3.4", "*@1.2.3.0/24");

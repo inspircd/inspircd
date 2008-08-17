@@ -41,18 +41,21 @@ CoreExport bool csmatch(const std::string &str, const std::string &mask)
 	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
 	{
 		if ((*wild != *string) && (*wild != '?'))
-			return 0;
+			return false;
 
 		wild++;
 		string++;
 	}
+
+	if (wild == mask.end() && string != str.end())
+		return false;
 
 	while (string != str.end())
 	{
 		if (wild != mask.end() && *wild == '*')
 		{
 			if (++wild == mask.end())
-				return 1;
+				return true;
 
 			mp = wild;
 			cp = string;
@@ -95,18 +98,25 @@ CoreExport bool match(const std::string &str, const std::string &mask)
 	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
 	{
 		if ((lowermap[(unsigned char)*wild] != lowermap[(unsigned char)*string]) && (*wild != '?'))
-			return 0;
+			return false;
 
 		wild++;
 		string++;
+		//printf("Iterate first loop\n");
 	}
+
+	if (wild == mask.end() && string != str.end())
+		return false;
 
 	while (string != str.end())
 	{
+		//printf("outer\n %c", *string);
 		if (wild != mask.end() && *wild == '*')
 		{
+
+			//printf("inner %c\n", *wild);
 			if (++wild == mask.end())
-				return 1;
+				return true;
 
 			mp = wild;
 			cp = string;
@@ -118,8 +128,11 @@ CoreExport bool match(const std::string &str, const std::string &mask)
 		else
 		if ((string != str.end() && wild != mask.end()) && ((lowermap[(unsigned char)*wild] == lowermap[(unsigned char)*string]) || (*wild == '?')))
 		{
-			wild++;
-			string++;
+			if (wild != mask.end())
+				wild++;
+
+			if (string != str.end())
+				string++;
 		}
 		else
 		{
