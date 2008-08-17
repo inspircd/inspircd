@@ -213,9 +213,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 			ServerInstance->SE->GetStats(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
-			snprintf(kbitpersec_total_s, 30, "%03.5f%%", kbitpersec_total);
-			snprintf(kbitpersec_out_s, 30, "%03.5f%%", kbitpersec_out);
-			snprintf(kbitpersec_in_s, 30, "%03.5f%%", kbitpersec_in);
+			snprintf(kbitpersec_total_s, 30, "%03.5f", kbitpersec_total);
+			snprintf(kbitpersec_out_s, 30, "%03.5f", kbitpersec_out);
+			snprintf(kbitpersec_in_s, 30, "%03.5f", kbitpersec_in);
 
 			results.push_back(sn+" 249 "+user->nick+" :Bandwidth total:  "+ConvToStr(kbitpersec_total_s)+" kilobits/sec");
 			results.push_back(sn+" 249 "+user->nick+" :Bandwidth out:    "+ConvToStr(kbitpersec_out_s)+" kilobits/sec");
