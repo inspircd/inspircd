@@ -142,6 +142,10 @@ void ModeHandler::DisplayEmptyList(User*, Channel*)
 {
 }
 
+void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
+{
+}
+
 bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string&, const std::string&, Channel*)
 {
 	return (ours < theirs);
@@ -571,6 +575,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 								else
 								{
 									/* No parameter, continue to the next mode */
+									modehandlers[handler_id]->OnParameterMissing(user, targetuser, targetchannel);
 									continue;
 								}
 

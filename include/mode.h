@@ -232,6 +232,14 @@ class CoreExport ModeHandler : public Extensible
 	 */
 	virtual void DisplayList(User* user, Channel* channel);
 
+	/** In the event that the mode should be given a parameter, and no parameter was provided, this method is called.
+	 * This allows you to give special information to the user, or handle this any way you like.
+	 * @param user The user issuing the mode change
+	 * @param dest For user mode changes, the target of the mode. For channel mode changes, NULL.
+	 * @param channel For channel mode changes, the target of the mode. For user mode changes, NULL.
+	 */
+	virtual void OnParameterMissing(User* user, User* dest, Channel* channel);
+
 	/**
 	 * If your mode is a listmode, this method will be called to display an empty list (just the end of list numeric)
 	 * @param user The user issuing the command
