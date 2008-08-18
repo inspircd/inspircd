@@ -78,7 +78,7 @@ class ModuleSpanningTree : public Module
 
 	/** Show MAP output to a user (recursive)
 	 */
-	void ShowMap(TreeServer* Current, User* user, int depth, char matrix[128][128], float &totusers, float &totservers);
+	void ShowMap(TreeServer* Current, User* user, int depth, char matrix[250][250], float &totusers, float &totservers);
 
 	/** Handle remote MOTD
 	 */

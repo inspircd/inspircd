@@ -30,10 +30,10 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 }
 
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
-void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char matrix[128][128], float &totusers, float &totservers)
+void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char matrix[250][250], float &totusers, float &totservers)
 {
 	ServerInstance->Logs->Log("map",DEBUG,"ShowMap depth %d totusers %0.2f totservers %0.2f", depth, totusers, totservers);
-	if (line < 128)
+	if (line < 250)
 	{
 		for (int t = 0; t < depth; t++)
 		{
@@ -42,10 +42,10 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 
 		// For Aligning, we need to work out exactly how deep this thing is, and produce
 		// a 'Spacer' String to compensate.
-		char spacer[40];
+		char spacer[80];
 		memset(spacer,' ',sizeof(spacer));
-		if ((40 - Current->GetName().length() - depth) > 1) {
-			spacer[40 - Current->GetName().length() - depth] = '\0';
+		if ((80 - Current->GetName().length() - depth) > 1) {
+			spacer[80 - Current->GetName().length() - depth] = '\0';
 		}
 		else
 		{
@@ -53,7 +53,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		}
 
 		float percent;
-		char text[128];
+		char text[250];
 		/* Neat and tidy default values, as we're dealing with a matrix not a simple string */
 		memset(text, 0, sizeof(text));
 
@@ -68,10 +68,10 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 		}
 
 		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
-		snprintf(text, 126, "%s (%s)%s%5d [%5.2f%%]%s", Current->GetName().c_str(), Current->GetID().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
+		snprintf(text, 249, "%s (%s)%s%5d [%5.2f%%]%s", Current->GetName().c_str(), Current->GetID().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
 		totusers += Current->GetUserCount();
 		totservers++;
-		strlcpy(&matrix[line][depth],text,126);
+		strlcpy(&matrix[line][depth], text, 249);
 		line++;
 
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
@@ -132,9 +132,9 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 	// client does not provide for a proper terminal.
 	float totusers = 0;
 	float totservers = 0;
-	static char matrix[128][128];
+	static char matrix[250][250];
 
-	for (unsigned int t = 0; t < 128; t++)
+	for (unsigned int t = 0; t < 250; t++)
 	{
 		matrix[t][0] = '\0';
 	}
@@ -145,9 +145,9 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 	ShowMap(Utils->TreeRoot,user,0,matrix,totusers,totservers);
 
 	// Process each line one by one. The algorithm has a limit of
-	// 128 servers (which is far more than a spanning tree should have
+	// 250 servers (which is far more than a spanning tree should have
 	// anyway, so we're ok). This limit can be raised simply by making
-	// the character matrix deeper, 128 rows taking 10k of memory.
+	// the character matrix deeper, 250 rows taking 100k of memory.
 	for (int l = 1; l < line; l++)
 	{
 		// scan across the line looking for the start of the
