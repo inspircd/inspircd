@@ -152,6 +152,8 @@ class ModuleSSLOpenSSL : public Module
 		ctx = SSL_CTX_new( SSLv23_server_method() );
 		clictx = SSL_CTX_new( SSLv23_client_method() );
 
+		SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
 		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 

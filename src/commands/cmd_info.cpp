@@ -41,7 +41,8 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>&, User *user)
 	user->WriteNumeric(RPL_INFO, "%s :    satmd          nenolod         John2           Skip", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    jilles         Majic           eggy            Trystan", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    Quension       danieldg        praetorian", user->nick.c_str());
-	user->WriteNumeric(RPL_INFO, "%s :    GreenReaper    psychon         searchirc.com   irc-junkie.org", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s :    GreenReaper    psychon         Namegduf", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s :    searchirc.com   irc-junkie.org", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s : ", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :\2Other Contributors\2:", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :   dmb             Zaba            skenmy         LeaChim", user->nick.c_str());
