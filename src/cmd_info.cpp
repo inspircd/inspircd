@@ -40,7 +40,7 @@ CmdResult cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 	user->WriteServ( "371 %s :    satmd           nenolod         BuildSmart     HiroP", user->nick);
 	user->WriteServ( "371 %s :    jilles          Stskeeps        eggy           Trystan", user->nick);
 	user->WriteServ( "371 %s :    Bricker         danieldg        DarkStorm      Majic", user->nick);
-	user->WriteServ( "371 %s :    ThaPrince       Thunderhacker   praetorian", user->nick);
+	user->WriteServ( "371 %s :    ThaPrince       Thunderhacker   praetorian     Namegduf", user->nick);
 	user->WriteServ( "371 %s :    searchirc.com   irc-junkie.org", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Other Contributors\2:", user->nick);

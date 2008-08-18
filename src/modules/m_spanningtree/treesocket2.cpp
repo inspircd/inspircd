@@ -1595,7 +1595,12 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 
 		if (!found)
 		{
-			this->Instance->SNO->WriteToSnoMask('d',"Server connection from %s denied (no link blocks with that IP address", ip);
+			std::string err = "Server connection from ";
+			err += ip;
+			err += " denied (no link blocks with that IP address)";
+			this->Instance->SNO->WriteToSnoMask('d', err);
+			err = "ERROR :
+			send(newsock, err.c_str(), err.length()
 			close(newsock);
 			return false;
 		}
