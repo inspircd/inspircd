@@ -647,10 +647,9 @@ bool InspSocket::Poll()
 			else
 #endif
 			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
+			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
 			NonBlocking(incoming);
-
-			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
 			if (this->IsIOHooked)
 			{
