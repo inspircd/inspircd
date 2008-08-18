@@ -168,9 +168,9 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 }
 
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
-void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][128], float &totusers, float &totservers)
+void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[250][250], float &totusers, float &totservers)
 {
-	if (line < 128)
+	if (line < 250)
 	{
 		for (int t = 0; t < depth; t++)
 		{
@@ -178,19 +178,19 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, 
 		}
 		// For Aligning, we need to work out exactly how deep this thing is, and produce
 		// a 'Spacer' String to compensate.
-		char spacer[40];
-		memset(spacer,' ',40);
-		if ((40 - Current->GetName().length() - depth) > 1) {
-			spacer[40 - Current->GetName().length() - depth] = '\0';
+		char spacer[80];
+		memset(spacer,' ',80);
+		if ((80 - Current->GetName().length() - depth) > 1) {
+			spacer[80 - Current->GetName().length() - depth] = '\0';
 		}
 		else
 		{
 			spacer[5] = '\0';
 		}
 		float percent;
-		char text[128];
+		char text[250];
 		/* Neat and tidy default values, as we're dealing with a matrix not a simple string */
-		memset(text, 0, 128);
+		memset(text, 0, 250);
 
 		if (ServerInstance->clientlist->size() == 0) {
 			// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
@@ -201,10 +201,10 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, 
 			percent = ((float)Current->GetUserCount() / (float)ServerInstance->clientlist->size()) * 100;
 		}
 		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
-		snprintf(text, 126, "%s %s%5d [%5.2f%%]%s", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
+		snprintf(text, 249, "%s %s%5d [%5.2f%%]%s", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
 		totusers += Current->GetUserCount();
 		totservers++;
-		strlcpy(&matrix[line][depth],text,126);
+		strlcpy(&matrix[line][depth], text, 249);
 		line++;
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
@@ -336,8 +336,8 @@ void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, userrec* u
 	// client does not provide for a proper terminal.
 	float totusers = 0;
 	float totservers = 0;
-	char matrix[128][128];
-	for (unsigned int t = 0; t < 128; t++)
+	char matrix[250][250];
+	for (unsigned int t = 0; t < 250; t++)
 	{
 		matrix[t][0] = '\0';
 	}
