@@ -83,6 +83,7 @@ void IPCThread::Run()
 			stat << "kbitspersectotal " << kbitpersec_total << std::endl;
 			stat << "kbitspersecout " << kbitpersec_out << std::endl;
 			stat << "kbitspersecin " << kbitpersec_in << std::endl;
+			stat << "uptime " << ServerInstance->Time() - ServerInstance->startup_time << std::endl;
 			if (HaveMemoryStats)
 			{
 				stat << "workingset " << MemCounters.WorkingSetSize << std::endl;
