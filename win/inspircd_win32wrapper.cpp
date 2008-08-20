@@ -646,149 +646,133 @@ int gettimeofday(struct timeval * tv, void * tz)
 	DWORD mstime = timeGetTime();
 	tv->tv_sec   = time(NULL);
 	tv->tv_usec  = (mstime - (tv->tv_sec * 1000)) * 1000;
-    return 0;	
+	return 0;	
 }
 
+/* Initialise WMI. Microsoft have the silliest ideas about easy ways to
+ * obtain the CPU percentage of a running process!
+ * The whole API for this uses evil DCOM and is entirely unicode, giving
+ * all results and accepting queries as wide strings.
+ */
 bool initwmi()
 {
-    HRESULT hres;
+	HRESULT hres;
 
-    hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-    if (FAILED(hres))
-    {
-        return false;
-    }
+	/* Initialise COM. This can kill babies. */
+	hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
+	if (FAILED(hres))
+		return false;
 
-    hres =  CoInitializeSecurity(
-        NULL, 
-        -1,                          // COM authentication
-        NULL,                        // Authentication services
-        NULL,                        // Reserved
-        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-        NULL,                        // Authentication info
-        EOAC_NONE,                   // Additional capabilities 
-        NULL                         // Reserved
-        );
+	/* COM security. This stuff kills kittens */
+	hres =  CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
+		RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
 
-                      
-    if (FAILED(hres))
-    {
-        CoUninitialize();
-        return false;
-    }
+	if (FAILED(hres))
+	{
+		CoUninitialize();
+		return false;
+	}
     
-    pLoc = NULL;
-    hres = CoCreateInstance(
-        CLSID_WbemLocator,             
-        0, 
-        CLSCTX_INPROC_SERVER, 
-        IID_IWbemLocator, (LPVOID *) &pLoc);
+	/* Instance to COM object */
+	pLoc = NULL;
+	hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
  
-    if (FAILED(hres))
-    {
-        CoUninitialize();
-        return false;
-    }
+	if (FAILED(hres))
+	{
+		CoUninitialize();
+		return false;
+	}
 
-    pSvc = NULL;
+	pSvc = NULL;
 
-    hres = pLoc->ConnectServer(
-         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
-         NULL,                    // User name. NULL = current user
-         NULL,                    // User password. NULL = current
-         0,                       // Locale. NULL indicates current
-         NULL,                    // Security flags.
-         0,                       // Authority (e.g. Kerberos)
-         0,                       // Context object 
-         &pSvc                    // pointer to IWbemServices proxy
-         );
+	/* Connect to DCOM server */
+	hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
     
-    if (FAILED(hres))
-    {
-        pLoc->Release();     
-        CoUninitialize();
-        return false;
-    }
+	/* That didn't work, maybe no kittens found to kill? */
+	if (FAILED(hres))
+	{
+		pLoc->Release();
+		CoUninitialize();
+		return false;
+	}
 
-    hres = CoSetProxyBlanket(
-       pSvc,                        // Indicates the proxy to set
-       RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-       RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-       NULL,                        // Server principal name 
-       RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
-       RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-       NULL,                        // client identity
-       EOAC_NONE                    // proxy capabilities 
-    );
+	/* Don't even ASK what this does. I'm still not too sure myself. */
+	hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL,
+		RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
 
-    if (FAILED(hres))
-    {
-        pSvc->Release();
-        pLoc->Release();     
-        CoUninitialize();
-	return false;
-    }
-
-    return true;
+	if (FAILED(hres))
+	{
+		pSvc->Release();
+		pLoc->Release();     
+		CoUninitialize();
+		return false;
+	}
+	return true;
 }
 
 void donewmi()
 {
-    pSvc->Release();
-    pLoc->Release();
-    CoUninitialize();
+	pSvc->Release();
+	pLoc->Release();
+	CoUninitialize();
 }
 
+/* Return the CPU usage in percent of this process */
 int getcpu()
 {
-    HRESULT hres;
+	HRESULT hres;
 
-    IEnumWbemClassObject* pEnumerator = NULL;
-    hres = pSvc->ExecQuery(
-        bstr_t("WQL"), 
-        bstr_t("Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process"),
-        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
-        NULL,
-        &pEnumerator);
+	/* Use WQL, similar to SQL, to construct a query that lists the cpu usage and pid of all processes */
+	IEnumWbemClassObject* pEnumerator = NULL;
+	hres = pSvc->ExecQuery(bstr_t("WQL"),
+		bstr_t("Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process"),
+		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
     
-    if (FAILED(hres))
-	return -1;
+	/* Query didn't work */
+	if (FAILED(hres))
+		return -1;
 
-    IWbemClassObject *pclsObj = NULL;
-    ULONG uReturn = 0;
-    int slotpos = 0;
+	IWbemClassObject *pclsObj = NULL;
+	ULONG uReturn = 0;
    
-    while (pEnumerator)
-    {
-        VARIANT vtProp;
-        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, 
-            &pclsObj, &uReturn);
-
-        if (uReturn == 0)
-            break;
-
-	/* Enumerate processes */
-        hr = pclsObj->Get(L"IDProcess", 0, &vtProp, 0, 0);
-	if (!FAILED(hr))
+	/* Iterate the query results */
+	while (pEnumerator)
 	{
-		if (vtProp.uintVal == GetCurrentProcessId())
+		VARIANT vtProp;
+		/* Next item */
+		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+		/* No more items left */
+		if (uReturn == 0)
+			break;
+
+		/* Find process ID */
+		hr = pclsObj->Get(L"IDProcess", 0, &vtProp, 0, 0);
+		if (!FAILED(hr))
 		{
-			VariantClear(&vtProp);
-			/* Get CPU percentage for this process */
-		        hr = pclsObj->Get(L"PercentProcessorTime", 0, &vtProp, 0, 0);
-			if (!FAILED(hr))
+			/* Matches our process ID? */
+			if (vtProp.uintVal == GetCurrentProcessId())
 			{
 				VariantClear(&vtProp);
-				int cpu = 0;
-				std::wstringstream out(vtProp.bstrVal);
-				out >> cpu;
-				return cpu;
+				/* Get CPU percentage for this process */
+				hr = pclsObj->Get(L"PercentProcessorTime", 0, &vtProp, 0, 0);
+				if (!FAILED(hr))
+				{
+					/* Deal with wide string ickyness. Who in their right
+					 * mind puts a number in a bstrVal wide string item?!
+					 */
+					VariantClear(&vtProp);
+					int cpu = 0;
+					std::wstringstream out(vtProp.bstrVal);
+					out >> cpu;
+					pEnumerator->Release();
+					pclsObj->Release();
+					return cpu;
+				}
 			}
 		}
 	}
-    }
-    pEnumerator->Release();
-    pclsObj->Release();
-    return -1;
+	pEnumerator->Release();
+	pclsObj->Release();
+	return -1;
 }
