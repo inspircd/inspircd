@@ -8,7 +8,8 @@
 
 IPCThread::IPCThread(InspIRCd* Instance) : Thread(), ServerInstance(Instance)
 {
-	initwmi();
+	if (!initwmi())
+		ServerInstance->Logs->Log("IPC", DEBUG, "Could not initialise WMI. CPU percantage reports will not be available.");
 }
 
 IPCThread::~IPCThread()
@@ -23,15 +24,15 @@ void IPCThread::Run()
 	while (GetExitFlag() == false)
 	{
 		Pipe = CreateNamedPipe (Pipename,
-                                          PIPE_ACCESS_DUPLEX, // read/write access
-                                          PIPE_TYPE_MESSAGE | // message type pipe
-                                          PIPE_READMODE_MESSAGE | // message-read mode
-                                          PIPE_WAIT, // blocking mode
-                                          PIPE_UNLIMITED_INSTANCES, // max. instances
-                                          MAXBUF, // output buffer size
-                                          MAXBUF, // input buffer size
-                                          1000, // client time-out
-                                          NULL); // no security attribute
+					PIPE_ACCESS_DUPLEX, // read/write access
+                                        PIPE_TYPE_MESSAGE | // message type pipe
+                                        PIPE_READMODE_MESSAGE | // message-read mode
+                                        PIPE_WAIT, // blocking mode
+                                        PIPE_UNLIMITED_INSTANCES, // max. instances
+                                        MAXBUF, // output buffer size
+                                        MAXBUF, // input buffer size
+                                        1000, // client time-out
+                                        NULL); // no security attribute
 
 		if (Pipe == INVALID_HANDLE_VALUE)
 		{

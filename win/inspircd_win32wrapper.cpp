@@ -753,7 +753,7 @@ int getcpu()
         &pEnumerator);
     
     if (FAILED(hres))
-	return 0;
+	return -1;
 
     IWbemClassObject *pclsObj = NULL;
     ULONG uReturn = 0;
@@ -790,5 +790,5 @@ int getcpu()
     }
     pEnumerator->Release();
     pclsObj->Release();
-    return 0;
+    return -1;
 }
