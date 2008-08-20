@@ -254,6 +254,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr((MemCounters.WorkingSetSize + MemCounters.PagefileUsage) / 1024)+"K");
 				results.push_back(sn+" 249 "+user->nick+" :Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage / 1024)+"K");
 				results.push_back(sn+" 249 "+user->nick+" :Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
+				results.push_back(sn+" 249 "+user->nick+" :CPU Usage: " + ConvToStr(getcpu()) + "%");
 			}
 #endif
 		}
