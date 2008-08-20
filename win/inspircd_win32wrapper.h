@@ -209,5 +209,10 @@ void ChangeWindowsSpecificPointers(InspIRCd* Instance);
 
 bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
 
+bool initwmi();
+void donewmi();
+int getcpu();
+
+
 #endif
 

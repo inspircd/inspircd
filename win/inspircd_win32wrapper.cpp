@@ -17,6 +17,12 @@
 #include <string>
 #include <errno.h>
 #include <assert.h>
+#define _WIN32_DCOM
+#include <comdef.h>
+#include <Wbemidl.h>
+
+#pragma comment(lib, "wbemuuid.lib")
+#pragma comment(lib, "comsuppwd.lib")
 #pragma comment(lib, "winmm.lib")
 using namespace std;
 
@@ -25,6 +31,9 @@ using namespace std;
 #endif
 
 #include <mmsystem.h>
+
+IWbemLocator *pLoc = NULL;
+IWbemServices *pSvc = NULL;
 
 /* This MUST remain static and delcared outside the class, so that WriteProcessMemory can reference it properly */
 static DWORD owner_processid = 0;
@@ -638,4 +647,148 @@ int gettimeofday(struct timeval * tv, void * tz)
 	tv->tv_sec   = time(NULL);
 	tv->tv_usec  = (mstime - (tv->tv_sec * 1000)) * 1000;
     return 0;	
+}
+
+bool initwmi()
+{
+    HRESULT hres;
+
+    hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
+    if (FAILED(hres))
+    {
+        return false;
+    }
+
+    hres =  CoInitializeSecurity(
+        NULL, 
+        -1,                          // COM authentication
+        NULL,                        // Authentication services
+        NULL,                        // Reserved
+        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
+        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
+        NULL,                        // Authentication info
+        EOAC_NONE,                   // Additional capabilities 
+        NULL                         // Reserved
+        );
+
+                      
+    if (FAILED(hres))
+    {
+        CoUninitialize();
+        return false;
+    }
+    
+    pLoc = NULL;
+    hres = CoCreateInstance(
+        CLSID_WbemLocator,             
+        0, 
+        CLSCTX_INPROC_SERVER, 
+        IID_IWbemLocator, (LPVOID *) &pLoc);
+ 
+    if (FAILED(hres))
+    {
+        CoUninitialize();
+        return false;
+    }
+
+    pSvc = NULL;
+
+    hres = pLoc->ConnectServer(
+         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
+         NULL,                    // User name. NULL = current user
+         NULL,                    // User password. NULL = current
+         0,                       // Locale. NULL indicates current
+         NULL,                    // Security flags.
+         0,                       // Authority (e.g. Kerberos)
+         0,                       // Context object 
+         &pSvc                    // pointer to IWbemServices proxy
+         );
+    
+    if (FAILED(hres))
+    {
+        pLoc->Release();     
+        CoUninitialize();
+        return false;
+    }
+
+    hres = CoSetProxyBlanket(
+       pSvc,                        // Indicates the proxy to set
+       RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+       RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+       NULL,                        // Server principal name 
+       RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
+       RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+       NULL,                        // client identity
+       EOAC_NONE                    // proxy capabilities 
+    );
+
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();     
+        CoUninitialize();
+	return false;
+    }
+
+    return true;
+}
+
+void donewmi()
+{
+    pSvc->Release();
+    pLoc->Release();
+    CoUninitialize();
+}
+
+int getcpu()
+{
+    HRESULT hres;
+
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres = pSvc->ExecQuery(
+        bstr_t("WQL"), 
+        bstr_t("Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process"),
+        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
+        NULL,
+        &pEnumerator);
+    
+    if (FAILED(hres))
+	return 0;
+
+    IWbemClassObject *pclsObj = NULL;
+    ULONG uReturn = 0;
+    int slotpos = 0;
+   
+    while (pEnumerator)
+    {
+        VARIANT vtProp;
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, 
+            &pclsObj, &uReturn);
+
+        if (uReturn == 0)
+            break;
+
+	/* Enumerate processes */
+        hr = pclsObj->Get(L"IDProcess", 0, &vtProp, 0, 0);
+	if (!FAILED(hr))
+	{
+		if (vtProp.uintVal == GetCurrentProcessId())
+		{
+			VariantClear(&vtProp);
+			/* Get CPU percentage for this process */
+		        hr = pclsObj->Get(L"PercentProcessorTime", 0, &vtProp, 0, 0);
+			if (!FAILED(hr))
+			{
+				VariantClear(&vtProp);
+				int cpu = 0;
+				std::wstringstream out(vtProp.bstrVal);
+				out >> cpu;
+				return cpu;
+			}
+		}
+	}
+    }
+    pEnumerator->Release();
+    pclsObj->Release();
+    return 0;
 }

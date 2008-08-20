@@ -8,11 +8,12 @@
 
 IPCThread::IPCThread(InspIRCd* Instance) : Thread(), ServerInstance(Instance)
 {
+	initwmi();
 }
 
 IPCThread::~IPCThread()
 {
-
+	donewmi();
 }
 
 void IPCThread::Run()
@@ -84,6 +85,7 @@ void IPCThread::Run()
 			stat << "kbitspersecout " << kbitpersec_out << std::endl;
 			stat << "kbitspersecin " << kbitpersec_in << std::endl;
 			stat << "uptime " << ServerInstance->Time() - ServerInstance->startup_time << std::endl;
+			stat << "cpu " << getcpu() << std::endl;
 			if (HaveMemoryStats)
 			{
 				stat << "workingset " << MemCounters.WorkingSetSize << std::endl;
