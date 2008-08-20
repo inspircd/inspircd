@@ -196,22 +196,22 @@ class ValueItem;
 class ServerConfig;
 
 /* Look up the nameserver in use from the registry on windows */
-std::string FindNameServerWin();
+CoreExport std::string FindNameServerWin();
 
 /* Clear a windows console */
-void ClearConsole();
+CoreExport void ClearConsole();
 
-DWORD WindowsForkStart(InspIRCd* Instance);
+CoreExport DWORD WindowsForkStart(InspIRCd* Instance);
 
-void WindowsForkKillOwner(InspIRCd* Instance);
+CoreExport void WindowsForkKillOwner(InspIRCd* Instance);
 
-void ChangeWindowsSpecificPointers(InspIRCd* Instance);
+CoreExport void ChangeWindowsSpecificPointers(InspIRCd* Instance);
 
-bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
+CoreExport bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
 
-bool initwmi();
-void donewmi();
-int getcpu();
+CoreExport bool initwmi();
+CoreExport void donewmi();
+CoreExport int getcpu();
 
 
 #endif

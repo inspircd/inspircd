@@ -20,6 +20,7 @@
 	#endif
 #else
 	#include <psapi.h>
+	#include "inspircd_win32wrapper.h"
 	#pragma comment(lib, "psapi.lib")
 #endif
 
