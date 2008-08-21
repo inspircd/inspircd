@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 extern int smain(int argc, char** argv);
+extern const char* dlerror();
 
 static SERVICE_STATUS_HANDLE serviceStatusHandle;
 static HANDLE hThreadEvent;
@@ -26,6 +27,7 @@ static int serviceCurrentStatus;
 // This is used to define ChangeServiceConf2() as we can't link
 // directly against this symbol (see below where it is used)
 typedef BOOL (CALLBACK* SETSERVDESC)(SC_HANDLE,DWORD,LPVOID);
+typedef void (*CommandlineParameterHandler)(void);
 
 SETSERVDESC ChangeServiceConf;		// A function pointer for dynamic linking tricks
 
@@ -128,14 +130,14 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 	serviceStatusHandle = RegisterServiceCtrlHandler("InspIRCd", (LPHANDLER_FUNCTION)ServiceCtrlHandler);
 	if (!serviceStatusHandle)
 	{
-		terminateService(1,GetLastError());
+		terminateService(1, GetLastError());
 		return;
 	}
 
 	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 1, 1000);
 	if (!success)
 	{
-		terminateService(2,GetLastError());
+		terminateService(2, GetLastError());
 		return;
 	}
 
@@ -144,14 +146,14 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 
 	if (!killServiceEvent || !hThreadEvent)
 	{
-		terminateService(99,GetLastError());
+		terminateService(99, GetLastError());
 		return;
 	}
 
 	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 2, 1000);
 	if (!success)
 	{
-		terminateService(2,GetLastError());
+		terminateService(2, GetLastError());
 		return;
 	}
 
@@ -160,13 +162,13 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 	success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
 	if (!success)
 	{
-		terminateService(6,GetLastError());
+		terminateService(6, GetLastError());
 		return;
 	}
 	WaitForSingleObject (killServiceEvent, INFINITE);
 }
 
-void InstallService(void)
+void InstallService()
 {
 	SC_HANDLE myService, scm;
 	SERVICE_DESCRIPTION svDesc;
@@ -178,7 +180,7 @@ void InstallService(void)
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
 	{
-		printf("Unable to open service control manager: %d\n", GetLastError());
+		printf("Unable to open service control manager: %s\n", dlerror());
 		return;
 	}
 
@@ -187,7 +189,7 @@ void InstallService(void)
 
 	if (!myService)
 	{
-		printf("Unable to create service: %d\n", GetLastError());
+		printf("Unable to create service: %s\n", dlerror());
 		CloseServiceHandle(scm);
 		return;
 	}
@@ -202,13 +204,13 @@ void InstallService(void)
 		ChangeServiceConf = (SETSERVDESC)GetProcAddress(advapi32,"ChangeServiceConfig2A");
 		if (ChangeServiceConf)
 		{
-			char desc[] = "The Inspire Internet Relay Chat Daemon hosts IRC channels and conversations. \
-				      If this service is stopped, the IRC server will not run.";
+			char desc[] = "The Inspire Internet Relay Chat Daemon hosts IRC channels and conversations.\
+ If this service is stopped, the IRC server will not run.";
 			svDesc.lpDescription = desc;
 			BOOL success = ChangeServiceConf(myService,SERVICE_CONFIG_DESCRIPTION, &svDesc);
 			if (!success)
 			{
-				printf("Unable to set service description: %d\n", GetLastError());
+				printf("Unable to set service description: %s\n", dlerror());
 				CloseServiceHandle(myService);
 				CloseServiceHandle(scm);
 				return;
@@ -222,28 +224,28 @@ void InstallService(void)
 	CloseServiceHandle(scm);
 }
 
-void RemoveService(void)
+void RemoveService()
 {
 	SC_HANDLE myService, scm;
 
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
 	{
-		printf("Unable to open service control manager: %d\n", GetLastError());
+		printf("Unable to open service control manager: %s\n", dlerror());
 		return;
 	}
 
 	myService = OpenService(scm,"InspIRCd",SERVICE_ALL_ACCESS);
 	if (!myService)
 	{
-		printf("Unable to open service: %d\n", GetLastError());
+		printf("Unable to open service: %s\n", dlerror());
 		CloseServiceHandle(scm);
 		return;
 	}
 
 	if (!DeleteService(myService))
 	{
-		printf("Unable to delete service: %d\n", GetLastError());
+		printf("Unable to delete service: %s\n", dlerror());
 		CloseServiceHandle(myService);
 		CloseServiceHandle(scm);
 		return;
@@ -254,21 +256,32 @@ void RemoveService(void)
 	CloseServiceHandle(scm);
 }
 
+struct Commandline
+{
+	const char* Switch;
+	CommandlineParameterHandler Handler;
+};
+
 /* In windows, our main() flows through here, before calling the 'real' main, smain() in inspircd.cpp */
 int main(int argc, char** argv)
 {
+
+	Commandline params[] = {
+		{ "--installservice", InstallService },
+		{ "--removeservice", RemoveService },
+		{ NULL }
+	};
+
 	/* Check for parameters */
 	if (argc > 1)
 	{
-		if (!_stricmp(argv[1], "--installservice"))
+		for (int z = 0; params[z].Switch; ++z)
 		{
-			InstallService();
-			return 0;
-		}
-		else if (!_stricmp(argv[1], "--removeservice"))
-		{
-			RemoveService();
-			return 0;
+			if (!_stricmp(argv[1], params[z].Switch))
+			{
+				params[z].Handler();
+				return 0;
+			}
 		}
 	}
 
