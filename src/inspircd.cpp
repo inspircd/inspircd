@@ -867,15 +867,6 @@ void InspIRCd::BufferedSocketCull()
  * An ircd in five lines! bwahahaha. ahahahahaha. ahahah *cough*.
  */
 
-ENTRYPOINT
-{
-	SI = new InspIRCd(argc, argv);
-	mysig = &SI->s_signal;
-	SI->Run();
-	delete SI;
-	return 0;
-}
-
 /* this returns true when all modules are satisfied that the user should be allowed onto the irc server
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the
  * registration timeout maximum seconds)
@@ -898,4 +889,19 @@ time_t InspIRCd::Time()
 void InspIRCd::SetSignal(int signal)
 {
 	*mysig = signal;
+}
+
+/* On posix systems, the flow of the program starts right here, with
+ * ENTRYPOINT being a #define that defines main(). On Windows, ENTRYPOINT
+ * defines smain() and the real main() is in the service code under
+ * win32service.cpp. This allows the service control manager to control
+ * the process where we are running as a windows service.
+ */
+ENTRYPOINT
+{
+	SI = new InspIRCd(argc, argv);
+	mysig = &SI->s_signal;
+	SI->Run();
+	delete SI;
+	return 0;
 }
