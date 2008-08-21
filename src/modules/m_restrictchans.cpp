@@ -55,7 +55,7 @@ class ModuleRestrictChans : public Module
 	{
 		irc::string x = cname;
 		if (!IS_LOCAL(user))
-			return;
+			return 0;
 
 		// user is not an oper and its not in the allow list
 		if ((!IS_OPER(user)) && (allowchans.find(x) == allowchans.end()))
