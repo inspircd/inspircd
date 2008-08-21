@@ -14,6 +14,7 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 extern int smain(int argc, char** argv);
 
@@ -176,12 +177,17 @@ void InstallService(void)
 
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
+	{
+		printf("Unable to open service control manager: %d\n", GetLastError());
 		return;
+	}
 
-	myService = CreateService(scm,"InspIRCd","Inspire IRC Daemon", SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, modname, 0, 0, 0, 0, 0);
+	myService = CreateService(scm,"InspIRCd","Inspire IRC Daemon", SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
+		SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, modname, 0, 0, 0, NULL, NULL);
 
 	if (!myService)
 	{
+		printf("Unable to create service: %d\n", GetLastError());
 		CloseServiceHandle(scm);
 		return;
 	}
@@ -202,6 +208,7 @@ void InstallService(void)
 			BOOL success = ChangeServiceConf(myService,SERVICE_CONFIG_DESCRIPTION, &svDesc);
 			if (!success)
 			{
+				printf("Unable to set service description: %d\n", GetLastError());
 				CloseServiceHandle(myService);
 				CloseServiceHandle(scm);
 				return;
@@ -210,6 +217,7 @@ void InstallService(void)
 		FreeLibrary(advapi32);
 	}
 
+	printf("Service installed.\n");
 	CloseServiceHandle(myService);
 	CloseServiceHandle(scm);
 }
@@ -220,22 +228,28 @@ void RemoveService(void)
 
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
+	{
+		printf("Unable to open service control manager: %d\n", GetLastError());
 		return;
+	}
 
 	myService = OpenService(scm,"InspIRCd",SERVICE_ALL_ACCESS);
 	if (!myService)
 	{
+		printf("Unable to open service: %d\n", GetLastError());
 		CloseServiceHandle(scm);
 		return;
 	}
 
 	if (!DeleteService(myService))
 	{
+		printf("Unable to delete service: %d\n", GetLastError());
 		CloseServiceHandle(myService);
 		CloseServiceHandle(scm);
 		return;
 	}
 
+	printf("Service removed.\n");
 	CloseServiceHandle(myService);
 	CloseServiceHandle(scm);
 }
@@ -259,7 +273,9 @@ int main(int argc, char** argv)
 	}
 
 	/* First, check if the service is installed.
-	 * if it is not, just call smain().
+	 * if it is not, or we're starting as non-administrator,
+	 * just call smain() and start as normal non-service
+	 * process.
 	 */
 	SC_HANDLE myService, scm;
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
