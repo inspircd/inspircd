@@ -55,6 +55,9 @@
 #define DllExport __declspec(dllimport)
 #endif
 
+/* Redirect main() through a different method in win32service.cpp, to intercept service startup */
+#define ENTRYPOINT CoreExport int smain(int argc, char** argv)
+
 /* Disable the deprecation warnings.. it spams :P */
 #define _CRT_SECURE_NO_DEPRECATE
 #define _SCL_SECURE_NO_DEPRECATE

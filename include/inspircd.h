@@ -911,4 +911,6 @@ class CoreExport InspIRCd : public classbase
 	}
 };
 
+ENTRYPOINT;
+
 #endif

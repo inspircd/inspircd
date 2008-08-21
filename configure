@@ -1159,6 +1159,7 @@ sub writefiles {
 #define OPTIMISATION $config{OPTIMITEMP}
 #define LIBRARYDIR "$config{LIBRARY_DIR}"
 #define SYSTEM "$incos"
+#define ENTRYPOINT int main(int argc, char** argv)
 
 EOF
 print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";

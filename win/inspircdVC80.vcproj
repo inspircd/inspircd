@@ -528,6 +528,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\win32service.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\xline.cpp"
 				>
 			</File>

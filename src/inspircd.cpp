@@ -867,7 +867,7 @@ void InspIRCd::BufferedSocketCull()
  * An ircd in five lines! bwahahaha. ahahahahaha. ahahah *cough*.
  */
 
-int main(int argc, char ** argv)
+ENTRYPOINT
 {
 	SI = new InspIRCd(argc, argv);
 	mysig = &SI->s_signal;
