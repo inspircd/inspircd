@@ -183,7 +183,7 @@ void InstallService(void)
 	}
 
 	myService = CreateService(scm,"InspIRCd","Inspire IRC Daemon", SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
-		SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, modname, 0, 0, 0, NULL, NULL);
+		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, modname, 0, 0, 0, NULL, NULL);
 
 	if (!myService)
 	{
