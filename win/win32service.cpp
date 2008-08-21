@@ -10,22 +10,21 @@
  *
  * ---------------------------------------------------
  */
-
+#include "inspircd_config.h"
+#include "inspircd.h"
 #include <windows.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
-extern int smain(int argc, char** argv);
-extern const char* dlerror();
 
 static SERVICE_STATUS_HANDLE serviceStatusHandle;
 static HANDLE hThreadEvent;
 static HANDLE killServiceEvent;
 static int serviceCurrentStatus;
 
-// This is used to define ChangeServiceConf2() as we can't link
-// directly against this symbol (see below where it is used)
+/** This is used to define ChangeServiceConf2() as we can't link
+ * directly against this symbol (see below where it is used)
+ */
 typedef BOOL (CALLBACK* SETSERVDESC)(SC_HANDLE,DWORD,LPVOID);
 
 /* A commandline parameter handler for service specific commandline parameters */
@@ -38,18 +37,20 @@ struct Commandline
 	CommandlineParameterHandler Handler;
 };
 
+/* A function pointer for dynamic linking tricks */
+SETSERVDESC ChangeServiceConf;
 
-SETSERVDESC ChangeServiceConf;		// A function pointer for dynamic linking tricks
-
-
+/* Kills the service by setting an event which the other thread picks up and exits */
 void KillService()
 {
-	/* FIXME: This should set a flag in the mainloop for shutting down */
 	SetEvent(hThreadEvent);
 	Sleep(2000);
 	SetEvent(killServiceEvent);
 }
 
+/** The main part of inspircd runs within this thread function. This allows the service part to run
+ * seperately on its own and to be able to kill the worker thread when its time to quit.
+ */
 DWORD WINAPI WorkerThread(LPDWORD param)
 {
 	// *** REAL MAIN HERE ***
@@ -61,13 +62,16 @@ DWORD WINAPI WorkerThread(LPDWORD param)
 	return 0;
 }
 
+/** Starts the worker thread above */
 void StartServiceThread()
 {
 	DWORD dwd;
 	CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)WorkerThread,NULL,0,&dwd);
 }
 
-
+/** This function updates the status of the service in the SCM
+ * (service control manager, the services.msc applet)
+ */
 BOOL UpdateSCMStatus (DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint)
 {
 	BOOL success;
@@ -104,14 +108,14 @@ BOOL UpdateSCMStatus (DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServi
 	return success;
 }
 
-
+/** This function is called by us when the service is being shut down or when it can't be started */
 void terminateService (int code, int wincode)
 {
 	UpdateSCMStatus(SERVICE_STOPPED,wincode?wincode:ERROR_SERVICE_SPECIFIC_ERROR,(wincode)?0:code,0,0);
 	return;
 }
 
-
+/** This callback is called by windows when the state of the service has been changed */
 VOID ServiceCtrlHandler (DWORD controlCode)
 {
 	switch(controlCode)
@@ -131,7 +135,7 @@ VOID ServiceCtrlHandler (DWORD controlCode)
 	UpdateSCMStatus(serviceCurrentStatus, NO_ERROR, 0, 0, 0);
 }
 
-
+/** This callback is called by windows when the service is started */
 VOID ServiceMain(DWORD argc, LPTSTR *argv)
 {
 	BOOL success;
@@ -151,8 +155,8 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 		return;
 	}
 
-	killServiceEvent = CreateEvent(NULL,true,false,NULL);
-	hThreadEvent = CreateEvent(NULL,true,false,NULL);
+	killServiceEvent = CreateEvent(NULL, true, false, NULL);
+	hThreadEvent = CreateEvent(NULL, true, false, NULL);
 
 	if (!killServiceEvent || !hThreadEvent)
 	{
@@ -178,6 +182,7 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 	WaitForSingleObject (killServiceEvent, INFINITE);
 }
 
+/** Install the windows service. This requires administrator privileges. */
 void InstallService()
 {
 	SC_HANDLE myService, scm;
@@ -234,6 +239,7 @@ void InstallService()
 	CloseServiceHandle(scm);
 }
 
+/** Remove the windows service. This requires administrator privileges. */
 void RemoveService()
 {
 	SC_HANDLE myService, scm;
@@ -269,7 +275,7 @@ void RemoveService()
 /* In windows, our main() flows through here, before calling the 'real' main, smain() in inspircd.cpp */
 int main(int argc, char** argv)
 {
-
+	/* List of parameters and handlers */
 	Commandline params[] = {
 		{ "--installservice", InstallService },
 		{ "--removeservice", RemoveService },
