@@ -667,8 +667,13 @@ $config{HAS_KQUEUE} = $has_kqueue;
 
 printf "Checking for libgnutls... ";
 if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y"))) {
-	print "yes\n";
-	$config{HAS_GNUTLS} = "y";
+	if (defined($gnutls_ver) && ($gnutls_ver ne "")) {
+		print "yes\n";
+		$config{HAS_GNUTLS} = "y";
+	} else {
+		print "no\n";
+		$config{HAS_GNUTLS} = "n";
+	}
 } else {
 	print "no\n";
 	$config{HAS_GNUTLS} = "n";
@@ -676,8 +681,13 @@ if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTL
 
 printf "Checking for openssl... ";
 if (defined($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL}) || ($config{HAS_OPENSSL} eq "y"))) {
-	print "yes\n";
-	$config{HAS_OPENSSL} = "y";
+	if (defined($openssl_ver) && ($openssl_ver ne "")) {
+		print "yes\n";
+		$config{HAS_OPENSSL} = "y";
+	} else {
+		print "no\n";
+		$config{HAS_OPENSSL} = "n";
+	}
 } else {
 	print "no\n";
 	$config{HAS_OPENSSL} = "n";
