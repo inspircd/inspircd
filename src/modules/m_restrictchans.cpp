@@ -59,6 +59,10 @@ class ModuleRestrictChans : public Module
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		irc::string x = cname;
+
+		if (!IS_LOCAL(user))
+			return 0;
+
 		// user is not an oper and its not in the allow list
 		if ((!IS_OPER(user)) && (allowchans.find(x) == allowchans.end()))
 		{
