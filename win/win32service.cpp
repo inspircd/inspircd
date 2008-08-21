@@ -27,7 +27,17 @@ static int serviceCurrentStatus;
 // This is used to define ChangeServiceConf2() as we can't link
 // directly against this symbol (see below where it is used)
 typedef BOOL (CALLBACK* SETSERVDESC)(SC_HANDLE,DWORD,LPVOID);
+
+/* A commandline parameter handler for service specific commandline parameters */
 typedef void (*CommandlineParameterHandler)(void);
+
+/* Represents a commandline and its handler */
+struct Commandline
+{
+	const char* Switch;
+	CommandlineParameterHandler Handler;
+};
+
 
 SETSERVDESC ChangeServiceConf;		// A function pointer for dynamic linking tricks
 
@@ -256,12 +266,6 @@ void RemoveService()
 	CloseServiceHandle(scm);
 }
 
-struct Commandline
-{
-	const char* Switch;
-	CommandlineParameterHandler Handler;
-};
-
 /* In windows, our main() flows through here, before calling the 'real' main, smain() in inspircd.cpp */
 int main(int argc, char** argv)
 {
@@ -299,17 +303,28 @@ int main(int argc, char** argv)
 		{
 			/* Service not installed or no permission to modify it */
 			CloseServiceHandle(scm);
-			smain(argc, argv);
+			return smain(argc, argv);
 		}
 	}
 	else
 	{
 		/* Not enough privileges to open the SCM */
-		smain(argc, argv);
+		return smain(argc, argv);
 	}
 
 	CloseServiceHandle(myService);
 	CloseServiceHandle(scm);
+
+	/* Check if the process is running interactively. InspIRCd does not run interactively
+	 * as a service so if this is true, we just run the non-service inspircd.
+	 */
+	USEROBJECTFLAGS uoflags;
+	HWINSTA winstation = GetProcessWindowStation();
+	if (GetUserObjectInformation(winstation, UOI_FLAGS, &uoflags, sizeof(uoflags), NULL))
+	{
+		if (uoflags.dwFlags == WSF_VISIBLE)
+			return smain(argc, argv);
+	}
 
 	/* If we get here, we know the service is installed so we can start it */
 
