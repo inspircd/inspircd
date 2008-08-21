@@ -60,7 +60,7 @@ class ModuleRestrictChans : public Module
 			// channel does not yet exist (record is null, about to be created IF we were to allow it)
 			if (!chan)
 			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :Only IRC operators may create new channels",user->nick.c_str(),cname);
+				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Only IRC operators may create new channels",user->nick.c_str(),cname);
 				return 1;
 			}
 		}
