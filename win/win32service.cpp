@@ -53,7 +53,6 @@ void KillService()
  */
 DWORD WINAPI WorkerThread(LPDWORD param)
 {
-	// *** REAL MAIN HERE ***
 	char modname[MAX_PATH];
 	GetModuleFileName(NULL, modname, sizeof(modname));
 	char* argv[] = { modname, "--nofork", "--debug" };
