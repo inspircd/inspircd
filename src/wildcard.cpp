@@ -17,158 +17,99 @@
 #include "hashcomp.h"
 #include "inspstring.h"
 
-using irc::sockets::MatchCIDR;
-
-/* Rewritten to operate on more effective C++ std::string types
- * rather than char* to avoid data copies.
- * - Brain
+/*
+ * Wildcard matching, the third (and probably final) iteration!
+ *
  */
-
-CoreExport bool csmatch(const std::string &str, const std::string &mask)
+static bool match_internal(const unsigned char *str, const unsigned char *mask, unsigned const char *map)
 {
-	std::string::const_iterator cp, mp;
+	const unsigned char *wild = str;
+	const unsigned char *string = mask;
+	const unsigned char *cp = NULL;
+	const unsigned char *mp = NULL;
 
-	//unsigned char *cp = NULL, *mp = NULL;
-	//unsigned char* string = (unsigned char*)str;
-	//unsigned char* wild = (unsigned char*)mask;
-
-	std::string::const_iterator wild = mask.begin();
-	std::string::const_iterator string = str.begin();
-
-	if (mask.empty())
-		return false;
-
-	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
+	while ((*string) && (*wild != '*'))
 	{
-		if ((*wild != *string) && (*wild != '?'))
-			return false;
-
-		wild++;
-		string++;
-	}
-
-	if (wild == mask.end() && string != str.end())
-		return false;
-
-	while (string != str.end())
-	{
-		if (wild != mask.end() && *wild == '*')
+		if (!map)
 		{
-			if (++wild == mask.end())
-				return true;
-
-			mp = wild;
-			cp = string;
-
-			if (cp != str.end())
-				cp++;
+			if ((*wild != *string) && (*wild != '?'))
+			{
+				return false;
+			}
 		}
 		else
-		if ((string != str.end() && wild != mask.end()) && ((*wild == *string) || (*wild == '?')))
 		{
-			wild++;
-			string++;
+			if (map[*wild] != map[*string] && (*wild != '?'))
+			{
+				return false;
+			}
+		}
+
+		++wild;
+		++string;
+	}
+
+	while (*string)
+	{
+		if (*wild == '*')
+		{
+			if (!*++wild)
+			{
+				return true;
+			}
+
+			mp = wild;
+			cp = string+1;
+		}
+		// if there is no charmap and str == wild OR
+		// there is a map and mapped char == mapped wild AND
+		// wild is NOT ?
+		else if (((!map && *wild == *string) || (map && map[*wild] == map[*string])) && (*wild == '?'))
+		{
+			++wild;
+			++string;
 		}
 		else
 		{
 			wild = mp;
-			if (cp == str.end())
-				cp = str.end();
-			else
-				string = cp++;
+			string = cp++;
 		}
-
 	}
 
-	while ((wild != mask.end()) && (*wild == '*'))
-		wild++;
-
-	return wild == mask.end();
-}
-
-CoreExport bool match(const std::string &str, const std::string &mask)
-{
-	std::string::const_iterator cp, mp;
-	std::string::const_iterator wild = mask.begin();
-	std::string::const_iterator string = str.begin();
-
-	if (mask.empty())
-		return false;
-
-	while ((string != str.end()) && (wild != mask.end()) && (*wild != '*'))
+	while (*wild == '*')
 	{
-		if ((lowermap[(unsigned char)*wild] != lowermap[(unsigned char)*string]) && (*wild != '?'))
-			return false;
-
 		wild++;
-		string++;
-		//printf("Iterate first loop\n");
 	}
 
-	if (wild == mask.end() && string != str.end())
-		return false;
-
-	while (string != str.end())
-	{
-		//printf("outer\n %c", *string);
-		if (wild != mask.end() && *wild == '*')
-		{
-
-			//printf("inner %c\n", *wild);
-			if (++wild == mask.end())
-				return true;
-
-			mp = wild;
-			cp = string;
-
-			if (cp != str.end())
-				cp++;
-
-		}
-		else
-		if ((string != str.end() && wild != mask.end()) && ((lowermap[(unsigned char)*wild] == lowermap[(unsigned char)*string]) || (*wild == '?')))
-		{
-			if (wild != mask.end())
-				wild++;
-
-			if (string != str.end())
-				string++;
-		}
-		else
-		{
-			wild = mp;
-			if (cp == str.end())
-				string = str.end();
-			else
-				string = cp++;
-		}
-
-	}
-
-	while ((wild != mask.end()) && (*wild == '*'))
-		wild++;
-
-	return wild == mask.end();
+	return (*wild == 0);
 }
 
-/* Overloaded function that has the option of using cidr */
-CoreExport bool match(const std::string &str, const std::string &mask, bool use_cidr_match)
+CoreExport bool InspIRCd::Match(const std::string &str, const std::string &mask, unsigned const char *map)
 {
-	if (use_cidr_match && MatchCIDR(str, mask, true))
-		return true;
-	return match(str, mask);
+	return match_internal((const unsigned char *)str.c_str(), (const unsigned char *)mask.c_str(), map);
 }
 
-CoreExport bool match(bool case_sensitive, const std::string &str, const std::string &mask, bool use_cidr_match)
+CoreExport bool InspIRCd::Match(const  char *str, const char *mask, unsigned const char *map)
 {
-	if (use_cidr_match && MatchCIDR(str, mask, true))
+	return match_internal((const unsigned char *)str, (const unsigned char *)mask, map);
+}
+
+
+CoreExport bool InspIRCd::MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map)
+{
+	if (irc::sockets::MatchCIDR(str, mask, true))
 		return true;
 
-	return case_sensitive ? csmatch(str, mask) : match(str, mask);
+	// Fall back to regular match
+	return InspIRCd::Match(str, mask, NULL);
 }
 
-CoreExport bool match(bool case_sensitive, const std::string &str, const std::string &mask)
+CoreExport bool InspIRCd::MatchCIDR(const  char *str, const char *mask, unsigned const char *map)
 {
-	return case_sensitive ? csmatch(str, mask) : match(str, mask);
+	if (irc::sockets::MatchCIDR(str, mask, true))
+		return true;
+
+	// Fall back to regular match
+	return InspIRCd::Match(str, mask, NULL);
 }
 

@@ -28,7 +28,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 
 	if (parameters.size() && parameters[0][0] != '-')
 	{
-		if (!ServerInstance->MatchText(ServerInstance->Config->ServerName, parameters[0]))
+		if (!InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0], lowermap))
 		{
 			FOREACH_MOD(I_OnRehash,OnRehash(user, parameters[0]));
 			return CMD_SUCCESS; // rehash for a server, and not for us

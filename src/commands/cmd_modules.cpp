@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "commands/cmd_modules.h"
 
 const char* itab[] = {

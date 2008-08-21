@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "commands/cmd_privmsg.h"
 
 extern "C" DllExport  Command* init_command(InspIRCd* Instance)
@@ -43,7 +42,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		const char* servermask = (parameters[0].c_str()) + 1;
 
 		FOREACH_MOD(I_OnText,OnText(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
-		if (match(ServerInstance->Config->ServerName,servermask))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, servermask, NULL))
 		{
 			user->SendAll("PRIVMSG", "%s", text);
 		}

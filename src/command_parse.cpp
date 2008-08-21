@@ -14,7 +14,6 @@
 /* $Core */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "socketengine.h"
 #include "socket.h"
@@ -545,7 +544,7 @@ void CommandParser::SetupCommandTable(User* user)
 		dirent* entry = NULL;
 		while (0 != (entry = readdir(library)))
 		{
-			if (match(entry->d_name, "cmd_*.so"))
+			if (InspIRCd::Match(entry->d_name, "cmd_*.so", NULL))
 			{
 				if (!user)
 				{

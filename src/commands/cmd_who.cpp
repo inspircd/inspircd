@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "commands/cmd_who.h"
 
 static const std::string star = "*";
@@ -75,15 +74,15 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 		else
 		{
 			if (opt_realname)
-				realname = match(user->fullname, matchtext);
+				realname = InspIRCd::Match(user->fullname, matchtext, lowermap);
 			else
 			{
 				if (opt_showrealhost)
-					realhost = match(user->host, matchtext);
+					realhost = InspIRCd::Match(user->host, matchtext, lowermap);
 				else
 				{
 					if (opt_ident)
-						ident = match(user->ident, matchtext);
+						ident = InspIRCd::Match(user->ident, matchtext, lowermap);
 					else
 					{
 						if (opt_port)
@@ -97,13 +96,13 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 						else
 						{
 							if (opt_away)
-								away = match(user->awaymsg, matchtext);
+								away = InspIRCd::Match(user->awaymsg, matchtext, lowermap);
 						}
 					}
 				}
 			}
 		}
-		return ((port) || (away) || (ident) || (metadata) || (realname) || (realhost) || (match(user->dhost, matchtext)) || (match(user->nick, matchtext)) || (match(user->server, matchtext)));
+		return ((port) || (away) || (ident) || (metadata) || (realname) || (realhost) || (InspIRCd::Match(user->dhost, matchtext, lowermap)) || (InspIRCd::Match(user->nick, matchtext, lowermap)) || (InspIRCd::Match(user->server, matchtext, lowermap)));
 	}
 }
 

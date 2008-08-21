@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "commands/cmd_oper.h"
 #include "hashcomp.h"
 
@@ -22,7 +21,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	std::string xhost;
 	while (hl >> xhost)
 	{
-		if (match(host, xhost) || match(ip,xhost, true))
+		if (InspIRCd::MatchCIDR(host, xhost, NULL) || InspIRCd::MatchCIDR(ip, xhost, NULL))
 		{
 			return true;
 		}

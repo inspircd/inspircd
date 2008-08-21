@@ -14,7 +14,6 @@
 /* $Core */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "exitcodes.h"
 

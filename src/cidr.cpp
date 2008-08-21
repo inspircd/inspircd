@@ -14,7 +14,6 @@
 /* $Core */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 /* Used when comparing CIDR masks for the modulus bits left over.
  * A lot of ircd's seem to do this:
@@ -91,7 +90,7 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 			 * symbols, and recursively call MatchCIDR without
 			 * username matching enabled to match the host part.
 			 */
-			return (match(address.substr(0, username_addr_pos), cidr_mask.substr(0, username_mask_pos)) &&
+			return (InspIRCd::Match(address.substr(0, username_addr_pos), cidr_mask.substr(0, username_mask_pos), NULL) &&
 					MatchCIDR(address.substr(username_addr_pos + 1), cidr_mask.substr(username_mask_pos + 1), false));
 		}
 		else

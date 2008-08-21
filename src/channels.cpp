@@ -15,7 +15,6 @@
 
 #include "inspircd.h"
 #include <cstdarg>
-#include "wildcard.h"
 #include "mode.h"
 
 Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : ServerInstance(Instance)
@@ -489,11 +488,9 @@ bool Channel::IsBanned(User* user)
 		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 		{
-			/* This allows CIDR ban matching
-			 *
-			 *        Full masked host                      Full unmasked host                   IP with/without CIDR
-			 */
-			if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
+			if ((InspIRCd::Match(user->GetFullHost(),i->data, NULL)) || // host
+				(InspIRCd::Match(user->GetFullRealHost(),i->data, NULL)) || // uncloaked host
+				(InspIRCd::MatchCIDR(mask, i->data, NULL))) // ip
 			{
 				return true;
 			}
@@ -520,7 +517,7 @@ bool Channel::IsExtBanned(const std::string &str, char type)
 			std::string maskptr = i->data.substr(2);
 			ServerInstance->Logs->Log("EXTBANS", DEBUG, "Checking %s against %s, type is %c", str.c_str(), maskptr.c_str(), type);
 
-			if (match(str, maskptr))
+			if (InspIRCd::Match(str, maskptr, NULL))
 				return true;
 		}
 	}
@@ -1038,7 +1035,7 @@ long Channel::GetMaxBans()
 	/* If there isnt one, we have to do some O(n) hax to find it the first time. (ick) */
 	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
 	{
-		if (match(this->name,n->first))
+		if (InspIRCd::Match(this->name, n->first, NULL))
 		{
 			this->maxbans = n->second;
 			return n->second;

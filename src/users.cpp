@@ -16,7 +16,6 @@
 #include "inspircd.h"
 #include <stdarg.h>
 #include "socketengine.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "bancache.h"
 #include "commands/cmd_whowas.h"
@@ -1811,7 +1810,8 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			}
 
 			/* check if host matches.. */
-			if (((!match(this->GetIPString(),c->GetHost(),true)) && (!match(this->host,c->GetHost()))))
+			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) && 
+			    !InspIRCd::MatchCIDR(this->host, c->GetHost(), NULL))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
 				continue;

@@ -16,7 +16,6 @@
 #include "inspircd.h"
 #include "testsuite.h"
 #include "threadengine.h"
-#include "wildcard.h"
 #include <iostream>
 
 using namespace std;
@@ -98,14 +97,14 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 }
 
 /* Test that x matches y with match() */
-#define WCTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\") " << ((passed = (match(x, y))) ? " SUCCESS!\n" : " FAILURE\n")
+#define WCTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\") " << ((passed = (InspIRCd::Match(x, y, NULL))) ? " SUCCESS!\n" : " FAILURE\n")
 /* Test that x does not match y with match() */
-#define WCTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\") " << ((passed = ((!match(x, y)))) ? " SUCCESS!\n" : " FAILURE\n")
+#define WCTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\") " << ((passed = ((!InspIRCd::Match(x, y, NULL)))) ? " SUCCESS!\n" : " FAILURE\n")
 
 /* Test that x matches y with match() and cidr enabled */
-#define CIDRTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\", true) " << ((passed = (match(x, y, true))) ? " SUCCESS!\n" : " FAILURE\n")
+#define CIDRTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\", true) " << ((passed = (InspIRCd::MatchCIDR(x, y, NULL))) ? " SUCCESS!\n" : " FAILURE\n")
 /* Test that x does not match y with match() and cidr enabled */
-#define CIDRTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\", true) " << ((passed = ((!match(x, y, true)))) ? " SUCCESS!\n" : " FAILURE\n")
+#define CIDRTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\", true) " << ((passed = ((!InspIRCd::MatchCIDR(x, y, NULL)))) ? " SUCCESS!\n" : " FAILURE\n")
 
 bool TestSuite::DoWildTests()
 {

@@ -712,14 +712,21 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void SendMode(const std::vector<std::string>& parameters, User *user);
 
-	/** Match two strings using pattern matching.
-	 * This operates identically to the global function match(),
-	 * except for that it takes std::string arguments rather than
-	 * const char* ones.
-	 * @param sliteral The literal string to match against
-	 * @param spattern The pattern to match against. CIDR and globs are supported.
+	/** Match two strings using pattern matching, optionally, with a map
+	 * to check case against (may be NULL).
+	 * @param str The literal string to match against
+	 * @param mask The glob pattern to match against.
 	 */
-	bool MatchText(const std::string &sliteral, const std::string &spattern);
+	static bool Match(const std::string &str, const std::string &mask, unsigned const char *map);
+	static bool Match(const  char *str, const char *mask, unsigned const char *map);
+
+	/** Match two strings using pattern matching, optionally, with a map
+	 * to check case against (may be NULL). Supports CIDR patterns as well as globs.
+	 * @param str The literal string to match against
+	 * @param mask The glob or CIDR pattern to match against.
+	 */
+	static bool MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map);
+	static bool MatchCIDR(const  char *str, const char *mask, unsigned const char *map);
 
 	/** Call the handler for a given command.
 	 * @param commandname The command whos handler you wish to call

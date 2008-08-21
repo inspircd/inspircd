@@ -13,7 +13,6 @@
 
 #include "inspircd.h"
 #include "commands/cmd_list.h"
-#include "wildcard.h"
 
 /** Handle /LIST
  */
@@ -54,7 +53,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 
 		if (parameters.size() && (parameters[0][0] != '<' || parameters[0][0] == '>'))
 		{
-			if (!match(i->second->name, parameters[0]) && !match(i->second->topic, parameters[0]))
+			if (!InspIRCd::Match(i->second->name, parameters[0], lowermap) && !InspIRCd::Match(i->second->topic, parameters[0], lowermap))
 				continue;
 		}
 

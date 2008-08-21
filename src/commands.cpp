@@ -14,7 +14,6 @@
 /* $Core */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "command_parse.h"
 
@@ -33,7 +32,8 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 	
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if ((match(u->second->MakeHost(), mask, true)) || (match(u->second->MakeHostIP(), mask, true)))
+		if ((InspIRCd::Match(u->second->MakeHost(), mask, lowermap)) ||
+		    (InspIRCd::Match(u->second->MakeHostIP(), mask, lowermap)))
 		{
 			matches++;
 		}
@@ -64,7 +64,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 	
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if (match(u->second->GetIPString(),ip,true))
+		if (InspIRCd::Match(u->second->GetIPString(), ip, lowermap))
 			matches++;
 	}
 
@@ -93,7 +93,7 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if (match(u->second->nick,nick))
+		if (InspIRCd::Match(u->second->nick, nick, lowermap))
 			matches++;
 	}
 
