@@ -145,6 +145,7 @@ Section "Binary Executable" SEC01
   SetOutPath "$INSTDIR\bin"
   SetOverwrite ifnewer
   File "..\bin\${BUILD}\bin\inspircd.exe"
+  ExecWait '"$INSTDIR\bin\inspircd.exe" --installservice'
 SectionEnd
 
 Section "Config Files" SEC02
@@ -244,6 +245,7 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
+  ExecWait '"$INSTDIR\bin\inspircd.exe" --removeservice'
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\modules\m_*.so"
