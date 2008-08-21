@@ -42,8 +42,8 @@ DWORD WINAPI WorkerThread(LPDWORD param)
 	// *** REAL MAIN HERE ***
 	char modname[MAX_PATH];
 	GetModuleFileName(NULL, modname, sizeof(modname));
-	char* argv[] = { modname, "--nofork" };
-	smain(1, argv);
+	char* argv[] = { modname, "--nofork", "--debug" };
+	smain(3, argv);
 	KillService();
 	return 0;
 }
@@ -244,7 +244,7 @@ void RemoveService(void)
 int main(int argc, char** argv)
 {
 	/* Check for parameters */
-	/*if (argc > 0)
+	if (argc > 1)
 	{
 		if (!_stricmp(argv[1], "--installservice"))
 		{
@@ -256,7 +256,7 @@ int main(int argc, char** argv)
 			RemoveService();
 			return 0;
 		}
-	}*/
+	}
 
 	/* First, check if the service is installed.
 	 * if it is not, just call smain().
