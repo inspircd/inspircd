@@ -17,7 +17,6 @@
 #include "hashcomp.h"
 #include "inspstring.h"
 
-#include <iostream>
 /*
  * Wildcard matching, the third (and probably final) iteration!
  *
@@ -34,7 +33,7 @@ static bool match_internal(const unsigned char *mask, const unsigned char *str, 
 
 	while ((*string) && (*wild != '*'))
 	{
-		if (map[*wild] != map[*string] && (*wild != '?'))
+		if ((map[*wild] != map[*string]) && (*wild != '?'))
 		{
 			return false;
 		}
@@ -55,9 +54,8 @@ static bool match_internal(const unsigned char *mask, const unsigned char *str, 
 			mp = wild;
 			cp = string+1;
 		}
-
-		// if mapped char == mapped wild AND wild is NOT ?
-		else if (map[*wild] == map[*string] && (*wild == '?'))
+		// if mapped char == mapped wild OR wild is ?
+		else if ((map[*wild] == map[*string]) || (*wild == '?'))
 		{
 			++wild;
 			++string;
@@ -74,10 +72,6 @@ static bool match_internal(const unsigned char *mask, const unsigned char *str, 
 		wild++;
 	}
 
-	if (*wild == 0)
-		std::cout << "*wild == 0\n";
-	else
-		std::cout << "*wild != 0\n";
 	return (*wild == 0);
 }
 
