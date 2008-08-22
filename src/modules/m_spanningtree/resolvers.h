@@ -18,6 +18,7 @@
 #include "commands/cmd_stats.h"
 #include "socket.h"
 #include "inspircd.h"
+#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 

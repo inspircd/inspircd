@@ -16,6 +16,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "transport.h"
+#include "wildcard.h"
 #include "dns.h"
 
 /* $ModDesc: Provides /sslinfo command used to test who a mask matches */

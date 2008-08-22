@@ -14,6 +14,7 @@
 #include "inspircd.h"
 #include "httpd.h"
 #include "protocol.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd.so dependent modules */
 /* $ModDep: httpd.h */
@@ -172,7 +173,7 @@ class ModuleHTTPAccessList : public Module
 
 			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
 			{
-				if (InspIRCd::Match(http->GetURI(), this_acl->path))
+				if (match(http->GetURI(), this_acl->path))
 				{
 					if (!this_acl->blacklist.empty())
 					{
@@ -182,7 +183,7 @@ class ModuleHTTPAccessList : public Module
 
 						while (sep.GetToken(entry))
 						{
-							if (InspIRCd::Match(http->GetIP(), entry))
+							if (match(http->GetIP(), entry))
 							{
 								ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
 										http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
@@ -200,7 +201,7 @@ class ModuleHTTPAccessList : public Module
 
 						while (sep.GetToken(entry))
 						{
-							if (InspIRCd::Match(http->GetIP(), entry))
+							if (match(http->GetIP(), entry))
 								allow_access = true;
 						}
 

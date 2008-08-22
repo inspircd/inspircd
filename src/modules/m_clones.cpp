@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides the /clones command to retrieve information on clones. */
 

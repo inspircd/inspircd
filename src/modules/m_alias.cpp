@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides aliases of commands. */
 
@@ -156,7 +157,7 @@ class ModuleAlias : public Module
 				/* Does it match the pattern? */
 				if (!Aliases[i].format.empty())
 				{
-					if (InspIRCd::Match(Aliases[i].case_sensitive, compare, Aliases[i].format))
+					if (!match(Aliases[i].case_sensitive, compare, Aliases[i].format))
 						continue;
 				}
 

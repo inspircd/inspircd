@@ -17,6 +17,7 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
+#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 
@@ -32,7 +33,7 @@ int ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, 
 {
 	if (parameters.size() > 1)
 	{
-		if (InspIRCd::Match(ServerInstance->Config->ServerName, parameters[1]))
+		if (match(ServerInstance->Config->ServerName, parameters[1]))
 			return 0;
 
 		/* Remote STATS, the server is within the 2nd parameter */

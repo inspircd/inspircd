@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
@@ -96,7 +97,7 @@ class ModuleHostChange : public Module
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			if (((InspIRCd::Match(user->MakeHost(), i->first, true)) || (InspIRCd::Match(user->MakeHostIP(), i->first))))
+			if (((match(user->MakeHost(), i->first, true)) || (match(user->MakeHostIP(), i->first))))
 			{
 				Host* h = i->second;
 

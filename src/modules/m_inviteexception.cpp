@@ -69,7 +69,7 @@ public:
 				std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if(InspIRCd::Match(user->GetFullRealHost(), it->mask) || match(user->GetFullHost(), it->mask) || (InspIRCd::Match(mask, it->mask, true)))
+					if(match(user->GetFullRealHost(), it->mask) || match(user->GetFullHost(), it->mask) || (match(mask, it->mask, true)))
 					{
 						// They match an entry on the list, so let them in.
 						return 1;
@@ -94,7 +94,7 @@ public:
 				std::string mask = std::string(LM->user->nick) + "!" + LM->user->ident + "@" + LM->user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || match(LM->user->GetFullHost(), it->mask.c_str()) || (InspIRCd::Match(mask, it->mask, true)))
+					if (match(LM->user->GetFullRealHost(), it->mask) || match(LM->user->GetFullHost(), it->mask.c_str()) || (match(mask, it->mask, true)))
 					{
 						// They match an entry
 						return (char*)it->mask.c_str();

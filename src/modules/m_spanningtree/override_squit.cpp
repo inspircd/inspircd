@@ -17,6 +17,7 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
+#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 
