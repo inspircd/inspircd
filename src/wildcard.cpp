@@ -18,62 +18,71 @@
 #include "inspstring.h"
 
 /*
- * Wildcard matching, the third (and probably final) iteration!
+ * Wildcard matching!
+ *
+ *  Iteration 1)
+ *   Slow, horrible, etc.
+ *	Iteration 2)
+ *   The vastly available 'public domain' one
+ *	Iteration 3)
+ *   ZNC's, thought to be faster than ours, but it turned out that we could do better ;-)
+ *	Iteration 4)
+ *   Largely from work by peavey and myself (w00t) :)
  *
  */
-static bool match_internal(const unsigned char *mask, const unsigned char *str, unsigned const char *map)
+static bool match_internal(const unsigned char *string, const unsigned char *wild, unsigned const char *map)
 {
-	const unsigned char *wild = str;
-	const unsigned char *string = mask;
-	const unsigned char *cp = NULL;
-	const unsigned char *mp = NULL;
+	const unsigned char* s;
 
 	if (!map)
-		map = lowermap; // default to case insensitive search
-
-	while ((*string) && (*wild != '*'))
-	{
-		if ((map[*wild] != map[*string]) && (*wild != '?'))
-		{
-			return false;
-		}
-
-		++wild;
-		++string;
-	}
+		map = lowermap;
 
 	while (*string)
 	{
 		if (*wild == '*')
 		{
-			if (!*++wild)
-			{
-				return true;
-			}
+			while (*wild && *wild == '*')
+				wild++;
 
-			mp = wild;
-			cp = string+1;
+			if (!*wild)
+				return true;
+			else if (*wild != '?')
+			{
+				s = string;
+				while (*s)
+				{
+					if ((map[*wild] == map[*s]))
+					{
+						string = s;
+						if (*(wild+1) || !*(s+1))
+						{
+							wild++;
+							break;
+						}
+					}
+					s++;
+				}
+			}
 		}
-		// if mapped char == mapped wild OR wild is ?
-		else if ((map[*wild] == map[*string]) || (*wild == '?'))
+		else if ( (map[*wild] != map[*string]) && (*wild != '?') )
 		{
-			++wild;
-			++string;
+			return false;
 		}
 		else
-		{
-			wild = mp;
-			string = cp++;
-		}
+			wild++;
+
+		string++;
 	}
 
-	while (*wild == '*')
-	{
+	while (*wild && *wild == '*')
 		wild++;
-	}
 
-	return (*wild == 0);
+	return !*wild;
 }
+
+/********************************************************************
+ * Below here is all wrappers around match_internal
+ ********************************************************************/
 
 CoreExport bool InspIRCd::Match(const std::string &str, const std::string &mask, unsigned const char *map)
 {
