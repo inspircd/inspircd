@@ -131,18 +131,32 @@ void Snomask::Flush()
 	if (Count > 1)
 		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: (last message repeated %u times)", this->Description.c_str(), Count);
 
-	/* Only opers can receive snotices, so we iterate the oper list */
-	for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
-	{
-		User* a = *i;
-		if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)
-		{
 
-			a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), this->Description.c_str(), this->LastMessage.c_str());
-			if (Count > 1)
+	int MOD_RESULT = 0;
+	char mysnomask = MySnomask;
+	std::string desc = this->Description;
+
+	FOREACH_RESULT(I_OnSendSnotice, OnSendSnotice(mysnomask, desc, this->LastMessage));
+
+	if (MOD_RESULT != 1) // 1 blocks the message
+	{
+		/* Only opers can receive snotices, so we iterate the oper list */
+		std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin();
+
+		while (i != ServerInstance->Users->all_opers.end())
+		{
+			User* a = *i;
+			if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(mysnomask) && !a->quitting)
 			{
-				a->WriteServ("NOTICE %s :*** %s: (last message repeated %u times)", a->nick.c_str(), this->Description.c_str(), Count);
+
+				a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), desc.c_str(), this->LastMessage.c_str());
+				if (Count > 1)
+				{
+					a->WriteServ("NOTICE %s :*** %s: (last message repeated %u times)", a->nick.c_str(), this->Description.c_str(), Count);
+				}
 			}
+
+			i++;
 		}
 	}
 
