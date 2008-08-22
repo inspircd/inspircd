@@ -384,7 +384,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFOR
 enum Implementation
 {
 	I_BEGIN,
-	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnServerRaw, 
+	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnServerRaw, I_OnSendSnotice,
 	I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
 	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
 	I_OnGetServerDescription, I_OnSyncUser, I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData,
@@ -526,6 +526,15 @@ class CoreExport Module : public Extensible
 	 * @param user The user record sending the text, when inbound == true.
 	 */
  	virtual void OnServerRaw(std::string &raw, bool inbound, User* user);
+
+	/** Called whenever a snotice is about to be sent to a snomask.
+	 * snomask and type may both be modified; the message may not.
+	 * @param snomask The snomask the message is going to (e.g. 'A')
+	 * @param type The textual description the snomask will go to (e.g. 'OPER')
+	 * @param message The text message to be sent via snotice
+	 * @return 1 to block the snotice from being sent entirely, 0 else.
+	 */
+	virtual int OnSendSnotice(char &snomask, std::string &type, const std::string &message);
 
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
