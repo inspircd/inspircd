@@ -17,7 +17,6 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 
@@ -402,7 +401,7 @@ int ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters
 {
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
-		if (ServerInstance->MatchText(x->Name.c_str(),parameters[0]))
+		if (InspIRCd::Match(x->Name.c_str(),parameters[0]))
 		{
 			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 			if (!CheckDupe)

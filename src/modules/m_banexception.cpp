@@ -13,7 +13,6 @@
 
 #include "inspircd.h"
 #include "u_listmode.h"
-#include "wildcard.h"
 
 /* $ModDesc: Provides support for the +e channel mode */
 /* $ModDep: ../../include/u_listmode.h */
@@ -78,7 +77,7 @@ public:
 
 				std::string maskptr = it->mask.substr(2);
 
-				if (match(user->GetFullRealHost(), maskptr) || match(user->GetFullHost(), maskptr) || (match(mask, maskptr, true)))
+				if (InspIRCd::Match(user->GetFullRealHost(), maskptr) || InspIRCd::Match(user->GetFullHost(), maskptr) || (InspIRCd::MatchCIDR(mask, maskptr)))
 				{
 					// They match an entry on the list, so let them pass this.
 					return 1;
@@ -104,7 +103,7 @@ public:
 					continue;
 
 				std::string maskptr = it->mask.substr(2);
-				if (match(str, maskptr))
+				if (InspIRCd::Match(str, maskptr))
 					return 1; // matches
 			}
 		}
@@ -128,7 +127,7 @@ public:
 			std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				if (match(user->GetFullRealHost(), it->mask) || match(user->GetFullHost(), it->mask) || (match(mask, it->mask, true)))
+				if (InspIRCd::Match(user->GetFullRealHost(), it->mask) || InspIRCd::Match(user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
 				{
 					// They match an entry on the list, so let them in.
 					return 1;
@@ -170,7 +169,7 @@ public:
 				std::string mask = std::string(LM->user->nick) + "!" + LM->user->ident + "@" + LM->user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if (match(LM->user->GetFullRealHost(), it->mask) || match(LM->user->GetFullHost(), it->mask) || (match(mask, it->mask, true)))
+					if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || InspIRCd::Match(LM->user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
 					{
 						// They match an entry
 						return (char*)it->mask.c_str();

@@ -28,21 +28,14 @@ static bool match_internal(const unsigned char *str, const unsigned char *mask, 
 	const unsigned char *cp = NULL;
 	const unsigned char *mp = NULL;
 
+	if (!map)
+		map = lowermap; // default to case insensitive search
+
 	while ((*string) && (*wild != '*'))
 	{
-		if (!map)
+		if (map[*wild] != map[*string] && (*wild != '?'))
 		{
-			if ((*wild != *string) && (*wild != '?'))
-			{
-				return false;
-			}
-		}
-		else
-		{
-			if (map[*wild] != map[*string] && (*wild != '?'))
-			{
-				return false;
-			}
+			return false;
 		}
 
 		++wild;
@@ -61,10 +54,9 @@ static bool match_internal(const unsigned char *str, const unsigned char *mask, 
 			mp = wild;
 			cp = string+1;
 		}
-		// if there is no charmap and str == wild OR
-		// there is a map and mapped char == mapped wild AND
-		// wild is NOT ?
-		else if (((!map && *wild == *string) || (map && map[*wild] == map[*string])) && (*wild == '?'))
+
+		// if mapped char == mapped wild AND wild is NOT ?
+		else if (map[*wild] == map[*string] && (*wild == '?'))
 		{
 			++wild;
 			++string;

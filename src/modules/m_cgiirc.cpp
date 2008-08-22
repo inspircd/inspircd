@@ -68,7 +68,7 @@ class CommandWebirc : public Command
 
 			for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 			{
-				if(ServerInstance->MatchText(user->host, iter->hostmask) || ServerInstance->MatchText(user->GetIPString(), iter->hostmask))
+				if(InspIRCd::Match(user->host, iter->hostmask) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask))
 				{
 					if(iter->type == WEBIRC && parameters[0] == iter->password)
 					{
@@ -262,7 +262,7 @@ public:
 	{
 		for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 		{
-			if(ServerInstance->MatchText(user->host, iter->hostmask) || ServerInstance->MatchText(user->GetIPString(), iter->hostmask))
+			if(InspIRCd::Match(user->host, iter->hostmask) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask))
 			{
 				// Deal with it...
 				if(iter->type == PASS)

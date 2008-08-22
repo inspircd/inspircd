@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 /* $ModDesc: Provides /tline command used to test who a mask matches */
 
@@ -37,7 +36,7 @@ class CommandTline : public Command
 		for (user_hash::const_iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			n_counted++;
-			if (match(u->second->GetFullRealHost(),parameters[0]))
+			if (InspIRCd::Match(u->second->GetFullRealHost(),parameters[0]))
 			{
 				n_matched++;
 				n_match_host++;
@@ -45,7 +44,7 @@ class CommandTline : public Command
 			else
 			{
 				std::string host = std::string(u->second->ident) + "@" + u->second->GetIPString();
-				if (match(host, parameters[0], true))
+				if (InspIRCd::MatchCIDR(host, parameters[0]))
 				{
 					n_matched++;
 					n_match_ip++;

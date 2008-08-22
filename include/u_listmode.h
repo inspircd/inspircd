@@ -14,8 +14,6 @@
 #ifndef INSPIRCD_LISTMODE_PROVIDER
 #define INSPIRCD_LISTMODE_PROVIDER
 
-#include "wildcard.h"
-
 /** Get the time as a string
  */
 inline std::string stringtime()
@@ -284,7 +282,7 @@ class ListModeBase : public ModeHandler
 
 			for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); it++)
 			{
-				if (match(channel->name, it->mask))
+				if (InspIRCd::Match(channel->name, it->mask))
 				{
 					// We have a pattern matching the channel...
 					maxsize = el->size();

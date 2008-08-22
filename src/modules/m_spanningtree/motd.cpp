@@ -27,7 +27,7 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 {
 	if (params.size() > 0)
 	{
-		if (this->Instance->MatchText(this->Instance->Config->ServerName, params[0]))
+		if (InspIRCd::Match(this->Instance->Config->ServerName, params[0]))
 		{
 			/* It's for our server */
 			string_list results;

@@ -294,7 +294,7 @@ class ModuleBanRedirect : public Module
 
 				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 				{
-					if(ServerInstance->MatchText(user->GetFullRealHost(), redir->banmask) || ServerInstance->MatchText(user->GetFullHost(), redir->banmask) || ServerInstance->MatchText(ipmask, redir->banmask))
+					if(InspIRCd::Match(user->GetFullRealHost(), redir->banmask) || InspIRCd::Match(user->GetFullHost(), redir->banmask) || InspIRCd::MatchCIDR(ipmask, redir->banmask))
 					{
 						/* tell them they're banned and are being transferred */
 						Channel* destchan = ServerInstance->FindChan(redir->targetchan);

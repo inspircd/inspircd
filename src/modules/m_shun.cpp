@@ -19,7 +19,7 @@ public:
 
 	bool Matches(User *u)
 	{
-		if (ServerInstance->MatchText(u->GetFullHost(), matchtext) || ServerInstance->MatchText(u->GetFullRealHost(), matchtext))
+		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext))
 			return true;
 
 		return false;

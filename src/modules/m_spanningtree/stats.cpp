@@ -15,7 +15,6 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 #include "socketengine.h"
@@ -35,7 +34,7 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 	 */
 	if (params.size() > 1)
 	{
-		if (this->Instance->MatchText(this->Instance->Config->ServerName, params[1]))
+		if (InspIRCd::Match(this->Instance->Config->ServerName, params[1]))
 		{
 			/* It's for our server */
 			string_list results;

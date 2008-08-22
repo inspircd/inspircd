@@ -14,7 +14,6 @@
 /* $ModDesc: Provides a spanning tree server link protocol */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 #include "m_spanningtree/main.h"
 #include "m_spanningtree/utils.h"

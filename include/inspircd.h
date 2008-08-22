@@ -713,20 +713,21 @@ class CoreExport InspIRCd : public classbase
 	void SendMode(const std::vector<std::string>& parameters, User *user);
 
 	/** Match two strings using pattern matching, optionally, with a map
-	 * to check case against (may be NULL).
+	 * to check case against (may be NULL). If map is null, match will be case insensitive.
 	 * @param str The literal string to match against
 	 * @param mask The glob pattern to match against.
 	 */
-	static bool Match(const std::string &str, const std::string &mask, unsigned const char *map);
-	static bool Match(const  char *str, const char *mask, unsigned const char *map);
+	static bool Match(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
+	static bool Match(const  char *str, const char *mask, unsigned const char *map = NULL);
 
 	/** Match two strings using pattern matching, optionally, with a map
-	 * to check case against (may be NULL). Supports CIDR patterns as well as globs.
+	 * to check case against (may be NULL). If map is null, match will be case insensitive.
+	 * Supports CIDR patterns as well as globs.
 	 * @param str The literal string to match against
 	 * @param mask The glob or CIDR pattern to match against.
 	 */
-	static bool MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map);
-	static bool MatchCIDR(const  char *str, const char *mask, unsigned const char *map);
+	static bool MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
+	static bool MatchCIDR(const  char *str, const char *mask, unsigned const char *map = NULL);
 
 	/** Call the handler for a given command.
 	 * @param commandname The command whos handler you wish to call

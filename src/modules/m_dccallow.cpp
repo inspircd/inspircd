@@ -139,7 +139,7 @@ class CommandDccallow : public Command
 							user->WriteNumeric(996, "%s %s :%s is already on your DCCALLOW list", user->nick.c_str(), user->nick.c_str(), target->nick.c_str());
 							return CMD_FAILURE;
 						}
-						else if (ServerInstance->MatchText(user->GetFullHost(), k->hostmask))
+						else if (InspIRCd::Match(user->GetFullHost(), k->hostmask))
 						{
 							user->WriteNumeric(996, "%s %s :You cannot add yourself to your own DCCALLOW list!", user->nick.c_str(), user->nick.c_str());
 							return CMD_FAILURE;
@@ -312,7 +312,7 @@ class ModuleDCCAllow : public Module
 					if (u->GetExt("dccallow_list", dl) && dl->size())
 					{
 						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
-							if (ServerInstance->MatchText(user->GetFullHost(), iter->hostmask))
+							if (InspIRCd::Match(user->GetFullHost(), iter->hostmask))
 								return 0;
 					}
 
@@ -338,7 +338,7 @@ class ModuleDCCAllow : public Module
 
 						for (unsigned int i = 0; i < bfl.size(); i++)
 						{
-							if (ServerInstance->MatchText(filename, bfl[i].filemask))
+							if (InspIRCd::Match(filename, bfl[i].filemask))
 							{
 								if (bfl[i].action == "allow")
 									return 0;

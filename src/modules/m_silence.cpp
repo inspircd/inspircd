@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 /* $ModDesc: Provides support for the /SILENCE command */
 
@@ -391,7 +390,7 @@ class ModuleSilence : public Module
 		{
 			for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 			{
-				if (((((c->second & pattern) > 0)) || ((c->second & SILENCE_ALL) > 0)) && (ServerInstance->MatchText(source->GetFullHost(), c->first)))
+				if (((((c->second & pattern) > 0)) || ((c->second & SILENCE_ALL) > 0)) && (InspIRCd::Match(source->GetFullHost(), c->first)))
 					return !(((c->second & SILENCE_EXCLUDE) > 0));
 			}
 		}

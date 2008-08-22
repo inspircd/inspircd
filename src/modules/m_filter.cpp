@@ -45,7 +45,7 @@ class ModuleFilter : public FilterBase
 			if (!FilterBase::AppliesToMe(user, index->second, iflags))
 				continue;
 
-			if (ServerInstance->MatchText(text,index->first))
+			if (InspIRCd::Match(text,index->first))
 			{
 				FilterResult* fr = index->second;
 				if (index != filters.begin())

@@ -17,7 +17,6 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 
@@ -32,7 +31,7 @@ int ModuleSpanningTree::HandleModules(const std::vector<std::string>& parameters
 {
 	if (parameters.size() > 0)
 	{
-		if (match(ServerInstance->Config->ServerName, parameters[0]))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
 			return 0;
 
 		std::deque<std::string> params;

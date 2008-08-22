@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 /** Holds a users m_safelist state
  */
@@ -185,7 +184,7 @@ class ModuleSafeList : public Module
 
 				if ((chan) && (chan->modes[CM_PRIVATE]) && (!IS_OPER(user)))
 				{
-					bool display = (match(chan->name, ld->glob) || (!chan->topic.empty() && match(chan->topic, ld->glob)));
+					bool display = (InspIRCd::Match(chan->name, ld->glob) || (!chan->topic.empty() && InspIRCd::Match(chan->topic, ld->glob)));
 					if ((users) && (display))
 					{
 						int counter = snprintf(buffer, MAXBUF, "322 %s * %ld :", user->nick.c_str(), users);
@@ -195,7 +194,7 @@ class ModuleSafeList : public Module
 				}
 				else if ((chan) && ((((!(chan->IsModeSet('p'))) && (!(chan->IsModeSet('s'))))) || (has_user) || IS_OPER(user)))
 				{
-					bool display = (match(chan->name, ld->glob) || (!chan->topic.empty() && match(chan->topic, ld->glob)));
+					bool display = (InspIRCd::Match(chan->name, ld->glob) || (!chan->topic.empty() && InspIRCd::Match(chan->topic, ld->glob)));
 					if ((users) && (display))
 					{
 						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s", user->nick.c_str(), chan->name.c_str(), users, chan->ChanModes(has_user || IS_OPER(user)), chan->topic.c_str());

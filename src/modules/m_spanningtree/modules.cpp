@@ -26,7 +26,7 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 	if (params.empty())
 		return true;
 
-	if (!this->Instance->MatchText(this->Instance->Config->ServerName, params[0]))
+	if (!InspIRCd::Match(this->Instance->Config->ServerName, params[0]))
 	{
 		/* Pass it on, not for us */
 		Utils->DoOneToOne(prefix, "MODULES", params, params[0]);

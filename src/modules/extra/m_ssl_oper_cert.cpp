@@ -20,7 +20,6 @@
 #include "channels.h"
 #include "modules.h"
 #include "transport.h"
-#include "wildcard.h"
 
 /** Handle /FINGERPRINT
  */
@@ -104,7 +103,7 @@ class ModuleOperSSLCert : public Module
 		std::string xhost;
 		while (hl >> xhost)
 		{
-			if (match(host, xhost) || match(ip, xhost, true))
+			if (InspIRCd::Match(host, xhost) || InspIRCd::MatchCIDR(ip, xhost))
 			{
 				return true;
 			}

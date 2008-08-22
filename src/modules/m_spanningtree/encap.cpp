@@ -27,7 +27,7 @@ bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &param
 {
 	if (params.size() > 1)
 	{
-		if (Instance->MatchText(Instance->Config->GetSID(), params[0]))
+		if (InspIRCd::Match(Instance->Config->GetSID(), params[0]))
 		{
 			Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
 			event.Send(Instance);

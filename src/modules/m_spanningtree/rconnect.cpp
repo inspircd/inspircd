@@ -15,7 +15,6 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 
@@ -48,7 +47,7 @@ CmdResult cmd_rconnect::Handle (const std::vector<std::string>& parameters, User
 	}
 
 	/* Is this aimed at our server? */
-	if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
+	if (InspIRCd::Match(ServerInstance->Config->ServerName,parameters[0]))
 	{
 		/* Yes, initiate the given connect */
 		ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());

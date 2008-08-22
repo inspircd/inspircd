@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 /* $ModDesc: Provides the TITLE command which allows setting of CUSTOM WHOIS TITLE line */
 
@@ -34,7 +33,7 @@ class CommandTitle : public Command
 		std::string xhost;
 		while (hl >> xhost)
 		{
-			if (match(host, xhost) || match(ip,xhost, true))
+			if (InspIRCd::Match(host, xhost) || InspIRCd::MatchCIDR(ip,xhost))
 			{
 				return true;
 			}
