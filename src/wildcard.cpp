@@ -17,11 +17,12 @@
 #include "hashcomp.h"
 #include "inspstring.h"
 
+#include <iostream>
 /*
  * Wildcard matching, the third (and probably final) iteration!
  *
  */
-static bool match_internal(const unsigned char *str, const unsigned char *mask, unsigned const char *map)
+static bool match_internal(const unsigned char *mask, const unsigned char *str, unsigned const char *map)
 {
 	const unsigned char *wild = str;
 	const unsigned char *string = mask;
@@ -73,6 +74,10 @@ static bool match_internal(const unsigned char *str, const unsigned char *mask, 
 		wild++;
 	}
 
+	if (*wild == 0)
+		std::cout << "*wild == 0\n";
+	else
+		std::cout << "*wild != 0\n";
 	return (*wild == 0);
 }
 

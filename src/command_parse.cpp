@@ -544,7 +544,7 @@ void CommandParser::SetupCommandTable(User* user)
 		dirent* entry = NULL;
 		while (0 != (entry = readdir(library)))
 		{
-			if (InspIRCd::Match(entry->d_name, "cmd_*.so", NULL))
+			if (InspIRCd::Match(entry->d_name, "cmd_*.so"))
 			{
 				if (!user)
 				{
@@ -565,6 +565,8 @@ void CommandParser::SetupCommandTable(User* user)
 					}
 				}
 			}
+			else
+				printf("NOT loading %s, not a cmd\n", entry->d_name);
 		}
 		closedir(library);
 		if (!user)
