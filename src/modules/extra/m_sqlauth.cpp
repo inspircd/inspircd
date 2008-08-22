@@ -74,7 +74,7 @@ public:
 
 	virtual int OnUserRegister(User* user)
 	{
-		if ((!allowpattern.empty()) && (ServerInstance->MatchText(user->nick,allowpattern)))
+		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
 			user->Extend("sqlauthed");
 			return 0;
