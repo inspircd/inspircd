@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 #include "m_hash.h"
 
 /* $ModDesc: Provides masking of user hostnames */
@@ -314,7 +313,7 @@ class ModuleCloaking : public Module
 			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), tofree->c_str());
 			for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 			{
-				if (match(mask,i->data))
+				if (InspIRCd::Match(mask,i->data))
 					return -1;
 			}
 		}

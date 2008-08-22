@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 /* $ModDesc: Provides support for the /SILENCE command */
 

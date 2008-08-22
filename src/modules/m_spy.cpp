@@ -14,7 +14,6 @@
 /* $ModDesc: Provides the ability to see the complete names list of channels an oper is not a member of */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 class ModuleSpy : public Module
 {

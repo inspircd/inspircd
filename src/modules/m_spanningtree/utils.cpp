@@ -15,7 +15,6 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-#include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
 #include "socketengine.h"
@@ -91,7 +90,7 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 {
 	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
 	{
-		if (match(i->first,ServerName))
+		if (InspIRCd::Match(i->first,ServerName))
 			return i->second;
 	}
 	return NULL;

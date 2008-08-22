@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "wildcard.h"
 
 /* $ModDesc: Sets (and unsets) modes on users when they connect */
 
@@ -64,7 +63,7 @@ class ModuleModesOnConnect : public Module
 		{
 			std::string hostn = Conf->ReadValue("connect","allow",j);
 			/* XXX: Fixme: does not respect port, limit, etc */
-			if ((match(user->GetIPString(),hostn,true)) || (match(user->host,hostn)))
+			if ((InspIRCd::Match(user->GetIPString(),hostn,true)) || (InspIRCd::Match(user->host,hostn)))
 			{
 				std::string ThisModes = Conf->ReadValue("connect","modes",j);
 				if (!ThisModes.empty())
