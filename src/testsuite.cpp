@@ -111,35 +111,50 @@ bool TestSuite::DoWildTests()
 	cout << "\n\nWildcard and CIDR tests\n\n";
 	bool passed = false;
 
-	WCTEST("foobar", "*");
-	WCTEST("foobar", "foo*");
-	WCTEST("foobar", "*bar");
-	WCTEST("foobar", "foo??r");
-	WCTEST("foobar.test", "fo?bar.*t");
-	WCTEST("foobar", "foobar");
-	WCTEST("foobar", "foo***bar");
+    WCTEST("foobar", "*");
+    WCTEST("foobar", "foo*");
+    WCTEST("foobar", "*bar");
+    WCTEST("foobar", "foo??r");
+    WCTEST("foobar.test", "fo?bar.*t");
+    WCTEST("foobar.test", "fo?bar.t*t");
+    WCTEST("foobar.tttt", "fo?bar.**t");
+    WCTEST("foobar", "foobar");
+    WCTEST("foobar", "foo***bar");
+    WCTEST("foobar", "*foo***bar");
+    WCTEST("foobar", "**foo***bar");
+    WCTEST("foobar", "**foobar*");
+    WCTEST("foobar", "**foobar**");
+    WCTEST("foobar", "**foobar");
+    WCTEST("foobar", "**f?*?ar");
+    WCTEST("foobar", "**f?*b?r");
+    WCTEST("foofar", "**f?*f*r");
+    WCTEST("foofar", "**f?*f*?");
+    WCTEST("r", "*");
+    WCTEST("", "");
 
-	WCTESTNOT("foobar", "bazqux");
-	WCTESTNOT("foobar", "*qux");
-	WCTESTNOT("foobar", "foo*x");
-	WCTESTNOT("foobar", "baz*");
-	WCTESTNOT("foobar", "foo???r");
-	WCTESTNOT("foobar", "");
-	WCTESTNOT("", "foobar");
-	WCTESTNOT("OperServ", "O");
-	WCTESTNOT("O", "OperServ");
-	WCTESTNOT("foobar.tst", "fo?bar.*g");
+    WCTESTNOT("foobar", "bazqux");
+    WCTESTNOT("foobar", "*qux");
+    WCTESTNOT("foobar", "foo*x");
+    WCTESTNOT("foobar", "baz*");
+    WCTESTNOT("foobar", "foo???r");
+    WCTESTNOT("foobar", "foobars");
+    WCTESTNOT("foobar", "**foobar**h");
+    WCTESTNOT("foobar", "**foobar**h*");
+    WCTESTNOT("foobar", "**f??*bar?");
+    WCTESTNOT("foobar", "");
+    WCTESTNOT("", "foobar");
+    WCTESTNOT("OperServ", "O");
+    WCTESTNOT("O", "OperServ");
+    WCTESTNOT("foobar.tst", "fo?bar.*g");
+    WCTESTNOT("foobar.test", "fo?bar.*tt");
 
 	CIDRTEST("brain@1.2.3.4", "*@1.2.0.0/16");
 	CIDRTEST("brain@1.2.3.4", "*@1.2.3.0/24");
-
 	CIDRTEST("192.168.3.97", "192.168.3.0/24");
 
 	CIDRTESTNOT("brain@1.2.3.4", "x*@1.2.0.0/16");
 	CIDRTESTNOT("brain@1.2.3.4", "*@1.3.4.0/24");
-
 	CIDRTESTNOT("1.2.3.4", "1.2.4.0/24");
-
 	CIDRTESTNOT("brain@1.2.3.4", "*@/24");
 	CIDRTESTNOT("brain@1.2.3.4", "@1.2.3.4/9");
 	CIDRTESTNOT("brain@1.2.3.4", "@");
