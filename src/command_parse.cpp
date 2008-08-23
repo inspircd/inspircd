@@ -565,8 +565,6 @@ void CommandParser::SetupCommandTable(User* user)
 					}
 				}
 			}
-			else
-				printf("NOT loading %s, not a cmd\n", entry->d_name);
 		}
 		closedir(library);
 		if (!user)
