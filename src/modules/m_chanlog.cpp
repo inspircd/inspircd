@@ -13,6 +13,18 @@
 
 #include "inspircd.h"
 
+/* $ModDesc: Logs snomask output to channel(s). */
+
+/*
+ * This is for the "old" chanlog module which intercepted messages going to the logfile..
+ * I don't consider it all that useful, and it's quite dangerous if setup incorrectly, so
+ * this is defined out but left intact in case someone wants to develop it further someday.
+ *
+ * -- w00t (aug 23rd, 2008)
+ */
+#define OLD_CHANLOG 0
+
+#if OLD_CHANLOG
 class ChannelLogStream : public LogStream
 {
  private:
@@ -46,80 +58,87 @@ class ChannelLogStream : public LogStream
 		}
 	}
 };
-
-/* $ModDesc: Logs output to a channel instead of / as well as a file. */
+#endif
 
 class ModuleChanLog : public Module
 {
  private:
-	std::vector<ChannelLogStream*> cls;
+	/*
+	 * Multimap so people can redirect a snomask to multiple channels.
+	 */
+	std::multimap<char, std::string> logstreams;
+
  public:
 	ModuleChanLog(InspIRCd* Me) : Module(Me)
 	{
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 
 		OnRehash(NULL, "");
 	}
 
 	virtual ~ModuleChanLog()
 	{
-		std::vector<ChannelLogStream*>::iterator i;
-		while ((i = cls.begin()) != cls.end())
-		{
-			ServerInstance->Logs->DelLogStream(*i);
-			cls.erase(i);
-		}
 	}
 
 	virtual void OnRehash(User *user, const std::string &parameter)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader MyConf(ServerInstance);
+		std::string snomasks;
+		std::string channel;
 
-		/* Since the CloseLogs prior to this hook just wiped out our logstreams for us, we just need to wipe the vector. */
-		std::vector<ChannelLogStream*>().swap(cls);
-		int index, max = Conf.Enumerate("log");
-		cls.reserve(max);
+		logstreams.clear();
 
-		for (index = 0; index < max; ++index)
+		for (int i = 0; i < MyConf.Enumerate("chanlog"); i++)
 		{
-			std::string method = Conf.ReadValue("log", "method", index);
+			channel = MyConf.ReadValue("chanlog", "channel", i);
+			snomasks = MyConf.ReadValue("chanlog", "snomasks", i);
 
-
-			//if (method != "file")
-			//	continue;
-
-			std::string type = Conf.ReadValue("log", "type", index);
-			std::string level = Conf.ReadValue("log", "level", index);
-			int loglevel = DEFAULT;
-
-			if (level == "debug")
+			if (channel.empty() || snomasks.empty())
 			{
-				loglevel = DEBUG;
-				ServerInstance->Config->debugging = true;
-			}
-			else if (level == "verbose")
-			{
-				loglevel = VERBOSE;
-			}
-			else if (level == "default")
-			{
-				loglevel = DEFAULT;
-			}
-			else if (level == "sparse")
-			{
-				loglevel = SPARSE;
-			}
-			else if (level == "none")
-			{
-				loglevel = NONE;
+				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Malformed chanlog tag, ignoring");
+				continue;
 			}
 
-			std::string target = Conf.ReadValue("log", "target", index);
-			ChannelLogStream* c = new ChannelLogStream(ServerInstance, loglevel, target);
-			ServerInstance->Logs->AddLogTypes(type, c, true);
-			cls.push_back(c);
+			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); i++)
+			{
+				logstreams.insert(std::make_pair(*it, channel));
+				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Logging %c to %s", *it, channel.c_str());
+				it++;
+			}
 		}
+
+	}
+
+	virtual int OnSendSnotice(char &sno, std::string &desc, const std::string &msg)
+	{
+		std::multimap<char, std::string>::const_iterator it = logstreams.find(sno);
+		char buf[MAXBUF];
+
+		if (it == logstreams.end())
+			return 0;
+
+		snprintf(buf, MAXBUF, "\2%s\2: %s", desc.c_str(), msg.c_str());
+
+		while (it != logstreams.end())
+		{
+			if (it->first != sno)
+			{
+				it++;
+				continue;
+			}
+
+			Channel *c = ServerInstance->FindChan(it->second);
+			if (c)
+			{
+				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), buf);
+				ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
+			}
+
+			it++;
+		}
+
+		return 0;
 	}
 
 	virtual Version GetVersion()
