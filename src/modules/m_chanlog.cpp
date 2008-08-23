@@ -100,11 +100,10 @@ class ModuleChanLog : public Module
 				continue;
 			}
 
-			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); i++)
+			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
 			{
 				logstreams.insert(std::make_pair(*it, channel));
 				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Logging %c to %s", *it, channel.c_str());
-				it++;
 			}
 		}
 
