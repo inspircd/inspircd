@@ -92,7 +92,7 @@ int SelectEngine::DispatchEvents()
 {
 	timeval tval;
 	int sresult = 0;
-	socklen_t codesize;
+	socklen_t codesize = sizeof(int);
 	int errcode = 0;
 
 	FD_ZERO(&wfdset);
