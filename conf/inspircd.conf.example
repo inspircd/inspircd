@@ -1144,18 +1144,6 @@
 # You may also log *everything* by using a type of *, and subtract things out
 # of that by using -TYPE - for example "* -USERINPUT -USEROUTPUT".
 #
-# Channel Logging
-# ---------------
-#
-# I'm aware this would probably better belong in the modules section, but this
-# is heavily interrelated to logging, and as such will be documented here.
-#
-# m_chanlog is one of the modules which can alter logging to it's own thing.
-# An example of this may be:
-#
-#<module name="m_chanlog.so">
-#<log method="channel" type="OPER USERS CHANNELS" level="default" target="#services">
-#
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
 <log method="file" type="* -USERINPUT -USEROUTPUT -m_spanningtree" level="default" target="ircd.log">

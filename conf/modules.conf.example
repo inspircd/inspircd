@@ -343,6 +343,16 @@
 #<module name="m_chanfilter.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel logging module: used to send snotice output to channels, to
+# allow staff to centrally monitor and discuss network activity.
+#
+# The "channel" field is where you want the messages to go, "snomasks"
+# is what snomasks you want to be sent to that channe. Multiple tags
+# are allowed.
+#<module name="m_chanlog.so">
+#<chanlog snomasks="AOcC" channel="#opers">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone in already
 # in a channel matching a mask like +b j:#channel*mask from joining.
 #<module name="m_channelban.so">
