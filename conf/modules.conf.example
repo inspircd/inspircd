@@ -347,7 +347,7 @@
 # allow staff to centrally monitor and discuss network activity.
 #
 # The "channel" field is where you want the messages to go, "snomasks"
-# is what snomasks you want to be sent to that channe. Multiple tags
+# is what snomasks you want to be sent to that channel. Multiple tags
 # are allowed.
 #<module name="m_chanlog.so">
 #<chanlog snomasks="AOcC" channel="#opers">
