@@ -113,7 +113,7 @@ int EPollEngine::GetRemainingFds()
 
 int EPollEngine::DispatchEvents()
 {
-	socklen_t codesize;
+	socklen_t codesize = sizeof(int);
 	int errcode;
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 1000);
 	for (int j = 0; j < i; j++)

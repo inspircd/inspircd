@@ -88,7 +88,7 @@ int SelectEngine::DispatchEvents()
 	timeval tval;
 	int sresult = 0;
 	EventHandler* ev[MAX_DESCRIPTORS];
-	socklen_t codesize;
+	socklen_t codesize = sizeof(int);
 	int errcode;
 
 	FD_ZERO(&wfdset);
