@@ -693,7 +693,7 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 		}
 	}
 
-	TreeSocket* s = new TreeSocket(this->Utils, this->Instance, newsock, ip, this->Hook);
-	s = s; /* Whinge whinge whinge, thats all GCC ever does. */
+	/* we don't need a pointer to this, creating it stores it in the necessary places */
+	new TreeSocket(this->Utils, this->Instance, newsock, ip, this->Hook);
 	return true;
 }
