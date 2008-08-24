@@ -36,6 +36,7 @@ void InspIRCd::Exit(int status)
 #ifdef WINDOWS
 	if (WindowsIPC)
 		delete WindowsIPC;
+	SetServiceStopped(status);
 #endif
 	if (this)
 	{

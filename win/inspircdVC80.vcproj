@@ -730,7 +730,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\win32service.h"
+				RelativePath=".\win32service.h"
 				>
 			</File>
 			<File

@@ -13,6 +13,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
+#define CONFIGURE_BUILD
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>

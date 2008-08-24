@@ -27,6 +27,9 @@ static int serviceCurrentStatus;
  */
 typedef BOOL (CALLBACK* SETSERVDESC)(SC_HANDLE,DWORD,LPVOID);
 
+BOOL UpdateSCMStatus (DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint);
+void terminateService (int code, int wincode);
+
 /* A commandline parameter handler for service specific commandline parameters */
 typedef void (*CommandlineParameterHandler)(void);
 
@@ -40,7 +43,7 @@ struct Commandline
 /* A function pointer for dynamic linking tricks */
 SETSERVDESC ChangeServiceConf;
 
-bool IsAService();
+bool IsAService()
 {
 	USEROBJECTFLAGS uoflags;
 	HWINSTA winstation = GetProcessWindowStation();
@@ -78,7 +81,7 @@ void SetServiceRunning()
 		return;
 
 	serviceCurrentStatus = SERVICE_RUNNING;
-	success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
+	BOOL success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
 	if (!success)
 	{
 		terminateService(6, GetLastError());
@@ -141,7 +144,7 @@ void terminateService (int code, int wincode)
 }
 
 /* In windows we hook this to exit() */
-void newexit(int status)
+void SetServiceStopped(int status)
 {
 	if (!IsAService())
 		exit(status);
@@ -355,7 +358,7 @@ int main(int argc, char** argv)
 	 * as a service so if this is true, we just run the non-service inspircd.
 	 */
 	if (!IsAService())
-		return smain(argv, argc);
+		return smain(argc, argv);
 
 	/* If we get here, we know the service is installed so we can start it */
 

@@ -18,7 +18,9 @@
 #ifndef INSPIRCD_WIN32WRAPPER_H
 #define INSPIRCD_WIN32WRAPPER_H
 
+#ifndef CONFIGURE_BUILD
 #include "win32service.h"
+#endif
 
 /* Define the WINDOWS macro. This means we're building on windows to the rest of the server.
    I think this is more reasonable than using WIN32, especially if we're gonna be doing 64-bit compiles */
