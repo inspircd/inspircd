@@ -30,8 +30,14 @@ class Channel_r : public ModeHandler
 		// only a u-lined server may add or remove the +r mode.
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server || (source->nick.find('.') != std::string::npos)))
 		{
-			channel->SetMode('r',adding);
-			return MODEACTION_ALLOW;
+			// Only change the mode if it's not redundant
+			if ((adding && !channel->IsModeSet('r')) || (!adding && channel->IsModeSet('r')))
+			{
+				channel->SetMode('r',adding);
+				return MODEACTION_ALLOW;
+			}
+
+			return MODEACTION_DENY;
 		}
 		else
 		{
