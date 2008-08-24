@@ -40,7 +40,7 @@ enum ExitStatus
 	EXIT_STATUS_WINSERVICE_3 = 19,	/* Windows service specific failure, will name these later */
 	EXIT_STATUS_WINSERVICE_4 = 20,	/* Windows service specific failure, will name these later */
 	EXIT_STATUS_WINSERVICE_5 = 21,	/* Windows service specific failure, will name these later */
-	EXIT_STATUS_WINSERVICE_6 = 22,	/* Windows service specific failure, will name these later */
+	EXIT_STATUS_WINSERVICE_6 = 22	/* Windows service specific failure, will name these later */
 };
 
 /** Array that maps exit codes (ExitStatus types) to
