@@ -31,10 +31,20 @@ class Channel_r : public ModeHandler
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		// only a u-lined server may add or remove the +r mode.
-		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		if ((ServerInstance->ULine(source->nick)) ||
+		    (ServerInstance->ULine(source->server)) || 
+		    (!*source->server ||
+		    (strchr(source->nick,'.'))))
 		{
-			channel->SetMode('r',adding);
-			return MODEACTION_ALLOW;
+			// Only show modechange if not redundant
+			if ((adding && !channel->IsModeSet('r')) || (!adding && channel->IsModeSet('r')))
+			{
+				channel->SetMode('r', adding);
+				return MODEACTION_ALLOW;
+				
+			}
+
+			return MODEACTION_DENY;
 		}
 		else
 		{
