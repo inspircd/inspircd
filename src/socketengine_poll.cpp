@@ -19,7 +19,7 @@ PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	// Poll requires no special setup (which is nice).
 	CurrentSetSize = 0;
-//	memset(&events, 0, sizeof(struct pollfds) * MAX_DESCRIPTORS);
+	memset(&events, 0, MAX_DESCRIPTORS);
 }
 
 PollEngine::~PollEngine()
