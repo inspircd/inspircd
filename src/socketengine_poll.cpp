@@ -13,13 +13,13 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-#include "socketengine_epoll.h"
+#include "socketengine_poll.h"
 
 PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	// Poll requires no special setup (which is nice).
 	CurrentSetSize = 0;
-	memset(&events, 0, sizeof(struct pollfds * MAX_DESCRIPTORS));
+//	memset(&events, 0, sizeof(struct pollfds) * MAX_DESCRIPTORS);
 }
 
 PollEngine::~PollEngine()
@@ -90,43 +90,45 @@ int PollEngine::DispatchEvents()
 {
 	int i = poll(events, MAX_DESCRIPTORS, 1000);
 	int fd = 0;
+	socklen_t codesize = sizeof(int);
+	int errcode;
 
 	if (i > 0)
 	{
 		for (fd = 0; fd < i; fd++)
 		{
-			if (events[fd].event & POLLHUP)
+			if (events[fd].events & POLLHUP)
 			{
-				if (ref[events[j].data.fd])
-					ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, 0);
+				if (ref[fd])
+					ref[fd]->HandleEvent(EVENT_ERROR, 0);
 				continue;
 			}
 
-			if (events[fd].event & POLLERR)
+			if (events[fd].events & POLLERR)
 			{
 				// Get error number
-				if (getsockopt(events[j].data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 					errcode = errno;
-				if (ref[events[j].data.fd])
-					ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, errcode);
+				if (ref[fd])
+					ref[fd]->HandleEvent(EVENT_ERROR, errcode);
 				continue;
 			}
 
-			if (events[fd].event & POLLOUT)
+			if (events[fd].events & POLLOUT)
 			{
 				// Switch to wanting read again
 				// event handlers have to request to write again if they need it
-				events[fd].event = POLLRDNORM;
+				events[fd].events = POLLRDNORM;
 
 
 				if (ref[fd])
 					ref[fd]->HandleEvent(EVENT_WRITE);
 			}
 
-			if (events[fd].event & POLLIN)
+			if (events[fd].events & POLLIN)
 			{
-				if (ref[events[j].data.fd])
-					ref[events[j].data.fd]->HandleEvent(EVENT_READ);
+				if (ref[fd])
+					ref[fd]->HandleEvent(EVENT_READ);
 			}
 		}
 	}

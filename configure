@@ -187,6 +187,7 @@ if (defined $opt_nokqueue)
 {
 	$config{USE_KQUEUE} = "n";
 }
+$config{USE_POLL}     = "y";					# poll enabled
 $config{USE_EPOLL}	  = "y";					# epoll enabled
 if (defined $opt_epoll)
 {
@@ -673,22 +674,37 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
 	dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
+	$chose_hiperf = 1;
+
 	if ($has_kqueue) {
 		yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
 		print "\n";
+		if ($config{USE_KQUEUE} ne "y") {
+			$chose_hiperf = 0;
+		}
 	}
 	if ($has_epoll) {
 		yesno(USE_EPOLL,"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
 		print "\n";
+		if ($config{USE_EPOLL} ne "y") {
+			$chose_hiperf = 0;
+		}
 	}
 	if ($has_ports) {
 		yesno(USE_PORTS,"You are running Solaris 10.\nWould you like to enable I/O completion ports support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable support for I/O completion ports?");
 		print "\n";
+		if ($config{USE_PORTS} ne "y") {
+			$chose_hiperf = 0;
+		}
 	}
-	$chose_hiperf = (($config{USE_EPOLL} eq "y") || ($config{USE_KQUEUE} eq "y") || ($config{USE_PORTS} eq "y"));
+
 	if (!$chose_hiperf) {
-		print "No high-performance socket engines are available, or you chose\n";
-		print "not to enable one. Defaulting to select() engine.\n\n";
+		yesno(USE_POLL, "Would you like to use poll?\n This is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable poll?\n");
+		if ($config{USE_POLL} ne "y")
+		{
+			print "No high-performance socket engines are available, or you chose\n";
+			print "not to enable one. Defaulting to select() engine.\n\n";
+		}
 	}
 
 	yesno(IPV6,"Would you like to build InspIRCd with IPv6 support?");
@@ -1147,6 +1163,12 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 			$se = "socketengine_ports";
 			$use_hiperf = 1;
 		}
+		if ($config{USE_POLL} eq "y")
+		{
+			print FILEHANDLE "#define USE_POLL\n";
+			$se = "socketengine_poll";
+			$use_hiperf = 1;
+		}
 		# user didn't choose either epoll or select for their OS.
 		# default them to USE_SELECT (ewwy puke puke)
 		if (!$use_hiperf) {
@@ -1542,6 +1564,10 @@ if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
 elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
 	$se = "socketengine_epoll";
 }
+elsif ($config{USE_POLL} eq "y")
+{
+	$se = "socketengine_poll";
+}
 elsif (($has_ports) && ($config{USE_PORTS} eq "y")) {
 	$se = "socketengine_ports";
 }
@@ -1678,6 +1704,9 @@ sub write_dynamic_makefile {
 	}
 	elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
 		$se = "socketengine_epoll";
+	}
+	elsif ($config{USE_POLL} eq "y") {
+		$se = "socketengine_poll";
 	}
 	elsif (($has_ports) && ($config{USE_PORTS} eq "y")) {
 		$se = "socketengine_ports";
