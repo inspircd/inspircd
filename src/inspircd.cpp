@@ -78,12 +78,9 @@ const char* ExitCodes[] =
 		"Could not create windows forked process", /* 14 */
 		"Received SIGTERM", /* 15 */
 		"Bad command handler loaded", /* 16 */
-		"Windows service specific error 1", /* 17 - Dont know what to call these yet, will give them */
-		"Windows service specific error 2", /* 18 - better descriptions later on */
-		"Windows service specific error 3", /* 19 */
-		"Windows service specific error 4", /* 20 */
-		"Windows service specific error 5", /* 21 */
-		"Windows service specific error 6"  /* 22 */
+		"RegisterServiceCtrlHandler failed", /* 17 */
+		"UpdateSCMStatus failed", /* 18 */
+		"CreateEvent failed" /* 19 */
 };
 
 void InspIRCd::Cleanup()

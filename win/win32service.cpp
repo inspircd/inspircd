@@ -84,7 +84,7 @@ void SetServiceRunning()
 	BOOL success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
 	if (!success)
 	{
-		terminateService(22, GetLastError());
+		terminateService(18, GetLastError());
 		return;
 	}
 }
@@ -184,14 +184,14 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 	serviceStatusHandle = RegisterServiceCtrlHandler("InspIRCd", (LPHANDLER_FUNCTION)ServiceCtrlHandler);
 	if (!serviceStatusHandle)
 	{
-		terminateService(18, GetLastError());
+		terminateService(17, GetLastError());
 		return;
 	}
 
 	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 1, 1000);
 	if (!success)
 	{
-		terminateService(19, GetLastError());
+		terminateService(18, GetLastError());
 		return;
 	}
 
@@ -200,14 +200,14 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 
 	if (!killServiceEvent || !hThreadEvent)
 	{
-		terminateService(20, GetLastError());
+		terminateService(19, GetLastError());
 		return;
 	}
 
 	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 2, 1000);
 	if (!success)
 	{
-		terminateService(21, GetLastError());
+		terminateService(18, GetLastError());
 		return;
 	}
 
