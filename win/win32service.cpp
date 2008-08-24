@@ -43,6 +43,7 @@ struct Commandline
 /* A function pointer for dynamic linking tricks */
 SETSERVDESC ChangeServiceConf;
 
+/* Returns true if this program is running as a service, false if it is running interactive */
 bool IsAService()
 {
 	USEROBJECTFLAGS uoflags;
@@ -143,7 +144,7 @@ void terminateService(int code, int wincode)
 	return;
 }
 
-/* In windows we hook this to exit() */
+/* In windows we hook this to InspIRCd::Exit() */
 void SetServiceStopped(int status)
 {
 	if (!IsAService())
