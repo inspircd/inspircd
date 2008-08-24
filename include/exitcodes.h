@@ -34,7 +34,13 @@ enum ExitStatus
 	EXIT_STATUS_MODULE = 13,	/* Couldn't load a required module */
 	EXIT_STATUS_CREATEPROCESS = 14,	/* CreateProcess failed (windows) */
 	EXIT_STATUS_SIGTERM = 15,	/* Note: dont move this value. It corresponds with the value of #define SIGTERM. */
-	EXIT_STATUS_BADHANDLER = 16	/* Bad command handler loaded */
+	EXIT_STATUS_BADHANDLER = 16,	/* Bad command handler loaded */
+	EXIT_STATUS_WINSERVICE_1 = 17,	/* Windows service specific failure, will name these later */
+	EXIT_STATUS_WINSERVICE_2 = 18,	/* Windows service specific failure, will name these later */
+	EXIT_STATUS_WINSERVICE_3 = 19,	/* Windows service specific failure, will name these later */
+	EXIT_STATUS_WINSERVICE_4 = 20,	/* Windows service specific failure, will name these later */
+	EXIT_STATUS_WINSERVICE_5 = 21,	/* Windows service specific failure, will name these later */
+	EXIT_STATUS_WINSERVICE_6 = 22,	/* Windows service specific failure, will name these later */
 };
 
 /** Array that maps exit codes (ExitStatus types) to
