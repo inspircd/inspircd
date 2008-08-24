@@ -142,20 +142,6 @@ int SelectEngine::DispatchEvents()
 			}
 			if (ev[i])
 			{
-				ServerInstance->Log(DEBUG, "checking for undetected errors on %d", ev[i]->GetFd());
-				// HACK: select() doesn't always use errfdset to tell us about a connect() erroring
-				// it generates writable, so we just check for error always (ugh ugh)
-				if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
-				{
-					errcode = errno;
-
-					ev[i]->HandleEvent(EVENT_ERROR, errcode);
-					ServerInstance->Log(DEBUG, "handled an error event (%d) on the socket", errcode);
-					continue;
-				}
-
-				ServerInstance->Log(DEBUG, "no error");
-
 				if (writeable[ev[i]->GetFd()])
 				{
 					writeable[ev[i]->GetFd()] = false;
