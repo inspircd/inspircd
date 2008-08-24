@@ -30,6 +30,7 @@ PollEngine::~PollEngine()
 bool PollEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
+	ServerInstance->Log(DEBUG, "trying to add fd %d", fd);
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
@@ -43,21 +44,23 @@ bool PollEngine::AddFd(EventHandler* eh)
 	events[fd].fd = fd;
 	if (eh->Readable())
 	{
-		events[fd].events = POLLRDNORM;
+		ServerInstance->Log(DEBUG, "readable");
+		events[fd].events = POLLIN;
 	}
 	else
 	{
+		ServerInstance->Log(DEBUG, "writable");
 		events[fd].events = POLLOUT;
 	}
 
-	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Log(DEBUG,"New file descriptor: %d (%d)", fd, events[fd].events);
 	CurrentSetSize++;
 	return true;
 }
 
 void PollEngine::WantWrite(EventHandler* eh)
 {
-	events[eh->GetFd()].events = POLLRDNORM | POLLOUT;
+	events[eh->GetFd()].events = POLLIN | POLLOUT;
 }
 
 bool PollEngine::DelFd(EventHandler* eh, bool force)
@@ -92,19 +95,26 @@ int PollEngine::DispatchEvents()
 	int fd = 0;
 	socklen_t codesize = sizeof(int);
 	int errcode;
+	int processed = 0;
+
+	ServerInstance->Log(DEBUG, "poll returned %d", i);
 
 	if (i > 0)
 	{
-		for (fd = 0; fd < i; fd++)
+		for (fd = 0; fd < MAX_DESCRIPTORS && processed != i; fd++)
 		{
-			if (events[fd].events & POLLHUP)
+			if (events[fd].revents)
+				processed++;
+
+			ServerInstance->Log(DEBUG, "revents on %d are %d", fd, events[fd].revents);
+			if (events[fd].revents & POLLHUP)
 			{
 				if (ref[fd])
 					ref[fd]->HandleEvent(EVENT_ERROR, 0);
 				continue;
 			}
 
-			if (events[fd].events & POLLERR)
+			if (events[fd].revents & POLLERR)
 			{
 				// Get error number
 				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
@@ -114,18 +124,18 @@ int PollEngine::DispatchEvents()
 				continue;
 			}
 
-			if (events[fd].events & POLLOUT)
+			if (events[fd].revents & POLLOUT)
 			{
 				// Switch to wanting read again
 				// event handlers have to request to write again if they need it
-				events[fd].events = POLLRDNORM;
+				events[fd].events = POLLIN;
 
 
 				if (ref[fd])
 					ref[fd]->HandleEvent(EVENT_WRITE);
 			}
 
-			if (events[fd].events & POLLIN)
+			if (events[fd].revents & POLLIN)
 			{
 				if (ref[fd])
 					ref[fd]->HandleEvent(EVENT_READ);
