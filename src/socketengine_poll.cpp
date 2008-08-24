@@ -30,7 +30,6 @@ PollEngine::~PollEngine()
 bool PollEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	ServerInstance->Log(DEBUG, "trying to add fd %d", fd);
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
@@ -44,12 +43,10 @@ bool PollEngine::AddFd(EventHandler* eh)
 	events[fd].fd = fd;
 	if (eh->Readable())
 	{
-		ServerInstance->Log(DEBUG, "readable");
 		events[fd].events = POLLIN;
 	}
 	else
 	{
-		ServerInstance->Log(DEBUG, "writable");
 		events[fd].events = POLLOUT;
 	}
 
@@ -97,8 +94,6 @@ int PollEngine::DispatchEvents()
 	int errcode;
 	int processed = 0;
 
-	ServerInstance->Log(DEBUG, "poll returned %d", i);
-
 	if (i > 0)
 	{
 		for (fd = 0; fd < MAX_DESCRIPTORS && processed != i; fd++)
@@ -106,7 +101,6 @@ int PollEngine::DispatchEvents()
 			if (events[fd].revents)
 				processed++;
 
-			ServerInstance->Log(DEBUG, "revents on %d are %d", fd, events[fd].revents);
 			if (events[fd].revents & POLLHUP)
 			{
 				if (ref[fd])
