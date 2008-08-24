@@ -27,8 +27,8 @@ static int serviceCurrentStatus;
  */
 typedef BOOL (CALLBACK* SETSERVDESC)(SC_HANDLE,DWORD,LPVOID);
 
-BOOL UpdateSCMStatus (DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint);
-void terminateService (int code, int wincode);
+BOOL UpdateSCMStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint);
+void terminateService(int code, int wincode);
 
 /* A commandline parameter handler for service specific commandline parameters */
 typedef void (*CommandlineParameterHandler)(void);
@@ -84,7 +84,7 @@ void SetServiceRunning()
 	BOOL success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
 	if (!success)
 	{
-		terminateService(18, GetLastError());
+		terminateService(EXIT_STATUS_UPDATESCM_FAILED, GetLastError());
 		return;
 	}
 }
@@ -100,7 +100,7 @@ void StartServiceThread()
 /** This function updates the status of the service in the SCM
  * (service control manager, the services.msc applet)
  */
-BOOL UpdateSCMStatus (DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint)
+BOOL UpdateSCMStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint)
 {
 	BOOL success;
 	SERVICE_STATUS serviceStatus;
@@ -137,7 +137,7 @@ BOOL UpdateSCMStatus (DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServi
 }
 
 /** This function is called by us when the service is being shut down or when it can't be started */
-void terminateService (int code, int wincode)
+void terminateService(int code, int wincode)
 {
 	UpdateSCMStatus(SERVICE_STOPPED, wincode ? wincode : ERROR_SERVICE_SPECIFIC_ERROR, wincode ? 0 : code, 0, 0);
 	return;
@@ -156,7 +156,7 @@ void SetServiceStopped(int status)
 }
 
 /** This callback is called by windows when the state of the service has been changed */
-VOID ServiceCtrlHandler (DWORD controlCode)
+VOID ServiceCtrlHandler(DWORD controlCode)
 {
 	switch(controlCode)
 	{
@@ -184,14 +184,14 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 	serviceStatusHandle = RegisterServiceCtrlHandler("InspIRCd", (LPHANDLER_FUNCTION)ServiceCtrlHandler);
 	if (!serviceStatusHandle)
 	{
-		terminateService(17, GetLastError());
+		terminateService(EXIT_STATUS_RSCH_FAILED, GetLastError());
 		return;
 	}
 
 	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 1, 1000);
 	if (!success)
 	{
-		terminateService(18, GetLastError());
+		terminateService(EXIT_STATUS_UPDATESCM_FAILED, GetLastError());
 		return;
 	}
 
@@ -200,14 +200,14 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 
 	if (!killServiceEvent || !hThreadEvent)
 	{
-		terminateService(19, GetLastError());
+		terminateService(EXIT_STATUS_CREATE_EVENT_FAILED, GetLastError());
 		return;
 	}
 
 	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 2, 1000);
 	if (!success)
 	{
-		terminateService(18, GetLastError());
+		terminateService(EXIT_STATUS_UPDATESCM_FAILED, GetLastError());
 		return;
 	}
 
