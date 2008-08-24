@@ -719,6 +719,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		WindowsForkKillOwner(this);
 		FreeConsole();
 	}
+	/* Set win32 service as running, if we are running as a service */
+	SetServiceRunning();
 #endif
 
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());

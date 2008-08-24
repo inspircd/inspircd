@@ -40,6 +40,16 @@ struct Commandline
 /* A function pointer for dynamic linking tricks */
 SETSERVDESC ChangeServiceConf;
 
+bool IsAService();
+{
+	USEROBJECTFLAGS uoflags;
+	HWINSTA winstation = GetProcessWindowStation();
+	if (GetUserObjectInformation(winstation, UOI_FLAGS, &uoflags, sizeof(uoflags), NULL))
+		return ((uoflags.dwFlags & WSF_VISIBLE) == 0);
+	else
+		return false;
+}
+
 /* Kills the service by setting an event which the other thread picks up and exits */
 void KillService()
 {
@@ -60,6 +70,22 @@ DWORD WINAPI WorkerThread(LPDWORD param)
 	KillService();
 	return 0;
 }
+
+/* This is called when all startup is done */
+void SetServiceRunning()
+{
+	if (!IsAService())
+		return;
+
+	serviceCurrentStatus = SERVICE_RUNNING;
+	success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
+	if (!success)
+	{
+		terminateService(6, GetLastError());
+		return;
+	}
+}
+
 
 /** Starts the worker thread above */
 void StartServiceThread()
@@ -110,8 +136,20 @@ BOOL UpdateSCMStatus (DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServi
 /** This function is called by us when the service is being shut down or when it can't be started */
 void terminateService (int code, int wincode)
 {
-	UpdateSCMStatus(SERVICE_STOPPED,wincode?wincode:ERROR_SERVICE_SPECIFIC_ERROR,(wincode)?0:code,0,0);
+	UpdateSCMStatus(SERVICE_STOPPED, wincode ? wincode : ERROR_SERVICE_SPECIFIC_ERROR, wincode ? 0 : code, 0, 0);
 	return;
+}
+
+/* In windows we hook this to exit() */
+void newexit(int status)
+{
+	if (!IsAService())
+		exit(status);
+
+	/* Are we running as a service? If so, trigger the service specific exit code */
+	terminateService(status, 0);
+	KillService();
+	exit(status);
 }
 
 /** This callback is called by windows when the state of the service has been changed */
@@ -171,13 +209,6 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 	}
 
 	StartServiceThread();
-	serviceCurrentStatus = SERVICE_RUNNING;
-	success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
-	if (!success)
-	{
-		terminateService(6, GetLastError());
-		return;
-	}
 	WaitForSingleObject (killServiceEvent, INFINITE);
 }
 
@@ -323,13 +354,8 @@ int main(int argc, char** argv)
 	/* Check if the process is running interactively. InspIRCd does not run interactively
 	 * as a service so if this is true, we just run the non-service inspircd.
 	 */
-	USEROBJECTFLAGS uoflags;
-	HWINSTA winstation = GetProcessWindowStation();
-	if (GetUserObjectInformation(winstation, UOI_FLAGS, &uoflags, sizeof(uoflags), NULL))
-	{
-		if (uoflags.dwFlags == WSF_VISIBLE)
-			return smain(argc, argv);
-	}
+	if (!IsAService())
+		return smain(argv, argc);
 
 	/* If we get here, we know the service is installed so we can start it */
 
