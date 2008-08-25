@@ -13,7 +13,6 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-#include <sys/epoll.h>
 #include "socketengines/socketengine_epoll.h"
 #include <ulimit.h>
 
