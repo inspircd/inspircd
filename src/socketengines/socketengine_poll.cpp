@@ -21,11 +21,13 @@ PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	// Poll requires no special setup (which is nice).
 	CurrentSetSize = 0;
+	MAX_DESCRIPTORS = 0;
 
 	ref = new EventHandler* [GetMaxFds()];
 	events = new struct pollfd[GetMaxFds()];
 
-	memset(&events, 0, GetMaxFds() * sizeof(struct pollfd*));
+	memset(events, 0, GetMaxFds() * sizeof(struct pollfd));
+	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 PollEngine::~PollEngine()
