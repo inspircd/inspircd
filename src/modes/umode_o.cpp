@@ -24,9 +24,9 @@ ModeUserOperator::ModeUserOperator(InspIRCd* Instance) : ModeHandler(Instance, '
 ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding, bool servermode)
 {
 	/* Only opers can execute this class at all */
-	if (!ServerInstance->ULine(source->nick) &&
+	if (!ServerInstance->ULine(source->nick.c_str()) &&
 		!ServerInstance->ULine(source->server) &&
-		!*source->oper)
+		source->oper.empty())
 		return MODEACTION_DENY;
 
 	/* Not even opers can GIVE the +o mode, only take it away */
