@@ -14,6 +14,8 @@
 #include "inspircd.h"
 #include "exitcodes.h"
 #include "socketengines/socketengine_poll.h"
+#include <poll.h>
+#include <ulimit.h>
 
 PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
@@ -21,9 +23,9 @@ PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 	CurrentSetSize = 0;
 
 	ref = new EventHandler* [GetMaxFds()];
-	events = new struct epoll_event[GetMaxFds()];
+	events = new struct pollfd[GetMaxFds()];
 
-	memset(&events, 0, GetMaxFds() * sizeof(struct pollfds*));
+	memset(&events, 0, GetMaxFds() * sizeof(struct pollfd*));
 }
 
 PollEngine::~PollEngine()
@@ -55,24 +57,24 @@ bool PollEngine::AddFd(EventHandler* eh)
 	}
 
 	ref[fd] = eh;
-	events[fd]->fd = fd;
+	events[fd].fd = fd;
 	if (eh->Readable())
 	{
-		events[fd]->events = POLLIN;
+		events[fd].events = POLLIN;
 	}
 	else
 	{
-		events[fd]->events = POLLOUT;
+		events[fd].events = POLLOUT;
 	}
 
-	ServerInstance->Log(DEBUG,"New file descriptor: %d (%d)", fd, events[fd]->events);
+	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d)", fd, events[fd].events);
 	CurrentSetSize++;
 	return true;
 }
 
 void PollEngine::WantWrite(EventHandler* eh)
 {
-	events[eh->GetFd()]->events = POLLIN | POLLOUT;
+	events[eh->GetFd()].events = POLLIN | POLLOUT;
 }
 
 bool PollEngine::DelFd(EventHandler* eh, bool force)
@@ -80,17 +82,17 @@ bool PollEngine::DelFd(EventHandler* eh, bool force)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", DEBUG, "DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return false;
 	}
 
-	events[fd]->fd = -1;
-	events[fd]->events = 0;
+	events[fd].fd = -1;
+	events[fd].events = 0;
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", DEBUG, "Remove file descriptor: %d", fd);
 	return true;
 }
 

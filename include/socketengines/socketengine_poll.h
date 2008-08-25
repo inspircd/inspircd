@@ -24,6 +24,7 @@
         #define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
 #endif
 #include <poll.h>
+#include <sys/poll.h>
 
 class InspIRCd;
 
