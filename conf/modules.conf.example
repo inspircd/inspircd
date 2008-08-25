@@ -1008,6 +1008,9 @@
 # channels -may- need support from your Services package to function
 # properly with them. This adds channel mode +P.
 #<module name="m_permchannels.so">
+#
+# You may also create channels on startup by using the <permchannels> block.
+#<permchannels channel="#opers" modes="is" topic="Opers only.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
