@@ -888,7 +888,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 
 Version ModuleSpanningTree::GetVersion()
 {
-	return Version(1,2,0,2,VF_VENDOR,API_VERSION);
+	return Version("$Id$", VF_VENDOR, API_VERSION);
 }
 
 /* It is IMPORTANT that m_spanningtree is the last module in the chain

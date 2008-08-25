@@ -31,7 +31,7 @@ class ModuleBadChannelExtban : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1,2,0,0,VF_VENDOR,API_VERSION);
+		return Version("$Id$", VF_VENDOR,API_VERSION);
 	}
 
 	virtual int OnUserPreJoin(User *user, Channel *c, const char *cname, std::string &privs, const std::string &key)

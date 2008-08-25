@@ -105,7 +105,7 @@ class ModuleHttpStats : public Module
 				{
 					Module* m = ServerInstance->Modules->Find(i->c_str());
 					Version v = m->GetVersion();
-					data << "<module><name>" << *i << "</name><version>" << v.Major << "." <<  v.Minor << "." << v.Revision << "." << v.Build << "</version></module>";
+					data << "<module><name>" << *i << "</name><version>" << v.version << "</version></module>";
 				}
 				data << "</modulelist>";
 				data << "<channellist>";
@@ -196,7 +196,7 @@ class ModuleHttpStats : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 };
 

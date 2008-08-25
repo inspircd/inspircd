@@ -48,7 +48,7 @@ class ModuleFoobar : public Module
 		// this method instantiates a class of type Version, and returns
 		// the modules version information using it.
 
-		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
+		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
 

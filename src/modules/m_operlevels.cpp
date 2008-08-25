@@ -14,9 +14,6 @@
 #include "inspircd.h"
 
 /* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
-
-
-
 class ModuleOperLevels : public Module
 {
 	private:
@@ -44,7 +41,7 @@ class ModuleOperLevels : public Module
 
 		virtual Version GetVersion()
 		{
-			return Version(1,2,0,1,VF_VENDOR,API_VERSION);
+			return Version("$Id$", VF_VENDOR, API_VERSION);
 		}
 
 		virtual int OnKill(User* source, User* dest, const std::string &reason)

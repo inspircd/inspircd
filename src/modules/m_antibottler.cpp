@@ -34,7 +34,7 @@ class ModuleAntiBottler : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
+		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)

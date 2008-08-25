@@ -350,7 +350,7 @@ class ModuleCloaking : public Module
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
-		return Version(1,2,0,2,VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)

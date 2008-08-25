@@ -19,7 +19,6 @@ typedef std::map<std::string,std::string> override_t;
 
 class ModuleOverride : public Module
 {
-
 	override_t overrides;
 	bool RequireKey;
 	bool NoisyOverride;
@@ -329,7 +328,7 @@ class ModuleOverride : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1,2,0,1,VF_VENDOR,API_VERSION);
+		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 };
 

@@ -26,8 +26,8 @@
 #endif
 
 // version is a simple class for holding a modules version number
-Version::Version(int major, int minor, int revision, int build, int flags, int api_ver)
-: Major(major), Minor(minor), Revision(revision), Build(build), Flags(flags), API(api_ver)
+Version::Version(const std::string &sversion, int flags, int api_ver)
+: version(sversion), Flags(flags), API(api_ver)
 {
 }
 
@@ -117,7 +117,7 @@ void		Module::OnRehash(User*, const std::string&) { }
 void		Module::OnServerRaw(std::string&, bool, User*) { }
 int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return 0; }
 void		Module::OnMode(User*, void*, int, const std::string&) { }
-Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR,-1); }
+Version		Module::GetVersion() { return Version("Misconfigured", VF_VENDOR, -1); }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }
@@ -441,7 +441,7 @@ bool ModuleManager::Load(const char* filename)
 			}
 			else
 			{
-				Instance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+				Instance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (API version %d, Module version %s)%s", filename, v.API, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 
 			Modules[filename_str] = std::make_pair(newhandle, newmod);

@@ -212,7 +212,7 @@ class ModuleDNSBL : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(2, 0, 0, 1, VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
 

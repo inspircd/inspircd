@@ -251,13 +251,17 @@ do { \
 class CoreExport Version : public classbase
 {
  public:
-	 /** Version numbers, build number, flags and API version
-	  */
-	 const int Major, Minor, Revision, Build, Flags, API;
+	/** Version information.
+	 */
+	std::string version;
 
-	 /** Initialize version class
-	  */
-	 Version(int major, int minor, int revision, int build, int flags, int api_ver);
+	/** Flags and API version
+	 */
+	const int Flags, API;
+
+	/** Initialize version class
+	 */
+	Version(const std::string &sversion, int flags, int api_ver);
 };
 
 /** The ModuleMessage class is the base class of Request and Event

@@ -401,7 +401,7 @@ void FilterBase::OnRehash(User* user, const std::string &parameter)
 
 Version FilterBase::GetVersion()
 {
-	return Version(1,1,0,2,VF_VENDOR|VF_COMMON,API_VERSION);
+	return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
 }
 
 

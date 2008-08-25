@@ -494,7 +494,7 @@ class ModuleRIPEMD160 : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1, 2, 0, 1, VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
+		return Version("$Id$", VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
 	}
 
 };

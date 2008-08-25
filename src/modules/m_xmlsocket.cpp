@@ -109,7 +109,7 @@ class ModuleXMLSocket : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1, 2, 0, 0, VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
