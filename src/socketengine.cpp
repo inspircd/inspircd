@@ -14,8 +14,14 @@
 /* $Core */
 
 /*********        DEFAULTS       **********/
+
 /* $ExtraSources: socketengines/socketengine_select.cpp */
 /* $ExtraObjects: socketengine_select.o */
+
+/* $If: USE_POLL */
+/* $ExtraSources: socketengines/socketengine_poll.cpp */
+/* $ExtraObjects: socketengine_poll.o */
+/* $EndIf */
 
 /* $If: USE_KQUEUE */
 /* $ExtraSources: socketengines/socketengine_kqueue.cpp */
