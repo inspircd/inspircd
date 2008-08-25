@@ -74,7 +74,7 @@ std::string Channel::GetModeParameter(char mode)
 
 int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 {
-	if (IS_LOCAL(u))
+	if (u && IS_LOCAL(u))
 	{
 		if(!forceset)
 		{
@@ -102,11 +102,20 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 	}
 
 	this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
-	this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
-	this->topicset = ServerInstance->Time();
-	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
+	if (u)
+	{
+		this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
+		this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
+	}
+	else
+	{
+		this->setby.assign(ServerInstance->Config->ServerName);
+		this->WriteChannelWithServ(ServerInstance->Config->ServerName, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
+	}
 
-	if (IS_LOCAL(u))
+	this->topicset = ServerInstance->Time();
+
+	if (u && IS_LOCAL(u))
 	{
 		FOREACH_MOD(I_OnPostLocalTopicChange,OnPostLocalTopicChange(u, this, this->topic));
 	}
