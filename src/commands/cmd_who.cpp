@@ -89,7 +89,14 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 		}
 		else if (opt_away)
 			match = InspIRCd::Match(user->awaymsg, matchtext, lowermap);
+		else if (opt_time)
+		{
+			long seconds = ServerInstance->Duration(matchtext);
 
+			// Okay, so time matching, we want all users connected `seconds' ago
+			if (user->age >= ServerInstance->Time() - seconds)
+				match = true;
+		}
 
 		/*
 		 * Once the conditionals have been checked, only check dhost/nick/server
