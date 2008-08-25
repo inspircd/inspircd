@@ -670,7 +670,7 @@ class ModuleSQLite3 : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1,2,0,0,VF_VENDOR|VF_SERVICEPROVIDER,API_VERSION);
+		return Version("$Id$", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
 	}
 
 };
