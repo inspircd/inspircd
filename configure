@@ -1151,29 +1151,38 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
 			print FILEHANDLE "#define USE_KQUEUE\n";
 			$se = "socketengine_kqueue";
-			$use_hiperf = 1;
+			if ($config{USE_KQUEUE} eq "y") {
+				$use_hiperf = 1;
+			}
 		}
 		if (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
 			print FILEHANDLE "#define USE_EPOLL\n";
 			$se = "socketengine_epoll";
-			$use_hiperf = 1;
+			if ($config{USE_EPOLL} eq "y") {
+				$use_hiperf = 1;
+			}
 		}
 		if (($has_ports) && ($config{USE_PORTS} eq "y")) {
 			print FILEHANDLE "#define USE_PORTS\n";
 			$se = "socketengine_ports";
-			$use_hiperf = 1;
+			if ($config{USE_PORTS} eq "y") {
+				$use_hiperf = 1;
+			}
 		}
-		if ($config{USE_POLL} eq "y")
-		{
-			print FILEHANDLE "#define USE_POLL\n";
-			$se = "socketengine_poll";
-			$use_hiperf = 1;
-		}
+
 		# user didn't choose either epoll or select for their OS.
 		# default them to USE_SELECT (ewwy puke puke)
 		if (!$use_hiperf) {
-			print FILEHANDLE "#define USE_SELECT\n";
-			$se = "socketengine_select";
+			if ($config{USE_POLL} eq "y")
+			{
+				print FILEHANDLE "#define USE_POLL\n";
+				$se = "socketengine_poll";
+			}
+			else
+			{
+				print FILEHANDLE "#define USE_SELECT\n";
+				$se = "socketengine_select";
+			}
 		}
 		print FILEHANDLE "\n#endif\n";
 		close(FILEHANDLE);
