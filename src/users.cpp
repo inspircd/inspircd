@@ -116,11 +116,15 @@ void User::StartDNSLookup()
 
 bool User::IsNoticeMaskSet(unsigned char sm)
 {
+	if (!isalpha(sm))
+		return false;
 	return (snomasks[sm-65]);
 }
 
 void User::SetNoticeMask(unsigned char sm, bool value)
 {
+	if (!isalpha(sm))
+		return;
 	snomasks[sm-65] = value;
 }
 
@@ -139,15 +143,17 @@ const char* User::FormatNoticeMasks()
 	return data;
 }
 
-
-
 bool User::IsModeSet(unsigned char m)
 {
+	if (!isalpha(m))
+		return false;
 	return (modes[m-65]);
 }
 
 void User::SetMode(unsigned char m, bool value)
 {
+	if (!isalpha(m))
+		return;
 	modes[m-65] = value;
 }
 
