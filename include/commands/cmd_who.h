@@ -38,6 +38,8 @@ class CommandWho : public Command
 	bool opt_away;
 	bool opt_local;
 	bool opt_far;
+	bool opt_time;
+
  public:
 	/** Constructor for who.
 	 */

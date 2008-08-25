@@ -30,13 +30,8 @@ static const std::string& get_first_visible_channel(User *u)
 
 bool CommandWho::whomatch(User* user, const char* matchtext)
 {
-	bool realhost = false;
-	bool realname = false;
-	bool positive = true;
-	bool metadata = false;
-	bool ident = false;
-	bool away = false;
-	bool port = false;
+	bool match = false;
+	bool positive = false;
 	char* dummy = NULL;
 
 	if (user->registered != REG_ALL)
@@ -68,41 +63,51 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 	}
 	else
 	{
-
+		/*
+		 * This was previously one awesome pile of ugly nested if, when really, it didn't need
+		 * to be, since only one condition was ever checked, a chained if works just fine.
+		 * -- w00t
+		 */
 		if (opt_metadata)
-			metadata = user->GetExt(matchtext, dummy);
-		else
+			match = user->GetExt(matchtext, dummy);
+		else if (opt_realname)
+			match = InspIRCd::Match(user->fullname, matchtext, lowermap);
+		else if (opt_showrealhost)
+			match = InspIRCd::Match(user->host, matchtext, lowermap);
+		else if (opt_ident)
+			match = InspIRCd::Match(user->ident, matchtext, lowermap);
+		else if (opt_port)
 		{
-			if (opt_realname)
-				realname = InspIRCd::Match(user->fullname, matchtext, lowermap);
-			else
-			{
-				if (opt_showrealhost)
-					realhost = InspIRCd::Match(user->host, matchtext, lowermap);
-				else
+			irc::portparser portrange(matchtext, false);
+			long portno = -1;
+			while ((portno = portrange.GetToken()))
+				if (portno == user->GetPort())
 				{
-					if (opt_ident)
-						ident = InspIRCd::Match(user->ident, matchtext, lowermap);
-					else
-					{
-						if (opt_port)
-						{
-							irc::portparser portrange(matchtext, false);
-							long portno = -1;
-							while ((portno = portrange.GetToken()))
-								if (portno == user->GetPort())
-									port = true;
-						}
-						else
-						{
-							if (opt_away)
-								away = InspIRCd::Match(user->awaymsg, matchtext, lowermap);
-						}
-					}
+					match = true;
+					break;
 				}
-			}
 		}
-		return ((port) || (away) || (ident) || (metadata) || (realname) || (realhost) || (InspIRCd::Match(user->dhost, matchtext, lowermap)) || (InspIRCd::Match(user->nick, matchtext, lowermap)) || (InspIRCd::Match(user->server, matchtext, lowermap)));
+		else if (opt_away)
+			match = InspIRCd::Match(user->awaymsg, matchtext, lowermap);
+
+
+		/*
+		 * Once the conditionals have been checked, only check dhost/nick/server
+		 * if they didn't match this user -- and only match if we don't find a match.
+		 *
+		 * This should make things minutely faster, and again, less ugly.
+		 * -- w00t
+		 */
+		if (!match)
+			match = InspIRCd::Match(user->dhost, matchtext, lowermap);
+
+		if (!match)
+			match = InspIRCd::Match(user->nick, matchtext, lowermap);
+
+		if (!match)
+			match = InspIRCd::Match(user->server, matchtext, lowermap);
+
+		return match;
 	}
 }
 
@@ -187,6 +192,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 	opt_away = false;
 	opt_local = false;
 	opt_far = false;
+	opt_time = false;
 
 	Channel *ch = NULL;
 	std::vector<std::string> whoresults;
@@ -224,39 +230,42 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 			{
 				case 'o':
 					opt_viewopersonly = true;
-				break;
+					break;
 				case 'h':
 					if (IS_OPER(user))
 						opt_showrealhost = true;
-				break;
+					break;
 				case 'u':
 					if (IS_OPER(user))
 						opt_unlimit = true;
-				break;
+					break;
 				case 'r':
 					opt_realname = true;
-				break;
+					break;
 				case 'm':
 					opt_mode = true;
-				break;
+					break;
 				case 'M':
 					opt_metadata = true;
-				break;
+					break;
 				case 'i':
 					opt_ident = true;
-				break;
+					break;
 				case 'p':
 					opt_port = true;
-				break;
+					break;
 				case 'a':
 					opt_away = true;
-				break;
+					break;
 				case 'l':
 					opt_local = true;
-				break;
+					break;
 				case 'f':
 					opt_far = true;
-				break;
+					break;
+				case 't':
+					opt_time = true;
+					break;
 			}
 		}
 	}
