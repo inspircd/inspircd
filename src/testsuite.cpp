@@ -131,6 +131,9 @@ bool TestSuite::DoWildTests()
     WCTEST("foofar", "**f?*f*?");
     WCTEST("r", "*");
     WCTEST("", "");
+    WCTEST("test@foo.bar.test", "*@*.bar.test");
+    WCTEST("test@foo.bar.test", "*test*@*.bar.test");
+    WCTEST("test@foo.bar.test", "*@*test");
 
     WCTESTNOT("foobar", "bazqux");
     WCTESTNOT("foobar", "*qux");
