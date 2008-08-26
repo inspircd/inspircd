@@ -62,9 +62,7 @@ static bool match_internal(const unsigned char *string, const unsigned char *wil
 					{
 						string = s;
 						if (*(wild+1) || !*(s+1))
-						{
 							wild++;
-						}
 						break;
 					}
 					s++;
