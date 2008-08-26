@@ -21,7 +21,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	std::string xhost;
 	while (hl >> xhost)
 	{
-		if (InspIRCd::MatchCIDR(host, xhost, NULL) || InspIRCd::MatchCIDR(ip, xhost, NULL))
+		if (InspIRCd::Match(host, xhost, NULL) || InspIRCd::MatchCIDR(ip, xhost, NULL))
 		{
 			return true;
 		}
