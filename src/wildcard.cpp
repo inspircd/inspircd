@@ -28,11 +28,16 @@
  *   ZNC's, thought to be faster than ours, but it turned out that we could do better ;-)
  *	Iteration 4)
  *   Largely from work by peavey and myself (w00t) :)
- *
+ *	Iteration 5)
+ *   peavey: Fix glob scan similar to 1.1, but scan ahead on glob in inner loop to retain speedup
+ *   this fixes another case which we forgot to test. Add early return for obvious fail condition.
  */
 static bool match_internal(const unsigned char *string, const unsigned char *wild, unsigned const char *map)
 {
-	const unsigned char* s;
+	const unsigned char *s, *m; m = wild;
+
+	if (*string && !*wild)
+		return false;
 
 	if (!map)
 		map = lowermap;
@@ -43,6 +48,8 @@ static bool match_internal(const unsigned char *string, const unsigned char *wil
 		{
 			while (*wild && *wild == '*')
 				wild++;
+
+			m = wild;
 
 			if (!*wild)
 				return true;
@@ -57,19 +64,17 @@ static bool match_internal(const unsigned char *string, const unsigned char *wil
 						if (*(wild+1) || !*(s+1))
 						{
 							wild++;
-							break;
 						}
+						break;
 					}
 					s++;
 				}
 			}
 		}
-		else if ( (map[*wild] != map[*string]) && (*wild != '?') )
-		{
-			return false;
-		}
-		else
+		else if ( (map[*wild] == map[*string]) || (*wild == '?') )
 			wild++;
+		else
+			wild = m;
 
 		string++;
 	}
@@ -93,7 +98,6 @@ CoreExport bool InspIRCd::Match(const  char *str, const char *mask, unsigned con
 {
 	return match_internal((const unsigned char *)str, (const unsigned char *)mask, map);
 }
-
 
 CoreExport bool InspIRCd::MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map)
 {
