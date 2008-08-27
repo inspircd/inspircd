@@ -35,12 +35,17 @@ CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user
 
 			if (IS_OPER(u))
 			{
-				retbuf = retbuf + "*=+";
+				retbuf = retbuf + "*=";
 			}
 			else
 			{
-				retbuf = retbuf + "=+";
+				retbuf = retbuf + "=";
 			}
+
+			if (IS_AWAY(u))
+				retbuf += "-";
+			else
+				retbuf += "+";
 
 			retbuf = retbuf + u->ident + "@";
 

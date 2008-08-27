@@ -38,7 +38,12 @@ class cmd_userip : public command_t
 			userrec *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
-				retbuf = retbuf + u->nick + (IS_OPER(u) ? "*" : "") + "=+" + u->ident + "@" + u->GetIPString() + " ";
+				retbuf = retbuf + u->nick + (IS_OPER(u) ? "*" : "") + "=";
+				if (IS_AWAY(u))
+					retbuf += "-";
+				else
+					retbuf += "+";
+				retbuf += u->ident + "@" + u->GetIPString() + " ";
 			}
 		}
 
