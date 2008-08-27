@@ -25,14 +25,14 @@ void IPCThread::Run()
 	{
 		Pipe = CreateNamedPipe (Pipename,
 					PIPE_ACCESS_DUPLEX, // read/write access
-                                        PIPE_TYPE_MESSAGE | // message type pipe
-                                        PIPE_READMODE_MESSAGE | // message-read mode
-                                        PIPE_WAIT, // blocking mode
-                                        PIPE_UNLIMITED_INSTANCES, // max. instances
-                                        MAXBUF, // output buffer size
-                                        MAXBUF, // input buffer size
-                                        1000, // client time-out
-                                        NULL); // no security attribute
+					PIPE_TYPE_MESSAGE | // message type pipe
+					PIPE_READMODE_MESSAGE | // message-read mode
+					PIPE_WAIT, // blocking mode
+					PIPE_UNLIMITED_INSTANCES, // max. instances
+					MAXBUF, // output buffer size
+					MAXBUF, // input buffer size
+					1000, // client time-out
+					NULL); // no security attribute
 
 		if (Pipe == INVALID_HANDLE_VALUE)
 		{
