@@ -701,8 +701,8 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	char* savept;
 	char* savept2;
 
-	if (user->IsModeSet('o'))
-		user->Deoper();
+	if (this->IsModeSet('o'))
+		this->Deoper();
 
 	this->modes[UM_OPERATOR] = 1;
 	this->WriteServ("MODE %s :+o", this->nick.c_str());
