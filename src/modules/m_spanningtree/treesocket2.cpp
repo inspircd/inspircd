@@ -399,6 +399,12 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "PONG")
 			{
+				TreeServer *s = Utils->FindServer(prefix);
+				if (s && s->bursting)
+				{
+					Instance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", prefix.c_str());
+					s->FinishBurst();
+				}
 				return this->LocalPong(prefix,params);
 			}
 			else if (command == "VERSION")

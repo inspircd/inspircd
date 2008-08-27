@@ -192,16 +192,6 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	{
 		TreeServer *s = i->second;
 
-		if (s->bursting)
-		{
-			unsigned long bursttime = ts - s->StartBurst;
-			if (bursttime > 60000) // A minute
-			{
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst.", s->GetName().c_str());
-				s->FinishBurst();
-			}
-		}
-
 		// Now do PING checks on all servers
 		TreeServer *mts = Utils->BestRouteTo(s->GetID());
 
