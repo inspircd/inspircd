@@ -34,12 +34,17 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 
 			if (IS_OPER(u))
 			{
-				retbuf = retbuf + "*=+";
+				retbuf = retbuf + "*=";
 			}
 			else
 			{
-				retbuf = retbuf + "=+";
+				retbuf = retbuf + "=";
 			}
+
+			if (IS_AWAY(u))
+				retbuf += "-";
+			else
+				retbuf += "+";
 
 			retbuf = retbuf + u->ident + "@";
 
