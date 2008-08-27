@@ -103,6 +103,8 @@ class IdentRequestSocket : public EventHandler
 		if (GetFd() == -1)
 			throw ModuleException("Could not create socket");
 
+		done = false;
+
 		/* We allocate two of these because sizeof(sockaddr_in6) > sizeof(sockaddr_in) */
 		sockaddr* s = new sockaddr[2];
 		sockaddr* addr = new sockaddr[2];
