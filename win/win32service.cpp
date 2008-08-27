@@ -69,8 +69,8 @@ DWORD WINAPI WorkerThread(LPDWORD param)
 {
 	char modname[MAX_PATH];
 	GetModuleFileName(NULL, modname, sizeof(modname));
-	char* argv[] = { modname, "--nofork", "--debug" };
-	smain(3, argv);
+	char* argv[] = { modname, "--nofork" };
+	smain(2, argv);
 	KillService();
 	return 0;
 }

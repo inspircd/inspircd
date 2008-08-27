@@ -36,7 +36,7 @@ void IPCThread::Run()
 
 		if (Pipe == INVALID_HANDLE_VALUE)
 		{
-			SleepEx(500, true);
+			SleepEx(10, true);
 			continue;
 		}
 
