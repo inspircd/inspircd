@@ -106,10 +106,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 	if (found)
 	{
 		/* correct oper credentials */
-		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), irc::Spacify(OperType), parameters[0].c_str());
-		user->WriteNumeric(381, "%s :You are now %s %s",user->nick.c_str(), strchr("aeiouAEIOU", *OperType) ? "an" : "a", irc::Spacify(OperType));
-		if (!user->IsModeSet('o'))
-			user->Oper(OperType, LoginName);
+		user->Oper(OperType, LoginName);
 	}
 	else
 	{

@@ -701,84 +701,83 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	char* savept;
 	char* savept2;
 
-	try
+	if (user->IsModeSet('o'))
+		user->Deoper();
+
+	this->modes[UM_OPERATOR] = 1;
+	this->WriteServ("MODE %s :+o", this->nick.c_str());
+	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
+
+	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), irc::Spacify(opertype.c_str()), opername.c_str());
+	this->WriteNumeric(381, "%s :You are now %s %s", this->nick.c_str(), strchr("aeiouAEIOU", *opertype.c_str()) ? "an" : "a", irc::Spacify(opertype.c_str()));
+
+	ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), opertype.c_str());
+	this->oper.assign(opertype, 0, 512);
+	ServerInstance->Users->all_opers.push_back(this);
+
+	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
+	if (iter_opertype != ServerInstance->Config->opertypes.end())
 	{
-		this->modes[UM_OPERATOR] = 1;
-		this->WriteServ("MODE %s :+o", this->nick.c_str());
-		FOREACH_MOD(I_OnOper, OnOper(this, opertype));
-		ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), opertype.c_str());
-		this->oper.assign(opertype, 0, 512);
-		ServerInstance->Users->all_opers.push_back(this);
 
-		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
-		if (iter_opertype != ServerInstance->Config->opertypes.end())
+		if (AllowedOperCommands)
+			AllowedOperCommands->clear();
+		else
+			AllowedOperCommands = new std::map<std::string, bool>;
+
+		if (!AllowedChanModes)
+			AllowedChanModes = new bool[64];
+
+		if (!AllowedUserModes)
+			AllowedUserModes = new bool[64];
+
+		memset(AllowedUserModes, 0, 64);
+		memset(AllowedChanModes, 0, 64);
+
+		char* Classes = strdup(iter_opertype->second);
+		char* myclass = strtok_r(Classes," ",&savept);
+		while (myclass)
 		{
-
-			if (AllowedOperCommands)
-				AllowedOperCommands->clear();
-			else
-				AllowedOperCommands = new std::map<std::string, bool>;
-
-			if (!AllowedChanModes)
-				AllowedChanModes = new bool[64];
-
-			if (!AllowedUserModes)
-				AllowedUserModes = new bool[64];
-
-			memset(AllowedUserModes, 0, 64);
-			memset(AllowedChanModes, 0, 64);
-
-			char* Classes = strdup(iter_opertype->second);
-			char* myclass = strtok_r(Classes," ",&savept);
-			while (myclass)
+			operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
+			if (iter_operclass != ServerInstance->Config->operclass.end())
 			{
-				operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
-				if (iter_operclass != ServerInstance->Config->operclass.end())
+				char* CommandList = strdup(iter_operclass->second.commandlist);
+				mycmd = strtok_r(CommandList," ",&savept2);
+				while (mycmd)
 				{
-					char* CommandList = strdup(iter_operclass->second.commandlist);
-					mycmd = strtok_r(CommandList," ",&savept2);
-					while (mycmd)
+					this->AllowedOperCommands->insert(std::make_pair(mycmd, true));
+					mycmd = strtok_r(NULL," ",&savept2);
+				}
+				free(CommandList);
+				this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
+				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
+				{
+					if (*c == '*')
 					{
-						this->AllowedOperCommands->insert(std::make_pair(mycmd, true));
-						mycmd = strtok_r(NULL," ",&savept2);
+						memset(this->AllowedUserModes, (int)(true), 64);
 					}
-					free(CommandList);
-					this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
-					for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
+					else
 					{
-						if (*c == '*')
-						{
-							memset(this->AllowedUserModes, (int)(true), 64);
-						}
-						else
-						{
-							this->AllowedUserModes[*c - 'A'] = true;
-						}
-					}
-					for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist; *c; ++c)
-					{
-						if (*c == '*')
-						{
-							memset(this->AllowedChanModes, (int)(true), 64);
-						}
-						else
-						{
-							this->AllowedChanModes[*c - 'A'] = true;
-						}
+						this->AllowedUserModes[*c - 'A'] = true;
 					}
 				}
-				myclass = strtok_r(NULL," ",&savept);
+				for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist; *c; ++c)
+				{
+					if (*c == '*')
+					{
+						memset(this->AllowedChanModes, (int)(true), 64);
+					}
+					else
+					{
+						this->AllowedChanModes[*c - 'A'] = true;
+					}
+				}
 			}
-			free(Classes);
+			myclass = strtok_r(NULL," ",&savept);
 		}
-
-		FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype, opername));
+		free(Classes);
 	}
 
-	catch (...)
-	{
-		ServerInstance->Logs->Log("OPER", DEBUG,"Exception in User::Oper()");
-	}
+	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype, opername));
 }
 
 void User::UnOper()
@@ -790,12 +789,9 @@ void User::UnOper()
 
 		for (unsigned char letter = 'A'; letter <= 'z'; letter++)
 		{
-			if (letter != 'o')
-			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
-				if (mh && mh->NeedsOper())
-					moderemove += letter;
-			}
+			ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
+			if (mh && mh->NeedsOper())
+				moderemove += letter;
 		}
 
 		std::vector<std::string> parameters;
@@ -806,7 +802,6 @@ void User::UnOper()
 
 		/* unset their oper type (what IS_OPER checks), and remove +o */
 		this->oper.clear();
-		this->modes[UM_OPERATOR] = 0;
 			
 		/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
 		ServerInstance->Users->all_opers.remove(this);
