@@ -784,6 +784,13 @@ void User::UnOper()
 {
 	if (IS_OPER(this))
 	{
+		/*
+		 * unset their oper type (what IS_OPER checks).
+		 * note, order is important - this must come before modes as -o attempts
+		 * to call UnOper. -- w00t
+		 */
+		this->oper.clear();
+
 		/* Remove all oper only modes from the user when the deoper - Bug #466*/
 		std::string moderemove("-");
 
@@ -799,9 +806,6 @@ void User::UnOper()
 		parameters.push_back(moderemove);
 
 		ServerInstance->Parser->CallHandler("MODE", parameters, this);
-
-		/* unset their oper type (what IS_OPER checks), and remove +o */
-		this->oper.clear();
 			
 		/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
 		ServerInstance->Users->all_opers.remove(this);
