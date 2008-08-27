@@ -326,7 +326,16 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
 	{
 		/* command is disabled! */
-		user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :This command has been disabled.",user->nick.c_str(),command.c_str());
+		if (ServerInstance->Config->DisabledDontExist)
+		{
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
+		}
+		else
+		{
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :This command has been disabled.",
+										user->nick.c_str(), command.c_str());
+		}
+
 		ServerInstance->SNO->WriteToSnoMask('d', "%s denied for %s (%s@%s)",
 				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return do_more;

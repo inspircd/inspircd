@@ -439,6 +439,10 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	char DNSServer[MAXBUF];
 
+	/** Pretend disabled commands don't exist.
+	 */
+	bool DisabledDontExist;
+
 	/** This variable contains a space-seperated list
 	 * of commands which are disabled by the
 	 * administrator of the server for non-opers.

@@ -843,6 +843,7 @@ void ServerConfig::Read(bool bail, User* user)
 		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR,  NoValidation},
 		{"disabled",	"usermodes",	"",			new ValueContainerChar (disabledumodes),		DT_CHARPTR,  ValidateDisabledUModes},
 		{"disabled",	"chanmodes",	"",			new ValueContainerChar (disabledcmodes),		DT_CHARPTR,  ValidateDisabledCModes},
+		{"disabled",	"fakenonexistant",	"0",			new ValueContainerBool (&this->DisabledDontExist),		DT_BOOLEAN,  NoValidation},
 		{"security",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR,  NoValidation},
 		{"security",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR,  NoValidation},
 		{"security",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN,  NoValidation},
