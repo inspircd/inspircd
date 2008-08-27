@@ -153,7 +153,7 @@ class ModuleZLib : public Module
 		ServerInstance->PublishInterface("InspSocketHook", this);
 
 		total_out_compressed = total_in_compressed = 0;
-		total_out_uncompressed = total_out_uncompressed = 0;
+		total_out_uncompressed = total_in_uncompressed = 0;
 	}
 
 	virtual ~ModuleZLib()
@@ -231,13 +231,13 @@ class ModuleZLib : public Module
 			 * (we dont count 64 bit ints because not all systems have 64 bit ints, and floats
 			 * can still hold more.
 			 */
-			float outbound_r = 100 - ((total_out_compressed / (total_out_uncompressed + 0.001)) * 100);
-			float inbound_r = 100 - ((total_in_compressed / (total_in_uncompressed + 0.001)) * 100);
+			float outbound_r = (total_out_compressed / (total_out_uncompressed + 0.001)) * 100;
+			float inbound_r = (total_in_compressed / (total_in_uncompressed + 0.001)) * 100;
 
 			float total_compressed = total_in_compressed + total_out_compressed;
 			float total_uncompressed = total_in_uncompressed + total_out_uncompressed;
 
-			float total_r = 100 - ((total_compressed / (total_uncompressed + 0.001)) * 100);
+			float total_r = (total_compressed / (total_uncompressed + 0.001)) * 100;
 
 			char outbound_ratio[MAXBUF], inbound_ratio[MAXBUF], combined_ratio[MAXBUF];
 
