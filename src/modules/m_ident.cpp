@@ -51,6 +51,8 @@ class IdentRequestSocket : public EventHandler
 		if (GetFd() == -1)
 			throw ModuleException("Could not create socket");
 
+		done = false;
+
 		sockaddr* s = new sockaddr[2];
 		sockaddr* addr = new sockaddr[2];
 	
