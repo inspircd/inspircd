@@ -217,6 +217,7 @@ class ModuleRLine : public Module
 
 	virtual ~ModuleRLine()
 	{
+		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(f);
 	}
 
