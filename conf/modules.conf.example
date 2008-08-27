@@ -1222,8 +1222,13 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Shun module: Provides the /shun command, which stops a user executing 
-# all commands except PING and PONG.
+# most commands.
 #<module name="m_shun.so">
+#
+# You may also configure which commands you wish a user to be able to
+# perform. It should be noted that if a shunned user issues QUIT or PART
+# then their message will be removed, as if they did not issue one.
+#<shun enabledcommands="PING PONG QUIT PART JOIN">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Spy module: Provides the ability to see the complete names list of 

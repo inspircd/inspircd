@@ -145,6 +145,7 @@ class ModuleShun : public Module
 {
 	cmd_shun* mycommand;
 	ShunFactory *f;
+	std::map<std::string, bool> ShunEnabledCommands;
 
  public:
 	ModuleShun(InspIRCd* Me) : Module(Me)
@@ -155,8 +156,9 @@ class ModuleShun : public Module
 		mycommand = new cmd_shun(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
-		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnUserConnect, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
+		OnRehash(NULL, "");
 	}
 
 	virtual ~ModuleShun()
@@ -172,6 +174,25 @@ class ModuleShun : public Module
 
 		ServerInstance->XLines->InvokeStats("SHUN", 223, user, out);
 		return 1;
+	}
+
+	virtual void OnRehash(User* user, const std::string &parameter)
+	{
+		ConfigReader MyConf(ServerInstance);
+		std::string cmds = MyConf.ReadValue("shun", "enabledcommands", 0);
+
+		if (cmds.empty())
+			cmds = "PING PONG QUIT";
+
+		ShunEnabledCommands.clear();
+
+		std::stringstream dcmds(cmds);
+		std::string thiscmd;
+
+		while (dcmds >> thiscmd)
+		{
+			ShunEnabledCommands[thiscmd] = true;
+		}
 	}
 
 	virtual void OnUserConnect(User* user)
@@ -201,16 +222,21 @@ class ModuleShun : public Module
 			return 0;
 		}
 
+		std::map<std::string, bool>::iterator i = ShunEnabledCommands.find(command);
+
+		if (i == ShunEnabledCommands.end())
+			return 1;
+
 		if (command == "QUIT")
 		{
 			/* Allow QUIT but dont show any quit message */
 			parameters.clear();
-			return 0;
 		}
-
-		/* Always allow PONG and PING */
-		if (command == "PONG" || command == "PING")
-			return 0;
+		else if (command == "PART")
+		{
+			/* same for PART */
+			parameters.clear();
+		}
 
 		return 1;
 	}
