@@ -43,7 +43,7 @@ class cmd_userip : public command_t
 					retbuf += "-";
 				else
 					retbuf += "+";
-				retbuf += u->ident + "@" + u->GetIPString() + " ";
+				retbuf += std::string(u->ident) + "@" + u->GetIPString() + " ";
 			}
 		}
 
