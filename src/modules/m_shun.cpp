@@ -146,6 +146,7 @@ class ModuleShun : public Module
 	cmd_shun* mycommand;
 	ShunFactory *f;
 	std::map<std::string, bool> ShunEnabledCommands;
+	bool NotifyOfShun;
 
  public:
 	ModuleShun(InspIRCd* Me) : Module(Me)
@@ -185,6 +186,7 @@ class ModuleShun : public Module
 			cmds = "PING PONG QUIT";
 
 		ShunEnabledCommands.clear();
+		NotifyOfShun = true;
 
 		std::stringstream dcmds(cmds);
 		std::string thiscmd;
@@ -193,6 +195,8 @@ class ModuleShun : public Module
 		{
 			ShunEnabledCommands[thiscmd] = true;
 		}
+
+		NotifyOfShun = MyConf.ReadFlag("shun", "notifyuser", "yes", 0);
 	}
 
 	virtual void OnUserConnect(User* user)
@@ -225,7 +229,10 @@ class ModuleShun : public Module
 		std::map<std::string, bool>::iterator i = ShunEnabledCommands.find(command);
 
 		if (i == ShunEnabledCommands.end())
+		{
+			user->WriteServ("NOTICE %s :*** Command %s not processed, as you have been blocked from issuing commands (SHUN)", user->nick.c_str(), command.c_str());
 			return 1;
+		}
 
 		if (command == "QUIT")
 		{

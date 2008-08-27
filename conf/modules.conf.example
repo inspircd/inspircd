@@ -1228,7 +1228,9 @@
 # You may also configure which commands you wish a user to be able to
 # perform. It should be noted that if a shunned user issues QUIT or PART
 # then their message will be removed, as if they did not issue one.
-#<shun enabledcommands="PING PONG QUIT PART JOIN">
+#
+# You may also (optionally) let the user know that their command was blocked.
+#<shun enabledcommands="PING PONG QUIT PART JOIN" notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Spy module: Provides the ability to see the complete names list of 
