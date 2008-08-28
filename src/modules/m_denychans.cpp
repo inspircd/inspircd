@@ -47,7 +47,7 @@ class ModuleDenyChannels : public Module
 				if (!ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
 				{
 					if (user)
-						user->WriteServ("Notice %s :Invalid badchan redirect '%s'", user->nick.c_str(), redirect.c_str());
+						user->WriteServ("NOTICE %s :Invalid badchan redirect '%s'", user->nick.c_str(), redirect.c_str());
 					throw ModuleException("Invalid badchan redirect, not a channel");
 				}
 
