@@ -158,12 +158,13 @@ class ModuleAlias : public Module
 				{
 					if (Aliases[i].case_sensitive)
 					{
-						if (InspIRCd::Match(compare, Aliases[i].format))
+						if (InspIRCd::Match(compare, Aliases[i].format, case_sensitive_map))
 							continue;
 					}
 					else
 					{
-						throw "not implemented"; // XXX fixme
+						if (InspIRCd::Match(compare, Aliases[i].format))
+							continue;
 					}
 				}
 
