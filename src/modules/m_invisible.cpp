@@ -171,7 +171,7 @@ class ModuleInvisible : public Module
 		ServerInstance->Users->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin, I_OnUserPart, I_OnUserQuit, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
-	}
+	};
 
 	virtual ~ModuleInvisible()
 	{
@@ -180,109 +180,118 @@ class ModuleInvisible : public Module
 		delete qm;
 		delete ido;
 		delete conf;
-	}
+	};
 
-	virtual Version GetVersion()
-	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
-	}
-
-
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
-	{
-		if (user->IsModeSet('Q'))
-		{
-			silent = true;
-			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-			this->WriteCommonFrom(user, channel, "JOIN %s", channel->name.c_str());
-			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name.c_str());
-		}
-	}
-
-	virtual void OnRehash(User* user, const std::string &parameter)
-	{
-		delete conf;
-		conf = new ConfigReader(ServerInstance);
-	}
-
-	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
-	{
-		if (user->IsModeSet('Q'))
-		{
-			silent = true;
-			/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-			this->WriteCommonFrom(user, channel, "PART %s%s%s", channel->name.c_str(),
-					partmessage.empty() ? "" : " :",
-					partmessage.empty() ? "" : partmessage.c_str());
-		}
-	}
-
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
-	{
-		if (user->IsModeSet('Q'))
-		{
-			Command* parthandler = ServerInstance->Parser->GetHandler("PART");
-			std::vector<std::string> to_leave;
-			if (parthandler)
-			{
-				for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-						to_leave.push_back(f->first->name);
-				/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
-				for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
-				{
-					std::vector<std::string> parameters;
-					parameters.push_back(*n);
-					/* This triggers our OnUserPart, above, making the PART silent */
-					parthandler->Handle(parameters, user);
-				}
-			}
-		}
-	}
-
+	virtual Version GetVersion();
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
+	virtual void OnRehash(User* user, const std::string &parameter);
+	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
 	/* No privmsg response when hiding - submitted by Eric at neowin */
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
-		{
-			User* target = (User*)dest;
-			if(target->IsModeSet('Q') && !IS_OPER(user))
-			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target->nick.c_str());
-				return 1;
-			}
-		}
-		return 0;
-	}
-
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
-	}
-
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	/* Fix by Eric @ neowin.net, thanks :) -- Brain */
-	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4,5)
+	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5);
+};
+
+Version ModuleInvisible::GetVersion()
+{
+	return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+}
+
+void ModuleInvisible::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
+{
+	if (user->IsModeSet('Q'))
 	{
-		va_list argsPtr;
-		char textbuffer[MAXBUF];
-		char tb[MAXBUF];
+		silent = true;
+		/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
+		this->WriteCommonFrom(user, channel, "JOIN %s", channel->name.c_str());
+		ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name.c_str());
+	}
+}
 
-		va_start(argsPtr, text);
-		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-		va_end(argsPtr);
-		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(), textbuffer);
+void ModuleInvisible::OnRehash(User* user, const std::string &parameter)
+{
+	delete conf;
+	conf = new ConfigReader(ServerInstance);
+}
 
-		CUList *ulist = channel->GetUsers();
+void ModuleInvisible::OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
+{
+	if (user->IsModeSet('Q'))
+	{
+		silent = true;
+		/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
+		this->WriteCommonFrom(user, channel, "PART %s%s%s", channel->name.c_str(),
+				partmessage.empty() ? "" : " :",
+				partmessage.empty() ? "" : partmessage.c_str());
+	}
+}
 
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+void ModuleInvisible::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
+{
+	if (user->IsModeSet('Q'))
+	{
+		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
+		std::vector<std::string> to_leave;
+		if (parthandler)
 		{
-			/* User only appears to vanish for non-opers */
-			if (IS_LOCAL(i->first) && IS_OPER(i->first))
+			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
+					to_leave.push_back(f->first->name);
+			/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
+			for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
 			{
-				i->first->Write(std::string(tb));
+				std::vector<std::string> parameters;
+				parameters.push_back(*n);
+				/* This triggers our OnUserPart, above, making the PART silent */
+				parthandler->Handle(parameters, user);
 			}
 		}
 	}
+}
 
-};
+/* No privmsg response when hiding - submitted by Eric at neowin */
+int ModuleInvisible::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+{
+	if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
+	{
+		User* target = (User*)dest;
+		if(target->IsModeSet('Q') && !IS_OPER(user))
+		{
+			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target->nick.c_str());
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int ModuleInvisible::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+{
+	return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
+}
+
+/* Fix by Eric @ neowin.net, thanks :) -- Brain */
+void ModuleInvisible::WriteCommonFrom(User *user, Channel* channel, const char* text, ...)
+{
+	va_list argsPtr;
+	char textbuffer[MAXBUF];
+	char tb[MAXBUF];
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(), textbuffer);
+
+	CUList *ulist = channel->GetUsers();
+
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		/* User only appears to vanish for non-opers */
+		if (IS_LOCAL(i->first) && IS_OPER(i->first))
+		{
+			i->first->Write(std::string(tb));
+		}
+	}
+}
 
 MODULE_INIT(ModuleInvisible)
