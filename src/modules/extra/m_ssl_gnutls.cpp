@@ -928,6 +928,7 @@ class ModuleSSLGnuTLS : public Module
 			CapData *data = (CapData *) ev->GetData();
 			if (data->user->Shrink("tls"))
 			{
+				/* Not in our spec?!?! */
 				data->user->io = this;
 				OnRawSocketAccept(data->user->GetFd(), data->user->GetIPString(),
 						data->user->GetPort());

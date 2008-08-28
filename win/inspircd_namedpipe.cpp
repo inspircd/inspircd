@@ -161,6 +161,12 @@ void IPC::Check()
 			thread->ClearStatus();
 			ServerInstance->Restart("Restarting due to command from GUI");
 		break;
+		case '4':
+			/* Toggle debug */
+			thread->SetResult(0);
+			thread->ClearStatus();
+			Config->forcedebug = !Config->forcedebug;
+		break;
 	}
 }
 
