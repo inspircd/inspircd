@@ -457,10 +457,10 @@ bool KLine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask, NULL))
+	if (InspIRCd::Match(u->ident, this->identmask))
 	{
-		if (InspIRCd::MatchCIDR(u->host, this->hostmask, NULL) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, NULL))
+		if (InspIRCd::MatchCIDR(u->host, this->hostmask) ||
+		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask))
 		{
 			return true;
 		}
@@ -479,10 +479,10 @@ bool GLine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask, NULL))
+	if (InspIRCd::Match(u->ident, this->identmask))
 	{
-		if (InspIRCd::MatchCIDR(u->host, this->hostmask, NULL) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, NULL))
+		if (InspIRCd::MatchCIDR(u->host, this->hostmask) ||
+		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask))
 		{
 			return true;
 		}
@@ -501,10 +501,10 @@ bool ELine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask, NULL))
+	if (InspIRCd::Match(u->ident, this->identmask))
 	{
-		if (InspIRCd::MatchCIDR(u->host, this->hostmask, NULL) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, NULL))
+		if (InspIRCd::MatchCIDR(u->host, this->hostmask) ||
+		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask))
 		{
 			return true;
 		}
@@ -518,7 +518,7 @@ bool ZLine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::MatchCIDR(u->GetIPString(), this->ipaddr, NULL))
+	if (InspIRCd::MatchCIDR(u->GetIPString(), this->ipaddr))
 		return true;
 	else
 		return false;
@@ -535,7 +535,7 @@ bool QLine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->nick, this->nick, lowermap))
+	if (InspIRCd::Match(u->nick, this->nick))
 		return true;
 
 	return false;
@@ -550,7 +550,7 @@ void QLine::Apply(User* u)
 
 bool ZLine::Matches(const std::string &str)
 {
-	if (InspIRCd::MatchCIDR(str, this->ipaddr, NULL))
+	if (InspIRCd::MatchCIDR(str, this->ipaddr))
 		return true;
 	else
 		return false;
@@ -558,7 +558,7 @@ bool ZLine::Matches(const std::string &str)
 
 bool QLine::Matches(const std::string &str)
 {
-	if (InspIRCd::Match(str, this->nick, lowermap))
+	if (InspIRCd::Match(str, this->nick))
 		return true;
 
 	return false;
@@ -566,17 +566,17 @@ bool QLine::Matches(const std::string &str)
 
 bool ELine::Matches(const std::string &str)
 {
-	return (InspIRCd::MatchCIDR(str, matchtext, NULL));
+	return (InspIRCd::MatchCIDR(str, matchtext));
 }
 
 bool KLine::Matches(const std::string &str)
 {
-	return (InspIRCd::MatchCIDR(str.c_str(), matchtext, NULL));
+	return (InspIRCd::MatchCIDR(str.c_str(), matchtext));
 }
 
 bool GLine::Matches(const std::string &str)
 {
-	return (InspIRCd::MatchCIDR(str, matchtext, NULL));
+	return (InspIRCd::MatchCIDR(str, matchtext));
 }
 
 void ELine::OnAdd()

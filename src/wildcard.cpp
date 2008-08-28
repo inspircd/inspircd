@@ -40,7 +40,7 @@ static bool match_internal(const unsigned char *string, const unsigned char *wil
 		return false;
 
 	if (!map)
-		map = lowermap;
+		map = rfc_case_insensitive_map;
 
 	while (*string)
 	{

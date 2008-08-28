@@ -32,8 +32,8 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 	
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if ((InspIRCd::Match(u->second->MakeHost(), mask, lowermap)) ||
-		    (InspIRCd::Match(u->second->MakeHostIP(), mask, lowermap)))
+		if ((InspIRCd::Match(u->second->MakeHost(), mask)) ||
+		    (InspIRCd::Match(u->second->MakeHostIP(), mask)))
 		{
 			matches++;
 		}
@@ -64,7 +64,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 	
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if (InspIRCd::Match(u->second->GetIPString(), ip, lowermap))
+		if (InspIRCd::Match(u->second->GetIPString(), ip))
 			matches++;
 	}
 
@@ -93,7 +93,7 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if (InspIRCd::Match(u->second->nick, nick, lowermap))
+		if (InspIRCd::Match(u->second->nick, nick))
 			matches++;
 	}
 

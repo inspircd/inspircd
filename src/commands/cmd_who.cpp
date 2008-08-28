@@ -71,11 +71,11 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 		if (opt_metadata)
 			match = user->GetExt(matchtext, dummy);
 		else if (opt_realname)
-			match = InspIRCd::Match(user->fullname, matchtext, lowermap);
+			match = InspIRCd::Match(user->fullname, matchtext);
 		else if (opt_showrealhost)
-			match = InspIRCd::Match(user->host, matchtext, lowermap);
+			match = InspIRCd::Match(user->host, matchtext);
 		else if (opt_ident)
-			match = InspIRCd::Match(user->ident, matchtext, lowermap);
+			match = InspIRCd::Match(user->ident, matchtext);
 		else if (opt_port)
 		{
 			irc::portparser portrange(matchtext, false);
@@ -88,7 +88,7 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 				}
 		}
 		else if (opt_away)
-			match = InspIRCd::Match(user->awaymsg, matchtext, lowermap);
+			match = InspIRCd::Match(user->awaymsg, matchtext);
 		else if (opt_time)
 		{
 			long seconds = ServerInstance->Duration(matchtext);
@@ -106,13 +106,13 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 		 * -- w00t
 		 */
 		if (!match)
-			match = InspIRCd::Match(user->dhost, matchtext, lowermap);
+			match = InspIRCd::Match(user->dhost, matchtext);
 
 		if (!match)
-			match = InspIRCd::Match(user->nick, matchtext, lowermap);
+			match = InspIRCd::Match(user->nick, matchtext);
 
 		if (!match)
-			match = InspIRCd::Match(user->server, matchtext, lowermap);
+			match = InspIRCd::Match(user->server, matchtext);
 
 		return match;
 	}
