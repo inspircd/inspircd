@@ -502,95 +502,87 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		}
 
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
-		/* Bugfix by brain, do not allow people to enter bad configurations */
-		if (L.Name != ServerInstance->Config->ServerName)
+
+		if (L.Name.find('.') == std::string::npos)
+			throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
+
+		if (L.Name.length() > 64)
+			throw CoreException("The link name '"+assign(L.Name)+"' is longer than 64 characters!");
+
+		if ((!L.IPAddr.empty()) && (!L.RecvPass.empty()) && (!L.SendPass.empty()) && (!L.Name.empty()) && (L.Port))
 		{
-			if (L.Name.find('.') == std::string::npos)
-				throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
+			if (Allow.length())
+				ValidIPs.push_back(Allow);
 
-			if (L.Name.length() > 64)
-				throw CoreException("The link name '"+assign(L.Name)+"' is longer than 64 characters!");
+			ValidIPs.push_back(L.IPAddr);
 
-			if ((!L.IPAddr.empty()) && (!L.RecvPass.empty()) && (!L.SendPass.empty()) && (!L.Name.empty()) && (L.Port))
-			{
-				if (Allow.length())
-					ValidIPs.push_back(Allow);
-
-				ValidIPs.push_back(L.IPAddr);
-
-				/* Needs resolving */
-				bool ipvalid = true;
-				QueryType start_type = DNS_QUERY_A;
+			/* Needs resolving */
+			bool ipvalid = true;
+			QueryType start_type = DNS_QUERY_A;
 #ifdef IPV6
-				start_type = DNS_QUERY_AAAA;
-				if (strchr(L.IPAddr.c_str(),':'))
-				{
-					in6_addr n;
-					if (inet_pton(AF_INET6, L.IPAddr.c_str(), &n) < 1)
-						ipvalid = false;
-				}
-				else
-				{
-					in_addr n;
-					if (inet_aton(L.IPAddr.c_str(),&n) < 1)
-						ipvalid = false;
-				}
-#else
-				in_addr n;
-				if (inet_aton(L.IPAddr.c_str(),&n) < 1)
+			start_type = DNS_QUERY_AAAA;
+			if (strchr(L.IPAddr.c_str(),':'))
+			{
+				in6_addr n;
+				if (inet_pton(AF_INET6, L.IPAddr.c_str(), &n) < 1)
 					ipvalid = false;
-#endif
-
-				if (!ipvalid)
-				{
-					try
-					{
-						bool cached;
-						SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached, start_type);
-						ServerInstance->AddResolver(sr, cached);
-					}
-					catch (...)
-					{
-					}
-				}
 			}
 			else
 			{
-				if (L.IPAddr.empty())
-				{
-					L.IPAddr = "*";
-					ValidIPs.push_back("*");
-					ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
-				}
+				in_addr n;
+				if (inet_aton(L.IPAddr.c_str(),&n) < 1)
+					ipvalid = false;
+			}
+#else
+			in_addr n;
+			if (inet_aton(L.IPAddr.c_str(),&n) < 1)
+				ipvalid = false;
+#endif
 
-				if (L.RecvPass.empty())
+			if (!ipvalid)
+			{
+				try
 				{
-					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', recvpass not defined!");
+					bool cached;
+					SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached, start_type);
+					ServerInstance->AddResolver(sr, cached);
 				}
-
-				if (L.SendPass.empty())
+				catch (...)
 				{
-					throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', sendpass not defined!");
-				}
-
-				if (L.Name.empty())
-				{
-					throw CoreException("Invalid configuration, link tag without a name! IP address: "+L.IPAddr);
-				}
-
-				if (!L.Port)
-				{
-					ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no port defined, you will not be able to /connect it.");
 				}
 			}
-
-
-			LinkBlocks.push_back(L);
 		}
 		else
 		{
-			throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', link tag has the same server name as the local server!");
+			if (L.IPAddr.empty())
+			{
+				L.IPAddr = "*";
+				ValidIPs.push_back("*");
+				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
+			}
+
+			if (L.RecvPass.empty())
+			{
+				throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', recvpass not defined!");
+			}
+
+			if (L.SendPass.empty())
+			{
+				throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', sendpass not defined!");
+			}
+
+			if (L.Name.empty())
+			{
+				throw CoreException("Invalid configuration, link tag without a name! IP address: "+L.IPAddr);
+			}
+
+			if (!L.Port)
+			{
+				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no port defined, you will not be able to /connect it.");
+			}
 		}
+
+		LinkBlocks.push_back(L);
 	}
 	delete Conf;
 }
