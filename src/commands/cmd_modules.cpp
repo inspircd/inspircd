@@ -29,27 +29,20 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 	{
 		Module* m = ServerInstance->Modules->Find(module_names[i]);
 		Version V = m->GetVersion();
-		char modulename[MAXBUF];
-		char flagstate[MAXBUF];
-		*flagstate = 0;
-		if (V.Flags & VF_STATIC)
-			strlcat(flagstate,", static",MAXBUF);
-		if (V.Flags & VF_VENDOR)
-			strlcat(flagstate,", vendor",MAXBUF);
-		if (V.Flags & VF_COMMON)
-			strlcat(flagstate,", common",MAXBUF);
-		if (V.Flags & VF_SERVICEPROVIDER)
-			strlcat(flagstate,", service provider",MAXBUF);
-		if (!flagstate[0])
-			strcpy(flagstate,"  <no flags>");
-		strlcpy(modulename,module_names[i].c_str(),256);
+
 		if (IS_OPER(user))
 		{
-			user->WriteNumeric(702, "%s :0x%08lx %s %s (%s)",user->nick.c_str(),(unsigned long)m,V.version.c_str(),ServerConfig::CleanFilename(modulename),flagstate+2);
+			std::string flags("Svsc");
+			int pos = 0;
+			for (int mult = 1; mult <= VF_SERVICEPROVIDER; mult *= 2, ++pos)
+				if (!(V.Flags & mult))
+					flags[pos] = '-';
+
+			user->WriteNumeric(702, "%s :0x%08lx %s %s :%s", user->nick.c_str(), (unsigned long)m, module_names[i].c_str(), flags.c_str(), V.version.c_str());
 		}
 		else
 		{
-			user->WriteNumeric(702, "%s :%s",user->nick.c_str(),ServerConfig::CleanFilename(modulename));
+			user->WriteNumeric(702, "%s :%s",user->nick.c_str(), module_names[i].c_str());
 		}
 	}
 	user->WriteNumeric(703, "%s :End of MODULES list",user->nick.c_str());
