@@ -35,9 +35,6 @@
 /* Status of a connection */
 enum izip_status { IZIP_CLOSED = 0, IZIP_OPEN };
 
-/* Maximum transfer size per read operation */
-const unsigned int CHUNK = 128 * 1024;
-
 /** Represents an zipped connections extra data
  */
 class izip_session : public classbase
@@ -60,12 +57,9 @@ class ModuleZLib : public Module
 	float total_out_uncompressed;
 	float total_in_uncompressed;
 
-	/* Used for reading data from the wire.
-	 * We need a smaller buffer than CHUNK, else we could read more data
-	 * from the wire than we can pass to the socket code.
-	 */
-	char *read_buffer;
-	unsigned int read_buffer_size;
+	/* Used for reading data from the wire and compressing data to. */
+	char *net_buffer;
+	unsigned int net_buffer_size;
  public:
 
 	ModuleZLib(InspIRCd* Me)
@@ -82,15 +76,16 @@ class ModuleZLib : public Module
 		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnStats, I_OnRequest };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 
-		read_buffer_size = ServerInstance->Config->NetBufferSize / 4;
-		read_buffer = new char[read_buffer_size];
+		// Allocate a buffer which is used for reading and writing data
+		net_buffer_size = ServerInstance->Config->NetBufferSize;
+		net_buffer = new char[net_buffer_size];
 	}
 
 	virtual ~ModuleZLib()
 	{
 		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
 		delete[] sessions;
-		delete[] read_buffer;
+		delete[] net_buffer;
 	}
 
 	virtual Version GetVersion()
@@ -192,9 +187,6 @@ class ModuleZLib : public Module
 
 		izip_session* session = &sessions[fd];
 
-		/* allocate state and buffers */
-		session->status = IZIP_OPEN;
-
 		/* Just in case... */
 		session->outbuf.clear();
 
@@ -220,6 +212,9 @@ class ModuleZLib : public Module
 			session->status = IZIP_CLOSED;
 			return;
 		}
+
+		/* Just in case, do this last */
+		session->status = IZIP_OPEN;
 	}
 
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
@@ -241,18 +236,32 @@ class ModuleZLib : public Module
 		if (session->status == IZIP_CLOSED)
 			return 0;
 
-		/* Read read_buffer_size bytes at a time to the buffer (usually 128k) */
-		readresult = read(fd, read_buffer, read_buffer_size);
+		if (session->inbuf.length())
+		{
+			/* Our input buffer is filling up. This is *BAD*.
+			 * We can't return more data than fits into buffer
+			 * (count bytes), so we will generate another read
+			 * event on purpose by *NOT* reading from 'fd' at all
+			 * for now.
+			 */
+			readresult = 0;
+		}
+		else
+		{
+			/* Read read_buffer_size bytes at a time to the buffer (usually 2.5k) */
+			readresult = read(fd, net_buffer, net_buffer_size);
 
-		/* Did we get anything? */
-		if (readresult <= 0)
-			return 0;
+			total_in_compressed += readresult;
 
-		total_in_compressed += readresult;
+			/* Copy the compressed data into our input buffer */
+			session->inbuf.append(net_buffer, readresult);
+		}
 
-		/* Copy the compressed data into out input buffer */
-		session->inbuf.append(read_buffer, readresult);
 		size_t in_len = session->inbuf.length();
+
+		/* Do we have anything to do? */
+		if (in_len <= 0)
+			return 0;
 
 		/* Prepare decompression */
 		session->d_stream.next_in = (Bytef *)session->inbuf.c_str();
@@ -331,7 +340,6 @@ class ModuleZLib : public Module
 			/* Seriously, wtf? */
 			return 0;
 
-		unsigned char compr[CHUNK];
 		int ret;
 
 		/* This loop is really only supposed to run once, but in case 'compr'
@@ -344,8 +352,8 @@ class ModuleZLib : public Module
 			session->c_stream.next_in = (Bytef*)buffer + offset;
 			session->c_stream.avail_in = count - offset;
 
-			session->c_stream.next_out = compr;
-			session->c_stream.avail_out = CHUNK;
+			session->c_stream.next_out = (Bytef*)net_buffer;
+			session->c_stream.avail_out = net_buffer_size;
 
 			/* Compress the text */
 			ret = deflate(&session->c_stream, Z_SYNC_FLUSH);
@@ -375,7 +383,7 @@ class ModuleZLib : public Module
 				return 0;
 
 			/* Space before - space after stuff was added to this */
-			unsigned int compressed = CHUNK - session->c_stream.avail_out;
+			unsigned int compressed = net_buffer_size - session->c_stream.avail_out;
 			unsigned int uncompressed = count - session->c_stream.avail_in;
 
 			/* Make it skip the data which was compressed already */
@@ -386,7 +394,7 @@ class ModuleZLib : public Module
 			total_out_compressed += compressed;
 
 			/* Add compressed to the output buffer */
-			session->outbuf.append((const char*)compr, compressed);
+			session->outbuf.append((const char*)net_buffer, compressed);
 		} while (session->c_stream.avail_in != 0);
 
 		/* Lets see how much we can send out */
@@ -402,7 +410,6 @@ class ModuleZLib : public Module
 			else
 			{
 				session->outbuf.clear();
-				/* TODO pass errors down? */
 				return 0;
 			}
 		}
