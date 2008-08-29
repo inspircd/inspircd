@@ -244,6 +244,13 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 void ModuleSpanningTree::ConnectServer(Link* x)
 {
 	bool ipvalid = true;
+
+	if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name)))
+	{
+		RemoteMessage(NULL, "CONNECT: Not connecting to myself.");
+		return;
+	}
+
 	QueryType start_type = DNS_QUERY_A;
 #ifdef IPV6
 	start_type = DNS_QUERY_AAAA;
@@ -393,6 +400,12 @@ int ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters
 	{
 		if (InspIRCd::Match(x->Name.c_str(),parameters[0]))
 		{
+			if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name)))
+			{
+				RemoteMessage(user, "*** CONNECT: Server \002%s\002 is ME, not connecting.",x->Name.c_str());
+				return 1;
+			}
+
 			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 			if (!CheckDupe)
 			{
