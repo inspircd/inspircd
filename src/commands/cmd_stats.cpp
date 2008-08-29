@@ -88,11 +88,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		}
 		break;
 
+		/* These stats symbols must be handled by a linking module */
 		case 'n':
 		case 'c':
-		{
-			/* This stats symbol must be handled by a linking module */
-		}
 		break;
 	
 		case 'i':

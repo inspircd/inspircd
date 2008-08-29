@@ -66,7 +66,6 @@ int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results
 			if (statschar == 'c')
 				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+Utils->LinkBlocks[i].Name.c_str());
 		}
-		results.push_back(std::string(ServerInstance->Config->ServerName)+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)", (!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return 1;
 	}
