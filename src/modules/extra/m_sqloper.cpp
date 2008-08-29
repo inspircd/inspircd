@@ -215,7 +215,7 @@ public:
 
 						for (SQLfieldMap& row = res->GetRowMap(); row.size(); row = res->GetRowMap())
 						{
-							if (OperUser(user, row["username"].d, row["password"].d, row["hostname"].d, row["type"].d))
+							if (OperUser(user, row["hostname"].d, row["type"].d))
 							{
 								/* If/when one of the rows matches, stop checking and return */
 								return SQLSUCCESS;
@@ -287,7 +287,7 @@ public:
 		}
 	}
 
-	bool OperUser(User* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
+	bool OperUser(User* user, const std::string &pattern, const std::string &type)
 	{
 		ConfigReader Conf(ServerInstance);
 
