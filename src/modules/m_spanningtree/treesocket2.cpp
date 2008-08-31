@@ -296,20 +296,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			if (command == "SVSMODE") // This isn't in an "else if" so we still force FMODE for changes on channels.
 				command = "MODE";
 
-			if (command == "MODE")
-			{
-				if (params.size() >= 2)
-				{
-					Channel* channel = Instance->FindChan(params[0]);
-					if (channel)
-					{
-						this->SendError("MODE may no longer be used on channels. Please use FMODE, with correct timestamp rules.");
-						return false;
-					}
-				}
-			}
-
-
 			/*
 			 * Now, check for (and parse) commands as appropriate. -- w
 			 */
@@ -525,7 +511,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Encap(prefix, params);
 			}
-			else if (command == "MODE")
+			else if (command == "MODE" && !this->Instance->FindUUID(prefix)) // XXX we should check for no such serv?
 			{
 				// Server-prefix MODE.
 				std::vector<std::string> modelist(params.begin(), params.end());
