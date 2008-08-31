@@ -119,13 +119,20 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 		if (mh)
 		{
-			if (mh->GetNumParams(true) && (paramptr < params.size() - 1))
-				mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
+			if (mh->GetNumParams(true))
+			{
+				if (paramptr < params.size() - 1)
+					mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
+				else
+					Instance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, expected a parameter for user mode '%c' but there aren't enough parameters in the command!", *v);
+			}
 			else
 				mh->OnModeChange(_new, _new, NULL, empty, true);
 			_new->SetMode(*v, true);
 			mh->ChangeCount(1);
 		}
+		else
+			Instance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, unknown user mode '%c' in the mode string!", *v);
 	}
 
 	//_new->ProcessNoticeMasks(params[7].c_str());
