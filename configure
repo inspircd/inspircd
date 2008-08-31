@@ -1666,7 +1666,7 @@ sub write_dynamic_makefile
 	if ($config{IS_DARWIN} eq "YES")
 	{
 		$libraryext = "dylib";
-		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspircd.cpp\n	\@../make/run-cc.pl \$(CC) -pipe -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
+		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -c inspircd.cpp\n	\@../make/run-cc.pl \$(CC) -pipe -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
 	}
 	else
 	{
