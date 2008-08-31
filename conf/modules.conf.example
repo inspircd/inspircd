@@ -748,6 +748,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ident: Provides RFC 1413 ident lookup support
+# When this module is loaded <connect:allow> tags may have an optional
+# useident="yes|no" boolean value, determining whether or not to lookup
+# ident on users matching that connect tag.
 #<module name="m_ident.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#-   IDENT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#

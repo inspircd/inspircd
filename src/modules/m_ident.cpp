@@ -77,12 +77,10 @@
 class IdentRequestSocket : public EventHandler
 {
  private:
-
-	 User *user;			/* User we are attached to */
-	 InspIRCd* ServerInstance;	/* Server instance */
-	 bool done;			/* True if lookup is finished */
-	 std::string result;		/* Holds the ident string if done */
-
+	User *user;			/* User we are attached to */
+	InspIRCd* ServerInstance;	/* Server instance */
+	bool done;			/* True if lookup is finished */
+	std::string result;		/* Holds the ident string if done */
  public:
 
 	IdentRequestSocket(InspIRCd *Server, User* u, const std::string &bindip) : user(u), ServerInstance(Server), result(u->ident)
@@ -339,13 +337,19 @@ class ModuleIdent : public Module
 {
  private:
 	int RequestTimeout;
+	ConfigReader *Conf;
  public:
-	ModuleIdent(InspIRCd *Me)
-		: Module(Me)
+	ModuleIdent(InspIRCd *Me) : Module(Me)
 	{
+		Conf = new ConfigReader(ServerInstance);
 		OnRehash(NULL, "");
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnCleanup, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
+	}
+
+	~ModuleIdent()
+	{
+		delete Conf;
 	}
 
 	virtual Version GetVersion()
@@ -353,18 +357,31 @@ class ModuleIdent : public Module
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
-
 	virtual void OnRehash(User *user, const std::string &param)
 	{
-		ConfigReader MyConf(ServerInstance);
+		delete Conf;
+		Conf = new ConfigReader(ServerInstance);
 
-		RequestTimeout = MyConf.ReadInteger("ident", "timeout", 0, true);
+		RequestTimeout = Conf->ReadInteger("ident", "timeout", 0, true);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
 	}
 
 	virtual int OnUserRegister(User *user)
 	{
+		for (int j = 0; j < Conf->Enumerate("connect"); j++)
+		{
+			std::string hostn = Conf->ReadValue("connect","allow",j);
+			/* XXX: Fixme: does not respect port, limit, etc */
+			if ((InspIRCd::MatchCIDR(user->GetIPString(),hostn)) || (InspIRCd::Match(user->host,hostn)))
+			{
+				bool useident = Conf->ReadFlag("connect", "useident", j);
+
+				if (!useident)
+					return 0;
+			}
+		}
+
 		/* User::ident is currently the username field from USER; with m_ident loaded, that
 		 * should be preceded by a ~. The field is actually IdentMax+2 characters wide. */
 		if (user->ident.length() > ServerInstance->Config->Limits.IdentMax + 1)
