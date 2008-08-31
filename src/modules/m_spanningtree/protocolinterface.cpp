@@ -185,6 +185,7 @@ void SpanningTreeProtocolInterface::Introduce(User* user)
 		params.push_back(user->dhost);
 		params.push_back(user->ident);
 		params.push_back("+"+std::string(user->FormatModes()));
+		params.push_back("+"+std::string(user->FormatNoticeMasks()));
 		params.push_back(user->GetIPString());
 		params.push_back(ConvToStr(user->signon));
 		params.push_back(":"+std::string(user->fullname));

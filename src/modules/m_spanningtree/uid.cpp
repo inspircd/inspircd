@@ -33,9 +33,10 @@
 bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &params)
 {
 	/** Do we have enough parameters:
-	 * UID uuid age nick host dhost ident +modestr ip.string :gecos
+	 *           1    2    3    4    5      6         7         8        9      10
+	 * UID uuid age nick host dhost ident +modestr +snomasks ip.string signon :gecos
 	 */
-	if (params.size() != 10)
+	if (params.size() != 11)
 	{
 		if (!params.empty())
 			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
@@ -44,7 +45,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	}
 
 	time_t age_t = ConvToInt(params[1]);
-	time_t signon = ConvToInt(params[8]);
+	time_t signon = ConvToInt(params[9]);
 	std::string empty;
 
 	TreeServer* remoteserver = Utils->FindServer(source);
@@ -71,7 +72,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		 * Nick collision.
 		 */
 		Instance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s", params[2].c_str());
-		int collide = this->DoCollision(iter->second, age_t, params[5], params[7], params[0]);
+		int collide = this->DoCollision(iter->second, age_t, params[5], params[8], params[0]);
 
 		if (collide == 2)
 		{
@@ -100,7 +101,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	_new->dhost.assign(params[4], 0, 64);
 	_new->server = this->Instance->FindServerNamePtr(remoteserver->GetName().c_str());
 	_new->ident.assign(params[5], 0, MAXBUF);
-	_new->fullname.assign(params[9], 0, MAXBUF);
+	_new->fullname.assign(params[10], 0, MAXBUF);
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;
@@ -123,15 +124,17 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		}
 	}
 
+	_new->ProcessNoticeMasks(params[7].c_str());
+
 	/* now we've done with modes processing, put the + back for remote servers */
 	params[6] = "+" + params[6];
 
 #ifdef SUPPORT_IP6LINKS
-	if (params[7].find_first_of(":") != std::string::npos)
-		_new->SetSockAddr(AF_INET6, params[7].c_str(), 0);
+	if (params[8].find_first_of(":") != std::string::npos)
+		_new->SetSockAddr(AF_INET6, params[8].c_str(), 0);
 	else
 #endif
-		_new->SetSockAddr(AF_INET, params[7].c_str(), 0);
+		_new->SetSockAddr(AF_INET, params[8].c_str(), 0);
 
 	Instance->Users->AddGlobalClone(_new);
 
@@ -143,7 +146,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	if (dosend)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
 
-	params[9] = ":" + params[9];
+	params[10] = ":" + params[10];
 	Utils->DoOneToAllButSender(source, "UID", params, source);
 
 	Instance->PI->Introduce(_new);
