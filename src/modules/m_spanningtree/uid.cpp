@@ -36,7 +36,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	 *           1    2    3    4    5      6         7         8        9      10
 	 * UID uuid age nick host dhost ident +modestr +snomasks ip.string signon :gecos
 	 */
-	if (params.size() != 10)
+	if (params.size() != 11)
 	{
 		if (!params.empty())
 			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
