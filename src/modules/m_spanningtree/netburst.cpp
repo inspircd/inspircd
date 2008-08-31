@@ -223,10 +223,18 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			TreeServer* theirserver = Utils->FindServer(u->second->server);
 			if (theirserver)
 			{
-				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s +%s %s %lu :%s", theirserver->GetID().c_str(), u->second->uuid.c_str(),
-						(unsigned long)u->second->age, u->second->nick.c_str(), u->second->host.c_str(), u->second->dhost.c_str(),
-						u->second->ident.c_str(), u->second->FormatModes(), u->second->FormatNoticeMasks(), u->second->GetIPString(),
-						(unsigned long)u->second->signon, u->second->fullname.c_str());
+				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s %s %lu +%s :%s",
+						theirserver->GetID().c_str(),	/* Prefix: SID */
+						u->second->uuid.c_str(),	/* 0: UUID */
+						(unsigned long)u->second->age,	/* 1: TS */
+						u->second->nick.c_str(),	/* 2: Nick */
+						u->second->host.c_str(),	/* 3: Displayed Host */
+						u->second->dhost.c_str(),	/* 4: Real host */
+						u->second->ident.c_str(),	/* 5: Ident */
+						u->second->GetIPString(),	/* 6: IP string */
+						(unsigned long)u->second->signon, /* 7: Signon time for WHOWAS */
+						u->second->FormatModes(true),	/* 8...n: Modes and params */
+						u->second->fullname.c_str());	/* size-1: GECOS */
 				this->WriteLine(data);
 				if (IS_OPER(u->second))
 				{

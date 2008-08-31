@@ -211,6 +211,10 @@ class CoreExport ModeHandler : public Extensible
 	 */
 	char GetModeChar();
 
+	/** For user modes, return the current parameter, if any
+	 */
+	std::string GetUserParameter(User* user);
+
 	/**
 	 * Called when a mode change for your mode occurs.
 	 * @param source Contains the user setting the mode.

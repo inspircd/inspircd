@@ -716,7 +716,7 @@ class CoreExport User : public connection
 	/** Create a displayable mode string for this users umodes
 	 * @param The mode string
 	 */
-	const char* FormatModes();
+	const char* FormatModes(bool showparameters = false);
 
 	/** Returns true if a specific mode is set
 	 * @param m The user mode

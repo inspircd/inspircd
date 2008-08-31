@@ -117,6 +117,11 @@ char ModeHandler::GetModeChar()
 	return mode;
 }
 
+std::string ModeHandler::GetUserParameter(User* user)
+{
+	return "";
+}
+
 ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool, bool)
 {
 	return MODEACTION_DENY;

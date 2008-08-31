@@ -158,16 +158,28 @@ void User::SetMode(unsigned char m, bool value)
 	modes[m-65] = value;
 }
 
-const char* User::FormatModes()
+const char* User::FormatModes(bool showparameters)
 {
 	static char data[MAXBUF];
+	std::string params;
 	int offset = 0;
-	for (int n = 0; n < 64; n++)
+
+	for (unsigned char n = 0; n < 64; n++)
 	{
 		if (modes[n])
-			data[offset++] = n+65;
+		{
+			data[offset++] = n + 65;
+			ModeHandler* mh = ServerInstance->Modes->FindMode(n + 65, MODETYPE_USER);
+			if (showparameters && mh && mh->GetNumParams(true))
+			{
+				std::string p = mh->GetUserParameter(this);
+				if (p.length())
+					params.append(" ").append(p);
+			}
+		}
 	}
 	data[offset] = 0;
+	strlcat(data, params.c_str(), MAXBUF);
 	return data;
 }
 
