@@ -472,19 +472,6 @@ class CoreExport User : public connection
 	 */
 	ConnectClass *MyClass;
 
-	/** Resolvers for looking up this users IP address
-	 * This will occur if and when res_reverse completes.
-	 * When this class completes its lookup, User::dns_done
-	 * will be set from false to true.
-	 */
-	UserResolver* res_forward;
-
-	/** Resolvers for looking up this users hostname
-	 * This is instantiated by User::StartDNSLookup(),
-	 * and on success, instantiates User::res_reverse.
-	 */
-	UserResolver* res_reverse;
-
 	/** User visibility state, see definition of VisData.
 	 */
 	VisData* Visibility;

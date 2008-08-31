@@ -99,6 +99,7 @@ void User::StartDNSLookup()
 	{
 		bool cached = false;
 		const char* sip = this->GetIPString(false);
+		UserResolver *res_reverse;
 
 		/* Special case for 4in6 (Have i mentioned i HATE 4in6?) */
 		if (!strncmp(sip, "0::ffff:", 8))
@@ -200,7 +201,6 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
-	res_forward = res_reverse = NULL;
 	Visibility = NULL;
 	ip = NULL;
 	MyClass = NULL;

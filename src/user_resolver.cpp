@@ -14,7 +14,6 @@
 /* $Core */
 
 #include "inspircd.h"
-
 UserResolver::UserResolver(InspIRCd* Instance, User* user, std::string to_resolve, QueryType qt, bool &cache) :
 	Resolver(Instance, to_resolve, qt, cache), bound_user(user)
 {
@@ -27,6 +26,8 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 	/* We are only interested in the first matching result */
 	if (resultnum)
 		return;
+
+	UserResolver *res_forward; // for forward-resolution
 
 	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
@@ -42,14 +43,16 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				{
 					/* IPV6 forward lookup (with possibility of 4in6) */
 					const char* ip = this->bound_user->GetIPString();
-					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (!strncmp(ip, "0::ffff:", 8) ? DNS_QUERY_A : DNS_QUERY_AAAA), lcached);
+					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (!strncmp(ip, "0::ffff:", 8) ? DNS_QUERY_A : DNS_QUERY_AAAA), lcached);
 				}
 				else
 					/* IPV4 lookup (mixed protocol mode) */
 #endif
-				/* IPV4 lookup (ipv4 only mode) */
-				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, lcached);
-				this->ServerInstance->AddResolver(bound_user->res_forward, lcached);
+				{
+					/* IPV4 lookup (ipv4 only mode) */
+					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, lcached);
+				}
+				this->ServerInstance->AddResolver(res_forward, lcached);
 			}
 		}
 		catch (CoreException& e)
