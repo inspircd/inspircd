@@ -114,6 +114,9 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	unsigned int paramptr = 9;
 	for (std::string::iterator v = params[8].begin(); v != params[8].end(); v++)
 	{
+		if (*v == '+')
+			continue;
+
 		/* For each mode thats set, increase counter */
 		ModeHandler* mh = Instance->Modes->FindMode(*v, MODETYPE_USER);
 
@@ -138,7 +141,8 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	//_new->ProcessNoticeMasks(params[7].c_str());
 
 	/* now we've done with modes processing, put the + back for remote servers */
-	params[8] = "+" + params[8];
+	if (params[8][0] != '+')
+		params[8] = "+" + params[8];
 
 #ifdef SUPPORT_IP6LINKS
 	if (params[6].find_first_of(":") != std::string::npos)
