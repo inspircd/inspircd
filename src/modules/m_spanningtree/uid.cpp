@@ -119,7 +119,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 		if (mh)
 		{
-			if (mh->GetNumParams(true) && (paramptr < params.size()))
+			if (mh->GetNumParams(true) && (paramptr < params.size() - 1))
 				mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
 			else
 				mh->OnModeChange(_new, _new, NULL, empty, true);
