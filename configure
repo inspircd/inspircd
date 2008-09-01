@@ -867,28 +867,39 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		$config{USE_FREEBSD_BASE_SSL} = "y" if ($^O eq "freebsd");
 	}
 
-	if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
-		print "I have detected both \e[1;32mGnuTLS\e[0m and \e[1;32mOpenSSL\e[0m on your system.\n";
-		print "I will default to GnuTLS. If you wish to use OpenSSL\n";
-		print "instead, you should enable the OpenSSL module yourself\n";
-		print "by copying it from src/modules/extra to src/modules.\n\n";
+	$config{USE_SSL} = "n";
+
+	if ($config{HAS_GNUTLS} eq "y" || $config{HAS_OPENSSL} eq "y")
+	{
 		print "Detected GnuTLS version: \e[1;32m" . $gnutls_ver . "\e[0m\n";
 		print "Detected OpenSSL version: \e[1;32m" . $openssl_ver . "\e[0m\n\n";
-	}
 
-	if ($config{HAS_GNUTLS} eq "y") {
-		yesno('USE_GNUTLS', "Would you like to enable SSL Support?");
-		if ($config{USE_GNUTLS} eq "y") {
-			print "\nUsing GnuTLS SSL module.\n";
-		}
-	} elsif	($config{HAS_OPENSSL} eq "y") {
-			yesno('USE_OPENSSL', "Would you like to enable SSL Support?");
-	if ($config{USE_OPENSSL} eq "y") {
-			print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
+		yesno('USE_SSL', "One or more SSL libraries detected. Would you like to enable SSL support?");
+		if ($config{USE_SSL} eq "y")
+		{
+			if ($config{HAS_GNUTLS} eq "y")
+			{
+				yesno('USE_GNUTLS',"Would you like to enable SSL with m_ssl_gnutls? (recommended)");
+				if ($config{USE_GNUTLS} eq "y")
+				{
+					print "\nUsing GnuTLS SSL module.\n";
+				}
+			}
+
+			if ($config{HAS_OPENSSL} eq "y")
+			{
+				yesno('USE_OPENSSL', "Would you like to enable SSL with m_openssl?");
+				if ($config{USE_OPENSSL} eq "y")
+				{
+					print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
+				}
+			}
 		}
 	}
-	else {
-		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed if\nyou intend to use OpenSSL, or that GnuTLS is in your path if you intend\nto use GnuTLS.\n\n";
+	else
+	{
+		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed if\n";
+		print "you intend to use OpenSSL, or that GnuTLS is in your path if you intend\nto use GnuTLS.\n\n";
 	}
 }
 
