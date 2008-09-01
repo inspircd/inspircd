@@ -89,9 +89,6 @@ class ModuleChanFilter : public Module
 		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetStatus(user) == STATUS_OP))
 			return 0;
 
-		// Create a copy of the string in irc::string
-		irc::string line = text.c_str();
-
 		modelist* list;
 		chan->GetExt(cf->GetInfoKey(), list);
 
@@ -99,7 +96,7 @@ class ModuleChanFilter : public Module
 		{
 			for (modelist::iterator i = list->begin(); i != list->end(); i++)
 			{
-				if (line.find(i->mask.c_str()) != std::string::npos)
+				if (InspIRCd::Match(text, i->mask))
 				{
 					user->WriteNumeric(936, "%s %s %s :Your message contained a censored word, and was blocked",user->nick.c_str(), chan->name.c_str(), i->mask.c_str());
 					return 1;
