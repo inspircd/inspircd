@@ -1349,7 +1349,7 @@ EOF
 			$tmp =~ s/\@INSTALL_LIST\@/$install_list/ if defined $install_list;
 			$tmp =~ s/\@UNINSTALL_LIST\@/$uninstall_list/ if defined $uninstall_list;
 
-			open(FILEHANDLE, ">$file");
+			open(FILEHANDLE, ">$file") or die("Can't write to $file: $!\n");
 			print FILEHANDLE $tmp;
 		}
 	}
