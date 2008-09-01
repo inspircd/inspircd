@@ -888,7 +888,7 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 
 			if ($config{HAS_OPENSSL} eq "y")
 			{
-				yesno('USE_OPENSSL', "Would you like to enable SSL with m_openssl?");
+				yesno('USE_OPENSSL', "Would you like to enable SSL with m_ssl_openssl?");
 				if ($config{USE_OPENSSL} eq "y")
 				{
 					print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
