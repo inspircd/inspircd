@@ -122,7 +122,7 @@ class ModuleServices : public Module
 		if (!ServerInstance->Modes->AddMode(m1) || !ServerInstance->Modes->AddMode(m2) || !ServerInstance->Modes->AddMode(m3)
 			|| !ServerInstance->Modes->AddMode(m4) || !ServerInstance->Modes->AddMode(m5))
 		{
-			throw ModuleException("Could not add user and channel modes!");
+			throw ModuleException("You cannot load m_services.so and m_services_account.so at the same time (or some other module has claimed our modes)!");
 		}
 
 		kludgeme = false;

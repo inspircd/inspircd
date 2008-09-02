@@ -54,7 +54,7 @@ class ModuleServicesAccount : public Module
 		m2 = new AChannel_M(ServerInstance);
 		m3 = new AUser_R(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(m1) || !ServerInstance->Modes->AddMode(m2) || !ServerInstance->Modes->AddMode(m3))
-			throw ModuleException("Could not add new modes!");
+			throw ModuleException("You cannot load m_services.so and m_services_account.so at the same time (or some other module has claimed our modes)!");
 
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin,
 			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric };
