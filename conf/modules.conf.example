@@ -267,7 +267,7 @@
 #<callerid maxaccepts="16"
 #          operoverride="no"
 #          tracknick="no"
-#          cooldown="60"
+#          cooldown="60">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CAP module: Provides the CAP negotiation mechanism seen in
