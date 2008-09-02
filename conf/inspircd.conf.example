@@ -1263,7 +1263,9 @@
 #   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
-# Well done, you've reached the end of this.                          #
+# Well done, you've reached the end of the basic configuration, your  #
+# ircd should now start if you want to try it out! (./inspircd start) #                      
+#                                                                     #
 # We now suggest you read and edit modules.conf, as modules are what  #
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
