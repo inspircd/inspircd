@@ -563,8 +563,6 @@ bool Channel::IsExtBanned(User *user, char type)
 /* Channel::PartUser
  * remove a channel from a users record, and return the number of users left.
  * Therefore, if this function returns 0 the caller should delete the Channel.
- *
- * XXX: bleh, string copy of reason, fixme! -- w00t
  */
 long Channel::PartUser(User *user, std::string &reason)
 {
