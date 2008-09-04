@@ -116,12 +116,12 @@ Mutex* MutexEngine::CreateMutex()
 
 PosixMutex::PosixMutex(InspIRCd* Instance) : Mutex(Instance)
 {
-	InitializeCriticalSection(&putex);
+	pthread_mutex_init(&putex, NULL);
 }
 
 PosixMutex::~PosixMutex()
 {
-	DeleteCriticalSection(&putex);
+	pthread_mutex_destroy(&putex);
 }
 
 void PosixMutex::Enable(bool enable)
