@@ -744,6 +744,10 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module::Module(Me), rehashing(false)
 	Dispatcher = new DispatcherThread(ServerInstance, this);
 	ServerInstance->Threads->Create(Dispatcher);
 
+	LoggingMutex = ServerInstance->Mutexes->CreateMutex();
+	ResultsMutex = ServerInstance->Mutexes->CreateMutex();
+	QueueMutex = ServerInstance->Mutexes->CreateMutex();
+
 	if (!ServerInstance->Modules->PublishFeature("SQL", this))
 	{
 		/* Tell worker thread to exit NOW,
@@ -765,9 +769,10 @@ ModuleSQL::~ModuleSQL()
 	ServerInstance->Modules->UnpublishInterface("SQL", this);
 	ServerInstance->Modules->UnpublishFeature("SQL");
 	ServerInstance->Modules->DoneWithInterface("SQLutils");
+	delete LoggingMutex;
+	delete ResultsMutex;
+	delete QueueMutex;
 }
-
-
 
 unsigned long ModuleSQL::NewID()
 {
