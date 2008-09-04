@@ -86,11 +86,11 @@ void Win32ThreadEngine::FreeThread(Thread* thread)
 }
 
 
-MutexEngine::MutexEngine(InspIRCd* Instance) : ServerInstance(Instance)
+MutexFactory::MutexFactory(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-Mutex* MutexEngine::CreateMutex()
+Mutex* MutexFactory::CreateMutex()
 {
 	return new Win32Mutex(this->ServerInstance);
 }

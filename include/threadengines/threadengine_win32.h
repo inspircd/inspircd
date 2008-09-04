@@ -63,12 +63,12 @@ class CoreExport Win32Mutex : public Mutex
 	~Win32Mutex();
 };
 
-class CoreExport MutexEngine : public Extensible
+class CoreExport MutexFactory : public Extensible
 {
  protected:
 	InspIRCd* ServerInstance;
  public:
-	MutexEngine(InspIRCd* Instance);
+	MutexFactory(InspIRCd* Instance);
 	virtual Mutex* CreateMutex();
 };
 

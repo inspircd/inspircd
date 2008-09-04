@@ -105,11 +105,11 @@ void PThreadEngine::FreeThread(Thread* thread)
 	}
 }
 
-MutexEngine::MutexEngine(InspIRCd* Instance) : ServerInstance(Instance)
+MutexFactory::MutexFactory(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-Mutex* MutexEngine::CreateMutex()
+Mutex* MutexFactory::CreateMutex()
 {
 	return new PosixMutex(this->ServerInstance);
 }
