@@ -21,6 +21,10 @@
 #include "modules.h"
 #include "m_sqlv2.h"
 
+#ifdef WINDOWS
+#pragma comment(lib, "mysqlclient")
+#endif
+
 /* VERSION 2 API: With nonblocking (threaded) requests */
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
