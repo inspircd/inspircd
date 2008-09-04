@@ -291,7 +291,7 @@ int IOCPEngine::DispatchEvents()
 
 	while (GetQueuedCompletionStatus(m_completionPort, &len, &intfd, &overlap, 1000))
 	{
-		if (intfd < 0 || intfd > MAX_DESCRIPTORS)
+		if (intfd > (unsigned long)MAX_DESCRIPTORS)
 			continue;
 
 		// woot, we got an event on a socket :P
