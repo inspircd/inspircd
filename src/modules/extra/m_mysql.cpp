@@ -22,7 +22,7 @@
 #include "m_sqlv2.h"
 
 #ifdef WINDOWS
-#pragma comment(lib, "mysqlclient")
+#pragma comment(lib, "mysqlclient.lib")
 #endif
 
 /* VERSION 2 API: With nonblocking (threaded) requests */
