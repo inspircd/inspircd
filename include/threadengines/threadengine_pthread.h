@@ -57,7 +57,7 @@ class CoreExport ThreadEngineFactory : public classbase
 class CoreExport PosixMutex : public Mutex
 {
  private:
-	pthread_mutex_t putex
+	pthread_mutex_t putex;
  public:
 	PosixMutex(InspIRCd* Instance);
 	virtual void Enable(bool enable);
@@ -69,7 +69,7 @@ class CoreExport MutexEngine : public Extensible
  protected:
 	InspIRCd* ServerInstance;
  public:
-	virtual MutexEngine(InspIRCd* Instance);
+	MutexEngine(InspIRCd* Instance);
 	Mutex* CreateMutex();
 };
 
