@@ -82,6 +82,16 @@ class CoreExport ThreadEngine : public Extensible
 	}
 };
 
+class CoreExport Mutex : public Extensible
+{
+ protected:
+	InspIRCd* ServerInstance;
+ public:
+	Mutex(InspIRCd* Instance);
+	virtual void Enable(bool enable) = 0;
+	~Mutex() { }
+};
+
 /** Derive from this class to implement your own threaded sections of
  * code.
  */

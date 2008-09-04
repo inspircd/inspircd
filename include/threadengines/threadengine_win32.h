@@ -53,5 +53,24 @@ class CoreExport ThreadEngineFactory : public classbase
 	}
 };
 
+class CoreExport Win32Mutex : public Mutex
+{
+ private:
+	CRITICAL_SECTION wutex;
+ public:
+	Win32Mutex(InspIRCd* Instance);
+	virtual void Enable(bool enable);
+	~Win32Mutex();
+};
+
+class CoreExport MutexEngine : public Extensible
+{
+ protected:
+	InspIRCd* ServerInstance;
+ public:
+	MutexEngine(InspIRCd* Instance);
+	virtual Mutex* CreateMutex();
+};
+
 #endif
 

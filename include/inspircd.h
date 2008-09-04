@@ -446,6 +446,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	ThreadEngine* Threads;
 
+	/** Mutex engine, handles mutexes for threading where required
+	 */
+	MutexEngine* Mutexes;
+
 	/** The thread/class used to read config files in REHASH and on startup
 	 */
 	ConfigReaderThread* ConfigThread;

@@ -28,3 +28,6 @@ ThreadEngine::~ThreadEngine()
 {
 }
 
+Mutex::Mutex(InspIRCd* Instance) : ServerInstance(Instance)
+{
+}

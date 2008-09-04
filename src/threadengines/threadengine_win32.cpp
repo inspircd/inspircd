@@ -86,3 +86,29 @@ void Win32ThreadEngine::FreeThread(Thread* thread)
 }
 
 
+MutexEngine::MutexEngine(InspIRCd* Instance) : ServerInstance(Instance)
+{
+}
+
+Mutex* MutexEngine::CreateMutex()
+{
+	return new Win32Mutex(this->ServerInstance);
+}
+
+Win32Mutex::Win32Mutex(InspIRCd* Instance) : Mutex(Instance)
+{
+	InitializeCriticalSection(&wutex);
+}
+
+Win32Mutex::~Win32Mutex()
+{
+	DeleteCriticalSection(&wutex);
+}
+
+void Win32Mutex::Enable(bool enable)
+{
+	if (enable)
+		EnterCriticalSection(&wutex);
+	else
+		LeaveCriticalSection(&wutex);
+}

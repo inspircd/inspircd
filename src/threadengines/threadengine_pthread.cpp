@@ -105,3 +105,29 @@ void PThreadEngine::FreeThread(Thread* thread)
 	}
 }
 
+MutexEngine::MutexEngine(InspIRCd* Instance) : ServerInstance(Instance)
+{
+}
+
+Mutex* MutexEngine::CreateMutex()
+{
+	return new PosixMutex(this->ServerInstance);
+}
+
+PosixMutex::PosixMutex(InspIRCd* Instance) : Mutex(Instance)
+{
+	InitializeCriticalSection(&putex);
+}
+
+PosixMutex::~PosixMutex()
+{
+	DeleteCriticalSection(&putex);
+}
+
+void PosixMutex::Enable(bool enable)
+{
+	if (enable)
+		pthread_mutex_lock(&putex);
+	else
+		pthread_mutex_unlock(&putex);
+}
