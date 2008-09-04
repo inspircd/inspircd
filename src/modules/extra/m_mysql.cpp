@@ -34,7 +34,7 @@
  * that instead, you should thread your program. This is what i've done here to allow for
  * asyncronous SQL requests via mysql. The way this works is as follows:
  *
- * The module spawns a thread via pthreads, and performs its mysql queries in this thread,
+ * The module spawns a thread via class Thread, and performs its mysql queries in this thread,
  * using a queue with priorities. There is a mutex on either end which prevents two threads
  * adjusting the queue at the same time, and crashing the ircd. Every 50 milliseconds, the
  * worker thread wakes up, and checks if there is a request at the head of its queue.
