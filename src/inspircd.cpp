@@ -458,6 +458,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	ThreadEngineFactory* tef = new ThreadEngineFactory();
 	this->Threads = tef->Create(this);
 	delete tef;
+	this->Mutexes = new MutexEngine(this);
 
 	/* Default implementation does nothing */
 	this->PI = new ProtocolInterface(this);
