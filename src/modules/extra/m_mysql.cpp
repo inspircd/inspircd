@@ -624,7 +624,18 @@ void NotifyMainThread(SQLConnection* connection_with_new_result)
 	send(QueueFD, &id, 1, 0);
 }
 
-void* DispatcherThread(void* arg);
+class ModuleSQL;
+
+class DispatcherThread : public Thread
+{
+ private:
+	ModuleSQL* Parent;
+	InspIRCd* ServerInstance;
+ public:
+	DispatcherThread(InspIRCd* Instance, ModuleSQL* CreatorModule) : Thread(), Parent(CreatorModule), ServerInstance(Instance) { }
+	~DispatcherThread() { }
+	virtual void Run();
+};
 
 /** Used by m_mysql to notify one thread when the other has a result
  */
@@ -711,9 +722,9 @@ class ModuleSQL : public Module
 
 	ConfigReader *Conf;
 	InspIRCd* PublicServerInstance;
-	pthread_t Dispatcher;
 	int currid;
 	bool rehashing;
+	DispatcherThread* Dispatcher;
 
 	ModuleSQL(InspIRCd* Me)
 	: Module::Module(Me), rehashing(false)
@@ -727,26 +738,15 @@ class ModuleSQL : public Module
 
 		MessagePipe = new Notifier(ServerInstance);
 
-		pthread_attr_t attribs;
-		pthread_attr_init(&attribs);
-		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
-		if (pthread_create(&this->Dispatcher, &attribs, DispatcherThread, (void *)this) != 0)
-		{
-			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
-		}
-		pthread_attr_destroy(&attribs);
+		Dispatcher = new DispatcherThread(ServerInstance, this);
+		ServerInstance->Threads->Create(Dispatcher);
 
 		if (!ServerInstance->Modules->PublishFeature("SQL", this))
 		{
-			/* Tell worker thread to exit NOW */
-			int rc;
-			void *status;
-			giveup = true;
-			rc = pthread_join(Dispatcher, &status);
-			if (rc)
-			{
-				ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Error code from pthread_join() is %d", rc);
-			}
+			/* Tell worker thread to exit NOW,
+			 * Automatically joins */
+			delete Dispatcher;
+
 			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
 		}
 
@@ -757,14 +757,7 @@ class ModuleSQL : public Module
 
 	virtual ~ModuleSQL()
 	{
-		int rc;
-		void *status;
-		giveup = true;
-		rc = pthread_join(Dispatcher, &status);
-		if (rc)
-		{
-			ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Error code from pthread_join() is %d", rc);
-		}
+		delete Dispatcher;
 		ClearAllConnections();
 		delete Conf;
 		ServerInstance->Modules->UnpublishInterface("SQL", this);
@@ -826,17 +819,16 @@ class ModuleSQL : public Module
 
 };
 
-void* DispatcherThread(void* arg)
+void DispatcherThread::Run(void)
 {
-	ModuleSQL* thismodule = (ModuleSQL*)arg;
-	LoadDatabases(thismodule->Conf, thismodule->PublicServerInstance);
+	LoadDatabases(Parent->Conf, Parent->PublicServerInstance);
 
 	/* Connect back to the Notifier */
 
 	if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
 	{
 		/* crap, we're out of sockets... */
-		return NULL;
+		return;
 	}
 
 	insp_sockaddr addr;
@@ -856,17 +848,17 @@ void* DispatcherThread(void* arg)
 	if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
 	{
 		/* wtf, we cant connect to it, but we just created it! */
-		return NULL;
+		return;
 	}
 
-	while (!giveup)
+	while (this->GetExitFlag() == false)
 	{
-		if (thismodule->rehashing)
+		if (Parent->rehashing)
 		{
 		/* XXX: Lock */
 			pthread_mutex_lock(&queue_mutex);
-			thismodule->rehashing = false;
-			LoadDatabases(thismodule->Conf, thismodule->PublicServerInstance);
+			Parent->rehashing = false;
+			LoadDatabases(Parent->Conf, Parent->PublicServerInstance);
 			pthread_mutex_unlock(&queue_mutex);
 			/* XXX: Unlock */
 		}
@@ -899,8 +891,7 @@ void* DispatcherThread(void* arg)
 
 		usleep(1000);
 	}
-
-	pthread_exit((void *) 0);
 }
 
 MODULE_INIT(ModuleSQL)
+
