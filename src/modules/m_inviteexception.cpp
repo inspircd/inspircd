@@ -97,7 +97,7 @@ public:
 					if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || InspIRCd::Match(LM->user->GetFullHost(), it->mask.c_str()) || (InspIRCd::MatchCIDR(mask, it->mask)))
 					{
 						// They match an entry
-						return (char*)it->mask.c_str();
+						return it->mask.c_str();
 					}
 				}
 				return NULL;
