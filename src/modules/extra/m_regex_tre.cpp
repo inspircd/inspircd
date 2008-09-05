@@ -14,29 +14,31 @@
 #include "inspircd.h"
 #include "m_regex.h"
 #include <sys/types.h>
-#include <regex.h>
+#include <tre/regex.h>
 
-/* $ModDesc: Regex Provider Module for POSIX Regular Expressions */
+/* $ModDesc: Regex Provider Module for TRE Regular Expressions */
+/* $CompileFlags: pkgconfincludes("tre","tre/regex.h","") */
+/* $LinkerFlags: pkgconflibs("tre","/libtre.so","-ltre") rpath("pkg-config --libs tre") */
 /* $ModDep: m_regex.h */
 
-class POSIXRegexException : public ModuleException
+class TRERegexException : public ModuleException
 {
 public:
-	POSIXRegexException(const std::string& rx, const std::string& error)
+	TRERegexException(const std::string& rx, const std::string& error)
 		: ModuleException(std::string("Error in regex ") + rx + ": " + error)
 	{
 	}
 };
 
-class POSIXRegex : public Regex
+class TRERegex : public Regex
 {
 private:
 	regex_t regbuf;
 
 public:
-	POSIXRegex(const std::string& rx, InspIRCd* Me, bool extended) : Regex(rx, Me)
+	TRERegex(const std::string& rx, InspIRCd* Me) : Regex(rx, Me)
 	{
-		int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
+		int flags = REG_EXTENDED | REG_NOSUB;
 		int errcode;
 		errcode = regcomp(&regbuf, rx.c_str(), flags);
 		if (errcode)
@@ -51,11 +53,11 @@ public:
 			error = errbuf;
 			delete[] errbuf;
 			regfree(&regbuf);
-			throw POSIXRegexException(rx, error);
+			throw TRERegexException(rx, error);
 		}
 	}
 
-	virtual ~POSIXRegex()
+	virtual ~TRERegex()
 	{
 		regfree(&regbuf);
 	}
@@ -71,41 +73,32 @@ public:
 	}
 };
 
-class ModuleRegexPOSIX : public Module
+class ModuleRegexTRE : public Module
 {
-private:
-	bool extended;
 public:
-	ModuleRegexPOSIX(InspIRCd* Me) : Module(Me)
+	ModuleRegexTRE(InspIRCd* Me) : Module(Me)
 	{
 		Me->Modules->PublishInterface("RegularExpression", this);
-		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
-		Me->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL, "");
+		Implementation eventlist[] = { I_OnRequest };
+		Me->Modules->Attach(eventlist, this, 1);
 	}
 
-	virtual ~ModuleRegexPOSIX()
+	virtual ~ModuleRegexTRE()
 	{
 		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
-	}
-
-	virtual void OnRehash(User* u, const std::string& parameter)
-	{
-		ConfigReader Conf(ServerInstance);
-		extended = Conf.ReadFlag("posix", "extended", 0);
 	}
 
 	virtual const char* OnRequest(Request* request)
 	{
 		if (strcmp("REGEX-NAME", request->GetId()) == 0)
 		{
-			return "posix";
+			return "tre";
 		}
 		else if (strcmp("REGEX", request->GetId()) == 0)
 		{
 			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
 			std::string rx = rfr->GetRegex();
-			rfr->result = new POSIXRegex(rx, ServerInstance, extended);
+			rfr->result = new TRERegex(rx, ServerInstance);
 			return "OK";
 		}
 		return NULL;
