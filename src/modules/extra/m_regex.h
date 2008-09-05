@@ -1,0 +1,63 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
+ * See: http://www.inspircd.org/wiki/index.php/Credits
+ *
+ * This program is free but copyrighted software; see
+ *          the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
+#ifndef _REGEX_H
+#define _REGEX_H
+
+#include "inspircd.h"
+
+class Regex : public classbase
+{
+protected:
+	std::string regex_string; // The raw uncompiled regex string.
+	InspIRCd* ServerInstance;
+
+	// Constructor may as well be protected, as this class is abstract.
+	Regex(const std::string& rx, InspIRCd* Me) : regex_string(rx), ServerInstance(Me)
+	{
+	}
+
+public:
+
+	virtual ~Regex()
+	{
+	}
+
+	virtual bool Matches(const std::string& text) = 0;
+};
+
+class RegexFactoryRequest : public Request
+{
+private:
+	std::string regex;
+
+public:
+	RegexFactoryRequest(Module* Me, Module* Target, const std::string& rx) : Request(Me, Target, "REGEX"), regex(rx)
+	{
+	}
+
+	const std::string& GetRegex() const
+	{
+		return regex;
+	}
+};
+
+class RegexNameRequest : public Request
+{
+public:
+	RegexNameRequest(Module* Me, Module* Target) : Request(Me, Target, "REGEX-NAME")
+	{
+	}
+};
+
+#endif
