@@ -34,6 +34,11 @@ public:
 	}
 
 	virtual bool Matches(const std::string& text) = 0;
+
+	const std::string& GetRegexString() const
+	{
+		return regex_string;
+	}
 };
 
 class RegexFactoryRequest : public Request
