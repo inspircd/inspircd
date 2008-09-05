@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef _REGEX_H
-#define _REGEX_H
+#ifndef _M_REGEX_H
+#define _M_REGEX_H
 
 #include "inspircd.h"
 
