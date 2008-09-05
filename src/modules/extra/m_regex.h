@@ -40,8 +40,10 @@ class RegexFactoryRequest : public Request
 {
 private:
 	std::string regex;
-
+	
 public:
+	Regex* result;
+
 	RegexFactoryRequest(Module* Me, Module* Target, const std::string& rx) : Request(Me, Target, "REGEX"), regex(rx)
 	{
 	}
@@ -49,6 +51,12 @@ public:
 	const std::string& GetRegex() const
 	{
 		return regex;
+	}
+
+	Regex* Create()
+	{
+		Send();
+		return this->result;
 	}
 };
 

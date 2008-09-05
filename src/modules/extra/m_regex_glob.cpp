@@ -59,8 +59,9 @@ public:
 		{
 			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
 			std::string rx = rfr->GetRegex();
-			Regex* rxo = (Regex*)new GlobRegex(rx, ServerInstance); // Cast to base class first, since theoretically the pointer could change by that.
-			return (const char*)(rxo);
+			rfr->result = (Regex*)new GlobRegex(rx, ServerInstance);
+			return "OK";
 		}
+		return NULL;
 	}
 };
