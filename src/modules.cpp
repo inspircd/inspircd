@@ -106,7 +106,7 @@ std::string Event::GetEventID()
 Module::Module(InspIRCd* Me) : ServerInstance(Me) { }
 Module::~Module() { }
 
-int			Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return 0; }
+int		Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return 0; }
 void		Module::OnUserConnect(User*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }

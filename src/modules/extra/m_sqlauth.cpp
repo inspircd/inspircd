@@ -36,7 +36,7 @@ class ModuleSQLAuth : public Module
 
 public:
 	ModuleSQLAuth(InspIRCd* Me)
-	: Module::Module(Me)
+	: Module(Me)
 	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 		ServerInstance->Modules->UseInterface("SQL");

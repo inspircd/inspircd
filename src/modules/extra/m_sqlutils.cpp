@@ -35,7 +35,7 @@ private:
 
 public:
 	ModuleSQLutils(InspIRCd* Me)
-	: Module::Module(Me)
+	: Module(Me)
 	{
 		ServerInstance->Modules->PublishInterface("SQLutils", this);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUnloadModule, I_OnRequest, I_OnUserDisconnect };

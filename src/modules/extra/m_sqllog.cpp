@@ -185,7 +185,7 @@ class ModuleSQLLog : public Module
 
  public:
 	ModuleSQLLog(InspIRCd* Me)
-	: Module::Module(Me)
+	: Module(Me)
 	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 		ServerInstance->Modules->UseInterface("SQL");

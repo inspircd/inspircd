@@ -63,7 +63,7 @@ class ModuleZLib : public Module
  public:
 
 	ModuleZLib(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 

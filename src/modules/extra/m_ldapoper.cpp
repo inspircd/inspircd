@@ -42,7 +42,7 @@ class ModuleLDAPAuth : public Module
 
 public:
 	ModuleLDAPAuth(InspIRCd* Me)
-	: Module::Module(Me)
+	: Module(Me)
 	{
 		conn = NULL;
 		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };

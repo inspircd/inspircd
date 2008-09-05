@@ -38,7 +38,7 @@ class ModuleSQLOper : public Module
 
 public:
 	ModuleSQLOper(InspIRCd* Me)
-	: Module::Module(Me)
+	: Module(Me)
 	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 		ServerInstance->Modules->UseInterface("SQL");

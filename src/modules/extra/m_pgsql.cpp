@@ -721,7 +721,7 @@ class ModulePgSQL : public Module
 
  public:
 	ModulePgSQL(InspIRCd* Me)
-	: Module::Module(Me), currid(0)
+	: Module(Me), currid(0)
 	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 
