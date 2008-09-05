@@ -426,7 +426,7 @@ class SQLConnection : public classbase
 		{
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
-			SQLerror e(QREPLY_FAIL, ConvToStr(mysql_errno(&connection)) + std::string(": ") + mysql_error(&connection));
+			SQLerror e(SQL_QREPLY_FAIL, ConvToStr(mysql_errno(&connection)) + std::string(": ") + mysql_error(&connection));
 			MySQLresult* r = new MySQLresult(Parent, req.GetSource(), e, req.id);
 			r->dbid = this->GetID();
 			r->query = req.query.q;
@@ -735,7 +735,7 @@ class Notifier : public BufferedSocket
 };
 
 
-ModuleSQL::ModuleSQL(InspIRCd* Me) : Module::Module(Me), rehashing(false)
+ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 {
 	ServerInstance->Modules->UseInterface("SQLutils");
 
@@ -806,7 +806,7 @@ const char* ModuleSQL::OnRequest(Request* request)
 		}
 		else
 		{
-			req->error.Id(BAD_DBID);
+			req->error.Id(SQL_BAD_DBID);
 		}
 
 		QueueMutex->Enable(false);

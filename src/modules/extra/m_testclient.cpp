@@ -65,7 +65,7 @@ public:
 
 			SQLresult* res = (SQLresult*)request;
 
-			if (res->error.Id() == NO_ERROR)
+			if (res->error.Id() == SQL_NO_ERROR)
 			{
 				if(res->Cols())
 				{

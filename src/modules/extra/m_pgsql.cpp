@@ -468,7 +468,7 @@ class SQLConn : public EventHandler
 						case PGRES_EMPTY_QUERY:
 						case PGRES_BAD_RESPONSE:
 						case PGRES_FATAL_ERROR:
-							reply.error.Id(QREPLY_FAIL);
+							reply.error.Id(SQL_QREPLY_FAIL);
 							reply.error.Str(PQresultErrorMessage(result));
 						default:;
 							/* No action, other values are not errors */
@@ -656,11 +656,11 @@ class SQLConn : public EventHandler
 				else
 				{
 					delete[] query;
-					return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
+					return SQLerror(SQL_QSEND_FAIL, PQerrorMessage(sql));
 				}
 			}
 		}
-		return SQLerror(BAD_CONN, "Can't query until connection is complete");
+		return SQLerror(SQL_BAD_CONN, "Can't query until connection is complete");
 	}
 
 	SQLerror Query(const SQLrequest &req)
@@ -919,11 +919,11 @@ class ModulePgSQL : public Module
 				req->id = NewID();
 				req->error = iter->second->Query(*req);
 
-				return (req->error.Id() == NO_ERROR) ? sqlsuccess : NULL;
+				return (req->error.Id() == SQL_NO_ERROR) ? sqlsuccess : NULL;
 			}
 			else
 			{
-				req->error.Id(BAD_DBID);
+				req->error.Id(SQL_BAD_DBID);
 				return NULL;
 			}
 		}

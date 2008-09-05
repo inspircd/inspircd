@@ -357,7 +357,7 @@ class SQLConn : public classbase
 			sqlite3_free(errmsg);
 			delete[] query;
 			delete res;
-			return SQLerror(QSEND_FAIL, error);
+			return SQLerror(SQL_QSEND_FAIL, error);
 		}
 		delete[] query;
 
@@ -653,7 +653,7 @@ class ModuleSQLite3 : public Module
 			}
 			else
 			{
-				req->error.Id(BAD_DBID);
+				req->error.Id(SQL_BAD_DBID);
 				return NULL;
 			}
 		}

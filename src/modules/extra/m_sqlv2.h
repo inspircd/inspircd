@@ -27,7 +27,7 @@
 
 /** Defines the error types which SQLerror may be set to
  */
-enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL, QREPLY_FAIL };
+enum SQLerrorNum { SQL_NO_ERROR, SQL_BAD_DBID, SQL_BAD_CONN, SQL_QSEND_FAIL, SQL_QREPLY_FAIL };
 
 /** A list of format parameters for an SQLquery object.
  */
@@ -74,7 +74,7 @@ public:
 	 * @param i The error ID to set
 	 * @param s The (optional) error string to set
 	 */
-	SQLerror(SQLerrorNum i = NO_ERROR, const std::string &s = "")
+	SQLerror(SQLerrorNum i = SQL_NO_ERROR, const std::string &s = "")
 	: id(i), str(s)
 	{
 	}
@@ -113,15 +113,15 @@ public:
 
 		switch(id)
 		{
-			case NO_ERROR:
+			case SQL_NO_ERROR:
 				return "No error";
-			case BAD_DBID:
+			case SQL_BAD_DBID:
 				return "Invalid database ID";
-			case BAD_CONN:
+			case SQL_BAD_CONN:
 				return "Invalid connection";
-			case QSEND_FAIL:
+			case SQL_QSEND_FAIL:
 				return "Sending query failed";
-			case QREPLY_FAIL:
+			case SQL_QREPLY_FAIL:
 				return "Getting query result failed";
 			default:
 				return "Unknown error";
@@ -220,7 +220,7 @@ public:
 	 * except in the case of an error.
 	 */
 	unsigned long id;
-	/** If an error occured, error.id will be any other value than NO_ERROR.
+	/** If an error occured, error.id will be any other value than SQL_NO_ERROR.
 	 */
 	SQLerror error;
 
@@ -310,7 +310,7 @@ public:
 	/**
 	 * The error (if any) which occured.
 	 * If an error occured the value of error.id will be any
-	 * other value than NO_ERROR.
+	 * other value than SQL_NO_ERROR.
 	 */
 	SQLerror error;
 	/**

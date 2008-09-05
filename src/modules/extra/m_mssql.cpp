@@ -307,7 +307,7 @@ class SQLConn : public classbase
 	SQLerror Query(SQLrequest &req)
 	{
 		if (!sock)
-			return SQLerror(BAD_CONN, "Socket was NULL, check if SQL server is running.");
+			return SQLerror(SQL_BAD_CONN, "Socket was NULL, check if SQL server is running.");
 
 		/* Pointer to the buffer we screw around with substitution in */
 		char* query;
@@ -391,7 +391,7 @@ class SQLConn : public classbase
 			delete[] query;
 			delete res;
 			free(msquery);
-			return SQLerror(QSEND_FAIL, error);
+			return SQLerror(SQL_QSEND_FAIL, error);
 		}
 		delete[] query;
 		free(msquery);
@@ -788,7 +788,7 @@ class ModuleMsSQL : public Module
 			}
 			else
 			{
-				req->error.Id(BAD_DBID);
+				req->error.Id(SQL_BAD_DBID);
 				return NULL;
 			}
 		}

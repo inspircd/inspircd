@@ -776,3 +776,12 @@ int getcpu()
 	pclsObj->Release();
 	return -1;
 }
+
+void usleep(unsigned long usecs)
+{
+	if (usecs > 0UL)
+	{
+		unsigned long millis = ((usecs + 999UL) / 1000UL);
+		SleepEx(millis, false);
+	}
+}

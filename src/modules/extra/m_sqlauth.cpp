@@ -165,7 +165,7 @@ public:
 
 			if(user)
 			{
-				if(res->error.Id() == NO_ERROR)
+				if(res->error.Id() == SQL_NO_ERROR)
 				{
 					if(res->Rows())
 					{
