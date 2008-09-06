@@ -55,7 +55,7 @@ class ListModeRequest : public Request
 {
  public:
 	User* user;
-	const std::string literal;
+	std::string literal;
 	const char extban;
 	Channel* chan;
 
@@ -80,6 +80,18 @@ class ListModeRequest : public Request
 	 * @param extbanchar Extended ban character to use for the match, or a null char if not using extban
 	 */
 	ListModeRequest(Module* sender, Module* target, std::string literalstr, char extbanchar, Channel* channel) : Request(sender, target, "LM_CHECKLIST_EX"), literal(literalstr), extban(extbanchar), chan(channel)
+	{
+	}
+
+	/** Check if a literal string is on a channel's list, optionally using an extban char.
+	 * The Event::Send() event returns the ban string if the user is on the channel's list,
+	 * or NULL if the user is not on the list.
+	 * @param sender Sending module
+	 * @param target Target module
+	 * @param User to check against, e.g. "Bob!Bobbertson@weeblshouse"
+	 * @param extbanchar Extended ban character to use for the match, or a null char if not using extban
+	 */
+	ListModeRequest(Module* sender, Module* target, User* u, char extbanchar, Channel* channel) : Request(sender, target, "LM_CHECKLIST_EX"), user(u), literal(""), extban(extbanchar), chan(channel)
 	{
 	}
 
@@ -487,7 +499,7 @@ class ListModeBase : public ModeHandler
 			LM->chan->GetExt(GetInfoKey(), mlist);
 			if (mlist)
 			{
-				std::string mask = std::string(LM->user->nick) + "!" + LM->user->ident + "@" + LM->user->GetIPString();
+				std::string mask = LM->user->nick + "!" + LM->user->ident + "@" + LM->user->GetIPString();
 				for (modelist::iterator it = mlist->begin(); it != mlist->end(); ++it)
 				{
 					if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || InspIRCd::Match(LM->user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
@@ -502,6 +514,9 @@ class ListModeBase : public ModeHandler
 			LM->chan->GetExt(GetInfoKey(), mlist);
 			if (mlist)
 			{
+				if (LM->user)
+					LM->literal = LM->user->nick + "!" + LM->user->ident + "@" + LM->user->GetIPString();
+				
 				for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
 				{
 					if (LM->extban && it->mask.length() > 1 && it->mask[0] == LM->extban && it->mask[1] == ':')
