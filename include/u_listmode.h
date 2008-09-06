@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -55,16 +55,31 @@ class ListModeRequest : public Request
 {
  public:
 	User* user;
+	const std::string literal;
+	const char extban;
 	Channel* chan;
 
 	/** Check if a user is on a channel's list.
-	 * The Event::Send() event returns true if the user is on the channel's list.
+	 * The Event::Send() event returns the ban string if the user is on the channel's list,
+	 * or NULL if the user is not on the list.
 	 * @param sender Sending module
 	 * @param target Target module
 	 * @param u User to check against
 	 * @param c Channel to check against
 	 */
-	ListModeRequest(Module* sender, Module* target, User* u, Channel* c) : Request(sender, target, "LM_CHECKLIST"), user(u), chan(c)
+	ListModeRequest(Module* sender, Module* target, User* u, Channel* c) : Request(sender, target, "LM_CHECKLIST"), user(u), literal(""), extban(0), chan(c)
+	{
+	}
+
+	/** Check if a literal string is on a channel's list, optionally using an extban char.
+	 * The Event::Send() event returns the ban string if the user is on the channel's list,
+	 * or NULL if the user is not on the list.
+	 * @param sender Sending module
+	 * @param target Target module
+	 * @param literalstr String to check against, e.g. "Bob!Bobbertson@weeblshouse"
+	 * @param extbanchar Extended ban character to use for the match, or a null char if not using extban
+	 */
+	ListModeRequest(Module* sender, Module* target, std::string literalstr, char extbanchar) : Request(sender, target, "LM_CHECKLIST_EX"), literal(literalstr), extban(extbanchar)
 	{
 	}
 
@@ -238,8 +253,8 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DoImplements(Module* m)
 	{
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnSyncChannel, I_OnCleanup, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, m, 4);
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnSyncChannel, I_OnCleanup, I_OnRehash, I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, m, 5);
 	}
 
 	/** Handle the list mode.
@@ -462,6 +477,49 @@ class ListModeBase : public ModeHandler
 	virtual void TellNotSet(User*, Channel*, std::string&)
 	{
 	}
+
+	virtual const char* DoOnRequest(Request* request)
+	{
+		ListModeRequest* LM = (ListModeRequest*)request;
+		if (strcmp("LM_CHECKLIST", request->GetId()) == 0)
+		{
+			modelist* mlist;
+			LM->chan->GetExt(GetInfoKey(), mlist);
+			if (mlist)
+			{
+				std::string mask = std::string(LM->user->nick) + "!" + LM->user->ident + "@" + LM->user->GetIPString();
+				for (modelist::iterator it = mlist->begin(); it != mlist->end(); ++it)
+				{
+					if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || InspIRCd::Match(LM->user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
+						return it->mask.c_str();
+				}
+				return NULL;
+			}
+		}
+		else if (strcmp("LM_CHECKLIST_EX", request->GetId()) == 0)
+		{
+			modelist* mlist;
+			LM->chan->GetExt(GetInfoKey(), mlist);
+			if (mlist)
+			{
+				for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
+				{
+					if (LM->extban && it->mask.length() > 1 && it->mask[0] == LM->extban && it->mask[1] == ':')
+					{
+						if (InspIRCd::Match(LM->literal.substr(2), it->mask))
+							return it->mask.c_str();
+					}
+					else
+					{
+						if (InspIRCd::Match(LM->literal, it->mask))
+							return it->mask.c_str();
+					}
+				}
+			}
+		}
+		return NULL;
+	}
+
 };
 
 #endif

@@ -159,26 +159,7 @@ public:
 
 	virtual const char* OnRequest(Request* request)
 	{
-		ListModeRequest* LM = (ListModeRequest*)request;
-		if (strcmp("LM_CHECKLIST", request->GetId()) == 0)
-		{
-			modelist* list;
-			LM->chan->GetExt(be->GetInfoKey(), list);
-			if (list)
-			{
-				std::string mask = std::string(LM->user->nick) + "!" + LM->user->ident + "@" + LM->user->GetIPString();
-				for (modelist::iterator it = list->begin(); it != list->end(); it++)
-				{
-					if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || InspIRCd::Match(LM->user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
-					{
-						// They match an entry
-						return (char*)it->mask.c_str();
-					}
-				}
-				return NULL;
-			}
-		}
-		return NULL;
+		return be->DoOnRequest(request);
 	}
 
 	virtual Version GetVersion()

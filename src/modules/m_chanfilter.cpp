@@ -121,6 +121,11 @@ class ModuleChanFilter : public Module
 		cf->DoCleanup(target_type, item);
 	}
 
+	virtual const char* OnRequest(Request* request)
+	{
+		return cf->DoOnRequest(request);
+	}
+
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
