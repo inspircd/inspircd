@@ -89,6 +89,8 @@ class CoreExport Mutex : public Extensible
  public:
 	Mutex(InspIRCd* Instance);
 	virtual void Enable(bool enable) = 0;
+	void Lock() { Enable(true); }
+	void Unlock() { Enable(false); }
 	~Mutex() { }
 };
 
