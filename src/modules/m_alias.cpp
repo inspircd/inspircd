@@ -124,7 +124,6 @@ class ModuleAlias : public Module
 
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
-		User *u = NULL;
 		std::multimap<std::string, Alias>::iterator i;
 
 		/* If theyre not registered yet, we dont want
@@ -152,66 +151,74 @@ class ModuleAlias : public Module
 
 		while (i != Aliases.end())
 		{
-			/* Does it match the pattern? */
-			if (!i->second.format.empty())
-			{
-				if (i->second.case_sensitive)
-				{
-					if (InspIRCd::Match(compare, i->second.format, case_sensitive_map))
-						continue;
-				}
-				else
-				{
-					if (InspIRCd::Match(compare, i->second.format))
-						continue;
-				}
-			}
-
-			if ((i->second.operonly) && (!IS_OPER(user)))
-				return 0;
-
-			if (!i->second.requires.empty())
-			{
-				u = ServerInstance->FindNick(i->second.requires);
-				if (!u)
-				{
-					user->WriteNumeric(401, ""+std::string(user->nick)+" "+i->second.requires+" :is currently unavailable. Please try again later.");
-					return 1;
-				}
-			}
-			if ((u != NULL) && (!i->second.requires.empty()) && (i->second.uline))
-			{
-				if (!ServerInstance->ULine(u->server))
-				{
-					ServerInstance->SNO->WriteToSnoMask('A', "NOTICE -- Service "+i->second.requires+" required by alias "+std::string(i->second.text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
-					user->WriteNumeric(401, ""+std::string(user->nick)+" "+i->second.requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
-					return 1;
-				}
-			}
-
-			/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
-
-			std::string::size_type crlf = i->second.replace_with.find('\n');
-
-			if (crlf == std::string::npos)
-			{
-				DoCommand(i->second.replace_with, user, safe);
-				return 1;
-			}
-			else
-			{
-				irc::sepstream commands(i->second.replace_with, '\n');
-				std::string scommand;
-				while (commands.GetToken(scommand))
-				{
-					DoCommand(scommand, user, safe);
-				}
-				return 1;
-			}
+			DoAlias(user, &(i->second), compare, safe);
 
 			i++;
 		}
-		return 0;
+
+		// If aliases have been processed, aliases took it.
+		return 1;
+	}
+
+	void DoAlias(User *user, Alias *a, const std::string compare, const std::string safe)
+	{
+		User *u = NULL;
+		/* Does it match the pattern? */
+		if (!a->format.empty())
+		{
+			if (a->case_sensitive)
+			{
+				if (InspIRCd::Match(compare, a->format, case_sensitive_map))
+					return;
+			}
+			else
+			{
+				if (InspIRCd::Match(compare, a->format))
+					return;
+			}
+		}
+
+		if ((a->operonly) && (!IS_OPER(user)))
+			return;
+
+		if (!a->requires.empty())
+		{
+			u = ServerInstance->FindNick(a->requires);
+			if (!u)
+			{
+				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->requires+" :is currently unavailable. Please try again later.");
+				return;
+			}
+		}
+		if ((u != NULL) && (!a->requires.empty()) && (a->uline))
+		{
+			if (!ServerInstance->ULine(u->server))
+			{
+				ServerInstance->SNO->WriteToSnoMask('A', "NOTICE -- Service "+a->requires+" required by alias "+std::string(a->text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
+				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
+				return;
+			}
+		}
+
+		/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
+
+		std::string::size_type crlf = a->replace_with.find('\n');
+
+		if (crlf == std::string::npos)
+		{
+			DoCommand(a->replace_with, user, safe);
+			return;
+		}
+		else
+		{
+			irc::sepstream commands(a->replace_with, '\n');
+			std::string scommand;
+			while (commands.GetToken(scommand))
+			{
+				DoCommand(scommand, user, safe);
+			}
+			return;
+		}
 	}
 
 	void DoCommand(std::string newline, User* user, const std::string &original_line)
