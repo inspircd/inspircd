@@ -303,25 +303,25 @@ class SQLConn : public classbase
 			{
 				if (tds_process_simple_query(sock) != TDS_SUCCEED)
 				{
-					LoggingMutex->Enable(true);
+					LoggingMutex->Lock();
 					Instance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
-					LoggingMutex->Enable(false);
+					LoggingMutex->Unlock();
 					CloseDB();
 				}
 			}
 			else
 			{
-				LoggingMutex->Enable(true);
+				LoggingMutex->Lock();
 				Instance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
-				LoggingMutex->Enable(false);
+				LoggingMutex->Unlock();
 				CloseDB();
 			}
 		}
 		else
 		{
-			LoggingMutex->Enable(true);
+			LoggingMutex->Lock();
 			Instance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not connect to DB with id: " + host.id);
-			LoggingMutex->Enable(false);
+			LoggingMutex->Unlock();
 			CloseDB();
 		}
 	}
@@ -411,9 +411,9 @@ class SQLConn : public classbase
 		res->query = req.query.q;
 
 		char* msquery = strdup(req.query.q.data());
-		LoggingMutex->Enable(true);
+		LoggingMutex->Lock();
 		Instance->Logs->Log("m_mssql",DEBUG,"doing Query: %s",msquery);
-		LoggingMutex->Enable(false);
+		LoggingMutex->Unlock();
 		if (tds_submit_query(sock, msquery) != TDS_SUCCEED)
 		{
 			std::string error("failed to execute: "+std::string(req.query.q.data()));
@@ -481,9 +481,9 @@ class SQLConn : public classbase
 					break;
 			}
 		}
-		ResultsMutex->Enable(true);
+		ResultsMutex->Lock();
 		results.push_back(res);
-		ResultsMutex->Enable(false);
+		ResultsMutex->Unlock();
 		SendNotify();
 		return SQLerror();
 	}
@@ -491,18 +491,18 @@ class SQLConn : public classbase
 	static int HandleMessage(const TDSCONTEXT * pContext, TDSSOCKET * pTdsSocket, TDSMESSAGE * pMessage)
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
-		LoggingMutex->Enable(true);
+		LoggingMutex->Lock();
 		sc->Instance->Logs->Log("m_mssql", DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
-		LoggingMutex->Enable(false);
+		LoggingMutex->Unlock();
 		return 0;
 	}
 
 	static int HandleError(const TDSCONTEXT * pContext, TDSSOCKET * pTdsSocket, TDSMESSAGE * pMessage)
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
-		LoggingMutex->Enable(true);
+		LoggingMutex->Lock();
 		sc->Instance->Logs->Log("m_mssql", DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
-		LoggingMutex->Enable(false);
+		LoggingMutex->Unlock();
 		return 0;
 	}
 
@@ -580,7 +580,7 @@ class SQLConn : public classbase
 		while (results.size())
 		{
 			MsSQLResult* res = results[0];
-			ResultsMutex->Enable(true);
+			ResultsMutex->Lock();
 			if (res->GetDest())
 			{
 				res->Send();
@@ -594,7 +594,7 @@ class SQLConn : public classbase
 				delete res;
 			}
 			results.pop_front();
-			ResultsMutex->Enable(false);
+			ResultsMutex->Unlock();
 		}
 	}
 
@@ -788,9 +788,9 @@ class ModuleMsSQL : public Module
 	{
 		if (HasHost(hi))
 		{
-			LoggingMutex->Enable(true);
+			LoggingMutex->Lock();
 			ServerInstance->Logs->Log("m_mssql",DEFAULT, "WARNING: A MsSQL connection with id: %s already exists. Aborting database open attempt.", hi.id.c_str());
-			LoggingMutex->Enable(false);
+			LoggingMutex->Unlock();
 			return;
 		}
 
@@ -828,9 +828,9 @@ class ModuleMsSQL : public Module
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
-		QueueMutex->Enable(true);
+		QueueMutex->Lock();
 		ReadConf();
-		QueueMutex->Enable(false);
+		QueueMutex->Unlock();
 	}
 
 	virtual const char* OnRequest(Request* request)
@@ -839,7 +839,7 @@ class ModuleMsSQL : public Module
 		{
 			SQLrequest* req = (SQLrequest*)request;
 
-			QueueMutex->Enable(true);
+			QueueMutex->Lock();
 
 			ConnMap::iterator iter;
 
@@ -856,7 +856,7 @@ class ModuleMsSQL : public Module
 				req->error.Id(SQL_BAD_DBID);
 			}
 
-			QueueMutex->Enable(false);
+			QueueMutex->Unlock();
 
 			return returnval;
 		}
@@ -888,7 +888,7 @@ void QueryThread::Run()
 	while (this->GetExitFlag() == false)
 	{
 		SQLConn* conn = NULL;
-		QueueMutex->Enable(true);
+		QueueMutex->Lock();
 		for (ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 		{
 			if (i->second->queue.totalsize())
@@ -897,13 +897,13 @@ void QueryThread::Run()
 				break;
 			}
 		}
-		QueueMutex->Enable(false);
+		QueueMutex->Unlock();
 		if (conn)
 		{
 			conn->DoLeadingQuery();
-			QueueMutex->Enable(true);
+			QueueMutex->Lock();
 			conn->queue.pop();
-			QueueMutex->Enable(false);
+			QueueMutex->Unlock();
 		}
 		usleep(1000);
 	}
