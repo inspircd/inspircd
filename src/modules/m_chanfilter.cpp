@@ -72,6 +72,8 @@ class ModuleChanFilter : public Module
 		cf->DoImplements(this);
 		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
+
+		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 
 	virtual void OnChannelDelete(Channel* chan)
@@ -145,6 +147,7 @@ class ModuleChanFilter : public Module
 	{
 		ServerInstance->Modes->DelMode(cf);
 		delete cf;
+		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };
 
