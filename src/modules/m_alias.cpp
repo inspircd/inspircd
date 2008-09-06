@@ -21,17 +21,29 @@ class Alias : public classbase
 {
  public:
 	/** The text of the alias command */
-	irc::string text;
+	irc::string AliasedCommand;
+
 	/** Text to replace with */
-	std::string replace_with;
+	std::string ReplaceFormat;
+
 	/** Nickname required to perform alias */
-	std::string requires;
+	std::string RequiredNick;
+
 	/** Alias requires ulined server */
-	bool uline;
+	bool ULineOnly;
+
 	/** Requires oper? */
-	bool operonly;
+	bool OperOnly;
+
 	/* is case sensitive params */
-	bool case_sensitive;
+	bool CaseSensitive;
+
+	/* whether or not it may be executed via fantasy (default OFF) */
+	bool ChannelCommand;
+
+	/* whether or not it may be executed via /command (default ON) */
+	bool UserCommand;
+
 	/** Format that must be matched for use */
 	std::string format;
 };
@@ -55,13 +67,15 @@ class ModuleAlias : public Module
 			Alias a;
 			std::string txt;
 			txt = MyConf.ReadValue("alias", "text", i);
-			a.text = txt.c_str();
-			a.replace_with = MyConf.ReadValue("alias", "replace", i, true);
-			a.requires = MyConf.ReadValue("alias", "requires", i);
-			a.uline = MyConf.ReadFlag("alias", "uline", i);
-			a.operonly = MyConf.ReadFlag("alias", "operonly", i);
+			a.AliasedCommand = txt.c_str();
+			a.ReplaceFormat = MyConf.ReadValue("alias", "replace", i, true);
+			a.RequiredNick = MyConf.ReadValue("alias", "requires", i);
+			a.ULineOnly = MyConf.ReadFlag("alias", "uline", i);
+			a.ChannelCommand = MyConf.ReadFlag("alias", "channelcommand", i);
+			a.UserCommand = MyConf.ReadFlag("alias", "usercommand", i);
+			a.OperOnly = MyConf.ReadFlag("alias", "operonly", i);
 			a.format = MyConf.ReadValue("alias", "format", i);
-			a.case_sensitive = MyConf.ReadFlag("alias", "matchcase", i);
+			a.CaseSensitive = MyConf.ReadFlag("alias", "matchcase", i);
 			Aliases.insert(std::make_pair(txt, a));
 		}
 	}
@@ -151,7 +165,8 @@ class ModuleAlias : public Module
 
 		while (i != Aliases.end())
 		{
-			DoAlias(user, &(i->second), compare, safe);
+			if (i->second.UserCommand)
+				DoAlias(user, &(i->second), compare, safe);
 
 			i++;
 		}
@@ -166,7 +181,7 @@ class ModuleAlias : public Module
 		/* Does it match the pattern? */
 		if (!a->format.empty())
 		{
-			if (a->case_sensitive)
+			if (a->CaseSensitive)
 			{
 				if (InspIRCd::Match(compare, a->format, case_sensitive_map))
 					return;
@@ -178,40 +193,40 @@ class ModuleAlias : public Module
 			}
 		}
 
-		if ((a->operonly) && (!IS_OPER(user)))
+		if ((a->OperOnly) && (!IS_OPER(user)))
 			return;
 
-		if (!a->requires.empty())
+		if (!a->RequiredNick.empty())
 		{
-			u = ServerInstance->FindNick(a->requires);
+			u = ServerInstance->FindNick(a->RequiredNick);
 			if (!u)
 			{
-				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->requires+" :is currently unavailable. Please try again later.");
+				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->RequiredNick+" :is currently unavailable. Please try again later.");
 				return;
 			}
 		}
-		if ((u != NULL) && (!a->requires.empty()) && (a->uline))
+		if ((u != NULL) && (!a->RequiredNick.empty()) && (a->ULineOnly))
 		{
 			if (!ServerInstance->ULine(u->server))
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', "NOTICE -- Service "+a->requires+" required by alias "+std::string(a->text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
-				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
+				ServerInstance->SNO->WriteToSnoMask('A', "NOTICE -- Service "+a->RequiredNick+" required by alias "+std::string(a->AliasedCommand.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
+				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->RequiredNick+" :is an imposter! Please inform an IRC operator as soon as possible.");
 				return;
 			}
 		}
 
 		/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
 
-		std::string::size_type crlf = a->replace_with.find('\n');
+		std::string::size_type crlf = a->ReplaceFormat.find('\n');
 
 		if (crlf == std::string::npos)
 		{
-			DoCommand(a->replace_with, user, safe);
+			DoCommand(a->ReplaceFormat, user, safe);
 			return;
 		}
 		else
 		{
-			irc::sepstream commands(a->replace_with, '\n');
+			irc::sepstream commands(a->ReplaceFormat, '\n');
 			std::string scommand;
 			while (commands.GetToken(scommand))
 			{
