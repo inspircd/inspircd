@@ -49,7 +49,7 @@ private:
 public:
 	Regex* result;
 
-	RegexFactoryRequest(Module* Me, Module* Target, const std::string& rx) : Request(Me, Target, "REGEX"), regex(rx)
+	RegexFactoryRequest(Module* Me, Module* Target, const std::string& rx) : Request(Me, Target, "REGEX"), regex(rx), result(NULL)
 	{
 	}
 
