@@ -39,17 +39,17 @@ class Alias : public classbase
 class ModuleAlias : public Module
 {
  private:
-	/** We cant use a map, there may be multiple aliases with the same name */
-	std::vector<Alias> Aliases;
-	std::map<std::string, int> AliasMap;
-	std::vector<std::string> pars;
+	/* We cant use a map, there may be multiple aliases with the same name.
+	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
+	 *		-- w00t
+   */
+	std::multimap<std::string, Alias> Aliases;
 
 	virtual void ReadAliases()
 	{
 		ConfigReader MyConf(ServerInstance);
 
 		Aliases.clear();
-		AliasMap.clear();
 		for (int i = 0; i < MyConf.Enumerate("alias"); i++)
 		{
 			Alias a;
@@ -62,8 +62,7 @@ class ModuleAlias : public Module
 			a.operonly = MyConf.ReadFlag("alias", "operonly", i);
 			a.format = MyConf.ReadValue("alias", "format", i);
 			a.case_sensitive = MyConf.ReadFlag("alias", "matchcase", i);
-			Aliases.push_back(a);
-			AliasMap[txt] = 1;
+			Aliases.insert(std::make_pair(txt, a));
 		}
 	}
 
@@ -126,6 +125,7 @@ class ModuleAlias : public Module
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		User *u = NULL;
+		std::multimap<std::string, Alias>::iterator i;
 
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -133,8 +133,9 @@ class ModuleAlias : public Module
 		if (user->registered != REG_ALL)
 			return 0;
 
-		/* We dont have any commands looking like this, dont bother with the loop */
-		if (AliasMap.find(command) == AliasMap.end())
+		/* We dont have any commands looking like this? Stop processing. */
+		i = Aliases.find(command);
+		if (i == Aliases.end())
 			return 0;
 
 		irc::string c = command.c_str();
@@ -149,73 +150,74 @@ class ModuleAlias : public Module
 
 		SearchAndReplace(safe, "$", "\r");
 
-		for (unsigned int i = 0; i < Aliases.size(); i++)
+		while (i != Aliases.end())
 		{
-			if (Aliases[i].text == c)
+			/* Does it match the pattern? */
+			if (!i->second.format.empty())
 			{
-				/* Does it match the pattern? */
-				if (!Aliases[i].format.empty())
+				if (i->second.case_sensitive)
 				{
-					if (Aliases[i].case_sensitive)
-					{
-						if (InspIRCd::Match(compare, Aliases[i].format, case_sensitive_map))
-							continue;
-					}
-					else
-					{
-						if (InspIRCd::Match(compare, Aliases[i].format))
-							continue;
-					}
-				}
-
-				if ((Aliases[i].operonly) && (!IS_OPER(user)))
-					return 0;
-
-				if (!Aliases[i].requires.empty())
-				{
-					u = ServerInstance->FindNick(Aliases[i].requires);
-					if (!u)
-					{
-						user->WriteNumeric(401, ""+std::string(user->nick)+" "+Aliases[i].requires+" :is currently unavailable. Please try again later.");
-						return 1;
-					}
-				}
-				if ((u != NULL) && (!Aliases[i].requires.empty()) && (Aliases[i].uline))
-				{
-					if (!ServerInstance->ULine(u->server))
-					{
-						ServerInstance->SNO->WriteToSnoMask('A', "NOTICE -- Service "+Aliases[i].requires+" required by alias "+std::string(Aliases[i].text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
-						user->WriteNumeric(401, ""+std::string(user->nick)+" "+Aliases[i].requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
-						return 1;
-					}
-				}
-
-				/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
-
-				std::string::size_type crlf = Aliases[i].replace_with.find('\n');
-
-				if (crlf == std::string::npos)
-				{
-					DoCommand(Aliases[i].replace_with, user, safe);
-					return 1;
+					if (InspIRCd::Match(compare, i->second.format, case_sensitive_map))
+						continue;
 				}
 				else
 				{
-					irc::sepstream commands(Aliases[i].replace_with, '\n');
-					std::string scommand;
-					while (commands.GetToken(scommand))
-					{
-						DoCommand(scommand, user, safe);
-					}
+					if (InspIRCd::Match(compare, i->second.format))
+						continue;
+				}
+			}
+
+			if ((i->second.operonly) && (!IS_OPER(user)))
+				return 0;
+
+			if (!i->second.requires.empty())
+			{
+				u = ServerInstance->FindNick(i->second.requires);
+				if (!u)
+				{
+					user->WriteNumeric(401, ""+std::string(user->nick)+" "+i->second.requires+" :is currently unavailable. Please try again later.");
 					return 1;
 				}
 			}
+			if ((u != NULL) && (!i->second.requires.empty()) && (i->second.uline))
+			{
+				if (!ServerInstance->ULine(u->server))
+				{
+					ServerInstance->SNO->WriteToSnoMask('A', "NOTICE -- Service "+i->second.requires+" required by alias "+std::string(i->second.text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
+					user->WriteNumeric(401, ""+std::string(user->nick)+" "+i->second.requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
+					return 1;
+				}
+			}
+
+			/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
+
+			std::string::size_type crlf = i->second.replace_with.find('\n');
+
+			if (crlf == std::string::npos)
+			{
+				DoCommand(i->second.replace_with, user, safe);
+				return 1;
+			}
+			else
+			{
+				irc::sepstream commands(i->second.replace_with, '\n');
+				std::string scommand;
+				while (commands.GetToken(scommand))
+				{
+					DoCommand(scommand, user, safe);
+				}
+				return 1;
+			}
+
+			i++;
 		}
 		return 0;
 	}
 
 	void DoCommand(std::string newline, User* user, const std::string &original_line)
 	{
+		std::vector<std::string> pars;
+
 		for (int v = 1; v < 10; v++)
 		{
 			std::string var = "$";
