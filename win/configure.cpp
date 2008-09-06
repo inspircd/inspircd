@@ -28,6 +28,7 @@ void Banner();
 void WriteCompileModules();
 void WriteCompileCommands();
 void Rebase();
+void CopyExtras();
 
 /* detects if we are running windows xp or higher (5.1) */
 bool iswinxp()
@@ -300,6 +301,8 @@ void Run()
 
 	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
 
+	CopyExtras();
+
 	// dump all the options back out
 	printf_c("\033[0mBase install path:\033[1;32m        %s\n", base_path);
 	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_file);
@@ -374,6 +377,43 @@ void Run()
 
 	printf("\nconfigure is done.. exiting!\n");
 }
+
+/* Keeps files from modules/extra up to date if theyre copied into modules/ */
+void CopyExtras()
+{
+	char dest[65535];
+	char src[65535];
+
+	printf("\nUpdating extra modules in src/modules...\n");
+
+	WIN32_FIND_DATA fd;
+	HANDLE fh = FindFirstFile("..\\src\\modules\\extra\\*.*", &fd);
+
+	if(fh == INVALID_HANDLE_VALUE)
+		return;
+
+	do
+	{
+		strcpy(dest, "..\\src\\modules\\");
+		strcat(dest, fd.cFileName);
+		strcpy(src, "..\\src\\modules\\extra\\");
+		strcat(src, fd.cFileName);
+		FILE* x = fopen(dest, "r");
+		if (x)
+		{
+			fclose(x);
+			CopyFile(src, dest, false);
+			sc(TGREEN); printf("    %s", fd.cFileName); sc(TNORMAL);
+			printf("...\n");
+		}
+	}
+	while (FindNextFile(fh, &fd));
+
+	FindClose(fh);
+
+	printf("\n\n");
+}
+
 
 void Rebase()
 {
