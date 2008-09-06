@@ -23,13 +23,15 @@ class InspIRCd;
 
 class CoreExport PThreadEngine : public ThreadEngine
 {
+ private:
+	
+	bool Mutex(bool enable);
+
  public:
 
 	PThreadEngine(InspIRCd* Instance);
 
 	virtual ~PThreadEngine();
-
-	bool Mutex(bool enable);
 
 	void Run();
 

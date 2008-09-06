@@ -22,13 +22,15 @@ class InspIRCd;
 
 class CoreExport Win32ThreadEngine : public ThreadEngine
 {
+ protected:
+
+	bool Mutex(bool enable);
+
  public:
 
 	Win32ThreadEngine(InspIRCd* Instance);
 
 	virtual ~Win32ThreadEngine();
-
-	bool Mutex(bool enable);
 
 	void Run();
 

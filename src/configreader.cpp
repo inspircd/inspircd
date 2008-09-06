@@ -1019,7 +1019,7 @@ void ServerConfig::Read(bool bail, User* user)
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 	
-			ServerInstance->Threads->Mutex(true);
+			ServerInstance->Threads->Lock();
 			switch (dt)
 			{
 				case DT_NOSPACES:
@@ -1048,7 +1048,7 @@ void ServerConfig::Read(bool bail, User* user)
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
 					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString(), MAXBUF))
 					{
-						ServerInstance->Threads->Mutex(false);
+						ServerInstance->Threads->Unlock();
 						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
 					}
 					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
@@ -1081,7 +1081,7 @@ void ServerConfig::Read(bool bail, User* user)
 			}
 			/* We're done with this now */
 			delete Values[Index].val;
-			ServerInstance->Threads->Mutex(false);
+			ServerInstance->Threads->Unlock();
 		}
 
 		/* Read the multiple-tag items (class tags, connect tags, etc)
@@ -1090,9 +1090,9 @@ void ServerConfig::Read(bool bail, User* user)
 		 */
 		for (int Index = 0; MultiValues[Index].tag; ++Index)
 		{
-			ServerInstance->Threads->Mutex(true);
+			ServerInstance->Threads->Lock();
 			MultiValues[Index].init_function(this, MultiValues[Index].tag);
-			ServerInstance->Threads->Mutex(false);
+			ServerInstance->Threads->Unlock();
 
 			int number_of_tags = ConfValueEnum(newconfig, MultiValues[Index].tag);
 
@@ -1107,7 +1107,7 @@ void ServerConfig::Read(bool bail, User* user)
 					dt &= ~DT_ALLOW_NEWLINE;
 					dt &= ~DT_ALLOW_WILD;
 
-					ServerInstance->Threads->Mutex(true);
+					ServerInstance->Threads->Lock();
 					/* We catch and rethrow any exception here just so we can free our mutex
 					 */
 					try
@@ -1186,10 +1186,10 @@ void ServerConfig::Read(bool bail, User* user)
 					}
 					catch (CoreException &e)
 					{
-						ServerInstance->Threads->Mutex(false);
+						ServerInstance->Threads->Unlock();
 						throw e;
 					}
-					ServerInstance->Threads->Mutex(false);
+					ServerInstance->Threads->Unlock();
 				}
 				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 			}
@@ -1209,7 +1209,7 @@ void ServerConfig::Read(bool bail, User* user)
 		return;
 	}
 
-	ServerInstance->Threads->Mutex(true);
+	ServerInstance->Threads->Lock();
 	for (int i = 0; i < ConfValueEnum(newconfig, "type"); ++i)
 	{
 		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
@@ -1248,7 +1248,7 @@ void ServerConfig::Read(bool bail, User* user)
 	/* If we succeeded, set the ircd config to the new one */
 	this->config_data = newconfig;
 
-	ServerInstance->Threads->Mutex(false);
+	ServerInstance->Threads->Unlock();
 
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
@@ -1269,7 +1269,7 @@ void ServerConfig::Read(bool bail, User* user)
 
 		if (pl.size() && user)
 		{
-			ServerInstance->Threads->Mutex(true);
+			ServerInstance->Threads->Lock();
 			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick.c_str());
 			user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick.c_str());
 			int j = 1;
@@ -1277,10 +1277,10 @@ void ServerConfig::Read(bool bail, User* user)
 			{
 				user->WriteServ("NOTICE %s :*** %d.   Address: %s        Reason: %s", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
 			}
-			ServerInstance->Threads->Mutex(false);
+			ServerInstance->Threads->Unlock();
 		}
 
-		ServerInstance->Threads->Mutex(true);
+		ServerInstance->Threads->Lock();
 		if (!removed_modules.empty())
 		{
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
@@ -1325,16 +1325,16 @@ void ServerConfig::Read(bool bail, User* user)
 
 		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 
-		ServerInstance->Threads->Mutex(false);
+		ServerInstance->Threads->Unlock();
 
 	}
 
 	if (bail)
 	{
 		/** Note: This is safe, the method checks for user == NULL */
-		ServerInstance->Threads->Mutex(true);
+		ServerInstance->Threads->Lock();
 		ServerInstance->Parser->SetupCommandTable(user);
-		ServerInstance->Threads->Mutex(false);
+		ServerInstance->Threads->Unlock();
 	}
 	else
 	{
@@ -2363,8 +2363,8 @@ void ConfigReaderThread::Run()
 {
 	/* TODO: TheUser may be invalid by the time we get here! Check its validity, or pass a UID would be better */
 	ServerInstance->Config->Read(do_bail, TheUser);
-	ServerInstance->Threads->Mutex(true);
+	ServerInstance->Threads->Lock();
 	this->SetExitFlag();
-	ServerInstance->Threads->Mutex(false);
+	ServerInstance->Threads->Unlock();
 }
 

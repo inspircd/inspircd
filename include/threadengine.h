@@ -40,10 +40,21 @@ class CoreExport ThreadEngine : public Extensible
 	 /** Creator instance
 	  */
 	 InspIRCd* ServerInstance;
+
 	 /** New Thread being created.
 	  */
 	 Thread* NewThread;
 
+	 /** Enable or disable system-wide mutex for threading.
+	  * Remember that if you toggle the mutex you MUST UNSET
+	  * IT LATER otherwise the program will DEADLOCK!
+	  * It is recommended that you AVOID USE OF THIS METHOD
+	  * and use your own Mutex class, this function is mainly
+	  * reserved for use by the core and by the Thread engine
+	  * itself.
+	  * @param enable True to lock the mutex.
+	  */
+	 virtual bool Mutex(bool enable) = 0;
  public:
 
 	/** Constructor.
@@ -55,16 +66,15 @@ class CoreExport ThreadEngine : public Extensible
 	 */
 	virtual ~ThreadEngine();
 
-	/** Enable or disable system-wide mutex for threading.
-	 * Remember that if you toggle the mutex you MUST UNSET
-	 * IT LATER otherwise the program will DEADLOCK!
-	 * It is recommended that you AVOID USE OF THIS METHOD
-	 * and use your own Mutex class, this function is mainly
-	 * reserved for use by the core and by the Thread engine
-	 * itself.
-	 * @param enable True to lock the mutex.
+	/** Lock the system wide mutex. See the documentation for
+	 * ThreadEngine::Mutex().
 	 */
-	virtual bool Mutex(bool enable) = 0;
+	void Lock() { this->Mutex(true); }
+
+	/** Unlock the system wide mutex. See the documentation for
+	 * ThreadEngine::Mutex()
+	 */
+	void Unlock() { this->Mutex(false); }
 
 	/** Run the newly created thread.
 	 */
