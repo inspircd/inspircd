@@ -521,12 +521,13 @@ class ListModeBase : public ModeHandler
 				{
 					if (LM->extban && it->mask.length() > 1 && it->mask[0] == LM->extban && it->mask[1] == ':')
 					{
+						static std::string ext = it->mask.substr(2);
 						if (LM->user)
 						{
-							if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask.substr(2)) || InspIRCd::Match(LM->user->GetFullHost(), it->mask.substr(2)) || (InspIRCd::MatchCIDR(LM->literal, it->mask.substr(2))))
+							if (InspIRCd::Match(LM->user->GetFullRealHost(), ext) || InspIRCd::Match(LM->user->GetFullHost(), ext) || (InspIRCd::MatchCIDR(LM->literal, ext)))
 								return it->mask.c_str();
 						}
-						else if (InspIRCd::Match(LM->literal, it->mask.substr(2)))
+						else if (InspIRCd::Match(LM->literal, ext))
 							return it->mask.c_str();
 					}
 					else
