@@ -88,6 +88,7 @@ class ModuleAlias : public Module
 		ReadAliases();
 		Me->Modules->Attach(I_OnPreCommand, this);
 		Me->Modules->Attach(I_OnRehash, this);
+		Me->Modules->Attach(I_OnUserPreMessage, this);
 
 	}
 
@@ -166,7 +167,7 @@ class ModuleAlias : public Module
 		while (i != Aliases.end())
 		{
 			if (i->second.UserCommand)
-				DoAlias(user, &(i->second), compare, safe);
+				DoAlias(user, NULL, &(i->second), compare, safe);
 
 			i++;
 		}
@@ -175,7 +176,80 @@ class ModuleAlias : public Module
 		return 1;
 	}
 
-	void DoAlias(User *user, Alias *a, const std::string compare, const std::string safe)
+	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type != TYPE_CHANNEL)
+		{
+			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not a channel msg");
+			return 0;
+		}
+
+		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
+		if (!IS_LOCAL(user))
+		{
+			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not local");
+			return 0;
+		}
+
+		Channel *c = (Channel *)dest;
+		std::string fcommand;
+
+		// text is like "!moo cows bite me", we want "!moo" first
+		irc::spacesepstream ss(text);
+		ss.GetToken(fcommand);
+
+		if (fcommand.empty())
+		{
+			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: empty (?)");
+			return 0; // wtfbbq
+		}
+
+		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: looking at fcommand %s", fcommand.c_str());
+
+		// we don't want to touch non-fantasy stuff
+		if (*fcommand.c_str() != '!')
+		{
+			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not a fcommand");
+			return 0;
+		}
+
+		// nor do we give a shit about the !
+		fcommand.erase(fcommand.begin());
+		std::transform(fcommand.begin(), fcommand.end(), fcommand.begin(), ::toupper);
+		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: now got %s", fcommand.c_str());
+
+
+		std::multimap<std::string, Alias>::iterator i = Aliases.find(fcommand);
+
+		if (i == Aliases.end())
+			return 0;
+
+
+		/* The parameters for the command in their original form, with the command stripped off */
+		std::string compare = text.substr(fcommand.length() + 1);
+		while (*(compare.c_str()) == ' ')
+			compare.erase(compare.begin());
+
+		std::string safe(compare);
+
+		/* Escape out any $ symbols in the user provided text (ugly, but better than crashy) */
+		SearchAndReplace(safe, "$", "\r");
+
+		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: compare is %s and safe is %s", compare.c_str(), safe.c_str());
+
+		while (i != Aliases.end())
+		{
+			if (i->second.ChannelCommand)
+				DoAlias(user, c, &(i->second), compare, safe);
+
+			i++;
+		}
+		
+		return 0;
+	}
+
+
+	void DoAlias(User *user, Channel *c, Alias *a, const std::string compare, const std::string safe)
 	{
 		User *u = NULL;
 		/* Does it match the pattern? */
@@ -221,7 +295,7 @@ class ModuleAlias : public Module
 
 		if (crlf == std::string::npos)
 		{
-			DoCommand(a->ReplaceFormat, user, safe);
+			DoCommand(a->ReplaceFormat, user, c, safe);
 			return;
 		}
 		else
@@ -230,13 +304,13 @@ class ModuleAlias : public Module
 			std::string scommand;
 			while (commands.GetToken(scommand))
 			{
-				DoCommand(scommand, user, safe);
+				DoCommand(scommand, user, c, safe);
 			}
 			return;
 		}
 	}
 
-	void DoCommand(std::string newline, User* user, const std::string &original_line)
+	void DoCommand(std::string newline, User* user, Channel *c, const std::string &original_line)
 	{
 		std::vector<std::string> pars;
 
@@ -271,6 +345,12 @@ class ModuleAlias : public Module
 		SearchAndReplace(newline, "$ident", user->ident);
 		SearchAndReplace(newline, "$host", user->host);
 		SearchAndReplace(newline, "$vhost", user->dhost);
+
+		if (c)
+		{
+			/* Channel specific variables */
+			SearchAndReplace(newline, "$chan", c->name);			
+		}
 
 		/* Unescape any variable names in the user text before sending */
 		SearchAndReplace(newline, "\r", "$");
