@@ -925,6 +925,16 @@
 #<module name="m_operflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper invex/extban module: Adds +beI type O, to ban, exempt, and invex
+# given oper type masks.
+# e.g, /mode #channel +iI O:* is equivilant to chmode +O, but you
+# may also, e.g. /mode #channel +iI O:AdminTypeOnly to only allow admins.
+#
+# +be work in a similar fashion.
+#
+#<module name="m_operinvex.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper Join module: Auto-joins opers to a channel upon oper-up
 #<module name="m_operjoin.so">
 #
