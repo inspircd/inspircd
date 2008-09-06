@@ -78,6 +78,21 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
+	
+	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
+	{
+		std::stringstream hl(hostlist);
+		std::string xhost;
+		while (hl >> xhost)
+		{
+			if (InspIRCd::Match(host, xhost, NULL) || InspIRCd::MatchCIDR(ip, xhost, NULL))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	virtual void OnLoadModule(Module* mod, const std::string& name)
 	{
 		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
