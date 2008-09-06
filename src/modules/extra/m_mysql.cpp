@@ -403,9 +403,9 @@ class SQLConnection : public classbase
 
 		*queryend = 0;
 
-		Parent->QueueMutex->Enable(true);
+		Parent->QueueMutex->Lock();
 		req.query.q = query;
-		Parent->QueueMutex->Enable(false);
+		Parent->QueueMutex->Unlock();
 
 		if (!mysql_real_query(&connection, req.query.q.data(), req.query.q.length()))
 		{
@@ -418,9 +418,9 @@ class SQLConnection : public classbase
 			/* Put this new result onto the results queue.
 			 * XXX: Remember to mutex the queue!
 			 */
-			Parent->ResultsMutex->Enable(true);
+			Parent->ResultsMutex->Lock();
 			rq.push_back(r);
-			Parent->ResultsMutex->Enable(false);
+			Parent->ResultsMutex->Unlock();
 		}
 		else
 		{
@@ -431,9 +431,9 @@ class SQLConnection : public classbase
 			r->dbid = this->GetID();
 			r->query = req.query.q;
 
-			Parent->ResultsMutex->Enable(true);
+			Parent->ResultsMutex->Lock();
 			rq.push_back(r);
-			Parent->ResultsMutex->Enable(false);
+			Parent->ResultsMutex->Unlock();
 		}
 
 		/* Now signal the main thread that we've got a result to process.
@@ -564,10 +564,10 @@ void ConnectDatabases(InspIRCd* ServerInstance, ModuleSQL* Parent)
 		if (!i->second->Connect())
 		{
 			/* XXX: MUTEX */
-			Parent->LoggingMutex->Enable(true);
+			Parent->LoggingMutex->Lock();
 			ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
 			i->second->SetEnable(false);
-			Parent->LoggingMutex->Enable(false);
+			Parent->LoggingMutex->Unlock();
 		}
 	}
 }
@@ -717,12 +717,12 @@ class Notifier : public BufferedSocket
 			if (iter != Connections.end())
 			{
 				/* Lock the mutex, send back the data */
-				Parent->ResultsMutex->Enable(true);
+				Parent->ResultsMutex->Lock();
 				ResultQueue::iterator n = iter->second->rq.begin();
 				(*n)->Send();
 				delete (*n);
 				iter->second->rq.pop_front();
-				Parent->ResultsMutex->Enable(false);
+				Parent->ResultsMutex->Unlock();
 				return true;
 			}
 			/* No error, but unknown id */
@@ -792,7 +792,7 @@ const char* ModuleSQL::OnRequest(Request* request)
 		SQLrequest* req = (SQLrequest*)request;
 
 		/* XXX: Lock */
-		QueueMutex->Enable(true);
+		QueueMutex->Lock();
 
 		ConnMap::iterator iter;
 
@@ -809,7 +809,7 @@ const char* ModuleSQL::OnRequest(Request* request)
 			req->error.Id(SQL_BAD_DBID);
 		}
 
-		QueueMutex->Enable(false);
+		QueueMutex->Unlock();
 		/* XXX: Unlock */
 
 		return returnval;
@@ -865,16 +865,16 @@ void DispatcherThread::Run()
 		if (Parent->rehashing)
 		{
 		/* XXX: Lock */
-			Parent->QueueMutex->Enable(true);
+			Parent->QueueMutex->Lock();
 			Parent->rehashing = false;
 			LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
-			Parent->QueueMutex->Enable(false);
+			Parent->QueueMutex->Unlock();
 			/* XXX: Unlock */
 		}
 
 		SQLConnection* conn = NULL;
 		/* XXX: Lock here for safety */
-		Parent->QueueMutex->Enable(true);
+		Parent->QueueMutex->Lock();
 		for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
 			if (i->second->queue.totalsize())
@@ -883,7 +883,7 @@ void DispatcherThread::Run()
 				break;
 			}
 		}
-		Parent->QueueMutex->Enable(false);
+		Parent->QueueMutex->Unlock();
 		/* XXX: Unlock */
 
 		/* Theres an item! */
@@ -892,9 +892,9 @@ void DispatcherThread::Run()
 			conn->DoLeadingQuery();
 
 			/* XXX: Lock */
-			Parent->QueueMutex->Enable(true);
+			Parent->QueueMutex->Lock();
 			conn->queue.pop();
-			Parent->QueueMutex->Enable(false);
+			Parent->QueueMutex->Unlock();
 			/* XXX: Unlock */
 		}
 
