@@ -523,10 +523,10 @@ class ListModeBase : public ModeHandler
 					{
 						if (LM->user)
 						{
-							if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || InspIRCd::Match(LM->user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(LM->literal, it->mask)))
+							if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask.substr(2)) || InspIRCd::Match(LM->user->GetFullHost(), it->mask.substr(2)) || (InspIRCd::MatchCIDR(LM->literal, it->mask.substr(2))))
 								return it->mask.c_str();
 						}
-						else if (InspIRCd::Match(LM->literal.substr(2), it->mask))
+						else if (InspIRCd::Match(LM->literal, it->mask.substr(2)))
 							return it->mask.c_str();
 					}
 					else
