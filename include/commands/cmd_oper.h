@@ -19,7 +19,7 @@
 #include "users.h"
 #include "channels.h"
 
-bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
+CoreExport bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
 
 /** Handle /OPER. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
