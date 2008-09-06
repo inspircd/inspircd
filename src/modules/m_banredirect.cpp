@@ -15,6 +15,7 @@
 #include "u_listmode.h"
 
 /* $ModDesc: Allows an extended ban (+b) syntax redirecting banned users to another channel */
+/* $ModDep: ../../include/u_listmode.h */
 
 /* Originally written by Om, January 2008
  */
