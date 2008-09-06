@@ -79,7 +79,7 @@ class ListModeRequest : public Request
 	 * @param literalstr String to check against, e.g. "Bob!Bobbertson@weeblshouse"
 	 * @param extbanchar Extended ban character to use for the match, or a null char if not using extban
 	 */
-	ListModeRequest(Module* sender, Module* target, std::string literalstr, char extbanchar, Channel* channel) : Request(sender, target, "LM_CHECKLIST_EX"), literal(literalstr), extban(extbanchar), chan(channel)
+	ListModeRequest(Module* sender, Module* target, std::string literalstr, char extbanchar, Channel* channel) : Request(sender, target, "LM_CHECKLIST_EX"), user(NULL), literal(literalstr), extban(extbanchar), chan(channel)
 	{
 	}
 
