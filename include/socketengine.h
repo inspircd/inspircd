@@ -68,7 +68,27 @@ class CoreExport EventHandler : public Extensible
 	 * other forms of IPC.
 	 */
 	int fd;
+
+	/** Pointer to the module which has hooked the given EventHandler for IO events.
+	 */
+	Module *IOHook;
  public:
+
+	/** Return the current hooker of IO events for this socket, or NULL.
+	 * @return Hooker module, if set, or NULL.
+	 */
+	Module *GetIOHook();
+
+	/** Set a module as hooking IO events on this socket.
+	 * @param IOHooker The module hooking IO
+	 * @return True if the hook could be added, false otherwise.
+	 */
+	bool AddIOHook(Module *IOHooker);
+
+	/** Remove IO hooking from a module
+	 * @return True if hooking was successfully removed, false otherwise.
+	 */
+	bool DelIOHook();
 
 	/** Get the current file descriptor
 	 * @return The file descriptor of this handler

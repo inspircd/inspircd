@@ -65,37 +65,6 @@ void ServerConfig::ClearStack()
 	include_stack.clear();
 }
 
-Module* ServerConfig::GetIOHook(BufferedSocket* is)
-{
-	std::map<BufferedSocket*,Module*>::iterator x = SocketIOHookModule.find(is);
-	return (x != SocketIOHookModule.end() ? x->second : NULL);
-}
-
-bool ServerConfig::AddIOHook(Module* iomod, BufferedSocket* is)
-{
-	if (!GetIOHook(is))
-	{
-		SocketIOHookModule[is] = iomod;
-		is->IsIOHooked = true;
-		return true;
-	}
-	else
-	{
-		throw ModuleException("BufferedSocket derived class already hooked by another module");
-	}
-}
-
-bool ServerConfig::DelIOHook(BufferedSocket* is)
-{
-	std::map<BufferedSocket*,Module*>::iterator x = SocketIOHookModule.find(is);
-	if (x != SocketIOHookModule.end())
-	{
-		SocketIOHookModule.erase(x);
-		return true;
-	}
-	return false;
-}
-
 void ServerConfig::Update005()
 {
 	std::stringstream out(data005);

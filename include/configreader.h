@@ -607,10 +607,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	std::vector<ListenSocket*> ports;
 
-	/** socket objects that are attached to by modules
-	 */
-	std::map<BufferedSocket*, Module*> SocketIOHookModule;
-
 	/** The 005 tokens of this server (ISUPPORT)
 	 * populated/repopulated upon loading or unloading
 	 * modules.
@@ -822,26 +818,6 @@ class CoreExport ServerConfig : public Extensible
 	void ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild);
 
 	void ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val);
-
-	/** Get a pointer to the module which has hooked the given BufferedSocket class.
-	 * @parameter port Port number
-	 * @return Returns a pointer to the hooking module, or NULL
-	 */
-	Module* GetIOHook(BufferedSocket* is);
-
-	/** Hook a module to an BufferedSocket class, so that it can receive notifications
-	 * of low-level socket activity.
-	 * @param iomod The module to hook to the socket
-	 * @param is The BufferedSocket to attach to
-	 * @return True if the hook was successful.
-	 */
-	bool AddIOHook(Module* iomod, BufferedSocket* is);
-
-	/** Delete a module hook from an BufferedSocket.
-	 * @param is The BufferedSocket to detatch from.
-	 * @return True if the unhook was successful
-	 */
-	bool DelIOHook(BufferedSocket* is);
 
 	/** Returns the fully qualified path to the inspircd directory
 	 * @return The full program directory

@@ -41,6 +41,27 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
+bool EventHandler::AddIOHook(Module *IOHooker)
+{
+	if (this->IOHook)
+		return false;
+
+	this->IOHook = IOHooker;
+}
+
+bool EventHandler::DelIOHook()
+{
+	if (!this->IOHook)
+		return false
+
+	this->IOHook = false;
+}
+
+Module *EventHandler::GetIOHook()
+{
+	return this->IOHook;
+}
+
 int EventHandler::GetFd()
 {
 	return this->fd;
