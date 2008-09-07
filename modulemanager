@@ -72,7 +72,7 @@ while (<SRC>) {
 }
 close SRC;
 
-getmodules();
+getmodules(1);
 
 `./src/version.sh` =~ /InspIRCd-([0-9.]+)/ or die "Cannot determine inspircd version";
 $installed{core} = $1;

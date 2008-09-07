@@ -154,8 +154,15 @@ sub nopedantic {
 
 sub getmodules
 {
+	my ($silent) = @_;
+
 	my $i = 0;
-	print "Detecting modules ";
+
+	if (!$silent)
+	{
+		print "Detecting modules ";
+	}
+
 	opendir(DIRHANDLE, "src/modules") or die("WTF, missing src/modules!");
 	foreach my $name (sort readdir(DIRHANDLE))
 	{
@@ -163,11 +170,18 @@ sub getmodules
 		{
 			my $mod = $1;
 			$main::modlist[$i++] = $mod;
-			print ".";
+			if (!$silent)
+			{
+				print ".";
+			}
 		}
 	}
 	closedir(DIRHANDLE);
-	print "\nOk, $i modules.\n";
+
+	if (!$silent)
+	{
+		print "\nOk, $i modules.\n";
+	}
 }
 
 sub promptnumeric($$)
