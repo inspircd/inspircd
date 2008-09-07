@@ -59,13 +59,14 @@ sub getrevision {
 	my $data = `svn info 2>/dev/null`;
 	if ($data eq "")
 	{
-		$data = `git-svn info 2>/dev/null`;
+		$data = `git describe --tags --always 2>/dev/null`;
 		if ($data eq "")
 		{
 			$no_svn = 1;
-			my $rev = "0";
-			return $rev;
+			return '0';
 		}
+		chomp $data; # remove \n
+		return $data;
 	}
 	$data =~ /Revision: (\d+)/;
 	my $rev = $1;
