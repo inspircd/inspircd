@@ -33,6 +33,7 @@ sub parse_url {
 	my $mod;
 	for (split /\n+/, $doc) {
 		s/^\s+//; # ignore whitespace at start
+		next if /^#/;
 		if (/^module (\S+) ([0-9.]+) (\S+)/) {
 			my($name, $ver, $url) = ($1,$2,$3);
 			if ($modules{$name}{$ver}) {
@@ -60,6 +61,7 @@ sub parse_url {
 
 open SRC, 'sources.list' or die "Could not open sources.list: $!";
 while (<SRC>) {
+	next if /^\s*#/;
 	parse_url($_);
 }
 close SRC;
