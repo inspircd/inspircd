@@ -56,10 +56,10 @@ sub getrevision {
 	{
 		return "0";
 	}
-	my $data = `svn info`;
+	my $data = `svn info 2>/dev/null`;
 	if ($data eq "")
 	{
-		$data = `git-svn info`;
+		$data = `git-svn info 2>/dev/null`;
 		if ($data eq "")
 		{
 			$no_svn = 1;
