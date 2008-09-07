@@ -71,8 +71,8 @@ class ModuleAlias : public Module
 			a.ReplaceFormat = MyConf.ReadValue("alias", "replace", i, true);
 			a.RequiredNick = MyConf.ReadValue("alias", "requires", i);
 			a.ULineOnly = MyConf.ReadFlag("alias", "uline", i);
-			a.ChannelCommand = MyConf.ReadFlag("alias", "channelcommand", false, i);
-			a.UserCommand = MyConf.ReadFlag("alias", "usercommand", true, i);
+			a.ChannelCommand = MyConf.ReadFlag("alias", "channelcommand", "no", i);
+			a.UserCommand = MyConf.ReadFlag("alias", "usercommand", "yes", i);
 			a.OperOnly = MyConf.ReadFlag("alias", "operonly", i);
 			a.format = MyConf.ReadValue("alias", "format", i);
 			a.CaseSensitive = MyConf.ReadFlag("alias", "matchcase", i);
