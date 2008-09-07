@@ -305,7 +305,7 @@ class ModuleAlias : public Module
 		if (crlf == std::string::npos)
 		{
 			DoCommand(a->ReplaceFormat, user, c, safe);
-			return 0;
+			return 1;
 		}
 		else
 		{
@@ -315,7 +315,7 @@ class ModuleAlias : public Module
 			{
 				DoCommand(scommand, user, c, safe);
 			}
-			return 0;
+			return 1;
 		}
 	}
 
