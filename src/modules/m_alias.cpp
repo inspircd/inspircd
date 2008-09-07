@@ -167,7 +167,12 @@ class ModuleAlias : public Module
 		while (i != Aliases.end())
 		{
 			if (i->second.UserCommand)
-				DoAlias(user, NULL, &(i->second), compare, safe);
+			{
+				if (DoAlias(user, NULL, &(i->second), compare, safe))
+				{
+					return 1;
+				}
+			}
 
 			i++;
 		}
@@ -240,7 +245,10 @@ class ModuleAlias : public Module
 		while (i != Aliases.end())
 		{
 			if (i->second.ChannelCommand)
-				DoAlias(user, c, &(i->second), compare, safe);
+			{
+				if (DoAlias(user, c, &(i->second), compare, safe))
+					return 0;
+			}
 
 			i++;
 		}
@@ -249,26 +257,27 @@ class ModuleAlias : public Module
 	}
 
 
-	void DoAlias(User *user, Channel *c, Alias *a, const std::string compare, const std::string safe)
+	int DoAlias(User *user, Channel *c, Alias *a, const std::string compare, const std::string safe)
 	{
 		User *u = NULL;
+
 		/* Does it match the pattern? */
 		if (!a->format.empty())
 		{
 			if (a->CaseSensitive)
 			{
 				if (InspIRCd::Match(compare, a->format, case_sensitive_map))
-					return;
+					return 0;
 			}
 			else
 			{
 				if (InspIRCd::Match(compare, a->format))
-					return;
+					return 0;
 			}
 		}
 
 		if ((a->OperOnly) && (!IS_OPER(user)))
-			return;
+			return 0;
 
 		if (!a->RequiredNick.empty())
 		{
@@ -276,7 +285,7 @@ class ModuleAlias : public Module
 			if (!u)
 			{
 				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->RequiredNick+" :is currently unavailable. Please try again later.");
-				return;
+				return 1;
 			}
 		}
 		if ((u != NULL) && (!a->RequiredNick.empty()) && (a->ULineOnly))
@@ -285,7 +294,7 @@ class ModuleAlias : public Module
 			{
 				ServerInstance->SNO->WriteToSnoMask('A', "NOTICE -- Service "+a->RequiredNick+" required by alias "+std::string(a->AliasedCommand.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
 				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->RequiredNick+" :is an imposter! Please inform an IRC operator as soon as possible.");
-				return;
+				return 1;
 			}
 		}
 
@@ -296,7 +305,7 @@ class ModuleAlias : public Module
 		if (crlf == std::string::npos)
 		{
 			DoCommand(a->ReplaceFormat, user, c, safe);
-			return;
+			return 0;
 		}
 		else
 		{
@@ -306,7 +315,7 @@ class ModuleAlias : public Module
 			{
 				DoCommand(scommand, user, c, safe);
 			}
-			return;
+			return 0;
 		}
 	}
 
