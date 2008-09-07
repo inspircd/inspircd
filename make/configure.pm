@@ -59,7 +59,7 @@ sub getrevision {
 	my $data = `svn info 2>/dev/null`;
 	if ($data eq "")
 	{
-		$data = `git describe --tags --always 2>/dev/null`;
+		$data = `git describe --tags 2>/dev/null`;
 		if ($data eq "")
 		{
 			$no_svn = 1;
