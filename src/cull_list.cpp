@@ -78,11 +78,11 @@ int CullList::Apply()
 
 		if (IS_LOCAL(u))
 		{
-			if (u->io)
+			if (u->GetIOHook())
 			{
 				try
 				{
-					u->io->OnRawSocketClose(u->GetFd());
+					u->GetIOHook()->OnRawSocketClose(u->GetFd());
 				}
 				catch (CoreException& modexcept)
 				{

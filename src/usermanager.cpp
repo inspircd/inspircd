@@ -49,11 +49,11 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	/* Give each of the modules an attempt to hook the user for I/O */
 	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New, targetip));
 
-	if (New->io)
+	if (New->GetIOHook())
 	{
 		try
 		{
-			New->io->OnRawSocketAccept(socket, ipaddr, port);
+			New->GetIOHook()->OnRawSocketAccept(socket, ipaddr, port);
 		}
 		catch (CoreException& modexcept)
 		{

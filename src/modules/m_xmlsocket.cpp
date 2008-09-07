@@ -102,8 +102,8 @@ class ModuleXMLSocket : public Module
 		if(target_type == TYPE_USER)
 		{
 			User* user = (User*)item;
-			if(user->io == this)
-				user->io = NULL;
+			if(user->GetIOHook() == this)
+				user->DelIOHook();
 		}
 	}
 
@@ -114,10 +114,10 @@ class ModuleXMLSocket : public Module
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->io && isin(targetip,user->GetPort(),listenports))
+		if (!user->GetIOHook() && isin(targetip,user->GetPort(),listenports))
 		{
 			/* Hook the user with our module */
-			user->io = this;
+			user->AddIOHook(this);
 		}
 	}
 

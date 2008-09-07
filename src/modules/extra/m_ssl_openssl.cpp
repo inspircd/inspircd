@@ -167,10 +167,10 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->io && isin(targetip,user->GetPort(), listenports))
+		if (!user->GetIOHook() && isin(targetip,user->GetPort(), listenports))
 		{
 			/* Hook the user with our module */
-			user->io = this;
+			user->AddIOHook(this);
 		}
 	}
 
@@ -321,12 +321,12 @@ class ModuleSSLOpenSSL : public Module
 		{
 			User* user = (User*)item;
 
-			if (user->io == this)
+			if (user->GetIOHook() == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
-				user->io = NULL;
+				user->DelIOHook()
 			}
 			if (user->GetExt("ssl_cert", dummy))
 			{
@@ -687,7 +687,7 @@ class ModuleSSLOpenSSL : public Module
 			return;
 
 		// Bugfix, only send this numeric for *our* SSL users
-		if (dest->GetExt("ssl", dummy) || ((IS_LOCAL(dest) && dest->io == this)))
+		if (dest->GetExt("ssl", dummy) || ((IS_LOCAL(dest) && dest->GetIOHook() == this)))
 		{
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 		}
