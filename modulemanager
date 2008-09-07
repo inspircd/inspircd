@@ -137,6 +137,7 @@ sub find_mod_in_range {
 }
 
 sub resolve_deps {
+	my($trial) = @_;
 	my $tries = 100;
 	my $changes = 'INIT';
 	my $fail = undef;
@@ -170,6 +171,9 @@ sub resolve_deps {
 			}
 		}
 	}
+	if ($trial) {
+		return !($changes || $fail);
+	}
 	if ($changes) {
 		print "Infinite dependency loop:$changes\n";
 		exit 1;
@@ -198,15 +202,20 @@ if ($action eq 'install') {
 		$todo{$mod} = $ver;
 	}
 } elsif ($action eq 'upgrade') {
-	for my $mod (keys %installed) {
+	my @installed = sort keys %installed;
+	for my $mod (@installed) {
 		next unless $mod =~ /^m_/;
+		my %saved = %todo;
 		$todo{$mod} = find_mod_in_range($mod);
+		if (!resolve_deps(1)) {
+			%todo = %saved;
+		}
 	}
 } else {
 	die "Unknown action $action"
 }
 
-resolve_deps();
+resolve_deps(0);
 
 $| = 1; # immediate print of lines without \n
 
