@@ -106,7 +106,7 @@ class CoreExport EventHandler : public Extensible
 
 	/** Constructor
 	 */
-	EventHandler() {}
+	EventHandler();
 
 	/** Destructor
 	 */

@@ -41,6 +41,11 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
+EventHandler::EventHandler()
+{
+	this->IOHook = NULL;
+}
+
 bool EventHandler::AddIOHook(Module *IOHooker)
 {
 	if (this->IOHook)
@@ -55,7 +60,7 @@ bool EventHandler::DelIOHook()
 	if (!this->IOHook)
 		return false;
 
-	this->IOHook = false;
+	this->IOHook = NULL;
 	return true;
 }
 
