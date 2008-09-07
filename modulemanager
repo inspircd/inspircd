@@ -167,7 +167,7 @@ sub resolve_deps {
 				my($depmod, $depvers) = ($1,$2);
 				next unless $todo{$depmod} && ver_in_range($todo{$depmod}, $depvers);
 				# if there are changes this round, maybe the conflict won't come up after they are resolved.
-				$fail ||= "Cannot install: module $mod ($ver) conflicts with versions $depmod version $todo{depmod}";
+				$fail ||= "Cannot install: module $mod ($ver) conflicts with $depmod version $todo{$depmod}";
 			}
 		}
 	}
