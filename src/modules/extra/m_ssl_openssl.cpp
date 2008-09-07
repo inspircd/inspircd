@@ -369,7 +369,7 @@ class ModuleSSLOpenSSL : public Module
 			const char* ret = "OK";
 			try
 			{
-				ret = ServerInstance->Config->AddIOHook((Module*)this, (BufferedSocket*)ISR->Sock) ? "OK" : NULL;
+				ret = ISR->Sock->AddIOHook((Module*)this) ? "OK" : NULL;
 			}
 			catch (ModuleException &e)
 			{
@@ -380,7 +380,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
-			return ServerInstance->Config->DelIOHook((BufferedSocket*)ISR->Sock) ? "OK" : NULL;
+			return ISR->Sock->DelIOHook() ? "OK" : NULL;
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
