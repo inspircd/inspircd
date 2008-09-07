@@ -32,7 +32,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI)
 	this->fd = -1;
 	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
-	this->IsIOHooked = false;
 }
 
 BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
@@ -43,7 +42,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
 	strlcpy(this->IP,ip,MAXBUF);
 	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
-	this->IsIOHooked = false;
 	if (this->fd > -1)
 		this->Instance->SE->AddFd(this);
 }
@@ -55,7 +53,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 	this->Instance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->WaitingForWriteEvent = false;
-	this->IsIOHooked = false;
 	this->Timeout = NULL;
 	if (listening)
 	{
@@ -359,12 +356,12 @@ void BufferedSocket::Close()
 	int save = errno;
 	if (this->fd > -1)
 	{
-		if (this->IsIOHooked && Instance->Config->GetIOHook(this))
+		if (this->GetIOHook())
 		{
 			try
 			{
 				if (this->state != I_LISTENING)
-					Instance->Config->GetIOHook(this)->OnRawSocketClose(this->fd);
+					this->GetIOHook()->OnRawSocketClose(this->fd);
 			}
 			catch (CoreException& modexcept)
 			{
@@ -394,13 +391,13 @@ const char* BufferedSocket::Read()
 	int n = 0;
 	char* ReadBuffer = Instance->GetReadBuffer();
 
-	if (this->IsIOHooked)
+	if (this->GetIOHook())
 	{
 		int result2 = 0;
 		int MOD_RESULT = 0;
 		try
 		{
-			MOD_RESULT = Instance->Config->GetIOHook(this)->OnRawSocketRead(this->fd, ReadBuffer, Instance->Config->NetBufferSize, result2);
+			MOD_RESULT = this->GetIOHook()->OnRawSocketRead(this->fd, ReadBuffer, Instance->Config->NetBufferSize, result2);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -468,7 +465,7 @@ bool BufferedSocket::FlushWriteBuffer()
 	errno = 0;
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
-		if (this->IsIOHooked)
+		if (this->GetIOHook())
 		{
 			while (outbuffer.size() && (errno != EAGAIN))
 			{
@@ -477,7 +474,7 @@ bool BufferedSocket::FlushWriteBuffer()
 					/* XXX: The lack of buffering here is NOT a bug, modules implementing this interface have to
 					 * implement their own buffering mechanisms
 					 */
-					Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
+					this->GetIOHook()->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
 					outbuffer.pop_front();
 				}
 				catch (CoreException& modexcept)
@@ -604,12 +601,12 @@ bool BufferedSocket::Poll()
 #endif
 			this->SetState(I_CONNECTED);
 
-			if (Instance->Config->GetIOHook(this))
+			if (this->GetIOHook())
 			{
 				Instance->Logs->Log("SOCKET",DEBUG,"Hook for raw connect");
 				try
 				{
-					Instance->Config->GetIOHook(this)->OnRawSocketConnect(this->fd);
+					this->GetIOHook()->OnRawSocketConnect(this->fd);
 				}
 				catch (CoreException& modexcept)
 				{
@@ -647,11 +644,11 @@ bool BufferedSocket::Poll()
 
 			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
-			if (this->IsIOHooked)
+			if (this->GetIOHook())
 			{
 				try
 				{
-					Instance->Config->GetIOHook(this)->OnRawSocketAccept(incoming, recvip.c_str(), this->port);
+					this->GetIOHook()->OnRawSocketAccept(incoming, recvip.c_str(), this->port);
 				}
 				catch (CoreException& modexcept)
 				{
