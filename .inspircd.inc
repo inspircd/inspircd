@@ -3,7 +3,7 @@
 #       | Inspire Internet Relay Chat Daemon |
 #       +------------------------------------+
 #
-#      (C) 2002-2007 InspIRCd Development Team
+#      (C) 2002-2008 InspIRCd Development Team
 #   http://www.inspircd.org/wiki/index.php/Credits
 #
 # Written by Craig Edwards, Craig McLure, and others.
