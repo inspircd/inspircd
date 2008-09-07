@@ -15,7 +15,6 @@
 #define __USERS_H__
 
 #include "socket.h"
-#include "connection.h"
 #include "dns.h"
 #include "mode.h"
 
@@ -413,7 +412,7 @@ class CoreExport VisData
  * by nickname, or the FindDescriptor method of the InspIRCd class to find a specific user by their
  * file descriptor value.
  */
-class CoreExport User : public connection
+class CoreExport User : public EventHandler
 {
  private:
 	/** Pointer to creator.
@@ -471,6 +470,55 @@ class CoreExport User : public connection
 	/** User visibility state, see definition of VisData.
 	 */
 	VisData* Visibility;
+
+	/** Hostname of connection.
+	 * This should be valid as per RFC1035.
+	 */
+	std::string host;
+
+	/** Stats counter for bytes inbound
+	 */
+	int bytes_in;
+
+	/** Stats counter for bytes outbound
+	 */
+	int bytes_out;
+
+	/** Stats counter for commands inbound
+	 */
+	int cmds_in;
+
+	/** Stats counter for commands outbound
+	 */
+	int cmds_out;
+
+	/** True if user has authenticated, false if otherwise
+	 */
+	bool haspassed;
+
+	/** Used by User to indicate the registration status of the connection
+	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
+	 * the connection state.
+	 */
+	char registered;
+
+	/** Time the connection was last pinged
+	 */
+	time_t lastping;
+
+	/** Time the connection was created, set in the constructor. This
+	 * may be different from the time the user's classbase object was
+	 * created.
+	 */
+	time_t signon;
+
+	/** Time that the connection last sent a message, used to calculate idle time
+	 */
+	time_t idle_lastmsg;
+
+	/** Used by PING checking code
+	 */
+	time_t nping;
 
 	/** Stored reverse lookup from res_forward
 	 */
