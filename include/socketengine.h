@@ -38,6 +38,7 @@ enum EventType
 };
 
 class InspIRCd;
+class Module;
 
 /** This class is a basic I/O handler class.
  * Any object which wishes to receive basic I/O events
