@@ -112,22 +112,6 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	}
 
 	/*
-	 * XXX -
-	 * this is done as a safety check to keep the file descriptors within range of fd_ref_table.
-	 * its a pretty big but for the moment valid assumption:
-	 * file descriptors are handed out starting at 0, and are recycled as theyre freed.
-	 * therefore if there is ever an fd over 65535, 65536 clients must be connected to the
-	 * irc server at once (or the irc server otherwise initiating this many connections, files etc)
-	 * which for the time being is a physical impossibility (even the largest networks dont have more
-	 * than about 10,000 users on ONE server!)
-	 */
-	if (socket >= Instance->SE->GetMaxFds())
-	{
-		this->QuitUser(New, "Server is full");
-		return;
-	}
-
-	/*
 	 * even with bancache, we still have to keep User::exempt current.
 	 * besides that, if we get a positive bancache hit, we still won't fuck
 	 * them over if they are exempt. -- w00t

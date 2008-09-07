@@ -127,6 +127,25 @@ void ListenSocket::AcceptInternal()
 			ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
 	}
 
+	/*
+	 * XXX -
+	 * this is done as a safety check to keep the file descriptors within range of fd_ref_table.
+	 * its a pretty big but for the moment valid assumption:
+	 * file descriptors are handed out starting at 0, and are recycled as theyre freed.
+	 * therefore if there is ever an fd over 65535, 65536 clients must be connected to the
+	 * irc server at once (or the irc server otherwise initiating this many connections, files etc)
+	 * which for the time being is a physical impossibility (even the largest networks dont have more
+	 * than about 10,000 users on ONE server!)
+	 */
+	if (incomingSockfd >= ServerInstance->SE->GetMaxFds())
+	{
+		ServerInstance->Logs->Log("SOCKET", DEBUG, "Server is full");
+		ServerInstance->SE->Shutdown(incomingSockfd, 2);
+		ServerInstance->SE->Close(incomingSockfd);
+		ServerInstance->stats->statsRefused++;
+		return;
+	}
+
 	ServerInstance->SE->NonBlocking(incomingSockfd);
 	ServerInstance->stats->statsAccept++;
 	this->OnAcceptReady(target, incomingSockfd);
