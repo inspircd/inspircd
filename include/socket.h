@@ -202,7 +202,22 @@ class CoreExport ListenSocket : public EventHandler
 	{
 		return bind_addr;
 	}
+
+	/** Handles sockets internals crap of a connection, convenience wrapper really
+	 */
+	void AcceptInternal();
+
+	/** Called when a new connection has successfully been accepted on this listener.
+	 * @param ipconnectedto The IP address the connection arrived on
+	 * @param fd The file descriptor of the new connection
+	 */
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd);
 };
+
+//class CoreExport ListenSocketClient : public ListenSocket
+//{
+//
+//}
 
 #endif
 

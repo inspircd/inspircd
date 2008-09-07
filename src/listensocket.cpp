@@ -70,77 +70,85 @@ ListenSocket::~ListenSocket()
 	}
 }
 
+/* Just seperated into another func for tidiness really.. */
+void ListenSocket::AcceptInternal()
+{
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket");
+	socklen_t uslen, length;		// length of our port number
+	int incomingSockfd;
+
+#ifdef IPV6
+	if (this->family == AF_INET6)
+	{
+		uslen = sizeof(sockaddr_in6);
+		length = sizeof(sockaddr_in6);
+	}
+	else
+#endif
+	{
+		uslen = sizeof(sockaddr_in);
+		length = sizeof(sockaddr_in);
+	}
+
+	incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
+
+	if (incomingSockfd < 0 ||
+		  ServerInstance->SE->GetSockName(this, sock_us, &uslen) == -1)
+	{
+		ServerInstance->SE->Shutdown(incomingSockfd, 2);
+		ServerInstance->SE->Close(incomingSockfd);
+		ServerInstance->stats->statsRefused++;
+		return;
+	}
+
+	static char buf[MAXBUF];
+	static char target[MAXBUF];	
+
+	*target = *buf = '\0';
+
+#ifdef IPV6
+	if (this->family == AF_INET6)
+	{
+		inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
+		socklen_t raddrsz = sizeof(sockaddr_in6);
+		if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
+			inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
+		else
+			ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
+	}
+	else
+#endif
+	{
+		inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
+		socklen_t raddrsz = sizeof(sockaddr_in);
+		if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
+			inet_ntop(AF_INET, &((const sockaddr_in*)raddr)->sin_addr, target, sizeof(target));
+		else
+			ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
+	}
+
+	ServerInstance->SE->NonBlocking(incomingSockfd);
+	ServerInstance->stats->statsAccept++;
+	this->OnAcceptReady(target, incomingSockfd);
+}
+
 void ListenSocket::HandleEvent(EventType e, int err)
 {
 	switch (e)
 	{
 		case EVENT_ERROR:
 			ServerInstance->Logs->Log("SOCKET",DEFAULT,"ListenSocket::HandleEvent() received a socket engine error event! well shit! '%s'", strerror(err));
-		break;
+			break;
 		case EVENT_WRITE:
 			ServerInstance->Logs->Log("SOCKET",DEBUG,"*** BUG *** ListenSocket::HandleEvent() got a WRITE event!!!");
-		break;
+			break;
 		case EVENT_READ:
-		{
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket");
-			socklen_t uslen, length;		// length of our port number
-			int incomingSockfd, in_port;
-
-#ifdef IPV6
-			if (this->family == AF_INET6)
-			{
-				uslen = sizeof(sockaddr_in6);
-				length = sizeof(sockaddr_in6);
-			}
-			else
-#endif
-			{
-				uslen = sizeof(sockaddr_in);
-				length = sizeof(sockaddr_in);
-			}
-
-			incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
-
-			if ((incomingSockfd > -1) && (!ServerInstance->SE->GetSockName(this, sock_us, &uslen)))
-			{
-				char buf[MAXBUF];
-				char target[MAXBUF];	
-
-				*target = *buf = '\0';
-
-#ifdef IPV6
-				if (this->family == AF_INET6)
-				{
-					in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
-					inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
-					socklen_t raddrsz = sizeof(sockaddr_in6);
-					if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
-						inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
-					else
-						ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
-				}
-				else
-#endif
-				{
-					inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
-					in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
-					socklen_t raddrsz = sizeof(sockaddr_in);
-					if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
-						inet_ntop(AF_INET, &((const sockaddr_in*)raddr)->sin_addr, target, sizeof(target));
-					else
-						ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
-				}
-				ServerInstance->SE->NonBlocking(incomingSockfd);
-				ServerInstance->stats->statsAccept++;
-				ServerInstance->Users->AddUser(ServerInstance, incomingSockfd, in_port, false, this->family, client, target);	
-			}
-			else
-			{
-				ServerInstance->SE->Shutdown(incomingSockfd, 2);
-				ServerInstance->SE->Close(incomingSockfd);
-				ServerInstance->stats->statsRefused++;
-			}
-		}
-		break;
+			this->AcceptInternal();
+			break;
 	}
+}
+
+void ListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd)
+{
+		ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, this->family, client, ipconnectedto);
 }
