@@ -32,7 +32,10 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		time_t timeout = 0;
 		if (parameters.size() == 3)
 		{
-			timeout = time(NULL) + ServerInstance->Duration(parameters[2]);
+			if (IS_LOCAL(user))
+				timeout = time(NULL) + ServerInstance->Duration(parameters[2]);
+			else
+				timeout = ConvToInt(parameters[2]);
 		}
 
 		if ((!c) || (!u))
