@@ -4,5 +4,7 @@
 # This file lists sources of third party modules that are available for installation with inspircd.
 # To manage these, you want the ./modulemanage binary.
 #
+# Test commit (you should see me).
+#
 # Feel free to add additional sources! :)
 http://www.inspircd.com/modules/modules.lst
