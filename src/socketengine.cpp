@@ -47,14 +47,16 @@ bool EventHandler::AddIOHook(Module *IOHooker)
 		return false;
 
 	this->IOHook = IOHooker;
+	return true;
 }
 
 bool EventHandler::DelIOHook()
 {
 	if (!this->IOHook)
-		return false
+		return false;
 
 	this->IOHook = false;
+	return true;
 }
 
 Module *EventHandler::GetIOHook()
