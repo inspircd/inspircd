@@ -444,6 +444,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\listensocket.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\logger.cpp"
 				>
 			</File>
@@ -591,10 +595,6 @@
 			</File>
 			<File
 				RelativePath="..\include\configreader.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\connection.h"
 				>
 			</File>
 			<File
