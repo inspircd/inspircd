@@ -19,12 +19,12 @@
 
 
 /* Private static member data must be initialized in this manner */
-unsigned int ListenSocket::socketcount = 0;
-sockaddr* ListenSocket::sock_us = NULL;
-sockaddr* ListenSocket::client = NULL;
-sockaddr* ListenSocket::raddr = NULL;
+unsigned int ListenSocketBase::socketcount = 0;
+sockaddr* ListenSocketBase::sock_us = NULL;
+sockaddr* ListenSocketBase::client = NULL;
+sockaddr* ListenSocketBase::raddr = NULL;
 
-ListenSocket::ListenSocket(InspIRCd* Instance, int port, char* addr) : ServerInstance(Instance), desc("plaintext"), bind_addr(addr), bind_port(port)
+ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, char* addr) : ServerInstance(Instance), desc("plaintext"), bind_addr(addr), bind_port(port)
 {
 	this->SetFd(irc::sockets::OpenTCPSocket(addr));
 	if (this->GetFd() > -1)
@@ -51,7 +51,7 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int port, char* addr) : ServerIns
 	socketcount++;
 }
 
-ListenSocket::~ListenSocket()
+ListenSocketBase::~ListenSocketBase()
 {
 	if (this->GetFd() > -1)
 	{
@@ -71,7 +71,7 @@ ListenSocket::~ListenSocket()
 }
 
 /* Just seperated into another func for tidiness really.. */
-void ListenSocket::AcceptInternal()
+void ListenSocketBase::AcceptInternal()
 {
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket");
 	socklen_t uslen, length;		// length of our port number
@@ -150,7 +150,7 @@ void ListenSocket::AcceptInternal()
 	this->OnAcceptReady(target, incomingSockfd, buf);
 }
 
-void ListenSocket::HandleEvent(EventType e, int err)
+void ListenSocketBase::HandleEvent(EventType e, int err)
 {
 	switch (e)
 	{
@@ -166,7 +166,7 @@ void ListenSocket::HandleEvent(EventType e, int err)
 	}
 }
 
-void ListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+void ClientListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 {
-		ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, this->family, client, ipconnectedto);
+	ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, this->family, client, ipconnectedto);
 }

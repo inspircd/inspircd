@@ -603,9 +603,9 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	ClassVector Classes;
 
-	/** A list of the classes for listening client ports
+	/** A list of the classes for listening ports
 	 */
-	std::vector<ListenSocket*> ports;
+	std::vector<ListenSocketBase *> ports;
 
 	/** The 005 tokens of this server (ISUPPORT)
 	 * populated/repopulated upon loading or unloading

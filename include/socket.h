@@ -145,7 +145,7 @@ namespace irc
  * It will create a new User for every valid connection
  * and assign it a file descriptor.
  */
-class CoreExport ListenSocket : public EventHandler
+class CoreExport ListenSocketBase : public EventHandler
 {
  protected:
 	/** The creator/owner of this object
@@ -171,13 +171,13 @@ class CoreExport ListenSocket : public EventHandler
  public:
 	/** Create a new listening socket
 	 */
-	ListenSocket(InspIRCd* Instance, int port, char* addr);
+	ListenSocketBase(InspIRCd* Instance, int port, char* addr);
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
 	/** Close the socket
 	 */
-	~ListenSocket();
+	~ListenSocketBase();
 	/** Set descriptive text
 	 */
 	void SetDescription(const std::string &description)
@@ -212,13 +212,15 @@ class CoreExport ListenSocket : public EventHandler
 	 * @param fd The file descriptor of the new connection
 	 * @param incomingip The IP from which the connection was made
 	 */
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd, const std::string &incomingip);
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd, const std::string &incomingip) = 0;
 };
 
-//class CoreExport ListenSocketClient : public ListenSocket
-//{
-//
-//}
+class CoreExport ClientListenSocket : public ListenSocketBase
+{
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd, const std::string &incomingip);
+ public:
+	ClientListenSocket(InspIRCd* Instance, int port, char* addr) : ListenSocketBase(Instance, port, addr) { }
+};
 
 #endif
 

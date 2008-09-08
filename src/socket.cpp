@@ -172,6 +172,7 @@ int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 	}
 }
 
+// XXX: it would be VERY nice to genericize this so all listen stuff (server/client) could use the one function. -- w00t
 int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
@@ -180,7 +181,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 	std::vector<std::pair<std::string, int> > old_ports;
 
 	/* XXX: Make a copy of the old ip/port pairs here */
-	for (std::vector<ListenSocket*>::iterator o = Config->ports.begin(); o != Config->ports.end(); ++o)
+	for (std::vector<ListenSocketBase *>::iterator o = Config->ports.begin(); o != Config->ports.end(); ++o)
 		old_ports.push_back(make_pair((*o)->GetIP(), (*o)->GetPort()));
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
@@ -202,7 +203,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 					*Addr = 0;
 
 				bool skip = false;
-				for (std::vector<ListenSocket*>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
+				for (std::vector<ListenSocketBase *>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
 				{
 					if (((*n)->GetIP() == Addr) && ((*n)->GetPort() == portno))
 					{
@@ -220,7 +221,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 				}
 				if (!skip)
 				{
-					ListenSocket* ll = new ListenSocket(this, portno, Addr);
+					ClientListenSocket *ll = new ClientListenSocket(this, portno, Addr);
 					if (ll->GetFd() > -1)
 					{
 						bound++;
@@ -241,7 +242,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 	{
 		for (size_t k = 0; k < old_ports.size(); ++k)
 		{
-			for (std::vector<ListenSocket*>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
+			for (std::vector<ListenSocketBase *>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
 			{
 				if (((*n)->GetIP() == old_ports[k].first) && ((*n)->GetPort() == old_ports[k].second))
 				{
