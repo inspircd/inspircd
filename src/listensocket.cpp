@@ -148,7 +148,7 @@ void ListenSocket::AcceptInternal()
 
 	ServerInstance->SE->NonBlocking(incomingSockfd);
 	ServerInstance->stats->statsAccept++;
-	this->OnAcceptReady(target, incomingSockfd);
+	this->OnAcceptReady(target, incomingSockfd, buf);
 }
 
 void ListenSocket::HandleEvent(EventType e, int err)
@@ -167,7 +167,7 @@ void ListenSocket::HandleEvent(EventType e, int err)
 	}
 }
 
-void ListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd)
+void ListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 {
 		ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, this->family, client, ipconnectedto);
 }

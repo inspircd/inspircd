@@ -210,8 +210,9 @@ class CoreExport ListenSocket : public EventHandler
 	/** Called when a new connection has successfully been accepted on this listener.
 	 * @param ipconnectedto The IP address the connection arrived on
 	 * @param fd The file descriptor of the new connection
+	 * @param incomingip The IP from which the connection was made
 	 */
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd);
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd, const std::string &incomingip);
 };
 
 //class CoreExport ListenSocketClient : public ListenSocket
