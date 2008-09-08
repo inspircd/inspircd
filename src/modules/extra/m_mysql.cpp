@@ -733,13 +733,11 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	PublicServerInstance = ServerInstance;
 	currid = 0;
 
-	MessagePipe = new Notifier(ServerInstance, this);
-
 	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
 #ifdef IPV6
-	MessagePipe = new MySQLListener(SI, 0, "::1");
+	MessagePipe = new MySQLListener(ServerInstance, 0, "::1");
 #else
-	MessagePipe = new MySQLListener(SI, 0, "127.0.0.1");
+	MessagePipe = new MySQLListener(ServerInstance, 0, "127.0.0.1");
 #endif
 
 	if (MessagePipe->GetFd())
