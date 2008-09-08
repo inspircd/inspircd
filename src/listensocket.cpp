@@ -24,15 +24,15 @@ sockaddr* ListenSocketBase::sock_us = NULL;
 sockaddr* ListenSocketBase::client = NULL;
 sockaddr* ListenSocketBase::raddr = NULL;
 
-ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, char* addr) : ServerInstance(Instance), desc("plaintext"), bind_addr(addr), bind_port(port)
+ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::string &addr) : ServerInstance(Instance), desc("plaintext"), bind_addr(addr), bind_port(port)
 {
-	this->SetFd(irc::sockets::OpenTCPSocket(addr));
+	this->SetFd(irc::sockets::OpenTCPSocket(addr.c_str()));
 	if (this->GetFd() > -1)
 	{
-		if (!Instance->BindSocket(this->fd,port,addr))
+		if (!Instance->BindSocket(this->fd,port,addr.c_str()))
 			this->fd = -1;
 #ifdef IPV6
-		if ((!*addr) || (strchr(addr,':')))
+		if ((!*addr.c_str()) || (strchr(addr.c_str(),':')))
 			this->family = AF_INET6;
 		else
 #endif

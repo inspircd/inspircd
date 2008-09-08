@@ -135,7 +135,7 @@ namespace irc
 		 * or a negative value upon failure (negative values are invalid file
 		 * descriptors)
 		 */
-		CoreExport int OpenTCPSocket(char* addr, int socktype = SOCK_STREAM);
+		CoreExport int OpenTCPSocket(const char* addr, int socktype = SOCK_STREAM);
 	}
 }
 
@@ -171,7 +171,7 @@ class CoreExport ListenSocketBase : public EventHandler
  public:
 	/** Create a new listening socket
 	 */
-	ListenSocketBase(InspIRCd* Instance, int port, char* addr);
+	ListenSocketBase(InspIRCd* Instance, int port, const std::string &addr);
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
@@ -219,7 +219,7 @@ class CoreExport ClientListenSocket : public ListenSocketBase
 {
 	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd, const std::string &incomingip);
  public:
-	ClientListenSocket(InspIRCd* Instance, int port, char* addr) : ListenSocketBase(Instance, port, addr) { }
+	ClientListenSocket(InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr) { }
 };
 
 #endif

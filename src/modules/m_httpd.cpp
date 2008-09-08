@@ -378,7 +378,7 @@ class HttpListener : public ListenSocketBase
 
 	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 	{
-		new HttpServerSocket(ServerInstance, nfd, (char *)incomingip.c_str(), index); // XXX unsafe casts suck
+		new HttpServerSocket(ServerInstance, nfd, incomingip.c_str(), index);
 	}
 };
 

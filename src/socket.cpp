@@ -143,7 +143,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 }
 
 // Open a TCP Socket
-int irc::sockets::OpenTCPSocket(char* addr, int socktype)
+int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
 {
 	int sockfd;
 	int on = 1;
