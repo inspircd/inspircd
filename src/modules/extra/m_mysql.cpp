@@ -717,7 +717,7 @@ class MySQLListener : public ListenSocketBase
 	FileReader* index;
 
  public:
-	MySQLListener(InspIRCd* Instance, int port, char* addr) : ListenSocketBase(Instance, port, addr) {	}
+	MySQLListener(InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr) {	}
 
 	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 	{
