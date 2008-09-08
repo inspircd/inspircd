@@ -386,10 +386,6 @@ class TreeSocket : public BufferedSocket
 	/** Handle socket close event
 	 */
 	virtual void OnClose();
-
-	/** Handle incoming connection event
-	 */
-	virtual int OnIncomingConnection(int newsock, char* ip);
 };
 
 /* Used to validate the value lengths of multiple parameters for a command */
