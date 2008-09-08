@@ -68,7 +68,7 @@
 
 
 class SQLConnection;
-class Notifier;
+class MySQLListener;
 
 
 typedef std::map<std::string, SQLConnection*> ConnMap;
@@ -657,24 +657,6 @@ class DispatcherThread : public Thread
 	virtual void Run();
 };
 
-/** Spawn HTTP sockets from a listener
- */
-class MySQLListener : public ListenSocketBase
-{
-	FileReader* index;
-
- public:
-	HttpListener(InspIRCd* Instance, int port, char* addr) : ListenSocketBase(Instance, port, addr)
-	{
-		this->index = idx;
-	}
-
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
-	{
-		new Notifier(this->ServerInstance, nfd, (char)ipconnectedto.c_str()); // XXX unsafe casts suck
-	}
-};
-
 /** Used by m_mysql to notify one thread when the other has a result
  */
 class Notifier : public BufferedSocket
@@ -728,6 +710,20 @@ class Notifier : public BufferedSocket
 	}
 };
 
+/** Spawn sockets from a listener
+ */
+class MySQLListener : public ListenSocketBase
+{
+	FileReader* index;
+
+ public:
+	MySQLListener(InspIRCd* Instance, int port, char* addr) : ListenSocketBase(Instance, port, addr) {	}
+
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	{
+		new Notifier(this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+	}
+};
 
 ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 {
