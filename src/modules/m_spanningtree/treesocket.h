@@ -43,21 +43,19 @@
  * to apply an operation to a server, and any of its child objects
  * we can resort to recursion to walk the tree structure.
  * Any socket can have one of five states at any one time.
- * The LISTENER state indicates a socket which is listening
- * for connections. It cannot receive data itself, only incoming
- * sockets.
- * The CONNECTING state indicates an outbound socket which is
- * waiting to be writeable.
- * The WAIT_AUTH_1 state indicates the socket is outbound and
- * has successfully connected, but has not yet sent and received
- * SERVER strings.
- * The WAIT_AUTH_2 state indicates that the socket is inbound
- * (allocated by a LISTENER) but has not yet sent and received
- * SERVER strings.
- * The CONNECTED state represents a fully authorized, fully
- * connected server.
+ *
+ * CONNECTING:	indicates an outbound socket which is
+ *							waiting to be writeable.
+ * WAIT_AUTH_1:	indicates the socket is outbound and
+ * 							has successfully connected, but has not
+ *							yet sent and received SERVER strings.
+ * WAIT_AUTH_2:	indicates that the socket is inbound
+ * 							but has not yet sent and received
+ *							SERVER strings.
+ * CONNECTED:		represents a fully authorized, fully
+ *							connected server.
  */
-enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
+enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
 /** Every SERVER connection inbound or outbound is represented by
  * an object of type TreeSocket.
@@ -98,14 +96,7 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, Module* HookMod = NULL);
-
-	/** Because most of the I/O gubbins are encapsulated within
-	 * BufferedSocket, we just call the superclass constructor for
-	 * most of the action, and append a few of our own values
-	 * to it.
-	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod = NULL);
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod = NULL);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new

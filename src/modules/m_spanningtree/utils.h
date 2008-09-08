@@ -21,6 +21,7 @@ class TreeServer;
 class TreeSocket;
 class Link;
 class ModuleSpanningTree;
+class SpanningTreeUtilities;
 
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
@@ -34,6 +35,22 @@ class ModuleSpanningTree;
 		typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<std::string>, irc::StrHashComp> server_hash;
 	#endif
 #endif
+
+/*
+ * Initialises server connections
+ */
+class ServerSocketListener : public ListenSocketBase
+{
+	SpanningTreeUtilities *Utils;
+
+ public:
+	ServerSocketListener(InspIRCd* Instance, SpanningTreeUtilities *u, int port, char* addr) : ListenSocketBase(Instance, port, addr)
+	{
+		this->Utils = u;
+	}
+
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip);
+};
 
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 
@@ -69,9 +86,10 @@ class SpanningTreeUtilities : public classbase
 	/** Make snomasks +CQ quiet during bursts and splits
 	 */
 	bool quiet_bursts;
+
 	/** Socket bindings for listening sockets
 	 */
-	std::vector<TreeSocket*> Bindings;
+	std::vector<ServerSocketListener *> Bindings;
 	/* Number of seconds that a server can go without ping
 	 * before opers are warned of high latency.
 	 */

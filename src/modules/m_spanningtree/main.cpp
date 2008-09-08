@@ -274,7 +274,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		/* Gave a hook, but it wasnt one we know */
 		if ((!x->Hook.empty()) && (Utils->hooks.find(x->Hook.c_str()) == Utils->hooks.end()))
 			return;
-		TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port,false,x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Bind, x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
+		TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port, x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Bind, x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */
@@ -878,10 +878,10 @@ void ModuleSpanningTree::OnEvent(Event* event)
 
 ModuleSpanningTree::~ModuleSpanningTree()
 {
-	/* This will also free the listeners */
 	delete ServerInstance->PI;
 	ServerInstance->PI = new ProtocolInterface(ServerInstance);
 
+	/* This will also free the listeners */
 	delete Utils;
 
 	ServerInstance->Timers->DelTimer(RefreshTimer);

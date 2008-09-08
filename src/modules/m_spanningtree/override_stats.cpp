@@ -76,15 +76,15 @@ int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results
 
 		for (unsigned int i = 0; i < Utils->Bindings.size(); i++)
 		{
-			std::string ip = Utils->Bindings[i]->IP;
+			std::string ip = Utils->Bindings[i]->GetIP();
 			if (ip.empty())
 				ip = "*";
 
 			std::string transport("plaintext");
-			if (Utils->Bindings[i]->GetHook())
-				transport = BufferedSocketNameRequest(this, Utils->Bindings[i]->GetHook()).Send();
+			if (Utils->Bindings[i]->GetIOHook())
+				transport = BufferedSocketNameRequest(this, Utils->Bindings[i]->GetIOHook()).Send();
 
-			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->port)+
+			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->GetPort())+
 				" (server, " + transport + ")");
 		}
 	}

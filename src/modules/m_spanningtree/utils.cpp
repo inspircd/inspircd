@@ -28,6 +28,37 @@
 
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
+/* Create server sockets off a listener. */
+void ServerSocketListener::OnAcceptReady(const std::string &ipconnectedto, int newsock, const std::string &incomingip)
+{
+	bool found = false;
+	char *ip = (char *)incomingip.c_str(); // XXX ugly cast
+
+	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), ip) != Utils->ValidIPs.end());
+	if (!found)
+	{
+		for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
+		{
+			if (*i == "*" || irc::sockets::MatchCIDR(ip, *i))
+			{
+				found = true;
+				break;
+			}
+		}
+
+		if (!found)
+		{
+			Utils->Creator->RemoteMessage(NULL,"Server connection from %s denied (no link blocks with that IP address)", ip);
+			ServerInstance->SE->Close(newsock);
+			return;
+		}
+	}
+
+	/* we don't need a pointer to this, creating it stores it in the necessary places */
+	new TreeSocket(this->Utils, this->ServerInstance, newsock, ip, this->GetIOHook());
+	return;
+}
+
 /** Yay for fast searches!
  * This is hundreds of times faster than recursion
  * or even scanning a linked list, especially when
@@ -144,9 +175,9 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 {
 	for (unsigned int i = 0; i < Bindings.size(); i++)
 	{
-		ServerInstance->SE->DelFd(Bindings[i]);
-		Bindings[i]->Close();
+		delete Bindings[i];
 	}
+
 	while (TreeRoot->ChildCount())
 	{
 		TreeServer* child_server = TreeRoot->GetChild(0);
@@ -417,8 +448,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	{
 		for (unsigned int i = 0; i < Bindings.size(); i++)
 		{
-			ServerInstance->SE->DelFd(Bindings[i]);
-			Bindings[i]->Close();
+			delete Bindings[i];
 		}
 		ServerInstance->BufferedSocketCull();
 		Bindings.clear();
@@ -445,17 +475,17 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 						break;
 					}
 
-					TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(), portno, true, 10, transport.empty() ? NULL : hooks[transport.c_str()]);
-					if (listener->GetState() == I_LISTENING)
+					ServerSocketListener *listener = new ServerSocketListener(ServerInstance, this, portno, (char *)IP.c_str());
+					if (listener->GetFd() == -1)
 					{
-						ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), portno);
-						Bindings.push_back(listener);
+						delete listener;
+						continue;
 					}
-					else
-					{
-						ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Warning: Failed to bind server port: %s:%d: %s",IP.c_str(), portno, strerror(errno));
-						listener->Close();
-					}
+
+					if (!transport.empty())
+						listener->AddIOHook(hooks[transport.c_str()]);
+
+					Bindings.push_back(listener);
 				}
 			}
 		}

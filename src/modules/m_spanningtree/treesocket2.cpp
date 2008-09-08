@@ -205,13 +205,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 
 		break;
-		case LISTENER:
-			/*
-			 * This really shouldn't happen.
-			 */
-			this->SendError("Internal error -- listening socket accepted its own descriptor!!!");
-			return false;
-		break;
 		case CONNECTING:
 			/*
 			 * State CONNECTING:
@@ -661,31 +654,4 @@ void TreeSocket::OnClose()
 	}
 }
 
-int TreeSocket::OnIncomingConnection(int newsock, char* ip)
-{
-	bool found = false;
 
-	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), ip) != Utils->ValidIPs.end());
-	if (!found)
-	{
-		for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
-		{
-			if (*i == "*" || irc::sockets::MatchCIDR(ip, *i))
-			{
-				found = true;
-				break;
-			}
-		}
-
-		if (!found)
-		{
-			Utils->Creator->RemoteMessage(NULL,"Server connection from %s denied (no link blocks with that IP address)", ip);
-			Instance->SE->Close(newsock);
-			return false;
-		}
-	}
-
-	/* we don't need a pointer to this, creating it stores it in the necessary places */
-	new TreeSocket(this->Utils, this->Instance, newsock, ip, this->Hook);
-	return true;
-}

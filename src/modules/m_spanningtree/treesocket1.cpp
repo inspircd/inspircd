@@ -36,19 +36,8 @@
  * most of the action, and append a few of our own values
  * to it.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string shost, int iport, bool listening, unsigned long maxtime, Module* HookMod)
-	: BufferedSocket(SI, shost, iport, listening, maxtime), Utils(Util), Hook(HookMod)
-{
-	myhost = host;
-	this->LinkState = LISTENER;
-	theirchallenge.clear();
-	ourchallenge.clear();
-	if (listening && Hook)
-		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
-}
-
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string shost, int iport, bool listening, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod)
-	: BufferedSocket(SI, shost, iport, listening, maxtime, bindto), Utils(Util), Hook(HookMod)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod)
+	: BufferedSocket(SI, shost, iport, maxtime, bindto), Utils(Util), Hook(HookMod)
 {
 	myhost = ServerName;
 	theirchallenge.clear();
@@ -141,9 +130,6 @@ bool TreeSocket::OnConnected()
 void TreeSocket::OnError(BufferedSocketError e)
 {
 	Link* MyLink;
-
-	if (this->LinkState == LISTENER)
-		return;
 
 	switch (e)
 	{

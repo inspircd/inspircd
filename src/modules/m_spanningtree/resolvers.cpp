@@ -54,7 +54,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		if ((!MyLink.Hook.empty()) && (Utils->hooks.find(MyLink.Hook.c_str()) ==  Utils->hooks.end()))
 			return;
 
-		TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,false,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str(),
+		TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str(),
 							MyLink.Bind, MyLink.Hook.empty() ? NULL : Utils->hooks[MyLink.Hook.c_str()]);
 		if (newsocket->GetFd() > -1)
 		{
