@@ -740,7 +740,7 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	MessagePipe = new MySQLListener(ServerInstance, 0, "127.0.0.1");
 #endif
 
-	if (MessagePipe->GetFd())
+	if (MessagePipe->GetFd() == -1)
 		throw ModuleException("m_mysql: unable to create ITC pipe");
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
