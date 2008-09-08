@@ -27,8 +27,6 @@ enum BufferedSocketState
 	I_CONNECTING,
 	/** Socket fully connected */
 	I_CONNECTED,
-	/** Socket listening for connections */
-	I_LISTENING,
 	/** Socket has an error */
 	I_ERROR
 };
@@ -106,44 +104,31 @@ class CoreExport BufferedSocket : public EventHandler
 {
  public:
 
-	/** 
-	 * Bind IP
+	/** Bind IP
 	 */
 	std::string cbindip;
 
-	/** 
-	 * Is hooked by a module for low level IO
-	 */
-	bool IsIOHooked;
-
-	/** 
-	 * Instance we were created by
+	/** Instance we were created by
 	 */
 	InspIRCd* Instance;
 
-	/** 
-	 * Timeout class or NULL
+	/** Timeout class or NULL
 	 */
 	SocketTimeout* Timeout;
 
-	/** 
-	 * Timeout length
+	/** Timeout length
 	 */
 	unsigned long timeout_val;
 
-	/** 
-	 * Socket output buffer (binary safe)
+	/** Socket output buffer (binary safe)
 	 */
 	std::deque<std::string> outbuffer;
 
-	/**
-	 * The hostname connected to
+	/** The hostname connected to
 	 */
 	char host[MAXBUF];
 
-	/**
-	 * The port connected to, or the port
-	 * this socket is listening on
+	/** The port connected to
 	 */
 	int port;
 
@@ -221,19 +206,17 @@ class CoreExport BufferedSocket : public EventHandler
 	BufferedSocket(InspIRCd* SI, int newfd, const char* ip);
 
 	/**
-	 * This constructor is used to create a new
-	 * socket, either listening for connections, or an outbound connection to another host.
+	 * This constructor is used to create a new outbound connection to another host.
 	 * Note that if you specify a hostname in the 'ipaddr' parameter, this class will not
 	 * connect. You must resolve your hostnames before passing them to BufferedSocket. To do so,
 	 * you should use the nonblocking class 'Resolver'.
 	 * @param ipaddr The IP to connect to, or bind to
-	 * @param port The port number to connect to, or bind to
-	 * @param listening true to listen on the given host:port pair, or false to connect to them
+	 * @param port The port number to connect to
 	 * @param maxtime Number of seconds to wait, if connecting, before the connection times out and an OnTimeout() event is generated
 	 * @param connectbindip When creating an outbound connection, the IP to bind the connection to. If not defined, the port is not bound.
 	 * @return On exit, GetState() returns I_ERROR if an error occured, and errno can be used to read the socket error.
 	 */
-	BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int port, bool listening, unsigned long maxtime, const std::string &connectbindip = "");
+	BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int port, unsigned long maxtime, const std::string &connectbindip = "");
 
 	/**
 	 * This method is called when an outbound
@@ -298,9 +281,7 @@ class CoreExport BufferedSocket : public EventHandler
 	 * Whenever close() is called, OnClose() will be
 	 * called first. Please note that this means
 	 * OnClose will be called alongside OnError(),
-	 * OnTimeout(), and Close(), and also when
-	 * cancelling a listening socket by calling
-	 * the destructor indirectly.
+	 * OnTimeout(), and Close().
 	 */
 	virtual void OnClose();
 
@@ -324,21 +305,6 @@ class CoreExport BufferedSocket : public EventHandler
 	 * @param data The data to send
 	 */
 	virtual void Write(const std::string &data);
-
-	/**
-	 * If your socket is a listening socket, when a new
-	 * connection comes in on the socket this method will
-	 * be called. Given the new file descriptor in the
-	 * parameters, and the IP, it is recommended you copy
-	 * them to a new instance of your socket class,
-	 * e.g.:
-	 *
-	 * MySocket* newsocket = new MySocket(newfd,ip);
-	 *
-	 * Once you have done this, you can then associate the
-	 * new socket with the core using Server::AddSocket().
-	 */
-	virtual int OnIncomingConnection(int newfd, char* ip);
 
 	/**
 	 * Changes the socket's state. The core uses this
@@ -392,8 +358,7 @@ class CoreExport BufferedSocket : public EventHandler
 
 	/**
 	 * This method attempts to connect to a hostname.
-	 * This only occurs on a non-listening socket. This
-	 * method is asyncronous.
+	 * This method is asyncronous.
 	 */
 	virtual bool DoConnect();
 

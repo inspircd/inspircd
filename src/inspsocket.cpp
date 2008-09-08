@@ -18,8 +18,6 @@
 #include "socketengine.h"
 #include "inspircd.h"
 
-using irc::sockets::OpenTCPSocket;
-
 bool BufferedSocket::Readable()
 {
 	return ((this->state != I_CONNECTING) && (this->WaitingForWriteEvent == false));
@@ -46,7 +44,7 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
 		this->Instance->SE->AddFd(this);
 }
 
-BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime, const std::string &connectbindip)
+BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
 {
 	this->cbindip = connectbindip;
 	this->fd = -1;
@@ -54,84 +52,45 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->WaitingForWriteEvent = false;
 	this->Timeout = NULL;
-	if (listening)
+
+	strlcpy(this->host,ipaddr.c_str(),MAXBUF);
+	this->port = aport;
+
+	bool ipvalid = true;
+#ifdef IPV6
+	if (strchr(host,':'))
 	{
-		if ((this->fd = OpenTCPSocket(host)) == ERROR)
-		{
-			this->fd = -1;
-			this->state = I_ERROR;
-			this->OnError(I_ERR_SOCKET);
-			return;
-		}
-		else
-		{
-			if (!SI->BindSocket(this->fd,aport,(char*)ipaddr.c_str()))
-			{
-				this->Close();
-				this->fd = -1;
-				this->state = I_ERROR;
-				this->OnError(I_ERR_BIND);
-				this->ClosePending = true;
-				return;
-			}
-			else
-			{
-				this->state = I_LISTENING;
-				this->port = aport;
-				if (this->fd > -1)
-				{
-					if (!this->Instance->SE->AddFd(this))
-					{
-						this->Close();
-						this->state = I_ERROR;
-						this->OnError(I_ERR_NOMOREFDS);
-					}
-				}
-				return;
-			}
-		}
+		in6_addr n;
+		if (inet_pton(AF_INET6, host, &n) < 1)
+			ipvalid = false;
+	}
+	else
+#endif
+	{
+		in_addr n;
+		if (inet_aton(host,&n) < 1)
+			ipvalid = false;
+	}
+	if (!ipvalid)
+	{
+		this->Instance->Logs->Log("SOCKET", DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
+		this->OnError(I_ERR_CONNECT);
+		this->Close();
+		this->fd = -1;
+		this->state = I_ERROR;
+		return;
 	}
 	else
 	{
-		strlcpy(this->host,ipaddr.c_str(),MAXBUF);
-		this->port = aport;
-
-		bool ipvalid = true;
-#ifdef IPV6
-		if (strchr(host,':'))
+		strlcpy(this->IP,host,MAXBUF);
+		timeout_val = maxtime;
+		if (!this->DoConnect())
 		{
-			in6_addr n;
-			if (inet_pton(AF_INET6, host, &n) < 1)
-				ipvalid = false;
-		}
-		else
-#endif
-		{
-			in_addr n;
-			if (inet_aton(host,&n) < 1)
-				ipvalid = false;
-		}
-		if (!ipvalid)
-		{
-			this->Instance->Logs->Log("SOCKET", DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->fd = -1;
 			this->state = I_ERROR;
 			return;
-		}
-		else
-		{
-			strlcpy(this->IP,host,MAXBUF);
-			timeout_val = maxtime;
-			if (!this->DoConnect())
-			{
-				this->OnError(I_ERR_CONNECT);
-				this->Close();
-				this->fd = -1;
-				this->state = I_ERROR;
-				return;
-			}
 		}
 	}
 }
@@ -360,8 +319,7 @@ void BufferedSocket::Close()
 		{
 			try
 			{
-				if (this->state != I_LISTENING)
-					this->GetIOHook()->OnRawSocketClose(this->fd);
+				this->GetIOHook()->OnRawSocketClose(this->fd);
 			}
 			catch (CoreException& modexcept)
 			{
@@ -552,7 +510,7 @@ void SocketTimeout::Tick(time_t)
 
 	if (this->sock->state == I_CONNECTING)
 	{
-		// for non-listening sockets, the timeout can occur
+		// for connecting sockets, the timeout can occur
 		// which causes termination of the connection after
 		// the given number of seconds without a successful
 		// connection.
@@ -575,8 +533,6 @@ void SocketTimeout::Tick(time_t)
 
 bool BufferedSocket::Poll()
 {
-	int incoming = -1;
-
 #ifndef WINDOWS
 	if (!Instance->SE->BoundsCheckFd(this))
 		return false;
@@ -615,53 +571,6 @@ bool BufferedSocket::Poll()
 			}
 			return this->OnConnected();
 		break;
-		case I_LISTENING:
-		{
-			/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
-			sockaddr* client = new sockaddr[2];
-			length = sizeof (sockaddr_in);
-			std::string recvip;
-#ifdef IPV6
-			if ((!*this->host) || strchr(this->host, ':'))
-				length = sizeof(sockaddr_in6);
-#endif
-			incoming = Instance->SE->Accept(this, client, &length);
-#ifdef IPV6
-			if ((!*this->host) || strchr(this->host, ':'))
-			{
-				char buf[1024];
-				recvip = inet_ntop(AF_INET6, &((sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
-			}
-			else
-#endif
-			{
-				// FIX: we were doing this for IPv6 connections as well, which was fucking recvip..
-				// Add brackets to make this a bit clearer. -- w00t (Jan 15, 2008)
-				recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
-			}
-
-			Instance->SE->NonBlocking(incoming);
-
-			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
-
-			if (this->GetIOHook())
-			{
-				try
-				{
-					this->GetIOHook()->OnRawSocketAccept(incoming, recvip.c_str(), this->port);
-				}
-				catch (CoreException& modexcept)
-				{
-					Instance->Logs->Log("SOCKET",DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-				}
-			}
-
-			this->SetQueues(incoming);
-
-			delete[] client;
-			return true;
-		}
-		break;
 		case I_CONNECTED:
 			/* Process the read event */
 			return this->OnDataReady();
@@ -690,7 +599,6 @@ int BufferedSocket::GetFd()
 bool BufferedSocket::OnConnected() { return true; }
 void BufferedSocket::OnError(BufferedSocketError) { return; }
 int BufferedSocket::OnDisconnect() { return 0; }
-int BufferedSocket::OnIncomingConnection(int, char*) { return 0; }
 bool BufferedSocket::OnDataReady() { return true; }
 bool BufferedSocket::OnWriteReady() { return true; }
 void BufferedSocket::OnTimeout() { return; }
