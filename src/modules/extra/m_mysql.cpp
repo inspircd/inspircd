@@ -72,7 +72,7 @@ class Notifier;
 
 
 typedef std::map<std::string, SQLConnection*> ConnMap;
-static Notifier* MessagePipe = NULL;
+static MySQLListener *MessagePipe = NULL;
 int QueueFD = -1;
 
 class DispatcherThread;
@@ -657,6 +657,24 @@ class DispatcherThread : public Thread
 	virtual void Run();
 };
 
+/** Spawn HTTP sockets from a listener
+ */
+class MySQLListener : public ListenSocketBase
+{
+	FileReader* index;
+
+ public:
+	HttpListener(InspIRCd* Instance, int port, char* addr) : ListenSocketBase(Instance, port, addr)
+	{
+		this->index = idx;
+	}
+
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	{
+		new Notifier(this->ServerInstance, nfd, (char)ipconnectedto.c_str()); // XXX unsafe casts suck
+	}
+};
+
 /** Used by m_mysql to notify one thread when the other has a result
  */
 class Notifier : public BufferedSocket
@@ -666,24 +684,7 @@ class Notifier : public BufferedSocket
 	ModuleSQL* Parent;
 
  public:
-
-	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
-#ifdef IPV6
-	Notifier(InspIRCd* SI, ModuleSQL* Creator) : BufferedSocket(SI, "::1", 0, true, 3000), Parent(Creator)
-#else
-	Notifier(InspIRCd* SI, ModuleSQL* Creator) : BufferedSocket(SI, "127.0.0.1", 0, true, 3000), Parent(Creator)
-#endif
-	{
-		uslen = sizeof(sock_us);
-		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
-		{
-			throw ModuleException("Could not create random listening port on localhost");
-		}
-	}
-
-	Notifier(InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip)
-	{
-	}
+	Notifier(InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip) { }
 
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
 	int GetPort()
@@ -693,13 +694,6 @@ class Notifier : public BufferedSocket
 #else
 		return ntohs(sock_us.sin_port);
 #endif
-	}
-
-	virtual int OnIncomingConnection(int newsock, char* ip)
-	{
-		Notifier* n = new Notifier(this->Instance, newsock, ip);
-		n = n; /* Stop bitching at me, GCC */
-		return true;
 	}
 
 	virtual bool OnDataReady()
@@ -744,6 +738,16 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	currid = 0;
 
 	MessagePipe = new Notifier(ServerInstance, this);
+
+	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
+#ifdef IPV6
+	MessagePipe = new MySQLListener(SI, 0, "::1");
+#else
+	MessagePipe = new MySQLListener(SI, 0, "127.0.0.1");
+#endif
+
+	if (MessagePipe->GetFd())
+		throw ModuleException("m_mysql: unable to create ITC pipe");
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
 	ServerInstance->Threads->Create(Dispatcher);
