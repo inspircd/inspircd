@@ -371,14 +371,14 @@ class HttpListener : public ListenSocketBase
 	FileReader* index;
 
  public:
-	HttpListener(InspIRCd* Instance, FileReader *idx, int port, char* addr) : ListenSocketBase(Instance, port, addr)
+	HttpListener(InspIRCd* Instance, FileReader *idx, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr)
 	{
 		this->index = idx;
 	}
 
 	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 	{
-		new HttpServerSocket(ServerInstance, nfd, incomingip.c_str(), index);
+		new HttpServerSocket(ServerInstance, nfd, (char *)incomingip.c_str(), index); // ugly cast courtesy of bufferedsocket
 	}
 };
 
