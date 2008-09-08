@@ -26,10 +26,9 @@ static bool claimed;
  */
 enum HttpState
 {
-	HTTP_LISTEN = 0,
-	HTTP_SERVE_WAIT_REQUEST = 1, /* Waiting for a full request */
-	HTTP_SERVE_RECV_POSTDATA = 2, /* Waiting to finish recieving POST data */
-	HTTP_SERVE_SEND_DATA = 3 /* Sending response */
+	HTTP_SERVE_WAIT_REQUEST = 0, /* Waiting for a full request */
+	HTTP_SERVE_RECV_POSTDATA = 1, /* Waiting to finish recieving POST data */
+	HTTP_SERVE_SEND_DATA = 2 /* Sending response */
 };
 
 /** A socket used for HTTP transport
@@ -49,11 +48,6 @@ class HttpServerSocket : public BufferedSocket
 
  public:
 
-	HttpServerSocket(InspIRCd* SI, std::string shost, int iport, bool listening, unsigned long maxtime, FileReader* index_page) : BufferedSocket(SI, shost, iport, listening, maxtime), index(index_page), postsize(0)
-	{
-		InternalState = HTTP_LISTEN;
-	}
-
 	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
@@ -66,15 +60,6 @@ class HttpServerSocket : public BufferedSocket
 
 	~HttpServerSocket()
 	{
-	}
-
-	virtual int OnIncomingConnection(int newsock, char* ip)
-	{
-		if (InternalState == HTTP_LISTEN)
-		{
-			new HttpServerSocket(this->Instance, newsock, ip, index);
-		}
-		return true;
 	}
 
 	virtual void OnClose()
@@ -379,9 +364,28 @@ class HttpServerSocket : public BufferedSocket
 	}
 };
 
+/** Spawn HTTP sockets from a listener
+ */
+class HttpListener : public ListenSocketBase
+{
+	FileReader* index;
+
+ public:
+	HttpListener(InspIRCd* Instance, FileReader *idx, int port, char* addr) : ListenSocketBase(Instance, port, addr)
+	{
+		this->index = idx;
+	}
+
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	{
+		new HttpServerSocket(ServerInstance, nfd, (char *)incomingip.c_str(), index); // XXX unsafe casts suck
+	}
+};
+
 class ModuleHttpServer : public Module
 {
-	std::vector<HttpServerSocket*> httpsocks;
+	std::vector<HttpServerSocket *> httpsocks;
+	std::vector<HttpListener *> httplisteners;
  public:
 
 	void ReadConfig()
@@ -391,10 +395,11 @@ class ModuleHttpServer : public Module
 		std::string bindip;
 		std::string indexfile;
 		FileReader* index;
-		HttpServerSocket* http;
+		HttpListener *http;
 		ConfigReader c(ServerInstance);
 
-		httpsocks.clear();
+		httpsocks.clear(); // XXX this will BREAK if this module is made rehashable
+		httplisteners.clear();
 
 		for (int i = 0; i < c.Enumerate("http"); i++)
 		{
@@ -405,8 +410,8 @@ class ModuleHttpServer : public Module
 			index = new FileReader(ServerInstance, indexfile);
 			if (!index->Exists())
 				throw ModuleException("Can't read index file: "+indexfile);
-			http = new HttpServerSocket(ServerInstance, bindip, port, true, 0, index);
-			httpsocks.push_back(http);
+			http = new HttpListener(ServerInstance, index, port, (char *)bindip.c_str()); // XXX this cast SUCKS.
+			httplisteners.push_back(http);
 		}
 	}
 
@@ -430,6 +435,11 @@ class ModuleHttpServer : public Module
 
 	virtual ~ModuleHttpServer()
 	{
+		for (size_t i = 0; i < httplisteners.size(); i++)
+		{
+			delete httplisteners[i];
+		}
+
 		for (size_t i = 0; i < httpsocks.size(); i++)
 		{
 			ServerInstance->SE->DelFd(httpsocks[i]);
