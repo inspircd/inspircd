@@ -591,11 +591,6 @@ BufferedSocketState BufferedSocket::GetState()
 	return this->state;
 }
 
-int BufferedSocket::GetFd()
-{
-	return this->fd;
-}
-
 bool BufferedSocket::OnConnected() { return true; }
 void BufferedSocket::OnError(BufferedSocketError) { return; }
 int BufferedSocket::OnDisconnect() { return 0; }

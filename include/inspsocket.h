@@ -336,13 +336,6 @@ class CoreExport BufferedSocket : public EventHandler
 	bool Poll();
 
 	/**
-	 * This method returns the socket's file descriptor
-	 * as assigned by the operating system, or -1
-	 * if no descriptor has been assigned.
-	 */
-	int GetFd();
-
-	/**
 	 * This method causes the socket to close, and may
 	 * also be triggered by other methods such as OnTimeout
 	 * and OnError.
