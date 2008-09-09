@@ -823,7 +823,7 @@ const char* ModuleSQL::OnRequest(Request* request)
 
 		const char* returnval = NULL;
 
-		Parent->ConnMutex->Lock();
+		ConnMutex->Lock();
 		if((iter = Connections.find(req->dbid)) != Connections.end())
 		{
 			req->id = NewID();
@@ -835,7 +835,7 @@ const char* ModuleSQL::OnRequest(Request* request)
 			req->error.Id(SQL_BAD_DBID);
 		}
 
-		Parent->ConnMutex->Unlock();
+		ConnMutex->Unlock();
 		QueueMutex->Unlock();
 
 		return returnval;
