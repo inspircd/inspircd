@@ -664,7 +664,7 @@ class Notifier : public BufferedSocket
 	ModuleSQL* Parent;
 
  public:
-	Notifier(InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip) { }
+	Notifier(ModuleSQL* P, InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), Parent(P) { }
 
 	virtual bool OnDataReady()
 	{
@@ -702,12 +702,13 @@ class Notifier : public BufferedSocket
  */
 class MySQLListener : public ListenSocketBase
 {
+	ModuleSQL* Parent;
 	insp_sockaddr sock_us;
 	socklen_t uslen;
 	FileReader* index;
 
  public:
-	MySQLListener(InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr)
+	MySQLListener(ModuleSQL* P, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), Parent(P)
 	{
 		uslen = sizeof(sock_us);
 		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
@@ -718,7 +719,7 @@ class MySQLListener : public ListenSocketBase
 
 	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 	{
-		new Notifier(this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+		new Notifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
 	}
 
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
@@ -742,9 +743,9 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 
 	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
 #ifdef IPV6
-	MessagePipe = new MySQLListener(ServerInstance, 0, "::1");
+	MessagePipe = new MySQLListener(this, ServerInstance, 0, "::1");
 #else
-	MessagePipe = new MySQLListener(ServerInstance, 0, "127.0.0.1");
+	MessagePipe = new MySQLListener(this, ServerInstance, 0, "127.0.0.1");
 #endif
 
 	if (MessagePipe->GetFd() == -1)
