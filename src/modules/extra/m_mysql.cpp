@@ -70,6 +70,7 @@
 class SQLConnection;
 class MySQLListener;
 
+
 typedef std::map<std::string, SQLConnection*> ConnMap;
 static MySQLListener *MessagePipe = NULL;
 int QueueFD = -1;
@@ -90,6 +91,7 @@ class ModuleSQL : public Module
 	 Mutex* QueueMutex;
 	 Mutex* ResultsMutex;
 	 Mutex* LoggingMutex;
+	 Mutex* ConnMutex;
 
 	 ModuleSQL(InspIRCd* Me);
 	 ~ModuleSQL();
@@ -573,6 +575,7 @@ void ConnectDatabases(InspIRCd* ServerInstance, ModuleSQL* Parent)
 
 void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Parent)
 {
+	Parent->ConnMutex->Lock();
 	ClearOldConnections(conf);
 	for (int j =0; j < conf->Enumerate("database"); j++)
 	{
@@ -595,6 +598,7 @@ void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Pare
 		}
 	}
 	ConnectDatabases(ServerInstance, Parent);
+	Parent->ConnMutex->Unlock();
 }
 
 char FindCharId(const std::string &id)
@@ -674,8 +678,10 @@ class Notifier : public BufferedSocket
 		 * The function GetCharId translates a single character
 		 * back into an iterator.
 		 */
+
 		if (Instance->SE->Recv(this, &data, 1, 0) > 0)
 		{
+			Parent->ConnMutex->Lock();
 			ConnMap::iterator iter = GetCharId(data);
 			if (iter != Connections.end())
 			{
@@ -686,9 +692,11 @@ class Notifier : public BufferedSocket
 				delete (*n);
 				iter->second->rq.pop_front();
 				Parent->ResultsMutex->Unlock();
+				Parent->ConnMutex->Unlock();
 				return true;
 			}
 			/* No error, but unknown id */
+			Parent->ConnMutex->Unlock();
 			return true;
 		}
 
@@ -747,15 +755,24 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	MessagePipe = new MySQLListener(this, ServerInstance, 0, "127.0.0.1");
 #endif
 
+	LoggingMutex = ServerInstance->Mutexes->CreateMutex();
+	ConnMutex = ServerInstance->Mutexes->CreateMutex();
+
 	if (MessagePipe->GetFd() == -1)
+	{
+		delete ConnMutex;
 		throw ModuleException("m_mysql: unable to create ITC pipe");
+	}
 	else
+	{
+		Parent->LoggingMutex->Lock();
 		ServerInstance->Logs->Log("m_mysql", DEBUG, "MySQL: Interthread comms port is %d", MessagePipe->GetPort());
+		Parent->LoggingMutex->Unlock();
+	}
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
 	ServerInstance->Threads->Create(Dispatcher);
 
-	LoggingMutex = ServerInstance->Mutexes->CreateMutex();
 	ResultsMutex = ServerInstance->Mutexes->CreateMutex();
 	QueueMutex = ServerInstance->Mutexes->CreateMutex();
 
@@ -783,6 +800,7 @@ ModuleSQL::~ModuleSQL()
 	delete LoggingMutex;
 	delete ResultsMutex;
 	delete QueueMutex;
+	delete ConnMutex;
 }
 
 unsigned long ModuleSQL::NewID()
@@ -805,6 +823,7 @@ const char* ModuleSQL::OnRequest(Request* request)
 
 		const char* returnval = NULL;
 
+		Parent->ConnMutex->Lock();
 		if((iter = Connections.find(req->dbid)) != Connections.end())
 		{
 			req->id = NewID();
@@ -816,8 +835,8 @@ const char* ModuleSQL::OnRequest(Request* request)
 			req->error.Id(SQL_BAD_DBID);
 		}
 
+		Parent->ConnMutex->Unlock();
 		QueueMutex->Unlock();
-		/* XXX: Unlock */
 
 		return returnval;
 	}
@@ -882,6 +901,7 @@ void DispatcherThread::Run()
 		SQLConnection* conn = NULL;
 		/* XXX: Lock here for safety */
 		Parent->QueueMutex->Lock();
+		Parent->ConnMutex->Lock();
 		for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
 			if (i->second->queue.totalsize())
@@ -890,6 +910,7 @@ void DispatcherThread::Run()
 				break;
 			}
 		}
+		Parent->ConnMutex->Unlock();
 		Parent->QueueMutex->Unlock();
 		/* XXX: Unlock */
 
