@@ -661,22 +661,10 @@ class DispatcherThread : public Thread
  */
 class Notifier : public BufferedSocket
 {
-	insp_sockaddr sock_us;
-	socklen_t uslen;
 	ModuleSQL* Parent;
 
  public:
 	Notifier(InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip) { }
-
-	/* Using getsockname and ntohs, we can determine which port number we were allocated */
-	int GetPort()
-	{
-#ifdef IPV6
-		return ntohs(sock_us.sin6_port);
-#else
-		return ntohs(sock_us.sin_port);
-#endif
-	}
 
 	virtual bool OnDataReady()
 	{
@@ -714,14 +702,33 @@ class Notifier : public BufferedSocket
  */
 class MySQLListener : public ListenSocketBase
 {
+	insp_sockaddr sock_us;
+	socklen_t uslen;
 	FileReader* index;
 
  public:
-	MySQLListener(InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr) {	}
+	MySQLListener(InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr)
+	{
+		uslen = sizeof(sock_us);
+		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
+		{
+			throw ModuleException("Could not getsockname() to find out port number for ITC port");
+		}
+	}
 
 	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 	{
 		new Notifier(this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+	}
+
+	/* Using getsockname and ntohs, we can determine which port number we were allocated */
+	int GetPort()
+	{
+#ifdef IPV6
+		return ntohs(sock_us.sin6_port);
+#else
+		return ntohs(sock_us.sin_port);
+#endif
 	}
 };
 
@@ -742,6 +749,8 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 
 	if (MessagePipe->GetFd() == -1)
 		throw ModuleException("m_mysql: unable to create ITC pipe");
+	else
+		ServerInstance->Logs->Log("m_mysql", DEBUG, "MySQL: Interthread comms port is %d", MessagePipe->GetPort());
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
 	ServerInstance->Threads->Create(Dispatcher);
