@@ -70,7 +70,6 @@
 class SQLConnection;
 class MySQLListener;
 
-
 typedef std::map<std::string, SQLConnection*> ConnMap;
 static MySQLListener *MessagePipe = NULL;
 int QueueFD = -1;
