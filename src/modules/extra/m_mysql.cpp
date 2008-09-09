@@ -761,6 +761,7 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	if (MessagePipe->GetFd() == -1)
 	{
 		delete ConnMutex;
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
 		throw ModuleException("m_mysql: unable to create ITC pipe");
 	}
 	else
@@ -781,6 +782,11 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 		/* Tell worker thread to exit NOW,
 		 * Automatically joins */
 		delete Dispatcher;
+		delete LoggingMutex;
+		delete ResultsMutex;
+		delete QueueMutex;
+		delete ConnMutex;
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
 		throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
 	}
 
