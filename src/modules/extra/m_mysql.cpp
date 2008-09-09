@@ -765,9 +765,9 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	}
 	else
 	{
-		Parent->LoggingMutex->Lock();
+		LoggingMutex->Lock();
 		ServerInstance->Logs->Log("m_mysql", DEBUG, "MySQL: Interthread comms port is %d", MessagePipe->GetPort());
-		Parent->LoggingMutex->Unlock();
+		LoggingMutex->Unlock();
 	}
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
