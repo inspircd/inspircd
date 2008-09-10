@@ -520,7 +520,7 @@ class CoreExport User : public EventHandler
 	 */
 	time_t nping;
 
-	/** Stored reverse lookup from res_forward
+	/** Stored reverse lookup from res_forward. Should not be used after resolution.
 	 */
 	std::string stored_host;
 
