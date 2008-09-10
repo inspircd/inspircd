@@ -32,74 +32,6 @@ class CloakUser : public ModeHandler
 	Module* HashProvider;
 	const char *xtab[4];
 
-	void ApplyCloak(User *dest)
-	{
-		if (dest->host.find('.') != std::string::npos || dest->host.find(':') != std::string::npos)
-		{
-			unsigned int iv[] = { key1, key2, key3, key4 };
-			std::string a = LastTwoDomainParts(dest->host);
-			std::string b;
-
-			/* InspIRCd users have two hostnames; A displayed
-			 * hostname which can be modified by modules (e.g.
-			 * to create vhosts, implement chghost, etc) and a
-			 * 'real' hostname which you shouldnt write to.
-			 */
-
-			/* 2008/08/18: add <cloak:ipalways> which always cloaks
-			 * the IP, for anonymity. --nenolod
-			 */
-			if (!ipalways)
-			{
-				/** Reset the Hash module, and send it our IV and hex table */
-				HashResetRequest(Sender, HashProvider).Send();
-				HashKeyRequest(Sender, HashProvider, iv).Send();
-				HashHexRequest(Sender, HashProvider, xtab[(dest->host[0]) % 4]);
-
-				/* Generate a cloak using specialized Hash */
-				std::string hostcloak = prefix + "-" + std::string(HashSumRequest(Sender, HashProvider, dest->host.c_str()).Send()).substr(0,8) + a;
-
-				/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
-				 * according to the DNS RFC) then tough titty, they get cloaked as an IP.
-				 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
-				 * vhost.
-				 */
-#ifdef IPV6
-				in6_addr testaddr;
-				in_addr testaddr2;
-				if ((dest->GetProtocolFamily() == AF_INET6) && (inet_pton(AF_INET6,dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv6 address, and ipv6 user (resolved host) */
-					b = hostcloak;
-				else if ((dest->GetProtocolFamily() == AF_INET) && (inet_aton(dest->host.c_str(),&testaddr2) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv4 address, and ipv4 user (resolved host) */
-					b = hostcloak;
-				else
-					/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
-					b = ((!strchr(dest->host.c_str(),':')) ? Cloak4(dest->host.c_str()) : Cloak6(dest->host.c_str()));
-#else
-				in_addr testaddr;
-				if ((inet_aton(dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv4 address, and ipv4 user (resolved host) */
-					b = hostcloak;
-				else
-					/* Valid ipv4 address (not resolved) ipv4 user */
-					b = Cloak4(dest->host.c_str());
-#endif
-			}
-			else
-			{
-#ifdef IPV6
-				if (dest->GetProtocolFamily() == AF_INET6)
-					b = Cloak6(dest->GetIPString());
-#endif
-				if (dest->GetProtocolFamily() == AF_INET)
-					b = Cloak4(dest->GetIPString());
-			}
-
-			dest->Extend("cloaked_host", new std::string(b));
-		}
-	}
-
 	/** This function takes a domain name string and returns just the last two domain parts,
 	 * or the last domain part if only two are available. Failing that it just returns what it was given.
 	 *
@@ -168,17 +100,13 @@ class CloakUser : public ModeHandler
 
 				std::string* cloak;
 
-				if (!dest->GetExt("cloaked_host", cloak))
+				if (dest->GetExt("cloaked_host", cloak))
 				{
-					/* Cloaked host has not been calculated previously */
-					this->ApplyCloak(dest);
-					if (!dest->GetExt("cloaked_host", cloak))
-						throw "ack, can't cloak!";
+					/* Cloaked host has been set before on this user, don't bother to recalculate and waste cpu */
+					dest->ChangeDisplayedHost(cloak->c_str());
+					dest->SetMode('x',true);
+					return MODEACTION_ALLOW;
 				}
-
-				dest->ChangeDisplayedHost(cloak->c_str());
-				dest->SetMode('x',true);
-				return MODEACTION_ALLOW;
 			}
 		}
 		else
@@ -396,6 +324,10 @@ class ModuleCloaking : public Module
 	{
 		/* Needs to be after m_banexception etc. */
 		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIO_LAST);
+
+		/* but before m_conn_umodes, so host is generated ready to apply */
+		Module *um = ServerInstance->Modules->Find("m_conn_umodes.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIO_AFTER, &um);
 	}
 
 	virtual void OnUserDisconnect(User* user)
@@ -428,6 +360,74 @@ class ModuleCloaking : public Module
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		cu->DoRehash();
+	}
+
+	virtual void OnUserConnect(User* dest)
+	{
+		if (dest->host.find('.') != std::string::npos || dest->host.find(':') != std::string::npos)
+		{
+			unsigned int iv[] = { cu->key1, cu->key2, cu->key3, cu->key4 };
+			std::string a = cu->LastTwoDomainParts(dest->host);
+			std::string b;
+
+			/* InspIRCd users have two hostnames; A displayed
+			 * hostname which can be modified by modules (e.g.
+			 * to create vhosts, implement chghost, etc) and a
+			 * 'real' hostname which you shouldnt write to.
+			 */
+
+			/* 2008/08/18: add <cloak:ipalways> which always cloaks
+			 * the IP, for anonymity. --nenolod
+			 */
+			if (!cu->ipalways)
+			{
+				/** Reset the Hash module, and send it our IV and hex table */
+				HashResetRequest(this, cu->HashProvider).Send();
+				HashKeyRequest(this, cu->HashProvider, iv).Send();
+				HashHexRequest(this, cu->HashProvider, cu->xtab[(dest->host[0]) % 4]);
+
+				/* Generate a cloak using specialized Hash */
+				std::string hostcloak = cu->prefix + "-" + std::string(HashSumRequest(this, cu->HashProvider, dest->host.c_str()).Send()).substr(0,8) + a;
+
+				/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
+				 * according to the DNS RFC) then tough titty, they get cloaked as an IP.
+				 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
+				 * vhost.
+				 */
+#ifdef IPV6
+				in6_addr testaddr;
+				in_addr testaddr2;
+				if ((dest->GetProtocolFamily() == AF_INET6) && (inet_pton(AF_INET6,dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
+					/* Invalid ipv6 address, and ipv6 user (resolved host) */
+					b = hostcloak;
+				else if ((dest->GetProtocolFamily() == AF_INET) && (inet_aton(dest->host.c_str(),&testaddr2) < 1) && (hostcloak.length() <= 64))
+					/* Invalid ipv4 address, and ipv4 user (resolved host) */
+					b = hostcloak;
+				else
+					/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
+					b = ((!strchr(dest->host.c_str(),':')) ? cu->Cloak4(dest->host.c_str()) : cu->Cloak6(dest->host.c_str()));
+#else
+				in_addr testaddr;
+				if ((inet_aton(dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
+					/* Invalid ipv4 address, and ipv4 user (resolved host) */
+					b = hostcloak;
+				else
+					/* Valid ipv4 address (not resolved) ipv4 user */
+					b = cu->Cloak4(dest->host.c_str());
+#endif
+			}
+			else
+			{
+#ifdef IPV6
+				if (dest->GetProtocolFamily() == AF_INET6)
+					b = cu->Cloak6(dest->GetIPString());
+#endif
+				if (dest->GetProtocolFamily() == AF_INET)
+					b = cu->Cloak4(dest->GetIPString());
+			}
+
+			dest->Extend("cloaked_host", new std::string(b));
+		}
 	}
 
 };
