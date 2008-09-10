@@ -427,15 +427,15 @@ class CoreExport User : public EventHandler
 	 */
 	InvitedList invites;
 
-	/** Cached nick!ident@host value using the real hostname
+	/** Cached nick!ident@dhost value using the displayed hostname
 	 */
 	std::string cached_fullhost;
 
-	/** Cached nick!ident@ip value using the real IP address
+	/** Cached ident@ip value using the real IP address
 	 */
 	std::string cached_hostip;
 
-	/** Cached nick!ident@host value using the masked hostname
+	/** Cached ident@realhost value using the real hostname
 	 */
 	std::string cached_makehost;
 
