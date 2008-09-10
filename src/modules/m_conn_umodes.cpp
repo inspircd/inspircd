@@ -22,13 +22,14 @@ class ModuleModesOnConnect : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleModesOnConnect(InspIRCd* Me)
-		: Module(Me)
+	ModuleModesOnConnect(InspIRCd* Me) : Module(Me)
 	{
 
 		Conf = new ConfigReader(ServerInstance);
-		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
+		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
+		ServerInstance->Modules->SetPriority(this, PRIO_FIRST);
 	}
 
 
@@ -48,7 +49,7 @@ class ModuleModesOnConnect : public Module
 		return Version("$Id$", VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnPostConnect(User* user)
+	virtual void OnUserConnect(User* user)
 	{
 		if (!IS_LOCAL(user))
 			return;
