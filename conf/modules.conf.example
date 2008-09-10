@@ -1468,15 +1468,6 @@
 #<module name="m_xline_db.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# XMLSocket module: Adds support for connections using the shockwave
-# flash XMLSocket. Note that this does not work if the client you are
-# using has retarded ideas of the IRC protocol. Your client must still
-# send RFC-correct lines to the server, this module only changes the
-# line ending from newlines to null terminators.
-#
-#<module name="m_xmlsocket.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # ZipLinks module: Adds support for zlib deflate on server to server
 # connections. Both ends of the connection must load this module.
 #
