@@ -96,12 +96,12 @@ void BufferedSocket::WantWrite()
 	this->Instance->SE->WantWrite(this);
 }
 
-void BufferedSocket::SetQueues(int nfd)
+void BufferedSocket::SetQueues()
 {
 	// attempt to increase socket sendq and recvq as high as its possible
 	int sendbuf = 32768;
 	int recvbuf = 32768;
-	if(setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf)) || setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(sendbuf)))
+	if(setsockopt(this->fd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf)) || setsockopt(this->fd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(sendbuf)))
 	{
 		//this->Instance->Log(DEFAULT, "Could not increase SO_SNDBUF/SO_RCVBUF for socket %u", GetFd());
 		; // do nothing. I'm a little sick of people trying to interpret this message as a result of why their incorrect setups don't work.
@@ -285,7 +285,7 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 			this->state = I_ERROR;
 			return false;
 		}
-		this->SetQueues(this->fd);
+		this->SetQueues();
 	}
 
 	Instance->Logs->Log("SOCKET", DEBUG,"BufferedSocket::DoConnect success");

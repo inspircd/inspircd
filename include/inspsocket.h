@@ -157,7 +157,7 @@ class CoreExport BufferedSocket : public EventHandler
 	 * more information without application-level queueing
 	 * which was required in older software.
 	 */
-	void SetQueues(int nfd);
+	void SetQueues();
 
 	/** When the socket has been marked as closing, this flag
 	 * will be set to true, then the next time the socket is
