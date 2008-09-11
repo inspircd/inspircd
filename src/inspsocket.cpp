@@ -42,7 +42,7 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
 		this->Instance->SE->AddFd(this);
 }
 
-BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, unsigned int maxtime, const std::string &connectbindip)
+BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
 {
 	this->cbindip = connectbindip;
 	this->fd = -1;
