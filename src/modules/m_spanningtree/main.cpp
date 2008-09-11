@@ -687,6 +687,7 @@ void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, con
 
 void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason)
 {
+	if (!IS_LOCAL(source)) return; // Only start routing if we're origin.
 	std::deque<std::string> params;
 	params.push_back(":"+reason);
 	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
