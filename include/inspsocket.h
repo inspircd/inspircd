@@ -94,11 +94,9 @@ class CoreExport SocketTimeout : public Timer
  * can use for TCP socket support. It is fully integrated
  * into InspIRCds socket loop and attaches its sockets to
  * the core's instance of the SocketEngine class, meaning
- * that any sockets you create have the same power and
- * abilities as a socket created by the core itself.
- * To use BufferedSocket, you must inherit a class from it,
- * and use the BufferedSocket constructors to establish connections
- * and bindings.
+ * that all use is fully asynchronous.
+ *
+ * To use BufferedSocket, you must inherit a class from it.
  */
 class CoreExport BufferedSocket : public EventHandler
 {
