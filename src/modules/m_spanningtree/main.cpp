@@ -1119,6 +1119,7 @@ void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* cha
 
 void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason, const std::string &operreason)
 {
+	if (!IS_LOCAL(source)) return; // Don't need to do anything for a non-local source.
 	std::deque<std::string> params;
 	params.push_back(":"+reason);
 	Utils->DoOneToMany(dest->nick,"OPERQUIT",params);
