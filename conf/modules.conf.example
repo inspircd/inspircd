@@ -1039,10 +1039,6 @@
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Proxy scan module: Scans locally connecting clients for proxies.
-#<module name="m_proxyscan.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Muteban: Implements extended ban m:, which stops anyone matching
 # a mask like +b m:nick!user@host from speaking on channel.
 #<module name="m_muteban.so">
