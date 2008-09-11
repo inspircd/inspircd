@@ -20,7 +20,7 @@
 
 bool BufferedSocket::Readable()
 {
-	return ((this->state != I_CONNECTING) && (this->WaitingForWriteEvent == false));
+	return (this->state != I_CONNECTING);
 }
 
 BufferedSocket::BufferedSocket(InspIRCd* SI)
@@ -28,7 +28,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI)
 	this->Timeout = NULL;
 	this->state = I_DISCONNECTED;
 	this->fd = -1;
-	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
 }
 
@@ -38,7 +37,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	strlcpy(this->IP,ip,MAXBUF);
-	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
 	if (this->fd > -1)
 		this->Instance->SE->AddFd(this);
@@ -50,7 +48,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 	this->fd = -1;
 	this->Instance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
-	this->WaitingForWriteEvent = false;
 	this->Timeout = NULL;
 
 	strlcpy(this->host,ipaddr.c_str(),MAXBUF);
@@ -98,7 +95,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 void BufferedSocket::WantWrite()
 {
 	this->Instance->SE->WantWrite(this);
-	this->WaitingForWriteEvent = true;
 }
 
 void BufferedSocket::SetQueues(int nfd)
@@ -595,7 +591,11 @@ bool BufferedSocket::OnConnected() { return true; }
 void BufferedSocket::OnError(BufferedSocketError) { return; }
 int BufferedSocket::OnDisconnect() { return 0; }
 bool BufferedSocket::OnDataReady() { return true; }
-bool BufferedSocket::OnWriteReady() { return true; }
+bool BufferedSocket::OnWriteReady()
+{
+	// Default behaviour: just try write some.
+	return !this->FlushWriteBuffer();
+}
 void BufferedSocket::OnTimeout() { return; }
 void BufferedSocket::OnClose() { return; }
 
@@ -644,16 +644,6 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 			}
 		break;
 		case EVENT_WRITE:
-			if (this->WaitingForWriteEvent)
-			{
-				this->WaitingForWriteEvent = false;
-				if (!this->OnWriteReady())
-				{
-					if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
-						this->Instance->SocketCull[this] = this;
-					return;
-				}
-			}
 			if (this->state == I_CONNECTING)
 			{
 				/* This might look wrong as if we should be actually calling
@@ -667,7 +657,7 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 			}
 			else
 			{
-				if (this->FlushWriteBuffer())
+				if (!this->OnWriteReady())
 				{
 					if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
 						this->Instance->SocketCull[this] = this;

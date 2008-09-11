@@ -159,6 +159,7 @@ class CoreExport BufferedSocket : public EventHandler
 	socklen_t length;
 
 	/** Flushes the write buffer
+	 * @returns true if the writing failed, false if it was successful
 	 */
 	bool FlushWriteBuffer();
 
@@ -175,12 +176,6 @@ class CoreExport BufferedSocket : public EventHandler
 	 * examined, the socket is deleted and closed.
 	 */
 	bool ClosePending;
-
-	/** Set to true when we're waiting for a write event.
-	 * If this is true and a write event comes in, we
-	 * call the write instead of the read method.
-	 */
-	bool WaitingForWriteEvent;
 
 	/**
 	 * Bind to an address
@@ -256,13 +251,23 @@ class CoreExport BufferedSocket : public EventHandler
 	/**
 	 * When it is ok to write to the socket, and a 
 	 * write event was requested, this method is
-	 * triggered. Within this method you should call
+	 * triggered.
+	 *
+	 * Within this method you should call
 	 * write() or send() etc, to send data to the
-	 * other end of the socket. Further write events
-	 * will not be triggered unless you call WantWrite().
+	 * other end of the socket.
+	 *
+	 * Further write events will not be triggered
+	 * unless you call WantWrite().
+	 *
+	 * The default behaviour of this method is to
+	 * flush the write buffer, respecting the IO
+	 * hooking modules.
+	 *
+	 * XXX: this used to be virtual, ask us if you need it to be so.
 	 * @return false to close the socket
 	 */
-	virtual bool OnWriteReady();
+	bool OnWriteReady();
 
 	/**
 	 * When an outbound connection fails, and the
