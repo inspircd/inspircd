@@ -91,11 +91,6 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 	}
 }
 
-void BufferedSocket::WantWrite()
-{
-	this->Instance->SE->WantWrite(this);
-}
-
 void BufferedSocket::SetQueues()
 {
 	// attempt to increase socket sendq and recvq as high as its possible

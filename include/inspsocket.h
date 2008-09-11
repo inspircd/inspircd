@@ -246,7 +246,7 @@ class CoreExport BufferedSocket : public EventHandler
 	 * other end of the socket.
 	 *
 	 * Further write events will not be triggered
-	 * unless you call WantWrite().
+	 * unless you call SocketEngine::WantWrite().
 	 *
 	 * The default behaviour of this method is to
 	 * flush the write buffer, respecting the IO
@@ -305,13 +305,6 @@ class CoreExport BufferedSocket : public EventHandler
 	 * it directly.
 	 */
 	void SetState(BufferedSocketState s);
-
-	/**
-	 * Call this to receive the next write event
-	 * that comes along for this fd to the OnWriteReady
-	 * method.
-	 */
-	void WantWrite();
 
 	/**
 	 * Returns the current socket state.
