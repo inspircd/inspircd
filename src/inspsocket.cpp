@@ -608,23 +608,24 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 			{
 				case ETIMEDOUT:
 					this->OnError(I_ERR_TIMEOUT);
-				break;
+					break;
 				case ECONNREFUSED:
 				case 0:
 					this->OnError(this->state == I_CONNECTING ? I_ERR_CONNECT : I_ERR_WRITE);
-				break;
+					break;
 				case EADDRINUSE:
 					this->OnError(I_ERR_BIND);
-				break;
+					break;
 				case EPIPE:
 				case EIO:
 					this->OnError(I_ERR_WRITE);
-				break;
+					break;
 			}
+
 			if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
 				this->Instance->SocketCull[this] = this;
 			return;
-		break;
+			break;
 		case EVENT_READ:
 			if (!this->Poll())
 			{
@@ -632,7 +633,7 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 					this->Instance->SocketCull[this] = this;
 				return;
 			}
-		break;
+			break;
 		case EVENT_WRITE:
 			if (this->state == I_CONNECTING)
 			{
@@ -654,7 +655,7 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 					return;
 				}
 			}
-		break;
+			break;
 	}
 }
 
