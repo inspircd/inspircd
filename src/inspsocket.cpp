@@ -262,11 +262,6 @@ bool BufferedSocket::DoConnect()
 
 	Instance->SE->NonBlocking(this->fd);
 
-#ifdef WIN32
-	/* UGH for the LOVE OF ZOMBIE JESUS SOMEONE FIX THIS!!!!!!!!!!! */
-	Instance->SE->Blocking(this->fd);
-#endif
-
 	if (Instance->SE->Connect(this, (sockaddr*)addr, size) == -1)
 	{
 		if (errno != EINPROGRESS)
@@ -280,10 +275,7 @@ bool BufferedSocket::DoConnect()
 		this->Timeout = new SocketTimeout(this->GetFd(), this->Instance, this, timeout_val, this->Instance->Time());
 		this->Instance->Timers->AddTimer(this->Timeout);
 	}
-#ifdef WIN32
-	/* CRAQ SMOKING STUFF TO BE FIXED */
-	Instance->SE->NonBlocking(this->fd);
-#endif
+
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
 	{
