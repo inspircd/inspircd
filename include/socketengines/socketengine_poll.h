@@ -20,11 +20,18 @@
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "socketengine.h"
-#ifndef __USE_XOPEN
-        #define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
+
+#ifndef WINDOWS
+	#ifndef __USE_XOPEN
+    	    #define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
+	#endif
+	#include <poll.h>
+	#include <sys/poll.h>
+#else
+	/* *grumble* */
+	#define struct pollfd WSAPOLLFD
+	#define poll WSAPoll
 #endif
-#include <poll.h>
-#include <sys/poll.h>
 
 class InspIRCd;
 

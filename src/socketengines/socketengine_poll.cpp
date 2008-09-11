@@ -14,7 +14,6 @@
 #include "inspircd.h"
 #include "exitcodes.h"
 #include "socketengines/socketengine_poll.h"
-#include <poll.h>
 #include <ulimit.h>
 
 PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
