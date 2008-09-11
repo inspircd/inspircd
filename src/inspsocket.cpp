@@ -504,7 +504,6 @@ void SocketTimeout::Tick(time_t)
 		// connection.
 		this->sock->OnTimeout();
 		this->sock->OnError(I_ERR_TIMEOUT);
-		this->sock->timeout = true;
 
 		/* NOTE: We must set this AFTER DelFd, as we added
 		 * this socket whilst writeable. This means that we

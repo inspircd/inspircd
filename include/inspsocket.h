@@ -140,12 +140,6 @@ class CoreExport BufferedSocket : public EventHandler
 	BufferedSocketState state;
 
 	/**
-	 * This value is true if the
-	 * socket has timed out.
-	 */
-	bool timeout;
-
-	/**
 	 * The IP address being connected
 	 * to stored in string form for
 	 * easy retrieval by accessors.
