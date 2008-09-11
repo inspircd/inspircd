@@ -116,10 +116,6 @@ class CoreExport BufferedSocket : public EventHandler
 	 */
 	SocketTimeout* Timeout;
 
-	/** Timeout length
-	 */
-	unsigned long timeout_val;
-
 	/** Socket output buffer (binary safe)
 	 */
 	std::deque<std::string> outbuffer;
@@ -351,8 +347,9 @@ class CoreExport BufferedSocket : public EventHandler
 	/**
 	 * This method attempts to connect to a hostname.
 	 * This method is asyncronous.
+	 * @param maxtime Number of seconds to wait, if connecting, before the connection times out and an OnTimeout() event is generated
 	 */
-	virtual bool DoConnect();
+	virtual bool DoConnect(unsigned long maxtime);
 
 	/** Handle event from EventHandler parent class
 	 */

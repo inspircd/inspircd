@@ -42,7 +42,7 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
 		this->Instance->SE->AddFd(this);
 }
 
-BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
+BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, unsigned int maxtime, const std::string &connectbindip)
 {
 	this->cbindip = connectbindip;
 	this->fd = -1;
@@ -80,8 +80,7 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 	else
 	{
 		strlcpy(this->IP,host,MAXBUF);
-		timeout_val = maxtime;
-		if (!this->DoConnect())
+		if (!this->DoConnect(maxtime))
 		{
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
@@ -192,7 +191,7 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 	return true;
 }
 
-bool BufferedSocket::DoConnect()
+bool BufferedSocket::DoConnect(unsigned long maxtime)
 {
 	/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
 	sockaddr* addr = new sockaddr[2];
@@ -272,7 +271,7 @@ bool BufferedSocket::DoConnect()
 			return false;
 		}
 
-		this->Timeout = new SocketTimeout(this->GetFd(), this->Instance, this, timeout_val, this->Instance->Time());
+		this->Timeout = new SocketTimeout(this->GetFd(), this->Instance, this, maxtime, this->Instance->Time());
 		this->Instance->Timers->AddTimer(this->Timeout);
 	}
 
