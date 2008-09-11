@@ -66,7 +66,7 @@ bool PortsEngine::AddFd(EventHandler* eh)
 
 void PortsEngine::WantWrite(EventHandler* eh)
 {
-	port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), POLLWRNORM, eh);
+	port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), POLLRDNORM | POLLWRNORM, eh);
 }
 
 bool PortsEngine::DelFd(EventHandler* eh, bool force)

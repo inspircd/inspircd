@@ -116,7 +116,7 @@ void KQueueEngine::WantWrite(EventHandler* eh)
 	 * the original setting rather than adding it twice. See man kqueue.
 	 */
 	struct kevent ke;
-	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+	EV_SET(&ke, eh->GetFd(), EVFILT_READ | EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 }
 
