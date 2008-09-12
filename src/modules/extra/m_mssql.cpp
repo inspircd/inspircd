@@ -27,13 +27,15 @@
 class SQLConn;
 class MsSQLResult;
 class ResultNotifier;
+class MsSQLListener;
 class ModuleMsSQL;
 
 typedef std::map<std::string, SQLConn*> ConnMap;
 typedef std::deque<MsSQLResult*> ResultQueue;
 
-ResultNotifier* resultnotify = NULL;
-ResultNotifier* resultdispatch = NULL;
+ResultNotifier* notifier;
+MsSQLListener* listener;
+
 int QueueFD = -1;
 ConnMap connections;
 Mutex* QueueMutex;
@@ -55,45 +57,14 @@ class QueryThread : public Thread
 	virtual void Run();
 };
 
+
 class ResultNotifier : public BufferedSocket
 {
-	Module* mod;
-	insp_sockaddr sock_us;
-	socklen_t uslen;
+	ModuleMsSQL* mod;
 
  public:
-	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
-#ifdef IPV6
-	ResultNotifier(InspIRCd* SI, Module* m) : BufferedSocket(SI, "::1", 0, true, 3000), mod(m)
-#else
-	ResultNotifier(InspIRCd* SI, Module* m) : BufferedSocket(SI, "127.0.0.1", 0, true, 3000), mod(m)
-#endif
+	ResultNotifier(ModuleMsSQL* m, InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
 	{
-		uslen = sizeof(sock_us);
-		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
-		{
-			throw ModuleException("Could not create random listening port on localhost");
-		}
-	}
-
-	ResultNotifier(InspIRCd* SI, Module* m, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
-	{
-	}
-
-	/* Using getsockname and ntohs, we can determine which port number we were allocated */
-	int GetPort()
-	{
-#ifdef IPV6
-		return ntohs(sock_us.sin6_port);
-#else
-		return ntohs(sock_us.sin_port);
-#endif
-	}
-
-	virtual int OnIncomingConnection(int newsock, char* ip)
-	{
-		resultdispatch = new ResultNotifier(Instance, mod, newsock, ip);
-		return true;
 	}
 
 	virtual bool OnDataReady()
@@ -108,6 +79,39 @@ class ResultNotifier : public BufferedSocket
 	}
 
 	void Dispatch();
+};
+
+class MsSQLListener : public ListenSocketBase
+{
+	ModuleMsSQL* Parent;
+	insp_sockaddr sock_us;
+	socklen_t uslen;
+	FileReader* index;
+
+ public:
+    MsSQLListener(ModuleMsSQL* P, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), Parent(P)
+    {
+        uslen = sizeof(sock_us);
+        if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
+        {
+            throw ModuleException("Could not getsockname() to find out port number for ITC port");
+        }
+    }
+
+    virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+    {
+        new ResultNotifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+    }
+
+    /* Using getsockname and ntohs, we can determine which port number we were allocated */
+    int GetPort()
+    {
+#ifdef IPV6
+        return ntohs(sock_us.sin6_port);
+#else
+        return ntohs(sock_us.sin_port);
+#endif
+    }
 };
 
 
@@ -623,13 +627,13 @@ class SQLConn : public classbase
 #ifdef IPV6
 			insp_aton("::1", &addr.sin6_addr);
 			addr.sin6_family = AF_FAMILY;
-			addr.sin6_port = htons(resultnotify->GetPort());
+			addr.sin6_port = htons(listener->GetPort());
 #else
 			insp_inaddr ia;
 			insp_aton("127.0.0.1", &ia);
 			addr.sin_family = AF_FAMILY;
 			addr.sin_addr = ia;
-			addr.sin_port = htons(resultnotify->GetPort());
+			addr.sin_port = htons(listener->GetPort());
 #endif
 
 			if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
@@ -655,7 +659,7 @@ class ModuleMsSQL : public Module
 {
  private:
 	unsigned long currid;
-	QueryThread* Dispatcher;
+	QueryThread* queryDispatcher;
 
  public:
 	ModuleMsSQL(InspIRCd* Me)
@@ -672,12 +676,29 @@ class ModuleMsSQL : public Module
 			throw ModuleException("m_mssql: Unable to publish feature 'SQL'");
 		}
 
-		resultnotify = new ResultNotifier(ServerInstance, this);
+	    /* Create a socket on a random port. Let the tcp stack allocate us an available port */
+#ifdef IPV6
+	    listener = new MsSQLListener(this, ServerInstance, 0, "::1");
+#else
+	    listener = new MsSQLListener(this, ServerInstance, 0, "127.0.0.1");
+#endif
+
+	    if (listener->GetFd() == -1)
+	    {
+	        ServerInstance->Modules->DoneWithInterface("SQLutils");
+	        throw ModuleException("m_mysql: unable to create ITC pipe");
+	    }
+	    else
+	    {
+	        LoggingMutex->Lock();
+	        ServerInstance->Logs->Log("m_mssql", DEBUG, "MsSQL: Interthread comms port is %d", listener->GetPort());
+	        LoggingMutex->Unlock();
+	    }
 
 		ReadConf();
 
-		Dispatcher = new QueryThread(ServerInstance, this);
-		ServerInstance->Threads->Create(Dispatcher);
+		queryDispatcher = new QueryThread(ServerInstance, this);
+		ServerInstance->Threads->Create(queryDispatcher);
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
 		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
@@ -686,12 +707,12 @@ class ModuleMsSQL : public Module
 
 	virtual ~ModuleMsSQL()
 	{
-		delete Dispatcher;
+		delete queryDispatcher;
 		ClearQueue();
 		ClearAllConnections();
 
-		ServerInstance->SE->DelFd(resultnotify);
-		resultnotify->Close();
+		ServerInstance->SE->DelFd(listener);
+		//listener->Close();
 		ServerInstance->BufferedSocketCull();
 
 		if (QueueFD >= 0)
@@ -700,10 +721,10 @@ class ModuleMsSQL : public Module
 			close(QueueFD);
 		}
 
-		if (resultdispatch)
+		if (notifier)
 		{
-			ServerInstance->SE->DelFd(resultdispatch);
-			resultdispatch->Close();
+			ServerInstance->SE->DelFd(notifier);
+			notifier->Close();
 			ServerInstance->BufferedSocketCull();
 		}
 
@@ -880,7 +901,7 @@ class ModuleMsSQL : public Module
 
 void ResultNotifier::Dispatch()
 {
-	((ModuleMsSQL*)mod)->SendQueue();
+	mod->SendQueue();
 }
 
 void QueryThread::Run()
