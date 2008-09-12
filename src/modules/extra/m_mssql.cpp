@@ -347,7 +347,7 @@ class SQLConn : public classbase
 		/* Total length of the unescaped parameters */
 		unsigned long paramlen;
 
-		/* Total length of query, used for binary-safety in mysql_real_query */
+		/* Total length of query, used for binary-safety */
 		unsigned long querylength = 0;
 
 		paramlen = 0;
@@ -684,7 +684,7 @@ class ModuleMsSQL : public Module
 		if (listener->GetFd() == -1)
 		{
 			ServerInstance->Modules->DoneWithInterface("SQLutils");
-			throw ModuleException("m_mysql: unable to create ITC pipe");
+			throw ModuleException("m_mssql: unable to create ITC pipe");
 		}
 		else
 		{
