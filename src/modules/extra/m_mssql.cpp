@@ -1,12 +1,12 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
+/*		 +------------------------------------+
+ *		 | Inspire Internet Relay Chat Daemon |
+ *		 +------------------------------------+
  *
- *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
+ *	InspIRCd: (C) 2002-2008 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *			  the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -33,15 +33,14 @@ class ModuleMsSQL;
 typedef std::map<std::string, SQLConn*> ConnMap;
 typedef std::deque<MsSQLResult*> ResultQueue;
 
-ResultNotifier* notifier;
-MsSQLListener* listener;
-
+ResultNotifier* notifier = NULL;
+MsSQLListener* listener = NULL;
 int QueueFD = -1;
+
 ConnMap connections;
 Mutex* QueueMutex;
 Mutex* ResultsMutex;
 Mutex* LoggingMutex;
-
 
 class QueryThread : public Thread
 {
@@ -56,7 +55,6 @@ class QueryThread : public Thread
 	~QueryThread() { }
 	virtual void Run();
 };
-
 
 class ResultNotifier : public BufferedSocket
 {
@@ -89,29 +87,29 @@ class MsSQLListener : public ListenSocketBase
 	FileReader* index;
 
  public:
-    MsSQLListener(ModuleMsSQL* P, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), Parent(P)
-    {
-        uslen = sizeof(sock_us);
-        if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
-        {
-            throw ModuleException("Could not getsockname() to find out port number for ITC port");
-        }
-    }
+	MsSQLListener(ModuleMsSQL* P, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), Parent(P)
+	{
+		uslen = sizeof(sock_us);
+		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
+		{
+			throw ModuleException("Could not getsockname() to find out port number for ITC port");
+		}
+	}
 
-    virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
-    {
-        new ResultNotifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
-    }
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	{
+		new ResultNotifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+	}
 
-    /* Using getsockname and ntohs, we can determine which port number we were allocated */
-    int GetPort()
-    {
+	/* Using getsockname and ntohs, we can determine which port number we were allocated */
+	int GetPort()
+	{
 #ifdef IPV6
-        return ntohs(sock_us.sin6_port);
+		return ntohs(sock_us.sin6_port);
 #else
-        return ntohs(sock_us.sin_port);
+		return ntohs(sock_us.sin_port);
 #endif
-    }
+	}
 };
 
 
@@ -287,7 +285,7 @@ class SQLConn : public classbase
 {
  private:
 	ResultQueue results;
- 	InspIRCd* Instance;
+	InspIRCd* Instance;
 	Module* mod;
 	SQLhost host;
 	TDSLOGIN* login;
@@ -676,24 +674,24 @@ class ModuleMsSQL : public Module
 			throw ModuleException("m_mssql: Unable to publish feature 'SQL'");
 		}
 
-	    /* Create a socket on a random port. Let the tcp stack allocate us an available port */
+		/* Create a socket on a random port. Let the tcp stack allocate us an available port */
 #ifdef IPV6
-	    listener = new MsSQLListener(this, ServerInstance, 0, "::1");
+		listener = new MsSQLListener(this, ServerInstance, 0, "::1");
 #else
-	    listener = new MsSQLListener(this, ServerInstance, 0, "127.0.0.1");
+		listener = new MsSQLListener(this, ServerInstance, 0, "127.0.0.1");
 #endif
 
-	    if (listener->GetFd() == -1)
-	    {
-	        ServerInstance->Modules->DoneWithInterface("SQLutils");
-	        throw ModuleException("m_mysql: unable to create ITC pipe");
-	    }
-	    else
-	    {
-	        LoggingMutex->Lock();
-	        ServerInstance->Logs->Log("m_mssql", DEBUG, "MsSQL: Interthread comms port is %d", listener->GetPort());
-	        LoggingMutex->Unlock();
-	    }
+		if (listener->GetFd() == -1)
+		{
+			ServerInstance->Modules->DoneWithInterface("SQLutils");
+			throw ModuleException("m_mysql: unable to create ITC pipe");
+		}
+		else
+		{
+			LoggingMutex->Lock();
+			ServerInstance->Logs->Log("m_mssql", DEBUG, "MsSQL: Interthread comms port is %d", listener->GetPort());
+			LoggingMutex->Unlock();
+		}
 
 		ReadConf();
 
