@@ -512,54 +512,27 @@ void SocketTimeout::Tick(time_t)
 	this->sock->Timeout = NULL;
 }
 
-bool BufferedSocket::Poll()
+bool BufferedSocket::InternalMarkConnected()
 {
-#ifndef WINDOWS
-	if (!Instance->SE->BoundsCheckFd(this))
-		return false;
-#endif
+	/* Our socket was in write-state, so delete it and re-add it
+	 * in read-state.
+	 */
+	this->SetState(I_CONNECTED);
 
-	if (Instance->SE->GetRef(this->fd) != this)
-		return false;
-
-	switch (this->state)
+	if (this->GetIOHook())
 	{
-		case I_CONNECTING:
-			/* Our socket was in write-state, so delete it and re-add it
-			 * in read-state.
-			 */
-#ifndef WINDOWS
-			if (this->fd > -1)
-			{
-				this->Instance->SE->DelFd(this);
-				if (!this->Instance->SE->AddFd(this))
-					return false;
-			}
-#endif
-			this->SetState(I_CONNECTED);
-
-			if (this->GetIOHook())
-			{
-				Instance->Logs->Log("SOCKET",DEBUG,"Hook for raw connect");
-				try
-				{
-					this->GetIOHook()->OnRawSocketConnect(this->fd);
-				}
-				catch (CoreException& modexcept)
-				{
-					Instance->Logs->Log("SOCKET",DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-				}
-			}
-			return this->OnConnected();
-		break;
-		case I_CONNECTED:
-			/* Process the read event */
-			return this->OnDataReady();
-		break;
-		default:
-		break;
+		Instance->Logs->Log("SOCKET",DEBUG,"Hook for raw connect");
+		try
+		{
+			this->GetIOHook()->OnRawSocketConnect(this->fd);
+		}
+		catch (CoreException& modexcept)
+		{
+			Instance->Logs->Log("SOCKET",DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			return false;
+		}
 	}
-	return true;
+	return this->OnConnected();
 }
 
 void BufferedSocket::SetState(BufferedSocketState s)
@@ -599,6 +572,7 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 	switch (et)
 	{
 		case EVENT_ERROR:
+		{
 			switch (errornum)
 			{
 				case ETIMEDOUT:
@@ -621,24 +595,27 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 				this->Instance->SocketCull[this] = this;
 			return;
 			break;
+		}
 		case EVENT_READ:
-			if (!this->Poll())
+		{
+			if (!this->OnDataReady())
 			{
 				if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
 					this->Instance->SocketCull[this] = this;
 				return;
 			}
 			break;
+		}
 		case EVENT_WRITE:
+		{
 			if (this->state == I_CONNECTING)
 			{
-				/* This might look wrong as if we should be actually calling
-				 * with EVENT_WRITE, but trust me it is correct. There are some
-				 * writeability-state things in the read code, because of how
-				 * BufferedSocket used to work regarding write buffering in previous
-				 * versions of InspIRCd. - Brain
-				 */
-				this->HandleEvent(EVENT_READ);
+				if (!this->InternalMarkConnected())
+				{
+					if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
+						this->Instance->SocketCull[this] = this;
+					return;
+				}
 				return;
 			}
 			else
@@ -651,6 +628,7 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 				}
 			}
 			break;
+		}
 	}
 }
 

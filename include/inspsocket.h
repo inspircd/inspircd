@@ -311,15 +311,9 @@ class CoreExport BufferedSocket : public EventHandler
 	 */
 	BufferedSocketState GetState();
 
-	/**
-	 * Only the core should call this function.
-	 * When called, it is assumed the socket is ready
-	 * to read data, and the method call routes the
-	 * event to the various methods of BufferedSocket
-	 * for you to handle. This can also cause the
-	 * socket's state to change.
+	/** Mark a socket as being connected and call appropriate events.
 	 */
-	bool Poll();
+	bool InternalMarkConnected();
 
 	/**
 	 * This method causes the socket to close, and may
