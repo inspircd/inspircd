@@ -1,12 +1,12 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
+/*		 +------------------------------------+
+ *		 | Inspire Internet Relay Chat Daemon |
+ *		 +------------------------------------+
  *
- *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
+ *	InspIRCd: (C) 2002-2008 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *			  the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -27,54 +27,24 @@
 class SQLConn;
 class SQLite3Result;
 class ResultNotifier;
+class SQLiteListener;
+class ModuleSQLite3;
 
 typedef std::map<std::string, SQLConn*> ConnMap;
 typedef std::deque<classbase*> paramlist;
 typedef std::deque<SQLite3Result*> ResultQueue;
 
-ResultNotifier* resultnotify = NULL;
-ResultNotifier* resultdispatch = NULL;
+ResultNotifier* notifier = NULL;
+SQLiteListener* listener = NULL;
 int QueueFD = -1;
 
 class ResultNotifier : public BufferedSocket
 {
-	Module* mod;
-	insp_sockaddr sock_us;
-	socklen_t uslen;
+	ModuleSQLite3* mod;
 
  public:
-	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
-#ifdef IPV6
-	ResultNotifier(InspIRCd* SI, Module* m) : BufferedSocket(SI, "::1", 0, true, 3000), mod(m)
-#else
-	ResultNotifier(InspIRCd* SI, Module* m) : BufferedSocket(SI, "127.0.0.1", 0, true, 3000), mod(m)
-#endif
+	ResultNotifier(ModuleSQLite3* m, InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
 	{
-		uslen = sizeof(sock_us);
-		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
-		{
-			throw ModuleException("Could not create random listening port on localhost");
-		}
-	}
-
-	ResultNotifier(InspIRCd* SI, Module* m, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
-	{
-	}
-
-	/* Using getsockname and ntohs, we can determine which port number we were allocated */
-	int GetPort()
-	{
-#ifdef IPV6
-		return ntohs(sock_us.sin6_port);
-#else
-		return ntohs(sock_us.sin_port);
-#endif
-	}
-
-	virtual int OnIncomingConnection(int newsock, char* ip)
-	{
-		resultdispatch = new ResultNotifier(Instance, mod, newsock, ip);
-		return true;
 	}
 
 	virtual bool OnDataReady()
@@ -91,6 +61,38 @@ class ResultNotifier : public BufferedSocket
 	void Dispatch();
 };
 
+class SQLiteListener : public ListenSocketBase
+{
+	ModuleSQLite3* Parent;
+	insp_sockaddr sock_us;
+	socklen_t uslen;
+	FileReader* index;
+
+ public:
+	SQLiteListener(ModuleSQLite3* P, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), Parent(P)
+	{
+		uslen = sizeof(sock_us);
+		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
+		{
+			throw ModuleException("Could not getsockname() to find out port number for ITC port");
+		}
+	}
+
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	{
+		new ResultNotifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+	}
+
+	/* Using getsockname and ntohs, we can determine which port number we were allocated */
+	int GetPort()
+	{
+#ifdef IPV6
+		return ntohs(sock_us.sin6_port);
+#else
+		return ntohs(sock_us.sin_port);
+#endif
+	}
+};
 
 class SQLite3Result : public SQLresult
 {
@@ -451,13 +453,13 @@ class SQLConn : public classbase
 #ifdef IPV6
 			insp_aton("::1", &addr.sin6_addr);
 			addr.sin6_family = AF_FAMILY;
-			addr.sin6_port = htons(resultnotify->GetPort());
+			addr.sin6_port = htons(listener->GetPort());
 #else
 			insp_inaddr ia;
 			insp_aton("127.0.0.1", &ia);
 			addr.sin_family = AF_FAMILY;
 			addr.sin_addr = ia;
-			addr.sin_port = htons(resultnotify->GetPort());
+			addr.sin_port = htons(listener->GetPort());
 #endif
 
 			if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
@@ -490,7 +492,22 @@ class ModuleSQLite3 : public Module
 			throw ModuleException("m_sqlite3: Unable to publish feature 'SQL'");
 		}
 
-		resultnotify = new ResultNotifier(ServerInstance, this);
+		/* Create a socket on a random port. Let the tcp stack allocate us an available port */
+#ifdef IPV6
+		listener = new SQLiteListener(this, ServerInstance, 0, "::1");
+#else
+		listener = new SQLiteListener(this, ServerInstance, 0, "127.0.0.1");
+#endif
+
+		if (listener->GetFd() == -1)
+		{
+			ServerInstance->Modules->DoneWithInterface("SQLutils");
+			throw ModuleException("m_sqlite3: unable to create ITC pipe");
+		}
+		else
+		{
+			ServerInstance->Logs->Log("m_sqlite3", DEBUG, "SQLite: Interthread comms port is %d", listener->GetPort());
+		}
 
 		ReadConf();
 
@@ -504,8 +521,8 @@ class ModuleSQLite3 : public Module
 		ClearQueue();
 		ClearAllConnections();
 
-		ServerInstance->SE->DelFd(resultnotify);
-		resultnotify->Close();
+		ServerInstance->SE->DelFd(listener);
+		//listener->Close();
 		ServerInstance->BufferedSocketCull();
 
 		if (QueueFD >= 0)
@@ -514,10 +531,10 @@ class ModuleSQLite3 : public Module
 			close(QueueFD);
 		}
 
-		if (resultdispatch)
+		if (notifier)
 		{
-			ServerInstance->SE->DelFd(resultdispatch);
-			resultdispatch->Close();
+			ServerInstance->SE->DelFd(notifier);
+			notifier->Close();
 			ServerInstance->BufferedSocketCull();
 		}
 
@@ -677,7 +694,7 @@ class ModuleSQLite3 : public Module
 
 void ResultNotifier::Dispatch()
 {
-	((ModuleSQLite3*)mod)->SendQueue();
+	mod->SendQueue();
 }
 
 MODULE_INIT(ModuleSQLite3)
