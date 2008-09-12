@@ -69,12 +69,15 @@ class CoreExport SocketTimeout : public Timer
 	/** BufferedSocket the class is attached to
 	 */
 	BufferedSocket* sock;
+
 	/** Server instance creating the timeout class
 	 */
 	InspIRCd* ServerInstance;
+
 	/** File descriptor of class this is attached to
 	 */
 	int sfd;
+
  public:
 	/** Create a socket timeout class
 	 * @param fd File descriptor of BufferedSocket
@@ -84,6 +87,7 @@ class CoreExport SocketTimeout : public Timer
 	 * @param now The current time
 	 */
 	SocketTimeout(int fd, InspIRCd* Instance, BufferedSocket* thesock, long secs_from_now, time_t now) : Timer(secs_from_now, now), sock(thesock), ServerInstance(Instance), sfd(fd) { };
+
 	/** Handle tick event
 	 */
 	virtual void Tick(time_t now);
