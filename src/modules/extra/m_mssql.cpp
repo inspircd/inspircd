@@ -710,7 +710,6 @@ class ModuleMsSQL : public Module
 		ClearAllConnections();
 
 		ServerInstance->SE->DelFd(listener);
-		//listener->Close();
 		ServerInstance->BufferedSocketCull();
 
 		if (QueueFD >= 0)

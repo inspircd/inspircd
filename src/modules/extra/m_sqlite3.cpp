@@ -298,7 +298,7 @@ class SQLConn : public classbase
 		/* Total length of the unescaped parameters */
 		unsigned long paramlen;
 
-		/* Total length of query, used for binary-safety in mysql_real_query */
+		/* Total length of query, used for binary-safety */
 		unsigned long querylength = 0;
 
 		paramlen = 0;
@@ -310,7 +310,7 @@ class SQLConn : public classbase
 		/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
 		 * sizeofquery + (totalparamlength*2) + 1
 		 *
-		 * The +1 is for null-terminating the string for mysql_real_escape_string
+		 * The +1 is for null-terminating the string
 		 */
 		query = new char[req.query.q.length() + (paramlen*2) + 1];
 		queryend = query;
@@ -522,7 +522,6 @@ class ModuleSQLite3 : public Module
 		ClearAllConnections();
 
 		ServerInstance->SE->DelFd(listener);
-		//listener->Close();
 		ServerInstance->BufferedSocketCull();
 
 		if (QueueFD >= 0)
