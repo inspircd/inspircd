@@ -100,13 +100,16 @@ class CloakUser : public ModeHandler
 
 				std::string* cloak;
 
-				if (dest->GetExt("cloaked_host", cloak))
+				if (!dest->GetExt("cloaked_host", cloak))
 				{
-					/* Cloaked host has been set before on this user, don't bother to recalculate and waste cpu */
-					dest->ChangeDisplayedHost(cloak->c_str());
-					dest->SetMode('x',true);
-					return MODEACTION_ALLOW;
+					/* Force creation of missing cloak */
+					Sender->OnUserConnect(dest);
 				}
+
+				dest->GetExt("cloaked_host", cloak);
+				dest->ChangeDisplayedHost(cloak->c_str());
+				dest->SetMode('x',true);
+				return MODEACTION_ALLOW;
 			}
 		}
 		else
