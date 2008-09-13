@@ -56,11 +56,6 @@ enum BufferedSocketError
 class BufferedSocket;
 class InspIRCd;
 
-using irc::sockets::insp_sockaddr;
-using irc::sockets::insp_inaddr;
-using irc::sockets::insp_ntoa;
-using irc::sockets::insp_aton;
-
 /** Used to time out socket connections
  */
 class CoreExport SocketTimeout : public Timer
