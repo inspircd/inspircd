@@ -48,10 +48,6 @@
 #include "caller.h"
 #include "testsuite.h"
 
-using irc::sockets::insp_ntoa;
-using irc::sockets::insp_inaddr;
-using irc::sockets::insp_sockaddr;
-
 InspIRCd* SI = NULL;
 int* mysig = NULL;
 

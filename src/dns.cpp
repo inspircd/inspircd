@@ -40,11 +40,6 @@ looks like this, walks like this or tastes like this.
 #include "configreader.h"
 #include "socket.h"
 
-using irc::sockets::insp_inaddr;
-using irc::sockets::insp_ntoa;
-using irc::sockets::insp_aton;
-using irc::sockets::OpenTCPSocket;
-
 /** Masks to mask off the responses we get from the DNSRequest methods
  */
 enum QueryInfo
@@ -355,7 +350,7 @@ void DNS::Rehash()
 #endif
 
 	/* Initialize mastersocket */
-	int s = OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
+	int s = irc::sockets::OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
 	this->SetFd(s);
 	ServerInstance->SE->NonBlocking(this->GetFd());
 
@@ -517,7 +512,7 @@ int DNS::GetCName(const char *alias)
 }
 
 /** Start lookup of an IP address to a hostname */
-int DNS::GetName(const insp_inaddr *ip)
+int DNS::GetName(const irc::sockets::insp_inaddr *ip)
 {
 	char query[128];
 	DNSHeader h;
@@ -540,7 +535,7 @@ int DNS::GetName(const insp_inaddr *ip)
 	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	DNSRequest* req = this->AddQuery(&h, id, insp_ntoa(*ip));
+	DNSRequest* req = this->AddQuery(&h, id, irc::sockets::insp_ntoa(*ip));
 
 	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1))
 		return -1;
@@ -977,7 +972,7 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 		}
 	}
 
-	insp_inaddr binip;
+	irc::sockets::insp_inaddr binip;
 
 	switch (querytype)
 	{
@@ -986,7 +981,7 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 		break;
 
 		case DNS_QUERY_PTR:
-			if (insp_aton(source.c_str(), &binip) > 0)
+			if (irc::sockets::insp_aton(source.c_str(), &binip) > 0)
 			{
 				/* Valid ip address */
 				this->myid = ServerInstance->Res->GetName(&binip);
