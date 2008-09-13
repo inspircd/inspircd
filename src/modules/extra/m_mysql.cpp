@@ -710,7 +710,7 @@ class Notifier : public BufferedSocket
 class MySQLListener : public ListenSocketBase
 {
 	ModuleSQL* Parent;
-	insp_sockaddr sock_us;
+	irc::sockets::insp_sockaddr sock_us;
 	socklen_t uslen;
 	FileReader* index;
 
@@ -872,15 +872,15 @@ void DispatcherThread::Run()
 		return;
 	}
 
-	insp_sockaddr addr;
+	irc::sockets::insp_sockaddr addr;
 
 #ifdef IPV6
-	insp_aton("::1", &addr.sin6_addr);
+	irc::sockets::insp_aton("::1", &addr.sin6_addr);
 	addr.sin6_family = AF_FAMILY;
 	addr.sin6_port = htons(MessagePipe->GetPort());
 #else
-	insp_inaddr ia;
-	insp_aton("127.0.0.1", &ia);
+	irc::sockets::insp_inaddr ia;
+	irc::sockets::insp_aton("127.0.0.1", &ia);
 	addr.sin_family = AF_FAMILY;
 	addr.sin_addr = ia;
 	addr.sin_port = htons(MessagePipe->GetPort());
