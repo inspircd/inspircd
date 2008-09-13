@@ -456,10 +456,10 @@ class CoreExport User : public EventHandler
 	std::map<std::string, bool>* AllowedOperCommands;
 
 	/** Allowed user modes from oper classes. */
-	bool* AllowedUserModes;
+	std::bitset<64> AllowedUserModes;
 
 	/** Allowed channel modes from oper classes. */
-	bool* AllowedChanModes;
+	std::bitset<64> AllowedChanModes;
 
  public:
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.

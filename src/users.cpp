@@ -216,8 +216,6 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Visibility = NULL;
 	ip = NULL;
 	MyClass = NULL;
-	AllowedUserModes = NULL;
-	AllowedChanModes = NULL;
 	AllowedOperCommands = NULL;
 	chans.clear();
 	invites.clear();
@@ -248,18 +246,6 @@ User::~User()
 	{
 		delete AllowedOperCommands;
 		AllowedOperCommands = NULL;
-	}
-
-	if (this->AllowedUserModes)
-	{
-		delete[] AllowedUserModes;
-		AllowedUserModes = NULL;
-	}
-
-	if (this->AllowedChanModes)
-	{
-		delete[] AllowedChanModes;
-		AllowedChanModes = NULL;
 	}
 
 	this->InvalidateCache();
@@ -483,8 +469,7 @@ bool User::HasModePermission(unsigned char mode, ModeType type)
 	if (!IS_OPER(this))
 		return false;
 
-	if (!AllowedUserModes || !AllowedChanModes)
-		return false;
+	if (mode < 'A' || mode > ('A' + 64)) return false;
 
 	return ((type == MODETYPE_USER ? AllowedUserModes : AllowedChanModes))[(mode - 'A')];
 	
@@ -735,14 +720,9 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		else
 			AllowedOperCommands = new std::map<std::string, bool>;
 
-		if (!AllowedChanModes)
-			AllowedChanModes = new bool[64];
-
-		if (!AllowedUserModes)
-			AllowedUserModes = new bool[64];
-
-		memset(AllowedUserModes, 0, 64);
-		memset(AllowedChanModes, 0, 64);
+		AllowedUserModes.reset();
+		AllowedChanModes.reset();
+		this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
 		char* Classes = strdup(iter_opertype->second);
 		char* myclass = strtok_r(Classes," ",&savept);
@@ -759,12 +739,11 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					mycmd = strtok_r(NULL," ",&savept2);
 				}
 				free(CommandList);
-				this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
 				{
 					if (*c == '*')
 					{
-						memset(this->AllowedUserModes, (int)(true), 64);
+						this->AllowedUserModes.set();
 					}
 					else
 					{
@@ -775,7 +754,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 				{
 					if (*c == '*')
 					{
-						memset(this->AllowedChanModes, (int)(true), 64);
+						this->AllowedChanModes.set();
 					}
 					else
 					{
@@ -826,17 +805,9 @@ void User::UnOper()
 			delete AllowedOperCommands;
 			AllowedOperCommands = NULL;
 		}
-		if (AllowedUserModes)
-		{
-			delete[] AllowedUserModes;
-			AllowedUserModes = NULL;
-		}
-		if (AllowedChanModes)
-		{
-			delete[] AllowedChanModes;
-			AllowedChanModes = NULL;
-		}
 
+		AllowedUserModes.reset();
+		AllowedChanModes.reset();
 	}
 }
 
