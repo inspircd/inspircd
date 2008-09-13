@@ -367,6 +367,10 @@ class ModuleCloaking : public Module
 
 	virtual void OnUserConnect(User* dest)
 	{
+		std::string* tofree;
+		if (dest->GetExt("cloaked_host", tofree))
+			return;
+
 		if (dest->host.find('.') != std::string::npos || dest->host.find(':') != std::string::npos)
 		{
 			unsigned int iv[] = { cu->key1, cu->key2, cu->key3, cu->key4 };
