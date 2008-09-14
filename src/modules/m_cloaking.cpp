@@ -105,11 +105,12 @@ class CloakUser : public ModeHandler
 					/* Force creation of missing cloak */
 					Sender->OnUserConnect(dest);
 				}
-
-				dest->GetExt("cloaked_host", cloak);
-				dest->ChangeDisplayedHost(cloak->c_str());
-				dest->SetMode('x',true);
-				return MODEACTION_ALLOW;
+				if (dest->GetExt("cloaked_host", cloak))
+				{
+					dest->ChangeDisplayedHost(cloak->c_str());
+					dest->SetMode('x',true);
+					return MODEACTION_ALLOW;
+				}
 			}
 		}
 		else
