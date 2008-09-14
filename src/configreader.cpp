@@ -362,10 +362,10 @@ bool ValidateMotd(ServerConfig* conf, const char*, const char*, ValueItem &data)
 	return true;
 }
 
-bool ValidateNotEmpty(ServerConfig*, const char* tag, const char*, ValueItem &data)
+bool ValidateNotEmpty(ServerConfig*, const char* tag, const char* val, ValueItem &data)
 {
 	if (!*data.GetString())
-		throw CoreException(std::string("The value for ")+tag+" cannot be empty!");
+		throw CoreException(std::string("The value for <")+tag+":"+val+"> cannot be empty!");
 	return true;
 }
 
