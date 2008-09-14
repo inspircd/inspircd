@@ -693,10 +693,6 @@ void User::FlushWriteBuf()
 
 void User::Oper(const std::string &opertype, const std::string &opername)
 {
-	char* mycmd;
-	char* savept;
-	char* savept2;
-
 	if (this->IsModeSet('o'))
 		this->UnOper();
 
@@ -724,21 +720,18 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		AllowedChanModes.reset();
 		this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
-		char* Classes = strdup(iter_opertype->second);
-		char* myclass = strtok_r(Classes," ",&savept);
-		while (myclass)
+		std::string myclass, mycmd;
+		irc::spacesepstream Classes(iter_opertype->second);
+		while (Classes.GetToken(myclass))
 		{
-			operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
+			operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());
 			if (iter_operclass != ServerInstance->Config->operclass.end())
 			{
-				char* CommandList = strdup(iter_operclass->second.commandlist);
-				mycmd = strtok_r(CommandList," ",&savept2);
-				while (mycmd)
+				irc::spacesepstream CommandList(iter_operclass->second.commandlist);
+				while (CommandList.GetToken(mycmd))
 				{
 					this->AllowedOperCommands->insert(std::make_pair(mycmd, true));
-					mycmd = strtok_r(NULL," ",&savept2);
 				}
-				free(CommandList);
 				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
 				{
 					if (*c == '*')
@@ -762,9 +755,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					}
 				}
 			}
-			myclass = strtok_r(NULL," ",&savept);
 		}
-		free(Classes);
 	}
 
 	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype, opername));

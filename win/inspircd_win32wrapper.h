@@ -114,9 +114,6 @@ CoreExport const char * inet_ntop(int af, const void * src, char * dst, socklen_
 /* Since when does the ISO C++ standard *remove* C functions?! */
 #define mkdir(file,mode) _mkdir(file)
 
-/* Recursive token function doesn't exist in VC++ */
-CoreExport char * strtok_r(char *_String, const char *_Control, char **_Context);
-
 /* Unix-style sleep (argument is in seconds) */
 __inline void sleep(int seconds) { Sleep(seconds * 1000); }
 
