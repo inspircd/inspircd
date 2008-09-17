@@ -920,20 +920,6 @@ class ModuleSSLGnuTLS : public Module
 	void OnEvent(Event* ev)
 	{
 		GenericCapHandler(ev, "tls", "tls");
-		if (ev->GetEventID() == "cap_req")
-		{
-			/* GenericCapHandler() Extends("tls") a user if it does
-			 * CAP REQ tls. Check if this was done.
-			 */
-			CapData *data = (CapData *) ev->GetData();
-			if (data->user->Shrink("tls"))
-			{
-				/* Not in our spec?!?! */
-				data->user->AddIOHook(this);
-				OnRawSocketAccept(data->user->GetFd(), data->user->GetIPString(),
-						data->user->GetPort());
-			}
-		}
 	}
 
 	void Prioritize()
