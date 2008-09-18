@@ -945,8 +945,8 @@ User* User::UpdateNickHash(const char* New)
 		return NULL; /* doesnt exist */
 
 	User* olduser = oldnick->second;
-	(*(ServerInstance->Users->clientlist))[New] = olduser;
 	ServerInstance->Users->clientlist->erase(oldnick);
+	(*(ServerInstance->Users->clientlist))[New] = olduser;
 	return olduser;
 }
 
