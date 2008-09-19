@@ -532,9 +532,6 @@ void ZLine::Apply(User* u)
 
 bool QLine::Matches(User *u)
 {
-	if (u->exempt)
-		return false;
-
 	if (InspIRCd::Match(u->nick, this->nick))
 		return true;
 
