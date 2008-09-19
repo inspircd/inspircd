@@ -333,6 +333,21 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 	}
 }
 
+void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
+{
+	for (std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); i++)
+	{
+		TreeSocket* s = i->first;
+		std::pair<std::string, int> p = i->second;
+		if (curtime > s->age + p.second)
+		{
+			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
+			ServerInstance->SE->DelFd(s);
+			s->Close();
+		}
+	}                                                    
+}
+
 int ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters, User* user)
 {
 	// we've already checked if pcnt > 0, so this is safe
@@ -573,6 +588,7 @@ void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 {
 	AutoConnectServers(curtime);
 	DoPingChecks(curtime);
+	DoConnectTimeout(curtime);
 }
 
 void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)

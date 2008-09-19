@@ -43,6 +43,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string sh
 	theirchallenge.clear();
 	ourchallenge.clear();
 	this->LinkState = CONNECTING;
+	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName,maxtime);
 	if (Hook)
 		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 }
@@ -81,6 +82,7 @@ TreeSocket::~TreeSocket()
 {
 	if (Hook)
 		BufferedSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
+	Utils->timeoutlist.erase(this);
 }
 
 /** When an outbound connection finishes connecting, we receive

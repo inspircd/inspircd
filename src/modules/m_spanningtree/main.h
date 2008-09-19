@@ -124,6 +124,10 @@ class ModuleSpanningTree : public Module
 	 */
 	void AutoConnectServers(time_t curtime);
 
+	/** Check if any connecting servers should timeout
+	 */
+	void DoConnectTimeout(time_t curtime);
+
 	/** Handle remote VERSON
 	 */
 	int HandleVersion(const std::vector<std::string>& parameters, User* user);

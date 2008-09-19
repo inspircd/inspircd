@@ -109,6 +109,9 @@ class SpanningTreeUtilities : public classbase
 	/** Hash of servers currently bursting but not initialized as connected
 	 */
 	std::map<irc::string,TreeSocket*> burstingserverlist;
+	/** List of all outgoing sockets and their timeouts
+	 */
+	std::map<TreeSocket*, std::pair<std::string, int> > timeoutlist;
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<Link> LinkBlocks;
