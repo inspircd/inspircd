@@ -43,7 +43,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string sh
 	theirchallenge.clear();
 	ourchallenge.clear();
 	this->LinkState = CONNECTING;
-	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName,maxtime);
+	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName, maxtime);
 	if (Hook)
 		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 }
@@ -66,6 +66,9 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 
 	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils, 1));
+
+	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
+	Utils->timeoutlist[this] = std::pair<std::string, int>("<unknown>", 30);
 }
 
 ServerState TreeSocket::GetLinkState()
