@@ -17,70 +17,56 @@
 #include "hashcomp.h"
 #include "inspstring.h"
 
-/*
- * Wildcard matching!
- *
- *  Iteration 1)
- *   Slow, horrible, etc.
- *	Iteration 2)
- *   The vastly available 'public domain' one
- *	Iteration 3)
- *   ZNC's, thought to be faster than ours, but it turned out that we could do better ;-)
- *	Iteration 4)
- *   Largely from work by peavey and myself (w00t) :)
- *	Iteration 5)
- *   peavey: Fix glob scan similar to 1.1, but scan ahead on glob in inner loop to retain speedup
- *   this fixes another case which we forgot to test. Add early return for obvious fail condition.
- */
-static bool match_internal(const unsigned char *string, const unsigned char *wild, unsigned const char *map)
+static bool match_internal(const unsigned char *str, const unsigned char *mask, unsigned const char *map)
 {
-	const unsigned char *s, *m; m = wild;
-
-	if (*string && !*wild)
-		return false;
+        unsigned char *cp = NULL, *mp = NULL;
+        unsigned char* string = (unsigned char*)str;
+        unsigned char* wild = (unsigned char*)mask;
 
 	if (!map)
 		map = rfc_case_insensitive_map;
 
-	while (*string)
-	{
-		if (*wild == '*')
-		{
-			while (*wild && *wild == '*')
-				wild++;
+        while ((*string) && (*wild != '*'))
+        {
+                if ((map[*wild] != map[*string]) && (*wild != '?'))
+                {
+                        return 0;
+                }
+                wild++;
+                string++;
+        }
 
-			m = wild;
+        while (*string)
+        {
+                if (*wild == '*')
+                {
+                        if (!*++wild)
+                        {
+                                return 1;
+                        }
+                        mp = wild;
+                        cp = string+1;
+                }
+                else
+                if ((map[*wild] == map[*string]) || (*wild == '?'))
+                {
+                        wild++;
+                        string++;
+                }
+                else
+                {
+                        wild = mp;
+                        string = cp++;
+                }
 
-			if (!*wild)
-				return true;
-			else if (*wild != '?')
-			{
-				s = string;
-				while (*s)
-				{
-					if ((map[*wild] == map[*s]))
-					{
-						string = s;
-						if (*(wild+1) || !*(s+1))
-							wild++;
-						break;
-					}
-					s++;
-				}
-			}
-		}
-		else if ( (map[*wild] == map[*string]) || (*wild == '?') )
-			wild++;
-		else
-			wild = m;
+        }
 
-		string++;
-	}
+        while (*wild == '*')
+        {
+                wild++;
+        }
 
-	while (*wild && *wild == '*')
-		wild++;
-
-	return !*wild;
+        return !*wild;
 }
 
 /********************************************************************
