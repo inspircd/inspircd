@@ -2372,7 +2372,6 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 
 void ConfigReaderThread::Run()
 {
-	/* TODO: TheUser may be invalid by the time we get here! Check its validity, or pass a UID would be better */
 	ServerInstance->Config->Read(do_bail, TheUserUID);
 	ServerInstance->Threads->Lock();
 	this->SetExitFlag();
