@@ -15,7 +15,7 @@
 #define INSPIRCD_HASHMAP_H
 
 /** Where hash_map is varies from compiler to compiler
- * as it is not standard.
+ * as it is not standard unless we have tr1.
  */
 #ifndef WIN32
 	#ifndef HASHMAP_DEPRECATED
@@ -25,7 +25,9 @@
 		#define BEGIN_HASHMAP_NAMESPACE namespace nspace {
 		#define END_HASHMAP_NAMESPACE }
 	#else
+		/** Yay, we have tr1! */
 		#include <tr1/unordered_map>
+		/** Not so oddball linux namespace for hash_map with gcc 4.0 and above */
 		#define hash_map unordered_map
 		#define nspace std::tr1
 		#define BEGIN_HASHMAP_NAMESPACE namespace std { namespace tr1 {

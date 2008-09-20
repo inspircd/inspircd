@@ -137,6 +137,9 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 		}
 	}
 	
+	/** Calls the 'init_module' C exported function within a module, which
+	 * returns a pointer to a Module derived object.
+	 */
 	ReturnType* CallInit()
 	{
 		if(init_func)
@@ -157,3 +160,4 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 };
 
 #endif
+

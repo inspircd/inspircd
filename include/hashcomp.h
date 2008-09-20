@@ -15,8 +15,6 @@
 #define _HASHCOMP_H_
 
 #include <cstring>
-//#include "inspircd_config.h"
-//#include "socket.h"
 #include "hash_map.h"
 
 /*******************************************************
@@ -56,8 +54,8 @@ unsigned const char rfc_case_insensitive_map[256] = {
 	240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255				/* 240-255 */
 };
 
-/*
- * case sensitive map.
+/**
+ * Case sensitive map. As per rfc_case_insensitive_map, but case sensitive. duh.
  */
 unsigned const char case_sensitive_map[256] = {
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
@@ -158,10 +156,13 @@ namespace irc
 	class CoreExport stringjoiner : public classbase
 	{
 	 private:
+
 		/** Output string
 		 */
 		std::string joined;
+
 	 public:
+
 		/** Join elements of a vector, between (and including) begin and end
 		 * @param seperator The string to seperate values with
 		 * @param sequence One or more items to seperate
@@ -169,6 +170,7 @@ namespace irc
 		 * @param end The ending element in the sequence to be joined
 		 */
 		stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end);
+
 		/** Join elements of a deque, between (and including) begin and end
 		 * @param seperator The string to seperate values with
 		 * @param sequence One or more items to seperate
@@ -176,6 +178,7 @@ namespace irc
 		 * @param end The ending element in the sequence to be joined
 		 */
 		stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end);
+
 		/** Join elements of an array of char arrays, between (and including) begin and end
 		 * @param seperator The string to seperate values with
 		 * @param sequence One or more items to seperate
@@ -198,20 +201,24 @@ namespace irc
 	{
 	 private:
 		InspIRCd* ServerInstance;
+
 		/** The mode sequence and its parameters
 		 */
 		std::deque<std::string> sequence;
+
 		/** True if the mode sequence is initially adding
 		 * characters, false if it is initially removing
 		 * them
 		 */
 		bool adding;
 	 public:
+
 		/** Construct a new modestacker.
 		 * @param add True if the stack is adding modes,
 		 * false if it is removing them
 		 */
 		modestacker(InspIRCd* Instance, bool add);
+
 		/** Push a modeletter and its parameter onto the stack.
 		 * No checking is performed as to if this mode actually
 		 * requires a parameter. If you stack invalid mode
@@ -221,6 +228,7 @@ namespace irc
 		 * @param parameter The parameter for the mode
 		 */
 		void Push(char modeletter, const std::string &parameter);
+
 		/** Push a modeletter without parameter onto the stack.
 		 * No checking is performed as to if this mode actually
 		 * requires a parameter. If you stack invalid mode
@@ -229,12 +237,15 @@ namespace irc
 		 * @param modeletter The mode letter to insert
 		 */
 		void Push(char modeletter);
+	
 		/** Push a '+' symbol onto the stack.
 		 */
 		void PushPlus();
+	
 		/** Push a '-' symbol onto the stack.
 		 */
 		void PushMinus();
+		
 		/** Return zero or more elements which form the
 		 * mode line. This will be clamped to a max of
 		 * MAXMODES items (MAXMODES-1 mode parameters and
@@ -269,22 +280,30 @@ namespace irc
 	class CoreExport tokenstream : public classbase
 	{
 	 private:
+	
 		/** Original string
 		 */
 		std::string tokens;
+
 		/** Last position of a seperator token
 		 */
 		std::string::iterator last_starting_position;
+
 		/** Current string position
 		 */
 		std::string::iterator n;
+
 		/** True if the last value was an ending value
 		 */
 		bool last_pushed;
 	 public:
+
 		/** Create a tokenstream and fill it with the provided data
 		 */
 		tokenstream(const std::string &source);
+
+		/** Destructor
+		 */
 		~tokenstream();
 
 		/** Fetch the next token from the stream as a std::string
@@ -336,6 +355,9 @@ namespace irc
 		/** Create a sepstream and fill it with the provided data
 		 */
 		sepstream(const std::string &source, char seperator);
+
+		/** Destructor
+		 */
 		virtual ~sepstream();
 
 		/** Fetch the next token from the stream
@@ -390,178 +412,51 @@ namespace irc
 	class CoreExport portparser : public classbase
 	{
 	 private:
+
 		/** Used to split on commas
 		 */
 		commasepstream* sep;
+	
 		/** Current position in a range of ports
 		 */
 		long in_range;
+	
 		/** Starting port in a range of ports
 		 */
 		long range_begin;
+	
 		/** Ending port in a range of ports
 		 */
 		long range_end;
+	
 		/** Allow overlapped port ranges
 		 */
 		bool overlapped;
+	
 		/** Used to determine overlapping of ports
 		 * without O(n) algorithm being used
 		 */
 		std::map<long, bool> overlap_set;
+	
 		/** Returns true if val overlaps an existing range
 		 */
 		bool Overlaps(long val);
 	 public:
+	
 		/** Create a portparser and fill it with the provided data
 		 * @param source The source text to parse from
 		 * @param allow_overlapped Allow overlapped ranges
 		 */
 		portparser(const std::string &source, bool allow_overlapped = true);
+	
 		/** Frees the internal commasepstream object
 		 */
 		~portparser();
+	
 		/** Fetch the next token from the stream
 		 * @return The next port number is returned, or 0 if none remain
 		 */
 		long GetToken();
-	};
-
-	/** Used to hold a bitfield definition in dynamicbitmask.
-	 * You must be allocated one of these by dynamicbitmask::Allocate(),
-	 * you should not fill the values yourself!
-	 */
-	typedef std::pair<size_t, unsigned char> bitfield;
-
-	/** The irc::dynamicbitmask class is used to maintain a bitmap of
-	 * boolean values, which can grow to any reasonable size no matter
-	 * how many bitfields are in it.
-	 *
-	 * It starts off at 32 bits in size, large enough to hold 32 boolean
-	 * values, with a memory allocation of 8 bytes. If you allocate more
-	 * than 32 bits, the class will grow the bitmap by 8 bytes at a time
-	 * for each set of 8 bitfields you allocate with the Allocate()
-	 * method.
-	 *
-	 * This method is designed so that multiple modules can be allocated
-	 * bit values in a bitmap dynamically, rather than having to define
-	 * costs in a fixed size unsigned integer and having the possibility
-	 * of collisions of values in different third party modules.
-	 *
-	 * IMPORTANT NOTE:
-	 *
-	 * To use this class, you must derive from it.
-	 * This is because each derived instance has its own freebits array
-	 * which can determine what bitfields are allocated on a TYPE BY TYPE
-	 * basis, e.g. an irc::dynamicbitmask type for Users, and one for
-	 * Channels, etc. You should inheret it in a very simple way as follows.
-	 * The base class will resize and maintain freebits as required, you are
-	 * just required to make the pointer static and specific to this class
-	 * type.
-	 *
-	 * \code
-	 * class mydbitmask : public irc::dynamicbitmask
-	 * {
-	 *  private:
-	 *
-	 *      static unsigned char* freebits;
-	 *
-	 *  public:
-	 *
-	 *      mydbitmask() : irc::dynamicbitmask()
-	 *      {
-	 *	  freebits = new unsigned char[this->bits_size];
-	 *	  memset(freebits, 0, this->bits_size);
-	 *      }
-	 *
-	 *      ~mydbitmask()
-	 *      {
-	 *	  delete[] freebits;
-	 *      }
-	 *
-	 *      unsigned char* GetFreeBits()
-	 *      {
-	 *	  return freebits;
-	 *      }
-	 *
-	 *      void SetFreeBits(unsigned char* freebt)
-	 *      {
-	 *	  freebits = freebt;
-	 *      }
-	 * };
-	 * \endcode
-	 */
-	class CoreExport dynamicbitmask : public classbase
-	{
-	 private:
-		/** Data bits. We start with four of these,
-		 * and we grow the bitfield as we allocate
-		 * more than 32 entries with Allocate().
-		 */
-		unsigned char* bits;
-	 protected:
-		/** Current set size (size of freebits and bits).
-		 * Both freebits and bits will ALWAYS be the
-		 * same length.
-		 */
-		unsigned char bits_size;
-	 public:
-		/** Allocate the initial memory for bits and
-		 * freebits and zero the memory.
-		 */
-		dynamicbitmask();
-
-		/** Free the memory used by bits and freebits
-		 */
-		virtual ~dynamicbitmask();
-
-		/** Allocate an irc::bitfield.
-		 * @return An irc::bitfield which can be used
-		 * with Get, Deallocate and Toggle methods.
-		 * @throw Can throw std::bad_alloc if there is
-		 * no ram left to grow the bitmask.
-		 */
-		bitfield Allocate();
-
-		/** Deallocate an irc::bitfield.
-		 * @param An irc::bitfield to deallocate.
-		 * @return True if the bitfield could be
-		 * deallocated, false if it could not.
-		 */
-		bool Deallocate(bitfield &pos);
-
-		/** Toggle the value of a bitfield.
-		 * @param pos A bitfield to allocate, previously
-		 * allocated by dyamicbitmask::Allocate().
-		 * @param state The state to set the field to.
-		 */
-		void Toggle(bitfield &pos, bool state);
-
-		/** Get the value of a bitfield.
-		 * @param pos A bitfield to retrieve, previously
-		 * allocated by dyamicbitmask::Allocate().
-		 * @return The value of the bitfield.
-		 * @throw Will throw ModuleException if the bitfield
-		 * you provide is outside of the range
-		 * 0 >= bitfield.first < size_bits.
-		 */
-		bool Get(bitfield &pos);
-
-		/** Return the size in bytes allocated to the bits
-		 * array.
-		 * Note that the actual allocation is twice this,
-		 * as there are an equal number of bytes allocated
-		 * for the freebits array.
-		 */
-		unsigned char GetSize();
-
-		/** Get free bits mask
-		 */
-		virtual unsigned char* GetFreeBits() { return NULL; }
-
-		/** Set free bits mask
-		 */
-		virtual void SetFreeBits(unsigned char* freebits) { freebits = freebits; }
 	};
 
 	/** Turn _ characters in a string into spaces

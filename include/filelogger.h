@@ -31,6 +31,8 @@ enum DebugLevel
 /* Forward declaration -- required */
 class InspIRCd;
 
+/** A logging class which logs to a streamed file.
+ */
 class CoreExport FileLogStream : public LogStream
 {
  private:
@@ -44,3 +46,4 @@ class CoreExport FileLogStream : public LogStream
 };
 
 #endif
+

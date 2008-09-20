@@ -23,6 +23,11 @@ enum CmdResult
 	CMD_INVALID = 2		/* Command doesnt exist at all! */
 };
 
+/** Translation types for translation of parameters to UIDs.
+ * This allows the core commands to not have to be aware of how UIDs
+ * work (making it still possible to write other linking modules which
+ * do not use UID (but why would you want to?)
+ */
 enum TranslateType
 {
 	TR_END,			/* End of known parameters, everything after this is TR_TEXT */
@@ -81,6 +86,9 @@ class CoreExport Command : public Extensible
 	 */
 	std::string syntax;
 
+	/** Translation type list for possible parameters, used to tokenize
+	 * parameters into UIDs and SIDs etc.
+	 */
 	std::vector<TranslateType> translation;
 
 	/** How many seconds worth of penalty does this command have?
@@ -195,6 +203,8 @@ class CoreExport Command : public Extensible
  */
 typedef nspace::hash_map<std::string,Command*> Commandtable;
 
+/** Shortcut macros for defining translation lists
+ */
 #define TRANSLATE1(x1)	translation.push_back(x1);
 #define TRANSLATE2(x1,x2)  translation.push_back(x1);translation.push_back(x2);
 #define TRANSLATE3(x1,x2,x3)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);

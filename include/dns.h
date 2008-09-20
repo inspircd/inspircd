@@ -143,14 +143,21 @@ struct ResourceRecord;
  */
 enum QueryType
 {
-	DNS_QUERY_NONE	= 0,		/* Uninitialized Query */
-	DNS_QUERY_A	= 1,		/* 'A' record: an ipv4 address */
-	DNS_QUERY_CNAME	= 5,		/* 'CNAME' record: An alias */
-	DNS_QUERY_PTR	= 12,		/* 'PTR' record: a hostname */
-	DNS_QUERY_AAAA	= 28,		/* 'AAAA' record: an ipv6 address */
+	/** Uninitialized Query */
+	DNS_QUERY_NONE	= 0,
+	/** 'A' record: an ipv4 address */
+	DNS_QUERY_A	= 1,
+	/** 'CNAME' record: An alias */
+	DNS_QUERY_CNAME	= 5,
+	/** 'PTR' record: a hostname */
+	DNS_QUERY_PTR	= 12,
+	/** 'AAAA' record: an ipv6 address */
+	DNS_QUERY_AAAA	= 28,
 
-	DNS_QUERY_PTR4	= 0xFFFD,	/* Force 'PTR' to use IPV4 scemantics */
-	DNS_QUERY_PTR6	= 0xFFFE	/* Force 'PTR' to use IPV6 scemantics */
+	/** Force 'PTR' to use IPV4 scemantics */
+	DNS_QUERY_PTR4	= 0xFFFD,
+	/** Force 'PTR' to use IPV6 scemantics */
+	DNS_QUERY_PTR6	= 0xFFFE
 };
 
 #ifdef IPV6
@@ -165,8 +172,10 @@ const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
  */
 enum ForceProtocol
 {
-	PROTOCOL_IPV4 = 0,	/* Forced to use ipv4 */
-	PROTOCOL_IPV6 = 1	/* Forced to use ipv6 */
+	/** Forced to use ipv4 */
+	PROTOCOL_IPV4 = 0,
+	/** Forced to use ipv6 */
+	PROTOCOL_IPV6 = 1
 };
 
 /**
@@ -219,6 +228,7 @@ class CoreExport Resolver : public Extensible
 	 * Time left before cache expiry
 	 */
 	int time_left;
+
  public:
 	/**
 	 * Initiate DNS lookup. Your class should not attempt to delete or free these
@@ -267,6 +277,7 @@ class CoreExport Resolver : public Extensible
 	 * The default destructor does nothing.
 	 */
 	virtual ~Resolver();
+
 	/**
 	 * When your lookup completes, this method will be called.
 	 * @param result The resulting DNS lookup, either an IP address or a hostname.
@@ -278,6 +289,7 @@ class CoreExport Resolver : public Extensible
 	 * Normally, you will only want to act on this when the result is 0.
 	 */
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0) = 0;
+
 	/**
 	 * If an error occurs (such as NXDOMAIN, no domain name found) then this method
 	 * will be called.
@@ -285,6 +297,7 @@ class CoreExport Resolver : public Extensible
 	 * @param errormessage The error text of the error that occured.
 	 */
 	virtual void OnError(ResolverError e, const std::string &errormessage);
+
 	/**
 	 * Returns the id value of this class. This is primarily used by the core
 	 * to determine where in various tables to place a pointer to your class, but it
@@ -294,10 +307,12 @@ class CoreExport Resolver : public Extensible
 	 * this method will return -1.
 	 */
 	int GetId();
+
 	/**
 	 * Returns the creator module, or NULL
 	 */
 	Module* GetCreator();
+
 	/**
 	 * If the result is a cached result, this triggers the objects
 	 * OnLookupComplete. This is done because it is not safe to call
@@ -360,9 +375,16 @@ class CoreExport DNS : public EventHandler
 	 * Server address being used currently
 	 */
 	int socketfamily;
+
 #ifdef IPV6
+	/**
+	 * IPV6 server address
+	 */
 	in6_addr myserver6;
 #endif
+	/**
+	 * IPV4 server address
+	 */
 	in_addr myserver4;
 
 	/**
