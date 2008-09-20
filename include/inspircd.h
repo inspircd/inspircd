@@ -66,7 +66,6 @@ typedef std::vector< KeyVal > KeyValList;
  */
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
-
 #include "inspircd_config.h"
 #include "numerics.h"
 #include "uid.h"
@@ -277,6 +276,9 @@ DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 class XLineManager;
 class BanCacheManager;
 
+/** The background thread for config reading, so that reading from executable includes
+ * does not block.
+ */
 class CoreExport ConfigReaderThread : public Thread
 {
 	InspIRCd* ServerInstance;
