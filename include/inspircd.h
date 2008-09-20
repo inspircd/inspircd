@@ -283,9 +283,9 @@ class CoreExport ConfigReaderThread : public Thread
 {
 	InspIRCd* ServerInstance;
 	bool do_bail;
-	User* TheUser;
+	std::string TheUserUID;
  public:
-	ConfigReaderThread(InspIRCd* Instance, bool bail, User* user) : Thread(), ServerInstance(Instance), do_bail(bail), TheUser(user)
+	ConfigReaderThread(InspIRCd* Instance, bool bail, const std::string &useruid) : Thread(), ServerInstance(Instance), do_bail(bail), TheUserUID(useruid)
 	{
 	}
 

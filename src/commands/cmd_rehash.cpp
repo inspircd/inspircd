@@ -64,10 +64,10 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 
 	if (!ServerInstance->ConfigThread)
 	{
-		ServerInstance->Config->RehashUser = user;
+		ServerInstance->Config->RehashUserUID = user->uuid;
 		ServerInstance->Config->RehashParameter = parameters.size() ? parameters[0] : "";
 
-		ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, user);
+		ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, ServerInstance->Config->RehashUserUID);
 		ServerInstance->Threads->Create(ServerInstance->ConfigThread);
 	}
 	else

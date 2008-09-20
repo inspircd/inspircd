@@ -53,10 +53,10 @@ void RehashHandler::Call(const std::string &reason)
 	FOREACH_MOD_I(Server, I_OnGarbageCollect, OnGarbageCollect());
 	if (!Server->ConfigThread)
 	{
-		Server->Config->RehashUser = NULL;
+		Server->Config->RehashUserUID = "";
 		Server->Config->RehashParameter = "";
 
-		Server->ConfigThread = new ConfigReaderThread(Server, false, NULL);
+		Server->ConfigThread = new ConfigReaderThread(Server, false, "");
 		Server->Threads->Create(Server->ConfigThread);
 	}
 }

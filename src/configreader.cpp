@@ -701,7 +701,7 @@ bool DoneMaxBans(ServerConfig*, const char*)
 	return true;
 }
 
-void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail, User* user)
+void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail, const std::string &useruid)
 {
 	ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file: %s", errormessage.c_str());
 	if (bail)
@@ -717,14 +717,18 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 		unsigned int prefixlen;
 		start = 0;
 		/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
-		if (user)
+		if (!useruid.empty())
 		{
-			prefixlen = strlen(this->ServerName) + user->nick.length() + 11;
-			user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick.c_str());
-			while (start < errors.length())
+			User* user = ServerInstance->FindNick(useruid);
+			if (user)
 			{
-				user->WriteServ("NOTICE %s :%s",user->nick.c_str(), errors.substr(start, 510 - prefixlen).c_str());
-				start += 510 - prefixlen;
+				prefixlen = strlen(this->ServerName) + user->nick.length() + 11;
+				user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick.c_str());
+				while (start < errors.length())
+				{
+					user->WriteServ("NOTICE %s :%s",user->nick.c_str(), errors.substr(start, 510 - prefixlen).c_str());
+					start += 510 - prefixlen;
+				}
 			}
 		}
 		else
@@ -740,7 +744,7 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 	}
 }
 
-void ServerConfig::Read(bool bail, User* user)
+void ServerConfig::Read(bool bail, const std::string &useruid)
 {
 	int rem = 0, add = 0;	   /* Number of modules added, number of modules removed */
 
@@ -942,7 +946,7 @@ void ServerConfig::Read(bool bail, User* user)
 
 	if (!this->DoInclude(newconfig, ServerInstance->ConfigFileName, errstr))
 	{
-		ReportConfigError(errstr.str(), bail, user);
+		ReportConfigError(errstr.str(), bail, useruid);
 		return;
 	}
 
@@ -1174,7 +1178,7 @@ void ServerConfig::Read(bool bail, User* user)
 
 	catch (CoreException &ce)
 	{
-		ReportConfigError(ce.GetReason(), bail, user);
+		ReportConfigError(ce.GetReason(), bail, useruid);
 		return;
 	}
 
@@ -1201,8 +1205,12 @@ void ServerConfig::Read(bool bail, User* user)
 			}
 			if (!foundclass)
 			{
-				if (user)
-					user->WriteServ("NOTICE %s :*** Warning: Oper type '%s' has a missing class named '%s', this does nothing!", user->nick.c_str(), item, classname.c_str());
+				if (!useruid.empty())
+				{
+					User* user = ServerInstance->FindNick(useruid);
+					if (user)
+						user->WriteServ("NOTICE %s :*** Warning: Oper type '%s' has a missing class named '%s', this does nothing!", user->nick.c_str(), item, classname.c_str());
+				}
 				else
 				{
 					if (bail)
@@ -1236,15 +1244,19 @@ void ServerConfig::Read(bool bail, User* user)
 		FailedPortList pl;
 		ServerInstance->BindPorts(false, found_ports, pl);
 
-		if (pl.size() && user)
+		if (pl.size() && !useruid.empty())
 		{
 			ServerInstance->Threads->Lock();
-			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick.c_str());
-			user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick.c_str());
-			int j = 1;
-			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+			User* user = ServerInstance->FindNick(useruid);
+			if (user)
 			{
-				user->WriteServ("NOTICE %s :*** %d.   Address: %s        Reason: %s", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
+				user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick.c_str());
+				user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick.c_str());
+				int j = 1;
+				for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+				{
+					user->WriteServ("NOTICE %s :*** %d.   Address: %s        Reason: %s", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
+				}
 			}
 			ServerInstance->Threads->Unlock();
 		}
@@ -1258,15 +1270,27 @@ void ServerConfig::Read(bool bail, User* user)
 				{
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
-					if (user)
-						user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
+					if (!useruid.empty())
+					{
+						User* user = ServerInstance->FindNick(useruid);
+						if (user)
+							user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
+					}
+					else
+						ServerInstance->SNO->WriteToSnoMask('A', "Module %s successfully unloaded.", removing->c_str());
 
 					rem++;
 				}
 				else
 				{
-					if (user)
-						user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+					if (!useruid.empty())
+					{
+						User* user = ServerInstance->FindNick(useruid);
+						if (user)
+							user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+					}
+					else
+						 ServerInstance->SNO->WriteToSnoMask('A', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1278,16 +1302,27 @@ void ServerConfig::Read(bool bail, User* user)
 				if (ServerInstance->Modules->Load(adding->c_str()))
 				{
 					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH LOADED MODULE: %s",adding->c_str());
-
-					if (user)
-						user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
+					if (!useruid.empty())
+					{
+						User* user = ServerInstance->FindNick(useruid);
+						if (user)
+							user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
+					}
+					else
+						ServerInstance->SNO->WriteToSnoMask('A', "Module %s successfully loaded.", adding->c_str());
 
 					add++;
 				}
 				else
 				{
-					if (user)
-						user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+					if (!useruid.empty())
+					{
+						User* user = ServerInstance->FindNick(useruid);
+						if (user)
+							user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+					}
+					else
+						ServerInstance->SNO->WriteToSnoMask('A', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1302,13 +1337,20 @@ void ServerConfig::Read(bool bail, User* user)
 	{
 		/** Note: This is safe, the method checks for user == NULL */
 		ServerInstance->Threads->Lock();
+		User* user = NULL;
+		if (!useruid.empty())
+			user = ServerInstance->FindNick(useruid);
 		ServerInstance->Parser->SetupCommandTable(user);
 		ServerInstance->Threads->Unlock();
 	}
 	else
 	{
-		if (user)
-			user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
+		if (!useruid.empty())
+		{
+			User* user = ServerInstance->FindNick(useruid);
+			if (user)
+				user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
+		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('A', "*** Successfully rehashed server.");
 	}
@@ -2331,7 +2373,7 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 void ConfigReaderThread::Run()
 {
 	/* TODO: TheUser may be invalid by the time we get here! Check its validity, or pass a UID would be better */
-	ServerInstance->Config->Read(do_bail, TheUser);
+	ServerInstance->Config->Read(do_bail, TheUserUID);
 	ServerInstance->Threads->Lock();
 	this->SetExitFlag();
 	ServerInstance->Threads->Unlock();

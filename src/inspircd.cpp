@@ -774,7 +774,8 @@ int InspIRCd::Run()
 			this->Res->Rehash();
 			this->ResetMaxBans();
 			InitializeDisabledCommands(Config->DisabledCommands, this);
-			FOREACH_MOD_I(this, I_OnRehash, OnRehash(Config->RehashUser, Config->RehashParameter));
+			User* user = !Config->RehashUserUID.empty() ? FindNick(Config->RehashUserUID) : NULL;
+			FOREACH_MOD_I(this, I_OnRehash, OnRehash(user, Config->RehashParameter));
 			this->BuildISupport();
 		}
 

@@ -335,7 +335,7 @@ class CoreExport ServerConfig : public Extensible
 	/** User that is currently performing a rehash, needed because the
 	 * rehash code is now threaded and needs to know who to give errors and feedback to.
 	 */
-	User* RehashUser;
+	std::string RehashUserUID;
 
 	/** Rehash parameter, as above
 	 */
@@ -780,7 +780,7 @@ class CoreExport ServerConfig : public Extensible
 	 * and initialize this class. All other methods
 	 * should be used only by the core.
 	 */
-	void Read(bool bail, User* user);
+	void Read(bool bail, const std::string &useruid);
 
 	/** Read a file into a file_cache object
 	 */
@@ -796,7 +796,7 @@ class CoreExport ServerConfig : public Extensible
 	 * this user as SNOTICEs.
 	 * If the parameter is NULL, the messages are spooled to all opers.
 	 */
-	void ReportConfigError(const std::string &errormessage, bool bail, User* user);
+	void ReportConfigError(const std::string &errormessage, bool bail, const std::string &useruid);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.

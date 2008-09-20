@@ -900,7 +900,7 @@ long ConfigReader::GetError()
 
 void ConfigReader::DumpErrors(bool bail, User* user)
 {
-	ServerInstance->Config->ReportConfigError(this->errorlog->str(), bail, user);
+	ServerInstance->Config->ReportConfigError(this->errorlog->str(), bail, user->uuid);
 }
 
 
