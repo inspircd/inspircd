@@ -14,14 +14,29 @@
 #ifndef __BANCACHE_H
 #define __BANCACHE_H
 
+/** Stores a cached ban entry.
+ * Each ban has one of these hashed in a hash_map to make for faster removal
+ * of already-banned users in the case that they try to reconnect. As no wildcard
+ * matching is done on these IPs, the speed of the system is improved. These cache
+ * entries expire every few hours, which is a reasonable expiry for any reasonable
+ * sized network.
+ */
 class CoreExport BanCacheHit : public classbase
 {
  private:
 	InspIRCd *ServerInstance;
  public:
+	/** Type of cached ban
+	 */
 	std::string Type;
+	/** Reason, shown as quit message
+	 */
 	std::string Reason;
+	/** IP to match against, no wildcards here (of course)
+	 */
 	std::string IP;
+	/** Time that the ban expires at
+	 */
 	time_t Expiry;
 
 	BanCacheHit(InspIRCd *Instance, const std::string &ip, const std::string &type, const std::string &reason)
@@ -44,18 +59,22 @@ class CoreExport BanCacheHit : public classbase
 	}
 };
 
-// must be defined after class BanCacheHit.
+/* A container of ban cache items.
+ * must be defined after class BanCacheHit.
+ */
 #ifndef WIN32
-typedef nspace::hash_map<std::string, BanCacheHit *, nspace::hash<std::string> > BanCacheHash;
+typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash<std::string> > BanCacheHash;
 #else
 typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash_compare<std::string, std::less<std::string> > > BanCacheHash;
 #endif
 
+/** A manager for ban cache, which allocates and deallocates and checks cached bans.
+ */
 class CoreExport BanCacheManager : public classbase
 {
  private:
-	BanCacheHash *BanHash;
-	InspIRCd *ServerInstance;
+	BanCacheHash* BanHash;
+	InspIRCd* ServerInstance;
  public:
 
 	/** Creates and adds a Ban Cache item.
