@@ -149,6 +149,9 @@ typedef ValueContainer<char*> ValueContainerChar;
  */
 typedef ValueContainer<int*> ValueContainerInt;
 
+/** A specialization of ValueContainer to hold a pointer to
+ * a size_t.
+ */
 typedef ValueContainer<size_t*> ValueContainerST;
 
 /** A set of ValueItems used by multi-value validator functions
@@ -183,10 +186,18 @@ struct InitialConfig
 	Validator validation_function;
 };
 
+/** Represents a deprecated configuration tag.
+ */
 struct Deprecated
 {
+	/** Tag name
+	 */
 	const char* tag;
+	/** Tag value
+	 */
 	const char* value;
+	/** Reason for deprecation
+	 */
 	const char* reason;
 };
 
@@ -215,10 +226,18 @@ struct MultiConfig
  */
 typedef std::map<irc::string,char*> opertype_t;
 
+/** Holds an oper class.
+ */
 struct operclass_data : public Extensible
 {
+	/** Command list for the class
+	 */
 	char* commandlist;
+	/** Channel mode list for the class
+	 */
 	char* cmodelist;
+	/** User mode list for the class
+	 */
 	char* umodelist;
 };
 
@@ -226,21 +245,32 @@ struct operclass_data : public Extensible
  */
 typedef std::map<irc::string, operclass_data> operclass_t;
 
-
+/** Defines the server's length limits on various length-limited
+ * items such as topics, nicknames, channel names etc.
+ */
 class ServerLimits : public Extensible
 {
  public:
+	/** Maximum nickname length */
 	size_t NickMax;
+	/** Maximum channel length */
 	size_t ChanMax;
+	/** Maximum number of modes per line */
 	size_t MaxModes;
+	/** Maximum length of ident, not including ~ etc */
 	size_t IdentMax;
+	/** Maximum length of a quit message */
 	size_t MaxQuit;
+	/** Maximum topic length */
 	size_t MaxTopic;
+	/** Maximum kick message length */
 	size_t MaxKick;
+	/** Maximum GECOS (real name) length */
 	size_t MaxGecos;
+	/** Maximum away message length */
 	size_t MaxAway;
 
-	/* Creating the class initialises it to the defaults
+	/** Creating the class initialises it to the defaults
 	 * as in 1.1's ./configure script. Reading other values
 	 * from the config will change these values.
 	 */
@@ -248,6 +278,9 @@ class ServerLimits : public Extensible
 	{
 	}
 
+	/** Finalises the settings by adding one. This allows for them to be used as-is
+	 * without a 'value+1' when using the std::string assignment methods etc.
+	 */
 	void Finalise()
 	{
 		NickMax++;
@@ -299,14 +332,26 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
 
+	/** User that is currently performing a rehash, needed because the
+	 * rehash code is now threaded and needs to know who to give errors and feedback to.
+	 */
 	User* RehashUser;
 
+	/** Rehash parameter, as above
+	 */
 	std::string RehashParameter;
 
+	/** Error stream, contains error output from any failed configuration parsing.
+	 */
 	std::ostringstream errstr;
 
+	/** Holds the new configuration when a rehash occurs so we dont overwrite the existing
+	 * working config with a broken one without checking it first and swapping pointers.
+	 */
 	ConfigDataHash newconfig;
 
+	/** Set of included files. Do we use this any more?
+	 */
 	std::map<std::string, std::istream*> IncludedFiles;
 
 	/** Used to indicate who we announce invites to on a channel */
@@ -315,8 +360,12 @@ class CoreExport ServerConfig : public Extensible
 	/** Pointer to function that validates dns server addresses (can be changed depending on platform) */
 	Validator DNSServerValidator;
 
+	/** Returns the creator InspIRCd pointer
+	 */
 	InspIRCd* GetInstance();
 
+	/** Not used any more as it is named, can probably be removed or renamed.
+	 */
 	int DoDownloads();
 	  
   	/** This holds all the information in the config file,
@@ -324,6 +373,8 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	ConfigDataHash config_data;
 
+	/** Length limits, see definition of ServerLimits class
+	 */
 	ServerLimits Limits;
 
 	/** Clones CIDR range for ipv4 (0-32)
@@ -757,11 +808,10 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool LoadConf(ConfigDataHash &target, FILE* &conf, const std::string &filename, std::ostringstream &errorstream);
 	
-	/* Both these return true if the value existed or false otherwise */
-	
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
+
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds = false);
@@ -769,6 +819,7 @@ class CoreExport ServerConfig : public Extensible
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds = false);
+
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds = false);
@@ -776,12 +827,15 @@ class CoreExport ServerConfig : public Extensible
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result);
+
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, int &result);
+
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result);
+
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result);
@@ -789,12 +843,15 @@ class CoreExport ServerConfig : public Extensible
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index);
+
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index);
+
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index);
+
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index);
@@ -813,10 +870,16 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	int ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index);
 
+	/** Validates a hostname value, throwing ConfigException if it is not valid
+	 */
 	void ValidateHostname(const char* p, const std::string &tag, const std::string &val);
 
+	/** Validates an IP address value, throwing ConfigException if it is not valid
+	 */
 	void ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild);
 
+	/** Validates a value that should not contain spaces, throwing ConfigException of it is not valid
+	 */
 	void ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val);
 
 	/** Returns the fully qualified path to the inspircd directory

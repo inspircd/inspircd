@@ -14,11 +14,17 @@
 #ifndef __CHANNELMANAGER_H
 #define __CHANNELMANAGER_H
 
+/** THe channel manager class allocates and deallocates channels and manages
+ * the container which holds them. For some reason, nobody finished this.
+ * TODO: Finish in future release!
+ */
 class CoreExport ChannelManager : public Extensible
 {
  private:
 	InspIRCd *ServerInstance;
  public:
+	/** Constructor
+	 */
 	ChannelManager(InspIRCd *Instance) : ServerInstance(Instance)
 	{
 	}
