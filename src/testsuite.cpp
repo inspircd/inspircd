@@ -1,12 +1,12 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
+/*	   +------------------------------------+
+ *	   | Inspire Internet Relay Chat Daemon |
+ *	   +------------------------------------+
  *
  *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *          the file COPYING for details.
+ *		  the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -111,45 +111,57 @@ bool TestSuite::DoWildTests()
 	cout << "\n\nWildcard and CIDR tests\n\n";
 	bool passed = false;
 
-    WCTEST("foobar", "*");
-    WCTEST("foobar", "foo*");
-    WCTEST("foobar", "*bar");
-    WCTEST("foobar", "foo??r");
-    WCTEST("foobar.test", "fo?bar.*t");
-    WCTEST("foobar.test", "fo?bar.t*t");
-    WCTEST("foobar.tttt", "fo?bar.**t");
-    WCTEST("foobar", "foobar");
-    WCTEST("foobar", "foo***bar");
-    WCTEST("foobar", "*foo***bar");
-    WCTEST("foobar", "**foo***bar");
-    WCTEST("foobar", "**foobar*");
-    WCTEST("foobar", "**foobar**");
-    WCTEST("foobar", "**foobar");
-    WCTEST("foobar", "**f?*?ar");
-    WCTEST("foobar", "**f?*b?r");
-    WCTEST("foofar", "**f?*f*r");
-    WCTEST("foofar", "**f?*f*?");
-    WCTEST("r", "*");
-    WCTEST("", "");
-    WCTEST("test@foo.bar.test", "*@*.bar.test");
-    WCTEST("test@foo.bar.test", "*test*@*.bar.test");
-    WCTEST("test@foo.bar.test", "*@*test");
+	WCTEST("foobar", "*");
+	WCTEST("foobar", "foo*");
+	WCTEST("foobar", "*bar");
+	WCTEST("foobar", "foo??r");
+	WCTEST("foobar.test", "fo?bar.*t");
+	WCTEST("foobar.test", "fo?bar.t*t");
+	WCTEST("foobar.tttt", "fo?bar.**t");
+	WCTEST("foobar", "foobar");
+	WCTEST("foobar", "foo***bar");
+	WCTEST("foobar", "*foo***bar");
+	WCTEST("foobar", "**foo***bar");
+	WCTEST("foobar", "**foobar*");
+	WCTEST("foobar", "**foobar**");
+	WCTEST("foobar", "**foobar");
+	WCTEST("foobar", "**f?*?ar");
+	WCTEST("foobar", "**f?*b?r");
+	WCTEST("foofar", "**f?*f*r");
+	WCTEST("foofar", "**f?*f*?");
+	WCTEST("r", "*");
+	WCTEST("", "");
+	WCTEST("test@foo.bar.test", "*@*.bar.test");
+	WCTEST("test@foo.bar.test", "*test*@*.bar.test");
+	WCTEST("test@foo.bar.test", "*@*test");
 
-    WCTESTNOT("foobar", "bazqux");
-    WCTESTNOT("foobar", "*qux");
-    WCTESTNOT("foobar", "foo*x");
-    WCTESTNOT("foobar", "baz*");
-    WCTESTNOT("foobar", "foo???r");
-    WCTESTNOT("foobar", "foobars");
-    WCTESTNOT("foobar", "**foobar**h");
-    WCTESTNOT("foobar", "**foobar**h*");
-    WCTESTNOT("foobar", "**f??*bar?");
-    WCTESTNOT("foobar", "");
-    WCTESTNOT("", "foobar");
-    WCTESTNOT("OperServ", "O");
-    WCTESTNOT("O", "OperServ");
-    WCTESTNOT("foobar.tst", "fo?bar.*g");
-    WCTESTNOT("foobar.test", "fo?bar.*tt");
+	WCTEST("a", "*a");
+	WCTEST("aa", "*a");
+	WCTEST("aaa", "*a");
+	WCTEST("aaaa", "*a");
+	WCTEST("aaaaa", "*a");
+	WCTEST("aaaaaa", "*a");
+	WCTEST("aaaaaaa", "*a");
+	WCTEST("aaaaaaaa", "*a");
+	WCTEST("aaaaaaaaa", "*a");
+	WCTEST("aaaaaaaaaa", "*a");
+	WCTEST("aaaaaaaaaaa", "*a");
+
+	WCTESTNOT("foobar", "bazqux");
+	WCTESTNOT("foobar", "*qux");
+	WCTESTNOT("foobar", "foo*x");
+	WCTESTNOT("foobar", "baz*");
+	WCTESTNOT("foobar", "foo???r");
+	WCTESTNOT("foobar", "foobars");
+	WCTESTNOT("foobar", "**foobar**h");
+	WCTESTNOT("foobar", "**foobar**h*");
+	WCTESTNOT("foobar", "**f??*bar?");
+	WCTESTNOT("foobar", "");
+	WCTESTNOT("", "foobar");
+	WCTESTNOT("OperServ", "O");
+	WCTESTNOT("O", "OperServ");
+	WCTESTNOT("foobar.tst", "fo?bar.*g");
+	WCTESTNOT("foobar.test", "fo?bar.*tt");
 
 	CIDRTEST("brain@1.2.3.4", "*@1.2.0.0/16");
 	CIDRTEST("brain@1.2.3.4", "*@1.2.3.0/24");
