@@ -588,6 +588,7 @@ class ModuleFilter : public FilterBase
 		{
 			if (i->freeform == freeform)
 			{
+				delete i->regex;
 				filters.erase(i);
 				return true;
 			}
