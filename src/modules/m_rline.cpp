@@ -12,16 +12,13 @@
  */
 
 #include "inspircd.h"
-#include <pcre.h>
+#include "m_regex.h"
 #include "xline.h"
 
-/* $ModDesc: RLINE: Regexp user banning. */
-/* $CompileFlags: exec("pcre-config --cflags") */
-/* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */
+static Module* rxengine = 0;
+static Module* mymodule = 0; /* Needed to let RLine send request! */
 
-#ifdef WINDOWS
-#pragma comment(lib, "pcre.lib")
-#endif
+/* $ModDesc: RLINE: Regexp user banning. */
 
 class CoreExport RLine : public XLine
 {
@@ -37,17 +34,19 @@ class CoreExport RLine : public XLine
 	 */
 	RLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* regexs) : XLine(Instance, s_time, d, src, re, "R")
 	{
-		const char *error;
-		int erroffset;
-
 		matchtext = regexs;
 
-		regex = pcre_compile(regexs, 0, &error, &erroffset, NULL);
-
-		if (!regex)
+		if (!rxengine)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"Error in regular expression: %s at offset %d: %s\n", regexs, erroffset, error);
-			throw ModuleException("Bad regex pattern.");
+			ServerInstance->SNO->WriteToSnoMask('x', "Cannot create regexes until engine is set to a loaded provider!");
+			throw ModuleException("Regex engine not set or loaded!");
+		}
+
+		try {
+			regex = RegexFactoryRequest(mymodule, rxengine, regexs).Create();
+		} catch (ModuleException& ex) {
+			ServerInstance->SNO->WriteToSnoMask('x', "Bad regex: %s", ex.GetReason());
+			throw;
 		}
 	}
 
@@ -55,7 +54,7 @@ class CoreExport RLine : public XLine
 	 */
 	~RLine()
 	{
-		pcre_free(regex);
+		delete regex;
 	}
 
 	bool Matches(User *u)
@@ -64,7 +63,7 @@ class CoreExport RLine : public XLine
 
 		ServerInstance->Logs->Log("m_rline",DEBUG, "Matching " + matchtext + " against string " + compare);
 
-		if (pcre_exec(regex, NULL, compare.c_str(), compare.length(), 0, 0, NULL, 0) > -1)
+		if (regex->Matches(compare))
 		{
 			// Bang. :D
 			return true;
@@ -75,7 +74,7 @@ class CoreExport RLine : public XLine
 
 	bool Matches(const std::string &compare)
 	{
-		if (pcre_exec(regex, NULL, compare.c_str(), compare.length(), 0, 0, NULL, 0) > -1)
+		if (regex->Matches(compare))
 		{
 			// Bang. :D
 			return true;
@@ -101,7 +100,7 @@ class CoreExport RLine : public XLine
 
 	std::string matchtext;
 
-	pcre *regex;
+	Regex *regex;
 };
 
 
@@ -125,6 +124,8 @@ class CoreExport RLineFactory : public XLineFactory
  */
 class CommandRLine : public Command
 {
+	std::string rxengine;
+
  public:
 	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", "o", 1)
 	{
@@ -197,11 +198,15 @@ class ModuleRLine : public Module
 	CommandRLine *r;
 	RLineFactory *f;
 	bool MatchOnNickChange;
+	std::string RegexEngine;
 
  public:
 	ModuleRLine(InspIRCd* Me) : Module(Me)
 	{
+		mymodule = this;
 		OnRehash(NULL, "");
+
+		Me->Modules->UseInterface("RegularExpression");
 
 		// Create a new command
 		r = new CommandRLine(ServerInstance);
@@ -210,13 +215,14 @@ class ModuleRLine : public Module
 		f = new RLineFactory(ServerInstance);
 		ServerInstance->XLines->RegisterFactory(f);
 
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick };
+		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnLoadModule };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 	}
 
 	virtual ~ModuleRLine()
 	{
+		ServerInstance->Modules->DoneWithInterface("RegularExpression");
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(f);
 	}
@@ -242,7 +248,48 @@ class ModuleRLine : public Module
 	{
 		ConfigReader Conf(ServerInstance);
 
-		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 1);
+		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 0);
+
+		std::string newrxengine;
+
+		newrxengine = Conf.ReadValue("rline", "engine", 0);
+
+		if (!RegexEngine.empty())
+		{
+			if (RegexEngine == newrxengine)
+				return;
+			ServerInstance->SNO->WriteToSnoMask('x', "Dumping all R-Lines due to regex engine change (was '%s', now '%s')", RegexEngine.c_str(), newrxengine.c_str());
+			ServerInstance->XLines->DelAll("R");
+		}
+		rxengine = 0;
+		RegexEngine = newrxengine;
+		modulelist* ml = ServerInstance->Modules->FindInterface("RegularExpression");
+		for (modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
+		{
+			std::string rxname = RegexNameRequest(this, *i).Send();
+			if (rxname == newrxengine)
+			{
+				ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
+				rxengine = *i;
+			}
+		}
+		if (!rxengine)
+		{
+			ServerInstance->SNO->WriteToSnoMask('x', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", RegexEngine.c_str());
+		}
+	}
+
+	virtual void OnLoadModule(Module* mod, const std::string& name)
+	{
+		if (ServerInstance->Modules->ModuleHasInterface(mod, "RegularExpression"))
+		{
+			std::string rxname = RegexNameRequest(this, mod).Send();
+			if (rxname == RegexEngine)
+			{
+				ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
+				rxengine = mod;
+			}
+		}
 	}
 
 	virtual void OnUserPostNick(User *user, const std::string &oldnick)

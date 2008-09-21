@@ -1062,6 +1062,37 @@
 #<module name="m_redirect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular Expression Provider for Glob or wildcard (?/*) matching.
+# You must have at least 1 provider loaded to use m_filter or m_rline
+# modules. This module has no additional requirements, as it uses the
+# matching already present in InspIRCd core.
+#<module name="m_regex_glob.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular Expression Provider for PCRE (Perl-Compatible Regular
+# Expressions). You need libpcre installed to compile and load this
+# module. You must have at least 1 provider loaded to use m_filter or
+# m_rline.
+#<module name="m_regex_pcre.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular Expression Provider for POSIX Regular Expressions.
+# You shouldn't need any additional libraries on a POSIX-compatible
+# system (ie: any Linux, BSD, but not Windows). You must have at least
+# 1 provider loaded to use m_filter or m_rline.
+# On POSIX-compliant systems, regex syntax can be found by using the
+# command: 'man 7 regex'.
+#<module name="m_regex_posix.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular Expression Provider for TRE Regular Expressions.
+# This is the same regular expression engine used by UnrealIRCd, so
+# if you are most familiar with the syntax of /spamfilter from there,
+# this is the provider you want. You need libtre installed in order
+# to compile and load this module.
+#<module name="m_regex_tre.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Registered users only channel creation
 # Allows only registered users and opers to create new channels.
 #<module name="m_regonlycreate.so">
@@ -1093,7 +1124,19 @@
 # If you wish to re-check a user when they change nickname (can be
 # useful under some situations, but *can* also use CPU with more users
 # on a server) then set the following configuration value:
-#<rline matchonnickchange="yes">
+# Also, this is where you set what Regular Expression engine is to be
+# used. If you ever change it while running, all of your R-Lines will be
+# wiped. This is the regex engine used by all R-Lines set, and
+# m_regex_<engine>.so must be loaded, or rline will be nonfunctional
+# until you load it or change the engine to one that is loaded.
+#<rline matchonnickchange="yes" engine="pcre">
+# Generally, you will not want to use 'glob' here, as this turns
+# rline into just another gline. The exceptions are that rline will
+# always use the full nick!user@host realname string, rather than only
+# user@host, but beware that only the ? and * wildcards are available,
+# and are the only way to specify where the space can occur if you do
+# use glob. For this reason, is recommended to use a real regex engine
+# so that at least \s or [[:space:]] is available.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # JSON-RPC module: Encode and decode JSON-RPC requests for modules

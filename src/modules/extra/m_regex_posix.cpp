@@ -84,6 +84,11 @@ public:
 		OnRehash(NULL, "");
 	}
 
+	virtual Version GetVersion()
+	{
+		return Version("$Id: m_regex_posix.cpp 10291 2008-08-25 20:35:51Z w00t $", VF_COMMON | VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+	}
+
 	virtual ~ModuleRegexPOSIX()
 	{
 		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
@@ -111,3 +116,5 @@ public:
 		return NULL;
 	}
 };
+
+MODULE_INIT(ModuleRegexPOSIX)

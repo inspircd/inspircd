@@ -83,6 +83,11 @@ public:
 		Me->Modules->Attach(eventlist, this, 1);
 	}
 
+	virtual Version GetVersion()
+	{
+		return Version("$Id: m_regex_tre.cpp 10291 2008-08-25 20:35:51Z w00t $", VF_COMMON | VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+	}
+
 	virtual ~ModuleRegexTRE()
 	{
 		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
@@ -104,3 +109,5 @@ public:
 		return NULL;
 	}
 };
+
+MODULE_INIT(ModuleRegexTRE)
