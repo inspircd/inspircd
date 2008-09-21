@@ -151,7 +151,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 			Utils->Creator->RemoteMessage(NULL,"Connection failed: Error binding socket to address or port (%s)", strerror(errno));
 		break;
 		case I_ERR_WRITE:
-			Utils->Creator->RemoteMessage(NULL,"Connection failed: I/O error on connection (%s)", strerror(errno));
+			Utils->Creator->RemoteMessage(NULL,"Connection failed: I/O error on connection (%s)", errno ? strerror(errno) : "Connection closed unexpectedly");
 		break;
 		case I_ERR_NOMOREFDS:
 			Utils->Creator->RemoteMessage(NULL,"Connection failed: Operating system is out of file descriptors!");

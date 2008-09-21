@@ -335,6 +335,7 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 
 void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 {
+	std::vector<Link*> failovers;
 	for (std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); i++)
 	{
 		TreeSocket* s = i->first;
@@ -344,8 +345,16 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
 			ServerInstance->SE->DelFd(s);
 			s->Close();
+			Link* MyLink = Utils->FindLink(p.first);
+			if (MyLink)
+				failovers.push_back(MyLink);
 		}
-	}                                                    
+	}
+	/* Trigger failover for each timed out socket */
+	for (std::vector<Link*>::const_iterator n = failovers.begin(); n != failovers.end(); ++n)
+	{
+		Utils->DoFailOver(*n);
+	}
 }
 
 int ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters, User* user)
