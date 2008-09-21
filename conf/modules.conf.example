@@ -606,19 +606,30 @@
 # http://inspircd.org/wiki/DNS_Blacklist_Module                       #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Filter module: Provides glob-based message filtering
+# Filter module: Provides message filtering, similar to SPAMFILTER.
 #<module name="m_filter.so">
-# OR
-# PCRE filter module: Filters messages using regular expressions
-#<module name="m_filter_pcre.so">
-#
-# You may only use one or the other with these modules, network-wide.
+#                                                                     #
+# This module depends upon a regex provider such as m_regex_pcre or   #
+# m_regex_glob to function. You must specify which of these you want  #
+# m_filter to use via the tag below.                                  #
+#                                                                     #
+# Valid engines are:                                                  #
+#                                                                     #
+# glob  - Glob patterns, provided via m_regex_glob.so                 #
+# pcre  - PCRE regexps, provided via m_regex_pcre.so, needs libpcre   #
+# tre   - TRE regexps, provided via m_regex_tre.so, requires libtre   #
+# posix - POSIX regexps, provided via m_regex_posix.so, not availale  #
+#         on windows, no dependencies on other operating systems.     #
+#                                                                     #
+#<filteropts engine="glob">                                           #
+#                                                                     #
+# Your choice of regex engine must match on all servers network-wide.
 #
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify to use the m_filter or m_filter_pcre      #
-# modules, then specfiy below the path to the filter.conf file,       #
-# or define some <filter> tags.                                       #
+# Optional - If you specify to use the m_filter module, then          #
+# specfiy below the path to the filter.conf file, or define some      #
+# <filter> tags.                                                      #
 #                                                                     #
 #<include file="filter.conf">
 
@@ -1121,6 +1132,7 @@
 #<module name="m_rline.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- RLINE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
+#
 # If you wish to re-check a user when they change nickname (can be
 # useful under some situations, but *can* also use CPU with more users
 # on a server) then set the following configuration value:
@@ -1129,8 +1141,10 @@
 # wiped. This is the regex engine used by all R-Lines set, and
 # m_regex_<engine>.so must be loaded, or rline will be nonfunctional
 # until you load it or change the engine to one that is loaded.
+#
 #<rline matchonnickchange="yes" engine="pcre">
-# Generally, you will not want to use 'glob' here, as this turns
+#
+# Generally, you will NOT want to use 'glob' here, as this turns
 # rline into just another gline. The exceptions are that rline will
 # always use the full nick!user@host realname string, rather than only
 # user@host, but beware that only the ? and * wildcards are available,
