@@ -49,7 +49,7 @@ class CoreExport RLine : public XLine
 		catch (ModuleException& ex)
 		{
 			ServerInstance->SNO->WriteToSnoMask('x', "Bad regex: %s", ex.GetReason());
-			throw;
+			throw ex;
 		}
 	}
 
@@ -149,9 +149,9 @@ class CommandRLine : public Command
 			{
 				r = new RLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 			}
-			catch (...)
+			catch (ModuleException &e)
 			{
-				; // Do nothing. If we get here, the regex was fucked up, and they already got told it fucked up.
+				ServerInstance->SNO->WriteToSnoMask('x',"Could not add RLINE: %s", e.GetReason());
 			}
 
 			if (r)
@@ -186,8 +186,7 @@ class CommandRLine : public Command
 			}
 			else
 			{
-				// XXX todo implement stats
-				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats g.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats R.",user->nick.c_str(),parameters[0].c_str());
 			}
 		}
 
@@ -218,8 +217,8 @@ class ModuleRLine : public Module
 		f = new RLineFactory(ServerInstance);
 		ServerInstance->XLines->RegisterFactory(f);
 
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnLoadModule };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnLoadModule, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 
 	}
 
@@ -252,15 +251,13 @@ class ModuleRLine : public Module
 		ConfigReader Conf(ServerInstance);
 
 		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 0);
-
-		std::string newrxengine;
-
-		newrxengine = Conf.ReadValue("rline", "engine", 0);
+		std::string newrxengine = Conf.ReadValue("rline", "engine", 0);
 
 		if (!RegexEngine.empty())
 		{
 			if (RegexEngine == newrxengine)
 				return;
+
 			ServerInstance->SNO->WriteToSnoMask('x', "Dumping all R-Lines due to regex engine change (was '%s', now '%s')", RegexEngine.c_str(), newrxengine.c_str());
 			ServerInstance->XLines->DelAll("R");
 		}
@@ -271,8 +268,7 @@ class ModuleRLine : public Module
 		{
 			for (modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
 			{
-				std::string rxname = RegexNameRequest(this, *i).Send();
-				if (rxname == newrxengine)
+				if (RegexNameRequest(this, *i).Send() == newrxengine)
 				{
 					ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
 					rxengine = *i;
@@ -283,6 +279,15 @@ class ModuleRLine : public Module
 		{
 			ServerInstance->SNO->WriteToSnoMask('x', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", RegexEngine.c_str());
 		}
+	}
+
+	virtual int OnStats(char symbol, User* user, string_list &results)
+	{
+		if (symbol != 'R')
+			return 0;
+
+		ServerInstance->XLines->InvokeStats("R", 223, user, results);
+		return 1;
 	}
 
 	virtual void OnLoadModule(Module* mod, const std::string& name)
