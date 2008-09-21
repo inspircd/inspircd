@@ -792,9 +792,9 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Report a configuration error given in errormessage.
 	 * @param bail If this is set to true, the error is sent to the console, and the program exits
-	 * @param user If this is set to a non-null value, and bail is false, the errors are spooled to
-	 * this user as SNOTICEs.
-	 * If the parameter is NULL, the messages are spooled to all opers.
+	 * @param useruid If this is set to a non-empty value which is a valid UID, and bail is false,
+	 * the errors are spooled to this user as SNOTICEs.
+	 * If the parameter is not a valid UID, the messages are spooled to all opers.
 	 */
 	void ReportConfigError(const std::string &errormessage, bool bail, const std::string &useruid);
 
