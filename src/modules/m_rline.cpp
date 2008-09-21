@@ -42,9 +42,12 @@ class CoreExport RLine : public XLine
 			throw ModuleException("Regex engine not set or loaded!");
 		}
 
-		try {
+		try
+		{
 			regex = RegexFactoryRequest(mymodule, rxengine, regexs).Create();
-		} catch (ModuleException& ex) {
+		}
+		catch (ModuleException& ex)
+		{
 			ServerInstance->SNO->WriteToSnoMask('x', "Bad regex: %s", ex.GetReason());
 			throw;
 		}
@@ -264,13 +267,16 @@ class ModuleRLine : public Module
 		rxengine = 0;
 		RegexEngine = newrxengine;
 		modulelist* ml = ServerInstance->Modules->FindInterface("RegularExpression");
-		for (modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
+		if (ml)
 		{
-			std::string rxname = RegexNameRequest(this, *i).Send();
-			if (rxname == newrxengine)
+			for (modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
-				rxengine = *i;
+				std::string rxname = RegexNameRequest(this, *i).Send();
+				if (rxname == newrxengine)
+				{
+					ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
+					rxengine = *i;
+				}
 			}
 		}
 		if (!rxengine)
