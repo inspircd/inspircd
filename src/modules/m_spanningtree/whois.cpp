@@ -30,19 +30,19 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 {
 	if (params.size() < 1)
 		return true;
-	User* u = this->Instance->FindNick(prefix);
+	User* u = this->ServerInstance->FindNick(prefix);
 	if (u)
 	{
 		// an incoming request
 		if (params.size() == 1)
 		{
-			User* x = this->Instance->FindNick(params[0]);
+			User* x = this->ServerInstance->FindNick(params[0]);
 			if ((x) && (IS_LOCAL(x)))
 			{
 				char signon[MAXBUF];
 				char idle[MAXBUF];
 				snprintf(signon, MAXBUF, "%lu", (unsigned long)x->signon);
-				snprintf(idle, MAXBUF, "%lu", (unsigned long)abs((long)((x->idle_lastmsg) - Instance->Time())));
+				snprintf(idle, MAXBUF, "%lu", (unsigned long)abs((long)((x->idle_lastmsg) - ServerInstance->Time())));
 				std::deque<std::string> par;
 				par.push_back(prefix);
 				par.push_back(signon);
@@ -60,7 +60,7 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 		else if (params.size() == 3)
 		{
 			std::string who_did_the_whois = params[0];
-			User* who_to_send_to = this->Instance->FindNick(who_did_the_whois);
+			User* who_to_send_to = this->ServerInstance->FindNick(who_did_the_whois);
 			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 			{
 				// an incoming reply to a whois we sent out
@@ -69,7 +69,7 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 				unsigned long idle = atoi(params[2].c_str());
 				if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 				{
-					do_whois(this->Instance, who_to_send_to, u, signon, idle, nick_whoised.c_str());
+					do_whois(this->ServerInstance, who_to_send_to, u, signon, idle, nick_whoised.c_str());
 				}
 			}
 			else

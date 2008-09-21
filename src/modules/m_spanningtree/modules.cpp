@@ -26,7 +26,7 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 	if (params.empty())
 		return true;
 
-	if (!InspIRCd::Match(this->Instance->Config->ServerName, params[0]))
+	if (!InspIRCd::Match(this->ServerInstance->Config->ServerName, params[0]))
 	{
 		/* Pass it on, not for us */
 		Utils->DoOneToOne(prefix, "MODULES", params, params[0]);
@@ -38,15 +38,15 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 	par.push_back(prefix);
 	par.push_back("");
 
-	User* source = this->Instance->FindNick(prefix);
+	User* source = this->ServerInstance->FindNick(prefix);
 	if (!source)
 		return true;
 
-	std::vector<std::string> module_names = Instance->Modules->GetAllModuleNames(0);
+	std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
 
 	for (unsigned int i = 0; i < module_names.size(); i++)
 	{
-		Module* m = Instance->Modules->Find(module_names[i]);
+		Module* m = ServerInstance->Modules->Find(module_names[i]);
 		Version V = m->GetVersion();
 
 		if (IS_OPER(source))
@@ -57,18 +57,18 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
-			snprintf(strbuf, MAXBUF, "::%s 702 %s :0x%08lx %s %s :%s", Instance->Config->ServerName, source->nick.c_str(),(unsigned long)m, module_names[i].c_str(), flags.c_str(), V.version.c_str());
+			snprintf(strbuf, MAXBUF, "::%s 702 %s :0x%08lx %s %s :%s", ServerInstance->Config->ServerName, source->nick.c_str(),(unsigned long)m, module_names[i].c_str(), flags.c_str(), V.version.c_str());
 		}
 		else
 		{
-			snprintf(strbuf, MAXBUF, "::%s 702 %s :%s", Instance->Config->ServerName, source->nick.c_str(), module_names[i].c_str());
+			snprintf(strbuf, MAXBUF, "::%s 702 %s :%s", ServerInstance->Config->ServerName, source->nick.c_str(), module_names[i].c_str());
 		}
 		par[1] = strbuf;
-		Utils->DoOneToOne(Instance->Config->GetSID(), "PUSH", par, source->server);
+		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", par, source->server);
 	}
-	snprintf(strbuf, MAXBUF, "::%s 703 %s :End of MODULES list", Instance->Config->ServerName, source->nick.c_str());
+	snprintf(strbuf, MAXBUF, "::%s 703 %s :End of MODULES list", ServerInstance->Config->ServerName, source->nick.c_str());
 	par[1] = strbuf;
-	Utils->DoOneToOne(Instance->Config->GetSID(), "PUSH", par, source->server);
+	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", par, source->server);
 	return true;
 }
 

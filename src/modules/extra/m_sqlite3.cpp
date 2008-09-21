@@ -50,7 +50,7 @@ class ResultNotifier : public BufferedSocket
 	virtual bool OnDataReady()
 	{
 		char data = 0;
-		if (Instance->SE->Recv(this, &data, 1, 0) > 0)
+		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
 		{
 			Dispatch();
 			return true;
@@ -266,18 +266,18 @@ class SQLConn : public classbase
 {
  private:
 	ResultQueue results;
-	InspIRCd* Instance;
+	InspIRCd* ServerInstance;
 	Module* mod;
 	SQLhost host;
 	sqlite3* conn;
 
  public:
 	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
-	: Instance(SI), mod(m), host(hi)
+	: ServerInstance(SI), mod(m), host(hi)
 	{
 		if (OpenDB() != SQLITE_OK)
 		{
-			Instance->Logs->Log("m_sqlite3",DEFAULT, "WARNING: Could not open DB with id: " + host.id);
+			ServerInstance->Logs->Log("m_sqlite3",DEFAULT, "WARNING: Could not open DB with id: " + host.id);
 			CloseDB();
 		}
 	}

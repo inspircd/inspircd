@@ -46,10 +46,10 @@ class QueryThread : public Thread
 {
   private:
 	ModuleMsSQL* Parent;
-	InspIRCd* Instance;
+	InspIRCd* ServerInstance;
   public:
 	QueryThread(InspIRCd* si, ModuleMsSQL* mod)
-	: Thread(), Parent(mod), Instance(si)
+	: Thread(), Parent(mod), ServerInstance(si)
 	{
 	}
 	~QueryThread() { }
@@ -68,7 +68,7 @@ class ResultNotifier : public BufferedSocket
 	virtual bool OnDataReady()
 	{
 		char data = 0;
-		if (Instance->SE->Recv(this, &data, 1, 0) > 0)
+		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
 		{
 			Dispatch();
 			return true;
@@ -285,7 +285,7 @@ class SQLConn : public classbase
 {
  private:
 	ResultQueue results;
-	InspIRCd* Instance;
+	InspIRCd* ServerInstance;
 	Module* mod;
 	SQLhost host;
 	TDSLOGIN* login;
@@ -296,7 +296,7 @@ class SQLConn : public classbase
 	QueryQueue queue;
 
 	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
-	: Instance(SI), mod(m), host(hi), login(NULL), sock(NULL), context(NULL)
+	: ServerInstance(SI), mod(m), host(hi), login(NULL), sock(NULL), context(NULL)
 	{
 		if (OpenDB())
 		{
@@ -306,7 +306,7 @@ class SQLConn : public classbase
 				if (tds_process_simple_query(sock) != TDS_SUCCEED)
 				{
 					LoggingMutex->Lock();
-					Instance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
+					ServerInstance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
 					LoggingMutex->Unlock();
 					CloseDB();
 				}
@@ -314,7 +314,7 @@ class SQLConn : public classbase
 			else
 			{
 				LoggingMutex->Lock();
-				Instance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
+				ServerInstance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
 				LoggingMutex->Unlock();
 				CloseDB();
 			}
@@ -322,7 +322,7 @@ class SQLConn : public classbase
 		else
 		{
 			LoggingMutex->Lock();
-			Instance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not connect to DB with id: " + host.id);
+			ServerInstance->Logs->Log("m_mssql",DEFAULT, "WARNING: Could not connect to DB with id: " + host.id);
 			LoggingMutex->Unlock();
 			CloseDB();
 		}
@@ -414,7 +414,7 @@ class SQLConn : public classbase
 
 		char* msquery = strdup(req.query.q.data());
 		LoggingMutex->Lock();
-		Instance->Logs->Log("m_mssql",DEBUG,"doing Query: %s",msquery);
+		ServerInstance->Logs->Log("m_mssql",DEBUG,"doing Query: %s",msquery);
 		LoggingMutex->Unlock();
 		if (tds_submit_query(sock, msquery) != TDS_SUCCEED)
 		{
@@ -430,8 +430,8 @@ class SQLConn : public classbase
 		int tds_res;
 		while (tds_process_tokens(sock, &tds_res, NULL, TDS_TOKEN_RESULTS) == TDS_SUCCEED)
 		{
-			//Instance->Logs->Log("m_mssql",DEBUG,"<******> result type: %d", tds_res);
-			//Instance->Logs->Log("m_mssql",DEBUG,"AFFECTED ROWS: %d", sock->rows_affected);
+			//ServerInstance->Logs->Log("m_mssql",DEBUG,"<******> result type: %d", tds_res);
+			//ServerInstance->Logs->Log("m_mssql",DEBUG,"AFFECTED ROWS: %d", sock->rows_affected);
 			switch (tds_res)
 			{
 				case TDS_ROWFMT_RESULT:
@@ -494,7 +494,7 @@ class SQLConn : public classbase
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
 		LoggingMutex->Lock();
-		sc->Instance->Logs->Log("m_mssql", DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
+		sc->ServerInstance->Logs->Log("m_mssql", DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		LoggingMutex->Unlock();
 		return 0;
 	}
@@ -503,7 +503,7 @@ class SQLConn : public classbase
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
 		LoggingMutex->Lock();
-		sc->Instance->Logs->Log("m_mssql", DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
+		sc->ServerInstance->Logs->Log("m_mssql", DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		LoggingMutex->Unlock();
 		return 0;
 	}

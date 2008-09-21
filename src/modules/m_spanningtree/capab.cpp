@@ -24,7 +24,7 @@
 
 std::string TreeSocket::MyCapabilities()
 {
-	std::vector<std::string> modlist = this->Instance->Modules->GetAllModuleNames(VF_COMMON);
+	std::vector<std::string> modlist = this->ServerInstance->Modules->GetAllModuleNames(VF_COMMON);
 	std::string capabilities;
 	sort(modlist.begin(),modlist.end());
 	for (unsigned int i = 0; i < modlist.size(); i++)
@@ -74,28 +74,28 @@ void TreeSocket::SendCapabilities()
 #endif
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
-	if (Utils->ChallengeResponse && (Instance->Modules->Find("m_sha256.so")))
+	if (Utils->ChallengeResponse && (ServerInstance->Modules->Find("m_sha256.so")))
 	{
 		this->SetOurChallenge(RandString(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
-			":NICKMAX="+ConvToStr(Instance->Config->Limits.NickMax)+
-			" HALFOP="+ConvToStr(Instance->Config->AllowHalfop)+
-			" CHANMAX="+ConvToStr(Instance->Config->Limits.ChanMax)+
-			" MAXMODES="+ConvToStr(Instance->Config->Limits.MaxModes)+
-			" IDENTMAX="+ConvToStr(Instance->Config->Limits.IdentMax)+
-			" MAXQUIT="+ConvToStr(Instance->Config->Limits.MaxQuit)+
-			" MAXTOPIC="+ConvToStr(Instance->Config->Limits.MaxTopic)+
-			" MAXKICK="+ConvToStr(Instance->Config->Limits.MaxKick)+
-			" MAXGECOS="+ConvToStr(Instance->Config->Limits.MaxGecos)+
-			" MAXAWAY="+ConvToStr(Instance->Config->Limits.MaxAway)+
+			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
+			" HALFOP="+ConvToStr(ServerInstance->Config->AllowHalfop)+
+			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.ChanMax)+
+			" MAXMODES="+ConvToStr(ServerInstance->Config->Limits.MaxModes)+
+			" IDENTMAX="+ConvToStr(ServerInstance->Config->Limits.IdentMax)+
+			" MAXQUIT="+ConvToStr(ServerInstance->Config->Limits.MaxQuit)+
+			" MAXTOPIC="+ConvToStr(ServerInstance->Config->Limits.MaxTopic)+
+			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
+			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
+			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
 			" IP6NATIVE="+ConvToStr(ip6)+
 			" IP6SUPPORT="+ConvToStr(ip6support)+
 			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
-			" PREFIX="+Instance->Modes->BuildPrefixes()+
-			" CHANMODES="+Instance->Modes->ChanModes()+
+			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
+			" CHANMODES="+ServerInstance->Modes->ChanModes()+
 			" SVSPART=1");
 
 	this->WriteLine("CAPAB END");
@@ -183,23 +183,23 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 				reason = "Protocol version not specified";
 		}
 
-		if(this->CapKeys.find("PREFIX") != this->CapKeys.end() && this->CapKeys.find("PREFIX")->second != this->Instance->Modes->BuildPrefixes())
+		if(this->CapKeys.find("PREFIX") != this->CapKeys.end() && this->CapKeys.find("PREFIX")->second != this->ServerInstance->Modes->BuildPrefixes())
 			reason = "One or more of the prefixes on the remote server are invalid on this server.";
 
-		if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (Instance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(Instance->Config->AllowHalfop))))
+		if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (ServerInstance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(ServerInstance->Config->AllowHalfop))))
 			reason = "We don't both have halfop support enabled/disabled identically";
 
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->CapKeys.find("CHALLENGE");
-		if (Utils->ChallengeResponse && (n != this->CapKeys.end()) && (Instance->Modules->Find("m_sha256.so")))
+		if (Utils->ChallengeResponse && (n != this->CapKeys.end()) && (ServerInstance->Modules->Find("m_sha256.so")))
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->SendCapabilities();
-				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 "+
-						Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
+				this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 "+
+						ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
 			}
 		}
 		else
@@ -208,7 +208,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			if (this->LinkState == CONNECTING)
 			{
 				this->SendCapabilities();
-				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+OutboundPass+" 0 "+Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
+				this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+OutboundPass+" 0 "+ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
 			}
 		}
 

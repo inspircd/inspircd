@@ -34,28 +34,28 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 	 */
 	if (params.size() > 1)
 	{
-		if (InspIRCd::Match(this->Instance->Config->ServerName, params[1]))
+		if (InspIRCd::Match(this->ServerInstance->Config->ServerName, params[1]))
 		{
 			/* It's for our server */
 			string_list results;
-			User* source = this->Instance->FindNick(prefix);
+			User* source = this->ServerInstance->FindNick(prefix);
 			if (source)
 			{
 				std::deque<std::string> par;
 				par.push_back(prefix);
 				par.push_back("");
-				DoStats(this->Instance, *(params[0].c_str()), source, results);
+				DoStats(this->ServerInstance, *(params[0].c_str()), source, results);
 				for (size_t i = 0; i < results.size(); i++)
 				{
 					par[1] = "::" + results[i];
-					Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
+					Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 				}
 			}
 		}
 		else
 		{
 			/* Pass it on */
-			User* source = this->Instance->FindNick(prefix);
+			User* source = this->ServerInstance->FindNick(prefix);
 			if (source)
 				Utils->DoOneToOne(source->uuid, "STATS", params, params[1]);
 		}

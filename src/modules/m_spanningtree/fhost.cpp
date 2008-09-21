@@ -25,7 +25,7 @@ bool TreeSocket::ChangeHost(const std::string &prefix, std::deque<std::string> &
 {
 	if (params.size() < 1)
 		return true;
-	User* u = this->Instance->FindNick(prefix);
+	User* u = this->ServerInstance->FindNick(prefix);
 
 	if (u)
 	{

@@ -65,7 +65,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	if (Hook)
 		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 
-	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils, 1));
+	ServerInstance->Timers->AddTimer(new HandshakeTimer(ServerInstance, this, &(Utils->LinkBlocks[0]), this->Utils, 1));
 
 	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
 	Utils->timeoutlist[this] = std::pair<std::string, int>("<unknown>", 30);
@@ -115,7 +115,7 @@ bool TreeSocket::OnConnected()
 
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 				if (this->GetHook())
-					Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils, 1));
+					ServerInstance->Timers->AddTimer(new HandshakeTimer(ServerInstance, this, &(*x), this->Utils, 1));
 				else
 					this->SendCapabilities();
 
@@ -211,7 +211,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 	if ((Current) && (Current != Utils->TreeRoot))
 	{
 		Event rmode((char*)Current->GetName().c_str(), (Module*)Utils->Creator, "lost_server");
-		rmode.Send(Instance);
+		rmode.Send(ServerInstance);
 
 		std::deque<std::string> params;
 		params.push_back(Current->GetName());
@@ -219,11 +219,11 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 		if (Current->GetParent() == Utils->TreeRoot)
 		{
-			this->Instance->SNO->WriteToSnoMask('l',"Server \002"+Current->GetName()+"\002 split: "+reason);
+			this->ServerInstance->SNO->WriteToSnoMask('l',"Server \002"+Current->GetName()+"\002 split: "+reason);
 		}
 		else
 		{
-			this->Instance->SNO->WriteToSnoMask('l',"Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+			this->ServerInstance->SNO->WriteToSnoMask('l',"Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 		}
 		num_lost_servers = 0;
 		num_lost_users = 0;
@@ -232,10 +232,10 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Current->Tidy();
 		Current->GetParent()->DelChild(Current);
 		delete Current;
-		this->Instance->SNO->WriteToSnoMask('l',"Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+		this->ServerInstance->SNO->WriteToSnoMask('l',"Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 	}
 	else
-		Instance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
+		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
 }
 
 /** This function is called when we receive data from a remote

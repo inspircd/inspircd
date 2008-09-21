@@ -107,7 +107,7 @@ class CoreExport BufferedSocket : public EventHandler
 
 	/** Instance we were created by
 	 */
-	InspIRCd* Instance;
+	InspIRCd* ServerInstance;
 
 	/** Timeout class or NULL
 	 */

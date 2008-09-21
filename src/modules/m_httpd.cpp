@@ -172,7 +172,7 @@ class HttpServerSocket : public BufferedSocket
 
 		this->Write(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
 
-		time_t local = this->Instance->Time();
+		time_t local = this->ServerInstance->Time();
 		struct tm *timeinfo = gmtime(&local);
 		char *date = asctime(timeinfo);
 		date[strlen(date) - 1] = '\0';
@@ -215,7 +215,7 @@ class HttpServerSocket : public BufferedSocket
 
 			if (reqbuffer.length() >= 8192)
 			{
-				Instance->Logs->Log("m_httpd",DEBUG, "m_httpd dropped connection due to an oversized request buffer");
+				ServerInstance->Logs->Log("m_httpd",DEBUG, "m_httpd dropped connection due to an oversized request buffer");
 				reqbuffer.clear();
 				return false;
 			}
@@ -321,11 +321,11 @@ class HttpServerSocket : public BufferedSocket
 			claimed = false;
 			HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
 			Event acl((char*)&httpr, (Module*)HttpModule, "httpd_acl");
-			acl.Send(this->Instance);
+			acl.Send(this->ServerInstance);
 			if (!claimed)
 			{
 				Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-				e.Send(this->Instance);
+				e.Send(this->ServerInstance);
 				if (!claimed)
 				{
 					SendHTTPError(404);

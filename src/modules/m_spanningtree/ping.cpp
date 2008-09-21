@@ -33,13 +33,13 @@ bool TreeSocket::LocalPing(const std::string &prefix, std::deque<std::string> &p
 	if (params.size() == 1)
 	{
 		std::string stufftobounce = params[0];
-		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" PONG "+stufftobounce);
+		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" PONG "+stufftobounce);
 		return true;
 	}
 	else
 	{
 		std::string forwardto = params[1];
-		if (forwardto == this->Instance->Config->ServerName || forwardto == this->Instance->Config->GetSID())
+		if (forwardto == this->ServerInstance->Config->ServerName || forwardto == this->ServerInstance->Config->GetSID())
 		{
 			// this is a ping for us, send back PONG to the requesting server
 			params[1] = params[0];

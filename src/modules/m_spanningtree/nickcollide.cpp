@@ -105,7 +105,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		 * have 928AAAB's nick set to that.
 		 *   -- w00t
 		 */
-		User *remote = this->Instance->FindUUID(remoteuid);
+		User *remote = this->ServerInstance->FindUUID(remoteuid);
 
 		if (remote)
 		{
@@ -115,7 +115,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		else
 		{
 			/* user has not been introduced yet, just inform their server */
-			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid + " " + ConvToStr(remotets));
+			this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid + " " + ConvToStr(remotets));
 		}
 
 		if (!bChangeLocal)

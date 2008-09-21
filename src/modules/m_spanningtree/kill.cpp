@@ -28,7 +28,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 	if (params.size() != 2)
 		return true;
 
-	User* who = this->Instance->FindNick(params[0]);
+	User* who = this->ServerInstance->FindNick(params[0]);
 
 	if (who)
 	{
@@ -44,7 +44,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 		// NOTE: This is safe with kill hiding on, as RemoteKill is only reached if we have a server prefix.
 		// in short this is not executed for USERS.
 		who->Write(":%s KILL %s :%s (%s)", prefix.c_str(), who->nick.c_str(), prefix.c_str(), reason.c_str());
-		this->Instance->Users->QuitUser(who, reason);
+		this->ServerInstance->Users->QuitUser(who, reason);
 	}
 	return true;
 }

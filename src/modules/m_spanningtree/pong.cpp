@@ -46,7 +46,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 	else
 	{
 		std::string forwardto = params[1];
-		if (forwardto == Instance->Config->GetSID() || forwardto == Instance->Config->ServerName)
+		if (forwardto == ServerInstance->Config->GetSID() || forwardto == ServerInstance->Config->ServerName)
 		{
 			/*
 			 * this is a PONG for us
@@ -54,7 +54,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 			 * dump the PONG reply back to their fd. If its a server, do nowt.
 			 * Services might want to send these s->s, but we dont need to yet.
 			 */
-			User* u = this->Instance->FindNick(prefix);
+			User* u = this->ServerInstance->FindNick(prefix);
 			if (u)
 			{
 				u->WriteServ("PONG %s %s",params[0].c_str(),params[1].c_str());

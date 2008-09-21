@@ -28,7 +28,7 @@ BufferedSocket::BufferedSocket(InspIRCd* SI)
 	this->Timeout = NULL;
 	this->state = I_DISCONNECTED;
 	this->fd = -1;
-	this->Instance = SI;
+	this->ServerInstance = SI;
 }
 
 BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
@@ -37,16 +37,16 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	strlcpy(this->IP,ip,MAXBUF);
-	this->Instance = SI;
+	this->ServerInstance = SI;
 	if (this->fd > -1)
-		this->Instance->SE->AddFd(this);
+		this->ServerInstance->SE->AddFd(this);
 }
 
 BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
 {
 	this->cbindip = connectbindip;
 	this->fd = -1;
-	this->Instance = SI;
+	this->ServerInstance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->Timeout = NULL;
 
@@ -70,7 +70,7 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 	}
 	if (!ipvalid)
 	{
-		this->Instance->Logs->Log("SOCKET", DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
+		this->ServerInstance->Logs->Log("SOCKET", DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 		this->OnError(I_ERR_CONNECT);
 		this->Close();
 		this->fd = -1;
@@ -98,7 +98,7 @@ void BufferedSocket::SetQueues()
 	int recvbuf = 32768;
 	if(setsockopt(this->fd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf)) || setsockopt(this->fd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(sendbuf)))
 	{
-		//this->Instance->Log(DEFAULT, "Could not increase SO_SNDBUF/SO_RCVBUF for socket %u", GetFd());
+		//this->ServerInstance->Log(DEFAULT, "Could not increase SO_SNDBUF/SO_RCVBUF for socket %u", GetFd());
 		; // do nothing. I'm a little sick of people trying to interpret this message as a result of why their incorrect setups don't work.
 	}
 }
@@ -113,7 +113,7 @@ void BufferedSocket::SetQueues()
  */
 bool BufferedSocket::BindAddr(const std::string &ip)
 {
-	ConfigReader Conf(this->Instance);
+	ConfigReader Conf(this->ServerInstance);
 	socklen_t size = sizeof(sockaddr_in);
 #ifdef IPV6
 	bool v6 = false;
@@ -167,7 +167,7 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 					}
 				}
 
-				if (Instance->SE->Bind(this->fd, s, size) < 0)
+				if (ServerInstance->SE->Bind(this->fd, s, size) < 0)
 				{
 					this->state = I_ERROR;
 					this->OnError(I_ERR_BIND);
@@ -182,7 +182,7 @@ bool BufferedSocket::BindAddr(const std::string &ip)
 		}
 		j++;
 	}
-	Instance->Logs->Log("SOCKET", DEBUG,"nothing in the config to bind()!");
+	ServerInstance->Logs->Log("SOCKET", DEBUG,"nothing in the config to bind()!");
 	return true;
 }
 
@@ -254,9 +254,9 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 		}
 	}
 
-	Instance->SE->NonBlocking(this->fd);
+	ServerInstance->SE->NonBlocking(this->fd);
 
-	if (Instance->SE->Connect(this, (sockaddr*)addr, size) == -1)
+	if (ServerInstance->SE->Connect(this, (sockaddr*)addr, size) == -1)
 	{
 		if (errno != EINPROGRESS)
 		{
@@ -266,14 +266,14 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 			return false;
 		}
 
-		this->Timeout = new SocketTimeout(this->GetFd(), this->Instance, this, maxtime, this->Instance->Time());
-		this->Instance->Timers->AddTimer(this->Timeout);
+		this->Timeout = new SocketTimeout(this->GetFd(), this->ServerInstance, this, maxtime, this->ServerInstance->Time());
+		this->ServerInstance->Timers->AddTimer(this->Timeout);
 	}
 
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
 	{
-		if (!this->Instance->SE->AddFd(this))
+		if (!this->ServerInstance->SE->AddFd(this))
 		{
 			this->OnError(I_ERR_NOMOREFDS);
 			this->Close();
@@ -283,7 +283,7 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 		this->SetQueues();
 	}
 
-	Instance->Logs->Log("SOCKET", DEBUG,"BufferedSocket::DoConnect success");
+	ServerInstance->Logs->Log("SOCKET", DEBUG,"BufferedSocket::DoConnect success");
 	return true;
 }
 
@@ -305,15 +305,15 @@ void BufferedSocket::Close()
 			}
 			catch (CoreException& modexcept)
 			{
-				Instance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+				ServerInstance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
-		Instance->SE->Shutdown(this, 2);
-		if (Instance->SE->Close(this) != -1)
+		ServerInstance->SE->Shutdown(this, 2);
+		if (ServerInstance->SE->Close(this) != -1)
 			this->OnClose();
 
-		if (Instance->SocketCull.find(this) == Instance->SocketCull.end())
-			Instance->SocketCull[this] = this;
+		if (ServerInstance->SocketCull.find(this) == ServerInstance->SocketCull.end())
+			ServerInstance->SocketCull[this] = this;
 	}
 	errno = save;
 }
@@ -325,11 +325,11 @@ std::string BufferedSocket::GetIP()
 
 const char* BufferedSocket::Read()
 {
-	if (!Instance->SE->BoundsCheckFd(this))
+	if (!ServerInstance->SE->BoundsCheckFd(this))
 		return NULL;
 
 	int n = 0;
-	char* ReadBuffer = Instance->GetReadBuffer();
+	char* ReadBuffer = ServerInstance->GetReadBuffer();
 
 	if (this->GetIOHook())
 	{
@@ -337,11 +337,11 @@ const char* BufferedSocket::Read()
 		int MOD_RESULT = 0;
 		try
 		{
-			MOD_RESULT = this->GetIOHook()->OnRawSocketRead(this->fd, ReadBuffer, Instance->Config->NetBufferSize, result2);
+			MOD_RESULT = this->GetIOHook()->OnRawSocketRead(this->fd, ReadBuffer, ServerInstance->Config->NetBufferSize, result2);
 		}
 		catch (CoreException& modexcept)
 		{
-			Instance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			ServerInstance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 		if (MOD_RESULT < 0)
 		{
@@ -355,7 +355,7 @@ const char* BufferedSocket::Read()
 	}
 	else
 	{
-		n = recv(this->fd, ReadBuffer, Instance->Config->NetBufferSize, 0);
+		n = recv(this->fd, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
 	}
 
 	/*
@@ -397,7 +397,7 @@ void BufferedSocket::Write(const std::string &data)
 	outbuffer.push_back(data);
 
 	/* Mark ourselves as wanting write */
-	this->Instance->SE->WantWrite(this);
+	this->ServerInstance->SE->WantWrite(this);
 }
 
 bool BufferedSocket::FlushWriteBuffer()
@@ -419,7 +419,7 @@ bool BufferedSocket::FlushWriteBuffer()
 				}
 				catch (CoreException& modexcept)
 				{
-					Instance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+					ServerInstance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 					return true;
 				}
 			}
@@ -432,7 +432,7 @@ bool BufferedSocket::FlushWriteBuffer()
 			while (outbuffer.size() && (errno != EAGAIN))
 			{
 				/* Send a line */
-				int result = Instance->SE->Send(this, outbuffer[0].c_str(), outbuffer[0].length(), 0);
+				int result = ServerInstance->SE->Send(this, outbuffer[0].c_str(), outbuffer[0].length(), 0);
 
 				if (result > 0)
 				{
@@ -459,7 +459,7 @@ bool BufferedSocket::FlushWriteBuffer()
 				}
 				else if (result == 0)
 				{
-					this->Instance->SE->DelFd(this);
+					this->ServerInstance->SE->DelFd(this);
 					this->Close();
 					return true;
 				}
@@ -467,7 +467,7 @@ bool BufferedSocket::FlushWriteBuffer()
 				{
 					this->OnError(I_ERR_WRITE);
 					this->state = I_ERROR;
-					this->Instance->SE->DelFd(this);
+					this->ServerInstance->SE->DelFd(this);
 					this->Close();
 					return true;
 				}
@@ -477,7 +477,7 @@ bool BufferedSocket::FlushWriteBuffer()
 
 	if ((errno == EAGAIN) && (fd > -1))
 	{
-		this->Instance->SE->WantWrite(this);
+		this->ServerInstance->SE->WantWrite(this);
 	}
 
 	return (fd < 0);
@@ -521,14 +521,14 @@ bool BufferedSocket::InternalMarkConnected()
 
 	if (this->GetIOHook())
 	{
-		Instance->Logs->Log("SOCKET",DEBUG,"Hook for raw connect");
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"Hook for raw connect");
 		try
 		{
 			this->GetIOHook()->OnRawSocketConnect(this->fd);
 		}
 		catch (CoreException& modexcept)
 		{
-			Instance->Logs->Log("SOCKET",DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			return false;
 		}
 	}
@@ -562,7 +562,7 @@ BufferedSocket::~BufferedSocket()
 	this->Close();
 	if (Timeout)
 	{
-		Instance->Timers->DelTimer(Timeout);
+		ServerInstance->Timers->DelTimer(Timeout);
 		Timeout = NULL;
 	}
 }
@@ -591,8 +591,8 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 					break;
 			}
 
-			if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
-				this->Instance->SocketCull[this] = this;
+			if (this->ServerInstance->SocketCull.find(this) == this->ServerInstance->SocketCull.end())
+				this->ServerInstance->SocketCull[this] = this;
 			return;
 			break;
 		}
@@ -600,8 +600,8 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 		{
 			if (!this->OnDataReady())
 			{
-				if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
-					this->Instance->SocketCull[this] = this;
+				if (this->ServerInstance->SocketCull.find(this) == this->ServerInstance->SocketCull.end())
+					this->ServerInstance->SocketCull[this] = this;
 				return;
 			}
 			break;
@@ -612,8 +612,8 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 			{
 				if (!this->InternalMarkConnected())
 				{
-					if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
-						this->Instance->SocketCull[this] = this;
+					if (this->ServerInstance->SocketCull.find(this) == this->ServerInstance->SocketCull.end())
+						this->ServerInstance->SocketCull[this] = this;
 					return;
 				}
 				return;
@@ -622,8 +622,8 @@ void BufferedSocket::HandleEvent(EventType et, int errornum)
 			{
 				if (!this->OnWriteReady())
 				{
-					if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
-						this->Instance->SocketCull[this] = this;
+					if (this->ServerInstance->SocketCull.find(this) == this->ServerInstance->SocketCull.end())
+						this->ServerInstance->SocketCull[this] = this;
 					return;
 				}
 			}

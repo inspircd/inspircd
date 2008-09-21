@@ -32,22 +32,22 @@ bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &pa
 	{
 		if (params[0] == "*")
 		{
-			FOREACH_MOD_I(this->Instance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_OTHER,NULL,params[1],params[2]));
+			FOREACH_MOD_I(this->ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_OTHER,NULL,params[1],params[2]));
 		}
 		else if (*(params[0].c_str()) == '#')
 		{
-			Channel* c = this->Instance->FindChan(params[0]);
+			Channel* c = this->ServerInstance->FindChan(params[0]);
 			if (c)
 			{
-				FOREACH_MOD_I(this->Instance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]));
+				FOREACH_MOD_I(this->ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]));
 			}
 		}
 		else if (*(params[0].c_str()) != '#')
 		{
-			User* u = this->Instance->FindNick(params[0]);
+			User* u = this->ServerInstance->FindNick(params[0]);
 			if (u)
 			{
-				FOREACH_MOD_I(this->Instance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_USER,u,params[1],params[2]));
+				FOREACH_MOD_I(this->ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_USER,u,params[1],params[2]));
 			}
 		}
 	}

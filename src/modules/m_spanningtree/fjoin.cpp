@@ -60,14 +60,14 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (params.size() < 3)
 		return true;
 
-	irc::modestacker modestack(Instance, true);			/* Modes to apply from the users in the user list */
+	irc::modestacker modestack(ServerInstance, true);			/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
 	irc::tokenstream users((params.size() > 3) ? params[params.size() - 1] : "");   /* users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
-	Channel* chan = this->Instance->FindChan(channel);		/* The channel we're sending joins to */
-	time_t ourTS = chan ? chan->age : Instance->Time()+600;	/* The TS of our side of the link */
+	Channel* chan = this->ServerInstance->FindChan(channel);		/* The channel we're sending joins to */
+	time_t ourTS = chan ? chan->age : ServerInstance->Time()+600;	/* The TS of our side of the link */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
@@ -78,13 +78,13 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 
 	if (!TS)
 	{
-		Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", source.c_str());
+		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", source.c_str());
 		return true;
 	}
 
 	if (created)
-		chan = new Channel(Instance, channel, ourTS);
+		chan = new Channel(ServerInstance, channel, ourTS);
 
 	/* If our TS is less than theirs, we dont accept their modes */
 	if (ourTS < TS)
@@ -95,13 +95,13 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		std::deque<std::string> param_list;
 		if (Utils->AnnounceTSChange && chan)
-			chan->WriteChannelWithServ(Instance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), chan->name.c_str(), (unsigned long) ourTS, (unsigned long) TS);
+			chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), chan->name.c_str(), (unsigned long) ourTS, (unsigned long) TS);
 		ourTS = TS;
 		if (!created)
 		{
 			chan->age = TS;
 			param_list.push_back(channel);
-			this->RemoveStatus(Instance->Config->GetSID(), param_list);
+			this->RemoveStatus(ServerInstance->Config->GetSID(), param_list);
 		}
 	}
 
@@ -120,7 +120,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			modelist.push_back(params[idx]);
 		}
 
-		this->Instance->SendMode(modelist, this->Instance->FakeClient);
+		this->ServerInstance->SendMode(modelist, this->ServerInstance->FakeClient);
 	}
 
 	/* Now, process every 'modes,nick' pair */
@@ -136,7 +136,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			/* Iterate through all modes for this user and check they are valid. */
 			while ((*unparsedmodes) && (*unparsedmodes != ','))
 			{
-				ModeHandler *mh = Instance->Modes->FindMode(*unparsedmodes, MODETYPE_CHANNEL);
+				ModeHandler *mh = ServerInstance->Modes->FindMode(*unparsedmodes, MODETYPE_CHANNEL);
 				if (mh)
 					modes += *unparsedmodes;
 				else
@@ -153,7 +153,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			usr++;
 
 			/* Check the user actually exists */
-			who = this->Instance->FindUUID(usr);
+			who = this->ServerInstance->FindUUID(usr);
 			if (who)
 			{
 				/* Check that the user's 'direction' is correct */
@@ -165,11 +165,11 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 
-				Channel::JoinUser(this->Instance, who, channel.c_str(), true, "", true, TS);
+				Channel::JoinUser(this->ServerInstance, who, channel.c_str(), true, "", true, TS);
 			}
 			else
 			{
-				Instance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
+				ServerInstance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
 				continue;
 			}
 		}
@@ -188,7 +188,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			{
 				mode_junk.push_back(stackresult[j]);
 			}
-			Instance->SendMode(mode_junk, Instance->FakeClient);
+			ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
 		}
 	}
 
@@ -202,18 +202,18 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 	if (params.size() < 1)
 		return true;
 
-	Channel* c = Instance->FindChan(params[0]);
+	Channel* c = ServerInstance->FindChan(params[0]);
 
 	if (c)
 	{
-		irc::modestacker stack(Instance, false);
+		irc::modestacker stack(ServerInstance, false);
 		std::deque<std::string> stackresult;
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(c->name);
 
 		for (char modeletter = 'A'; modeletter <= 'z'; ++modeletter)
 		{
-			ModeHandler* mh = Instance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+			ModeHandler* mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
 
 			/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
 			 * rather than applied immediately. Module unloads require this to be done immediately,
@@ -228,7 +228,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 			for (size_t j = 0; j < stackresult.size(); j++)
 				mode_junk.push_back(stackresult[j]);
 
-			Instance->SendMode(mode_junk, Instance->FakeClient);
+			ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
 		}
 	}
 	return true;

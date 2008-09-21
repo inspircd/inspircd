@@ -31,7 +31,7 @@
 
 void TreeSocket::WriteLine(std::string line)
 {
-	Instance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
 	line.append("\r\n");
 	this->Write(line);
 }
@@ -42,7 +42,7 @@ bool TreeSocket::Error(std::deque<std::string> &params)
 {
 	if (params.size() < 1)
 		return false;
-	this->Instance->SNO->WriteToSnoMask('l',"ERROR from %s: %s",(!InboundServerName.empty() ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
+	this->ServerInstance->SNO->WriteToSnoMask('l',"ERROR from %s: %s",(!InboundServerName.empty() ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
 	/* we will return false to cause the socket to close. */
 	return false;
 }
@@ -70,7 +70,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 	if (line.empty())
 		return true;
 
-	Instance->Logs->Log("m_spanningtree",DEBUG, "S[%d] I %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] I %s", this->GetFd(), line.c_str());
 
 	this->Split(line.c_str(),params);
 
@@ -160,16 +160,16 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (params.size())
 				{
 					time_t them = atoi(params[0].c_str());
-					time_t delta = them - Instance->Time();
+					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
-						Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs((long)delta));
+						ServerInstance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs((long)delta));
 						SendError("Your clocks are out by "+ConvToStr(abs((long)delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return false;
 					}
 					else if ((delta < -30) || (delta > 30))
 					{
-						Instance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs((long)delta));
+						ServerInstance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs((long)delta));
 					}
 				}
 				this->LinkState = CONNECTED;
@@ -177,12 +177,12 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 				Utils->timeoutlist.erase(this);
 
-				Node = new TreeServer(this->Utils, this->Instance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
+				Node = new TreeServer(this->Utils, this->ServerInstance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 
 				if (Node->DuplicateID())
 				{
 					this->SendError("Server ID "+InboundSID+" already exists on the network!");
-					this->Instance->SNO->WriteToSnoMask('l',"Server \2"+InboundServerName+"\2 being introduced from \2" + prefix + "\2 denied, server ID already exists on the network. Closing link.");
+					this->ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+InboundServerName+"\2 being introduced from \2" + prefix + "\2 denied, server ID already exists on the network. Closing link.");
 					return false;
 				}
 
@@ -193,7 +193,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				params.push_back("1");
 				params.push_back(InboundSID);
 				params.push_back(":"+InboundDescription);
-				Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,InboundServerName);
+				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,InboundServerName);
 				Node->bursting = true;
 				this->DoBurst(Node);
 			}
@@ -250,7 +250,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 */
 				std::string direction = prefix;
 
-				User *t = this->Instance->FindUUID(prefix);
+				User *t = this->ServerInstance->FindUUID(prefix);
 				if (t)
 				{
 					direction = t->server;
@@ -260,14 +260,14 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if ((!route_back_again) || (route_back_again->GetSocket() != this))
 				{
 					if (route_back_again)
-						Instance->Logs->Log("m_spanningtree",DEBUG,"Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
+						ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
 					return true;
 				}
 				/* Fix by brain:
 				 * When there is activity on the socket, reset the ping counter so
 				 * that we're not wasting bandwidth pinging an active server.
 				 */
-				route_back_again->SetNextPingTime(Instance->Time() + Utils->PingFreq);
+				route_back_again->SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 				route_back_again->SetPingFlag();
 			}
 			else
@@ -343,7 +343,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "MAP")
 			{
-				User* user = Instance->FindNick(prefix);
+				User* user = ServerInstance->FindNick(prefix);
 				if (user)
 				{
 					std::vector<std::string> p(params.begin(), params.end());
@@ -383,7 +383,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				TreeServer *s = Utils->FindServer(prefix);
 				if (s && s->bursting)
 				{
-					Instance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", prefix.c_str());
+					ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", prefix.c_str());
 					s->FinishBurst();
 				}
 				return this->LocalPong(prefix,params);
@@ -433,8 +433,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (params.size() == 3)
 				{
 					TreeServer* pf = Utils->FindServer(prefix);
-					User* user = this->Instance->FindNick(params[1]);
-					Channel* chan = this->Instance->FindChan(params[0]);
+					User* user = this->ServerInstance->FindNick(params[1]);
+					Channel* chan = this->ServerInstance->FindChan(params[0]);
 					if (pf && user && chan)
 					{
 						if (!chan->ServerKickUser(user, params[2].c_str(), false, pf->GetName().c_str()))
@@ -466,7 +466,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (params.size() >= 2)
 				{
 					if (ServerSource)
-						Instance->Users->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()), params[1].c_str());
+						ServerInstance->Users->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()), params[1].c_str());
 				}
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
@@ -474,7 +474,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size() >= 2)
 				{
-					Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + (ServerSource ? ServerSource->GetName().c_str() : prefix) + ": "+ params[1]);
+					ServerInstance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + (ServerSource ? ServerSource->GetName().c_str() : prefix) + ": "+ params[1]);
 					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 				}
 
@@ -484,7 +484,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				// Set prefix server as bursting
 				if (!ServerSource)
 				{
-					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got BURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
+					this->ServerInstance->SNO->WriteToSnoMask('l', "WTF: Got BURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
 					return false;
 				}
 
@@ -495,7 +495,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (!ServerSource)
 				{
-					this->Instance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
+					this->ServerInstance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a nonexistant server(?): %s", (ServerSource ? ServerSource->GetName().c_str() : prefix.c_str()));
 					return false;
 				}
 
@@ -506,7 +506,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Encap(prefix, params);
 			}
-			else if (command == "MODE" && !this->Instance->FindUUID(prefix)) // XXX we should check for no such serv?
+			else if (command == "MODE" && !this->ServerInstance->FindUUID(prefix)) // XXX we should check for no such serv?
 			{
 				// Server-prefix MODE.
 				std::vector<std::string> modelist(params.begin(), params.end());
@@ -514,7 +514,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				/* We don't support this for channel mode changes any more! */
 				if (params.size() >= 1)
 				{
-					if (Instance->FindChan(params[0]))
+					if (ServerInstance->FindChan(params[0]))
 					{
 						this->SendError("Protocol violation by '"+(ServerSource ? ServerSource->GetName().c_str() : prefix)+"'! MODE for channel mode changes is not supported by the InspIRCd 1.2 protocol. You must use FMODE to preserve channel timestamps.");
 						return false;
@@ -522,7 +522,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				}
 
 				// Insert into the parser
-				this->Instance->SendMode(modelist, this->Instance->FakeClient);
+				this->ServerInstance->SendMode(modelist, this->ServerInstance->FakeClient);
 
 				// Pass out to the network
 				return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
@@ -533,7 +533,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * Not a special s2s command. Emulate the user doing it.
 				 * This saves us having a huge ugly command parser again.
 				 */
-				User *who = this->Instance->FindUUID(prefix);
+				User *who = this->ServerInstance->FindUUID(prefix);
 
 				if (!who)
 				{
@@ -556,7 +556,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					 * On nick messages, check that the nick doesnt already exist here.
 					 * If it does, perform collision logic.
 					 */
-					User* x = this->Instance->FindNickOnly(params[0]);
+					User* x = this->ServerInstance->FindNickOnly(params[0]);
 					if ((x) && (x != who))
 					{
 						int collideret = 0;
@@ -577,7 +577,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				// its a user
 				std::vector<std::string> strparams(params.begin(), params.end());
 
-				switch (this->Instance->CallCommandHandler(command.c_str(), strparams, who))
+				switch (this->ServerInstance->CallCommandHandler(command.c_str(), strparams, who))
 				{
 					case CMD_INVALID:
 						/*
@@ -650,7 +650,7 @@ void TreeSocket::OnClose()
 	if (!quitserver.empty())
 	{
 		Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' failed.",quitserver.c_str());
-		time_t server_uptime = Instance->Time() - this->age;
+		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
 			Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
 	}

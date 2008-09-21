@@ -30,7 +30,7 @@ bool TreeSocket::Push(const std::string &prefix, std::deque<std::string> &params
 {
 	if (params.size() < 2)
 		return true;
-	User* u = this->Instance->FindNick(params[0]);
+	User* u = this->ServerInstance->FindNick(params[0]);
 	if (!u)
 		return true;
 	if (IS_LOCAL(u))

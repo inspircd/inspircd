@@ -39,7 +39,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	if (params.size() < 10)
 	{
 		if (!params.empty())
-			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
+			this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
 					ConvToStr(params.size())+" of 10 or more parameters?)");
 		return true;
 	}
@@ -52,26 +52,26 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 	if (!remoteserver)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Unknown server "+source+")");
+		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Unknown server "+source+")");
 		return true;
 	}
 
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age_t)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
+		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
 		return true;
 	}
 
 	/* check for collision */
-	user_hash::iterator iter = this->Instance->Users->clientlist->find(params[2]);
+	user_hash::iterator iter = this->ServerInstance->Users->clientlist->find(params[2]);
 
-	if (iter != this->Instance->Users->clientlist->end())
+	if (iter != this->ServerInstance->Users->clientlist->end())
 	{
 		/*
 		 * Nick collision.
 		 */
-		Instance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s", params[2].c_str());
+		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s", params[2].c_str());
 		int collide = this->DoCollision(iter->second, age_t, params[5], params[8], params[0]);
 
 		if (collide == 2)
@@ -87,19 +87,19 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	User* _new = NULL;
 	try
 	{
-		_new = new User(this->Instance, params[0]);
+		_new = new User(this->ServerInstance, params[0]);
 	}
 	catch (...)
 	{
 		SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
 		return false;
 	}
-	(*(this->Instance->Users->clientlist))[params[2]] = _new;
+	(*(this->ServerInstance->Users->clientlist))[params[2]] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
 	_new->nick.assign(params[2], 0, MAXBUF);
 	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
-	_new->server = this->Instance->FindServerNamePtr(remoteserver->GetName().c_str());
+	_new->server = this->ServerInstance->FindServerNamePtr(remoteserver->GetName().c_str());
 	_new->ident.assign(params[5], 0, MAXBUF);
 	_new->fullname.assign(params[params.size() - 1], 0, MAXBUF);
 	_new->registered = REG_ALL;
@@ -118,7 +118,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 			continue;
 
 		/* For each mode thats set, increase counter */
-		ModeHandler* mh = Instance->Modes->FindMode(*v, MODETYPE_USER);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
 
 		if (mh)
 		{
@@ -127,7 +127,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 				if (paramptr < params.size() - 1)
 					mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
 				else
-					Instance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, expected a parameter for user mode '%c' but there aren't enough parameters in the command!", *v);
+					ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, expected a parameter for user mode '%c' but there aren't enough parameters in the command!", *v);
 			}
 			else
 				mh->OnModeChange(_new, _new, NULL, empty, true);
@@ -135,7 +135,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 			mh->ChangeCount(1);
 		}
 		else
-			Instance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, unknown user mode '%c' in the mode string!", *v);
+			ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, unknown user mode '%c' in the mode string!", *v);
 	}
 
 	//_new->ProcessNoticeMasks(params[7].c_str());
@@ -151,21 +151,21 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 #endif
 		_new->SetSockAddr(AF_INET, params[6].c_str(), 0);
 
-	Instance->Users->AddGlobalClone(_new);
+	ServerInstance->Users->AddGlobalClone(_new);
 
 	bool dosend = true;
 
-	if ((this->Utils->quiet_bursts && remoteserver->bursting) || this->Instance->SilentULine(_new->server))
+	if ((this->Utils->quiet_bursts && remoteserver->bursting) || this->ServerInstance->SilentULine(_new->server))
 		dosend = false;
 
 	if (dosend)
-		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
+		this->ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
 
 	params[params.size() - 1] = ":" + params[params.size() - 1];
 	Utils->DoOneToAllButSender(source, "UID", params, source);
 
-	Instance->PI->Introduce(_new);
-	FOREACH_MOD_I(Instance,I_OnPostConnect,OnPostConnect(_new));
+	ServerInstance->PI->Introduce(_new);
+	FOREACH_MOD_I(ServerInstance,I_OnPostConnect,OnPostConnect(_new));
 
 	return true;
 }

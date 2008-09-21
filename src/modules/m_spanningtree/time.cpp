@@ -33,20 +33,20 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 	if (params.size() == 2)
 	{
 		// someone querying our time?
-		if (this->Instance->Config->ServerName == params[0] || this->Instance->Config->GetSID() == params[0])
+		if (this->ServerInstance->Config->ServerName == params[0] || this->ServerInstance->Config->GetSID() == params[0])
 		{
-			User* u = this->Instance->FindNick(params[1]);
+			User* u = this->ServerInstance->FindNick(params[1]);
 			if (u)
 			{
-				params.push_back(ConvToStr(Instance->Time()));
+				params.push_back(ConvToStr(ServerInstance->Time()));
 				params[0] = prefix;
-				Utils->DoOneToOne(this->Instance->Config->GetSID(),"TIME",params,params[0]);
+				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(),"TIME",params,params[0]);
 			}
 		}
 		else
 		{
 			// not us, pass it on
-			User* u = this->Instance->FindNick(params[1]);
+			User* u = this->ServerInstance->FindNick(params[1]);
 			if (u)
 				Utils->DoOneToOne(prefix,"TIME",params,params[0]);
 		}
@@ -54,7 +54,7 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 	else if (params.size() == 3)
 	{
 		// a response to a previous TIME
-		User* u = this->Instance->FindNick(params[1]);
+		User* u = this->ServerInstance->FindNick(params[1]);
 		if ((u) && (IS_LOCAL(u)))
 		{
 			time_t rawtime = atol(params[2].c_str());

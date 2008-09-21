@@ -315,7 +315,7 @@ public:
 class SQLConn : public EventHandler
 {
  private:
-	InspIRCd*		Instance;
+	InspIRCd*		ServerInstance;
 	SQLhost			confhost;	/* The <database> entry */
 	Module*			us;			/* Pointer to the SQL provider itself */
 	PGconn* 		sql;		/* PgSQL database connection handle */
@@ -326,12 +326,12 @@ class SQLConn : public EventHandler
 
  public:
 	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
-	: EventHandler(), Instance(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
+	: EventHandler(), ServerInstance(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
 	{
-		idle = this->Instance->Time();
+		idle = this->ServerInstance->Time();
 		if(!DoConnect())
 		{
-			Instance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
+			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
 			DelayReconnect();
 		}
 	}
@@ -381,9 +381,9 @@ class SQLConn : public EventHandler
 		if(this->fd <= -1)
 			return false;
 
-		if (!this->Instance->SE->AddFd(this))
+		if (!this->ServerInstance->SE->AddFd(this))
 		{
-			Instance->Logs->Log("m_pgsql",DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
+			ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
 		}
 
@@ -396,7 +396,7 @@ class SQLConn : public EventHandler
 		switch(PQconnectPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				Instance->SE->WantWrite(this);
+				ServerInstance->SE->WantWrite(this);
 				status = CWRITE;
 				return true;
 			case PGRES_POLLING_READING:
@@ -426,7 +426,7 @@ class SQLConn : public EventHandler
 			/* We just read stuff from the server, that counts as it being alive
 			 * so update the idle-since time :p
 			 */
-			idle = this->Instance->Time();
+			idle = this->ServerInstance->Time();
 
 			if (PQisBusy(sql))
 			{
@@ -509,7 +509,7 @@ class SQLConn : public EventHandler
 		switch(PQresetPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				Instance->SE->WantWrite(this);
+				ServerInstance->SE->WantWrite(this);
 				status = CWRITE;
 				return DoPoll();
 			case PGRES_POLLING_READING:
@@ -621,7 +621,7 @@ class SQLConn : public EventHandler
 #endif
 							if(error)
 							{
-								Instance->Logs->Log("m_pgsql",DEBUG, "BUG: Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
+								ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
 							}
 
 							/* Incremenet queryend to the end of the newly escaped parameter */
@@ -632,7 +632,7 @@ class SQLConn : public EventHandler
 						}
 						else
 						{
-							Instance->Logs->Log("m_pgsql",DEBUG, "BUG: Found a substitution location but no parameter to substitute :|");
+							ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: Found a substitution location but no parameter to substitute :|");
 							break;
 						}
 					}
@@ -690,15 +690,15 @@ class SQLConn : public EventHandler
 	}
 
 	void Close() {
-		if (!this->Instance->SE->DelFd(this))
+		if (!this->ServerInstance->SE->DelFd(this))
 		{
 			if (sql && PQstatus(sql) == CONNECTION_BAD)
 			{
-				this->Instance->SE->DelFd(this, true);
+				this->ServerInstance->SE->DelFd(this, true);
 			}
 			else
 			{
-				Instance->Logs->Log("m_pgsql",DEBUG, "BUG: PQsocket cant be removed from socket engine!");
+				ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: PQsocket cant be removed from socket engine!");
 			}
 		}
 

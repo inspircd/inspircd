@@ -35,7 +35,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	std::string sourceserv;
 
 	/* Are we dealing with an FMODE from a user, or from a server? */
-	User* who = this->Instance->FindNick(source);
+	User* who = this->ServerInstance->FindNick(source);
 	if (who)
 	{
 		/* FMODE from a user, set sourceserv to the users server name */
@@ -44,7 +44,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	else
 	{
 		/* FMODE from a server, use a fake user to receive mode feedback */
-		who = this->Instance->FakeClient;
+		who = this->ServerInstance->FakeClient;
 		smode = true;			/* Setting this flag tells us it is a server mode*/
 		sourceserv = source;    /* Set sourceserv to the actual source string */
 	}
@@ -68,7 +68,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 
 	}
 	/* Extract the TS value of the object, either User or Channel */
-	User* dst = this->Instance->FindNick(params[0]);
+	User* dst = this->ServerInstance->FindNick(params[0]);
 	Channel* chan = NULL;
 	time_t ourTS = 0;
 
@@ -78,7 +78,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	}
 	else
 	{
-		chan = this->Instance->FindChan(params[0]);
+		chan = this->ServerInstance->FindChan(params[0]);
 		if (chan)
 		{
 			ourTS = chan->age;
@@ -90,8 +90,8 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 
 	if (!TS)
 	{
-		Instance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
+		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
 		return true;
 	}
 
@@ -101,11 +101,11 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	{
 		if (smode)
 		{
-			this->Instance->SendMode(modelist, who);
+			this->ServerInstance->SendMode(modelist, who);
 		}
 		else
 		{
-			this->Instance->CallCommandHandler("MODE", modelist, who);
+			this->ServerInstance->CallCommandHandler("MODE", modelist, who);
 		}
 		/* HOT POTATO! PASS IT ON! */
 		Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);

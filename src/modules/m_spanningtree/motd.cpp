@@ -27,11 +27,11 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 {
 	if (params.size() > 0)
 	{
-		if (InspIRCd::Match(this->Instance->Config->ServerName, params[0]))
+		if (InspIRCd::Match(this->ServerInstance->Config->ServerName, params[0]))
 		{
 			/* It's for our server */
 			string_list results;
-			User* source = this->Instance->FindNick(prefix);
+			User* source = this->ServerInstance->FindNick(prefix);
 
 			if (source)
 			{
@@ -39,30 +39,30 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 				par.push_back(prefix);
 				par.push_back("");
 
-				if (!Instance->Config->MOTD.size())
+				if (!ServerInstance->Config->MOTD.size())
 				{
-					par[1] = std::string("::")+Instance->Config->ServerName+" 422 "+source->nick+" :Message of the day file is missing.";
-					Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 422 "+source->nick+" :Message of the day file is missing.";
+					Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 					return true;
 				}
 
-				par[1] = std::string("::")+Instance->Config->ServerName+" 375 "+source->nick+" :"+Instance->Config->ServerName+" message of the day";
-				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
+				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 375 "+source->nick+" :"+ServerInstance->Config->ServerName+" message of the day";
+				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 
-				for (unsigned int i = 0; i < Instance->Config->MOTD.size(); i++)
+				for (unsigned int i = 0; i < ServerInstance->Config->MOTD.size(); i++)
 				{
-					par[1] = std::string("::")+Instance->Config->ServerName+" 372 "+source->nick+" :- "+Instance->Config->MOTD[i];
-					Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 372 "+source->nick+" :- "+ServerInstance->Config->MOTD[i];
+					Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 				}
 
-				par[1] = std::string("::")+Instance->Config->ServerName+" 376 "+source->nick+" :End of message of the day.";
-				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
+				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 376 "+source->nick+" :End of message of the day.";
+				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 			}
 		}
 		else
 		{
 			/* Pass it on */
-			User* source = this->Instance->FindNick(prefix);
+			User* source = this->ServerInstance->FindNick(prefix);
 			if (source)
 				Utils->DoOneToOne(prefix, "MOTD", params, params[0]);
 		}

@@ -27,10 +27,10 @@ bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &param
 {
 	if (params.size() > 1)
 	{
-		if (InspIRCd::Match(Instance->Config->GetSID(), params[0]))
+		if (InspIRCd::Match(ServerInstance->Config->GetSID(), params[0]))
 		{
 			Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
-			event.Send(Instance);
+			event.Send(ServerInstance);
 		}
 
 		if (params[0].find('*') != std::string::npos)

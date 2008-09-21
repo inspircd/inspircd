@@ -25,30 +25,30 @@ bool TreeSocket::Admin(const std::string &prefix, std::deque<std::string> &param
 {
 	if (params.size() > 0)
 	{
-		if (InspIRCd::Match(this->Instance->Config->ServerName, params[0]))
+		if (InspIRCd::Match(this->ServerInstance->Config->ServerName, params[0]))
 		{
 			/* It's for our server */
 			string_list results;
-			User* source = this->Instance->FindNick(prefix);
+			User* source = this->ServerInstance->FindNick(prefix);
 			if (source)
 			{
 				std::deque<std::string> par;
 				par.push_back(prefix);
 				par.push_back("");
-				par[1] = std::string("::")+Instance->Config->ServerName+" 256 "+source->nick+" :Administrative info for "+Instance->Config->ServerName;
-				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
-				par[1] = std::string("::")+Instance->Config->ServerName+" 257 "+source->nick+" :Name     - "+Instance->Config->AdminName;
-				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
-				par[1] = std::string("::")+Instance->Config->ServerName+" 258 "+source->nick+" :Nickname - "+Instance->Config->AdminNick;
-				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
-				par[1] = std::string("::")+Instance->Config->ServerName+" 258 "+source->nick+" :E-Mail   - "+Instance->Config->AdminEmail;
-				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
+				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 256 "+source->nick+" :Administrative info for "+ServerInstance->Config->ServerName;
+				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
+				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 257 "+source->nick+" :Name     - "+ServerInstance->Config->AdminName;
+				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
+				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 258 "+source->nick+" :Nickname - "+ServerInstance->Config->AdminNick;
+				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
+				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 258 "+source->nick+" :E-Mail   - "+ServerInstance->Config->AdminEmail;
+				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 			}
 		}
 		else
 		{
 			/* Pass it on */
-			User* source = this->Instance->FindNick(prefix);
+			User* source = this->ServerInstance->FindNick(prefix);
 			if (source)
 				Utils->DoOneToOne(prefix, "ADMIN", params, params[0]);
 		}

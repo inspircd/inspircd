@@ -34,7 +34,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 	if (params.size() < 3)
 		return true;
 
-	User* u = this->Instance->FindNick(params[0]);
+	User* u = this->ServerInstance->FindNick(params[0]);
 
 	if (u)
 	{
@@ -50,7 +50,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 				/* buh. UID them */
 				if (!u->ForceNickChange(u->uuid.c_str()))
 				{
-					this->Instance->Users->QuitUser(u, "Nickname collision");
+					this->ServerInstance->Users->QuitUser(u, "Nickname collision");
 					return true;
 				}
 			}

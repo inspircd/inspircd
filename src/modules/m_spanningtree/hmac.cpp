@@ -58,7 +58,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	 * Note: If m_sha256.so is not loaded, we MUST fall back to plaintext with no
 	 *       HMAC challenge/response.
 	 */
-	Module* sha256 = Instance->Modules->Find("m_sha256.so");
+	Module* sha256 = ServerInstance->Modules->Find("m_sha256.so");
 	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
 	{
 		/* XXX: This is how HMAC is supposed to be done:
@@ -89,7 +89,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 		return "HMAC-SHA256:"+ hmac;
 	}
 	else if (!challenge.empty() && !sha256)
-		Instance->Logs->Log("m_spanningtree",DEFAULT,"Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");
+		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");
 
 	return password;
 }
@@ -108,7 +108,7 @@ std::string TreeSocket::RandString(unsigned int ilength)
 	{
 #ifndef WINDOWS
 		if (read(f, randombuf, ilength) < 1)
-			Instance->Logs->Log("m_spanningtree", DEFAULT, "There are crack smoking monkeys in your kernel (in other words, nonblocking /dev/urandom blocked.)");
+			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "There are crack smoking monkeys in your kernel (in other words, nonblocking /dev/urandom blocked.)");
 		close(f);
 #endif
 	}
@@ -135,7 +135,7 @@ bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
 		/* One or both of us specified hmac sha256, but we don't have sha256 module loaded!
 		 * We can't allow this password as valid.
 		  */
-		if (!Instance->Modules->Find("m_sha256.so") || !Utils->ChallengeResponse)
+		if (!ServerInstance->Modules->Find("m_sha256.so") || !Utils->ChallengeResponse)
 			return false;
 		else
 			/* Straight string compare of hashes */
