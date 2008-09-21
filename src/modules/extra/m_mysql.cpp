@@ -679,7 +679,7 @@ class Notifier : public BufferedSocket
 		 * back into an iterator.
 		 */
 
-		if (Instance->SE->Recv(this, &data, 1, 0) > 0)
+		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
 		{
 			Parent->ConnMutex->Lock();
 			ConnMap::iterator iter = GetCharId(data);

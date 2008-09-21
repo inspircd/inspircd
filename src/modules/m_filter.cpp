@@ -420,6 +420,7 @@ void FilterBase::OnRehash(User* user, const std::string &parameter)
 	}
 	rxengine = NULL;
 
+	printf("In Rehash\n");
 	RegexEngine = newrxengine;
 	modulelist* ml = ServerInstance->Modules->FindInterface("RegularExpression");
 	if (ml)
@@ -547,7 +548,6 @@ class ModuleFilter : public FilterBase
 	: FilterBase(Me, "m_filter.so")
 	{
 		OnRehash(NULL,"");
-
 	}
 
 	virtual ~ModuleFilter()
