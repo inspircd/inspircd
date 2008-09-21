@@ -42,15 +42,10 @@ class CoreExport RLine : public XLine
 			throw ModuleException("Regex engine not set or loaded!");
 		}
 
-		try
-		{
-			regex = RegexFactoryRequest(mymodule, rxengine, regexs).Create();
-		}
-		catch (ModuleException& ex)
-		{
-			ServerInstance->SNO->WriteToSnoMask('x', "Bad regex: %s", ex.GetReason());
-			throw ex;
-		}
+		/* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
+		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
+		 */
+		regex = RegexFactoryRequest(mymodule, rxengine, regexs).Create();
 	}
 
 	/** Destructor
@@ -62,28 +57,13 @@ class CoreExport RLine : public XLine
 
 	bool Matches(User *u)
 	{
-		std::string compare = std::string(u->nick) + "!" + u->ident + "@" + u->host + " " + u->fullname;
-
-		ServerInstance->Logs->Log("m_rline",DEBUG, "Matching " + matchtext + " against string " + compare);
-
-		if (regex->Matches(compare))
-		{
-			// Bang. :D
-			return true;
-		}
-
-		return false;
+		std::string compare = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
+		return regex->Matches(compare);
 	}
 
 	bool Matches(const std::string &compare)
 	{
-		if (regex->Matches(compare))
-		{
-			// Bang. :D
-			return true;
-		}
-
-		return false;
+		return regex->Matches(compare);
 	}
 
 	void Apply(User* u)
