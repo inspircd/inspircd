@@ -126,6 +126,7 @@ protected:
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void OnLoadModule(Module* mod, const std::string& name);
+	virtual void ReadFilters(ConfigReader &MyConf) = 0;
 };
 
 class CommandFilter : public Command
@@ -420,7 +421,6 @@ void FilterBase::OnRehash(User* user, const std::string &parameter)
 	}
 	rxengine = NULL;
 
-	printf("In Rehash\n");
 	RegexEngine = newrxengine;
 	modulelist* ml = ServerInstance->Modules->FindInterface("RegularExpression");
 	if (ml)
@@ -453,7 +453,9 @@ void FilterBase::OnLoadModule(Module* mod, const std::string& name)
 			/* Force a rehash to make sure that any filters that couldnt be applied from the conf
 			 * on startup or on load are applied right now.
 			 */
-			OnRehash(NULL, "");
+			ConfigReader Config(ServerInstance);
+			ServerInstance->SNO->WriteToSnoMask('A', "Found and activated regex module '%s' for m_filter.so.", RegexEngine.c_str());
+			ReadFilters(Config);
 		}
 	}
 }
@@ -626,9 +628,12 @@ class ModuleFilter : public FilterBase
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader MyConf(ServerInstance);
-
 		FilterBase::OnRehash(user, parameter);
+		ReadFilters(MyConf);
+	}
 
+	void ReadFilters(ConfigReader &MyConf)
+	{
 		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
 		{
 			this->DeleteFilter(MyConf.ReadValue("keyword", "pattern", index));
@@ -646,11 +651,11 @@ class ModuleFilter : public FilterBase
 			try
 			{
 				filters.push_back(ImplFilter(this, reason, action, gline_time, pattern, flgs));
-				ServerInstance->Logs->Log("m_filter",DEFAULT,"Regular expression %s loaded.", pattern.c_str());
+				ServerInstance->Logs->Log("m_filter", DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 			}
 			catch (ModuleException &e)
 			{
-				ServerInstance->Logs->Log("m_filter",DEFAULT,"Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
+				ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
 			}
 		}
 	}
