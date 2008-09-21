@@ -449,8 +449,11 @@ void FilterBase::OnLoadModule(Module* mod, const std::string& name)
 		std::string rxname = RegexNameRequest(this, mod).Send();
 		if (rxname == RegexEngine)
 		{
-			ServerInstance->SNO->WriteToSnoMask('A', "Filter now using engine '%s'", RegexEngine.c_str());
 			rxengine = mod;
+			/* Force a rehash to make sure that any filters that couldnt be applied from the conf
+			 * on startup or on load are applied right now.
+			 */
+			OnRehash(NULL, "");
 		}
 	}
 }
