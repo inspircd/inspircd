@@ -532,7 +532,6 @@ class ImplFilter : public FilterResult
 
 	ImplFilter()
 	{
-		delete regex;
 	}
 };
 
