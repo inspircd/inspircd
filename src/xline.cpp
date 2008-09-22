@@ -170,7 +170,16 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
 
 	if (DelLine(line->Displayable(), line->type, user, true))
-		return false;
+	{
+		/* Line exists, check if its an expired line */
+		ContainerIter x = lookup_lines.find(line->type);
+		LookupIter i = x->second.find(line->Displayable());
+
+		if (i->second->duration && ServerInstance->Time() > i->second->expiry)
+			ExpireLine(x, i);
+		else
+			return false;
+	}
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
 	XLineFactory* xlf = GetFactory(line->type);

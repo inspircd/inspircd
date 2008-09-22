@@ -58,7 +58,7 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		return true;
 	}
 	xl->SetCreateTime(atoi(params[3].c_str()));
-	if (ServerInstance->XLines->AddLine(xl,NULL))
+	if (ServerInstance->XLines->AddLine(xl, NULL))
 	{
 		if (xl->duration)
 		{
