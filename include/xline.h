@@ -439,7 +439,7 @@ typedef std::map<std::string, XLineFactory*> XLineFactMap;
 
 /** A map of XLines indexed by string
  */
-typedef std::map<std::string, XLine *> XLineLookup;
+typedef std::map<irc::string, XLine *> XLineLookup;
 
 /** A map of XLineLookup maps indexed by string
  */

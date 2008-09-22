@@ -165,20 +165,20 @@ IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 
 bool XLineManager::AddLine(XLine* line, User* user)
 {
-	/*IdentHostPair ih = IdentSplit(hostmask);*/
-
 	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
 
-	if (DelLine(line->Displayable(), line->type, user, true))
+	/* If the line exists, check if its an expired line */
+	ContainerIter x = lookup_lines.find(line->type);
+	if (x != lookup_lines.end())
 	{
-		/* Line exists, check if its an expired line */
-		ContainerIter x = lookup_lines.find(line->type);
 		LookupIter i = x->second.find(line->Displayable());
-
-		if (i->second->duration && ServerInstance->Time() > i->second->expiry)
-			ExpireLine(x, i);
-		else
-			return false;
+		if (i != x->second.end())
+		{
+			if (i->second->duration && ServerInstance->Time() > i->second->expiry)
+				ExpireLine(x, i);
+			else
+				return false;
+		}
 	}
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
