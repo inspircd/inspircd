@@ -1126,6 +1126,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_allowinvite.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_alltime.cpp"
 				>
 				<FileConfiguration
@@ -2746,6 +2758,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_operinvex.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_operjoin.cpp"
 				>
 				<FileConfiguration
@@ -2966,6 +2990,30 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_regex.h"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_regex_glob.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_regonlycreate.cpp"
 				>
 				<FileConfiguration
@@ -3096,6 +3144,18 @@
 						Name="VCCLCompilerTool"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_rline.cpp"
+				>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4090,26 +4150,6 @@
 				</File>
 				<File
 					RelativePath="..\src\modules\extra\m_pgsql.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\src\modules\extra\m_rline.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"

@@ -15,12 +15,12 @@
 #include "m_regex.h"
 #include "xline.h"
 
-static Module* rxengine = 0;
-static Module* mymodule = 0; /* Needed to let RLine send request! */
+static Module* rxengine = NULL;
+static Module* mymodule = NULL; /* Needed to let RLine send request! */
 
 /* $ModDesc: RLINE: Regexp user banning. */
 
-class CoreExport RLine : public XLine
+class RLine : public XLine
 {
  public:
 
@@ -89,16 +89,22 @@ class CoreExport RLine : public XLine
 
 /** An XLineFactory specialized to generate RLine* pointers
  */
-class CoreExport RLineFactory : public XLineFactory
+class RLineFactory : public XLineFactory
 {
  public:
-	RLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "R") { }
+	RLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "R")
+	{
+	}
 
 	/** Generate a RLine
 	 */
 	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
 	{
 		return new RLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+	}
+
+	~RLineFactory()
+	{
 	}
 };
 
