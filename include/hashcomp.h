@@ -593,7 +593,7 @@ BEGIN_HASHMAP_NAMESPACE
 		bool operator()(const irc::string & s1, const irc::string & s2) const
 		{
 			if(s1.length() != s2.length()) return true;
-			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), s1.length()) < 0);
+			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), (size_t)s1.length()) < 0);
 		}
 
 		/** Hash an irc::string value for hash_map
@@ -611,7 +611,7 @@ BEGIN_HASHMAP_NAMESPACE
 		bool operator()(const std::string & s1, const std::string & s2) const
 		{
 			if(s1.length() != s2.length()) return true;
-			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), s1.length()) < 0);
+			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), (size_t)s1.length()) < 0);
 		}
 
 		/** Hash a std::string using RFC1459 case sensitivity rules

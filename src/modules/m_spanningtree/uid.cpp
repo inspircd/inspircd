@@ -12,13 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_whois.h"
-#include "commands/cmd_stats.h"
-#include "socket.h"
-#include "xline.h"
-#include "transport.h"
-#include "m_hash.h"
-#include "socketengine.h"
 
 #include "m_spanningtree/main.h"
 #include "m_spanningtree/utils.h"
