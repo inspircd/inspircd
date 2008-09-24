@@ -63,7 +63,7 @@ class cmd_uninvite : public command_t
 
 		if (!u->IsInvited(xname))
 		{
-			user->WriteServ("491 %s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
+			user->WriteServ("505 %s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
 			return CMD_FAILURE;
 		}
 		if (!c->HasUser(user))
