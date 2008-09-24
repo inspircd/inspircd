@@ -152,6 +152,8 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		 */
 		this->LinkState = CONNECTED;
 
+		Utils->timeoutlist.erase(this);
+
 		TreeServer *Node = new TreeServer(this->Utils, this->ServerInstance, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
 
 		if (Node->DuplicateID())

@@ -173,9 +173,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 					}
 				}
 				this->LinkState = CONNECTED;
-				Link* lnk = Utils->FindLink(InboundServerName);
 
 				Utils->timeoutlist.erase(this);
+
+				Link* lnk = Utils->FindLink(InboundServerName);
 
 				Node = new TreeServer(this->Utils, this->ServerInstance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 
