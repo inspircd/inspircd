@@ -59,7 +59,7 @@ class CommandUninvite : public Command
 
 		if (!u->IsInvited(xname))
 		{
-			user->WriteNumeric(491, "%s %s %s :Is not invited to channel %s", user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
+			user->WriteNumeric(505, "%s %s %s :Is not invited to channel %s", user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
 			return CMD_FAILURE;
 		}
 		if (!c->HasUser(user))
