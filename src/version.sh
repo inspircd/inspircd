@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "InspIRCd-1.2.0a6+Tuxer"
+echo "InspIRCd-1.2.0b1+Jersey"
