@@ -145,7 +145,7 @@ class ModuleSafeList : public Module
 		/*
 		 * start at channel 0! ;)
 		 */
-		ld = new ListData(0,ServerInstance->Time(), pcnt ? parameters[0] : "*", minusers, maxusers);
+		ld = new ListData(0,ServerInstance->Time(), (pcnt && (parameters[0][0] != '<' && parameters[0][0] != '>')) ? parameters[0] : "*", minusers, maxusers);
 		user->Extend("safelist_cache", ld);
 
 		time_t* llt = new time_t;
