@@ -372,7 +372,7 @@ class ModuleChanProtect : public Module
 		// the config option for it is set
 
 		if (FirstInGetsFounder && !chan)
-			privs = QPrefix + "@";
+			privs = std::string(1, QPrefix) + "@";
 
 		return 0;
 	}
