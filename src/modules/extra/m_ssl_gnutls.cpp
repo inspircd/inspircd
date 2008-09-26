@@ -53,6 +53,10 @@ bool isin(int port, const std::vector<int> &portlist)
 class issl_session : public classbase
 {
 public:
+	issl_session()
+	{
+		sess = NULL;
+	}
 	gnutls_session_t sess;
 	issl_status status;
 	std::string outbuf;
