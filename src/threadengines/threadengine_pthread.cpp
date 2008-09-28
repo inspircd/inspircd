@@ -14,6 +14,7 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_pthread.h"
 #include <pthread.h>
+#include <signal.h>
 
 pthread_mutex_t MyMutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -87,6 +88,13 @@ bool PThreadEngine::Mutex(bool enable)
 
 void* PThreadEngine::Entry(void* parameter)
 {
+	/* Recommended by nenolod, signal safety on a per-thread basis */
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, SIGPIPE);
+	if(pthread_sigmask(SIG_BLOCK, &set, NULL))
+		signal(SIGPIPE, SIG_IGN);
+
 	ThreadEngine * pt = (ThreadEngine*)parameter;
 	pt->Run();
 	return NULL;
