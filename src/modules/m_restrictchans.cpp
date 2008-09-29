@@ -57,11 +57,11 @@ class ModuleRestrictChans : public Module
 		if (!IS_LOCAL(user))
 			return 0;
 
-		// user is not an oper and its not in the allow list
-		if ((!IS_OPER(user)) && (allowchans.find(x) == allowchans.end()))
+		// channel does not yet exist (record is null, about to be created IF we were to allow it)
+		if (!chan)
 		{
-			// channel does not yet exist (record is null, about to be created IF we were to allow it)
-			if (!chan)
+			// user is not an oper and its not in the allow list
+			if ((!IS_OPER(user)) && (allowchans.find(x) == allowchans.end()))
 			{
 				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Only IRC operators may create new channels",user->nick.c_str(),cname);
 				return 1;
