@@ -101,6 +101,8 @@ class CGIResolver : public Resolver
 
 			strlcpy(them->host, result.c_str(), 63);
 			strlcpy(them->dhost, result.c_str(), 63);
+			if (querytype)
+				them->SetSockAddr(them->GetProtocolFamily(), result.c_str(), them->GetPort());
 			strlcpy(them->ident, "~cgiirc", 8);
 			them->InvalidateCache();
 		}
@@ -169,6 +171,18 @@ public:
 				if (*ServerInstance->Config->MoronBanner)
 					user->WriteServ("NOTICE %s :*** %s", user->nick, ServerInstance->Config->MoronBanner);
 				snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
+				userrec::QuitUser(ServerInstance, user, reason);
+				return;
+			}
+			
+			ZLine *z = ServerInstance->XLines->matches_zline(user->GetIPString());
+			
+			if (z)
+			{
+				char reason[MAXBUF];
+				if (*ServerInstance->Config->MoronBanner)
+					user->WriteServ("NOTICE %s :*** %s", user->nick, ServerInstance->Config->MoronBanner);
+				snprintf(reason,MAXBUF,"Z-Lined: %s",z->reason);
 				userrec::QuitUser(ServerInstance, user, reason);
 				return;
 			}
@@ -330,18 +344,8 @@ public:
 		}
 		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
 		{
-			bool valid=false;
 			user->RemoveCloneCounts();
-#ifdef IPV6
-			valid = (inet_pton(AF_INET6, webirc_ip->c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0); 
-
-			if(!valid)
-				valid = (inet_aton(webirc_ip->c_str(), &((sockaddr_in*)user->ip)->sin_addr));
-#else
-			if (inet_aton(webirc_ip->c_str(), &((sockaddr_in*)user->ip)->sin_addr))
-				valid = true;
-#endif
-
+			user->SetSockAddr(user->GetProtocolFamily(), webirc_ip->c_str(), user->GetPort());
 			delete webirc_ip;
 			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_ip");
@@ -434,12 +438,7 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 		user->RemoveCloneCounts();
-#ifdef IPV6
-		if (user->GetProtocolFamily() == AF_INET6)
-			inet_pton(AF_INET6, newip, &((sockaddr_in6*)user->ip)->sin6_addr);
-		else
-#endif
-		inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
+		user->SetSockAddr(user->GetProtocolFamily(), newip, user->GetPort());
 		ServerInstance->AddLocalClone(user);
 		ServerInstance->AddGlobalClone(user);
 		user->CheckClass();
