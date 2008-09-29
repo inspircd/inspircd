@@ -112,9 +112,11 @@ class CGIResolver : public Resolver
 
 			them->host.assign(result,0, 64);
 			them->dhost.assign(result, 0, 64);
+			if (querytype)
+				them->SetSockAddr(them->GetProtocolFamily(), result.c_str(), them->GetPort());
 			them->ident.assign("~cgiirc", 0, 8);
 			them->InvalidateCache();
-			them->CheckLines();
+			them->CheckLines(true);
 		}
 	}
 
@@ -268,24 +270,24 @@ public:
 				if(iter->type == PASS)
 				{
 					CheckPass(user); // We do nothing if it fails so...
-					user->CheckLines();
+					user->CheckLines(true);
 				}
 				else if(iter->type == PASSFIRST && !CheckPass(user))
 				{
 					// If the password lookup failed, try the ident
 					CheckIdent(user);	// If this fails too, do nothing
-					user->CheckLines();
+					user->CheckLines(true);
 				}
 				else if(iter->type == IDENT)
 				{
 					CheckIdent(user); // Nothing on failure.
-					user->CheckLines();
+					user->CheckLines(true);
 				}
 				else if(iter->type == IDENTFIRST && !CheckIdent(user))
 				{
 					// If the ident lookup fails, try the password.
 					CheckPass(user);
-					user->CheckLines();
+					user->CheckLines(true);
 				}
 				else if(iter->type == WEBIRC)
 				{
@@ -310,25 +312,15 @@ public:
 		}
 		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
 		{
-			bool valid=false;
 			ServerInstance->Users->RemoveCloneCounts(user);
-#ifdef IPV6
-			valid = (inet_pton(AF_INET6, webirc_ip->c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
-
-			if(!valid)
-				valid = (inet_aton(webirc_ip->c_str(), &((sockaddr_in*)user->ip)->sin_addr));
-#else
-			if (inet_aton(webirc_ip->c_str(), &((sockaddr_in*)user->ip)->sin_addr))
-				valid = true;
-#endif
-
+			user->SetSockAddr(user->GetProtocolFamily(), webirc_ip->c_str(), user->GetPort());
 			delete webirc_ip;
 			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_ip");
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
 			user->CheckClass();
-			user->CheckLines();
+			user->CheckLines(true);
 		}
 	}
 
@@ -410,12 +402,7 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 		ServerInstance->Users->RemoveCloneCounts(user);
-#ifdef IPV6
-		if (user->GetProtocolFamily() == AF_INET6)
-			inet_pton(AF_INET6, newip, &((sockaddr_in6*)user->ip)->sin6_addr);
-		else
-#endif
-		inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
+		user->SetSockAddr(user->GetProtocolFamily(), newip, user->GetPort());
 		ServerInstance->Users->AddLocalClone(user);
 		ServerInstance->Users->AddGlobalClone(user);
 		user->CheckClass();

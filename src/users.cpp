@@ -842,10 +842,10 @@ void User::CheckClass()
 	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
 }
 
-bool User::CheckLines()
+bool User::CheckLines(bool doZline)
 {
-	const char* check[] = { "G" , "K", NULL };
-
+	const char* check[] = { "G" , "K", (doZline) ? "Z" : NULL, NULL };
+	
 	if (!this->exempt)
 	{
 		for (int n = 0; check[n]; ++n)

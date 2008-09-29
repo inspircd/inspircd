@@ -708,9 +708,10 @@ class CoreExport User : public EventHandler
 	User(InspIRCd* Instance, const std::string &uid = "");
 
 	/** Check if the user matches a G or K line, and disconnect them if they do.
+	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
 	 * Returns true if the user matched a ban, false else.
 	 */
-	bool CheckLines();
+	bool CheckLines(bool doZline = false);
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
