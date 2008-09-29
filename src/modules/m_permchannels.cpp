@@ -107,9 +107,9 @@ public:
 			std::string topic = MyConf.ReadValue("permchannels", "topic", i);
 			std::string modes = MyConf.ReadValue("permchannels", "modes", i);
 
-			if (channel.empty() || topic.empty())
+			if (channel.empty())
 			{
-				ServerInstance->Logs->Log("blah", DEBUG, "Malformed permchannels tag with empty topic or channel name.");
+				ServerInstance->Logs->Log("blah", DEBUG, "Malformed permchannels tag with empty channel name.");
 				continue;
 			}
 
@@ -118,7 +118,8 @@ public:
 			if (!c)
 			{
 				c = new Channel(ServerInstance, channel, ServerInstance->Time());
-				c->SetTopic(NULL, topic, true);
+				if (!topic.empty())
+					c->SetTopic(NULL, topic, true);
 				ServerInstance->Logs->Log("blah", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
 				if (modes.empty())
