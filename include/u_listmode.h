@@ -168,7 +168,7 @@ class ListModeBase : public ModeHandler
 		{
 			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 			{
-				user->WriteServ("%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
+				user->WriteServ("%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), (it->nick.length() ? it->nick.c_str() : ServerInstance->Config->ServerName), it->time.c_str());
 			}
 		}
 		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
