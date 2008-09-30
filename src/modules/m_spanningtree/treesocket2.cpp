@@ -534,13 +534,17 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * Not a special s2s command. Emulate the user doing it.
 				 * This saves us having a huge ugly command parser again.
 				 */
-				User *who = this->ServerInstance->FindUUID(prefix);
+				User* who = this->ServerInstance->FindUUID(prefix);
 
 				if (!who)
 				{
-					// this looks ugly because command is an irc::string
-					this->SendError("Command (" + std::string(command.c_str()) + ") from unknown prefix (" + prefix + ")! Dropping link.");
-					return false;
+					/* this looks ugly because command is an irc::string
+					 * It is important that we dont close the link here, unknown prefix can occur
+					 * due to various race conditions such as the KILL message for a user somehow
+					 * crossing the users QUIT further upstream from the server. Thanks jilles!
+					 */
+					ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Command " + std::string(command.c_str()) + " from unknown prefix " + prefix + "! Dropping entire command.");
+					return true;
 				}
 
 				if (command == "NICK")

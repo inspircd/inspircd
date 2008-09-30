@@ -120,7 +120,12 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 				if (paramptr < params.size() - 1)
 					mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
 				else
-					ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, expected a parameter for user mode '%c' but there aren't enough parameters in the command!", *v);
+				{
+					this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Broken UID command, expected a parameter for user mode '"+(*v)+"' but there aren't enough parameters in the command!");
+					this->ServerInstance->Users->clientlist->erase(params[0]);
+					delete _new;
+					return true;
+				}
 			}
 			else
 				mh->OnModeChange(_new, _new, NULL, empty, true);
@@ -128,7 +133,12 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 			mh->ChangeCount(1);
 		}
 		else
-			ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Warning: Broken UID command, unknown user mode '%c' in the mode string!", *v);
+		{
+			this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Warning: Broken UID command, unknown user mode '"+(*v)+"' in the mode string!");
+			this->ServerInstance->Users->clientlist->erase(params[0]);
+			delete _new;
+			return true;
+		}
 	}
 
 	//_new->ProcessNoticeMasks(params[7].c_str());
