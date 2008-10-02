@@ -63,8 +63,8 @@ class ModuleAuditorium : public Module
 
 		OnRehash(NULL, "");
 
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnRehash };
-		Me->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnRehash, I_OnHostCycle };
+		Me->Modules->Attach(eventlist, this, 7);
 
 	}
 
