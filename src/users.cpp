@@ -1606,6 +1606,9 @@ bool User::ChangeDisplayedHost(const char* shost)
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,shost));
 	}
 
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
+
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("QUIT :Changing hosts");
 
@@ -1614,7 +1617,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 
 	this->InvalidateCache();
 
-	if (this->ServerInstance->Config->CycleHosts)
+	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
 	{
 		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 		{
@@ -1633,8 +1636,11 @@ bool User::ChangeDisplayedHost(const char* shost)
 
 bool User::ChangeIdent(const char* newident)
 {
-	if (!this->ident.compare(newident))
+	if (this->ident == newident)
 		return true;
+
+        int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
 
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
@@ -1643,7 +1649,7 @@ bool User::ChangeIdent(const char* newident)
 
 	this->InvalidateCache();
 
-	if (this->ServerInstance->Config->CycleHosts)
+	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
 	{
 		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 		{

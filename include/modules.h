@@ -400,7 +400,7 @@ enum Implementation
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
-	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookUserIO,
+	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookUserIO, I_OnHostCycle,
 	I_END
 };
 
@@ -1385,6 +1385,12 @@ class CoreExport Module : public Extensible
 	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
 
 	virtual int OnNumeric(User* user, unsigned int numeric, const std::string &text);
+
+	/** Called for every time the user's host or ident changes, to indicate wether or not the 'Changing host'
+	 * message should be sent, if enabled. Certain modules such as auditorium may opt to hide this message
+	 * even if it is enabled.
+	 */
+	virtual bool OnHostCycle(User* user);
 };
 
 

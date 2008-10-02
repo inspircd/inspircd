@@ -196,6 +196,7 @@ void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, User*, Channel*, std::string&, std::string&) { }
 int		Module::OnNumeric(User*, unsigned int, const std::string&) { return 0; }
 void		Module::OnHookUserIO(User*, const std::string&) { }
+bool		Module::OnHostCycle(User* user) { return false; }
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
 {

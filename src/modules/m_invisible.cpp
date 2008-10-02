@@ -187,6 +187,7 @@ class ModuleInvisible : public Module
 	virtual void OnRehash(User* user, const std::string &parameter);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
+	bool OnHostCycle(User* user);
 	/* No privmsg response when hiding - submitted by Eric at neowin */
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
@@ -248,6 +249,11 @@ void ModuleInvisible::OnUserQuit(User* user, const std::string &reason, const st
 			}
 		}
 	}
+}
+
+bool ModuleInvisible::OnHostCycle(User* user)
+{
+	return user->IsModeSet('Q');
 }
 
 /* No privmsg response when hiding - submitted by Eric at neowin */

@@ -157,6 +157,15 @@ class ModuleAuditorium : public Module
 		}
 	}
 
+	bool OnHostCycle(User* user)
+	{
+		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
+			if (f->first->IsModeSet('u'))
+				return true;
+
+		return false;
+	}
+
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
