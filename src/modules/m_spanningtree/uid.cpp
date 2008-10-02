@@ -117,6 +117,15 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		{
 			if (mh->GetNumParams(true))
 			{
+				/* IMPORTANT NOTE:
+				 * All modes are assumed to succeed here as they are being set by a remote server.
+				 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
+				 * to note as all but one modules currently cannot ever fail in this situation, except for
+				 * m_servprotect which specifically works this way to prevent the mode being set ANYWHERE
+				 * but here, at client introduction. You may safely assume this behaviour is standard and
+				 * will not change in future versions if you want to make use of this protective behaviour
+				 * yourself.
+				 */
 				if (paramptr < params.size() - 1)
 					mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
 				else
