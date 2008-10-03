@@ -1609,7 +1609,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
 
-	if (this->ServerInstance->Config->CycleHosts)
+	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
 		this->WriteCommonExcept("QUIT :Changing hosts");
 
 	/* Fix by Om: User::dhost is 65 long, this was truncating some long hosts */
@@ -1642,7 +1642,7 @@ bool User::ChangeIdent(const char* newident)
         int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
 
-	if (this->ServerInstance->Config->CycleHosts)
+	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
 
 	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax + 1);
