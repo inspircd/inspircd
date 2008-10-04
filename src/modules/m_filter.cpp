@@ -563,12 +563,13 @@ class ModuleFilter : public FilterBase
 		for (std::vector<ImplFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 		{
 			/* Skip ones that dont apply to us */
-
 			if (!FilterBase::AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flgs))
 				continue;
 
+			//ServerInstance->Logs->Log("m_filter", DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
 			if (index->regex->Matches(text))
 			{
+				//ServerInstance->Logs->Log("m_filter", DEBUG, "MATCH");
 				fr = *index;
 				if (index != filters.begin())
 				{
@@ -578,6 +579,7 @@ class ModuleFilter : public FilterBase
 				}
 				return &fr;
 			}
+			//ServerInstance->Logs->Log("m_filter", DEBUG, "NO MATCH");
 		}
 		return NULL;
 	}

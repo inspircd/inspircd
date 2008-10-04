@@ -30,7 +30,7 @@ public:
 
 	virtual bool Matches(const std::string& text)
 	{
-		return InspIRCd::Match(this->regex_string, text);
+		return InspIRCd::Match(text, this->regex_string);
 	}
 };
 
