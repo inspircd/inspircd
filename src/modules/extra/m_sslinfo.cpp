@@ -12,11 +12,7 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "transport.h"
-#include "dns.h"
 
 /* $ModDesc: Provides /sslinfo command used to test who a mask matches */
 /* $ModDep: transport.h */

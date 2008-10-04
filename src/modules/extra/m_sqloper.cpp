@@ -12,11 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
-
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
 #include "m_hash.h"

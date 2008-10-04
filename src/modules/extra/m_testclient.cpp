@@ -12,10 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
 #include "m_sqlv2.h"
 
 class ModuleTestClient : public Module

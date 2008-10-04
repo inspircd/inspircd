@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "rpc.h"
 
 /* $ModDesc: A test of the RPC API */

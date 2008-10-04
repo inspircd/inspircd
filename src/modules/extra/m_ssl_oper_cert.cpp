@@ -15,10 +15,6 @@
 /* $ModDep: transport.h */
 
 #include "inspircd.h"
-#include "inspircd_config.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "transport.h"
 
 /** Handle /FINGERPRINT

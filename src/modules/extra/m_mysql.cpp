@@ -16,9 +16,6 @@
 
 #include "inspircd.h"
 #include <mysql.h>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "m_sqlv2.h"
 
 #ifdef WINDOWS

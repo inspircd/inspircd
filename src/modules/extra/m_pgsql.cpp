@@ -15,10 +15,6 @@
 #include <cstdlib>
 #include <sstream>
 #include <libpq-fe.h>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
 #include "m_sqlv2.h"
 
 /* $ModDesc: PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API */

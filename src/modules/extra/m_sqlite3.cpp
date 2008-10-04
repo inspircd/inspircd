@@ -13,9 +13,6 @@
 
 #include "inspircd.h"
 #include <sqlite3.h>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "m_sqlv2.h"
 
 /* $ModDesc: sqlite3 provider */
