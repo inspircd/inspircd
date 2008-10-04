@@ -12,18 +12,8 @@
  */
 
 #include "inspircd.h"
-
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-
-#include "configreader.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-
-#include "socket.h"
-#include "hashcomp.h"
-
 #include "transport.h"
 
 #ifdef WINDOWS

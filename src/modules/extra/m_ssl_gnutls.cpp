@@ -12,17 +12,8 @@
  */
 
 #include "inspircd.h"
-
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
-
-#include "inspircd_config.h"
-#include "configreader.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "socket.h"
-#include "hashcomp.h"
 #include "transport.h"
 #include "m_cap.h"
 
