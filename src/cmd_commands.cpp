@@ -26,8 +26,8 @@ CmdResult cmd_commands::Handle (const char** parameters, int pcnt, userrec *user
 {
 	for (command_table::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
-		user->WriteServ("902 %s :%s %s %d",user->nick,i->second->command.c_str(),i->second->source.c_str(),i->second->min_params);
+		user->WriteServ("702 %s :%s %s %d",user->nick,i->second->command.c_str(),i->second->source.c_str(),i->second->min_params);
 	}
-	user->WriteServ("903 %s :End of COMMANDS list",user->nick);
+	user->WriteServ("704 %s :End of COMMANDS list",user->nick);
 	return CMD_SUCCESS;
 }
