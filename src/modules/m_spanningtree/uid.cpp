@@ -48,11 +48,20 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Unknown server "+source+")");
 		return true;
 	}
-
 	/* Check parameters for validity before introducing the client, discovered by dmb */
-	if (!age_t)
+	else if (!age_t)
 	{
 		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
+		return true;
+	}
+	else if (!signon)
+	{
+		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid signon?)");
+		return true;
+	}
+	else if (params[8][0] != '+')
+	{
+		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Malformed MODE sequence?)");
 		return true;
 	}
 
