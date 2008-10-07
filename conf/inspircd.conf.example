@@ -22,6 +22,9 @@
 #                                                                      #
 #     $Id$     #
 #                                                                      #
+# If you would like more detailed options, but a slightly more         #
+# painful configuration, please see inspircd.conf.example.old	       #
+#								       #
 #    ____                _   _____ _     _       ____  _ _   _         #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |        #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |        #
@@ -39,45 +42,42 @@
 #                                                                      #
 ########################################################################
 
+#-#-#-#-#-#-#-#-#-#  INCLUDE CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This optional tag allows you to include another config file         #
+# allowing you to keep your configuration tidy. The configuration     #
+# file you include will be treated as part of the configuration file  #
+# which includes it, in simple terms the inclusion is transparent.    #
+#                                                                     #
+# All paths to config files are relative to the directory of the main #
+# config file inspircd.conf, unless the filename starts with a forward#
+# slash (/) in which case it is treated as an absolute path.          #
+#                                                                     #
+# You may also include an executable file, in which case if you do so #
+# the output of the executable on the standard output will be added   #
+# to your config at the point of the include tag.                     #
+#                                                                     #
+# Syntax is as follows:                                               #
+#<include file="file.conf">                                           #
+#<include executable="/path/to/executable parameters">                #
+#                                                                     #
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
 #   Here is where you enter the information about your server.        #
 #                                                                     #
-#  Syntax is as follows:                                              #
-#                                                                     #
-#     <server name="server.name"                                      #
-#      description="Server Description"                               #
-#      id="serverid"                                                  #
-#      network="MyNetwork">                                           #
-#                                                                     #
-#  The server name should be a syntactically valid hostname, with at  #
-#  least one '.', and does not need to resolve to an IP address.      #
-#                                                                     #
-#  The description is freeform text. Remember you may put quotes in   #
-#  this field by escaping it using \".                                #
-#                                                                     #
-#  The network field indicates the network name given in on connect   #
-#  to clients. It is used by many clients such as mIRC to select a    #
-#  perform list, so it should be identical on all servers on a net    #
-#  and should not contain spaces.                                     #
-#                                                                     #
-#  The server ID is optional, and if omitted automatically calculated # 
-#  from the server name and description. This is similar in           #
-#  in behaviour to the server id on ircu and charybdis ircds.         #
-#  You should only need to set this manually if there is a collision  #
-#  between two server ID's on the network. The server ID must be      #
-#  three digits or letters long, of which the first digit must always #
-#  be a number, and the other two letters may be any of 0-9 and A-Z.  #
-#  For example, 3F9, 03J and 666 are all valid server IDs, and A9D,   #
-#  QFX and 5eR are not. Remember, in most cases you will not need to  #
-#  even set this value, it is calculated for you from your server     #
-#  name and description. Changing these will change your auto-        #
-#  generated ID.                                                      #
-#                                                                     #
 
-<server name="penguin.omega.org.za"
+<server 
+        # name: Hostname of your server. Does not need to be valid.
+        name="penguin.omega.org.za"
+
+        # description: Server description. Spaces are allowed.
         description="Waddle World"
+
+        # network: Network name given on connect to clients.
+        # Should be the same on all servers on the network and
+        # not contain spaces.
         network="Omega">
 
 
@@ -198,26 +198,6 @@
 
 <power diepass="" restartpass="" pause="2">
 
-
-#-#-#-#-#-#-#-#-#-#  INCLUDE CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# This optional tag allows you to include another config file         #
-# allowing you to keep your configuration tidy. The configuration     #
-# file you include will be treated as part of the configuration file  #
-# which includes it, in simple terms the inclusion is transparent.    #
-#                                                                     #
-# All paths to config files are relative to the directory of the main #
-# config file inspircd.conf, unless the filename starts with a forward#
-# slash (/) in which case it is treated as an absolute path.          #
-#                                                                     #
-# You may also include an executable file, in which case if you do so #
-# the output of the executable on the standard output will be added   #
-# to your config at the point of the include tag.                     #
-#                                                                     #
-# Syntax is as follows:                                               #
-#<include file="file.conf">                                           #
-#<include executable="/path/to/executable parameters">                #
-#                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -366,310 +346,13 @@
 	ipv4clone="32"
 	ipv6clone="128">
 
-#-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
-#                                                                     #
-#   Classes are a group of commands which are grouped together and    #
-#   given a unique name. They're used to define which commands        #
-#   are available to certain types of Operators.                      #
-#                                                                     #
-#  Syntax is as follows:                                              #
-#                                                                     #
-#       <class name="name" commands="oper commands"                   #
-#       usermodes="allowed oper only usermodes"                       #
-#       chanmodes="allowed oper only channelmodes">                   #
-#                                                                     #
-# The name value indicates a name for this class.                     #
-# The commands value indicates a list of one or more commands that    #
-# are allowed by this class (see also 'READ THIS BIT' below).         #
-# The usermodes and chanmodes values indicate lists of usermodes and  #
-# channel modes this oper can execute. This only applies to modes     #
-# that are marked oper-only such as usermode +Q and channelmode +O.   #
-#    ____                _   _____ _     _       ____  _ _   _        #
-#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
-#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
-#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
-#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
-#                                                                     #
-#  You are not forced to give these classes the names given below.    #
-#  You can create your own named classes, if you want, in fact that   #
-#  is the whole idea of this system!                                  #
-#                                                                     #
-#  Note: It is possible to make a class which covers all available    #
-#  commands. To do this, specify commands="*". This is not really     #
-#  recommended, as it negates the whole purpose of the class system,  #
-#  however it is provided for fast configuration (e.g. in test nets)  #
-#                                                                     #
+# This file has all the information about oper classes, types and o:lines.
+# You *MUST* edit it.
+<include file="opers.conf.example">
 
-<class name="Shutdown" commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD" usermodes="*" chanmodes="*">
-<class name="ServerLink" commands="CONNECT SQUIT RCONNECT MKPASSWD MKSHA256" usermodes="*" chanmodes="*">
-<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE" usermodes="*" chanmodes="*">
-<class name="OperChat" commands="WALLOPS GLOBOPS SETIDLE SPYLIST SPYNAMES" usermodes="*" chanmodes="*">
-<class name="HostCloak" commands="SETHOST SETIDENT SETNAME CHGHOST CHGIDENT" usermodes="*" chanmodes="*">
-
-
-#-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-#   This is where you specify which types of operators you have on    #
-#   your server, as well as the commands they are allowed to use.     #
-#   This works alongside with the classes specified above.            #
-#                                                                     #
-#  type name  - A name for the combined class types.                  #
-#               a type name cannot contain spaces, however if you     #
-#               put an _ symbol in the name, it will be translated    #
-#               to a space when displayed in a WHOIS.                 #
-#                                                                     #
-#  classes    - Specified above, used for flexibility for the         #
-#               server admin to decide on which operators get         #
-#               what commands. Class names are case sensitive,        #
-#               separate multiple class names with spaces.            #
-#                                                                     #
-#  host       - Optional hostmask operators will receive on oper-up.  #
-#                                                                     #
-#  Syntax is as follows:                                              #
-#                                                                     #
-#     <type name="name" classes="class names" host="oper hostmask">   #
-#                                                                     #
-#    ____                _   _____ _     _       ____  _ _   _        #
-#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
-#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
-#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
-#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
-#                                                                     #
-#  You are not forced to give these types the names given below.      #
-#  You can create your own named types, if you want, in fact that     #
-#  is the whole idea of this system!                                  #
-#                                                                     #
-
-<type name="NetAdmin" classes="OperChat BanControl HostCloak Shutdown ServerLink" host="netadmin.omega.org.za">
-<type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
-<type name="Helper" classes="HostCloak" host="helper.omega.org.za">
-
-
-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-#   Opers are defined here. This is a very important section.         #
-#   Remember to only make operators out of trust worthy people.       #
-#                                                                     #
-#  name        - Oper name, this is case sensitive, so it is best to  #
-#                use lower-case.                                      #
-#                                                                     #
-#  password    - Password to oper-up, also case sensitive.            #
-#                encryption is supported via modules. You may load    #
-#                modules for MD5 or SHA256 encryption, and if you do, #
-#                this value will be a hash value, otherwise put a     #
-#                plaintext password in this value.                    #
-#                                                                     #
-#  host        - Hosts of client allowed to oper-up.                  #
-#                wildcards accepted, separate multiple hosts with a   #
-#                space. You may also specify CIDR IP addresses.       #
-#                                                                     #
-#  fingerprint - When using the m_ssl_oper_cert.so module, you may    #
-#                specify a key fingerprint here. This can be obtained #
-#                using the /fingerprint command whilst the module is  #
-#                loaded, or from the notice given to you when you     #
-#                connect to the ircd using a client certificate,      #
-#                and will lock this oper block to only the user who   #
-#                has that specific key/certificate pair.              #
-#                this enhances security a great deal, however it      #
-#                requires that opers use clients which can send ssl   #
-#                client certificates, if this is configured for that  #
-#                oper. Note that if the m_ssl_oper.so module is not   #
-#                loaded, and/or one of m_ssl_openssl or m_ssl_gnutls  #
-#                is not loaded, this configuration option has no      #
-#                effect and will be ignored.                          #
-#                                                                     #
-#  type        - Defines the kind of operator. This must match a type #
-#                tag you defined above, and is case sensitive.        #
-#                                                                     #
-#  Syntax is as follows:                                              #
-#       <oper name="login"                                            #
-#             password="pass"                                         #
-#             host="hostmask@of.oper"                                 #
-#             fingerprint="hexsequence"                               #
-#             type="oper type">                                       #
-#                                                                     #
-
-<oper name="Brain"
-      password="s3cret"
-      host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
-      type="NetAdmin">
-
-
-#-#-#-#-#-#-#-#-#-#-#-  SERVER LINK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# Defines which servers can link to this one, and which servers this  #
-# server may create outbound links to.                                #
-#                                                                     #
-# name        -   The name is the canonical name of the server, does   #
-#                 not have to resolve - but it is expected to be set  #
-#                 in the remote servers connection info.              #
-#                                                                     #
-# ipaddr      -   Valid host or IP address for remote server. These   #
-#                 hosts are resolved on rehash, and cached, if you    #
-#                 specify a hostname; so if you find that your server #
-#                 is still trying to connect to an old IP after you   #
-#                 have updated your DNS, try rehashing and then       #
-#                 attempting the connect again.                       #
-#                                                                     #
-# port        -   The TCP port for the remote server.                 #
-#                                                                     #
-# sendpass    -   Password to send to create an outbound connection   #
-#                 to this server.                                     #
-#                                                                     #
-# recvpass    -   Password to receive to accept an inbound connection #
-#                 from this server.                                   #
-#                                                                     #
-# autoconnect -   Sets the server to autoconnect. Where x is the num. #
-# (optional)      of seconds between attempts. e.g. 300 = 5 minutes.  #
-#                                                                     #
-# transport     - If defined, this is a transport name implemented by #
-#                 another module. Transports are layers on top of     #
-#                 plaintext connections, which alter them in certain  #
-#                 ways. Currently the three supported transports are  #
-#                 'openssl' and 'gnutls' which are types of SSL       #
-#                 encryption, and 'zip' which is for compression.     #
-#                 If you define a transport, both ends of the         #
-#                 connection must use a compatible transport for the  #
-#                 link to succeed. OpenSSL and GnuTLS are link-       #
-#                 compatible with each other.                         #
-#                                                                     #
-# statshidden   - When using m_spanningtree.so for linking. you may   #
-#                 set this to 'yes', and if you do, the IP address/   #
-#                 hostname of this connection will NEVER be shown to  #
-#                 any opers on the network. In /stats c its address   #
-#                 will show as *@<hidden>, and during CONNECT and     #
-#                 inbound connections, it's IP will show as <hidden>  #
-#                 UNLESS the connection fails (e.g. due to a bad      #
-#                 password or servername)                             #
-#                                                                     #
-# allowmask     - When this is defined, it indicates a range of IP    #
-#                 addresses to allow for this link (You may use CIDR  #
-#                 or wildcard form for this address).                 #
-#                 e.g. if your server is going to connect to you from #
-#                 the range 1.2.3.1 through 1.2.3.255, put 1.2.3.0/24 #
-#                 into this value. If it is not defined, then only    #
-#                 the ipaddr field of the server shall be allowed.    #
-#                                                                     #
-# failover      - If you define this option, it must be the name of a #
-#                 different link tag in your configuration. This      #
-#                 option causes the ircd to attempt a connection to   #
-#                 the failover link in the event that the connection  #
-#                 to this server fails. For example, you could define #
-#                 two hub uplinks to a leaf server, and set an        #
-#                 american server to autoconnect, with a european     #
-#                 hub as its failover. In this situation, your ircd   #
-#                 will only try the link to the european hub if the   #
-#                 american hub is unreachable. NOTE that for the      #
-#                 intents and purposes of this option, an unreachable #
-#                 server is one which DOES NOT ANSWER THE CONNECTION. #
-#                 If the server answers the connection with accept(), #
-#                 EVEN IF THE CREDENTIALS ARE INVALID, the failover   #
-#                 link will not be tried! Failover settings will also #
-#                 apply to autoconnected servers as well as manually  #
-#                 connected ones.                                     #
-#                                                                     #
-# timeout       - If this is defined, then outbound connections will  #
-#                 time out if they are not connected within this many #
-#                 seconds. If this is not defined, the default of ten #
-#                 seconds is used.                                    #
-#                                                                     #
-# bind          - If you specify this value, then when creating an    #
-#                 outbound connection to the given server, the IP you #
-#                 place here will be bound to. This is for multi-     #
-#                 homed servers which may have multiple IP addresses. #
-#                 if you do not define this value, the first IP that  #
-#                 is not empty or localhost from your <bind> tags     #
-#                 will be bound to. This is usually acceptable,       #
-#                 however if your server has multiple network cards   #
-#                 then you may have to manually specify the bind      #
-#                 value instead of leaving it to automatic binding.   #
-#                 you can usually tell if you need to set this by     #
-#                 looking for the error 'Could not assign requested   #
-#                 address' in your log when connecting to servers.    #
-#                                                                     #
-# hidden        - If this is set to true, yes, or 1, then the server  #
-#                 is completely hidden from non-opers. It does not    #
-#                 show in /links and it does not show in /map. Also,  #
-#                 any servers which are child servers of this one     #
-#                 in the network will *also* be hidden. Use with      #
-#                 care! You can use this to 'mask off' sections of    #
-#                 the network so that users only see a small portion  #
-#                 of a much larger net. It should NOT be relied upon  #
-#                 as a security tool, unless it is being used for     #
-#                 example to hide a non-client hub, for which clients #
-#                 do not have an IP address or resolvable hostname.   #
-#                                                                     #
-# To u:line a server (give it extra privileges required for running   #
-# services, Q, etc) you must include the <uline server> tag as shown  #
-# in the example below. You can have as many of these as you like.    #
-#                                                                     #
-# WARNING: Unlike other ircds, u:lining a server allows ALL users on  #
-# that server to operoverride modes. This should only be used for     #
-# services and protected oper servers!                                #
-#                                                                     #
-# ------------------------------------------------------------------- #
-#                                                                     #
-# NOTE: If you have built your server as an IPv6 server, then when a  #
-# DNS lookup of a server's host occurs, AAAA records (IPv6) are       #
-# prioritised over A records (IPv4). Therefore, if the server you are #
-# connecting to has both an IPv6 IP address and an IPv4 IP address in #
-# its DNS entry, the IPv6 address will *always* be selected. To       #
-# change this behaviour simply specify the IPv4 IP address rather     #
-# than the hostname of the server.                                    #
-#                                                                     #
-# ------------------------------------------------------------------- #
-#                                                                     #
-#    ____                _   _____ _     _       ____  _ _   _        #
-#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
-#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
-#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
-#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
-#                                                                     #
-#  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module! Please see the modules list below for    #
-#  information on how to load this module! If you do not load this    #
-#  module, server links will NOT work!                                #
-#                                                                     #
-#  Also, if you define any transports, you must load the modules for  #
-#  these transports BEFORE you load m_spanningtree, e.g. place them   #
-#  above it in the configuration file. Currently this means the three #
-#  modules m_ssl_gnutls, m_ziplinks and m_ssl_openssl, depending on   #
-#  which you choose to use.                                           #
-#                                                                     #
-
-<link name="hub.penguin.org"
-      ipaddr="penguin.box.com"
-      port="7000"
-      allowmask="69.58.44.0/24"
-      autoconnect="300"
-      failover="hub.other.net"
-      timeout="15"
-      transport="gnutls"
-      bind="1.2.3.4"
-      statshidden="no"
-      hidden="no"
-      sendpass="outgoing!password"
-      recvpass="incoming!password">
-
-<link name="services.antarctic.com"
-      ipaddr="localhost"
-      port="7000"
-      allowmask="127.0.0.0/8"
-      sendpass="penguins"
-      recvpass="polarbears">
-
-
-#-#-#-#-#-#-#-#-#-#-#-#- ULINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
-# This tag defines a ulined server. A U-Lined server has special      #
-# permissions, and should be used with caution. Services servers are  #
-# usually u-lined in this manner.                                     #
-#                                                                     #
-# The 'silent' value, if set to yes, indicates that this server should#
-# not generate quit and connect notices, which can cut down on noise  #
-# to opers on the network.                                            #
-#                                                                     #
-<uline server="services.antarctic.com" silent="yes">
-
+# This file has all the information about server links and ulined servers.
+# You *MUST* edit it if you intend to link servers.
+<include file="links.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #

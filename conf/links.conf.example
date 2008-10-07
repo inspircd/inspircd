@@ -1,0 +1,111 @@
+#-#-#-#-#-#-#-#-#-#-#-  SERVER LINK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Defines which servers can link to this one, and which servers this  #
+# server may create outbound links to.                                #
+#								      #
+# If you would like more detailed options, but a slightly more        #
+# painful configuration, please see inspircd.conf.example.old	      #
+#								      #
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+#  If you want to link servers to InspIRCd you must load the          #
+#  m_spanningtree.so module! Please see the modules list below for    #
+#  information on how to load this module! If you do not load this    #
+#  module, server links will NOT work!                                #
+#                                                                     #
+#  Also, if you define any transports, you must load the modules for  #
+#  these transports BEFORE you load m_spanningtree, e.g. place them   #
+#  above it in the configuration file. Currently this means the three #
+#  modules m_ssl_gnutls, m_ziplinks and m_ssl_openssl, depending on   #
+#  which you choose to use.                                           #
+#                                                                     #
+
+<link name="hub.penguin.org"
+
+      # ipaddr: The IP address of the remote server. 
+      # Can also be a hostname, but hostname must resolve.
+      ipaddr="penguin.box.com"
+
+      # port: the port to connect to this server on
+      port="7000"
+
+      # allowmask: Range of IP addresses to allow for this link.
+      # Can be a CIDR (see example).
+      allowmask="69.58.44.0/24"
+
+      # autoconnect: Time to wait to attempt to autoconnect
+      # to remote server (in seconds).
+      autoconnect="300"
+
+      # failover: If defined, if this link fails, 
+      # what is the next link that is tried.
+      failover="hub.other.net"
+
+      # timeout: If defined, this option defines how long the server
+      # will wait to consider the connect attempt failed and try the
+      # failover (see above).
+      timeout="15"
+
+      # transport: If defined, this states extra modules that can be
+      # used in the connection. Options are: "openssl" and "gnutls"
+      # for encryption (they are compatible with each other) and
+      # "zip" for compression. You must use the same (or a compa-
+      # tible) transport on both sides of the link.
+      transport="gnutls"
+
+      # bind: Local IP address to bind to.
+      bind="1.2.3.4"
+
+      # statshidden: defines if IP is shown to opers when
+      # /stats c is invoked.
+      statshidden="no"
+
+      # hidden: If this is set to yes, this server and it's "child"
+      # servers will not be shown when users do a /map or /links
+      hidden="no"
+
+      # passwords: the passwords we send and recieve.
+      # The remote server will have these passwords reversed.
+      sendpass="outgoing!password"
+      recvpass="incoming!password">
+
+# A duplicate of the first link block without comments
+# if you like copying & pasting.
+<link name="hub.penguin.org"
+      ipaddr="penguin.box.com"
+      port="7000"
+      allowmask="69.58.44.0/24"
+      autoconnect="300"
+      failover="hub.other.net"
+      timeout="15"
+      transport="gnutls"
+      bind="1.2.3.4"
+      statshidden="no"
+      hidden="no"
+      sendpass="outgoing!password"
+      recvpass="incoming!password">
+
+# Link block for services. Options are the same as for the first
+# link block (depending on what your services package supports).
+<link name="services.antarctic.com"
+      ipaddr="localhost"
+      port="7000"
+      allowmask="127.0.0.0/8"
+      sendpass="penguins"
+      recvpass="polarbears">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#- ULINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+# This tag defines a ulined server. A U-Lined server has special      #
+# permissions, and should be used with caution. Services servers are  #
+# usually u-lined in this manner.                                     #
+#                                                                     #
+# The 'silent' value, if set to yes, indicates that this server should#
+# not generate quit and connect notices, which can cut down on noise  #
+# to opers on the network.                                            #
+#                                                                     #
+<uline server="services.antarctic.com" silent="yes">
