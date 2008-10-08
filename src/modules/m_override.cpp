@@ -63,7 +63,7 @@ class ModuleOverride : public Module
 
 	virtual void OnPostCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, CmdResult result, const std::string &original_line)
 	{
-		if ((NoisyOverride) && (OverriddenMode) && (irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS))
+		if ((OverriddenMode) && (irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS))
 		{
 			int Total = OverOps + OverDeops + OverVoices + OverDevoices + OverHalfops + OverDehalfops;
 
@@ -147,7 +147,6 @@ class ModuleOverride : public Module
 					case AC_DEOP:
 						if (CanOverride(source,"MODEDEOP"))
 						{
-							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
 								OverDeops++;
 							return ACR_ALLOW;
@@ -160,7 +159,6 @@ class ModuleOverride : public Module
 					case AC_OP:
 						if (CanOverride(source,"MODEOP"))
 						{
-							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
 								OverOps++;
 							return ACR_ALLOW;
@@ -173,7 +171,6 @@ class ModuleOverride : public Module
 					case AC_VOICE:
 						if (CanOverride(source,"MODEVOICE"))
 						{
-							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
 								OverVoices++;
 							return ACR_ALLOW;
@@ -186,7 +183,6 @@ class ModuleOverride : public Module
 					case AC_DEVOICE:
 						if (CanOverride(source,"MODEDEVOICE"))
 						{
-							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
 								OverDevoices++;
 							return ACR_ALLOW;
@@ -199,7 +195,6 @@ class ModuleOverride : public Module
 					case AC_HALFOP:
 						if (CanOverride(source,"MODEHALFOP"))
 						{
-							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
 								OverHalfops++;
 							return ACR_ALLOW;
@@ -212,7 +207,6 @@ class ModuleOverride : public Module
 					case AC_DEHALFOP:
 						if (CanOverride(source,"MODEDEHALFOP"))
 						{
-							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
 								OverDehalfops++;
 							return ACR_ALLOW;
@@ -226,7 +220,6 @@ class ModuleOverride : public Module
 
 				if (CanOverride(source,"OTHERMODE"))
 				{
-					if (NoisyOverride)
 					if ((!channel->HasUser(source)) || (mode < STATUS_OP))
 					{
 						OverriddenMode = true;
