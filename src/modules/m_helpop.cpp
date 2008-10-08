@@ -126,14 +126,14 @@ class ModuleHelpop : public Module
 
 		virtual void ReadConfig()
 		{
-			ConfigReader *MyConf = new ConfigReader(ServerInstance);
+			ConfigReader MyConf(ServerInstance);
 
 			helpop_map.clear();
 
-			for (int i = 0; i < MyConf->Enumerate("helpop"); i++)
+			for (int i = 0; i < MyConf.Enumerate("helpop"); i++)
 			{
-				irc::string key = assign(MyConf->ReadValue("helpop", "key", i));
-				std::string value = MyConf->ReadValue("helpop", "value", i, true); /* Linefeeds allowed! */
+				irc::string key = assign(MyConf.ReadValue("helpop", "key", i));
+				std::string value = MyConf.ReadValue("helpop", "value", i, true); /* Linefeeds allowed! */
 
 				if (key == "index")
 				{
