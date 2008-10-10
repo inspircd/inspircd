@@ -59,7 +59,7 @@
 #<include executable="/path/to/executable parameters">                #
 #								      #
 # Executable Include Example:					      #
-#<include executable="/usr/bin/wget http://mynet.net/inspircd.conf">  #
+#<include executable="/usr/bin/wget -O - http://mynet.net/inspircd.conf">
 #                                                                     #
 
 
