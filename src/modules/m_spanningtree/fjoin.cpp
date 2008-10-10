@@ -49,13 +49,6 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	 * The winning side on the other hand will ignore all user modes from the
 	 * losing side, so only its own modes get applied. Life is simple for those
 	 * who succeed at internets. :-)
-	 *
-	 * NOTE: Unlike TS6 and dreamforge and other protocols which have SJOIN,
-	 * FJOIN does not contain the simple-modes such as +iklmnsp. Why not,
-	 * you ask? Well, quite simply because we don't need to. They'll be sent
-	 * after the FJOIN by FMODE, and FMODE is timestamped, so in the event
-	 * the losing side sends any modes for the channel which shouldnt win,
-	 * they wont as their timestamp will be too high :-)
 	 */
 	if (params.size() < 3)
 		return true;
