@@ -57,6 +57,9 @@
 # Syntax is as follows:                                               #
 #<include file="file.conf">                                           #
 #<include executable="/path/to/executable parameters">                #
+#								      #
+# Executable Include Example:					      #
+#<include executable="/usr/bin/wget http://mynet.net/inspircd.conf">  #
 #                                                                     #
 
 
@@ -83,14 +86,16 @@
 #   Describes the Server Administrator's real name (optionally),      #
 #   nick, and email address.                                          #
 #                                                                     #
-#  Syntax is as follows:                                              #
-#       <admin name="real name"                                       #
-#              nick="nick name"                                       #
-#              email="email@address.com">                             #
-#                                                                     #
 
-<admin name="Johnny English"
+<admin 
+       # name: Real Name
+       name="Johnny English"
+
+       # nick: Nickname (preferably what you use on the network)
        nick="MI5"
+
+       # email: email address. Does not have to be valid
+       # but should be for the users to be able to contact you.
        email="MI5@the.best.secret.agent">
 
 
@@ -98,44 +103,7 @@
 #                                                                     #
 #   Enter the port and address bindings here.                         #
 #                                                                     #
-#  bind address - Specifies which address ports bind to. Leaving this #
-#                 field blank binds the port to all IP's available.   #
 #                                                                     #
-#  port         - The port number to bind to. You may specify a port  #
-#                 range here, e.g. "6667-6669,7000,7001". If you do   #
-#                 this, the server will count each port within your   #
-#                 range as a separate binding, making the above       #
-#                 example equivalent to five separate bind tags.      #
-#                 A failure on one port in the range does not prevent #
-#                 the entire range from being bound, just that one    #
-#                 port number.                                        #
-#                                                                     #
-#  type         - Can be 'clients' or 'servers'. The clients type is  #
-#                 a standard TCP based socket, the servers type is a  #
-#                 also a TCP based connection but of a different      #
-#                 format. SSL support is provided by modules, to      #
-#                 enable SSL support, please read the module section  #
-#                 of this configuration file.                         #
-#                                                                     #
-#  ssl          - When using m_ssl_gnutls.so or m_ssl_openssl.so      #
-#                 modules, you must define this value to use ssl on   #
-#                 that port. Valid values are 'gnutls' or 'openssl'   #
-#                 respectively. If the module is not loaded, this     #
-#                 setting is ignored.                                 #
-#                                                                     #
-#  transport    - If you have m_spanningtree.so loaded, along with    #
-#                 either one of the SSL modules (m_ssl_gnutls or      #
-#                 m_ssl_openssl) or m_ziplinks.so, then you may make  #
-#                 use of this value.                                  #
-#                 Setting it to 'openssl' or 'gnutls' or 'zip'        #
-#                 indicates that the port should accept connections   #
-#                 using the given transport name. Transports are      #
-#                 layers which sit on top of a socket and change the  #
-#                 way data is sent and received, e.g. encryption,     #
-#                 compression, and other such things. Because this    #
-#                 may not be limited in use to just encryption,       #
-#                 the 'ssl' value used for client ports does not      #
-#                 exist for servers, and this value is used instead.  #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -147,36 +115,40 @@
 #  information on how to load this module! If you do not load this    #
 #  module, server ports will NOT be bound!                            #
 #                                                                     #
-#  Leaving address empty binds to all available interfaces            #
-#                                                                     #
-#  Syntax is as follows:                                              #
-#                                                                     #
-# <bind address="ip address" port="port" type="clients">              #
-# <bind address="ip address" port="port" type="servers">              #
-#                                                                     #
-# If InspIRCd is built for IPv6, and you wish to accept IPv4 clients, #
-# then you can specify IPv4 ip addresses here to bind. You may also   #
-# use the 4in6 notation, ::ffff:1.2.3.4, where 1.2.3.4 is the IPv4    #
-# address to bind the port, but as of InspIRCd 1.1.1, this is not     #
-# required.                                                           #
-#                                                                     #
-# ------------------------------------------------------------------- #
-#                                                                     #
-# PLEASE NOTE: If you have build InspIRCd as an IPv6 server, and you  #
-# specify an empty bind address, the binding will be bound to ALL THE #
-# IPv6 IP ADDRESSES, and not the IPv4 addresses. If you are using an  #
-# IPv6 enabled InspIRCd and want to bind to multiple IPv4 addresses   #
-# in this way, you must specify them by hand. If you have built the   #
-# server for IPv4 connections only, then specifying an empty bind     #
-# address binds the port to all IPv4 IP addresses, as expected.       #
-#                                                                     #
+# PLEASE NOTE: If you have build InspIRCd with IPv6 support, you MUST #
+# specify a bind address if you want the IRCd to bind to a IPv4 IP.   #
 
-<bind address="" port="6000" type="clients">
-<bind address="" port="6660-6669" type="clients" ssl="gnutls">
+<bind 
+      # address: IP address to bind to if the box that you are hosting
+      # on has more than one IP, else the ircd will try to bind to all
+      # IP's on the box if this is not defined
+      address="" 
+
+      # port: Port for users and/or servers to be able to connect to.
+      # you can select multiple ports by separating them
+      # with a - character like the example below.
+      port="6697" 
+
+      # type: Type of bind block this is. It can either be clients or
+      # servers. Whichever you select will be the only type able to connect
+      # to this bind section.
+      type="clients" 
+
+      # ssl: If you want this bind section to use SSL, define either
+      # gnutls or openssl here. The appropriate SSL modules must be loaded
+      # for ssl to work. If you do not want this bind section to support ssl,
+      # just remove this option.
+      ssl="gnutls">
+
+<bind address="" port="6660-6669" type="clients">
 
 # When linking servers, the openssl and gnutls transports are largely
 # link-compatible and can be used alongside each other or either/or
 # on each end of the link without any significant issues.
+# Transports can only be used on server blocks.
+# Supported Transports are: "zip", "openssl" and "gnutls".
+# You must load m_ziplinks module for zip, m_ssl_openssl for openssl
+# or m_ssl_gnutls for gnutls.
 
 <bind address="" port="7000,7001" type="servers">
 <bind address="1.2.3.4" port="7005" type="servers" transport="openssl">
@@ -188,12 +160,20 @@
 #   the die and restart commands. Only trusted IRCop's who will       #
 #   need this ability should know the die and restart password.       #
 #                                                                     #
-#  Syntax is as follows:                                              #
-#       <power diepass="die password" restartpass="restart password"  #
-#        pause="secs before dying">                                   #
-#                                                                     #
 
-<power diepass="" restartpass="" pause="2">
+<power 
+
+      # diepass: Password for opers to use if they need to shutdown (die)
+      # a server.
+      diepass="" 
+
+      # restartpass: Password for opers to use if they need to restart
+      # a server.
+      restartpass="" 
+
+      # pause: Seconds to wait after a die command is sent before the
+      # server actually shuts down
+      pause="2">
 
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -203,114 +183,62 @@
 #   You may have as many of these as you require. To allow/deny all   #
 #   connections, use a '*' or 0.0.0.0/0.                              #
 #                                                                     #
-#  Syntax is as follows:                                              #
-#                                                                     #
-#       <connect name="myallow" allow="1.2.3.0/24" limit="5"          #
-#                password="blahblah" timeout="10" timeout="blah"      #
-#                flood="5" threshold="8" pingfreq="120" sendq="99999" #
-#                revcq="696969" localmax="3" globalmax="3"            #
-#                port="6660" maxchans="50" limit="999">               #
-#                                                                     #
-#       <connect name="blocked" deny="127.0.0.1" port="6667">         #
-#                                                                     #
-#       <connect name="something" parent="myallow" pingfreq="60">     #
-#                                                                     #
-#   IP masks may be specified in CIDR format or wildcard format,      #
-#   for IPv4 and IPv6. You *cannot* use hostnames in the allow or     #
-#   deny field, as the state is applied before the user's DNS has     #
-#   been resolved.                                                    #
-#                                                                     #
-#   You can optionally name your connect allow/deny tags. If you do   #
-#   this, you may reference this connect tag as the parent of another #
-#   connect tag with the <connect:parent> option as shown above. If   #
-#   you do this, any options not explicitly specified in the tag will #
-#   be copied from the parent.                                        #
-#                                                                     #
-#   If the value maxchans is included, this overrides all other max   #
-#   channels related settings, including the separate oper maximum.   #
-#   You may set this to any (sane) value you wish and it applies to   #
-#   all users within this connect tag.                                #
-#                                                                     #
-#   You may optionally include timeout="x" on any allow line, which   #
-#   specifies the amount of time given before an unknown connection   #
-#   is closed if USER/NICK/PASS are not given. This value is in secs. #
-#                                                                     #
-#   You may optionally limit the number of clients that are matched   #
-#   by a single <connect> tag by specifying the maximum in the limit  #
-#   parameter. If set to 0, there is no limit, which is the default.  #
-#                                                                     #
-#   You should also include a flood="x" line which indicates          #
-#   the number of lines a user may place into their buffer at once    #
-#   before they are disconnected for excess flood. This feature can   #
-#   not be disabled, however it can be set to extremely high values,  #
-#   rendering it effectively disabled. A recommended value is 10.     #
-#   A counter is maintained for each user which is reset every        #
-#   'threshold' seconds and specifying this threshold value with      #
-#   threshold="X" indicates how often the counter is reset. For       #
-#   example, with flood="5" and threshold="8", the user may not send  #
-#   more than 5 lines in 8 secs.                                      #
-#                                                                     #
-#   You may optionally specify the sendq size and ping frequency of   #
-#   each connect:allow line using the pingfreq="X" and sendq="X"      #
-#   settings as shown in the full example below.                      #
-#   The ping frequency is specified in seconds, and the sendq size    #
-#   in bytes. It is recommended, although not enforced, that you      #
-#   should never set your sendq size to less than 8K. Send Queues are #
-#   dynamically allocated and can grow as needed up to the maximum    #
-#   size specified.                                                   #
-#                                                                     #
-#   The optional recvq value is the maximum size which users in this  #
-#   group may grow their receive queue to. This is recommended to be  #
-#   kept pretty low compared to the sendq, as users will always       #
-#   receive more than they send in normal circumstances. The default  #
-#   if not specified is 4096.                                         #
-#                                                                     #
-#   The sendq is the data waiting to be sent TO THE USER.             #
-#   The recvq is the data being received FROM THE USER.               #
-#   The names sendq and recvq are from the SERVER'S PERSPECTIVE not   #
-#   that of the user... Just to clear up any confusion or complaints  #
-#   that these are backwards :p                                       #
-#                                                                     #
-#   The localmax and globalmax values can be used to enforce local    #
-#   and global session limits on connections. The session limits are  #
-#   counted against all users, but applied only to users within the   #
-#   class. For example, if you had a class 'A' which has a session    #
-#   limit of 3, and a class 'B' which has a session limit of 5, and   #
-#   somehow, two users managed to get into class B which also match   #
-#   class A, there is only one connection left for this IP now in A,  #
-#   but if they can connect again to B, there are three. You get the  #
-#   idea (i hope).                                                    #
-#                                                                     #
-#   NOTE NOTE NOTE NOTE NOTE NOTE!                                    #
-#    The maximum limits by default apply to individual IP addresses   #
-#    This *MAY* be changed by modifying the <cidr> block, in order    #
-#    to detect cloning across an ISP.                                 #
-#                                                                     #
-#   The optional port value determines which port the connect tag is  #
-#   handling. If left out the connect tag covers all bound ports else #
-#   only incoming connections on the specified port will match. Port  #
-#   tags may be used on connect allow and connect deny tags.          #
-#                                                                     #
-#   The limit value determines the maximum number of users which may  #
-#   be in this class. Combine this with CIDR masks for various ISP    #
-#   subnets to limit the number of users which may connect at any one #
-#   time from a certain ISP. Omit this value to not limit the tag.    #
-#                                                                     #
 
-<connect allow="196.12.*"  password="secret" port="6667">
+<connect 
+         # allow: What IP addresses/hosts to allow for this block.
+         allow="196.12.*"  
 
-<connect allow="*"
+         # password: Password to use for this block/user(s)
+         password="secret" 
+
+         # port: What port this user is allowed to connect on. (optional)
+         # The port MUST be set to listen in the bind blocks above.
+         port="6667">
+
+<connect 
+         # allow: What IP addresses/hosts to allow for this block.
+         allow="*"
+
+         # maxchans: Maximum number of channels a user in this class
+         # be in at one time. This overrides every other maxchans setting.
+         #maxchans="30"
+
+         # timeout: How long (in seconds) the server will wait before
+         # disconnecting a user if they do not do anything on connect.
+         # (Note, this is a client-side thing, if the client does not
+         # send /nick, /user or /pass)
          timeout="60"
+
+         # flood: After x lines (flood) in x seconds (see threshold)
+         # the user is disconnected for flooding.
          flood="20"
+
+         # threshold: In how many seconds can a user flood x lines (see flood)
+         # before they are disconnected for excess flood.
          threshold="1"
+
+         # pingfreq: How often the server tries to ping connecting clients/servers.
          pingfreq="120"
+
+         # sendq: Amount of data that the server is allowed to send to the user
+         # before they are dropped.
          sendq="262144"
+
+         # recvq: amount of data allowed in a clients queue before they are dropped.
          recvq="8192"
+
+         # localmax: Maximum local connections per IP.
          localmax="3"
+
+         # globalmax: Maximum global (network-wide) connections per IP.
          globalmax="3"
+
+         # limit: How many users are allowed in this class
 	 limit="5000">
 
-<connect deny="69.254.*">
+<connect 
+        # deny: Will not let people connect if they have specified host/IP.
+        deny="69.254.*">
 <connect deny="3ffe::0/32">
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
@@ -321,26 +249,18 @@
 # represented as 192.168.1.0/24). This means that abuse across an ISP #
 # is detected and curtailed much easier.                              #
 #                                                                     #
-# ipv4clone:                                                          #
-#  This specifies how many bits of an IP address should be checked    #
-#  against cloning in the <connect> tags, for example, if <connect>   #
-#  tags specified a limit of 2 (low!), and three users attempted to   #
-#  connect in the IP range 192.168.1.0-192.168.1.255, and ipv4clone   #
-#  was set to '24', the third connection would be disconnected.       #
-#                                                                     #
-#  Valid values are 0-32, but you *don't* want 0. Using values which  #
-#  are not multiples of 8 can give confusing behaviour.               #
-#  For more info, see: http://www.inspircd.org/wiki/CIDR_Tutorial     #
-#                                                                     #
-# ipv6clone works in the same way, except for ipv6 addresses. Valid   #
-# range is 0-128, but you *don't* want anything too small.            #
-#                                                                     #
-# Setting these to their maximum value (32, 128) will result in       #
-# no actual CIDR checking being done, and clone checking will only be #
-# done across individual IPs. This is the default behaviour.          #
 
 <cidr
-	ipv4clone="32"
+	# ipv4clone: specifies how many bits of an IP address should be
+        # looked at for clones. The default only looks for clones on a
+        # single IP address of a user. You do not want to set this
+        # extremely low. (Values are 0-32).
+        ipv4clone="32"
+
+        # ipv6clone: specifies how many bits of an IP address should be
+        # looked at for clones. The default only looks for clones on a
+        # single IP address of a user. You do not want to set this
+        # extremely low. (Values are 0-128).
 	ipv6clone="128">
 
 # This file has all the information about oper classes, types and o:lines.
@@ -353,61 +273,34 @@
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-#   These options let you define the path to your motd and rules      #
-#   files. If these are relative paths, they are relative to the      #
-#   configuration directory.                                           #
-#                                                                     #
 
-<files motd="inspircd.motd.example"
+<files 
+       # motd: Path to your motd file. Path is relative to the conf directory.
+       motd="inspircd.motd.example"
+
+       # rules: Path to your rules file. Path is relative to the conf directory.
        rules="inspircd.rules.example">
 
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# This optional configuration tag lets you define the maximum number  #
-# of channels that both opers and users may be on at any one time.    #
-# The default is 20 for users and 60 for opers if this tag is not     #
-# defined. Remote users are not restricted in any manner.             #
-#                                                                     #
 
-<channels users="20"
+<channels 
+          # users: Maximum number of channels a user can be in at once.
+          users="20"
+
+          # opers: Maximum number of channels a oper can be in at once.
           opers="60">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# Define your DNS server address here. InspIRCd has its own resolver. #
-# If you do not define this value, then InspIRCd will attempt to      #
-# determine your DNS server from your operating system. On POSIX      #
-# platforms, InspIRCd will read /etc/resolv.conf, and populate this   #
-# value with the first DNS server address found. On Windows platforms #
-# InspIRCd will check the registry, and use the DNS server of the     #
-# first active network interface, if one exists.                      #
-# If a DNS server cannot be determined from these checks, the default #
-# value '127.0.0.1' is used instead. The timeout value is in seconds. #
-#                                                                     #
-#    ____                _   _____ _     _       ____  _ _   _        #
-#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
-#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
-#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
-#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
-#                                                                     #
-# When choosing a server, be sure to choose one which will do a       #
-# RECURSIVE LOOKUP. InspIRCd's resolver does not currently do these   #
-# recursive lookups itself, to save time and resources. The DNS       #
-# server recommended by the InspIRCd team is bind, available from the #
-# ISC website. If your DNS server does not do a recursive lookup, you #
-# will be able to notice this by the fact that none of your users are #
-# resolving even though the DNS server appears to be up! Most ISP and #
-# hosting provider DNS servers support recursive lookups.             #
-#                                                                     #
-# ------------------------------------------------------------------- #
-#                                                                     #
-# NOTE: If you have built InspIRCd with IPv6 support, then both       #
-# IPv6 and IPv4 addresses are allowed here, and also in the system    #
-# resolv.conf file. Remember that an IPv4 DNS server can still        #
-# resolve IPv6 addresses, and vice versa.                             #
-#                                                                     #
+# If these values are not defined, InspIRCd uses the default DNS resolver
+# of your system.
 
-<dns server="127.0.0.1" timeout="5">
+<dns 
+     # server: DNS server to use to attempt to resolve IP's to hostnames.
+     server="127.0.0.1" 
+
+     # timeout: seconds to wait to try to resolve DNS/hostname.
+     timeout="5">
 
 # An example of using an IPv6 nameserver
 #<dns server="::1" timeout="5">
@@ -467,294 +360,200 @@
 #                                                                     #
 #   Settings to define which features are usable on your server.      #
 #                                                                     #
-#  prefixquit    - A prefix to be placed on the start of a client's   #
-#                  quit message                                       #
-#                                                                     #
-#  suffixquit    - A suffix to be placed on the end of a client's     #
-#                  quit message.                                      #
-#                                                                     #
-#  fixedquit     - A fixed quit message to display for all client     #
-#                  QUITS. If specified, overrides both prefixquit     #
-#                  and suffixquit options.                            #
-#                                                                     #
-#  prefixpart    - A prefix to be placed on the start of a client's   #
-#                  part message                                       #
-#                                                                     #
-#  suffixpart    - A suffix to be placed on the end of a client's     #
-#                  part message.                                      #
-#                                                                     #
-#  fixedpart     - A fixed part message to display for all client     #
-#                  parts. If specified, overrides both prefixpart     #
-#                  and suffixpart options.                            #
-#                                                                     #
-#  allowhalfop   - Allows the +h channel mode                         #
-#                                                                     #
-#  noservices    - If noservices is true, yes, or 1, then the first   #
-#                  user into a channel gets founder status. This is   #
-#                  only useful on networks running the m_chanprotect  #
-#                  module without services.                           #
-#                                                                     #
-#  qprefix       - qprefix is used by the chanprotect module to give  #
-#                  a visible prefix to users set +q (founder) in chan #
-#                  It should be set to something sensible like ~ or ! #
-#                  If not set, no prefix is applied to users with +q  #
-#                                                                     #
-#  aprefix       - aprefix is the same as qprefix, except it is for   #
-#                  giving users with mode +a (protected) a prefix     #
-#                                                                     #
-#  deprotectself - If this value is set to yes, true, or 1, then any  #
-#                  user with +q or +a may remove the +q or +a from    #
-#                  themselves. The default setting is to not enable   #
-#                  this feature, which stops even the founder taking  #
-#                  away their founder status without using services.  #
-#                                                                     #
-#  deprotectothers-If this value is set to yes, true, or 1, then any  #
-#                  user with +q or +a may remove the +q or +a from    #
-#                  other users. The default setting is to not enable  #
-#                  this feature, so that only +q may remove +a, and   #
-#                  nothing but services may remove +q.                #
-#                                                                     #
-#  cyclehosts    - If this is set to true, yes or 1, then when a      #
-#                  user's hostname changes, they will appear to quit  #
-#                  and then rejoin with their new host. This prevents #
-#                  clients from being confused by host changes,       #
-#                  especially in the case of bots, and it is          #
-#                  recommended that this option is enabled.           #
-#                                                                     #
-#  moduledir     - This optional value indicates a runtime change of  #
-#                  the location where modules are to be found. This   #
-#                  does not add a supplementary directory. There can  #
-#                  only be one module path.                           #
-#                                                                     #
-#  syntaxhints   - If set to yes, true or 1, when a user does not     #
-#                  give enough parameters for a command, a syntax     #
-#                  hint will be given (using the RPL_TEXT numeric)    #
-#                  as well as the standard ERR_NEEDMOREPARAMS.        #
-#                                                                     #
-#  announcets    - If this value is defined to yes, true, or 1, then  #
-#                  a channels' timestamp is updated, the users on     #
-#                  the channel will be informed of the change via     #
-#                  a server notice to the channel with the old and    #
-#                  new TS values in the timestamp. If you think this  #
-#                  is just pointless noise, define the value to 0.    #
-#                                                                     #
-#  ircumsgprefix - Use undernet style message prefix for channel      #
-#                  NOTICE and PRIVMSG adding the prefix to the line   #
-#                  of text sent out. Eg. NOTICE @#test :@ testing     #
-#                  vs. the off setting: NOTICE @#test :testing        #
-#                                                                     #
-#  hostintopic   - If this is set to yes (the default) then the full  #
-#                  nick!user@host is shown for who set a TOPIC last.  #
-#                  if set to no, then only the nickname is shown.     #
-#                                                                     #
-#  serverpingfreq- This value, when set, allows you to change the     #
-#                  frequency of server to server PING messages. This  #
-#                  can help if you are having certain network issues. #
-#                                                                     #
-#  pingwarning   - This should be set to a number between 1 and 59 if #
-#                  defined, and if it is defined will cause the server#
-#                  to send out a warning via snomask +l if a server   #
-#                  does not answer to PING after this many seconds.   #
-#                  This can be useful for finding servers which are   #
-#                  at risk of pinging out due to network issues.      #
-#                                                                     #
-#  defaultmodes  - The default modes to be given to each channel on   #
-#                  creation. Defaults to 'nt'. There should be no +   #
-#                  or - symbols in this sequence, if you add them     #
-#                  they will be ignored. You may add parameters for   #
-#                  modes which take them.                             #
-#                                                                     #
-#  moronbanner   - The NOTICE to show to users who are glined, zlined #
-#                  klined or qlined when they are disconnected. This  #
-#                  is totally freeform, you may place any text here   #
-#                  you wish.                                          #
-#                                                                     #
-#  exemptchanops - This option allows channel operators to be exempted#
-#                  from certain channel modes.                        #
-#                  Supported modes are +SfFgNc. Defaults to off.      #
-#                                                                     #
-#  invitebypassmodes - This option allows /invite to bypass modes     #
-#    other than +i.                                                   #
-#                                                                     #
-#                                                                     #
 
-<options prefixquit="Quit: "
+<options 
+         # prefixquit: What (if anything) a users' quit message
+         # should be prefixed with.
+         prefixquit="Quit: "
+
+         # suffixquit: What (if anything) a users' quit message
+         # should be suffixed with.
          suffixquit=""
+
+         # prefixpart: What (if anything) a users' part message
+         # should be prefixed with.
          prefixpart="\""
+
+         # suffixpart: What (if anything) a users' part message
+         # should be suffixed with.
          suffixpart="\""
+
+         # noservices: With this set to no, when a user joins a empty channel,
+         # the server will set +q on them. If set to yes, it will only set +o
+         # on them until they register the channel.
          noservices="no"
+
+         # qprefix: Prefix (symbol) to use for +q users.
          qprefix="~"
+
+         # aprefix: Prefix (symbol) to use for +a users.
          aprefix="&"
+
+         # deprotectself: If this value is set (true, yes or 1), it will allow
+         # +a and +q users to remove the +a and +q from themselves, otherwise,
+         # the status will have to be removed by services.
          deprotectself="no"
+
+         # deprotectothers: If this value is set to yes, true, or 1, then any
+         # user with +q or +a may remove the +q or +a from other users. 
+         # The default setting is to not enable this feature, so that 
+         # only +q may remove +a, and nothing but services may remove +q.
          deprotectothers="no"
+
+         # syntaxhints: If enabled, if a user fails to send the correct parameters
+         # for a command, the ircd will give back soome help text of what
+         # the correct parameters are
          syntaxhints="no"
+
+         # cyclehosts: If enabled, when a user gets a host set, it will cycle
+         # them in all their channels. If not, it will simply change their host
+         # without cycling them.
          cyclehosts="yes"
+
+         # ircumsgprefix: Use undernet-style message prefixing for NOTICE and
+         # PRIVMSG. If enabled, it will add users' prefix to the line, if not,
+         # it will just message the user.
          ircumsgprefix="no"
+
+         # announcets: If set to yes, when the TS on a channel changes, all users
+         # in channel will be sent a NOTICE about it.
          announcets="yes"
+
+         # hostintopic: If enabled, channels will show the host of the topicsetter
+         # in the topic.
          hostintopic="yes"
+
+         # pingwarning: If a server does not respond to a ping within x seconds,
+         # it will send a notice to opers with snomask +l informing that the server
+         # is about to ping timeout.
          pingwarning="15"
+
+         # serverpingfreq: How often pings are sent between servers (in seconds).
          serverpingfreq="60"
+
+         # allowhalfop: Allows the use of +h channelmode (halfops).
          allowhalfop="yes"
+
+         # defaultmodes: What modes are set on a empty channel when a user
+         # joins it and it is unregistered. This is similar to Asuka's
+         # autochanmodes.
          defaultmodes="nt"
+
+         # moronbanner: This is the text that is sent to a user when they are
+         # banned from the server.
          moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
+
+         # exemptchanops: Defines what channel modes channel operators are
+         # exempt from. Supported modes are +SfFgNc. Defaults to off.
          exemptchanops=""
+
+         # invitebypassmodes: This allows /invite to bypass other channel modes.
+         # (Such as +k, +j, +l, etc)
 	 invitebypassmodes="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-#  maxwho        - The maximum number of results returned by a /WHO   #
-#                  query. This is to prevent /WHO being used as a     #
-#                  spam vector or means of flooding an ircd. The      #
-#                  default is 128, it is not recommended to raise it  #
-#                  above 1024. Values up to 65535 are permitted. If   #
-#                  this value is omitted, any size WHO is allowed by  #
-#                  anyone.                                            #
-#                                                                     #
-#  somaxconn     - The maximum number of sockets that may be waiting  #
-#                  in the accept queue. This usually allows the ircd  #
-#                  to soak up more connections in a shorter space of  #
-#                  time when increased but please be aware there is a #
-#                  system defined maximum value to this, the same way #
-#                  there is a system defined maximum number of file   #
-#                  descriptors. Some systems may only allow this to   #
-#                  be up to 5 (ugh) while others such as FreeBSD will #
-#                  default to a much nicer 128.                       #
-#                                                                     #
-#  softlimit     - This optional feature allows a defined softlimit.  #
-#                  if defined sets a soft maxconnections value, has   #
-#                  to be less than the ./configure maxclients         #
-#                                                                     #
-#  nouserdns     - If set to yes, true or 1, no user DNS lookups      #
-#                  will be performed for connecting users. This can   #
-#                  save a lot of resources on very busy IRC servers.  #
-#                                                                     #
-#  quietbursts   - When synching or splitting from the network, a     #
-#                  server can generate a lot of connect and quit      #
-#                  snotices to the +C and +Q snomasks. Setting this   #
-#                  value to yes squelches those messages, which can   #
-#                  make them more useful for opers, however it will   #
-#                  degrade their use by certain third party programs  #
-#                  such as BOPM which rely on them to scan users when #
-#                  a split heals in certain configurations.           #
-#                                                                     #
-#  netbuffersize - Size of the buffer used to receive data from       #
-#                  clients. The ircd may only read() this amount      #
-#                  of text in one go at any time. (OPTIONAL)          #
-#                                                                     #
 
-<performance netbuffersize="10240"
+<performance 
+             # netbuffersize: Size of the buffer used to recieve data from clients.
+             # The ircd may only read this amount of text in 1 go at any time.
+             netbuffersize="10240"
+
+             # maxwho: Maximum number of results to show in a /who query.
+             # It is not recommended to set this above 1024.
              maxwho="128"
+
+             # somaxconn: The maximum number of connections that may be waiting
+             # in the accept queue. This is *NOT* the total maximum number of
+             # connections per server. Some systems may only allow this to be up
+             # to 5, while others (such as linux and *BSD) default to 128.
              somaxconn="128"
+
+             # softlimit: This optional feature allows a defined softlimit for
+             # connections. If defined, it sets a soft max connections value.
+             # must be lower than ./configure maxclients.
              softlimit="12800"
+
+             # quietbursts: When syncing or splitting from a network, a server
+             # can generate a lof ot connect and quit messages to opers with
+             # +C and +Q snomasks. Setting this to yes squelches those messages,
+             # which makes it easier for opers, but degrades the functionality of
+             # bots like BOPM during netsplits.
              quietbursts="yes"
+
+             # nouserdns: If enabled, no user DNS lookups will be performed on
+             # connecting users. This can save a lot of resources on very busy servers.
              nouserdns="no">
 
 #-#-#-#-#-#-#-#-#-#-#-# SECURITY CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# announceinvites                                                     #
-#                - If this option is set, then invites are announced  #
-#                  to the channel when a user invites another user.   #
-#                  If you consider this to be unnecessary noise,      #
-#                  set this to 'none'. To announce to all ops, set    #
-#                  this to 'ops' and to announce to all users set the #
-#                  value to 'all'.                                    #
-#                                                                     #
-#                  The value 'dynamic' varies between 'ops' and 'all' #
-#                  settings depending on if the channel is +i or not. #
-#                  When the channel is +i, messages go only to ops,   #
-#                  and when the channel is not +i, messages go to     #
-#                  everyone. In short, the messages will go to every  #
-#                  user who has power of INVITE on the channel. This  #
-#                  is the recommended setting.                        #
-#                                                                     #
-#  disablehmac   - If you are linking your InspIRCd to older versions #
-#                  then you can specify this option and set it to     #
-#                  yes. 1.1.6 and above support HMAC and challenge-   #
-#                  response for password authentication. These can    #
-#                  greatly enhance security of your server to server  #
-#                  connections when you are not using SSL (as is the  #
-#                  case with a lot of larger networks). Linking to    #
-#                  older versions of InspIRCd should not *usually* be #
-#                  a problem, but if you have problems with HMAC      #
-#                  authentication, this option can be used to turn it #
-#                  off.                                               #
-#                                                                     #
-#  hidemodes     - If this option is enabled, then the listmodes      #
-#                  given (e.g. +eI), will be hidden from users below  #
-#                  halfop. This is not recommended to be set on mode  #
-#                  +b, as it may break some features in popular       #
-#                  clients such as mIRC.                              #
-#                                                                     #
-#  hidesplits    - When set to 'yes', will hide split server names    #
-#                  from non-opers. Non-opers will see '*.net *.split' #
-#                  instead of the server names in the quit message,   #
-#                  identical to the way IRCu displays them.           #
-#                                                                     #
-#  hidebans      - When set to 'yes', will hide gline, kline, zline   #
-#                  and qline quit messages from non-opers. For        #
-#                  example, user A who is not an oper will just see   #
-#                  (G-Lined) while user B who is an oper will see the #
-#                  text (G-Lined: Reason here) instead.               #
-#                                                                     #
-#  hidewhois     - When defined with a non-empty value, the given     #
-#                  text will be used in place of the user's server    #
-#                  in WHOIS, when a user is WHOISed by a non-oper.    #
-#                  For example, most nets will want to set this to    #
-#                  something like '*.netname.net' to conceal the      #
-#                  actual server the user is on.                      #
-#                                                                     #
-#  flatlinks     - When you are using m_spanningtree.so, and this     #
-#                  value is set to yes, true or 1, /MAP and /LINKS    #
-#                  will be flattened when shown to a non-opers.       #
-#                                                                     #
-#  hideulines    - When you are using m_spanningtree.so, and this     #
-#                  value is set to yes, true or 1, then U-lined       #
-#                  servers will be hidden in /LINKS and /MAP for non  #
-#                  opers. Please be aware that this will also hide    #
-#                  any leaf servers of a U-lined server, e.g. jupes.  #
-#                                                                     #
-#  userstats     - The userstats field is optional and specifies      #
-#                  which stats characters in /STATS may be requested  #
-#                  by non-operators. Stats characters in this field   #
-#                  are case sensitive and are allowed to users        #
-#                  independent of if they are in a module or the core #
-#                                                                     #
-#  operspywhois  - If this is set then when an IRC operator uses      #
-#                  /WHOIS on a user they will see all channels, even  #
-#                  ones if channels are secret (+s), private (+p) or  #
-#                  if the target user is invisible +i.                #
-#                                                                     #
-#  customversion - If you specify this configuration item, and it is  #
-#                  not set to an empty value, then when a user does   #
-#                  a /VERSION command on the ircd, this string will   #
-#                  be displayed as the second portion of the output,  #
-#                  replacing the system 'uname', compile flags and    #
-#                  socket engine/dns engine names. You may use this   #
-#                  to enhance security, or simply for vanity.         #
-#                                                                     #
-#  maxtargets    - The maxtargets field is optional, and if not       #
-#                  defined, defaults to 20. It indicates the maximum  #
-#                  number of targets which may be given to commands   #
-#                  such as PRIVMSG, KICK etc.                         #
-#                                                                     #
-#  hidekills     - The hidekills value, if set, replaces the source   #
-#                  of all oper-generated kills to be the given text   #
-#                  to provide anonimity to your opers.                #
-#                                                                     #
 
-<security announceinvites="dynamic"
+<security 
+
+          # announceinvites: If this option is set, then invites are announced
+          # to the channel when a user invites another user. If you consider 
+          # this to be unnecessary noise, set this to 'none'. 
+          # To announce to all ops, set this to 'ops' and to announce to all users,
+          # set the value to 'all'. The value 'dynamic' will make the messages
+          # go to every user who has power of INVITE on the channel. This
+          # is the recommended setting.
+          announceinvites="dynamic"
+
+          # hidemodes: If enabled, then the listmodes given will be hidden
+          # from users below halfop. This is not recommended to be set on +b
+          # as it may break some functionality in popular clients such as mIRC.
           hidemodes="eI"
+
+          # disablehmac: If you are linking your InspIRCd to versions older
+          # than 1.1.6 (NOT RECOMMENDED), then you can specify this option and
+          # set it to yes. 1.1.6 and above support HMAC and challenge-response
+          # for password authentication. These can greatly enhance security of your
+          # server-to-server connections when you are not using SSL.
+          # It is highly recommended to keep this set to no.
           disablehmac="no"
+
+          # hideulines: If this value is set to yes, U-lined server will
+          # be hidden from non-opers in /links and /map.
           hideulines="no"
+
+          # flatlinks: If this value is set to yes, /map and /links will
+          # be flattened when shown to non-opers.
           flatlinks="no"
+
+          # hidewhois: When defined, the given text will be used in place
+          # of the server a user is on when whoised by a non-oper. Most
+          # networks will want to set this to something like "*.netname.net"
+          # to conceal the actual server a user is on.
           hidewhois=""
+
+          # hidebans: If this value is set to yes, when a user is banned ([gkz]lined)
+          # only opers will see the ban message when the user is removed
+          # from the server..
           hidebans="no"
+
+          # hidekills: If defined, replaces who set a /kill with a custom string.
           hidekills=""
+
+          # hidesplits: If enabled, non-opers will not be able to see which
+          # servers split in a netsplit, they will only be able to see that one
+          # occurred (If their client has netsplit detection).
           hidesplits="no"
+
+          # maxtargets: Maximum number of targets per command.
+          # (Commands like /notice, /privmsg, /kick, etc)
           maxtargets="20"
+
+          # customversion: Displays a custom string when a user /version's
+          # the ircd. This may be set for security reasons or vanity reasons.
           customversion=""
+
+          # operspywhois: If this is set, when a oper /whois 's a user,
+          # it will show all channels the user is in including +s and +p
+          # channels.
           operspywhois="no"
+
+          # userstats: /stats commands that users can run (oeprs can run all).
           userstats="Pu">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
@@ -767,38 +566,34 @@
 # releases where these values would be one character shorter than     #
 # defined to account for a null terminator on the end of the text.    #
 #                                                                     #
-# The identmax value has special meaning, as it may grow one          #
-# character longer than you specify, to accomodate for a ~ character  #
-# when m_ident is loaded.                                             #
-#                                                                     #
-# These values should match network-wide, otherwise you may end up    #
-# with desyncs, and confusing your users by being able to use a nick  #
-# of a certain length on one server but not on another. Servers will  #
-# link with mismatched values, but this is NOT recommended as a long  #
-# term measure!                                                       #
-#                                                                     #
-# Values here should be self explanitory:                             #
-#                                                                     #
-# maxnick         - The maximum length of a nickname                  #
-# maxchan         - The maximum length of a channel name              #
-# maxmodes        - The maximum number of parameterized mode changes  #
-#                   per line                                          #
-# maxident        - The maximum length of an ident/username value     #
-# maxquit         - The maximum length of a quit message              #
-# maxtopic        - The maximum length of a channel topic             #
-# maxkick         - The maximum length of a kick message              #
-# maxgecos        - The maximum length of a GECOS (real name)         #
-# maxaway         - The maximum length of an away message             #
-#                                                                     #
+# These values should match network-wide otherwise issues will occur. #
 
-<limits maxnick="31"
+<limits 
+        # maxnick: Maximum length of a nickname.
+        maxnick="31"
+
+        # maxchan: Maximum length of a channel name.
         maxchan="64"
+
+        # maxmodes: Maximum number of mode changes per line.
         maxmodes="20"
+
+        # maxident: Maximum length of a ident/username.
         maxident="11"
+
+        # maxquit: Maximum length of a quit message.
         maxquit="255"
+
+        # maxtopic: Maximum length of a channel topic.
         maxtopic="307"
+
+        # maxkick: Maximum length of a kick message.
         maxkick="255"
+
+        # maxgecos: Maximum length of a GECOS (realname).
         maxgecos="128"
+
+        # maxaway: Maximum length of an away messahe.
         maxaway="200">
 
 
@@ -830,6 +625,7 @@
 #
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
+
 <log method="file" type="* -USERINPUT -USEROUTPUT -m_spanningtree" level="default" target="ircd.log">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -837,29 +633,22 @@
 # This tag lets you define the behaviour of the /whowas command of    #
 # your server.                                                        #
 #                                                                     #
-# groupsize      - Controls the maximum entries per nick shown when   #
-#                  performing a /whowas nick. Setting this to 0 dis-  #
-#                  ables whowas completely.                           #
-#                                                                     #
-# maxgroups      - The maximum number of nickgroups that can be added #
-#                  to the list. If max is reached, oldest group will  #
-#                  be deleted first like a FIFO. A groupsize of 3 and #
-#                  a maxgroups of 5000 will allow for 5000 nicks to   #
-#                  be stored with a history of 3, thus giving a total #
-#                  of 3 * 5000 = 15000 entries. A setting of 0 dis-   #
-#                  ables whowas completely.                           #
-#                                                                     #
-# maxkeep        - The maximum time a nick is kept in the whowas list #
-#                  before being pruned. Time may be specified in      #
-#                  seconds, or in the following format: 1y2w3d4h5m6s  #
-#                  meaning one year, two weeks, three days, 4 hours,  #
-#                  5 minutes and 6 seconds. All fields in this format #
-#                  are optional. Minimum is 1 hour, if less InspIRCd  #
-#                  will default back to 1 hour.                       #
-#                                                                     #
-#<whowas groupsize="10"                                               #
-#        maxgroups="100000"                                           #
-#        maxkeep="3d">                                                #
+
+<whowas 
+        # groupsize: Maximum entries per nick shown when performing
+        # a /whowas nick.
+        groupsize="10"
+
+        # maxgroups: Maximum number of nickgroups that can be added to
+        # the list so that /whowas does not use a lot of resources on
+        # large networks.                                            
+        maxgroups="100000"
+
+        # maxkeep: Maximum time a nick is kept in the whowas list
+        # before being pruned. Time may be specified in seconds, 
+        # or in the following format: 1y2w3d4h5m6s. Minimum is
+        # 1 hour.
+        maxkeep="3d">                                                
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -867,43 +656,42 @@
 # banned from your server. All details in these tags are local to     #
 # Your server.                                                        #
 #                                                                     #
-#                                                                     #
-# badip lines ban an ip range (same as a zline)                       #
-#                                                                     #
-# ipmask       -          The ip range to ban (wildcards possible)    #
-#                         CIDR is supported in the IP mask.           #
-# reason       -          Reason to display when disconnected         #
-#                                                                     #
-# badnick lines ban a nick mask (same as a qline)                     #
-#                                                                     #
-# nick         -          Nick mask to ban (wildcards possible)       #
-# reason       -          Reason to display on /NICK                  #
-#                                                                     #
-# badhost lines ban a user@host mask (same as a kline)                #
-#                                                                     #
-# host         -          ident@hostname (wildcards possible)         #
-#                         If you specify an IP, CIDR is supported.    #
-# reason       -          Reason to display on disconnection          #
-#                                                                     #
-# exception lines define a hostmask that is excempt from [kzg]lines   #
-#                                                                     #
-# host         -          ident@hostname (wildcards possible)         #
-#                         If you specify an IP, CIDR is supported.    #
-# reason       -          Reason, shown only in /stats e              #
-#                                                                     #
 
-<badip ipmask="69.69.69.69" reason="No porn here thanks.">
+<badip 
+       # ipmask: IP range to ban. Wildcards and CIDR can be used.
+       ipmask="69.69.69.69"
 
-<badnick nick="ChanServ" reason="Reserved For Services">
+       # reason: Reason to display when user is disconnected.
+       reason="No porn here thanks.">
+
+<badnick 
+       # nick: Nick to disallow. Wildcards are supported.
+       nick="ChanServ" 
+
+       # reason: Reason to display on /nick.
+       reason="Reserved For Services">
 <badnick nick="NickServ" reason="Reserved For Services">
 <badnick nick="OperServ" reason="Reserved For Services">
 <badnick nick="MemoServ" reason="Reserved For Services">
 
-<badhost host="*@hundredz.n.hundredz.o.1337.kiddies.com" reason="Too many 1337 kiddiots">
+<badhost 
+       # host: ident@hostname to ban. 
+       # Wildcards and CIDR (if you specify an IP) can be used.
+       host="*@hundredz.n.hundredz.o.1337.kiddies.com" 
+
+       # reason: Reason to display when user is disconnected
+       reason="Too many 1337 kiddiots">
 <badhost host="*@localhost" reason="No irc from localhost!">
 <badhost host="*@172.32.0.0/16" reason="This subnet is bad.">
 
-<exception host="*@ircop.host.com" reason="Opers hostname">
+# exception: Hosts that are exempt from [kgz]lines.
+<exception 
+       # host: ident@hostname to exempt. 
+       # Wildcards and CIDR (if you specify an IP) can be used.
+       host="*@ircop.host.com" 
+
+       # reason: Reason for exception. Only shown in /stats e
+       reason="Opers hostname">
 
 #-#-#-#-#-#-#-#-#-#-#- INSANE BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -916,18 +704,22 @@
 # don't recommend you do this, or, set nickmasks="yes", which will    #
 # allow any qline.                                                    #
 #                                                                     #
-# The trigger value indicates how wide any mask will be before it is  #
-# prevented from being set. The default value is 95.5% if this tag is #
-# not defined in your configuration file, meaning that if your        #
-# network has 1000 users, a gline matching over 955 of them will be   #
-# prevented from being added.                                         #
-#                                                                     #
-# Please note that remote servers (and services) are exempt from      #
-# these restrictions and expected to enforce their own policies       #
-# locally!                                                            #
-#                                                                     #
 
-<insane hostmasks="no" ipmasks="no" nickmasks="no" trigger="95.5">
+<insane 
+        # hostmasks: Allow bans with insane hostmasks (over-reaching bans)
+        hostmasks="no" 
+
+        # ipmasks: Allow bans with insane ipmasks (over-reaching bans)
+        ipmasks="no" 
+
+        # nickmasks: Allow bans with insane nickmasks (over-reaching bans)
+        nickmasks="no" 
+
+        # trigger: What percentage of users on the network to trigger
+        # specifying an insane ban as. The default is 95.5%, which means
+        # if you have a 1000 user network, a ban will not be allowed if it
+        # will be banning 955 or more users. 
+        trigger="95.5">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
