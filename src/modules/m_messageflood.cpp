@@ -232,7 +232,7 @@ class ModuleMsgFlood : public Module
 				f->clear(user);
 				if (f->ban)
 				{
-					std::vector<std::string> parameters(3);
+					std::vector<std::string> parameters;
 					parameters.push_back(dest->name);
 					parameters.push_back("+b");
 					parameters.push_back(user->MakeWildHost());
