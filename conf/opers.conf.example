@@ -51,7 +51,7 @@
     # modes: usermodes besides +o that are set on a oper of this type
     # when they oper up. Used for snomasks and other things.
     # Requires that m_opermodes.so be loaded.
-    modes="+n">
+    modes="+s +cCqQ">
 
 <type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
 <type name="Helper" classes="HostCloak" host="helper.omega.org.za">
@@ -114,3 +114,4 @@
       # type: What oper type this oline is. See the block above for list
       # of types. NOTE: This is case-sensitive as well.
       type="NetAdmin">
+

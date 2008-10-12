@@ -169,11 +169,7 @@
 
       # restartpass: Password for opers to use if they need to restart
       # a server.
-      restartpass="" 
-
-      # pause: Seconds to wait after a die command is sent before the
-      # server actually shuts down
-      pause="2">
+      restartpass="">
 
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -234,7 +230,12 @@
          globalmax="3"
 
          # limit: How many users are allowed in this class
-	 limit="5000">
+	 limit="5000"
+
+         # modes: Usermodes that are set on users in this block on connect.
+         # Enabling this option requires that the m_conn_umodes module be loaded.
+         # This entry is highly recommended to use for/with IP Cloaking/masking.
+         #modes="+x">
 
 <connect 
         # deny: Will not let people connect if they have specified host/IP.
