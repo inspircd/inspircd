@@ -66,6 +66,8 @@ class ModuleOverride : public Module
 		if ((OverriddenMode) && (irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS))
 		{
 			int Total = OverOps + OverDeops + OverVoices + OverDevoices + OverHalfops + OverDehalfops;
+			if (Total == 0)
+				return;
 
 			ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" Overriding modes: "+ServerInstance->Modes->GetLastParse()+" "+(Total ? "[Detail: " : "")+
 					(OverOps ? ConvToStr(OverOps)+" op"+(OverOps != 1 ? "s" : "")+" " : "")+
