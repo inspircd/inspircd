@@ -84,6 +84,11 @@ class cmd_dccallow : public command_t
 					DisplayHelp(user);
 					return CMD_FAILURE;
 				}
+				else
+				{
+					user->WriteServ("998 %s :DCCALLOW command not understood. For help on DCCALLOW, type /DCCALLOW HELP", user->nick);
+					return CMD_FAILURE;
+				}
 			}
 			
 			std::string nick = parameters[0] + 1;
@@ -127,6 +132,12 @@ class cmd_dccallow : public command_t
 				}
 				else if (action == '+')
 				{
+					if (target == user)
+					{
+						user->WriteServ("996 %s %s :You cannot add yourself to your own DCCALLOW list!", user->nick, user->nick);
+						return CMD_FAILURE;
+					}
+					
 					if (!user->GetExt("dccallow_list", dl))
 					{
 						dl = new dccallowlist;
@@ -134,16 +145,12 @@ class cmd_dccallow : public command_t
 						// add this user to the userlist
 						ul.push_back(user);
 					}
+					
 					for (dccallowlist::const_iterator k = dl->begin(); k != dl->end(); ++k)
 					{
 						if (k->nickname == target->nick)
 						{
 							user->WriteServ("996 %s %s :%s is already on your DCCALLOW list", user->nick, user->nick, target->nick);
-							return CMD_FAILURE;
-						}
-						else if (ServerInstance->MatchText(user->GetFullHost(), k->hostmask))
-						{
-							user->WriteServ("996 %s %s :You cannot add yourself to your own DCCALLOW list!", user->nick, user->nick);
 							return CMD_FAILURE;
 						}
 					}
@@ -352,11 +359,13 @@ class ModuleDCCAllow : public Module
 								if (defaultaction == "allow")
 									return 0;
 							}
-							user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick, u->nick, filename.c_str());
-							u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick, user->nick, user->ident, user->dhost, filename.c_str());
-							u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick, user->nick);
-							return 1;
 						}
+						
+						user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick, u->nick, filename.c_str());
+						u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick, user->nick, user->ident, user->dhost, filename.c_str());
+						u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick, user->nick);
+						
+						return 1;
 					}
 					else if ((type == "CHAT") && (blockchat))
 					{
