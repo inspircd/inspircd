@@ -709,7 +709,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDECHANS module: Allows opers to hide their channels list from non-
 # opers by setting user mode +I on themselves.
-# This module is oper-only.
 # <module name="m_hidechans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
