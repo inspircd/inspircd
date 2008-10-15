@@ -710,6 +710,11 @@
 # HIDECHANS module: Allows opers to hide their channels list from non-
 # opers by setting user mode +I on themselves.
 # <module name="m_hidechans.so">
+#
+# HIDECHANS can optionally prevent opers from seeing channels on a +I
+# user, for more privacy if set to true.
+# This setting is not recommended for most mainstream networks.
+#<hidechans affectsopers="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDEOPER module: Allows opers to hide their oper status from non-

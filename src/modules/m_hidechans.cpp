@@ -47,20 +47,19 @@ class HideChans : public ModeHandler
 
 class ModuleHideChans : public Module
 {
-
+	bool AffectsOpers;
 	HideChans* hm;
  public:
-	ModuleHideChans(InspIRCd* Me)
-		: Module(Me)
+	ModuleHideChans(InspIRCd* Me) : Module(Me)
 	{
 
 		hm = new HideChans(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(hm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnWhoisLine };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnWhoisLine, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
+		OnRehash(NULL, "");
 	}
-
 
 	virtual ~ModuleHideChans()
 	{
@@ -73,12 +72,36 @@ class ModuleHideChans : public Module
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
+	virtual void OnRehash(User* user, const std::string &parameter)
+	{
+		ConfigReader conf(ServerInstance);
+		AffectsOpers = conf.ReadFlag("hidechans", "affectsopers", 0);
+	}
+
 	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
-		/* Dont display channels if they have +I set and the
-		 * person doing the WHOIS is not an oper
-		 */
-		return ((user != dest) && (!IS_OPER(user)) && (numeric == 319) && dest->IsModeSet('I'));
+		/* always show to self */
+		if (user == dest)
+			return 0;
+
+		/* don't touch anything except 319 */
+		if (numeric != 319)
+			return 0;
+
+		/* don't touch if -I */
+		if (!dest->IsModeSet('I'))
+			return 0;
+
+		/* if it affects opers, we don't care if they are opered */
+		if (AffectsOpers)
+			return 1;
+
+		/* doesn't affect opers, sender is opered */
+		if (IS_OPER(user))
+			return 0;
+
+		/* user must be opered, boned. */
+		return 1;
 	}
 };
 
