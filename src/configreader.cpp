@@ -21,6 +21,8 @@
 /* $CopyInstall: conf/inspircd.filter.example $(CONPATH) */
 /* $CopyInstall: conf/inspircd.conf.example $(CONPATH) */
 /* $CopyInstall: conf/modules.conf.example $(CONPATH) */
+/* $CopyInstall: conf/opers.conf.example $(CONPATH) */
+/* $CopyInstall: conf/links.conf.example $(CONPATH) */
 
 #include "inspircd.h"
 #include <fstream>
