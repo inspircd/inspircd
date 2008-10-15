@@ -82,6 +82,11 @@ class CommandDccallow : public Command
 					DisplayHelp(user);
 					return CMD_FAILURE;
 				}
+				else
+				{
+					user->WriteNumeric(998, "%s :DCCALLOW command not understood. For help on DCCALLOW, type /DCCALLOW HELP", user->nick.c_str());
+					return CMD_FAILURE;
+				}
 			}
 
 			std::string nick = parameters[0].substr(1);
@@ -125,6 +130,12 @@ class CommandDccallow : public Command
 				}
 				else if (action == '+')
 				{
+					if (target == user)
+					{
+						user->WriteNumeric(996, "%s %s :You cannot add yourself to your own DCCALLOW list!", user->nick.c_str(), user->nick.c_str());
+						return CMD_FAILURE;
+					}
+					
 					if (!user->GetExt("dccallow_list", dl))
 					{
 						dl = new dccallowlist;
@@ -132,16 +143,12 @@ class CommandDccallow : public Command
 						// add this user to the userlist
 						ul.push_back(user);
 					}
+					
 					for (dccallowlist::const_iterator k = dl->begin(); k != dl->end(); ++k)
 					{
 						if (k->nickname == target->nick)
 						{
 							user->WriteNumeric(996, "%s %s :%s is already on your DCCALLOW list", user->nick.c_str(), user->nick.c_str(), target->nick.c_str());
-							return CMD_FAILURE;
-						}
-						else if (InspIRCd::Match(user->GetFullHost(), k->hostmask))
-						{
-							user->WriteNumeric(996, "%s %s :You cannot add yourself to your own DCCALLOW list!", user->nick.c_str(), user->nick.c_str());
 							return CMD_FAILURE;
 						}
 					}
@@ -195,7 +202,7 @@ class CommandDccallow : public Command
 
 	void DisplayHelp(User* user)
 	{
-		user->WriteNumeric(998, "%s :DCCALLOW [<+|->nick.c_str() [time]] [list] [help]", user->nick.c_str());
+		user->WriteNumeric(998, "%s :DCCALLOW [<+|->nick [time]] [list] [help]", user->nick.c_str());
 		user->WriteNumeric(998, "%s :You may allow DCCs from specific users by specifying a", user->nick.c_str());
 		user->WriteNumeric(998, "%s :DCC allow for the user you want to receive DCCs from.", user->nick.c_str());
 		user->WriteNumeric(998, "%s :For example, to allow the user Brain to send you inspircd.exe", user->nick.c_str());
@@ -348,11 +355,12 @@ class ModuleDCCAllow : public Module
 								if (defaultaction == "allow")
 									return 0;
 							}
-							user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick.c_str(), u->nick.c_str(), filename.c_str());
-							u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), filename.c_str());
-							u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick.c_str(), user->nick.c_str());
-							return 1;
 						}
+						
+						user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick.c_str(), u->nick.c_str(), filename.c_str());
+						u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), filename.c_str());
+						u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick.c_str(), user->nick.c_str());
+						return 1;
 					}
 					else if ((type == "CHAT") && (blockchat))
 					{
