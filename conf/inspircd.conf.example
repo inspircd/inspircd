@@ -235,7 +235,7 @@
          # modes: Usermodes that are set on users in this block on connect.
          # Enabling this option requires that the m_conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
-         #modes="+x">
+         modes="+x">
 
 <connect 
         # deny: Will not let people connect if they have specified host/IP.
