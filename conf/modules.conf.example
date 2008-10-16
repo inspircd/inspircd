@@ -664,6 +664,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GeoIP module: Allows the server admin to ban users by country code.
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_geoip.cpp
+# and run make install, then uncomment this module to enable it.
 #<module name="m_geoip.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#  GEOIP CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#
@@ -845,6 +847,8 @@
 # LDAP authentication module: Adds the ability to authenticate users  #
 # via LDAP. This is an extra module which must be enabled explicitly  #
 # by symlinking it from modules/extra, and requires the OpenLDAP libs #
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_ldapauth.cpp
+# and run make install, then uncomment this module to enable it.      #
 #                                                                     #
 #<module name="m_ldapauth.so">                                        #
 #                                                                     #
@@ -909,6 +913,9 @@
 # MsSQL module: Allows other SQL modules to access MS SQL Server 
 # through a unified API. You must copy the source for this module
 # from the directory src/modules/extra, plus the file m_sqlv2.h
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mssql.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_mssql.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -922,6 +929,9 @@
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API. You must copy the source for this module
 # from the directory src/modules/extra, plus the file m_sqlv2.h
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mysql.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_mysql.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1091,6 +1101,9 @@
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
 # through a unified API. You must copy the source for this module
 # from the directory src/modules/extra, plus the file m_sqlv2.h
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_pgsql.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_pgsql.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1413,6 +1426,9 @@
 # scripts to validate users. For this to work, one of m_ssl_gnutls.so
 # or m_ssl_openssl.so must be loaded. You must symlink the source for
 # this module from the directory src/modules/extra.
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sslinfo.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_sslinfo.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1460,6 +1476,9 @@
 # databases through a unified API. You must link the source for this  #
 # module from the directory src/modules/extra to src/modules, plus    #
 # the file m_sqlv2.h                                                  #
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_aqlite.cpp
+# and run make install, then uncomment this module to enable it.      #
+#
 #<module name="m_sqlite3.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1475,6 +1494,9 @@
 # for this module from the directory src/modules/extra/m_sqlutils.cpp
 # and src/modules/extra/m_sqlutils.h into /src/modules
 # Needed for, and loaded before: SQLauth and SQLoper
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlutils.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_sqlutils.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1482,6 +1504,9 @@
 # a database table (for example a forum). You must copy the source for
 # this module from the directory src/modules/extra
 # Depends on the SQLutils module being loaded first.
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlauth.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_sqlauth.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -1493,6 +1518,9 @@
 # SQL logging module: Allows you to log network-wide data for your
 # network in a fully normalised set of SQL tables. You must copy the
 # source for this module from the directory src/modules/extra
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqllog.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_sqllog.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  SQLLOG CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -1507,6 +1535,9 @@
 # SQL oper module: Allows you to store oper credentials in an SQL table
 # You must copy the source for this module from the directory src/modules/extra
 # Depends on the SQLutils module being loaded first.
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqloper.cpp
+# and run make install, then uncomment this module to enable it.
+#
 #<module name="m_sqloper.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -1610,6 +1641,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # ZipLinks module: Adds support for zlib deflate on server to server
 # connections. Both ends of the connection must load this module.
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_ziplink.cpp
+# and run make install, then uncomment this module to enable it.
 #
 #<module name="m_ziplink.so">
 #

@@ -90,6 +90,14 @@
       # of types. NOTE: This is case-sensitive as well.
       type="NetAdmin">
 
+# oline with plain-text password and no comments..for all who like copy & paste
+<oper
+      name="Brain"
+      password="s3cret"
+      host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
+      #fingerprint="67:CB:9D:C0:13:24:8A:82:9B:B2:17:1E:D1:1B:EC:D4"
+      type="NetAdmin">
+
 # oline with hashed password. It is highly recommended to use hashed passwords.
 <oper 
       # name: oper login that is used to oper up (/oper name password).
@@ -97,7 +105,7 @@
       name="Brain"
 
       # hash: what hash this password is hashed with. requires the module
-      # for selected hash (m_md5.so, m_sha256.so or m_ripemd160) be
+      # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
       # loaded and the oper password hashing module (m_password_hash.so)
       # loaded. Options here are: "md5", "sha256" and "ripemd160".
       hash="sha256"
@@ -114,4 +122,3 @@
       # type: What oper type this oline is. See the block above for list
       # of types. NOTE: This is case-sensitive as well.
       type="NetAdmin">
-
