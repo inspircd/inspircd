@@ -1639,7 +1639,7 @@ bool User::ChangeIdent(const char* newident)
 	if (this->ident == newident)
 		return true;
 
-        int MOD_RESULT = 0;
+	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
 
 	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
