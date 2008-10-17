@@ -569,6 +569,12 @@ bool DoneConnect(ServerConfig *conf, const char*)
 		User *u = *n;
 
 		u->SetClass();
+
+		/*
+		 * Check that the user falls into a valid class block.. if they don't,
+		 * they need to be quit, which CheckClass will do. -- w00t
+		 */
+		u->CheckClass();
 	}
 
 
