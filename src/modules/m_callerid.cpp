@@ -239,6 +239,8 @@ public:
 
 			return false;
 		}
+
+		user->WriteServ("NOTICE %s :%s is now on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
 		return true;
 	}
 
@@ -260,6 +262,8 @@ public:
 
 			return false;
 		}
+
+		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 		dat->accepting.erase(i);
 		return true;
 	}
