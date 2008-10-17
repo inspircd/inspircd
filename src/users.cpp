@@ -1761,9 +1761,6 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
-			if (c->GetDisabled())
-				continue; // can't possibly match, removed from conf
-
 			if (explicit_name == c->GetName())
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Explicitly set to %s", explicit_name.c_str());
@@ -1784,13 +1781,6 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			else
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "DENY %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
-			}
-
-			/* if it's disabled, we can't match this one. */
-			if (c->GetDisabled())
-			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class disabled");
-				continue;
 			}
 
 			/* check if host matches.. */

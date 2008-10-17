@@ -457,28 +457,16 @@ bool InitConnect(ServerConfig* conf, const char*)
 {
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes...");
 
-	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end() ; )
+	/*
+	 * Remove all connect classes.. we'll reset the pointers in user classes
+	 * once all new classes have been read from config.
+	 */
+	while (conf->Classes.begin() != conf->Classes.end())
 	{
-		ConnectClass* c = *i;
+		ConnectClass *c = *conf->Classes.begin();
 
-		/* only delete a class with refcount 0 */
-		if (c->RefCount == 0)
-		{
-			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Removing connect class, refcount is 0!");
-			
-			/* This was causing a crash, because we'd set i to .begin() just here, but then the for loop's increment would
-			 * set it to .begin() + 1. Which if it was already the last thing in the list, wasn't good.
-			 * Now the increment is in the else { } below.
-			 */
-			conf->Classes.erase(i);
-			i = conf->Classes.begin(); // start over so we don't trample on a bad iterator
-		}
-		else
-		{
-			/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
-			c->SetDisabled(true);
-			i++;
-		}
+		delete c;
+		conf->Classes.erase(conf->Classes.begin());
 	}
 
 	return true;
@@ -506,27 +494,6 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	int maxchans = values[14].GetInteger();
 	unsigned long limit = values[15].GetInteger();
 	const char* hashtype = values[16].GetString();
-
-	/*
-	 * duplicates check: Now we don't delete all connect classes on rehash, we need to ensure we don't add dupes.
-	 * easier said than done, but for now we'll just disallow anything with a duplicate host or name. -- w00t
-	 */
-	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
-	{
-		ConnectClass* cc = *item;
-		if (
-			 ((*name && (cc->GetName() == name)) || // if the name is the same
-			 (*allow && (cc->GetHost() == allow)) || // or the allow is the same
-			 (*deny && (cc->GetHost() == deny))) && // or the deny is the same
-			 (!port || (port && (cc->GetPort() == port))) // and there is no port, or there is a port and the port is the same
-		   )
-		{
-			/* reenable class so users can be shoved into it :P */
-			cc->SetDisabled(false);
-			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Not adding class, it already exists!");
-			return true;
-		} 
-	}
 
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Adding a connect class!");
 
@@ -594,6 +561,17 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
  */
 bool DoneConnect(ServerConfig *conf, const char*)
 {
+	/*
+	 * Update connect classes on all users.
+	 */
+  	for (std::vector<User*>::iterator n = conf->GetInstance()->Users->local_users.begin(); n != conf->GetInstance()->Users->local_users.end(); n++)
+	{
+		User *u = *n;
+
+		u->SetClass();
+	}
+
+
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Done adding connect classes!");
 	return true;
 }
