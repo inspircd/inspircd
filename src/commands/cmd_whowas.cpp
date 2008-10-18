@@ -65,10 +65,10 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 
 				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick.c_str(),parameters[0].c_str(),u->ident,u->dhost,u->gecos);
 				
-				if (IS_OPER(user))
+				if (user->HasPrivPermission("users/auspex"))
 					user->WriteNumeric(379, "%s %s :was connecting from *@%s", user->nick.c_str(), parameters[0].c_str(), u->host);
 				
-				if (*ServerInstance->Config->HideWhoisServer && !IS_OPER(user))
+				if (*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
 					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer, b);
 				else
 					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), u->server, b);

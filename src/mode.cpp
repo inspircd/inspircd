@@ -341,7 +341,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 			return;
 		}
 
-		if ((targetuser == user) || (IS_OPER(user)))
+		if (targetuser == user || user->HasPrivPermission("users/auspex"))
 		{
 			/* Display user's current mode string */
 			user->WriteNumeric(RPL_UMODEIS, "%s :+%s",targetuser->nick.c_str(),targetuser->FormatModes());
@@ -419,7 +419,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 					continue;
 				}
 
-				if (!IS_OPER(user))
+				if (!user->HasPrivPermission("channels/auspex"))
 				{
 					if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
 					{
