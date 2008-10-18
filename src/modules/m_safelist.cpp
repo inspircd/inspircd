@@ -170,7 +170,7 @@ class ModuleSafeList : public Module
 			do
 			{
 				chan = ServerInstance->GetChannelIndex(ld->list_position);
-				bool has_user = (chan && chan->HasUser(user));
+				bool is_special = (chan && (chan->HasUser(user) || user->HasPrivPermission("channels/auspex")));
 				long users = chan ? chan->GetUserCounter() : 0;
 
 				bool too_few = (ld->minusers && (users <= ld->minusers));
@@ -182,37 +182,47 @@ class ModuleSafeList : public Module
 					continue;
 				}
 
-				if ((chan) && (chan->modes[CM_PRIVATE]) && (!IS_OPER(user)))
+				if (chan)
 				{
 					bool display = (InspIRCd::Match(chan->name, ld->glob) || (!chan->topic.empty() && InspIRCd::Match(chan->topic, ld->glob)));
-					if ((users) && (display))
+
+					if (!users || !display)
 					{
+						ld->list_position++;
+						continue;
+					}
+
+					/* +s, not in chan / not got channels/auspex */
+					if (chan->IsModeSet('s') && !is_special)
+					{
+						ld->list_position++;
+						continue;
+					}
+
+					if (chan->IsModeSet('p') && !is_special)
+					{
+						/* Channel is +p and user is outside/not privileged */
 						int counter = snprintf(buffer, MAXBUF, "322 %s * %ld :", user->nick.c_str(), users);
 						amount_sent += counter + ServerNameSize;
 						user->WriteServ(std::string(buffer));
 					}
-				}
-				else if ((chan) && ((((!(chan->IsModeSet('p'))) && (!(chan->IsModeSet('s'))))) || (has_user) || IS_OPER(user)))
-				{
-					bool display = (InspIRCd::Match(chan->name, ld->glob) || (!chan->topic.empty() && InspIRCd::Match(chan->topic, ld->glob)));
-					if ((users) && (display))
+					else
 					{
-						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s", user->nick.c_str(), chan->name.c_str(), users, chan->ChanModes(has_user || IS_OPER(user)), chan->topic.c_str());
+						/* User is in the channel/privileged, channel is not +s */
+						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s", user->nick.c_str(), chan->name.c_str(), users, chan->ChanModes(is_special), chan->topic.c_str());
 						amount_sent += counter + ServerNameSize;
 						user->WriteServ(std::string(buffer));
 					}
 				}
 				else
 				{
-					if (!chan)
+					if (!ld->list_ended)
 					{
-						if (!ld->list_ended)
-						{
-							ld->list_ended = true;
-							user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
-						}
+						ld->list_ended = true;
+						user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
 					}
 				}
+
 				ld->list_position++;
 			}
 			while ((chan != NULL) && (amount_sent < (user->MyClass->GetSendqMax() / 4)));

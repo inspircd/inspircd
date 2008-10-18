@@ -25,8 +25,8 @@ class ModuleSpy : public Module
 
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
 	{
-		/* User is an oper and is NOT on the channel */
-		if (IS_OPER(user) && !Ptr->HasUser(user))
+		/* User has priv and is NOT on the channel */
+		if (user->HasPrivPermission("channels/auspex") && !Ptr->HasUser(user))
 			return -1;
 
 		return 0;
