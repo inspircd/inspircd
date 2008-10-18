@@ -27,7 +27,7 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 	if (dest->registered == REG_ALL)
 	{
 		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
-		if (user == dest || IS_OPER(user))
+		if (user == dest || user->HasPrivPermission("users/auspex"))
 		{
 			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString());
 		}
@@ -45,7 +45,7 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 				ServerInstance->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), cl.c_str());
 			}
 		}
-		if (*ServerInstance->Config->HideWhoisServer && !IS_OPER(user))
+		if (*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
 		{
 			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
 		}
@@ -64,9 +64,9 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper[0]) ? "an" : "a"),irc::Spacify(dest->oper.c_str()), ServerInstance->Config->Network);
 		}
 
-		if (user == dest || IS_OPER(user))
+		if (user == dest || user->HasPrivPermission("users/auspex"))
 		{
-			if (dest->modes[UM_SNOMASK] != 0)
+			if (dest->IsModeSet('s') != 0)
 			{
 				ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes(), dest->FormatNoticeMasks());
 			}
