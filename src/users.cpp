@@ -721,7 +721,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		if (AllowedOperCommands)
 			AllowedOperCommands->clear();
 		else
-			AllowedOperCommands = new std::map<std::string, bool>;
+			AllowedOperCommands = new std::set<std::string>;
 
 		AllowedUserModes.reset();
 		AllowedChanModes.reset();
@@ -737,7 +737,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 				irc::spacesepstream CommandList(iter_operclass->second.commandlist);
 				while (CommandList.GetToken(mycmd))
 				{
-					this->AllowedOperCommands->insert(std::make_pair(mycmd, true));
+					this->AllowedOperCommands->insert(mycmd);
 				}
 				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
 				{

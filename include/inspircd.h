@@ -45,7 +45,7 @@
 #include <deque>
 #include <map>
 #include <bitset>
-
+#include <set>
 
 /** A list of failed port bindings, used for informational purposes on startup */
 typedef std::vector<std::pair<std::string, std::string> > FailedPortList;

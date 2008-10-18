@@ -439,7 +439,8 @@ class CoreExport User : public EventHandler
 	 */
 	void DecrementModes();
 
-	std::map<std::string, bool>* AllowedOperCommands;
+	std::set<std::string> *AllowedOperCommands;
+	std::set<std::string> *AllowedPrivs;
 
 	/** Allowed user modes from oper classes. */
 	std::bitset<64> AllowedUserModes;

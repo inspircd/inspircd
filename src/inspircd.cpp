@@ -656,7 +656,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* set up fake client again this time with the correct uid */
 	this->FakeClient = new User(this, "#INVALID");
 	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
-	this->FakeClient->HasPrivPermission("users", "override/topic");
+	this->FakeClient->HasPrivPermission("users/override/topic");
 	exit(0);
 
 	// Get XLine to do it's thing.
