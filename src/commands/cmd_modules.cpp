@@ -30,7 +30,7 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 		Module* m = ServerInstance->Modules->Find(module_names[i]);
 		Version V = m->GetVersion();
 
-		if (IS_OPER(user))
+		if (user->HasPrivPermission("servers/auspex"))
 		{
 			std::string flags("Svsc");
 			int pos = 0;
