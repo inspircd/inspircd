@@ -96,7 +96,7 @@ class ModuleAuditorium : public Module
 			return;
 
 		/* If user is oper and operoverride is on, don't touch the list */
-		if (OperOverride && IS_OPER(user))
+		if (OperOverride && user->HasPrivPermission("channels/auspex"))
 			return;
 
 		if (ShowOps && (issuer != user) && (channel->GetStatus(user) < STATUS_OP))

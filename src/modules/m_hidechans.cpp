@@ -97,7 +97,7 @@ class ModuleHideChans : public Module
 			return 1;
 
 		/* doesn't affect opers, sender is opered */
-		if (IS_OPER(user))
+		if (user->HasPrivPermission("users/auspex"))
 			return 0;
 
 		/* user must be opered, boned. */
