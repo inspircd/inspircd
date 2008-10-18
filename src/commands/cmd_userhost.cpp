@@ -48,7 +48,7 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 
 			retbuf = retbuf + u->ident + "@";
 
-			if (IS_OPER(user))
+			if (user->HasPrivPermission("users/auspex"))
 			{
 				retbuf = retbuf + u->host;
 			}
