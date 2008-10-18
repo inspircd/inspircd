@@ -136,7 +136,7 @@ bool CommandWho::CanView(Channel* chan, User* user)
 	if (chan->HasUser(user))
 		return true;
 	/* Opers see all */
-	if (IS_OPER(user))
+	if (user->HasPrivPermission("users/auspex"))
 		return true;
 	/* Cant see inside a +s or a +p channel unless we are a member (see above) */
 	else if (!chan->IsModeSet('s') && !chan->IsModeSet('p'))
@@ -155,7 +155,7 @@ void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch
 	Channel* chlast = ServerInstance->FindChan(lcn);
 
 	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +
-				((*ServerInstance->Config->HideWhoisServer && !IS_OPER(user)) ? ServerInstance->Config->HideWhoisServer : u->server) +
+				((*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex")) ? ServerInstance->Config->HideWhoisServer : u->server) +
 				" " + u->nick + " ";
 
 	/* away? */
@@ -239,11 +239,11 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					opt_viewopersonly = true;
 					break;
 				case 'h':
-					if (IS_OPER(user))
+					if (user->HasPrivPermission("users/auspex"))
 						opt_showrealhost = true;
 					break;
 				case 'u':
-					if (IS_OPER(user))
+					if (user->HasPrivPermission("users/auspex"))
 						opt_unlimit = true;
 					break;
 				case 'r':
@@ -300,7 +300,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 						continue;
 	
 					/* If we're not inside the channel, hide +i users */
-					if (i->first->IsModeSet('i') && !inside && !IS_OPER(user))
+					if (i->first->IsModeSet('i') && !inside && !user->HasPrivPermission("users/auspex"))
 						continue;
 				}
 	
@@ -322,7 +322,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				{
 					if (!user->SharesChannelWith(oper))
 					{
-						if (usingwildcards && (!oper->IsModeSet('i')) && (!IS_OPER(user)))
+						if (usingwildcards && (!oper->IsModeSet('i')) && (!user->HasPrivPermission("users/auspex")))
 							continue;
 					}
 
@@ -338,7 +338,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				{
 					if (!user->SharesChannelWith(i->second))
 					{
-						if (usingwildcards && (i->second->IsModeSet('i')) && (!IS_OPER(user)))
+						if (usingwildcards && (i->second->IsModeSet('i')) && (!user->HasPrivPermission("users/auspex")))
 							continue;
 					}
 
