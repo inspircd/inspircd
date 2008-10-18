@@ -30,8 +30,11 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
-	if ((parameters[0][0] == '$') && (IS_OPER(user) || ServerInstance->ULine(user->server)))
+	if (parameters[0][0] == '$')
 	{
+		if (!user->HasPrivPermission("users/mass-message"))
+			return CMD_SUCCESS;
+
 		int MOD_RESULT = 0;
 		std::string temp = parameters[1];
 		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list));
