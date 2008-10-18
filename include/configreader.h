@@ -232,13 +232,19 @@ struct operclass_data : public Extensible
 {
 	/** Command list for the class
 	 */
-	char* commandlist;
+	char *commandlist;
+
 	/** Channel mode list for the class
 	 */
-	char* cmodelist;
+	char *cmodelist;
+
 	/** User mode list for the class
 	 */
-	char* umodelist;
+	char *umodelist;
+
+	/** Priviledges given by this class
+	 */
+	char *privs;
 };
 
 /** A Set of oper classes

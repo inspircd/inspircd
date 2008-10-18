@@ -17,6 +17,9 @@
      # commands: oper commands that users of this class can run.
      commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD" 
 
+     # privs: special priviledges that users with this class may utilise.
+#     privs="users/mass-message"
+
      # usermodes: Oper-only usermodes that opers with this class can use.
      usermodes="*" 
 

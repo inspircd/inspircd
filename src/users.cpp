@@ -216,7 +216,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Visibility = NULL;
 	ip = NULL;
 	MyClass = NULL;
-	AllowedOperCommands = NULL;
+	AllowedPrivs = AllowedOperCommands = NULL;
 	chans.clear();
 	invites.clear();
 
@@ -242,10 +242,17 @@ User::~User()
 		this->MyClass->RefCount--;
 		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %lu", this->MyClass->RefCount);
 	}
+
 	if (this->AllowedOperCommands)
 	{
 		delete AllowedOperCommands;
 		AllowedOperCommands = NULL;
+	}
+
+	if (this->AllowedPrivs)
+	{
+		delete AllowedPrivs;
+		AllowedPrivs = NULL;
 	}
 
 	this->InvalidateCache();
@@ -505,10 +512,46 @@ bool User::HasPermission(const std::string &command)
 }
 
 
-bool User::HasPrivPermission(const std::string &privstr)
+bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 {
-	ServerInstance->Logs->Log("CRAP", DEBUG, "Checking if I have " + privstr);
-	return true;
+	ServerInstance->Logs->Log("PRIVS", DEBUG, "Checking if I have " + privstr);
+	if (!IS_LOCAL(this))
+	{
+		ServerInstance->Logs->Log("PRIVS", DEBUG, "Remote (yes)");
+		return true;
+	}
+
+	if (!IS_OPER(this))
+	{
+		if (noisy)
+			this->WriteServ("NOTICE %s :You are not an oper", this->nick.c_str());
+		ServerInstance->Logs->Log("PRIVS", DEBUG, "Not oper (no)");
+		return false;
+	}
+
+	if (!AllowedPrivs)
+	{
+		if (noisy)
+			this->WriteServ("NOTICE %s :Privset empty(!?)", this->nick.c_str());
+		ServerInstance->Logs->Log("PRIVS", DEBUG, "No privs(?) (no)");
+		return false;
+	}
+
+	if (AllowedPrivs->find(privstr) != AllowedPrivs->end())
+	{
+		ServerInstance->Logs->Log("PRIVS", DEBUG, "I do have it.");		
+		return true;
+	}
+	else if (AllowedPrivs->find("*") != AllowedPrivs->end())
+	{
+		ServerInstance->Logs->Log("PRIVS", DEBUG, "I allow all.");
+		return true;
+	}
+
+	if (noisy)
+		this->WriteServ("NOTICE %s :Oper type %s does not have access to priv %s", this->nick.c_str(), this->oper.c_str(), privstr.c_str());
+	ServerInstance->Logs->Log("PRIVS", DEBUG, "I don't have it...");
+	return false;
 }
 
 bool User::AddBuffer(const std::string &a)
@@ -717,28 +760,40 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
 	if (iter_opertype != ServerInstance->Config->opertypes.end())
 	{
-
 		if (AllowedOperCommands)
 			AllowedOperCommands->clear();
 		else
 			AllowedOperCommands = new std::set<std::string>;
 
+		if (AllowedPrivs)
+			AllowedPrivs->clear();
+		else
+			AllowedPrivs = new std::set<std::string>;
+
 		AllowedUserModes.reset();
 		AllowedChanModes.reset();
 		this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
-		std::string myclass, mycmd;
+		std::string myclass, mycmd, mypriv;
 		irc::spacesepstream Classes(iter_opertype->second);
 		while (Classes.GetToken(myclass))
 		{
 			operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());
 			if (iter_operclass != ServerInstance->Config->operclass.end())
 			{
+				/* Process commands */
 				irc::spacesepstream CommandList(iter_operclass->second.commandlist);
 				while (CommandList.GetToken(mycmd))
 				{
 					this->AllowedOperCommands->insert(mycmd);
 				}
+
+				irc::spacesepstream PrivList(iter_operclass->second.privs);
+				while (PrivList.GetToken(mypriv))
+				{
+					this->AllowedPrivs->insert(mypriv);
+				}
+
 				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
 				{
 					if (*c == '*')
@@ -750,6 +805,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 						this->AllowedUserModes[*c - 'A'] = true;
 					}
 				}
+
 				for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist; *c; ++c)
 				{
 					if (*c == '*')
@@ -802,6 +858,12 @@ void User::UnOper()
 		{
 			delete AllowedOperCommands;
 			AllowedOperCommands = NULL;
+		}
+
+		if (AllowedPrivs)
+		{
+			delete AllowedPrivs;
+			AllowedPrivs = NULL;
 		}
 
 		AllowedUserModes.reset();

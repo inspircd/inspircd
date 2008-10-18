@@ -913,9 +913,9 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 				InitTypes, DoType, DoneClassesAndTypes},
 
 		{"class",
-				{"name",	"commands",	"usermodes",	"chanmodes",	NULL},
-				{"",		"",		"",		"",		NULL},
-				{DT_NOSPACES,	DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR},
+				{"name",	"commands",	"usermodes",	"chanmodes",	"privs",	NULL},
+				{"",		"",				"",				"",			"",			NULL},
+				{DT_NOSPACES,	DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR, DT_CHARPTR},
 				InitClasses, DoClass, DoneClassesAndTypes},
 	
 		{NULL,
@@ -2224,6 +2224,8 @@ bool InitClasses(ServerConfig* conf, const char*)
 				delete[] n->second.cmodelist;
 			if (n->second.umodelist)
 				delete[] n->second.umodelist;
+			if (n->second.privs)
+				delete[] n->second.privs;
 		}
 	}
 
@@ -2252,6 +2254,7 @@ bool DoClass(ServerConfig* conf, const char* tag, char**, ValueList &values, int
 	const char* CommandList = values[1].GetString();
 	const char* UModeList = values[2].GetString();
 	const char* CModeList = values[3].GetString();
+	const char *PrivsList = values[4].GetString();
 
 	for (const char* c = UModeList; *c; ++c)
 	{
@@ -2271,6 +2274,7 @@ bool DoClass(ServerConfig* conf, const char* tag, char**, ValueList &values, int
 	conf->operclass[ClassName].commandlist = strnewdup(CommandList);
 	conf->operclass[ClassName].umodelist = strnewdup(UModeList);
 	conf->operclass[ClassName].cmodelist = strnewdup(CModeList);
+	conf->operclass[ClassName].privs = strnewdup(PrivsList);
 	return true;
 }
 
