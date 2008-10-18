@@ -504,6 +504,13 @@ bool User::HasPermission(const std::string &command)
 	return false;
 }
 
+
+bool User::HasPrivPermission(const std::string &privstr)
+{
+	ServerInstance->Logs->Log("CRAP", DEBUG, "Checking if I have " + privstr);
+	return true;
+}
+
 bool User::AddBuffer(const std::string &a)
 {
 	std::string::size_type start = 0;

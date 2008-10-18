@@ -788,6 +788,14 @@ class CoreExport User : public EventHandler
 	 */
 	bool HasPermission(const std::string &command);
 
+	/** Returns true if a user has a given permission.
+	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
+	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
+	 *
+	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
+	 * @return True if this user has the permission in question.
+	 */	bool HasPrivPermission(const std::string &privstr);
+
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes, and checking the modes they can set.
