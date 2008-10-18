@@ -18,7 +18,8 @@
      commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD" 
 
      # privs: special priviledges that users with this class may utilise.
-#     privs="users/mass-message"
+     # users/mass-message: allows users with this class to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*)
+	 privs="users/mass-message"
 
      # usermodes: Oper-only usermodes that opers with this class can use.
      usermodes="*" 
