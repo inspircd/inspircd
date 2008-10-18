@@ -19,8 +19,9 @@
 
      # privs: special priviledges that users with this class may utilise.
      #  users/mass-message: allows users with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*)
-     #  channels/auspex: allows opers with this priv to see more detail about channels than they would normally see.
-     #  servers/auspex: allows opers with this priv to see more detail about server information than they would normally see.
+     #  channels/auspex: allows opers with this priv to see more detail about channels than normal users.
+     #  users/auspex: allows opers with this priv to view more details about users than normal users.
+     #  servers/auspex: allows opers with this priv to see more detail about server information than normal users.
 	 privs="users/mass-message"
 
      # usermodes: Oper-only usermodes that opers with this class can use.
