@@ -276,7 +276,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		}
 		else
 		{
-			if (IS_OPER(user))
+			if (user->HasPrivPermission("channels/high-join-limit"))
 			{
 				if (user->chans.size() >= Instance->Config->OperMaxChans)
 				{
