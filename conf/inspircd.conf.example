@@ -554,6 +554,16 @@
           # channels.
           operspywhois="no"
 
+          # runasuser: If this is set, InspIRCd will attempt to setuid
+          # to run as this user- allows binding of ports under 1024.
+          # NOT SUPPORTED/NEEDED UNDER WIINDOWS.
+          #runasuser=""
+
+          # runasgroup: If this is set, InspIRCd will attempt to set group
+          # to run under this group, which allowsof ports under 1024
+          # NOT SUPPORTED/NEEDED UNDER WIINDOWS.
+          #runasgroup=""
+
           # userstats: /stats commands that users can run (oeprs can run all).
           userstats="Pu">
 

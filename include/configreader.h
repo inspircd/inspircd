@@ -406,6 +406,11 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	int WhoWasMaxKeep;
 
+	/** Both for set(g|u)id.
+	 */
+	char SetUser[MAXBUF];
+	char SetGroup[MAXBUF];
+
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
 	 */

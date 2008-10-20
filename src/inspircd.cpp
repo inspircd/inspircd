@@ -35,6 +35,9 @@
 	#include <stdlib.h>
 	#include <crtdbg.h>
 	#endif
+
+	#include <pwd.h> // setuid
+	#include <grp.h> // setgid
 #endif
 
 #include <fstream>
@@ -725,6 +728,54 @@ InspIRCd::InspIRCd(int argc, char** argv)
 #endif
 
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
+
+#ifndef WIN32
+	if (*(this->Config->SetUser))
+	{
+		// setuid
+		struct passwd *u;
+
+		errno = 0;
+		u = getpwnam(this->Config->SetUser);
+
+		if (!u)
+		{
+			this->Logs->Log("SETGUID", DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
+			this->QuickExit(0);
+		}
+
+		int ret = setuid(u->pw_uid);
+
+		if (ret == -1)
+		{
+			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
+			this->QuickExit(0);
+		}
+	}
+
+	if (*(this->Config->SetGroup))
+	{
+		// setgid
+		struct group *g;
+
+		errno = 0;
+		g = getgrnam(this->Config->SetGroup);
+
+		if (!g)
+		{
+			this->Logs->Log("SETGUID", DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
+			this->QuickExit(0);
+		}
+
+		int ret = setgid(g->gr_gid);
+
+		if (ret == -1)
+		{
+			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
+			this->QuickExit(0);
+		}
+	}
+#endif
 
 	this->WritePID(Config->PID);
 }

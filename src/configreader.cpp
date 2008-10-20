@@ -803,6 +803,9 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		{"disabled",	"usermodes",	"",			new ValueContainerChar (disabledumodes),		DT_CHARPTR,  ValidateDisabledUModes},
 		{"disabled",	"chanmodes",	"",			new ValueContainerChar (disabledcmodes),		DT_CHARPTR,  ValidateDisabledCModes},
 		{"disabled",	"fakenonexistant",	"0",			new ValueContainerBool (&this->DisabledDontExist),		DT_BOOLEAN,  NoValidation},
+
+		{"security",		"runasuser",	"",		new ValueContainerChar(this->SetUser),				DT_CHARPTR, NoValidation},
+		{"security",		"runasgroup",	"",		new ValueContainerChar(this->SetGroup),				DT_CHARPTR, NoValidation},
 		{"security",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR,  NoValidation},
 		{"security",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR,  NoValidation},
 		{"security",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN,  NoValidation},
