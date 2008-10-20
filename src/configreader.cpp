@@ -954,8 +954,6 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			*item = 0;
 			if (ConfValue(newconfig, ChangedConfig[Index].tag, ChangedConfig[Index].value, "", 0, item, MAXBUF, true) || *item)
 				throw CoreException(std::string("Your configuration contains a deprecated value: <") + ChangedConfig[Index].tag + ":" + ChangedConfig[Index].value + "> - " + ChangedConfig[Index].reason);
-			else
-				ServerInstance->Logs->Log("CONFIG",DEBUG,"Deprecated item <%s:%s> does not exist, good.", ChangedConfig[Index].tag, ChangedConfig[Index].value);
 		}
 
 		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
