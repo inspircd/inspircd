@@ -455,7 +455,13 @@ bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &dat
  */
 bool InitConnect(ServerConfig* conf, const char*)
 {
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes...");
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes... class list is:");
+
+	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); item++)
+	{
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "class: %p", *(item));
+	}
+
 
 	/*
 	 * Remove all connect classes.. we'll reset the pointers in user classes
@@ -463,10 +469,12 @@ bool InitConnect(ServerConfig* conf, const char*)
 	 */
 	while (conf->Classes.begin() != conf->Classes.end())
 	{
-		ConnectClass *c = *conf->Classes.begin();
+		ConnectClass *c = *(conf->Classes.begin());
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Deleting an old class! :) (%p)", c);
 
-		delete c;
+
 		conf->Classes.erase(conf->Classes.begin());
+		delete c;
 	}
 
 	return true;
@@ -497,6 +505,8 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Adding a connect class!");
 
+	ConnectClass *cc = NULL;
+
 	if (*parent)
 	{
 		/* Find 'parent' and inherit a new class from it,
@@ -505,13 +515,13 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		ClassVector::iterator item = conf->Classes.begin();
 		for (; item != conf->Classes.end(); ++item)
 		{
-			ConnectClass* cc = *item;
+			cc = *item;
 			conf->GetInstance()->Logs->Log("CONFIG",DEBUG,"Class: %s", cc->GetName().c_str());
 			if (cc->GetName() == parent)
 			{
-				ConnectClass* newclass = new ConnectClass(name, cc);
-				newclass->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
-				conf->Classes.push_back(newclass);
+				cc = new ConnectClass(name, cc);
+				cc->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
+				conf->Classes.push_back(cc);
 				break;
 			}
 		}
@@ -531,7 +541,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 					return true;
 				}
 			}
-			ConnectClass* cc = new ConnectClass(name, timeout, flood, allow, pingfreq, password, hashtype, threshold, sendq, recvq, localmax, globalmax, maxchans);
+			cc = new ConnectClass(name, timeout, flood, allow, pingfreq, password, hashtype, threshold, sendq, recvq, localmax, globalmax, maxchans);
 			cc->limit = limit;
 			cc->SetPort(port);
 			conf->Classes.push_back(cc);
@@ -548,12 +558,13 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 					return true;
 				}
 			}
-			ConnectClass* cc = new ConnectClass(name, deny);
+			cc = new ConnectClass(name, deny);
 			cc->SetPort(port);
 			conf->Classes.push_back(cc);
 		}
 	}
 
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Class added: %p", cc);
 	return true;
 }
 
@@ -561,9 +572,15 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
  */
 bool DoneConnect(ServerConfig *conf, const char*)
 {
+	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); item++)
+	{
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "class: %p", *(item));
+	}
+
 	/*
 	 * Update connect classes on all users.
 	 */
+	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Resetting connect classes for users...");
   	for (std::vector<User*>::iterator n = conf->GetInstance()->Users->local_users.begin(); n != conf->GetInstance()->Users->local_users.end(); n++)
 	{
 		User *u = *n;
@@ -575,6 +592,7 @@ bool DoneConnect(ServerConfig *conf, const char*)
 		 * they need to be quit, which CheckClass will do. -- w00t
 		 */
 		u->CheckClass();
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "%s is now in %p", u->uuid.c_str(), u->MyClass);
 	}
 
 
