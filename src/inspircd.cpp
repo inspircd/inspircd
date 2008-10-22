@@ -730,6 +730,40 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef WIN32
+	if (*(this->Config->SetGroup))
+	{
+		int ret;
+
+		// setgroups
+		ret = setgroups(0, NULL);
+
+		if (ret == -1)
+		{
+			this->Logs->Log("SETGROUPS", DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
+			this->QuickExit(0);
+		}
+
+		// setgid
+		struct group *g;
+
+		errno = 0;
+		g = getgrnam(this->Config->SetGroup);
+
+		if (!g)
+		{
+			this->Logs->Log("SETGUID", DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
+			this->QuickExit(0);
+		}
+
+		ret = setgid(g->gr_gid);
+
+		if (ret == -1)
+		{
+			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
+			this->QuickExit(0);
+		}
+	}
+
 	if (*(this->Config->SetUser))
 	{
 		// setuid
@@ -749,29 +783,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (ret == -1)
 		{
 			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
-			this->QuickExit(0);
-		}
-	}
-
-	if (*(this->Config->SetGroup))
-	{
-		// setgid
-		struct group *g;
-
-		errno = 0;
-		g = getgrnam(this->Config->SetGroup);
-
-		if (!g)
-		{
-			this->Logs->Log("SETGUID", DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
-			this->QuickExit(0);
-		}
-
-		int ret = setgid(g->gr_gid);
-
-		if (ret == -1)
-		{
-			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
