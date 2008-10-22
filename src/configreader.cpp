@@ -457,12 +457,6 @@ bool InitConnect(ServerConfig* conf, const char*)
 {
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes... class list is:");
 
-	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); item++)
-	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "class: %p", *(item));
-	}
-
-
 	/*
 	 * Remove all connect classes.. we'll reset the pointers in user classes
 	 * once all new classes have been read from config.
@@ -470,9 +464,6 @@ bool InitConnect(ServerConfig* conf, const char*)
 	while (conf->Classes.begin() != conf->Classes.end())
 	{
 		ConnectClass *c = *(conf->Classes.begin());
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Deleting an old class! :) (%p)", c);
-
-
 		conf->Classes.erase(conf->Classes.begin());
 		delete c;
 	}
@@ -564,7 +555,6 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		}
 	}
 
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Class added: %p", cc);
 	return true;
 }
 
@@ -572,11 +562,6 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
  */
 bool DoneConnect(ServerConfig *conf, const char*)
 {
-	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); item++)
-	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "class: %p", *(item));
-	}
-
 	/*
 	 * Update connect classes on all users.
 	 */
@@ -597,7 +582,6 @@ bool DoneConnect(ServerConfig *conf, const char*)
 		 * they need to be quit, which CheckClass will do. -- w00t
 		 */
 		u->CheckClass();
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "%s is now in %p", u->uuid.c_str(), u->MyClass);
 	}
 
 
