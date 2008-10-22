@@ -585,6 +585,11 @@ bool DoneConnect(ServerConfig *conf, const char*)
 	{
 		User *u = *n;
 
+		/*
+		 * Make their existing class go away so that SetClass doesn't touch a wild ptr, important!
+		 */
+		u->MyClass = NULL;
+
 		u->SetClass();
 
 		/*
