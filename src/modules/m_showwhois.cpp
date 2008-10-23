@@ -54,10 +54,14 @@ class ModuleShowwhois : public Module
 
 	ModuleShowwhois(InspIRCd* Me) : Module(Me)
 	{
-		sw = NULL;
-		OnRehash(NULL, "");
-		Implementation eventlist[] = { I_OnWhois, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ConfigReader conf(ServerInstance);
+		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", 0, true);
+
+		sw = new SeeWhois(ServerInstance, OpersOnly);
+		if (!ServerInstance->Modes->AddMode(sw))
+			throw ModuleException("Could not add new modes!");
+		Implementation eventlist[] = { I_OnWhois };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	~ModuleShowwhois()
@@ -69,22 +73,6 @@ class ModuleShowwhois : public Module
 	virtual Version GetVersion()
 	{
 		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
-	}
-
-	virtual void OnRehash(User *user, const std::string &parameter)
-	{
-		ConfigReader conf(ServerInstance);
-		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", 0, true);
-
-		if (sw)
-		{
-			ServerInstance->Modes->DelMode(sw);
-			delete sw;			
-		}
-
-		sw = new SeeWhois(ServerInstance, OpersOnly);
-		if (!ServerInstance->Modes->AddMode(sw))
-			throw ModuleException("Could not add new modes!");
 	}
 
 	virtual void OnWhois(User* source, User* dest)

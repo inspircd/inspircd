@@ -1373,7 +1373,9 @@
 #<module name="m_showwhois.so">
 #
 # If you wish, you may also let users set this mode. Only opers with the
-# users/auspex priv will see real hosts of people, though.
+# users/auspex priv will see real hosts of people, though. This setting
+# is not reloadable via /rehash, and will require /reloadmodule, as
+# it directly affects the mode object itself.
 #<showwhois opersonly="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
