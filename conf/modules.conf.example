@@ -1371,6 +1371,10 @@
 # to see when they are whois'ed (can be annoying).
 # This module is oper-only.
 #<module name="m_showwhois.so">
+#
+# If you wish, you may also let users set this mode. Only opers with the
+# users/auspex priv will see real hosts of people, though.
+#<showwhois opersonly="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Shun module: Provides the /shun command, which stops a user executing 
