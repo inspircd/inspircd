@@ -47,7 +47,7 @@ class SeeWhois : public ModeHandler
 
 class ModuleShowwhois : public Module
 {
-
+	bool ShowWhoisFromOpers;
 	SeeWhois* sw;
 
  public:
@@ -56,6 +56,7 @@ class ModuleShowwhois : public Module
 	{
 		ConfigReader conf(ServerInstance);
 		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", 0, true);
+		ShowWhoisFromOpers = conf.ReadFlag("showwhois", "showfromopers", 0, true);
 
 		sw = new SeeWhois(ServerInstance, OpersOnly);
 		if (!ServerInstance->Modes->AddMode(sw))
@@ -79,6 +80,9 @@ class ModuleShowwhois : public Module
 	{
 		if ((dest->IsModeSet('W')) && (source != dest))
 		{
+			if (!ShowWhoisFromOpers && IS_OPER(source))
+				return;
+
 			std::string wmsg = "*** ";
 			wmsg += source->nick + "(" + source->ident + "@";
 

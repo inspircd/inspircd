@@ -1376,7 +1376,11 @@
 # users/auspex priv will see real hosts of people, though. This setting
 # is not reloadable via /rehash, and will require /reloadmodule, as
 # it directly affects the mode object itself.
-#<showwhois opersonly="yes">
+#<showwhois opersonly="yes"
+#
+# You may also set whether or not users should recieve whois notices, should
+# they be /whois'd by an oper.
+# showfromopers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Shun module: Provides the /shun command, which stops a user executing 
