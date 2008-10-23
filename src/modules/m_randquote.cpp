@@ -64,7 +64,7 @@ class ModuleRandQuote : public Module
 
 		conf = new ConfigReader(ServerInstance);
 		// Sort the Randomizer thingie..
-		srand(ServerInstance->Time());
+		srand(time(NULL));
 
 		q_file = conf->ReadValue("randquote","file",0);
 		prefix = conf->ReadValue("randquote","prefix",0);

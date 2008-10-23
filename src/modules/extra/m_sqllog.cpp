@@ -28,8 +28,6 @@ std::map<unsigned long,QueryInfo*> active_queries;
 
 class QueryInfo
 {
-private:
-	InspIRCd* ServerInstance;
 public:
 	QueryState qs;
 	unsigned long id;
@@ -43,9 +41,8 @@ public:
 	time_t date;
 	bool insert;
 
-	QueryInfo(InspIRCd* Instance, const std::string &n, const std::string &s, const std::string &h, unsigned long i, int cat)
+	QueryInfo(const std::string &n, const std::string &s, const std::string &h, unsigned long i, int cat)
 	{
-		ServerInstance = Instance;
 		qs = FIND_SOURCE;
 		nick = n;
 		source = s;
@@ -53,7 +50,7 @@ public:
 		id = i;
 		category = cat;
 		sourceid = nickid = hostid = -1;
-		date = ServerInstance->Time();
+		date = time(NULL);
 		insert = false;
 	}
 
@@ -253,7 +250,7 @@ class ModuleSQLLog : public Module
 		SQLrequest req = SQLrequest(this, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % source);
 		if(req.Send())
 		{
-			QueryInfo* i = new QueryInfo(ServerInstance, nick, source, host, req.id, category);
+			QueryInfo* i = new QueryInfo(nick, source, host, req.id, category);
 			i->qs = FIND_SOURCE;
 			active_queries[req.id] = i;
 		}

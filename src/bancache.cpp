@@ -50,7 +50,7 @@ BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
 		return NULL; // free and safe
 	else
 	{
-		if (ServerInstance->Time() > i->second->Expiry)
+		if (time(NULL) > i->second->Expiry)
 		{
 			ServerInstance->Logs->Log("BANCACHE", DEBUG, "Hit on " + ip + " is out of date, removing!");
 			RemoveHit(i->second);
@@ -137,7 +137,7 @@ void BanCacheManager::RehashCache()
 		/* Safe to delete items here through iterator 'n' */
 		BanCacheHit *b = n->second;
 
-		if (ServerInstance->Time() > b->Expiry)
+		if (time(NULL) > b->Expiry)
 		{
 			/* we need to remove this one. */
 			delete b;

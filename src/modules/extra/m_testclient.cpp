@@ -40,7 +40,7 @@ public:
 		if(target)
 		{
 			SQLrequest foo = SQLrequest(this, target, "foo",
-					SQLquery("UPDATE rawr SET foo = '?' WHERE bar = 42") % ServerInstance->Time());
+					SQLquery("UPDATE rawr SET foo = '?' WHERE bar = 42") % time(NULL));
 
 			if(foo.Send())
 			{

@@ -19,8 +19,6 @@
  */
 class floodsettings : public classbase
 {
- private:
-	InspIRCd *ServerInstance;
  public:
 	bool ban;
 	int secs;
@@ -28,10 +26,10 @@ class floodsettings : public classbase
 	time_t reset;
 	std::map<User*,int> counters;
 
-	floodsettings(InspIRCd *Instance) : ServerInstance(Instance), ban(0), secs(0), lines(0) {};
-	floodsettings(InspIRCd *Instance, bool a, int b, int c) : ServerInstance(Instance), ban(a), secs(b), lines(c)
+	floodsettings() : ban(0), secs(0), lines(0) {};
+	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
-		reset = ServerInstance->Time() + secs;
+		reset = time(NULL) + secs;
 	};
 
 	void addmessage(User* who)
@@ -45,10 +43,10 @@ class floodsettings : public classbase
 		{
 			counters[who] = 1;
 		}
-		if (ServerInstance->Time() > reset)
+		if (time(NULL) > reset)
 		{
 			counters.clear();
-			reset = ServerInstance->Time() + secs;
+			reset = time(NULL) + secs;
 		}
 	}
 
@@ -142,7 +140,7 @@ class MsgFlood : public ModeHandler
 					if (!channel->GetExt("flood", f))
 					{
 						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
-						floodsettings *fs = new floodsettings(ServerInstance,ban,nsecs,nlines);
+						floodsettings *fs = new floodsettings(ban,nsecs,nlines);
 						channel->Extend("flood",fs);
 						channel->SetMode('f', true);
 						channel->SetModeParam('f', parameter.c_str(), true);
@@ -162,7 +160,7 @@ class MsgFlood : public ModeHandler
 							if ((((nlines != f->lines) || (nsecs != f->secs) || (ban != f->ban))) && (((nsecs > 0) && (nlines > 0))))
 							{
 								delete f;
-								floodsettings *fs = new floodsettings(ServerInstance,ban,nsecs,nlines);
+								floodsettings *fs = new floodsettings(ban,nsecs,nlines);
 								channel->Shrink("flood");
 								channel->Extend("flood",fs);
 								channel->SetModeParam('f', cur_param.c_str(), false);
