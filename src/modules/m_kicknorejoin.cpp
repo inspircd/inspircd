@@ -141,7 +141,7 @@ public:
 
 				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
 				{
-					if (iter->second > time(NULL))
+					if (iter->second > ServerInstance->Time())
 					{
 						if (iter->first == user)
 						{
@@ -180,7 +180,7 @@ public:
 				dl = new delaylist;
 				chan->Extend("norejoinusers", dl);
 			}
-			(*dl)[user] = time(NULL) + strtoint(chan->GetModeParameter('J'));
+			(*dl)[user] = ServerInstance->Time() + strtoint(chan->GetModeParameter('J'));
 		}
 	}
 

@@ -126,7 +126,7 @@ class RequestTimeout : public Timer
 	DNSRequest* watch;
 	int watchid;
  public:
-	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : Timer(n, time(NULL)), ServerInstance(SI), watch(watching), watchid(id)
+	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : Timer(n, SI->Time()), ServerInstance(SI), watch(watching), watchid(id)
 	{
 	}
 

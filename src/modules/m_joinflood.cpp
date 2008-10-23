@@ -33,7 +33,7 @@ class joinfloodsettings : public classbase
 
 	joinfloodsettings(int b, int c) : secs(b), joins(c)
 	{
-		reset = time(NULL) + secs;
+		reset = ServerInstance->Time() + secs;
 		counter = 0;
 		locked = false;
 	};
@@ -41,10 +41,10 @@ class joinfloodsettings : public classbase
 	void addjoin()
 	{
 		counter++;
-		if (time(NULL) > reset)
+		if (ServerInstance->Time() > reset)
 		{
 			counter = 0;
-			reset = time(NULL) + secs;
+			reset = ServerInstance->Time() + secs;
 		}
 	}
 
@@ -62,7 +62,7 @@ class joinfloodsettings : public classbase
 	{
 		if (locked)
 		{
-			if (time(NULL) > unlocktime)
+			if (ServerInstance->Time() > unlocktime)
 			{
 				locked = false;
 				return false;
@@ -78,7 +78,7 @@ class joinfloodsettings : public classbase
 	void lock()
 	{
 		locked = true;
-		unlocktime = time(NULL) + 60;
+		unlocktime = ServerInstance->Time() + 60;
 	}
 
 };
