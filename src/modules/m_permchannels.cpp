@@ -27,6 +27,9 @@ class PermChannel : public ModeHandler
 	{
 		if (adding)
 		{
+			if (!source->HasPrivPermission("channels/set-permanent"))
+				return MODEACTION_DENY;
+
 			if (!channel->IsModeSet('P'))
 			{
 				channel->SetMode('P',true);

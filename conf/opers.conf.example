@@ -25,7 +25,8 @@
      # ACTIONS
      #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*)
      #   - channels/high-join-limit: allows opers with this priv to join <channels:opers> total channels instead of <channels:users> total channels.
-	 privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit"
+     #   - channels/set-permanent: allows opers with this priv to set +P on channels with m_permchannels.
+     privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit channels/set-permanent"
 
      # usermodes: Oper-only usermodes that opers with this class can use.
      usermodes="*" 
