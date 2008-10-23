@@ -349,7 +349,7 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
-	std::ostringstream errstr;
+	std::ostringstream* errstr;
 
 	/** Holds the new configuration when a rehash occurs so we dont overwrite the existing
 	 * working config with a broken one without checking it first and swapping pointers.

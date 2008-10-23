@@ -747,7 +747,8 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
 	static char disabledumodes[MAXBUF]; /* Disabled usermodes */
 	static char disabledcmodes[MAXBUF]; /* Disabled chanmodes */
-	errstr.clear();
+	/* std::ostringstream::clear() does not clear the string itself, only the error flags. */
+	this->errstr = new std::ostringstream(std::stringstream::in | std::stringstream::out);
 
 	include_stack.clear();
 
@@ -940,11 +941,14 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
 	newconfig.clear();
 
-	if (!this->DoInclude(newconfig, ServerInstance->ConfigFileName, errstr))
+	if (!this->DoInclude(newconfig, ServerInstance->ConfigFileName, *errstr))
 	{
-		ReportConfigError(errstr.str(), bail, useruid);
+		ReportConfigError(errstr->str(), bail, useruid);
+		delete errstr;
 		return;
 	}
+	
+	delete errstr;
 
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
