@@ -50,31 +50,24 @@ class Redirect : public ModeHandler
 			}
 
 			c = ServerInstance->FindChan(parameter);
-			if (c)
+			if (!c)
 			{
-				/* Fix by brain: Dont let a channel be linked to *itself* either */
-				if (IS_LOCAL(source))
-				{
-					if ((c == channel) || (c->IsModeSet('L')))
-					{
-						source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick.c_str(),parameter.c_str());
-						parameter.clear();
-						return MODEACTION_DENY;
-					}
-					else
-					{
-						for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
-						{
-							if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == channel->name))
-							{
-								source->WriteNumeric(690, "%s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick.c_str(), parameter.c_str(), i->second->name.c_str());
-								return MODEACTION_DENY;
-							}
-						}
-					}
-				}
+				source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
+				parameter.clear();
+				return MODEACTION_DENY;
 			}
 
+			if (c->GetStatus(source) < STATUS_OP && !IS_OPER(source))
+			{
+				source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
+				parameter.clear();
+				return MODEACTION_DENY;
+			}
+
+			/*
+			 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
+			 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
+			 */
 			channel->SetMode('L', true);
 			channel->SetModeParam('L', parameter.c_str(), true);
 			return MODEACTION_ALLOW;
@@ -127,11 +120,11 @@ class ModuleRedirect : public Module
 					destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet('L'))
 					{
-						user->WriteNumeric(470, "%s :%s is full, but has a circular redirect (+L), not following redirection to %s", user->nick.c_str(), cname, channel.c_str());
+						user->WriteNumeric(470, "%s :You may not join %s. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
 						return 1;
 					}
 
-					user->WriteNumeric(470, "%s :%s has become full, so you are automatically being transferred to the linked channel %s", user->nick.c_str(), cname, channel.c_str());
+					user->WriteNumeric(470, "%s :You may not join %s, so you are automatically being transferred to the redirect channel %s", user->nick.c_str(), cname, channel.c_str());
 					Channel::JoinUser(ServerInstance, user, channel.c_str(), false, "", false, ServerInstance->Time());
 					return 1;
 				}
