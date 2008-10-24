@@ -50,14 +50,14 @@ class Redirect : public ModeHandler
 			}
 
 			c = ServerInstance->FindChan(parameter);
-			if (!c)
+			if (!c && !IS_OPER(source))
 			{
 				source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
 				parameter.clear();
 				return MODEACTION_DENY;
 			}
 
-			if (c->GetStatus(source) < STATUS_OP && !IS_OPER(source))
+			if (c && c->GetStatus(source) < STATUS_OP && !IS_OPER(source))
 			{
 				source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
 				parameter.clear();
