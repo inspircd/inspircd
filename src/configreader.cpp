@@ -982,7 +982,10 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 
 			/* Silently ignore boot only values */
 			if (bootonly && !bail)
+			{
+				delete Values[Index].val;
 				continue;
+			}
 
 			ConfValue(newconfig, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
