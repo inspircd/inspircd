@@ -174,10 +174,6 @@ SimpleChannelModeHandler::SimpleChannelModeHandler(InspIRCd* Instance, char mode
 
 ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
-	/* Only opers can change other users modes */
-	if (source != dest)
-		return MODEACTION_DENY;
-
 	if (adding)
 	{
 		if (!dest->IsModeSet(this->GetModeChar()))
