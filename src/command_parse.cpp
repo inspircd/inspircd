@@ -277,21 +277,18 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 		
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
-	if (MOD_RESULT == 1) {
-		return true;
-	}
-
 	/* find the command, check it exists */
 	Commandtable::iterator cm = cmdlist.find(command);
 	
 	if (cm == cmdlist.end())
 	{
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
+		if (MOD_RESULT == 1)
+			return true;
+
 		if (user->registered == REG_ALL)
-		{
 			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
-		}
 		ServerInstance->stats->statsUnknown++;
 		return true;
 	}
@@ -332,6 +329,11 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		/* param is now 'is a test', which is exactly what we wanted! */
 		command_p.push_back(lparam);
 	}
+
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
+	if (MOD_RESULT == 1)
+		return true;
 
 	/* Modify the user's penalty */
 	bool do_more = true;
