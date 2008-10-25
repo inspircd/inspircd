@@ -60,27 +60,41 @@ class CoreExport Command : public Extensible
 	/** Command name
 	*/
 	 std::string command;
+
 	/** User flags needed to execute the command or 0
 	 */
 	char flags_needed;
+
 	/** Minimum number of parameters command takes
 	*/
-	unsigned int min_params;
+	const unsigned int min_params;
+
+	/** Maximum number of parameters command takes.
+	 * This is used by the command parser to join extra parameters into one last param.
+	 * If not set, no munging is done to this command.
+	 */
+	const unsigned int max_params;
+
 	/** used by /stats m
 	 */
 	long double use_count;
+
 	/** used by /stats m
  	 */
 	long double total_bytes;
+
 	/** used for resource tracking between modules
 	 */
 	std::string source;
+
 	/** True if the command is disabled to non-opers
 	 */
 	bool disabled;
+
 	/** True if the command can be issued before registering
 	 */
 	bool works_before_reg;
+
 	/** Syntax string for the command, displayed if non-empty string.
 	 * This takes place of the text in the 'not enough parameters' numeric.
 	 */
@@ -101,11 +115,21 @@ class CoreExport Command : public Extensible
 	 * @param flags User mode required to execute the command. May ONLY be one mode - it's a string to give warnings if people mix params up.
 	 * For oper only commands, set this to 'o', otherwise use 0.
 	 * @param minpara Minimum parameters required for the command.
+	 * @param maxpara Maximum number of parameters this command may have - extra parameters will be tossed into one last space-seperated param.
 	 * @param before_reg If this is set to true, the command will
 	 * be allowed before the user is 'registered' (has sent USER,
 	 * NICK, optionally PASS, and been resolved).
 	 */
-	Command(InspIRCd* Instance, const std::string &cmd, const char *flags, int minpara, int before_reg = false, int penalty = 1) : 	ServerInstance(Instance), command(cmd), flags_needed(flags ? *flags : 0), min_params(minpara), disabled(false), works_before_reg(before_reg), 	Penalty(penalty)
+	Command(InspIRCd* Instance, const std::string &cmd, const char *flags, int minpara, bool before_reg = false, int penalty = 1) : 	ServerInstance(Instance), command(cmd), flags_needed(flags ? *flags : 0), min_params(minpara), max_params(0), disabled(false), works_before_reg(before_reg), Penalty(penalty)
+	{
+		use_count = 0;
+		total_bytes = 0;
+		source = "<core>";
+		syntax = "";
+		translation.clear();
+	}
+
+	Command(InspIRCd* Instance, const std::string &cmd, const char *flags, int minpara, int maxpara, bool before_reg = false, int penalty = 1) : 	ServerInstance(Instance), command(cmd), flags_needed(flags ? *flags : 0), min_params(minpara), max_params(maxpara), disabled(false), works_before_reg(before_reg), Penalty(penalty)
 	{
 		use_count = 0;
 		total_bytes = 0;
