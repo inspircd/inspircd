@@ -544,7 +544,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 			/* Find existing class by mask, the mask should be unique */
 			for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
 			{
-				if ((*item)->GetHost() == allow)
+				if ((*item)->GetHost() == allow && !(*item)->GetDisabled())
 				{
 					(*item)->Update(timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
 					return true;
@@ -560,7 +560,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 			/* Find existing class by mask, the mask should be unique */
 			for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
 			{
-				if ((*item)->GetHost() == deny)
+				if ((*item)->GetHost() == deny && !(*item)->GetDisabled())
 				{
 					(*item)->Update(name, deny);
 					(*item)->SetPort(port);
