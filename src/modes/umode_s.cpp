@@ -23,10 +23,6 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHan
 
 ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding, bool servermode)
 {
-	/* Only opers can change other users modes */
-	if ((source != dest) && (!IS_OPER(source)))
-		return MODEACTION_DENY;
-
 	/* Set the array fields */
 	if (adding)
 	{

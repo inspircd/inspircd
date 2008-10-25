@@ -69,9 +69,6 @@ class CloakUser : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
-		if (source != dest)
-			return MODEACTION_DENY;
-
 		/* For remote clients, we dont take any action, we just allow it.
 		 * The local server where they are will set their cloak instead.
 		 * This is fine, as we will recieve it later.

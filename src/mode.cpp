@@ -486,7 +486,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		{
 			type = MODETYPE_USER;
 			mask = MASK_USER;
-			if ((user != targetuser) && (!ServerInstance->ULine(user->server)))
+			if (user != targetuser && IS_LOCAL(user) && !ServerInstance->ULine(user->server))
 			{
 				user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", user->nick.c_str());
 				return;
@@ -1165,7 +1165,7 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 			sprintf(moderemove,"-%c",this->GetModeChar());
 			parameters.push_back(user->nick);
 			parameters.push_back(moderemove);
-			ServerInstance->Parser->CallHandler("MODE", parameters, user);
+			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient, false);
 		}
 	}
 }
