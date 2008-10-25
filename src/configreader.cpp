@@ -457,15 +457,33 @@ bool InitConnect(ServerConfig* conf, const char*)
 {
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes... class list is:");
 
-	/*
-	 * Remove all connect classes.. we'll reset the pointers in user classes
-	 * once all new classes have been read from config.
-	 */
-	while (conf->Classes.begin() != conf->Classes.end())
+	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end() ; )
 	{
-		ConnectClass *c = *(conf->Classes.begin());
-		conf->Classes.erase(conf->Classes.begin());
-		delete c;
+		ConnectClass* c = *i;
+
+		/*
+		 * only delete a class with refcount 0.
+		 * this is needed to avoid trampling on a wild pointer (User::MyClass)!
+		 * it's also the most simple way to do it, given that we're looking at threads..
+		 * -- w00t
+		 */
+		if (c->RefCount == 0)
+		{
+			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Removing connect class, refcount is 0!");
+			
+			/* This was causing a crash, because we'd set i to .begin() just here, but then the for loop's increment would
+			 * set it to .begin() + 1. Which if it was already the last thing in the list, wasn't good.
+			 * Now the increment is in the else { } below.
+			 */
+			conf->Classes.erase(i);
+			i = conf->Classes.begin(); // start over so we don't trample on a bad iterator
+		}
+		else
+		{
+			/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
+			c->SetDisabled(true);
+			i++;
+		}
 	}
 
 	return true;
@@ -562,29 +580,6 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
  */
 bool DoneConnect(ServerConfig *conf, const char*)
 {
-	/*
-	 * Update connect classes on all users.
-	 */
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Resetting connect classes for users...");
-  	for (std::vector<User*>::iterator n = conf->GetInstance()->Users->local_users.begin(); n != conf->GetInstance()->Users->local_users.end(); n++)
-	{
-		User *u = *n;
-
-		/*
-		 * Make their existing class go away so that SetClass doesn't touch a wild ptr, important!
-		 */
-		u->MyClass = NULL;
-
-		u->SetClass();
-
-		/*
-		 * Check that the user falls into a valid class block.. if they don't,
-		 * they need to be quit, which CheckClass will do. -- w00t
-		 */
-		u->CheckClass();
-	}
-
-
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Done adding connect classes!");
 	return true;
 }
