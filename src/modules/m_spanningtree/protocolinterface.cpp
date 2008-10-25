@@ -31,7 +31,7 @@ void SpanningTreeProtocolInterface::SendEncapsulatedData(parameterlist &encap)
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);
 }
 
-void SpanningTreeProtocolInterface::SendMetaData(void* target, int type, const std::string &key, const std::string &data)
+void SpanningTreeProtocolInterface::SendMetaData(void* target, TargetTypeFlags type, const std::string &key, const std::string &data)
 {
 	parameterlist params;
 
@@ -39,13 +39,16 @@ void SpanningTreeProtocolInterface::SendMetaData(void* target, int type, const s
 	{
 		case TYPE_USER:
 			params.push_back(((User*)target)->uuid);
-		break;
+			break;
 		case TYPE_CHANNEL:
 			params.push_back(((Channel*)target)->name);
-		break;
+			break;
 		case TYPE_SERVER:
 			params.push_back("*");
-		break;
+			break;
+		default:
+			throw CoreException("I don't know how to handle TYPE_OTHER.");
+			break;
 	}
 	params.push_back(key);
 	params.push_back(":" + data);

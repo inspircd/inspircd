@@ -56,7 +56,7 @@ class ProtocolInterface : public Extensible
 	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
 	 * @param data The string representation of the data
 	 */
-	virtual void SendMetaData(void* target, int type, const std::string &key, const std::string &data) { }
+	virtual void SendMetaData(void* target, TargetTypeFlags type, const std::string &key, const std::string &data) { }
 
 	/** Send a topic change for a channel
 	 * @param channel The channel to change the topic for.
