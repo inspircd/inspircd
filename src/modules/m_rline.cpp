@@ -116,9 +116,10 @@ class CommandRLine : public Command
 	std::string rxengine;
 
  public:
-	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", "o", 1)
+	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", "o", 1, 3)
 	{
 		this->source = "m_rline.so";
+		this->syntax = "<regex> [<rline-duration>] :<reason>";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

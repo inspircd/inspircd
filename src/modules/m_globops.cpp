@@ -22,7 +22,7 @@
 class CommandGlobops : public Command
 {
  public:
-	CommandGlobops (InspIRCd* Instance) : Command(Instance,"GLOBOPS","o",1)
+	CommandGlobops (InspIRCd* Instance) : Command(Instance,"GLOBOPS","o",1,1)
 	{
 		this->source = "m_globops.so";
 		syntax = "<any-text>";

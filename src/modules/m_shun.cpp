@@ -73,9 +73,10 @@ class cmd_shun : public Command
 	InspIRCd *Srv;
 
  public:
-	cmd_shun(InspIRCd* Me) : Command(Me, "SHUN", "o", 1), Srv(Me)
+	cmd_shun(InspIRCd* Me) : Command(Me, "SHUN", "o", 1, 3), Srv(Me)
 	{
 		this->source = "m_shun.so";
+		this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)

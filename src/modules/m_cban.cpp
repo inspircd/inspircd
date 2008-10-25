@@ -81,7 +81,7 @@ class CBanFactory : public XLineFactory
 class CommandCBan : public Command
 {
  public:
-	CommandCBan(InspIRCd* Me) : Command(Me, "CBAN", "o", 1)
+	CommandCBan(InspIRCd* Me) : Command(Me, "CBAN", "o", 1, 3)
 	{
 		this->source = "m_cban.so";
 		this->syntax = "<channel> [<duration> :<reason>]";

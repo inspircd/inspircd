@@ -20,7 +20,7 @@
 class CommandChgname : public Command
 {
  public:
-	CommandChgname (InspIRCd* Instance) : Command(Instance,"CHGNAME", "o", 2)
+	CommandChgname (InspIRCd* Instance) : Command(Instance,"CHGNAME", "o", 2, 2)
 	{
 		this->source = "m_chgname.so";
 		syntax = "<nick> <newname>";

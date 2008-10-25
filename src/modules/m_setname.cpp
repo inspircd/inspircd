@@ -20,7 +20,7 @@
 class CommandSetname : public Command
 {
  public:
-	CommandSetname (InspIRCd* Instance) : Command(Instance,"SETNAME", 0, 1)
+	CommandSetname (InspIRCd* Instance) : Command(Instance,"SETNAME", 0, 1, 1)
 	{
 		this->source = "m_setname.so";
 		syntax = "<new-gecos>";

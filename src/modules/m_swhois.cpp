@@ -21,7 +21,7 @@ class CommandSwhois : public Command
 {
 
  public:
-	CommandSwhois (InspIRCd* Instance) : Command(Instance,"SWHOIS","o",2)
+	CommandSwhois (InspIRCd* Instance) : Command(Instance,"SWHOIS","o",2, 2)
 	{
 		this->source = "m_swhois.so";
 		syntax = "<nick> :<swhois>";

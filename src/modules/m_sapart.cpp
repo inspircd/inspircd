@@ -20,7 +20,7 @@
 class CommandSapart : public Command
 {
  public:
-	CommandSapart (InspIRCd* Instance) : Command(Instance,"SAPART", "o", 2, false, 0)
+	CommandSapart (InspIRCd* Instance) : Command(Instance,"SAPART", "o", 2, 3, false, 0)
 	{
 		this->source = "m_sapart.so";
 		syntax = "<nick> <channel> [reason]";
