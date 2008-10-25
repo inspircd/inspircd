@@ -170,12 +170,12 @@ void		Module::OnPostLocalTopicChange(User*, Channel*, const std::string&) { }
 void		Module::OnGetServerDescription(const std::string&, std::string&) { }
 void		Module::OnSyncUser(User*, Module*, void*) { }
 void		Module::OnSyncChannel(Channel*, Module*, void*) { }
-void		Module::ProtoSendMode(void*, int, void*, const std::string&) { }
+void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::string&) { }
 void		Module::OnSyncChannelMetaData(Channel*, Module*, void*, const std::string&, bool) { }
 void		Module::OnSyncUserMetaData(User*, Module*, void*, const std::string&, bool) { }
 void		Module::OnSyncOtherMetaData(Module*, void*, bool) { }
 void		Module::OnDecodeMetaData(int, void*, const std::string&, const std::string&) { }
-void		Module::ProtoSendMetaData(void*, int, void*, const std::string&, const std::string&) { }
+void		Module::ProtoSendMetaData(void*, TargetTypeFlags, void*, const std::string&, const std::string&) { }
 void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }
 void		Module::OnChangeName(User*, const std::string&) { }

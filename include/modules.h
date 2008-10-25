@@ -861,7 +861,7 @@ class CoreExport Module : public Extensible
 	 * @param target The Channel* or User* that modes should be sent for
 	 * @param modeline The modes and parameters to be sent
 	 */
-	virtual void ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline);
+	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline);
 
 	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows metadata (extra data added to
@@ -877,7 +877,7 @@ class CoreExport Module : public Extensible
 	 * @param extname The extension name to send metadata for
 	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
 	 */
-	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata);
+	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata);
 	
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS

@@ -847,7 +847,7 @@ int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	return 0;
 }
 
-void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline)
+void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline)
 {
 	TreeSocket* s = (TreeSocket*)opaque;
 	std::string output_text;
@@ -861,7 +861,7 @@ void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* targ
 			User* u = (User*)target;
 			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+output_text);
 		}
-		else
+		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)target;
 			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
@@ -869,7 +869,7 @@ void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* targ
 	}
 }
 
-void ModuleSpanningTree::ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata)
+void ModuleSpanningTree::ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata)
 {
 	TreeSocket* s = (TreeSocket*)opaque;
 	if (target)

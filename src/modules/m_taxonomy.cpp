@@ -69,7 +69,7 @@ class ModuleTaxonomy : public Module
 	}
 
 
-	void ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata)
+	void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		if (target_type == TYPE_USER)
 		{

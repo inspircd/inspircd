@@ -177,8 +177,8 @@ class ModuleSpanningTree : public Module
 	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text);
 	virtual int OnStats(char statschar, User* user, string_list &results);
 	virtual int OnSetAway(User* user, const std::string &awaymsg);
-	virtual void ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline);
-	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata);
+	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline);
+	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual void OnEvent(Event* event);
 	virtual ~ModuleSpanningTree();
 	virtual Version GetVersion();
