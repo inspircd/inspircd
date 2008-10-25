@@ -5,6 +5,10 @@
 #include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/protocolinterface.h"
 
+/*
+ * For documentation on this class, see include/protocol.h.
+ */
+
 void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 {
 	sl.clear();
