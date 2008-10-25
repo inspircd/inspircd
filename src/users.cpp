@@ -1672,8 +1672,9 @@ bool User::ChangeDisplayedHost(const char* shost)
 		FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(this,shost));
 		if (MOD_RESULT)
 			return false;
-		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,shost));
 	}
+
+	FOREACH_MOD(I_OnChangeHost, OnChangeHost(this,shost));
 
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));

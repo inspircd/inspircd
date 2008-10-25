@@ -49,7 +49,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
-		I_OnUserJoin, I_OnChangeHost, I_OnChangeName, I_OnUserPart,
+		I_OnUserJoin, I_OnChangeLocalUserHost, I_OnChangeName, I_OnUserPart,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
@@ -617,14 +617,12 @@ void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, boo
 	}
 }
 
-void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
+int ModuleSpanningTree::OnChangeLocalUserHost(User* user, const std::string &newhost)
 {
-	// only occurs for local clients
-	if (user->registered != REG_ALL)
-		return;
 	std::deque<std::string> params;
 	params.push_back(newhost);
 	Utils->DoOneToMany(user->uuid,"FHOST",params);
+	return 0;
 }
 
 void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)

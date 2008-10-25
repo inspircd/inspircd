@@ -162,7 +162,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 	virtual void OnBackgroundTimer(time_t curtime);
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
-	virtual void OnChangeHost(User* user, const std::string &newhost);
+	virtual int OnChangeLocalUserHost(User* user, const std::string &newhost);
 	virtual void OnChangeName(User* user, const std::string &gecos);
 	virtual void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
