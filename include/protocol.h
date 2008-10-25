@@ -82,22 +82,59 @@ class ProtocolInterface : public Extensible
 		SendMode(target, n);
 	}
 
+	/** Send a notice to users with a given mode(s).
+	 * @param modes The modes required for the message to be sent.
+	 * @param text The message to send.
+	 */
 	virtual void SendModeNotice(const std::string &modes, const std::string &text) { }
 
+	/** Send a notice to users with a given snomask.
+	 * @param snomask The snomask required for the message to be sent.
+	 * @param text The message to send.
+	 */
 	virtual void SendSNONotice(const std::string &snomask, const std::string &text) { }
 
+	/** Send raw data to a remote client.
+	 * @param target The user to push data to.
+	 * @param rawline The raw IRC protocol line to deliver (":me NOTICE you :foo", whatever).
+	 */
 	virtual void PushToClient(User* target, const std::string &rawline) { }
 
+	/** Send a message to a channel.
+	 * @param target The channel to message.
+	 * @param status The status character (e.g. %) required to recieve.
+	 * @param text The message to send.
+	 */
 	virtual void SendChannelPrivmsg(Channel* target, char status, const std::string &text) { }
 
+	/** Send a notice to a channel.
+	 * @param target The channel to message.
+	 * @param status The status character (e.g. %) required to recieve.
+	 * @param text The message to send.
+	 */
 	virtual void SendChannelNotice(Channel* target, char status, const std::string &text) { }
 
+	/** Send a message to a user.
+	 * @param target The user to message.
+	 * @param text The message to send.
+	 */
 	virtual void SendUserPrivmsg(User* target, const std::string &text) { }
 
+	/** Send a notice to a user.
+	 * @param target The user to message.
+	 * @param text The message to send.
+	 */
 	virtual void SendUserNotice(User* target, const std::string &text) { }
 
+	/** Fill a list of servers and information about them.
+	 * @param sl The list of servers to fill.
+	 * XXX: document me properly, this is shit.
+	 */
 	virtual void GetServerList(ProtoServerList &sl) { }
 
+	/** Send information about a user connection to linked servers.
+	 * @param u The user to send information about.
+	 */
 	virtual void Introduce(User* u) { }
 };
 
