@@ -42,7 +42,7 @@ class ProtocolInterface : public Extensible
 	ProtocolInterface(InspIRCd* Instance) : ServerInstance(Instance) { }
 	virtual ~ProtocolInterface() { }
 
-	/** Generate an ENCAP message.
+	/** Send an ENCAP message to one or more linked servers.
 	 * See the protocol documentation for the purpose of ENCAP.
 	 * @param encap This is a list of string parameters, the first of which must be a server ID or glob matching servernames.
 	 * The second must be a subcommand. All subsequent parameters are dependant on the subcommand.
@@ -50,6 +50,12 @@ class ProtocolInterface : public Extensible
 	 */
 	virtual void SendEncapsulatedData(parameterlist &encap) { }
 
+	/** Send metadata for an object to other linked servers.
+	 * @param target The object to send metadata for.
+	 * @param type The type of metadata to send (TYPE_USER, TYPE_CHANNEL, etc)
+	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
+	 * @param data The string representation of the data
+	 */
 	virtual void SendMetaData(void* target, int type, const std::string &key, const std::string &data) { }
 
 	virtual void SendTopic(Channel* channel, std::string &topic) { }
