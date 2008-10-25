@@ -58,6 +58,10 @@ class ProtocolInterface : public Extensible
 	 */
 	virtual void SendMetaData(void* target, int type, const std::string &key, const std::string &data) { }
 
+	/** Send a topic change for a channel
+	 * @param channel The channel to change the topic for.
+	 * @param topic The new topic to use for the channel.
+	 */
 	virtual void SendTopic(Channel* channel, std::string &topic) { }
 
 	virtual void SendMode(const std::string &target, parameterlist &modedata) { }
