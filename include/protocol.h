@@ -42,6 +42,12 @@ class ProtocolInterface : public Extensible
 	ProtocolInterface(InspIRCd* Instance) : ServerInstance(Instance) { }
 	virtual ~ProtocolInterface() { }
 
+	/** Generate an ENCAP message.
+	 * See the protocol documentation for the purpose of ENCAP.
+	 * @param encap This is a list of string parameters, the first of which must be a server ID or glob matching servernames.
+	 * The second must be a subcommand. All subsequent parameters are dependant on the subcommand.
+	 * ENCAP (should) be used instead of creating new protocol messages for easier third party application support.
+	 */
 	virtual void SendEncapsulatedData(parameterlist &encap) { }
 
 	virtual void SendMetaData(void* target, int type, const std::string &key, const std::string &data) { }
