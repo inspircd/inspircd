@@ -64,11 +64,16 @@ class ProtocolInterface : public Extensible
 	 */
 	virtual void SendTopic(Channel* channel, std::string &topic) { }
 
+	/** Send mode changes for an object.
+	 * @param target The channel name or user to send mode changes for.
+	 * @param The mode changes to send.
+	 */
 	virtual void SendMode(const std::string &target, parameterlist &modedata) { }
 
+	/** Convenience function, string wrapper around the above.
+	  */
 	virtual void SendModeStr(const std::string &target, const std::string &modeline)
 	{
-		/* Convenience function */
 		irc::spacesepstream x(modeline);
 		parameterlist n;
 		std::string v;
