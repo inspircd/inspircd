@@ -330,6 +330,10 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		command_p.push_back(lparam);
 	}
 
+	/*
+	 * We call OnPreCommand here seperately if the command exists, so the magic above can
+	 * truncate to max_params if necessary. -- w00t
+	 */
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
 	if (MOD_RESULT == 1)
