@@ -41,13 +41,13 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Q-line for %s.",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Q-line for %s: %s",user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 			}
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Q-line for %s, expires on %s",user->nick.c_str(),parameters[0].c_str(),
-					  ServerInstance->TimeString(c_requires_crap).c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Q-line for %s, expires on %s: %s",user->nick.c_str(),parameters[0].c_str(),
+					  ServerInstance->TimeString(c_requires_crap).c_str(), , parameters[2].c_str());
 			}
 			ServerInstance->XLines->ApplyLines();
 		}
