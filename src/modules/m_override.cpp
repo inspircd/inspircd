@@ -294,21 +294,18 @@ class ModuleOverride : public Module
 					return -1;
 				}
 
-				if (CanOverride(user,"BANWALK"))
+				if (chan->IsBanned(user) && CanOverride(user,"BANWALK"))
 				{
-					if (chan->IsBanned(user))
+					if (RequireKey && keygiven != "override")
 					{
-						if (RequireKey && keygiven != "override")
-						{
-							// Can't join normally -- must use a special key to bypass restrictions
-							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-							return 1;
-						}
-
-						if (NoisyOverride)
-							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname, user->nick.c_str());
-						ServerInstance->SNO->WriteToSnoMask('O',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
+						// Can't join normally -- must use a special key to bypass restrictions
+						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
+						return 1;
 					}
+
+					if (NoisyOverride)
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname, user->nick.c_str());
+					ServerInstance->SNO->WriteToSnoMask('O',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
 					return -1;
 				}
 			}
