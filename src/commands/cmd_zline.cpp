@@ -1,4 +1,4 @@
-i/*       +------------------------------------+
+/*       +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
@@ -67,7 +67,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s: %s",user->nick.c_str(),target.c_str(), parameters[2].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
 			}
 			else
 			{
