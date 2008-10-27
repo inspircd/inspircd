@@ -31,10 +31,8 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	 */
 	if (params.size() < 10)
 	{
-		if (!params.empty())
-			this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
-					ConvToStr(params.size())+" of 10 or more parameters?)");
-		return true;
+		this->SendError("Invalid client introduction (wanted 10 or more parameters, got " + (params.empty() ? "0" : ConvToStr(params.size())) + "!)");
+		return false;
 	}
 
 	time_t age_t = ConvToInt(params[1]);
@@ -45,24 +43,24 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 	if (!remoteserver)
 	{
-		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Unknown server "+source+")");
-		return true;
+		this->SendError("Invalid client introduction (Unknown server "+source+")");
+		return false;
 	}
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	else if (!age_t)
 	{
-		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
-		return true;
+		this->SendError("Invalid client introduction (Invalid TS?)");
+		return false;
 	}
 	else if (!signon)
 	{
-		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid signon?)");
-		return true;
+		this->SendError("Invalid client introduction (Invalid signon?)");
+		return false;
 	}
 	else if (params[8][0] != '+')
 	{
-		this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Malformed MODE sequence?)");
-		return true;
+		this->SendError("Invalid client introduction (Malformed MODE sequence?)");
+		return false;
 	}
 
 	/* check for collision */
@@ -93,7 +91,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	}
 	catch (...)
 	{
-		SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
+		this->SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
 		return false;
 	}
 	(*(this->ServerInstance->Users->clientlist))[params[2]] = _new;
@@ -139,10 +137,8 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 					mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
 				else
 				{
-					this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Broken UID command, expected a parameter for user mode '"+(*v)+"' but there aren't enough parameters in the command!");
-					this->ServerInstance->Users->clientlist->erase(params[0]);
-					delete _new;
-					return true;
+					this->SendError("Broken UID command, expected a parameter for user mode '"+ConvToStr(*v)+"' but there aren't enough parameters in the command!");
+					return false;
 				}
 			}
 			else
@@ -152,14 +148,11 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		}
 		else
 		{
-			this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" KILL "+params[0]+" :Warning: Broken UID command, unknown user mode '"+(*v)+"' in the mode string!");
-			this->ServerInstance->Users->clientlist->erase(params[0]);
-			delete _new;
-			return true;
+			// XXX: to avoid this, we really need to send u/cmodes in CAPAB like we do 005 (I've thought this a long time anyway..)
+			this->SendError("Warning: Broken UID command, unknown user mode '"+ConvToStr(*v)+"' in the mode string! (mismatched modules/bug?)");
+			return false;
 		}
 	}
-
-	//_new->ProcessNoticeMasks(params[7].c_str());
 
 	/* now we've done with modes processing, put the + back for remote servers */
 	if (params[8][0] != '+')
