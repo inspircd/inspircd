@@ -544,9 +544,14 @@ class CoreExport ModeParser : public classbase
 	 */
 	std::string ParaModeList();
 
-	/** Generates the CHANMODES= 005 sequence
+	/** Generates a list of modes, comma seperated by type:
+	 *  1; Listmodes EXCEPT those with a prefix
+	 *  2; Modes that take a param when adding or removing
+	 *  3; Modes that only take a param when adding
+	 *  4; Modes that dont take a param
 	 */
-	std::string ChanModes();
+	std::string GiveModeList(ModeMasks m);
+
 	/** Used by this class internally during std::sort and 005 generation
 	 */
 	static bool PrefixComparison(prefixtype one, prefixtype two);

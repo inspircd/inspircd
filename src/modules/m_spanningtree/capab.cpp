@@ -95,7 +95,8 @@ void TreeSocket::SendCapabilities()
 			" IP6SUPPORT="+ConvToStr(ip6support)+
 			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
-			" CHANMODES="+ServerInstance->Modes->ChanModes()+
+			" CHANMODES="+ServerInstance->Modes->GiveModeList(MASK_CHANNEL)+
+			" USERMODES="+ServerInstance->Modes->GiveModeList(MASK_USER)+
 			" SVSPART=1");
 
 	this->WriteLine("CAPAB END");
@@ -186,8 +187,17 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 		if(this->CapKeys.find("PREFIX") != this->CapKeys.end() && this->CapKeys.find("PREFIX")->second != this->ServerInstance->Modes->BuildPrefixes())
 			reason = "One or more of the prefixes on the remote server are invalid on this server.";
 
+		if(this->CapKeys.find("CHANMODES") != this->CapKeys.end() && this->CapKeys.find("CHANMODES")->second != this->ServerInstance->Modes->GiveModeList(MASK_CHANNEL))
+			reason = "One or more of the channel modes on the remote server are invalid on this server.";
+
+		if(this->CapKeys.find("USERMODES") != this->CapKeys.end() && this->CapKeys.find("USERMODES")->second != this->ServerInstance->Modes->GiveModeList(MASK_USER))
+			reason = "One or more of the user modes on the remote server are invalid on this server.";
+
+
 		if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (ServerInstance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(ServerInstance->Config->AllowHalfop))))
 			reason = "We don't both have halfop support enabled/disabled identically";
+
+
 
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->CapKeys.find("CHALLENGE");

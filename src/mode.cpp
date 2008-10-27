@@ -1010,7 +1010,7 @@ std::string ModeParser::ModeString(User* user, Channel* channel, bool nick_suffi
 		return types;
 }
 
-std::string ModeParser::ChanModes()
+std::string ModeParser::GiveModeList(ModeMasks m)
 {
 	std::string type1;	/* Listmodes EXCEPT those with a prefix */
 	std::string type2;	/* Modes that take a param when adding or removing */
@@ -1022,7 +1022,7 @@ std::string ModeParser::ChanModes()
 		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
 			continue;
 
-		unsigned char pos = (mode-65) | MASK_CHANNEL;
+		unsigned char pos = (mode-65) | m;
 		 /* One parameter when adding */
 		if (modehandlers[pos])
 		{	
