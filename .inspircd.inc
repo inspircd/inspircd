@@ -177,11 +177,20 @@ sub valdebugunattended
 	# NOTE: Saving the debug log (redirected stdout), while useful, is a potential security risk AND one hell of a spacehog. DO NOT SAVE THIS WHERE EVERYONE HAS ACCESS!
 	# Redirect stdout to /dev/null if you're worried about the security.
 	#
-	# Note the & at the end. We *must* detach otherwise the script hangs.
-	system("valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-file=$valgrindlogpath/valdebug.%p $binpath/$executable -nofork -debug -nolog >> $basepath/valdebug.insp.out &");
+	my $pid = fork;
+	if ($pid == 0) {
+		POSIX::setsid();
+		umask 066;
+		open STDIN, '/dev/null' or die $!;
+		open STDOUT, '>', "$valgrindlogpath/out.$$" or die $!;
+		open STDERR, '>', "$valgrindlogpath/err.$$" or die $!;
+		umask 022;
+		exec "valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-file=$valgrindlogpath/valdebug.\%p $binpath/$executable -nofork -debug -nolog";
+		exit 1;
+	}
 	# Sleep 5 seconds to give valgrind time to initialize before chmodding the logdir for apache access.
 	sleep(5);
-	system("chmod 644 $valgrindlogpath/*");
+	system("chmod 644 $valgrindlogpath/valdebug.*");
 }
 
 sub screenvaldebug
