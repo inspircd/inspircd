@@ -180,17 +180,14 @@ sub valdebugunattended
 	my $pid = fork;
 	if ($pid == 0) {
 		POSIX::setsid();
+		umask 022;
+		open STDERR, '>', "$valgrindlogpath/valdebug.$$" or die $!;
 		umask 066;
 		open STDIN, '/dev/null' or die $!;
 		open STDOUT, '>', "$valgrindlogpath/out.$$" or die $!;
-		open STDERR, '>', "$valgrindlogpath/err.$$" or die $!;
-		umask 022;
-		exec "valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-file=$valgrindlogpath/valdebug.\%p $binpath/$executable -nofork -debug -nolog";
+		exec "valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-fd=2 $binpath/$executable -nofork -debug -nolog";
 		exit 1;
 	}
-	# Sleep 5 seconds to give valgrind time to initialize before chmodding the logdir for apache access.
-	sleep(5);
-	system("chmod 644 $valgrindlogpath/valdebug.*");
 }
 
 sub screenvaldebug

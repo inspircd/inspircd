@@ -128,6 +128,10 @@ void ListenSocketBase::AcceptInternal()
 	if (this->family == AF_INET6)
 	{
 		inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
+		if (!strncmp(buf, "::ffff:", 7))
+		{
+			memmove(buf, buf+7, sizeof(buf)-7);
+		}
 		socklen_t raddrsz = sizeof(sockaddr_in6);
 		if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
 			inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
