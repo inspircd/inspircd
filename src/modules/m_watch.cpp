@@ -459,7 +459,7 @@ class Modulewatch : public Module
 							i2->second.erase(n);
 
 						if (!i2->second.size())
-							whos_watching_me->erase(user->nick.c_str());
+							whos_watching_me->erase(x);
 				}
 			}
 
