@@ -35,7 +35,7 @@ class ModuleModesOnConnect : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnPostConnect] = List[I_OnRehash] = 1;
+		List[I_OnUserConnect] = List[I_OnRehash] = 1;
 	}
 
 	virtual void OnRehash(userrec* user, const std::string &parameter)
@@ -54,7 +54,7 @@ class ModuleModesOnConnect : public Module
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 	
-	virtual void OnPostConnect(userrec* user)
+	virtual void OnUserConnect(userrec* user)
 	{
 		if (!IS_LOCAL(user))
 			return;
