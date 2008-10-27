@@ -17,6 +17,7 @@ my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@/";
 my $binpath	=	"@BINARY_DIR@";
 my $libpath	=	"@LIBRARY_DIR@";
+my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"@EXECUTABLE@";
 my $version	=	"@VERSION@";
 my @filesparsed;
@@ -30,6 +31,7 @@ if ($arg eq "start") { start(); exit(); }
 if ($arg eq "debug") { debug(); exit(); }
 if ($arg eq "screendebug") { screendebug(); exit() }
 if ($arg eq "valdebug") { valdebug(); exit(); }
+if ($arg eq "valdebug-unattended") { valdebugunattended(); exit(); }
 if ($arg eq "screenvaldebug") { screenvaldebug(); exit(); }
 if ($arg eq "stop") { stop(); exit(); }
 if ($arg eq "status") {
@@ -88,7 +90,7 @@ if ($arg eq "Cheese-Sandwich") {
 ###
 print "Invalid Argument: $arg\n";
 print "Usage: inspircd (start|stop|restart|rehash|status|cron|checkconf|version)\n";
-print "Developer arguments: (debug|screendebug|valdebug|screenvaldebug)\n";
+print "Developer arguments: (debug|screendebug|valdebug|valdebug-unattended|screenvaldebug)\n";
 exit();
 
 ###
@@ -155,6 +157,33 @@ sub valdebug
 	system("valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10 $binpath/$executable -nofork -debug -nolog");
 }
 
+sub valdebugunattended
+{
+	# NOTE: To make sure valgrind generates coredumps, set soft core limit in /etc/security/limits.conf to unlimited
+	# Check to see its not 'running' already.
+	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
+ 
+	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
+	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
+ 
+	# Check we have valgrind and gdb
+	checkvalgrind();
+	checkgdb();
+ 
+	# If we are still alive here.. Try starting the IRCd..
+	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
+	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
+	#
+	# NOTE: Saving the debug log (redirected stdout), while useful, is a potential security risk AND one hell of a spacehog. DO NOT SAVE THIS WHERE EVERYONE HAS ACCESS!
+	# Redirect stdout to /dev/null if you're worried about the security.
+	#
+	# Note the & at the end. We *must* detach otherwise the script hangs.
+	system("valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-file=$valgrindlogpath/valdebug.%p $binpath/$executable -nofork -debug -nolog >> $basepath/valdebug.insp.out &");
+	# Sleep 5 seconds to give valgrind time to initialize before chmodding the logdir for apache access.
+	sleep(5);
+	system("chmod 644 $valgrindlogpath/*");
+}
+
 sub screenvaldebug
 {
 	# Check to see its not 'running' already.
@@ -180,8 +209,9 @@ sub stop {
 	my $pid = getprocessid();
 	print "Stopping InspIRCd (pid: $pid)...\n";
 	system("kill -TERM $pid >/dev/null 2>&1");
-	# Give it a second to exit
-	sleep(1);
+	# Give it twenty seconds to exit, otherwise valgrind can't write out all output before being killed -9
+	# TODO make this a variable number based on if it's valgrind or normal start.
+	sleep(20);
 	if (getstatus() == 1)
 	{
 		print "InspIRCd not dying quietly -- forcing kill\n";
