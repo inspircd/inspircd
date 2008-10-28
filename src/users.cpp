@@ -101,11 +101,10 @@ void User::StartDNSLookup()
 		const char* sip = this->GetIPString();
 		UserResolver *res_reverse;
 
-		/* Special case for 4in6 (Have i mentioned i HATE 4in6?) */
-		if (!strncmp(sip, "0::ffff:", 8))
-			res_reverse = new UserResolver(this->ServerInstance, this, sip + 8, DNS_QUERY_PTR4, cached);
-		else
-			res_reverse = new UserResolver(this->ServerInstance, this, sip, this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6, cached);
+		QueryType resolvtype = strchr(sip, ':') ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
+		// when GetProtocolFamily() works correctly with 4in6, this can be replaced by
+		// this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6;
+		res_reverse = new UserResolver(this->ServerInstance, this, sip, resolvtype, cached);
 
 		this->ServerInstance->AddResolver(res_reverse, cached);
 	}
