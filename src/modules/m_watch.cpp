@@ -432,7 +432,7 @@ class Modulewatch : public Module
 		{
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
-				if (!user->Visibility || user->Visibility->VisibleTo(user))
+				if (!user->Visibility || user->Visibility->VisibleTo(*n))
 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick.c_str() ,user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) ServerInstance->Time());
 
 				watchlist* wl;
@@ -502,7 +502,7 @@ class Modulewatch : public Module
 		{
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
-				if (!user->Visibility || user->Visibility->VisibleTo(user))
+				if (!user->Visibility || user->Visibility->VisibleTo(*n))
 					(*n)->WriteNumeric(600, "%s %s %s %s %lu :arrived online", (*n)->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) user->age);
 
 				watchlist* wl;
@@ -525,7 +525,7 @@ class Modulewatch : public Module
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 				{
-					if (!user->Visibility || user->Visibility->VisibleTo(user))
+					if (!user->Visibility || user->Visibility->VisibleTo(*n))
 	 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick.c_str(), oldnick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) user->age);
 					(*wl)[oldnick.c_str()] = "";
 				}
@@ -540,7 +540,7 @@ class Modulewatch : public Module
 				if ((*n)->GetExt("watchlist", wl))
 				{
 					(*wl)[user->nick.c_str()] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
-					if (!user->Visibility || user->Visibility->VisibleTo(user))
+					if (!user->Visibility || user->Visibility->VisibleTo(*n))
 						(*n)->WriteNumeric(600, "%s %s %s :arrived online", (*n)->nick.c_str(), user->nick.c_str(), (*wl)[user->nick.c_str()].c_str());
 				}
 			}
