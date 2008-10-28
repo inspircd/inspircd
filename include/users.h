@@ -673,7 +673,7 @@ class CoreExport User : public EventHandler
 	/** Get IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */
-	const char* GetIPString(bool translate4in6 = true);
+	const char* GetIPString();
 
 	/** Get a CIDR mask from the IP of this user, using a static internal buffer.
 	 * e.g., GetCIDRMask(16) for 223.254.214.52 returns 223.254.0.0/16
