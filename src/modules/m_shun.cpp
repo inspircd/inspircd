@@ -119,13 +119,12 @@ class cmd_shun : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s.", user->nick.c_str(), parameters[0].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s", user->nick.c_str(), parameters[0].c_str(),
-						ServerInstance->TimeString(c_requires_crap).c_str());
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
 					}
 
 					ServerInstance->XLines->ApplyLines();
