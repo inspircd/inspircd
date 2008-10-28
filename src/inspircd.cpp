@@ -586,7 +586,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	printf_c("(C) InspIRCd Development Team.\033[0m\n\n");
 	printf_c("Developers:\n");
 	printf_c("\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special\n");
-	printf_c("\t\033[1;32mpippijn, peavey, aquanight, fez\033[0m\n\n");
+	printf_c("\t\033[1;32mpippijn, peavey, aquanight, fez, psychon, dz\033[0m\n\n");
 	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
 
 	Config->ClearStack();
