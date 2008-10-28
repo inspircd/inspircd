@@ -355,11 +355,6 @@ class ModuleChanProtect : public Module
 
 	void LoadSettings()
 	{
-		/* Create a configreader class and read our flag,
-		 * in old versions this was heap-allocated and the
-		 * object was kept between rehashes...now we just
-		 * stack-allocate it locally.
-		 */
 		ConfigReader Conf(ServerInstance);
 
 		FirstInGetsFounder = Conf.ReadFlag("chanprotect", "noservices", 0);
