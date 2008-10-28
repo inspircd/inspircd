@@ -24,18 +24,14 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 # To link servers to InspIRCd, you MUST load the m_spanningtree       #
-# module, as shown below. If you DO NOT do this, server links will    #
-# NOT work at all. ie. The ports will NOT bind, and /connect will not #
-# work properly. This is by design, to allow for the implementation   #
-# of other linking protocols in modules in the future.                #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Spanning Tree module - allows linking of servers using the spanning
-# tree protocol (see the READ THIS BIT section above).
-# You will almost always want to load this.
-#
-#<module name="m_spanningtree.so">
-
+# module. Since several features (like SSL server links) rely on      #
+# other modules being loaded before m_spanningtree, the module itself #
+# is at the bottom of this file. DO NOT forget to load it. If you DO  #
+# NOT do this, server links will NOT work at all. ie. The ports will  #
+# NOT bind, and /connect will not work properly. This is by design,   #
+# to allow for the implementation of other linking protocols in       #
+# modules in the future.                                              #
+#                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MD5 Module - Allows other modules to generate MD5 hashes, usually for
@@ -1660,3 +1656,30 @@
 # <link> tags or <bind> tags using the transport name 'zip'.
 # See the documentation of <link> and <bind>, respectively.
 #
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+# To link servers to InspIRCd, you MUST load the m_spanningtree       #
+# module. Since several features (like SSL server links) rely on      #
+# other modules being loaded before m_spanningtree, the module itself #
+# is at the bottom of this file. DO NOT forget to load it. If you DO  #
+# NOT do this, server links will NOT work at all. ie. The ports will  #
+# NOT bind, and /connect will not work properly. This is by design,   #
+# to allow for the implementation of other linking protocols in       #
+# modules in the future.                                              #
+#                                                                     #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Spanning Tree module - allows linking of servers using the spanning
+# tree protocol (see the READ THIS BIT section above).
+# You will almost always want to load this.
+#
+#<module name="m_spanningtree.so">
+
+
