@@ -306,37 +306,7 @@ bool InspIRCd::OpenLog(char**, int)
 	{
 		if (Config->logpath.empty())
 		{
-			std::string path = std::string(home) + "/.inspircd";
-			// This tries to create the ~/.inspircd. If it succeeds, then we go ahead and use it.
-			// If it fails due to an existing target, then we use it anyway.
-			// Either way, we make sure we can get write access to the log at this point.
-			if (!mkdir(path.c_str(), 0700) || errno == EEXIST)
-			{
-				/* Log to ~/.inspircd/ircd.log */
-				Config->logpath = path + "/startup.log";
-				FILE* fd = fopen(Config->logpath.c_str(), "a+");
-				if (!fd)
-				{
-					// Could not get write access... Why?
-					if (errno == ENOTDIR)
-						// ~/.inspircd is not actually a directory!
-						printf("\nWARNING: Unable to create directory: %s (Exists and is not a directory)\n", path.c_str());
-					else
-						// Not writable for some other reason (no +w access, readonly fs, file too big, whatever).
-						printf("\nWARNING: No write access to %s (%s)\n", Config->logpath.c_str(), strerror(errno));
-					Config->logpath = "./startup.log";
-				}
-				else
-				{
-					Config->log_file = fd;
-				}
-			}
-			else
-			{
-				/* Couldn't make ~/.inspircd directory, log to current dir */
-				Config->logpath = "./startup.log";
-				printf("\nWARNING: Unable to create directory: %s (%s)\n", path.c_str(), strerror(errno));
-			}
+			Config->logpath = "./startup.log";
 		}
 
 		if (!Config->log_file)
