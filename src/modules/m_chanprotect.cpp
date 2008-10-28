@@ -362,12 +362,12 @@ class ModuleChanProtect : public Module
 		 */
 		ConfigReader Conf(ServerInstance);
 
-		FirstInGetsFounder = Conf.ReadFlag("options", "noservices", 0);
+		FirstInGetsFounder = Conf.ReadFlag("chanprotect", "noservices", 0);
 
-		std::string qpre = Conf.ReadValue("options", "qprefix", 0);
+		std::string qpre = Conf.ReadValue("chanprotect", "qprefix", 0);
 		QPrefix = qpre.empty() ? 0 : qpre[0];
 
-		std::string apre = Conf.ReadValue("options", "aprefix", 0);
+		std::string apre = Conf.ReadValue("chanprotect", "aprefix", 0);
 		APrefix = apre.empty() ? 0 : apre[0];
 
 		if ((APrefix && QPrefix) && APrefix == QPrefix)
@@ -379,9 +379,9 @@ class ModuleChanProtect : public Module
 		if (cf && ServerInstance->Modes->FindPrefix(QPrefix) == cf)
 			throw ModuleException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
 
-		DeprivSelf = Conf.ReadFlag("options","deprotectself", "yes", 0);
-		DeprivOthers = Conf.ReadFlag("options","deprotectothers", "yes", 0);
-		DeprivOthers = Conf.ReadFlag("options","setprivsonothers", "yes", 0);
+		DeprivSelf = Conf.ReadFlag("chanprotect","deprotectself", "yes", 0);
+		DeprivOthers = Conf.ReadFlag("chanprotect","deprotectothers", "yes", 0);
+		DeprivOthers = Conf.ReadFlag("chanprotect","setprivsonothers", "yes", 0);
 	}
 
 	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)

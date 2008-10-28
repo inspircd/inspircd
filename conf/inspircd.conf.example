@@ -379,28 +379,6 @@
          # should be suffixed with.
          suffixpart="\""
 
-         # noservices: With this set to no, when a user joins a empty channel,
-         # the server will set +q on them. If set to yes, it will only set +o
-         # on them until they register the channel.
-         noservices="no"
-
-         # qprefix: Prefix (symbol) to use for +q users.
-         qprefix="~"
-
-         # aprefix: Prefix (symbol) to use for +a users.
-         aprefix="&"
-
-         # deprotectself: If this value is set (true, yes or 1), it will allow
-         # +a and +q users to remove the +a and +q from themselves, otherwise,
-         # the status will have to be removed by services.
-         deprotectself="no"
-
-         # deprotectothers: If this value is set to yes, true, or 1, then any
-         # user with +q or +a may remove the +q or +a from other users. 
-         # The default setting is to not enable this feature, so that 
-         # only +q may remove +a, and nothing but services may remove +q.
-         deprotectothers="no"
-
          # syntaxhints: If enabled, if a user fails to send the correct parameters
          # for a command, the ircd will give back soome help text of what
          # the correct parameters are
