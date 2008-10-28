@@ -351,8 +351,18 @@ public:
 			user->Shrink("cgiirc_webirc_ip");
 			ServerInstance->AddLocalClone(user);
 			ServerInstance->AddGlobalClone(user);
-			user->CheckClass();
 			Recheck(user);
+
+			ConnectClass *i = user->GetClass();
+			if (!i)
+			{
+				userrec::QuitUser(ServerInstance, user, "Access denied by configuration");
+				return;
+			}
+			else
+			{
+				user->CheckClass(i);
+			}
 		}
 	}
 
@@ -379,7 +389,6 @@ public:
 #endif
 			ServerInstance->AddLocalClone(user);
 			ServerInstance->AddGlobalClone(user);
-			user->CheckClass();
 
 			if (valid)
 			{
@@ -408,6 +417,17 @@ public:
 
 			/*if(NotifyOpers)
 				ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);*/
+
+			ConnectClass *i = user->GetClass();
+			if (!i)
+			{
+				userrec::QuitUser(ServerInstance, user, "Access denied by configuration");
+				return false;
+			}
+			else
+			{
+				user->CheckClass(i);
+			}
 
 			return true;
 		}
@@ -441,7 +461,6 @@ public:
 		user->SetSockAddr(user->GetProtocolFamily(), newip, user->GetPort());
 		ServerInstance->AddLocalClone(user);
 		ServerInstance->AddGlobalClone(user);
-		user->CheckClass();
 		try
 		{
 			strlcpy(user->host, newip, 16);
@@ -462,9 +481,17 @@ public:
 			if(NotifyOpers)
 				 ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
 		}
-		/*strlcpy(user->host, newip, 16);
-		strlcpy(user->dhost, newip, 16);
-		strlcpy(user->ident, "~cgiirc", 8);*/
+
+		ConnectClass *i = user->GetClass();
+		if (!i)
+		{
+			userrec::QuitUser(ServerInstance, user, "Access denied by configuration");
+			return true;
+		}
+		else
+		{
+			user->CheckClass(i);
+		}
 
 		return true;
 	}

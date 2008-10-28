@@ -930,7 +930,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	 * Check connect class settings and initialise settings into userrec.
 	 * This will be done again after DNS resolution. -- w00t
 	 */
-	New->CheckClass();
+	New->CheckClass(i);
 
 	Instance->local_users.push_back(New);
 
@@ -1009,10 +1009,8 @@ unsigned long userrec::LocalCloneCount()
 /*
  * Check class restrictions
  */
-void userrec::CheckClass()
+void userrec::CheckClass(ConnectClass *a)
 {
-	ConnectClass* a = this->GetClass();
-
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
 		userrec::QuitUser(ServerInstance, this, "Unauthorised connection");
@@ -1045,13 +1043,29 @@ void userrec::FullConnect()
 	ServerInstance->stats->statsConnects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
+
+	ConnectClass *a = this->GetClass();
+	if (!a)
+	{
+		/*
+		 * This can happen:
+		 *  - user connects
+		 *  - /rehash, removing <connect> tag they matched
+		 *  - dns completes (putting us here) ...but they no longer have a connect tag
+		 * Catch it here. Thanks Szymek!
+		 *  -- w00t
+		 */
+		userrec::QuitUser(ServerInstance, this, "Invalid password");
+		return;
+	}
+	
 	/*
 	 * You may be thinking "wtf, we checked this in userrec::AddClient!" - and yes, we did, BUT.
 	 * At the time AddClient is called, we don't have a resolved host, by here we probably do - which
 	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
-	this->CheckClass();
+	this->CheckClass(a);
 	
 	/* Check the password, if one is required by the user's connect class.
 	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!

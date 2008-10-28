@@ -784,9 +784,10 @@ class CoreExport userrec : public connection
 	 */
 	void Oper(const std::string &opertype);
 
-	/** Call this method to find the matching <connect> for a user, and to check them against it.
+	/** Call this method to check a user against a connect class.
+	 * @param a The connect class to match them against.
 	 */
-	void CheckClass();
+	void CheckClass(ConnectClass *a);
 
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.
