@@ -214,16 +214,17 @@ sub stop {
 	# Get to here, we have something to kill.
 	my $pid = getprocessid();
 	print "Stopping InspIRCd (pid: $pid)...\n";
-	system("kill -TERM $pid >/dev/null 2>&1");
-	# Give it twenty seconds to exit, otherwise valgrind can't write out all output before being killed -9
-	# TODO make this a variable number based on if it's valgrind or normal start.
-	sleep(20);
-	if (getstatus() == 1)
-	{
-		print "InspIRCd not dying quietly -- forcing kill\n";
-		system("kill -9 $pid >/dev/null 2>&1");
+	my $maxwait = (`ps -o command $pid` =~ /valgrind/i) ? 30 : 5;
+	kill TERM => $pid;
+	for (1..$maxwait) {
+		sleep 1;
+		if (getstatus() == 1) {
+			print "InspIRCd Stopped.\n";
+			return;
+		}
 	}
-	print "InspIRCd Stopped.\n";
+	print "InspIRCd not dying quietly -- forcing kill\n";
+	kill KILL => $pid;
 }
 
 # GetPidfile Version 2 - Now With Include Support..
@@ -303,10 +304,8 @@ sub getpidfile {
 
 sub getstatus {
 	my $pid = getprocessid();
-	if ($pid == 0) { return 0; }
-	$status = system("kill -0 $pid >/dev/null 2>&1") / 256;
-	if ($status == 0) { return 1; }
-	else { return 0; }
+	return 0 if $pid == 0;
+	return kill 0, $pid;
 }
 
 
