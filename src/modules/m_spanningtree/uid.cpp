@@ -148,8 +148,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		}
 		else
 		{
-			// XXX: to avoid this, we really need to send u/cmodes in CAPAB like we do 005 (I've thought this a long time anyway..)
-			this->SendError("Warning: Broken UID command, unknown user mode '"+ConvToStr(*v)+"' in the mode string! (mismatched modules/bug?)");
+			this->SendError("Warning: Broken UID command, unknown user mode '"+ConvToStr(*v)+"' in the mode string! (mismatched module?)");
 			return false;
 		}
 	}
