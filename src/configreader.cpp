@@ -417,10 +417,11 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 	int recvq = values[8].GetInteger();
 	int localmax = values[9].GetInteger();
 	int globalmax = values[10].GetInteger();
+	int port = values[11].GetInteger();
 
 	if (*allow)
 	{
-		ConnectClass c(timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax);
+		ConnectClass c(timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, port);
 		conf->Classes.push_back(c);
 	}
 	else
