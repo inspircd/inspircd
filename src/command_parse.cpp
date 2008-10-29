@@ -287,10 +287,21 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		if (MOD_RESULT == 1)
 			return true;
 
-		if (user->registered == REG_ALL)
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
-		ServerInstance->stats->statsUnknown++;
-		return true;
+		/*
+		 * This double lookup is in case a module (abbreviation) wishes to change a command.
+		 * Sure, the double lookup is a bit painful, but bear in mind this only happens for unknowns anyway.
+		 *
+		 * Thanks dz for making me actually understand why this is necessary!
+		 * -- w00t
+		 */
+		Commandtable::iterator cm = cmdlist.find(command);
+		if (cm == cmdlist.end())
+		{
+			if (user->registered == REG_ALL)
+				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
+			ServerInstance->stats->statsUnknown++;
+			return true;
+		}
 	}
 
 	if (cm->second->max_params && command_p.size() > cm->second->max_params)
