@@ -262,7 +262,7 @@ class ModuleSSLGnuTLS : public Module
 		if((ret = gnutls_certificate_set_x509_key_file (x509_cred, certfile.c_str(), keyfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 		{
 			// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
-			throw ModuleException("Unable to load GnuTLS server certificate: " + std::string(gnutls_strerror(ret)));
+			throw ModuleException("Unable to load GnuTLS server certificate (" + std::string(certfile) + ", key: " + keyfile + "): " + std::string(gnutls_strerror(ret)));
 		}
 
 		// This may be on a large (once a day or week) timer eventually.
