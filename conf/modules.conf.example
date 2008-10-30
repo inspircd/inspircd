@@ -382,11 +382,7 @@
 
 	# deprotectothers: If this value is set to yes, true, or 1, then any
 	# user with +q or +a may remove the +q or +a from other users.
-	deprotectothers="yes"
-
-	# setprivsonothers: If this value is set to yes, true, or 1, then any
-	# user with +q or +a may add the +q or +a to other users.
-	setprivsonothers="yes">
+	deprotectothers="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
