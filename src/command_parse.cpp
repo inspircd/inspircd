@@ -294,7 +294,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		 * Thanks dz for making me actually understand why this is necessary!
 		 * -- w00t
 		 */
-		Commandtable::iterator cm = cmdlist.find(command);
+		cm = cmdlist.find(command);
 		if (cm == cmdlist.end())
 		{
 			if (user->registered == REG_ALL)
