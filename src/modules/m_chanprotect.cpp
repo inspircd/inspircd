@@ -31,10 +31,9 @@ class FounderProtectBase
  protected:
 	bool& remove_own_privs;
 	bool& remove_other_privs;
-	bool& add_other_privs;
  public:
-	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e, bool &remove_own, bool &remove_others, bool &add_others) :
-		MyInstance(Instance), extend(ext), type(mtype), list(l), end(e), remove_own_privs(remove_own), remove_other_privs(remove_others), add_other_privs(add_others)
+	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e, bool &remove_own, bool &remove_others) :
+		MyInstance(Instance), extend(ext), type(mtype), list(l), end(e), remove_own_privs(remove_own), remove_other_privs(remove_others)
 	{
 	}
 
@@ -127,12 +126,6 @@ class FounderProtectBase
 		return (remove_other_privs && u1->GetExt(item) && u2->GetExt(item));
 	}
 
-	bool CanAddOthers(User* u1, User* u2, Channel* c)
-	{
-		std::string item = extend+std::string(c->name);
-		return (add_other_privs && u1->GetExt(item));
-	}
-
 	ModeAction HandleChange(User* source, User* theuser, bool adding, Channel* channel, std::string &parameter)
 	{
 		std::string item = extend+std::string(channel->name);
@@ -164,9 +157,9 @@ class FounderProtectBase
 class ChanFounder : public ModeHandler, public FounderProtectBase
 {
  public:
-	ChanFounder(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others, bool &priv_others)
+	ChanFounder(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0),
-		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self, depriv_others, priv_others) { }
+		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
 	{
@@ -210,17 +203,13 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
-
-		// If they have it, allow them to give it.
-		if (adding && FounderProtectBase::CanAddOthers(source, theuser, channel))
+		else
 		{
-			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+			// whoops, someones being naughty!
+			source->WriteNumeric(468, "%s %s :Only servers may set channel mode +q", source->nick.c_str(), channel->name.c_str());
+			parameter.clear();
+			return MODEACTION_DENY;
 		}
-
-		// whoops, someones being naughty!
-		source->WriteNumeric(468, "%s %s :You are not permitted to set additional founders", source->nick.c_str(), channel->name.c_str());
-		parameter.clear();
-		return MODEACTION_DENY;
 	}
 
 	void DisplayList(User* user, Channel* channel)
@@ -234,9 +223,9 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 class ChanProtect : public ModeHandler, public FounderProtectBase
 {
  public:
-	ChanProtect(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others, bool &priv_others)
+	ChanProtect(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0),
-		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self, depriv_others, priv_others) { }
+		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
 	{
@@ -266,11 +255,10 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
-		if (!adding && FounderProtectBase::CanRemoveOthers(source, theuser, channel))
+		if ((!adding) && FounderProtectBase::CanRemoveOthers(source, theuser, channel))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
-
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
 		if (source == ServerInstance->FakeClient ||
 			((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
@@ -282,16 +270,12 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
-
-		// If they have it, allow them to give it.
-		if (adding && FounderProtectBase::CanAddOthers(source, theuser, channel))
+		else
 		{
-			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+			// bzzzt, wrong answer!
+			source->WriteNumeric(482, "%s %s :You are not a channel founder", source->nick.c_str(), channel->name.c_str());
+			return MODEACTION_DENY;
 		}
-		
-		// bzzzt, wrong answer!
-		source->WriteNumeric(482, "%s %s :You are not a channel founder", source->nick.c_str(), channel->name.c_str());
-		return MODEACTION_DENY;
 	}
 
 	virtual void DisplayList(User* user, Channel* channel)
@@ -309,7 +293,6 @@ class ModuleChanProtect : public Module
 	char APrefix;
 	bool DeprivSelf;
 	bool DeprivOthers;
-	bool PrivOthers;
 	bool booting;
 	ChanProtect* cp;
 	ChanFounder* cf;
@@ -325,8 +308,8 @@ class ModuleChanProtect : public Module
 
 		/* Initialise module variables */
 
-		cp = new ChanProtect(ServerInstance, APrefix, DeprivSelf, DeprivOthers, PrivOthers);
-		cf = new ChanFounder(ServerInstance, QPrefix, DeprivSelf, DeprivOthers, PrivOthers);
+		cp = new ChanProtect(ServerInstance, APrefix, DeprivSelf, DeprivOthers);
+		cf = new ChanFounder(ServerInstance, QPrefix, DeprivSelf, DeprivOthers);
 
 		if (!ServerInstance->Modes->AddMode(cp) || !ServerInstance->Modes->AddMode(cf))
 		{
@@ -376,7 +359,6 @@ class ModuleChanProtect : public Module
 
 		DeprivSelf = Conf.ReadFlag("chanprotect","deprotectself", "yes", 0);
 		DeprivOthers = Conf.ReadFlag("chanprotect","deprotectothers", "yes", 0);
-		DeprivOthers = Conf.ReadFlag("chanprotect","setprivsonothers", "yes", 0);
 	}
 
 	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
