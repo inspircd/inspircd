@@ -275,6 +275,9 @@ class ModuleServices : public Module
  	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		if (chan)
 		{
 			if (chan->IsModeSet('R'))

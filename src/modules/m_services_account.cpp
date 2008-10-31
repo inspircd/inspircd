@@ -197,6 +197,9 @@ class ModuleServicesAccount : public Module
 	 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		std::string *account;
 		user->GetExt("accountname", account);
 		
