@@ -16,6 +16,63 @@
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
+/** Channel mode +r - mark a channel as identified
+ */
+class Channel_r : public ModeHandler
+{
+
+ public:
+	Channel_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	{
+		// only a u-lined server may add or remove the +r mode.
+		if (IS_REMOTE(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
+		{
+			// Only change the mode if it's not redundant
+			if ((adding && !channel->IsModeSet('r')) || (!adding && channel->IsModeSet('r')))
+			{
+				channel->SetMode('r',adding);
+				return MODEACTION_ALLOW;
+			}
+
+			return MODEACTION_DENY;
+		}
+		else
+		{
+			source->WriteNumeric(500, "%s :Only a server may modify the +r channel mode", source->nick.c_str());
+			return MODEACTION_DENY;
+		}
+	}
+};
+
+/** User mode +r - mark a user as identified
+ */
+class User_r : public ModeHandler
+{
+
+ public:
+	User_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false) { }
+
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	{
+		if (IS_REMOTE(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
+		{
+			if ((adding && !dest->IsModeSet('r')) || (!adding && dest->IsModeSet('r')))
+			{
+				dest->SetMode('r',adding);
+				return MODEACTION_ALLOW;
+			}
+			return MODEACTION_DENY;
+		}
+		else
+		{
+			source->WriteNumeric(500, "%s :Only a server may modify the +r user mode", source->nick.c_str());
+			return MODEACTION_DENY;
+		}
+	}
+};
+
 /** Channel mode +R - unidentified users cannot join
  */
 class AChannel_R : public SimpleChannelModeHandler
@@ -42,24 +99,27 @@ class AChannel_M : public SimpleChannelModeHandler
 
 class ModuleServicesAccount : public Module
 {
-
 	AChannel_R* m1;
 	AChannel_M* m2;
 	AUser_R* m3;
+	Channel_r *m4;
+	User_r *m5;
  public:
 	ModuleServicesAccount(InspIRCd* Me) : Module(Me)
 	{
-
 		m1 = new AChannel_R(ServerInstance);
 		m2 = new AChannel_M(ServerInstance);
 		m3 = new AUser_R(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(m1) || !ServerInstance->Modes->AddMode(m2) || !ServerInstance->Modes->AddMode(m3))
-			throw ModuleException("You cannot load m_services.so and m_services_account.so at the same time (or some other module has claimed our modes)!");
+		m4 = new Channel_r(ServerInstance);
+		m5 = new User_r(ServerInstance);
+
+		if (!ServerInstance->Modes->AddMode(m1) || !ServerInstance->Modes->AddMode(m2) || !ServerInstance->Modes->AddMode(m3) || !ServerInstance->Modes->AddMode(m4) || !ServerInstance->Modes->AddMode(m5))
+			throw ModuleException("Some other module has claimed our modes!");
 
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin,
-			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric };
+			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 
-		ServerInstance->Modules->Attach(eventlist, this, 9);
+		ServerInstance->Modules->Attach(eventlist, this, 10);
 	}
 
 	virtual void On005Numeric(std::string &t)
@@ -78,17 +138,34 @@ class ModuleServicesAccount : public Module
 		{
 			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as", source->nick.c_str(), dest->nick.c_str(), account->c_str());
 		}
+
+		if (dest->IsModeSet('r'))
+		{
+			/* user is registered */
+			ServerInstance->SendWhoisLine(source, dest, 307, "%s %s :is a registered nick", source->nick.c_str(), dest->nick.c_str());
+		}
 	}
 
+	virtual void OnUserPostNick(User* user, const std::string &oldnick)
+	{
+		/* On nickchange, if they have +r, remove it */
+		if (user->IsModeSet('r') && assign(user->nick) != oldnick)
+		{
+			std::vector<std::string> modechange;
+			modechange.push_back(user->nick);
+			modechange.push_back("-r");
+			ServerInstance->SendMode(modechange, user);
+		}
+	}
 
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		std::string *account;
-
 		if (!IS_LOCAL(user))
 			return 0;
 
+		std::string *account;
 		user->GetExt("accountname", account);
+		bool is_registered = !account->empty();
 
 		if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 		{
@@ -100,7 +177,7 @@ class ModuleServicesAccount : public Module
 		{
 			Channel* c = (Channel*)dest;
 
-			if ((c->IsModeSet('M')) && (!account))
+			if (c->IsModeSet('M') && !is_registered)
 			{
 				// user messaging a +M channel and is not registered
 				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
@@ -111,18 +188,17 @@ class ModuleServicesAccount : public Module
 			{
 				if (c->IsExtBanned(*account, 'M'))
 				{
-					// may not speak
+					// may not speak (text is deliberately vague, so they don't know which restriction to evade)
 					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You may not speak in this channel");
 					return 1;
 				}
 			}
 		}
-
-		if (target_type == TYPE_USER)
+		else if (target_type == TYPE_USER)
 		{
 			User* u = (User*)dest;
 
-			if ((u->modes['R'-65]) && (!account))
+			if (u->IsModeSet('R') && !is_registered)
 			{
 				// user messaging a +R user and is not registered
 				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
@@ -139,20 +215,25 @@ class ModuleServicesAccount : public Module
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		std::string *account;
 		user->GetExt("accountname", account);
+		bool is_registered = !account->empty();
 
 		if (chan)
 		{
+			if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
+			{
+				// user is ulined, won't be stopped from joining
+				return 0;
+			}
+			
 			if (chan->IsModeSet('R'))
 			{
-				if (!account)
+				if (!is_registered)
 				{
-					if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
-					{
-						// user is ulined, won't be stopped from joining
-						return 0;
-					}
 					// joining a +R channel and not identified
 					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
 					return 1;
@@ -279,9 +360,13 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modes->DelMode(m1);
 		ServerInstance->Modes->DelMode(m2);
 		ServerInstance->Modes->DelMode(m3);
+		ServerInstance->Modes->DelMode(m4);
+		ServerInstance->Modes->DelMode(m5);
 		delete m1;
 		delete m2;
 		delete m3;
+		delete m4;
+		delete m5;
 	}
 
 	virtual Version GetVersion()
