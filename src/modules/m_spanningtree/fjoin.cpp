@@ -109,7 +109,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	/* First up, apply their modes if they won the TS war */
 	if (apply_other_sides_modes)
 	{
-		ServerInstance->SNO->WriteToSnoMask('d', "Applying remote modestring for %s", params[0]);
+		ServerInstance->SNO->WriteToSnoMask('d', "Applying remote modestring for %s", params[0].c_str());
 		unsigned int idx = 2;
 		std::vector<std::string> modelist;
 
