@@ -60,7 +60,6 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	irc::tokenstream users((params.size() > 3) ? params[params.size() - 1] : "");   /* users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
 	Channel* chan = this->ServerInstance->FindChan(channel);		/* The channel we're sending joins to */
-	time_t ourTS = chan ? chan->age : ServerInstance->Time()+600;	/* The TS of our side of the link */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
@@ -77,30 +76,40 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	}
 
 	if (created)
-		chan = new Channel(ServerInstance, channel, ourTS);
-
-	/* If our TS is less than theirs, we dont accept their modes */
-	if (ourTS < TS)
-		apply_other_sides_modes = false;
-
-	/* Our TS greater than theirs, clear all our modes from the channel, accept theirs. */
-	if (ourTS > TS)
 	{
-		std::deque<std::string> param_list;
-		if (Utils->AnnounceTSChange && chan)
-			chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), chan->name.c_str(), (unsigned long) ourTS, (unsigned long) TS);
-		ourTS = TS;
-		if (!created)
+		ServerInstance->SNO->WriteToSnoMask('d', "Creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
+		chan = new Channel(ServerInstance, channel, TS);
+	}
+	else
+	{
+		time_t ourTS = chan->age;
+
+		ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu", chan->name.c_str(), (unsigned long)TS, (unsigned long)TS);
+		/* If our TS is less than theirs, we dont accept their modes */
+		if (ourTS < TS)
 		{
+			ServerInstance->SNO->WriteToSnoMask('d', "NOT Applying modes from other side");
+			apply_other_sides_modes = false;
+		}
+		else if (ourTS > TS)
+		{
+			/* Our TS greater than theirs, clear all our modes from the channel, accept theirs. */
+			ServerInstance->SNO->WriteToSnoMask('d', "Removing our modes, accepting remote");
+			std::deque<std::string> param_list;
+			if (Utils->AnnounceTSChange && chan)
+				chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), chan->name.c_str(), (unsigned long) ourTS, (unsigned long) TS);
+			ourTS = TS;
 			chan->age = TS;
 			param_list.push_back(channel);
 			this->RemoveStatus(ServerInstance->Config->GetSID(), param_list);
 		}
+		// The silent case here is ourTS == TS, we don't need to remove modes here, just to merge them later on.
 	}
 
 	/* First up, apply their modes if they won the TS war */
 	if (apply_other_sides_modes)
 	{
+		ServerInstance->SNO->WriteToSnoMask('d', "Applying remote modestring for %s", params[0]);
 		unsigned int idx = 2;
 		std::vector<std::string> modelist;
 
