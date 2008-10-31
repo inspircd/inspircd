@@ -3,14 +3,14 @@
 #       | Inspire Internet Relay Chat Daemon |
 #       +------------------------------------+
 #
-#      (C) 2002-2008 InspIRCd Development Team
-#   http://www.inspircd.org/wiki/index.php/Credits
+#  InspIRCd: (C) 2002-2008 InspIRCd Development Team
+# See: http://www.inspircd.org/wiki/index.php/Credits
 #
-# Written by Craig Edwards, Craig McLure, and others.
 # This program is free but copyrighted software; see
-#            the file COPYING for details.
+#          the file COPYING for details.
 #
 # ---------------------------------------------------
+#
 use POSIX;
 
 my $basepath	=	"@BASE_DIR@";
