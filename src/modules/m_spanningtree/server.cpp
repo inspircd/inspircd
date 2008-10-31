@@ -60,7 +60,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	if (CheckDupe)
 	{
 		this->SendError("Server "+CheckDupe->GetName()+" already exists!");
-		this->ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
+		this->ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
 		return false;
 	}
 
@@ -71,14 +71,14 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	if (Node->DuplicateID())
 	{
 		this->SendError("Server ID "+servername+" already exists on the network!");
-		this->ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
+		this->ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
 		return false;
 	}
 
 	ParentOfThis->AddChild(Node);
 	params[4] = ":" + params[4];
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
-	this->ServerInstance->SNO->WriteToSnoMask('l',"Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
+	this->ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
 	return true;
 }
 
