@@ -1336,28 +1336,18 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Services support module: Adds several usermodes such as +R and +M
-# this module implements the 'identified' state via user mode +r, which
-# is similar to the DALnet and dreamforge systems.
-#     
-# N O T E!!
-#  >>  This CAN NOT be used at the same time as m_services_account <<
-# N O T E!!
-# *** This module DOES NOT support Atheme services, please use ***
-# *** m_services_account if you are planning on using Atheme.  ***
-#<module name="m_services.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Services support module: Adds several usermodes such as +R and +M
 # this module implements the 'identified' state via account names (AC)
 # and is similar in operation to the way asuka and ircu handle services.
+#
+# At the same time, this offers +r for users and channels to mark them
+# as identified seperately from the idea of a master account, which
+# can be useful for services which are heavily nick-as-account centric.
+#
+# This replaces m_services from 1.1 and earlier.
 #
 # Also of note is that this module implements two extbans:
 # +b R: (stop matching account names from joining)
 # +b M: (stop matching account names from speaking)
-#                                                                       
-# N O T E!!
-#  >>  This CAN NOT be used at the same time as m_services <<
-# N O T E!!
 #<module name="m_services_account.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
