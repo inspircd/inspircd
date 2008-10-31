@@ -98,9 +98,10 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('Q',"REMOTEQUIT");		/* Remote quit notices */
 	this->EnableSnomask('k',"KILL");			/* Kill notices */
 	this->EnableSnomask('K',"REMOTEKILL");		/* Remote kill notices */
-	this->EnableSnomask('l',"LINK");			/* Link notices */
-	this->EnableSnomask('L',"REMOTELINK");			/* Link notices */
+	this->EnableSnomask('l',"LINK");			/* Linking notices */
+	this->EnableSnomask('L',"REMOTELINK");			/* Remote linking notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
+	this->EnableSnomask('o',"REMOTEOPER");			/* Remote oper up/down notices */
 	this->EnableSnomask('A',"ANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
 	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
