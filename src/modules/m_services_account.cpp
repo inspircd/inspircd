@@ -164,8 +164,8 @@ class ModuleServicesAccount : public Module
 			return 0;
 
 		std::string *account;
-		user->GetExt("accountname", account);
-		bool is_registered = !account->empty();
+		bool is_registered = user->GetExt("accountname", account);
+		is_registered = is_registered && !account->empty();
 
 		if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 		{
@@ -219,8 +219,8 @@ class ModuleServicesAccount : public Module
 			return 0;
 
 		std::string *account;
-		user->GetExt("accountname", account);
-		bool is_registered = !account->empty();
+		bool is_registered = user->GetExt("accountname", account);
+		is_registered = is_registered && !account->empty();
 
 		if (chan)
 		{
