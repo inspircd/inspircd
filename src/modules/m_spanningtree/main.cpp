@@ -247,7 +247,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 
 	if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name)))
 	{
-		RemoteMessage(NULL, "CONNECT: Not connecting to myself.");
+		this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
 		return;
 	}
 
@@ -281,7 +281,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		}
 		else
 		{
-			RemoteMessage(NULL, "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+			this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
 				ServerInstance->SocketCull[newsocket] = newsocket;
 			Utils->DoFailOver(x);
@@ -297,7 +297,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		}
 		catch (ModuleException& e)
 		{
-			RemoteMessage(NULL, "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
+			this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
 			Utils->DoFailOver(x);
 		}
 	}
@@ -377,24 +377,10 @@ int ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters
 	return 1;
 }
 
-/* This method will attempt to get a link message out to as many people as is required.
- * If a user is provided, and that user is local, then the user is sent the message using
- * WriteServ (they are the local initiator of that message). If the user is remote, they are
- * sent that message remotely via PUSH.
- * If the user is NULL, then the notice is sent locally via WriteToSnoMask with snomask 'l',
- * and remotely via SNONOTICE with mask 'l'.
+/* This method will attempt to get a message to a remote user.
  */
 void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 {
-	/* This could cause an infinite loop, because DoOneToMany() will, on error,
-	 * call TreeSocket::OnError(), which in turn will call this function to
-	 * notify everyone of the error. So, drop any messages that are generated
-	 * during the sending of another message. -Special */
-	static bool SendingRemoteMessage = false;
-	if (SendingRemoteMessage)
-		return;
-	SendingRemoteMessage = true;
-
 	char text[MAXBUF];
 	va_list argsPtr;
 
@@ -402,20 +388,10 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 	vsnprintf(text, MAXBUF, format, argsPtr);
 	va_end(argsPtr);
 
-	if (!user)
-	{
-		/* No user, target it generically at everyone */
-		ServerInstance->SNO->WriteToSnoMask('l', "%s", text);
-	}
+	if (IS_LOCAL(user))
+		user->WriteServ("NOTICE %s :%s", user->nick.c_str(), text);
 	else
-	{
-		if (IS_LOCAL(user))
-			user->WriteServ("NOTICE %s :%s", user->nick.c_str(), text);
-		else
-			ServerInstance->PI->SendUserNotice(user, text);
-	}
-
-	SendingRemoteMessage = false;
+		ServerInstance->PI->SendUserNotice(user, text);
 }
 
 int ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters, User* user)

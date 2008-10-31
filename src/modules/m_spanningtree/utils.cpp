@@ -48,7 +48,7 @@ void ServerSocketListener::OnAcceptReady(const std::string &ipconnectedto, int n
 
 		if (!found)
 		{
-			Utils->Creator->RemoteMessage(NULL,"Server connection from %s denied (no link blocks with that IP address)", ip);
+			this->ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", ip);
 			ServerInstance->SE->Close(newsock);
 			return;
 		}
@@ -628,7 +628,7 @@ void SpanningTreeUtilities::DoFailOver(Link* x)
 	{
 		if (x->FailOver == x->Name)
 		{
-			Creator->RemoteMessage(NULL,"FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
+			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
 			return;
 		}
 		Link* TryThisOne = this->FindLink(x->FailOver.c_str());
@@ -641,13 +641,13 @@ void SpanningTreeUtilities::DoFailOver(Link* x)
 			}
 			else
 			{
-				Creator->RemoteMessage(NULL,"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
+				this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
 				Creator->ConnectServer(TryThisOne);
 			}
 		}
 		else
 		{
-			Creator->RemoteMessage(NULL,"FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
+			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
 		}
 	}
 }

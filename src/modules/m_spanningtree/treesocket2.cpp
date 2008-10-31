@@ -625,7 +625,7 @@ void TreeSocket::OnTimeout()
 {
 	if (this->LinkState == CONNECTING)
 	{
-		Utils->Creator->RemoteMessage(NULL, "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
+		this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
 		Link* MyLink = Utils->FindLink(myhost);
 		if (MyLink)
 			Utils->DoFailOver(MyLink);
@@ -654,10 +654,11 @@ void TreeSocket::OnClose()
 
 	if (!quitserver.empty())
 	{
-		Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' failed.",quitserver.c_str());
+		this->ServerInstance->SNO->WriteToSnoMask('l', "Connection to '\2%s\2' failed.",quitserver.c_str());
+
 		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
-			Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
+				this->ServerInstance->SNO->WriteToSnoMask('l', "Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
 	}
 }
 
