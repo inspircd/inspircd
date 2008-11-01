@@ -18,7 +18,7 @@
 #include "bancache.h"
 
 /* add a client connection to the sockets list */
-void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip, const std::string &targetip)
+void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscached, sockaddr* ip, const std::string &targetip)
 {
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
@@ -37,14 +37,14 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 
 	char ipaddr[MAXBUF];
 #ifdef IPV6
-	if (socketfamily == AF_INET6)
+	if (ip->sa_family == AF_INET6)
 		inet_ntop(AF_INET6, &((const sockaddr_in6*)ip)->sin6_addr, ipaddr, sizeof(ipaddr));
 	else
 #endif
 		inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
 
 	New->SetFd(socket);
-	New->SetSockAddr(socketfamily, ipaddr, port);
+	New->SetSockAddr(ip->sa_family, ipaddr, port);
 
 	/* Give each of the modules an attempt to hook the user for I/O */
 	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New, targetip));

@@ -120,7 +120,7 @@ void ListenSocketBase::AcceptInternal()
 	}
 
 	static char buf[MAXBUF];
-	static char target[MAXBUF];	
+	static char target[MAXBUF];
 
 	*target = *buf = '\0';
 
@@ -133,13 +133,20 @@ void ListenSocketBase::AcceptInternal()
 			inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
 		else
 			ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
-		if (!strncmp(buf, "::ffff:", 7))
+
+		static const unsigned char prefix4in6[12] = { 0,0,0,0,  0,0,0,0, 0,0,0xFF,0xFF };
+		if (!memcmp(prefix4in6, &((const sockaddr_in6*)client)->sin6_addr, 12))
 		{
+			// strip leading ::ffff: from the IPs
 			memmove(buf, buf+7, sizeof(buf)-7);
-		}
-		if (!strncmp(target, "::ffff:", 7))
-		{
 			memmove(target, target+7, sizeof(target)-7);
+
+			// recreate as a sockaddr_in using the IPv4 IP
+			uint16_t sport = ((const sockaddr_in6*)client)->sin6_port;
+			struct sockaddr_in* clientv4 = (struct sockaddr_in*)client;
+			clientv4->sin_family = AF_INET;
+			clientv4->sin_port = sport;
+			inet_pton(AF_INET, buf, &clientv4->sin_addr);
 		}
 	}
 	else
@@ -176,5 +183,5 @@ void ListenSocketBase::HandleEvent(EventType e, int err)
 
 void ClientListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 {
-	ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, this->family, client, ipconnectedto);
+	ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, client, ipconnectedto);
 }
