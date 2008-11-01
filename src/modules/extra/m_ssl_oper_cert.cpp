@@ -148,7 +148,7 @@ class ModuleOperSSLCert : public Module
 				if (!OneOfMatches(TheHost, TheIP, HostName.c_str()))
 					continue;
 
-				if (Password.length() && !ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str()))
+				if (Password.length() && ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str()))
 					continue;
 
 				if (SSLOnly && !user->GetExt("ssl", dummy))
