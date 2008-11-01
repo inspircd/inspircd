@@ -261,7 +261,7 @@ class ModuleDNSBL : public Module
 			/* Use portparser for record replies */
 
 			/* yeah, logic here is a little messy */
-			if (e->bitmask <= 0)
+			if ((e->bitmask <= 0) && (DNSBLConfEntry::A_BITMASK == e->type))
 			{
 				ServerInstance->SNO->WriteToSnoMask('A', "DNSBL(#%d): invalid bitmask",i);
 			}
