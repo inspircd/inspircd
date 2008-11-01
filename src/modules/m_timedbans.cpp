@@ -64,7 +64,7 @@ class CommandTban : public Command
 				TimedBan T;
 				std::string channelname = parameters[0];
 				long duration = ServerInstance->Duration(parameters[1]);
-				unsigned long expire = duration + time(NULL);
+				unsigned long expire = duration + ServerInstance->Time();
 				if (duration < 1)
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");

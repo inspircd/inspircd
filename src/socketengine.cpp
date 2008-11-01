@@ -96,7 +96,7 @@ void SocketEngine::WantWrite(EventHandler* eh)
 SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	TotalEvents = WriteEvents = ReadEvents = ErrorEvents = 0;
-	lastempty = time(NULL);
+	lastempty = ServerInstance->Time();
 	indata = outdata = 0;
 }
 
@@ -263,9 +263,9 @@ void SocketEngine::RecoverFromFork()
 
 void SocketEngine::UpdateStats(size_t len_in, size_t len_out)
 {
-	if (lastempty != time(NULL))
+	if (lastempty != ServerInstance->Time())
 	{
-		lastempty = time(NULL);
+		lastempty = ServerInstance->Time();
 		indata = outdata = 0;
 	}
 	indata += len_in;

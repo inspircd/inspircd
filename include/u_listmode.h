@@ -16,10 +16,10 @@
 
 /** Get the time as a string
  */
-inline std::string stringtime()
+inline std::string stringtime(InspIRCd* Instance)
 {
 	std::ostringstream TIME;
-	TIME << time(NULL); 
+	TIME << Instance->Time(); 
 	return TIME.str();
 }
 
@@ -331,7 +331,7 @@ class ListModeBase : public ModeHandler
 							ListItem e;
 							e.mask = parameter;
 							e.nick = servermode ? ServerInstance->Config->ServerName : source->nick;
-							e.time = stringtime();
+							e.time = stringtime(ServerInstance);
 
 							el->push_back(e);
 							return MODEACTION_ALLOW;

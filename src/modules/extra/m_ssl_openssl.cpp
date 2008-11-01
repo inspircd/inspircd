@@ -871,7 +871,7 @@ class ModuleSSLOpenSSL : public Module
 			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(md, n)));
 		}
 
-		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), time(NULL)) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), time(NULL)) == 0))
+		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
 		{
 			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
 		}

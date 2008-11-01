@@ -903,7 +903,7 @@ class ModuleSSLGnuTLS : public Module
 
 		/* Beware here we do not check for errors.
 		 */
-		if ((gnutls_x509_crt_get_expiration_time(cert) < time(0)) || (gnutls_x509_crt_get_activation_time(cert) > time(0)))
+		if ((gnutls_x509_crt_get_expiration_time(cert) < ServerInstance->Time()) || (gnutls_x509_crt_get_activation_time(cert) > ServerInstance->Time()))
 		{
 			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
 		}

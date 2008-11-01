@@ -338,7 +338,7 @@ public:
 
 		if (i == dat->accepting.end())
 		{
-			time_t now = time(NULL);
+			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
 			user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick.c_str(), dest->nick.c_str());
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))

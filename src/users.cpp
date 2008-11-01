@@ -398,7 +398,7 @@ const std::string& User::GetFullRealHost()
 
 bool User::IsInvited(const irc::string &channel)
 {
-	time_t now = time(NULL);
+	time_t now = ServerInstance->Time();
 	InvitedList::iterator safei;
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
 	{
@@ -420,7 +420,7 @@ bool User::IsInvited(const irc::string &channel)
 
 InvitedList* User::GetInviteList()
 {
-	time_t now = time(NULL);
+	time_t now = ServerInstance->Time();
 	/* Weed out expired invites here. */
 	InvitedList::iterator safei;
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
@@ -438,7 +438,7 @@ InvitedList* User::GetInviteList()
 
 void User::InviteTo(const irc::string &channel, time_t invtimeout)
 {
-	time_t now = time(NULL);
+	time_t now = ServerInstance->Time();
 	if (invtimeout != 0 && now > invtimeout) return; /* Don't add invites that are expired from the get-go. */
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
 	{

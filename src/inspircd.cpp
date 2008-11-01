@@ -443,6 +443,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Modes = 0;
 	this->Res = 0;
 
+	// Initialise TIME
+	this->TIME = time(NULL);
 
 	memset(&server, 0, sizeof(server));
 	memset(&client, 0, sizeof(client));
