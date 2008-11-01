@@ -565,6 +565,11 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool writelog;
 
+	/** If this value is true, banned users (+b, not extbans) will not be able to change nick
+	 * if banned on any channel, nor to message them.
+	 */
+	bool RestrictBannedUsers;
+
 	/** If this value is true, halfops have been
 	 * enabled in the configuration file.
 	 */

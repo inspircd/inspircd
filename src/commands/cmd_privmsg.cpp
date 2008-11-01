@@ -68,17 +68,27 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 
 		if (chan)
 		{
-			if (IS_LOCAL(user))
+			if (IS_LOCAL(user) && chan->GetStatus(user) < STATUS_VOICE)
 			{
-				if ((chan->IsModeSet('n')) && (!chan->HasUser(user)))
+				if (chan->IsModeSet('n') && !chan->HasUser(user))
 				{
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
-				if ((chan->IsModeSet('m')) && (chan->GetStatus(user) < STATUS_VOICE))
+
+				if (chan->IsModeSet('m'))
 				{
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
+				}
+
+				if (ServerInstance->Config->RestrictBannedUsers)
+				{
+					if (chan->IsBanned(user))
+					{
+						user->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", user->nick.c_str(), chan->name.c_str());
+						return CMD_FAILURE;
+					}
 				}
 			}
 			int MOD_RESULT = 0;

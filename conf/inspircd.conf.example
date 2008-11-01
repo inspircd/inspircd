@@ -542,6 +542,11 @@
           # NOT SUPPORTED/NEEDED UNDER WIINDOWS.
           #runasgroup=""
 
+          # restrictbannedusers: If this is set, InspIRCd will not allow users
+          # banned on a channel to change nickname or message channels they are
+          # banned on.
+         restrictbannedusers="yes"
+
           # userstats: /stats commands that users can run (oeprs can run all).
           userstats="Pu">
 

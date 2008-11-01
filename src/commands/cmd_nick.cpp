@@ -103,6 +103,19 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick.c_str(), parameters[0].c_str(), mq->reason);
 				return CMD_FAILURE;
 			}
+
+			if (ServerInstance->Config->RestrictBannedUsers)
+			{
+				for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+				{
+					Channel *chan = i->first;
+					if (chan->GetStatus(user) < STATUS_VOICE && chan->IsBanned(user))
+					{
+						user->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", user->nick.c_str(), chan->name.c_str());
+						return CMD_FAILURE;
+					}
+				}
+			}
 		}
 
 		/*
