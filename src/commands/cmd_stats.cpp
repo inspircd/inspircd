@@ -57,7 +57,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
 				statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		results.push_back(sn + " 481 " + user->nick + " :Permission denied - STATS " + statschar + " is oper-only");
+		results.push_back(sn + " 481 " + user->nick + " :Permission denied - STATS " + statschar + " requires the servers/auspex priv.");
 		return;
 	}
 	
