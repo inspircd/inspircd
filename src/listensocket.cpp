@@ -134,6 +134,18 @@ void ListenSocketBase::AcceptInternal()
 		else
 			ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
 
+		/*
+		 * This case is the be all and end all patch to catch and nuke 4in6
+		 * instead of special-casing shit all over the place and wreaking merry
+		 * havoc with crap, instead, we just recreate sockaddr and strip ::ffff: prefix
+		 * if it's a 4in6 IP.
+		 *
+		 * This is, of course, much improved over the older way of handling this
+		 * (pretend it doesn't exist + hack around it -- yes, both were done!)
+		 *
+		 * Big, big thanks to danieldg for his work on this.
+		 * -- w00t
+		 */
 		static const unsigned char prefix4in6[12] = { 0,0,0,0,  0,0,0,0, 0,0,0xFF,0xFF };
 		if (!memcmp(prefix4in6, &((const sockaddr_in6*)client)->sin6_addr, 12))
 		{
