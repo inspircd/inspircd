@@ -418,8 +418,10 @@ class ModuleCloaking : public Module
 #ifdef IPV6
 				in6_addr testaddr;
 				in_addr testaddr2;
-				if ((dest->GetProtocolFamily() == AF_INET6) && (inet_pton(AF_INET6,dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv6 address, and ipv6 user (resolved host) */
+				if ((dest->GetProtocolFamily() == AF_INET6) &&
+					(inet_pton(AF_INET6,dest->host.c_str(),&testaddr) < 1) &&
+					(inet_aton(dest->host.c_str(),&testaddr2) < 1) && (hostcloak.length() <= 64))
+					/* Invalid ipv4/ipv6 address, and ipv6 user (resolved host) */
 					b = hostcloak;
 				else if ((dest->GetProtocolFamily() == AF_INET) && (inet_aton(dest->host.c_str(),&testaddr2) < 1) && (hostcloak.length() <= 64))
 					/* Invalid ipv4 address, and ipv4 user (resolved host) */
