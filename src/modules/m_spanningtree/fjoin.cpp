@@ -77,8 +77,8 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 
 	if (created)
 	{
-		ServerInstance->SNO->WriteToSnoMask('d', "Creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
 		chan = new Channel(ServerInstance, channel, TS);
+		ServerInstance->SNO->WriteToSnoMask('d', "Creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
 	}
 	else
 	{
