@@ -312,26 +312,9 @@ class ModuleDNSBL : public Module
 			unsigned char a, b, c, d;
 			char reversedipbuf[128];
 			std::string reversedip;
-			bool success = false;
+			bool success;
 
-			if (!inet_aton(user->GetIPString(), &in))
-			{
-#ifdef IPV6
-				/* We could have an ipv6 address here */
-				std::string x = user->GetIPString();
-				/* Is it a 4in6 address? (Compensate for this kernel kludge that people love) */
-				if (x.find("0::ffff:") == 0)
-				{
-					x.erase(x.begin(), x.begin() + 8);
-					if (inet_aton(x.c_str(), &in))
-						success = true;
-				}
-#endif
-			}
-			else
-			{
-				success = true;
-			}
+			success = inet_aton(user->GetIPString(), &in);
 
 			if (!success)
 				return 0;

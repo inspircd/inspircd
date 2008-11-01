@@ -1254,12 +1254,8 @@ const char* User::GetIPString()
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 			if (*buf == ':')
 			{
-				if (!strncmp(buf, "::ffff:", 7) && isdigit(buf[7])) {
-					strlcpy(temp, buf+7, sizeof(temp) - 1);
-				} else {
-					strlcpy(&temp[1], buf, sizeof(temp) - 1);
-					*temp = '0';
-				}
+				strlcpy(&temp[1], buf, sizeof(temp) - 1);
+				*temp = '0';
 				this->cachedip = temp;
 				return temp;
 			}

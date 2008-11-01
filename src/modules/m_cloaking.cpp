@@ -160,11 +160,6 @@ class CloakUser : public ModeHandler
 
 	std::string Cloak6(const char* ip)
 	{
-		/* Theyre using 4in6 (YUCK). Translate as ipv4 cloak */
-		if (!strncmp(ip, "0::ffff:", 8))
-			return Cloak4(ip + 8);
-
-		/* If we get here, yes it really is an ipv6 ip */
 		unsigned int iv[] = { key1, key2, key3, key4 };
 		std::vector<std::string> hashies;
 		std::string item;
@@ -418,10 +413,8 @@ class ModuleCloaking : public Module
 #ifdef IPV6
 				in6_addr testaddr;
 				in_addr testaddr2;
-				if ((dest->GetProtocolFamily() == AF_INET6) &&
-					(inet_pton(AF_INET6,dest->host.c_str(),&testaddr) < 1) &&
-					(inet_aton(dest->host.c_str(),&testaddr2) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv4/ipv6 address, and ipv6 user (resolved host) */
+				if ((dest->GetProtocolFamily() == AF_INET6) && (inet_pton(AF_INET6,dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
+					/* Invalid ipv6 address, and ipv6 user (resolved host) */
 					b = hostcloak;
 				else if ((dest->GetProtocolFamily() == AF_INET) && (inet_aton(dest->host.c_str(),&testaddr2) < 1) && (hostcloak.length() <= 64))
 					/* Invalid ipv4 address, and ipv4 user (resolved host) */
