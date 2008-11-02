@@ -813,6 +813,7 @@ ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
 	this->error = CONF_NO_ERROR;
 	this->data = &ServerInstance->Config->config_data;
 	this->privatehash = false;
+	this->error = 0;
 }
 
 
@@ -837,6 +838,7 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 	this->readerror = ServerInstance->Config->DoInclude(*this->data, filename, *this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
+	this->error = 0;
 }
 
 
