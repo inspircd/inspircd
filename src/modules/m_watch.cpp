@@ -162,7 +162,7 @@ class CommandWatch : public Command
 				wl->erase(n);
 			}
 
-			if (!wl->size())
+			if (wl->empty())
 			{
 				user->Shrink("watchlist");
 				delete wl;
@@ -177,7 +177,8 @@ class CommandWatch : public Command
 					/* I'm no longer watching you... */
 					x->second.erase(n2);
 
-				if (!x->second.size())
+				if (x->second.empty())
+					/* nobody else is, either. */
 					whos_watching_me->erase(nick);
 			}
 		}
@@ -263,7 +264,7 @@ class CommandWatch : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		if (!parameters.size())
+		if (parameters.empty())
 		{
 			watchlist* wl;
 			if (user->GetExt("watchlist", wl))
@@ -298,8 +299,9 @@ class CommandWatch : public Command
 									/* I'm no longer watching you... */
 									i2->second.erase(n);
 
-								if (!i2->second.size())
-									whos_watching_me->erase(user->nick.c_str());
+								if (i2->second.empty())
+									/* nobody else is, either. */
+									whos_watching_me->erase(i2);
 							}
 						}
 
@@ -458,8 +460,9 @@ class Modulewatch : public Module
 							/* I'm no longer watching you... */
 							i2->second.erase(n);
 
-						if (!i2->second.size())
-							whos_watching_me->erase(user->nick.c_str());
+						if (i2->second.empty())
+							/* and nobody else is, either. */
+							whos_watching_me->erase(i2);
 				}
 			}
 
