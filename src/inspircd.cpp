@@ -632,6 +632,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	delete ConfigThread;
 	this->ConfigThread = NULL;
 
+	/** Note: This is safe, the method checks for user == NULL */
+	this->Parser->SetupCommandTable();
+
 	this->Res = new DNS(this);
 
 	this->AddServerName(Config->ServerName);

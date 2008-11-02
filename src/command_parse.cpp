@@ -591,21 +591,12 @@ const char* CommandParser::LoadCommand(const char* name)
 	return NULL;
 }
 
-void CommandParser::SetupCommandTable(User* user)
+/** This is only invoked on startup
+ */
+void CommandParser::SetupCommandTable()
 {
-	for (SharedObjectList::iterator command = RFCCommands.begin(); command != RFCCommands.end(); command++)
-	{
-		Command *cmdptr = cmdlist.find(command->first)->second;
-		cmdlist.erase(cmdlist.find(command->first));
-		RFCCommands.erase(command);
-		delete cmdptr;
-	}
-
-	if (!user)
-	{
-		printf("\nLoading core commands");
-		fflush(stdout);
-	}
+	printf("\nLoading core commands");
+	fflush(stdout);
 
 	DIR* library = opendir(LIBRARYDIR);
 	if (library)
@@ -615,29 +606,19 @@ void CommandParser::SetupCommandTable(User* user)
 		{
 			if (InspIRCd::Match(entry->d_name, "cmd_*.so"))
 			{
-				if (!user)
-				{
-					printf(".");
-					fflush(stdout);
-				}
+				printf(".");
+				fflush(stdout);
+
 				const char* err = this->LoadCommand(entry->d_name);
 				if (err)
 				{
-					if (user)
-					{
-						user->WriteServ("NOTICE %s :*** Failed to load core command %s: %s", user->nick.c_str(), entry->d_name, err);
-					}
-					else
-					{
-						printf("Error loading %s: %s", entry->d_name, err);
-						exit(EXIT_STATUS_BADHANDLER);
-					}
+					printf("Error loading %s: %s", entry->d_name, err);
+					exit(EXIT_STATUS_BADHANDLER);
 				}
 			}
 		}
 		closedir(library);
-		if (!user)
-			printf("\n");
+		printf("\n");
 	}
 
 	if (cmdlist.find("RELOAD") == cmdlist.end())

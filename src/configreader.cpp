@@ -1330,17 +1330,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 
 	}
 
-	if (bail)
-	{
-		/** Note: This is safe, the method checks for user == NULL */
-		ServerInstance->Threads->Lock();
-		User* user = NULL;
-		if (!useruid.empty())
-			user = ServerInstance->FindNick(useruid);
-		ServerInstance->Parser->SetupCommandTable(user);
-		ServerInstance->Threads->Unlock();
-	}
-	else
+	if (!bail)
 	{
 		if (!useruid.empty())
 		{

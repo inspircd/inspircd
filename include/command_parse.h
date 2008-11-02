@@ -192,11 +192,8 @@ class CoreExport CommandParser : public classbase
 	bool CreateCommand(Command *f, void* so_handle = NULL);
 
 	/** Insert the default RFC1459 commands into the command hash.
-	 * Ignore any already loaded commands.
-	 * @param user User to spool errors to, or if NULL, when an error occurs spool the errors to
-	 * stdout then exit with EXIT_STATUS_HANDLER.
 	 */
-	void SetupCommandTable(User* user);
+	void SetupCommandTable();
 
 	/** Translate nicknames in a string into UIDs, based on the TranslationType given.
 	 * @param to The translation type to use for the process.
