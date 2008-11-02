@@ -30,8 +30,8 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Chan
 		if (!dest->modes[UM_SNOMASK])
 			dest->snomasks.reset();
 
-		parameter = dest->ProcessNoticeMasks(parameter.c_str());
 		dest->modes[UM_SNOMASK] = true;
+		parameter = dest->ProcessNoticeMasks(parameter.c_str());
 		return MODEACTION_ALLOW;
 	}
 	else

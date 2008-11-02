@@ -90,6 +90,12 @@ std::string User::ProcessNoticeMasks(const char *sm)
 		*c++;
 	}
 
+	std::string s = this->FormatNoticeMasks();
+	if (s.length() == 0)
+	{
+		this->modes[UM_SNOMASK] = false;
+	}
+
 	return output;
 }
 
