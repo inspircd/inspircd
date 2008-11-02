@@ -196,8 +196,8 @@ public:
 		
 		NotifyOpers = Conf.ReadFlag("cgiirc", "opernotice", 0);	// If we send an oper notice when a CGI:IRC has their host changed.
 		
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			NotifyOpers = true;
+		//if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
+		//	NotifyOpers = true;
 		
 		for(int i = 0; i < Conf.Enumerate("cgihost"); i++)
 		{
