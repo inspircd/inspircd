@@ -593,7 +593,13 @@ const char* CommandParser::LoadCommand(const char* name)
 
 void CommandParser::SetupCommandTable(User* user)
 {
-	RFCCommands.clear();
+	for (SharedObjectList::iterator command = RFCCommands.begin(); command != RFCCommands.end(); command++)
+	{
+		Command *cmdptr = cmdlist.find(command->first)->second;
+		cmdlist.erase(cmdlist.find(command->first));
+		RFCCommands.erase(command);
+		delete cmdptr;
+	}
 
 	if (!user)
 	{
