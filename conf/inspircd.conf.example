@@ -547,7 +547,7 @@
           # banned on.
          restrictbannedusers="yes"
 
-          # userstats: /stats commands that users can run (oeprs can run all).
+          # userstats: /stats commands that users can run (opers can run all).
           userstats="Pu">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
