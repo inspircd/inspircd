@@ -137,7 +137,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 					mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
 				else
 				{
-					this->SendError("Broken UID command, expected a parameter for user mode '"+ConvToStr(*v)+"' but there aren't enough parameters in the command!");
+					this->SendError(std::string("Broken UID command, expected a parameter for user mode '")+(*v)+"' but there aren't enough parameters in the command!");
 					return false;
 				}
 			}
@@ -148,7 +148,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		}
 		else
 		{
-			this->SendError("Warning: Broken UID command, unknown user mode '"+ConvToStr(*v)+"' in the mode string! (mismatched module?)");
+			this->SendError(std::string("Warning: Broken UID command, unknown user mode '")+(*v)+"' in the mode string! (mismatched module?)");
 			return false;
 		}
 	}
