@@ -115,7 +115,7 @@ class ModuleQuitBan : public Module
 
 	virtual void OnGarbageCollect()
 	{
-		ServerInstance->Logs->Log("m_quitban",DEBUG, "Clearing map.");
+		ServerInstance->Logs->Log("m_connectban",DEBUG, "Clearing map.");
 		connects.clear();
 	}
 };
