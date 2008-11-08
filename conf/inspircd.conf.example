@@ -21,7 +21,7 @@
 #             Change the options to suit your network                  #
 #                                                                      #
 #     $Id$
-#								       #
+#                                                                      #
 #    ____                _   _____ _     _       ____  _ _   _         #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |        #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |        #
@@ -57,9 +57,9 @@
 # Syntax is as follows:                                               #
 #<include file="file.conf">                                           #
 #<include executable="/path/to/executable parameters">                #
-#								      #
-# Executable Include Example:					      #
-#<include executable="/usr/bin/wget -O - http://mynet.net/inspircd.conf">
+#                                                                     #
+# Executable Include Example:                                         #
+#<include executable="/usr/bin/wget -q -O - http://mynet.net/inspircd.conf">
 #                                                                     #
 
 
@@ -162,14 +162,13 @@
 #                                                                     #
 
 <power 
+       # diepass: Password for opers to use if they need to shutdown (die)
+       # a server.
+       diepass="" 
 
-      # diepass: Password for opers to use if they need to shutdown (die)
-      # a server.
-      diepass="" 
-
-      # restartpass: Password for opers to use if they need to restart
-      # a server.
-      restartpass="">
+       # restartpass: Password for opers to use if they need to restart
+       # a server.
+       restartpass="">
 
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -230,7 +229,7 @@
          globalmax="3"
 
          # limit: How many users are allowed in this class
-	 limit="5000"
+         limit="5000"
 
          # modes: Usermodes that are set on users in this block on connect.
          # Enabling this option requires that the m_conn_umodes module be loaded.
@@ -238,8 +237,9 @@
          modes="+x">
 
 <connect 
-        # deny: Will not let people connect if they have specified host/IP.
-        deny="69.254.*">
+         # deny: Will not let people connect if they have specified host/IP.
+         deny="69.254.*">
+
 <connect deny="3ffe::0/32">
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
@@ -252,17 +252,17 @@
 #                                                                     #
 
 <cidr
-	# ipv4clone: specifies how many bits of an IP address should be
-        # looked at for clones. The default only looks for clones on a
-        # single IP address of a user. You do not want to set this
-        # extremely low. (Values are 0-32).
-        ipv4clone="32"
+	  # ipv4clone: specifies how many bits of an IP address should be
+      # looked at for clones. The default only looks for clones on a
+      # single IP address of a user. You do not want to set this
+      # extremely low. (Values are 0-32).
+      ipv4clone="32"
 
-        # ipv6clone: specifies how many bits of an IP address should be
-        # looked at for clones. The default only looks for clones on a
-        # single IP address of a user. You do not want to set this
-        # extremely low. (Values are 0-128).
-	ipv6clone="128">
+      # ipv6clone: specifies how many bits of an IP address should be
+      # looked at for clones. The default only looks for clones on a
+      # single IP address of a user. You do not want to set this
+      # extremely low. (Values are 0-128).
+      ipv6clone="128">
 
 # This file has all the information about oper classes, types and o:lines.
 # You *MUST* edit it.
@@ -428,7 +428,7 @@
 
          # invitebypassmodes: This allows /invite to bypass other channel modes.
          # (Such as +k, +j, +l, etc)
-	 invitebypassmodes="yes">
+         invitebypassmodes="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
@@ -538,14 +538,14 @@
           #runasuser=""
 
           # runasgroup: If this is set, InspIRCd will attempt to set group
-          # to run under this group, which allowsof ports under 1024
+          # to run under this group, which allows binding of ports under 1024
           # NOT SUPPORTED/NEEDED UNDER WIINDOWS.
           #runasgroup=""
 
           # restrictbannedusers: If this is set, InspIRCd will not allow users
           # banned on a channel to change nickname or message channels they are
           # banned on.
-         restrictbannedusers="yes"
+          restrictbannedusers="yes"
 
           # userstats: /stats commands that users can run (opers can run all).
           userstats="Pu">
@@ -659,33 +659,35 @@
        reason="No porn here thanks.">
 
 <badnick 
-       # nick: Nick to disallow. Wildcards are supported.
-       nick="ChanServ" 
+         # nick: Nick to disallow. Wildcards are supported.
+         nick="ChanServ" 
 
-       # reason: Reason to display on /nick.
-       reason="Reserved For Services">
+         # reason: Reason to display on /nick.
+         reason="Reserved For Services">
+
 <badnick nick="NickServ" reason="Reserved For Services">
 <badnick nick="OperServ" reason="Reserved For Services">
 <badnick nick="MemoServ" reason="Reserved For Services">
 
 <badhost 
-       # host: ident@hostname to ban. 
-       # Wildcards and CIDR (if you specify an IP) can be used.
-       host="*@hundredz.n.hundredz.o.1337.kiddies.com" 
+         # host: ident@hostname to ban. 
+         # Wildcards and CIDR (if you specify an IP) can be used.
+         host="*@hundredz.n.hundredz.o.1337.kiddies.com" 
 
-       # reason: Reason to display when user is disconnected
-       reason="Too many 1337 kiddiots">
-<badhost host="*@localhost" reason="No irc from localhost!">
+         # reason: Reason to display when user is disconnected
+         reason="Too many 1337 kiddiots">
+
+<badhost host="root@*" reason="Don't irc as root!">
 <badhost host="*@172.32.0.0/16" reason="This subnet is bad.">
 
 # exception: Hosts that are exempt from [kgz]lines.
 <exception 
-       # host: ident@hostname to exempt. 
-       # Wildcards and CIDR (if you specify an IP) can be used.
-       host="*@ircop.host.com" 
+           # host: ident@hostname to exempt. 
+           # Wildcards and CIDR (if you specify an IP) can be used.
+           host="*@ircop.host.com" 
 
-       # reason: Reason for exception. Only shown in /stats e
-       reason="Opers hostname">
+           # reason: Reason for exception. Only shown in /stats e
+           reason="Opers hostname">
 
 #-#-#-#-#-#-#-#-#-#-#- INSANE BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
