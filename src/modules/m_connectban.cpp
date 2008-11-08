@@ -16,7 +16,7 @@
 
 /* $ModDesc: Throttles the connections of any users who try connect flood */
 
-class ModuleQuitBan : public Module
+class ModuleConnectBan : public Module
 {
  private:
 	clonemap connects;
@@ -25,14 +25,14 @@ class ModuleQuitBan : public Module
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
  public:
-	ModuleQuitBan(InspIRCd* Me) : Module(Me)
+	ModuleConnectBan(InspIRCd* Me) : Module(Me)
 	{
 		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 		OnRehash(NULL, "");
 	}
 
-	virtual ~ModuleQuitBan()
+	virtual ~ModuleConnectBan()
 	{
 	}
 
@@ -120,4 +120,4 @@ class ModuleQuitBan : public Module
 	}
 };
 
-MODULE_INIT(ModuleQuitBan)
+MODULE_INIT(ModuleConnectBan)
