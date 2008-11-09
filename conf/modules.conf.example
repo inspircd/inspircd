@@ -911,6 +911,26 @@
 # above.                                                              #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# LDAP oper configuration module: Adds the ability to authenticate    #
+# opers via LDAP. This is an extra module which must be enabled       #
+# explicitly by symlinking it from modules/extra, and requires the    #
+# OpenLDAP libs. Re-run configure with: ./configure --enable-extras=m_ldapoper.cpp
+# and run make install, then uncomment this module to enable it.      #
+#                                                                     #
+#<module name="m_ldapoper.so">
+#                                                                     #
+# Configuration:                                                      #
+#                                                                     #
+# <ldapoper baserdn="ou=People,dc=brainbox,dc=cc"
+#           server="ldap://brainwave.brainbox.cc"
+#           searchscope="subtree"
+#           binddn="cn=Manager,dc=brainbox,dc=cc"
+#           bindauth="mysecretpass">
+#                                                                     #
+# Available configuration items are identical to the same items in    #
+# m_ldapauth above.                                                   #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Lock server module: Adds /LOCKSERV and /UNLOCKSERV commands that is #
 # used to temporarily close/open for new connections to the server.   #
 # These commands require OPER status and that the LOCKSERV UNLOCKSERV #
@@ -922,6 +942,12 @@
 # This module is oper-only.
 #
 #<module name="m_lockserv.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Map hiding module: replaces /MAP and /LINKS output to users with a  #
+# message to see a website, set by maphide="http://link.to/site" in   #
+# the security tag, instead.                                          #
+#<module name="m_maphide.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Msg flood module: Adds message/notice flood protection (+f)
@@ -991,6 +1017,11 @@
 # the +b N: extban stops anyone from matching a +b N:nick!user@host
 # mask from changing their nick.
 #<module name="m_nonicks.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# No part message module: adds extban 'p' to block part messages from #
+# matching users.                                                     #
+#<module name="m_nopartmsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # No Notice module: adds the channel mode +T
@@ -1286,6 +1317,12 @@
 # This module is oper-only.
 # To use, SAQUIT must be in one of your oper class blocks.
 #<module name="m_saquit.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SATOPIC module: Adds the oper /SATOPIC command
+# This module is oper-only.
+# To use, SATOPIC must be in one of your oper class blocks.
+#<module name="m_satopic.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SASL authentication module: Provides support for IRC Authentication 
