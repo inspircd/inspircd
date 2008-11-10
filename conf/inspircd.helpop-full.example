@@ -534,13 +534,11 @@ The duration may be specified in seconds, or in the following format
 o                Is an IRC operator
 i                Is invisible to /WHO
 w                Can receive wallops messages
-s                Can receive server notices
-n [mask]         Can receive server notices specified by [mask]
+s [mask]         Can receive server notices specified by [mask]
 x                Cloaked hostname (requires cloaking module)
 h                Will receive helpops notification (requires helpop module)
 r                Nickname is registered
 d                Hides all non-private messages and notices
-R                Only registered users can PRIVMSG this nickname
 B                Is a bot
 G                Messages are censored to user
 W                Can see when a user uses WHOIS on them
@@ -549,7 +547,7 @@ D                User can not receive PRIVMSGs
 H                Hides an oper's WHOIS line
 I                Hides a user's channel list from non-opers
 Q                Hides an oper completely
-R                Only +r users can message you">
+R                Only registered users can message you">
 
 <helpop key="chmodes" value="Channel Modes
 -------------
