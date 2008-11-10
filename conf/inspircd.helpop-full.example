@@ -540,7 +540,6 @@ x                Cloaked hostname (requires cloaking module)
 h                Will receive helpops notification (requires helpop module)
 r                Nickname is registered
 d                Hides all non-private messages and notices
-R                Only registered users can PRIVMSG this nickname
 B                Is a bot
 G                Messages are censored to user
 W                Can see when a user uses WHOIS on them
@@ -549,7 +548,7 @@ D                User can not receive PRIVMSGs
 H                Hides an oper's WHOIS line
 I                Hides a user's channel list from non-opers
 Q                Hides an oper completely
-R                Only +r users can message you">
+R                Only registered users can message you">
 
 <helpop key="chmodes" value="Channel Modes
 -------------
