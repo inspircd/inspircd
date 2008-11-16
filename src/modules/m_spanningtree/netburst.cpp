@@ -159,6 +159,7 @@ void TreeSocket::SendXLines(TreeServer* Current)
 	const char* sn = n.c_str();
 
 	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
+	time_t current = ServerInstance->Time();
 
 	for (std::vector<std::string>::iterator it = types.begin(); it != types.end(); ++it)
 	{
@@ -173,6 +174,11 @@ void TreeSocket::SendXLines(TreeServer* Current)
 				 */
 				if (!i->second->IsBurstable())
 					break;
+
+				/* If it's expired, don't bother to burst it
+				 */
+				if (i->second->duration && current > i->second->expiry)
+					continue;
 
 				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s",sn, it->c_str(), i->second->Displayable(),
 						i->second->source,
