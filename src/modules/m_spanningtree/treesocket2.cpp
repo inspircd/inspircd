@@ -248,13 +248,24 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * When would this be seen?
 				 * Well, hopefully never. It could be caused by race conditions, bugs, or
 				 * "miscreant" servers, though, so let's check anyway. -- w
+				 *
+				 * We also check here for totally invalid prefixes (prefixes that are neither
+				 * a valid SID or a valid UUID, so that invalid UUID or SID never makes it 
+				 * to the higher level functions. -- B
 				 */
 				std::string direction = prefix;
 
 				User *t = this->ServerInstance->FindUUID(prefix);
 				if (t)
 				{
+					/* Find UID */
 					direction = t->server;
+				}
+				else if (!this->Utils->FindServer(direction))
+				{
+					/* Find SID */
+					ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Protocol violation: Invalid prefix '%s' from connection '%s'", direction.c_str(), this->GetName().c_str());
+					return true;
 				}
 
 				TreeServer* route_back_again = Utils->BestRouteTo(direction);
