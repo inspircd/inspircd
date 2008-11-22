@@ -1227,12 +1227,6 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
-	/* Switch over logfiles */
-	ServerInstance->Logs->CloseLogs();
-	ServerInstance->Logs->OpenFileLogs();
-
-	ServerInstance->Logs->Log("CONFIG", DEFAULT, "Done reading configuration file.");
-
 	/* If we're rehashing, let's load any new modules, and unload old ones
 	 */
 	if (!bail)
@@ -1323,9 +1317,6 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 				}
 			}
 		}
-
-		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
-
 		ServerInstance->Threads->Unlock();
 
 	}

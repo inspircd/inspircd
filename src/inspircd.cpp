@@ -220,6 +220,8 @@ void InspIRCd::Cleanup()
 		delete this->Logs;
 		this->Logs = 0;
 	}
+
+	delete RehashFinishMutex;
 }
 
 void InspIRCd::Restart(const std::string &reason)
@@ -631,6 +633,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	ConfigThread->Run();
 	delete ConfigThread;
 	this->ConfigThread = NULL;
+        /* Switch over logfiles */
+	Logs->OpenFileLogs();
 
 	/** Note: This is safe, the method checks for user == NULL */
 	this->Parser->SetupCommandTable();
@@ -806,6 +810,8 @@ int InspIRCd::Run()
 		Exit(0);
 	}
 
+	RehashFinishMutex = Mutexes->CreateMutex();
+
 	while (true)
 	{
 #ifndef WIN32
@@ -817,21 +823,22 @@ int InspIRCd::Run()
 #endif
 
 		/* Check if there is a config thread which has finished executing but has not yet been freed */
+		RehashFinishMutex->Lock();
 		if (this->ConfigThread && this->ConfigThread->GetExitFlag())
 		{
 			/* Rehash has completed */
-			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
 
-			/* IMPORTANT: This delete may hang if you fuck up your thread syncronization.
-			 * It will hang waiting for the ConfigThread to 'join' to avoid race conditons,
-			 * until the other thread is completed.
-			 */
-			delete ConfigThread;
-			ConfigThread = NULL;
+			/* Switch over logfiles */
+			Logs->CloseLogs();
+			Logs->OpenFileLogs();
+
+			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
 
 			/* These are currently not known to be threadsafe, so they are executed outside
 			 * of the thread. It would be pretty simple to move them to the thread Run method
-			 * once they are known threadsafe with all the correct mutexes in place.
+			 * once they are known threadsafe with all the correct mutexes in place. This might
+			 * not be worth the effort however as these functions execute relatively quickly
+			 * and would not benefit from being within the config read thread.
 			 *
 			 * XXX: The order of these is IMPORTANT, do not reorder them without testing
 			 * thoroughly!!!
@@ -844,7 +851,15 @@ int InspIRCd::Run()
 			User* user = !Config->RehashUserUID.empty() ? FindNick(Config->RehashUserUID) : NULL;
 			FOREACH_MOD_I(this, I_OnRehash, OnRehash(user, Config->RehashParameter));
 			this->BuildISupport();
+
+			/* IMPORTANT: This delete may hang if you fuck up your thread syncronization.
+			 * It will hang waiting for the ConfigThread to 'join' to avoid race conditons,
+			 * until the other thread is completed.
+			 */
+			delete ConfigThread;
+			ConfigThread = NULL;
 		}
+		RehashFinishMutex->Unlock();
 
 		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 		 * Once per loop iteration is pleanty.

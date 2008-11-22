@@ -390,6 +390,8 @@ class CoreExport InspIRCd : public classbase
 	 */
 	std::map<BufferedSocket*,BufferedSocket*> SocketCull;
 
+	Mutex* RehashFinishMutex;
+
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
 	 * kludge alert!
@@ -398,7 +400,7 @@ class CoreExport InspIRCd : public classbase
 	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
 	 * falls into the abyss :p
 	 */
-	User *FakeClient;
+	User* FakeClient;
 
 	/** Returns the next available UID for this server.
 	 */
@@ -408,13 +410,13 @@ class CoreExport InspIRCd : public classbase
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	User *FindUUID(const std::string &);
+	User* FindUUID(const std::string &);
 
 	/** Find a user in the UUID hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	User *FindUUID(const char *);
+	User* FindUUID(const char *);
 
 	/** Build the ISUPPORT string by triggering all modules On005Numeric events
 	 */
