@@ -7,6 +7,6 @@ echo option batch on > upload.scp
 echo option confirm off >> upload.scp
 echo put -speed=4 -nopermissions -preservetime %1 /usr/home/inspircd/www/downloads/ >> upload.scp
 echo exit >> upload.scp
-"c:\program files\winscp\winscp.com" "inspircd release" /script=upload.scp
+start "File upload" "c:\program files\winscp\winscp.com" "inspircd release" /script=upload.scp
 
 @echo on
