@@ -162,8 +162,8 @@ Section "Config Files" SEC02
   File "..\conf\inspircd.censor.example"
   File "..\conf\inspircd.rules.example"
   File "..\conf\inspircd.quotes.example"
-  SetOutPath "$INSTDIR\conf\temp"
-  File "..\conf\temp\temp.conf"
+  SetOutPath "$INSTDIR\conf\test"
+  File "..\conf\test\test.conf"
 SectionEnd
 
 Section "Command Handlers" SEC03
