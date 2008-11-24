@@ -112,7 +112,7 @@ class ModuleOperPrefixMode : public Module
 			throw ModuleException("Could not add a new mode!");
 			
 		Implementation eventlist[] = { I_OnPostJoin, I_OnCleanup, I_OnUserQuit, I_OnUserKick, I_OnUserPart };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	virtual void PushChanMode(Channel* channel, User* user, bool negate = false)
