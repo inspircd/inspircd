@@ -1079,7 +1079,10 @@
 # Oper prefixing module: Gives IRC operators a prefix status character
 # on all channels they are in.
 #
-<operprefix prefix="!">
+#<module name="m_operprefix.so">
+#
+# You may additionally customise the prefix character.
+#<operprefix prefix="!">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for seperate message of the day
