@@ -19,19 +19,17 @@
  */
 class joinfloodsettings : public classbase
 {
+ private:
+	InspIRCd* ServerInstance;
  public:
-
 	int secs;
 	int joins;
 	time_t reset;
 	time_t unlocktime;
 	int counter;
 	bool locked;
-	InspIRCd* ServerInstance;
 
-	joinfloodsettings() : secs(0), joins(0) {};
-
-	joinfloodsettings(int b, int c) : secs(b), joins(c)
+	joinfloodsettings(InspIRCd *Instance, int b, int c) : ServerInstance(Instance), secs(b), joins(c)
 	{
 		reset = ServerInstance->Time() + secs;
 		counter = 0;
@@ -144,7 +142,7 @@ class JoinFlood : public ModeHandler
 					if (!channel->GetExt("joinflood", dummy))
 					{
 						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
-						joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
+						joinfloodsettings *f = new joinfloodsettings(ServerInstance, nsecs, njoins);
 						channel->Extend("joinflood", f);
 						channel->SetMode('j', true);
 						channel->SetModeParam('j', parameter.c_str(), true);
@@ -167,7 +165,7 @@ class JoinFlood : public ModeHandler
 								joinfloodsettings* f;
 								channel->GetExt("joinflood", f);
 								delete f;
-								f = new joinfloodsettings(nsecs,njoins);
+								f = new joinfloodsettings(ServerInstance, nsecs, njoins);
 								channel->Shrink("joinflood");
 								channel->Extend("joinflood", f);
 								channel->SetModeParam('j', cur_param.c_str(), false);

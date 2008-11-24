@@ -19,21 +19,19 @@
  */
 class nickfloodsettings : public classbase
 {
+ private:
+	InspIRCd* ServerInstance;
  public:
-
 	int secs;
 	int nicks;
 	time_t reset;
 	time_t unlocktime;
 	int counter;
 	bool locked;
-	InspIRCd* ServerInstance;
 
-	nickfloodsettings() : secs(0), nicks(0) {};
-
-	nickfloodsettings(int b, int c) : secs(b), nicks(c)
+	nickfloodsettings(InspIRCd *Instance, int b, int c) : ServerInstance(Instance), secs(b), nicks(c)
 	{
-		reset = ServerInstance->Time() + secs;
+		reset = Instance->Time() + secs;
 		counter = 0;
 		locked = false;
 	};
@@ -144,7 +142,7 @@ class NickFlood : public ModeHandler
 					if (!channel->GetExt("nickflood", dummy))
 					{
 						parameter = ConvToStr(nnicks) + ":" +ConvToStr(nsecs);
-						nickfloodsettings *f = new nickfloodsettings(nsecs,nnicks);
+						nickfloodsettings *f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
 						channel->Extend("nickflood", f);
 						channel->SetMode('F', true);
 						channel->SetModeParam('F', parameter.c_str(), true);
@@ -167,7 +165,7 @@ class NickFlood : public ModeHandler
 								nickfloodsettings* f;
 								channel->GetExt("nickflood", f);
 								delete f;
-								f = new nickfloodsettings(nsecs, nnicks);
+								f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
 								channel->Shrink("nickflood");
 								channel->Extend("nickflood", f);
 								channel->SetModeParam('F', cur_param.c_str(), false);

@@ -28,7 +28,6 @@ class floodsettings : public classbase
 	time_t reset;
 	std::map<User*,int> counters;
 
-	floodsettings(InspIRCd *Instance) : ServerInstance(Instance), ban(0), secs(0), lines(0) {};
 	floodsettings(InspIRCd *Instance, bool a, int b, int c) : ServerInstance(Instance), ban(a), secs(b), lines(c)
 	{
 		reset = ServerInstance->Time() + secs;
