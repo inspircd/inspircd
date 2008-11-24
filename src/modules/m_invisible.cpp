@@ -65,20 +65,23 @@ class InvisibleMode : public ModeHandler
 		{
 			bool ok = false;
 
-			for (int j = 0; j < conf->Enumerate("type"); j++)
+			if (IS_LOCAL(source))
 			{
-				std::string opertype = conf->ReadValue("type","name",j);
-				if (opertype == source->oper)
+				for (int j = 0; j < conf->Enumerate("type"); j++)
 				{
-					ok = conf->ReadFlag("type", "canquiet", j);
-					break;
+					std::string opertype = conf->ReadValue("type","name",j);
+					if (opertype == source->oper)
+					{
+						ok = conf->ReadFlag("type", "canquiet", j);
+						break;
+					}
 				}
-			}
 
-			if (!ok)
-			{
-				source->WriteServ("481 %s :Permission Denied - You do not have access to become invisible via user mode +Q", source->nick);
-				return MODEACTION_DENY;
+				if (!ok)
+				{
+					source->WriteServ("481 %s :Permission Denied - You do not have access to become invisible via user mode +Q", source->nick);
+					return MODEACTION_DENY;
+				}
 			}
 
 			dest->SetMode('Q', adding);
