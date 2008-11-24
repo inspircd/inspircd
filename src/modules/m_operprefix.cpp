@@ -50,6 +50,11 @@ class OperPrefixMode : public ModeHandler
 	public:
 		OperPrefixMode(InspIRCd* Instance) : ModeHandler(Instance, 'y', 1, 1, true, MODETYPE_CHANNEL, false, prefixchar) { }
 
+		unsigned int GetPrefixRank()
+		{
+			return 40000;
+		}
+
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
 		{
 			if (servermode || (source && ServerInstance->ULine(source->server)))
