@@ -372,8 +372,8 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 
 	if (who)
 	{
-		/* Prepend kill source, if we don't have one */ 	 
-		if (*(params[1].c_str()) != 'K')
+		/* Prepend kill source, if we don't have one -- '[' is check for older 1.1 servers, and services, that prefix reason with servername. */
+		if (*(params[1].c_str()) != 'K' && *(params[1].c_str()) != '[')
 		{
 			params[1] = "Killed (" + params[1] +")";
 		}
