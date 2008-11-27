@@ -486,7 +486,18 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size() >= 2)
 				{
+					std::string oldprefix;
+					if (!ServerSource)
+					{
+						oldprefix = prefix;
+						User *u = ServerInstance->FindNick(prefix);
+						if (!u)
+							return true;
+						prefix = u->nick;
+					}
+
 					ServerInstance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + (ServerSource ? ServerSource->GetName().c_str() : prefix) + ": "+ params[1]);
+					prefix = oldprefix;
 					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 				}
 
