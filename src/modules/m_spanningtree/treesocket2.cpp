@@ -373,9 +373,9 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 	if (who)
 	{
 		/* Prepend kill source, if we don't have one */ 	 
-		if (*(params[1].c_str()) != '[')
+		if (*(params[1].c_str()) != 'K')
 		{
-			params[1] = "[" + prefix + "] Killed (" + params[1] +")";
+			params[1] = "Killed (" + params[1] +")";
 		}
 		std::string reason = params[1];
 		params[1] = ":" + params[1];
