@@ -201,11 +201,11 @@ launchd_dir:
 
 configureclean:
 	rm -f .config.cache
-	rm src/modules/Makefile
-	rm src/Makefile
-	rm Makefile
-	rm include/inspircd_config.h
-	rm include/inspircd_se_config.h
+	rm -f src/modules/Makefile
+	rm -f src/Makefile
+	rm -f Makefile
+	rm -f include/inspircd_config.h
+	rm -f include/inspircd_se_config.h
 
 distclean: modclean clean configureclean
 
