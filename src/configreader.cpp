@@ -967,9 +967,6 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		return false;
 	}
 
-	/* Fix the chmod of the file to restrict it to the current user and group */
-	chmod(filename,0600);
-
 	for (unsigned int t = 0; t < include_stack.size(); t++)
 	{
 		if (std::string(filename) == include_stack[t])
