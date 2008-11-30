@@ -35,7 +35,6 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 		/* Prepend kill source, if we don't have one */
 		if (*(params[1].c_str()) != 'K')
 		{
-			TreeServer* ts = Utils->FindServer(prefix);
 			params[1] = "Killed (" + params[1] +")";
 		}
 		std::string reason = params[1];
