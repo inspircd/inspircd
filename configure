@@ -1856,99 +1856,80 @@ EOM
 	}
 
 	print FH <<EOM;
-all: libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so libIRCDsnomasks.so inspircd
+all: libIRCDtimer.o libIRCDcull_list.o libIRCDuserprocess.o libIRCDsocketengine.o libIRCDsocket.o libIRCDhash.o libIRCDchannels.o libIRCDmode.o libIRCDxline.o libIRCDstring.o libIRCDasyncdns.o libIRCDbase.o libIRCDconfigreader.o libIRCDinspsocket.o $cmdobjs libIRCDcommands.o libIRCDdynamic.o libIRCDusers.o libIRCDmodules.o libIRCDwildcard.o libIRCDhelper.o libIRCDcommand_parse.o libIRCDsnomasks.o inspircd
 
-inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDsnomasks.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so
-	\$(CC) -pipe -I../include $extra $RPATH \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDtimer.so libIRCDsnomasks.so
-
-libIRCDsocketengine.so: $se.cpp socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/$se.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp $se.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDsocketengine.so socketengine.o $se.o
-
-libIRCDsnomasks.so: snomasks.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/channels.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c snomasks.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDsnomasks.so snomasks.o
-
-libIRCDcommand_parse.so: command_parse.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c command_parse.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDcommand_parse.so command_parse.o
-
-libIRCDcull_list.so: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDcull_list.so cull_list.o
-
-libIRCDuserprocess.so: userprocess.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c userprocess.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDuserprocess.so userprocess.o
-
-libIRCDhash.so: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDhash.so hashcomp.o
-
-libIRCDhelper.so: helperfuncs.cpp ../include/base.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDhelper.so helperfuncs.o
-
-libIRCDchannels.so: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDchannels.so channels.o
-
-libIRCDmode.so: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES)
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
+inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h libIRCDtimer.o libIRCDcull_list.o libIRCDuserprocess.o libIRCDsocketengine.o libIRCDsocket.o libIRCDhash.o libIRCDchannels.o libIRCDmode.o libIRCDxline.o libIRCDstring.o libIRCDasyncdns.o libIRCDbase.o libIRCDconfigreader.o libIRCDinspsocket.o $cmdobjs libIRCDsnomasks.o libIRCDcommands.o libIRCDdynamic.o libIRCDusers.o libIRCDmodules.o libIRCDwildcard.o libIRCDhelper.o libIRCDcommand_parse.o socketengine.o
 	\${MAKE} -C "modes" DIRNAME="src/modes" CC="\$(CC)" \$(MAKEARGS) CPPFILES="\$(CPPFILES)"
-	\$(CC) -pipe $RPATH -shared -o libIRCDmode.so mode.o modes/modeclasses.a
+	\$(CC) -pipe -I../include $extra $RPATH \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.o libIRCDmode.o libIRCDxline.o libIRCDstring.o libIRCDasyncdns.o libIRCDbase.o libIRCDconfigreader.o libIRCDinspsocket.o libIRCDcommands.o libIRCDdynamic.o libIRCDusers.o libIRCDmodules.o libIRCDwildcard.o libIRCDhelper.o libIRCDhash.o libIRCDsocket.o libIRCDsocketengine.o libIRCDuserprocess.o libIRCDcull_list.o libIRCDcommand_parse.o libIRCDtimer.o libIRCDsnomasks.o socketengine.o modes/modeclasses.a
 
-libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c xline.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDxline.so xline.o
+socketengine.o: $se.cpp ../include/$se.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ $se.cpp
 
-libIRCDstring.so: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspstring.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDstring.so inspstring.o
+libIRCDsocketengine.o: $se.cpp socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/$se.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ socketengine.cpp
 
-libIRCDasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dns.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDasyncdns.so dns.o
+libIRCDsnomasks.o: snomasks.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/channels.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ snomasks.cpp
 
-libIRCDbase.so: base.cpp ../include/base.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c base.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDbase.so base.o
+libIRCDcommand_parse.o: command_parse.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ command_parse.cpp
 
-libIRCDconfigreader.so: configreader.cpp ../include/base.h ../include/configreader.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c configreader.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDconfigreader.so configreader.o
+libIRCDcull_list.o: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ cull_list.cpp
 
-libIRCDcommands.so: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDcommands.so commands.o
+libIRCDuserprocess.o: userprocess.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ userprocess.cpp
 
-libIRCDdynamic.so: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dynamic.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDdynamic.so dynamic.o
+libIRCDhash.o: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ hashcomp.cpp
 
-libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c users.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDusers.so users.o
+libIRCDhelper.o: helperfuncs.cpp ../include/base.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ helperfuncs.cpp
 
-libIRCDmodules.so: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c modules.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDmodules.so modules.o
+libIRCDchannels.o: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ channels.cpp
 
-libIRCDwildcard.so: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c wildcard.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDwildcard.so wildcard.o
+libIRCDmode.o: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES)
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ mode.cpp
 
-libIRCDsocket.so: socket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socket.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDsocket.so socket.o
+libIRCDxline.o: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ xline.cpp
 
-libIRCDinspsocket.so: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspsocket.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDinspsocket.so inspsocket.o
+libIRCDstring.o: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ inspstring.cpp
 
-libIRCDtimer.so: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timer.cpp
-	\$(CC) -pipe $RPATH -shared -o libIRCDtimer.so timer.o
+libIRCDasyncdns.o: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ dns.cpp
+
+libIRCDbase.o: base.cpp ../include/base.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ base.cpp
+
+libIRCDconfigreader.o: configreader.cpp ../include/base.h ../include/configreader.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ configreader.cpp
+
+libIRCDcommands.o: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ commands.cpp
+
+libIRCDdynamic.o: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ dynamic.cpp
+
+libIRCDusers.o: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ users.cpp
+
+libIRCDmodules.o: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ modules.cpp
+
+libIRCDwildcard.o: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ wildcard.cpp
+
+libIRCDsocket.o: socket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ socket.cpp
+
+libIRCDinspsocket.o: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ inspsocket.cpp
+
+libIRCDtimer.o: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
+	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c -o \$@ timer.cpp
 
 EOM
 }
