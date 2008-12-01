@@ -214,7 +214,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Penalty = 0;
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	quietquit = OverPenalty = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
+	quietquit = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();

@@ -131,7 +131,7 @@ void ProcessUserHandler::Call(User* cu)
 			}
 
 			/* If user is over penalty, dont process here, just build up */
-			if (!current->OverPenalty)
+			if (!curr->Penalty < 10)
 				Server->Parser->DoLines(current);
 
 			return;
@@ -178,12 +178,6 @@ void InspIRCd::DoBackgroundUserStuff()
 			curr->Penalty--;
 			if (curr->Penalty < 10)
 				Parser->DoLines(curr, true);
-		}
-
-		if (curr->OverPenalty)
-		{
-			if (curr->sendq.empty())
-				curr->OverPenalty = false;
 		}
 
 		switch (curr->registered)

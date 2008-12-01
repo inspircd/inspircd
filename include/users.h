@@ -693,10 +693,6 @@ class CoreExport User : public EventHandler
 	 */
 	int Penalty;
 
-	/** True if we are flushing penalty lines
-	 */
-	bool OverPenalty;
-
 	/** If this bool is set then penalty rules do not apply to this user
 	 */
 	bool ExemptFromPenalty;

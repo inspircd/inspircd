@@ -356,8 +356,6 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		user->IncreasePenalty(cm->second->Penalty);
 		do_more = (user->Penalty < 10);
-		if (!do_more)
-			user->OverPenalty = true;
 	}
 
 	/* activity resets the ping pending timer */
