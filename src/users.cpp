@@ -209,10 +209,9 @@ void User::DecrementModes()
 User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
 {
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
-	reset_due = ServerInstance->Time();
 	age = ServerInstance->Time();
 	Penalty = 0;
-	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
+	lastping = signon = idle_lastmsg = nping = registered = 0;
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	quietquit = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;

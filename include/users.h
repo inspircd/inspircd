@@ -633,14 +633,6 @@ class CoreExport User : public EventHandler
 	 */
 	bool quietquit;
 
-	/** Flood counters - lines received
-	 */
-	unsigned int lines_in;
-
-	/** Flood counters - time lines_in is due to be reset
-	 */
-	time_t reset_due;
-
 	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
 	 * This value is set by QuitUser, and is not needed seperately from that call.

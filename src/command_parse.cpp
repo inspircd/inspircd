@@ -218,32 +218,8 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 
 void CommandParser::DoLines(User* current, bool one_only)
 {
-	// while there are complete lines to process...
-	unsigned int floodlines = 0;
-
 	while (current->BufferIsReady())
 	{
-		if (current->MyClass)
-		{
-			if (ServerInstance->Time() > current->reset_due)
-			{
-				current->reset_due = ServerInstance->Time() + current->MyClass->GetThreshold();
-				current->lines_in = 0;
-			}
-
-			if (++current->lines_in > current->MyClass->GetFlood() && current->MyClass->GetFlood())
-			{
-				ServerInstance->FloodQuitUser(current);
-				return;
-			}
-
-			if ((++floodlines > current->MyClass->GetFlood()) && (current->MyClass->GetFlood() != 0))
-			{
-				ServerInstance->FloodQuitUser(current);
-				return;
-			}
-		}
-
 		// use GetBuffer to copy single lines into the sanitized string
 		std::string single_line = current->GetBuffer();
 		current->bytes_in += single_line.length();
