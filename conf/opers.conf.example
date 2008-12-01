@@ -22,11 +22,16 @@
      #   - channels/auspex: allows opers with this priv to see more detail about channels than normal users.
      #   - users/auspex: allows opers with this priv to view more details about users than normal users.
      #   - servers/auspex: allows opers with this priv to see more detail about server information than normal users.
-     # ACTIONS
+     # ACTIONS:
      #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*)
      #   - channels/high-join-limit: allows opers with this priv to join <channels:opers> total channels instead of <channels:users> total channels.
      #   - channels/set-permanent: allows opers with this priv to set +P on channels with m_permchannels.
-     privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit channels/set-permanent"
+     # PERMISSIONS:
+     #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE)
+     #   - users/flood/increased-buffers: allows opers with this priv to send and recieve data without worrying about being disconnected for exceeding limits (*NOTE)
+     #
+     # *NOTE: These privs are potantially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
+     privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit channels/set-permanent users/flood/no-throttle users/flood/increased-buffers"
 
      # usermodes: Oper-only usermodes that opers with this class can use.
      usermodes="*" 

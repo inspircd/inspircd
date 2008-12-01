@@ -214,7 +214,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	Penalty = 0;
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	quietquit = ExemptFromPenalty = quitting = exempt = haspassed = dns_done = false;
+	quietquit = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
@@ -613,7 +613,7 @@ bool User::AddBuffer(const std::string &a)
 		}
 	}
 
-	if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
+	if (this->MyClass && !this->HasPrivPermission("users/flood/increased-buffers") && recvq.length() > this->MyClass->GetRecvqMax())
 	{
 		ServerInstance->Users->QuitUser(this, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('A', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)recvq.length(),this->MyClass->GetRecvqMax());
@@ -678,7 +678,7 @@ void User::AddWriteBuf(const std::string &data)
 	if (this->quitting)
 		return;
 
-	if (this->MyClass && (sendq.length() + data.length() > this->MyClass->GetSendqMax()))
+	if (this->MyClass && !this->HasPrivPermission("users/flood/increased-buffers") && sendq.length() + data.length() > this->MyClass->GetSendqMax())
 	{
 		/*
 		 * Fix by brain - Set the error text BEFORE calling, because

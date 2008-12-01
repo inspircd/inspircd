@@ -352,7 +352,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 	/* Modify the user's penalty */
 	bool do_more = true;
-	if (!user->ExemptFromPenalty)
+	if (!user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		user->IncreasePenalty(cm->second->Penalty);
 		do_more = (user->Penalty < 10);

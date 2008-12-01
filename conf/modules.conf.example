@@ -1033,11 +1033,6 @@
 #<module name="m_operchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper flood module: Removes flood limits from users upon opering up
-# This module is oper-only.
-#<module name="m_operflood.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper invex/extban module: Adds +beI type O, to ban, exempt, and invex
 # given oper type masks.
 # e.g, /mode #channel +iI O:* is equivilant to chmode +O, but you
