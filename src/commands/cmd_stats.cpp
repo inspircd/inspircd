@@ -112,7 +112,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			{
 				ConnectClass* c = *i;
 				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqMax())+" :"+
-						ConvToStr(c->GetFlood())+" "+ConvToStr(c->GetRegTimeout()));
+						ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;
 			}
 		}

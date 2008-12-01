@@ -499,18 +499,16 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	const char* password = values[2].GetString();
 	int timeout = values[3].GetInteger();
 	int pingfreq = values[4].GetInteger();
-	int flood = values[5].GetInteger();
-	int threshold = values[6].GetInteger();
-	int sendq = values[7].GetInteger();
-	int recvq = values[8].GetInteger();
-	int localmax = values[9].GetInteger();
-	int globalmax = values[10].GetInteger();
-	int port = values[11].GetInteger();
-	const char* name = values[12].GetString();
-	const char* parent = values[13].GetString();
-	int maxchans = values[14].GetInteger();
-	unsigned long limit = values[15].GetInteger();
-	const char* hashtype = values[16].GetString();
+	int sendq = values[5].GetInteger();
+	int recvq = values[6].GetInteger();
+	int localmax = values[7].GetInteger();
+	int globalmax = values[8].GetInteger();
+	int port = values[9].GetInteger();
+	const char* name = values[10].GetString();
+	const char* parent = values[11].GetString();
+	int maxchans = values[12].GetInteger();
+	unsigned long limit = values[13].GetInteger();
+	const char* hashtype = values[14].GetString();
 
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Adding a connect class!");
 
@@ -529,7 +527,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 			if (cc->GetName() == parent)
 			{
 				cc = new ConnectClass(name, cc);
-				cc->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
+				cc->Update(timeout, *allow ? allow : deny, pingfreq, password, sendq, recvq, localmax, globalmax, maxchans, port, limit);
 				conf->Classes.push_back(cc);
 				break;
 			}
@@ -546,11 +544,11 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 			{
 				if ((*item)->GetHost() == allow && !(*item)->GetDisabled())
 				{
-					(*item)->Update(timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
+					(*item)->Update(timeout, allow, pingfreq, password, sendq, recvq, localmax, globalmax, maxchans, port, limit);
 					return true;
 				}
 			}
-			cc = new ConnectClass(name, timeout, flood, allow, pingfreq, password, hashtype, threshold, sendq, recvq, localmax, globalmax, maxchans);
+			cc = new ConnectClass(name, timeout, allow, pingfreq, password, hashtype, sendq, recvq, localmax, globalmax, maxchans);
 			cc->limit = limit;
 			cc->SetPort(port);
 			conf->Classes.push_back(cc);
@@ -856,18 +854,16 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 	MultiConfig MultiValues[] = {
 
 		{"connect",
-				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
-				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
+				{"allow",	"deny",		"password",	"timeout",	"pingfreq",
+				"sendq",	"recvq",	"localmax",	"globalmax",	"port",
 				"name",		"parent",	"maxchans",     "limit",	"hash",
 				NULL},
-				{"",		"",		"",		"",		"120",		"",
-				 "",		"",		"",		"3",		"3",		"0",
-				 "",		"",		"0",	    "0",	"",
+				{"",		"",				"",			"",			"120",
+				 "",		"",				"3",		"3",		"0",
+				 "",		"",				"0",	    "0",		"",
 				 NULL},
-				{DT_IPADDRESS|DT_ALLOW_WILD,
-						DT_IPADDRESS|DT_ALLOW_WILD,
-								DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
+				{DT_IPADDRESS|DT_ALLOW_WILD, DT_IPADDRESS|DT_ALLOW_WILD, DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,
+				DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER,	DT_CHARPTR},
 				InitConnect, DoConnect, DoneConnect},
 
