@@ -204,14 +204,6 @@
          # send /nick, /user or /pass)
          timeout="60"
 
-         # flood: After x lines (flood) in x seconds (see threshold)
-         # the user is disconnected for flooding.
-         flood="20"
-
-         # threshold: In how many seconds can a user flood x lines (see flood)
-         # before they are disconnected for excess flood.
-         threshold="1"
-
          # pingfreq: How often the server tries to ping connecting clients/servers.
          pingfreq="120"
 
