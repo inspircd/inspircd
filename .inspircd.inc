@@ -162,14 +162,14 @@ sub valdebugunattended
 	# NOTE: To make sure valgrind generates coredumps, set soft core limit in /etc/security/limits.conf to unlimited
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
- 
+
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
- 
+
 	# Check we have valgrind and gdb
 	checkvalgrind();
 	checkgdb();
- 
+
 	# If we are still alive here.. Try starting the IRCd..
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
@@ -240,66 +240,66 @@ sub stop {
 # -- Brain
 
 sub getpidfile {
-  my ($file) = @_;
-  # Before we start, do we have a PID already? (Should never occur)
-  if ($pid ne "") {
-    return;
-  }
-  # Are We using a relative path?
-  if ($file !~ /^\//) {
-    # Convert it to a full path..
-    $file = $confpath . $file;
-  }
+	my ($file) = @_;
+	# Before we start, do we have a PID already? (Should never occur)
+	if ($pid ne "") {
+		return;
+	}
+	# Are We using a relative path?
+	if ($file !~ /^\//) {
+		# Convert it to a full path.
+		$file = $confpath . $file;
+	}
 
-  # Have we checked this file before?
-  for (my $i = 0; $i < $filesparsed; $i++) {
-    if ($filesparsed[$i] eq $file) {
-      # Already Parsed, Possible recursive loop..
-      return;
-    }
-  }
+	# Have we checked this file before?
+	for (my $i = 0; $i < $filesparsed; $i++) {
+		if ($filesparsed[$i] eq $file) {
+			# Already Parsed, Possible recursive loop..
+			return;
+		}
+	}
 
-  # If we get here, Mark as 'Read'
-  $filesparsed[$filesparsed] = $file;
+	# If we get here, Mark as 'Read'
+	$filesparsed[$filesparsed] = $file;
 
-  # Open the File..
-  open INFILE, "< $file" or die "Unable to open file $file\n";
-  # Grab entire file contents..
-  my(@lines) = <INFILE>;
-  # Close the file
-  close INFILE;
+	# Open the File..
+	open INFILE, "< $file" or die "Unable to open file $file\n";
+	# Grab entire file contents..
+	my(@lines) = <INFILE>;
+	# Close the file
+	close INFILE;
 
-  # remove trailing spaces
-  chomp(@lines);
-  foreach $i (@lines) {
-    # clean it up
-    $i =~ s/[^=]+=\s(.*)/\1/;
-    # Does this file have a pid?
-    if (($i =~ /<pid file=\"(\S+)\">/i) && ($i !~ /^#/))
-    {
-      # Set the PID file and return.
-      $pidfile = $1;
-      return;
-    }
-  }
+	# remove trailing spaces
+	chomp(@lines);
+	foreach $i (@lines) {
+		# clean it up
+		$i =~ s/[^=]+=\s(.*)/\1/;
+		# Does this file have a pid?
+		if (($i =~ /<pid file=\"(\S+)\">/i) && ($i !~ /^#/))
+		{
+			# Set the PID file and return.
+			$pidfile = $1;
+			return;
+		}
+	}
 
-  # If we get here, NO PID FILE! -- Check for includes
-  foreach $i (@lines) {
-    $i =~ s/[^=]+=\s(.*)/\1/;
-    if (($i =~ s/\<include file=\"(.+?)\"\>//i) && ($i !~ /^#/))
-    {
-      # Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
-      getpidfile($1);
-      # Was a PID found?
-      if ($pidfile ne "") {
-	# Yes, Return.
-	return;
-      }
-    }
-  }
+	# If we get here, NO PID FILE! -- Check for includes
+	foreach $i (@lines) {
+		$i =~ s/[^=]+=\s(.*)/\1/;
+		if (($i =~ s/\<include file=\"(.+?)\"\>//i) && ($i !~ /^#/))
+		{
+			# Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
+			getpidfile($1);
+			# Was a PID found?
+			if ($pidfile ne "") {
+				# Yes, Return.
+				return;
+			}
+		}
+	}
 
-  # End of includes / No includes found. Using default.
-  $pidfile = $confpath . "inspircd.pid";
+	# End of includes / No includes found. Using default.
+	$pidfile = $confpath . "inspircd.pid";
 }
 
 sub getstatus {
