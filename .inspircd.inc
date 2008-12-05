@@ -180,13 +180,14 @@ sub valdebugunattended
 	my $pid = fork;
 	if ($pid == 0) {
 		POSIX::setsid();
-		umask 022;
-		open STDERR, '>', "$valgrindlogpath/valdebug.$$" or die $!;
-		umask 066;
-		open STDIN, '/dev/null' or die $!;
-		open STDOUT, '>', "$valgrindlogpath/out.$$" or die $!;
+		use Fcntl;
+		-d $valgrindlogpath or mkdir $valgrindlogpath or die "Cannot create $valgrindlogpath: $!\n";
+		my $suffix = strftime("%Y%m%d-%H%M%S", localtime(time)) . ".$$";
+		open STDIN, '<', '/dev/null' or die "Can't redirect STDIN to /dev/null: $!\n";
+		sysopen STDOUT, "$valgrindlogpath/out.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0600 or die "Can't open $valgrindlogpath/out.$suffix: $!\n";
+		sysopen STDERR, "$valgrindlogpath/valdebug.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0666 or die "Can't open $valgrindlogpath/valdebug.$suffix: $!\n";
 		exec "valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-fd=2 $binpath/$executable -nofork -debug -nolog";
-		exit 1;
+		die "Can't execute valgrind: $!\n";
 	}
 }
 
