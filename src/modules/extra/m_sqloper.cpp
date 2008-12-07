@@ -80,7 +80,7 @@ public:
 		std::string xhost;
 		while (hl >> xhost)
 		{
-			if (InspIRCd::Match(host, xhost, NULL) || InspIRCd::MatchCIDR(ip, xhost, NULL))
+			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
 			{
 				return true;
 			}

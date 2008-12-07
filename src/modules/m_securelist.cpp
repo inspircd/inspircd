@@ -64,7 +64,7 @@ class ModuleSecureList : public Module
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
-				if (InspIRCd::Match(user->MakeHost(), *x))
+				if (InspIRCd::Match(user->MakeHost(), *x, ascii_case_insensitive_map))
 					return 0;
 
 			/* Not exempt, BOOK EM DANNO! */

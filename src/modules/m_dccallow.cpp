@@ -345,7 +345,7 @@ class ModuleDCCAllow : public Module
 
 						for (unsigned int i = 0; i < bfl.size(); i++)
 						{
-							if (InspIRCd::Match(filename, bfl[i].filemask))
+							if (InspIRCd::Match(filename, bfl[i].filemask, ascii_case_insensitive_map))
 							{
 								if (bfl[i].action == "allow")
 									return 0;

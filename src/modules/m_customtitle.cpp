@@ -33,7 +33,7 @@ class CommandTitle : public Command
 		std::string xhost;
 		while (hl >> xhost)
 		{
-			if (InspIRCd::Match(host, xhost) || InspIRCd::MatchCIDR(ip,xhost))
+			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
 			{
 				return true;
 			}

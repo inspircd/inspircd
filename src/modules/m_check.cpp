@@ -130,7 +130,7 @@ class CommandCheck : public Command
 			/* hostname or other */
 			for (user_hash::const_iterator a = ServerInstance->Users->clientlist->begin(); a != ServerInstance->Users->clientlist->end(); a++)
 			{
-				if (InspIRCd::Match(a->second->host, parameters[0]) || InspIRCd::Match(a->second->dhost, parameters[0]))
+				if (InspIRCd::Match(a->second->host, parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->dhost, parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
 					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());

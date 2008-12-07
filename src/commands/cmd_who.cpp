@@ -73,9 +73,9 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 		else if (opt_realname)
 			match = InspIRCd::Match(user->fullname, matchtext);
 		else if (opt_showrealhost)
-			match = InspIRCd::Match(user->host, matchtext);
+			match = InspIRCd::Match(user->host, matchtext, ascii_case_insensitive_map);
 		else if (opt_ident)
-			match = InspIRCd::Match(user->ident, matchtext);
+			match = InspIRCd::Match(user->ident, matchtext, ascii_case_insensitive_map);
 		else if (opt_port)
 		{
 			irc::portparser portrange(matchtext, false);
@@ -106,7 +106,7 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 		 * -- w00t
 		 */
 		if (!match)
-			match = InspIRCd::Match(user->dhost, matchtext);
+			match = InspIRCd::Match(user->dhost, matchtext, ascii_case_insensitive_map);
 
 		if (!match)
 			match = InspIRCd::Match(user->nick, matchtext);
