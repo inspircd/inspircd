@@ -150,7 +150,13 @@ int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
 	addr = addr;
 	struct linger linger = { 0, 0 };
 #ifdef IPV6
-	if (strchr(addr,':') || (!*addr))
+	if (!*addr)
+	{
+		sockfd = socket (PF_INET6, socktype, 0);
+		if (sockfd < 0)
+			sockfd = socket (PF_INET, socktype, 0);
+	}
+	else if (strchr(addr,':'))
 		sockfd = socket (PF_INET6, socktype, 0);
 	else
 		sockfd = socket (PF_INET, socktype, 0);
