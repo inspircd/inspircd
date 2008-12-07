@@ -408,7 +408,7 @@ class CoreExport InspIRCd : public classbase
 	 * This is provided as a pointer so that modules can change it to their custom mapping tables,
 	 * e.g. for national character support.
 	 */
-	unsigned const char *national_case_sensitive_map;
+	static unsigned const char *national_case_sensitive_map;
 
 	/** Returns the next available UID for this server.
 	 */
