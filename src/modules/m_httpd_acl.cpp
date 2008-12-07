@@ -172,7 +172,7 @@ class ModuleHTTPAccessList : public Module
 
 			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
 			{
-				if (InspIRCd::Match(http->GetURI(), this_acl->path))
+				if (InspIRCd::Match(http->GetURI(), this_acl->path, ascii_case_insensitive_map))
 				{
 					if (!this_acl->blacklist.empty())
 					{
@@ -182,7 +182,7 @@ class ModuleHTTPAccessList : public Module
 
 						while (sep.GetToken(entry))
 						{
-							if (InspIRCd::Match(http->GetIP(), entry))
+							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 							{
 								ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
 										http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
@@ -200,7 +200,7 @@ class ModuleHTTPAccessList : public Module
 
 						while (sep.GetToken(entry))
 						{
-							if (InspIRCd::Match(http->GetIP(), entry))
+							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 								allow_access = true;
 						}
 

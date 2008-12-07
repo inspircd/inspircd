@@ -64,7 +64,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 	
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
 	{
-		if (InspIRCd::Match(u->second->GetIPString(), ip))
+		if (InspIRCd::Match(u->second->GetIPString(), ip, ascii_case_insensitive_map))
 			matches++;
 	}
 
