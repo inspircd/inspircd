@@ -402,6 +402,14 @@ class CoreExport InspIRCd : public classbase
 	 */
 	User* FakeClient;
 
+	/** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
+	 * if it must.
+	 *
+	 * This is provided as a pointer so that modules can change it to their custom mapping tables,
+	 * e.g. for national character support.
+	 */
+	unsigned const char *national_case_sensitive_map;
+
 	/** Returns the next available UID for this server.
 	 */
 	std::string GetUID();

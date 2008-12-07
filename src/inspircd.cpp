@@ -444,6 +444,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->XLines = 0;
 	this->Modes = 0;
 	this->Res = 0;
+	this->national_case_sensitive_map = rfc_case_insensitive_map;
 
 	// Initialise TIME
 	this->TIME = time(NULL);
