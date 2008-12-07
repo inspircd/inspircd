@@ -107,7 +107,7 @@ void ProcessUserHandler::Call(User* cu)
 			}
 
 			/* If user is over penalty, dont process here, just build up */
-			if (!current->Penalty < 10)
+			if (current->Penalty < 10)
 				Server->Parser->DoLines(current);
 
 			return;
