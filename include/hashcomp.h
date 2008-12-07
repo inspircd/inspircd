@@ -60,7 +60,7 @@ unsigned const char rfc_case_insensitive_map[256] = {
  * This is provided as a pointer so that modules can change it to their custom mapping tables,
  * e.g. for national character support.
  */
-extern unsigned const char *national_case_sensitive_map;
+extern unsigned const char *national_case_insensitive_map;
 
 /** Case insensitive map, ASCII rules.
  * That is;

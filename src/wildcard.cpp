@@ -73,7 +73,7 @@ static bool match_internal(const unsigned char *str, const unsigned char *mask, 
 CoreExport bool InspIRCd::Match(const std::string &str, const std::string &mask, unsigned const char *map)
 {
 	if (!map)
-		map = national_case_sensitive_map;
+		map = national_case_insensitive_map;
 
 	return match_internal((const unsigned char *)str.c_str(), (const unsigned char *)mask.c_str(), map);
 }
@@ -81,7 +81,7 @@ CoreExport bool InspIRCd::Match(const std::string &str, const std::string &mask,
 CoreExport bool InspIRCd::Match(const  char *str, const char *mask, unsigned const char *map)
 {
 	if (!map)
-		map = national_case_sensitive_map;
+		map = national_case_insensitive_map;
 	return match_internal((const unsigned char *)str, (const unsigned char *)mask, map);
 }
 
@@ -91,7 +91,7 @@ CoreExport bool InspIRCd::MatchCIDR(const std::string &str, const std::string &m
 		return true;
 
 	if (!map)
-		map = national_case_sensitive_map;
+		map = national_case_insensitive_map;
 
 	// Fall back to regular match
 	return InspIRCd::Match(str, mask, map);
@@ -103,7 +103,7 @@ CoreExport bool InspIRCd::MatchCIDR(const  char *str, const char *mask, unsigned
 		return true;
 
 	if (!map)
-		map = national_case_sensitive_map;
+		map = national_case_insensitive_map;
 
 	// Fall back to regular match
 	return InspIRCd::Match(str, mask, map);

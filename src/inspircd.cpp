@@ -60,7 +60,7 @@ int* mysig = NULL;
  * This is provided as a pointer so that modules can change it to their custom mapping tables,
  * e.g. for national character support.
  */
-unsigned const char *national_case_sensitive_map = rfc_case_insensitive_map;
+unsigned const char *national_case_insensitive_map = rfc_case_insensitive_map;
 
 
 /* Moved from exitcodes.h -- due to duplicate symbols -- Burlex
