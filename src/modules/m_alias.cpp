@@ -266,7 +266,7 @@ class ModuleAlias : public Module
 		{
 			if (a->CaseSensitive)
 			{
-				if (InspIRCd::Match(compare, a->format, case_sensitive_map))
+				if (InspIRCd::Match(compare, a->format, rfc_case_sensitive_map))
 					return 0;
 			}
 			else
