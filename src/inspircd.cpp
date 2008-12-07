@@ -90,6 +90,15 @@ const char* ExitCodes[] =
 		"CreateEvent failed" /* 19 */
 };
 
+template<typename T> void DeleteZero(T* n)
+{
+	if (n != NULL)
+	{
+		delete n;
+		n = NULL;
+	}
+}
+
 void InspIRCd::Cleanup()
 {
 	if (Config)
@@ -132,102 +141,25 @@ void InspIRCd::Cleanup()
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
 		delete (*itr);
 
-	/* Delete objects dynamically allocated in constructor
-	 * (destructor would be more appropriate, but we're likely exiting)
-	 */
-
-	// Must be deleted before modes as it decrements modelines
-	if (this->Users)
-	{
-		delete this->Users;
-		this->Users = 0;
-	}
-	
-	if (this->Modes)
-	{
-		delete this->Modes;
-		this->Modes = 0;
-	}
-
-	if (this->XLines)
-	{
-		delete this->XLines;
-		this->XLines = 0;
-	}
-
-	if (this->Parser)
-	{
-		delete this->Parser;
-		this->Parser = 0;
-
-	if (this->stats)
-	{
-		delete this->stats;
-		this->stats = 0;
-	}
-
-	if (this->Modules)
-	{
-		delete this->Modules;
-		this->Modules = 0;
-	}
-
-	if (this->BanCache)
-		delete this->BanCache;
-		this->BanCache = 0;
-	}
-
-	if (this->SNO)
-	{
-		delete this->SNO;
-		this->SNO = 0;
-	}
-
-	if (this->Config)
-	{
-		delete this->Config;
-		this->Config = 0;
-	}
-
-	if (this->Res)
-	{
-		delete this->Res;
-		this->Res = 0;
-	}
-
-	if (this->chanlist)
-	{
-		delete chanlist;
-		chanlist = 0;
-	}
-
-	if (this->PI)
-	{
-		delete this->PI;
-		this->PI = 0;
-	}
-	
-	if (this->Threads)
-	{
-		delete this->Threads;
-		this->Threads = 0;
-	}
-
-	/* Needs to be deleted after Res, DNS has a timer */
-	if (this->Timers)
-	{
-		delete this->Timers;
-		this->Timers = 0;
-	}
-
+	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
+	/* Must be deleted before modes as it decrements modelines */
+	DeleteZero(this->Users);
+	DeleteZero(this->Modes);
+	DeleteZero(this->XLines);
+	DeleteZero(this->Parser);
+	DeleteZero(this->stats);
+	DeleteZero(this->Modules);
+	DeleteZero(this->BanCache);
+	DeleteZero(this->SNO);
+	DeleteZero(this->Config);
+	DeleteZero(this->Res);
+	DeleteZero(this->chanlist);
+	DeleteZero(this->PI);
+	DeleteZero(this->Threads);
+	DeleteZero(this->Timers);
 	/* Close logging */
 	this->Logs->CloseLogs();
-
-	if (this->Logs)
-	{
-		delete this->Logs;
-		this->Logs = 0;
-	}
+	DeleteZero(this->Logs);
 
 	delete RehashFinishMutex;
 }
