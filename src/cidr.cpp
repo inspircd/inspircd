@@ -90,7 +90,7 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 			 * symbols, and recursively call MatchCIDR without
 			 * username matching enabled to match the host part.
 			 */
-			return (InspIRCd::Match(address.substr(0, username_addr_pos), cidr_mask.substr(0, username_mask_pos), NULL) &&
+			return (InspIRCd::Match(address.substr(0, username_addr_pos), cidr_mask.substr(0, username_mask_pos), ascii_case_insensitive_map) &&
 					MatchCIDR(address.substr(username_addr_pos + 1), cidr_mask.substr(username_mask_pos + 1), false));
 		}
 		else

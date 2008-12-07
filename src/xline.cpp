@@ -466,10 +466,10 @@ bool KLine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask))
+	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
-		if (InspIRCd::MatchCIDR(u->host, this->hostmask) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask))
+		if (InspIRCd::MatchCIDR(u->host, this->hostmask, ascii_case_insensitive_map) ||
+		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}
@@ -488,10 +488,10 @@ bool GLine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask))
+	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
-		if (InspIRCd::MatchCIDR(u->host, this->hostmask) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask))
+		if (InspIRCd::MatchCIDR(u->host, this->hostmask, ascii_case_insensitive_map) ||
+		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}
@@ -510,10 +510,10 @@ bool ELine::Matches(User *u)
 	if (u->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask))
+	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
-		if (InspIRCd::MatchCIDR(u->host, this->hostmask) ||
-		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask))
+		if (InspIRCd::MatchCIDR(u->host, this->hostmask, ascii_case_insensitive_map) ||
+		    InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}

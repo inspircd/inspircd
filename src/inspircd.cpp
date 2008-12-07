@@ -54,6 +54,14 @@
 InspIRCd* SI = NULL;
 int* mysig = NULL;
 
+/** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
+ * if it must.
+ *
+ * This is provided as a pointer so that modules can change it to their custom mapping tables,
+ * e.g. for national character support.
+ */
+unsigned const char *national_case_sensitive_map = rfc_case_insensitive_map;
+
 
 /* Moved from exitcodes.h -- due to duplicate symbols -- Burlex
  * XXX this is a bit ugly. -- w00t
@@ -985,7 +993,6 @@ void InspIRCd::SetSignal(int signal)
  */
 ENTRYPOINT
 {
-	InspIRCd::national_case_sensitive_map = rfc_case_insensitive_map;
 	SI = new InspIRCd(argc, argv);
 	mysig = &SI->s_signal;
 	SI->Run();

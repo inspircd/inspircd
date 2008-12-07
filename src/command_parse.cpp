@@ -578,7 +578,7 @@ void CommandParser::SetupCommandTable()
 		dirent* entry = NULL;
 		while (0 != (entry = readdir(library)))
 		{
-			if (InspIRCd::Match(entry->d_name, "cmd_*.so"))
+			if (InspIRCd::Match(entry->d_name, "cmd_*.so", ascii_case_insensitive_map))
 			{
 				printf(".");
 				fflush(stdout);

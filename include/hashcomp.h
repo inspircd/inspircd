@@ -54,6 +54,14 @@ unsigned const char rfc_case_insensitive_map[256] = {
 	240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255				/* 240-255 */
 };
 
+/** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
+ * if it must.
+ *
+ * This is provided as a pointer so that modules can change it to their custom mapping tables,
+ * e.g. for national character support.
+ */
+extern unsigned const char *national_case_sensitive_map;
+
 /** Case insensitive map, ASCII rules.
  * That is;
  * [ != {, but A == a.
