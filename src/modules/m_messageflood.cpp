@@ -130,7 +130,7 @@ class MsgFlood : public ModeHandler
 				/* Set up the flood parameters for this channel */
 				int nlines = atoi(lines);
 				int nsecs = atoi(secs);
-				if ((nlines<1) || (nsecs<1))
+				if ((nlines<2) || (nsecs<1))
 				{
 					source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
 					parameter.clear();
