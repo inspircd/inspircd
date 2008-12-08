@@ -56,7 +56,7 @@ void nspace::strlower(char *n)
 	if (n)
 	{
 		for (char* t = n; *t; t++)
-			*t = rfc_case_insensitive_map[(unsigned char)*t];
+			*t = national_case_insensitive_map[(unsigned char)*t];
 	}
 }
 
@@ -73,12 +73,12 @@ void nspace::strlower(char *n)
 	/* XXX: NO DATA COPIES! :)
 	 * The hash function here is practically
 	 * a copy of the one in STL's hash_fun.h,
-	 * only with *x replaced with rfc_case_insensitive_map[*x].
+	 * only with *x replaced with national_case_insensitive_map[*x].
 	 * This avoids a copy to use hash<const char*>
 	 */
 	register size_t t = 0;
 	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
-		t = 5 * t + rfc_case_insensitive_map[(unsigned char)*x];
+		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;
 }
 
@@ -91,7 +91,7 @@ size_t nspace::hash_compare<irc::string, std::less<irc::string> >::operator()(co
 {
 	register size_t t = 0;
 	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
-		t = 5 * t + rfc_case_insensitive_map[(unsigned char)*x];
+		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;
 }
 
@@ -100,9 +100,9 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
 	const unsigned char* n1 = (const unsigned char*)s1.c_str();
 	const unsigned char* n2 = (const unsigned char*)s2.c_str();
 	for (; *n1 && *n2; n1++, n2++)
-		if (rfc_case_insensitive_map[*n1] != rfc_case_insensitive_map[*n2])
+		if (national_case_insensitive_map[*n1] != national_case_insensitive_map[*n2])
 			return false;
-	return (rfc_case_insensitive_map[*n1] == rfc_case_insensitive_map[*n2]);
+	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
 }
 
 /******************************************************
@@ -112,33 +112,33 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
  * std::string which is not only case-insensitive but
  * can also do scandanavian comparisons, e.g. { = [, etc.
  *
- * This class depends on the const array 'rfc_case_insensitive_map'.
+ * This class depends on the const array 'national_case_insensitive_map'.
  *
  ******************************************************/
 
 bool irc::irc_char_traits::eq(char c1st, char c2nd)
 {
-	return rfc_case_insensitive_map[(unsigned char)c1st] == rfc_case_insensitive_map[(unsigned char)c2nd];
+	return national_case_insensitive_map[(unsigned char)c1st] == national_case_insensitive_map[(unsigned char)c2nd];
 }
 
 bool irc::irc_char_traits::ne(char c1st, char c2nd)
 {
-	return rfc_case_insensitive_map[(unsigned char)c1st] != rfc_case_insensitive_map[(unsigned char)c2nd];
+	return national_case_insensitive_map[(unsigned char)c1st] != national_case_insensitive_map[(unsigned char)c2nd];
 }
 
 bool irc::irc_char_traits::lt(char c1st, char c2nd)
 {
-	return rfc_case_insensitive_map[(unsigned char)c1st] < rfc_case_insensitive_map[(unsigned char)c2nd];
+	return national_case_insensitive_map[(unsigned char)c1st] < national_case_insensitive_map[(unsigned char)c2nd];
 }
 
 int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 {
 	for(unsigned int i = 0; i < n; i++)
 	{
-		if(rfc_case_insensitive_map[(unsigned char)*str1] > rfc_case_insensitive_map[(unsigned char)*str2])
+		if(national_case_insensitive_map[(unsigned char)*str1] > national_case_insensitive_map[(unsigned char)*str2])
 			return 1;
 
-		if(rfc_case_insensitive_map[(unsigned char)*str1] < rfc_case_insensitive_map[(unsigned char)*str2])
+		if(national_case_insensitive_map[(unsigned char)*str1] < national_case_insensitive_map[(unsigned char)*str2])
 			return -1;
 
 		if(*str1 == 0 || *str2 == 0)
@@ -152,7 +152,7 @@ int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 
 const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 {
-	while(n-- > 0 && rfc_case_insensitive_map[(unsigned char)*s1] != rfc_case_insensitive_map[(unsigned char)c])
+	while(n-- > 0 && national_case_insensitive_map[(unsigned char)*s1] != national_case_insensitive_map[(unsigned char)c])
 		s1++;
 	return s1;
 }
