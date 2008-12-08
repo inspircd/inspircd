@@ -30,11 +30,21 @@ int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::st
 {
 	int MOD_RESULT = 0;
 	FOREACH_RESULT_I(this,I_OnPassCompare,OnPassCompare(ex, data, input, hashtype))
+
+	/* Module matched */
 	if (MOD_RESULT == 1)
 		return 0;
+
+	/* Module explicitly didnt match */
 	if (MOD_RESULT == -1)
 		return 1;
-	return data != input; // this seems back to front, but returns 0 if they *match*, 1 else
+
+	/* We dont handle any hash types except for plaintext - Thanks tra26 */
+	if (hashtype != "" && hashtype != "plaintext")
+		/* See below. 1 because they dont match */
+		return 1;
+
+	return (data != input); // this seems back to front, but returns 0 if they *match*, 1 else
 }
 
 /* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
