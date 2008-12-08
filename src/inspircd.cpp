@@ -521,9 +521,19 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!ServerConfig::FileExists(this->ConfigFileName))
 	{
-		printf("ERROR: Cannot open config file: %s\nExiting...\n", this->ConfigFileName);
-		this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", this->ConfigFileName);
-		Exit(EXIT_STATUS_CONFIG);
+#ifdef WIN32
+		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
+		if (ServerConfig::FileExists(this->ConfigFileName + ".txt"))
+		{
+			strlcat(this->ConfigFileName, ".txt", MAXBUF);
+		}
+		else
+#endif
+		{
+			printf("ERROR: Cannot open config file: %s\nExiting...\n", this->ConfigFileName);
+			this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", this->ConfigFileName);
+			Exit(EXIT_STATUS_CONFIG);
+		}
 	}
 
 	printf_c("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
