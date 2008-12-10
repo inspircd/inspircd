@@ -256,19 +256,18 @@ class InspIRCd;
  * I/O (linux seems to, as does freebsd) this will default to
  * blocking behaviour.
  */
-class CoreExport FileLogger : public EventHandler
+class CoreExport FileLogger
 {
  protected:
 	/** The creator/owner of this object
 	 */
 	InspIRCd* ServerInstance;
+
 	/** The log file (fd is inside this somewhere,
 	 * we get it out with fileno())
 	 */
 	FILE* log;
-	/** Buffer of pending log lines to be written
-	 */
-	std::string buffer;
+
 	/** Number of write operations that have occured
 	 */
 	int writeops;
