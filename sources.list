@@ -2,7 +2,7 @@
 # sources.list
 #
 # This file lists sources of third party modules that are available for installation with inspircd.
-# To manage these, you want the ./modulemanage binary.
+# To manage these, you want the ./modulemanager binary.
 #
 # Feel free to add additional sources! :)
 http://www.inspircd.com/modules/modules.lst
