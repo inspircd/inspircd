@@ -1246,7 +1246,7 @@ void FileLogger::WriteLogLine(const std::string &line)
 {
 	if (log)
 	{
-		int written = fprintf(log,"%s",buffer.c_str());
+		fprintf(log,"%s", line.c_str());
 
 		if (writeops++ % 20)
 		{
@@ -1262,8 +1262,6 @@ void FileLogger::Close()
 		fflush(log);
 		fclose(log);
 	}
-
-	buffer.clear();
 }
 
 FileLogger::FileLogger(InspIRCd* Instance, FILE* logfile) : ServerInstance(Instance), log(logfile), writeops(0)
