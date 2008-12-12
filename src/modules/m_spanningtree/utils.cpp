@@ -536,7 +536,9 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 		}
 
-		L.NextConnectTime = ServerInstance->Time() + L.AutoConnect;
+		// Fix: Only trip autoconnects if this wouldn't delay autoconnect..
+		if (L.NextConnectTime > ((time_t)(ServerInstance->Time() + L.AutoConnect)))
+			L.NextConnectTime = ServerInstance->Time() + L.AutoConnect;
 
 		if (L.Name.find('.') == std::string::npos)
 			throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
