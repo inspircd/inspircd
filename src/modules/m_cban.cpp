@@ -85,6 +85,16 @@ class cmd_cban : public command_t
 				// parameters[0] = #channel
 				// parameters[1] = 1h3m2s
 				// parameters[2] = Tortoise abuser
+
+				for (cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
+				{
+					if (parameters[0] == iter->chname)
+					{
+						user->WriteServ("NOTICE %s :Cannot add CBan as it already exists.", user->nick);
+						return CMD_FAILURE;
+					}
+				}
+
 				long length = ServerInstance->Duration(parameters[1]);
 				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
 				
