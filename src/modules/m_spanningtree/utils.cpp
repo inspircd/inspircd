@@ -543,7 +543,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		}
 
 		// Fix: Only trip autoconnects if this wouldn't delay autoconnect..
-		if (L.NextConnectTime > ((time_t)(time() + L.AutoConnect)))
+		if (L.NextConnectTime > ((time_t)(time(NULL) + L.AutoConnect)))
 			L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if (L.Name != ServerInstance->Config->ServerName)
