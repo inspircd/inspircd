@@ -120,11 +120,11 @@ class ModuleRedirect : public Module
 					destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet('L'))
 					{
-						user->WriteNumeric(470, "%s :You may not join %s. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
+						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
 						return 1;
 					}
 
-					user->WriteNumeric(470, "%s :You may not join %s, so you are automatically being transferred to the redirect channel %s", user->nick.c_str(), cname, channel.c_str());
+					user->WriteNumeric(470, "%s %s  %s:You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname, channel.c_str());
 					Channel::JoinUser(ServerInstance, user, channel.c_str(), false, "", false, ServerInstance->Time());
 					return 1;
 				}
