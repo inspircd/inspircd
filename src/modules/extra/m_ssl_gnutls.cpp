@@ -534,6 +534,9 @@ class ModuleSSLGnuTLS : public Module
 				}
 				else
 				{
+					ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
+							"m_ssl_gnutls.so: Error while reading on fd %d: %s",
+							session->fd, gnutls_strerror(ret));
 					readresult = 0;
 					CloseSession(session);
 				}
@@ -614,6 +617,9 @@ class ModuleSSLGnuTLS : public Module
 			{
 				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
 				{
+					ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
+							"m_ssl_gnutls.so: Error while writing to fd %d: %s",
+							session->fd, gnutls_strerror(ret));
 					CloseSession(session);
 				}
 				else
@@ -702,6 +708,9 @@ class ModuleSSLGnuTLS : public Module
 			else
 			{
 				// Handshake failed.
+				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
+						"m_ssl_gnutls.so: Handshake failed on fd %d: %s",
+						session->fd, gnutls_strerror(ret));
 				CloseSession(session);
 				session->status = ISSL_CLOSING;
 			}
