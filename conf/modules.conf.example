@@ -803,11 +803,6 @@
 # http stats module: Provides basic stats pages over HTTP
 # Requires m_httpd.so to be loaded for it to function.
 #<module name="m_httpd_stats.so">
-#
-#-#-#-#-#-#-#-#-#-#-#-#- HTTPD STATS CONFIGURATION -#-#-#-#-#-#-#-#-#-#
-#
-#<httpstats stylesheet="http://remote.style/sheet.css">
-#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ident: Provides RFC 1413 ident lookup support
@@ -824,7 +819,7 @@
 # the user in a 'connecting' state until the lookup is complete.      #
 # The bind value indicates which IP to bind outbound requests to.     #
 #                                                                     #
-#<ident timeout="5" bind="">
+#<ident timeout="5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite except module: Adds support for channel invite exceptions (+I)
