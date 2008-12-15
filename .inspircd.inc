@@ -143,7 +143,7 @@ sub dev_debug(@)
 	checkgdb();
 
 	# If we are still alive here.. Try starting the IRCd..
-	exec {gdb} 'gdb', "--command=$basepath/.gdbargs", "--args $binpath/$executable", qw(-nofork -debug), @_;
+	exec {gdb} 'gdb', "--command=$basepath/.gdbargs", '--args', "$binpath/$executable", qw(-nofork -debug), @_;
 	die "Failed to start GDB: $!\n";
 }
 
