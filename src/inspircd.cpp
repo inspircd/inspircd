@@ -585,6 +585,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->ClearStack();
 	Config->Read(true, NULL);
 
+	this->Parser->SetupCommandTable(NULL);
+
 	if (!do_root)
 		this->CheckRoot();
 	else

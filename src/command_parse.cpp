@@ -552,14 +552,6 @@ const char* CommandParser::LoadCommand(const char* name)
 
 void CommandParser::SetupCommandTable(userrec* user)
 {
-	for (SharedObjectList::iterator command = RFCCommands.begin(); command != RFCCommands.end(); command++)
-	{
-		command_t *cmdptr = cmdlist.find(command->first)->second;
-		cmdlist.erase(cmdlist.find(command->first));
-		RFCCommands.erase(command);
-		delete cmdptr;
-	}
-
 	if (!user)
 	{
 		printf("\nLoading core commands");
