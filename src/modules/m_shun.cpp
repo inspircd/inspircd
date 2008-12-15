@@ -11,8 +11,7 @@
  * ---------------------------------------------------
  */
 
-#include 
-"inspircd.h"
+#include "inspircd.h"
 #include "xline.h"
 
 /* $ModDesc: Provides the /shun command, which stops a user executing all commands except PING and PONG. */
