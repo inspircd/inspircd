@@ -946,15 +946,15 @@ class CoreExport Module : public Extensible
 	 * before opping a user, deopping a user, kicking a user, etc.
 	 * There are several values for access_type which indicate for what reason access is being checked.
 	 * These are:<br><br>
-	 * AC_KICK (0) - A user is being kicked<br>
-	 * AC_DEOP (1) - a user is being deopped<br>
-	 * AC_OP (2) - a user is being opped<br>
-	 * AC_VOICE (3) - a user is being voiced<br>
-	 * AC_DEVOICE (4) - a user is being devoiced<br>
-	 * AC_HALFOP (5) - a user is being halfopped<br>
-	 * AC_DEHALFOP (6) - a user is being dehalfopped<br>
-	 * AC_INVITE () - a user is being invited<br>
-	 * AC_GENERAL_MODE (8) - a user channel mode is being changed<br><br>
+	 * AC_KICK - A user is being kicked<br>
+	 * AC_DEOP - a user is being deopped<br>
+	 * AC_OP - a user is being opped<br>
+	 * AC_VOICE - a user is being voiced<br>
+	 * AC_DEVOICE - a user is being devoiced<br>
+	 * AC_HALFOP - a user is being halfopped<br>
+	 * AC_DEHALFOP - a user is being dehalfopped<br>
+	 * AC_INVITE - a user is being invited<br>
+	 * AC_GENERAL_MODE - a user channel mode is being changed<br><br>
 	 * Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes
 	 * to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow
 	 * the action. Please note that in the case of some access checks (such as AC_GENERAL_MODE) access may be
