@@ -21,6 +21,7 @@
 #include "m_sqlv2.h"
 
 /* $ModDesc: MsSQL provider */
+/* $CompileFlags: exec("cat /usr/include/tdsver.h | grep VERSION_NO | perl -e 'if (<> =~ /freetds v([0-9]+\.[0-9]+)/i) { print "-D_TDSVER=".$1*100} else { print "-D_TDSVER=0" }'") */
 /* $LinkerFlags: -ltds */
 /* $ModDep: m_sqlv2.h */
 
@@ -469,7 +470,11 @@ class SQLConn : public classbase
 								unsigned char* src;
 								CONV_RESULT dres;
 								ctype = tds_get_conversion_type(col->column_type, col->column_size);
-								src = &(sock->current_results->current_row[col->column_offset]);
+#if _TDSVER >= 82
+									src = col->column_data;
+#else
+									src = &(sock->current_results->current_row[col->column_offset]);
+#endif
 								srclen = col->column_cur_size;
 								tds_convert(sock->tds_ctx, ctype, (TDS_CHAR *) src, srclen, SYBCHAR, &dres);
 								data[j] = (char*)dres.ib;
