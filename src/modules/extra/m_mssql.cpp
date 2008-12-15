@@ -21,7 +21,7 @@
 #include "m_sqlv2.h"
 
 /* $ModDesc: MsSQL provider */
-/* $CompileFlags: exec("cat /usr/include/tdsver.h | grep VERSION_NO | perl -e 'if (<> =~ /freetds v([0-9]+\.[0-9]+)/i) { print "-D_TDSVER=".$1*100} else { print "-D_TDSVER=0" }'") */
+/* $CompileFlags: exec("grep VERSION_NO /usr/include/tdsver.h 2>/dev/null | perl -e 'print "-D_TDSVER=".((<> =~ /freetds v(\d+\.\d+)/i) ? $1*100 : 0);'") */
 /* $LinkerFlags: -ltds */
 /* $ModDep: m_sqlv2.h */
 
