@@ -525,7 +525,7 @@ bool CommandParser::ReloadCommand(std::string cmd, User* user)
 	return false;
 }
 
-CmdResult cmd_reload::Handle(const std::vector<std::string>& parameters, User *user)
+CmdResult CommandReload::Handle(const std::vector<std::string>& parameters, User *user)
 {
 	if (parameters.size() < 1)
 		return CMD_FAILURE;
@@ -606,7 +606,7 @@ void CommandParser::SetupCommandTable()
 	}
 
 	if (cmdlist.find("RELOAD") == cmdlist.end())
-		this->CreateCommand(new cmd_reload(ServerInstance));
+		this->CreateCommand(new CommandReload(ServerInstance));
 }
 
 int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)

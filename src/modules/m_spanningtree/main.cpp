@@ -38,9 +38,9 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 {
 	ServerInstance->Modules->UseInterface("BufferedSocketHook");
 	Utils = new SpanningTreeUtilities(ServerInstance, this);
-	command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
+	command_rconnect = new CommandRConnect(ServerInstance, this, Utils);
 	ServerInstance->AddCommand(command_rconnect);
-	command_rsquit = new cmd_rsquit(ServerInstance, this, Utils);
+	command_rsquit = new CommandRSQuit(ServerInstance, this, Utils);
 	ServerInstance->AddCommand(command_rsquit);
 	RefreshTimer = new CacheRefreshTimer(ServerInstance, Utils);
 	ServerInstance->Timers->AddTimer(RefreshTimer);

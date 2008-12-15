@@ -19,10 +19,10 @@
 
 /** Handle /SSLINFO
  */
-class cmd_sslinfo : public Command
+class CommandSSLInfo : public Command
 {
  public:
-	cmd_sslinfo (InspIRCd* Instance) : Command(Instance,"SSLINFO", 0, 1)
+	CommandSSLInfo (InspIRCd* Instance) : Command(Instance,"SSLINFO", 0, 1)
 	{
 		this->source = "m_sslinfo.so";
 		this->syntax = "<nick>";
@@ -61,13 +61,13 @@ class cmd_sslinfo : public Command
 
 class ModuleSSLInfo : public Module
 {
-	cmd_sslinfo* newcommand;
+	CommandSSLInfo* newcommand;
  public:
 	ModuleSSLInfo(InspIRCd* Me)
 		: Module(Me)
 	{
 
-		newcommand = new cmd_sslinfo(ServerInstance);
+		newcommand = new CommandSSLInfo(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 
 	}

@@ -16,12 +16,12 @@
 
 /** Handle /RCONNECT
  */
-class cmd_rconnect : public Command
+class CommandRConnect : public Command
 {
         Module* Creator;		/* Creator */
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
-        cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
+        CommandRConnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 };
 

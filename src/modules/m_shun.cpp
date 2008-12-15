@@ -67,13 +67,13 @@ class ShunFactory : public XLineFactory
 
 //typedef std::vector<Shun> shunlist;
 
-class cmd_shun : public Command
+class CommandShun : public Command
 {
  private:
 	InspIRCd *Srv;
 
  public:
-	cmd_shun(InspIRCd* Me) : Command(Me, "SHUN", "o", 1, 3), Srv(Me)
+	CommandShun(InspIRCd* Me) : Command(Me, "SHUN", "o", 1, 3), Srv(Me)
 	{
 		this->source = "m_shun.so";
 		this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
@@ -143,7 +143,7 @@ class cmd_shun : public Command
 
 class ModuleShun : public Module
 {
-	cmd_shun* mycommand;
+	CommandShun* mycommand;
 	ShunFactory *f;
 	std::map<std::string, bool> ShunEnabledCommands;
 	bool NotifyOfShun;
@@ -154,7 +154,7 @@ class ModuleShun : public Module
 		f = new ShunFactory(ServerInstance);
 		ServerInstance->XLines->RegisterFactory(f);
 
-		mycommand = new cmd_shun(ServerInstance);
+		mycommand = new CommandShun(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 
 		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnUserConnect, I_OnRehash };

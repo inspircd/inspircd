@@ -207,12 +207,12 @@ class CoreExport CommandParser : public classbase
 /** Command handler class for the RELOAD command.
  * A command cant really reload itself, so this has to be in here.
  */
-class cmd_reload : public Command
+class CommandReload : public Command
 {
  public:
 	/** Standard constructor
 	 */
-	cmd_reload (InspIRCd* Instance) : Command(Instance,"RELOAD","o",1) { syntax = "<core-command>"; }
+	CommandReload (InspIRCd* Instance) : Command(Instance,"RELOAD","o",1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);

@@ -30,8 +30,8 @@ const long ProtocolVersion = 1201;
 
 /** Forward declarations
  */
-class cmd_rconnect;
-class cmd_rsquit;
+class CommandRConnect;
+class CommandRSQuit;
 class SpanningTreeUtilities;
 class CacheRefreshTimer;
 class TreeServer;
@@ -45,8 +45,8 @@ class ModuleSpanningTree : public Module
 	int NumServers;
 	unsigned int max_local;
 	unsigned int max_global;
-	cmd_rconnect* command_rconnect;
-	cmd_rsquit* command_rsquit;
+	CommandRConnect* command_rconnect;
+	CommandRSQuit* command_rsquit;
 	SpanningTreeUtilities* Utils;
 
  public:

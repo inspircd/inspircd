@@ -19,10 +19,10 @@
 
 /** Handle /FINGERPRINT
  */
-class cmd_fingerprint : public Command
+class CommandFingerprint : public Command
 {
  public:
-	cmd_fingerprint (InspIRCd* Instance) : Command(Instance,"FINGERPRINT", 0, 1)
+	CommandFingerprint (InspIRCd* Instance) : Command(Instance,"FINGERPRINT", 0, 1)
 	{
 		this->source = "m_ssl_oper_cert.so";
 		syntax = "<nickname>";
@@ -67,14 +67,14 @@ class ModuleOperSSLCert : public Module
 {
 	ssl_cert* cert;
 	bool HasCert;
-	cmd_fingerprint* mycommand;
+	CommandFingerprint* mycommand;
 	ConfigReader* cf;
  public:
 
 	ModuleOperSSLCert(InspIRCd* Me)
 		: Module(Me)
 	{
-		mycommand = new cmd_fingerprint(ServerInstance);
+		mycommand = new CommandFingerprint(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		cf = new ConfigReader(ServerInstance);
 		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash };

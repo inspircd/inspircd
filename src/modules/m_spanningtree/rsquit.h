@@ -16,12 +16,12 @@
 
 /** Handle /RCONNECT
  */
-class cmd_rsquit : public Command
+class CommandRSQuit : public Command
 {
         Module* Creator;		/* Creator */
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
-        cmd_rsquit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
+        CommandRSQuit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
         void NoticeUser(User* user, const std::string &msg);
 };

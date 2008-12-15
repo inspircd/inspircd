@@ -26,13 +26,13 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h m_spanningtree/rsquit.h */
 
-cmd_rsquit::cmd_rsquit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RSQUIT", "o", 1), Creator(Callback), Utils(Util)
+CommandRSQuit::CommandRSQuit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RSQUIT", "o", 1), Creator(Callback), Utils(Util)
 {
 	this->source = "m_spanningtree.so";
 	syntax = "<target-server-mask> [reason]";
 }
 
-CmdResult cmd_rsquit::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	TreeServer *server_target; // Server to squit
 	TreeServer *server_linked; // Server target is linked to
@@ -71,7 +71,7 @@ CmdResult cmd_rsquit::Handle (const std::vector<std::string>& parameters, User *
 }
 
 // XXX use protocol interface instead of rolling our own :)
-void cmd_rsquit::NoticeUser(User* user, const std::string &msg)
+void CommandRSQuit::NoticeUser(User* user, const std::string &msg)
 {
 	if (IS_LOCAL(user))
 	{
