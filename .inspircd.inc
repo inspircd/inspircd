@@ -20,21 +20,56 @@ my $libpath	=	"@LIBRARY_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"@EXECUTABLE@";
 my $version	=	"@VERSION@";
-my @filesparsed;
-my @filechecked;
 
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
-my $arg = $ARGV[0];
-getpidfile($confpath."inspircd.conf");
+my $arg = shift(@ARGV);
+my $conf = $confpath . "inspircd.conf";
+for my $a (@ARGV)
+{
+	if ($a =~ m/^--config=(.*)$/)
+	{
+		$conf = $1;
+		last;
+	}
+}
+getpidfile($conf);
 
-if ($arg eq "start") { start(); exit(); }
-if ($arg eq "debug") { debug(); exit(); }
-if ($arg eq "screendebug") { screendebug(); exit() }
-if ($arg eq "valdebug") { valdebug(); exit(); }
-if ($arg eq "valdebug-unattended") { valdebugunattended(); exit(); }
-if ($arg eq "screenvaldebug") { screenvaldebug(); exit(); }
-if ($arg eq "stop") { stop(); exit(); }
-if ($arg eq "status") {
+# System for naming script command subs:
+# cmd_<name> - Normal command for use by users.
+# dev_<name> - Developer commands.
+# hid_<name> - Hidden commands (ie Cheese-Sandwich)
+# Ideally command subs shouldn't return.
+
+my $subname = $arg;
+$subname =~ s/-/_/g;
+my $sub = main->can("cmd_$subname") || main->can("dev_$subname") || main->can("hid_$subname");
+if (!defined($sub))
+{
+	print STDERR "Invalid command or none given.\n";
+	cmd_help();
+	exit 1;
+}
+else
+{
+	$sub->(@ARGV);
+	exit 0;
+}
+
+sub cmd_help()
+{
+	@subs = grep { $_ =~ m/^(cmd|dev)_/ && defined(main->can($_)) } keys(%::);
+	my @cmds = grep /^cmd_/, @subs;
+	my @devs = grep /^dev_/, @subs;
+	local $_;
+	$_ =~ s/^(cmd|dev)_// foreach (@cmds, @devs);
+	$_ =~ s/_/-/g foreach (@cmds, @devs);
+	print STDERR "Usage: ./inspircd (" . join("|", @cmds) . ")\n";
+	print STDERR "Developer arguments: (" . join("|", @devs) . ")\n";
+	exit 0;
+}
+
+sub cmd_status()
+{
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
 		print "InspIRCd is running (PID: $pid)\n";
@@ -44,7 +79,9 @@ if ($arg eq "status") {
 		exit();
 	}
 }
-if ($arg eq "rehash") {
+
+sub cmd_rehash()
+{
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
 		system("kill -HUP $pid >/dev/null 2>&1");
@@ -56,59 +93,46 @@ if ($arg eq "rehash") {
 	}
 }
 
-if ($arg eq "cron") {
-	if (getstatus() == 0) { start(); }
+sub cmd_cron()
+{
+	if (getstatus() == 0) { goto &cmd_start(); }
 	exit();
 }
 
-if ($arg eq "version") {
+sub cmd_version()
+{
 	print "InspIRCd version: $version\n";
 	exit();
 }
 
-if ($arg eq "restart") {
-	stop();
+sub cmd_restart(@)
+{
+	cmd_stop();
 	unlink($pidfile) if (-e $pidfile);
-	start();
-	# kthxbye();
-	exit();
+	goto &cmd_start;
 }
 
-if ($arg eq "checkconf") {
-	checkconf();
-	exit();
-}
-
-if ($arg eq "Cheese-Sandwich") {
+sub hid_cheese_sandwich()
+{
 	print "Creating Cheese Sandwich..\n";
 	print "Done.\n";
 	exit();
 }
 
-###
-# If we get here.. bad / no parameters.
-###
-print "Invalid Argument: $arg\n";
-print "Usage: inspircd (start|stop|restart|rehash|status|cron|checkconf|version)\n";
-print "Developer arguments: (debug|screendebug|valdebug|valdebug-unattended|screenvaldebug)\n";
-exit();
-
-###
-# Generic Helper Functions.
-###
-
-sub start {
+sub cmd_start(@)
+{
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 	# If we are still alive here.. Try starting the IRCd..
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
 
-	system("$binpath/$executable");
-	return 1;
+	exec { "$binpath/$executable" } "$binpath/$executable", @_;
+	die "Failed to start IRCd: $!\n";
 }
 
-sub debug {
+sub dev_debug(@)
+{
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
@@ -119,10 +143,11 @@ sub debug {
 	checkgdb();
 
 	# If we are still alive here.. Try starting the IRCd..
-	system("gdb --command=$basepath/.gdbargs --args $binpath/$executable -nofork -debug");
+	exec {gdb} 'gdb', "--command=$basepath/.gdbargs", "--args $binpath/$executable", qw(-nofork -debug), @_;
+	die "Failed to start GDB: $!\n";
 }
 
-sub screendebug
+sub dev_screendebug(@)
 {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
@@ -136,10 +161,11 @@ sub screendebug
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	system("screen -m -d gdb --command=$basepath/.gdbargs --args $binpath/$executable -nofork -debug -nolog");
+	exec {screen} qw(screen -m -d gdb), "--comand=$basepath/.gdbargs", '-args', "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	die "Failed to start screen: $!\n";
 }
 
-sub valdebug
+sub dev_valdebug(@)
 {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
@@ -154,10 +180,11 @@ sub valdebug
 	# If we are still alive here.. Try starting the IRCd..
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
-	system("valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10 $binpath/$executable -nofork -debug -nolog");
+	exec {valgrind} qw(valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	die "Failed to start valgrind: $!\n";
 }
 
-sub valdebugunattended
+sub dev_valdebug_unattended(@)
 {
 	# NOTE: To make sure valgrind generates coredumps, set soft core limit in /etc/security/limits.conf to unlimited
 	# Check to see its not 'running' already.
@@ -186,12 +213,12 @@ sub valdebugunattended
 		open STDIN, '<', '/dev/null' or die "Can't redirect STDIN to /dev/null: $!\n";
 		sysopen STDOUT, "$valgrindlogpath/out.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0600 or die "Can't open $valgrindlogpath/out.$suffix: $!\n";
 		sysopen STDERR, "$valgrindlogpath/valdebug.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0666 or die "Can't open $valgrindlogpath/valdebug.$suffix: $!\n";
-		exec "valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-fd=2 $binpath/$executable -nofork -debug -nolog";
+		exec {valgrind} qw(valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-fd=2), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
 		die "Can't execute valgrind: $!\n";
 	}
 }
 
-sub screenvaldebug
+sub dev_screenvaldebug(@)
 {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
@@ -207,16 +234,18 @@ sub screenvaldebug
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the valgrind and gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	system("screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10 $binpath/$executable -nofork -debug -nolog");
+	exec {screen} qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	die "Failed to start screen: $!\n";
 }
 
-sub stop {
+sub cmd_stop()
+{
 	if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)\n"; return 0; }
 	# Get to here, we have something to kill.
 	my $pid = getprocessid();
 	print "Stopping InspIRCd (pid: $pid)...\n";
 	my $maxwait = (`ps -o command $pid` =~ /valgrind/i) ? 30 : 5;
-	kill TERM => $pid;
+	kill TERM => $pid or die "Cannot terminate IRCd: $!\n";
 	for (1..$maxwait) {
 		sleep 1;
 		if (getstatus() == 1) {
@@ -226,7 +255,12 @@ sub stop {
 	}
 	print "InspIRCd not dying quietly -- forcing kill\n";
 	kill KILL => $pid;
+	exit 0;
 }
+
+###
+# Generic Helper Functions.
+###
 
 # GetPidfile Version 2 - Now With Include Support..
 # I beg for months for include support in insp, then..
@@ -240,7 +274,8 @@ sub stop {
 # defined, but defined in a comment (line starts with #)
 # -- Brain
 
-sub getpidfile {
+sub getpidfile
+{
 	my ($file) = @_;
 	# Before we start, do we have a PID already? (Should never occur)
 	if ($pid ne "") {
@@ -353,11 +388,12 @@ sub checkxmllint
 	open(FH, "xmllint|") or die "Couldn't start xmllint: $!\n";
 }
 
-sub checkconf
+sub cmd_checkconf()
 {
 	checkxmllint();
-	validateconf($confpath."inspircd.conf");
+	validateconf($conf);
 	print "Config check complete\n";
+	exit 0;
 }
 
 sub validateconf
