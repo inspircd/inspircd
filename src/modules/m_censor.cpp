@@ -15,6 +15,7 @@
 #define _SCL_SECURE_NO_DEPRECATE
 
 #include "inspircd.h"
+#include <iostream>
 
 typedef std::map<irc::string,irc::string> censor_t;
 
@@ -57,8 +58,8 @@ class ModuleCensor : public Module
 			delete cc;
 			throw ModuleException("Could not add new modes!");
 		}
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRunTestSuite };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 
@@ -70,17 +71,47 @@ class ModuleCensor : public Module
 		delete cc;
 	}
 
-	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
+	virtual void OnRunTestSuite()
 	{
+		std::cout << "Test suite for m_censor:" << std::endl;
+
+		irc::string text = "original text";
+		irc::string pattern = "text";
+		irc::string replace = "new";
+		std::cout << (ReplaceLine(text, pattern, replace) == "original new" ? "\nSUCCESS!\n" : "\nFAILURE '" + text + "' \n");
+		text = "original text here";
+		pattern = "text";
+		replace = "texts";
+		std::cout << (ReplaceLine(text, pattern, replace) == "original texts here" ? "\nSUCCESS!\n" : "\nFAILURE: '" + text + "' \n");
+		text = "original text";
+		pattern = "original";
+		replace = "new";
+		std::cout << (ReplaceLine(text, pattern, replace) == "new text" ? "\nSUCCESS!\n" : "\nFAILURE '" + text + "' \n");
+		std::cout << "end of test suite for m_censor" << std::endl;
+	}
+
+	/* This version of ReplaceLine won't loop forever if the replacement string contains the source pattern */
+	virtual const irc::string& ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
+	{
+		irc::string replacement;
 		if ((!pattern.empty()) && (!text.empty()))
 		{
-			std::string::size_type pos;
-			while ((pos = text.find(pattern)) != irc::string::npos)
+			for (std::string::size_type n = 0; n != text.length(); ++n)
 			{
-				text.erase(pos,pattern.length());
-				text.insert(pos,replace);
+				if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
+				{
+					/* Found the pattern in the text, replace it, and advance */
+					replacement.append(replace);
+					n = n + pattern.length() - 1;
+				}
+				else
+				{
+					replacement += text[n];
+				}
 			}
 		}
+		text = replacement;
+		return text;
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
