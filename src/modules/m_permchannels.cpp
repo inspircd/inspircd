@@ -25,6 +25,9 @@ class PermChannel : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool sm)
 	{
+		if (!source->HasPrivPermission("channels/set-permanent"))
+			return MODEACTION_DENY;
+
 		if (adding)
 		{
 			if (!channel->IsModeSet('P'))
