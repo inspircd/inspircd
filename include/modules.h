@@ -707,7 +707,7 @@ class CoreExport Module : public Extensible
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 * @param exempt_list A list of users not to send to. For channel messages, this will usually contain just the sender.
 	 * It will be ignored for private messages.
-	 * @return 1 to deny the NOTICE, 0 to allow it
+	 * @return 1 to deny the message, 0 to allow it
 	 */
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 
