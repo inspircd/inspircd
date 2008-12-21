@@ -445,13 +445,24 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (params.size() == 3)
 				{
 					TreeServer* pf = Utils->FindServer(prefix);
-					User* user = this->ServerInstance->FindNick(params[1]);
-					Channel* chan = this->ServerInstance->FindChan(params[0]);
-					if (pf && user && chan)
+					if (pf)
 					{
-						if (!chan->ServerKickUser(user, params[2].c_str(), false, pf->GetName().c_str()))
-							/* Yikes, the channels gone! */
-							delete chan;
+						irc::commasepstream nicks(params[1]);
+						std::string nick;
+						Channel* chan = this->ServerInstance->FindChan(params[0]);
+						if (chan)
+						{
+							while (nicks.GetToken(nick))
+							{
+								User* user = this->ServerInstance->FindNick(nick);
+								if (user)
+								{
+									if (!chan->ServerKickUser(user, params[2].c_str(), false, pf->GetName().c_str()))
+										/* Yikes, the channels gone! */
+										delete chan;
+								}
+							}
+						}
 					}
 				}
 
