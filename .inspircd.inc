@@ -299,7 +299,7 @@ sub getpidfile
 	$filesparsed[$filesparsed] = $file;
 
 	# Open the File..
-	open INFILE, "< $file" or die "Unable to open file $file\n";
+	open INFILE, "< $file" or die "Unable to open file $file included in configuration\n";
 	# Grab entire file contents..
 	my(@lines) = <INFILE>;
 	# Close the file
