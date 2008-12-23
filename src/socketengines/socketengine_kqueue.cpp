@@ -181,7 +181,8 @@ int KQueueEngine::DispatchEvents()
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}
-		else
+
+		if (ke_list[j].flags & EVFILT_READ)
 		{
 			ReadEvents++;
 			if (ref[ke_list[j].ident])
