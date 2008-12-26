@@ -11,8 +11,11 @@
  * ---------------------------------------------------
  */
 
-/* 
-   by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
+/*
+ * Originally by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru
+ */
+ 
+/* $ModDesc: Gives opers cmode +y which provides a staff prefix. */
 
 #include "inspircd.h"
 
@@ -231,7 +234,7 @@ class ModuleOperPrefixMode : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON, API_VERSION);
+		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 
