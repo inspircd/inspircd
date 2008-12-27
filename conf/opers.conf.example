@@ -17,7 +17,7 @@
      # commands: oper commands that users of this class can run.
      commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD" 
 
-     # privs: special priviledges that users with this class may utilise.
+     # privs: special privileges that users with this class may utilise.
      #  VIEWING:
      #   - channels/auspex: allows opers with this priv to see more detail about channels than normal users.
      #   - users/auspex: allows opers with this priv to view more details about users than normal users.
