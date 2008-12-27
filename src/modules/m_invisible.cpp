@@ -57,27 +57,6 @@ class InvisibleMode : public ModeHandler
 	{
 		if (dest->IsModeSet('Q') != adding)
 		{
-			bool ok = false;
-
-			if (IS_LOCAL(source))
-			{
-				for (int j = 0; j < conf->Enumerate("type"); j++)
-				{
-					std::string opertype = conf->ReadValue("type","name",j);
-					if (opertype == source->oper)
-					{
-						ok = conf->ReadFlag("type", "canquiet", j);
-						break;
-					}
-				}
-
-				if (!ok)
-				{
-					source->WriteNumeric(481, "%s :Permission Denied - You do not have access to become invisible via user mode +Q", source->nick.c_str());
-					return MODEACTION_DENY;
-				}
-			}
-
 			dest->SetMode('Q', adding);
 
 			/* Fix for bug #379 reported by stealth. On +/-Q make m_watch think the user has signed on/off */
@@ -116,7 +95,7 @@ class InvisibleMode : public ModeHandler
 				}
 			}
 
-			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has become %svisible (%sQ)", dest->GetFullHost().c_str(), adding ? "in" : "", adding ? "+" : "-");
+			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has become %svisible (%cQ)", dest->GetFullHost().c_str(), adding ? "in" : "", adding ? '+' : '-');
 			return MODEACTION_ALLOW;
 		}
 		else
