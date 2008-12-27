@@ -72,7 +72,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 	 * By using std::map (thanks for the idea w00t) we can cut this down a ton.
 	 * ...VOOODOOOO!
 	 */
-	std::map<irc::string, bool> dupes;
+	std::set<irc::string> dupes;
 
 	/* Create two lists, one for channel names, one for keys
 	 */
@@ -103,7 +103,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 
 			CommandObj->Handle(new_parameters, user);
 
-			dupes[item.c_str()] = true;
+			dupes.insert(item.c_str());
 		}
 	}
 	return 1;
@@ -120,7 +120,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 	if (parameters[splithere].find(',') == std::string::npos)
 		return 0;
 
-	std::map<irc::string, bool> dupes;
+	std::set<irc::string> dupes;
 
 	/* Only one commasepstream here */
 	irc::commasepstream items1(parameters[splithere]);
@@ -145,7 +145,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 			/* Execute the command handler. */
 			CommandObj->Handle(new_parameters, user);
 
-			dupes[item.c_str()] = true;
+			dupes.insert(item.c_str());
 		}
 	}
 	/* By returning 1 we tell our caller that nothing is to be done,
