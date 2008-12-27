@@ -81,7 +81,7 @@ const char* ExitCodes[] =
 		"CreateEvent failed" /* 19 */
 };
 
-template<typename T> void DeleteZero(T* n)
+template<typename T> static void DeleteZero(T* n)
 {
 	if (n != NULL)
 	{
