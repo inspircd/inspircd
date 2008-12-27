@@ -15,7 +15,7 @@
      name="Shutdown" 
 
      # commands: oper commands that users of this class can run.
-     commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD" 
+     commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD GUNLOADMODULE GRELOADMODULE SAJOIN SAPART SANICK SAQUIT SATOPIC" 
 
      # privs: special privileges that users with this class may utilise.
      #  VIEWING:
@@ -39,10 +39,10 @@
      # chanmodes: Oper-only channel modes that opers with this class can use.
      chanmodes="*">
 
-<class name="ServerLink" commands="CONNECT SQUIT RCONNECT MKPASSWD MKSHA256" usermodes="*" chanmodes="*">
-<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE" usermodes="*" chanmodes="*">
-<class name="OperChat" commands="WALLOPS GLOBOPS SETIDLE SPYLIST SPYNAMES" usermodes="*" chanmodes="*">
-<class name="HostCloak" commands="SETHOST SETIDENT SETNAME CHGHOST CHGIDENT" usermodes="*" chanmodes="*">
+<class name="ServerLink" commands="CONNECT SQUIT CONNECT MKPASSWD ALLTIME SWHOIS CLOSE JUMPSERVER LOCKSERV" usermodes="*" chanmodes="*" privs="servers/auspex">
+<class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE TLINE RLINE CHECK NICKLOCK SHUN CLONES CBAN" usermodes="*" chanmodes="*">
+<class name="OperChat" commands="WALLOPS GLOBOPS SETIDLE" usermodes="*" chanmodes="*" privs="users/mass-message">
+<class name="HostCloak" commands="SETHOST SETIDENT SETNAME CHGHOST CHGIDENT TAXONOMY" usermodes="*" chanmodes="*" privs="users/auspex">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#
