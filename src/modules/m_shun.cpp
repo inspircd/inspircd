@@ -158,7 +158,7 @@ class ModuleShun : public Module
 {
 	CommandShun* mycommand;
 	ShunFactory *f;
-	std::map<std::string, bool> ShunEnabledCommands;
+	std::set<std::string> ShunEnabledCommands;
 	bool NotifyOfShun;
 
  public:
@@ -206,7 +206,7 @@ class ModuleShun : public Module
 
 		while (dcmds >> thiscmd)
 		{
-			ShunEnabledCommands[thiscmd] = true;
+			ShunEnabledCommands.insert(thiscmd);
 		}
 
 		NotifyOfShun = MyConf.ReadFlag("shun", "notifyuser", "yes", 0);
@@ -239,7 +239,7 @@ class ModuleShun : public Module
 			return 0;
 		}
 
-		std::map<std::string, bool>::iterator i = ShunEnabledCommands.find(command);
+		std::set<std::string>::iterator i = ShunEnabledCommands.find(command);
 
 		if (i == ShunEnabledCommands.end())
 		{
