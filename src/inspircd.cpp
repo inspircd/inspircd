@@ -523,7 +523,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
 		std::string txtconf = this->ConfigFileName;
 		txtconf.append(".txt");
-    i
+		
 		if (ServerConfig::FileExists(txtconf.c_str()))
 		{
 			strlcat(this->ConfigFileName, ".txt", MAXBUF);
