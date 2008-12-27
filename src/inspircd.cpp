@@ -27,13 +27,6 @@
 		#define RUSAGE_SELF 0
 	#endif
 
-	/* CRT memory debugging */
-	#ifdef DEBUG
-	#define _CRTDBG_MAP_ALLOC
-	#include <stdlib.h>
-	#include <crtdbg.h>
-	#endif
-
 	#include <pwd.h> // setuid
 	#include <grp.h> // setgid
 #endif

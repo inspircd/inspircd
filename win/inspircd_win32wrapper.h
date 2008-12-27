@@ -28,6 +28,13 @@
 #define ENABLE_CRASHDUMPS 0
 
 /* This defaults to 64, way too small for an ircd! */
+/* CRT memory debugging */
+#ifdef DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif
+
 #define FD_SETSIZE 24000
 
 /* Make builds smaller, leaner and faster */
