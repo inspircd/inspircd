@@ -69,7 +69,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 		return 0;
 
 	/** Some lame ircds will weed out dupes using some shitty O(n^2) algorithm.
-	 * By using std::map (thanks for the idea w00t) we can cut this down a ton.
+	 * By using std::set (thanks for the idea w00t) we can cut this down a ton.
 	 * ...VOOODOOOO!
 	 */
 	std::set<irc::string> dupes;
