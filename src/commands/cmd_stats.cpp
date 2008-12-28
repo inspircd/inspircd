@@ -39,7 +39,8 @@ CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User
 	if (IS_LOCAL(user))
 	{
 		string_list values;
-		DoStats(this->ServerInstance, parameters[0][0], user, values);
+		char search = parameters[0].length() ? parameters[0][0] : 0;
+		DoStats(this->ServerInstance, search, user, values);
 		for (size_t i = 0; i < values.size(); i++)
 			user->Write(":%s", values[i].c_str());
 	}
