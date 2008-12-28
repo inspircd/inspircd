@@ -58,7 +58,7 @@ class BanItem : public HostItem
 
 /** Holds a complete ban list
  */
-typedef std::vector<BanItem> 	BanList;
+typedef std::list<BanItem> 	BanList;
 
 /** A list of users on a channel
  */

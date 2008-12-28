@@ -44,10 +44,10 @@ public:
 
 /** Items stored in the channel's list
  */
-typedef std::vector<ListItem> modelist;
+typedef std::list<ListItem> modelist;
 /** Max items per channel by name
  */
-typedef std::vector<ListLimit> limitlist;
+typedef std::list<ListLimit> limitlist;
 
 /** A request used to check if a user is on a channel's list or not
  */
