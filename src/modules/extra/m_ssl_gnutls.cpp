@@ -77,7 +77,7 @@ class CommandStartTLS : public Command
 		 */
 		if (user->registered != REG_NONE)
 		{
-			ServerInstance->Users->QuitUser(user, "STARTTLS not allowed after client registration");
+			ServerInstance->Users->QuitUser(user, "STARTTLS is not permitted after client registration has started");
 		}
 		else
 		{
