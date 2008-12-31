@@ -88,7 +88,7 @@ class CommandStartTLS : public Command
 				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
 			}
 			else
-				user->WriteNumeric(671, "%s :STARTTLS failure", user->nick.c_str());
+				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());
 		}
 
 		return CMD_FAILURE;
