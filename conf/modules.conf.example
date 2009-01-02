@@ -1084,7 +1084,10 @@
 #                                                                     #
 # If you are using the m_opermotd.so module, specify the motd here    #
 #                                                                     #
-#<opermotd file="oper.motd">
+# onoper      -      Should the message be sent on /OPER or only when #
+#                    /OPERMOTD is used. Use "yes" or "no".            #
+#                                                                     #
+#<opermotd file="oper.motd" onoper="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override

@@ -59,6 +59,7 @@ class CommandOpermotd : public Command
 class ModuleOpermotd : public Module
 {
 	CommandOpermotd* mycommand;
+	bool onoper;
  public:
 
 	void LoadOperMOTD()
@@ -72,6 +73,7 @@ class ModuleOpermotd : public Module
 			opermotd = NULL;
 		}
 		opermotd = new FileReader(ServerInstance, filename);
+		onoper = conf->ReadFlag("opermoth","onoper","yes",0);
 		delete conf;
 	}
 
@@ -99,7 +101,8 @@ class ModuleOpermotd : public Module
 
 	virtual void OnOper(User* user, const std::string &opertype)
 	{
-		ShowOperMOTD(user);
+		if (onoper)
+			ShowOperMOTD(user);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
