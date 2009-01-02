@@ -49,6 +49,8 @@ class ModuleSpanningTree : public Module
 	CommandRSQuit* command_rsquit;
 	SpanningTreeUtilities* Utils;
 
+	void RedoConfig(Module* mod, const std::string &name);
+
  public:
 	CacheRefreshTimer *RefreshTimer;
 
@@ -180,6 +182,8 @@ class ModuleSpanningTree : public Module
 	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline);
 	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual void OnEvent(Event* event);
+	virtual void OnLoadModule(Module* mod,const std::string &name);
+	virtual void OnUnloadModule(Module* mod,const std::string &name);
 	virtual ~ModuleSpanningTree();
 	virtual Version GetVersion();
 	void Prioritize();

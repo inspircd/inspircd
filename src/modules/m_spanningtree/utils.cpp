@@ -155,24 +155,6 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 
-	modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
-
-	/* Did we find any modules? */
-	if (ml)
-	{
-		/* Yes, enumerate them all to find out the hook name */
-		for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
-		{
-			/* Make a request to it for its name, its implementing
-			 * BufferedSocketHook so we know its safe to do this
-			 */
-			std::string name = BufferedSocketNameRequest((Module*)Creator, *m).Send();
-			/* Build a map of them */
-			hooks[name.c_str()] = *m;
-			hooknames.push_back(name);
-		}
-	}
-
 	this->ReadConfiguration(true);
 }
 
@@ -449,6 +431,30 @@ void SpanningTreeUtilities::RefreshIPCache()
 void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 {
 	ConfigReader* Conf = new ConfigReader(ServerInstance);
+
+	/* We don't need to worry about these being *unloaded* on the fly, only loaded,
+	 * because we 'use' the interface locking the module in memory.
+	 */
+	hooks.clear();
+	hooknames.clear();
+	modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
+
+	/* Did we find any modules? */
+	if (ml)
+	{
+		/* Yes, enumerate them all to find out the hook name */
+		for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
+		{
+			/* Make a request to it for its name, its implementing
+			 * BufferedSocketHook so we know its safe to do this
+			 */
+			std::string name = BufferedSocketNameRequest((Module*)Creator, *m).Send();
+			/* Build a map of them */
+			hooks[name.c_str()] = *m;
+			hooknames.push_back(name);
+		}
+	}
+
 	if (rebind)
 	{
 		for (unsigned int i = 0; i < Bindings.size(); i++)

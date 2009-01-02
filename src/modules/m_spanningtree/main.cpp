@@ -49,12 +49,12 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
-		I_OnUserJoin, I_OnChangeLocalUserHost, I_OnChangeName, I_OnUserPart,
+		I_OnUserJoin, I_OnChangeLocalUserHost, I_OnChangeName, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
-		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode,
+		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode, I_OnLoadModule,
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
 	};
-	ServerInstance->Modules->Attach(eventlist, this, 27);
+	ServerInstance->Modules->Attach(eventlist, this, 29);
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
@@ -712,6 +712,30 @@ void ModuleSpanningTree::OnRehash(User* user, const std::string &parameter)
 
 	// Re-read config stuff
 	Utils->ReadConfiguration(true);
+}
+
+void ModuleSpanningTree::OnLoadModule(Module* mod, const std::string &name)
+{
+	this->RedoConfig(mod, name);
+}
+
+void ModuleSpanningTree::OnUnloadModule(Module* mod, const std::string &name)
+{
+	this->RedoConfig(mod, name);
+}
+
+void ModuleSpanningTree::RedoConfig(Module* mod, const std::string &name)
+{
+	/* If m_sha256.so is loaded (we use this for HMAC) or any module implementing a BufferedSocket interface is loaded,
+	 * then we need to re-read our config again taking this into account.
+	 *
+	 * We determine if a module supports BufferedSocket simply by sending it the Request for its BufferedSocket name,
+	 * and if it responds non-NULL, it implements the interface.
+	 */
+	if (name == "m_sha256.so" || BufferedSocketNameRequest((Module*)this, mod).Send() != NULL)
+	{
+		Utils->ReadConfiguration(true);
+	}
 }
 
 // note: the protocol does not allow direct umode +o except
