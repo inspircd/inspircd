@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd: (C) 2002-2008 InspIRCd Development Team
+ *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
@@ -17,7 +17,7 @@
 /* $ModDesc: Allows an extended ban (+b) syntax redirecting banned users to another channel */
 /* $ModDep: ../../include/u_listmode.h */
 
-/* Originally written by Om, January 2008
+/* Originally written by Om, January 2009
  */
 
 class BanRedirectEntry : public classbase
