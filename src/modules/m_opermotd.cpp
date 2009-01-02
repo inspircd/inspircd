@@ -73,7 +73,7 @@ class ModuleOpermotd : public Module
 			opermotd = NULL;
 		}
 		opermotd = new FileReader(ServerInstance, filename);
-		onoper = conf->ReadFlag("opermoth","onoper","yes",0);
+		onoper = conf->ReadFlag("opermotd","onoper","yes",0);
 		delete conf;
 	}
 
