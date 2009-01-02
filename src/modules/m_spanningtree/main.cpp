@@ -728,11 +728,15 @@ void ModuleSpanningTree::RedoConfig(Module* mod, const std::string &name)
 {
 	/* If m_sha256.so is loaded (we use this for HMAC) or any module implementing a BufferedSocket interface is loaded,
 	 * then we need to re-read our config again taking this into account.
-	 *
-	 * We determine if a module supports BufferedSocket simply by sending it the Request for its BufferedSocket name,
-	 * and if it responds non-NULL, it implements the interface.
 	 */
-	if (name == "m_sha256.so" || BufferedSocketNameRequest((Module*)this, mod).Send() != NULL)
+	modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
+	bool IsBufferSocketModule = false;
+
+	/* Did we find any modules? */
+	if (ml && std::find(ml->begin(), ml->end(), mod) != ml->end())
+		IsBufferSocketModule = true;
+
+	if (name == "m_sha256.so" || IsBufferSocketModule)
 	{
 		Utils->ReadConfiguration(true);
 	}
