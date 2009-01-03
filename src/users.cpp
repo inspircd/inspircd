@@ -839,6 +839,7 @@ void User::UnOper()
 		 */
 		this->oper.clear();
 
+
 		/* Remove all oper only modes from the user when the deoper - Bug #466*/
 		std::string moderemove("-");
 
@@ -849,12 +850,13 @@ void User::UnOper()
 				moderemove += letter;
 		}
 
+
 		std::vector<std::string> parameters;
 		parameters.push_back(this->nick);
 		parameters.push_back(moderemove);
 
 		ServerInstance->Parser->CallHandler("MODE", parameters, this);
-			
+
 		/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
 		ServerInstance->Users->all_opers.remove(this);
 
@@ -872,6 +874,7 @@ void User::UnOper()
 
 		AllowedUserModes.reset();
 		AllowedChanModes.reset();
+		this->modes[UM_OPERATOR] = 0;
 	}
 }
 
