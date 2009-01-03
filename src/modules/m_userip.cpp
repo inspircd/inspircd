@@ -29,6 +29,7 @@ class CommandUserip : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		std::string retbuf = std::string("340 ") + user->nick + " :";
+		int nicks = 0;
 
 		for (int i = 0; i < (int)parameters.size(); i++)
 		{
@@ -41,10 +42,12 @@ class CommandUserip : public Command
 				else
 					retbuf += "+";
 				retbuf += u->ident + "@" + u->GetIPString() + " ";
+				nicks++;
 			}
 		}
 
-		user->WriteServ(retbuf);
+		if (nicks != 0)
+			user->WriteServ(retbuf);
 
 		/* Dont send to the network */
 		return CMD_LOCALONLY;
