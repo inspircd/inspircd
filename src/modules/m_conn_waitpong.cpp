@@ -87,6 +87,7 @@ class ModuleWaitPong : public Module
 				{
 					delete[] pingrpl;
 					user->Shrink(extenstr);
+					ServerInstance->next_call = ServerInstance->Time();
 					return 1;
 				}
 				else
