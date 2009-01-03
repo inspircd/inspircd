@@ -1076,6 +1076,7 @@ void userrec::FullConnect()
 		return;
 	}
 	
+	this->exempt = (ServerInstance->XLines->matches_exception(this) != NULL);
 	if (!this->exempt)
 	{
 		GLine* r = ServerInstance->XLines->matches_gline(this);
