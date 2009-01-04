@@ -48,8 +48,6 @@ class ModuleAuditorium : public Module
 	AuditoriumMode* aum;
 	bool ShowOps;
 	bool OperOverride;
-	CUList nl;
-	CUList except_list;
  public:
 	ModuleAuditorium(InspIRCd* Me)
 		: Module(Me)
@@ -122,7 +120,7 @@ class ModuleAuditorium : public Module
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
 			user->WriteFrom(user, "JOIN %s", channel->name.c_str());
 			if (ShowOps)
-				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "JOIN %s", channel->name.c_str());
+				channel->WriteAllExceptSender(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', "JOIN %s", channel->name.c_str());
 		}
 	}
 
@@ -137,7 +135,7 @@ class ModuleAuditorium : public Module
 					partmessage.empty() ? "" : partmessage.c_str());
 			if (ShowOps)
 			{
-				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :",
+				channel->WriteAllExceptSender(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :",
 						partmessage.empty() ? "" : partmessage.c_str());
 			}
 		}
@@ -151,8 +149,8 @@ class ModuleAuditorium : public Module
 			/* Send silenced event only to the user being kicked and the user doing the kick */
 			source->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			if (ShowOps)
-				chan->WriteAllExcept(source, false, chan->GetStatus(source) >= STATUS_OP ? 0 : '@', except_list, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-			else
+				chan->WriteAllExceptSender(source, false, chan->GetStatus(user) >= STATUS_OP ? 0 : '@', "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
+			if ((!ShowOps) || (chan->GetStatus(user) < STATUS_OP)) /* make sure the target gets the event */
 				user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 		}
 	}
