@@ -84,7 +84,7 @@ class ModuleHideOper : public Module
 		if (!dest->IsModeSet('H'))
 			return 0;
 
-		if (user->HasPrivPermission("users/auspex"))
+		if (!user->HasPrivPermission("users/auspex"))
 			return 1;
 
 		return 0;
