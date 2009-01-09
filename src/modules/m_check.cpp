@@ -87,12 +87,12 @@ class CommandCheck : public Command
 		else if (targchan)
 		{
 			/* /check on a channel */
-			time_t creation_time = targchan->created;
+			time_t creation_time = targchan->age;
 			time_t topic_time = targchan->topicset;
 
 			mytime = gmtime(&creation_time);
 			strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
-			user->WriteServ(checkstr + " created " + timebuf);
+			user->WriteServ(checkstr + " timestamp " + timebuf);
 
 			if (targchan->topic[0] != 0)
 			{
