@@ -226,7 +226,10 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		if (!IS_LOCAL(user))
 		{
 			if (!TS)
+			{
 				Instance->Log(DEBUG,"*** BUG *** chanrec::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick, cn);
+				Instance->WriteOpers("*** BUG: Recieved a JOIN from a remote user %s for channel %s with no TS, this will (almost) assuredly end in a desync", user->nick, cn);
+			}
 		}
 		else
 		{
