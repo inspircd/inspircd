@@ -91,12 +91,12 @@ class cmd_check : public command_t
 		else if (targchan)
 		{
 			/* /check on a channel */
-			time_t creation_time = targchan->created;
+			time_t creation_time = targchan->age;
 			time_t topic_time = targchan->topicset;
 
 			mytime = gmtime(&creation_time);
 			strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
-			user->WriteServ(checkstr + " created " + timebuf);
+			user->WriteServ(checkstr + " timestamp " + timebuf);
 
 			if (targchan->topic[0] != 0)
 			{
@@ -110,7 +110,7 @@ class cmd_check : public command_t
 
 			user->WriteServ(checkstr + " modes " + targchan->ChanModes(true));
 			user->WriteServ(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
-			
+
 			/* now the ugly bit, spool current members of a channel. :| */
 
 			CUList *ulist= targchan->GetUsers();
@@ -164,15 +164,15 @@ class ModuleCheck : public Module
  public:
 	ModuleCheck(InspIRCd* Me) : Module(Me)
 	{
-		
+
 		mycommand = new cmd_check(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
-	
+
 	virtual ~ModuleCheck()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
@@ -182,7 +182,7 @@ class ModuleCheck : public Module
 	{
 		/* we don't hook anything, nothing required */
 	}
-	
+
 };
 
 MODULE_INIT(ModuleCheck)
