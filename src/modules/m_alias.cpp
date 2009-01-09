@@ -139,7 +139,7 @@ class ModuleAlias : public Module
 
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
-		std::multimap<std::string, Alias>::iterator i;
+		std::multimap<std::string, Alias>::iterator i, upperbound;
 
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -151,6 +151,8 @@ class ModuleAlias : public Module
 		i = Aliases.find(command);
 		if (i == Aliases.end())
 			return 0;
+		/* Avoid iterating on to different aliases if no patterns match. */
+		upperbound = Aliases.upper_bound(command);
 
 		irc::string c = command.c_str();
 		/* The parameters for the command in their original form, with the command stripped off */
@@ -164,7 +166,7 @@ class ModuleAlias : public Module
 
 		SearchAndReplace(safe, "$", "\r");
 
-		while (i != Aliases.end())
+		while (i != upperbound)
 		{
 			if (i->second.UserCommand)
 			{
@@ -228,6 +230,9 @@ class ModuleAlias : public Module
 
 		if (i == Aliases.end())
 			return 0;
+		
+		/* Avoid iterating on to other aliases if no patterns match */
+		std::multimap<std::string, Alias>::iterator upperbound = Aliases.upper_bound(fcommand);
 
 
 		/* The parameters for the command in their original form, with the command stripped off */
@@ -242,7 +247,7 @@ class ModuleAlias : public Module
 
 		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: compare is %s and safe is %s", compare.c_str(), safe.c_str());
 
-		while (i != Aliases.end())
+		while (i != upperbound)
 		{
 			if (i->second.ChannelCommand)
 			{
@@ -266,12 +271,12 @@ class ModuleAlias : public Module
 		{
 			if (a->CaseSensitive)
 			{
-				if (InspIRCd::Match(compare, a->format, rfc_case_sensitive_map))
+				if (!InspIRCd::Match(compare, a->format, rfc_case_sensitive_map))
 					return 0;
 			}
 			else
 			{
-				if (InspIRCd::Match(compare, a->format))
+				if (!InspIRCd::Match(compare, a->format))
 					return 0;
 			}
 		}
