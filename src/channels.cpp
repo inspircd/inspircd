@@ -25,8 +25,7 @@ Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : Serv
 
 	(*(ServerInstance->chanlist))[cname.c_str()] = this;
 	this->name.assign(cname, 0, ServerInstance->Config->Limits.ChanMax);
-	this->created = ts ? ts : ServerInstance->Time();
-	this->age = this->created;
+	this->age = ts ? ts : ServerInstance->Time();
 
 	maxbans = topicset = 0;
 	modes.reset();
@@ -421,7 +420,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 }
 
 Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting)
-{	
+{
 	std::string nick = user->nick;
 	bool silent = false;
 
@@ -1198,4 +1197,3 @@ void Channel::RemoveAllPrefixes(User* user)
 		prefixes.erase(n);
 	}
 }
-

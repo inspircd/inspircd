@@ -98,7 +98,7 @@ typedef std::vector<prefixtype> pfxcontainer;
 typedef std::map<User*, std::vector<prefixtype> > prefixlist;
 
 /** Holds all relevent information for a channel.
- * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
+ * This class represents a channel, and contains its name, modes, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
 class CoreExport Channel : public Extensible
@@ -145,21 +145,21 @@ class CoreExport Channel : public Extensible
 	std::bitset<64> modes;
 
 	/** User lists.
-	 * There are four user lists, one for 
+	 * There are four user lists, one for
 	 * all the users, one for the ops, one for
 	 * the halfops and another for the voices.
 	 */
 	CUList internal_userlist;
 
 	/** Opped users.
-	 * There are four user lists, one for 
+	 * There are four user lists, one for
 	 * all the users, one for the ops, one for
 	 * the halfops and another for the voices.
 	 */
 	CUList internal_op_userlist;
 
 	/** Halfopped users.
-	 * There are four user lists, one for 
+	 * There are four user lists, one for
 	 * all the users, one for the ops, one for
 	 * the halfops and another for the voices.
 	 */
@@ -182,11 +182,6 @@ class CoreExport Channel : public Extensible
 	 */
 	std::string topic; /* MAXTOPIC */
 
-	/** Creation time.
-	 * This is a timestamp (TS) value.
-	 */
-	time_t created;
-
 	/** Time topic was set.
 	 * If no topic was ever set, this will be equal to Channel::created
 	 */
@@ -200,7 +195,7 @@ class CoreExport Channel : public Extensible
 	/** The list of all bans set on the channel.
 	 */
 	BanList bans;
-	
+
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
 	 * @param mode_on True if you want to set the mode or false if you want to remove it
@@ -213,7 +208,7 @@ class CoreExport Channel : public Extensible
 	 * @param mode_on True if you want to set the mode or false if you want to remove it
 	 */
 	void SetModeParam(char mode,const char* parameter,bool mode_on);
- 
+
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
