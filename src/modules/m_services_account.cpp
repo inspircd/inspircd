@@ -54,9 +54,9 @@ class User_r : public ModeHandler
  public:
 	User_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
 	{
-		if (IS_REMOTE(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
+		if (servermode || IS_REMOTE(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
 		{
 			if ((adding && !dest->IsModeSet('r')) || (!adding && dest->IsModeSet('r')))
 			{
