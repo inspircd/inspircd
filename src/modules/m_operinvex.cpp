@@ -18,17 +18,17 @@
 
 /* $ModDesc: Implements extban/invex +I O: - opertype bans */
 
-class ModuleGecosBan : public Module
+class ModuleOperInvex : public Module
 {
  private:
  public:
-	ModuleGecosBan(InspIRCd* Me) : Module(Me)
+	ModuleOperInvex(InspIRCd* Me) : Module(Me)
 	{
 		Implementation eventlist[] = { I_OnUserPreJoin, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleGecosBan()
+	virtual ~ModuleOperInvex()
 	{
 	}
 
@@ -79,5 +79,5 @@ class ModuleGecosBan : public Module
 };
 
 
-MODULE_INIT(ModuleGecosBan)
+MODULE_INIT(ModuleOperInvex)
 
