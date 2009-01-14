@@ -99,7 +99,7 @@ bool PollEngine::DelFd(EventHandler* eh, bool force)
 
 int PollEngine::GetMaxFds()
 {
-#ifdef LINUX
+#ifndef __FreeBSD__
 	if (MAX_DESCRIPTORS)
 		return MAX_DESCRIPTORS;
 
@@ -117,8 +117,7 @@ int PollEngine::GetMaxFds()
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	return 0;
-#endif
-#ifdef FREEBSD
+#else
 	if (!MAX_DESCRIPTORS)
 	{
 		int mib[2], maxfiles;
