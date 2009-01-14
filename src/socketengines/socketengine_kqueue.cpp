@@ -116,7 +116,6 @@ void KQueueEngine::WantWrite(EventHandler* eh)
 	 * the original setting rather than adding it twice. See man kqueue.
 	 */
 	struct kevent ke;
-	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 }
@@ -166,7 +165,7 @@ int KQueueEngine::DispatchEvents()
 				ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
 			continue;
 		}
-		if (ke_list[j].flags & EVFILT_WRITE)
+		else if (ke_list[j].flags & EVFILT_WRITE)
 		{
 			/* This looks wrong but its right. As above, theres no modify
 			 * call in kqueue. See the manpage.
@@ -181,8 +180,7 @@ int KQueueEngine::DispatchEvents()
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}
-
-		if (ke_list[j].flags & EVFILT_READ)
+		else
 		{
 			ReadEvents++;
 			if (ref[ke_list[j].ident])
