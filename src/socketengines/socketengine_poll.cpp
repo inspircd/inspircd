@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -99,6 +99,7 @@ bool PollEngine::DelFd(EventHandler* eh, bool force)
 
 int PollEngine::GetMaxFds()
 {
+#ifdef LINUX
 	if (MAX_DESCRIPTORS)
 		return MAX_DESCRIPTORS;
 
@@ -110,11 +111,28 @@ int PollEngine::GetMaxFds()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		MAX_DESCRIPTORS = 0;
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
+		printf("ERROR: Can't determine maximum number of open sockets: %s\n", strerror(errno)));
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	return 0;
+#endif
+#ifdef FREEBSD
+	if (!MAX_DESCRIPTORS)
+	{
+		int mib[2], maxfiles;
+		size_t len;
+
+		mib[0] = CTL_KERN;
+		mib[1] = KERN_MAXFILES;
+		len = sizeof(maxfiles);
+		sysctl(mib, 2, &maxfiles, &len, NULL, 0);
+		MAX_DESCRIPTORS = maxfiles;
+		return maxfiles;
+	}
+	return MAX_DESCRIPTORS;
+#endif
 }
 
 int PollEngine::GetRemainingFds()
