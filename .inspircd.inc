@@ -248,7 +248,7 @@ sub cmd_stop()
 	kill TERM => $pid or die "Cannot terminate IRCd: $!\n";
 	for (1..$maxwait) {
 		sleep 1;
-		if (getstatus() == 1) {
+		if (getstatus() == 0) {
 			print "InspIRCd Stopped.\n";
 			return;
 		}
