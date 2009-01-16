@@ -674,27 +674,27 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
 	dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
-	$chose_hiperf = 1;
+	$chose_hiperf = 0;
 
 	if ($has_kqueue) {
 		yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
 		print "\n";
-		if ($config{USE_KQUEUE} ne "y") {
-			$chose_hiperf = 0;
+		if ($config{USE_KQUEUE} eq "y") {
+			$chose_hiperf = 1;
 		}
 	}
 	if ($has_epoll) {
 		yesno(USE_EPOLL,"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
 		print "\n";
-		if ($config{USE_EPOLL} ne "y") {
-			$chose_hiperf = 0;
+		if ($config{USE_EPOLL} eq "y") {
+			$chose_hiperf = 1;
 		}
 	}
 	if ($has_ports) {
 		yesno(USE_PORTS,"You are running Solaris 10.\nWould you like to enable I/O completion ports support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable support for I/O completion ports?");
 		print "\n";
-		if ($config{USE_PORTS} ne "y") {
-			$chose_hiperf = 0;
+		if ($config{USE_PORTS} eq "y") {
+			$chose_hiperf = 1;
 		}
 	}
 
