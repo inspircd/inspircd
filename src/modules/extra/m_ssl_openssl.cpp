@@ -775,7 +775,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
 		// protocol module has propagated the NICK message.
-		if ((user->GetExt("ssl", dummy)) && (IS_LOCAL(user)))
+		if ((user->GetIOHook() == this) && (IS_LOCAL(user)))
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
 			ServerInstance->PI->SendMetaData(user, TYPE_USER, "SSL", "on");
@@ -798,7 +798,7 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnBufferFlushed(User* user)
 	{
-		if (user->GetExt("ssl"))
+		if (user->GetIOHook() == this)
 		{
 			issl_session* session = &sessions[user->GetFd()];
 			if (session && session->outbuf.size())
