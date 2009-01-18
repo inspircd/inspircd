@@ -243,7 +243,8 @@ class ModuleShun : public Module
 
 		if (i == ShunEnabledCommands.end())
 		{
-			user->WriteServ("NOTICE %s :*** Command %s not processed, as you have been blocked from issuing commands (SHUN)", user->nick.c_str(), command.c_str());
+			if (NotifyOfShun)
+				user->WriteServ("NOTICE %s :*** Command %s not processed, as you have been blocked from issuing commands (SHUN)", user->nick.c_str(), command.c_str());
 			return 1;
 		}
 
