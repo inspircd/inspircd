@@ -106,7 +106,7 @@ class CommandShun : public Command
 			else
 			{
 				// XXX todo implement stats
-				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats s.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats S.",user->nick.c_str(),parameters[0].c_str());
 			}
 
 			return CMD_SUCCESS;
