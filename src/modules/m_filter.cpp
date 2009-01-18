@@ -143,12 +143,13 @@ class CommandFilter : public Command
 			/* Deleting a filter */
 			if (Base->DeleteFilter(parameters[0]))
 			{
-				user->WriteServ("NOTICE %s :*** Deleted filter '%s'", user->nick.c_str(), parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
 				return CMD_SUCCESS;
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Filter '%s' not found on list.", user->nick.c_str(), parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** Filter '%s' not found in list, try /stats s.", user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -179,7 +180,7 @@ class CommandFilter : public Command
 					}
 					else
 					{
-						this->TooFewParams(user, " When setting a gline type filter, a gline duration must be specified as the third parameter.");
+						this->TooFewParams(user, ": When setting a gline type filter, a gline duration must be specified as the third parameter.");
 						return CMD_FAILURE;
 					}
 				}
@@ -191,8 +192,11 @@ class CommandFilter : public Command
 				if (result.first)
 				{
 					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
-							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[3].c_str() : ""),
+							type.c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
 							flags.c_str(), reason.c_str());
+
+					ServerInstance->SNO->WriteToSnoMask('A', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
+
 					return CMD_SUCCESS;
 				}
 				else
