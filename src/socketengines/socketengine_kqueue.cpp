@@ -126,7 +126,7 @@ int KQueueEngine::GetMaxFds()
 	if (!MAX_DESCRIPTORS)
 	{
 		int mib[2], maxfiles;
-	   	size_t len;
+		size_t len;
 
 		mib[0] = CTL_KERN;
 		mib[1] = KERN_MAXFILES;
@@ -166,7 +166,7 @@ int KQueueEngine::DispatchEvents()
 				ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
 			continue;
 		}
-		if (ke_list[j].flags & EVFILT_WRITE)
+		if (ke_list[j].filter == EVFILT_WRITE)
 		{
 			/* This looks wrong but its right. As above, theres no modify
 			 * call in kqueue. See the manpage.
@@ -181,8 +181,7 @@ int KQueueEngine::DispatchEvents()
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}
-
-		if (ke_list[j].flags & EVFILT_READ)
+		if (ke_list[j].flags == EVFILT_READ)
 		{
 			ReadEvents++;
 			if (ref[ke_list[j].ident])
