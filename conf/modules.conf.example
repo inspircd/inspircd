@@ -71,6 +71,14 @@
 # Alias module: Allows you to define server-side command aliases
 #<module name="m_alias.so">
 #
+# Fantasy settings:
+#
+#<fantasy prefix="!">
+#
+# prefix:
+#  Set the prefix for in-channel aliases (fantasy commands) to the
+#  specified character. If not set, the default is "!".
+#
 #-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # If you have the m_alias.so module loaded, you may also define       #
@@ -85,6 +93,14 @@
 #                    found will be executed if its format value is    #
 #                    matched, or it has no format value. Aliases are  #
 #                    read from the top of the file to the bottom.     #
+#                                                                     #
+# usercommand -      If this is true, the alias can be run simply as  #
+#                    /aliasname. Defaults to true.                    #
+#                                                                     #
+# channelcommand -   If this is true, the alias can be used as an     #
+#                    in-channel alias or 'fantasy command', prefixed  #
+#                    by the fantasy prefix character, !aliasname by   #
+#                    default. Defaults to false.                      #
 #                                                                     #
 # format      -      If this is defined, the parameters of the alias  #
 #                    must match this glob pattern. For example if you #
@@ -152,6 +168,18 @@
 #
 #<alias text="NICKSERV" format=":IDENTIFY *" replace="PRIVMSG NickServ :IDENTIFY $3-"
 #  requires="NickServ" uline="yes">
+#
+# You may also add aliases to trigger based on something said in a
+# channel, aka 'fantasy' commands, configured in the same manner as any
+# other alias, with usercommand="no" and channelcommand="yes" The
+# command must be preceded by the fantasy prefix when used.
+#
+#<alias text="CS" usercommand="no" channelcommand="yes"
+#  replace="PRIVMSG ChanServ $1 $chan $2-" requires="ChanServ" uline="yes">
+#
+# This would be used as "!cs <command> <options>", with the channel
+# being automatically inserted after the command in the message to
+# ChanServ, assuming the fantasy prefix is "!".
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Allowinvite module: Gives channel mode +A to allow all users to use

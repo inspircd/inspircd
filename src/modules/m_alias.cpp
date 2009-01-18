@@ -51,6 +51,9 @@ class Alias : public classbase
 class ModuleAlias : public Module
 {
  private:
+
+	char fprefix;
+
 	/* We cant use a map, there may be multiple aliases with the same name.
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
@@ -60,6 +63,9 @@ class ModuleAlias : public Module
 	virtual void ReadAliases()
 	{
 		ConfigReader MyConf(ServerInstance);
+		
+		std::string fpre = MyConf.ReadValue("fantasy","prefix",0);
+		fprefix = fpre.empty() ? '!' : fpre[0];
 
 		Aliases.clear();
 		for (int i = 0; i < MyConf.Enumerate("alias"); i++)
@@ -214,13 +220,13 @@ class ModuleAlias : public Module
 		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: looking at fcommand %s", fcommand.c_str());
 
 		// we don't want to touch non-fantasy stuff
-		if (*fcommand.c_str() != '!')
+		if (*fcommand.c_str() != fprefix)
 		{
 			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not a fcommand");
 			return 0;
 		}
 
-		// nor do we give a shit about the !
+		// nor do we give a shit about the prefix
 		fcommand.erase(fcommand.begin());
 		std::transform(fcommand.begin(), fcommand.end(), fcommand.begin(), ::toupper);
 		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: now got %s", fcommand.c_str());
