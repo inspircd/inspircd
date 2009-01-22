@@ -35,6 +35,7 @@ class ModuleSQLAuth : public Module
 	std::string databaseid;
 	
 	bool verbose;
+	bool useusername;
 	
 public:
 	ModuleSQLAuth(InspIRCd* Me)
@@ -70,15 +71,16 @@ public:
 		ConfigReader Conf(ServerInstance);
 		
 		usertable	= Conf.ReadValue("sqlauth", "usertable", 0);	/* User table name */
-		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);			/* Database ID, given to the SQL service provider */
+		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);		/* Database ID, given to the SQL service provider */
 		userfield	= Conf.ReadValue("sqlauth", "userfield", 0);	/* Field name where username can be found */
 		passfield	= Conf.ReadValue("sqlauth", "passfield", 0);	/* Field name where password can be found */
 		killreason	= Conf.ReadValue("sqlauth", "killreason", 0);	/* Reason to give when access is denied to a user (put your reg details here) */
 		allowpattern= Conf.ReadValue("sqlauth", "allowpattern",0 );	/* Allow nicks matching this pattern without requiring auth */
 		encryption	= Conf.ReadValue("sqlauth", "encryption", 0);	/* Name of sql function used to encrypt password, e.g. "md5" or "passwd".
-																	 * define, but leave blank if no encryption is to be used.
-																	 */
-		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
+										 * define, but leave blank if no encryption is to be used.
+										 */
+		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);	/* Set to true if failed connects should be reported to operators */
+		useusername	= Conf.ReadFlag("sqlauth", "userfield", 0);
 		
 		if (encryption.find("(") == std::string::npos)
 		{
@@ -104,7 +106,7 @@ public:
 
 	bool CheckCredentials(userrec* user)
 	{
-		SQLrequest req = SQLreq(this, SQLprovider, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, user->nick, passfield, encryption, user->password);
+		SQLrequest req = SQLreq(this, SQLprovider, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, useusername ? user->nick : user->ident, passfield, encryption, user->password);
 			
 		if(req.Send())
 		{
