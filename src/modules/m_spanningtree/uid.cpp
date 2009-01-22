@@ -62,11 +62,6 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		this->SendError("Invalid client introduction (Malformed MODE sequence?)");
 		return false;
 	}
-	else if (!ServerInstance->IsNick(parameters[0].c_str(), ServerInstance->Config->Limits.NickMax))
-	{
-		this->SendError("Invalid client introduction (Nickname was not valid according to me)");
-		return false;
-	}
 
 	/* check for collision */
 	user_hash::iterator iter = this->ServerInstance->Users->clientlist->find(params[2]);
