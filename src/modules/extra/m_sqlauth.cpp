@@ -110,6 +110,10 @@ public:
 		SearchAndReplace(thisquery, "$pass", safepass);
 		SearchAndReplace(thisquery, "$host", user->host);
 		SearchAndReplace(thisquery, "$ip", user->GetIPString());
+		SearchAndReplace(thisquery, "$gecos", user->fullname);
+		SearchAndReplace(thisquery, "$ident", user->ident);
+		SearchAndReplace(thisquery, "$server", user->server);
+		SearchAndReplace(thisquery, "$uuid", user->uuid);
 
 		Module* HashMod = ServerInstance->Modules->Find("m_md5.so");
 
