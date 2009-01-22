@@ -69,14 +69,14 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 * able to do silly things like this even though the RFC says
 		 * the nick AAA is the same as the nick aaa.
 		 */
-		oldnick.assign(user->nick, 0, ServerInstance->Config->Limits.NickMax);
+		oldnick.assign(user->nick, 0, IS_LOCAL(user) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
 		if (user->registered == REG_ALL)
 			user->WriteCommon("NICK %s",parameters[0].c_str());
-		user->nick.assign(parameters[0], 0, ServerInstance->Config->Limits.NickMax);
+		user->nick.assign(parameters[0], 0, IS_LOCAL(user) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
 		user->InvalidateCache();
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return CMD_SUCCESS;
@@ -136,7 +136,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 				InUse->WriteTo(InUse, "NICK %s", InUse->uuid.c_str());
 				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick.c_str(), InUse->nick.c_str());
 				InUse->UpdateNickHash(InUse->uuid.c_str());
-				InUse->nick.assign(InUse->uuid, 0, ServerInstance->Config->Limits.NickMax);
+				InUse->nick.assign(InUse->uuid, 0, IS_LOCAL(InUse) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
 				InUse->InvalidateCache();
 				InUse->registered &= ~REG_NICK;
 			}
@@ -159,7 +159,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (user->registered == REG_ALL)
 		user->WriteCommon("NICK %s", parameters[0].c_str());
 
-	oldnick.assign(user->nick, 0, ServerInstance->Config->Limits.NickMax);
+	oldnick.assign(user->nick, 0, IS_LOCAL(user) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
 
 	/* change the nick of the user in the users_hash */
 	user = user->UpdateNickHash(parameters[0].c_str());
@@ -168,7 +168,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (!user)
 		return CMD_FAILURE;
 
-	user->nick.assign(parameters[0], 0, ServerInstance->Config->Limits.NickMax);
+	user->nick.assign(parameters[0], 0, IS_LOCAL(user) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
 	user->InvalidateCache();
 
 	/* Update display nicks */
