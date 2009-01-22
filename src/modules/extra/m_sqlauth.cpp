@@ -80,7 +80,7 @@ public:
 										 * define, but leave blank if no encryption is to be used.
 										 */
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);	/* Set to true if failed connects should be reported to operators */
-		useusername	= Conf.ReadFlag("sqlauth", "userfield", 0);
+		useusername	= Conf.ReadFlag("sqlauth", "useident", 0);
 		
 		if (encryption.find("(") == std::string::npos)
 		{
