@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "m_override.h"
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
@@ -34,9 +35,13 @@ class ModuleOverride : public Module
 		OnRehash(NULL,"");
 		ServerInstance->SNO->EnableSnomask('G', "GODMODE");
 		OverriddenMode = false;
+                if (!ServerInstance->Modules->PublishFeature("Override", this))
+                {
+                        throw ModuleException("m_override: Unable to publish feature 'Override'");
+                }
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
-		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnLocalTopicChange };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnLocalTopicChange, I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)
@@ -313,8 +318,19 @@ class ModuleOverride : public Module
 		return 0;
 	}
 
+        virtual const char* OnRequest(Request* request)
+        {
+        	if(strcmp(OVRREQID, request->GetId()) == 0)
+		{
+			OVRrequest* req = static_cast<OVRrequest*>(request);
+			return this->CanOverride(req->requser,req->reqtoken.c_str()) ? "yes":"";
+		}
+		return NULL;
+	}
+
 	virtual ~ModuleOverride()
 	{
+                ServerInstance->Modules->UnpublishFeature("Override");
 		ServerInstance->SNO->DisableSnomask('G');
 	}
 

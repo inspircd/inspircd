@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "m_override.h"
 
 /* $ModDesc: Provides channel modes +a and +q */
 
@@ -193,13 +194,23 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
+		
+		char isoverride=0;
+		Module *Override = ServerInstance->Modules->FindFeature("Override");
+		if (Override)
+		{
+			OVRrequest ovr(NULL,Override,source,"OTHERMODE");
+			const char * tmp = ovr.Send();
+			isoverride = tmp[0];
+		}
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if (source == ServerInstance->FakeClient ||
 				((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
 				(ServerInstance->ULine(source->nick.c_str())) ||
 				(ServerInstance->ULine(source->server)) ||
 				(!*source->server) ||
-				(!IS_LOCAL(source)))
+				(!IS_LOCAL(source)) ||
+				isoverride)
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
@@ -259,6 +270,15 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
+
+		char isoverride=0;
+		Module *Override = ServerInstance->Modules->FindFeature("Override");
+		if (Override)
+		{
+			OVRrequest ovr(NULL,Override,source,"OTHERMODE");
+			const char * tmp = ovr.Send();
+			isoverride = tmp[0];
+		}
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
 		if (source == ServerInstance->FakeClient ||
 			((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
@@ -266,7 +286,9 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 			(ServerInstance->ULine(source->server)) ||
 			(!*source->server) ||
 			(source->GetExt(founder)) ||
-			(!IS_LOCAL(source)))
+			(!IS_LOCAL(source)) ||
+			isoverride
+			)
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
