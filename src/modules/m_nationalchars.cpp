@@ -117,7 +117,7 @@ bool lwbNickHandler::Call(const char* n, size_t max)
 		}
 
 		/* 3.1. Check against a simple UTF-8 characters enumeration */
-		char cursize,ncursize;	 /*size of a current character*/
+		int cursize,ncursize;	 /*size of a current character*/
 		ncursize=utf8size((unsigned char *)i);
 		/* do check only if current multibyte character is valid UTF-8 only */
 		if (ncursize!=-1)
