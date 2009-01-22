@@ -296,6 +296,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 
 	strlcpy(cname, cn, Instance->Config->Limits.ChanMax);
 	Ptr = Instance->FindChan(cname);
+	bool created_by_local = false;
 
 	if (!Ptr)
 	{
@@ -310,6 +311,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		else
 		{
 			privs = "@";
+			created_by_local = true;
 		}
 
 		if (IS_LOCAL(user) && override == false)
@@ -412,9 +414,11 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		}
 	}
 
-	/* As spotted by jilles, dont bother to set this on remote users */
-	if (IS_LOCAL(user) && Ptr->GetUserCounter() == 0)
+	if (created_by_local)
+	{
+		/* As spotted by jilles, dont bother to set this on remote users */
 		Ptr->SetDefaultModes();
+	}
 
 	return Channel::ForceChan(Instance, Ptr, user, privs, bursting);
 }
