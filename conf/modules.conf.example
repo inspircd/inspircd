@@ -1015,6 +1015,17 @@
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# National characters module:
+# 1) Allows using national characters in nicknames.
+# 2) Allows using custom (national) casemapping over the network.
+# file -- filename of existing file in "locales" directory
+# casemapping -- custom value for 005 numeric (if you want it to be
+# different from the filename.
+#
+#<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
+#<module name="m_nationalchars.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nickchange flood protection module: Allows up to X nick changes in Y seconds.
 # Provides channel mode +F.
 #<module name="m_nickflood.so">
