@@ -24,8 +24,8 @@ class ModuleOperInvex : public Module
  public:
 	ModuleOperInvex(InspIRCd* Me) : Module(Me)
 	{
-		Implementation eventlist[] = { I_OnUserPreJoin, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_On005Numeric, I_OnCheckInvite };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleOperInvex()
