@@ -543,18 +543,15 @@ bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 
 	if (AllowedPrivs->find(privstr) != AllowedPrivs->end())
 	{
-		ServerInstance->Logs->Log("PRIVS", DEBUG, "I do have it.");		
 		return true;
 	}
 	else if (AllowedPrivs->find("*") != AllowedPrivs->end())
 	{
-		ServerInstance->Logs->Log("PRIVS", DEBUG, "I allow all.");
 		return true;
 	}
 
 	if (noisy)
 		this->WriteServ("NOTICE %s :Oper type %s does not have access to priv %s", this->nick.c_str(), this->oper.c_str(), privstr.c_str());
-	ServerInstance->Logs->Log("PRIVS", DEBUG, "I don't have it...");
 	return false;
 }
 
