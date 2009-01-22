@@ -15,6 +15,9 @@
 #include "exitcodes.h"
 #include "socketengines/socketengine_poll.h"
 #include <ulimit.h>
+#ifdef __FreeBSD__
+	#include <sys/sysctl.h>
+#endif
 
 PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
