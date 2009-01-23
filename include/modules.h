@@ -388,7 +388,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFOR
 enum Implementation
 {
 	I_BEGIN,
-	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnServerRaw, I_OnSendSnotice,
+	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnSendSnotice,
 	I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
 	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
 	I_OnGetServerDescription, I_OnSyncUser, I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData,
@@ -517,19 +517,6 @@ class CoreExport Module : public Extensible
 	 * @param parameter The (optional) parameter given to REHASH from the user.
 	 */
  	virtual void OnRehash(User* user, const std::string &parameter);
-
-	/** Called when a raw command is transmitted or received.
-	 * This method is the lowest level of handler available to a module. It will be called with raw
-	 * data which is passing through a connected socket. If you wish, you may munge this data by changing
-	 * the string parameter "raw". If you do this, after your function exits it will immediately be
-	 * cut down to 510 characters plus a carriage return and linefeed. For INBOUND messages only (where
-	 * inbound is set to true) the value of user will be the User of the connection sending the
-	 * data. This is not possible for outbound data because the data may be being routed to multiple targets.
-	 * @param raw The raw string in RFC1459 format
-	 * @param inbound A flag to indicate wether the data is coming into the daemon or going out to the user
-	 * @param user The user record sending the text, when inbound == true.
-	 */
- 	virtual void OnServerRaw(std::string &raw, bool inbound, User* user);
 
 	/** Called whenever a snotice is about to be sent to a snomask.
 	 * snomask and type may both be modified; the message may not.
