@@ -221,16 +221,12 @@ class ModuleNationalChars : public Module
 		if (!forcequit)
 			return;
 
-		std::vector<User*> purge;
 		for (std::vector<User*>::iterator iter = ServerInstance->Users->local_users.begin(); iter != ServerInstance->Users->local_users.end(); ++iter)
 		{
 			/* Fix by Brain: Dont quit UID users */
-			if (!isdigit((*iter)->nick[0]) && !ServerInstance->IsNick((*iter)->nick.c_str(), ServerInstance->Config->Limits.NickMax))
-				purge.push_back(*iter);
-		}
-		for (std::vector<User*>::iterator iter = purge.begin();iter!=purge.end();++iter)
-		{
-			ServerInstance->Users->QuitUser((*iter), message);
+			User* n = *iter;
+			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick.c_str(), ServerInstance->Config->Limits.NickMax))
+				ServerInstance->Users->QuitUser(n, message);
 		}
 	}
 
