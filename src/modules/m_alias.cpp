@@ -155,17 +155,11 @@ class ModuleAlias : public Module
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		std::string safe(original_line);
-
-		/* Escape out any $ symbols in the user provided text */
-
-		SearchAndReplace(safe, "$", "\r");
-
 		while (i != upperbound)
 		{
 			if (i->second.UserCommand)
 			{
-				if (DoAlias(user, NULL, &(i->second), compare, safe))
+				if (DoAlias(user, NULL, &(i->second), compare, original_line))
 				{
 					return 1;
 				}
@@ -236,9 +230,6 @@ class ModuleAlias : public Module
 			compare.erase(compare.begin());
 
 		std::string safe(compare);
-
-		/* Escape out any $ symbols in the user provided text (ugly, but better than crashy) */
-		SearchAndReplace(safe, "$", "\r");
 
 		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: compare is %s and safe is %s", compare.c_str(), safe.c_str());
 
@@ -350,19 +341,16 @@ class ModuleAlias : public Module
 		}
 
 		/* Special variables */
-		SearchAndReplace(newline, "$nick", user->nick);
-		SearchAndReplace(newline, "$ident", user->ident);
-		SearchAndReplace(newline, "$host", user->host);
-		SearchAndReplace(newline, "$vhost", user->dhost);
+		SearchAndReplace(newline, std::string("$nick"), user->nick);
+		SearchAndReplace(newline, std::string("$ident"), user->ident);
+		SearchAndReplace(newline, std::string("$host"), user->host);
+		SearchAndReplace(newline, std::string("$vhost"), user->dhost);
 
 		if (c)
 		{
 			/* Channel specific variables */
-			SearchAndReplace(newline, "$chan", c->name);			
+			SearchAndReplace(newline, std::string("$chan"), c->name);			
 		}
-
-		/* Unescape any variable names in the user text before sending */
-		SearchAndReplace(newline, "\r", "$");
 
 		irc::tokenstream ss(newline);
 		pars.clear();

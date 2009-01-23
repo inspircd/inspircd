@@ -89,26 +89,28 @@ public:
 	{
 		std::string thisquery = freeformquery;
 		std::string safepass = user->password;
+		std::string safegecos = user->fullname;
 
 		/* Search and replace the escaped nick and escaped pass into the query */
 
-		SearchAndReplace(safepass, "\"", "");
+		SearchAndReplace(safepass, std::string("\""), std::string("\\\""));
+		SearchAndReplace(safegecos, std::string("\""), std::string("\\\""));
 
-		SearchAndReplace(thisquery, "$nick", user->nick);
-		SearchAndReplace(thisquery, "$pass", safepass);
-		SearchAndReplace(thisquery, "$host", user->host);
-		SearchAndReplace(thisquery, "$ip", user->GetIPString());
-		SearchAndReplace(thisquery, "$gecos", user->fullname);
-		SearchAndReplace(thisquery, "$ident", user->ident);
-		SearchAndReplace(thisquery, "$server", user->server);
-		SearchAndReplace(thisquery, "$uuid", user->uuid);
+		SearchAndReplace(thisquery, std::string("$nick"), user->nick);
+		SearchAndReplace(thisquery, std::string("$pass"), safepass);
+		SearchAndReplace(thisquery, std::string("$host"), user->host);
+		SearchAndReplace(thisquery, std::string("$ip"), std::string(user->GetIPString()));
+		SearchAndReplace(thisquery, std::string("$gecos"), safegecos);
+		SearchAndReplace(thisquery, std::string("$ident"), user->ident);
+		SearchAndReplace(thisquery, std::string("$server"), std::string(user->server));
+		SearchAndReplace(thisquery, std::string("$uuid"), user->uuid);
 
 		Module* HashMod = ServerInstance->Modules->Find("m_md5.so");
 
 		if (HashMod)
 		{
 			HashResetRequest(this, HashMod).Send();
-			SearchAndReplace(thisquery, "$md5pass", HashSumRequest(this, HashMod, user->password).Send());
+			SearchAndReplace(thisquery, std::string("$md5pass"), std::string(HashSumRequest(this, HashMod, user->password).Send()));
 		}
 
 		HashMod = ServerInstance->Modules->Find("m_sha256.so");
@@ -116,7 +118,7 @@ public:
 		if (HashMod)
 		{
 			HashResetRequest(this, HashMod).Send();
-			SearchAndReplace(thisquery, "$sha256pass", HashSumRequest(this, HashMod, user->password).Send());
+			SearchAndReplace(thisquery, std::string("$sha256pass"), std::string(HashSumRequest(this, HashMod, user->password).Send()));
 		}
 
 		/* Build the query */

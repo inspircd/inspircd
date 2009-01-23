@@ -501,7 +501,7 @@ long irc::portparser::GetToken()
 	}
 }
 
-const std::string& SearchAndReplace(std::string& text, const std::string& pattern, const std::string& replace)
+/*const std::basic_string& SearchAndReplace(std::string& text, const std::string& pattern, const std::string& replace)
 {
 	std::string replacement;
 	if ((!pattern.empty()) && (!text.empty()))
@@ -510,7 +510,6 @@ const std::string& SearchAndReplace(std::string& text, const std::string& patter
 		{
 			if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
 			{
-				/* Found the pattern in the text, replace it, and advance */
 				replacement.append(replace);
 				n = n + pattern.length() - 1;
 			}
@@ -522,5 +521,5 @@ const std::string& SearchAndReplace(std::string& text, const std::string& patter
 	}
 	text = replacement;
 	return text;
-}
+}*/
 

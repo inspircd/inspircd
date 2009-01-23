@@ -71,49 +71,6 @@ class ModuleCensor : public Module
 		delete cc;
 	}
 
-	virtual void OnRunTestSuite()
-	{
-		std::cout << "Test suite for m_censor:" << std::endl;
-
-		irc::string text = "original text";
-		irc::string pattern = "text";
-		irc::string replace = "new";
-		std::cout << (ReplaceLine(text, pattern, replace) == "original new" ? "\nSUCCESS!\n" : "\nFAILURE '" + text + "' \n");
-		text = "original text here";
-		pattern = "text";
-		replace = "texts";
-		std::cout << (ReplaceLine(text, pattern, replace) == "original texts here" ? "\nSUCCESS!\n" : "\nFAILURE: '" + text + "' \n");
-		text = "original text";
-		pattern = "original";
-		replace = "new";
-		std::cout << (ReplaceLine(text, pattern, replace) == "new text" ? "\nSUCCESS!\n" : "\nFAILURE '" + text + "' \n");
-		std::cout << "end of test suite for m_censor" << std::endl;
-	}
-
-	/* This version of ReplaceLine won't loop forever if the replacement string contains the source pattern */
-	virtual const irc::string& ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
-	{
-		irc::string replacement;
-		if ((!pattern.empty()) && (!text.empty()))
-		{
-			for (std::string::size_type n = 0; n != text.length(); ++n)
-			{
-				if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
-				{
-					/* Found the pattern in the text, replace it, and advance */
-					replacement.append(replace);
-					n = n + pattern.length() - 1;
-				}
-				else
-				{
-					replacement += text[n];
-				}
-			}
-		}
-		text = replacement;
-		return text;
-	}
-
 	// format of a config entry is <badword text="shit" replace="poo">
 	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
@@ -148,7 +105,7 @@ class ModuleCensor : public Module
 					return 1;
 				}
 
-				this->ReplaceLine(text2,index->first,index->second);
+				SearchAndReplace(text2, index->first, index->second);
 			}
 		}
 		text = text2.c_str();
