@@ -512,33 +512,44 @@ class ListModeBase : public ModeHandler
 		{
 			modelist* mlist;
 			LM->chan->GetExt(GetInfoKey(), mlist);
+
 			if (mlist)
 			{
 				if (LM->user)
+				{
 					LM->literal = LM->user->nick + "!" + LM->user->ident + "@" + LM->user->GetIPString();
+				}
 				
 				for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
 				{
 					if (LM->extban && it->mask.length() > 1 && it->mask[0] == LM->extban && it->mask[1] == ':')
 					{
-						static std::string ext = it->mask.substr(2);
+						std::string ext = it->mask.substr(2);
 						if (LM->user)
 						{
 							if (InspIRCd::Match(LM->user->GetFullRealHost(), ext) || InspIRCd::Match(LM->user->GetFullHost(), ext) || (InspIRCd::MatchCIDR(LM->literal, ext)))
+							{
 								return it->mask.c_str();
+							}
 						}
 						else if (InspIRCd::Match(LM->literal, ext))
+						{
 							return it->mask.c_str();
+						}
 					}
 					else
 					{
 						if (LM->user)
 						{
 							if (InspIRCd::Match(LM->user->GetFullRealHost(), it->mask) || InspIRCd::Match(LM->user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(LM->literal, it->mask)))
+							{
 								return it->mask.c_str();
+							}
 						}
 						else if (InspIRCd::Match(LM->literal, it->mask))
+						{
 							return it->mask.c_str();
+						}
 					}
 				}
 			}
