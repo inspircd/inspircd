@@ -85,18 +85,6 @@ public:
 		return 0;
 	}
 
-	void SearchAndReplace(std::string& newline, const std::string &find, const std::string &replace)
-	{
-		std::string::size_type x = newline.find(find);
-		while (x != std::string::npos)
-		{
-			newline.erase(x, find.length());
-			if (!replace.empty())
-				newline.insert(x, replace);
-			x = newline.find(find);
-		}
-	}
-
 	bool CheckCredentials(User* user)
 	{
 		std::string thisquery = freeformquery;

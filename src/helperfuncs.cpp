@@ -452,3 +452,6 @@ void InspIRCd::AddExtBanChar(char c)
 	else
 		tok.insert(ebpos + 9, 1, c);
 }
+
+
+

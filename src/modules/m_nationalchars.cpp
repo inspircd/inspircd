@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -25,18 +25,6 @@ DEFINE_HANDLER2(lwbNickHandler, bool, const char*, size_t);
 
 								 /*,m_reverse_additionalUp[256];*/
 static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256];
-
-void SearchAndReplace(std::string& newline, const std::string &find, const std::string &replace)
-{
-	std::string::size_type x = newline.find(find);
-	while (x != std::string::npos)
-	{
-		newline.erase(x, find.length());
-		newline.insert(x, replace);
-		x = newline.find(find);
-	}
-}
-
 
 char utf8checkrest(unsigned char * mb, unsigned char cnt)
 {

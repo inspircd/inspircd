@@ -103,6 +103,8 @@ unsigned const char rfc_case_sensitive_map[256] = {
 
 #endif
 
+CoreExport const std::string& SearchAndReplace(std::string& text, const std::string& pattern, const std::string& replace);
+
 /** The irc namespace contains a number of helper classes.
  */
 namespace irc

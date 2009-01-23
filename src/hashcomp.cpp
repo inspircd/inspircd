@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -499,5 +499,28 @@ long irc::portparser::GetToken()
 	{
 		return atoi(x.c_str());
 	}
+}
+
+const std::string& SearchAndReplace(std::string& text, const std::string& pattern, const std::string& replace)
+{
+	std::string replacement;
+	if ((!pattern.empty()) && (!text.empty()))
+	{
+		for (std::string::size_type n = 0; n != text.length(); ++n)
+		{
+			if (text.length() >= pattern.length() && text.substr(n, pattern.length()) == pattern)
+			{
+				/* Found the pattern in the text, replace it, and advance */
+				replacement.append(replace);
+				n = n + pattern.length() - 1;
+			}
+			else
+			{
+				replacement += text[n];
+			}
+		}
+	}
+	text = replacement;
+	return text;
 }
 

@@ -132,17 +132,6 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	void SearchAndReplace(std::string& newline, const std::string &find, const std::string &replace)
-	{
-		std::string::size_type x = newline.find(find);
-		while (x != std::string::npos)
-		{
-			newline.erase(x, find.length());
-			newline.insert(x, replace);
-			x = newline.find(find);
-		}
-	}
-
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		std::multimap<std::string, Alias>::iterator i, upperbound;
