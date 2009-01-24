@@ -35,10 +35,10 @@ class ModuleOverride : public Module
 		OnRehash(NULL,"");
 		ServerInstance->SNO->EnableSnomask('G', "GODMODE");
 		OverriddenMode = false;
-                if (!ServerInstance->Modules->PublishFeature("Override", this))
-                {
-                        throw ModuleException("m_override: Unable to publish feature 'Override'");
-                }
+		if (!ServerInstance->Modules->PublishFeature("Override", this))
+		{
+			throw ModuleException("m_override: Unable to publish feature 'Override'");
+		}
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnLocalTopicChange, I_OnRequest };
 		ServerInstance->Modules->Attach(eventlist, this, 8);
@@ -115,7 +115,7 @@ class ModuleOverride : public Module
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetStatus(source) < STATUS_HOP))
 			{
-				ServerInstance->SNO->WriteToSnoMask('G',std::string(source->nick)+"  used oper override to change a topic on "+std::string(channel->name));
+				ServerInstance->SNO->WriteToSnoMask('G',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
 			}
 
 			// Explicit allow
@@ -284,7 +284,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 
-				if ((chan->modes[CM_LIMIT]) && (chan->GetUserCounter() >=  atoi(chan->GetModeParameter('l').c_str())) && (CanOverride(user,"LIMIT")))
+				if ((chan->modes[CM_LIMIT]) && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && (CanOverride(user,"LIMIT")))
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -318,9 +318,9 @@ class ModuleOverride : public Module
 		return 0;
 	}
 
-        virtual const char* OnRequest(Request* request)
-        {
-        	if(strcmp(OVRREQID, request->GetId()) == 0)
+	virtual const char* OnRequest(Request* request)
+	{
+		if(strcmp(OVRREQID, request->GetId()) == 0)
 		{
 			OVRrequest* req = static_cast<OVRrequest*>(request);
 			return this->CanOverride(req->requser,req->reqtoken.c_str()) ? "yes":"";
@@ -330,7 +330,7 @@ class ModuleOverride : public Module
 
 	virtual ~ModuleOverride()
 	{
-                ServerInstance->Modules->UnpublishFeature("Override");
+		ServerInstance->Modules->UnpublishFeature("Override");
 		ServerInstance->SNO->DisableSnomask('G');
 	}
 
