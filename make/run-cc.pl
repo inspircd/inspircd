@@ -1,5 +1,17 @@
 #!/usr/bin/perl
 
+#       +------------------------------------+
+#       | Inspire Internet Relay Chat Daemon |
+#       +------------------------------------+
+#
+#  InspIRCd: (C) 2002-2009 InspIRCd Development Team
+# See: http://www.inspircd.org/wiki/index.php/Credits
+#
+# This program is free but copyrighted software; see
+#      the file COPYING for details.
+#
+# ---------------------------------------------------
+
 ### THIS IS DESIGNED TO BE RUN BY MAKE! DO NOT RUN FROM THE SHELL (because it MIGHT sigterm the shell)! ###
 
 use strict;

@@ -32,7 +32,7 @@
  *
  * These functor templates work this way so that you can simply and easily allow
  * for these class methods to be overridden from within a module, e.g. have a module
- * which completely replaces the code f r IsNick, etc. For example, with the example
+ * which completely replaces the code for IsNick, etc. For example, with the example
  * above:
  *
  * MyNewFunction replaceme(ServerInstance);
@@ -280,4 +280,3 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	class CoreExport NAME : public HandlerBase8<RETURN, V1, V2, V3, V4, V5, V6, V7, V8> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6, V7, V8); }
 
 #endif
-
