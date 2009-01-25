@@ -125,7 +125,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{
-		if (!strcasecmp(i->data.c_str(), dest.c_str()))
+		if (i->data == dest)
 		{
 			/* dont allow a user to set the same ban twice */
 			dest = "";
