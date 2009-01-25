@@ -11,7 +11,9 @@
 #
 # ---------------------------------------------------
 #
+use strict;
 use POSIX;
+use Fcntl;
 
 my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@/";
@@ -21,6 +23,7 @@ my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"@EXECUTABLE@";
 my $version	=	"@VERSION@";
 
+our($pid,$pidfile);
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
 my $arg = shift(@ARGV);
 my $conf = $confpath . "inspircd.conf";
@@ -57,7 +60,7 @@ else
 
 sub cmd_help()
 {
-	@subs = grep { $_ =~ m/^(cmd|dev)_/ && defined(main->can($_)) } keys(%::);
+	my @subs = grep { $_ =~ m/^(cmd|dev)_/ && defined(main->can($_)) } keys(%::);
 	my @cmds = grep /^cmd_/, @subs;
 	my @devs = grep /^dev_/, @subs;
 	local $_;
@@ -143,7 +146,7 @@ sub dev_debug(@)
 	checkgdb();
 
 	# If we are still alive here.. Try starting the IRCd..
-	exec {gdb} 'gdb', "--command=$basepath/.gdbargs", '--args', "$binpath/$executable", qw(-nofork -debug), @_;
+	exec 'gdb', "--command=$basepath/.gdbargs", '--args', "$binpath/$executable", qw(-nofork -debug), @_;
 	die "Failed to start GDB: $!\n";
 }
 
@@ -161,7 +164,7 @@ sub dev_screendebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	exec {screen} qw(screen -m -d gdb), "--comand=$basepath/.gdbargs", '-args', "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	exec qw(screen -m -d gdb), "--comand=$basepath/.gdbargs", '-args', "$binpath/$executable", qw(-nofork -debug -nolog), @_;
 	die "Failed to start screen: $!\n";
 }
 
@@ -180,7 +183,7 @@ sub dev_valdebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
-	exec {valgrind} qw(valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	exec qw(valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
 	die "Failed to start valgrind: $!\n";
 }
 
@@ -207,13 +210,12 @@ sub dev_valdebug_unattended(@)
 	my $pid = fork;
 	if ($pid == 0) {
 		POSIX::setsid();
-		use Fcntl;
 		-d $valgrindlogpath or mkdir $valgrindlogpath or die "Cannot create $valgrindlogpath: $!\n";
 		my $suffix = strftime("%Y%m%d-%H%M%S", localtime(time)) . ".$$";
 		open STDIN, '<', '/dev/null' or die "Can't redirect STDIN to /dev/null: $!\n";
 		sysopen STDOUT, "$valgrindlogpath/out.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0600 or die "Can't open $valgrindlogpath/out.$suffix: $!\n";
 		sysopen STDERR, "$valgrindlogpath/valdebug.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0666 or die "Can't open $valgrindlogpath/valdebug.$suffix: $!\n";
-		exec {valgrind} qw(valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-fd=2), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+		exec qw(valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-fd=2), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
 		die "Can't execute valgrind: $!\n";
 	}
 }
@@ -234,7 +236,7 @@ sub dev_screenvaldebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the valgrind and gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	exec {screen} qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	exec qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
 	die "Failed to start screen: $!\n";
 }
 
@@ -274,6 +276,8 @@ sub cmd_stop()
 # defined, but defined in a comment (line starts with #)
 # -- Brain
 
+my %filesparsed;
+
 sub getpidfile
 {
 	my ($file) = @_;
@@ -288,15 +292,8 @@ sub getpidfile
 	}
 
 	# Have we checked this file before?
-	for (my $i = 0; $i < $filesparsed; $i++) {
-		if ($filesparsed[$i] eq $file) {
-			# Already Parsed, Possible recursive loop..
-			return;
-		}
-	}
-
-	# If we get here, Mark as 'Read'
-	$filesparsed[$filesparsed] = $file;
+	return if $filesparsed{$file};
+	$filesparsed{$file} = 1;
 
 	# Open the File..
 	open INFILE, "< $file" or die "Unable to open file $file included in configuration\n";
@@ -307,7 +304,7 @@ sub getpidfile
 
 	# remove trailing spaces
 	chomp(@lines);
-	foreach $i (@lines) {
+	for my $i (@lines) {
 		# clean it up
 		$i =~ s/[^=]+=\s(.*)/\1/;
 		# Does this file have a pid?
@@ -320,7 +317,7 @@ sub getpidfile
 	}
 
 	# If we get here, NO PID FILE! -- Check for includes
-	foreach $i (@lines) {
+	for my $i (@lines) {
 		$i =~ s/[^=]+=\s(.*)/\1/;
 		if (($i =~ s/\<include file=\"(.+?)\"\>//i) && ($i !~ /^#/))
 		{
@@ -348,9 +345,9 @@ sub getstatus {
 sub getprocessid {
 	my $pid;
 	open PIDFILE, "< $pidfile" or return 0;
-	while($i = <PIDFILE>)
+	while(<PIDFILE>)
 	{
-		$pid = $i;
+		$pid = $_;
 	}
 	close PIDFILE;
 	return $pid;
@@ -396,6 +393,8 @@ sub cmd_checkconf()
 	exit 0;
 }
 
+my %filechecked;
+
 sub validateconf
 {
 	my ($file) = @_;
@@ -407,15 +406,8 @@ sub validateconf
 	}
 
 	# Have we checked this file before?
-	for (my $i = 0; $i < $filechecked; $i++) {
-		if ($filechecked[$i] eq $file) {
-			# Already Parsed, Possible recursive loop..
-			return;
-		}
-	}
-
-	# If we get here, Mark as 'Read'
-	$filechecked[$filechecked] = $file;
+	return if $filechecked{$file};
+	$filechecked{$file} = 1;
 
 	# Open the File..
 	open INFILE, "< $file" or die "Unable to open file $file\n";
@@ -435,7 +427,7 @@ sub validateconf
 #       push @newlines, "<!DOCTYPE config SYSTEM \"".$confpath."inspircd.dtd\">";
 	push @newlines, "<config>";
 
-	foreach $i (@lines)
+	for my $i (@lines)
 	{
 		# remove trailing newlines
 		chomp($i);
@@ -533,7 +525,7 @@ sub validateconf
 		$tmpfile = tmpnam();
 	} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW, 0700);
 
-	foreach $n (@newlines)
+	for my $n (@newlines)
 	{
 		print TF "$n\n";
 	}
@@ -543,7 +535,7 @@ sub validateconf
 	chomp(@result);
 
 	my $skip = 0;
-	foreach $n (@result)
+	for my $n (@result)
 	{
 		if ($skip)
 		{
