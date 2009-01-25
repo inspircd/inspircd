@@ -552,7 +552,7 @@ class ModuleSSLGnuTLS : public Module
 		sendbuffer = session->outbuf.c_str();
 		count = session->outbuf.size();
 
-		if (session->status == ISSL_HANDSHAKING_WRITE)
+		if (session->status == ISSL_HANDSHAKING_WRITE || session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.
 			Handshake(session);
