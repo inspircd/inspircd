@@ -81,7 +81,7 @@ our %specialdeps = ();
 # If you wish for a file to have extra make lines (in between the compile and link steps)
 # then insert them here.
 # Auto populated by /* $ExtraBuild: */ instruction
-        
+
 our %extrabuildlines = ();
 
 # If you wish for a file to be linked against extra objects or arctives, insert them here.
@@ -663,7 +663,7 @@ print "yes\n" if $has_ports == 1;
 print "no\n" if $has_ports == 0;
 
 $config{HAS_EPOLL} = $has_epoll;
-$config{HAS_KQUEUE} = $has_kqueue; 
+$config{HAS_KQUEUE} = $has_kqueue;
 
 printf "Checking for libgnutls... ";
 if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y"))) {
@@ -1061,8 +1061,8 @@ sub dir_check {
 			# Assume relative Path was given.. fill in the rest.
 			$var = $this . "/$var";
 		}
-		
-		$var = resolve_directory($var); 
+
+		$var = resolve_directory($var);
 		if (! -e $var) {
 			print "$var does not exist. Create it?\n[\e[1;32my\e[0m] ";
 			chomp(my $tmp = <STDIN>);
@@ -1154,7 +1154,7 @@ sub getosflags {
 		$config{LDLIBS} .= " -lsocket -lnsl -lrt -lresolv -pthread";
 		return "Solaris";
 	}
-	
+
 	if($config{OSNAME} =~ /MINGW32/i)
 	{
 		# All code is position-independent on windows
@@ -1379,7 +1379,7 @@ sub write_dynamic_modules_makefile {
 ###
 	print FILEHANDLE <<EOF;
 ###################################################
-# Copyright 2002-2007 The InspIRCd Development Team
+# Copyright 2002-2009 The InspIRCd Development Team
 #  http://www.inspircd.org/wiki/index.php/Credits
 #
 # Thanks to Andrew Church <achurch\@achurch.org>
@@ -1422,9 +1422,9 @@ EOCHEESE
 		$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
 		$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
 		my $deps = getdependencies("src/modules/m_".$i.".cpp");
-	
+
 		#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
-	
+
 
 		if (nopedantic("src/modules/m_".$i.".cpp"))
 		{
@@ -1442,7 +1442,7 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 		}
 		$install_list = $install_list . "	install -m \$(INSTMODE) src/modules/m_$i.so \$(MODPATH)\n";
 		$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/m_$i.so\n";
-###
+		###
 		# End Write Entry to the MakeFile
 		###
 	}
@@ -1458,7 +1458,7 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 			if (defined(opendir(MDIRHANDLE, "src/modules/$name"))) {
 				read_module_directory("src/modules/$name", $name);
 				print "Composing Makefile rules for directory \e[1;32m$name\e[0m... (\e[1;32m$mfcount files found\e[0m)\n";
-				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $mobjs\n"; 
+				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $mobjs\n";
 				print FILEHANDLE "	\@../../make/run-cc.pl \$(CC) -pipe \$(FLAGS) $SHARED $mliflags -o $name.so $mobjs\n";
 				print FILEHANDLE "\n$mfrules\n";
 				closedir(MDIRHANDLE);
@@ -1471,11 +1471,11 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 
 sub read_module_directory {
 	my ($dpath, $reldpath) = @_;
-	
+
 	if (opendir(MDIRHANDLE, $dpath) == 0) {
 		return;
 	}
-	
+
 	foreach my $fname (sort readdir(MDIRHANDLE)) {
 		if ($fname =~ /\.cpp$/) {
 			my $cmflags = getcompilerflags("$dpath/$fname");
@@ -1939,4 +1939,3 @@ EXTRA:	for my $extra (@extras) {
 		unlink "src/modules/$extra" or print STDERR "Cannot disable \e[32;1m$extra\e[0m : $!\n";
 	}
 }
-
