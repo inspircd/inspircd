@@ -599,7 +599,7 @@ class ModuleSSLGnuTLS : public Module
 		sendbuffer = session->outbuf.c_str();
 		count = session->outbuf.size();
 
-		if (session->status == ISSL_HANDSHAKING_WRITE)
+		if (session->status == ISSL_HANDSHAKING_WRITE || session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.
 			Handshake(session);
@@ -772,7 +772,7 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnBufferFlushed(User* user)
 	{
-		if (user->GetIOHook() == this && user->GetExt("ssl"))
+		if (user->GetIOHook() == this)
 		{
 			issl_session* session = &sessions[user->GetFd()];
 			if (session && session->outbuf.size())
