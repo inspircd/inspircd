@@ -772,7 +772,7 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnBufferFlushed(User* user)
 	{
-		if (user->GetIOHook() == this)
+		if (user->GetIOHook() == this && user->GetExt("ssl"))
 		{
 			issl_session* session = &sessions[user->GetFd()];
 			if (session && session->outbuf.size())
