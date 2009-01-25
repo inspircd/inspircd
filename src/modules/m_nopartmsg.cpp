@@ -48,10 +48,7 @@ class ModulePartMsgBan : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		if (output.find(" EXTBAN=:") == std::string::npos)
-			output.append(" EXTBAN=:p");
-		else
-			output.insert(output.find(" EXTBAN=:") + 9, "p");
+		ServerInstance->AddExtBanChar('p');
 	}
 };
 
