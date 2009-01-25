@@ -60,15 +60,6 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 			return MODEACTION_DENY;
 		}
 
-		/* They must have specified an invalid number.
-		 * Dont allow +l 0.
-		 */
-		if (!limit)
-		{
-			parameter = "";
-			return MODEACTION_DENY;
-		}
-
 		parameter = ConvToStr(limit);
 
 		/* Set new limit */
