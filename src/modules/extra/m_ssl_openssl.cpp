@@ -677,7 +677,7 @@ class ModuleSSLOpenSSL : public Module
 			return;
 
 		// Bugfix, only send this numeric for *our* SSL users
-		if (dest->GetExt("ssl", dummy) || ((IS_LOCAL(dest) && dest->GetIOHook() == this)))
+		if (dest->GetExt("ssl", dummy))
 		{
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 		}
