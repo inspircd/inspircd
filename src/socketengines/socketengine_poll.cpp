@@ -54,31 +54,49 @@ bool PollEngine::AddFd(EventHandler* eh)
 		return false;
 	}
 
-	if (ref[fd])
+	if (fd_mappings.find(fd) != fd_mappings.end())
 	{
 		ServerInstance->Logs->Log("SOCKET",DEBUG,"Attempt to add duplicate fd: %d", fd);
 		return false;
 	}
 
-	ref[fd] = eh;
-	events[fd].fd = fd;
+	unsigned int index = CurrentSetSize;
+
+	fd_mappings[fd] = index;
+	ref[index] = eh;
+	events[index].fd = fd;
 	if (eh->Readable())
 	{
-		events[fd].events = POLLIN;
+		events[index].events = POLLIN;
 	}
 	else
 	{
-		events[fd].events = POLLOUT;
+		events[index].events = POLLOUT;
 	}
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d)", fd, events[fd].events);
+	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);
 	CurrentSetSize++;
 	return true;
 }
 
+EventHandler* PollEngine::GetRef(int fd)
+{
+	std::map<int, unsigned int>::iterator it = fd_mappings.find(fd);
+	if (it == fd_mappings.end())
+		return NULL;
+	return ref[it->second];
+}
+
 void PollEngine::WantWrite(EventHandler* eh)
 {
-	events[eh->GetFd()].events = POLLIN | POLLOUT;
+	std::map<int, unsigned int>::iterator it = fd_mappings.find(eh->GetFd());
+	if (it == fd_mappings.end())
+	{
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"WantWrite() on unknown fd: %d", eh->GetFd());
+		return;
+	}
+
+	events[it->second].events = POLLIN | POLLOUT;
 }
 
 bool PollEngine::DelFd(EventHandler* eh, bool force)
@@ -90,13 +108,42 @@ bool PollEngine::DelFd(EventHandler* eh, bool force)
 		return false;
 	}
 
-	events[fd].fd = -1;
-	events[fd].events = 0;
+	std::map<int, unsigned int>::iterator it = fd_mappings.find(fd);
+	if (it == fd_mappings.end())
+	{
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd() on unknown fd: %d", fd);
+		return false;
+	}
+
+	unsigned int index = it->second;
+	unsigned int last_index = CurrentSetSize - 1;
+	int last_fd = events[last_index].fd;
+
+	if (index != last_index)
+	{
+		// We need to move the last fd we got into this gap (gaps are evil!)
+
+		// So update the mapping for the last fd to its new position
+		fd_mappings[last_fd] = index;
+
+		// move last_fd from last_index into index
+		events[index].fd = last_fd;
+		events[index].events = events[last_index].events;
+
+		ref[index] = ref[last_index];
+	}
+
+	// Now remove all data for the last fd we got into out list.
+	// Above code made sure this always is right
+	fd_mappings.erase(it);
+	events[last_index].fd = 0;
+	events[last_index].events = 0;
+	ref[last_index] = NULL;
 
 	CurrentSetSize--;
-	ref[fd] = NULL;
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG, "Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", DEBUG, "Remove file descriptor: %d (index: %d) "
+			"(Filled gap with: %d (index: %d))", fd, index, last_fd, last_index);
 	return true;
 }
 
@@ -116,7 +163,7 @@ int PollEngine::GetMaxFds()
 	{
 		MAX_DESCRIPTORS = 0;
 		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
-		printf("ERROR: Can't determine maximum number of open sockets: %s\n", strerror(errno)));
+		printf("ERROR: Can't determine maximum number of open sockets: %s\n", strerror(errno));
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	return 0;
@@ -144,51 +191,53 @@ int PollEngine::GetRemainingFds()
 
 int PollEngine::DispatchEvents()
 {
-	int i = poll(events, GetMaxFds() - 1, 1000);
-	int fd = 0;
+	int i = poll(events, CurrentSetSize, 1000);
+	int index;
 	socklen_t codesize = sizeof(int);
 	int errcode;
 	int processed = 0;
 
 	if (i > 0)
 	{
-		for (fd = 0; fd < GetMaxFds() - 1 && processed != i; fd++)
+		for (index = 0; index < CurrentSetSize && processed != i; index++)
 		{
-			if (events[fd].revents)
+			if (events[index].revents)
 				processed++;
 
-			if (events[fd].revents & POLLHUP)
+			if (events[index].revents & POLLHUP)
 			{
-				if (ref[fd])
-					ref[fd]->HandleEvent(EVENT_ERROR, 0);
+				if (ref[index])
+					ref[index]->HandleEvent(EVENT_ERROR, 0);
 				continue;
 			}
 
-			if (events[fd].revents & POLLERR)
+			if (events[index].revents & POLLERR)
 			{
+				// Get fd
+				int fd = events[index].fd;
+
 				// Get error number
 				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 					errcode = errno;
-				if (ref[fd])
-					ref[fd]->HandleEvent(EVENT_ERROR, errcode);
+				if (ref[index])
+					ref[index]->HandleEvent(EVENT_ERROR, errcode);
 				continue;
 			}
 
-			if (events[fd].revents & POLLOUT)
+			if (events[index].revents & POLLOUT)
 			{
 				// Switch to wanting read again
 				// event handlers have to request to write again if they need it
-				events[fd].events = POLLIN;
+				events[index].events = POLLIN;
 
-
-				if (ref[fd])
-					ref[fd]->HandleEvent(EVENT_WRITE);
+				if (ref[index])
+					ref[index]->HandleEvent(EVENT_WRITE);
 			}
 
-			if (events[fd].revents & POLLIN)
+			if (events[index].revents & POLLIN)
 			{
-				if (ref[fd])
-					ref[fd]->HandleEvent(EVENT_READ);
+				if (ref[index])
+					ref[index]->HandleEvent(EVENT_READ);
 			}
 		}
 	}

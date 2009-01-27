@@ -43,6 +43,9 @@ private:
 	/** These are used by poll() to hold socket events
 	 */
 	struct pollfd *events;
+	/** This map maps fds to an index in the events array.
+	 */
+	std::map<int, unsigned int> fd_mappings;
 public:
 	/** Create a new PollEngine
 	 * @param Instance The creator of this object
@@ -52,6 +55,7 @@ public:
 	 */
 	virtual ~PollEngine();
 	virtual bool AddFd(EventHandler* eh);
+	virtual EventHandler* GetRef(int fd);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
 	virtual bool DelFd(EventHandler* eh, bool force = false);
