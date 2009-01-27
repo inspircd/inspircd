@@ -261,20 +261,17 @@ XLine* XLineManager::MatchesLine(const std::string &type, User* user)
 		safei = i;
 		safei++;
 
+		if (i->second->duration && current > i->second->expiry)
+		{
+			/* Expire the line, proceed to next one */
+			ExpireLine(x, i);
+			i = safei;
+			continue;
+		}
+
 		if (i->second->Matches(user))
 		{
-			if (i->second->duration && current > i->second->expiry)
-			{
-				/* Expire the line, return nothing */
-				ExpireLine(x, i);
-				/* Continue, there may be another that matches
-				 * (thanks aquanight)
-				 */
-				i = safei;
-				continue;
-			}
-			else
-				return i->second;
+			return i->second;
 		}
 
 		i = safei;
