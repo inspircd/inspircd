@@ -63,7 +63,6 @@ class CommandStartTLS : public Command
 {
 	Module* Caller;
  public:
-	/* Command 'dalinfo', takes no parameters and needs no special modes */
 	CommandStartTLS (InspIRCd* Instance, Module* mod) : Command(Instance,"STARTTLS", 0, 0, true), Caller(mod)
 	{
 		this->source = "m_ssl_gnutls.so";
