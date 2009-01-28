@@ -54,7 +54,7 @@ public:
 
 	void DisplayExpiry()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired shun %s (set by %s %ld seconds ago)", this->matchtext.c_str(), this->source, ServerInstance->Time() - this->set_time);
+		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired shun %s (set by %s %ld seconds ago)", this->matchtext.c_str(), this->source, (long int)(ServerInstance->Time() - this->set_time));
 	}
 
 	const char* Displayable()

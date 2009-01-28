@@ -595,27 +595,27 @@ void ELine::OnAdd()
 
 void ELine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired E-Line %s@%s (set by %s %ld seconds ago)",this->identmask,this->hostmask,this->source,ServerInstance->Time() - this->set_time);
+	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired E-Line %s@%s (set by %s %ld seconds ago)",this->identmask,this->hostmask,this->source,(long int)(ServerInstance->Time() - this->set_time));
 }
 
 void QLine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Q-Line %s (set by %s %ld seconds ago)",this->nick,this->source,ServerInstance->Time() - this->set_time);
+	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Q-Line %s (set by %s %ld seconds ago)",this->nick,this->source,(long int)(ServerInstance->Time() - this->set_time));
 }
 
 void ZLine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Z-Line %s (set by %s %ld seconds ago)",this->ipaddr,this->source,ServerInstance->Time() - this->set_time);
+	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Z-Line %s (set by %s %ld seconds ago)",this->ipaddr,this->source,(long int)(ServerInstance->Time() - this->set_time));
 }
 
 void KLine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired K-Line %s@%s (set by %s %ld seconds ago)",this->identmask,this->hostmask,this->source,ServerInstance->Time() - this->set_time);
+	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired K-Line %s@%s (set by %s %ld seconds ago)",this->identmask,this->hostmask,this->source,(long int)(ServerInstance->Time() - this->set_time));
 }
 
 void GLine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired G-Line %s@%s (set by %s %ld seconds ago)",this->identmask,this->hostmask,this->source,ServerInstance->Time() - this->set_time);
+	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired G-Line %s@%s (set by %s %ld seconds ago)",this->identmask,this->hostmask,this->source,(long int)(ServerInstance->Time() - this->set_time));
 }
 
 const char* ELine::Displayable()
