@@ -35,7 +35,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 {
 	if (params.size() < 5)
 	{
-		SendError("Protocol error - Missing SID");
+		SendError("Protocol error - Not enough parameters for SERVER command");
 		return false;
 	}
 
@@ -91,7 +91,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 {
 	if (params.size() < 5)
 	{
-		SendError("Protocol error - Missing SID");
+		SendError("Protocol error - Not enough parameters for SERVER command");
 		return false;
 	}
 
