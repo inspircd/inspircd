@@ -71,7 +71,7 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	 */
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
-	ev.events = EPOLLOUT;
+	ev.events = EPOLLIN | EPOLLOUT;
 	ev.data.fd = eh->GetFd();
 	epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
 }
