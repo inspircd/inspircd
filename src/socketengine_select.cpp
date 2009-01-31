@@ -127,34 +127,29 @@ int SelectEngine::DispatchEvents()
 	 */
 	for (int i = 0; i < result; i++)
 	{
-		if (ev[i])
+		if (! ev[i])
+			continue;
+		
+		if (FD_ISSET (ev[i]->GetFd(), &errfdset))
 		{
-			if (FD_ISSET (ev[i]->GetFd(), &errfdset))
-			{
-				if (ev[i])
-				{
-					if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
-						errcode = errno;
+			if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
+				errcode = errno;
 
-					ev[i]->HandleEvent(EVENT_ERROR, errcode);
-				}
-				continue;
-			}
-			if (ev[i])
-			{
-				if (writeable[ev[i]->GetFd()])
-				{
-					writeable[ev[i]->GetFd()] = false;
-					if (ev[i])
-						ev[i]->HandleEvent(EVENT_WRITE);
-				}
-				else
-				{
-					if (ev[i])
-						ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
-				}
-			}
+			ev[i]->HandleEvent(EVENT_ERROR, errcode);
+			continue;
 		}
+
+		if (FD_ISSET (ev[i]->GetFd(), &wfdset))
+		{
+			writeable[ev[i]->GetFd()] = false;
+			ev[i]->HandleEvent(EVENT_WRITE);
+		}
+
+		if (! ev[i])
+			continue;
+
+		if (FD_ISSET (ev[i]->GetFd(), &rfdset))
+			ev[i]->HandleEvent(EVENT_READ);
 	}
 
 	return result;
