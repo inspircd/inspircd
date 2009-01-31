@@ -100,6 +100,7 @@ void KQueueEngine::WantWrite(EventHandler* eh)
 	 */
 	struct kevent ke;
 	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 }
 
