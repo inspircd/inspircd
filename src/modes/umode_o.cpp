@@ -24,9 +24,7 @@ ModeUserOperator::ModeUserOperator(InspIRCd* Instance) : ModeHandler(Instance, '
 ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding, bool servermode)
 {
 	/* Only opers can execute this class at all */
-	if (!ServerInstance->ULine(source->nick.c_str()) &&
-		!ServerInstance->ULine(source->server) &&
-		source->oper.empty())
+	if (!ServerInstance->ULine(source->nick.c_str()) && !ServerInstance->ULine(source->server) && source->oper.empty())
 		return MODEACTION_DENY;
 
 	/* Not even opers can GIVE the +o mode, only take it away */
@@ -40,9 +38,9 @@ ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, st
 	 * to your User!
 	 */
 	if (IS_LOCAL(dest))
-		ServerInstance->SNO->WriteToSnoMask('o', "User %s de-opered (by %s)", dest->nick.c_str(), source->nick.c_str());
+		ServerInstance->SNO->WriteToSnoMask('o', "User %s de-opered (by %s)", dest->nick.c_str(), source.empty() ? source->server : source->nick.c_str());
 	else
-		ServerInstance->SNO->WriteToSnoMask('O', "User %s de-opered (by %s)", dest->nick.c_str(), source->nick.c_str());
+		ServerInstance->SNO->WriteToSnoMask('O', "User %s de-opered (by %s)", dest->nick.c_str(), source.empty() ? source->server : source->nick.c_str());
 	dest->UnOper();
 
 	return MODEACTION_ALLOW;
