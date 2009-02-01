@@ -103,6 +103,10 @@ void ModuleDelayJoin::OnNamesListItem(User* issuer, User* user, Channel* channel
 	if (nick.empty())
 		return;
 
+	/* don't prevent the user from seeing themself */
+	if (issuer == user)
+		return;
+
 	/* If the user is hidden by delayed join, hide them from the NAMES list */
 	std::string key("delayjoin_");
 	key.append(channel->name);
