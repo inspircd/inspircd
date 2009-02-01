@@ -175,7 +175,7 @@
 # command must be preceded by the fantasy prefix when used.
 #
 #<alias text="CS" usercommand="no" channelcommand="yes"
-#  replace="PRIVMSG ChanServ $1 $chan $2-" requires="ChanServ" uline="yes">
+#  replace="PRIVMSG ChanServ :$1 $chan $2-" requires="ChanServ" uline="yes">
 #
 # This would be used as "!cs <command> <options>", with the channel
 # being automatically inserted after the command in the message to
