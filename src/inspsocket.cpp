@@ -320,6 +320,7 @@ bool InspSocket::DoConnect()
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->state = I_ERROR;
+			delete[] addr;
 			return false;
 		}
 
@@ -332,6 +333,7 @@ bool InspSocket::DoConnect()
 	ioctlsocket(this->fd, FIONBIO, &flags);
 #endif
 	this->state = I_CONNECTING;
+	delete[] addr;
 	if (this->fd > -1)
 	{
 		if (!this->Instance->SE->AddFd(this))
