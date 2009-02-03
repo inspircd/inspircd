@@ -263,6 +263,7 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->state = I_ERROR;
+			delete[] addr;
 			return false;
 		}
 
@@ -271,6 +272,7 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 	}
 
 	this->state = I_CONNECTING;
+	delete[] addr;
 	if (this->fd > -1)
 	{
 		if (!this->ServerInstance->SE->AddFd(this))
