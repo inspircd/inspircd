@@ -526,12 +526,12 @@
 
           # runasuser: If this is set, InspIRCd will attempt to setuid
           # to run as this user- allows binding of ports under 1024.
-          # NOT SUPPORTED/NEEDED UNDER WIINDOWS.
+          # NOT SUPPORTED/NEEDED UNDER WINDOWS.
           #runasuser=""
 
           # runasgroup: If this is set, InspIRCd will attempt to set group
           # to run under this group, which allows binding of ports under 1024
-          # NOT SUPPORTED/NEEDED UNDER WIINDOWS.
+          # NOT SUPPORTED/NEEDED UNDER WINDOWS.
           #runasgroup=""
 
           # restrictbannedusers: If this is set, InspIRCd will not allow users
@@ -579,7 +579,7 @@
         # maxgecos: Maximum length of a GECOS (realname).
         maxgecos="128"
 
-        # maxaway: Maximum length of an away messahe.
+        # maxaway: Maximum length of an away message.
         maxaway="200">
 
 
