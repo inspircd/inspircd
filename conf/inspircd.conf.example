@@ -178,6 +178,17 @@
 #   You may have as many of these as you require. To allow/deny all   #
 #   connections, use a '*' or 0.0.0.0/0.                              #
 #                                                                     #
+#  -- It is important to note that connect tags are read from the  -- #
+#     TOP DOWN. This means that you should have more specific deny    #
+#    and allow tags at the top, progressively more general, followed  #
+#        by a <connect allow="*" (should you wish to have one).       #
+#                                                                     #
+#                                                                     #
+<connect 
+         # deny: Will not let people connect if they have specified host/IP.
+         deny="69.254.*">
+
+<connect deny="3ffe::0/32">
 
 <connect 
          # allow: What IP addresses/hosts to allow for this block.
@@ -228,11 +239,6 @@
          # This entry is highly recommended to use for/with IP Cloaking/masking.
          modes="+x">
 
-<connect 
-         # deny: Will not let people connect if they have specified host/IP.
-         deny="69.254.*">
-
-<connect deny="3ffe::0/32">
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
