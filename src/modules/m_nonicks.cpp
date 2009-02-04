@@ -81,6 +81,10 @@ class ModuleNoNickChange : public Module
 		if (isdigit(newnick[0])) /* don't even think about touching a switch to uid! */
 			return 0;
 
+		// Allow forced nick changes.
+		if (user->GetExt("NICKForced"))
+			return 0;
+
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
 			Channel* curr = i->first;

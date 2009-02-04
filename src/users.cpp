@@ -1038,7 +1038,11 @@ bool User::ForceNickChange(const char* newnick)
 
 	this->InvalidateCache();
 
+	this->Extend("NICKForced", "Enabled");
+
 	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
+
+	this->Shrink("NICKForced");
 
 	if (MOD_RESULT)
 	{
