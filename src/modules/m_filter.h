@@ -123,7 +123,7 @@ class cmd_filter : public command_t
 	cmd_filter(FilterBase* f, InspIRCd* Me, const std::string &source) : command_t(Me, "FILTER", 'o', 1), Base(f)
 	{
 		this->source = source;
-		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
+		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
