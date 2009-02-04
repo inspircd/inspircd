@@ -147,6 +147,12 @@ class ModuleNickLock : public Module
 		user->Shrink("nick_locked");
 	}
 
+	void Prioritize()
+	{
+		Module *nflood = ServerInstance->Modules->Find("m_nickflood.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIO_BEFORE, &nflood);
+	}
+
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		if(target_type == TYPE_USER)
