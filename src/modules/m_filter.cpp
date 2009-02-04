@@ -133,7 +133,7 @@ class CommandFilter : public Command
 	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource) : Command(Me, "FILTER", "o", 1, 5), Base(f)
 	{
 		this->source = ssource;
-		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
+		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
