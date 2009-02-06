@@ -67,13 +67,21 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 	if (ref[fd])
 		return false;
 
+	// We always want to read from the socket...
 	struct kevent ke;
-	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+	EV_SET(&ke, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
 
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
+		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to add fd: %d %s",
+					  fd, strerror(errno));
 		return false;
+	}
+
+	if (!eh->Readable()) {
+		// ...and sometimes want to write
+		WantWrite(eh);
 	}
 
 	ref[fd] = eh;
@@ -88,37 +96,46 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 	int fd = eh->GetFd();
 
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	{
+		ServerInstance->Logs->Log("SOCKET",DEFAULT,"DelFd() on invalid fd: %d", fd);
 		return false;
+	}
 
 	struct kevent ke;
-	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 
-	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-
+	// First remove the write filter ignoring errors, since we can't be
+	// sure if there are actually any write filters registered.
 	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 
+	// Then remove the read filter.
+	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 	int j = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 
-	if ((j < 0) && (i < 0) && !force)
+	if ((j < 0) && !force)
+	{
+		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to remove fd: %d %s",
+					  fd, strerror(errno));
 		return false;
+	}
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	//ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 
 void KQueueEngine::WantWrite(EventHandler* eh)
 {
-	/** When changing an item in a kqueue, there is no 'modify' call
-	 * as in epoll. Instead, we add the item again, and this overwrites
-	 * the original setting rather than adding it twice. See man kqueue.
-	 */
 	struct kevent ke;
-	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+	// EV_ONESHOT since we only ever want one write event
 	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+	if (i < 0) {
+		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
+					  eh->GetFd(), strerror(errno));
+	}
 }
 
 int KQueueEngine::GetMaxFds()
@@ -168,15 +185,11 @@ int KQueueEngine::DispatchEvents()
 		}
 		if (ke_list[j].filter == EVFILT_WRITE)
 		{
-			/* This looks wrong but its right. As above, theres no modify
-			 * call in kqueue. See the manpage.
+			/* We only ever add write events with EV_ONESHOT, which
+			 * means they are automatically removed once such a
+			 * event fires, so nothing to do here.
 			 */
-			if (ref[ke_list[j].ident]->Readable())
-			{
-				struct kevent ke;
-				EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
-				kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-			}
+
 			WriteEvents++;
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
