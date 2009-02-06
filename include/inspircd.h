@@ -14,6 +14,11 @@
 #ifndef __INSPIRCD_H__
 #define __INSPIRCD_H__
 
+#define _FILE_OFFSET_BITS 64
+#ifndef _LARGEFILE_SOURCE
+#define _LARGEFILE_SOURCE
+#endif 
+
 #ifndef WIN32
 #define DllExport 
 #define CoreExport 
