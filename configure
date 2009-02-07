@@ -1077,7 +1077,7 @@ sub writefiles {
 	# First File.. inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
 	chomp($version = `sh src/version.sh`);
-	chomp(my $revision2 = getrevision())
+	chomp(my $revision2 = getrevision());
 	my $MT = $config{MAX_TOPIC} + 2;
 	if ($writeheader == 1)
 	{
