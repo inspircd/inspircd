@@ -144,6 +144,8 @@ GetOptions (
 	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
 	'enable-extras=s@' => \@opt_enableextras, # ^
 	'disable-extras=s@' => \@opt_disableextras, # ^
+	'generate-openssl-cert' => sub { make_openssl_cert(); exit(0); },
+	'generate-gnutls-cert' => sub { make_gnutls_cert(); exit(0); }
 );
 
 if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
