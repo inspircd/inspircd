@@ -41,6 +41,9 @@
 #include "command_parse.h"
 #include "exitcodes.h"
 
+
+int* mysig = NULL;
+
 #ifdef WIN32
 
 /* This MUST remain static and delcared outside the class, so that WriteProcessMemory can reference it properly */
@@ -369,11 +372,11 @@ void InspIRCd::SetSignals()
 {
 #ifndef WIN32
 	signal(SIGALRM, SIG_IGN);
-	signal(SIGHUP, InspIRCd::Rehash);
+	signal(SIGHUP, InspIRCd::SetSignal);
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 #endif
-	signal(SIGTERM, InspIRCd::Exit);
+	signal(SIGTERM, InspIRCd::SetSignal);
 }
 
 void InspIRCd::QuickExit(int status)
@@ -467,6 +470,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
 	char c = 0;
+
+	s_signal = 0;
 
 	modules.resize(255);
 	factory.resize(255);
@@ -1144,7 +1149,28 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 	/* If any inspsockets closed, remove them */
 	this->InspSocketCull();
+
+	if (this->s_signal)
+	{
+		this->SignalHandler(s_signal);
+		this->s_signal = 0;
+	}
+
 }
+
+void InspIRCd::SignalHandler(int signal)
+{
+	switch (signal)
+	{
+		case SIGHUP:
+			Rehash(signal);
+		break;
+		case SIGTERM:
+			Exit(signal);
+		break;
+	}
+}
+
 
 void InspIRCd::InspSocketCull()
 {
@@ -1176,6 +1202,7 @@ int InspIRCd::Run()
 int main(int argc, char** argv)
 {
 	SI = new InspIRCd(argc, argv);
+	mysig = &SI->s_signal;
 	SI->Run();
 	delete SI;
 	return 0;
@@ -1273,5 +1300,10 @@ FileLogger::FileLogger(InspIRCd* Instance, FILE* logfile) : ServerInstance(Insta
 FileLogger::~FileLogger()
 {
 	this->Close();
+}
+
+void InspIRCd::SetSignal(int signal)
+{
+	*mysig = signal;
 }
 

@@ -441,7 +441,14 @@ class CoreExport InspIRCd : public classbase
 	 */
 	int time_delta;
 
+	void SignalHandler(int signal);
+
+	static void SetSignal(int signal);
+
  public:
+
+	/** Signal which last occured */
+	int s_signal;
 
 	/** InspSocket classes pending deletion after being closed.
 	 * We don't delete these immediately as this may cause a segmentation fault.
