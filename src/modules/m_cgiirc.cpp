@@ -82,6 +82,8 @@ class CommandWebirc : public Command
 					}
 				}
 			}
+
+			ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}
 };
