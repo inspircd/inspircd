@@ -7,17 +7,22 @@ while (chomp($v = <FH>))
 }
 close FH;
 
-$version =~ /InspIRCd-(\d+)\.(\d+)\.(\d+)([ab\+])/;
+print "Version: '$version'\n";
+
+$version =~ /InspIRCd-(\d+)\.(\d+)\.(\d+)([ab\+]|RC|rc)/;
 
 $v1 = $1;
 $v2 = $2;
 $v3 = $3;
 $type = $4;
 
-if ($type =~ /^[ab]$/)
+print "v1=$1 v2=$2 v3=$3 type=$4\n";
+
+if ($type =~ /^[ab]|rc|RC$/)
 {
-	$version =~ /InspIRCd-\d+\.\d+\.\d+[ab\+](\d+)/;
-	$alphabeta = $1;
+	$version =~ /InspIRCd-\d+\.\d+\.\d+([ab]|RC|rc)(\d+)/;
+	$alphabeta = $2;
+	print "Version sub is $type $alphabeta\n";
 	$name = "InspIRCd-$v1.$v2.$v3$type$alphabeta.exe";
 	$rel = "$v1.$v2.$v3$type$alphabeta";
 }
@@ -29,6 +34,7 @@ else
 
 print "del $name\n";
 print "ren Setup.exe $name\n";
+
 system("del $name");
 system("ren Setup.exe $name");
 
