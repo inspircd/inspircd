@@ -21,7 +21,14 @@
 
 /* $ModDesc: Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING */
 
-DEFINE_HANDLER2(lwbNickHandler, bool, const char*, size_t);
+class lwbNickHandler : public HandlerBase2<bool, const char*, size_t>
+{
+	InspIRCd* Server;
+ public:
+	lwbNickHandler(InspIRCd* Srv) : Server(Srv) { }
+	virtual ~lwbNickHandler() { }
+	virtual bool Call(const char*, size_t);
+};
 
 								 /*,m_reverse_additionalUp[256];*/
 static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256];
