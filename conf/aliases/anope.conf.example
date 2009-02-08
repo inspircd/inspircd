@@ -22,4 +22,6 @@
 # Identify for a channel or nickname
 <alias text="ID" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3" requires="ChanServ" uline="yes">
 <alias text="ID" format="*" replace="PRIVMSG NickServ :IDENTIFY $2" requires="NickServ" uline="yes">
+<alias text="IDENTIFY" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3" requires="ChanServ" uline="yes">
+<alias text="IDENTIFY" format="*" replace="PRIVMSG NickServ :IDENTIFY $2" requires="NickServ" uline="yes">
 
