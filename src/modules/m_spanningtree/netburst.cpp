@@ -85,7 +85,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	char list[MAXBUF];
 
 	size_t dlen, curlen;
-	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s", this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(),(unsigned long)c->age, c->ChanModes(true));
+	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s :", this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(),(unsigned long)c->age, c->ChanModes(true));
 	int numusers = 0;
 	char* ptr = list + dlen;
 	bool looped_once = false;
@@ -102,13 +102,13 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		if ((curlen + modestr.length() + i->first->uuid.length() + 4) > 480)
 		{
 			buffer.append(list).append("\r\n");
-			dlen = curlen = snprintf(list, MAXBUF, ":%s FJOIN %s %lu +%s", this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
+			dlen = curlen = snprintf(list, MAXBUF, ":%s FJOIN %s %lu +%s :", this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
 			ptr = list + dlen;
 			numusers = 0;
 		}
 
 		// The first parameter gets a : before it
-		ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", modestr.c_str(), i->first->uuid.c_str());
+		ptrlen = snprintf(ptr, MAXBUF, " %s,%s", modestr.c_str(), i->first->uuid.c_str());
 
 		looped_once = true;
 
