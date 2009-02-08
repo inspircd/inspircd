@@ -160,6 +160,7 @@ class ModuleShun : public Module
 	ShunFactory *f;
 	std::set<std::string> ShunEnabledCommands;
 	bool NotifyOfShun;
+	bool affectopers;
 
  public:
 	ModuleShun(InspIRCd* Me) : Module(Me)
@@ -200,6 +201,7 @@ class ModuleShun : public Module
 
 		ShunEnabledCommands.clear();
 		NotifyOfShun = true;
+		affectopers = false;
 
 		std::stringstream dcmds(cmds);
 		std::string thiscmd;
@@ -210,6 +212,7 @@ class ModuleShun : public Module
 		}
 
 		NotifyOfShun = MyConf.ReadFlag("shun", "notifyuser", "yes", 0);
+		affectopers = MyConf.ReadFlag("shun", "affectopers", "no", 0);
 	}
 
 	virtual void OnUserConnect(User* user)
@@ -236,6 +239,12 @@ class ModuleShun : public Module
 		{
 			/* The shun previously set on this user has expired or been removed */
 			user->Shrink("shunned");
+			return 0;
+		}
+
+		if (!affectopers && IS_OPER(user))
+		{
+			/* Don't do anything if the user is an operator and affectopers isn't set */
 			return 0;
 		}
 
