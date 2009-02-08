@@ -343,7 +343,7 @@
 # <cgihost type="ident" mask="otherbox.mysite.com"> # Get IP from ident
 # <cgihost type="passfirst" mask="www.mysite.com">  # See the docs
 # New style:
-# <cgihost type="webirc" pass="foobar"
+# <cgihost type="webirc" password="foobar"
 #   mask="somebox.mysite.com">                      # Get IP from WEBIRC
 #
 # IMPORTANT NOTE:
