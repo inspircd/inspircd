@@ -257,7 +257,7 @@ sub cmd_stop()
 	}
 	print "InspIRCd not dying quietly -- forcing kill\n";
 	kill KILL => $pid;
-	exit 0;
+	return 0;
 }
 
 ###
