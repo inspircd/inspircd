@@ -84,7 +84,8 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		time_t ourTS = chan->age;
 
-		ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %lu", chan->name.c_str(), (unsigned long)TS, (unsigned long)TS, (unsigned long)ourTS - TS);
+		ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %lu",
+			chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (unsigned long)ourTS - (unsigned long)TS);
 		/* If our TS is less than theirs, we dont accept their modes */
 		if (ourTS < TS)
 		{
