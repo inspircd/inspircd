@@ -73,11 +73,14 @@
 #
 # Fantasy settings:
 #
-#<fantasy prefix="!">
+#<fantasy prefix="!" allowbots="no">
 #
 # prefix:
 #  Set the prefix for in-channel aliases (fantasy commands) to the
 #  specified character. If not set, the default is "!".
+# allowbots:
+#  If this is set to no, +B clients will not be able to use fantasy
+#  commands. If not set, the default is no.
 #
 #-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

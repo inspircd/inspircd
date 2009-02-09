@@ -60,9 +60,14 @@ class ModuleAlias : public Module
    */
 	std::multimap<std::string, Alias> Aliases;
 
+	/* whether or not +B users are allowed to use fantasy commands */
+	bool AllowBots;
+
 	virtual void ReadAliases()
 	{
 		ConfigReader MyConf(ServerInstance);
+
+		AllowBots = MyConf.ReadFlag("fantasy", "allowbots", "no", 0);
 		
 		std::string fpre = MyConf.ReadValue("fantasy","prefix",0);
 		fprefix = fpre.empty() ? '!' : fpre[0];
@@ -184,6 +189,13 @@ class ModuleAlias : public Module
 		if (!IS_LOCAL(user))
 		{
 			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not local");
+			return 0;
+		}
+
+		/* Stop here if the user is +B and allowbot is set to no. */
+		if (!AllowBots && user->IsModeSet('B'))
+		{
+			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: user is +B and allowbot is set to no");
 			return 0;
 		}
 
