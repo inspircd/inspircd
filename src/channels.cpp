@@ -209,7 +209,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	if (!user || !cn)
 		return NULL;
 
-	bool new_channel = false;
+	bool new_channel = false, invited = false;
 	char cname[MAXBUF];
 	int MOD_RESULT = 0;
 	strlcpy(cname,cn,CHANMAX);
@@ -306,7 +306,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 							return NULL;
 						}
 					}
-					user->RemoveInvite(Ptr->name);
+					invited = true;
 				}
 				if (Ptr->limit)
 				{
@@ -346,6 +346,11 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	 */	
 	if (!IS_LOCAL(user) || override == true || user->chans.size() < Instance->Config->MaxChans)
 	{
+                /* Bug #711, moved below other checks,
+		 * otherwise a ban etc removes any invite
+		 */
+		if (invited)
+			user->RemoveInvite(Ptr->name);
 		return chanrec::ForceChan(Instance, Ptr, user, privs);
 	}
 
@@ -357,6 +362,11 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	{
 		if (user->chans.size() < Instance->Config->OperMaxChans)
 		{
+			/* Bug #711, moved below other checks,
+			 * otherwise a ban etc removes any invite
+			 */
+			if (invited)
+				user->RemoveInvite(Ptr->name);
 			return chanrec::ForceChan(Instance, Ptr, user, privs);
 		}
 	}
