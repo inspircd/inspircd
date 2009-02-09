@@ -70,6 +70,8 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	this->SetNextPingTime(time(NULL) + Utils->PingFreq);
 	this->SetPingFlag();
 	rtt = LastPing = 0;
+	Warned = false;
+
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
 	 *
