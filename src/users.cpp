@@ -914,6 +914,22 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	Instance->AddLocalClone(New);
 	Instance->AddGlobalClone(New);
 
+	New->exempt = (Instance->XLines->matches_exception(New) != NULL);
+	if (!New->exempt)
+	{
+		ZLine* r = Instance->XLines->matches_zline(ipaddr);
+		if (r)
+		{
+			char reason[MAXBUF];
+			if (*Instance->Config->MoronBanner)
+				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
+			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
+			userrec::QuitUser(Instance, New, reason);
+			return;
+		}
+	}
+
+
 	/*
 	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
 	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
@@ -959,28 +975,13 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	}
 #endif
 
-	New->exempt = (Instance->XLines->matches_exception(New) != NULL);
-	if (!New->exempt)
+	if (socket > -1)
 	{
-		ZLine* r = Instance->XLines->matches_zline(ipaddr);
-		if (r)
+		if (!Instance->SE->AddFd(New))
 		{
-			char reason[MAXBUF];
-			if (*Instance->Config->MoronBanner)
-				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
-			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
-			userrec::QuitUser(Instance, New, reason);
-			return;
+			userrec::QuitUser(Instance, New, "Internal error handling connection");
 		}
 	}
-
-        if (socket > -1)
-        {
-                if (!Instance->SE->AddFd(New))
-                {
-			userrec::QuitUser(Instance, New, "Internal error handling connection");
-                }
-        }
 
 	/* NOTE: even if dns lookups are *off*, we still need to display this.
 	 * BOPM and other stuff requires it.
