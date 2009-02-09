@@ -139,8 +139,6 @@ int KQueueEngine::DispatchEvents()
 
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
 
-	TotalEvents += i;
-
 	for (int j = 0; j < i; j++)
 	{
 		if (ke_list[j].flags & EV_EOF)
@@ -161,14 +159,11 @@ int KQueueEngine::DispatchEvents()
 			 * means they are automatically removed once such a
 			 * event fires, so nothing to do here.
 			 */
-
-			WriteEvents++;
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}
 		if (ke_list[j].filter == EVFILT_READ)
 		{
-			ReadEvents++;
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_READ);
 		}
