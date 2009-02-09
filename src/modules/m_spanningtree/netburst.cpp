@@ -84,10 +84,11 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	std::string buffer;
 	char list[MAXBUF];
 
-	size_t dlen, curlen;
-	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s :", this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(),(unsigned long)c->age, c->ChanModes(true));
+	size_t curlen, headlen;
+	curlen = headlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s :",
+		this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
 	int numusers = 0;
-	char* ptr = list + dlen;
+	char* ptr = list + curlen;
 	bool looped_once = false;
 
 	CUList *ulist = c->GetUsers();
@@ -101,14 +102,16 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 
 		if ((curlen + modestr.length() + i->first->uuid.length() + 4) > 480)
 		{
+			// remove the final space
+			if (ptr[-1] == ' ')
+				ptr[-1] = '\0';
 			buffer.append(list).append("\r\n");
-			dlen = curlen = snprintf(list, MAXBUF, ":%s FJOIN %s %lu +%s :", this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
-			ptr = list + dlen;
+			curlen = headlen;
+			ptr = list + headlen;
 			numusers = 0;
 		}
 
-		// The first parameter gets a : before it
-		ptrlen = snprintf(ptr, MAXBUF, " %s,%s", modestr.c_str(), i->first->uuid.c_str());
+		ptrlen = snprintf(ptr, MAXBUF-curlen, "%s,%s ", modestr.c_str(), i->first->uuid.c_str());
 
 		looped_once = true;
 
@@ -121,7 +124,12 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	// Okay, permanent channels will (of course) need this \r\n anyway, numusers check is if there
 	// actually were people in the channel (looped_once == true)
 	if (!looped_once || numusers > 0)
+	{
+		// remove the final space
+		if (ptr[-1] == ' ')
+			ptr[-1] = '\0';
 		buffer.append(list).append("\r\n");
+	}
 
 	int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
