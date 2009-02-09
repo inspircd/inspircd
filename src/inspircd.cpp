@@ -230,6 +230,8 @@ void InspIRCd::SetSignals()
 	signal(SIGHUP, InspIRCd::SetSignal);
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
+	/* We want E2BIG not a signal! */
+	signal(SIGXFSZ, SIG_IGN);
 #endif
 	signal(SIGTERM, InspIRCd::SetSignal);
 }
