@@ -173,8 +173,8 @@ class ModuleAlias : public Module
 			i++;
 		}
 
-		// If aliases have been processed, aliases took it.
-		return 1;
+		// If we made it here, no aliases actually matched.
+		return 0;
 	}
 
 	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
