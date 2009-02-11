@@ -378,7 +378,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		seq++;
 
 		mask = MASK_CHANNEL;
-		
+
 		while (mode && *mode)
 		{
 			unsigned char mletter = *mode;
@@ -388,7 +388,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 				mode++;
 				continue;
 			}
-			
+
 			/* Ensure the user doesnt request the same mode twice,
 			 * so they cant flood themselves off out of idiocy.
 			 */
@@ -432,7 +432,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 				for(ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 				{
 					std::string dummyparam;
-					
+
 					if (!((*watchers)->BeforeMode(user, NULL, targetchannel, dummyparam, true, MODETYPE_CHANNEL)))
 						display = false;
 				}
@@ -605,7 +605,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 									 */
 									if (needed && !prefixmode)
 										prefixmode = FindPrefix('%');
-						
+
 									unsigned int neededrank = prefixmode->GetPrefixRank();
 									/* Compare our rank on the channel against the rank of the required prefix,
 									 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
@@ -626,7 +626,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 							}
 
 							bool had_parameter = !parameter.empty();
-								
+
 							for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 							{
 								if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type, servermode) == false)
@@ -700,7 +700,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 										output_sequence.append(adding ? "+" : "-");
 									last_successful_state_change = adding;
 								}
-								
+
 								/* Add the mode letter */
 								output_sequence.push_back(modechar);
 
@@ -931,9 +931,6 @@ std::string ModeParser::ChannelModeList()
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
-			continue;
-
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 
 		if (modehandlers[pos])
@@ -950,9 +947,6 @@ std::string ModeParser::ParaModeList()
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
-			continue;
-
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 
 		if ((modehandlers[pos]) && (modehandlers[pos]->GetNumParams(true)))
@@ -1019,13 +1013,10 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
-			continue;
-
 		unsigned char pos = (mode-65) | m;
 		 /* One parameter when adding */
 		if (modehandlers[pos])
-		{	
+		{
 			if (modehandlers[pos]->GetNumParams(true))
 			{
 				if ((modehandlers[pos]->IsListMode()) && (!modehandlers[pos]->GetPrefix()))
@@ -1055,14 +1046,13 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 				type4 += modehandlers[pos]->GetModeChar();
 			}
 		}
-			 
 	}
 
 	return type1 + "," + type2 + "," + type3 + "," + type4;
 }
 
 bool ModeParser::PrefixComparison(prefixtype one, prefixtype two)
-{       
+{
 	return one.second > two.second;
 }
 
@@ -1075,9 +1065,6 @@ std::string ModeParser::BuildPrefixes()
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
-			continue;
-
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 
 		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix()))

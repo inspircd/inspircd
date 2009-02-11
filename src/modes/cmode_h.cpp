@@ -77,15 +77,6 @@ void ModeChannelHalfOp::RemoveMode(User*, irc::modestacker* stack)
 
 ModeAction ModeChannelHalfOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
-	/* If halfops are not enabled in the conf, we don't execute
-	 * anything in this class at all.
-	 */
-	if (!ServerInstance->Config->AllowHalfop)
-	{
-		parameter = "";
-		return MODEACTION_DENY;
-	}
-
 	int status = channel->GetStatus(source);
 
 	/* Call the correct method depending on wether we're adding or removing the mode */

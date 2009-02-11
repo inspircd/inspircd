@@ -30,6 +30,7 @@
 #include "xline.h"
 #include "exitcodes.h"
 #include "commands/cmd_whowas.h"
+#include "modes/cmode_h.h"
 
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
@@ -359,6 +360,24 @@ bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &dat
 	return true;
 }
 
+bool ValidateHalfOp(ServerConfig* conf, const char*, const char*, ValueItem &data)
+{
+	ModeHandler* mh = conf->GetInstance()->Modes->FindMode('h', MODETYPE_CHANNEL);
+	if (data.GetBool() && !mh)
+	{
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Enabling halfop mode.");
+		mh = new ModeChannelHalfOp(conf->GetInstance());
+		conf->GetInstance()->Modes->AddMode(mh);
+	}
+	else if (!data.GetBool() && mh)
+	{
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Disabling halfop mode.");
+		conf->GetInstance()->Modes->DelMode(mh);
+		delete mh;
+	}
+	return true;
+}
+
 bool ValidateMotd(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->ReadFile(conf->MOTD, data.GetString());
@@ -471,7 +490,7 @@ bool InitConnect(ServerConfig* conf, const char*)
 		if (c->RefCount == 0)
 		{
 			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Removing connect class, refcount is 0!");
-			
+
 			/* This was causing a crash, because we'd set i to .begin() just here, but then the for loop's increment would
 			 * set it to .begin() + 1. Which if it was already the last thing in the list, wasn't good.
 			 * Now the increment is in the else { } below.
@@ -797,7 +816,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		{"options",	"fixedpart",	"",			new ValueContainerChar (this->FixedPart),		DT_CHARPTR,  NoValidation},
 		{"performance",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
 		{"performance",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
-		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  NoValidation},
+		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  ValidateHalfOp},
 		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_IPADDRESS,DNSServerValidator},
 		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER,  NoValidation},
 		{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR,  NoValidation},
@@ -897,7 +916,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 				{"No reason",	"",		NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitXLine, DoQLine, DoneConfItem},
-	
+
 		{"badhost",
 				{"reason",	"host",		NULL},
 				{"No reason",	"",		NULL},
@@ -909,7 +928,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 				{"No reason",	"",		NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitXLine, DoELine, DoneELine},
-	
+
 		{"type",
 				{"name",	"classes",	NULL},
 				{"",		"",		NULL},
@@ -921,7 +940,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 				{"",		"",				"",				"",			"",			NULL},
 				{DT_NOSPACES,	DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR, DT_CHARPTR},
 				InitClasses, DoClass, DoneClassesAndTypes},
-	
+
 		{NULL,
 				{NULL},
 				{NULL},
@@ -940,7 +959,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		delete errstr;
 		return;
 	}
-	
+
 	delete errstr;
 
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
@@ -982,10 +1001,10 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 
 			ConfValue(newconfig, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
-			
+
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
-	
+
 			ServerInstance->Threads->Lock();
 			switch (dt)
 			{
@@ -1511,7 +1530,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 				{
 					// errorstream << "Closing config tag on line " << linenumber << std::endl;
 					in_tag = false;
-	
+
 					/*
 					 * If this finds an <include> then ParseLine can simply call
 					 * LoadConf() and load the included config into the same ConfigDataHash
@@ -1522,7 +1541,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 					last_successful_parse = linenumber;
 
 					linenumber = bl;
-	
+
 					line.clear();
 				}
 				else
@@ -1667,7 +1686,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 						got_key = false;
 
 						if ((tagname == "include") && (current_key == "file"))
-						{	
+						{
 							if (!this->DoInclude(target, current_value, errorstream))
 								return false;
 						}
@@ -2007,7 +2026,7 @@ bool ServerConfig::FileExists(const char* file)
 
 	if ((sb.st_mode & S_IFDIR) > 0)
 		return false;
-	     
+
 	FILE *input;
 	if ((input = fopen (file, "r")) == NULL)
 		return false;
@@ -2356,4 +2375,3 @@ void ConfigReaderThread::Run()
 	this->SetExitFlag();
 	ServerInstance->Threads->Unlock();
 }
-
