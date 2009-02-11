@@ -103,7 +103,7 @@ class ModuleShowwhois : public Module
 			}
 			else
 			{
-				std::string msg = std::string(":") + dest->server + " NOTICE " + dest->nick + " :" + wmsg;
+				std::string msg = std::string("::") + dest->server + " NOTICE " + dest->nick + " :" + wmsg;
 				ServerInstance->PI->PushToClient(dest, msg);
 			}
 		}
