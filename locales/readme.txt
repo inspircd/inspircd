@@ -23,7 +23,9 @@ Can be usefull for example for comparing nicknames that contains similar-looking
 
 6: List of additional UTF-8 allowed characters
 
-7: List of additional UTF-8 ranges (character followed by "range"). Strongly experimental. May be replaced in future versions.
+7: List of additional UTF-8 ranges (character followed by 1-byte "range").
+
+8: List of additional UTF-8 ranges (i.e. start1, end1, start2, end2,... UTF8-characters between each start-end pair assumed valid).
 
 *** Line format ***
 
@@ -44,5 +46,4 @@ In this case every character of line except first dot specifies one character-co
 
 *** TODO ***
 
-- Maybe replace line 7 with <interval start> <interval end> form?
 - UTF-8 collation rules (Inapplieable to InspIRCd atm).

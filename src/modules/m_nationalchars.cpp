@@ -12,7 +12,8 @@
  */
 
 /* Contains a code of Unreal IRCd + Bynets patch ( http://www.unrealircd.com/ and http://www.bynets.org/ )
-   Changed at 2008-06-15 - 2008-12-15
+   Original patch is made by Dmitry "Killer{R}" Kononko. ( http://killprog.com/ )
+   Changed at 2008-06-15 - 2009-02-11
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
 #include "inspircd.h"
@@ -31,13 +32,14 @@ class lwbNickHandler : public HandlerBase2<bool, const char*, size_t>
 };
 
 								 /*,m_reverse_additionalUp[256];*/
-static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256];
+static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256],m_additionalUtf8interval[256];
 
 char utf8checkrest(unsigned char * mb, unsigned char cnt)
 {
 	for (unsigned char * tmp=mb; tmp<mb+cnt; tmp++)
 	{
-		if ((*tmp < 128) || (*tmp > 191))
+		/* & is faster! -- Phoenix (char & b11000000 == b10000000) */
+		if ((*tmp & 192) != 128)
 			return -1;
 	}
 	return cnt + 1;
@@ -107,7 +109,7 @@ bool lwbNickHandler::Call(const char* n, size_t max)
 			continue;
 
 		/* 3.1. Check against a simple UTF-8 characters enumeration */
-		int cursize, ncursize = utf8size((unsigned char *)i);
+		int cursize, cursize2, ncursize = utf8size((unsigned char *)i);
 		/* do check only if current multibyte character is valid UTF-8 only */
 		if (ncursize != -1)
 		{
@@ -130,27 +132,65 @@ bool lwbNickHandler::Call(const char* n, size_t max)
 			if (found)
 				continue;
 
-			/* 3.2. Check against an UTF-8 ranges: <start character> and <lenght of the range>.
-			Also char. is to be checked if it is a valid UTF-8 one */
+			/* 3.2. Check against an UTF-8 ranges: <start character> and <length of the range>. */
 			found = false;
 			for (unsigned char * mb = m_additionalUtf8range; (utf8size(mb) != -1) && (mb < m_additionalUtf8range + sizeof(m_additionalUtf8range)); mb += cursize + 1)
 			{
 				cursize = utf8size(mb);
-				/* Size differs? Pick the next! */
+				/* Size differs (or lengthbyte is zero)? Pick the next! */
 				if ((cursize != ncursize) || (!mb[cursize]))
 					continue;
 
-				unsigned char uright[5] = {0,0,0,0,0};
-
+				unsigned char uright[5] = {0,0,0,0,0}, range = mb[cursize] - 1;
 				strncpy((char* ) uright, (char *) mb, cursize);
 
-				if ((uright[cursize-1] + mb[cursize]-1>0xff) && (cursize != 1))
+				for (int temp = cursize - 1; (temp >= 0) && range; --temp)
 				{
-					uright[cursize - 2]+=1;
+					/* all but the first char are 64-based */
+					if (temp)
+					{
+						char part64 = range & 63; /* i.e. % 64 */
+						/* handle carrying over */
+						if (uright[temp] + part64 - 1 > 191)
+						{
+							uright[temp] -= 64;
+							range += 64;
+						}
+						uright[temp] += part64;
+						range >>= 6; /* divide it on a 64 */
+					}
+					/* the first char of UTF-8 doesn't follow the rule */
+					else
+					{
+						uright[temp] += range;
+					}
 				}
-				uright[cursize - 1] = (uright[cursize - 1]+mb[cursize] - 1) % 0x100;
 
 				if ((strncmp(i, (char *) mb, cursize) >= 0) && (strncmp(i, (char *) uright, cursize) <= 0))
+				{
+					i += cursize - 1;
+					p += cursize - 1;
+					found = true;
+					break;
+				}
+			}
+			if (found)
+				continue;
+
+			/* 3.3. Check against an UTF-8 intervals: <start character> and <end character>. */
+			found = false;
+			for (unsigned char * mb = m_additionalUtf8interval; (utf8size(mb) != -1) && (utf8size(mb+utf8size(mb)) != -1)
+				&& (mb < m_additionalUtf8interval + sizeof(m_additionalUtf8interval)); mb += (cursize+cursize2) )
+			{
+				cursize = utf8size(mb);
+				cursize2= utf8size(mb+cursize);
+
+				int minlen  = cursize  > ncursize ? ncursize : cursize;
+				int minlen2 = cursize2 > ncursize ? ncursize : cursize2;
+
+				unsigned char* uright = mb + cursize;
+
+				if ((strncmp(i, (char *) mb, minlen) >= 0) && (strncmp(i, (char *) uright, minlen2) <= 0))
 				{
 					i += cursize - 1;
 					p += cursize - 1;
@@ -216,8 +256,8 @@ class ModuleNationalChars : public Module
 		charset = conf->ReadValue("nationalchars", "file", 0);
 		casemapping = conf->ReadValue("nationalchars", "casemapping", charset, 0, false);
 		charset.insert(0, "../locales/");
-		unsigned char * tables[7] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range };
-		loadtables(charset, tables, 7, 5);
+		unsigned char * tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
+		loadtables(charset, tables, 8, 5);
 		forcequit = conf->ReadFlag("nationalchars", "forcequit", 0);
 		CheckForceQuit("National character set changed");
 		delete conf;
@@ -319,7 +359,7 @@ class ModuleNationalChars : public Module
 		if (buf[0] == '.')	/* simple plain-text string after dot */
 		{
 			i = buf.size() - 1;
-	
+
 			if (i > (maxindex + 1))
 				i = maxindex + 1;
 
