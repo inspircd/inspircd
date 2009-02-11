@@ -134,7 +134,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 		{
 			std::string nickonly;
 
-			nickonly.assign(destnick, 0, targetserver - destnick + 1);
+			nickonly.assign(destnick, 0, targetserver - destnick);
 			dest = ServerInstance->FindNickOnly(nickonly);
 			if (dest && strcasecmp(dest->server, targetserver + 1))
 			{
