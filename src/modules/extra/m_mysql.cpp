@@ -74,6 +74,20 @@ int QueueFD = -1;
 
 class DispatcherThread;
 
+unsigned long count(const char * const str, char a)
+{
+	unsigned long n = 0;
+	const char *p = reinterpret_cast<const char *>(str);
+
+	while ((p = strchr(p, a)) != NULL)
+	{
+		++p;
+		++n;
+	}
+	return n;
+}
+
+
 /** MySQL module
  *  */
 class ModuleSQL : public Module
@@ -346,25 +360,33 @@ class SQLConnection : public classbase
 		char* queryend;
 
 		/* Total length of the unescaped parameters */
-		unsigned long paramlen;
+		unsigned long maxparamlen, paramcount;
 
 		/* Total length of query, used for binary-safety in mysql_real_query */
 		unsigned long querylength = 0;
 
-		paramlen = 0;
+		/* The length of the longest parameter */
+		maxparamlen = 0;
 
 		for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
 		{
-			paramlen += i->size();
+			if (i->size() > maxparamlen)
+				maxparamlen = i->size();
 		}
 
+		/* How many params are there in the query? */
+		paramcount = count(req.query.q.c_str(), '?');
+
+		/* This stores copy of params to be inserted with using numbered params 1;3B*/
+		ParamL paramscopy(req.query.p);
+
 		/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
-		 * sizeofquery + (totalparamlength*2) + 1
+		 * sizeofquery + (maxtotalparamlength*2) + 1
 		 *
 		 * The +1 is for null-terminating the string for mysql_real_escape_string
 		 */
 
-		query = new char[req.query.q.length() + (paramlen*2) + 1];
+		query = new char[req.query.q.length() + (maxparamlen*paramcount*2) + 1];
 		queryend = query;
 
 		/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
@@ -381,7 +403,42 @@ class SQLConnection : public classbase
 				 * then we "just" need to make sure queryend is
 				 * pointing at the right place.
 				 */
-				if(req.query.p.size())
+
+				/* Is it numbered parameter?
+				 */
+
+				bool numbered;
+				numbered = false;
+
+				/* Numbered parameter number :|
+				 */
+				unsigned int paramnum;
+				paramnum = 0;
+
+				/* Let's check if it's a numbered param. And also calculate it's number.
+				 */
+
+				while ((i < req.query.q.length() - 1) && (req.query.q[i+1] >= '0') && (req.query.q[i+1] <= '9'))
+				{
+					numbered = true;
+					++i;
+					paramnum = paramnum * 10 + req.query.q[i] - '0';
+				}
+
+				if (paramnum > paramscopy.size() - 1)
+				{
+					/* index is out of range!
+					 */
+					numbered = false;
+				}
+
+				if (numbered)
+				{
+					unsigned long len = mysql_real_escape_string(&connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
+
+					queryend += len;
+				}
+				else if (req.query.p.size())
 				{
 					unsigned long len = mysql_real_escape_string(&connection, queryend, req.query.p.front().c_str(), req.query.p.front().length());
 
@@ -445,7 +502,8 @@ class SQLConnection : public classbase
 
 	bool ConnectionLost()
 	{
-		if (&connection) {
+		if (&connection)
+		{
 			return (mysql_ping(&connection) != 0);
 		}
 		else return false;
@@ -453,7 +511,8 @@ class SQLConnection : public classbase
 
 	bool CheckConnection()
 	{
-		if (ConnectionLost()) {
+		if (ConnectionLost())
+		{
 			return Connect();
 		}
 		else return true;
@@ -723,7 +782,8 @@ class MySQLListener : public ListenSocketBase
 
 	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 	{
-		new Notifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+		// XXX unsafe casts suck
+		new Notifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str());
 	}
 
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
@@ -933,5 +993,5 @@ void DispatcherThread::Run()
 	}
 }
 
-MODULE_INIT(ModuleSQL)
 
+MODULE_INIT(ModuleSQL)

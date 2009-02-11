@@ -44,6 +44,19 @@ typedef std::map<std::string, SQLConn*> ConnMap;
  */
 enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
 
+unsigned long count(const char * const str, char a)
+{
+	unsigned long n = 0;
+	const char *p = reinterpret_cast<const char *>(str);
+
+	while ((p = strchr(p, a)) != NULL)
+	{
+		++p;
+		++n;
+	}
+	return n;
+}
+
 /** SQLhost::GetDSN() - Overload to return correct DSN for PostgreSQL
  */
 std::string SQLhost::GetDSN()
@@ -466,7 +479,8 @@ class SQLConn : public EventHandler
 						case PGRES_FATAL_ERROR:
 							reply.error.Id(SQL_QREPLY_FAIL);
 							reply.error.Str(PQresultErrorMessage(result));
-						default:;
+						default:
+							;
 							/* No action, other values are not errors */
 					}
 
@@ -571,23 +585,35 @@ class SQLConn : public EventHandler
 				char* query;
 				/* Pointer to the current end of query, where we append new stuff */
 				char* queryend;
-				/* Total length of the unescaped parameters */
-				unsigned int paramlen;
 
-				paramlen = 0;
+				/* Total length of the unescaped parameters */
+				unsigned long maxparamlen, paramcount;
+
+				/* Total length of query, used for binary-safety */
+				unsigned long querylength = 0;
+
+				/* The length of the longest parameter */
+				maxparamlen = 0;
 
 				for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
 				{
-					paramlen += i->size();
+					if (i->size() > maxparamlen)
+						maxparamlen = i->size();
 				}
 
+				/* How many params are there in the query? */
+				paramcount = count(req.query.q.c_str(), '?');
+
+				/* This stores copy of params to be inserted with using numbered params 1;3B*/
+				ParamL paramscopy(req.query.p);
+
 				/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
-				 * sizeofquery + (totalparamlength*2) + 1
+				 * sizeofquery + (maxtotalparamlength*2) + 1
 				 *
 				 * The +1 is for null-terminating the string for PQsendQuery()
 				 */
 
-				query = new char[req.query.q.length() + (paramlen*2) + 1];
+				query = new char[req.query.q.length() + (maxparamlen*paramcount*2) + 1];
 				queryend = query;
 
 				/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
@@ -605,7 +631,53 @@ class SQLConn : public EventHandler
 						 * pointing at the right place.
 						 */
 
-						if(req.query.p.size())
+						/* Is it numbered parameter?
+						 */
+
+						bool numbered;
+						numbered = false;
+
+						/* Numbered parameter number :|
+						 */
+						unsigned int paramnum;
+						paramnum = 0;
+
+						/* Let's check if it's a numbered param. And also calculate it's number.
+						 */
+
+						while ((i < req.query.q.length() - 1) && (req.query.q[i+1] >= '0') && (req.query.q[i+1] <= '9'))
+						{
+							numbered = true;
+							++i;
+							paramnum = paramnum * 10 + req.query.q[i] - '0';
+						}
+
+						if (paramnum > paramscopy.size() - 1)
+						{
+							/* index is out of range!
+							 */
+							numbered = false;
+						}
+
+						if (numbered)
+						{
+							int error = 0;
+							size_t len = 0;
+
+#ifdef PGSQL_HAS_ESCAPECONN
+							len = PQescapeStringConn(sql, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length(), &error);
+#else
+							len = PQescapeString         (queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
+#endif
+							if (error)
+							{
+								ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
+							}
+
+							/* Incremenet queryend to the end of the newly escaped parameter */
+							queryend += len;
+						}
+						else if (req.query.p.size())
 						{
 							int error = 0;
 							size_t len = 0;
@@ -685,7 +757,8 @@ class SQLConn : public EventHandler
 		return confhost;
 	}
 
-	void Close() {
+	void Close()
+	{
 		if (!this->ServerInstance->SE->DelFd(this))
 		{
 			if (sql && PQstatus(sql) == CONNECTION_BAD)

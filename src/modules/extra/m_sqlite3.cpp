@@ -31,6 +31,19 @@ typedef std::map<std::string, SQLConn*> ConnMap;
 typedef std::deque<classbase*> paramlist;
 typedef std::deque<SQLite3Result*> ResultQueue;
 
+unsigned long count(const char * const str, char a)
+{
+	unsigned long n = 0;
+	const char *p = reinterpret_cast<const char *>(str);
+
+	while ((p = strchr(p, a)) != NULL)
+	{
+		++p;
+		++n;
+	}
+	return n;
+}
+
 ResultNotifier* notifier = NULL;
 SQLiteListener* listener = NULL;
 int QueueFD = -1;
@@ -293,30 +306,87 @@ class SQLConn : public classbase
 		char* queryend;
 
 		/* Total length of the unescaped parameters */
-		unsigned long paramlen;
+		unsigned long maxparamlen, paramcount;
 
 		/* Total length of query, used for binary-safety */
 		unsigned long querylength = 0;
 
-		paramlen = 0;
+		/* The length of the longest parameter */
+		maxparamlen = 0;
+
 		for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
 		{
-			paramlen += i->size();
+			if (i->size() > maxparamlen)
+				maxparamlen = i->size();
 		}
 
+		/* How many params are there in the query? */
+		paramcount = count(req.query.q.c_str(), '?');
+
+		/* This stores copy of params to be inserted with using numbered params 1;3B*/
+		ParamL paramscopy(req.query.p);
+
 		/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
-		 * sizeofquery + (totalparamlength*2) + 1
+		 * sizeofquery + (maxtotalparamlength*2) + 1
 		 *
 		 * The +1 is for null-terminating the string
 		 */
-		query = new char[req.query.q.length() + (paramlen*2) + 1];
+
+		query = new char[req.query.q.length() + (maxparamlen*paramcount*2) + 1];
 		queryend = query;
 
 		for(unsigned long i = 0; i < req.query.q.length(); i++)
 		{
 			if(req.query.q[i] == '?')
 			{
-				if(req.query.p.size())
+				/* We found a place to substitute..what fun.
+				 * use sqlite calls to escape and write the
+				 * escaped string onto the end of our query buffer,
+				 * then we "just" need to make sure queryend is
+				 * pointing at the right place.
+				 */
+
+				/* Is it numbered parameter?
+				 */
+
+				bool numbered;
+				numbered = false;
+
+				/* Numbered parameter number :|
+				 */
+				unsigned int paramnum;
+				paramnum = 0;
+
+				/* Let's check if it's a numbered param. And also calculate it's number.
+				 */
+
+				while ((i < req.query.q.length() - 1) && (req.query.q[i+1] >= '0') && (req.query.q[i+1] <= '9'))
+				{
+					numbered = true;
+					++i;
+					paramnum = paramnum * 10 + req.query.q[i] - '0';
+				}
+
+				if (paramnum > paramscopy.size() - 1)
+				{
+					/* index is out of range!
+					 */
+					numbered = false;
+				}
+
+
+				if (numbered)
+				{
+					char* escaped;
+					escaped = sqlite3_mprintf("%q", paramscopy[paramnum].c_str());
+					for (char* n = escaped; *n; n++)
+					{
+						*queryend = *n;
+						queryend++;
+					}
+					sqlite3_free(escaped);
+				}
+				else if (req.query.p.size())
 				{
 					char* escaped;
 					escaped = sqlite3_mprintf("%q", req.query.p.front().c_str());
