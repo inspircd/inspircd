@@ -149,7 +149,14 @@ sub pkgconfig_get_include_dirs($$$;$)
 			$headername =~ s/^\///;
 			promptstring("path to the directory containing $headername", $key, "/usr/include",$packagename,"$packagename-includes");
 			$packagename =~ tr/a-z/A-Z/;
-			$main::config{$key} = "-I$main::config{$key}" . " $defaults -DVERSION_$packagename=\"$v\"";
+			if (defined $v)
+			{
+				$main::config{$key} = "-I$main::config{$key}" . " $defaults -DVERSION_$packagename=\"$v\"";
+			}
+			else
+			{
+				$main::config{$key} = "-I$main::config{$key}" . " $defaults -DVERSION_$packagename=\"0.0\"";
+			}
 			$main::config{$key} =~ s/^\s+//g;
 			$ret = $main::config{$key};
 			return $ret;
