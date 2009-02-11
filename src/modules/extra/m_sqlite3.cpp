@@ -34,12 +34,10 @@ typedef std::deque<SQLite3Result*> ResultQueue;
 unsigned long count(const char * const str, char a)
 {
 	unsigned long n = 0;
-	const char *p = reinterpret_cast<const char *>(str);
-
-	while ((p = strchr(p, a)) != NULL)
+	for (const char *p = reinterpret_cast<const char *>(str); *p; ++p)
 	{
-		++p;
-		++n;
+		if (*p == '?')
+			++n;
 	}
 	return n;
 }
