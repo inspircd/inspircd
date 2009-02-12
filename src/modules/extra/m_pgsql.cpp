@@ -587,9 +587,6 @@ class SQLConn : public EventHandler
 				/* Total length of the unescaped parameters */
 				unsigned long maxparamlen, paramcount;
 
-				/* Total length of query, used for binary-safety */
-				unsigned long querylength = 0;
-
 				/* The length of the longest parameter */
 				maxparamlen = 0;
 
