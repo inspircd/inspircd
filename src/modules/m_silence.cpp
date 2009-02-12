@@ -345,10 +345,7 @@ class ModuleSilence : public Module
 
 	virtual int PreText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
 	{
-		if (!IS_LOCAL(user))
-			return 0;
-
-		if (target_type == TYPE_USER)
+		if (target_type == TYPE_USER && IS_LOCAL(((User*)dest)))
 		{
 			return MatchPattern((User*)dest, user, silence_type);
 		}
