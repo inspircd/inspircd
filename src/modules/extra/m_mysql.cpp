@@ -174,6 +174,7 @@ class MySQLresult : public SQLresult
 				rows++;
 			}
 			mysql_free_result(res);
+			res = NULL;
 		}
 	}
 
@@ -309,10 +310,9 @@ void NotifyMainThread(SQLConnection* connection_with_new_result);
 class SQLConnection : public classbase
 {
  protected:
-
-	MYSQL connection;
+	MYSQL *connection;
 	MYSQL_RES *res;
-	MYSQL_ROW row;
+	MYSQL_ROW *row;
 	SQLhost host;
 	std::map<std::string,std::string> thisrow;
 	bool Enabled;
@@ -324,7 +324,7 @@ class SQLConnection : public classbase
 	ResultQueue rq;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(const SQLhost &hi, ModuleSQL* Creator) : host(hi), Enabled(false), Parent(Creator)
+	SQLConnection(const SQLhost &hi, ModuleSQL* Creator) : connection(NULL), host(hi), Enabled(false), Parent(Creator)
 	{
 	}
 
@@ -338,9 +338,9 @@ class SQLConnection : public classbase
 	bool Connect()
 	{
 		unsigned int timeout = 1;
-		mysql_init(&connection);
-		mysql_options(&connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
-		return mysql_real_connect(&connection, host.host.c_str(), host.user.c_str(), host.pass.c_str(), host.name.c_str(), host.port, NULL, 0);
+		connection = mysql_init(connection);
+		mysql_options(connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
+		return mysql_real_connect(connection, host.host.c_str(), host.user.c_str(), host.pass.c_str(), host.name.c_str(), host.port, NULL, 0);
 	}
 
 	void DoLeadingQuery()
@@ -432,13 +432,13 @@ class SQLConnection : public classbase
 
 				if (numbered)
 				{
-					unsigned long len = mysql_real_escape_string(&connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
+					unsigned long len = mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
 
 					queryend += len;
 				}
 				else if (req.query.p.size())
 				{
-					unsigned long len = mysql_real_escape_string(&connection, queryend, req.query.p.front().c_str(), req.query.p.front().length());
+					unsigned long len = mysql_real_escape_string(connection, queryend, req.query.p.front().c_str(), req.query.p.front().length());
 
 					queryend += len;
 					req.query.p.pop_front();
@@ -460,11 +460,11 @@ class SQLConnection : public classbase
 		req.query.q = query;
 		Parent->QueueMutex->Unlock();
 
-		if (!mysql_real_query(&connection, req.query.q.data(), req.query.q.length()))
+		if (!mysql_real_query(connection, req.query.q.data(), req.query.q.length()))
 		{
 			/* Successfull query */
-			res = mysql_use_result(&connection);
-			unsigned long rows = mysql_affected_rows(&connection);
+			res = mysql_use_result(connection);
+			unsigned long rows = mysql_affected_rows(connection);
 			MySQLresult* r = new MySQLresult(Parent, req.GetSource(), res, rows, req.id);
 			r->dbid = this->GetID();
 			r->query = req.query.q;
@@ -479,7 +479,7 @@ class SQLConnection : public classbase
 		{
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
-			SQLerror e(SQL_QREPLY_FAIL, ConvToStr(mysql_errno(&connection)) + std::string(": ") + mysql_error(&connection));
+			SQLerror e(SQL_QREPLY_FAIL, ConvToStr(mysql_errno(connection)) + std::string(": ") + mysql_error(connection));
 			MySQLresult* r = new MySQLresult(Parent, req.GetSource(), e, req.id);
 			r->dbid = this->GetID();
 			r->query = req.query.q;
@@ -502,7 +502,7 @@ class SQLConnection : public classbase
 	{
 		if (&connection)
 		{
-			return (mysql_ping(&connection) != 0);
+			return (mysql_ping(connection) != 0);
 		}
 		else return false;
 	}
@@ -518,7 +518,7 @@ class SQLConnection : public classbase
 
 	std::string GetError()
 	{
-		return mysql_error(&connection);
+		return mysql_error(connection);
 	}
 
 	const std::string& GetID()
@@ -543,7 +543,7 @@ class SQLConnection : public classbase
 
 	void Close()
 	{
-		mysql_close(&connection);
+		mysql_close(connection);
 	}
 
 	const SQLhost& GetConfHost()
@@ -737,20 +737,23 @@ class Notifier : public BufferedSocket
 		{
 			Parent->ConnMutex->Lock();
 			ConnMap::iterator iter = GetCharId(data);
+			Parent->ConnMutex->Unlock();
 			if (iter != Connections.end())
 			{
-				/* Lock the mutex, send back the data */
 				Parent->ResultsMutex->Lock();
 				ResultQueue::iterator n = iter->second->rq.begin();
+				Parent->ResultsMutex->Unlock();
+
 				(*n)->Send();
 				delete (*n);
+
+				Parent->ResultsMutex->Lock();
 				iter->second->rq.pop_front();
 				Parent->ResultsMutex->Unlock();
-				Parent->ConnMutex->Unlock();
+
 				return true;
 			}
 			/* No error, but unknown id */
-			Parent->ConnMutex->Unlock();
 			return true;
 		}
 
