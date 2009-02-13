@@ -505,8 +505,8 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	MasterTime = Conf->ReadFlag("timesync", "master", 0);
 	ChallengeResponse = !Conf->ReadFlag("options", "disablehmac", 0);
 	quiet_bursts = Conf->ReadFlag("options", "quietbursts", 0);
-	PingWarnTime = Conf->ReadInteger("options", "pingwarning", 0, true);
-	PingFreq = Conf->ReadInteger("options", "serverpingfreq", 0, true);
+	PingWarnTime = Conf->ReadInteger("options", "pingwarning", "0", 0, true);
+	PingFreq = Conf->ReadInteger("options", "serverpingfreq", "0", 0, true);
 
 	if (PingFreq == 0)
 		PingFreq = 60;
