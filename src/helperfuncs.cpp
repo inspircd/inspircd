@@ -414,7 +414,7 @@ bool InspIRCd::IsNick(const char* n)
 	}
 
 	/* too long? or not -- pointer arithmetic rocks */
-	return (p < NICKMAX);
+	return (p < NICKMAX - 1);
 }
 
 /* return true for good ident, false else */
