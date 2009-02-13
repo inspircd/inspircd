@@ -61,7 +61,10 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 
 		if (IS_OPER(dest))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper[0]) ? "an" : "a"),irc::Spacify(dest->oper.c_str()), ServerInstance->Config->Network);
+			if (ServerInstance->Config->GenericOper)
+				ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());
+			else
+				ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper[0]) ? "an" : "a"),irc::Spacify(dest->oper.c_str()), ServerInstance->Config->Network);
 		}
 
 		if (user == dest || user->HasPrivPermission("users/auspex"))

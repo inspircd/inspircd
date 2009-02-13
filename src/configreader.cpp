@@ -823,7 +823,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR,  NoValidation},
 		{"disabled",	"usermodes",	"",			new ValueContainerChar (disabledumodes),		DT_CHARPTR,  ValidateDisabledUModes},
 		{"disabled",	"chanmodes",	"",			new ValueContainerChar (disabledcmodes),		DT_CHARPTR,  ValidateDisabledCModes},
-		{"disabled",	"fakenonexistant",	"0",			new ValueContainerBool (&this->DisabledDontExist),		DT_BOOLEAN,  NoValidation},
+		{"disabled",	"fakenonexistant",	"0",		new ValueContainerBool (&this->DisabledDontExist),		DT_BOOLEAN,  NoValidation},
 
 		{"security",		"runasuser",	"",		new ValueContainerChar(this->SetUser),				DT_CHARPTR, NoValidation},
 		{"security",		"runasgroup",	"",		new ValueContainerChar(this->SetGroup),				DT_CHARPTR, NoValidation},
@@ -834,7 +834,8 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		{"security",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_NOSPACES, NoValidation},
 		{"security",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_NOSPACES,  NoValidation},
 		{"security",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN,  NoValidation},
-		{"security",	"restrictbannedusers",	"1",			new ValueContainerBool (&this->RestrictBannedUsers),		DT_BOOLEAN,  NoValidation},
+		{"security",	"restrictbannedusers",	"1",		new ValueContainerBool (&this->RestrictBannedUsers),		DT_BOOLEAN,  NoValidation},
+		{"security",	"genericoper",	"0",			new ValueContainerBool (&this->GenericOper),		DT_BOOLEAN,  NoValidation},
 		{"performance",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN,  NoValidation},
 		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN,  NoValidation},
 		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN,  NoValidation},

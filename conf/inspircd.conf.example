@@ -545,6 +545,12 @@
           # banned on.
           restrictbannedusers="yes"
 
+          # genericoper: Setting this value makes all opers on this server
+          # appear as 'is an IRC operator' in their WHOIS, regardless of their
+          # oper type, however oper types are still used internally. This only
+          # affects the display in WHOIS.
+          genericoper="no"
+
           # userstats: /stats commands that users can run (opers can run all).
           userstats="Pu">
 
