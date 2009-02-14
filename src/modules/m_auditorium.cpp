@@ -112,6 +112,20 @@ class ModuleAuditorium : public Module
 		}
 	}
 
+	void WriteOverride(User* source, Channel* channel, const std::string &text)
+	{
+		if (!OperOverride)
+			return;
+
+		CUList *ulist = channel->GetUsers();
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		{
+			if (i->first->HasPrivPermission("channels/auspex") && source != i->first)
+				if (!ShowOps || (ShowOps && channel->GetStatus(i->first) < STATUS_OP))
+					i->first->WriteFrom(source, "%s",text.c_str());
+		}
+	}
+
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
 	{
 		if (channel->IsModeSet('u'))
@@ -121,6 +135,7 @@ class ModuleAuditorium : public Module
 			user->WriteFrom(user, "JOIN %s", channel->name.c_str());
 			if (ShowOps)
 				channel->WriteAllExceptSender(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', "JOIN %s", channel->name.c_str());
+			WriteOverride(user, channel, "JOIN "+channel->name);
 		}
 	}
 
@@ -138,6 +153,7 @@ class ModuleAuditorium : public Module
 				channel->WriteAllExceptSender(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :",
 						partmessage.empty() ? "" : partmessage.c_str());
 			}
+			WriteOverride(user, channel, "PART " + channel->name + (partmessage.empty() ? "" : (" :" + partmessage)));
 		}
 	}
 
@@ -152,6 +168,7 @@ class ModuleAuditorium : public Module
 				chan->WriteAllExceptSender(source, false, chan->GetStatus(user) >= STATUS_OP ? 0 : '@', "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			if ((!ShowOps) || (chan->GetStatus(user) < STATUS_OP)) /* make sure the target gets the event */
 				user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
+			WriteOverride(user, chan, "KICK " + chan->name + " " + user->nick + " " + reason);
 		}
 	}
 
