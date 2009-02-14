@@ -168,7 +168,7 @@ class ModuleAuditorium : public Module
 				chan->WriteAllExceptSender(source, false, chan->GetStatus(user) >= STATUS_OP ? 0 : '@', "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			if ((!ShowOps) || (chan->GetStatus(user) < STATUS_OP)) /* make sure the target gets the event */
 				user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-			WriteOverride(user, chan, "KICK " + chan->name + " " + user->nick + " " + reason);
+			WriteOverride(source, chan, "KICK " + chan->name + " " + user->nick + " " + reason);
 		}
 	}
 
