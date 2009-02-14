@@ -11,6 +11,9 @@
  * ---------------------------------------------------
  */
 
+#ifndef __NUMERICS_H
+#define __NUMERICS_H
+
 /*
  * This file is aimed providing a string that is easier to use than using the numeric
  * directly.
@@ -146,3 +149,5 @@ enum Numerics
 	ERR_CANTLOADMODULE				=	974, // insp-specific
 	RPL_LOADEDMODULE				=	975 // insp-specific
 };
+
+#endif
