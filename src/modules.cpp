@@ -387,7 +387,7 @@ bool ModuleManager::Load(const char* filename)
 		 * to load (but wont abort when it encounters a bad one) and when 1 or
 		 * more modules were actually loaded.
 		 */
-		return (n_match > 0);
+		return (n_match > 0 ? false : true);
 	}
 
 	char modfile[MAXBUF];
