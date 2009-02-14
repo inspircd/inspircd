@@ -81,7 +81,7 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 			/* 0: check status, 1: don't, -1: disallow change silently */
 
 			FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(u,this,ntopic));
-		
+
 			if (MOD_RESULT == 1)
 				return CMD_FAILURE;
 			else if (MOD_RESULT == 0)

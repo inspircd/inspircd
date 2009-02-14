@@ -166,7 +166,7 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 
 	/* decrement set size */
 	--CurrentSetSize;
-	
+
 	/* success */
 	return true;
 }
@@ -175,7 +175,7 @@ void IOCPEngine::WantWrite(EventHandler* eh)
 {
 	if (!eh)
 		return;
-	
+
 	void* m_writeEvent = NULL;
 
 	int* fake_fd = NULL;
@@ -351,7 +351,7 @@ int IOCPEngine::DispatchEvents()
 				}
 			}
 			break;
-		
+
 			case SOCKET_IO_EVENT_ACCEPT:
 			{
 				/* this is kinda messy.. :/ */
@@ -370,7 +370,7 @@ int IOCPEngine::DispatchEvents()
 			}
 			break;
 		}
-		
+
 		delete ov;
 	}
 
@@ -464,7 +464,7 @@ int IOCPEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 
 	Overlapped* ovl = acceptevent;
 	accept_overlap* ov = (accept_overlap*)ovl->m_params;
-	
+
 	//sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
 	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
 
@@ -477,7 +477,7 @@ int IOCPEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 int IOCPEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen)
 {
 	Overlapped* ovl = NULL;
-	
+
 	if (!fd->GetExt("windows_acceptevent", ovl))
 		return -1;
 
@@ -524,5 +524,3 @@ int IOCPEngine::Close(EventHandler* fd)
 {
 	return this->Close(fd->GetFd());
 }
-
-

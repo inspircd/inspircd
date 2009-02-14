@@ -23,7 +23,6 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 {
 	std::string retbuf = std::string("302 ") + user->nick + " :";
 
-	
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
 		User *u = ServerInstance->FindNick(parameters[i]);

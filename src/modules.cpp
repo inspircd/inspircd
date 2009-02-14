@@ -400,21 +400,21 @@ bool ModuleManager::Load(const char* filename)
 		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
-	
+
 	if (!ServerConfig::FileExists(modfile))
 	{
 		LastModuleError = "Module file could not be found: " + filename_str;
 		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
-	
+
 	if (Modules.find(filename_str) != Modules.end())
-	{	
+	{
 		LastModuleError = "Module " + filename_str + " is already loaded, cannot load a module twice!";
 		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
-		
+
 	Module* newmod = NULL;
 	ircd_module* newhandle = NULL;
 
@@ -569,8 +569,8 @@ void ModuleManager::LoadAll()
 	{
 		Instance->Config->ConfValue(Instance->Config->config_data, "module", "name", count, configToken, MAXBUF);
 		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
-		
-		if (!this->Load(configToken))		
+
+		if (!this->Load(configToken))
 		{
 			Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
 			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
@@ -592,7 +592,7 @@ bool ModuleManager::PublishFeature(const std::string &FeatureName, Module* Mod)
 bool ModuleManager::UnpublishFeature(const std::string &FeatureName)
 {
 	featurelist::iterator iter = Features.find(FeatureName);
-	
+
 	if (iter == Features.end())
 		return false;
 
@@ -843,9 +843,9 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 
 std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
 {
-	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
+	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */
 	std::string result;
-	
+
 	if (!ServerInstance->Config->ConfValue(*this->data, tag, name, default_value, index, result, allow_linefeeds))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
@@ -872,19 +872,19 @@ bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int
 int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
 {
 	int result;
-	
+
 	if(!ServerInstance->Config->ConfValueInteger(*this->data, tag, name, default_value, index, result))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return 0;
 	}
-	
+
 	if ((need_positive) && (result < 0))
 	{
 		this->error = CONF_INT_NEGATIVE;
 		return 0;
 	}
-	
+
 	return result;
 }
 

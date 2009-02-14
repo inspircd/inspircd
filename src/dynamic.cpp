@@ -52,7 +52,7 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 	 * try extract a symbol from the library
 	 * get any error message is there is any
 	 */
-	
+
 	if (h)
 	{
 		dlerror(); // clear value
@@ -61,7 +61,7 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 		if (!*v || err)
 			return false;
 	}
-	
+
 	/* succeeded :) */
 	return true;
 }

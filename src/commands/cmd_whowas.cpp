@@ -56,18 +56,18 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 				time_t rawtime = u->signon;
 				tm *timeinfo;
 				char b[MAXBUF];
-	
+
 				timeinfo = localtime(&rawtime);
-				
+
 				/* XXX - 'b' could be only 25 chars long and then strlcpy() would terminate it for us too? */
 				strlcpy(b,asctime(timeinfo),MAXBUF);
 				b[24] = 0;
 
 				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick.c_str(),parameters[0].c_str(),u->ident,u->dhost,u->gecos);
-				
+
 				if (user->HasPrivPermission("users/auspex"))
 					user->WriteNumeric(379, "%s %s :was connecting from *@%s", user->nick.c_str(), parameters[0].c_str(), u->host);
-				
+
 				if (*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
 					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer, b);
 				else

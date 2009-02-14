@@ -44,7 +44,7 @@ __END__
 close(FH);
 
 my $time = promptstring_s("Please enter the number of days that this certificate is valid for","365");
-	
+
 system("cat openssl.template | openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem -days $time 2>/dev/null");
 system("openssl dhparam -out dhparams.pem 1024");
 unlink("openssl.template");

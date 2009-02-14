@@ -26,7 +26,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	CUList except_list;
 
 	user->idle_lastmsg = ServerInstance->Time();
-	
+
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
@@ -120,7 +120,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%s", status, chan->name.c_str(), text);
 				}
 			}
-			else 
+			else
 			{
 				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name.c_str(), text);
 			}
@@ -141,7 +141,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	if (IS_LOCAL(user))
 	{
 		const char* targetserver = strchr(destnick, '@');
-	
+
 		if (targetserver)
 		{
 			std::string nickonly;
@@ -176,7 +176,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		}
 
 		int MOD_RESULT = 0;
-		
+
 		std::string temp = parameters[1];
 		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user, dest, TYPE_USER, temp, 0, except_list));
 		if (MOD_RESULT) {
@@ -202,4 +202,3 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	}
 	return CMD_SUCCESS;
 }
-

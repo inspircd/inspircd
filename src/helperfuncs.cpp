@@ -55,7 +55,7 @@ User* InspIRCd::FindNick(const char* nick)
 		return FindUUID(nick);
 
 	user_hash::iterator iter = this->Users->clientlist->find(nick);
-	
+
 	if (iter == this->Users->clientlist->end())
 		return NULL;
 
@@ -204,7 +204,7 @@ bool IsChannelHandler::Call(const char *chname, size_t max)
 		c++;
 	}
 
-	size_t len = c - chname;	
+	size_t len = c - chname;
 	/* too long a name - note funky pointer arithmetic here. */
 	if (len > max)
 	{
@@ -219,7 +219,7 @@ bool IsNickHandler::Call(const char* n, size_t max)
 {
 	if (!n || !*n)
 		return false;
- 
+
 	unsigned int p = 0;
 	for (const char* i = n; *i; i++, p++)
 	{
@@ -443,7 +443,7 @@ void InspIRCd::AddExtBanChar(char c)
 {
 	std::string &tok = Config->data005;
 	std::string::size_type ebpos;
-	
+
 	if ((ebpos = tok.find(" EXTBAN=,")) == std::string::npos)
 	{
 		tok.append(" EXTBAN=,");
@@ -452,6 +452,3 @@ void InspIRCd::AddExtBanChar(char c)
 	else
 		tok.insert(ebpos + 9, 1, c);
 }
-
-
-

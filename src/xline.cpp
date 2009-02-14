@@ -18,7 +18,7 @@
 #include "bancache.h"
 
 /*
- * This is now version 3 of the XLine subsystem, let's see if we can get it as nice and 
+ * This is now version 3 of the XLine subsystem, let's see if we can get it as nice and
  * efficient as we can this time so we can close this file and never ever touch it again ..
  *
  * Background:
@@ -192,7 +192,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	lookup_lines[line->type][line->Displayable()] = line;
 	line->OnAdd();
 
-	FOREACH_MOD(I_OnAddLine,OnAddLine(user, line));	
+	FOREACH_MOD(I_OnAddLine,OnAddLine(user, line));
 
 	return true;
 }
@@ -423,7 +423,7 @@ XLineManager::~XLineManager()
 		i->second.clear();
 	}
 	lookup_lines.clear();
-	
+
 }
 
 void XLine::Apply(User* u)
@@ -498,7 +498,7 @@ bool GLine::Matches(User *u)
 }
 
 void GLine::Apply(User* u)
-{       
+{
 	DefaultApply(u, "G", (strcmp(this->identmask, "*") == 0) ? true : false);
 }
 
@@ -531,7 +531,7 @@ bool ZLine::Matches(User *u)
 }
 
 void ZLine::Apply(User* u)
-{       
+{
 	DefaultApply(u, "Z", true);
 }
 
@@ -545,7 +545,7 @@ bool QLine::Matches(User *u)
 }
 
 void QLine::Apply(User* u)
-{       
+{
 	/* Force to uuid on apply of qline, no need to disconnect any more :) */
 	u->ForceNickChange(u->uuid.c_str());
 }
@@ -681,4 +681,3 @@ XLineFactory* XLineManager::GetFactory(const std::string &type)
 
 	return n->second;
 }
-

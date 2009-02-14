@@ -73,7 +73,6 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	
 	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	{
 		std::stringstream hl(hostlist);

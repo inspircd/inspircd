@@ -281,7 +281,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 			if (i != exemptfromfilter.end()) return 0;
 		}
 		if (f->action == "block")
-		{	
+		{
 			ServerInstance->SNO->WriteToSnoMask('A', std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message has been filtered and opers notified: "+f->reason);
 		}
@@ -318,7 +318,7 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 		std::string checkline;
 		int replacepoint = 0;
 		bool parting = false;
-	
+
 		if (command == "QUIT")
 		{
 			/* QUIT with no reason: nothing to do */
@@ -348,7 +348,7 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 			return 0;
 
 		FilterResult* f = NULL;
-		
+
 		if (flags)
 			f = this->FilterMatch(user, checkline, flags);
 
@@ -683,4 +683,3 @@ class ModuleFilter : public FilterBase
 };
 
 MODULE_INIT(ModuleFilter)
-

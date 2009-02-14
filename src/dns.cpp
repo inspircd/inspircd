@@ -214,7 +214,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 
 	this->rr_class = 1;
 	this->type = qt;
-		
+
 	DNS::EmptyHeader(payload,header,length);
 
 #ifdef IPV6
@@ -250,7 +250,7 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id, const char* original)
 	/* Is the DNS connection down? */
 	if (this->GetFd() == -1)
 		return NULL;
-	
+
 	/* Create an id */
 	id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
@@ -405,7 +405,7 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	/* DNS::Rehash() sets this to a valid ptr
 	 */
 	this->cache = NULL;
-	
+
 	/* Again, DNS::Rehash() sets this to a
 	 * valid value
 	 */
@@ -463,7 +463,7 @@ int DNS::GetIP(const char *name)
 	DNSHeader h;
 	int id;
 	int length;
-	
+
 	if ((length = this->MakePayload(name, DNS_QUERY_A, 1, (unsigned char*)&h.payload)) == -1)
 		return -1;
 
@@ -763,7 +763,6 @@ DNSResult DNS::GetResult(int resultnum)
 
 			default:
 			break;
-			
 		}
 
 		/* Build the reply with the id and hostname/ip in it */
@@ -847,7 +846,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length, int result_we_w
 		/* XXX: We actually initialise 'rr' here including its ttl field */
 		if (curanswer == result_we_want)
 			DNS::FillResourceRecord(&rr,&header.payload[i]);
-	
+
 		i += 10;
 		if (rr.type != this->type)
 		{
@@ -939,7 +938,7 @@ CachedQuery* DNS::GetCache(const std::string &source)
 	else
 		return NULL;
 }
-	        
+
 void DNS::DelCache(const std::string &source)
 {
 	cache->erase(source.c_str());
@@ -1064,7 +1063,7 @@ void DNS::HandleEvent(EventType, int)
 	res = this->GetResult(resultnum);
 
 	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Result %d id %d", resultnum, res.id);
-	
+
 	/* Is there a usable request id? */
 	if (res.id != -1)
 	{
@@ -1091,7 +1090,7 @@ void DNS::HandleEvent(EventType, int)
 			{
 				if (ServerInstance && ServerInstance->stats)
 					ServerInstance->stats->statsDnsGood++;
-	
+
 				if (!this->GetCache(res.original.c_str()))
 					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.ttl)));
 
@@ -1100,14 +1099,14 @@ void DNS::HandleEvent(EventType, int)
 				Classes[res.id] = NULL;
 			}
 		}
-	
+
 		if (ServerInstance && ServerInstance->stats)
 			ServerInstance->stats->statsDns++;
 	}
 
 	resultnum++;
 }
-	
+
 /** Add a derived Resolver to the working set */
 bool DNS::AddResolverClass(Resolver* r)
 {
@@ -1169,5 +1168,3 @@ unsigned long DNS::PRNG()
 	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - ServerInstance->Config->ports.size();
 	return val;
 }
-
-

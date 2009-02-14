@@ -31,7 +31,7 @@
  *
  * How it works:
  *  Modules create their own logstream types (core will create one for 'file logging' for example) and create instances of these logstream types
- *  and register interest in a certain logtype. Globbing is not here, with the exception of * - for all events.. loglevel is used to drop 
+ *  and register interest in a certain logtype. Globbing is not here, with the exception of * - for all events.. loglevel is used to drop
  *  events that are of no interest to a logstream.
  *
  *  When Log is called, the vector of logstreams for that type is iterated (along with the special vector for "*"), and all registered logstreams
@@ -41,7 +41,7 @@
  * NOTE: Somehow we have to let LogManager manage the non-blocking file streams and provide an interface to share them with various LogStreams,
  *       as, for example, a user may want to let 'KILL' and 'XLINE' snotices go to /home/ircd/inspircd/logs/operactions.log, or whatever. How
  *       can we accomplish this easily? I guess with a map of pre-loved logpaths, and a pointer of FILE *..
- * 
+ *
  */
 
 void LogManager::SetupNoFork()
@@ -363,4 +363,3 @@ void FileWriter::Close()
 FileWriter::~FileWriter()
 {
 }
-

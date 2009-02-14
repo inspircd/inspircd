@@ -514,26 +514,26 @@ class CoreExport User : public EventHandler
 	 * Use InspIRCd::IsNick() to validate nicknames.
 	 */
 	std::string nick;
-	
+
 	/** The user's unique identifier.
 	 * This is the unique identifier which the user has across the network.
 	 */
 	std::string uuid;
-	
+
 	/** The users ident reply.
 	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
 	 */
 	std::string ident;
-	
+
 	/** The host displayed to non-opers (used for cloaking etc).
 	 * This usually matches the value of User::host.
 	 */
 	std::string dhost;
-	
+
 	/** The users full name (GECOS).
 	 */
 	std::string fullname;
-	
+
 	/** The user's mode list.
 	 * NOT a null terminated string.
 	 * Also NOT an array.
@@ -563,7 +563,7 @@ class CoreExport User : public EventHandler
 	 * If this string is empty, the user is not marked as away.
 	 */
 	std::string awaymsg;
-	
+
 	/** Time the user last went away.
 	 * This is ONLY RELIABLE if user IS_AWAY()!
 	 */
@@ -575,7 +575,7 @@ class CoreExport User : public EventHandler
 	 * The value of this is the value of a valid 'type name=' tag.
 	 */
 	std::string oper;
-	
+
 	/** True when DNS lookups are completed.
 	 * The UserResolver classes res_forward and res_reverse will
 	 * set this value once they complete.
@@ -587,7 +587,7 @@ class CoreExport User : public EventHandler
 	 * modules may check it.
 	 */
 	std::string password;
-	
+
 	/** User's receive queue.
 	 * Lines from the IRCd awaiting processing are stored here.
 	 * Upgraded april 2005, old system a bit hairy.
@@ -1156,4 +1156,3 @@ class CoreExport UserResolver : public Resolver
 //class ServerConfig;
 
 #endif
-

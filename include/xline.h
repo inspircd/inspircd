@@ -121,15 +121,15 @@ class CoreExport XLine : public classbase
 	/** The time the line was added.
 	 */
 	time_t set_time;
-	
+
 	/** The duration of the ban, or 0 if permenant
 	 */
 	long duration;
-	
+
 	/** Source of the ban. This can be a servername or an oper nickname
 	 */
 	char* source;
-	
+
 	/** Reason for the ban
 	 */
 	char* reason;
@@ -378,7 +378,7 @@ class CoreExport QLine : public XLine
  */
 typedef std::pair<std::string, std::string> IdentHostPair;
 
-/** XLineFactory is used to generate an XLine pointer, given just the 
+/** XLineFactory is used to generate an XLine pointer, given just the
  * pattern, timing information and type of line to create. This is used
  * for example in the spanningtree module which will call an XLineFactory
  * to create a new XLine when it is inbound on a server link, so that it
@@ -399,7 +399,7 @@ class CoreExport XLineFactory : public classbase
 	 * @param t Type of XLine this factory generates
 	 */
 	XLineFactory(InspIRCd* Instance, const std::string &t) : ServerInstance(Instance), type(t) { }
-	
+
 	/** Return the type of XLine this factory generates
 	 * @return The type of XLine this factory generates
 	 */
@@ -547,7 +547,7 @@ class CoreExport XLineManager : public classbase
 	 * will generate a new XLine specialized to that type. For example if you
 	 * pass the XLineFactory that handles glines some data it will return a
 	 * pointer to a GLine, polymorphically represented as XLine. This is used where
-	 * you do not know the full details of the item you wish to create, e.g. in a 
+	 * you do not know the full details of the item you wish to create, e.g. in a
 	 * server protocol module like m_spanningtree, when you receive xlines from other
 	 * servers.
 	 * @param xlf XLineFactory pointer to register
@@ -681,4 +681,3 @@ class CoreExport ZLineFactory : public XLineFactory
 };
 
 #endif
-

@@ -27,7 +27,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 	CUList exempt_list;
 
 	user->idle_lastmsg = ServerInstance->Time();
-	
+
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 	if (parameters[0][0] == '$')
@@ -123,7 +123,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 		}
 		return CMD_SUCCESS;
 	}
-	
+
 	const char* destnick = parameters[0].c_str();
 
 	if (IS_LOCAL(user))
@@ -185,4 +185,3 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 
 }
-

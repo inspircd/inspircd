@@ -17,7 +17,7 @@
 /* handy defines */
 
 /** Determines if a channel op is exempt from given mode m,
- * in config of server instance s. 
+ * in config of server instance s.
  */
 #define CHANOPS_EXEMPT(s, m) (s->Config->ExemptChanOps[(unsigned char)m])
 
@@ -373,7 +373,7 @@ class CoreExport ServerConfig : public Extensible
 	/** Not used any more as it is named, can probably be removed or renamed.
 	 */
 	int DoDownloads();
-	  
+
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
 	 */
@@ -419,7 +419,7 @@ class CoreExport ServerConfig : public Extensible
 	/** Notice to give to users when they are Xlined
 	 */
 	char MoronBanner[MAXBUF];
-	
+
 	/* Holds the network name the local server
 	 * belongs to. This is an arbitary field defined
 	 * by the administrator.
@@ -546,7 +546,7 @@ class CoreExport ServerConfig : public Extensible
 	 * foreground.
 	 */
 	bool nofork;
-	
+
 	/** If this value if true then all log
 	 * messages will be output, regardless of
 	 * the level given in the config file.
@@ -554,7 +554,7 @@ class CoreExport ServerConfig : public Extensible
 	 * option.
 	 */
 	bool forcedebug;
-	
+
 	/** If this is true then log output will be
 	 * written to the logfile. This is the default.
 	 * If you put -nolog on the commandline then
@@ -694,7 +694,7 @@ class CoreExport ServerConfig : public Extensible
 	 * only to operators.
 	 */
 	char UserStats[MAXBUF];
-	
+
 	/** The path and filename of the ircd.log file
 	 */
 	std::string logpath;
@@ -829,7 +829,7 @@ class CoreExport ServerConfig : public Extensible
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
 	bool LoadConf(ConfigDataHash &target, FILE* &conf, const std::string &filename, std::ostringstream &errorstream);
-	
+
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
@@ -845,7 +845,7 @@ class CoreExport ServerConfig : public Extensible
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds = false);
-	
+
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result);
@@ -861,7 +861,7 @@ class CoreExport ServerConfig : public Extensible
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result);
-	
+
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index);
@@ -877,14 +877,14 @@ class CoreExport ServerConfig : public Extensible
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index);
-	
+
 	/** Returns the number of occurences of tag in the config file
 	 */
 	int ConfValueEnum(ConfigDataHash &target, const char* tag);
 	/** Returns the number of occurences of tag in the config file
 	 */
 	int ConfValueEnum(ConfigDataHash &target, const std::string &tag);
-	
+
 	/** Returns the numbers of vars inside the index'th 'tag in the config file
 	 */
 	int ConfVarEnum(ConfigDataHash &target, const char* tag, int index);
@@ -945,7 +945,7 @@ bool InitTypes(ServerConfig* conf, const char* tag);
  */
 bool InitClasses(ServerConfig* conf, const char* tag);
 
-/** Initialize an oper type 
+/** Initialize an oper type
  */
 bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
 
@@ -962,7 +962,7 @@ bool DoneClassesAndTypes(ServerConfig* conf, const char* tag);
 /** Initialize x line
  */
 bool InitXLine(ServerConfig* conf, const char* tag);
- 
+
 /** Add a config-defined zline
  */
 bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
@@ -979,8 +979,4 @@ bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
  */
 bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
 
-
-
-
 #endif
-

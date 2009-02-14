@@ -20,7 +20,7 @@
 /** This will bind a socket to a port. It works for UDP/TCP.
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.
- */ 
+ */
 bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 {
 	/* We allocate 2 of these, because sockaddr_in6 is larger than sockaddr (ugh, hax) */
@@ -195,10 +195,10 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
-		
+
 		if (strncmp(Addr, "::ffff:", 7) == 0)
 			this->Logs->Log("SOCKET",DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
-		
+
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
 			irc::portparser portrange(configToken, false);

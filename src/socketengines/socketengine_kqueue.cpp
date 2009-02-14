@@ -33,7 +33,7 @@ void KQueueEngine::RecoverFromFork()
 	/*
 	 * The only bad thing about kqueue is that its fd cant survive a fork and is not inherited.
 	 * BUM HATS.
-	 * 
+	 *
 	 */
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)

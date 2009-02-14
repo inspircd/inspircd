@@ -31,7 +31,7 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 			return CMD_SUCCESS;
 		}
 	}
-	
+
 	ServerInstance->SNO->WriteToSnoMask('A', "RELOAD MODULE: %s unsuccessfully reloaded %s",user->nick.c_str(), parameters[0].c_str());
 	user->WriteNumeric(975, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 	return CMD_FAILURE;

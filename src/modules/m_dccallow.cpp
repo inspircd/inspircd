@@ -135,7 +135,7 @@ class CommandDccallow : public Command
 						user->WriteNumeric(996, "%s %s :You cannot add yourself to your own DCCALLOW list!", user->nick.c_str(), user->nick.c_str());
 						return CMD_FAILURE;
 					}
-					
+
 					if (!user->GetExt("dccallow_list", dl))
 					{
 						dl = new dccallowlist;
@@ -143,7 +143,7 @@ class CommandDccallow : public Command
 						// add this user to the userlist
 						ul.push_back(user);
 					}
-					
+
 					for (dccallowlist::const_iterator k = dl->begin(); k != dl->end(); ++k)
 					{
 						if (k->nickname == target->nick)
@@ -356,7 +356,7 @@ class ModuleDCCAllow : public Module
 									return 0;
 							}
 						}
-						
+
 						user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick.c_str(), u->nick.c_str(), filename.c_str());
 						u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), filename.c_str());
 						u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick.c_str(), user->nick.c_str());
@@ -476,4 +476,3 @@ class ModuleDCCAllow : public Module
 };
 
 MODULE_INIT(ModuleDCCAllow)
-

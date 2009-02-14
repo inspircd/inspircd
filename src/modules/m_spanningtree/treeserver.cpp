@@ -369,5 +369,3 @@ TreeServer::~TreeServer()
 	if (iter != Utils->sidlist.end())
 		Utils->sidlist.erase(iter);
 }
-
-

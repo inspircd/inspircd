@@ -118,7 +118,7 @@ class CoreExport CommandParser : public classbase
 	 * function will return true, otherwise it will return false.
 	 */
 	bool IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user);
-	
+
 	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
 	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
 	 * We need a version which takes two potential lists for JOIN, because a JOIN may contain two lists of items at once,
@@ -246,4 +246,3 @@ const int duration_multi[] =
 };
 
 #endif
-

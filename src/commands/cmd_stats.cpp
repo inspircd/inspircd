@@ -61,7 +61,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		results.push_back(sn + " 481 " + user->nick + " :Permission denied - STATS " + statschar + " requires the servers/auspex priv.");
 		return;
 	}
-	
+
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnStats,OnStats(statschar, user, results));
 	if (MOD_RESULT)
@@ -93,7 +93,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		case 'n':
 		case 'c':
 		break;
-	
+
 		case 'i':
 		{
 			int idx = 0;
@@ -105,7 +105,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			}
 		}
 		break;
-	
+
 		case 'Y':
 		{
 			int idx = 0;
@@ -129,7 +129,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			}
 		}
 		break;
-	
+
 		case 'P':
 		{
 			int idx = 0;
@@ -145,7 +145,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			results.push_back(sn+" 249 "+user->nick+" :"+ConvToStr(idx)+" OPER(s)");
 		}
 		break;
- 
+
 		case 'k':
 			ServerInstance->XLines->InvokeStats("K",216,user,results);
 		break;
@@ -239,7 +239,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 				timeval tv;
 				char percent[30];
 				gettimeofday(&tv, NULL);
-			
+
 				float n_elapsed = ((tv.tv_sec - ServerInstance->stats->LastSampled.tv_sec) * 1000000 + tv.tv_usec - ServerInstance->stats->LastSampled.tv_usec);
 				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats->LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats->LastCPU.tv_usec);
 				float per = (n_eaten / n_elapsed) * 100;
@@ -259,7 +259,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 #endif
 		}
 		break;
-	
+
 		case 'T':
 		{
 			char buffer[MAXBUF];

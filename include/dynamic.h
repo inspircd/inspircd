@@ -24,7 +24,7 @@ class CoreExport DLLManager
 	/** The last error string, or NULL
 	 */
 	const char *err;
- 
+
  public:
 	/** This constructor loads the module using dlopen()
 	 * @param ServerInstance The creator class of this object
@@ -65,7 +65,7 @@ class CoreExport LoadModuleException : public CoreException
 	: CoreException(message, "the core")
 	{
 	}
-	
+
 	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!
@@ -82,7 +82,7 @@ class CoreExport FindSymbolException : public CoreException
 	: CoreException(message, "the core")
 	{
 	}
-	
+
 	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!
@@ -102,8 +102,8 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 	 * The init_module function is the only exported extern "C" declaration
 	 * in any module file. In a cmd_*.cpp file the equivilant is init_command
 	 */
-	typedef ReturnType * (initfunctype) (InspIRCd*);	 
- 
+	typedef ReturnType * (initfunctype) (InspIRCd*);
+
 	/** Pointer to the init function.
 	 */
 	initfunctype* init_func;
@@ -111,7 +111,7 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 	/** Instance pointer to be passed to init_*() when it is called.
 	 */
 	InspIRCd* ServerInstance;
- 
+
  public:
 	/** Default constructor.
 	 * This constructor passes its paramerers down through DLLFactoryBase and then DLLManager
@@ -121,9 +121,9 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 	 */
 	DLLFactory(InspIRCd* Instance, const char *fname, const char *func_name)
 	: DLLManager(Instance, fname), init_func(NULL), ServerInstance(Instance)
-	{	
+	{
 		const char* error = LastError();
-		
+
 		if(!error)
 		{
 			if(!GetSymbol((void **)&init_func, func_name))
@@ -136,7 +136,7 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 			throw LoadModuleException(error);
 		}
 	}
-	
+
 	/** Calls the 'init_module' C exported function within a module, which
 	 * returns a pointer to a Module derived object.
 	 */
@@ -151,7 +151,7 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 			return NULL;
 		}
 	}
-	
+
 	/** The destructor deletes the ModuleFactory pointer.
 	 */
 	~DLLFactory()

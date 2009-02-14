@@ -262,10 +262,10 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		command_p.push_back(token);
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
-		
+
 	/* find the command, check it exists */
 	Commandtable::iterator cm = cmdlist.find(command);
-	
+
 	if (cm == cmdlist.end())
 	{
 		int MOD_RESULT = 0;
@@ -310,7 +310,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		{
 			// BE CAREFUL: .end() returns past the end of the vector, hence decrement.
 			std::vector<std::string>::iterator it = --command_p.end();
-		
+
 			lparam.insert(0, " " + *(it));
 			command_p.erase(it); // remove last element
 		}
@@ -679,5 +679,3 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 
 	return translations;
 }
-
-

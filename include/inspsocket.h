@@ -236,7 +236,7 @@ class CoreExport BufferedSocket : public EventHandler
 	virtual bool OnDataReady();
 
 	/**
-	 * When it is ok to write to the socket, and a 
+	 * When it is ok to write to the socket, and a
 	 * write event was requested, this method is
 	 * triggered.
 	 *
@@ -345,4 +345,3 @@ class CoreExport BufferedSocket : public EventHandler
 };
 
 #endif
-

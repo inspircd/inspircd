@@ -14,7 +14,7 @@
 /*
  * Originally by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru
  */
- 
+
 /* $ModDesc: Gives opers cmode +y which provides a staff prefix. */
 
 #include "inspircd.h"
@@ -118,7 +118,7 @@ class ModuleOperPrefixMode : public Module
 		opm = new OperPrefixMode(ServerInstance);
 		if ((!ServerInstance->Modes->AddMode(opm)))
 			throw ModuleException("Could not add a new mode!");
-			
+
 		Implementation eventlist[] = { I_OnPostJoin, I_OnCleanup, I_OnUserQuit, I_OnUserKick, I_OnUserPart, I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
@@ -239,4 +239,3 @@ class ModuleOperPrefixMode : public Module
 };
 
 MODULE_INIT(ModuleOperPrefixMode)
-

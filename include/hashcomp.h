@@ -288,15 +288,15 @@ namespace irc
 		 * @param modeletter The mode letter to insert
 		 */
 		void Push(char modeletter);
-	
+
 		/** Push a '+' symbol onto the stack.
 		 */
 		void PushPlus();
-	
+
 		/** Push a '-' symbol onto the stack.
 		 */
 		void PushMinus();
-		
+
 		/** Return zero or more elements which form the
 		 * mode line. This will be clamped to a max of
 		 * MAXMODES items (MAXMODES-1 mode parameters and
@@ -331,7 +331,7 @@ namespace irc
 	class CoreExport tokenstream : public classbase
 	{
 	 private:
-	
+
 		/** Original string
 		 */
 		std::string tokens;
@@ -467,43 +467,43 @@ namespace irc
 		/** Used to split on commas
 		 */
 		commasepstream* sep;
-	
+
 		/** Current position in a range of ports
 		 */
 		long in_range;
-	
+
 		/** Starting port in a range of ports
 		 */
 		long range_begin;
-	
+
 		/** Ending port in a range of ports
 		 */
 		long range_end;
-	
+
 		/** Allow overlapped port ranges
 		 */
 		bool overlapped;
-	
+
 		/** Used to determine overlapping of ports
 		 * without O(n) algorithm being used
 		 */
 		std::map<long, bool> overlap_set;
-	
+
 		/** Returns true if val overlaps an existing range
 		 */
 		bool Overlaps(long val);
 	 public:
-	
+
 		/** Create a portparser and fill it with the provided data
 		 * @param source The source text to parse from
 		 * @param allow_overlapped Allow overlapped ranges
 		 */
 		portparser(const std::string &source, bool allow_overlapped = true);
-	
+
 		/** Frees the internal commasepstream object
 		 */
 		~portparser();
-	
+
 		/** Fetch the next token from the stream
 		 * @return The next port number is returned, or 0 if none remain
 		 */
@@ -703,4 +703,3 @@ BEGIN_HASHMAP_NAMESPACE
 END_HASHMAP_NAMESPACE
 
 #endif
-

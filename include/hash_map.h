@@ -10,7 +10,7 @@
  *
  * ---------------------------------------------------
  */
- 
+
 #ifndef INSPIRCD_HASHMAP_H
 #define INSPIRCD_HASHMAP_H
 
@@ -31,7 +31,7 @@
 		#define hash_map unordered_map
 		#define nspace std::tr1
 		#define BEGIN_HASHMAP_NAMESPACE namespace std { namespace tr1 {
-		#define END_HASHMAP_NAMESPACE } } 
+		#define END_HASHMAP_NAMESPACE } }
 	#endif
 #else
 	#include <hash_map>
@@ -42,7 +42,4 @@
 	#define END_HASHMAP_NAMESPACE }
 #endif
 
-
-
 #endif
-

@@ -286,10 +286,10 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		if (CanView(ch,user))
 		{
 			bool inside = ch->HasUser(user);
-	
+
 			/* who on a channel. */
 			CUList *cu = ch->GetUsers();
-	
+
 			for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
 			{
 				/* None of this applies if we WHO ourselves */
@@ -298,12 +298,12 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					/* opers only, please */
 					if (opt_viewopersonly && !IS_OPER(i->first))
 						continue;
-	
+
 					/* If we're not inside the channel, hide +i users */
 					if (i->first->IsModeSet('i') && !inside && !user->HasPrivPermission("users/auspex"))
 						continue;
 				}
-	
+
 				SendWhoLine(user, initial, ch, i->first, whoresults);
 			}
 		}
@@ -362,4 +362,3 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		return CMD_FAILURE;
 	}
 }
-

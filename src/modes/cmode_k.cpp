@@ -22,7 +22,7 @@ ModeChannelKey::ModeChannelKey(InspIRCd* Instance) : ModeHandler(Instance, 'k', 
 }
 
 ModePair ModeChannelKey::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
-{       
+{
     if (channel->modes[CM_KEY])
     {
 		std::string ckey = channel->GetModeParameter('k');
@@ -101,4 +101,3 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 		return MODEACTION_DENY;
 	}
 }
-

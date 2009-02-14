@@ -1,7 +1,7 @@
 /*       +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
- *  
+ *
  *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
@@ -128,7 +128,7 @@ enum Numerics
 	ERR_NOPRIVILEGES				=	481, // rfc, beware though, we use this for other things opers may not do also
 	ERR_CHANOPRIVSNEEDED				=	482, // rfc, beware though, we use this for other things like trying to kick a uline
 
-	ERR_ALLMUSTSSL					=	490, // unrealircd	
+	ERR_ALLMUSTSSL					=	490, // unrealircd
 	ERR_NOCTCPALLOWED				=	492, // XXX: bzzzz. 1459 defines this as ERR_NOSERVICEHOST, research it more and perhaps change this! (ERR_CANNOTSENDTOCHAN?)
 											// wtf, we also use this for m_noinvite. UGLY!
 	ERR_DELAYREJOIN					=	495, // insp-specific, XXX: we should use 'resource temporarily unavailable' from ircnet/ratbox or whatever

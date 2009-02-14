@@ -35,7 +35,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 		}
 
 		User *u = ServerInstance->FindNick(target.c_str());
-		
+
 		if (u)
 		{
 			target = u->GetIPString();

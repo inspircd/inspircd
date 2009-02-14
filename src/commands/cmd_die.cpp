@@ -31,7 +31,7 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 			ServerInstance->Logs->Log("COMMAND",SPARSE, diebuf);
 			ServerInstance->SendError(diebuf);
 		}
-		
+
 		if (ServerInstance->Config->DieDelay)
 			sleep(ServerInstance->Config->DieDelay);
 

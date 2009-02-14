@@ -240,7 +240,7 @@ class ModuleSSLGnuTLS : public Module
 			keyfile = confdir + keyfile;
 
 		int ret;
-		
+
 		if (cred_alloc)
 		{
 			// Deallocate the old credentials
@@ -249,13 +249,13 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else
 			cred_alloc = true;
-		
+
 		if((ret = gnutls_certificate_allocate_credentials(&x509_cred)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
-		
+
 		if((ret = gnutls_dh_params_init(&dh_params)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
-		
+
 		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
 

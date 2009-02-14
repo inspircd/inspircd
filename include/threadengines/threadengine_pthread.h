@@ -24,7 +24,7 @@ class InspIRCd;
 class CoreExport PThreadEngine : public ThreadEngine
 {
  private:
-	
+
 	bool Mutex(bool enable);
 
  public:

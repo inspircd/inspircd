@@ -34,12 +34,12 @@ public:
 	/** User
 	 */
 	User* user;
-	
+
 	AssociateUser(Module* s, Module* d, unsigned long i, User* u)
 	: Request(s, d, SQLUTILAU), id(i), user(u)
 	{
 	}
-	
+
 	AssociateUser& S()
 	{
 		Send();
@@ -58,12 +58,12 @@ public:
 	/** Channel
 	 */
 	Channel* chan;
-	
+
 	AssociateChan(Module* s, Module* d, unsigned long i, Channel* u)
 	: Request(s, d, SQLUTILAC), id(i), chan(u)
 	{
 	}
-	
+
 	AssociateChan& S()
 	{
 		Send();
@@ -84,7 +84,7 @@ public:
 	: Request(s, d, SQLUTILUA), id(i)
 	{
 	}
-	
+
 	UnAssociate& S()
 	{
 		Send();
@@ -108,7 +108,7 @@ public:
 	: Request(s, d, SQLUTILGU), id(i), user(NULL)
 	{
 	}
-	
+
 	GetAssocUser& S()
 	{
 		Send();
@@ -132,7 +132,7 @@ public:
 	: Request(s, d, SQLUTILGC), id(i), chan(NULL)
 	{
 	}
-	
+
 	GetAssocChan& S()
 	{
 		Send();

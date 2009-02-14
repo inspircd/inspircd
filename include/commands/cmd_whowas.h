@@ -62,7 +62,7 @@ class CommandWhowas : public Command
 	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
 	 */
 	whowas_users whowas;
-	
+
 	/** Whowas container, contains a map of time_t to users tracked by WHOWAS
 	 */
 	whowas_users_fifo whowas_fifo;

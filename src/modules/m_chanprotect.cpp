@@ -194,7 +194,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
-		
+
 		char isoverride=0;
 		Module *Override = ServerInstance->Modules->FindFeature("Override");
 		if (Override)

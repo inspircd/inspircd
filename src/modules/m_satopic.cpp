@@ -37,7 +37,7 @@ class CommandSATopic : public Command
 		if(target)
 		{
 			std::string newTopic = parameters[1];
-			
+
 			// 3rd parameter overrides access checks
 			target->SetTopic(user, newTopic, true);
 			ServerInstance->SNO->WriteToSnoMask('A', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);

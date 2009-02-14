@@ -31,7 +31,7 @@ class CoreExport UserManager : public Extensible
 	UserManager(InspIRCd *Instance) : ServerInstance(Instance)
 	{
 	}
-	
+
 	~UserManager()
 	{
 		for (user_hash::iterator i = clientlist->begin();i != clientlist->end();i++)
@@ -99,7 +99,7 @@ class CoreExport UserManager : public Extensible
 	void AddGlobalClone(User *user);
 
 	/** Remove all clone counts from the user, you should
-	 * use this if you change the user's IP address 
+	 * use this if you change the user's IP address
 	 * after they have registered.
 	 * @param user The user to remove
 	 */

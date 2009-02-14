@@ -229,7 +229,7 @@ class ModuleServicesAccount : public Module
 				// user is ulined, won't be stopped from joining
 				return 0;
 			}
-			
+
 			if (chan->IsModeSet('R'))
 			{
 				if (!is_registered)

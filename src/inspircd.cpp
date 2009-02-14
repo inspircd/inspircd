@@ -319,7 +319,7 @@ void InspIRCd::WritePID(const std::string &filename)
 InspIRCd::InspIRCd(int argc, char** argv)
 	: GlobalCulls(this),
 
-	 /* Functor initialisation. Note that the ordering here is very important. 
+	 /* Functor initialisation. Note that the ordering here is very important.
 	  *
 	  * THIS MUST MATCH ORDER OF DECLARATION OF THE HandleWhateverFunc classes
 	  * within class InspIRCd.
@@ -351,7 +351,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 #ifdef WIN32
 	// Strict, frequent checking of memory on debug builds
 	_CrtSetDbgFlag ( _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	
+
 	// Avoid erroneous frees on early exit
 	WindowsIPC = 0;
 #endif
@@ -400,10 +400,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->PI = new ProtocolInterface(this);
 
 	this->s_signal = 0;
-	
+
 	// Create base manager classes early, so nothing breaks
 	this->Users = new UserManager(this);
-	
+
 	this->Users->unregistered_count = 0;
 
 	this->Users->clientlist = new user_hash();
@@ -518,7 +518,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
 		std::string txtconf = this->ConfigFileName;
 		txtconf.append(".txt");
-		
+
 		if (ServerConfig::FileExists(txtconf.c_str()))
 		{
 			strlcat(this->ConfigFileName, ".txt", MAXBUF);
@@ -625,7 +625,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	printf("\n");
 
 	this->Modules->LoadAll();
-	
+
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
@@ -643,7 +643,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
-	
+
 #ifndef WINDOWS
 	if (!Config->nofork)
 	{
@@ -852,7 +852,7 @@ int InspIRCd::Run()
 				this->stats->LastCPU = ru.ru_utime;
 			}
 #else
-			WindowsIPC->Check();	
+			WindowsIPC->Check();
 #endif
 		}
 

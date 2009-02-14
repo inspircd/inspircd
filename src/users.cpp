@@ -483,7 +483,7 @@ bool User::HasModePermission(unsigned char mode, ModeType type)
 	if (mode < 'A' || mode > ('A' + 64)) return false;
 
 	return ((type == MODETYPE_USER ? AllowedUserModes : AllowedChanModes))[(mode - 'A')];
-	
+
 }
 
 bool User::HasPermission(const std::string &command)
@@ -918,7 +918,7 @@ void User::CheckClass()
 bool User::CheckLines(bool doZline)
 {
 	const char* check[] = { "G" , "K", (doZline) ? "Z" : NULL, NULL };
-	
+
 	if (!this->exempt)
 	{
 		for (int n = 0; check[n]; ++n)
@@ -948,7 +948,7 @@ void User::FullConnect()
 	 * Don't remove this! -- w00t
 	 */
 	this->SetClass();
-	
+
 	/* Check the password, if one is required by the user's connect class.
 	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
 	 */
@@ -1158,7 +1158,7 @@ const char* User::GetCIDRMask(int range)
 			sockaddr_in6* sin;
 			int i, bytestozero, extrabits;
 			char buffer[40];
-			
+
 			if(range > 128)
 				throw "CIDR mask width greater than address width (IPv6, 128 bit)";
 
@@ -1171,12 +1171,12 @@ const char* User::GetCIDRMask(int range)
 			 * which must be set to zero.
 			 */
 			bytestozero = (128 - range) / 8;
-			
+
 			/* Some of the least significant bits of the next most significant byte may also have to
 			 * be zeroed. The number of bits is the remainder of the above division.
 			 */
 			extrabits = (128 - range) % 8;
-			
+
 			/* Populate our working struct with the parts of the user's IP which are required in the
 			 * final CIDR mask. Set all the subsequent bytes to zero.
 			 * (16 - bytestozero) is the number of bytes which must be populated with actual IP data.
@@ -1185,13 +1185,13 @@ const char* User::GetCIDRMask(int range)
 			{
 				v6.s6_addr[i] = sin->sin6_addr.s6_addr[i];
 			}
-			
+
 			/* And zero all the remaining bytes in the IP. */
 			for(; i < 16; i++)
 			{
 				v6.s6_addr[i] = 0;
 			}
-					
+
 			/* And finally, zero the extra bits required. */
 			v6.s6_addr[15 - bytestozero] = (v6.s6_addr[15 - bytestozero] >> extrabits) << extrabits;
 
@@ -1268,7 +1268,7 @@ const char* User::GetIPString()
 				this->cachedip = temp;
 				return temp;
 			}
-			
+
 			this->cachedip = buf;
 			return buf;
 		}
@@ -1285,7 +1285,7 @@ const char* User::GetIPString()
 		default:
 		break;
 	}
-	
+
 	// Unreachable, probably
 	return "";
 }
@@ -1866,7 +1866,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			}
 
 			/* check if host matches.. */
-			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) && 
+			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
 			    !InspIRCd::MatchCIDR(this->host, c->GetHost(), NULL))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
@@ -2054,4 +2054,3 @@ bool VisData::VisibleTo(User* user)
 {
 	return true;
 }
-

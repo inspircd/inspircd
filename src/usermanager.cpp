@@ -275,7 +275,7 @@ void UserManager::RemoveCloneCounts(User *user)
 			local_clones.erase(x);
 		}
 	}
-	
+
 	clonemap::iterator y = global_clones.find(user->GetCIDRMask(range));
 	if (y != global_clones.end())
 	{
@@ -487,6 +487,3 @@ int UserManager::ModeCount(const char mode)
 	else
 		return 0;
 }
-
-
-

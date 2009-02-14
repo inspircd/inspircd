@@ -26,7 +26,7 @@ void TimerManager::TickTimers(time_t TIME)
 	{
 		std::vector<Timer *>::iterator i = Timers.begin();
 		Timer *t = (*i);
-		
+
 		// Probable fix: move vector manipulation to *before* we modify the vector.
 		Timers.erase(i);
 
@@ -62,5 +62,3 @@ bool TimerManager::TimerComparison( Timer *one, Timer *two)
 {
 	return (one->GetTimer()) < (two->GetTimer());
 }
-
-

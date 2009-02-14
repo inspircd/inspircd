@@ -290,7 +290,7 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 		return "";
 
 	/* EWW! This used to be using sprintf, which is WAY inefficient. -Special */
-	
+
 	const char *hex = "0123456789abcdef";
 	static char hexbuf[MAXBUF];
 
@@ -455,7 +455,7 @@ long irc::portparser::GetToken()
 			{
 				while (((Overlaps(in_range)) && (in_range <= range_end)))
 					in_range++;
-				
+
 				if (in_range <= range_end)
 					return in_range;
 			}
@@ -522,4 +522,3 @@ long irc::portparser::GetToken()
 	text = replacement;
 	return text;
 }*/
-

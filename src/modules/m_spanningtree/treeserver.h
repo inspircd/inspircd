@@ -56,7 +56,7 @@ class TreeServer : public classbase
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
 	bool bursting;				/* whether or not this server is bursting */
-	
+
 	/** We don't use this constructor. Its a dummy, and won't cause any insertion
 	 * of the TreeServer into the hash_map. See below for the two we DO use.
 	 */
@@ -67,7 +67,7 @@ class TreeServer : public classbase
 	 * no socket associated with it. Its version string is our own local version.
 	 */
 	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id);
-	
+
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
@@ -121,7 +121,7 @@ class TreeServer : public classbase
 	/** Round trip time of last ping
 	 */
 	unsigned long rtt;
-	
+
 	/** When we recieved BURST from this server, used to calculate total burst time at ENDBURST.
 	 */
 	unsigned long StartBurst;

@@ -102,7 +102,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				this->bound_user->dns_done = true;
 			}
 		}
-		
+
 		// Save some memory by freeing this up; it's never used again in the user's lifetime.
 		this->bound_user->stored_host.resize(0);
 	}

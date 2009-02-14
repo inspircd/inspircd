@@ -38,7 +38,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 		}
 		else
 			ih = ServerInstance->XLines->IdentSplit(target.c_str());
-			
+
         if (ih.first.empty())
         {
             user->WriteServ("NOTICE %s :*** Target not found", user->nick.c_str());
@@ -91,4 +91,3 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-

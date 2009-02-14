@@ -250,7 +250,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * "miscreant" servers, though, so let's check anyway. -- w
 				 *
 				 * We also check here for totally invalid prefixes (prefixes that are neither
-				 * a valid SID or a valid UUID, so that invalid UUID or SID never makes it 
+				 * a valid SID or a valid UUID, so that invalid UUID or SID never makes it
 				 * to the higher level functions. -- B
 				 */
 				std::string direction = prefix;
@@ -694,5 +694,3 @@ void TreeSocket::OnClose()
 				this->ServerInstance->SNO->WriteToSnoMask('l', "Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
 	}
 }
-
-

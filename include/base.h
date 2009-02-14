@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __BASE_H__ 
-#define __BASE_H__ 
+#ifndef __BASE_H__
+#define __BASE_H__
 
 #include <map>
 #include <deque>
@@ -25,7 +25,7 @@ typedef std::map<std::string,char*> ExtensibleStore;
  * Wherever possible, all classes you create should inherit from this,
  * giving them the ability to be passed to various core functions
  * as 'anonymous' classes.
-*/ 
+*/
 class CoreExport classbase
 {
  public:
@@ -57,7 +57,7 @@ class CoreExport Extensible : public classbase
 	 * Holds all extensible metadata for the class.
 	 */
 	ExtensibleStore Extension_Items;
-	
+
 public:
 
 	/** Extend an Extensible class.
@@ -110,7 +110,7 @@ public:
 	 * @return Returns true on success.
 	 */
 	bool Shrink(const std::string &key);
-	
+
 	/** Get an extension item.
 	 *
 	 * @param key The key parameter is an arbitary string which identifies the extension data
@@ -131,12 +131,12 @@ public:
 			return false;
 		}
 	}
-	
+
 	/** Get an extension item.
 	 *
 	 * @param key The key parameter is an arbitary string which identifies the extension data
 	 * @return Returns true if the item was found and false if it was not.
-	 * 
+	 *
 	 * This single-parameter version only checks if the key exists, it does nothing with
 	 * the 'data' field and is probably only useful in conjunction with the single-parameter
 	 * version of Extend().
@@ -205,7 +205,7 @@ class CoreExport BoolSet : public classbase
 	/** OR two BoolSets together
 	 */
 	BoolSet operator|(BoolSet other);
-	
+
 	/** AND two BoolSets together
 	 */
 	BoolSet operator&(BoolSet other);

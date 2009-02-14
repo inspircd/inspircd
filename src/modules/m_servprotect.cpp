@@ -24,7 +24,7 @@ class ServProtectMode : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
-		/* Because this returns MODEACTION_DENY all the time, there is only ONE 
+		/* Because this returns MODEACTION_DENY all the time, there is only ONE
 		 * way to add this mode and that is at client introduction in the UID command,
 		 * as this calls OnModeChange for each mode but disregards the return values.
 		 * The mode cannot be manually added or removed, not even by a server or by a remote

@@ -19,7 +19,7 @@
 inline std::string stringtime(InspIRCd* Instance)
 {
 	std::ostringstream TIME;
-	TIME << Instance->Time(); 
+	TIME << Instance->Time();
 	return TIME.str();
 }
 
@@ -129,7 +129,7 @@ class ListModeBase : public ModeHandler
 	 * specified in ListModeBase::configtag
 	 */
 	limitlist chanlimits;
- 
+
  public:
 	/** Constructor.
 	 * @param Instance The creator of this class
@@ -147,7 +147,7 @@ class ListModeBase : public ModeHandler
 		infokey = "listbase_mode_" + std::string(1, mode) + "_list";
 	}
 
-	/** See mode.h 
+	/** See mode.h
 	 */
 	std::pair<bool,std::string> ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 	{
@@ -222,7 +222,7 @@ class ListModeBase : public ModeHandler
 					mode_junk.push_back(stackresult[j]);
 				}
 
-				ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);		
+				ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
 			}
 		}
 	}
@@ -299,7 +299,7 @@ class ListModeBase : public ModeHandler
 				{
 					/* Give a subclass a chance to error about this */
 					TellAlreadyOnList(source, channel, parameter);
-					
+
 					// it does, deny the change
 					return MODEACTION_DENY;
 				}
@@ -350,9 +350,9 @@ class ListModeBase : public ModeHandler
 			{
 				source->WriteNumeric(478, "%s %s %s :Channel ban/ignore list is full", source->nick.c_str(), channel->name.c_str(), parameter.c_str());
 			}
-			
+
 			parameter = "";
-			return MODEACTION_DENY;	
+			return MODEACTION_DENY;
 		}
 		else
 		{
@@ -445,7 +445,7 @@ class ListModeBase : public ModeHandler
 	virtual void DoCleanup(int, void*)
 	{
 	}
-	
+
 	/** Validate parameters.
 	 * Overridden by implementing module.
 	 * @param source Source user adding the parameter
@@ -457,7 +457,7 @@ class ListModeBase : public ModeHandler
 	{
 		return true;
 	}
-	
+
 	/** Tell the user the list is too long.
 	 * Overridden by implementing module.
 	 * @param source Source user adding the parameter
@@ -469,7 +469,7 @@ class ListModeBase : public ModeHandler
 	{
 		return false;
 	}
-	
+
 	/** Tell the user an item is already on the list.
 	 * Overridden by implementing module.
 	 * @param source Source user adding the parameter
@@ -479,7 +479,7 @@ class ListModeBase : public ModeHandler
 	virtual void TellAlreadyOnList(User*, Channel*, std::string&)
 	{
 	}
-	
+
 	/** Tell the user that the parameter is not in the list.
 	 * Overridden by implementing module.
 	 * @param source Source user removing the parameter
@@ -519,7 +519,7 @@ class ListModeBase : public ModeHandler
 				{
 					LM->literal = LM->user->nick + "!" + LM->user->ident + "@" + LM->user->GetIPString();
 				}
-				
+
 				for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
 				{
 					if (LM->extban && it->mask.length() > 1 && it->mask[0] == LM->extban && it->mask[1] == ':')
@@ -560,4 +560,3 @@ class ListModeBase : public ModeHandler
 };
 
 #endif
-

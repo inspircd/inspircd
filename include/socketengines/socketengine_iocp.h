@@ -103,12 +103,12 @@ class IOCPEngine : public SocketEngine
 		}
 		return -1;
 	}
-	
+
 	/** Global I/O completion port that sockets attach to.
 	 */
 	HANDLE m_completionPort;
 
-	/** This is kinda shitty... :/ for getting an address from a real fd. 
+	/** This is kinda shitty... :/ for getting an address from a real fd.
 	 */
 	std::map<int, EventHandler*> m_binding;
 
@@ -144,7 +144,7 @@ public:
 	__inline int GetRemainingFds()
 	{
 		register int count = 0;
-		register int i = 0;			
+		register int i = 0;
 		for(; i < MAX_DESCRIPTORS; ++i)
 			if(ref[i] == 0)
 				++count;
@@ -238,4 +238,3 @@ public:
 };
 
 #endif
-

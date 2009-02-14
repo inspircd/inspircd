@@ -10,7 +10,7 @@
  *
  * ---------------------------------------------------
  */
- 
+
 #ifndef __CTABLES_H__
 #define __CTABLES_H__
 
@@ -243,4 +243,3 @@ typedef nspace::hash_map<std::string,Command*> Commandtable;
 	translation.push_back(x5);translation.push_back(x6);translation.push_back(x7);translation.push_back(x8);
 
 #endif
-

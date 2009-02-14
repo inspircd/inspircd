@@ -68,7 +68,7 @@ class ModuleAlias : public Module
 		ConfigReader MyConf(ServerInstance);
 
 		AllowBots = MyConf.ReadFlag("fantasy", "allowbots", "no", 0);
-		
+
 		std::string fpre = MyConf.ReadValue("fantasy","prefix",0);
 		fprefix = fpre.empty() ? '!' : fpre[0];
 
@@ -231,7 +231,7 @@ class ModuleAlias : public Module
 
 		if (i == Aliases.end())
 			return 0;
-		
+
 		/* Avoid iterating on to other aliases if no patterns match */
 		std::multimap<std::string, Alias>::iterator upperbound = Aliases.upper_bound(fcommand);
 
@@ -255,7 +255,7 @@ class ModuleAlias : public Module
 
 			i++;
 		}
-		
+
 		return 0;
 	}
 
@@ -361,7 +361,7 @@ class ModuleAlias : public Module
 		if (c)
 		{
 			/* Channel specific variables */
-			SearchAndReplace(newline, std::string("$chan"), c->name);			
+			SearchAndReplace(newline, std::string("$chan"), c->name);
 		}
 
 		irc::tokenstream ss(newline);

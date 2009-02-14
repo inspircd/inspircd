@@ -25,27 +25,27 @@ class RPCValue : public classbase
  protected:
 	RPCValueType type;
 	void *value;
-	
+
 	double *CastInteger()
 	{
 		return (double*)value;
 	}
-	
+
 	std::string *CastString()
 	{
 		return (std::string*)value;
 	}
-	
+
 	RPCObjectContainer *CastObject()
 	{
 		return (RPCObjectContainer*)value;
 	}
-	
+
 	RPCArrayContainer *CastArray()
 	{
 		return (RPCArrayContainer*)value;
 	}
-	
+
 	void DestroyValue()
 	{
 		// Some versions of GCC complain about declaration in switch statements
@@ -74,10 +74,10 @@ class RPCValue : public classbase
 			default:
 				break;
 		}
-		
+
 		value = NULL;
 	}
-	
+
 	void InitValue()
 	{
 		switch (type)
@@ -100,9 +100,9 @@ class RPCValue : public classbase
 				break;
 		}
 	}
-	
+
 	RPCValue(const RPCValue &v) { }
-	
+
  public:
 	RPCValue *parent;
 
@@ -111,30 +111,30 @@ class RPCValue : public classbase
 	RPCValue(bool nvalue, RPCValue *rparent = NULL) : type(RPCBoolean), value((void*)nvalue), parent(rparent) { }
 	RPCValue(double nvalue, RPCValue *rparent = NULL) : type(RPCInteger), parent(rparent) { value = new double(nvalue); }
 	RPCValue(const std::string &nvalue, RPCValue *rparent = NULL) : type(RPCString), parent(rparent) { value = new std::string(nvalue); }
-	
+
 	virtual ~RPCValue()
 	{
 		DestroyValue();
 	}
-	
+
 	RPCValueType GetType()
 	{
 		return type;
 	}
-	
+
 	void SetNull()
 	{
 		DestroyValue();
 		type = RPCNull;
 	}
-	
+
 	void SetBoolean(bool nvalue)
 	{
 		DestroyValue();
 		value = (void*)nvalue;
 		type = RPCBoolean;
 	}
-	
+
 	void SetInteger(double nvalue)
 	{
 		if (type == RPCInteger)
@@ -148,7 +148,7 @@ class RPCValue : public classbase
 			type = RPCInteger;
 		}
 	}
-	
+
 	void SetString(const std::string &nvalue)
 	{
 		if (type == RPCString)
@@ -162,7 +162,7 @@ class RPCValue : public classbase
 			type = RPCString;
 		}
 	}
-	
+
 	void SetArray()
 	{
 		if (type == RPCArray)
@@ -176,7 +176,7 @@ class RPCValue : public classbase
 			InitValue();
 		}
 	}
-	
+
 	void SetObject()
 	{
 		if (type == RPCObject)
@@ -190,7 +190,7 @@ class RPCValue : public classbase
 			InitValue();
 		}
 	}
-	
+
 	void ArrayAdd(RPCValue *nvalue)
 	{
 		if (type != RPCArray)
@@ -199,7 +199,7 @@ class RPCValue : public classbase
 		a->push_back(nvalue);
 		nvalue->parent = this;
 	}
-	
+
 	void ObjectAdd(const std::string &key, RPCValue *nvalue)
 	{
 		if (type != RPCObject)
@@ -208,7 +208,7 @@ class RPCValue : public classbase
 		o->insert(std::make_pair(key, nvalue));
 		nvalue->parent = this;
 	}
-	
+
 	RPCValue *GetArray(int i)
 	{
 		if (type != RPCArray)
@@ -218,7 +218,7 @@ class RPCValue : public classbase
 			return NULL;
 		return a->at(i);
 	}
-	
+
 	int ArraySize()
 	{
 		if (type != RPCArray)
@@ -226,7 +226,7 @@ class RPCValue : public classbase
 		RPCArrayContainer *a = this->CastArray();
 		return a->size();
 	}
-	
+
 	RPCValue *GetObject(const std::string &key)
 	{
 		if (type != RPCObject)
@@ -237,7 +237,7 @@ class RPCValue : public classbase
 			return NULL;
 		return it->second;
 	}
-	
+
 	std::pair<RPCObjectContainer::iterator,RPCObjectContainer::iterator> GetObjectIterator()
 	{
 		if (type != RPCObject)
@@ -245,21 +245,21 @@ class RPCValue : public classbase
 		RPCObjectContainer *o = this->CastObject();
 		return std::make_pair(o->begin(), o->end());
 	}
-	
+
 	std::string GetString()
 	{
 		if (type != RPCString)
 			return std::string();
 		return *this->CastString();
 	}
-	
+
 	double GetInt()
 	{
 		if (type != RPCInteger)
 			return 0;
 		return *this->CastInteger();
 	}
-	
+
 	bool GetBool()
 	{
 		if (type != RPCBoolean)
@@ -271,7 +271,7 @@ class RPCValue : public classbase
 class RPCRequest : public classbase
 {
  protected:
-	
+
  public:
 	std::string method;
 	RPCValue *parameters;
@@ -279,13 +279,13 @@ class RPCRequest : public classbase
 	std::string provider;
 	bool claimed;
 	std::string error;
-	
+
 	RPCRequest(const std::string &sprovider, const std::string &smethod, RPCValue *rparameters)
 		: method(smethod), parameters(rparameters), provider(sprovider), claimed(false)
 	{
 		result = new RPCValue();
 	}
-	
+
 	~RPCRequest()
 	{
 		if (result)

@@ -45,7 +45,7 @@ class RegexFactoryRequest : public Request
 {
 private:
 	std::string regex;
-	
+
 public:
 	Regex* result;
 

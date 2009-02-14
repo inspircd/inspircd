@@ -25,7 +25,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string target = parameters[0];
-		
+
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
@@ -92,4 +92,3 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-

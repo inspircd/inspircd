@@ -44,7 +44,7 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_SUCCESS;
 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
-	
+
 	if (c)
 	{
 		if (!c->PartUser(user, reason))

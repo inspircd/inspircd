@@ -395,7 +395,7 @@ enum Implementation
 	I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddLine,
 	I_OnDelLine, I_OnExpireLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
 	I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite, I_OnRawMode,
-	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, 
+	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos,
 	I_OnLocalTopicChange, I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnUserList,
@@ -548,7 +548,7 @@ class CoreExport Module : public Extensible
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
-	
+
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
@@ -590,7 +590,7 @@ class CoreExport Module : public Extensible
 	 * @param opertype The opers type name
 	 */
 	virtual void OnPostOper(User* user, const std::string &opername, const std::string &opertype);
-	
+
 	/** Called whenever a user types /INFO.
 	 * The User will contain the information of the user who typed the command. Modules may use this
 	 * method to output their own credits in /INFO (which is the ircd's version of an about box).
@@ -602,7 +602,7 @@ class CoreExport Module : public Extensible
 	 * @param user The user issuing /INFO
 	 */
 	virtual void OnInfo(User* user);
-	
+
 	/** Called whenever a /WHOIS is performed on a local user.
 	 * The source parameter contains the details of the user who issued the WHOIS command, and
 	 * the dest parameter contains the information of the user they are whoising.
@@ -610,7 +610,7 @@ class CoreExport Module : public Extensible
 	 * @param dest The user who is being WHOISed
 	 */
 	virtual void OnWhois(User* source, User* dest);
-	
+
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
@@ -622,7 +622,7 @@ class CoreExport Module : public Extensible
 	 * @return 1 to deny the invite, 0 to check whether or not the user has permission to invite, -1 to explicitly allow the invite
 	 */
 	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout);
-	
+
 	/** Called after a user has been successfully invited to a channel.
 	 * You cannot prevent the invite from occuring using this function, to do that,
 	 * use OnUserPreInvite instead.
@@ -632,7 +632,7 @@ class CoreExport Module : public Extensible
 	 * @param timeout The time the invite will expire (0 == never)
 	 */
 	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t timeout);
-	
+
 	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
@@ -682,7 +682,7 @@ class CoreExport Module : public Extensible
 	 * @param text The original message text causing the exempt list to be built
 	 */
 	virtual void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text);
-	
+
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should
 	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
@@ -865,7 +865,7 @@ class CoreExport Module : public Extensible
 	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
 	 */
 	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata);
-	
+
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS
 	 * @param text The content of the WALLOPS message
@@ -1170,7 +1170,7 @@ class CoreExport Module : public Extensible
 	 * @param newhost The new GECOS
 	 * @return 1 to deny the GECOS change, 0 to allow
 	 */
-	virtual int OnChangeLocalUserGECOS(User* user, const std::string &newhost); 
+	virtual int OnChangeLocalUserGECOS(User* user, const std::string &newhost);
 
 	/** Called whenever a topic is changed by a local user.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks
@@ -1416,7 +1416,7 @@ class CoreExport ConfigReader : public classbase
 	/** Error code
 	 */
 	long error;
-	
+
   public:
 	/** Default constructor.
 	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
@@ -1571,7 +1571,7 @@ class CoreExport FileReader : public classbase
 	 * This function will return false if the file could not be opened.
 	 */
 	bool Exists();
- 
+
 	/** Retrieve one line from the file.
 	 * This method retrieves one line from the text file. If an empty non-NULL string is returned,
 	 * the index was out of bounds, or the line had no data on it.
@@ -1622,7 +1622,7 @@ class CoreExport ModuleManager : public classbase
 	/** Holds a string describing the last module error to occur
 	 */
 	std::string LastModuleError;
- 
+
  	/** The feature names published by various modules
 	 */
 	featurelist Features;
@@ -1630,11 +1630,11 @@ class CoreExport ModuleManager : public classbase
 	/** The interface names published by various modules
 	 */
 	interfacelist Interfaces;
- 
+
 	/** Total number of modules loaded into the ircd
 	 */
-	int ModCount; 
-	
+	int ModCount;
+
 	/** Our pointer to the main insp instance
 	 */
 	InspIRCd* Instance;
@@ -1657,7 +1657,7 @@ class CoreExport ModuleManager : public classbase
 
 	/** Destructor
 	 */
-	~ModuleManager(); 
+	~ModuleManager();
 
 	/** Change the priority of one event in a module.
 	 * Each module event has a list of modules which are attached to that event type.
@@ -1672,7 +1672,7 @@ class CoreExport ModuleManager : public classbase
 	 * set it to be the last called, or PRIO_BEFORE and PRIO_AFTER
 	 * to set it to be before or after one or more other modules.
 	 * @param modules If PRIO_BEFORE or PRIO_AFTER is set in parameter 's',
-	 * then this contains a list of one or more modules your module must be 
+	 * then this contains a list of one or more modules your module must be
 	 * placed before or after. Your module will be placed before the highest
 	 * priority module in this list for PRIO_BEFORE, or after the lowest
 	 * priority module in this list for PRIO_AFTER.
@@ -1720,7 +1720,7 @@ class CoreExport ModuleManager : public classbase
 	 * @param mod Module to detach from
 	 */
 	void DetachAll(Module* mod);
- 
+
 	/** Returns text describing the last module error
 	 * @return The last error message to occur
 	 */
@@ -1737,11 +1737,11 @@ class CoreExport ModuleManager : public classbase
 	 * @return True if the module was unloaded
 	 */
 	bool Unload(const char* filename);
-	
+
 	/** Called by the InspIRCd constructor to load all modules from the config file.
 	 */
 	void LoadAll();
-	
+
 	/** Get the total number of currently loaded modules
 	 * @return The number of loaded modules
 	 */
@@ -1749,14 +1749,14 @@ class CoreExport ModuleManager : public classbase
 	{
 		return this->ModCount;
 	}
-	
+
 	/** Find a module by name, and return a Module* to it.
 	 * This is preferred over iterating the module lists yourself.
 	 * @param name The module name to look up
 	 * @return A pointer to the module, or NULL if the module cannot be found
 	 */
 	Module* Find(const std::string &name);
- 
+
 	/** Publish a 'feature'.
 	 * There are two ways for a module to find another module it depends on.
 	 * Either by name, using InspIRCd::FindModule, or by feature, using this

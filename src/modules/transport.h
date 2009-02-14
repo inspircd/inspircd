@@ -50,7 +50,7 @@ class ssl_cert : public Extensible
 	ssl_cert() : empty("")
 	{
 	}
-	
+
 	/** Get certificate distinguished name
 	 * @return Certificate DN
 	 */
@@ -228,4 +228,3 @@ class BufferedSocketNameRequest : public ISHRequest
 };
 
 #endif
-
