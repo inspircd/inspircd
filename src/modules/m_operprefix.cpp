@@ -123,7 +123,7 @@ class ModuleOperPrefixMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
-	virtual void PushChanMode(Channel* channel, User* user, bool negate = false)
+	void PushChanMode(Channel* channel, User* user, bool negate = false)
 	{
 		if (negate)
 			DelPrefixChan(user, channel);
@@ -141,10 +141,6 @@ class ModuleOperPrefixMode : public Module
 
 	virtual void OnPostJoin(User *user, Channel *channel)
 	{
-		// This may look wrong, but I don't think it is.. PushChanMode will send FMODE which should sort it all out.
-		if (!IS_LOCAL(user))
-			return;
-
 		if (user && IS_OPER(user))
 		{
 			if (user->IsModeSet('H'))
@@ -167,7 +163,7 @@ class ModuleOperPrefixMode : public Module
 
 	virtual void OnOper(User *user, const std::string&)
 	{
-		if (user && IS_LOCAL(user) && !user->IsModeSet('H'))
+		if (user && !user->IsModeSet('H'))
 		{
 			for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 			{
@@ -182,10 +178,8 @@ class ModuleOperPrefixMode : public Module
 		delete opm;
 	}
 
-	virtual void CleanUser(User* user, bool quitting=false)
+	void CleanUser(User* user, bool quitting)
 	{
-		if (!IS_LOCAL(user))
-			return;
 
 		std::set<std::string>* ext;
 		if (user->GetExt("m_operprefix",ext))
@@ -213,7 +207,7 @@ class ModuleOperPrefixMode : public Module
 		if (target_type == TYPE_USER)
 		{
 			User* user = (User*)item;
-			CleanUser(user);
+			CleanUser(user, false);
 		}
 	}
 
