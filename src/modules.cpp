@@ -25,6 +25,7 @@
 	#include <dirent.h>
 #endif
 
+
 // version is a simple class for holding a modules version number
 Version::Version(const std::string &sversion, int flags, int api_ver)
 : version(sversion), Flags(flags), API(api_ver)
