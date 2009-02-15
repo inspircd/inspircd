@@ -1057,7 +1057,9 @@ bool User::ForceNickChange(const char* newnick)
 		std::vector<std::string> parameters;
 		nickhandler->HandleInternal(1, dummy);
 		parameters.push_back(newnick);
+		this->Extend("NICKForced", "Enabled");
 		bool result = (ServerInstance->Parser->CallHandler("NICK", parameters, this) == CMD_SUCCESS);
+		this->Shrink("NICKForced");
 		nickhandler->HandleInternal(0, dummy);
 		return result;
 	}
