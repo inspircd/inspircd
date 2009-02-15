@@ -53,7 +53,7 @@ class CommandSanick : public Command
 			}
 		}
 
-		/* Have we hit users server yet? */
+		/* Have we hit target's server yet? */
 		if (target && IS_LOCAL(target))
 		{
 			std::string oldnick = user->nick;
@@ -68,11 +68,11 @@ class CommandSanick : public Command
 				ServerInstance->SNO->WriteToSnoMask('A', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 				ServerInstance->PI->SendSNONotice("A", oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 			}
-			/* hit user and have sent our NICK out, we can now bail */
+			/* Yes, hit target and we have sent our NICK out, we can now bail */
 			return CMD_LOCALONLY;
 		}
 
-		/* no, route it on */
+		/* No, route it on */
 		return CMD_SUCCESS;
 	}
 };
