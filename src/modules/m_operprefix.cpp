@@ -19,7 +19,7 @@
 
 #include "inspircd.h"
 
-static char prefixchar;
+#define OPERPREFIX_VALUE 1000000
 
 std::set<std::string>* SetupExt(User* user)
 {
@@ -51,11 +51,11 @@ void AddPrefixChan(User* user, Channel* channel)
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(InspIRCd* Instance) : ModeHandler(Instance, 'y', 1, 1, true, MODETYPE_CHANNEL, false, prefixchar) { }
+		OperPrefixMode(InspIRCd* Instance, char prefix) : ModeHandler(Instance, 'y', 1, 1, true, MODETYPE_CHANNEL, false, prefix) { }
 
 		unsigned int GetPrefixRank()
 		{
-			return 40000;
+			return OPERPREFIX_VALUE;
 		}
 
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
@@ -111,11 +111,9 @@ class ModuleOperPrefixMode : public Module
 	ModuleOperPrefixMode(InspIRCd* Me) : Module(Me)
 	{
 		ConfigReader Conf(ServerInstance);
-		std::string tmp;
-		tmp = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
-		strlcpy(&prefixchar,tmp.c_str(),2);
+		std::string pfx = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
 
-		opm = new OperPrefixMode(ServerInstance);
+		opm = new OperPrefixMode(ServerInstance, pfx[0]);
 		if ((!ServerInstance->Modes->AddMode(opm)))
 			throw ModuleException("Could not add a new mode!");
 
@@ -129,9 +127,9 @@ class ModuleOperPrefixMode : public Module
 			DelPrefixChan(user, channel);
 		else
 			AddPrefixChan(user, channel);
-		char modeline[]="+y";
+		char modeline[] = "+y";
 		if (negate)
-			modeline [0]='-';
+			modeline[0] = '-';
 		std::vector<std::string> modechange;
 		modechange.push_back(channel->name);
 		modechange.push_back(modeline);
@@ -189,7 +187,7 @@ class ModuleOperPrefixMode : public Module
 			{
 				for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 				{
-					ModePair ms=opm->ModeSet(NULL, NULL , v->first, user->nick);
+					ModePair ms = opm->ModeSet(NULL, NULL , v->first, user->nick);
 					if (ms.first)
 					{
 						PushChanMode(v->first, user, true);
