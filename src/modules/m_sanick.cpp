@@ -30,41 +30,50 @@ class CommandSanick : public Command
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
-		if (target)
+
+		/* Do local sanity checks and bails */
+		if (IS_LOCAL(user))
 		{
-			if (ServerInstance->ULine(target->server))
+			if (target && ServerInstance->ULine(target->server))
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
 				return CMD_FAILURE;
 			}
-			std::string oldnick = user->nick;
-			if (IS_LOCAL(user) && !ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+
+			if (!target)
+			{
+				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+				return CMD_FAILURE;
+			}
+
+			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
+				return CMD_FAILURE;
+			}
+		}
+
+		/* Have we hit users server yet? */
+		if (target && IS_LOCAL(target))
+		{
+			std::string oldnick = user->nick;
+			std::string newnick = target->nick;
+			if (target->ForceNickChange(parameters[1].c_str()))
+			{
+				ServerInstance->SNO->WriteToSnoMask('A', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
+				ServerInstance->PI->SendSNONotice("A", oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
 			}
 			else
 			{
-				if (target->ForceNickChange(parameters[1].c_str()))
-				{
-					ServerInstance->SNO->WriteToSnoMask('A', oldnick+" used SANICK to change "+parameters[0]+" to "+parameters[1]);
-					return CMD_SUCCESS;
-				}
-				else
-				{
-					/* We couldnt change the nick */
-					ServerInstance->SNO->WriteToSnoMask('A', oldnick+" failed SANICK (from "+parameters[0]+" to "+parameters[1]+")");
-					return CMD_FAILURE;
-				}
+				ServerInstance->SNO->WriteToSnoMask('A', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
+				ServerInstance->PI->SendSNONotice("A", oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 			}
-
-			return CMD_FAILURE;
-		}
-		else
-		{
-			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+			/* hit user and have sent our NICK out, we can now bail */
+			return CMD_LOCALONLY;
 		}
 
-		return CMD_FAILURE;
+		/* no, route it on */
+		return CMD_SUCCESS;
 	}
 };
 
