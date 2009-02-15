@@ -51,7 +51,7 @@ void AddPrefixChan(User* user, Channel* channel)
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(InspIRCd* Instance, char prefix) : ModeHandler(Instance, 'y', 1, 1, true, MODETYPE_CHANNEL, false, prefix) { }
+		OperPrefixMode(InspIRCd* Instance, char pfx) : ModeHandler(Instance, 'y', 1, 1, true, MODETYPE_CHANNEL, false, pfx) { }
 
 		unsigned int GetPrefixRank()
 		{
