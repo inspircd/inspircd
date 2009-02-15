@@ -19,7 +19,7 @@
  */
 class CommandNicklock : public Command
 {
-	char* dummy;
+
  public:
 	CommandNicklock (InspIRCd* Instance) : Command(Instance,"NICKLOCK", "o", 2)
 	{
@@ -31,45 +31,59 @@ class CommandNicklock : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
-		irc::string server;
-		irc::string me;
 
-		// check user exists
-		if (!target)
+		/* Do local sanity checks and bails */
+		if (IS_LOCAL(user))
 		{
-			return CMD_FAILURE;
-		}
-
-		// check if user is locked
-		if (target->GetExt("nick_locked", dummy))
-		{
-			user->WriteNumeric(946, "%s %s :This user's nickname is already locked.",user->nick.c_str(),target->nick.c_str());
-			return CMD_FAILURE;
-		}
-
-		// check nick is valid
-		if (IS_LOCAL(user) && !ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
-		{
-			return CMD_FAILURE;
-		}
-
-		// let others know
-		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
-
-		if (!target->ForceNickChange(parameters[1].c_str()))
-		{
-			// ugh, nickchange failed for some reason -- possibly existing nick?
-			if (!target->ForceNickChange(target->uuid.c_str()))
+			if (target && ServerInstance->ULine(target->server))
 			{
-				// Well shit, we cant even change them to their UID (this should not happen!)
-				ServerInstance->Users->QuitUser(target, "Nickname collision");
+				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an NICKLOCK command on a u-lined client",user->nick.c_str());
+				return CMD_FAILURE;
+			}
+
+			if (!target)
+			{
+				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+				return CMD_FAILURE;
+			}
+
+			if (target->GetExt("nick_locked"))
+			{
+				user->WriteNumeric(946, "%s %s :This user's nickname is already locked.",user->nick.c_str(),target->nick.c_str());
+				return CMD_FAILURE;
+			}
+
+			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+			{
+				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
+				return CMD_FAILURE;
 			}
 		}
 
-		// give them a lock flag
-		target->Extend("nick_locked", "ON");
+		/* If we made it this far, extend the user */
+		if (target)
+		{
+			target->Extend("nick_locked", "ON");
+			ServerInstance->SNO->WriteToSnoMask('A', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
 
-		/* route */
+			/* Only send out nick from local server */
+			if (IS_LOCAL(target))
+			{
+				std::string oldnick = user->nick;
+				std::string newnick = target->nick;
+				if (!target->ForceNickChange(parameters[1].c_str()))
+				{
+					/* XXX: We failed, this *should* not happen but if it does
+					 * tell everybody. Note user is still nick locked on their old
+					 * nick instead.
+					 */
+					ServerInstance->SNO->WriteToSnoMask('A', oldnick+" failed nickchange on NICKLOCK (from "+newnick+" to "+parameters[1]+") Locked to "+newnick+" instead");
+					ServerInstance->PI->SendSNONotice("A", oldnick+" failed nickchange on NICKLOCK (from "+newnick+" to "+parameters[1]+") Locked to "+newnick+" instead");
+				}
+			}
+		}
+
+		/* Route it */
 		return CMD_SUCCESS;
 	}
 };
@@ -88,15 +102,41 @@ class CommandNickunlock : public Command
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
+
+		/* Do local sanity checks and bails */
+		if (IS_LOCAL(user))
+		{
+			if (target && ServerInstance->ULine(target->server))
+			{
+				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an NICKUNLOCK command on a u-lined client",user->nick.c_str());
+				return CMD_FAILURE;
+			}
+
+			if (!target)
+			{
+				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+				return CMD_FAILURE;
+			}
+
+			if (!target->GetExt("nick_locked"))
+			{
+				user->WriteNumeric(946, "%s %s :This user's nickname is not locked.",user->nick.c_str(),target->nick.c_str());
+				return CMD_FAILURE;
+			}
+		}
+
+		/* If we made it this far, the command is going out on the wire so send local snotice */
+		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
+
 		if (target)
 		{
 			target->Shrink("nick_locked");
-			user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
-			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
-			return CMD_SUCCESS;
+			if (IS_LOCAL(user))
+				user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
 		}
 
-		return CMD_FAILURE;
+		/* Route it */
+		return CMD_SUCCESS;
 	}
 };
 
@@ -131,7 +171,13 @@ class ModuleNickLock : public Module
 
 	virtual int OnUserPreNick(User* user, const std::string &newnick)
 	{
-		if (isdigit(newnick[0])) /* allow a switch to a UID */
+		if (!IS_LOCAL(user))
+			return 0;
+
+		if (isdigit(newnick[0])) /* Allow a switch to a UID */
+			return 0;
+
+		if (user->GetExt("NICKForced")) /* Allow forced nick changes */
 			return 0;
 
 		if (user->GetExt("nick_locked", n))
