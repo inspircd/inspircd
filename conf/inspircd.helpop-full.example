@@ -186,6 +186,7 @@ The following flags after the mask have the following affects:
         the given key name
  l      Show only local users
  f      Show only remote (far) users
+ t      Show users connected within this time limit
 -
 You may combine multiple flags in one WHO command except where stated in the table above.">
 
@@ -350,14 +351,8 @@ User is also notified they have been frozen.">
 <helpop key="unfreeze" value="/UNFREEZE [nick]
 Unfreezes a user frozen by the /FREEZE command.">
 
-<helpop key="spylist" value="/SPYLIST
-Operates the same as /LIST but includes +s and +p channels.">
-
-<helpop key="spynames" value="/SPYNAMES [channel]
-Operates the same as /name but works on +s and +p channels.">
-
 <helpop key="globops" value="/GLOBOPS [message]
-Sends a message to all +g users.">
+Sends a message to all users with the +g snomask.">
 
 <helpop key="cban" value="/CBAN [channel] {[duration] :[reason]}
 Sets or removes a channel ban. You must specify at least
