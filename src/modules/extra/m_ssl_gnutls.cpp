@@ -933,7 +933,7 @@ class ModuleSSLGnuTLS : public Module
 	void Prioritize()
 	{
 		Module* server = ServerInstance->Modules->Find("m_spanningtree.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIO_AFTER, &server);
+		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_AFTER, &server);
 	}
 };
 

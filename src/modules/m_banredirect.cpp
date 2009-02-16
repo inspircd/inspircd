@@ -339,7 +339,7 @@ class ModuleBanRedirect : public Module
 	void Prioritize()
 	{
 		Module* banex = ServerInstance->Modules->Find("m_banexception.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIO_BEFORE, &banex);
+		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_BEFORE, &banex);
 	}
 };
 

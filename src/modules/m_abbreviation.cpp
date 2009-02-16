@@ -25,7 +25,7 @@ class ModuleAbbreviation : public Module
 	{
 		Me->Modules->Attach(I_OnPreCommand, this);
 		/* Must do this first */
-		Me->Modules->SetPriority(this, I_OnPreCommand, PRIO_FIRST);
+		Me->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
 	virtual Version GetVersion()

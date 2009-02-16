@@ -1602,17 +1602,6 @@ typedef std::vector<Module*> IntModuleList;
  */
 typedef IntModuleList::iterator EventHandlerIter;
 
-/** Module priority states
- */
-enum PriorityState
-{
-	PRIO_DONTCARE,
-	PRIO_FIRST,
-	PRIO_LAST,
-	PRIO_AFTER,
-	PRIO_BEFORE
-};
-
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
@@ -1680,7 +1669,7 @@ class CoreExport ModuleManager : public classbase
 	 * Defaults to 1, as most of the time you will only want to prioritize your module
 	 * to be before or after one other module.
 	 */
-	bool SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules = NULL, size_t sz = 1);
+	bool SetPriority(Module* mod, Implementation i, Priority s, Module** modules = NULL, size_t sz = 1);
 
 	/** Change the priority of all events in a module.
 	 * @param mod The module to set the priority of
@@ -1690,7 +1679,7 @@ class CoreExport ModuleManager : public classbase
 	 * SetPriority method for this, where you may specify other modules to
 	 * be prioritized against.
 	 */
-	bool SetPriority(Module* mod, PriorityState s);
+	bool SetPriority(Module* mod, Priority s);
 
 	/** Attach an event to a module.
 	 * You may later detatch the event with ModuleManager::Detach().

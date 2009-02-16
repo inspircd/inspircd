@@ -29,7 +29,7 @@ class ModuleModesOnConnect : public Module
 		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
-		ServerInstance->Modules->SetPriority(this, PRIO_FIRST);
+		ServerInstance->Modules->SetPriority(this, PRIORITY_FIRST);
 	}
 
 

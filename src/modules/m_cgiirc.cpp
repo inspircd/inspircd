@@ -156,7 +156,7 @@ public:
 
 	virtual void Prioritize()
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIO_FIRST);
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
 	virtual void OnRehash(User* user, const std::string &parameter)

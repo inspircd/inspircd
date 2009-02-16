@@ -332,11 +332,11 @@ class ModuleCloaking : public Module
  	void Prioritize()
 	{
 		/* Needs to be after m_banexception etc. */
-		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIO_LAST);
+		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIORITY_LAST);
 
 		/* but before m_conn_umodes, so host is generated ready to apply */
 		Module *um = ServerInstance->Modules->Find("m_conn_umodes.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIO_AFTER, &um);
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, &um);
 	}
 
 	virtual void OnUserDisconnect(User* user)

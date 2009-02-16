@@ -238,7 +238,7 @@ void ModuleManager::DetachAll(Module* mod)
 		Detach((Implementation)n, mod);
 }
 
-bool ModuleManager::SetPriority(Module* mod, PriorityState s)
+bool ModuleManager::SetPriority(Module* mod, Priority s)
 {
 	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
 		SetPriority(mod, (Implementation)n, s);
@@ -246,7 +246,7 @@ bool ModuleManager::SetPriority(Module* mod, PriorityState s)
 	return true;
 }
 
-bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, Module** modules, size_t sz)
+bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module** modules, size_t sz)
 {
 	/** To change the priority of a module, we first find its position in the vector,
 	 * then we find the position of the other modules in the vector that this module
@@ -281,22 +281,22 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 	switch (s)
 	{
 		/* Dummy value */
-		case PRIO_DONTCARE:
+		case PRIORITY_DONTCARE:
 			swap = false;
 		break;
 		/* Module wants to be first, sod everything else */
-		case PRIO_FIRST:
+		case PRIORITY_FIRST:
 			swap_pos = 0;
 		break;
 		/* Module is submissive and wants to be last... awww. */
-		case PRIO_LAST:
+		case PRIORITY_LAST:
 			if (EventHandlers[i].empty())
 				swap_pos = 0;
 			else
 				swap_pos = EventHandlers[i].size() - 1;
 		break;
 		/* Place this module after a set of other modules */
-		case PRIO_AFTER:
+		case PRIORITY_AFTER:
 		{
 			/* Find the latest possible position */
 			swap_pos = 0;
@@ -315,7 +315,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, PriorityState s, 
 		}
 		break;
 		/* Place this module before a set of other modules */
-		case PRIO_BEFORE:
+		case PRIORITY_BEFORE:
 		{
 			swap_pos = EventHandlers[i].size() - 1;
 			swap = false;

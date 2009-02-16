@@ -52,7 +52,7 @@ class ModuleConnJoin : public Module
 
 		void Prioritize()
 		{
-			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIO_LAST);
+			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
 		}
 
 
