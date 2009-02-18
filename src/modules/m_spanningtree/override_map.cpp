@@ -163,7 +163,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		}
 	}
 
-	float avg_users = ((float)totusers) / ((float)totservers);
+	float avg_users = totusers * 1.0 / totservers;
 
 	// dump the whole lot to the user.
 	if (IS_LOCAL(user))
