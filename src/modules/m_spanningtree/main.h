@@ -41,7 +41,6 @@ class Link;
  */
 class ModuleSpanningTree : public Module
 {
-	int NumServers;
 	unsigned int max_local;
 	unsigned int max_global;
 	CommandRConnect* command_rconnect;
