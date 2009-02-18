@@ -27,6 +27,7 @@
  * painful death by pain. You have been warned.
  */
 const long ProtocolVersion = 1201;
+const int MaxMapHeight = 250;
 
 /** Forward declarations
  */
@@ -80,7 +81,7 @@ class ModuleSpanningTree : public Module
 
 	/** Show MAP output to a user (recursive)
 	 */
-	void ShowMap(TreeServer* Current, User* user, int depth, char matrix[250][250], float &totusers, float &totservers);
+	void ShowMap(TreeServer* Current, User* user, int depth, char names[MaxMapHeight][100], int &maxnamew, char stats[MaxMapHeight][50]);
 
 	/** Handle remote MOTD
 	 */

@@ -29,64 +29,45 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 }
 
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
-void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char matrix[250][250], float &totusers, float &totservers)
+void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char names[MaxMapHeight][100], int &maxnamew, char stats[MaxMapHeight][50])
 {
-	ServerInstance->Logs->Log("map",DEBUG,"ShowMap depth %d totusers %0.2f totservers %0.2f", depth, totusers, totservers);
-	if (line < 250)
+	ServerInstance->Logs->Log("map",DEBUG,"ShowMap depth %d on line %d", depth, line);
+	if (line >= MaxMapHeight)
+		return;
+	float percent;
+
+	if (ServerInstance->Users->clientlist->size() == 0)
 	{
-		for (int t = 0; t < depth; t++)
-		{
-			matrix[line][t] = ' ';
-		}
+		// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
+		percent = 0;
+	}
+	else
+	{
+		percent = ((float)Current->GetUserCount() / (float)ServerInstance->Users->clientlist->size()) * 100;
+	}
 
-		// For Aligning, we need to work out exactly how deep this thing is, and produce
-		// a 'Spacer' String to compensate.
-		char spacer[80];
-		memset(spacer,' ',sizeof(spacer));
-		if ((80 - Current->GetName().length() - depth) > 1) {
-			spacer[80 - Current->GetName().length() - depth] = '\0';
-		}
-		else
-		{
-			spacer[5] = '\0';
-		}
+	const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
+	memset(names[line], ' ', depth);
+	int w = depth + snprintf(names[line] + depth, 99 - depth, "%s (%s)", Current->GetName().c_str(), Current->GetID().c_str());
+	memset(names[line] + w, ' ', 100 - w);
+	if (w > maxnamew)
+		maxnamew = w;
+	snprintf(stats[line], 49, "%5d [%5.2f%%]%s", Current->GetUserCount(), percent, operdata.c_str());
 
-		float percent;
-		char text[250];
-		/* Neat and tidy default values, as we're dealing with a matrix not a simple string */
-		memset(text, 0, sizeof(text));
+	line++;
 
-		if (ServerInstance->Users->clientlist->size() == 0)
-		{
-			// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
-			percent = 0;
+	if (IS_OPER(user) || !Utils->FlatLinks)
+		depth = depth + 2;
+	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	{
+		TreeServer* child = Current->GetChild(q);
+		if (!IS_OPER(user)) {
+			if (child->Hidden)
+				continue;
+			if ((Utils->HideULines) && (ServerInstance->ULine(child->GetName().c_str())))
+				continue;
 		}
-		else
-		{
-			percent = ((float)Current->GetUserCount() / (float)ServerInstance->Users->clientlist->size()) * 100;
-		}
-
-		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
-		snprintf(text, 249, "%s (%s)%s%5d [%5.2f%%]%s", Current->GetName().c_str(), Current->GetID().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
-		totusers += Current->GetUserCount();
-		totservers++;
-		strlcpy(&matrix[line][depth], text, 249);
-		line++;
-
-		for (unsigned int q = 0; q < Current->ChildCount(); q++)
-		{
-			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
-			{
-				if (IS_OPER(user))
-				{
-					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!IS_OPER(user))) ? depth : depth+2,matrix,totusers,totservers);
-				}
-			}
-			else
-			{
-				ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!IS_OPER(user))) ? depth : depth+2,matrix,totusers,totservers);
-			}
-		}
+		ShowMap(child, user, depth, names, maxnamew, stats);
 	}
 }
 
@@ -129,24 +110,27 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 	// This array represents a virtual screen which we will
 	// "scratch" draw to, as the console device of an irc
 	// client does not provide for a proper terminal.
-	float totusers = 0;
-	float totservers = 0;
-	static char matrix[250][250];
+	int totusers = ServerInstance->Users->clientlist->size();
+	int maxnamew = 0;
+	static char names[MaxMapHeight][100];
+	static char stats[MaxMapHeight][50];
 
-	for (unsigned int t = 0; t < 250; t++)
+	for (int t = 0; t < MaxMapHeight; t++)
 	{
-		matrix[t][0] = '\0';
+		names[t][0] = '\0';
 	}
 
 	line = 0;
 
 	// The only recursive bit is called here.
-	ShowMap(Utils->TreeRoot,user,0,matrix,totusers,totservers);
+	ShowMap(Utils->TreeRoot,user,0,names,maxnamew,stats);
+
+	int totservers = line;
 
 	// Process each line one by one. The algorithm has a limit of
-	// 250 servers (which is far more than a spanning tree should have
-	// anyway, so we're ok). This limit can be raised simply by making
-	// the character matrix deeper, 250 rows taking 100k of memory.
+	// MaxMapHeight=250 servers (which is far more than a spanning tree
+	// should have anyway, so we're ok). This limit can be raised simply by
+	// making the character matrix deeper, 250 rows taking ~38k of memory.
 	for (int l = 1; l < line; l++)
 	{
 		// scan across the line looking for the start of the
@@ -155,7 +139,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		// are related to)
 		int first_nonspace = 0;
 
-		while (matrix[l][first_nonspace] == ' ')
+		while (names[l][first_nonspace] == ' ')
 		{
 			first_nonspace++;
 		}
@@ -166,20 +150,20 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		// another L shape passing along the same vertical pane, becoming
 		// a |- (branch) section instead.
 
-		matrix[l][first_nonspace] = '-';
-		matrix[l][first_nonspace-1] = '`';
+		names[l][first_nonspace] = '-';
+		names[l][first_nonspace-1] = '`';
 		int l2 = l - 1;
 
 		// Draw upwards until we hit the parent server, causing possibly
 		// other corners (`-) to become branches (|-)
-		while ((matrix[l2][first_nonspace-1] == ' ') || (matrix[l2][first_nonspace-1] == '`'))
+		while ((names[l2][first_nonspace-1] == ' ') || (names[l2][first_nonspace-1] == '`'))
 		{
-			matrix[l2][first_nonspace-1] = '|';
+			names[l2][first_nonspace-1] = '|';
 			l2--;
 		}
 	}
 
-	float avg_users = totusers / totservers;
+	float avg_users = ((float)totusers) / ((float)totservers);
 
 	// dump the whole lot to the user.
 	if (IS_LOCAL(user))
@@ -187,9 +171,11 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		ServerInstance->Logs->Log("map",DEBUG,"local");
 		for (int t = 0; t < line; t++)
 		{
-			user->WriteNumeric(RPL_MAP, "%s :%s",user->nick.c_str(),&matrix[t][0]);
+			// terminate the string at maxnamew characters
+			names[t][maxnamew] = '\0';
+			user->WriteNumeric(RPL_MAP, "%s :%s %s",user->nick.c_str(),names[t],stats[t]);
 		}
-		user->WriteNumeric(RPL_MAPUSERS, "%s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+		user->WriteNumeric(RPL_MAPUSERS, "%s :%d server%s and %d user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
 		user->WriteNumeric(RPL_ENDMAP, "%s :End of /MAP",user->nick.c_str());
 	}
 	else
@@ -199,7 +185,9 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		// XXX: annoying that we have to use hardcoded numerics here..
 		for (int t = 0; t < line; t++)
 		{
-			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + &matrix[t][0]);
+			// terminate the string at maxnamew characters
+			names[t][maxnamew] = '\0';
+			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + names[t] + " " + stats[t]);
 		}
 
 		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(totservers) + " server"+(totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + " user"+(totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
