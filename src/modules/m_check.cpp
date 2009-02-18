@@ -60,6 +60,7 @@ class CommandCheck : public Command
 			user->WriteServ(checkstr + " modes +" + targuser->FormatModes());
 			user->WriteServ(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
 			user->WriteServ(checkstr + " server " + targuser->server);
+			user->WriteServ(checkstr + " uid " + targuser->uuid);
 
 			if (IS_AWAY(targuser))
 			{
