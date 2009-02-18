@@ -28,12 +28,9 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 	return (" [Up: " + TimeToStr(secs_up) + " Lag: " + (Current->rtt == 0 ? "<1" : ConvToStr(Current->rtt)) + "ms]");
 }
 
-// WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
-void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char names[MaxMapHeight][100], int &maxnamew, char stats[MaxMapHeight][50])
+void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats)
 {
 	ServerInstance->Logs->Log("map",DEBUG,"ShowMap depth %d on line %d", depth, line);
-	if (line >= MaxMapHeight)
-		return;
 	float percent;
 
 	if (ServerInstance->Users->clientlist->size() == 0)
@@ -43,16 +40,19 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 	}
 	else
 	{
-		percent = ((float)Current->GetUserCount() / (float)ServerInstance->Users->clientlist->size()) * 100;
+		percent = Current->GetUserCount() * 100.0 / ServerInstance->Users->clientlist->size();
 	}
 
 	const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
-	memset(names[line], ' ', depth);
-	int w = depth + snprintf(names[line] + depth, 99 - depth, "%s (%s)", Current->GetName().c_str(), Current->GetID().c_str());
-	memset(names[line] + w, ' ', 100 - w);
+
+	char* myname = names + 100 * line;
+	char* mystat = stats + 50 * line;
+	memset(myname, ' ', depth);
+	int w = depth + snprintf(myname + depth, 99 - depth, "%s (%s)", Current->GetName().c_str(), Current->GetID().c_str());
+	memset(myname + w, ' ', 100 - w);
 	if (w > maxnamew)
 		maxnamew = w;
-	snprintf(stats[line], 49, "%5d [%5.2f%%]%s", Current->GetUserCount(), percent, operdata.c_str());
+	snprintf(mystat, 49, "%5d [%5.2f%%]%s", Current->GetUserCount(), percent, operdata.c_str());
 
 	line++;
 
@@ -67,7 +67,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, cha
 			if ((Utils->HideULines) && (ServerInstance->ULine(child->GetName().c_str())))
 				continue;
 		}
-		ShowMap(child, user, depth, names, maxnamew, stats);
+		ShowMap(child, user, depth, line, names, maxnamew, stats);
 	}
 }
 
@@ -107,39 +107,30 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 			return 1;
 	}
 
-	// This array represents a virtual screen which we will
+	// These arrays represent a virtual screen which we will
 	// "scratch" draw to, as the console device of an irc
 	// client does not provide for a proper terminal.
 	int totusers = ServerInstance->Users->clientlist->size();
+	int totservers = this->CountServs();
 	int maxnamew = 0;
-	static char names[MaxMapHeight][100];
-	static char stats[MaxMapHeight][50];
-
-	for (int t = 0; t < MaxMapHeight; t++)
-	{
-		names[t][0] = '\0';
-	}
-
-	line = 0;
+	int line = 0;
+	char* names = new char[totservers * 100];
+	char* stats = new char[totservers * 50];
 
 	// The only recursive bit is called here.
-	ShowMap(Utils->TreeRoot,user,0,names,maxnamew,stats);
+	ShowMap(Utils->TreeRoot,user,0,line,names,maxnamew,stats);
 
-	int totservers = line;
-
-	// Process each line one by one. The algorithm has a limit of
-	// MaxMapHeight=250 servers (which is far more than a spanning tree
-	// should have anyway, so we're ok). This limit can be raised simply by
-	// making the character matrix deeper, 250 rows taking ~38k of memory.
+	// Process each line one by one.
 	for (int l = 1; l < line; l++)
 	{
+		char* myname = names + 100 * l;
 		// scan across the line looking for the start of the
 		// servername (the recursive part of the algorithm has placed
 		// the servers at indented positions depending on what they
 		// are related to)
 		int first_nonspace = 0;
 
-		while (names[l][first_nonspace] == ' ')
+		while (myname[first_nonspace] == ' ')
 		{
 			first_nonspace++;
 		}
@@ -150,15 +141,15 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		// another L shape passing along the same vertical pane, becoming
 		// a |- (branch) section instead.
 
-		names[l][first_nonspace] = '-';
-		names[l][first_nonspace-1] = '`';
+		myname[first_nonspace] = '-';
+		myname[first_nonspace-1] = '`';
 		int l2 = l - 1;
 
 		// Draw upwards until we hit the parent server, causing possibly
 		// other corners (`-) to become branches (|-)
-		while ((names[l2][first_nonspace-1] == ' ') || (names[l2][first_nonspace-1] == '`'))
+		while ((names[l2 * 100 + first_nonspace-1] == ' ') || (names[l2 * 100 + first_nonspace-1] == '`'))
 		{
-			names[l2][first_nonspace-1] = '|';
+			names[l2 * 100 + first_nonspace-1] = '|';
 			l2--;
 		}
 	}
@@ -172,8 +163,8 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		for (int t = 0; t < line; t++)
 		{
 			// terminate the string at maxnamew characters
-			names[t][maxnamew] = '\0';
-			user->WriteNumeric(RPL_MAP, "%s :%s %s",user->nick.c_str(),names[t],stats[t]);
+			names[100 * t + maxnamew] = '\0';
+			user->WriteNumeric(RPL_MAP, "%s :%s %s",user->nick.c_str(),names + 100 * t, stats + 50 * t);
 		}
 		user->WriteNumeric(RPL_MAPUSERS, "%s :%d server%s and %d user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
 		user->WriteNumeric(RPL_ENDMAP, "%s :End of /MAP",user->nick.c_str());
@@ -186,13 +177,17 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		for (int t = 0; t < line; t++)
 		{
 			// terminate the string at maxnamew characters
-			names[t][maxnamew] = '\0';
-			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + names[t] + " " + stats[t]);
+			char* name = names + 100 * t;
+			char* stat = stats + 50 * t;
+			name[maxnamew] = '\0';
+			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + name + " " + stat);
 		}
 
 		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(totservers) + " server"+(totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + " user"+(totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
 		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 007 " + user->nick + " :End of /MAP");
 	}
+	delete[] names;
+	delete[] stats;
 
 	return 1;
 }
