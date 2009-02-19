@@ -253,7 +253,8 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					opt_mode = true;
 					break;
 				case 'M':
-					opt_metadata = true;
+					if (user->HasPrivPermission("users/auspex"))
+						opt_metadata = true;
 					break;
 				case 'i':
 					opt_ident = true;
