@@ -114,12 +114,23 @@ class CommandShun : public Command
 		else if (parameters.size() >= 2)
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			long duration = ServerInstance->Duration(parameters[1]);
+			long duration;
+			std::string expr;
+			if (parameters.size() > 2)
+			{
+				duration = ServerInstance->Duration(parameters[1]);
+				expr = parameters[2];
+			}
+			else
+			{
+				duration = 0;
+				expr = parameters[1];
+			}
 			Shun *r = NULL;
 
 			try
 			{
-				r = new Shun(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+				r = new Shun(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -132,12 +143,14 @@ class CommandShun : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s: %s",
+							user->nick.c_str(), parameters[0].c_str(), expr.c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s: %s",
+							user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), expr.c_str());
 					}
 
 					ServerInstance->XLines->ApplyLines();
@@ -145,7 +158,7 @@ class CommandShun : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), parameters[0].c_str());
+					user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), expr.c_str());
 				}
 			}
 		}
