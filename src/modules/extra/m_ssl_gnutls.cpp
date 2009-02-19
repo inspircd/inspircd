@@ -54,8 +54,6 @@ public:
 	gnutls_session_t sess;
 	issl_status status;
 	std::string outbuf;
-	int inbufoffset;
-	char* inbuf;
 	int fd;
 };
 
@@ -103,7 +101,6 @@ class ModuleSSLGnuTLS : public Module
 
 	std::vector<std::string> listenports;
 
-	int inbufsize;
 	issl_session* sessions;
 
 	gnutls_certificate_credentials x509_cred;
@@ -129,9 +126,6 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
-
-		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
-		inbufsize = ServerInstance->Config->NetBufferSize;
 
 		gnutls_global_init(); // This must be called once in the program
 
@@ -416,8 +410,6 @@ class ModuleSSLGnuTLS : public Module
 			return;
 
 		session->fd = fd;
-		session->inbuf = new char[inbufsize];
-		session->inbufoffset = 0;
 
 		gnutls_init(&session->sess, GNUTLS_SERVER);
 
@@ -449,8 +441,6 @@ class ModuleSSLGnuTLS : public Module
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
-		session->inbuf = new char[inbufsize];
-		session->inbufoffset = 0;
 
 		gnutls_init(&session->sess, GNUTLS_CLIENT);
 
@@ -517,60 +507,31 @@ class ModuleSSLGnuTLS : public Module
 
 		if (session->status == ISSL_HANDSHAKEN)
 		{
-			// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
-			// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-			int ret = gnutls_record_recv(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
+			int ret = gnutls_record_recv(session->sess, buffer, count);
 
-			if (ret == 0)
+			if (ret > 0)
+			{
+				readresult = ret;
+			}
+			else if (ret == 0)
 			{
 				// Client closed connection.
 				readresult = 0;
 				CloseSession(session);
 				return 1;
 			}
-			else if (ret < 0)
+			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
-				if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
-				{
-					errno = EAGAIN;
-					return -1;
-				}
-				else
-				{
-					ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
-							"m_ssl_gnutls.so: Error while reading on fd %d: %s",
-							session->fd, gnutls_strerror(ret));
-					readresult = 0;
-					CloseSession(session);
-				}
+				errno = EAGAIN;
+				return -1;
 			}
 			else
 			{
-				// Read successfully 'ret' bytes into inbuf + inbufoffset
-				// There are 'ret' + 'inbufoffset' bytes of data in 'inbuf'
-				// 'buffer' is 'count' long
-
-				unsigned int length = ret + session->inbufoffset;
-
-				if(count <= length)
-				{
-					memcpy(buffer, session->inbuf, count);
-					// Move the stuff left in inbuf to the beginning of it
-					memmove(session->inbuf, session->inbuf + count, (length - count));
-					// Now we need to set session->inbufoffset to the amount of data still waiting to be handed to insp.
-					session->inbufoffset = length - count;
-					// Insp uses readresult as the count of how much data there is in buffer, so:
-					readresult = count;
-				}
-				else
-				{
-					// There's not as much in the inbuf as there is space in the buffer, so just copy the whole thing.
-					memcpy(buffer, session->inbuf, length);
-					// Zero the offset, as there's nothing there..
-					session->inbufoffset = 0;
-					// As above
-					readresult = length;
-				}
+				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
+						"m_ssl_gnutls.so: Error while reading on fd %d: %s",
+						session->fd, gnutls_strerror(ret));
+				readresult = 0;
+				CloseSession(session);
 			}
 		}
 		else if(session->status == ISSL_CLOSING)
@@ -787,13 +748,7 @@ class ModuleSSLGnuTLS : public Module
 			gnutls_deinit(session->sess);
 		}
 
-		if(session->inbuf)
-		{
-			delete[] session->inbuf;
-		}
-
 		session->outbuf.clear();
-		session->inbuf = NULL;
 		session->sess = NULL;
 		session->status = ISSL_NONE;
 	}
