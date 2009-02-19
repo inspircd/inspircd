@@ -54,7 +54,6 @@ public:
 	gnutls_session_t sess;
 	issl_status status;
 	std::string outbuf;
-	int fd;
 };
 
 class CommandStartTLS : public Command
@@ -409,8 +408,6 @@ class ModuleSSLGnuTLS : public Module
 		if (session->sess)
 			return;
 
-		session->fd = fd;
-
 		gnutls_init(&session->sess, GNUTLS_SERVER);
 
 		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
@@ -421,7 +418,7 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
 
-		Handshake(session);
+		Handshake(session, fd);
 	}
 
 	virtual void OnRawSocketConnect(int fd)
@@ -432,8 +429,6 @@ class ModuleSSLGnuTLS : public Module
 
 		issl_session* session = &sessions[fd];
 
-		session->fd = fd;
-
 		gnutls_init(&session->sess, GNUTLS_CLIENT);
 
 		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
@@ -441,7 +436,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
 
-		Handshake(session);
+		Handshake(session, fd);
 	}
 
 	virtual void OnRawSocketClose(int fd)
@@ -482,7 +477,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// The handshake isn't finished, try to finish it.
 
-			if(!Handshake(session))
+			if(!Handshake(session, fd))
 			{
 				// Couldn't resume handshake.
 				return -1;
@@ -491,7 +486,7 @@ class ModuleSSLGnuTLS : public Module
 		else if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
 			errno = EAGAIN;
-			MakePollWrite(session);
+			MakePollWrite(fd);
 			return -1;
 		}
 
@@ -521,7 +516,7 @@ class ModuleSSLGnuTLS : public Module
 			{
 				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
 						"m_ssl_gnutls.so: Error while reading on fd %d: %s",
-						session->fd, gnutls_strerror(ret));
+						fd, gnutls_strerror(ret));
 				readresult = 0;
 				CloseSession(session);
 			}
@@ -554,7 +549,7 @@ class ModuleSSLGnuTLS : public Module
 		if (session->status == ISSL_HANDSHAKING_WRITE || session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.
-			Handshake(session);
+			Handshake(session, fd);
 			errno = EAGAIN;
 			return -1;
 		}
@@ -575,7 +570,7 @@ class ModuleSSLGnuTLS : public Module
 				{
 					ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
 							"m_ssl_gnutls.so: Error while writing to fd %d: %s",
-							session->fd, gnutls_strerror(ret));
+							fd, gnutls_strerror(ret));
 					CloseSession(session);
 				}
 				else
@@ -589,7 +584,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 		}
 
-		MakePollWrite(session);
+		MakePollWrite(fd);
 
 		/* Who's smart idea was it to return 1 when we havent written anything?
 		 * This fucks the buffer up in BufferedSocket :p
@@ -639,7 +634,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	bool Handshake(issl_session* session)
+	bool Handshake(issl_session* session, int fd)
 	{
 		int ret = gnutls_handshake(session->sess);
 
@@ -658,7 +653,7 @@ class ModuleSSLGnuTLS : public Module
 				{
 					// gnutls_handshake() wants to write() again.
 					session->status = ISSL_HANDSHAKING_WRITE;
-					MakePollWrite(session);
+					MakePollWrite(fd);
 				}
 			}
 			else
@@ -666,7 +661,7 @@ class ModuleSSLGnuTLS : public Module
 				// Handshake failed.
 				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
 						"m_ssl_gnutls.so: Handshake failed on fd %d: %s",
-						session->fd, gnutls_strerror(ret));
+						fd, gnutls_strerror(ret));
 				CloseSession(session);
 				session->status = ISSL_CLOSING;
 			}
@@ -677,7 +672,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// Handshake complete.
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			User* extendme = ServerInstance->FindDescriptor(session->fd);
+			User* extendme = ServerInstance->FindDescriptor(fd);
 			if (extendme)
 			{
 				if (!extendme->GetExt("ssl", dummy))
@@ -688,7 +683,7 @@ class ModuleSSLGnuTLS : public Module
 			session->status = ISSL_HANDSHAKEN;
 
 			// Finish writing, if any left
-			MakePollWrite(session);
+			MakePollWrite(fd);
 
 			return true;
 		}
@@ -714,10 +709,10 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	void MakePollWrite(issl_session* session)
+	void MakePollWrite(int fd)
 	{
-		//OnRawSocketWrite(session->fd, NULL, 0);
-		EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
+		//OnRawSocketWrite(fd, NULL, 0);
+		EventHandler* eh = ServerInstance->FindDescriptor(fd);
 		if (eh)
 			ServerInstance->SE->WantWrite(eh);
 	}
