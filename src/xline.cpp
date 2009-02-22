@@ -167,6 +167,9 @@ bool XLineManager::AddLine(XLine* line, User* user)
 {
 	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
 
+	if (line->duration && ServerInstance->Time() > line->expiry)
+		return false; // Don't apply expired XLines.
+
 	/* If the line exists, check if its an expired line */
 	ContainerIter x = lookup_lines.find(line->type);
 	if (x != lookup_lines.end())
