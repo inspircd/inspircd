@@ -33,10 +33,10 @@ class ModuleSQLAuth : public Module
 	std::string killreason;
 	std::string allowpattern;
 	std::string databaseid;
-	
+
 	bool verbose;
 	bool useusername;
-	
+
 public:
 	ModuleSQLAuth(InspIRCd* Me)
 	: Module::Module(Me)
@@ -69,7 +69,7 @@ public:
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		
+
 		usertable	= Conf.ReadValue("sqlauth", "usertable", 0);	/* User table name */
 		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);		/* Database ID, given to the SQL service provider */
 		userfield	= Conf.ReadValue("sqlauth", "userfield", 0);	/* Field name where username can be found */
@@ -81,12 +81,12 @@ public:
 										 */
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);	/* Set to true if failed connects should be reported to operators */
 		useusername	= Conf.ReadFlag("sqlauth", "useident", 0);
-		
+
 		if (encryption.find("(") == std::string::npos)
 		{
 			encryption.append("(");
 		}
-	}	
+	}
 
 	virtual int OnUserRegister(userrec* user)
 	{
@@ -95,7 +95,7 @@ public:
 			user->Extend("sqlauthed");
 			return 0;
 		}
-		
+
 		if (!CheckCredentials(user))
 		{
 			userrec::QuitUser(ServerInstance,user,killreason);
@@ -106,8 +106,8 @@ public:
 
 	bool CheckCredentials(userrec* user)
 	{
-		SQLrequest req = SQLreq(this, SQLprovider, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, useusername ? user->nick : user->ident, passfield, encryption, user->password);
-			
+		SQLrequest req = SQLreq(this, SQLprovider, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, useusername ? user->ident : user->nick, passfield, encryption, user->password);
+
 		if(req.Send())
 		{
 			/* When we get the query response from the service provider we will be given an ID to play with,
@@ -118,7 +118,7 @@ public:
 			 * us to discard the query.
 		 	 */
 			AssociateUser(this, SQLutils, req.id, user).Send();
-				
+
 			return true;
 		}
 		else
@@ -128,7 +128,7 @@ public:
 			return false;
 		}
 	}
-	
+
 	virtual char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLRESID, request->GetId()) == 0)
@@ -137,7 +137,7 @@ public:
 
 			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
-			
+
 			if(user)
 			{
 				if(res->error.Id() == NO_ERROR)
@@ -170,16 +170,16 @@ public:
 				userrec::QuitUser(ServerInstance,user,killreason);
 			}
 			return SQLSUCCESS;
-		}		
+		}
 		return NULL;
 	}
-	
+
 	virtual void OnUserDisconnect(userrec* user)
 	{
 		user->Shrink("sqlauthed");
-		user->Shrink("sqlauth_failed");		
+		user->Shrink("sqlauth_failed");
 	}
-	
+
 	virtual bool OnCheckReady(userrec* user)
 	{
 		return user->GetExt("sqlauthed");
@@ -189,8 +189,7 @@ public:
 	{
 		return Version(1,1,1,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 MODULE_INIT(ModuleSQLAuth);
-
