@@ -174,7 +174,11 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	ContainerIter x = lookup_lines.find(line->type);
 	if (x != lookup_lines.end())
 	{
-		return false;
+		LookupIter i = x->second.find(line->Displayable());
+		if (i != x->second.end())
+		{
+			return false;
+		}
 	}
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
