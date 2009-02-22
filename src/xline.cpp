@@ -170,18 +170,11 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	if (line->duration && ServerInstance->Time() > line->expiry)
 		return false; // Don't apply expired XLines.
 
-	/* If the line exists, check if its an expired line */
+	/* Don't apply duplicate xlines */
 	ContainerIter x = lookup_lines.find(line->type);
 	if (x != lookup_lines.end())
 	{
-		LookupIter i = x->second.find(line->Displayable());
-		if (i != x->second.end())
-		{
-			if (i->second->duration && ServerInstance->Time() > i->second->expiry)
-				ExpireLine(x, i);
-			else
-				return false;
-		}
+		return false;
 	}
 
 	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
