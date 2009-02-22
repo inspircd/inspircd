@@ -454,7 +454,7 @@ class SQLConn : public classbase
 
 	int OpenDB()
 	{
-		return sqlite3_open(host.host.c_str(), &conn);
+		return sqlite3_open_v2(host.host.c_str(), &conn, SQLITE_OPEN_READWRITE, 0);
 	}
 
 	void CloseDB()
