@@ -49,7 +49,7 @@ class cmd_sslinfo : public command_t
 				user->WriteServ("NOTICE %s :*** Distinguised Name: %s", user->nick, cert->GetDN().c_str());
 				user->WriteServ("NOTICE %s :*** Issuer:            %s", user->nick, cert->GetIssuer().c_str());
 				user->WriteServ("NOTICE %s :*** Key Fingerprint:   %s", user->nick, cert->GetFingerprint().c_str());
-				return CMD_SUCCESS;
+				return CMD_LOCALONLY;
 			}
 			else
 			{
