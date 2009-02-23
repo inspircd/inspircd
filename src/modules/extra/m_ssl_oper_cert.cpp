@@ -39,7 +39,7 @@ class CommandFingerprint : public Command
 				if (cert->GetFingerprint().length())
 				{
 					user->WriteServ("NOTICE %s :Certificate fingerprint for %s is %s",user->nick.c_str(),target->nick.c_str(),cert->GetFingerprint().c_str());
-					return CMD_SUCCESS;
+					return CMD_LOCALONLY;
 				}
 				else
 				{

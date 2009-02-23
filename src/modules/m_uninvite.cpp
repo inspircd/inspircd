@@ -97,7 +97,7 @@ class ModuleUninvite : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
 	}
 };
 
