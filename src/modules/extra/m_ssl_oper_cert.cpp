@@ -44,7 +44,7 @@ class cmd_fingerprint : public command_t
 				if (cert->GetFingerprint().length())
 				{
 					user->WriteServ("NOTICE %s :Certificate fingerprint for %s is %s",user->nick,target->nick,cert->GetFingerprint().c_str());
-					return CMD_SUCCESS;
+					return CMD_LOCALONLY;
 				}
 				else
 				{
