@@ -164,7 +164,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			}
 			else
 			{
-				diff = "this server:" + diff;
+				diff = "the remote server:" + diff;
 			}
 			if (diff.length() == 12)
 				reason = "Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
