@@ -288,7 +288,7 @@ class ModuleNationalChars : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id: m_nationalchars.cpp 0 2008-12-15 14:24:12SAMT phoenix $",VF_COMMON,API_VERSION);
+		return Version("$Id$",VF_COMMON,API_VERSION);
 	}
 
 	/*make an array to check against it 8bit characters a bit faster. Whether allowed or uppercase (for your needs).*/
