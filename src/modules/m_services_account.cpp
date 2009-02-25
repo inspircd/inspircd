@@ -320,37 +320,29 @@ class ModuleServicesAccount : public Module
 		{
 			User* dest = (User*)target;
 
-			/* logging them out? */
-			if (extdata.empty())
-			{
-				std::string* account;
-				dest->GetExt("accountname", account);
-				if (account)
-				{
-					dest->Shrink("accountname");
-					delete account;
-				}
+			std::string* account;
+			if (dest->GetExt("accountname", account)) {
+				// remove old account so that we can set new (or leave unset)
+				dest->Shrink("accountname");
+				delete account;
 			}
-			else
+
+			if (!extdata.empty())
 			{
-				// if they dont already have an accountname field, accept the remote server's
-				std::string* text;
-				if (!dest->GetExt("accountname", text))
-				{
-					text = new std::string(extdata);
-					// remove any accidental leading/trailing spaces
-					trim(*text);
-					dest->Extend("accountname", text);
+				account = new std::string(extdata);
+				// remove any accidental leading/trailing spaces
+				trim(*account);
+				dest->Extend("accountname", account);
 
-					if (IS_LOCAL(dest))
-						dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s", dest->nick.c_str(), dest->GetFullHost().c_str(), text->c_str(), text->c_str());
+				if (IS_LOCAL(dest))
+					dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
+						dest->nick.c_str(), dest->GetFullHost().c_str(), account->c_str(), account->c_str());
 
-					AccountData ac;
-					ac.user = dest;
-					ac.account = *text;
-					Event n((char*)&ac, this, "account_login");
-					n.Send(ServerInstance);
-				}
+				AccountData ac;
+				ac.user = dest;
+				ac.account = *account;
+				Event n((char*)&ac, this, "account_login");
+				n.Send(ServerInstance);
 			}
 		}
 	}
