@@ -183,11 +183,7 @@ class CommandWatch : public Command
 			}
 		}
 
-		/* This might seem confusing, but we return CMD_FAILURE
-		 * to indicate that this message shouldnt be routed across
-		 * the network to other linked servers.
-		 */
-		return CMD_FAILURE;
+		return CMD_LOCALONLY;
 	}
 
 	CmdResult add_watch(User* user, const char* nick)
@@ -252,7 +248,7 @@ class CommandWatch : public Command
 			}
 		}
 
-		return CMD_FAILURE;
+		return CMD_LOCALONLY;
 	}
 
 	CommandWatch (InspIRCd* Instance, unsigned int &maxwatch) : Command(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
@@ -365,8 +361,7 @@ class CommandWatch : public Command
 				}
 			}
 		}
-		/* So that spanningtree doesnt pass the WATCH commands to the network! */
-		return CMD_FAILURE;
+		return CMD_LOCALONLY;
 	}
 };
 
