@@ -43,9 +43,6 @@ class CommandTitle : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
-		if (!IS_LOCAL(user))
-			return CMD_LOCALONLY;
-
 		char TheHost[MAXBUF];
 		char TheIP[MAXBUF];
 
@@ -79,22 +76,14 @@ class CommandTitle : public Command
 				if (!vhost.empty())
 					user->ChangeDisplayedHost(vhost.c_str());
 
-				if (!ServerInstance->ULine(user->server))
-					// Ulines set TITLEs silently
-					ServerInstance->SNO->WriteToSnoMask('A', "%s used TITLE to set custom title '%s'",user->nick.c_str(),title.c_str());
-
 				user->WriteServ("NOTICE %s :Custom title set to '%s'",user->nick.c_str(), title.c_str());
 
-				return CMD_SUCCESS;
+				return CMD_LOCALONLY;
 			}
 		}
 
-		if (!ServerInstance->ULine(user->server))
-			// Ulines also fail TITLEs silently
-			ServerInstance->SNO->WriteToSnoMask('A', "Failed TITLE attempt by %s!%s@%s using login '%s'", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str());
-
 		user->WriteServ("NOTICE %s :Invalid title credentials",user->nick.c_str());
-		return CMD_SUCCESS;
+		return CMD_LOCALONLY;
 	}
 
 };
@@ -191,12 +180,16 @@ class ModuleCustomTitle : public Module
 		if ((target_type == TYPE_USER) && (extname == "ctitle"))
 		{
 			User* dest = (User*)target;
-			// if they dont already have an ctitle field, accept the remote server's
 			std::string* text;
-			if (!dest->GetExt("ctitle", text))
+			if (dest->GetExt("ctitle", text))
 			{
-				std::string* ntext = new std::string(extdata);
-				dest->Extend("ctitle",ntext);
+				dest->Shrink("ctitle");
+				delete text;
+			}
+			if (!extdata.empty())
+			{
+				text = new std::string(extdata);
+				dest->Extend("ctitle", text);
 			}
 		}
 	}
