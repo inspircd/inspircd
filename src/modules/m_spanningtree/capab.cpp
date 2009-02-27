@@ -157,19 +157,20 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 		 */
 		if ((this->ModuleList != this->MyCapabilities()) && (this->ModuleList.length()))
 		{
-			std::string diff = ListDifference(this->ModuleList, this->MyCapabilities());
-			if (!diff.length())
+			std::string diffIneed = ListDifference(this->ModuleList, this->MyCapabilities());
+			std::string diffUneed = ListDifference(this->MyCapabilities(), this->ModuleList);
+			if (diffIneed.length() == 0 && diffUneed.length() == 0)
 			{
-				diff = "your server:" + ListDifference(this->MyCapabilities(), this->ModuleList);
-			}
-			else
-			{
-				diff = "the remote server:" + diff;
-			}
-			if (diff.length() == 12)
 				reason = "Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
+			}
 			else
-				reason = "Modules loaded on these servers are not correctly matched, these modules are not loaded on " + diff;
+			{
+				reason = "Modules incorrectly matched on these servers.";
+				if (diffIneed.length())
+					reason += " Not loaded here:" + diffIneed;
+				if (diffUneed.length())
+					reason += " Not loaded there:" + diffUneed;
+			}
 		}
 
 		if (((this->CapKeys.find("IP6SUPPORT") == this->CapKeys.end()) && (ip6support)) || ((this->CapKeys.find("IP6SUPPORT") != this->CapKeys.end()) && (this->CapKeys.find("IP6SUPPORT")->second != ConvToStr(ip6support))))
