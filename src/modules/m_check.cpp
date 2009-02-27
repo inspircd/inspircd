@@ -61,10 +61,15 @@ class CommandCheck : public Command
 			user->WriteServ(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
 			user->WriteServ(checkstr + " server " + targuser->server);
 			user->WriteServ(checkstr + " uid " + targuser->uuid);
+			user->WriteServ(checkstr + " signon " + ConvToStr(targuser->signon));
+			user->WriteServ(checkstr + " nickts " + ConvToStr(targuser->age));
+			if (IS_LOCAL(targuser))
+				user->WriteServ(checkstr + " lastmsg " + ConvToStr(targuser->idle_lastmsg));
 
 			if (IS_AWAY(targuser))
 			{
 				/* user is away */
+				user->WriteServ(checkstr + " awaytime " + ConvToStr(targuser->awaytime));
 				user->WriteServ(checkstr + " awaymsg " + targuser->awaymsg);
 			}
 
@@ -74,10 +79,13 @@ class CommandCheck : public Command
 				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
 			}
 
+			user->WriteServ(checkstr + " onip " + targuser->GetIPString());
 			if (IS_LOCAL(targuser))
 			{
-				/* port information is only held for a local user! */
 				user->WriteServ(checkstr + " onport " + ConvToStr(targuser->GetPort()));
+				std::string classname = targuser->GetClass()->GetName();
+				if (!classname.empty())
+					user->WriteServ(checkstr + " connectclass " + classname);
 			}
 
 			chliststr = targuser->ChannelList(targuser);
@@ -119,7 +127,7 @@ class CommandCheck : public Command
 				/*
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
-				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
+				snprintf(tmpbuf, MAXBUF, "%-3lu %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
 				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
 		}
