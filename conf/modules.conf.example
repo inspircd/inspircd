@@ -1339,6 +1339,12 @@
 #<module name="m_sajoin.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAKICK module: Adds the /SAKICK command
+# This module is oper-only.
+# To use, SAKICK must be in one of your oper class blocks.
+#<module name="m_sakick.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAMODE module: Adds the oper /SAMODE command
 # This module is oper-only.
 # To use, SAMODE must be in one of your oper class blocks.
