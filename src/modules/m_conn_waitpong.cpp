@@ -78,7 +78,7 @@ class ModuleWaitPong : public Module
 
 			if (pingrpl)
 			{
-				if (strcmp(pingrpl, parameters[0].c_str()) == 0)
+				if (!parameters.empty() && (strcmp(pingrpl, parameters[0].c_str()) == 0))
 				{
 					delete[] pingrpl;
 					user->Shrink(extenstr);
