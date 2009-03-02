@@ -58,8 +58,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
 	irc::tokenstream users((params.size() > 3) ? params[params.size() - 1] : "");   /* users from the user list */
-	bool apply_other_sides_umodes = true;				/* True if we are accepting the other side's user umodes */
-	bool apply_other_sides_cmodes = true;				/* True if we are accepting the other side's channel modes */
+	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
 	Channel* chan = this->ServerInstance->FindChan(channel);		/* The channel we're sending joins to */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
@@ -91,8 +90,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		if (ourTS < TS)
 		{
 			ServerInstance->SNO->WriteToSnoMask('d', "NOT Applying modes from other side");
-			apply_other_sides_umodes = false;
-			apply_other_sides_cmodes = false;
+			apply_other_sides_modes = false;
 		}
 		else if (ourTS > TS)
 		{
@@ -106,23 +104,11 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			param_list.push_back(channel);
 			this->RemoveStatus(ServerInstance->Config->GetSID(), param_list);
 		}
-		else
-		{
-			/* Timestamp equal. Apply the user modes always */
-			apply_other_sides_umodes = true;
-			/*
-			 * If the server is bursting, then the channel modes need to be applied;
-			 * it is expected that servers will resync modes at this time. Otherwise,
-			 * the mode string sent along with the FJOIN could be out-of-date, and
-			 * applying the mode change could cause modes to be unexpectedly bounced.
-			 */
-			TreeServer *s = Utils->FindServer(source);
-			apply_other_sides_cmodes = s->bursting;
-		}
+		// The silent case here is ourTS == TS, we don't need to remove modes here, just to merge them later on.
 	}
 
 	/* First up, apply their modes if they won the TS war */
-	if (apply_other_sides_cmodes)
+	if (apply_other_sides_modes)
 	{
 		ServerInstance->SNO->WriteToSnoMask('d', "Applying remote modestring for %s", params[0].c_str());
 		unsigned int idx = 2;
@@ -193,7 +179,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	}
 
 	/* Flush mode stacker if we lost the FJOIN or had equal TS */
-	if (apply_other_sides_umodes)
+	if (apply_other_sides_modes)
 	{
 		std::deque<std::string> stackresult;
 		std::vector<std::string> mode_junk;
