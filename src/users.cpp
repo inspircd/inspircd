@@ -1964,6 +1964,10 @@ void User::PurgeEmptyChannels()
 		chan_hash::iterator i2 = ServerInstance->chanlist->find(thischan->name);
 		if (i2 != ServerInstance->chanlist->end())
 		{
+			int MOD_RESULT = 0;
+			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(i2->second));
+			if (MOD_RESULT == 1)
+				continue; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
 			delete i2->second;
 			ServerInstance->chanlist->erase(i2);
