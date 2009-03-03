@@ -250,7 +250,8 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					opt_realname = true;
 					break;
 				case 'm':
-					opt_mode = true;
+					if (user->HasPrivPermission("users/auspex"))
+						opt_mode = true;
 					break;
 				case 'M':
 					if (user->HasPrivPermission("users/auspex"))
@@ -260,16 +261,19 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					opt_ident = true;
 					break;
 				case 'p':
-					opt_port = true;
+					if (user->HasPrivPermission("users/auspex"))
+						opt_port = true;
 					break;
 				case 'a':
 					opt_away = true;
 					break;
 				case 'l':
-					opt_local = true;
+					if (user->HasPrivPermission("users/auspex") || !*ServerInstance->Config->HideWhoisServer)
+						opt_local = true;
 					break;
 				case 'f':
-					opt_far = true;
+					if (user->HasPrivPermission("users/auspex") || !*ServerInstance->Config->HideWhoisServer)
+						opt_far = true;
 					break;
 				case 't':
 					opt_time = true;
