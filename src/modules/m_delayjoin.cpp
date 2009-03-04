@@ -43,6 +43,7 @@ class ModuleDelayJoin : public Module
 	virtual Version GetVersion();
 	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
+	void CleanUser(User* user);
 	bool OnHostCycle(User* user);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
@@ -108,10 +109,7 @@ void ModuleDelayJoin::OnNamesListItem(User* issuer, User* user, Channel* channel
 		return;
 
 	/* If the user is hidden by delayed join, hide them from the NAMES list */
-	std::string key("delayjoin_");
-	key.append(channel->name);
-
-	if (user->GetExt(key))
+	if (user->GetExt("delayjoin_"+channel->name))
 		nick.clear();
 }
 
@@ -134,29 +132,43 @@ void ModuleDelayJoin::OnUserJoin(User* user, Channel* channel, bool sync, bool &
 	}
 }
 
+void ModuleDelayJoin::CleanUser(User* user)
+{
+	/* Check if the user is hidden on any other +D channels, if so don't take away the
+	 * metadata that says they're hidden on one or more channels
+	 */
+	for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
+		if (user->GetExt("delayjoin_" + f->first->name))
+			return;
+
+	user->Shrink("delayjoin");
+}
+
 void ModuleDelayJoin::OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
 {
-	if (channel->IsModeSet('D'))
+	if (!channel->IsModeSet('D'))
+		return;
+	if (user->GetExt("delayjoin_"+channel->name))
 	{
-		if (user->GetExt("delayjoin_"+channel->name))
-		{
-			silent = true;
-			/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-			user->WriteFrom(user, "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :", partmessage.empty() ? "" : partmessage.c_str());
-		}
+		user->Shrink("delayjoin_"+channel->name);
+		silent = true;
+		/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
+		user->WriteFrom(user, "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :", partmessage.empty() ? "" : partmessage.c_str());
+		CleanUser(user);
 	}
 }
 
 void ModuleDelayJoin::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 {
-	if (chan->IsModeSet('D'))
+	if (!chan->IsModeSet('D'))
+		return;
+	/* Send silenced event only to the user being kicked and the user doing the kick */
+	if (user->GetExt("delayjoin_"+chan->name))
 	{
-		/* Send silenced event only to the user being kicked and the user doing the kick */
-		if (user->GetExt("delayjoin_"+chan->name))
-		{
-			silent = true;
-			user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-		}
+		user->Shrink("delayjoin_"+chan->name);
+		silent = true;
+		user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
+		CleanUser(user);
 	}
 }
 
@@ -172,11 +184,16 @@ void ModuleDelayJoin::OnUserQuit(User* user, const std::string &reason, const st
 	{
 		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
 		{
-			std::vector<std::string> parameters;
-			parameters.push_back(f->first->name);
-			/* This triggers our OnUserPart, above, making the PART silent */
-			parthandler->Handle(parameters, user);
+			Channel* chan = f->first;
+			if (user->GetExt("delayjoin_"+chan->name))
+			{
+				std::vector<std::string> parameters;
+				parameters.push_back(chan->name);
+				/* Send a fake PART from the channel, which will be silent */
+				parthandler->Handle(parameters, user);
+			}
 		}
+		user->Shrink("delayjoin");
 	}
 }
 
@@ -203,15 +220,7 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 
 	/* Shrink off the neccessary metadata for a specific channel */
 	user->Shrink("delayjoin_"+channel->name);
-
-	/* Check if the user is left on any other +D channels, if so don't take away the
-	 * metadata that says theyre on one or more channels
-	 */
-	for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-		if (f->first->IsModeSet('D'))
-			return;
-
-	user->Shrink("delayjoin");
+	CleanUser(user);
 }
 
 // .. is there a real need to duplicate WriteCommonExcept?
