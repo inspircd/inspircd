@@ -68,7 +68,7 @@
 #   Here is where you enter the information about your server.        #
 #                                                                     #
 
-<server 
+<server
         # name: Hostname of your server. Does not need to be valid.
         name="penguin.omega.org.za"
 
@@ -76,8 +76,8 @@
         description="Waddle World"
 
         # id: The SID to use for this server. This should not be uncommented
-        # unless there is a SID conflict. This must be three characters long.  
-        # The first character must be a digit [0-9], the remaining two chars 
+        # unless there is a SID conflict. This must be three characters long.
+        # The first character must be a digit [0-9], the remaining two chars
         # may be letters [A-Z] or digits.
         #id="97K"
 
@@ -93,7 +93,7 @@
 #   nick, and email address.                                          #
 #                                                                     #
 
-<admin 
+<admin
        # name: Real Name
        name="Johnny English"
 
@@ -124,21 +124,21 @@
 # PLEASE NOTE: If you have build InspIRCd with IPv6 support, you MUST #
 # specify a bind address if you want the IRCd to bind to a IPv4 IP.   #
 
-<bind 
+<bind
       # address: IP address to bind to if the box that you are hosting
       # on has more than one IP, else the ircd will try to bind to all
       # IP's on the box if this is not defined
-      address="" 
+      address=""
 
       # port: Port for users and/or servers to be able to connect to.
       # you can select multiple ports by separating them
       # with a - character like the example below.
-      port="6697" 
+      port="6697"
 
       # type: Type of bind block this is. It can either be clients or
       # servers. Whichever you select will be the only type able to connect
       # to this bind section.
-      type="clients" 
+      type="clients"
 
       # ssl: If you want this bind section to use SSL, define either
       # gnutls or openssl here. The appropriate SSL modules must be loaded
@@ -178,7 +178,7 @@
 
        # diepass: Password for opers to use if they need to shutdown (die)
        # a server.
-       diepass="" 
+       diepass=""
 
        # restartpass: Password for opers to use if they need to restart
        # a server.
@@ -198,21 +198,21 @@
 #        by a <connect allow="*" (should you wish to have one).       #
 #                                                                     #
 #                                                                     #
-<connect 
+<connect
          # deny: Will not let people connect if they have specified host/IP.
          deny="69.254.*">
 
 <connect deny="3ffe::0/32">
 
-<connect 
+<connect
          # name: Name to use for this connect block. Mainly used for
          # connect class inheriting.
          name="secret"
 
          # parent: This setting is to specify if this connect class
-         # inherits settings from any other. Put the other class' name
-         # in here to use it's settings. It will use all settings from
-         # the parent class unless any are changed in this class.
+         # inherits settings from any other. Put the other class's name
+         # in here to use its settings as a template - for example, if
+	 # you only want to adjust sendq and a password
          parent="main"
 
          # allow: What IP addresses/hosts to allow for this block.
@@ -233,7 +233,7 @@
          # The port MUST be set to listen in the bind blocks above.
          port="6667">
 
-<connect 
+<connect
          # name: Name to use for this connect block. Mainly used for
          # connect class inheriting.
          name="main"
@@ -312,7 +312,7 @@
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
-<files 
+<files
        # motd: Path to your motd file. Path is relative to the conf directory.
        motd="inspircd.motd.example"
 
@@ -322,7 +322,7 @@
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
-<channels 
+<channels
           # users: Maximum number of channels a user can be in at once.
           users="20"
 
@@ -333,9 +333,9 @@
 # If these values are not defined, InspIRCd uses the default DNS resolver
 # of your system.
 
-<dns 
+<dns
      # server: DNS server to use to attempt to resolve IP's to hostnames.
-     server="127.0.0.1" 
+     server="127.0.0.1"
 
      # timeout: seconds to wait to try to resolve DNS/hostname.
      timeout="5">
@@ -399,7 +399,7 @@
 #   Settings to define which features are usable on your server.      #
 #                                                                     #
 
-<options 
+<options
          # prefixquit: What (if anything) a users' quit message
          # should be prefixed with.
          prefixquit="Quit: "
@@ -471,7 +471,7 @@
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
-<performance 
+<performance
              # netbuffersize: Size of the buffer used to recieve data from clients.
              # The ircd may only read this amount of text in 1 go at any time.
              netbuffersize="10240"
@@ -505,11 +505,11 @@
 #-#-#-#-#-#-#-#-#-#-#-# SECURITY CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
-<security 
+<security
 
           # announceinvites: If this option is set, then invites are announced
-          # to the channel when a user invites another user. If you consider 
-          # this to be unnecessary noise, set this to 'none'. 
+          # to the channel when a user invites another user. If you consider
+          # this to be unnecessary noise, set this to 'none'.
           # To announce to all ops, set this to 'ops' and to announce to all users,
           # set the value to 'all'. The value 'dynamic' will make the messages
           # go to every user who has power of INVITE on the channel. This
@@ -605,7 +605,7 @@
 #                                                                     #
 # These values should match network-wide otherwise issues will occur. #
 
-<limits 
+<limits
         # maxnick: Maximum length of a nickname.
         maxnick="31"
 
@@ -671,21 +671,21 @@
 # your server.                                                        #
 #                                                                     #
 
-<whowas 
+<whowas
         # groupsize: Maximum entries per nick shown when performing
         # a /whowas nick.
         groupsize="10"
 
         # maxgroups: Maximum number of nickgroups that can be added to
         # the list so that /whowas does not use a lot of resources on
-        # large networks.                                            
+        # large networks.
         maxgroups="100000"
 
         # maxkeep: Maximum time a nick is kept in the whowas list
-        # before being pruned. Time may be specified in seconds, 
+        # before being pruned. Time may be specified in seconds,
         # or in the following format: 1y2w3d4h5m6s. Minimum is
         # 1 hour.
-        maxkeep="3d">                                                
+        maxkeep="3d">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -694,16 +694,16 @@
 # Your server.                                                        #
 #                                                                     #
 
-<badip 
+<badip
        # ipmask: IP range to ban. Wildcards and CIDR can be used.
        ipmask="69.69.69.69"
 
        # reason: Reason to display when user is disconnected.
        reason="No porn here thanks.">
 
-<badnick 
+<badnick
          # nick: Nick to disallow. Wildcards are supported.
-         nick="ChanServ" 
+         nick="ChanServ"
 
          # reason: Reason to display on /nick.
          reason="Reserved For Services">
@@ -712,10 +712,10 @@
 <badnick nick="OperServ" reason="Reserved For Services">
 <badnick nick="MemoServ" reason="Reserved For Services">
 
-<badhost 
-         # host: ident@hostname to ban. 
+<badhost
+         # host: ident@hostname to ban.
          # Wildcards and CIDR (if you specify an IP) can be used.
-         host="*@hundredz.n.hundredz.o.1337.kiddies.com" 
+         host="*@hundredz.n.hundredz.o.1337.kiddies.com"
 
          # reason: Reason to display when user is disconnected
          reason="Too many 1337 kiddiots">
@@ -724,10 +724,10 @@
 <badhost host="*@172.32.0.0/16" reason="This subnet is bad.">
 
 # exception: Hosts that are exempt from [kgz]lines.
-<exception 
-           # host: ident@hostname to exempt. 
+<exception
+           # host: ident@hostname to exempt.
            # Wildcards and CIDR (if you specify an IP) can be used.
-           host="*@ircop.host.com" 
+           host="*@ircop.host.com"
 
            # reason: Reason for exception. Only shown in /stats e
            reason="Opers hostname">
@@ -744,20 +744,20 @@
 # allow any qline.                                                    #
 #                                                                     #
 
-<insane 
+<insane
         # hostmasks: Allow bans with insane hostmasks (over-reaching bans)
-        hostmasks="no" 
+        hostmasks="no"
 
         # ipmasks: Allow bans with insane ipmasks (over-reaching bans)
-        ipmasks="no" 
+        ipmasks="no"
 
         # nickmasks: Allow bans with insane nickmasks (over-reaching bans)
-        nickmasks="no" 
+        nickmasks="no"
 
         # trigger: What percentage of users on the network to trigger
         # specifying an insane ban as. The default is 95.5%, which means
         # if you have a 1000 user network, a ban will not be allowed if it
-        # will be banning 955 or more users. 
+        # will be banning 955 or more users.
         trigger="95.5">
 
 
@@ -775,7 +775,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 # Well done, you've reached the end of the basic configuration, your  #
-# ircd should now start if you want to try it out! (./inspircd start) #                      
+# ircd should now start if you want to try it out! (./inspircd start) #
 #                                                                     #
 # We now suggest you read and edit modules.conf, as modules are what  #
 # provide almost all the features of InspIRCd. :)                     #
