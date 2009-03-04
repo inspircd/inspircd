@@ -781,7 +781,7 @@
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
 # The default does nothing -- we include it for simplicity for you.   #
-<include file="modules.conf">
+<include file="modules.conf.example">
 
 
 #########################################################################
