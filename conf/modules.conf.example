@@ -867,9 +867,6 @@
 # oper go 'invisible' similar to unrealircd 3.1's +I mode. Note that
 # opers are still able to see invisible users, and if an oper with +Q
 # deopers, they will become visible. 
-# 
-# IMPORTANT NOTE: To allow this mode to be used by a type of oper, you
-# must first add the value canquiet="yes" to that oper's type tag.
 #
 # This module is oper-only.
 #
@@ -1047,11 +1044,13 @@
 #<module name="m_nicklock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No ctcp module: Adds the channel mode +C to block CTCPs
+# No ctcp module: Adds the channel mode +C to block CTCPs and extban C
+# to block CTCPs sent by specific users.
 #<module name="m_noctcp.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No kicks module: Adds the +Q channel mode
+# No kicks module: Adds the +Q channel mode and the Q: extban to deny
+# certain users from kicking.
 #<module name="m_nokicks.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1067,7 +1066,8 @@
 #<module name="m_nopartmsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No Notice module: adds the channel mode +T
+# No Notice module: adds the channel mode +T and the extban T to block
+# specific users from noticing the channel.
 #<module name="m_nonotice.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

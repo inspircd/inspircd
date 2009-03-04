@@ -75,6 +75,12 @@
         # description: Server description. Spaces are allowed.
         description="Waddle World"
 
+        # id: The SID to use for this server. This should not be uncommented
+        # unless there is a SID conflict. This must be three characters long.  
+        # The first character must be a digit [0-9], the remaining two chars 
+        # may be letters [A-Z] or digits.
+        #id="97K"
+
         # network: Network name given on connect to clients.
         # Should be the same on all servers on the network and
         # not contain spaces.
@@ -199,6 +205,16 @@
 <connect deny="3ffe::0/32">
 
 <connect 
+         # name: Name to use for this connect block. Mainly used for
+         # connect class inheriting.
+         name="secret"
+
+         # parent: This setting is to specify if this connect class
+         # inherits settings from any other. Put the other class' name
+         # in here to use it's settings. It will use all settings from
+         # the parent class unless any are changed in this class.
+         parent="main"
+
          # allow: What IP addresses/hosts to allow for this block.
          allow="196.12.*"
 
@@ -218,6 +234,10 @@
          port="6667">
 
 <connect 
+         # name: Name to use for this connect block. Mainly used for
+         # connect class inheriting.
+         name="main"
+
          # allow: What IP addresses/hosts to allow for this block.
          allow="*"
 
@@ -246,6 +266,9 @@
 
          # globalmax: Maximum global (network-wide) connections per IP.
          globalmax="3"
+
+         # useident: Defines if users in this class must respond to a ident query or not.
+         useident="no"
 
          # limit: How many users are allowed in this class
          limit="5000"
