@@ -122,8 +122,9 @@
 
       # hash: what hash this password is hashed with. requires the module
       # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-      # loaded and the oper password hashing module (m_password_hash.so)
+      # loaded and the password hashing module (m_password_hash.so)
       # loaded. Options here are: "md5", "sha256" and "ripemd160".
+      # Create hashed password with: /mkpasswd <hash> <password>
       hash="sha256"
 
       # password: a hash of your password (see above option) hashed

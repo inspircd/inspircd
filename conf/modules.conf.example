@@ -594,12 +594,15 @@
 #-#-#-#-#-#-#-#-#-#-  CUSTOM TITLE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#
 #  name              - The username used to identify 
 #  password          - The password used to identify
+#  hash              - The hash for the specific user's password (optional)
+#                      m_password_hash.so and a hashing module must be loaded for this to work
 #  host              - Allowed hostmask [optional]
 #  title             - Title shown in whois
 #  vhost             - Displayed host [optional]
 #
 #<title name="foo" password="bar" title="Official Chat Helper">
 #<title name="bar" password="foo" host="ident@host.name" title="Official Chat Helper" vhost="helper.network.chat">
+#<title name="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" title="Official Chat Helper">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DCCALLOW module: Adds the /DCCALLOW command
@@ -693,6 +696,9 @@
 #<filteropts engine="glob">                                           #
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide.
+#
+# You may specify specific channels that are exempt from being filtered:
+#<exemptfromfilter channel="#blah">
 #
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -1716,10 +1722,14 @@
 # user       - Username for the vhost.                                #
 #                                                                     #
 # pass       - Password for the vhost.                                #
+#								      #
+# hash       - The hash for the specific user (optional)
+#              m_password_hash.so and a hashing module must be loaded for this to work
 #                                                                     #
 # host       - Vhost to set.                                          #
 #
 #<vhost user="some_username" pass="some_password" host="some.host">
+#<vhost user="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" host="some.other.host">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Watch module: Adds the WATCH command, which is used by clients to 
