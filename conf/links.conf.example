@@ -17,16 +17,14 @@
 #  information on how to load this module! If you do not load this    #
 #  module, server links will NOT work!                                #
 #                                                                     #
-#  Also, if you define any transports, you must load the modules for  #
-#  these transports BEFORE you load m_spanningtree, e.g. place them   #
-#  above it in the configuration file. Currently this means the three #
-#  modules m_ssl_gnutls, m_ziplinks and m_ssl_openssl, depending on   #
-#  which you choose to use.                                           #
 #                                                                     #
 
-<link name="hub.penguin.org"
+<link
+      # name: The name of the remote server. This must match
+      # the <server:name> value of the remote server.
+      name="hub.penguin.org"
 
-      # ipaddr: The IP address of the remote server. 
+      # ipaddr: The IP address of the remote server.
       # Can also be a hostname, but hostname must resolve.
       ipaddr="penguin.box.com"
 
@@ -41,7 +39,7 @@
       # to remote server (in seconds).
       autoconnect="300"
 
-      # failover: If defined, if this link fails, 
+      # failover: If defined, if this link fails,
       # what is the next link that is tried.
       failover="hub.other.net"
 
@@ -55,6 +53,8 @@
       # for encryption (they are compatible with each other) and
       # "zip" for compression. You must use the same (or a compa-
       # tible) transport on both sides of the link.
+      # You will need to load the m_ssl_openssl.so module for openssl,
+      # m_ssl_gnutls.so for gnutls or m_ziplinks.so for zip.
       transport="gnutls"
 
       # bind: Local IP address to bind to.

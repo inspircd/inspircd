@@ -98,7 +98,7 @@
       # /fingerprint command while the module is loaded. This enhances
       # security by verifying that the person opering up has the matching
       # key/certificate combination. This enhances security a great deal.
-      # If m_oper_ssl and/or m_ssl_gnutls/m_ssl_openssl aren't loaded,
+      # If m_oper_ssl and m_ssl_gnutls/m_ssl_openssl aren't loaded,
       # this option will be ignored.
       #fingerprint="67:CB:9D:C0:13:24:8A:82:9B:B2:17:1E:D1:1B:EC:D4"
 
@@ -128,7 +128,7 @@
       hash="sha256"
 
       # password: a hash of your password (see above option) hashed
-      # with /mkpasswd *hash* *password* . See m_password_hash in modules.conf
+      # with /mkpasswd <hash> <password> . See m_password_hash in modules.conf
       # for more information about password hashing.
       password="1ec1c26b50d5d3c58d9583181af8076655fe00756bf7285940ba3670f99fcba0"
 

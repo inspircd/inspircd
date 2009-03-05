@@ -69,7 +69,8 @@
 #                                                                     #
 
 <server
-        # name: Hostname of your server. Does not need to be valid.
+        # name: Hostname of your server. Does not need to resolve, but
+        # does need to be correct syntax (something.somethingelse.tld).
         name="penguin.omega.org.za"
 
         # description: Server description. Spaces are allowed.
@@ -127,10 +128,10 @@
 <bind
       # address: IP address to bind to if the box that you are hosting
       # on has more than one IP, else the ircd will try to bind to all
-      # IP's on the box if this is not defined
+      # IP's on the box if this is not defined.
       address=""
 
-      # port: Port for users and/or servers to be able to connect to.
+      # port: Port for users or servers to be able to connect to.
       # you can select multiple ports by separating them
       # with a - character like the example below.
       port="6697"
@@ -143,13 +144,13 @@
       # ssl: If you want this bind section to use SSL, define either
       # gnutls or openssl here. The appropriate SSL modules must be loaded
       # for ssl to work. If you do not want this bind section to support ssl,
-      # just remove this option.
+      # just remove or comment out this option.
       ssl="gnutls">
 
 <bind address="" port="6660-6669" type="clients">
 
 # When linking servers, the openssl and gnutls transports are largely
-# link-compatible and can be used alongside each other or either/or
+# link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
 # Transports can only be used on server blocks.
 # Supported Transports are: "zip", "openssl" and "gnutls".
@@ -251,7 +252,7 @@
          # send /nick, /user or /pass)
          timeout="60"
 
-         # pingfreq: How often the server tries to ping connecting clients/servers.
+         # pingfreq: How often (in seconds) the server tries to ping connecting clients.
          pingfreq="120"
 
          # sendq: Amount of data that the server is allowed to send to the user
@@ -378,6 +379,9 @@
 # Note that any disabled commands take effect only after the user has #
 # 'registered' (e.g. after the initial USER/NICK/PASS on connection)  #
 # so for example disabling NICK will not cripple your network.        #
+#								      #
+# You can also define if you want to disable any channelmodes         #
+# or usermodes from your users.					      #
 #                                                                     #
 # `fakenonexistant' will make the ircd pretend that nonexistant       #
 # commands simply don't exist to non-opers ("no such command").       #
@@ -417,8 +421,8 @@
          suffixpart="\""
 
          # syntaxhints: If enabled, if a user fails to send the correct parameters
-         # for a command, the ircd will give back soome help text of what
-         # the correct parameters are
+         # for a command, the ircd will give back some help text of what
+         # the correct parameters are.
          syntaxhints="no"
 
          # cyclehosts: If enabled, when a user gets a host set, it will cycle
@@ -428,7 +432,7 @@
 
          # ircumsgprefix: Use undernet-style message prefixing for NOTICE and
          # PRIVMSG. If enabled, it will add users' prefix to the line, if not,
-         # it will just message the user.
+         # it will just message the user normally.
          ircumsgprefix="no"
 
          # announcets: If set to yes, when the TS on a channel changes, all users
@@ -498,7 +502,7 @@
              # bots like BOPM during netsplits.
              quietbursts="yes"
 
-             # nouserdns: If enabled, no user DNS lookups will be performed on
+             # nouserdns: If enabled, no DNS lookups will be performed on
              # connecting users. This can save a lot of resources on very busy servers.
              nouserdns="no">
 
@@ -521,15 +525,7 @@
           # as it may break some functionality in popular clients such as mIRC.
           hidemodes="eI"
 
-          # disablehmac: If you are linking your InspIRCd to versions older
-          # than 1.1.6 (NOT RECOMMENDED), then you can specify this option and
-          # set it to yes. 1.1.6 and above support HMAC and challenge-response
-          # for password authentication. These can greatly enhance security of your
-          # server-to-server connections when you are not using SSL.
-          # It is highly recommended to keep this set to no.
-          disablehmac="no"
-
-          # hideulines: If this value is set to yes, U-lined server will
+          # hideulines: If this value is set to yes, U-lined servers will
           # be hidden from non-opers in /links and /map.
           hideulines="no"
 
@@ -545,7 +541,7 @@
 
           # hidebans: If this value is set to yes, when a user is banned ([gkz]lined)
           # only opers will see the ban message when the user is removed
-          # from the server..
+          # from the server.
           hidebans="no"
 
           # hidekills: If defined, replaces who set a /kill with a custom string.
@@ -564,7 +560,7 @@
           # the ircd. This may be set for security reasons or vanity reasons.
           customversion=""
 
-          # operspywhois: If this is set, when a oper /whois 's a user,
+          # operspywhois: If this is set to yes, when a oper /whois 's a user,
           # it will show all channels the user is in including +s and +p
           # channels.
           operspywhois="no"
@@ -579,12 +575,12 @@
           # NOT SUPPORTED/NEEDED UNDER WINDOWS.
           #runasgroup=""
 
-          # restrictbannedusers: If this is set, InspIRCd will not allow users
+          # restrictbannedusers: If this is set to yes, InspIRCd will not allow users
           # banned on a channel to change nickname or message channels they are
           # banned on.
           restrictbannedusers="yes"
 
-          # genericoper: Setting this value makes all opers on this server
+          # genericoper: Setting this value to yes makes all opers on this server
           # appear as 'is an IRC operator' in their WHOIS, regardless of their
           # oper type, however oper types are still used internally. This only
           # affects the display in WHOIS.
@@ -745,13 +741,13 @@
 #                                                                     #
 
 <insane
-        # hostmasks: Allow bans with insane hostmasks (over-reaching bans)
+        # hostmasks: Allow bans with insane hostmasks. (over-reaching bans)
         hostmasks="no"
 
-        # ipmasks: Allow bans with insane ipmasks (over-reaching bans)
+        # ipmasks: Allow bans with insane ipmasks. (over-reaching bans)
         ipmasks="no"
 
-        # nickmasks: Allow bans with insane nickmasks (over-reaching bans)
+        # nickmasks: Allow bans with insane nickmasks. (over-reaching bans)
         nickmasks="no"
 
         # trigger: What percentage of users on the network to trigger
