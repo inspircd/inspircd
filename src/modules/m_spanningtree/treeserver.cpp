@@ -32,7 +32,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const st
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;
 	StartBurst = rtt = 0;
-	Warned = Hidden = DupError = false;
+	Warned = Hidden = false;
 	VersionString = ServerInstance->GetVersionString();
 	SetID(id);
 }
@@ -52,7 +52,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
 	StartBurst = rtt = 0;
-	Warned = Hidden = DupError = false;
+	Warned = Hidden = false;
 	AddHashEntry();
 	SetID(id);
 }
@@ -69,7 +69,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	ServerUserCount = ServerOperCount = 0;
 	this->SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	this->SetPingFlag();
-	Warned = DupError = false;
+	Warned = false;
 	StartBurst = rtt = 0;
 
 	timeval t;
@@ -156,16 +156,7 @@ void TreeServer::SetID(const std::string &id)
 {
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Setting SID to " + id);
 	sid = id;
-	server_hash::iterator iter = Utils->sidlist.find(sid);
-	if (iter == Utils->sidlist.end())
-		Utils->sidlist[sid] = this;
-	else
-		DupError = true;
-}
-
-bool TreeServer::DuplicateID()
-{
-	return DupError;
+	Utils->sidlist[sid] = this;
 }
 
 int TreeServer::QuitUsers(const std::string &reason)

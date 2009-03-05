@@ -180,13 +180,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 				Node = new TreeServer(this->Utils, this->ServerInstance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 
-				if (Node->DuplicateID())
-				{
-					this->SendError("Server ID "+InboundSID+" already exists on the network!");
-					this->ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+InboundServerName+"\2 being introduced from \2" + prefix + "\2 denied, server ID already exists on the network. Closing link.");
-					return false;
-				}
-
 				Utils->TreeRoot->AddChild(Node);
 				params.clear();
 				params.push_back(InboundServerName);

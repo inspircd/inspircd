@@ -40,8 +40,8 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	}
 
 	std::string servername = params[0];
-	std::string password = params[1];
-	// hopcount is not used for a remote server, we calculate this ourselves
+	// password is not used for a remote server
+	// hopcount is not used (ever)
 	std::string sid = params[3];
 	std::string description = params[4];
 	TreeServer* ParentOfThis = Utils->FindServer(prefix);
@@ -59,21 +59,22 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	TreeServer* CheckDupe = Utils->FindServer(servername);
 	if (CheckDupe)
 	{
-		this->SendError("Server "+CheckDupe->GetName()+" already exists!");
+		this->SendError("Server "+servername+" already exists!");
 		this->ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
 		return false;
 	}
+	CheckDupe = Utils->FindServer(sid);
+	if (CheckDupe)
+	{
+		this->SendError("Server ID "+sid+" already exists! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
+		this->ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
+		return false;
+	}
+
 
 	Link* lnk = Utils->FindLink(servername);
 
 	TreeServer *Node = new TreeServer(this->Utils, this->ServerInstance, servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
-
-	if (Node->DuplicateID())
-	{
-		this->SendError("Server ID "+servername+" already exists on the network! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-		this->ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
-		return false;
-	}
 
 	ParentOfThis->AddChild(Node);
 	params[4] = ":" + params[4];
@@ -141,6 +142,13 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			this->ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 			return false;
 		}
+		CheckDupe = Utils->FindServer(sid);
+		if (CheckDupe)
+		{
+			this->SendError("Server ID "+sid+" already exists on the network! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
+			this->ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
+			return false;
+		}
 
 		/*
 		 * They're in WAIT_AUTH_2 (having accepted our credentials).
@@ -155,13 +163,6 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		Utils->timeoutlist.erase(this);
 
 		TreeServer *Node = new TreeServer(this->Utils, this->ServerInstance, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
-
-		if (Node->DuplicateID())
-		{
-			this->SendError("Server ID "+sid+" already exists on the network! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-			this->ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
-			return false;
-		}
 
 		Utils->TreeRoot->AddChild(Node);
 		params[4] = ":" + params[4];
@@ -232,18 +233,6 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			continue;
 		}
 
-		/* Check for fully initialized instances of the server by id */
-		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
-		TreeServer* CheckDupeSID = Utils->FindServerID(sid);
-
-		if (CheckDupeSID)
-		{
-			this->SendError("Server ID "+CheckDupeSID->GetID()+" already exists on server "+CheckDupeSID->GetName()+"! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-			this->ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupeSID->GetID()+
-					"' already exists on server "+CheckDupeSID->GetName());
-			return false;
-		}
-
 		/* Now check for fully initialized ServerInstances of the server by name */
 		TreeServer* CheckDupe = Utils->FindServer(sname);
 		if (CheckDupe)
@@ -252,6 +241,19 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			this->ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 			return false;
 		}
+
+		/* Check for fully initialized instances of the server by id */
+		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
+		CheckDupe = Utils->FindServerID(sid);
+
+		if (CheckDupe)
+		{
+			this->SendError("Server ID "+CheckDupe->GetID()+" already exists on server "+CheckDupe->GetName()+"! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
+			this->ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupe->GetID()+
+					"' already exists on server "+CheckDupe->GetName());
+			return false;
+		}
+
 
 		this->ServerInstance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
 		if (this->Hook)
