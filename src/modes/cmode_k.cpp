@@ -73,6 +73,11 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 			/* Key is currently set and the correct key wasnt given */
 			return MODEACTION_DENY;
 		}
+		else if (channel->IsModeSet('k') && parameter == channel->GetModeParameter('k'))
+		{
+			/* Key is currently set,  setting to the same as it already is.. drop it */
+			return MODEACTION_DENY;
+		}
 		else if ((!channel->IsModeSet('k')) || ((adding) && (!IS_LOCAL(source))))
 		{
 			/* Key isnt currently set */
