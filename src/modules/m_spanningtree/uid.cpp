@@ -71,10 +71,10 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		/*
 		 * Nick collision.
 		 */
-		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s", params[2].c_str());
 		int collide = this->DoCollision(iter->second, age_t, params[5], params[8], params[0]);
+		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
-		if (collide == 2)
+		if (collide != 1)
 		{
 			/* remote client changed, make sure we change their nick for the hash too */
 			params[2] = params[0];

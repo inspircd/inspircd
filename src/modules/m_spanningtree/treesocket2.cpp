@@ -596,9 +596,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 						if (collideret != 1)
 						{
 							/*
-							 * Remote client lost, or both lost, parsing this nickchange would be
-							 * pointless, as the incoming client's server will soon recieve SVSNICK to
-							 * change its nick to its UID. :) -- w00t
+							 * Remote client lost, or both lost, parsing or passing on this
+							 * nickchange would be pointless, as the incoming client's server will
+							 * soon recieve SVSNICK to change its nick to its UID. :) -- w00t
 							 */
 							return true;
 						}

@@ -30,8 +30,8 @@
 int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid)
 {
 	/*
-	 *  Under old protocol rules, we would have had to kill both clients.
-	 *  Really, this sucks.
+	 * Under old protocol rules, we would have had to kill both clients.
+	 * Really, this sucks.
 	 * These days, we have UID. And, so what we do is, force nick change client(s)
 	 * involved according to timestamp rules.
 	 *
@@ -84,9 +84,30 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		}
 	}
 
+	/*
+	 * Cheat a little here. Instead of a dedicated command to change UID,
+	 * use SVSNICK and accept the losing client with its UID (as we know the SVSNICK will
+	 * not fail under any circumstances -- UIDs are netwide exclusive).
+	 *
+	 * This means that each side of a collide will generate one extra NICK back to where
+	 * they have just linked (and where it got the SVSNICK from), however, it will
+	 * be dropped harmlessly as it will come in as :928AAAB NICK 928AAAB, and we already
+	 * have 928AAAB's nick set to that.
+	 *   -- w00t
+	 */
 
 	if (bChangeLocal)
 	{
+		/*
+		 * Local-side nick needs to change. Just in case we are hub, and
+		 * this "local" nick is actually behind us, send an SVSNICK out.
+		 */
+		std::deque<std::string> params;
+		params.push_back(u->uuid);
+		params.push_back(u->uuid);
+		params.push_back(ConvToStr(u->age));
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SVSNICK",params);
+
 		u->ForceNickChange(u->uuid.c_str());
 
 		if (!bChangeRemote)
@@ -94,28 +115,18 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 	}
 	if (bChangeRemote)
 	{
-		/*
-		 * Cheat a little here. Instead of a dedicated command to change UID,
-		 * use SVSNICK and accept their client with it's UID (as we know the SVSNICK will
-		 * not fail under any circumstances -- UIDs are netwide exclusive).
-		 *
-		 * This means that each side of a collide will generate one extra NICK back to where
-		 * they have just linked (and where it got the SVSNICK from), however, it will
-		 * be dropped harmlessly as it will come in as :928AAAB NICK 928AAAB, and we already
-		 * have 928AAAB's nick set to that.
-		 *   -- w00t
-		 */
 		User *remote = this->ServerInstance->FindUUID(remoteuid);
+		/*
+		 * remote side needs to change. If this happens, we will modify
+		 * the UID or halt the propagation of the nick change command,
+		 * so other servers don't need to see the SVSNICK
+		 */
+		WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid + " " + ConvToStr(remotets));
 
 		if (remote)
 		{
-			/* buh.. nick change collide. force change their nick. */
-			remote->ForceNickChange(remote->uuid.c_str());
-		}
-		else
-		{
-			/* user has not been introduced yet, just inform their server */
-			this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid + " " + ConvToStr(remotets));
+			/* nick change collide. Force change their nick. */
+			remote->ForceNickChange(remoteuid.c_str());
 		}
 
 		if (!bChangeLocal)
