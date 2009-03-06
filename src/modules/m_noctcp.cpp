@@ -58,7 +58,7 @@ class ModuleNoCTCP : public Module
 		if (!ServerInstance->Modes->AddMode(nc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleNoCTCP()
