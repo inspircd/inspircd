@@ -800,7 +800,7 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	}
 }
 
-void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::string &text)
+void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::string &text, const std::vector<TranslateType> &translate)
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
@@ -808,7 +808,7 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 		std::string command;
 		std::string output_text;
 
-		ServerInstance->Parser->TranslateUIDs(TR_SPACENICKLIST, text, output_text);
+		ServerInstance->Parser->TranslateUIDs(translate, text, output_text);
 
 		if (target_type == TYPE_USER)
 		{
@@ -851,19 +851,19 @@ int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	return 0;
 }
 
-void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline)
+void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline, const std::vector<TranslateType> &translate)
 {
 	TreeSocket* s = (TreeSocket*)opaque;
 	std::string output_text;
 
-	ServerInstance->Parser->TranslateUIDs(TR_SPACENICKLIST, modeline, output_text);
+	ServerInstance->Parser->TranslateUIDs(translate, modeline, output_text);
 
 	if (target)
 	{
 		if (target_type == TYPE_USER)
 		{
 			User* u = (User*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+output_text);
+			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" MODE "+u->uuid+" "+output_text);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{

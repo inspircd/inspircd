@@ -52,8 +52,8 @@
 /* +s (server notice masks) */
 #include "modes/umode_s.h"
 
-ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired)
-	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly), prefix(mprefix), count(0), prefixneeded(prefixrequired)
+ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired, TranslateType translate)
+	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), m_paramtype(translate), oper(operonly), prefix(mprefix), count(0), prefixneeded(prefixrequired)
 {
 }
 
@@ -95,6 +95,11 @@ void ModeHandler::ChangeCount(int modifier)
 ModeType ModeHandler::GetModeType()
 {
 	return m_type;
+}
+
+TranslateType ModeHandler::GetTranslateType()
+{
+	return m_paramtype;
 }
 
 bool ModeHandler::NeedsOper()
@@ -498,6 +503,8 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		std::string mode_sequence = parameters[1];
 		std::string parameter;
 		std::ostringstream parameter_list;
+		std::vector<TranslateType> parameter_xlate;
+		parameter_xlate.push_back(TR_TEXT);
 		std::string output_sequence;
 		bool adding = true, state_change = false;
 		unsigned char handler_id = 0;
@@ -710,6 +717,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (!parameter.empty()))
 								{
 									parameter_list << " " << parameter;
+									parameter_xlate.push_back(modehandlers[handler_id]->GetTranslateType());
 									parameter_count++;
 									/* Does this mode have a prefix? */
 									if (modehandlers[handler_id]->GetPrefix() && targetchannel)
@@ -768,13 +776,13 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 				if (type == MODETYPE_CHANNEL)
 				{
 					targetchannel->WriteChannel(user, "MODE %s %s%s", targetchannel->name.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
-					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
+					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str(), parameter_xlate));
 					this->LastParse = targetchannel->name;
 				}
 				else
 				{
 					user->WriteTo(targetuser, "MODE %s %s%s", targetuser->nick.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
-					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence + parameter_list.str()));
+					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence + parameter_list.str(), parameter_xlate));
 					this->LastParse = targetuser->nick;
 				}
 			}

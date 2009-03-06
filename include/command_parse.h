@@ -202,6 +202,8 @@ class CoreExport CommandParser : public classbase
 	 * @return returns the number of substitutions made. Will always be 0 or 1 for TR_TEXT and 0..n for other types.
 	 */
 	int TranslateUIDs(TranslateType to, const std::string &source, std::string &dest);
+
+	int TranslateUIDs(const std::vector<TranslateType> to, const std::string &source, std::string &dest);
 };
 
 /** Command handler class for the RELOAD command.

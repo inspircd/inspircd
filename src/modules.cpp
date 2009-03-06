@@ -116,7 +116,7 @@ void		Module::OnPostJoin(User*, Channel*) { }
 void		Module::OnUserPart(User*, Channel*, std::string&, bool&) { }
 void		Module::OnRehash(User*, const std::string&) { }
 int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return 0; }
-void		Module::OnMode(User*, void*, int, const std::string&) { }
+void		Module::OnMode(User*, void*, int, const std::string&, const std::vector<TranslateType>&) { }
 Version		Module::GetVersion() { return Version("Misconfigured", VF_VENDOR, -1); }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
@@ -170,7 +170,7 @@ void		Module::OnPostLocalTopicChange(User*, Channel*, const std::string&) { }
 void		Module::OnGetServerDescription(const std::string&, std::string&) { }
 void		Module::OnSyncUser(User*, Module*, void*) { }
 void		Module::OnSyncChannel(Channel*, Module*, void*) { }
-void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::string&) { }
+void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::string&, const std::vector<TranslateType>&) { }
 void		Module::OnSyncChannelMetaData(Channel*, Module*, void*, const std::string&, bool) { }
 void		Module::OnSyncUserMetaData(User*, Module*, void*, const std::string&, bool) { }
 void		Module::OnSyncOtherMetaData(Module*, void*, bool) { }

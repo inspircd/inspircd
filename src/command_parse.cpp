@@ -609,6 +609,49 @@ void CommandParser::SetupCommandTable()
 		this->CreateCommand(new CommandReload(ServerInstance));
 }
 
+int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::string &source, std::string &dest)
+{
+	irc::spacesepstream items(source);
+	std::vector<TranslateType>::const_iterator types = to.begin();
+	User* user = NULL;
+	std::string item;
+	int translations = 0;
+	dest.clear();
+
+	while (items.GetToken(item))
+	{
+		TranslateType t = *types;
+		types++;
+
+		switch (t)
+		{
+			case TR_NICK:
+				/* Translate single nickname */
+				user = ServerInstance->FindNick(item);
+				if (user)
+				{
+					dest.append(user->uuid);
+					translations++;
+				}
+				else
+					dest.append(item);
+			break;
+			break;
+			case TR_END:
+			case TR_TEXT:
+			default:
+				/* Do nothing */
+				dest.append(item);
+			break;
+		}
+		dest.append(" ");
+	}
+
+	if (!dest.empty())
+		dest.erase(dest.end() - 1);
+	return translations;
+}
+
 int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
 {
 	User* user = NULL;
@@ -628,46 +671,6 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 			}
 			else
 				dest = source;
-		break;
-		case TR_NICKLIST:
-		{
-			/* Translate comma seperated list of nicknames */
-			irc::commasepstream items(source);
-			while (items.GetToken(item))
-			{
-				user = ServerInstance->FindNick(item);
-				if (user)
-				{
-					dest.append(user->uuid);
-					translations++;
-				}
-				else
-					dest.append(item);
-				dest.append(",");
-			}
-			if (!dest.empty())
-				dest.erase(dest.end() - 1);
-		}
-		break;
-		case TR_SPACENICKLIST:
-		{
-			/* Translate space seperated list of nicknames */
-			irc::spacesepstream items(source);
-			while (items.GetToken(item))
-			{
-				user = ServerInstance->FindNick(item);
-				if (user)
-				{
-					dest.append(user->uuid);
-					translations++;
-				}
-				else
-					dest.append(item);
-				dest.append(" ");
-			}
-			if (!dest.empty())
-				dest.erase(dest.end() - 1);
-		}
 		break;
 		case TR_END:
 		case TR_TEXT:

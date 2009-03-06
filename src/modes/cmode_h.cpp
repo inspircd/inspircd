@@ -19,7 +19,7 @@
 #include "modules.h"
 #include "modes/cmode_h.h"
 
-ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(Instance, 'h', 1, 1, true, MODETYPE_CHANNEL, false, '%', '@')
+ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(Instance, 'h', 1, 1, true, MODETYPE_CHANNEL, false, '%', '@', TR_NICK)
 {
 }
 

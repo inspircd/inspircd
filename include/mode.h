@@ -17,6 +17,7 @@
 /* Forward declarations. */
 class User;
 
+#include "ctables.h"
 #include "channels.h"
 
 /**
@@ -126,6 +127,10 @@ class CoreExport ModeHandler : public Extensible
 	 */
 	ModeType m_type;
 	/**
+	 * The mode parameter translation type
+	 */
+	TranslateType m_paramtype;
+	/**
 	 * True if the mode requires oper status
 	 * to set.
 	 */
@@ -161,7 +166,8 @@ class CoreExport ModeHandler : public Extensible
 	 * and the rank values OP_VALUE, HALFOP_VALUE and VOICE_VALUE respectively. Any prefixes you define should have unique values proportional
 	 * to these three defaults or proportional to another mode in a module you depend on. See src/cmode_o.cpp as an example.
 	 */
-	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix = 0, char prefixrequired = '%');
+	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly,
+		char mprefix = 0, char prefixrequired = '%', TranslateType translate = TR_TEXT);
 	/**
 	 * The default destructor does nothing
 	 */
@@ -191,9 +197,13 @@ class CoreExport ModeHandler : public Extensible
 	 */
 	virtual unsigned int GetPrefixRank();
 	/**
-	 * Returns the modes type
+	 * Returns the mode's type
 	 */
 	ModeType GetModeType();
+	/**
+	 * Returns the mode's parameter translation type
+	 */
+	TranslateType GetTranslateType();
 	/**
 	 * Returns true if the mode can only be set/unset by an oper
 	 */

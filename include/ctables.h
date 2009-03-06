@@ -33,8 +33,6 @@ enum TranslateType
 	TR_END,			/* End of known parameters, everything after this is TR_TEXT */
 	TR_TEXT,		/* Raw text, leave as-is */
 	TR_NICK,		/* Nickname, translate to UUID for server->server */
-	TR_NICKLIST,		/* Comma seperated nickname list, translate to UUIDs */
-	TR_SPACENICKLIST,	/* Space seperated nickname list, translate to UUIDs */
 	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */
 };
 

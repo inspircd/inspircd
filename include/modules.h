@@ -739,8 +739,9 @@ class CoreExport Module : public Extensible
 	 * @param dest The target of the modes (User* or Channel*)
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text The actual modes and their parameters if any
+	 * @param translate The translation types of the mode parameters
 	 */
-	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text);
+	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text, const std::vector<TranslateType> &translate);
 
 	/** Allows modules to alter or create server descriptions
 	 * Whenever a module requires a server description, for example for display in
@@ -847,8 +848,9 @@ class CoreExport Module : public Extensible
 	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
 	 * @param target The Channel* or User* that modes should be sent for
 	 * @param modeline The modes and parameters to be sent
+	 * @param translate The translation types of the mode parameters
 	 */
-	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline);
+	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline, const std::vector<TranslateType> &translate);
 
 	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows metadata (extra data added to
