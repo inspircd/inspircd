@@ -423,21 +423,19 @@ class ListModeBase : public ModeHandler
 		chan->GetExt(infokey, mlist);
 		irc::modestacker modestack(ServerInstance, true);
 		std::deque<std::string> stackresult;
-		std::vector<TranslateType> types;
+		std::deque<TranslateType> types;
 		types.push_back(TR_TEXT);
 		if (mlist)
 		{
 			for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
 			{
 				modestack.Push(std::string(1, mode)[0], it->mask);
-				types.push_back(this->GetTranslateType());
 			}
 		}
 		while (modestack.GetStackedLine(stackresult))
 		{
-			irc::stringjoiner mode_join(" ", stackresult, 0, stackresult.size() - 1);
-			std::string line = mode_join.GetJoined();
-			proto->ProtoSendMode(opaque, TYPE_CHANNEL, chan, line, types);
+			types.assign(stackresult.size(), this->GetTranslateType());
+			proto->ProtoSendMode(opaque, TYPE_CHANNEL, chan, stackresult, types);
 		}
 	}
 

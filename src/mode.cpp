@@ -371,6 +371,8 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 	User* targetuser  = ServerInstance->FindNick(parameters[0]);
 
 	LastParse.clear();
+	LastParseParams.clear();
+	LastParseTranslate.clear();
 
 	/* Special case for displaying the list for listmodes,
 	 * e.g. MODE #chan b, or MODE #chan +b without a parameter
@@ -503,14 +505,13 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		std::string mode_sequence = parameters[1];
 		std::string parameter;
 		std::ostringstream parameter_list;
-		std::vector<TranslateType> parameter_xlate;
-		parameter_xlate.push_back(TR_TEXT);
 		std::string output_sequence;
 		bool adding = true, state_change = false;
 		unsigned char handler_id = 0;
 		unsigned int parameter_counter = 2; /* Index of first parameter */
 		unsigned int parameter_count = 0;
 		bool last_successful_state_change = false;
+		LastParseTranslate.push_back(TR_TEXT);
 
 		/* A mode sequence that doesnt start with + or -. Assume +. - Thanks for the suggestion spike (bug#132) */
 		if ((*mode_sequence.begin() != '+') && (*mode_sequence.begin() != '-'))
@@ -717,7 +718,8 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (!parameter.empty()))
 								{
 									parameter_list << " " << parameter;
-									parameter_xlate.push_back(modehandlers[handler_id]->GetTranslateType());
+									LastParseParams.push_back(parameter);
+									LastParseTranslate.push_back(modehandlers[handler_id]->GetTranslateType());
 									parameter_count++;
 									/* Does this mode have a prefix? */
 									if (modehandlers[handler_id]->GetPrefix() && targetchannel)
@@ -773,16 +775,17 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			}
 			else
 			{
+				LastParseParams.push_front(output_sequence);
 				if (type == MODETYPE_CHANNEL)
 				{
 					targetchannel->WriteChannel(user, "MODE %s %s%s", targetchannel->name.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
-					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str(), parameter_xlate));
+					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, LastParseParams, LastParseTranslate));
 					this->LastParse = targetchannel->name;
 				}
 				else
 				{
 					user->WriteTo(targetuser, "MODE %s %s%s", targetuser->nick.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
-					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence + parameter_list.str(), parameter_xlate));
+					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, LastParseParams, LastParseTranslate));
 					this->LastParse = targetuser->nick;
 				}
 			}

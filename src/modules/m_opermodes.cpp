@@ -109,10 +109,14 @@ class ModuleModesOnOper : public Module
 		}
 
 		std::deque<std::string> n;
+		std::deque<TranslateType> t;
 		for (unsigned int j = 1; j < tokens.size(); j++)
+		{
 			n.push_back(modes[j]);
+			t.push_back(TR_TEXT);
+		}
 
-		ServerInstance->PI->SendMode(u->uuid, n);
+		ServerInstance->PI->SendMode(u->uuid, n, t);
 		ServerInstance->SendMode(modes, u);
 	}
 };

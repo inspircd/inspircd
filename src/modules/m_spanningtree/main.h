@@ -174,10 +174,10 @@ class ModuleSpanningTree : public Module
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
 	virtual void OnAddLine(User *u, XLine *x);
 	virtual void OnDelLine(User *u, XLine *x);
-	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text, const std::vector<TranslateType> &translate);
+	virtual void OnMode(User* user, void* dest, int target_type, const std::deque<std::string> &text, const std::deque<TranslateType> &translate);
 	virtual int OnStats(char statschar, User* user, string_list &results);
 	virtual int OnSetAway(User* user, const std::string &awaymsg);
-	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline, const std::vector<TranslateType> &translate);
+	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::deque<std::string> &modeline, const std::deque<TranslateType> &translate);
 	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual void OnEvent(Event* event);
 	virtual void OnLoadModule(Module* mod,const std::string &name);

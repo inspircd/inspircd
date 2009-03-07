@@ -68,28 +68,25 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC", params);
 }
 
-void SpanningTreeProtocolInterface::SendMode(const std::string &target, parameterlist &modedata)
+void SpanningTreeProtocolInterface::SendMode(const std::string &target, const parameterlist &modedata, const std::deque<TranslateType> &translate)
 {
 	if (modedata.empty())
 		return;
 
 	std::string outdata;
-
-	/* Warning: in-place translation is only safe for type TR_NICK */
-	for (size_t n = 0; n < modedata.size(); n++)
-	{
-		ServerInstance->Parser->TranslateUIDs(TR_NICK, modedata[n], outdata);
-		modedata[n] = outdata;
-	}
+	ServerInstance->Parser->TranslateUIDs(translate, modedata, outdata);
 
 	std::string uidtarget;
 	ServerInstance->Parser->TranslateUIDs(TR_NICK, target, uidtarget);
-	modedata.insert(modedata.begin(), uidtarget);
+
+	parameterlist outlist;
+	outlist.push_back(uidtarget);
+	outlist.push_back(outdata);
 
 	User* a = ServerInstance->FindNick(uidtarget);
 	if (a)
 	{
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",modedata);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",outlist);
 		return;
 	}
 	else
@@ -97,8 +94,8 @@ void SpanningTreeProtocolInterface::SendMode(const std::string &target, paramete
 		Channel* c = ServerInstance->FindChan(target);
 		if (c)
 		{
-			modedata.insert(modedata.begin() + 1, ConvToStr(c->age));
-			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",modedata);
+			outlist.insert(outlist.begin() + 1, ConvToStr(c->age));
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",outlist);
 		}
 	}
 }

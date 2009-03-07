@@ -800,7 +800,7 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	}
 }
 
-void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::string &text, const std::vector<TranslateType> &translate)
+void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::deque<std::string> &text, const std::deque<TranslateType> &translate)
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
@@ -851,7 +851,7 @@ int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	return 0;
 }
 
-void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::string &modeline, const std::vector<TranslateType> &translate)
+void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::deque<std::string> &modeline, const std::deque<TranslateType> &translate)
 {
 	TreeSocket* s = (TreeSocket*)opaque;
 	std::string output_text;

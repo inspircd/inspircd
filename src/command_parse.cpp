@@ -609,19 +609,20 @@ void CommandParser::SetupCommandTable()
 		this->CreateCommand(new CommandReload(ServerInstance));
 }
 
-int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::string &source, std::string &dest)
+int CommandParser::TranslateUIDs(const std::deque<TranslateType> to, const std::deque<std::string> &source, std::string &dest)
 {
-	irc::spacesepstream items(source);
-	std::vector<TranslateType>::const_iterator types = to.begin();
+	std::deque<std::string>::const_iterator items = source.begin();
+	std::deque<TranslateType>::const_iterator types = to.begin();
 	User* user = NULL;
-	std::string item;
 	int translations = 0;
 	dest.clear();
 
-	while (items.GetToken(item))
+	while (items != source.end() && types != to.end())
 	{
 		TranslateType t = *types;
+		std::string item = *items;
 		types++;
+		items++;
 
 		switch (t)
 		{

@@ -68,7 +68,7 @@ class ProtocolInterface : public Extensible
 	 * @param target The channel name or user to send mode changes for.
 	 * @param The mode changes to send.
 	 */
-	virtual void SendMode(const std::string &target, parameterlist &modedata) { }
+	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::deque<TranslateType> &translate) { }
 
 	/** Convenience function, string wrapper around the above.
 	  */
@@ -76,10 +76,14 @@ class ProtocolInterface : public Extensible
 	{
 		irc::spacesepstream x(modeline);
 		parameterlist n;
+		std::deque<TranslateType> types;
 		std::string v;
 		while (x.GetToken(v))
+		{
 			n.push_back(v);
-		SendMode(target, n);
+			types.push_back(TR_TEXT);
+		}
+		SendMode(target, n, types);
 	}
 
 	/** Send a notice to users with a given mode(s).

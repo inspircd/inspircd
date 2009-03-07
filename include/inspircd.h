@@ -721,7 +721,6 @@ class CoreExport InspIRCd : public classbase
 	 * The parameters provided are identical to that sent to the
 	 * handler for class cmd_mode.
 	 * @param parameters The mode parameters
-	 * @param pcnt The number of items you have given in the first parameter
 	 * @param user The user to send error messages to
 	 */
 	void SendMode(const std::vector<std::string>& parameters, User *user);

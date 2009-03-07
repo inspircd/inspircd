@@ -37,20 +37,9 @@ class CommandSamode : public Command
 		{
 			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
 
-			std::deque<std::string> n;
-			irc::spacesepstream spaced(ServerInstance->Modes->GetLastParse());
-			std::string one;
-			while (spaced.GetToken(one))
-				n.push_back(one);
+			std::string channel = parameters[0];
+			ServerInstance->PI->SendMode(channel, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
 
-			std::string channel = n[0];
-			n.pop_front();
-			ServerInstance->PI->SendMode(channel, n);
-
-			/* XXX: Yes, this is right. We dont want to propagate the
-			 * actual SAMODE command, just the MODE command generated
-			 * by the Protocol Interface
-			 */
 			return CMD_LOCALONLY;
 		}
 		else

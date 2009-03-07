@@ -445,6 +445,8 @@ class CoreExport ModeParser : public classbase
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
 	 */
 	std::string LastParse;
+	std::deque<std::string> LastParseParams;
+	std::deque<TranslateType> LastParseTranslate;
 
 	unsigned int sent[256];
 
@@ -486,6 +488,8 @@ class CoreExport ModeParser : public classbase
 	 * @return Last parsed string, as seen by users.
 	 */
 	const std::string& GetLastParse();
+	const std::deque<std::string>& GetLastParseParams() { return LastParseParams; }
+	const std::deque<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
 	/** Add a mode to the mode parser.
 	 * @return True if the mode was successfully added.
 	 */
