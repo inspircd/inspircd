@@ -40,15 +40,18 @@ void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
 	 * so we have a special-case RemoveMode here for it
 	 */
 
-	if (channel->IsModeSet(this->GetModeChar()))
+	if (channel->IsModeSet('k'))
 	{
 		if (stack)
 		{
-			stack->Push(this->GetModeChar(), channel->GetModeParameter('k'));
+			stack->Push('k', channel->GetModeParameter('k'));
 		}
 		else
 		{
-			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-k"); parameters.push_back(channel->GetModeParameter('k'));
+			std::vector<std::string> parameters;
+			parameters.push_back(channel->name);
+			parameters.push_back("-k");
+			parameters.push_back(channel->GetModeParameter('k'));
 			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
@@ -91,11 +94,20 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 	if (parameter.rfind(' ') != std::string::npos)
 		return MODEACTION_DENY;
 
-	std::string ckey;
-	ckey.assign(parameter, 0, 32);
-	parameter = ckey;
-	if (adding && exists)
+	/* must first unset if we are changing the key, otherwise it will be ignored */
+	if (exists && adding)
 		channel->SetMode('k', false);
-	channel->SetModeParam('k', parameter.c_str(), adding);
+
+	/* must run setmode always, to process the change */
+	channel->SetMode('k', adding);
+
+	if (adding)
+	{
+		std::string ckey;
+		ckey.assign(parameter, 0, 32);
+		parameter = ckey;
+		/* running this does not run setmode, despite the third parameter */
+		channel->SetModeParam('k', parameter.c_str(), true);
+	}
 	return MODEACTION_ALLOW;
 }
