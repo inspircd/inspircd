@@ -91,12 +91,11 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 	if (parameter.rfind(' ') != std::string::npos)
 		return MODEACTION_DENY;
 
-	channel->SetMode('k', adding);
-	if (adding) {
-		std::string ckey;
-		ckey.assign(parameter, 0, 32);
-		channel->SetModeParam('k', ckey.c_str(), adding);
-		parameter = ckey;
-	}
+	std::string ckey;
+	ckey.assign(parameter, 0, 32);
+	parameter = ckey;
+	if (adding && exists)
+		channel->SetMode('k', false);
+	channel->SetModeParam('k', parameter.c_str(), adding);
 	return MODEACTION_ALLOW;
 }
