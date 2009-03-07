@@ -66,43 +66,37 @@ bool ModeChannelKey::CheckTimeStamp(time_t, time_t, const std::string &their_par
 
 ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
-	if ((channel->IsModeSet('k') != adding) || (!IS_LOCAL(source)))
+	bool exists = channel->IsModeSet('k');
+	if (IS_LOCAL(source))
 	{
-		if (((channel->IsModeSet('k')) && (parameter != channel->GetModeParameter('k'))) && (IS_LOCAL(source)))
+		if (exists == adding)
+			return MODEACTION_DENY;
+		if (exists && (parameter != channel->GetModeParameter('k')))
 		{
 			/* Key is currently set and the correct key wasnt given */
 			return MODEACTION_DENY;
 		}
-		else if (channel->IsModeSet('k') && parameter == channel->GetModeParameter('k'))
+	} else {
+		if (exists && adding && parameter == channel->GetModeParameter('k'))
 		{
-			/* Key is currently set,  setting to the same as it already is.. drop it */
+			/* no-op, don't show */
 			return MODEACTION_DENY;
 		}
-		else if ((!channel->IsModeSet('k')) || ((adding) && (!IS_LOCAL(source))))
-		{
-			/* Key isnt currently set */
-			if ((parameter.length()) && (parameter.rfind(' ') == std::string::npos))
-			{
-				std::string ckey;
-				ckey.assign(parameter, 0, 32);
-				channel->SetModeParam('k', ckey.c_str(), adding);
-				channel->SetMode('k', adding);
-				parameter = ckey;
-				return MODEACTION_ALLOW;
-			}
-			else
-				return MODEACTION_DENY;
-		}
-		else if (((channel->IsModeSet('k')) && (parameter == channel->GetModeParameter('k'))) || ((!adding) && (!IS_LOCAL(source))))
-		{
-			/* Key is currently set, and correct key was given */
-			channel->SetMode('k', adding);
-			return MODEACTION_ALLOW;
-		}
-		return MODEACTION_DENY;
 	}
-	else
-	{
+
+	/* invalid keys */
+	if (!parameter.length())
 		return MODEACTION_DENY;
+
+	if (parameter.rfind(' ') != std::string::npos)
+		return MODEACTION_DENY;
+
+	channel->SetMode('k', adding);
+	if (adding) {
+		std::string ckey;
+		ckey.assign(parameter, 0, 32);
+		channel->SetModeParam('k', ckey.c_str(), adding);
+		parameter = ckey;
 	}
+	return MODEACTION_ALLOW;
 }
