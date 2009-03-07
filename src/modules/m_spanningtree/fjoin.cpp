@@ -84,8 +84,9 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		time_t ourTS = chan->age;
 
-		ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %lu",
-			chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (unsigned long)ourTS - (unsigned long)TS);
+		if (TS != ourTS)
+			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %lu",
+				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (unsigned long)(ourTS - TS));
 		/* If our TS is less than theirs, we dont accept their modes */
 		if (ourTS < TS)
 		{
@@ -110,7 +111,6 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	/* First up, apply their modes if they won the TS war */
 	if (apply_other_sides_modes)
 	{
-		ServerInstance->SNO->WriteToSnoMask('d', "Applying remote modestring for %s", params[0].c_str());
 		unsigned int idx = 2;
 		std::vector<std::string> modelist;
 
