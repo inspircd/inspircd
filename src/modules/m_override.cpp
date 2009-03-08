@@ -24,6 +24,7 @@ class ModuleOverride : public Module
 	bool RequireKey;
 	bool NoisyOverride;
 	bool OverriddenMode;
+	bool OverOther;
 	int OverOps, OverDeops, OverVoices, OverDevoices, OverHalfops, OverDehalfops;
 
  public:
@@ -34,11 +35,11 @@ class ModuleOverride : public Module
 		// read our config options (main config file)
 		OnRehash(NULL,"");
 		ServerInstance->SNO->EnableSnomask('G', "GODMODE");
-		OverriddenMode = false;
 		if (!ServerInstance->Modules->PublishFeature("Override", this))
 		{
 			throw ModuleException("m_override: Unable to publish feature 'Override'");
 		}
+		OverriddenMode = OverOther = false;
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnLocalTopicChange, I_OnRequest };
 		ServerInstance->Modules->Attach(eventlist, this, 8);
@@ -68,22 +69,30 @@ class ModuleOverride : public Module
 
 	virtual void OnPostCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, CmdResult result, const std::string &original_line)
 	{
-		if ((OverriddenMode) && (irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS))
+		if (OverriddenMode)
 		{
-			int Total = OverOps + OverDeops + OverVoices + OverDevoices + OverHalfops + OverDehalfops;
-			if (ServerInstance->Modes->GetLastParse().empty())
-				return;
+			if ((irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS) && !ServerInstance->Modes->GetLastParse().empty())
+			{
+				std::string msg = std::string(user->nick)+" Overriding modes: "+ServerInstance->Modes->GetLastParse()+" [Detail: ";
+				if (OverOps)
+					msg += ConvToStr(OverOps)+" op"+(OverOps != 1 ? "s" : "")+", ";
+				if (OverDeops)
+					msg += ConvToStr(OverDeops)+" deop"+(OverDeops != 1 ? "s" : "")+", ";
+				if (OverVoices)
+					msg += ConvToStr(OverVoices)+" voice"+(OverVoices != 1 ? "s" : "")+", ";
+				if (OverDevoices)
+					msg += ConvToStr(OverDevoices)+" devoice"+(OverDevoices != 1 ? "s" : "")+", ";
+				if (OverHalfops)
+					msg += ConvToStr(OverHalfops)+" halfop"+(OverHalfops != 1 ? "s" : "")+", ";
+				if (OverDehalfops)
+					msg += ConvToStr(OverDehalfops)+" dehalfop"+(OverDehalfops != 1 ? "s" : "")+", ";
+				if (OverOther)
+					msg += "others, ";
+				msg.replace(msg.length()-2, 2, 1, ']');
+				ServerInstance->SNO->WriteToSnoMask('G',msg);
+			}
 
-			ServerInstance->SNO->WriteToSnoMask('G',std::string(user->nick)+" Overriding modes: "+ServerInstance->Modes->GetLastParse()+" "+(Total ? "[Detail: " : "")+
-					(OverOps ? ConvToStr(OverOps)+" op"+(OverOps != 1 ? "s" : "")+" " : "")+
-					(OverDeops ? ConvToStr(OverDeops)+" deop"+(OverDeops != 1 ? "s" : "")+" " : "")+
-					(OverVoices ? ConvToStr(OverVoices)+" voice"+(OverVoices != 1 ? "s" : "")+" " : "")+
-					(OverDevoices ? ConvToStr(OverDevoices)+" devoice"+(OverDevoices != 1 ? "s" : "")+" " : "")+
-					(OverHalfops ? ConvToStr(OverHalfops)+" halfop"+(OverHalfops != 1 ? "s" : "")+" " : "")+
-					(OverDehalfops ? ConvToStr(OverDehalfops)+" dehalfop"+(OverDehalfops != 1 ? "s" : "") : "")
-					+(Total ? "]" : ""));
-
-			OverriddenMode = false;
+			OverriddenMode = OverOther = false;
 			OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 		}
 	}
@@ -142,106 +151,84 @@ class ModuleOverride : public Module
 
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
-		if (IS_OPER(source))
-		{
-			if (source && channel)
-			{
-				// Fix by brain - allow the change if they arent on channel - rely on boolean short-circuit
-				// to not check the other items in the statement if they arent on the channel
-				int mode = channel->GetStatus(source);
-				switch (access_type)
-				{
-					case AC_DEOP:
-						if (CanOverride(source,"MODEDEOP"))
-						{
-							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								OverDeops++;
-							return ACR_ALLOW;
-						}
-						else
-						{
-							return ACR_DEFAULT;
-						}
-					break;
-					case AC_OP:
-						if (CanOverride(source,"MODEOP"))
-						{
-							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								OverOps++;
-							return ACR_ALLOW;
-						}
-						else
-						{
-							return ACR_DEFAULT;
-						}
-					break;
-					case AC_VOICE:
-						if (CanOverride(source,"MODEVOICE"))
-						{
-							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
-								OverVoices++;
-							return ACR_ALLOW;
-						}
-						else
-						{
-							return ACR_DEFAULT;
-						}
-					break;
-					case AC_DEVOICE:
-						if (CanOverride(source,"MODEDEVOICE"))
-						{
-							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
-								OverDevoices++;
-							return ACR_ALLOW;
-						}
-						else
-						{
-							return ACR_DEFAULT;
-						}
-					break;
-					case AC_HALFOP:
-						if (CanOverride(source,"MODEHALFOP"))
-						{
-							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								OverHalfops++;
-							return ACR_ALLOW;
-						}
-						else
-						{
-							return ACR_DEFAULT;
-						}
-					break;
-					case AC_DEHALFOP:
-						if (CanOverride(source,"MODEDEHALFOP"))
-						{
-							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								OverDehalfops++;
-							return ACR_ALLOW;
-						}
-						else
-						{
-							return ACR_DEFAULT;
-						}
-					break;
-				}
+		if (!IS_OPER(source))
+			return ACR_DEFAULT;
+		if (!source || !channel)
+			return ACR_DEFAULT;
 
-				if (CanOverride(source,"OTHERMODE"))
+		int mode = STATUS_NORMAL;
+		if (channel->HasUser(source))
+			mode = channel->GetStatus(source);
+		bool over_this = false;
+
+		switch (access_type)
+		{
+			case AC_DEOP:
+				if (mode < STATUS_OP && CanOverride(source,"MODEDEOP"))
 				{
-					if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-					{
-						OverriddenMode = true;
-						OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
-					}
-					return ACR_ALLOW;
+					over_this = true;
+					OverDeops++;
 				}
-				else
+			break;
+			case AC_OP:
+				if (mode < STATUS_OP && CanOverride(source,"MODEOP"))
 				{
-					return ACR_DEFAULT;
+					over_this = true;
+					OverOps++;
+				}
+			break;
+			case AC_VOICE:
+				if (mode < STATUS_HOP && CanOverride(source,"MODEVOICE"))
+				{
+					over_this = true;
+					OverVoices++;
+				}
+			break;
+			case AC_DEVOICE:
+				if (mode < STATUS_HOP && CanOverride(source,"MODEDEVOICE"))
+				{
+					over_this = true;
+					OverDevoices++;
+				}
+			break;
+			case AC_HALFOP:
+				if (mode < STATUS_OP && CanOverride(source,"MODEHALFOP"))
+				{
+					over_this = true;
+					OverHalfops++;
+				}
+			break;
+			case AC_DEHALFOP:
+				if (mode < STATUS_OP && CanOverride(source,"MODEDEHALFOP"))
+				{
+					over_this = true;
+					OverDehalfops++;
+				}
+			break;
+			case AC_GENERAL_MODE:
+			{
+				std::string modes = ServerInstance->Modes->GetLastParse();
+				bool ohv_only = (modes.find_first_not_of("+-ohv") == std::string::npos);
+
+				if (mode < STATUS_HOP && (ohv_only || CanOverride(source,"OTHERMODE")))
+				{
+					over_this = true;
+					if (!ohv_only)
+						OverOther = true;
 				}
 			}
+			break;
 		}
 
-		return ACR_DEFAULT;
+		if (over_this)
+		{
+			OverriddenMode = true;
+			return ACR_ALLOW;
+		}
+		else
+		{
+			return ACR_DEFAULT;
+		}
 	}
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)

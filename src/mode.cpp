@@ -477,9 +477,12 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 
 			if ((IS_LOCAL(user)) && (!ServerInstance->ULine(user->server)) && (!servermode))
 			{
+				/* Make modes that are being changed visible to OnAccessCheck */
+				LastParse = parameters[1];
 				/* We don't have halfop */
 				int MOD_RESULT = 0;
 				FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user, NULL, targetchannel, AC_GENERAL_MODE));
+				LastParse.clear();
 				if (MOD_RESULT == ACR_DENY)
 					return;
 				SkipAccessChecks = (MOD_RESULT == ACR_ALLOW);
