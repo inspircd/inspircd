@@ -103,6 +103,61 @@ void BufferedSocket::SetQueues()
 	}
 }
 
+bool BufferedSocket::DoBindMagic(const std::string &current_ip, bool v6)
+{
+	/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
+	socklen_t size = sizeof(sockaddr_in);
+	sockaddr* s = new sockaddr[2];
+#ifdef IPV6
+	if (v6)
+	{
+		in6_addr n;
+		if (inet_pton(AF_INET6, current_ip.c_str(), &n) > 0)
+		{
+			memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(sockaddr_in6));
+			((sockaddr_in6*)s)->sin6_port = 0;
+			((sockaddr_in6*)s)->sin6_family = AF_INET6;
+			size = sizeof(sockaddr_in6);
+		}
+		else
+		{
+			// Well, this is as good as it's gonna get.
+			errno = EADDRNOTAVAIL;
+			delete[] s;
+			return false;
+		}
+	}
+	else
+#endif
+	{
+		in_addr n;
+		if (inet_aton(current_ip.c_str(), &n) > 0)
+		{
+			((sockaddr_in*)s)->sin_addr = n;
+			((sockaddr_in*)s)->sin_port = 0;
+			((sockaddr_in*)s)->sin_family = AF_INET;
+		}
+		else
+		{
+			// Well, this is as good as it's gonna get.
+			errno = EADDRNOTAVAIL;
+			delete[] s;
+			return false;
+		}
+	}
+
+	if (ServerInstance->SE->Bind(this->fd, s, size) < 0)
+	{
+		this->state = I_ERROR;
+		this->OnError(I_ERR_BIND);
+		delete[] s;
+		return false;
+	}
+
+	delete[] s;
+	return true;
+}
+
 /* Most irc servers require you to specify the ip you want to bind to.
  * If you dont specify an IP, they rather dumbly bind to the first IP
  * of the box (e.g. INADDR_ANY). In InspIRCd, we scan thought the IP
@@ -111,77 +166,43 @@ void BufferedSocket::SetQueues()
  * This is easier to configure when you have a lot of links and a lot
  * of servers to configure.
  */
-bool BufferedSocket::BindAddr(const std::string &ip)
+bool BufferedSocket::BindAddr(const std::string &ip_to_bind)
 {
 	ConfigReader Conf(this->ServerInstance);
-	socklen_t size = sizeof(sockaddr_in);
-#ifdef IPV6
 	bool v6 = false;
+#ifdef IPV6
 	/* Are we looking for a binding to fit an ipv6 host? */
-	if ((ip.empty()) || (ip.find(':') != std::string::npos))
+	if ((ip_to_bind.empty()) || (ip_to_bind.find(':') != std::string::npos))
 		v6 = true;
 #endif
-	int j = 0;
-	while (j < Conf.Enumerate("bind") || (!ip.empty()))
+
+	// Case one: If they provided an IP, try bind it
+	if (!ip_to_bind.empty())
 	{
-		std::string sIP = ip.empty() ? Conf.ReadValue("bind","address",j) : ip;
-		if (!ip.empty() || Conf.ReadValue("bind","type",j) == "servers")
-		{
-			if (!ip.empty() || ((sIP != "*") && (sIP != "127.0.0.1") && (!sIP.empty()) && (sIP != "::1")))
-			{
-				/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
-				sockaddr* s = new sockaddr[2];
-#ifdef IPV6
-				if (v6)
-				{
-					in6_addr n;
-					if (inet_pton(AF_INET6, sIP.c_str(), &n) > 0)
-					{
-						memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(sockaddr_in6));
-						((sockaddr_in6*)s)->sin6_port = 0;
-						((sockaddr_in6*)s)->sin6_family = AF_INET6;
-						size = sizeof(sockaddr_in6);
-					}
-					else
-					{
-						delete[] s;
-						j++;
-						continue;
-					}
-				}
-				else
-#endif
-				{
-					in_addr n;
-					if (inet_aton(sIP.c_str(), &n) > 0)
-					{
-						((sockaddr_in*)s)->sin_addr = n;
-						((sockaddr_in*)s)->sin_port = 0;
-						((sockaddr_in*)s)->sin_family = AF_INET;
-					}
-					else
-					{
-						delete[] s;
-						j++;
-						continue;
-					}
-				}
-
-				if (ServerInstance->SE->Bind(this->fd, s, size) < 0)
-				{
-					this->state = I_ERROR;
-					this->OnError(I_ERR_BIND);
-					this->fd = -1;
-					delete[] s;
-					return false;
-				}
-
-				delete[] s;
-				return true;
-			}
-		}
-		j++;
+		// And if it fails, don't do anything.
+		return this->DoBindMagic(ip_to_bind, v6);
 	}
+
+	for (int j = 0; j < Conf.Enumerate("bind"); j++)
+	{
+		// We only want to try bind to a server ip.
+		if (Conf.ReadValue("bind","type",j) != "servers")
+			continue;
+
+		// set current IP to the <bind> tag
+		std::string current_ip = Conf.ReadValue("bind","address",j);
+
+		// Make sure IP is nothing local
+		if (current_ip == "*" || current_ip == "127.0.0.1" || current_ip.empty() || current_ip == "::1")
+			continue;
+
+		// Try bind, don't fail if it doesn't bind though.
+		if (this->DoBindMagic(current_ip, v6))
+			return true;
+	}
+
+	// NOTE: You may wonder WTF we are returning *true* here, but that is because there were no custom binds setup, and so we have nothing to do
+	// (remember, outgoing connections without binding are perfectly ok).
 	ServerInstance->Logs->Log("SOCKET", DEBUG,"nothing in the config to bind()!");
 	return true;
 }
@@ -203,6 +224,8 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 		{
 			if (!this->BindAddr(this->cbindip))
 			{
+				this->Close();
+				this->fd = -1;
 				delete[] addr;
 				return false;
 			}
@@ -216,6 +239,8 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 		{
 			if (!this->BindAddr(this->cbindip))
 			{
+				this->Close();
+				this->fd = -1;
 				delete[] addr;
 				return false;
 			}
