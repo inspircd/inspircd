@@ -70,6 +70,8 @@ void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
 	if (n != SnoMasks.end())
 	{
 		n->second->SendMessage(text);
+		// XXX: Always try flush here. This removes snomask stacking effectively, as it's too annoying in it's present form. This may be reworked for RC3, or delayed until post-release.
+		n->second->Flush();
 	}
 }
 
