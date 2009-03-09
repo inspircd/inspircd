@@ -763,6 +763,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		/* Was there at least one valid mode in the sequence? */
 		if (!output_sequence.empty())
 		{
+			LastParseParams.push_front(output_sequence);
 			if (servermode)
 			{
 				if (type == MODETYPE_CHANNEL)
@@ -778,7 +779,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			}
 			else
 			{
-				LastParseParams.push_front(output_sequence);
 				if (type == MODETYPE_CHANNEL)
 				{
 					targetchannel->WriteChannel(user, "MODE %s %s%s", targetchannel->name.c_str(), output_sequence.c_str(), parameter_list.str().c_str());
