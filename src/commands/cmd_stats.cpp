@@ -100,7 +100,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
-				results.push_back(sn+" 215 "+user->nick+" I NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : ServerInstance->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
+				results.push_back(sn+" 215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : ServerInstance->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
 				idx++;
 			}
 		}
