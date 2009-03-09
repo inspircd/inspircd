@@ -40,7 +40,7 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>&, User *user)
 	user->WriteNumeric(RPL_INFO, "%s : ", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :\2Regular Contributors\2:", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :    Majic          MacGyver        Namegduf       Ankit", user->nick.c_str());
-	user->WriteNumeric(RPL_INFO, "%s :    Phoenix", user->nick.c_str());
+	user->WriteNumeric(RPL_INFO, "%s :    Phoenix        Taros", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s : ", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :\2Other Contributors\2:", user->nick.c_str());
 	user->WriteNumeric(RPL_INFO, "%s :   dmb             Zaba            skenmy         GreenReaper", user->nick.c_str());
