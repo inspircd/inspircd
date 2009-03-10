@@ -151,7 +151,14 @@ void Snomask::Flush()
 {
 	if (Count > 1)
 	{
-		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: (last message repeated %u times)", this->Description.c_str(), Count);
+		std::string desc = this->Description;
+		std::string mesg = "(last message repeated "+ConvToStr(Count)+" times)";
+		char mysnomask = MySnomask;
+
+		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", desc.c_str(), mesg.c_str());
+
+		FOREACH_MOD(I_OnSendSnotice, OnSendSnotice(mysnomask, desc, mesg));
+
 		if (!LastBlocked)
 		{
 			/* Only opers can receive snotices, so we iterate the oper list */
@@ -160,9 +167,9 @@ void Snomask::Flush()
 			while (i != ServerInstance->Users->all_opers.end())
 			{
 				User* a = *i;
-				if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(MySnomask) && !a->quitting)
+				if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(mysnomask) && !a->quitting)
 				{
-					a->WriteServ("NOTICE %s :*** %s: (last message repeated %u times)", a->nick.c_str(), this->Description.c_str(), Count);
+					a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), desc.c_str(), mesg.c_str());
 				}
 
 				i++;
