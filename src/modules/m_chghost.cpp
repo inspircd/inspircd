@@ -41,7 +41,7 @@ class CommandChghost : public Command
 				return CMD_FAILURE;
 			}
 		}
-		if (parameters[0].empty())
+		if (parameters[1].empty())
 		{
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host must be specified", user->nick.c_str());
 			return CMD_FAILURE;
