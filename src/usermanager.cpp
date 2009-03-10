@@ -184,12 +184,33 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	user->quietquit = false;
 	user->quitmsg = quitreason;
 
+	std::string reason;
+	std::string oper_reason;
+	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
 	if (!*operreason)
+	{
 		user->operquitmsg = quitreason;
+		oper_reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
+	}
 	else
+	{
 		user->operquitmsg = operreason;
+		oper_reason.assign(operreason, 0, ServerInstance->Config->Limits.MaxQuit);
+	}
 
 	ServerInstance->GlobalCulls.AddItem(user);
+
+	if (user->registered == REG_ALL)
+	{
+		FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(user, reason, oper_reason));
+		user->PurgeEmptyChannels();
+		user->WriteCommonQuit(reason, oper_reason);
+	}
+
+	FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(user));
+
+	// Move the user onto their UID, to allow nick to be reused immediately
+	user->UpdateNickHash(user->uuid.c_str());
 }
 
 

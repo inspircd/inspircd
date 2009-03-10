@@ -42,13 +42,8 @@ int CullList::Apply()
 		std::vector<User *>::iterator a = list.begin();
 
 		User *u = (*a);
-		user_hash::iterator iter = ServerInstance->Users->clientlist->find(u->nick);
-		const std::string& preset_reason = u->GetOperQuit();
-		std::string reason;
-		std::string oper_reason;
-
-		reason.assign(u->quitmsg, 0, ServerInstance->Config->Limits.MaxQuit);
-		oper_reason.assign(preset_reason.empty() ? preset_reason : u->operquitmsg, 0, ServerInstance->Config->Limits.MaxQuit);
+		// user has been moved onto their UID; that's why this isn't find(u->nick)
+		user_hash::iterator iter = ServerInstance->Users->clientlist->find(u->uuid);
 
 		if (u->registered != REG_ALL)
 			if (ServerInstance->Users->unregistered_count)
@@ -58,19 +53,7 @@ int CullList::Apply()
 		{
 			if (!u->sendq.empty())
 				u->FlushWriteBuf();
-		}
 
-		if (u->registered == REG_ALL)
-		{
-			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(u, reason, oper_reason));
-			u->PurgeEmptyChannels();
-			u->WriteCommonQuit(reason, oper_reason);
-		}
-
-		FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(u));
-
-		if (IS_LOCAL(u))
-		{
 			if (u->GetIOHook())
 			{
 				try
@@ -97,14 +80,14 @@ int CullList::Apply()
 			{
 				if (!u->quietquit)
 				{
-					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]", u->nick.c_str(), u->ident.c_str(), u->host.c_str(), oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]", u->nick.c_str(), u->ident.c_str(), u->host.c_str(), u->operquitmsg.c_str());
 				}
 			}
 			else
 			{
 				if ((!ServerInstance->SilentULine(u->server)) && (!u->quietquit))
 				{
-					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]", u->server, u->nick.c_str(), u->ident.c_str(), u->host.c_str(), oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]", u->server, u->nick.c_str(), u->ident.c_str(), u->host.c_str(), u->operquitmsg.c_str());
 				}
 			}
 			u->AddToWhoWas();
