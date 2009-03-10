@@ -107,6 +107,7 @@
 #define ECONNREFUSED WSAECONNREFUSED
 #define EADDRINUSE WSAEADDRINUSE
 #define EINPROGRESS WSAEWOULDBLOCK
+#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
 
 /* Convert formatted (xxx.xxx.xxx.xxx) string to in_addr struct */
 CoreExport int inet_pton(int af, const char * src, void * dst);
