@@ -130,16 +130,12 @@ std::string TreeSocket::RandString(unsigned int ilength)
 
 bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
 {
-	if ((!strncmp(ours.c_str(), "HMAC-SHA256:", 12)) || (!strncmp(theirs.c_str(), "HMAC-SHA256:", 12)))
+	if (Utils->ChallengeResponse)
 	{
-		/* One or both of us specified hmac sha256, but we don't have sha256 module loaded!
-		 * We can't allow this password as valid.
-		  */
-		if (!ServerInstance->Modules->Find("m_sha256.so") || !Utils->ChallengeResponse)
-			return false;
-		else
-			/* Straight string compare of hashes */
-			return ours == theirs;
+		std::string our_hmac = this->MakePass(ours, this->GetOurChallenge());
+
+		/* Straight string compare of hashes */
+		return our_hmac == theirs;
 	}
 	else
 		/* Straight string compare of plaintext */
