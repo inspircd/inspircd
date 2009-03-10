@@ -23,6 +23,7 @@ class Snomask : public Extensible
 	char MySnomask;
 	std::string Description;
 	std::string LastMessage;
+	bool LastBlocked;
 	unsigned int Count;
 
 	/** Create a new Snomask
@@ -35,7 +36,7 @@ class Snomask : public Extensible
 	 */
 	void SendMessage(const std::string &message);
 
-	/** Sends out a pending message
+	/** Sends out the (last message repeated N times) message
 	 */
 	void Flush();
 };
