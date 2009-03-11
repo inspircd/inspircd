@@ -372,7 +372,7 @@ class ModuleIdent : public Module
 			/* XXX: Fixme: does not respect port, limit, etc */
 			if ((InspIRCd::MatchCIDR(user->GetIPString(),hostn, ascii_case_insensitive_map)) || (InspIRCd::Match(user->host,hostn, ascii_case_insensitive_map)))
 			{
-				bool useident = Conf->ReadFlag("connect", "useident", j);
+				bool useident = Conf->ReadFlag("connect", "useident", "yes", j);
 
 				if (!useident)
 					return 0;
