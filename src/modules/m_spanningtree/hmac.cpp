@@ -130,9 +130,9 @@ std::string TreeSocket::RandString(unsigned int ilength)
 
 bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
 {
-	if (Utils->ChallengeResponse)
+	if (Utils->ChallengeResponse && !ourchallenge.empty() && !theirchallenge.empty())
 	{
-		std::string our_hmac = this->MakePass(ours, this->GetOurChallenge());
+		std::string our_hmac = this->MakePass(ours, ourchallenge);
 
 		/* Straight string compare of hashes */
 		return our_hmac == theirs;
