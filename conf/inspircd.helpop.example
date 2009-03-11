@@ -49,7 +49,7 @@ w                Can receive wallops messages
 s                Can receive server notices
 n [mask]         Can receive server notices specified by [mask], or * for all.
 x                Cloaked hostname (requires cloaking module)
-h                Will receive helpops notification (requires helpop module)">
+h                Is availble for help (requires helpop module)">
 
 <helpop key="chmodes" value="Channel Modes
 -------------

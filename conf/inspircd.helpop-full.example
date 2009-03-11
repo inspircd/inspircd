@@ -531,7 +531,7 @@ i                Is invisible to /WHO
 w                Can receive wallops messages
 s [mask]         Can receive server notices specified by [mask]
 x                Cloaked hostname (requires cloaking module)
-h                Will receive helpops notification (requires helpop module)
+h                Is available for help (requires helpop module)
 r                Nickname is registered
 d                Hides all non-private messages and notices
 B                Is a bot
