@@ -36,9 +36,9 @@ COMMANDS MODULES
  
 Oper Commands
 -------------
-DIE      RESTART KILL    REHASH      TRACE
-CONNECT  SQUIT   MODULES KLINE       ZLINE
-QLINE    GLINE   ELINE">
+DIE      RESTART KILL    REHASH      CONNECT
+SQUIT    MODULES KLINE   ZLINE       QLINE
+GLINE   ELINE">
 
 
 <helpop key="umodes" value="User Modes

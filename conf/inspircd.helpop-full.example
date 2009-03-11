@@ -264,7 +264,7 @@ implementation as a tree based network is not in place.">
 
 <helpop key="coper" value="Oper Commands
 -------------
-DIE        RESTART     KILL         REHASH         TRACE
+DIE        RESTART     KILL         REHASH         TLINE
 CONNECT    SQUIT       MODULES      MKPASSWD       SHUN
 KLINE      QLINE       GLINE        ELINE          ZLINE
 SAJOIN     SAPART      SAMODE       SAQUIT         SANICK
@@ -274,8 +274,7 @@ NICKLOCK   NICKUNLOCK  LOADMODULE   UNLOADMODULE   RELOADMODULE
 SPYLIST    SPYNAMES    GLOADMODULE  GUNLOADMODULE  GRELOADMODULE
 FREEZE     UNFREEZE    OPERPERMS    RCONNECT       RSQUIT
 CHECK      CLONES      FILTER       GLOBOPS        USERIP
-JUMPSERVER LOCKSERV    UNLOCKSERV   ALLTIME        TAXONOMY
-TLINE">
+JUMPSERVER LOCKSERV    UNLOCKSERV   ALLTIME        TAXONOMY">
 
 <helpop key="userip" value="/USERIP [nickname]
 Returns the ip and nickname of a user.">
@@ -439,10 +438,6 @@ This command will disconnect a user from IRC with the given reason.">
 <helpop key="rehash" value="/REHASH
 This command will cause the server configuration file to be
 re-read and values re-initialized.">
-
-<helpop key="trace" value="/TRACE [nick|user@host|servermask]
-This command will provide a list of all users and servers which
-must be passed through or over to reach a given object (server or user).">
 
 <helpop key="connect" value="/CONNECT [servermask]
 Create a mesh connection to the given servermask. You must have
