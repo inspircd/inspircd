@@ -111,10 +111,11 @@ class CommandCBan : public Command
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration = ServerInstance->Duration(parameters[1]);
 			CBan *r = NULL;
+			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
 
 			try
 			{
-				r = new CBan(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+				r = new CBan(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -127,12 +128,12 @@ class CommandCBan : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), reason);
 					}
 
 					ServerInstance->XLines->ApplyLines();
