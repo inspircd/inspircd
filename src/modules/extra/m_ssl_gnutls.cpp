@@ -696,7 +696,7 @@ class ModuleSSLGnuTLS : public Module
 		if (user->GetIOHook() == this && (IS_LOCAL(user)))
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
-			ServerInstance->PI->SendMetaData(user, TYPE_USER, "SSL", "on");
+			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "on");
 
 			VerifyCertificate(&sessions[user->GetFd()],user);
 			if (sessions[user->GetFd()].sess)
