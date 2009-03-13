@@ -68,6 +68,8 @@ bool ModeHandler::IsListMode()
 
 char ModeHandler::GetNeededPrefix()
 {
+	if (prefixneeded == '%' && !ServerInstance->Config->AllowHalfop)
+		return '@';
 	return prefixneeded;
 }
 
@@ -612,10 +614,10 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 									/* If the mode defined by the handler is not '\0', but the handler for it
 									 * cannot be found, they probably dont have the right module loaded to implement
 									 * the prefix they want to compare the mode against, e.g. '&' for m_chanprotect.
-									 * Revert to checking against the minimum core prefix, '%'.
+									 * Revert to checking against the minimum core prefix, '%' or '@'.
 									 */
 									if (needed && !prefixmode)
-										prefixmode = FindPrefix('%');
+										prefixmode = ServerInstance->Config->AllowHalfop ? FindPrefix('%') : FindPrefix('@');
 
 									unsigned int neededrank = prefixmode->GetPrefixRank();
 									/* Compare our rank on the channel against the rank of the required prefix,
