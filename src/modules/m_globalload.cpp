@@ -101,16 +101,20 @@ class CommandGreloadmodule : public Command
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
+			bool ok = true;
 			if (!ServerInstance->Modules->Unload(parameters[0].c_str()))
 			{
+				ok = false;
 				user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 			}
 			if (!ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
+				ok = false;
 				user->WriteNumeric(974, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 			}
 			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-			user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());
+			if (ok)
+				user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('A', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
