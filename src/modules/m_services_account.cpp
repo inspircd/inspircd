@@ -116,7 +116,7 @@ class ModuleServicesAccount : public Module
 		if (!ServerInstance->Modes->AddMode(m1) || !ServerInstance->Modes->AddMode(m2) || !ServerInstance->Modes->AddMode(m3) || !ServerInstance->Modes->AddMode(m4) || !ServerInstance->Modes->AddMode(m5))
 			throw ModuleException("Some other module has claimed our modes!");
 
-		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin,
+		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
 			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 
 		ServerInstance->Modules->Attach(eventlist, this, 10);
@@ -186,7 +186,7 @@ class ModuleServicesAccount : public Module
 
 			if (account)
 			{
-				if (c->IsExtBanned(*account, 'M'))
+				if (c->GetExtBanStatus(*account, 'M') < 0)
 				{
 					// may not speak (text is deliberately vague, so they don't know which restriction to evade)
 					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You may not speak in this channel");
@@ -206,6 +206,14 @@ class ModuleServicesAccount : public Module
 			}
 		}
 		return 0;
+	}
+
+	virtual int OnCheckBan(User* user, Channel* chan)
+	{
+		std::string* account;
+		if (!user->GetExt("accountname", account))
+			return 0;
+		return chan->GetExtBanStatus(*account, 'R');
 	}
 
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -236,16 +244,6 @@ class ModuleServicesAccount : public Module
 				{
 					// joining a +R channel and not identified
 					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
-					return 1;
-				}
-			}
-
-			if (account)
-			{
-				if (chan->IsExtBanned(*account, 'R'))
-				{
-					// may not join
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  chan->name.c_str());
 					return 1;
 				}
 			}

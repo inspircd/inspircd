@@ -24,7 +24,7 @@ class ModuleOperInvex : public Module
  public:
 	ModuleOperInvex(InspIRCd* Me) : Module(Me)
 	{
-		Implementation eventlist[] = { I_OnUserPreJoin, I_On005Numeric, I_OnCheckInvite };
+		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnCheckInvite };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
@@ -55,21 +55,11 @@ class ModuleOperInvex : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreJoin(User *user, Channel *c, const char *cname, std::string &privs, const std::string &key)
+	virtual int OnCheckBan(User *user, Channel *c)
 	{
-		if (!IS_LOCAL(user) || !IS_OPER(user))
+		if (!IS_OPER(user))
 			return 0;
-
-		if (!c)
-			return 0;
-
-		if (c->IsExtBanned(user->oper, 'O'))
-		{
-			user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  c->name.c_str());
-			return 1;
-		}
-
-		return 0;
+		return c->GetExtBanStatus(user->oper, 'O');
 	}
 
 	virtual void On005Numeric(std::string &output)

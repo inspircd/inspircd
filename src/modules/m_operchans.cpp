@@ -56,32 +56,18 @@ class ModuleOperChans : public Module
 		oc = new OperChans(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(oc))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreJoin };
+		Implementation eventlist[] = { I_OnCheckBan };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual int OnCheckBan(User* user, Channel* chan)
 	{
-		if (!IS_OPER(user))
-		{
-			if (chan)
-			{
-				if (chan->IsModeSet('O'))
-				{
-					user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join the channel %s (+O is set)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
-					return 1;
-				}
-			}
-		}
-		else
-		{
-			if (chan && chan->IsExtBanned(user->oper, 'O'))
-			{
-				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  chan->name.c_str());
-				return 1;
-			}
-		}
+		if (IS_OPER(user))
+			return chan->GetExtBanStatus(user->oper, 'O');
+
+		if (chan->IsModeSet('O'))
+			return -1;
 
 		return 0;
 	}

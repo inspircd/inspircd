@@ -104,7 +104,8 @@ public:
 
 				std::string maskptr = it->mask.substr(2);
 				if (InspIRCd::Match(str, maskptr))
-					return 1; // matches
+					// They match an entry on the list, so let them in.
+					return 1;
 			}
 		}
 

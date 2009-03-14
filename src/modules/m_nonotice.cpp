@@ -48,7 +48,7 @@ class ModuleNoNotice : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if (c->IsModeSet('T') || c->IsExtBanned(user, 'T'))
+			if (c->IsModeSet('T') || c->GetExtBanStatus(user, 'T') < 0)
 			{
 				if (ServerInstance->ULine(user->server))
 				{

@@ -44,7 +44,7 @@ class ModuleAllowInvite : public Module
 	{
 		if (IS_LOCAL(user))
 		{
-			if (channel->IsModeSet('A') && !channel->IsExtBanned(user, 'A'))
+			if (channel->IsModeSet('A') && channel->GetExtBanStatus(user, 'A') < 0)
 			{
 				// Explicitly allow /invite
 				return -1;

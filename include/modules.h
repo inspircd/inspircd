@@ -223,6 +223,26 @@ do { \
 	} \
 } while (0);
 
+#define FOREACH_RESULT_MAP(y,x,f) \
+do { \
+	EventHandlerIter safei; \
+	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
+	{ \
+		safei = _i; \
+		++safei; \
+		try \
+		{ \
+			int MOD_RESULT = (*_i)->x ; \
+			f; \
+		} \
+		catch (CoreException& modexcept) \
+		{ \
+			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+		} \
+		_i = safei; \
+	} \
+} while(0);
+
 /** Represents a non-local user.
  * (in fact, any FD less than -1 does)
  */
@@ -1139,11 +1159,13 @@ class CoreExport Module : public Extensible
 	 * @param u The user to check
 	 * @param c The channel the user is on
 	 * @param type The type of extended ban to check for.
+	 * @returns 1 = exempt, 0 = no match, -1 = banned
 	 */
 	virtual int OnCheckExtBan(User *u, Channel *c, char type);
 
 	/** Called whenever checking whether or not a string is extbanned. NOTE: one OnCheckExtBan will also trigger a number of
 	 * OnCheckStringExtBan events for seperate host/IP comnbinations.
+	 * @returns 1 = exempt, 0 = no match, -1 = banned
 	 */
 	virtual int OnCheckStringExtBan(const std::string &s, Channel *c, char type);
 

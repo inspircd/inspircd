@@ -54,7 +54,7 @@ class ModuleBlockColour : public Module
 				return 0;
 			}
 
-			if(c->IsModeSet('c') || c->IsExtBanned(user, 'c'))
+			if(c->IsModeSet('c') || c->GetExtBanStatus(user, 'c') < 0)
 			{
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{

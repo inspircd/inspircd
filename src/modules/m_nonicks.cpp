@@ -92,7 +92,7 @@ class ModuleNoNickChange : public Module
 			if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
 				continue;
 
-			if (curr->IsModeSet('N') || curr->IsExtBanned(user, 'N'))
+			if (curr->IsModeSet('N') || curr->GetExtBanStatus(user, 'N') < 0)
 			{
 				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name.c_str());
 				return 1;

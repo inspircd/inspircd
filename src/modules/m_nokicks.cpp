@@ -45,7 +45,7 @@ class ModuleNoKicks : public Module
 	{
 		if (access_type == AC_KICK)
 		{
-			if (channel->IsModeSet('Q') || channel->IsExtBanned(source, 'Q'))
+			if (channel->IsModeSet('Q') || channel->GetExtBanStatus(source, 'Q') < 0)
 			{
 				if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 				{

@@ -40,7 +40,7 @@ class ModulePartMsgBan : public Module
 		if (!IS_LOCAL(user))
 			return;
 
-		if (channel->IsExtBanned(user, 'p'))
+		if (channel->GetExtBanStatus(user, 'p') < 0)
 			partmessage = "";
 
 		return;

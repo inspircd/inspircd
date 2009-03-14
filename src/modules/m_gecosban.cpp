@@ -21,7 +21,7 @@ class ModuleGecosBan : public Module
  public:
 	ModuleGecosBan(InspIRCd* Me) : Module(Me)
 	{
-		Implementation eventlist[] = { I_OnUserPreJoin, I_On005Numeric };
+		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -34,21 +34,9 @@ class ModuleGecosBan : public Module
 		return Version("$Id$", VF_COMMON|VF_VENDOR, API_VERSION);
 	}
 
-	virtual int OnUserPreJoin(User *user, Channel *c, const char *cname, std::string &privs, const std::string &key)
+	virtual int OnCheckBan(User *user, Channel *c)
 	{
-		if (!IS_LOCAL(user))
-			return 0;
-
-		if (!c)
-			return 0;
-
-		if (c->IsExtBanned(user->fullname, 'r'))
-		{
-			user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)", user->nick.c_str(),  c->name.c_str());
-			return 1;
-		}
-
-		return 0;
+		return c->GetExtBanStatus(user->fullname, 'r');
 	}
 
 	virtual void On005Numeric(std::string &output)

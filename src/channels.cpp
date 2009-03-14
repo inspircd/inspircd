@@ -489,78 +489,73 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 
 bool Channel::IsBanned(User* user)
 {
+	int result = 0;
+	FOREACH_RESULT_MAP(I_OnCheckBan, OnCheckBan(user, this),
+		result = banmatch_reduce(result, MOD_RESULT);
+	);
+
+	if (result)
+		return (result < 0);
+
 	char mask[MAXBUF];
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnCheckBan,OnCheckBan(user, this));
-
-	if (MOD_RESULT == -1)
-		return true;
-	else if (MOD_RESULT == 0)
+	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
+	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 	{
-		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
-		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+		if ((InspIRCd::Match(user->GetFullHost(),i->data, NULL)) || // host
+			(InspIRCd::Match(user->GetFullRealHost(),i->data, NULL)) || // uncloaked host
+			(InspIRCd::MatchCIDR(mask, i->data, NULL))) // ip
 		{
-			if ((InspIRCd::Match(user->GetFullHost(),i->data, NULL)) || // host
-				(InspIRCd::Match(user->GetFullRealHost(),i->data, NULL)) || // uncloaked host
-				(InspIRCd::MatchCIDR(mask, i->data, NULL))) // ip
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 	return false;
 }
 
-bool Channel::IsExtBanned(const std::string &str, char type)
+int Channel::GetExtBanStatus(const std::string &str, char type)
 {
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnCheckStringExtBan, OnCheckStringExtBan(str, this, type));
+	int result = 0;
+	FOREACH_RESULT_MAP(I_OnCheckStringExtBan, OnCheckStringExtBan(str, this, type),
+		result = banmatch_reduce(result, MOD_RESULT);
+	);
 
-	if (MOD_RESULT == -1)
-		return true;
-	else if (MOD_RESULT == 0)
+	if (result)
+		return result;
+
+	// nobody decided for us, check the ban list
+	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 	{
-		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
-		{
-			if (i->data[0] != type || i->data[1] != ':')
-				continue;
+		if (i->data[0] != type || i->data[1] != ':')
+			continue;
 
-			// Iterate past char and : to get to the mask without doing a data copy(!)
-			std::string maskptr = i->data.substr(2);
-			ServerInstance->Logs->Log("EXTBANS", DEBUG, "Checking %s against %s, type is %c", str.c_str(), maskptr.c_str(), type);
+		std::string maskptr = i->data.substr(2);
+		ServerInstance->Logs->Log("EXTBANS", DEBUG, "Checking %s against %s, type is %c", str.c_str(), maskptr.c_str(), type);
 
-			if (InspIRCd::Match(str, maskptr, NULL))
-				return true;
-		}
+		if (InspIRCd::Match(str, maskptr, NULL))
+			return -1;
 	}
 
-	return false;
+	return 0;
 }
 
-bool Channel::IsExtBanned(User *user, char type)
+int Channel::GetExtBanStatus(User *user, char type)
 {
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnCheckExtBan, OnCheckExtBan(user, this, type));
+	int result = 0;
+	FOREACH_RESULT_MAP(I_OnCheckExtBan, OnCheckExtBan(user, this, type),
+		result = banmatch_reduce(result, MOD_RESULT);
+	);
 
-	if (MOD_RESULT == -1)
-		return true;
-	else if (MOD_RESULT == 0)
-	{
-		char mask[MAXBUF];
-		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
+	if (result)
+		return result;
 
-		// XXX: we should probably hook cloaked hosts in here somehow too..
-		if (this->IsExtBanned(mask, type))
-			return true;
+	char mask[MAXBUF];
+	int rv = 0;
+	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 
-		if (this->IsExtBanned(user->GetFullHost(), type))
-			return true;
-
-		if (this->IsExtBanned(user->GetFullRealHost(), type))
-			return true;
-	}
-
-	return false;
+	// XXX: we should probably hook cloaked hosts in here somehow too..
+	rv = banmatch_reduce(rv, this->GetExtBanStatus(mask, type));
+	rv = banmatch_reduce(rv, this->GetExtBanStatus(user->GetFullHost(), type));
+	rv = banmatch_reduce(rv, this->GetExtBanStatus(user->GetFullRealHost(), type));
+	return rv;
 }
 
 /* Channel::PartUser

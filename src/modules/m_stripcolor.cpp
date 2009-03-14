@@ -125,7 +125,7 @@ class ModuleStripColor : public Module
 				return 0;
 			}
 
-			active = t->IsModeSet('S') || t->IsExtBanned(user, 'S');
+			active = t->IsModeSet('S') || t->GetExtBanStatus(user, 'S') < 0;
 		}
 
 		if (active)

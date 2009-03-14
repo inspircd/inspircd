@@ -69,7 +69,7 @@ public:
 				return 0;
 			}
 
-			if (c->IsModeSet('B') || c->IsExtBanned(user, 'B'))
+			if (c->IsModeSet('B') || c->GetExtBanStatus(user, 'B') < 0)
 			{
 				int caps = 0;
 				const char* actstr = "\1ACTION ";

@@ -41,7 +41,7 @@ class ModuleQuietBan : public Module
 
 		if (target_type == TYPE_CHANNEL)
 		{
-			if (((Channel *)dest)->IsExtBanned(user, 'm'))
+			if (((Channel *)dest)->GetExtBanStatus(user, 'm') < 0)
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Cannot send to " + ((Channel *)dest)->name + ", as you are muted");
 				return 1;
@@ -58,7 +58,7 @@ class ModuleQuietBan : public Module
 
 		if (target_type == TYPE_CHANNEL)
 		{
-			if (((Channel *)dest)->IsExtBanned(user, 'm'))
+			if (((Channel *)dest)->GetExtBanStatus(user, 'm') < 0)
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Cannot send to " + ((Channel *)dest)->name + ", as you are muted");
 				return 1;
