@@ -24,7 +24,7 @@
 /** Because the core won't let users or even SERVERS set +o,
  * we use the OPERTYPE command to do this.
  */
-bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &params, const std::string &up)
+bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() != 1)
 		return true;
@@ -39,17 +39,16 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 		Utils->DoOneToAllButSender(u->uuid, "OPERTYPE", params, u->server);
 
 		TreeServer* remoteserver = Utils->FindServer(u->server);
-		TreeServer* uplink = Utils->FindServer(up);
 		bool dosend = true;
 
-		if (this->Utils->quiet_bursts && uplink)
+		if (this->Utils->quiet_bursts)
 		{
 			/*
 			 * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
 			 * then do nothing. -- w00t
 			 */
 			if (
-				remoteserver->bursting || uplink->bursting || 
+				remoteserver->bursting ||
 				this->ServerInstance->SilentULine(this->ServerInstance->FindServerNamePtr(u->server))
 			   )
 			{

@@ -220,7 +220,7 @@ class TreeSocket : public BufferedSocket
 	int DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid);
 
 	/** UID command */
-	bool ParseUID(const std::string &source, std::deque<std::string> &params, const std::string &up);
+	bool ParseUID(const std::string &source, std::deque<std::string> &params);
 
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
@@ -275,7 +275,7 @@ class TreeSocket : public BufferedSocket
 	/** Because the core won't let users or even SERVERS set +o,
 	 * we use the OPERTYPE command to do this.
 	 */
-	bool OperType(const std::string &prefix, std::deque<std::string> &params, const std::string &up);
+	bool OperType(const std::string &prefix, std::deque<std::string> &params);
 
 	/** Because Andy insists that services-compatible servers must
 	 * implement SVSNICK and SVSJOIN, that's exactly what we do :p

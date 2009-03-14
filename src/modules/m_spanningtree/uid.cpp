@@ -23,7 +23,7 @@
 
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h m_spanningtree/handshaketimer.h */
 
-bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &params, const std::string &up)
+bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &params)
 {
 	/** Do we have enough parameters:
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
@@ -40,13 +40,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	std::string empty;
 
 	TreeServer* remoteserver = Utils->FindServer(source);
-	TreeServer* uplink = Utils->FindServer(up);
 
-	if (!uplink)
-	{
-		this->SendError("Invalid client introduction (Can't determine name of uplink!)");
-		return false;
-	}
 	if (!remoteserver)
 	{
 		this->SendError("Invalid client introduction (Unknown server "+source+")");
@@ -174,7 +168,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 	bool dosend = true;
 
-	if ((this->Utils->quiet_bursts && (remoteserver->bursting || uplink->bursting)) || this->ServerInstance->SilentULine(_new->server))
+	if ((this->Utils->quiet_bursts && remoteserver->bursting) || this->ServerInstance->SilentULine(_new->server))
 		dosend = false;
 
 	if (dosend)

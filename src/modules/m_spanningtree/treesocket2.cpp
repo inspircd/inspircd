@@ -316,7 +316,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			 */
 			if (command == "UID")
 			{
-				return this->ParseUID(prefix, params, sourceserv);
+				return this->ParseUID(prefix, params);
 			}
 			else if (command == "FJOIN")
 			{
@@ -366,7 +366,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "OPERTYPE")
 			{
-				return this->OperType(prefix, params, sourceserv);
+				return this->OperType(prefix,params);
 			}
 			else if (command == "FMODE")
 			{
