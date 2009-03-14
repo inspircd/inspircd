@@ -41,27 +41,20 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 			target = u->GetIPString();
 		}
 
-		if (ServerInstance->IPMatchesEveryone(target.c_str(),user))
+		const char* ipaddr = target.c_str();
+
+		if (strchr(ipaddr,'@'))
+		{
+			while (*ipaddr != '@')
+				ipaddr++;
+			ipaddr++;
+		}
+
+		if (ServerInstance->IPMatchesEveryone(ipaddr,user))
 			return CMD_FAILURE;
 
 		long duration = ServerInstance->Duration(parameters[1].c_str());
 
-		const char* ipaddr = target.c_str();
-		User* find = ServerInstance->FindNick(target.c_str());
-
-		if (find)
-		{
-			ipaddr = find->GetIPString();
-		}
-		else
-		{
-			if (strchr(ipaddr,'@'))
-			{
-				while (*ipaddr != '@')
-					ipaddr++;
-				ipaddr++;
-			}
-		}
 		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{
