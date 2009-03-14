@@ -10,7 +10,7 @@
 #                                                                     #
 #  By default, ALL modules are commented out. You must uncomment them #
 #  or add lines to your config to load modules. Please refer to       #
-#  http://www.inspircd.org/wiki/Modules_List for a list of modules and#
+#  http://wiki.inspircd.org/Modules for a list of modules and         #
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
 #  You may use wildcards in a <module> tag to load all modules which  #
@@ -318,7 +318,7 @@
 #                                                                     #
 # Optional - If you specify to use the m_censor module, then you must #
 # specify some censor tags. See also:                                 #
-# http://www.inspircd.org/wiki/Censor_Module                          #
+# http://wiki.inspircd.org/Modules/censor                             #
 #
 #<include file="censor.conf">
 
@@ -332,7 +332,7 @@
 # Optional - If you specify to use m_cgiirc, then you must specify one
 # or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
-# For more information see: http://www.inspircd.org/wiki/CGI-IRC_Module
+# For more information see: http://wiki.inspircd.org/Modules/cgiirc
 #
 # Set to yes if you want to notice opers when CGI clients connect
 # <cgiirc opernotice="no">
@@ -675,7 +675,7 @@
 #<module name="m_dnsbl.so">                                           #
 #                                                                     #
 # For configuration options please see the wiki page for m_dnsbl at   #
-# http://inspircd.org/wiki/DNS_Blacklist_Module                       #
+# http://wiki.inspircd.org/Modules/dnsbl                              #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Filter module: Provides message filtering, similar to SPAMFILTER.
@@ -786,7 +786,7 @@
 #-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Optional - If you choose to use the m_hostchange.so module.         #
-# Config Help -  See http://www.inspircd.org/wiki/Host_Changer_Module #
+# Config Help -  See http://wiki.inspircd.org/Modules/hostchange      #
 #                                                                     #
 #<host suffix="polarbears.org" separator="." prefix="">
 #<hostchange mask="*@fbi.gov" action="addnick">
@@ -994,7 +994,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_mssql.so is more complex than described here, see wiki for more   #
-# info http://www.inspircd.org/wiki/SQLServer_Service_Provider_Module #
+# info http://wiki.inspircd.org/Modules/mssql                         #
 #
 #<database name="db" username="user" password="pass" hostname="localhost" id="db1">
 
@@ -1010,7 +1010,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_mysql.so is more complex than described here, see the wiki for    #
-# more: http://www.inspircd.org/wiki/SQL_Service_Provider_Module      #
+# more: http://wiki.inspircd.org/Modules/mysql                        #
 #
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database2">
 
@@ -1145,7 +1145,7 @@
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_override.so is too complex it describe here, see the wiki:        #
-# http://www.inspircd.org/wiki/Oper_Override_Module                   #
+# http://wiki.inspircd.org/Modules/override                           #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents
@@ -1208,7 +1208,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_pgsql.so is more complex than described here, see the wiki for    #
-# more: http://www.inspircd.org/wiki/SQL_Service_Provider_Module      #
+# more: http://wiki.inspircd.org/Modules/pgsql                        #
 #
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
 
@@ -1522,7 +1522,7 @@
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
-# http://www.inspircd.org/wiki/GnuTLS_SSL_Module                      #
+# http://wiki.inspircd.org/Modules/ssl_gnutls                         #
 #                                                                     #
 # NOTE: If you want to use this module to encrypt and sign your       #
 # server to server traffic, you MUST load it before m_spanningtree in #
@@ -1549,7 +1549,7 @@
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_openssl.so is too complex it describe here, see the wiki:     #
-# http://www.inspircd.org/wiki/OpenSSL_SSL_Module                     #
+# http://wiki.inspircd.org/Modules/ssl_openssl                        #
 #                                                                     #
 # NOTE: If you want to use this module to encrypt and sign your       #
 # server to server traffic, you MUST load it before m_spanningtree in #
@@ -1592,7 +1592,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_sqlite.so is more complex than described here, see the wiki for   #
-# more: http://www.inspircd.org/wiki/SQLite3_Service_Provider_Module  #
+# more: http://wiki.inspircd.org/Modules/sqlite3                      #
 #
 #<database hostname="/full/path/to/database.db" id="anytext">
 
@@ -1620,7 +1620,7 @@
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_sqlauth.so is too complex it describe here, see the wiki:         #
-# http://www.inspircd.org/wiki/SQL_Authentication_Module              #
+# http://wiki.inspircd.org/Modules/sqlauth                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL logging module: Allows you to log network-wide data for your
@@ -1635,7 +1635,7 @@
 #                                                                     #
 # dbid       - Database ID to use (see m_sql)                         #
 #                                                                     #
-# See also: http://www.inspircd.org/wiki/SQL_Logging_Module           #
+# See also: http://wiki.inspircd.org/Modules/sqllog                   #
 #                                                                     #
 #<sqllog dbid="1">
 
@@ -1653,7 +1653,7 @@
 # dbid       - Database ID to use (see m_sql)                         #
 # hash       - Hashing provider to use for password hashing           #
 #                                                                     #
-# See also: http://www.inspircd.org/wiki/SQL_Oper_Storage_Module      #
+# See also: http://wiki.inspircd.org/Modules/sqloper                  #
 #                                                                     #
 #<sqloper dbid="1" hash="md5">
 
