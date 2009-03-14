@@ -181,13 +181,14 @@ bool TreeSocket::ProcessLine(std::string &line)
 				Node = new TreeServer(this->Utils, this->ServerInstance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 
 				Utils->TreeRoot->AddChild(Node);
-				params.clear();
-				params.push_back(InboundServerName);
-				params.push_back("*");
-				params.push_back("1");
-				params.push_back(InboundSID);
-				params.push_back(":"+InboundDescription);
-				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,InboundServerName);
+				parameterlist sparams;
+				sparams.push_back(InboundServerName);
+				sparams.push_back("*");
+				sparams.push_back("1");
+				sparams.push_back(InboundSID);
+				sparams.push_back(":"+InboundDescription);
+				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",sparams,InboundServerName);
+				Utils->DoOneToAllButSenderRaw(line, InboundServerName, prefix, command, params);
 				Node->bursting = true;
 				this->DoBurst(Node);
 			}
