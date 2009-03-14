@@ -509,20 +509,17 @@ bool CommandParser::ReloadCommand(std::string cmd, User* user)
 		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 		delete cmdptr;
 		dlclose(command->second);
-
-		snprintf(filename, MAXBUF, "cmd_%s.so", cmd.c_str());
-		const char* err = this->LoadCommand(filename);
-		if (err)
-		{
-			if (user)
-				user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick.c_str(), cmd.c_str(), err);
-			return false;
-		}
-
-		return true;
 	}
 
-	return false;
+	snprintf(filename, MAXBUF, "cmd_%s.so", cmd.c_str());
+	const char* err = this->LoadCommand(filename);
+	if (err)
+	{
+		if (user)
+			user->WriteServ("NOTICE %s :*** Error loading '%s': %s", user->nick.c_str(), filename, err);
+		return false;
+	}
+	return true;
 }
 
 CmdResult CommandReload::Handle(const std::vector<std::string>& parameters, User *user)
