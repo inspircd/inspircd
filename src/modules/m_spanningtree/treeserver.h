@@ -196,6 +196,8 @@ class TreeServer : public classbase
 	/** Marks a server as having finished bursting and performs appropriate actions.
 	 */
 	void FinishBurst();
+	/** Recursive call for child servers */
+	void FinishBurstInternal();
 
 	/** Destructor
 	 */

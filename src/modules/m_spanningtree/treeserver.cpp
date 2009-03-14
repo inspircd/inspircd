@@ -139,9 +139,19 @@ std::string& TreeServer::GetID()
 	return sid;
 }
 
-void TreeServer::FinishBurst()
+void TreeServer::FinishBurstInternal()
 {
 	this->bursting = false;
+	for(unsigned int q=0; q < ChildCount(); q++)
+	{
+		TreeServer* child = GetChild(q);
+		child->FinishBurstInternal();
+	}
+}
+
+void TreeServer::FinishBurst()
+{
+	FinishBurstInternal();
 	ServerInstance->XLines->ApplyLines();
 	timeval t;
 	gettimeofday(&t, NULL);
