@@ -281,7 +281,8 @@ class ModuleShun : public Module
 			parameters.clear();
 		}
 
-		return 1;
+		/* if we're here, allow the command. */
+		return 0;
 	}
 
 	virtual Version GetVersion()
