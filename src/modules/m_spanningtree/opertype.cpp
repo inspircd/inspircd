@@ -32,7 +32,7 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 	User* u = this->ServerInstance->FindNick(prefix);
 	if (u)
 	{
-		if (!u->IsModeSet('o'))
+		if (!IS_OPER(u))
 			this->ServerInstance->Users->all_opers.push_back(u);
 		u->modes[UM_OPERATOR] = 1;
 		u->oper.assign(opertype, 0, 512);
