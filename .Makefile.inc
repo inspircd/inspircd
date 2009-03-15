@@ -61,7 +61,7 @@ ircd:
 	@echo "*                                   *"
 	@echo "*   This will take a *long* time.   *"
 	@echo "*     Why not read our wiki at      *"
-	@echo "*   http://www.inspircd.org/wiki    *"
+	@echo "*     http://wiki.inspircd.org      *"
 	@echo "*  while you wait for make to run?  *"
 	@echo "*************************************"
 	@${MAKE} -C src DIRNAME="src" $(MAKEARGS)

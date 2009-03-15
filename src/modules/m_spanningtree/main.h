@@ -3,7 +3,7 @@
  *       +------------------------------------+
  *
  *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
- * See: http://www.inspircd.org/wiki/index.php/Credits
+ * See: http://wiki.inspircd.org/Credits
  *
  * This program is free but copyrighted software; see
  *            the file COPYING for details.
@@ -21,7 +21,7 @@
  * If you  completely change the protocol, completely change the number.
  *
  * IMPORTANT: If you make changes, document your changes here, without fail:
- * http://www.inspircd.org/wiki/List_of_protocol_changes_between_versions
+ * http://wiki.inspircd.org/List_of_protocol_changes_between_versions
  *
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.

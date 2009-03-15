@@ -3,7 +3,7 @@
  *       +------------------------------------+
  *
  *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
- * See: http://www.inspircd.org/wiki/index.php/Credits
+ * See: http://wiki.inspircd.org/Credits
  *
  * This program is free but copyrighted software; see
  *	    the file COPYING for details.
@@ -60,7 +60,7 @@
  * corruption, and worse, so DONT think about it until the day comes when InspIRCd is 100%
  * gauranteed threadsafe!)
  *
- * For a diagram of this system please see http://www.inspircd.org/wiki/Mysql2
+ * For a diagram of this system please see http://wiki.inspircd.org/Mysql2
  */
 
 
