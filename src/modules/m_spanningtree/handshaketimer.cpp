@@ -27,7 +27,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u, int delay) : Timer(delay, Inst->Time()), Instance(Inst), sock(s), lnk(l), Utils(u)
+HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u, int delay) : Timer(delay, Inst->Time(), true), Instance(Inst), sock(s), lnk(l), Utils(u)
 {
 	thefd = sock->GetFd();
 }
@@ -38,18 +38,20 @@ void HandshakeTimer::Tick(time_t TIME)
 	{
 		if (!sock->GetHook())
 		{
+			CancelRepeat();
 			sock->SendCapabilities();
 		}
 		else
 		{
 			if (sock->GetHook() && BufferedSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
 			{
+				CancelRepeat();
 				BufferedSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
 				sock->SendCapabilities();
 			}
 			else
 			{
-				Instance->Timers->AddTimer(new HandshakeTimer(Instance, sock, lnk, Utils, 1));
+				// Try again later...
 			}
 		}
 	}
