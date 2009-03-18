@@ -91,8 +91,12 @@ class CommandTban : public Command
 					T.expire = expire;
 					TimedBanList.push_back(T);
 					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
+					ServerInstance->PI->SendChannelNotice(channel, '@', user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.");
 					if (ServerInstance->Config->AllowHalfop)
+					{
 						channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
+						ServerInstance->PI->SendChannelNotice(channel, '%', user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.");
+					}
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
@@ -165,8 +169,12 @@ class ModuleTimedBans : public Module
 
 					CUList empty;
 					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name.c_str(), safei->mask.c_str());
+					ServerInstance->PI->SendChannelNotice(cr, '@', "*** Timed ban on " + safei->mask + " expired.");
 					if (ServerInstance->Config->AllowHalfop)
+					{
 						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name.c_str(), safei->mask.c_str());
+						ServerInstance->PI->SendChannelNotice(cr, '%', "*** Timed ban on " + safei->mask + " expired.");
+					}
 
 					/* Removes the ban item for us, no ::erase() needed */
 					ServerInstance->PI->SendModeStr(safei->channel, std::string("-b ") + setban[2]);
