@@ -48,6 +48,7 @@ public:
 	void DisplayExpiry()
 	{
 		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired CBan %s (set by %s %ld seconds ago)", this->matchtext.c_str(), this->source, (long int)(ServerInstance->Time() - this->set_time));
+		ServerInstance->PI->SendSNONotice("x", "Removing expired CBan " + assign(this->matchtext) + " (set by " + std::string(this->source) + " " + ConvToStr(ServerInstance->Time() - this->set_time) + " seconds ago)");
 	}
 
 	const char* Displayable()
@@ -97,7 +98,8 @@ class CommandCBan : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed CBan on %s.",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s removed CBan on %s.",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->PI->SendSNONotice("x", user->nick + " removed CBan on " + parameters[0]);
 			}
 			else
 			{
@@ -129,11 +131,13 @@ class CommandCBan : public Command
 					if (!duration)
 					{
 						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
+						ServerInstance->PI->SendSNONotice("x", user->nick + " added permenant CBan for " + parameters[0] + ": " + std::string(reason));
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
 						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), reason);
+						ServerInstance->PI->SendSNONotice("x", user->nick + " added timed CBan for " + parameters[0] + ", expires on " + ServerInstance->TimeString(c_requires_crap) + ": " + std::string(reason));
 					}
 
 					ServerInstance->XLines->ApplyLines();
@@ -191,6 +195,7 @@ class ModuleCBan : public Module
 			// Channel is banned.
 			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname, rl->reason);
 			ServerInstance->SNO->WriteToSnoMask('A', "%s tried to join %s which is CBANed (%s)", user->nick.c_str(), cname, rl->reason);
+			ServerInstance->PI->SendSNONotice("A", user->nick + " tried to join " + std::string(cname) + " which is CBANed (" + std::string(rl->reason) + ")");
 			return 1;
 		}
 
