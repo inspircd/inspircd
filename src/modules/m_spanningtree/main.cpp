@@ -192,6 +192,12 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	{
 		TreeServer *s = i->second;
 
+		// Fix for bug #792, do not ping servers that are not connected yet!
+		// Remote servers have Socket == NULL and local connected servers have
+		// Socket->LinkState == CONNECTED
+		if (!s->GetSocket() || s->GetSocket()->GetLinkState() == CONNECTED)
+			continue;
+
 		// Now do PING checks on all servers
 		TreeServer *mts = Utils->BestRouteTo(s->GetID());
 
