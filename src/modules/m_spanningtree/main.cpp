@@ -601,6 +601,9 @@ void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, boo
 
 int ModuleSpanningTree::OnChangeLocalUserHost(User* user, const std::string &newhost)
 {
+	if (user->registered != REG_ALL)
+		return 0;
+
 	std::deque<std::string> params;
 	params.push_back(newhost);
 	Utils->DoOneToMany(user->uuid,"FHOST",params);
@@ -612,6 +615,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	// only occurs for local clients
 	if (user->registered != REG_ALL)
 		return;
+
 	std::deque<std::string> params;
 	params.push_back(gecos);
 	Utils->DoOneToMany(user->uuid,"FNAME",params);
@@ -692,7 +696,9 @@ void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, con
 
 void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason)
 {
-	if (!IS_LOCAL(source)) return; // Only start routing if we're origin.
+	if (!IS_LOCAL(source))
+		return; // Only start routing if we're origin.
+
 	std::deque<std::string> params;
 	params.push_back(":"+reason);
 	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
