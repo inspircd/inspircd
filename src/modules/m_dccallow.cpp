@@ -340,22 +340,25 @@ class ModuleDCCAllow : public Module
 						std::string defaultaction = Conf->ReadValue("dccallow", "action", 0);
 						std::string filename = tokens[2];
 
-						if (defaultaction == "allow")
-							return 0;
-
+						bool found = false;
 						for (unsigned int i = 0; i < bfl.size(); i++)
 						{
 							if (InspIRCd::Match(filename, bfl[i].filemask, ascii_case_insensitive_map))
 							{
+								/* We have a matching badfile entry, override whatever the default action is */
 								if (bfl[i].action == "allow")
 									return 0;
-							}
-							else
-							{
-								if (defaultaction == "allow")
-									return 0;
+								else
+								{
+									found = true;
+									break;
+								}
 							}
 						}
+
+						/* only follow the default action if no badfile matches were found above */
+						if ((!found) && (defaultaction == "allow"))
+							return 0;
 
 						user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick.c_str(), u->nick.c_str(), filename.c_str());
 						u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), filename.c_str());
