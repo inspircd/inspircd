@@ -671,10 +671,7 @@ std::string User::GetBuffer()
 
 void User::AddWriteBuf(const std::string &data)
 {
-	if (this->quitting)
-		return;
-
-	if (this->MyClass && !this->HasPrivPermission("users/flood/increased-buffers") && sendq.length() + data.length() > this->MyClass->GetSendqMax())
+	if (!this->quitting && this->MyClass && !this->HasPrivPermission("users/flood/increased-buffers") && sendq.length() + data.length() > this->MyClass->GetSendqMax())
 	{
 		/*
 		 * Fix by brain - Set the error text BEFORE calling, because
@@ -685,6 +682,9 @@ void User::AddWriteBuf(const std::string &data)
 		ServerInstance->SNO->WriteToSnoMask('A', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
+
+	// We still want to append data to the sendq of a quitting user,
+	// e.g. their ERROR message that says 'closing link'
 
 	if (data.length() > MAXBUF - 2) /* MAXBUF has a value of 514, to account for line terminators */
 		sendq.append(data.substr(0,MAXBUF - 4)).append("\r\n"); /* MAXBUF-4 = 510 */
