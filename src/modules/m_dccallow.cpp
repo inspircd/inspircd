@@ -263,6 +263,7 @@ class ModuleDCCAllow : public Module
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
+		ReadFileConf();
 	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
