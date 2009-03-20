@@ -623,59 +623,66 @@ void donewmi()
 int getcpu()
 {
 	HRESULT hres;
+	int cpu = -1;
 
 	/* Use WQL, similar to SQL, to construct a query that lists the cpu usage and pid of all processes */
 	IEnumWbemClassObject* pEnumerator = NULL;
-	hres = pSvc->ExecQuery(L"WQL", L"Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process",
-		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
-    
+
+	BSTR Language = SysAllocString(L"WQL");
+	BSTR Query    = SysAllocString(L"Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process");
+
+	hres = pSvc->ExecQuery(Language, Query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+
 	/* Query didn't work */
-	if (FAILED(hres))
-		return -1;
-
-	IWbemClassObject *pclsObj = NULL;
-	ULONG uReturn = 0;
-   
-	/* Iterate the query results */
-	while (pEnumerator)
+	if (!FAILED(hres))
 	{
-		VARIANT vtProp;
-		/* Next item */
-		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+		IWbemClassObject *pclsObj = NULL;
+		ULONG uReturn = 0;
 
-		/* No more items left */
-		if (uReturn == 0)
-			break;
-
-		/* Find process ID */
-		hr = pclsObj->Get(L"IDProcess", 0, &vtProp, 0, 0);
-		if (!FAILED(hr))
+		/* Iterate the query results */
+		while (pEnumerator)
 		{
-			/* Matches our process ID? */
-			if (vtProp.uintVal == GetCurrentProcessId())
+			VARIANT vtProp;
+			/* Next item */
+			HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+			/* No more items left */
+			if (uReturn == 0)
+				break;
+
+			/* Find process ID */
+			hr = pclsObj->Get(L"IDProcess", 0, &vtProp, 0, 0);
+			if (!FAILED(hr))
 			{
-				VariantClear(&vtProp);
-				/* Get CPU percentage for this process */
-				hr = pclsObj->Get(L"PercentProcessorTime", 0, &vtProp, 0, 0);
-				if (!FAILED(hr))
+				/* Matches our process ID? */
+				if (vtProp.uintVal == GetCurrentProcessId())
 				{
-					/* Deal with wide string ickyness. Who in their right
-					 * mind puts a number in a bstrVal wide string item?!
-					 */
 					VariantClear(&vtProp);
-					int cpu = 0;
-					std::wstringstream out(vtProp.bstrVal);
-					out >> cpu;
-					pEnumerator->Release();
-					pclsObj->Release();
-					return cpu;
+					/* Get CPU percentage for this process */
+					hr = pclsObj->Get(L"PercentProcessorTime", 0, &vtProp, 0, 0);
+					if (!FAILED(hr))
+					{
+						/* Deal with wide string ickyness. Who in their right
+						 * mind puts a number in a bstrVal wide string item?!
+						 */
+						VariantClear(&vtProp);
+						cpu = 0;
+						std::wstringstream out(vtProp.bstrVal);
+						out >> cpu;
+						break;
+					}
 				}
 			}
 		}
+
+		pEnumerator->Release();
+		pclsObj->Release();
 	}
-	pEnumerator->Release();
-	pclsObj->Release();
-	return -1;
+
+	SysFreeString(Language);
+	SysFreeString(Query);
+
+	return cpu;
 }
 
 void usleep(unsigned long usecs)
