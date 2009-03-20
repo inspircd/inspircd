@@ -307,39 +307,6 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 	return 1;
 }
 
-/*void IPC::Check()
-{
-	if (hIPCPipe == INVALID_HANDLE_VALUE)
-		return;
-
-	DWORD bytes;
-	DWORD action;
-
-	BOOL res = ReadFile(hIPCPipe, &action, sizeof(DWORD), &bytes, 0);
-	if (!res)
-	{
-		if (GetLastError() != ERROR_SEM_TIMEOUT)
-			Instance->Logs->Log("win32",DEFAULT, "IPC Pipe Error %u: %s", GetLastError(), dlerror());
-		return;
-	}
-
-	switch (action)
-	{
-		case IPC_MESSAGE_REHASH:
-			Instance->Rehash("due to IPC message");
-		break;
-		
-		case IPC_MESSAGE_DIE:
-			Instance->Exit(0);
-		break;
-
-		case IPC_MESSAGE_RESTART:
-			Instance->Restart("IPC_MESSAGE_RESTART received by mailslot.");
-		break;
-	}
-}*/
-
-
 /* These three functions were created from looking at how ares does it
  * (...and they look far tidier in C++)
  */
