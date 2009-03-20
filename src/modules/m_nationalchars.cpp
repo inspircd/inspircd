@@ -226,7 +226,7 @@ class ModuleNationalChars : public Module
  public:
 	ModuleNationalChars(InspIRCd* Me) : Module(Me)
 	{
-		rememberer = (caller2<bool, const char*, size_t> *) malloc(sizeof(rememberer));
+		rememberer = (caller2<bool, const char*, size_t> *) malloc(sizeof(caller2<bool, const char*, size_t>));
 
 		lowermap_rememberer = national_case_insensitive_map;
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
