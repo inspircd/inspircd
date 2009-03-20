@@ -659,8 +659,7 @@ int getcpu()
 
 	/* Use WQL, similar to SQL, to construct a query that lists the cpu usage and pid of all processes */
 	IEnumWbemClassObject* pEnumerator = NULL;
-	hres = pSvc->ExecQuery(bstr_t("WQL"),
-		bstr_t("Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process"),
+	hres = pSvc->ExecQuery(L"WQL", L"Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process",
 		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
     
 	/* Query didn't work */
