@@ -464,7 +464,7 @@
          moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 
          # exemptchanops: Defines what channel modes channel operators are
-         # exempt from. Supported modes are +SfFgNc. Defaults to off.
+         # exempt from. Supported modes are +TCGfcSFBgN. Defaults to off.
          exemptchanops=""
 
          # invitebypassmodes: This allows /invite to bypass other channel modes.
