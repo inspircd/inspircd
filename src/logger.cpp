@@ -362,4 +362,5 @@ void FileWriter::Close()
 
 FileWriter::~FileWriter()
 {
+	this->Close();
 }
