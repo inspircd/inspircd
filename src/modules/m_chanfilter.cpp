@@ -106,7 +106,7 @@ class ModuleChanFilter : public Module
 					if (hidemask)
 						user->WriteNumeric(404, "%s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str());
 					else
-						user->WriteNumeric(404, "%s %s %s :Cannot send to channel (your message contained a censored word: %s)",user->nick.c_str(), chan->name.c_str(), i->mask.c_str(), i->mask.c_str());
+						user->WriteNumeric(404, "%s %s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str(), i->mask.c_str());
 					return 1;
 				}
 			}
