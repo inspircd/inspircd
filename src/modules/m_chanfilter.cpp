@@ -74,6 +74,7 @@ class ModuleChanFilter : public Module
 		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 
+		OnRehash(NULL, "");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 
