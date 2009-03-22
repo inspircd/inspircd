@@ -69,6 +69,7 @@ class CoreExport FileWriter : public EventHandler
 	virtual void Close();
 
 	/** Close the log file and cancel any events.
+	 * (indirectly call Close()
 	 */
 	virtual ~FileWriter();
 };
