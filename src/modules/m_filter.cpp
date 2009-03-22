@@ -283,11 +283,17 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		if (f->action == "block")
 		{
 			ServerInstance->SNO->WriteToSnoMask('A', std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message has been filtered and opers notified: "+f->reason);
+			if (target_type == TYPE_CHANNEL)
+				user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
+			else
+				user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
 		}
 		if (f->action == "silent")
 		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message has been filtered: "+f->reason);
+			if (target_type == TYPE_CHANNEL)
+				user->WriteNumeric(404, "%s %s :Message to channel blocked (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
+			else
+				user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message to "+target+" was blocked: "+f->reason);
 		}
 		if (f->action == "kill")
 		{

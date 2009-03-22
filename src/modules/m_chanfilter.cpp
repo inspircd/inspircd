@@ -59,6 +59,7 @@ class ModuleChanFilter : public Module
 {
 
 	ChanFilter* cf;
+	bool hidemask;
 
  public:
 
@@ -83,6 +84,8 @@ class ModuleChanFilter : public Module
 
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
+		ConfigReader Conf(ServerInstance);
+		hidemask = Conf.ReadFlag("chanfilter", "hidemask", 0);
 		cf->DoRehash();
 	}
 
@@ -100,7 +103,10 @@ class ModuleChanFilter : public Module
 			{
 				if (InspIRCd::Match(text, i->mask))
 				{
-					user->WriteNumeric(936, "%s %s %s :Your message contained a censored word, and was blocked",user->nick.c_str(), chan->name.c_str(), i->mask.c_str());
+					if (hidemask)
+						user->WriteNumeric(404, "%s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str());
+					else
+						user->WriteNumeric(404, "%s %s %s :Cannot send to channel (your message contained a censored word: %s)",user->nick.c_str(), chan->name.c_str(), i->mask.c_str(), i->mask.c_str());
 					return 1;
 				}
 			}

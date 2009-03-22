@@ -374,6 +374,10 @@
 # Channel filter module: Allows channel-op defined message
 # filtering using simple string matches (channel mode +g)
 #<module name="m_chanfilter.so">
+#
+# If hidemask is set to yes, the user will not be shown the mask when
+# his/her message is blocked.
+#<chanfilter hidemask="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel logging module: used to send snotice output to channels, to

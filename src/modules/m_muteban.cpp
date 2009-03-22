@@ -43,7 +43,7 @@ class ModuleQuietBan : public Module
 		{
 			if (((Channel *)dest)->GetExtBanStatus(user, 'm') < 0)
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Cannot send to " + ((Channel *)dest)->name + ", as you are muted");
+				user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)",user->nick.c_str(), ((Channel *)dest)->name.c_str());
 				return 1;
 			}
 		}
@@ -60,7 +60,7 @@ class ModuleQuietBan : public Module
 		{
 			if (((Channel *)dest)->GetExtBanStatus(user, 'm') < 0)
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Cannot send to " + ((Channel *)dest)->name + ", as you are muted");
+				user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)",user->nick.c_str(), ((Channel *)dest)->name.c_str());
 				return 1;
 			}
 		}
