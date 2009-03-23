@@ -48,7 +48,7 @@ void InspIRCd::Exit(int status)
 
 void RehashHandler::Call(const std::string &reason)
 {
-	Server->RehashFinishMutex->Lock();
+	Server->RehashFinishMutex.Lock();
 	Server->SNO->WriteToSnoMask('A', "Rehashing config file %s %s",ServerConfig::CleanFilename(Server->ConfigFileName), reason.c_str());
 	Server->RehashUsersAndChans();
 	FOREACH_MOD_I(Server, I_OnGarbageCollect, OnGarbageCollect());
@@ -60,7 +60,7 @@ void RehashHandler::Call(const std::string &reason)
 		Server->ConfigThread = new ConfigReaderThread(Server, false, "");
 		Server->Threads->Start(Server->ConfigThread);
 	}
-	Server->RehashFinishMutex->Unlock();
+	Server->RehashFinishMutex.Unlock();
 }
 
 void InspIRCd::RehashServer()

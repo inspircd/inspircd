@@ -186,9 +186,7 @@ bool TestSuite::DoThreadTests()
 	cout << "Creating new ThreadEngine class...\n";
 	try
 	{
-		ThreadEngineFactory* tef = new ThreadEngineFactory();
-		te = tef->Create(ServerInstance);
-		delete tef;
+		te = new ThreadEngine(ServerInstance);
 	}
 	catch (...)
 	{

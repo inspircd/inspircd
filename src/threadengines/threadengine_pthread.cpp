@@ -16,7 +16,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-PThreadEngine::PThreadEngine(InspIRCd* Instance) : ThreadEngine(Instance)
+ThreadEngine::ThreadEngine(InspIRCd* Instance)
 {
 }
 
@@ -34,52 +34,25 @@ static void* entry_point(void* parameter)
 }
 
 
-void PThreadEngine::Start(Thread* thread)
+void ThreadEngine::Start(Thread* thread)
 {
-	PThreadData* data = new PThreadData;
+	ThreadData* data = new ThreadData;
 	thread->state = data;
 
 	if (pthread_create(&data->pthread_id, NULL, entry_point, thread) != 0)
 	{
 		thread->state = NULL;
 		delete data;
-		throw CoreException("Unable to create new PThreadEngine: " + std::string(strerror(errno)));
+		throw CoreException("Unable to create new thread: " + std::string(strerror(errno)));
 	}
 }
 
-PThreadEngine::~PThreadEngine()
+ThreadEngine::~ThreadEngine()
 {
 }
 
-void PThreadData::FreeThread(Thread* thread)
+void ThreadData::FreeThread(Thread* thread)
 {
 	thread->SetExitFlag(true);
 	pthread_join(pthread_id, NULL);
-}
-
-MutexFactory::MutexFactory(InspIRCd* Instance) : ServerInstance(Instance)
-{
-}
-
-Mutex* MutexFactory::CreateMutex()
-{
-	return new PosixMutex();
-}
-
-PosixMutex::PosixMutex() : Mutex()
-{
-	pthread_mutex_init(&putex, NULL);
-}
-
-PosixMutex::~PosixMutex()
-{
-	pthread_mutex_destroy(&putex);
-}
-
-void PosixMutex::Enable(bool enable)
-{
-	if (enable)
-		pthread_mutex_lock(&putex);
-	else
-		pthread_mutex_unlock(&putex);
 }

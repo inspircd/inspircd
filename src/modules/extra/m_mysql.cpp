@@ -97,10 +97,10 @@ class ModuleSQL : public Module
 	 int currid;
 	 bool rehashing;
 	 DispatcherThread* Dispatcher;
-	 Mutex* QueueMutex;
-	 Mutex* ResultsMutex;
-	 Mutex* LoggingMutex;
-	 Mutex* ConnMutex;
+	 Mutex QueueMutex;
+	 Mutex ResultsMutex;
+	 Mutex LoggingMutex;
+	 Mutex ConnMutex;
 
 	 ModuleSQL(InspIRCd* Me);
 	 ~ModuleSQL();
@@ -452,9 +452,9 @@ class SQLConnection : public classbase
 
 		*queryend = 0;
 
-		Parent->QueueMutex->Lock();
+		Parent->QueueMutex.Lock();
 		req.query.q = query;
-		Parent->QueueMutex->Unlock();
+		Parent->QueueMutex.Unlock();
 
 		if (!mysql_real_query(connection, req.query.q.data(), req.query.q.length()))
 		{
@@ -467,9 +467,9 @@ class SQLConnection : public classbase
 			/* Put this new result onto the results queue.
 			 * XXX: Remember to mutex the queue!
 			 */
-			Parent->ResultsMutex->Lock();
+			Parent->ResultsMutex.Lock();
 			rq.push_back(r);
-			Parent->ResultsMutex->Unlock();
+			Parent->ResultsMutex.Unlock();
 		}
 		else
 		{
@@ -480,9 +480,9 @@ class SQLConnection : public classbase
 			r->dbid = this->GetID();
 			r->query = req.query.q;
 
-			Parent->ResultsMutex->Lock();
+			Parent->ResultsMutex.Lock();
 			rq.push_back(r);
-			Parent->ResultsMutex->Unlock();
+			Parent->ResultsMutex.Unlock();
 		}
 
 		/* Now signal the main thread that we've got a result to process.
@@ -615,17 +615,17 @@ void ConnectDatabases(InspIRCd* ServerInstance, ModuleSQL* Parent)
 		if (!i->second->Connect())
 		{
 			/* XXX: MUTEX */
-			Parent->LoggingMutex->Lock();
+			Parent->LoggingMutex.Lock();
 			ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
 			i->second->SetEnable(false);
-			Parent->LoggingMutex->Unlock();
+			Parent->LoggingMutex.Unlock();
 		}
 	}
 }
 
 void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Parent)
 {
-	Parent->ConnMutex->Lock();
+	Parent->ConnMutex.Lock();
 	ClearOldConnections(conf);
 	for (int j =0; j < conf->Enumerate("database"); j++)
 	{
@@ -648,7 +648,7 @@ void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Pare
 		}
 	}
 	ConnectDatabases(ServerInstance, Parent);
-	Parent->ConnMutex->Unlock();
+	Parent->ConnMutex.Unlock();
 }
 
 char FindCharId(const std::string &id)
@@ -731,21 +731,21 @@ class Notifier : public BufferedSocket
 
 		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
 		{
-			Parent->ConnMutex->Lock();
+			Parent->ConnMutex.Lock();
 			ConnMap::iterator iter = GetCharId(data);
-			Parent->ConnMutex->Unlock();
+			Parent->ConnMutex.Unlock();
 			if (iter != Connections.end())
 			{
-				Parent->ResultsMutex->Lock();
+				Parent->ResultsMutex.Lock();
 				ResultQueue::iterator n = iter->second->rq.begin();
-				Parent->ResultsMutex->Unlock();
+				Parent->ResultsMutex.Unlock();
 
 				(*n)->Send();
 				delete (*n);
 
-				Parent->ResultsMutex->Lock();
+				Parent->ResultsMutex.Lock();
 				iter->second->rq.pop_front();
-				Parent->ResultsMutex->Unlock();
+				Parent->ResultsMutex.Unlock();
 
 				return true;
 			}
@@ -809,37 +809,26 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	MessagePipe = new MySQLListener(this, ServerInstance, 0, "127.0.0.1");
 #endif
 
-	LoggingMutex = ServerInstance->Mutexes->CreateMutex();
-	ConnMutex = ServerInstance->Mutexes->CreateMutex();
-
 	if (MessagePipe->GetFd() == -1)
 	{
-		delete ConnMutex;
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
 		throw ModuleException("m_mysql: unable to create ITC pipe");
 	}
 	else
 	{
-		LoggingMutex->Lock();
+		LoggingMutex.Lock();
 		ServerInstance->Logs->Log("m_mysql", DEBUG, "MySQL: Interthread comms port is %d", MessagePipe->GetPort());
-		LoggingMutex->Unlock();
+		LoggingMutex.Unlock();
 	}
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
 	ServerInstance->Threads->Start(Dispatcher);
-
-	ResultsMutex = ServerInstance->Mutexes->CreateMutex();
-	QueueMutex = ServerInstance->Mutexes->CreateMutex();
 
 	if (!ServerInstance->Modules->PublishFeature("SQL", this))
 	{
 		/* Tell worker thread to exit NOW,
 		 * Automatically joins */
 		delete Dispatcher;
-		delete LoggingMutex;
-		delete ResultsMutex;
-		delete QueueMutex;
-		delete ConnMutex;
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
 		throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
 	}
@@ -857,10 +846,6 @@ ModuleSQL::~ModuleSQL()
 	ServerInstance->Modules->UnpublishInterface("SQL", this);
 	ServerInstance->Modules->UnpublishFeature("SQL");
 	ServerInstance->Modules->DoneWithInterface("SQLutils");
-	delete LoggingMutex;
-	delete ResultsMutex;
-	delete QueueMutex;
-	delete ConnMutex;
 }
 
 unsigned long ModuleSQL::NewID()
@@ -877,13 +862,13 @@ const char* ModuleSQL::OnRequest(Request* request)
 		SQLrequest* req = (SQLrequest*)request;
 
 		/* XXX: Lock */
-		QueueMutex->Lock();
+		QueueMutex.Lock();
 
 		ConnMap::iterator iter;
 
 		const char* returnval = NULL;
 
-		ConnMutex->Lock();
+		ConnMutex.Lock();
 		if((iter = Connections.find(req->dbid)) != Connections.end())
 		{
 			req->id = NewID();
@@ -895,8 +880,8 @@ const char* ModuleSQL::OnRequest(Request* request)
 			req->error.Id(SQL_BAD_DBID);
 		}
 
-		ConnMutex->Unlock();
-		QueueMutex->Unlock();
+		ConnMutex.Unlock();
+		QueueMutex.Unlock();
 
 		return returnval;
 	}
@@ -951,17 +936,17 @@ void DispatcherThread::Run()
 		if (Parent->rehashing)
 		{
 		/* XXX: Lock */
-			Parent->QueueMutex->Lock();
+			Parent->QueueMutex.Lock();
 			Parent->rehashing = false;
 			LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
-			Parent->QueueMutex->Unlock();
+			Parent->QueueMutex.Unlock();
 			/* XXX: Unlock */
 		}
 
 		SQLConnection* conn = NULL;
 		/* XXX: Lock here for safety */
-		Parent->QueueMutex->Lock();
-		Parent->ConnMutex->Lock();
+		Parent->QueueMutex.Lock();
+		Parent->ConnMutex.Lock();
 		for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
 			if (i->second->queue.totalsize())
@@ -970,8 +955,8 @@ void DispatcherThread::Run()
 				break;
 			}
 		}
-		Parent->ConnMutex->Unlock();
-		Parent->QueueMutex->Unlock();
+		Parent->ConnMutex.Unlock();
+		Parent->QueueMutex.Unlock();
 		/* XXX: Unlock */
 
 		/* Theres an item! */
@@ -980,9 +965,9 @@ void DispatcherThread::Run()
 			conn->DoLeadingQuery();
 
 			/* XXX: Lock */
-			Parent->QueueMutex->Lock();
+			Parent->QueueMutex.Lock();
 			conn->queue.pop();
-			Parent->QueueMutex->Unlock();
+			Parent->QueueMutex.Unlock();
 			/* XXX: Unlock */
 		}
 

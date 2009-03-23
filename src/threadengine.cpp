@@ -20,14 +20,4 @@
 #include "inspircd.h"
 #include "threadengine.h"
 
-ThreadEngine::ThreadEngine(InspIRCd* Instance) : ServerInstance(Instance)
-{
-}
 
-ThreadEngine::~ThreadEngine()
-{
-}
-
-Mutex::Mutex()
-{
-}

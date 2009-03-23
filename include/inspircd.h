@@ -95,6 +95,7 @@ typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
+#include "threadengine.h"
 
 #ifndef PATH_MAX
 #warning Potentially broken system, PATH_MAX undefined
@@ -396,7 +397,7 @@ class CoreExport InspIRCd : public classbase
 	 */
 	std::map<BufferedSocket*,BufferedSocket*> SocketCull;
 
-	Mutex* RehashFinishMutex;
+	Mutex RehashFinishMutex;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -455,10 +456,6 @@ class CoreExport InspIRCd : public classbase
 	/** Thread engine, Handles threading where required
 	 */
 	ThreadEngine* Threads;
-
-	/** Mutex engine, handles mutexes for threading where required
-	 */
-	MutexFactory* Mutexes;
 
 	/** The thread/class used to read config files in REHASH and on startup
 	 */

@@ -746,9 +746,9 @@ class ModuleMsSQL : public Module
 	ModuleMsSQL(InspIRCd* Me)
 	: Module(Me), currid(0)
 	{
-		LoggingMutex = ServerInstance->Mutexes->CreateMutex();
-		ResultsMutex = ServerInstance->Mutexes->CreateMutex();
-		QueueMutex = ServerInstance->Mutexes->CreateMutex();
+		LoggingMutex = new Mutex();
+		ResultsMutex = new Mutex();
+		QueueMutex = new Mutex();
 
 		ServerInstance->Modules->UseInterface("SQLutils");
 

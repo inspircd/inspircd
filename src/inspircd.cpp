@@ -151,8 +151,6 @@ void InspIRCd::Cleanup()
 	/* Close logging */
 	this->Logs->CloseLogs();
 	DeleteZero(this->Logs);
-
-	delete RehashFinishMutex;
 }
 
 void InspIRCd::Restart(const std::string &reason)
@@ -391,10 +389,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SE = SEF->Create(this);
 	delete SEF;
 
-	ThreadEngineFactory* tef = new ThreadEngineFactory();
-	this->Threads = tef->Create(this);
-	delete tef;
-	this->Mutexes = new MutexFactory(this);
+	this->Threads = new ThreadEngine(this);
 
 	/* Default implementation does nothing */
 	this->PI = new ProtocolInterface(this);
@@ -756,8 +751,6 @@ int InspIRCd::Run()
 		Exit(0);
 	}
 
-	RehashFinishMutex = Mutexes->CreateMutex();
-
 	while (true)
 	{
 #ifndef WIN32
@@ -769,7 +762,7 @@ int InspIRCd::Run()
 #endif
 
 		/* Check if there is a config thread which has finished executing but has not yet been freed */
-		RehashFinishMutex->Lock();
+		RehashFinishMutex.Lock();
 		if (this->ConfigThread && this->ConfigThread->GetExitFlag())
 		{
 			/* Rehash has completed */
@@ -805,7 +798,7 @@ int InspIRCd::Run()
 			delete ConfigThread;
 			ConfigThread = NULL;
 		}
-		RehashFinishMutex->Unlock();
+		RehashFinishMutex.Unlock();
 
 		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 		 * Once per loop iteration is pleanty.
