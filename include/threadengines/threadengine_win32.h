@@ -22,23 +22,15 @@ class InspIRCd;
 
 class CoreExport Win32ThreadEngine : public ThreadEngine
 {
- protected:
-
-	bool Mutex(bool enable);
-
  public:
 
 	Win32ThreadEngine(InspIRCd* Instance);
 
 	virtual ~Win32ThreadEngine();
 
-	void Run();
-
 	static DWORD WINAPI Entry(void* parameter);
 
-	void Create(Thread* thread_to_init);
-
-	void FreeThread(Thread* thread);
+	void Start(Thread* thread_to_init);
 
 	const std::string GetName()
 	{
@@ -55,12 +47,19 @@ class CoreExport ThreadEngineFactory : public classbase
 	}
 };
 
+class CoreExport Win32ThreadData : public ThreadData
+{
+ public:
+	HANDLE handle;
+	void FreeThread(Thread* toFree);
+};
+
 class CoreExport Win32Mutex : public Mutex
 {
  private:
 	CRITICAL_SECTION wutex;
  public:
-	Win32Mutex(InspIRCd* Instance);
+	Win32Mutex();
 	virtual void Enable(bool enable);
 	~Win32Mutex();
 };

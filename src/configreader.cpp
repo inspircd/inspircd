@@ -1006,7 +1006,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 
-			ServerInstance->Threads->Lock();
+			// XXX: ServerInstance->Threads->Lock();
 			switch (dt)
 			{
 				case DT_NOSPACES:
@@ -1035,7 +1035,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
 					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString(), MAXBUF))
 					{
-						ServerInstance->Threads->Unlock();
+						// XXX: ServerInstance->Threads->Unlock();
 						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
 					}
 					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
@@ -1068,7 +1068,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			}
 			/* We're done with this now */
 			delete Values[Index].val;
-			ServerInstance->Threads->Unlock();
+			// XXX: ServerInstance->Threads->Unlock();
 		}
 
 		/* Read the multiple-tag items (class tags, connect tags, etc)
@@ -1077,9 +1077,9 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		 */
 		for (int Index = 0; MultiValues[Index].tag; ++Index)
 		{
-			ServerInstance->Threads->Lock();
+			// XXX: ServerInstance->Threads->Lock();
 			MultiValues[Index].init_function(this, MultiValues[Index].tag);
-			ServerInstance->Threads->Unlock();
+			// XXX: ServerInstance->Threads->Unlock();
 
 			int number_of_tags = ConfValueEnum(newconfig, MultiValues[Index].tag);
 
@@ -1094,7 +1094,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 					dt &= ~DT_ALLOW_NEWLINE;
 					dt &= ~DT_ALLOW_WILD;
 
-					ServerInstance->Threads->Lock();
+					// XXX: ServerInstance->Threads->Lock();
 					/* We catch and rethrow any exception here just so we can free our mutex
 					 */
 					try
@@ -1173,10 +1173,10 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 					}
 					catch (CoreException &e)
 					{
-						ServerInstance->Threads->Unlock();
+						// XXX: ServerInstance->Threads->Unlock();
 						throw e;
 					}
-					ServerInstance->Threads->Unlock();
+					// XXX: ServerInstance->Threads->Unlock();
 				}
 				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 			}
@@ -1196,7 +1196,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		return;
 	}
 
-	ServerInstance->Threads->Lock();
+	// XXX: ServerInstance->Threads->Lock();
 	for (int i = 0; i < ConfValueEnum(newconfig, "type"); ++i)
 	{
 		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
@@ -1239,7 +1239,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 	/* If we succeeded, set the ircd config to the new one */
 	this->config_data = newconfig;
 
-	ServerInstance->Threads->Unlock();
+	// XXX: ServerInstance->Threads->Unlock();
 
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
@@ -1254,7 +1254,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 
 		if (pl.size() && !useruid.empty())
 		{
-			ServerInstance->Threads->Lock();
+			// XXX: ServerInstance->Threads->Lock();
 			User* user = ServerInstance->FindNick(useruid);
 			if (user)
 			{
@@ -1266,10 +1266,10 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 					user->WriteServ("NOTICE %s :*** %d.   Address: %s        Reason: %s", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
 				}
 			}
-			ServerInstance->Threads->Unlock();
+			// XXX: ServerInstance->Threads->Unlock();
 		}
 
-		ServerInstance->Threads->Lock();
+		// XXX: ServerInstance->Threads->Lock();
 		if (!removed_modules.empty())
 		{
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
@@ -1334,7 +1334,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 				}
 			}
 		}
-		ServerInstance->Threads->Unlock();
+		// XXX: ServerInstance->Threads->Unlock();
 
 	}
 
@@ -2372,7 +2372,4 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 void ConfigReaderThread::Run()
 {
 	ServerInstance->Config->Read(do_bail, TheUserUID);
-	ServerInstance->Threads->Lock();
-	this->SetExitFlag();
-	ServerInstance->Threads->Unlock();
 }

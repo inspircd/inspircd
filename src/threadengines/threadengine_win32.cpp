@@ -14,75 +14,41 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_win32.h"
 
-CRITICAL_SECTION MyMutex;
-
 Win32ThreadEngine::Win32ThreadEngine(InspIRCd* Instance) : ThreadEngine(Instance)
 {
-	InitializeCriticalSection(&MyMutex);
 }
 
-void Win32ThreadEngine::Create(Thread* thread_to_init)
+void Win32ThreadEngine::Create(Thread* thread)
 {
-	Mutex(true);
-	HANDLE* MyThread = new HANDLE;
-	DWORD ThreadId = 0;
+	Win32ThreadData* data = new Win32ThreadData;
+	thread->state = data;
 
-	if (NULL == (*MyThread = CreateThread(NULL,0,Win32ThreadEngine::Entry,this,0,&ThreadId)))
+	DWORD ThreadId = 0;
+	data->handle = CreateThread(NULL,0,Win32ThreadEngine::Entry,thread,0,&ThreadId);
+
+	if (data->handle == NULL)
 	{
-		delete MyThread;
-		Mutex(false);
+		thread->state = NULL;
+		delete data;
 		throw CoreException(std::string("Unable to create new Win32ThreadEngine: ") + dlerror());
 	}
-
-	NewThread = thread_to_init;
-	NewThread->Creator = this;
-	NewThread->Extend("winthread", MyThread);
-	Mutex(false);
-
-	while (NewThread)
-		SleepEx(100, false);
 }
 
 Win32ThreadEngine::~Win32ThreadEngine()
 {
-	DeleteCriticalSection(&MyMutex);
-}
-
-void Win32ThreadEngine::Run()
-{
-	Mutex(true);
-	Thread* nt = NewThread;
-	NewThread = NULL;
-	Mutex(false);
-	nt->Run();
-}
-
-bool Win32ThreadEngine::Mutex(bool enable)
-{
-	if (enable)
-		EnterCriticalSection(&MyMutex);
-	else
-		LeaveCriticalSection(&MyMutex);
-
-	return false;
 }
 
 DWORD WINAPI Win32ThreadEngine::Entry(void* parameter)
 {
-	ThreadEngine * pt = (ThreadEngine*)parameter;
+	Thread* pt = reinterpret_cast<Thread*>(parameter);
 	pt->Run();
 	return 0;
 }
 
-void Win32ThreadEngine::FreeThread(Thread* thread)
+void Win32ThreadData::FreeThread(Thread* thread)
 {
-	HANDLE* winthread = NULL;
-	if (thread->GetExt("winthread", winthread))
-	{
-		thread->SetExitFlag();
-		WaitForSingleObject(*winthread,INFINITE);
-		delete winthread;
-	}
+	thread->SetExitFlag();
+	WaitForSingleObject(handle,INFINITE);
 }
 
 
@@ -92,10 +58,10 @@ MutexFactory::MutexFactory(InspIRCd* Instance) : ServerInstance(Instance)
 
 Mutex* MutexFactory::CreateMutex()
 {
-	return new Win32Mutex(this->ServerInstance);
+	return new Win32Mutex();
 }
 
-Win32Mutex::Win32Mutex(InspIRCd* Instance) : Mutex(Instance)
+Win32Mutex::Win32Mutex() : Mutex()
 {
 	InitializeCriticalSection(&wutex);
 }

@@ -23,21 +23,13 @@ class InspIRCd;
 
 class CoreExport PThreadEngine : public ThreadEngine
 {
- private:
-
-	bool Mutex(bool enable);
-
  public:
 
 	PThreadEngine(InspIRCd* Instance);
 
 	virtual ~PThreadEngine();
 
-	void Run();
-
-	static void* Entry(void* parameter);
-
-	void Create(Thread* thread_to_init);
+	void Start(Thread* thread_to_init);
 
 	void FreeThread(Thread* thread);
 
@@ -56,12 +48,19 @@ class CoreExport ThreadEngineFactory : public classbase
 	}
 };
 
+class CoreExport PThreadData : public ThreadData
+{
+ public:
+	pthread_t pthread_id;
+	void FreeThread(Thread* toFree);
+};
+
 class CoreExport PosixMutex : public Mutex
 {
  private:
 	pthread_mutex_t putex;
  public:
-	PosixMutex(InspIRCd* Instance);
+	PosixMutex();
 	virtual void Enable(bool enable);
 	~PosixMutex();
 };

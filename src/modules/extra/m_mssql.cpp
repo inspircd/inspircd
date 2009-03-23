@@ -779,7 +779,7 @@ class ModuleMsSQL : public Module
 		ReadConf();
 
 		queryDispatcher = new QueryThread(ServerInstance, this);
-		ServerInstance->Threads->Create(queryDispatcher);
+		ServerInstance->Threads->Start(queryDispatcher);
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
 		Implementation eventlist[] = { I_OnRequest, I_OnRehash };

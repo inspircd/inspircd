@@ -826,7 +826,7 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	}
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
-	ServerInstance->Threads->Create(Dispatcher);
+	ServerInstance->Threads->Start(Dispatcher);
 
 	ResultsMutex = ServerInstance->Mutexes->CreateMutex();
 	QueueMutex = ServerInstance->Mutexes->CreateMutex();

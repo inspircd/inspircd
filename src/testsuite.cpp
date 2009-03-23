@@ -205,7 +205,7 @@ bool TestSuite::DoThreadTests()
 	{
 		try
 		{
-			te->Create(tst);
+			te->Start(tst);
 		}
 		catch (CoreException &ce)
 		{

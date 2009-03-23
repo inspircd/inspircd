@@ -41,20 +41,6 @@ class CoreExport ThreadEngine : public Extensible
 	  */
 	 InspIRCd* ServerInstance;
 
-	 /** New Thread being created.
-	  */
-	 Thread* NewThread;
-
-	 /** Enable or disable system-wide mutex for threading.
-	  * Remember that if you toggle the mutex you MUST UNSET
-	  * IT LATER otherwise the program will DEADLOCK!
-	  * It is recommended that you AVOID USE OF THIS METHOD
-	  * and use your own Mutex class, this function is mainly
-	  * reserved for use by the core and by the Thread engine
-	  * itself.
-	  * @param enable True to lock the mutex.
-	  */
-	 virtual bool Mutex(bool enable) = 0;
  public:
 
 	/** Constructor.
@@ -66,34 +52,13 @@ class CoreExport ThreadEngine : public Extensible
 	 */
 	virtual ~ThreadEngine();
 
-	/** Lock the system wide mutex. See the documentation for
-	 * ThreadEngine::Mutex().
-	 */
-	void Lock() { this->Mutex(true); }
-
-	/** Unlock the system wide mutex. See the documentation for
-	 * ThreadEngine::Mutex()
-	 */
-	void Unlock() { this->Mutex(false); }
-
-	/** Run the newly created thread.
-	 */
-	virtual void Run() = 0;
-
 	/** Create a new thread. This takes an already allocated
 	 * Thread* pointer and initializes it to use this threading
 	 * engine. On failure, this function may throw a CoreException.
 	 * @param thread_to_init Pointer to a newly allocated Thread
 	 * derived object.
 	 */
-	virtual void Create(Thread* thread_to_init) = 0;
-
-	/** This is called by the default destructor of the Thread
-	 * class to ensure that the thread engine which created the thread
-	 * is responsible for destroying it.
-	 * @param thread Existing and active thread to delete.
-	 */
-	virtual void FreeThread(Thread* thread) = 0;
+	virtual void Start(Thread* thread_to_init) = 0;
 
 	/** Returns the thread engine's name for display purposes
 	 * @return The thread engine name
@@ -112,14 +77,9 @@ class CoreExport ThreadEngine : public Extensible
  * in InspIRCd uses critical sections, as they are faster and simpler to
  * manage.
  */
-class CoreExport Mutex : public Extensible
+class CoreExport Mutex
 {
  protected:
-
-	/** Creator object
-	 */
-	InspIRCd* ServerInstance;
-
 	/** Enable or disable the Mutex. This method has somewhat confusing
 	 * wording (e.g. the function name and parameters) so it is protected
 	 * in preference of the Lock() and Unlock() methods which are user-
@@ -132,9 +92,8 @@ class CoreExport Mutex : public Extensible
  public:
 
 	/** Constructor.
-	 * @param Instance Creator object
 	 */
-	Mutex(InspIRCd* Instance);
+	Mutex();
 
 	/** Enter/enable the mutex lock.
 	 */
@@ -149,6 +108,12 @@ class CoreExport Mutex : public Extensible
 	~Mutex() { }
 };
 
+class CoreExport ThreadData
+{
+ public:
+	virtual void FreeThread(Thread* thread) { }
+};
+
 /** Derive from this class to implement your own threaded sections of
  * code. Be sure to keep your code thread-safe and not prone to deadlocks
  * and race conditions if you MUST use threading!
@@ -160,14 +125,13 @@ class CoreExport Thread : public Extensible
 	 */
 	bool ExitFlag;
  public:
-
-	/** Creator thread engine
+	/** Opaque thread state managed by threading engine
 	 */
-	ThreadEngine* Creator;
+	ThreadData* state;
 
 	/** Set Creator to NULL at this point
 	 */
-	Thread() : ExitFlag(false), Creator(NULL)
+	Thread() : ExitFlag(false), state(NULL)
 	{
 	}
 
@@ -176,8 +140,11 @@ class CoreExport Thread : public Extensible
 	 */
 	virtual ~Thread()
 	{
-		if (Creator)
-			Creator->FreeThread(this);
+		if (state)
+		{
+			state->FreeThread(this);
+			delete state;
+		}
 	}
 
 	/** Override this method to put your actual
@@ -187,16 +154,9 @@ class CoreExport Thread : public Extensible
 
 	/** Signal the thread to exit gracefully.
 	 */
-	void SetExitFlag()
+	void SetExitFlag(bool value)
 	{
-		ExitFlag = true;
-	}
-
-	/** Cancel an exit state.
-	 */
-	void ClearExitFlag()
-	{
-		ExitFlag = false;
+		ExitFlag = value;
 	}
 
 	/** Get thread's current exit status.

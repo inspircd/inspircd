@@ -16,101 +16,45 @@
 #include <pthread.h>
 #include <signal.h>
 
-pthread_mutex_t MyMutex = PTHREAD_MUTEX_INITIALIZER;
-
 PThreadEngine::PThreadEngine(InspIRCd* Instance) : ThreadEngine(Instance)
 {
 }
 
-void PThreadEngine::Create(Thread* thread_to_init)
+static void* entry_point(void* parameter)
 {
-	pthread_attr_t attribs;
-	pthread_attr_init(&attribs);
-	pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_JOINABLE);
-	pthread_t* MyPThread = new pthread_t;
+	/* Recommended by nenolod, signal safety on a per-thread basis */
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, SIGPIPE);
+	pthread_sigmask(SIG_BLOCK, &set, NULL);
 
-	/* Create a thread in a mutex. This prevents whacking the member value NewThread,
-	 * and also prevents recursive creation of threads by mistake (instead, the thread
-	 * will just deadlock itself)
-	 */
-	Mutex(true);
+	Thread* pt = reinterpret_cast<Thread*>(parameter);
+	pt->Run();
+	return parameter;
+}
 
-	if (pthread_create(MyPThread, &attribs, PThreadEngine::Entry, (void*)this) != 0)
+
+void PThreadEngine::Start(Thread* thread)
+{
+	PThreadData* data = new PThreadData;
+	thread->state = data;
+
+	if (pthread_create(&data->pthread_id, NULL, entry_point, thread) != 0)
 	{
-		delete MyPThread;
-		Mutex(false);
+		thread->state = NULL;
+		delete data;
 		throw CoreException("Unable to create new PThreadEngine: " + std::string(strerror(errno)));
 	}
-
-	pthread_attr_destroy(&attribs);
-
-	NewThread = thread_to_init;
-	NewThread->Creator = this;
-	NewThread->Extend("pthread", MyPThread);
-
-	/* Always unset a mutex if you set it */
-	Mutex(false);
-
-	/* Wait for the PThreadEngine::Run method to take a copy of the
-	 * pointer and clear this member value
-	 */
-	while (NewThread)
-		usleep(1000);
 }
 
 PThreadEngine::~PThreadEngine()
 {
 }
 
-void PThreadEngine::Run()
+void PThreadData::FreeThread(Thread* thread)
 {
-	/* Take a copy of the member value, then clear it. Do this
-	 * in a mutex so that we can be sure nothing else is looking
-	 * at it.
-	 */
-	Mutex(true);
-	Thread* nt = NewThread;
-	NewThread = NULL;
-	Mutex(false);
-	/* Now we have our own safe copy, call the object on it */
-	nt->Run();
-}
-
-bool PThreadEngine::Mutex(bool enable)
-{
-	if (enable)
-		pthread_mutex_lock(&MyMutex);
-	else
-		pthread_mutex_unlock(&MyMutex);
-
-	return false;
-}
-
-void* PThreadEngine::Entry(void* parameter)
-{
-	/* Recommended by nenolod, signal safety on a per-thread basis */
-	sigset_t set;
-	sigemptyset(&set);
-	sigaddset(&set, SIGPIPE);
-	if(pthread_sigmask(SIG_BLOCK, &set, NULL))
-		signal(SIGPIPE, SIG_IGN);
-
-	ThreadEngine * pt = (ThreadEngine*)parameter;
-	pt->Run();
-	return NULL;
-}
-
-void PThreadEngine::FreeThread(Thread* thread)
-{
-	pthread_t* pthread = NULL;
-	if (thread->GetExt("pthread", pthread))
-	{
-		thread->SetExitFlag();
-		int rc;
-		void* status;
-		rc = pthread_join(*pthread, &status);
-		delete pthread;
-	}
+	thread->SetExitFlag(true);
+	pthread_join(pthread_id, NULL);
 }
 
 MutexFactory::MutexFactory(InspIRCd* Instance) : ServerInstance(Instance)
@@ -119,10 +63,10 @@ MutexFactory::MutexFactory(InspIRCd* Instance) : ServerInstance(Instance)
 
 Mutex* MutexFactory::CreateMutex()
 {
-	return new PosixMutex(this->ServerInstance);
+	return new PosixMutex();
 }
 
-PosixMutex::PosixMutex(InspIRCd* Instance) : Mutex(Instance)
+PosixMutex::PosixMutex() : Mutex()
 {
 	pthread_mutex_init(&putex, NULL);
 }

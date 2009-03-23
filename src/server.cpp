@@ -58,7 +58,7 @@ void RehashHandler::Call(const std::string &reason)
 		Server->Config->RehashParameter = "";
 
 		Server->ConfigThread = new ConfigReaderThread(Server, false, "");
-		Server->Threads->Create(Server->ConfigThread);
+		Server->Threads->Start(Server->ConfigThread);
 	}
 	Server->RehashFinishMutex->Unlock();
 }
