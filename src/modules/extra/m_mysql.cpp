@@ -762,6 +762,8 @@ void DispatcherThread::Run()
 {
 	LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
 
+	SQLConnection* conn = NULL;
+
 	this->LockQueue();
 	while (!this->GetExitFlag())
 	{
