@@ -531,6 +531,15 @@ sub svnupdate
 	exit;
 }
 
+sub test_compile {
+	my $feature = shift;
+	my $fail = 0;
+	$fail ||= system "$config{CC} -o test_$feature make/check_$feature.cpp >/dev/null 2>&1";
+	$fail ||= system "./test_$feature";
+	unlink "test_$feature";
+	return !$fail;
+}
+
 print "Running non-interactive configure...\n" unless $interactive;
 print "Checking for cache from previous configure... ";
 print ((!getcache()) ? "not found\n" : "found\n");
@@ -584,69 +593,13 @@ if (!$fail) {
 print "yes\n" if $has_kqueue == 1;
 print "no\n" if $has_kqueue == 0;
 
-printf "Checking if epoll exists... ";
-$has_epoll = 0;
-$fail = 0;
-open(EPOLL, "</usr/include/sys/epoll.h") or $fail = 1;
-if (!$fail) {
-	$has_epoll = 1;
-	close(EPOLL);
-}
-if ($has_epoll) {
-	my $kernel = `uname -r`;
-	chomp($kernel);
-	if (($kernel =~ /^2\.0\./) || ($kernel =~ /^2\.2\./) || ($kernel =~ /^2\.4\./)) {
-		$has_epoll = 0;
-	}
-	else
-	{
-		# Suggestion from nenolod, weed out odd systems which have glibc built
-		# against 2.4 kernels (ick)
-		my $kernel_arch = `uname -p`;
-		chomp($kernel_arch);
-		my $libcv = 0.0;
-		my $kernelv = 0.0;
-		if ($kernel_arch =~ /x86_64/) {
-			open (FH,"/lib64/libc.so.6|") or $has_epoll = 0;
-		}
-		else {
-			open (FH,"/lib/libc.so.6|") or $has_epoll = 0;
-		}
-		if ($has_epoll)
-		{
-			while (defined(my $line = <FH>))
-			{
-				chomp($line);
-				if ($line =~ /GNU C Library .* version (.*?) /)
-				{
-					$libcv = $1;
-					$libcv =~  /(\d+\.\d+)/;
-					$libcv = $1;
-				}
-				elsif ($line =~ /Compiled on a Linux (.*?\..*?)\.* system/)
-				{
-					$kernelv = $1;
-					# Fix for some retarded libc builds, strip off >> and << etc.
-					$kernelv =~ /(\d+\.\d+)/;
-					$kernelv = $1;
-				}
-			}
-			close FH;
-			if ($libcv < 2.3)
-			{
-				$has_epoll = 0;
-				printf "libc too old: $libcv... ";
-			}
-			if ($kernelv < 2.6)
-			{
-				$has_epoll = 0;
-				printf "libc built against older kernel $kernelv... ";
-			}
-		}
-	}
-}
-print "yes\n" if $has_epoll == 1;
-print "no\n" if $has_epoll == 0;
+printf "Checking for epoll support... ";
+$has_epoll = test_compile('epoll');
+print $has_epoll ? "yes\n" : "no\n";
+
+printf "Checking for eventfd support... ";
+$config{HAS_EVENTFD} = test_compile('eventfd') ? 'true' : 'false';
+print $config{HAS_EVENTFD} eq 'true' ? "yes\n" : "no\n";
 
 printf "Checking if Solaris I/O completion ports are available... ";
 $has_ports = 0;
@@ -1229,6 +1182,9 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		}
 		if ($config{SUPPORT_IP6LINKS} =~ /y/i) {
 			print FILEHANDLE "#define SUPPORT_IP6LINKS\n";
+		}
+		if ($config{HAS_EVENTFD}) {
+			print FILEHANDLE "#define HAS_EVENTFD\n";
 		}
 		my $use_hiperf = 0;
 		if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {

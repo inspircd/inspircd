@@ -15,6 +15,7 @@
 #include "threadengines/threadengine_pthread.h"
 #include <pthread.h>
 #include <signal.h>
+#include <fcntl.h>
 
 ThreadEngine::ThreadEngine(InspIRCd* Instance)
 {
@@ -57,11 +58,7 @@ void ThreadData::FreeThread(Thread* thread)
 	pthread_join(pthread_id, NULL);
 }
 
-#if 0
-/* TODO this is a linux-specific syscall that allows signals to be
- * sent using a single file descriptor, rather than 2 for a pipe.
- * Requires glibc 2.8, kernel 2.6.22+
- */
+#ifdef HAS_EVENTFD
 #include <sys/eventfd.h>
 
 class ThreadSignalSocket : public BufferedSocket
@@ -92,7 +89,7 @@ class ThreadSignalSocket : public BufferedSocket
 
 SocketThread::SocketThread(InspIRCd* SI)
 {
-	int fd = eventfd(0, 0); // TODO nonblock
+	int fd = eventfd(0, O_NONBLOCK);
 	if (fd < 0)
 		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
 	signal.sock = new ThreadSignalSocket(this, SI, fd);
