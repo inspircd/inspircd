@@ -843,7 +843,7 @@ class ModuleMsSQL : public Module
 
 void QueryThread::OnNotify()
 {
-	mod->SendQueue();
+	Parent->SendQueue();
 }
 
 void QueryThread::Run()
