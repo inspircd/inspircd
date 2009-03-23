@@ -225,8 +225,5 @@ CoreExport bool initwmi();
 CoreExport void donewmi();
 CoreExport int getcpu();
 
-CoreExport void usleep(unsigned long usecs);
-
-
 #endif
 
