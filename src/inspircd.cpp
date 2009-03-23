@@ -762,8 +762,7 @@ int InspIRCd::Run()
 #endif
 
 		/* Check if there is a config thread which has finished executing but has not yet been freed */
-		RehashFinishMutex.Lock();
-		if (this->ConfigThread && this->ConfigThread->GetExitFlag())
+		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
 
@@ -798,7 +797,6 @@ int InspIRCd::Run()
 			delete ConfigThread;
 			ConfigThread = NULL;
 		}
-		RehashFinishMutex.Unlock();
 
 		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 		 * Once per loop iteration is pleanty.

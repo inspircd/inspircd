@@ -290,9 +290,11 @@ class CoreExport ConfigReaderThread : public Thread
 {
 	InspIRCd* ServerInstance;
 	bool do_bail;
+	bool done;
 	std::string TheUserUID;
  public:
-	ConfigReaderThread(InspIRCd* Instance, bool bail, const std::string &useruid) : Thread(), ServerInstance(Instance), do_bail(bail), TheUserUID(useruid)
+	ConfigReaderThread(InspIRCd* Instance, bool bail, const std::string &useruid)
+		: Thread(), ServerInstance(Instance), do_bail(bail), done(false), TheUserUID(useruid)
 	{
 	}
 
@@ -301,6 +303,7 @@ class CoreExport ConfigReaderThread : public Thread
 	}
 
 	void Run();
+	bool IsDone() { return done; }
 };
 
 /** The main class of the irc server.
@@ -396,8 +399,6 @@ class CoreExport InspIRCd : public classbase
 	 * We don't delete these immediately as this may cause a segmentation fault.
 	 */
 	std::map<BufferedSocket*,BufferedSocket*> SocketCull;
-
-	Mutex RehashFinishMutex;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:

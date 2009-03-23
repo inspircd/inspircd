@@ -30,8 +30,7 @@ class CoreExport Thread : public Extensible
 	/** Set to true when the thread is to exit
 	 */
 	bool ExitFlag;
-// TODO protected:
- public:
+ protected:
 	/** Get thread's current exit status.
 	 * (are we being asked to exit?)
 	 */

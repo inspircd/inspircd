@@ -2372,4 +2372,5 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 void ConfigReaderThread::Run()
 {
 	ServerInstance->Config->Read(do_bail, TheUserUID);
+	done = true;
 }
