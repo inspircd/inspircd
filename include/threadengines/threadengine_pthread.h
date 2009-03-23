@@ -107,4 +107,50 @@ class CoreExport Mutex
 	}
 };
 
+class ThreadQueueData
+{
+	pthread_mutex_t mutex;
+	pthread_cond_t cond;
+ public:
+	ThreadQueueData()
+	{
+		pthread_mutex_init(&mutex, NULL);
+		pthread_cond_init(&cond, NULL);
+	}
+
+	~ThreadQueueData()
+	{
+		pthread_mutex_destroy(&mutex);
+		pthread_cond_destroy(&cond);
+	}
+
+	void Lock()
+	{
+		pthread_mutex_lock(&mutex);
+	}
+
+	void Unlock()
+	{
+		pthread_mutex_unlock(&mutex);
+	}
+
+	void Wakeup()
+	{
+		pthread_cond_signal(&cond);
+	}
+
+	void Wait()
+	{
+		pthread_cond_wait(&cond, &mutex);
+	}
+};
+
+class ThreadSignalSocket;
+class ThreadSignalData
+{
+ public:
+	ThreadSignalSocket* sock;
+};
+
+
 #endif

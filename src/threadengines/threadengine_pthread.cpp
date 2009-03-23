@@ -53,6 +53,96 @@ ThreadEngine::~ThreadEngine()
 
 void ThreadData::FreeThread(Thread* thread)
 {
-	thread->SetExitFlag(true);
+	thread->SetExitFlag();
 	pthread_join(pthread_id, NULL);
+}
+
+#if 0
+/* TODO this is a linux-specific syscall that allows signals to be
+ * sent using a single file descriptor, rather than 2 for a pipe.
+ * Requires glibc 2.8, kernel 2.6.22+
+ */
+#include <sys/eventfd.h>
+
+class ThreadSignalSocket : public BufferedSocket
+{
+	SocketThread* parent;
+ public:
+	ThreadSignalSocket(SocketThread* p, InspIRCd* SI, int newfd) :
+		BufferedSocket(SI, newfd, const_cast<char*>("0.0.0.0")), parent(p) {}
+
+	~ThreadSignalSocket()
+	{
+	}
+
+	void Notify()
+	{
+		eventfd_write(fd, 1);
+	}
+
+	virtual bool OnDataReady()
+	{
+		eventfd_t data;
+		if (eventfd_read(fd, &data))
+			return false;
+		parent->OnNotify();
+		return true;
+	}
+};
+
+SocketThread::SocketThread(InspIRCd* SI)
+{
+	int fd = eventfd(0, 0); // TODO nonblock
+	if (fd < 0)
+		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
+	signal.sock = new ThreadSignalSocket(this, SI, fd);
+}
+#else
+
+class ThreadSignalSocket : public BufferedSocket
+{
+	SocketThread* parent;
+	int send_fd;
+ public:
+	ThreadSignalSocket(SocketThread* p, InspIRCd* SI, int recvfd, int sendfd) :
+		BufferedSocket(SI, recvfd, const_cast<char*>("0.0.0.0")), parent(p), send_fd(sendfd)  {}
+
+	~ThreadSignalSocket()
+	{
+		close(send_fd);
+	}
+
+	void Notify()
+	{
+		char dummy = '*';
+		send(send_fd, &dummy, 1, 0);
+	}
+
+	virtual bool OnDataReady()
+	{
+		char data;
+		if (ServerInstance->SE->Recv(this, &data, 1, 0) <= 0)
+			return false;
+		parent->OnNotify();
+		return true;
+	}
+};
+
+SocketThread::SocketThread(InspIRCd* SI)
+{
+	int fds[2];
+	if (pipe(fds))
+		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
+	signal.sock = new ThreadSignalSocket(this, SI, fds[0], fds[1]);
+}
+#endif
+
+void SocketThread::NotifyParent()
+{
+	signal.sock->Notify();
+}
+
+SocketThread::~SocketThread()
+{
+	delete signal.sock;
 }

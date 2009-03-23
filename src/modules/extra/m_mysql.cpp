@@ -65,14 +65,10 @@
 
 
 class SQLConnection;
-class MySQLListener;
-
+class DispatcherThread;
 
 typedef std::map<std::string, SQLConnection*> ConnMap;
-static MySQLListener *MessagePipe = NULL;
-int QueueFD = -1;
-
-class DispatcherThread;
+typedef std::deque<SQLresult*> ResultQueue;
 
 unsigned long count(const char * const str, char a)
 {
@@ -97,7 +93,6 @@ class ModuleSQL : public Module
 	 int currid;
 	 bool rehashing;
 	 DispatcherThread* Dispatcher;
-	 Mutex QueueMutex;
 	 Mutex ResultsMutex;
 	 Mutex LoggingMutex;
 	 Mutex ConnMutex;
@@ -111,12 +106,9 @@ class ModuleSQL : public Module
 };
 
 
-
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
 #define mysql_field_count mysql_num_fields
 #endif
-
-typedef std::deque<SQLresult*> ResultQueue;
 
 /** Represents a mysql result set
  */
@@ -301,10 +293,6 @@ class MySQLresult : public SQLresult
 	}
 };
 
-class SQLConnection;
-
-void NotifyMainThread(SQLConnection* connection_with_new_result);
-
 /** Represents a connection to a mysql database
  */
 class SQLConnection : public classbase
@@ -452,9 +440,7 @@ class SQLConnection : public classbase
 
 		*queryend = 0;
 
-		Parent->QueueMutex.Lock();
 		req.query.q = query;
-		Parent->QueueMutex.Unlock();
 
 		if (!mysql_real_query(connection, req.query.q.data(), req.query.q.length()))
 		{
@@ -485,13 +471,7 @@ class SQLConnection : public classbase
 			Parent->ResultsMutex.Unlock();
 		}
 
-		/* Now signal the main thread that we've got a result to process.
-		 * Pass them this connection id as what to examine
-		 */
-
 		delete[] query;
-
-		NotifyMainThread(this);
 	}
 
 	bool ConnectionLost()
@@ -675,123 +655,18 @@ ConnMap::iterator GetCharId(char id)
 	return Connections.end();
 }
 
-void NotifyMainThread(SQLConnection* connection_with_new_result)
-{
-	/* Here we write() to the socket the main thread has open
-	 * and we connect()ed back to before our thread became active.
-	 * The main thread is using a nonblocking socket tied into
-	 * the socket engine, so they wont block and they'll receive
-	 * nearly instant notification. Because we're in a seperate
-	 * thread, we can just use standard connect(), and we can
-	 * block if we like. We just send the connection id of the
-	 * connection back.
-	 *
-	 * NOTE: We only send a single char down the connection, this
-	 * way we know it wont get a partial read at the other end if
-	 * the system is especially congested (see bug #263).
-	 * The function FindCharId translates a connection name into a
-	 * one character id, and GetCharId translates a character id
-	 * back into an iterator.
-	 */
-	char id = FindCharId(connection_with_new_result->GetID());
-	send(QueueFD, &id, 1, 0);
-}
-
 class ModuleSQL;
 
-class DispatcherThread : public Thread
+class DispatcherThread : public SocketThread
 {
  private:
 	ModuleSQL* Parent;
 	InspIRCd* ServerInstance;
  public:
-	DispatcherThread(InspIRCd* Instance, ModuleSQL* CreatorModule) : Thread(), Parent(CreatorModule), ServerInstance(Instance) { }
+	DispatcherThread(InspIRCd* Instance, ModuleSQL* CreatorModule) : SocketThread(Instance), Parent(CreatorModule), ServerInstance(Instance) { }
 	~DispatcherThread() { }
 	virtual void Run();
-};
-
-/** Used by m_mysql to notify one thread when the other has a result
- */
-class Notifier : public BufferedSocket
-{
-	ModuleSQL* Parent;
-
- public:
-	Notifier(ModuleSQL* P, InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), Parent(P) { }
-
-	virtual bool OnDataReady()
-	{
-		char data = 0;
-		/* NOTE: Only a single character is read so we know we
-		 * cant get a partial read. (We've been told that theres
-		 * data waiting, so we wont ever get EAGAIN)
-		 * The function GetCharId translates a single character
-		 * back into an iterator.
-		 */
-
-		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
-		{
-			Parent->ConnMutex.Lock();
-			ConnMap::iterator iter = GetCharId(data);
-			Parent->ConnMutex.Unlock();
-			if (iter != Connections.end())
-			{
-				Parent->ResultsMutex.Lock();
-				ResultQueue::iterator n = iter->second->rq.begin();
-				Parent->ResultsMutex.Unlock();
-
-				(*n)->Send();
-				delete (*n);
-
-				Parent->ResultsMutex.Lock();
-				iter->second->rq.pop_front();
-				Parent->ResultsMutex.Unlock();
-
-				return true;
-			}
-			/* No error, but unknown id */
-			return true;
-		}
-
-		/* Erk, error on descriptor! */
-		return false;
-	}
-};
-
-/** Spawn sockets from a listener
- */
-class MySQLListener : public ListenSocketBase
-{
-	ModuleSQL* Parent;
-	irc::sockets::insp_sockaddr sock_us;
-	socklen_t uslen;
-	FileReader* index;
-
- public:
-	MySQLListener(ModuleSQL* P, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), Parent(P)
-	{
-		uslen = sizeof(sock_us);
-		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
-		{
-			throw ModuleException("Could not getsockname() to find out port number for ITC port");
-		}
-	}
-
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
-	{
-		// XXX unsafe casts suck
-		new Notifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str());
-	}
-
-	/* Using getsockname and ntohs, we can determine which port number we were allocated */
-	int GetPort()
-	{
-#ifdef IPV6
-		return ntohs(sock_us.sin6_port);
-#else
-		return ntohs(sock_us.sin_port);
-#endif
-	}
+	virtual void OnNotify();
 };
 
 ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
@@ -801,25 +676,6 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 	Conf = new ConfigReader(ServerInstance);
 	PublicServerInstance = ServerInstance;
 	currid = 0;
-
-	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
-#ifdef IPV6
-	MessagePipe = new MySQLListener(this, ServerInstance, 0, "::1");
-#else
-	MessagePipe = new MySQLListener(this, ServerInstance, 0, "127.0.0.1");
-#endif
-
-	if (MessagePipe->GetFd() == -1)
-	{
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
-		throw ModuleException("m_mysql: unable to create ITC pipe");
-	}
-	else
-	{
-		LoggingMutex.Lock();
-		ServerInstance->Logs->Log("m_mysql", DEBUG, "MySQL: Interthread comms port is %d", MessagePipe->GetPort());
-		LoggingMutex.Unlock();
-	}
 
 	Dispatcher = new DispatcherThread(ServerInstance, this);
 	ServerInstance->Threads->Start(Dispatcher);
@@ -861,13 +717,11 @@ const char* ModuleSQL::OnRequest(Request* request)
 	{
 		SQLrequest* req = (SQLrequest*)request;
 
-		/* XXX: Lock */
-		QueueMutex.Lock();
-
 		ConnMap::iterator iter;
 
 		const char* returnval = NULL;
 
+		Dispatcher->LockQueue();
 		ConnMutex.Lock();
 		if((iter = Connections.find(req->dbid)) != Connections.end())
 		{
@@ -881,7 +735,10 @@ const char* ModuleSQL::OnRequest(Request* request)
 		}
 
 		ConnMutex.Unlock();
-		QueueMutex.Unlock();
+		Dispatcher->UnlockQueueWakeup();
+		/* Yes, it's possible this will generate a spurious wakeup.
+		 * That's fine, it'll just get ignored.
+		 */
 
 		return returnval;
 	}
@@ -891,7 +748,9 @@ const char* ModuleSQL::OnRequest(Request* request)
 
 void ModuleSQL::OnRehash(User* user, const std::string &parameter)
 {
+	Dispatcher->LockQueue();
 	rehashing = true;
+	Dispatcher->UnlockQueueWakeup();
 }
 
 Version ModuleSQL::GetVersion()
@@ -903,49 +762,15 @@ void DispatcherThread::Run()
 {
 	LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
 
-	/* Connect back to the Notifier */
-
-	if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
-	{
-		/* crap, we're out of sockets... */
-		return;
-	}
-
-	irc::sockets::insp_sockaddr addr;
-
-#ifdef IPV6
-	irc::sockets::insp_aton("::1", &addr.sin6_addr);
-	addr.sin6_family = AF_FAMILY;
-	addr.sin6_port = htons(MessagePipe->GetPort());
-#else
-	irc::sockets::insp_inaddr ia;
-	irc::sockets::insp_aton("127.0.0.1", &ia);
-	addr.sin_family = AF_FAMILY;
-	addr.sin_addr = ia;
-	addr.sin_port = htons(MessagePipe->GetPort());
-#endif
-
-	if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
-	{
-		/* wtf, we cant connect to it, but we just created it! */
-		return;
-	}
-
-	while (this->GetExitFlag() == false)
+	this->LockQueue();
+	while (!this->GetExitFlag())
 	{
 		if (Parent->rehashing)
 		{
-		/* XXX: Lock */
-			Parent->QueueMutex.Lock();
 			Parent->rehashing = false;
 			LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
-			Parent->QueueMutex.Unlock();
-			/* XXX: Unlock */
 		}
 
-		SQLConnection* conn = NULL;
-		/* XXX: Lock here for safety */
-		Parent->QueueMutex.Lock();
 		Parent->ConnMutex.Lock();
 		for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
@@ -956,24 +781,57 @@ void DispatcherThread::Run()
 			}
 		}
 		Parent->ConnMutex.Unlock();
-		Parent->QueueMutex.Unlock();
-		/* XXX: Unlock */
 
-		/* Theres an item! */
 		if (conn)
 		{
+			/* There's an item! */
+			this->UnlockQueue();
 			conn->DoLeadingQuery();
-
-			/* XXX: Lock */
-			Parent->QueueMutex.Lock();
+			this->NotifyParent();
+			this->LockQueue();
 			conn->queue.pop();
-			Parent->QueueMutex.Unlock();
-			/* XXX: Unlock */
 		}
-
-		usleep(1000);
+		else
+		{
+			/* We know the queue is empty, we can safely hang this thread until
+			 * something happens
+			 */
+			this->WaitForQueue();
+		}
 	}
+	this->UnlockQueue();
 }
 
+void DispatcherThread::OnNotify()
+{
+	while (1)
+	{
+		SQLConnection* conn = NULL;
+		Parent->ConnMutex.Lock();
+		for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); iter++)
+		{
+			if (!iter->second->rq.empty())
+			{
+				conn = iter->second;
+				break;
+			}
+		}
+		Parent->ConnMutex.Unlock();
+
+		if (!conn)
+			break;
+
+		Parent->ResultsMutex.Lock();
+		ResultQueue::iterator n = conn->rq.begin();
+		Parent->ResultsMutex.Unlock();
+
+		(*n)->Send();
+		delete (*n);
+
+		Parent->ResultsMutex.Lock();
+		conn->rq.pop_front();
+		Parent->ResultsMutex.Unlock();
+	}
+}
 
 MODULE_INIT(ModuleSQL)

@@ -95,5 +95,54 @@ class CoreExport Mutex
 	}
 };
 
+class ThreadQueueData
+{
+	CRITICAL_SECTION mutex;
+	HANDLE event;
+ public:
+	ThreadQueueData()
+	{
+		InitializeCriticalSection(&mutex);
+		event = CreateEvent(NULL, false, false, NULL);
+	}
+
+	~ThreadQueueData()
+	{
+		DeleteCriticalSection(&mutex);
+	}
+
+	void Lock()
+	{
+		EnterCriticalSection(&mutex);
+	}
+
+	void Unlock()
+	{
+		LeaveCriticalSection(&mutex);
+	}
+
+	void Wakeup()
+	{
+		PulseEvent(event);
+	}
+
+	void Wait()
+	{
+		LeaveCriticalSection(&mutex);
+		WaitForSingleObject(event, INFINITE);
+		EnterCriticalSection(&mutex);
+	}
+};
+
+class ThreadSignalData
+{
+ public:
+	int connFD;
+	ThreadSignalData()
+	{
+		connFD = -1;
+	}
+};
+
 #endif
 

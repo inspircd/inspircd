@@ -30,6 +30,15 @@ class CoreExport Thread : public Extensible
 	/** Set to true when the thread is to exit
 	 */
 	bool ExitFlag;
+// TODO protected:
+ public:
+	/** Get thread's current exit status.
+	 * (are we being asked to exit?)
+	 */
+	bool GetExitFlag()
+	{
+		return ExitFlag;
+	}
  public:
 	/** Opaque thread state managed by threading engine
 	 */
@@ -60,18 +69,108 @@ class CoreExport Thread : public Extensible
 
 	/** Signal the thread to exit gracefully.
 	 */
-	void SetExitFlag(bool value)
+	virtual void SetExitFlag()
 	{
-		ExitFlag = value;
+		ExitFlag = true;
+	}
+};
+
+
+class CoreExport QueuedThread : public Thread
+{
+	ThreadQueueData queue;
+ protected:
+	/** Waits for an enqueue operation to complete
+	 * You MUST hold the queue lock when you call this.
+	 * It will be unlocked while you wait, and will be relocked
+	 * before the function returns
+	 */
+	void WaitForQueue()
+	{
+		queue.Wait();
+	}
+ public:
+	/** Lock queue.
+	 */
+	void LockQueue()
+	{
+		queue.Lock();
+	}
+	/** Unlock queue.
+	 */
+	void UnlockQueue()
+	{
+		queue.Unlock();
+	}
+	/** Unlock queue and wake up worker
+	 */
+	void UnlockQueueWakeup()
+	{
+		queue.Wakeup();
+		queue.Unlock();
+	}
+	virtual void SetExitFlag()
+	{
+		queue.Lock();
+		Thread::SetExitFlag();
+		queue.Wakeup();
+		queue.Unlock();
+	}
+};
+
+class CoreExport SocketThread : public Thread
+{
+	ThreadQueueData queue;
+	ThreadSignalData signal;
+ protected:
+	/** Waits for an enqueue operation to complete
+	 * You MUST hold the queue lock when you call this.
+	 * It will be unlocked while you wait, and will be relocked
+	 * before the function returns
+	 */
+	void WaitForQueue()
+	{
+		queue.Wait();
+	}
+	/** Notifies parent by making the SignalFD ready to read
+	 * No requirements on locking
+	 */
+	void NotifyParent();
+ public:
+	SocketThread(InspIRCd* SI);
+	virtual ~SocketThread();
+	/** Lock queue.
+	 */
+	void LockQueue()
+	{
+		queue.Lock();
+	}
+	/** Unlock queue.
+	 */
+	void UnlockQueue()
+	{
+		queue.Unlock();
+	}
+	/** Unlock queue and send wakeup to worker
+	 */
+	void UnlockQueueWakeup()
+	{
+		queue.Wakeup();
+		queue.Unlock();
+	}
+	virtual void SetExitFlag()
+	{
+		queue.Lock();
+		Thread::SetExitFlag();
+		queue.Wakeup();
+		queue.Unlock();
 	}
 
-	/** Get thread's current exit status.
-	 * (are we being asked to exit?)
+	/**
+	 * Called in the context of the parent thread after a notification
+	 * has passed through the socket
 	 */
-	bool GetExitFlag()
-	{
-		return ExitFlag;
-	}
+	virtual void OnNotify() = 0;
 };
 
 #endif

@@ -51,3 +51,89 @@ void ThreadData::FreeThread(Thread* thread)
 	WaitForSingleObject(handle,INFINITE);
 }
 
+class ThreadSignalSocket : public BufferedSocket
+{
+	SignalThread* parent;
+ public:
+	ThreadSignalSocket(SignalThread* t, InspIRCd* SI, int newfd, char* ip)
+		: BufferedSocket(SI, newfd, ip), parent(t)
+	{
+		parent->results = this;
+	}
+	
+	virtual bool OnDataReady()
+	{
+		char data = 0;
+		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
+		{
+			parent->OnNotify();
+			return true;
+		}
+		return false;
+	}
+};
+
+class ThreadSignalListener : public ListenSocketBase
+{
+	SocketThread* parent;
+	irc::sockets::insp_sockaddr sock_us;
+ public:
+	ThreadSignalListener(SocketThread* t, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), parent(t)
+	{
+		socklen_t uslen = sizeof(sock_us);
+		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
+		{
+			throw ModuleException("Could not getsockname() to find out port number for ITC port");
+		}
+	}
+
+	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	{
+		new ThreadSignalSocket(parent, ServerInstance, nfd, const_cast<char*>(ipconnectedto.c_str()));
+		ServerInstance->SE->DelFd(this);
+		// XXX unsafe casts suck
+	}
+/* Using getsockname and ntohs, we can determine which port number we were allocated */
+	int GetPort()
+	{
+#ifdef IPV6
+		return ntohs(sock_us.sin6_port);
+#else
+		return ntohs(sock_us.sin_port);
+#endif
+	}
+};
+
+SocketThread::SocketThread(InspIRCd* SI)
+{
+	ThreadSignalListener* listener = new ThreadSignalListener(this, ServerInstance, 0, "127.0.0.1");
+	if (listener->GetFd() == -1)
+		throw CoreException("Could not create ITC pipe");
+	int connFD = socket(AF_INET, SOCK_STREAM, 0);
+	if (connFD == -1)
+		throw CoreException("Could not create ITC pipe");
+	
+	irc::sockets::sockaddrs addr;
+	irc::sockets::insp_aton("127.0.0.1", &addr.in4.sin_addr);
+	addr.in4.sin_family = AF_INET;
+	addr.in4.sin_port = htons(listener->GetPort());
+
+	if (connect(connFD, &addr.sa, sizeof(addr.in4)) == -1)
+	{
+		ServerInstance->SE->DelFd(listener);
+		close(connFD);
+		throw CoreException("Could not connet to ITC pipe");
+	}
+	this->signal.connFD = connFD;
+}
+
+void SocketThread::NotifyParent()
+{
+	char dummy = '*';
+	send(signal.connFD, &dummy, 1, 0);
+}
+
+SocketThread::~SocketThread()
+{
+	close(signal.connFD);
+}
