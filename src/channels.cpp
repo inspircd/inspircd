@@ -393,13 +393,10 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					}
 				}
 
-				if (Ptr->bans.size())
+				if (Ptr->IsBanned(user) && !can_bypass)
 				{
-					if (Ptr->IsBanned(user) && !can_bypass)
-					{
-						user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
-						return NULL;
-					}
+					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
+					return NULL;
 				}
 
 				/*
