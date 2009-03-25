@@ -20,6 +20,12 @@
 #include "inspircd_config.h"
 #include "base.h"
 
+#ifdef WINDOWS
+#include "threadengines/threadengine_win32.h"
+#endif
+
+class ThreadData;
+
 /** Derive from this class to implement your own threaded sections of
  * code. Be sure to keep your code thread-safe and not prone to deadlocks
  * and race conditions if you MUST use threading!
@@ -49,17 +55,7 @@ class CoreExport Thread : public Extensible
 	{
 	}
 
-	/** If this thread has a Creator set, call it to
-	 * free the thread
-	 */
-	virtual ~Thread()
-	{
-		if (state)
-		{
-			state->FreeThread(this);
-			delete state;
-		}
-	}
+	virtual ~Thread();
 
 	/** Override this method to put your actual
 	 * threaded code here.

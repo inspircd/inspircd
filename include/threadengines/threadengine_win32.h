@@ -77,7 +77,7 @@ class CoreExport Mutex
  private:
 	CRITICAL_SECTION wutex;
  public:
-	Win32Mutex()
+	Mutex()
 	{
 		InitializeCriticalSection(&wutex);
 	}
@@ -89,7 +89,7 @@ class CoreExport Mutex
 	{
 		LeaveCriticalSection(&wutex);
 	}
-	~Win32Mutex()
+	~Mutex()
 	{
 		DeleteCriticalSection(&wutex);
 	}

@@ -20,4 +20,14 @@
 #include "inspircd.h"
 #include "threadengine.h"
 
-
+/** If this thread has a Creator set, call it to
+ * free the thread
+ */
+virtual ~Thread::Thread()
+{
+	if (state)
+	{
+		state->FreeThread(this);
+		delete state;
+	}
+}
