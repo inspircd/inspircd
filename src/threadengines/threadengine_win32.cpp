@@ -53,9 +53,9 @@ void ThreadData::FreeThread(Thread* thread)
 
 class ThreadSignalSocket : public BufferedSocket
 {
-	SignalThread* parent;
+	SocketThread* parent;
  public:
-	ThreadSignalSocket(SignalThread* t, InspIRCd* SI, int newfd, char* ip)
+	ThreadSignalSocket(SocketThread* t, InspIRCd* SI, int newfd, char* ip)
 		: BufferedSocket(SI, newfd, ip), parent(t)
 	{
 		parent->results = this;
@@ -113,12 +113,12 @@ SocketThread::SocketThread(InspIRCd* SI)
 	if (connFD == -1)
 		throw CoreException("Could not create ITC pipe");
 	
-	irc::sockets::sockaddrs addr;
-	irc::sockets::insp_aton("127.0.0.1", &addr.in4.sin_addr);
-	addr.in4.sin_family = AF_INET;
-	addr.in4.sin_port = htons(listener->GetPort());
+	struct sockaddr_in addr;
+	irc::sockets::insp_aton("127.0.0.1", &addr.sin_addr);
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(listener->GetPort());
 
-	if (connect(connFD, &addr.sa, sizeof(addr.in4)) == -1)
+	if (connect(connFD, static_cast<struct sockaddr*>(&addr), sizeof(addr)) == -1)
 	{
 		ServerInstance->SE->DelFd(listener);
 		close(connFD);
@@ -135,5 +135,9 @@ void SocketThread::NotifyParent()
 
 SocketThread::~SocketThread()
 {
-	close(signal.connFD);
+	if (signal.connFD >= 0)
+	{
+		shutdown(signal.connFD, 2);
+		close(signal.connFD);
+	}
 }
