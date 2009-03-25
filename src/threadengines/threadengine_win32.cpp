@@ -18,7 +18,7 @@ ThreadEngine::ThreadEngine(InspIRCd* Instance)
 {
 }
 
-void ThreadEngine::Create(Thread* thread)
+void ThreadEngine::Start(Thread* thread)
 {
 	ThreadData* data = new ThreadData;
 	thread->state = data;

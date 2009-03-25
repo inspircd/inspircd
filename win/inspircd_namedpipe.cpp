@@ -131,7 +131,7 @@ IPC::IPC(InspIRCd* Srv) : ServerInstance(Srv)
 {
 	/* The IPC pipe is threaded */
 	thread = new IPCThread(Srv);
-	Srv->Threads->Create(thread);
+	Srv->Threads->Start(thread);
 }
 
 void IPC::Check()
