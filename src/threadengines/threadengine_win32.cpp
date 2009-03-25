@@ -58,7 +58,6 @@ class ThreadSignalSocket : public BufferedSocket
 	ThreadSignalSocket(SocketThread* t, InspIRCd* SI, int newfd, char* ip)
 		: BufferedSocket(SI, newfd, ip), parent(t)
 	{
-		parent->results = this;
 	}
 	
 	virtual bool OnDataReady()
@@ -106,7 +105,7 @@ class ThreadSignalListener : public ListenSocketBase
 
 SocketThread::SocketThread(InspIRCd* SI)
 {
-	ThreadSignalListener* listener = new ThreadSignalListener(this, ServerInstance, 0, "127.0.0.1");
+	ThreadSignalListener* listener = new ThreadSignalListener(this, SI, 0, "127.0.0.1");
 	if (listener->GetFd() == -1)
 		throw CoreException("Could not create ITC pipe");
 	int connFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -118,10 +117,10 @@ SocketThread::SocketThread(InspIRCd* SI)
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(listener->GetPort());
 
-	if (connect(connFD, static_cast<struct sockaddr*>(&addr), sizeof(addr)) == -1)
+	if (connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) == -1)
 	{
-		ServerInstance->SE->DelFd(listener);
-		close(connFD);
+		SI->SE->DelFd(listener);
+		closesocket(connFD);
 		throw CoreException("Could not connet to ITC pipe");
 	}
 	this->signal.connFD = connFD;
@@ -138,6 +137,6 @@ SocketThread::~SocketThread()
 	if (signal.connFD >= 0)
 	{
 		shutdown(signal.connFD, 2);
-		close(signal.connFD);
+		closesocket(signal.connFD);
 	}
 }
