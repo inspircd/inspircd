@@ -773,6 +773,7 @@ void DispatcherThread::Run()
 			LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
 		}
 
+		conn = NULL;
 		Parent->ConnMutex.Lock();
 		for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 		{
@@ -806,9 +807,10 @@ void DispatcherThread::Run()
 
 void DispatcherThread::OnNotify()
 {
+	SQLConnection* conn;
 	while (1)
 	{
-		SQLConnection* conn = NULL;
+		conn = NULL;
 		Parent->ConnMutex.Lock();
 		for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); iter++)
 		{
