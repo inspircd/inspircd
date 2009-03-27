@@ -167,7 +167,7 @@ class CommandFilter : public Command
 
 				if ((type != "gline") && (type != "none") && (type != "block") && (type != "kill") && (type != "silent"))
 				{
-					user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick.c_str(), freeform.c_str());
+					user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick.c_str(), type.c_str());
 					return CMD_FAILURE;
 				}
 
