@@ -278,7 +278,7 @@ class ModuleShun : public Module
 		else if (command == "PART")
 		{
 			/* same for PART */
-			parameters.clear();
+			parameters[1] = "";
 		}
 
 		/* if we're here, allow the command. */
