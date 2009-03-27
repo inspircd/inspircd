@@ -47,8 +47,6 @@ public:
 
 	void Apply(User *u)
 	{
-		if (!u->GetExt("shunned"))
-			u->Extend("shunned");
 	}
 
 
@@ -245,13 +243,12 @@ class ModuleShun : public Module
 
 	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User* user, bool validated, const std::string &original_line)
 	{
-		if (validated || !user->GetExt("shunned"))
+		if (validated)
 			return 0;
 
 		if (!ServerInstance->XLines->MatchesLine("SHUN", user))
 		{
-			/* The shun previously set on this user has expired or been removed */
-			user->Shrink("shunned");
+			/* Not shunned, don't touch. */
 			return 0;
 		}
 
