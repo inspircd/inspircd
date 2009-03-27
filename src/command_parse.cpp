@@ -506,11 +506,11 @@ bool CommandParser::ReloadCommand(std::string cmd, User* user)
 		cmdlist.erase(cmdlist.find(cmd));
 
 		RFCCommands.erase(cmd);
-		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 		delete cmdptr;
 		dlclose(command->second);
 	}
 
+	std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 	snprintf(filename, MAXBUF, "cmd_%s.so", cmd.c_str());
 	const char* err = this->LoadCommand(filename);
 	if (err)
@@ -536,7 +536,7 @@ CmdResult CommandReload::Handle(const std::vector<std::string>& parameters, User
 	}
 	else
 	{
-		user->WriteServ("NOTICE %s :*** Could not reload command '%s' -- fix this problem, then /REHASH as soon as possible!", user->nick.c_str(), parameters[0].c_str());
+		user->WriteServ("NOTICE %s :*** Could not reload command '%s'. The command will not work until reloaded successfully.", user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 }
