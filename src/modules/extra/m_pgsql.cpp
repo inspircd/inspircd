@@ -59,10 +59,10 @@ unsigned long count(const char * const str, char a)
  */
 std::string SQLhost::GetDSN()
 {
-	std::ostringstream conninfo("connect_timeout = '2'");
+	std::ostringstream conninfo("connect_timeout = '5'");
 
-	if (ip.length())
-		conninfo << " hostaddr = '" << ip << "'";
+	if (host.length())
+		conninfo << " host = '" << host << "'";
 
 	if (port)
 		conninfo << " port = '" << port << "'";
@@ -100,27 +100,6 @@ class ReconnectTimer : public Timer
 	virtual void Tick(time_t TIME);
 };
 
-
-/** Used to resolve sql server hostnames
- */
-class SQLresolver : public Resolver
-{
- private:
-	SQLhost host;
-	Module* mod;
- public:
-	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi, bool &cached)
-	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, cached, (Module*)m), host(hi), mod(m)
-	{
-	}
-
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0);
-
-	virtual void OnError(ResolverError e, const std::string &errormessage)
-	{
-		ServerInstance->Logs->Log("m_pgsql",DEBUG, "PgSQL: DNS lookup failed (%s), dying horribly", errormessage.c_str());
-	}
-};
 
 /** PgSQLresult is a subclass of the mostly-pure-virtual class SQLresult.
  * All SQL providers must create their own subclass and define it's methods using that
@@ -801,8 +780,8 @@ class ModulePgSQL : public Module
 		ReadConf();
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
-		Implementation eventlist[] = { I_OnUnloadModule, I_OnRequest, I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserDisconnect };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnUnloadModule, I_OnRequest, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModulePgSQL()
@@ -859,7 +838,6 @@ class ModulePgSQL : public Module
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
-			int ipvalid;
 
 			host.id		= conf.ReadValue("database", "id", i);
 			host.host	= conf.ReadValue("database", "hostname", i);
@@ -872,46 +850,7 @@ class ModulePgSQL : public Module
 			if (HasHost(host))
 				continue;
 
-#ifdef IPV6
-			if (strchr(host.host.c_str(),':'))
-			{
-				in6_addr blargle;
-				ipvalid = inet_pton(AF_INET6, host.host.c_str(), &blargle);
-			}
-			else
-#endif
-			{
-				in_addr blargle;
-				ipvalid = inet_aton(host.host.c_str(), &blargle);
-			}
-
-			if(ipvalid > 0)
-			{
-				/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-				host.ip = host.host;
-				this->AddConn(host);
-			}
-			else if(ipvalid == 0)
-			{
-				/* Conversion failed, assume it's a host */
-				SQLresolver* resolver;
-
-				try
-				{
-					bool cached;
-					resolver = new SQLresolver(this, ServerInstance, host, cached);
-					ServerInstance->AddResolver(resolver, cached);
-				}
-				catch(...)
-				{
-					/* THE WORLD IS COMING TO AN END! */
-				}
-			}
-			else
-			{
-				/* Invalid address family, die horribly. */
-				ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: insp_aton failed returning -1, oh noes.");
-			}
+			this->AddConn(host);
 		}
 	}
 
@@ -944,13 +883,12 @@ class ModulePgSQL : public Module
 	{
 		if (HasHost(hi))
 		{
-			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: A pgsql connection with id: %s already exists, possibly due to DNS delay. Aborting connection attempt.", hi.id.c_str());
+			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: A pgsql connection with id: %s already exists. Aborting connection attempt.", hi.id.c_str());
 			return;
 		}
 
 		SQLConn* newconn;
 
-		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
 		newconn = new SQLConn(ServerInstance, this, hi);
 
 		connections.insert(std::make_pair(hi.id, newconn));
@@ -1021,19 +959,6 @@ class ModulePgSQL : public Module
 		return Version("$Id$", VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
 	}
 };
-
-/* move this here to use AddConn, rather that than having the whole
- * module above SQLConn, since this is buggin me right now :/
- */
-void SQLresolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum)
-{
-	if (!resultnum)
-	{
-		host.ip = result;
-		((ModulePgSQL*)mod)->AddConn(host);
-		((ModulePgSQL*)mod)->ClearOldConnections();
-	}
-}
 
 void ReconnectTimer::Tick(time_t time)
 {
