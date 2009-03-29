@@ -39,7 +39,12 @@ CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User
 	if (IS_LOCAL(user))
 	{
 		string_list values;
-		char search = parameters[0].length() ? parameters[0][0] : 0;
+		if (parameters[0].empty())
+		{
+			user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s STATS :Not enough parameters.", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		char search = parameters[0][0];
 		DoStats(this->ServerInstance, search, user, values);
 		for (size_t i = 0; i < values.size(); i++)
 			user->Write(":%s", values[i].c_str());
