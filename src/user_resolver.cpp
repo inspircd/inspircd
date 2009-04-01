@@ -63,9 +63,31 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
 		/* Both lookups completed */
-		std::string result2("0::ffff:");
-		result2.append(result);
-		if (this->bound_user->GetIPString() == result || this->bound_user->GetIPString() == result2)
+
+		sockaddr* user_ip = this->bound_user->ip;
+		bool rev_match = false;
+#ifdef IPV6
+		if (user_ip->sa_family == AF_INET6)
+		{
+			struct in6_addr res_bin;
+			if (inet_pton(AF_INET6, result.c_str(), &res_bin))
+			{
+				sockaddr_in6* user_ip6 = reinterpret_cast<sockaddr_in6*>(user_ip);
+				rev_match = !memcmp(&user_ip6->sin6_addr, &res_bin, sizeof(res_bin));
+			}
+		}
+		else
+#endif
+		{
+			struct in_addr res_bin;
+			if (inet_pton(AF_INET, result.c_str(), &res_bin))
+			{
+				sockaddr_in* user_ip4 = reinterpret_cast<sockaddr_in*>(user_ip);
+				rev_match = !memcmp(&user_ip4->sin_addr, &res_bin, sizeof(res_bin));
+			}
+		}
+		
+		if (rev_match)
 		{
 			std::string hostname = this->bound_user->stored_host;
 			if (hostname.length() < 65)
