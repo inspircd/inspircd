@@ -27,10 +27,10 @@ class CommandJumpserver : public Command
 	std::string reason;
 	int port;
 
-	CommandJumpserver (InspIRCd* Instance) : Command(Instance, "JUMPSERVER", "o", 0)
+	CommandJumpserver (InspIRCd* Instance) : Command(Instance, "JUMPSERVER", "o", 0, 4)
 	{
 		this->source = "m_jumpserver.so";
-		syntax = "[<server> <port> <+/-a> :<reason>]";
+		syntax = "[<server> <port> <+/-an> <reason>]";
 		redirect_to.clear();
 		reason.clear();
 		port = 0;
@@ -80,7 +80,17 @@ class CommandJumpserver : public Command
 					case 'n':
 						redirect_new_users = direction;
 					break;
+					default:
+						user->WriteServ("NOTICE %s :*** Invalid JUMPSERVER flag: %c", user->nick.c_str(), *n);
+						return CMD_FAILURE;
+					break;
 				}
+			}
+
+			if (!atoi(parameters[1].c_str()))
+			{
+				user->WriteServ("NOTICE %s :*** Invalid port number", user->nick.c_str());
+				return CMD_FAILURE;
 			}
 
 			if (redirect_all_immediately)
