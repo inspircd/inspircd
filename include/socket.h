@@ -46,6 +46,12 @@ namespace irc
 	namespace sockets
 	{
 
+		typedef union {
+			struct sockaddr sa;
+			struct sockaddr_in in4;
+			struct sockaddr_in6 in6;
+		} sockaddrs;
+
 	/* macros to the relevant system address description structs */
 #ifdef IPV6
 		/** insp_sockaddr for ipv6
