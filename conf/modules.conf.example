@@ -399,8 +399,8 @@
 #<module name="m_chanprotect.so">
 
 <chanprotect
-	# noservices: With this set to no, when a user joins a empty channel,
-	# the server will set +q on them. If set to yes, it will only set +o
+	# noservices: With this set to yes, when a user joins a empty channel,
+	# the server will set +q on them. If set to no, it will only set +o
 	# on them until they register the channel.
 	noservices="no"
 
