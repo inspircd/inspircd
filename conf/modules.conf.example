@@ -1684,9 +1684,7 @@
 #<module name="m_testcommand.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Timed bans module: Adds timed bans and the /TBAN command
-# This module is oper-only.
-# To use, TBAN must be in one of your oper class blocks.
+# Timed bans module: Adds timed channel bans and the /TBAN command
 #<module name="m_timedbans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
