@@ -195,7 +195,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 		// Fix for bug #792, do not ping servers that are not connected yet!
 		// Remote servers have Socket == NULL and local connected servers have
 		// Socket->LinkState == CONNECTED
-		if (!s->GetSocket() || s->GetSocket()->GetLinkState() == CONNECTED)
+		if (s->GetSocket() && s->GetSocket()->GetLinkState() != CONNECTED)
 			continue;
 
 		// Now do PING checks on all servers
