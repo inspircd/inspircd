@@ -44,7 +44,13 @@ class ModuleAllowInvite : public Module
 	{
 		if (IS_LOCAL(user))
 		{
-			if (channel->IsModeSet('A') && channel->GetExtBanStatus(user, 'A') < 0)
+			if (channel->GetExtBanStatus(user, 'A') == -1)
+			{
+				// Matching extban, explicitly deny /invite
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You are banned from using INVITE", user->nick.c_str(), channel->name.c_str());
+				return 1;
+			}
+			if (channel->IsModeSet('A') || channel->GetExtBanStatus(user, 'A') == 1)
 			{
 				// Explicitly allow /invite
 				return -1;
