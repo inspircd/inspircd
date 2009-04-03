@@ -84,7 +84,7 @@ class ModuleShowwhois : public Module
 				return;
 
 			std::string wmsg = "*** ";
-			wmsg += source->nick + "(" + source->ident + "@";
+			wmsg += source->nick + " (" + source->ident + "@";
 
 			if (dest->HasPrivPermission("users/auspex"))
 			{

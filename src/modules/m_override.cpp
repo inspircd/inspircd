@@ -73,7 +73,7 @@ class ModuleOverride : public Module
 		{
 			if ((irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS) && !ServerInstance->Modes->GetLastParse().empty())
 			{
-				std::string msg = std::string(user->nick)+" Overriding modes: "+ServerInstance->Modes->GetLastParse()+" [Detail: ";
+				std::string msg = std::string(user->nick)+" overriding modes: "+ServerInstance->Modes->GetLastParse()+" [Detail: ";
 				if (OverOps)
 					msg += ConvToStr(OverOps)+" op"+(OverOps != 1 ? "s" : "")+", ";
 				if (OverDeops)
