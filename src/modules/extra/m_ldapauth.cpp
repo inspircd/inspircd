@@ -94,7 +94,7 @@ public:
 		if (res != LDAP_SUCCESS)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "LDAP connection failed: %s", ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "LDAP connection failed: %s", ldap_err2string(res));
 			conn = NULL;
 			return false;
 		}
@@ -103,7 +103,7 @@ public:
 		if (res != LDAP_SUCCESS)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "LDAP set protocol to v3 failed: %s", ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "LDAP set protocol to v3 failed: %s", ldap_err2string(res));
 			ldap_unbind_ext(conn, NULL, NULL);
 			conn = NULL;
 			return false;
@@ -144,7 +144,7 @@ public:
 		{
 			free(authpass);
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (LDAP bind failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP bind failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			ldap_unbind_ext(conn, NULL, NULL);
 			conn = NULL;
 			return false;
@@ -156,27 +156,27 @@ public:
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (LDAP search failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			return false;
 		}
 		if (ldap_count_entries(conn, msg) > 1)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (LDAP search returned more than one result: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search returned more than one result: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
 			return false;
 		}
 		if ((entry = ldap_first_entry(conn, msg)) == NULL)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (LDAP search returned no results: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search returned no results: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
 			return false;
 		}
 		if (user->password.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (No password provided)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (No password provided)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 			user->Extend("ldapauth_failed");
 			return false;
 		}
@@ -191,7 +191,7 @@ public:
 		else
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('A', "Forbidden connection from %s!%s@%s (%s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (%s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
 			user->Extend("ldapauth_failed");
 			return false;
