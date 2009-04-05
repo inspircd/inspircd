@@ -1148,7 +1148,7 @@ void DNS::CleanResolvers(Module* module)
 		{
 			if (Classes[i]->GetCreator() == module)
 			{
-				Classes[i]->OnError(RESLOVER_FORCEUNLOAD, "Parent module is unloading");
+				Classes[i]->OnError(RESOLVER_FORCEUNLOAD, "Parent module is unloading");
 				delete Classes[i];
 				Classes[i] = NULL;
 			}
