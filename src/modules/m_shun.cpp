@@ -92,22 +92,28 @@ class CommandShun : public Command
 		/* syntax: SHUN nick!user@host time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
+		std::string target = parameters[0];
+
 		if (parameters.size() == 1)
 		{
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SHUN", user))
+			if (ServerInstance->XLines->DelLine(target.c_str(), "SHUN", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed shun on %s.",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed shun on %s.",user->nick.c_str(),target.c_str());
 			}
 			else
 			{
 				// XXX todo implement stats
-				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats S.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats S.",user->nick.c_str(),target.c_str());
 			}
 
 			return CMD_SUCCESS;
 		}
 		else if (parameters.size() >= 2)
 		{
+			User* find = ServerInstance->FindNick(target.c_str());
+			if (find)
+				target = std::string("*!*@") + find->GetIPString();
+
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration;
 			std::string expr;
@@ -125,7 +131,7 @@ class CommandShun : public Command
 
 			try
 			{
-				r = new Shun(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), parameters[0].c_str());
+				r = new Shun(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
 			}
 			catch (...)
 			{
@@ -139,13 +145,13 @@ class CommandShun : public Command
 					if (!duration)
 					{
 						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s: %s",
-							user->nick.c_str(), parameters[0].c_str(), expr.c_str());
+							user->nick.c_str(), target.c_str(), expr.c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
 						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s: %s",
-							user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), expr.c_str());
+							user->nick.c_str(), target.c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), expr.c_str());
 					}
 
 					ServerInstance->XLines->ApplyLines();
