@@ -80,11 +80,8 @@ class ShunFactory : public XLineFactory
 
 class CommandShun : public Command
 {
- private:
-	InspIRCd *Srv;
-
  public:
-	CommandShun(InspIRCd* Me) : Command(Me, "SHUN", "o", 1, 3), Srv(Me)
+	CommandShun(InspIRCd* Me) : Command(Me, "SHUN", "o", 1, 3)
 	{
 		this->source = "m_shun.so";
 		this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";

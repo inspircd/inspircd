@@ -107,10 +107,8 @@ class InvisibleMode : public ModeHandler
 
 class InvisibleDeOper : public ModeWatcher
 {
- private:
-	InspIRCd* Srv;
  public:
-	InvisibleDeOper(InspIRCd* Instance) : ModeWatcher(Instance, 'o', MODETYPE_USER), Srv(Instance)
+	InvisibleDeOper(InspIRCd* Instance) : ModeWatcher(Instance, 'o', MODETYPE_USER)
 	{
 	}
 

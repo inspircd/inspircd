@@ -37,11 +37,9 @@ typedef std::deque<std::string> StringDeque;
 
 class BanRedirect : public ModeWatcher
 {
- private:
-	InspIRCd* Srv;
  public:
 	BanRedirect(InspIRCd* Instance)
-	: ModeWatcher(Instance, 'b', MODETYPE_CHANNEL), Srv(Instance)
+	: ModeWatcher(Instance, 'b', MODETYPE_CHANNEL)
 	{
 	}
 
@@ -118,7 +116,7 @@ class BanRedirect : public ModeWatcher
 
 			if(mask[CHAN].length())
 			{
-				if(!IS_LOCAL(source) || Srv->IsChannel(mask[CHAN].c_str(), ServerInstance->Config->Limits.ChanMax))
+				if(!IS_LOCAL(source) || ServerInstance->IsChannel(mask[CHAN].c_str(), ServerInstance->Config->Limits.ChanMax))
 				{
 					if (assign(channel->name) == mask[CHAN])
 					{
