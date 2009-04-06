@@ -93,6 +93,10 @@ class CommandShun : public Command
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
 		std::string target = parameters[0];
+		
+		User *find = ServerInstance->FindNick(target.c_str());
+		if (find)
+			target = std::string("*!*@") + find->GetIPString();
 
 		if (parameters.size() == 1)
 		{
@@ -110,10 +114,6 @@ class CommandShun : public Command
 		}
 		else if (parameters.size() >= 2)
 		{
-			User* find = ServerInstance->FindNick(target.c_str());
-			if (find)
-				target = std::string("*!*@") + find->GetIPString();
-
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration;
 			std::string expr;
