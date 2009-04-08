@@ -125,7 +125,10 @@ public:
 			{
 				c = new Channel(ServerInstance, channel, ServerInstance->Time());
 				if (!topic.empty())
+				{
 					c->SetTopic(NULL, topic, true);
+					c->topicset = 42;
+				}
 				ServerInstance->Logs->Log("blah", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
 				if (modes.empty())
