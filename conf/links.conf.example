@@ -46,7 +46,7 @@
       # timeout: If defined, this option defines how long the server
       # will wait to consider the connect attempt failed and try the
       # failover (see above).
-      timeout="15"
+      timeout="300"
 
       # transport: If defined, this states extra modules that can be
       # used in the connection. Options are: "openssl" and "gnutls"
@@ -81,7 +81,7 @@
       allowmask="69.58.44.0/24"
       autoconnect="300"
       failover="hub.other.net"
-      timeout="15"
+      timeout="300"
       transport="gnutls"
       bind="1.2.3.4"
       statshidden="no"

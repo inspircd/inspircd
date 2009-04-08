@@ -145,7 +145,8 @@
       # gnutls or openssl here. The appropriate SSL modules must be loaded
       # for ssl to work. If you do not want this bind section to support ssl,
       # just remove or comment out this option.
-      ssl="gnutls">
+      ssl="gnutls"
+      >
 
 <bind address="" port="6660-6669" type="clients">
 
@@ -206,16 +207,6 @@
 <connect deny="3ffe::0/32">
 
 <connect
-         # name: Name to use for this connect block. Mainly used for
-         # connect class inheriting.
-         name="secret"
-
-         # parent: This setting is to specify if this connect class
-         # inherits settings from any other. Put the other class's name
-         # in here to use its settings as a template - for example, if
-	 # you only want to adjust sendq and a password
-         parent="main"
-
          # allow: What IP addresses/hosts to allow for this block.
          allow="196.12.*"
 
@@ -230,15 +221,48 @@
          # password: Password to use for this block/user(s)
          password="secret"
 
+         # maxchans: Maximum number of channels a user in this class
+         # be in at one time. This overrides every other maxchans setting.
+         #maxchans="30"
+
+         # timeout: How long (in seconds) the server will wait before
+         # disconnecting a user if they do not do anything on connect.
+         # (Note, this is a client-side thing, if the client does not
+         # send /nick, /user or /pass)
+         timeout="60"
+
+         # pingfreq: How often (in seconds) the server tries to ping connecting clients.
+         pingfreq="120"
+
+         # sendq: Amount of data that the server is allowed to send to the user
+         # before they are dropped.
+         sendq="262144"
+
+         # recvq: amount of data allowed in a clients queue before they are dropped.
+         recvq="8192"
+
+         # localmax: Maximum local connections per IP.
+         localmax="3"
+
+         # globalmax: Maximum global (network-wide) connections per IP.
+         globalmax="3"
+
+         # useident: Defines if users in this class must respond to a ident query or not.
+         useident="no"
+
+         # limit: How many users are allowed in this class
+         limit="5000"
+
+         # modes: Usermodes that are set on users in this block on connect.
+         # Enabling this option requires that the m_conn_umodes module be loaded.
+         # This entry is highly recommended to use for/with IP Cloaking/masking.
+         modes="+x"
+
          # port: What port this user is allowed to connect on. (optional)
          # The port MUST be set to listen in the bind blocks above.
          port="6667">
 
 <connect
-         # name: Name to use for this connect block. Mainly used for
-         # connect class inheriting.
-         name="main"
-
          # allow: What IP addresses/hosts to allow for this block.
          allow="*"
 
