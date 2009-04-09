@@ -445,7 +445,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ 0, 0, 0, 0 }
 	};
 
-	while ((c = getopt_long_only(argc, argv, ":f:", longopts, NULL)) != -1)
+	int index;
+	while ((c = getopt_long_only(argc, argv, ":f:", longopts, &index)) != -1)
 	{
 		switch (c)
 		{
@@ -460,8 +461,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */
 			break;
-			default:
-				/* Unknown parameter! DANGER, INTRUDER.... err.... yeah. */
+			case '?':
+				/* Unknown parameter */
+				printf("Uknown parameter '%s'\n", argv[index]);
 				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n\
 				                  [--runasroot] [--version] [--config <config>] [--testsuite]\n", argv[0]);
 				Exit(EXIT_STATUS_ARGV);
