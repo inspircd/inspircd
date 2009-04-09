@@ -127,6 +127,13 @@ public:
 				if (!topic.empty())
 				{
 					c->SetTopic(NULL, topic, true);
+
+					/*
+					 * Due to the way protocol works in 1.2, we need to hack the topic TS in such a way that this
+					 * topic will always win over others.
+					 *
+					 * This is scheduled for (proper) fixing in a later release, and can be removed at a later date.
+					 */
 					c->topicset = 42;
 				}
 				ServerInstance->Logs->Log("blah", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
