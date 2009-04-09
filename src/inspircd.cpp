@@ -463,7 +463,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			break;
 			case '?':
 				/* Unknown parameter */
-				printf("Uknown parameter '%s'\n", argv[index]);
+			default:
+				/* Fall through to handle other weird values too */
+				printf("Unknown parameter '%s'\n", argv[index]);
 				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n\
 				                  [--runasroot] [--version] [--config <config>] [--testsuite]\n", argv[0]);
 				Exit(EXIT_STATUS_ARGV);
