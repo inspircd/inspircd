@@ -470,7 +470,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	int found_ports = 0;
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
-	char c = 0;
+	int c = 0;
 
 	s_signal = 0;
 
