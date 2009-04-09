@@ -357,7 +357,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,
 	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
-	char c = 0;
+	int c = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Logs = 0;
