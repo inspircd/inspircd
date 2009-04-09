@@ -207,6 +207,16 @@
 <connect deny="3ffe::0/32">
 
 <connect
+         # name: Name to use for this connect block. Mainly used for
+         # connect class inheriting.
+         name="secret"
+
+         # parent: This setting is to specify if this connect class
+         # inherits settings from any other. Put the other class's name
+         # in here to use its settings as a template - for example,  if
+         # you only want to adjust sendq and a password
+         parent="main"
+
          # allow: What IP addresses/hosts to allow for this block.
          allow="196.12.*"
 
@@ -263,6 +273,10 @@
          port="6667">
 
 <connect
+         # name: Name to use for this connect block. Mainly used for
+         # connect class inheriting.
+         name="main"
+
          # allow: What IP addresses/hosts to allow for this block.
          allow="*"
 
