@@ -60,14 +60,21 @@ class ModuleOperChans : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	{
+		if (chan->IsModeSet('O') && !IS_OPER(user))
+		{
+			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join %s (+O is set)",
+				user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
+			return 1;
+		}
+		return 0;
+	}
 
 	virtual int OnCheckBan(User* user, Channel* chan)
 	{
 		if (IS_OPER(user))
 			return chan->GetExtBanStatus(user->oper, 'O');
-
-		if (chan->IsModeSet('O'))
-			return -1;
 
 		return 0;
 	}
