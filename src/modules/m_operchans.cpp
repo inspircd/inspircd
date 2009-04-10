@@ -56,13 +56,13 @@ class ModuleOperChans : public Module
 		oc = new OperChans(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(oc))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnCheckBan };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnCheckBan, I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
-		if (chan->IsModeSet('O') && !IS_OPER(user))
+		if (chan && chan->IsModeSet('O') && !IS_OPER(user))
 		{
 			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join %s (+O is set)",
 				user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
