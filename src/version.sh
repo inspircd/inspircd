@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "InspIRCd-1.2.0rc2+PepperSteik"
+echo "InspIRCd-1.2.0rc3"
