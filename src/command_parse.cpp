@@ -531,7 +531,7 @@ CmdResult CommandReload::Handle(const std::vector<std::string>& parameters, User
 	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))
 	{
 		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick.c_str(), parameters[0].c_str());
-		ServerInstance->SNO->WriteToSnoMask('A', "RELOAD: %s reloaded the '%s' command.", user->nick.c_str(), parameters[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('a', "RELOAD: %s reloaded the '%s' command.", user->nick.c_str(), parameters[0].c_str());
 		return CMD_SUCCESS;
 	}
 	else

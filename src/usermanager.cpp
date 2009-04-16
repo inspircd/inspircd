@@ -31,7 +31,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	catch (...)
 	{
 		Instance->Logs->Log("USERS", DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
-		Instance->SNO->WriteToSnoMask('A', "WARNING *** Duplicate UUID allocated!");
+		Instance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
 
@@ -106,7 +106,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 
 	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)Instance->SE->GetMaxFds()))
 	{
-		Instance->SNO->WriteToSnoMask('A', "Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
+		Instance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
 		this->QuitUser(New,"No more connections allowed");
 		return;
 	}

@@ -60,12 +60,12 @@ class CommandSanick : public Command
 			std::string newnick = target->nick;
 			if (target->ForceNickChange(parameters[1].c_str()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
+				ServerInstance->SNO->WriteToSnoMask('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
 				ServerInstance->PI->SendSNONotice("A", oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
+				ServerInstance->SNO->WriteToSnoMask('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 				ServerInstance->PI->SendSNONotice("A", oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 			}
 			/* Yes, hit target and we have sent our NICK out, we can now bail */

@@ -64,7 +64,7 @@ class CommandNicklock : public Command
 		if (target)
 		{
 			target->Extend("nick_locked", "ON");
-			ServerInstance->SNO->WriteToSnoMask('A', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
+			ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
 
 			/* Only send out nick from local server */
 			if (IS_LOCAL(target))
@@ -77,7 +77,7 @@ class CommandNicklock : public Command
 					 * tell everybody. Note user is still nick locked on their old
 					 * nick instead.
 					 */
-					ServerInstance->SNO->WriteToSnoMask('A', oldnick+" failed nickchange on NICKLOCK (from "+newnick+" to "+parameters[1]+") Locked to "+newnick+" instead");
+					ServerInstance->SNO->WriteToSnoMask('a', oldnick+" failed nickchange on NICKLOCK (from "+newnick+" to "+parameters[1]+") Locked to "+newnick+" instead");
 					ServerInstance->PI->SendSNONotice("A", oldnick+" failed nickchange on NICKLOCK (from "+newnick+" to "+parameters[1]+") Locked to "+newnick+" instead");
 				}
 			}
@@ -126,7 +126,7 @@ class CommandNickunlock : public Command
 		}
 
 		/* If we made it this far, the command is going out on the wire so send local snotice */
-		ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
+		ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 
 		if (target)
 		{

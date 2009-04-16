@@ -739,10 +739,10 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('A', "There were errors in the configuration file:");
+			ServerInstance->SNO->WriteToSnoMask('a', "There were errors in the configuration file:");
 			while (start < errors.length())
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', errors.substr(start, 360));
+				ServerInstance->SNO->WriteToSnoMask('a', errors.substr(start, 360));
 				start += 360;
 			}
 		}
@@ -1230,7 +1230,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 					if (bail)
 						printf("Warning: Oper type '%s' has a missing class named '%s', this does nothing!\n", item, classname.c_str());
 					else
-						ServerInstance->SNO->WriteToSnoMask('A', "Warning: Oper type '%s' has a missing class named '%s', this does nothing!", item, classname.c_str());
+						ServerInstance->SNO->WriteToSnoMask('a', "Warning: Oper type '%s' has a missing class named '%s', this does nothing!", item, classname.c_str());
 				}
 			}
 		}
@@ -1276,7 +1276,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			{
 				if (ServerInstance->Modules->Unload(removing->c_str()))
 				{
-					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
+					ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
 					if (!useruid.empty())
 					{
@@ -1285,7 +1285,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
 					}
 					else
-						ServerInstance->SNO->WriteToSnoMask('A', "Module %s successfully unloaded.", removing->c_str());
+						ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully unloaded.", removing->c_str());
 
 					rem++;
 				}
@@ -1298,7 +1298,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
 					}
 					else
-						 ServerInstance->SNO->WriteToSnoMask('A', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
+						 ServerInstance->SNO->WriteToSnoMask('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1309,7 +1309,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			{
 				if (ServerInstance->Modules->Load(adding->c_str()))
 				{
-					ServerInstance->SNO->WriteToSnoMask('A', "*** REHASH LOADED MODULE: %s",adding->c_str());
+					ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
 					if (!useruid.empty())
 					{
 						User* user = ServerInstance->FindNick(useruid);
@@ -1317,7 +1317,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
 					}
 					else
-						ServerInstance->SNO->WriteToSnoMask('A', "Module %s successfully loaded.", adding->c_str());
+						ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully loaded.", adding->c_str());
 
 					add++;
 				}
@@ -1330,7 +1330,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 					}
 					else
-						ServerInstance->SNO->WriteToSnoMask('A', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
+						ServerInstance->SNO->WriteToSnoMask('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 		}
@@ -1347,7 +1347,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 				user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('A', "*** Successfully rehashed server.");
+			ServerInstance->SNO->WriteToSnoMask('a', "*** Successfully rehashed server.");
 	}
 
 }

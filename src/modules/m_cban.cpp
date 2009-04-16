@@ -194,7 +194,7 @@ class ModuleCBan : public Module
 		{
 			// Channel is banned.
 			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname, rl->reason);
-			ServerInstance->SNO->WriteToSnoMask('A', "%s tried to join %s which is CBANed (%s)", user->nick.c_str(), cname, rl->reason);
+			ServerInstance->SNO->WriteToSnoMask('a', "%s tried to join %s which is CBANed (%s)", user->nick.c_str(), cname, rl->reason);
 			ServerInstance->PI->SendSNONotice("A", user->nick + " tried to join " + std::string(cname) + " which is CBANed (" + std::string(rl->reason) + ")");
 			return 1;
 		}

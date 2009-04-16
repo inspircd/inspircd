@@ -95,7 +95,7 @@ class InvisibleMode : public ModeHandler
 				}
 			}
 
-			ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has become %svisible (%cQ)", dest->GetFullHost().c_str(), adding ? "in" : "", adding ? '+' : '-');
+			ServerInstance->SNO->WriteToSnoMask('a', "\2NOTICE\2: Oper %s has become %svisible (%cQ)", dest->GetFullHost().c_str(), adding ? "in" : "", adding ? '+' : '-');
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -184,7 +184,7 @@ void ModuleInvisible::OnUserJoin(User* user, Channel* channel, bool sync, bool &
 		silent = true;
 		/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
 		this->WriteCommonFrom(user, channel, "JOIN %s", channel->name.c_str());
-		ServerInstance->SNO->WriteToSnoMask('A', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name.c_str());
+		ServerInstance->SNO->WriteToSnoMask('a', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name.c_str());
 	}
 }
 

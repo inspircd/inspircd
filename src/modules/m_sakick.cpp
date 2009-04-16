@@ -63,14 +63,14 @@ class CommandSakick : public Command
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (!n)
 				{
-					ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" SAKICKed "+dest->nick+" on "+parameters[0]);
+					ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" SAKICKed "+dest->nick+" on "+parameters[0]);
 					return CMD_SUCCESS;
 				}
 				else
 				{
 					if (!n->HasUser(dest))
 					{
-						ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" SAKICKed "+dest->nick+" on "+parameters[0]);
+						ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" SAKICKed "+dest->nick+" on "+parameters[0]);
 						return CMD_SUCCESS;
 					}
 					else
@@ -82,7 +82,7 @@ class CommandSakick : public Command
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" sent remote SAKICK to kick "+dest->nick+" from "+parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" sent remote SAKICK to kick "+dest->nick+" from "+parameters[0]);
 			}
 
 			return CMD_SUCCESS;

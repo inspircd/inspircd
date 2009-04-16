@@ -144,7 +144,7 @@ class CommandFilter : public Command
 			if (Base->DeleteFilter(parameters[0]))
 			{
 				user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
-				ServerInstance->SNO->WriteToSnoMask('A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
+				ServerInstance->SNO->WriteToSnoMask('a', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
 				return CMD_SUCCESS;
 			}
 			else
@@ -195,7 +195,7 @@ class CommandFilter : public Command
 							type.c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
 							flags.c_str(), reason.c_str());
 
-					ServerInstance->SNO->WriteToSnoMask('A', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
+					ServerInstance->SNO->WriteToSnoMask('a', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
 
 					return CMD_SUCCESS;
 				}
@@ -282,7 +282,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		}
 		if (f->action == "block")
 		{
-			ServerInstance->SNO->WriteToSnoMask('A', std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
+			ServerInstance->SNO->WriteToSnoMask('a', std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
 			else
@@ -423,7 +423,7 @@ void FilterBase::OnRehash(User* user, const std::string &parameter)
 		if (RegexEngine == newrxengine)
 			return;
 
-		ServerInstance->SNO->WriteToSnoMask('A', "Dumping all filters due to regex engine change (was '%s', now '%s')", RegexEngine.c_str(), newrxengine.c_str());
+		ServerInstance->SNO->WriteToSnoMask('a', "Dumping all filters due to regex engine change (was '%s', now '%s')", RegexEngine.c_str(), newrxengine.c_str());
 		//ServerInstance->XLines->DelAll("R");
 	}
 	rxengine = NULL;
@@ -436,14 +436,14 @@ void FilterBase::OnRehash(User* user, const std::string &parameter)
 		{
 			if (RegexNameRequest(this, *i).Send() == newrxengine)
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', "Filter now using engine '%s'", RegexEngine.c_str());
+				ServerInstance->SNO->WriteToSnoMask('a', "Filter now using engine '%s'", RegexEngine.c_str());
 				rxengine = *i;
 			}
 		}
 	}
 	if (!rxengine)
 	{
-		ServerInstance->SNO->WriteToSnoMask('A', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", RegexEngine.c_str());
+		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", RegexEngine.c_str());
 	}
 
 	delete MyConf;
@@ -461,7 +461,7 @@ void FilterBase::OnLoadModule(Module* mod, const std::string& name)
 			 * on startup or on load are applied right now.
 			 */
 			ConfigReader Config(ServerInstance);
-			ServerInstance->SNO->WriteToSnoMask('A', "Found and activated regex module '%s' for m_filter.so.", RegexEngine.c_str());
+			ServerInstance->SNO->WriteToSnoMask('a', "Found and activated regex module '%s' for m_filter.so.", RegexEngine.c_str());
 			ReadFilters(Config);
 		}
 	}

@@ -57,7 +57,7 @@ class CommandSajoin : public Command
 				{
 					if (n->HasUser(dest))
 					{
-						ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+						ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
 						return CMD_SUCCESS;
 					}
 					else
@@ -74,7 +74,7 @@ class CommandSajoin : public Command
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick)+" sent remote SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+				ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" sent remote SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
 				return CMD_SUCCESS;
 			}
 		}

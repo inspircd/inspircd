@@ -102,7 +102,8 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('L',"REMOTELINK");			/* Remote linking notices */
 	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
 	this->EnableSnomask('O',"REMOTEOPER");			/* Remote oper up/down notices */
-	this->EnableSnomask('A',"ANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
+	this->EnableSnomask('a',"ANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
+	this->EnableSnomask('A',"REMOTEANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
 	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */

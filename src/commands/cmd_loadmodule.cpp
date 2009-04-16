@@ -25,7 +25,7 @@ CmdResult CommandLoadmodule::Handle (const std::vector<std::string>& parameters,
 {
 	if (ServerInstance->Modules->Load(parameters[0].c_str()))
 	{
-		ServerInstance->SNO->WriteToSnoMask('A', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());
 		return CMD_SUCCESS;
 	}

@@ -35,7 +35,8 @@ class CommandSamode : public Command
 
 		if (ServerInstance->Modes->GetLastParse().length())
 		{
-			ServerInstance->SNO->WriteToSnoMask('A', std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
+			ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
+			ServerInstance->PI->SendSNONotice("A", user->nick + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
 
 			std::string channel = parameters[0];
 			ServerInstance->PI->SendMode(channel, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());

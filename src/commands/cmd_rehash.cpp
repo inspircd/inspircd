@@ -50,7 +50,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 
 
 	std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
-	ServerInstance->SNO->WriteToSnoMask('A', m);
+	ServerInstance->SNO->WriteToSnoMask('a', m);
 
 	/* Don't do anything with the logs here -- logs are restarted
 	 * after the config thread has completed.

@@ -110,7 +110,7 @@ class ModuleServProtectMode : public Module
 		if (dst->IsModeSet('k'))
 		{
 			src->WriteNumeric(485, "%s :You are not permitted to kill %s services!", src->nick.c_str(), ServerInstance->Config->Network);
-			ServerInstance->SNO->WriteToSnoMask('A', std::string(src->nick)+" tried to kill service "+dst->nick+" ("+reason+")");
+			ServerInstance->SNO->WriteToSnoMask('a', std::string(src->nick)+" tried to kill service "+dst->nick+" ("+reason+")");
 			return 1;
 		}
 		return 0;
