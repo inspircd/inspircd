@@ -154,7 +154,7 @@ class DNSBLResolver : public Resolver
 						break;
 					}
 
-					ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost().c_str(), ConfEntry->name.c_str(), bitmask);
+					ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost().c_str(), ConfEntry->name.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
 				}
 				else
 					ConfEntry->stats_misses++;
