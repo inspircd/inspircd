@@ -73,7 +73,7 @@ class DNSBLResolver : public Resolver
 			if(result.length())
 			{
 				unsigned int bitmask = 0, record = 0;
-				bool show = false, match = false;
+				bool match = false;
 				in_addr resultip;
 
 				inet_aton(result.c_str(), &resultip);
@@ -154,10 +154,7 @@ class DNSBLResolver : public Resolver
 						break;
 					}
 
-					if (show)
-					{
-						ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost().c_str(), ConfEntry->name.c_str(), bitmask);
-					}
+					ServerInstance->SNO->WriteToSnoMask('A', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost().c_str(), ConfEntry->name.c_str(), bitmask);
 				}
 				else
 					ConfEntry->stats_misses++;
