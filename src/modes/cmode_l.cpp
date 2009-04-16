@@ -51,15 +51,6 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 		if (limit < 0)
 			limit = 0x7FFF;
 
-		/* If the new limit is the same as the old limit,
-		 * and the old limit isnt 0, disallow */
-		std::string oldlimit = channel->GetModeParameter('l');
-		if (limit == atoi(oldlimit.c_str()) && oldlimit != "0")
-		{
-			parameter = "";
-			return MODEACTION_DENY;
-		}
-
 		parameter = ConvToStr(limit);
 
 		/* Set new limit */
