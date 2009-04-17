@@ -54,8 +54,7 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 		parameter = ConvToStr(limit);
 
 		/* Set new limit */
-		channel->SetModeParam('l', parameter.c_str(), true);
-		channel->modes[CM_LIMIT] = 1;
+		channel->SetMode('l', parameter);
 
 		return MODEACTION_ALLOW;
 	}
@@ -71,9 +70,7 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 		}
 
 		/* Removing old limit, no checks here */
-		channel->SetModeParam('l', "", false);
-		channel->modes[CM_LIMIT] = 0;
-
+		channel->SetMode('l', "");
 		return MODEACTION_ALLOW;
 	}
 }

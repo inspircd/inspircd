@@ -94,20 +94,16 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 	if (parameter.rfind(' ') != std::string::npos)
 		return MODEACTION_DENY;
 
-	/* must first unset if we are changing the key, otherwise it will be ignored */
-	if (exists && adding)
-		channel->SetMode('k', false);
-
-	/* must run setmode always, to process the change */
-	channel->SetMode('k', adding);
-
 	if (adding)
 	{
 		std::string ckey;
 		ckey.assign(parameter, 0, 32);
 		parameter = ckey;
-		/* running this does not run setmode, despite the third parameter */
-		channel->SetModeParam('k', parameter.c_str(), true);
+		channel->SetMode('k', parameter);
+	}
+	else
+	{
+		channel->SetMode('k', "");
 	}
 	return MODEACTION_ALLOW;
 }

@@ -34,27 +34,22 @@ Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : Serv
 void Channel::SetMode(char mode,bool mode_on)
 {
 	modes[mode-65] = mode_on;
-	if (!mode_on)
-		this->SetModeParam(mode,"",false);
 }
 
-
-void Channel::SetModeParam(char mode,const char* parameter,bool mode_on)
+void Channel::SetMode(char mode, std::string parameter)
 {
 	CustomModeList::iterator n = custom_mode_params.find(mode);
-
-	if (mode_on)
+	// always erase, even if changing, so that the map gets the new value
+	if (n != custom_mode_params.end())
+		custom_mode_params.erase(n);
+	if (parameter.empty())
 	{
-		if (n == custom_mode_params.end())
-			custom_mode_params[mode] = strdup(parameter);
+		modes[mode-65] = false;
 	}
 	else
 	{
-		if (n != custom_mode_params.end())
-		{
-			free(n->second);
-			custom_mode_params.erase(n);
-		}
+		custom_mode_params[mode] = parameter;
+		modes[mode-65] = true;
 	}
 }
 

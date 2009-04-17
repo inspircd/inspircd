@@ -74,7 +74,7 @@ typedef CUList::const_iterator CUListConstIter;
 
 /** A list of custom modes parameters on a channel
  */
-typedef std::map<char,char*> CustomModeList;
+typedef std::map<char,std::string> CustomModeList;
 
 
 /** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
@@ -202,12 +202,12 @@ class CoreExport Channel : public Extensible
 	 */
 	void SetMode(char mode,bool mode_on);
 
-	/** Sets or unsets the parameters for a custom mode in a channels info
+	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
-	 * @param parameter The parameter string to associate with this mode character
-	 * @param mode_on True if you want to set the mode or false if you want to remove it
+	 * @param parameter The parameter string to associate with this mode character.
+	 * If it is empty, the mode is unset; if it is nonempty, the mode is set.
 	 */
-	void SetModeParam(char mode,const char* parameter,bool mode_on);
+	void SetMode(char mode, std::string parameter);
 
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query

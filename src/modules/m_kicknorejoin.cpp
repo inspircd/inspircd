@@ -65,7 +65,7 @@ class KickRejoin : public ModeHandler
 			}
 			else
 			{
-				channel->SetMode('J', false);
+				channel->SetMode('J', "");
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -74,8 +74,7 @@ class KickRejoin : public ModeHandler
 			if (!channel->IsModeSet('J'))
 			{
 				parameter = ConvToStr(atoi(parameter.c_str()));
-				channel->SetModeParam('J', parameter.c_str(), adding);
-				channel->SetMode('J', adding);
+				channel->SetMode('J', parameter);
 				return MODEACTION_ALLOW;
 			}
 			else
@@ -90,11 +89,9 @@ class KickRejoin : public ModeHandler
 				{
 					// new mode param, replace old with new
 					parameter = ConvToStr(atoi(parameter.c_str()));
-					cur_param = ConvToStr(atoi(cur_param.c_str()));
 					if (parameter != "0")
 					{
-						channel->SetModeParam('J', cur_param.c_str(), false);
-						channel->SetModeParam('J', parameter.c_str(), adding);
+						channel->SetMode('J', parameter);
 						return MODEACTION_ALLOW;
 					}
 					else
