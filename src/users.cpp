@@ -776,7 +776,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
 		std::string myclass, mycmd, mypriv;
-		irc::spacesepstream Classes(iter_opertype->second);
+		irc::spacesepstream Classes(iter_opertype->second.c_str());
 		while (Classes.GetToken(myclass))
 		{
 			operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());

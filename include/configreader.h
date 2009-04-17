@@ -224,7 +224,7 @@ struct MultiConfig
 
 /** A set of oper types
  */
-typedef std::map<irc::string,char*> opertype_t;
+typedef std::map<irc::string,std::string> opertype_t;
 
 /** Holds an oper class.
  */

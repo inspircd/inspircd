@@ -2205,15 +2205,6 @@ bool ValueItem::GetBool()
  */
 bool InitTypes(ServerConfig* conf, const char*)
 {
-	if (conf->opertypes.size())
-	{
-		for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
-		{
-			if (n->second)
-				delete[] n->second;
-		}
-	}
-
 	conf->opertypes.clear();
 	return true;
 }
@@ -2250,7 +2241,7 @@ bool DoType(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	const char* TypeName = values[0].GetString();
 	const char* Classes = values[1].GetString();
 
-	conf->opertypes[TypeName] = strnewdup(Classes);
+	conf->opertypes[TypeName] = std::string(Classes);
 	return true;
 }
 
