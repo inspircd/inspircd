@@ -86,7 +86,8 @@ class ModuleShowwhois : public Module
 			std::string wmsg = "*** ";
 			wmsg += source->nick + " (" + source->ident + "@";
 
-			if (dest->HasPrivPermission("users/auspex"))
+			/* XXX HasPrivPermission doesn't work correctly for remote users */
+			if (IS_LOCAL(dest) && dest->HasPrivPermission("users/auspex"))
 			{
 				wmsg += source->host;
 			}
