@@ -408,16 +408,16 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 
 void FilterBase::OnRehash(User* user, const std::string &parameter)
 {
-	ConfigReader* MyConf = new ConfigReader(ServerInstance);
+	ConfigReader MyConf(ServerInstance);
 	std::vector<std::string>().swap(exemptfromfilter);
-	for (int index = 0; index < MyConf->Enumerate("exemptfromfilter"); ++index)
+	for (int index = 0; index < MyConf.Enumerate("exemptfromfilter"); ++index)
 	{
-		std::string chan = MyConf->ReadValue("exemptfromfilter", "channel", index);
+		std::string chan = MyConf.ReadValue("exemptfromfilter", "channel", index);
 		if (!chan.empty()) {
 			exemptfromfilter.push_back(chan);
 		}
 	}
-	std::string newrxengine = MyConf->ReadValue("filteropts", "engine", 0);
+	std::string newrxengine = MyConf.ReadValue("filteropts", "engine", 0);
 	if (!RegexEngine.empty())
 	{
 		if (RegexEngine == newrxengine)
@@ -445,8 +445,6 @@ void FilterBase::OnRehash(User* user, const std::string &parameter)
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", RegexEngine.c_str());
 	}
-
-	delete MyConf;
 }
 
 void FilterBase::OnLoadModule(Module* mod, const std::string& name)
