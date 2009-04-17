@@ -35,9 +35,8 @@ void CullList::MakeSilent(User* user)
 int CullList::Apply()
 {
 	int n = list.size();
-	int i = 0;
 
-	while (list.size() && i++ != 100)
+	while (list.size())
 	{
 		std::vector<User *>::iterator a = list.begin();
 
