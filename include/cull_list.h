@@ -66,9 +66,8 @@ class CoreExport CullList : public classbase
 	 * iterating the user list and comparing each one,
 	 * especially if there are multiple comparisons
 	 * to be done, or recursion.
-	 * @returns The number of users removed from IRC.
 	 */
-	int Apply();
+	void Apply();
 };
 
 #endif

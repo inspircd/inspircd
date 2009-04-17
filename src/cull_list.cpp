@@ -18,7 +18,6 @@
 
 CullList::CullList(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	list.clear();
 }
 
 void CullList::AddItem(User* user)
@@ -32,15 +31,11 @@ void CullList::MakeSilent(User* user)
 	return;
 }
 
-int CullList::Apply()
+void CullList::Apply()
 {
-	int n = list.size();
-
-	while (list.size())
+	for(std::vector<User *>::iterator a = list.begin(); a != list.end(); a++)
 	{
-		std::vector<User *>::iterator a = list.begin();
-
-		User *u = (*a);
+		User *u = *a;
 		// user has been moved onto their UID; that's why this isn't find(u->nick)
 		user_hash::iterator iter = ServerInstance->Users->clientlist->find(u->uuid);
 
@@ -113,9 +108,7 @@ int CullList::Apply()
 		}
 
 		delete u;
-		list.erase(list.begin());
 	}
-
-	return n;
+	list.clear();
 }
 
