@@ -90,18 +90,32 @@ class CoreExport SnomaskManager : public Extensible
 	 */
 	bool DisableSnomask(char letter);
 
-	/** Write to all users with a given snomask.
+	/** Write to all users with a given snomask (local server only)
 	 * @param letter The snomask letter to write to
 	 * @param text The text to send to the users
 	 */
 	void WriteToSnoMask(char letter, const std::string &text);
 
-	/** Write to all users with a given snomask.
+	/** Write to all users with a given snomask (local server only)
 	 * @param letter The snomask letter to write to
 	 * @param text A format string containing text to send
 	 * @param ... Format arguments
 	 */
 	void WriteToSnoMask(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
+
+	/** Write to all users with a given snomask (sent globally)
+	 * @param letter The snomask letter to write to
+	 * @param text The text to send to the users
+	 */
+	void WriteGlobalSno(char letter, const std::string &text);
+
+	/** Write to all users with a given snomask (sent globally)
+	 * @param letter The snomask letter to write to
+	 * @param text A format string containing text to send
+	 * @param ... Format arguments
+	 */
+	void WriteGlobalSno(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
+
 
 	/** Called once per 5 seconds from the mainloop, this flushes any cached
 	 * snotices. The way the caching works is as follows:

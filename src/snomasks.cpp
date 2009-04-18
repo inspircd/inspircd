@@ -73,6 +73,13 @@ void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
 	}
 }
 
+void SnomaskManager::WriteGlobalSno(char letter, const std::string& text)
+{
+	WriteToSnoMask(letter, text);
+	letter = toupper(letter);
+	ServerInstance->PI->SendSNONotice(std::string(1, letter), text);
+}
+
 void SnomaskManager::WriteToSnoMask(char letter, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
@@ -83,6 +90,18 @@ void SnomaskManager::WriteToSnoMask(char letter, const char* text, ...)
 	va_end(argsPtr);
 
 	this->WriteToSnoMask(letter, std::string(textbuffer));
+}
+
+void SnomaskManager::WriteGlobalSno(char letter, const char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteGlobalSno(letter, std::string(textbuffer));
 }
 
 bool SnomaskManager::IsEnabled(char letter)
