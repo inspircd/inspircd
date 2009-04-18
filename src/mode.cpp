@@ -1164,7 +1164,7 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 			sprintf(moderemove,"-%c",this->GetModeChar());
 			parameters.push_back(user->nick);
 			parameters.push_back(moderemove);
-			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient, false);
+			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient, true);
 		}
 	}
 }
