@@ -52,8 +52,7 @@ class CommandChgname : public Command
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1].c_str());
-			ServerInstance->SNO->WriteToSnoMask('a', "%s used CHGNAME to change %s's real name to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
-			return CMD_LOCALONLY; /* name change routed by FNAME in spanningtree now */
+			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
 		}
 
 		/* route it! */
