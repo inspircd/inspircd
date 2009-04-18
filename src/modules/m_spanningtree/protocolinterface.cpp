@@ -179,6 +179,8 @@ void SpanningTreeProtocolInterface::SendUserNotice(User* target, const std::stri
 
 void SpanningTreeProtocolInterface::Introduce(User* user)
 {
+	if (user->quitting)
+		return;
 	if (IS_LOCAL(user))
 	{
 		std::deque<std::string> params;
