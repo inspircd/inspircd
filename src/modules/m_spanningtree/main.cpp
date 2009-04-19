@@ -58,6 +58,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
+	loopCall = false;
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
