@@ -51,6 +51,10 @@ class ModuleSpanningTree : public Module
 
  public:
 	CacheRefreshTimer *RefreshTimer;
+	/** Set to true if inside a spanningtree call, to prevent sending
+	 * xlines and other things back to their source
+	 */
+	bool loopCall;
 
 	/** Constructor
 	 */

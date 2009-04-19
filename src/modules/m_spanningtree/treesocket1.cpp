@@ -259,6 +259,7 @@ bool TreeSocket::OnDataReady()
 	if (data && *data)
 	{
 		this->in_buffer.append(data);
+		Utils->Creator->loopCall = true;
 		/* While there is at least one new line in the buffer,
 		 * do something useful (we hope!) with it.
 		 */
@@ -280,6 +281,7 @@ bool TreeSocket::OnDataReady()
 				return false;
 			}
 		}
+		Utils->Creator->loopCall = false;
 		return true;
 	}
 	/* EAGAIN returns an empty but non-NULL string, so this

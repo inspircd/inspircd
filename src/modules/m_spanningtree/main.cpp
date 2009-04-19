@@ -769,7 +769,7 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 
 void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 {
-	if (!x->IsBurstable())
+	if (!x->IsBurstable() || loopCall)
 		return;
 
 	char data[MAXBUF];
