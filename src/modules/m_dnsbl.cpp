@@ -117,6 +117,8 @@ class DNSBLResolver : public Resolver
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(kl,NULL))
 							{
+								ServerInstance->SNO->WriteToSnoMask('x',"m_dnsbl added K:line on *@%s to expire on %s (%s).", 
+									them->GetIPString(), ServerInstance->TimeString(kl->expiry).c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -129,6 +131,8 @@ class DNSBLResolver : public Resolver
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(gl,NULL))
 							{
+								ServerInstance->SNO->WriteToSnoMask('x',"m_dnsbl added G:line on *@%s to expire on %s (%s).", 
+									them->GetIPString(), ServerInstance->TimeString(gl->expiry).c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -141,6 +145,8 @@ class DNSBLResolver : public Resolver
 									them->GetIPString());
 							if (ServerInstance->XLines->AddLine(zl,NULL))
 							{
+								ServerInstance->SNO->WriteToSnoMask('x',"m_dnsbl added Z:line on *@%s to expire on %s (%s).", 
+									them->GetIPString(), ServerInstance->TimeString(zl->expiry).c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
