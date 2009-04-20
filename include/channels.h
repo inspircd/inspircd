@@ -336,7 +336,7 @@ class CoreExport Channel : public Extensible
 	 * @return The number of users left on the channel. If this is zero
 	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long ServerKickUser(User* user, const char* reason, bool triggerevents, const char* servername = NULL);
+	long ServerKickUser(User* user, const char* reason, const char* servername = NULL);
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.

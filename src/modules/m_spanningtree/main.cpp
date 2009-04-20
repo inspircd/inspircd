@@ -677,6 +677,8 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 
 void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 {
+	if (loopCall)
+		return;
 	if ((source) && (IS_LOCAL(source)))
 	{
 		std::deque<std::string> params;

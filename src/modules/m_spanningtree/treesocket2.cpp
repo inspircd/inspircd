@@ -451,7 +451,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 								User* user = this->ServerInstance->FindNick(nick);
 								if (user)
 								{
-									if (!chan->ServerKickUser(user, params[2].c_str(), false, pf->GetName().c_str()))
+									if (!chan->ServerKickUser(user, params[2].c_str(), pf->GetName().c_str()))
 										/* Yikes, the channels gone! */
 										delete chan;
 								}

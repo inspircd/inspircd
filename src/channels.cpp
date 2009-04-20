@@ -592,7 +592,7 @@ long Channel::PartUser(User *user, std::string &reason)
 	return this->GetUserCounter();
 }
 
-long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents, const char* servername)
+long Channel::ServerKickUser(User* user, const char* reason, const char* servername)
 {
 	bool silent = false;
 
@@ -611,10 +611,7 @@ long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents,
 	if (servername == NULL || *ServerInstance->Config->HideWhoisServer)
 		servername = ServerInstance->Config->ServerName;
 
-	if (triggerevents)
-	{
-		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL, user, this, reason, silent));
-	}
+	FOREACH_MOD(I_OnUserKick,OnUserKick(NULL, user, this, reason, silent));
 
 	UCListIter i = user->chans.find(this);
 	if (i != user->chans.end())
