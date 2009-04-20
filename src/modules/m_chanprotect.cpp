@@ -88,11 +88,9 @@ class FounderProtectBase
 
 		while (modestack.GetStackedLine(stackresult))
 		{
-			for (size_t j = 0; j < stackresult.size(); j++)
-			{
-				mode_junk.push_back(stackresult[j]);
-			}
+			mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
 			MyInstance->SendMode(mode_junk, MyInstance->FakeClient);
+			mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
 		}
 	}
 

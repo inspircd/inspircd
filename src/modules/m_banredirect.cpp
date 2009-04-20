@@ -240,12 +240,9 @@ class ModuleBanRedirect : public Module
 
 				while(modestack.GetStackedLine(stackresult))
 				{
-					for(StringDeque::size_type i = 0; i < stackresult.size(); i++)
-					{
-						mode_junk.push_back(stackresult[i]);
-					}
-
+					mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
 					ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
+					mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
 				}
 
 				delete redirects;

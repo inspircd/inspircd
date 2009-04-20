@@ -217,12 +217,9 @@ class ListModeBase : public ModeHandler
 
 			while (modestack.GetStackedLine(stackresult))
 			{
-				for (size_t j = 0; j < stackresult.size(); j++)
-				{
-					mode_junk.push_back(stackresult[j]);
-				}
-
+				mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
 				ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
+				mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
 			}
 		}
 	}
