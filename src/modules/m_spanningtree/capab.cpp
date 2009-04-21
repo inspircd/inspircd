@@ -171,8 +171,9 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 				if (diffUneed.length())
 					reason += " Not loaded there:" + diffUneed;
 			}
+			this->SendError("CAPAB negotiation failed: "+reason);
+			return false;
 		}
-
 		if (((this->CapKeys.find("IP6SUPPORT") == this->CapKeys.end()) && (ip6support)) || ((this->CapKeys.find("IP6SUPPORT") != this->CapKeys.end()) && (this->CapKeys.find("IP6SUPPORT")->second != ConvToStr(ip6support))))
 			reason = "We don't both support linking to IPV6 servers";
 		if (((this->CapKeys.find("IP6NATIVE") != this->CapKeys.end()) && (this->CapKeys.find("IP6NATIVE")->second == "1")) && (!ip6support))
