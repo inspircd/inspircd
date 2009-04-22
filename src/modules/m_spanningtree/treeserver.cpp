@@ -53,7 +53,8 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	bursting = true;
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;
-	this->SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
+	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
+	SetPingFlag();
 	Warned = false;
 	rtt = 0;
 
@@ -127,6 +128,8 @@ std::string& TreeServer::GetID()
 void TreeServer::FinishBurstInternal()
 {
 	this->bursting = false;
+	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
+	SetPingFlag();
 	for(unsigned int q=0; q < ChildCount(); q++)
 	{
 		TreeServer* child = GetChild(q);
@@ -144,7 +147,6 @@ void TreeServer::FinishBurst()
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	SetPingFlag();
 	Event rmode((char*)ServerName.c_str(),  (Module*)Utils->Creator, "new_server");
 	rmode.Send(ServerInstance);
 }
