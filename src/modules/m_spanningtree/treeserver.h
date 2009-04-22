@@ -56,11 +56,6 @@ class TreeServer : public classbase
 	bool Warned;				/* True if we've warned opers about high latency on this server */
 	bool bursting;				/* whether or not this server is bursting */
 
-	/** We don't use this constructor. Its a dummy, and won't cause any insertion
-	 * of the TreeServer into the hash_map. See below for the two we DO use.
-	 */
-	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &id);
-
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.

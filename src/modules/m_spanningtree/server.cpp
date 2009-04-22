@@ -80,7 +80,6 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	params[4] = ":" + params[4];
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
 	this->ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
-	Node->bursting = true;
 	return true;
 }
 
@@ -172,7 +171,6 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		params[1] = "*";
 		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,sname);
 
-		Node->bursting = true;
 		this->DoBurst(Node);
 		return true;
 	}

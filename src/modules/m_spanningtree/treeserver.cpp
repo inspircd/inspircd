@@ -23,20 +23,6 @@
 
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h */
 
-TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &id) : ServerInstance(Instance), Utils(Util)
-{
-	Parent = NULL;
-	bursting = false;
-	ServerName.clear();
-	ServerDesc.clear();
-	VersionString.clear();
-	ServerUserCount = ServerOperCount = 0;
-	StartBurst = rtt = 0;
-	Warned = Hidden = false;
-	VersionString = ServerInstance->GetVersionString();
-	SetID(id);
-}
-
 /** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
  * represents our own server. Therefore, it has no route, no parent, and
  * no socket associated with it. Its version string is our own local version.
@@ -64,13 +50,12 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
-	bursting = false;
+	bursting = true;
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;
 	this->SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
-	this->SetPingFlag();
 	Warned = false;
-	StartBurst = rtt = 0;
+	rtt = 0;
 
 	timeval t;
 	gettimeofday(&t, NULL);
@@ -157,7 +142,9 @@ void TreeServer::FinishBurst()
 	gettimeofday(&t, NULL);
 	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 	unsigned long bursttime = ts - this->StartBurst;
-	ServerInstance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu %s)", ServerName.c_str(), (bursttime > 1000 ? bursttime / 1000 : bursttime), (bursttime > 1000 ? "secs" : "msecs"));
+	ServerInstance->SNO->WriteToSnoMask('l', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
+		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
+	SetPingFlag();
 	Event rmode((char*)ServerName.c_str(),  (Module*)Utils->Creator, "new_server");
 	rmode.Send(ServerInstance);
 }
