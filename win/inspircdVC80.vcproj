@@ -3947,7 +3947,7 @@
 				RelativePath="..\src\modules\m_nationalchars.cpp"
 				>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Site Release|Win32"
 					ExcludedFromBuild="true"
 					>
 					<Tool

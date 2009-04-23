@@ -946,7 +946,7 @@ Version ModuleSpanningTree::GetVersion()
  */
 void ModuleSpanningTree::Prioritize()
 {
-	ServerInstance->Modules->SetPriority(this, PRIORITY_LAST);
+	ServerInstance->Modules->SetModulePriority(this, PRIORITY_LAST);
 }
 
 MODULE_INIT(ModuleSpanningTree)

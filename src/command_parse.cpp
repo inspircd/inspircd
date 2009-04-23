@@ -650,7 +650,7 @@ int CommandParser::TranslateUIDs(const std::deque<TranslateType> to, const std::
 	return translations;
 }
 
-int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
+int CommandParser::TranslateUIDsOnce(TranslateType to, const std::string &source, std::string &dest)
 {
 	User* user = NULL;
 	std::string item;

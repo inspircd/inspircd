@@ -68,7 +68,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 			}
 			else
 			{
-				ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
+				ServerInstance->Parser->TranslateUIDsOnce(translate_to, parameters[j], target);
 			}
 
 			if (j == (parameters.size() - 1))

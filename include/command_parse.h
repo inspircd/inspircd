@@ -201,7 +201,7 @@ class CoreExport CommandParser : public classbase
 	 * @param dest The output string, it is safe to pass source and dest as the same variable only for translation type TR_TEXT.
 	 * @return returns the number of substitutions made. Will always be 0 or 1 for TR_TEXT and 0..n for other types.
 	 */
-	int TranslateUIDs(TranslateType to, const std::string &source, std::string &dest);
+	int TranslateUIDsOnce(TranslateType to, const std::string &source, std::string &dest);
 
 	int TranslateUIDs(const std::deque<TranslateType> to, const std::deque<std::string> &source, std::string &dest);
 };
