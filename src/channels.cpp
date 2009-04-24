@@ -243,7 +243,8 @@ void Channel::SetDefaultModes()
  */
 Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS)
 {
-	if (!user || !cn)
+	// Fix: unregistered users could be joined using /SAJOIN
+	if (!user || !cn || user->registered != REG_ALL)
 		return NULL;
 
 	char cname[MAXBUF];
