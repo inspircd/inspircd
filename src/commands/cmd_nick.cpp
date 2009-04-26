@@ -183,19 +183,20 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	if (user->registered < REG_NICKUSER)
 	{
 		user->registered = (user->registered | REG_NICK);
+		if (user->registered == REG_NICKUSER)
+		{
+			/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
+			MOD_RESULT = 0;
+			FOREACH_RESULT(I_OnUserRegister,OnUserRegister(user));
+			if (MOD_RESULT > 0)
+				return CMD_FAILURE;
+
+			// return early to not penalize new users
+			return CMD_SUCCESS;
+		}
 	}
 
-	// Keep these seperate!
-
-	if (user->registered == REG_NICKUSER)
-	{
-		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-		MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnUserRegister,OnUserRegister(user));
-		if (MOD_RESULT > 0)
-			return CMD_FAILURE;
-	}
-	else if (user->registered == REG_ALL)
+	if (user->registered == REG_ALL)
 	{
 		user->IncreasePenalty(10);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user, oldnick));
