@@ -269,12 +269,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 						ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Protocol violation: Fake direction in command '%s' from connection '%s'",line.c_str(),this->GetName().c_str());
 					return true;
 				}
-				/* Fix by brain:
-				 * When there is activity on the socket, reset the ping counter so
-				 * that we're not wasting bandwidth pinging an active server.
-				 */
-				route_back_again->SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
-				route_back_again->SetPingFlag();
 			}
 			else
 			{
