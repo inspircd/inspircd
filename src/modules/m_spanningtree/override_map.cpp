@@ -25,7 +25,7 @@
 const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 {
 	time_t secs_up = ServerInstance->Time() - Current->age;
-	return (" [Up: " + TimeToStr(secs_up) + " Lag: " + (Current->rtt == 0 ? "<1" : ConvToStr(Current->rtt)) + "ms]");
+	return " [Up: " + TimeToStr(secs_up) + (Current->rtt == 0 ? "]" : " Lag: " + ConvToStr(Current->rtt) + "ms]");
 }
 
 void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats)
