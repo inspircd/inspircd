@@ -333,7 +333,9 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		output.append(" SSL=" + sslports);
+		if (!sslports.empty())
+			output.append(" SSL=" + sslports);
+		output.append(" STARTTLS");
 	}
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
