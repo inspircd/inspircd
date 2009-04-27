@@ -29,7 +29,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 	{
 		FOREACH_RESULT(I_OnSetAway, OnSetAway(user, parameters[0]));
 
-		if (MOD_RESULT != 0 && !IS_LOCAL(user))
+		if (MOD_RESULT != 0 && IS_LOCAL(user))
 			return CMD_FAILURE;
 
 		user->awaytime = ServerInstance->Time();
@@ -41,7 +41,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 	{
 		FOREACH_RESULT(I_OnSetAway, OnSetAway(user, ""));
 
-		if (MOD_RESULT != 0 && !IS_LOCAL(user))
+		if (MOD_RESULT != 0 && IS_LOCAL(user))
 			return CMD_FAILURE;
 
 		user->awaymsg.clear();
