@@ -338,8 +338,8 @@ class ModuleChanProtect : public Module
 			throw ModuleException("Could not add new modes!");
 		}
 
-		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnUserPreJoin, I_OnPostJoin, I_OnAccessCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnUserPreJoin, I_OnAccessCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
@@ -390,20 +390,6 @@ class ModuleChanProtect : public Module
 			privs = std::string(1, QPrefix) + "@";
 
 		return 0;
-	}
-
-	virtual void OnPostJoin(User *user, Channel *channel)
-	{
-		// This *must* be in PostJoin, not UserJoin - the former will make it appear to happen
-		// before the client is in the channel
-
-		// This notice was here originally because it was all done prior to the creation of
-		// privs in OnUserPreJoin. I've left it because it might still be wanted, but i'm
-		// not sure it really should be here - ops don't get shown, obviously, and the prefix
-		// will appear in the names list for the user.. remove if desired -Special
-
-		if (FirstInGetsFounder && channel->GetUserCounter() == 1)
-			user->WriteServ("MODE %s +q %s", channel->name.c_str(), user->nick.c_str());
 	}
 
 	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
