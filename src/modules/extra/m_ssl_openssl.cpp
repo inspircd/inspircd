@@ -188,7 +188,7 @@ class ModuleSSLOpenSSL : public Module
 					int portint = 0;
 					irc::sockets::sockaddrs bin;
 					if (irc::sockets::aptosa(addr.c_str(), portint, &bin))
-						irc::sockets::satoap(addr, portint, &bin);
+						irc::sockets::satoap(&bin, addr, portint);
 				}
 
 				irc::portparser portrange(port, false);
