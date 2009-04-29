@@ -99,11 +99,11 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 		std::string ckey;
 		ckey.assign(parameter, 0, 32);
 		parameter = ckey;
-		channel->SetMode('k', parameter);
+		channel->SetModeParam('k', parameter);
 	}
 	else
 	{
-		channel->SetMode('k', "");
+		channel->SetModeParam('k', "");
 	}
 	return MODEACTION_ALLOW;
 }

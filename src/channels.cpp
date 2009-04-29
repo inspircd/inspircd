@@ -36,7 +36,7 @@ void Channel::SetMode(char mode,bool mode_on)
 	modes[mode-65] = mode_on;
 }
 
-void Channel::SetMode(char mode, std::string parameter)
+void Channel::SetModeParam(char mode, std::string parameter)
 {
 	CustomModeList::iterator n = custom_mode_params.find(mode);
 	// always erase, even if changing, so that the map gets the new value

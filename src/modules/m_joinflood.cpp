@@ -144,7 +144,7 @@ class JoinFlood : public ModeHandler
 						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
 						joinfloodsettings *f = new joinfloodsettings(ServerInstance, nsecs, njoins);
 						channel->Extend("joinflood", f);
-						channel->SetMode('j', parameter);
+						channel->SetModeParam('j', parameter);
 						return MODEACTION_ALLOW;
 					}
 					else
@@ -167,7 +167,7 @@ class JoinFlood : public ModeHandler
 								f = new joinfloodsettings(ServerInstance, nsecs, njoins);
 								channel->Shrink("joinflood");
 								channel->Extend("joinflood", f);
-								channel->SetMode('j', parameter);
+								channel->SetModeParam('j', parameter);
 								return MODEACTION_ALLOW;
 							}
 							else
@@ -192,7 +192,7 @@ class JoinFlood : public ModeHandler
 				channel->GetExt("joinflood", f);
 				delete f;
 				channel->Shrink("joinflood");
-				channel->SetMode('j', "");
+				channel->SetModeParam('j', "");
 				return MODEACTION_ALLOW;
 			}
 		}

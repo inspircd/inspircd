@@ -143,7 +143,7 @@ class MsgFlood : public ModeHandler
 						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
 						floodsettings *fs = new floodsettings(ServerInstance,ban,nsecs,nlines);
 						channel->Extend("flood",fs);
-						channel->SetMode('f', parameter);
+						channel->SetModeParam('f', parameter);
 						return MODEACTION_ALLOW;
 					}
 					else
@@ -163,7 +163,7 @@ class MsgFlood : public ModeHandler
 								floodsettings *fs = new floodsettings(ServerInstance,ban,nsecs,nlines);
 								channel->Shrink("flood");
 								channel->Extend("flood",fs);
-								channel->SetMode('f', parameter);
+								channel->SetModeParam('f', parameter);
 								return MODEACTION_ALLOW;
 							}
 							else
@@ -187,7 +187,7 @@ class MsgFlood : public ModeHandler
 			{
 				delete f;
 				channel->Shrink("flood");
-				channel->SetMode('f', "");
+				channel->SetModeParam('f', "");
 				return MODEACTION_ALLOW;
 			}
 		}

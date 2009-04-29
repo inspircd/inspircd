@@ -207,7 +207,7 @@ class CoreExport Channel : public Extensible
 	 * @param parameter The parameter string to associate with this mode character.
 	 * If it is empty, the mode is unset; if it is nonempty, the mode is set.
 	 */
-	void SetMode(char mode, std::string parameter);
+	void SetModeParam(char mode, std::string parameter);
 
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query

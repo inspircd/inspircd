@@ -144,7 +144,7 @@ class NickFlood : public ModeHandler
 						parameter = ConvToStr(nnicks) + ":" +ConvToStr(nsecs);
 						nickfloodsettings *f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
 						channel->Extend("nickflood", f);
-						channel->SetMode('F', parameter);
+						channel->SetModeParam('F', parameter);
 						return MODEACTION_ALLOW;
 					}
 					else
@@ -167,7 +167,7 @@ class NickFlood : public ModeHandler
 								f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
 								channel->Shrink("nickflood");
 								channel->Extend("nickflood", f);
-								channel->SetMode('F', parameter);
+								channel->SetModeParam('F', parameter);
 								return MODEACTION_ALLOW;
 							}
 							else
@@ -192,7 +192,7 @@ class NickFlood : public ModeHandler
 				channel->GetExt("nickflood", f);
 				delete f;
 				channel->Shrink("nickflood");
-				channel->SetMode('F', "");
+				channel->SetModeParam('F', "");
 				return MODEACTION_ALLOW;
 			}
 		}
