@@ -276,4 +276,42 @@ int irc::sockets::insp_aton(const char* a, insp_inaddr* n)
 	return inet_pton(AF_FAMILY, a, n);
 }
 
+int irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa)
+{
+	memset(sa, 0, sizeof(sa));
+	if (inet_pton(AF_INET, addr, &sa->in4.sin_addr) > 0)
+	{
+		sa->in4.sin_family = AF_INET;
+		sa->in4.sin_port = htons(port);
+		return true;
+	}
+	else if (inet_pton(AF_INET6, addr, &sa->in6.sin6_addr) > 0)
+	{
+		sa->in6.sin6_family = AF_INET6;
+		sa->in6.sin6_port = htons(port);
+		return true;
+	}
+	return false;
+}
+
+int irc::sockets::satoap(const irc::sockets::sockaddrs* sa, std::string& addr, int &port) {
+	char addrv[INET6_ADDRSTRLEN+1];
+	if (sa->sa.sa_family == AF_INET)
+	{
+		if (!inet_ntop(AF_INET, &sa->in4.sin_addr, addrv, sizeof(addrv)))
+			return false;
+		addr = addrv;
+		port = ntohs(sa->in4.sin_port);
+		return true;
+	}
+	else if (sa->sa.sa_family == AF_INET6)
+	{
+		if (!inet_ntop(AF_INET6, &sa->in6.sin6_addr, addrv, sizeof(addrv)))
+			return false;
+		addr = addrv;
+		port = ntohs(sa->in6.sin6_port);
+		return true;
+	}
+	return false;
+}
 

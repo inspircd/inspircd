@@ -142,6 +142,21 @@ namespace irc
 		 * descriptors)
 		 */
 		CoreExport int OpenTCPSocket(const char* addr, int socktype = SOCK_STREAM);
+
+		/** Convert an address-port pair into a binary sockaddr
+		 * @param addr The IP address, IPv4 or IPv6
+		 * @param port The port, 0 for unspecified
+		 * @param sa The structure to place the result in. Will be zeroed prior to conversion
+		 * @return true if the conversion was successful, false if not.
+		 */
+		CoreExport int aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa);
+		/** Convert a binary sockaddr to an address-port pair
+		 * @param sa The structure to convert
+		 * @param addr the IP address
+		 * @param port the port
+		 * @return true if the conversion was successful, false if unknown address family
+		 */
+		CoreExport int satoap(const irc::sockets::sockaddrs* sa, std::string& addr, int &port);
 	}
 }
 
