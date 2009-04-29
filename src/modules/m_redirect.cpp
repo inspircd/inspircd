@@ -30,38 +30,35 @@ class Redirect : public ModeHandler
 			return std::make_pair(false, parameter);
 	}
 
-	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
-	{
-		/* When TS is equal, the alphabetically later one wins */
-		return (their_param < our_param);
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool server)
 	{
 		if (adding)
 		{
-			Channel* c = NULL;
-
-			if (IS_LOCAL(source) && !ServerInstance->IsChannel(parameter.c_str(), ServerInstance->Config->Limits.ChanMax))
+			if (IS_LOCAL(source))
 			{
-				source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
-				parameter.clear();
-				return MODEACTION_DENY;
+				if (!ServerInstance->IsChannel(parameter.c_str(), ServerInstance->Config->Limits.ChanMax))
+				{
+					source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
+					parameter.clear();
+					return MODEACTION_DENY;
+				}
 			}
 
-			c = ServerInstance->FindChan(parameter);
-			if (!c && !IS_OPER(source))
+			if (IS_LOCAL(source) && !IS_OPER(source) && !server)
 			{
-				source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
-				parameter.clear();
-				return MODEACTION_DENY;
-			}
-
-			if (c && c->GetStatus(source) < STATUS_OP && !IS_OPER(source))
-			{
-				source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
-				parameter.clear();
-				return MODEACTION_DENY;
+				Channel* c = ServerInstance->FindChan(parameter);
+				if (!c)
+				{
+					source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
+					parameter.clear();
+					return MODEACTION_DENY;
+				}
+				else if (c->GetStatus(source) < STATUS_OP)
+				{
+					source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
+					parameter.clear();
+					return MODEACTION_DENY;
+				}
 			}
 
 			/*
