@@ -182,6 +182,15 @@ class ModuleSSLOpenSSL : public Module
 				std::string port = Conf.ReadValue("bind", "port", index);
 				std::string addr = Conf.ReadValue("bind", "address", index);
 
+				if (!addr.empty())
+				{
+					// normalize address, important for IPv6
+					int portint = 0;
+					irc::sockets::sockaddrs bin;
+					if (irc::sockets::aptosa(addr.c_str(), portint, &bin))
+						irc::sockets::satoap(addr, portint, &bin);
+				}
+
 				irc::portparser portrange(port, false);
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
