@@ -170,15 +170,15 @@ bool BufferedSocket::BindAddr(const std::string &ip_to_bind)
 {
 	ConfigReader Conf(this->ServerInstance);
 	bool v6 = false;
-#ifdef IPV6
-	/* Are we looking for a binding to fit an ipv6 host? */
-	if ((ip_to_bind.empty()) || (ip_to_bind.find(':') != std::string::npos))
-		v6 = true;
-#endif
 
 	// Case one: If they provided an IP, try bind it
 	if (!ip_to_bind.empty())
 	{
+#ifdef IPV6
+		// Check whether or not they are binding to an IPv6 IP..
+		if (ip_to_bind.find(':') != std::string::npos)
+			v6 = true;
+#endif
 		// And if it fails, don't do anything.
 		return this->DoBindMagic(ip_to_bind, v6);
 	}
@@ -191,6 +191,14 @@ bool BufferedSocket::BindAddr(const std::string &ip_to_bind)
 
 		// set current IP to the <bind> tag
 		std::string current_ip = Conf.ReadValue("bind","address",j);
+
+#ifdef IPV6
+		// Check whether this <bind> is for an ipv6 address
+		if (current_ip.find(':') != std::string::npos)
+			v6 = true;
+		else
+			v6 = false;
+#endif
 
 		// Make sure IP is nothing local
 		if (current_ip == "*" || current_ip == "127.0.0.1" || current_ip.empty() || current_ip == "::1")
