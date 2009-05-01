@@ -91,7 +91,7 @@ class CommandSilence : public Command
  public:
 	CommandSilence (InspIRCd* Instance, unsigned int &max) : Command(Instance,"SILENCE", 0, 0), maxsilence(max)
 	{
-		this->source = "m_silence_ext.so";
+		this->source = "m_silence.so";
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
