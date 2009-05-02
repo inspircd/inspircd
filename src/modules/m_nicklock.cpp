@@ -59,7 +59,7 @@ class CommandNicklock : public Command
 				return CMD_FAILURE;
 			}
 
-			user->WriteServ("947 %s %s :Nickname now locked.", user->nick, source->nick");
+			user->WriteServ("947 %s %s :Nickname now locked.", user->nick.c_str(), parameters[1].c_str());
 		}
 
 		/* If we made it this far, extend the user */
