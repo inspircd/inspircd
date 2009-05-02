@@ -363,6 +363,11 @@ class ModuleAlias : public Module
 			/* Channel specific variables */
 			SearchAndReplace(newline, std::string("$chan"), c->name);
 		}
+		else
+		{
+			/* We don't want these in a user alias */
+			SearchAndReplace(newline, std::string("$chan"), "");
+		}
 
 		irc::tokenstream ss(newline);
 		pars.clear();
