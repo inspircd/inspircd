@@ -58,11 +58,14 @@ class CommandNicklock : public Command
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
 				return CMD_FAILURE;
 			}
+
+			user->WriteServ("947 %s %s :Nickname now locked.", user->nick, source->nick");
 		}
 
 		/* If we made it this far, extend the user */
 		if (target)
 		{
+			// This has to be done *here*, because this metadata must be stored netwide.
 			target->Extend("nick_locked", "ON");
 			ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
 
