@@ -49,18 +49,19 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		ServerInstance->PI->SendUserNotice(user, std::string("*** Rehashing server ") + ServerInstance->ConfigFileName);
 
 
-	std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
-	ServerInstance->SNO->WriteToSnoMask('a', m);
-
-	/* Don't do anything with the logs here -- logs are restarted
-	 * after the config thread has completed.
-	 */
-
-	ServerInstance->RehashUsersAndChans();
-	FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
-
 	if (!ServerInstance->ConfigThread)
 	{
+		std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
+		ServerInstance->SNO->WriteGlobalSno('a', m);
+
+		/* Don't do anything with the logs here -- logs are restarted
+		 * after the config thread has completed.
+		 */
+
+		ServerInstance->RehashUsersAndChans();
+		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+
+
 		ServerInstance->Config->RehashUserUID = user->uuid;
 		ServerInstance->Config->RehashParameter = parameters.size() ? parameters[0] : "";
 
