@@ -206,7 +206,8 @@ void chanrec::SetDefaultModes()
  */
 chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bool override, const char* key, time_t TS)
 {
-	if (!user || !cn)
+	// Fix: unregistered users could be joined using /SAJOIN
+	if (!user || !cn || user->registered != REG_ALL)
 		return NULL;
 
 	bool new_channel = false, invited = false;
