@@ -75,7 +75,7 @@ class CommandWebirc : public Command
 						user->Extend("cgiirc_realhost", new std::string(user->host));
 						user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 						if (notify)
-							ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
+							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
 						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
 						user->Extend("cgiirc_webirc_ip", new std::string(parameters[3]));
 						return CMD_LOCALONLY;
@@ -83,7 +83,7 @@ class CommandWebirc : public Command
 				}
 			}
 
-			ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}
 };
@@ -110,7 +110,7 @@ class CGIResolver : public Resolver
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
-				ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
 
 			them->host.assign(result,0, 64);
 			them->dhost.assign(result, 0, 64);
@@ -355,7 +355,7 @@ public:
 			{
 				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
 				if(NotifyOpers)
-					ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick.c_str(), user->host.c_str(), user->password.c_str());
+					ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick.c_str(), user->host.c_str(), user->password.c_str());
 			}
 			else
 			{

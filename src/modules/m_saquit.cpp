@@ -38,7 +38,7 @@ class CommandSaquit : public Command
 				return CMD_FAILURE;
 			}
 
-			ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+parameters[1]);
+			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+parameters[1]);
 
 			// Pass the command on, so the client's server can quit it properly.
 			if (!IS_LOCAL(dest))

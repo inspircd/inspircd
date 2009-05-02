@@ -67,7 +67,7 @@ class CommandNicklock : public Command
 		{
 			// This has to be done *here*, because this metadata must be stored netwide.
 			target->Extend("nick_locked", "ON");
-			ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
 
 			/* Only send out nick from local server */
 			if (IS_LOCAL(target))
@@ -129,7 +129,7 @@ class CommandNickunlock : public Command
 		}
 
 		/* If we made it this far, the command is going out on the wire so send local snotice */
-		ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
+		ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 
 		if (target)
 		{

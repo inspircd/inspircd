@@ -80,7 +80,7 @@ public:
 			{
 				/* expire throttle */
 				throttled = 0;
-				ServerInstance->SNO->WriteToSnoMask('a', "Connection throttle deactivated");
+				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle deactivated");
 				return 0;
 			}
 
@@ -93,7 +93,7 @@ public:
 			if (conns >= maxconns)
 			{
 				throttled = 1;
-				ServerInstance->SNO->WriteToSnoMask('a', "Connection throttle activated");
+				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle activated");
 				ServerInstance->Users->QuitUser(user, quitmsg);
 				return 1;
 			}
