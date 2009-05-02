@@ -96,23 +96,6 @@ void RemoveData(User* who)
 	delete dat;
 }
 
-void RemoveFromAllAccepts(InspIRCd* ServerInstance, User* who)
-{
-	for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
-	{
-		callerid_data* dat = GetData(i->second, false);
-
-		if (!dat)
-			continue;
-
-		std::set<User*>::iterator iter = dat->accepting.find(who);
-
-		if (iter == dat->accepting.end())
-			continue;
-
-		dat->accepting.erase(iter);
-	}
-}
 
 class User_g : public SimpleUserModeHandler
 {
@@ -281,6 +264,27 @@ private:
 	bool tracknick; // Allow ACCEPT entries to update with nick changes.
 	unsigned int notify_cooldown; // Seconds between notifications.
 
+	/** Removes a user from all accept lists
+	 * @param who The user to remove from accepts
+	 */
+	void RemoveFromAllAccepts(User* who)
+	{
+		for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
+		{
+			callerid_data* dat = GetData(i->second, false);
+
+			if (!dat)
+				continue;
+
+			std::set<User*>::iterator iter = dat->accepting.find(who);
+
+			if (iter == dat->accepting.end())
+				continue;
+
+			dat->accepting.erase(iter);
+		}
+	}
+
 public:
 	ModuleCallerID(InspIRCd* Me) : Module(Me)
 	{
@@ -407,14 +411,14 @@ public:
 	virtual int OnUserPreNick(User* user, const std::string& newnick)
 	{
 		if (!tracknick)
-			RemoveFromAllAccepts(ServerInstance, user);
+			RemoveFromAllAccepts(user);
 		return 0;
 	}
 
 	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
 	{
 		RemoveData(user);
-		RemoveFromAllAccepts(ServerInstance, user);
+		RemoveFromAllAccepts(user);
 	}
 
 	virtual void OnRehash(User* user, const std::string& parameter)
