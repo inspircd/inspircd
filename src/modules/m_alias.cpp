@@ -241,15 +241,14 @@ class ModuleAlias : public Module
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		std::string safe(compare);
-
 		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: compare is %s and safe is %s", compare.c_str(), safe.c_str());
 
 		while (i != upperbound)
 		{
 			if (i->second.ChannelCommand)
 			{
-				if (DoAlias(user, c, &(i->second), compare, safe))
+				// We use substr(1) here to remove the fantasy prefix
+				if (DoAlias(user, c, &(i->second), compare, text.substr(1)))
 					return 0;
 			}
 
