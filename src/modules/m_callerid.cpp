@@ -22,7 +22,14 @@ class callerid_data : public classbase
 {
  public:
 	time_t lastnotify;
+
+	/** Users I accept messages from
+	 */
 	std::set<User*> accepting;
+
+	/** Users who list me as accepted
+	 */
+	std::list<callerid_data *> wholistsme;
 
 	callerid_data() : lastnotify(0) { }
 	callerid_data(const std::string& str, InspIRCd* ServerInstance)
@@ -39,11 +46,8 @@ class callerid_data : public classbase
 			{
 				continue;
 			}
-			User* u = ServerInstance->FindUUID(tok);
-			if (!u)
-			{
-				u = ServerInstance->FindNick(tok);
-			}
+
+			User *u = ServerInstance->FindNick(tok);
 			if (!u)
 			{
 				continue;
@@ -66,6 +70,11 @@ class callerid_data : public classbase
 	}
 };
 
+/** Retrieves the callerid information for a given user record
+ * @param who The user to retrieve callerid information for
+ * @param extend true to add callerid information if it doesn't already exist, false to return NULL if it doesn't exist
+ * @return NULL if extend is false and it doesn't exist, a callerid_data instance otherwise.
+ */
 callerid_data* GetData(User* who, bool extend = true)
 {
 	callerid_data* dat;
@@ -91,6 +100,24 @@ void RemoveData(User* who)
 
 	if (!dat)
 		return;
+
+	// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
+	for (std::set<User *>::iterator it = dat->accepting.begin(); it != dat->accepting.end(); it++)
+	{
+		callerid_data *targ = GetData(*it, false);
+
+		if (!targ)
+			continue; // shouldn't happen, but oh well.
+
+		for (std::list<callerid_data *>::iterator it2 = targ->wholistsme.begin(); it2 != targ->wholistsme.end(); it2++)
+		{
+			if (*it2 == dat)
+			{
+				targ->wholistsme.erase(it2);
+				break;
+			}
+		}
+	}
 
 	who->Shrink("callerid_data");
 	delete dat;
@@ -207,6 +234,7 @@ public:
 
 	bool AddAccept(User* user, User* whotoadd, bool quiet)
 	{
+		// Add this user to my accept list first, so look me up..
 		callerid_data* dat = GetData(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
@@ -223,12 +251,17 @@ public:
 			return false;
 		}
 
+		// Now, look them up, and add me to their list
+		callerid_data *targ = GetData(whotoadd, true);
+		targ->wholistsme.push_back(dat);
+
 		user->WriteServ("NOTICE %s :%s is now on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
 		return true;
 	}
 
 	bool RemoveAccept(User* user, User* whotoremove, bool quiet)
 	{
+		// Remove them from my list, so look up my list..
 		callerid_data* dat = GetData(user, false);
 		if (!dat)
 		{
@@ -246,8 +279,27 @@ public:
 			return false;
 		}
 
-		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 		dat->accepting.erase(i);
+
+		// Look up their list to remove me.
+		callerid_data *dat2 = GetData(whotoremove, false);
+		if (!dat2)
+		{
+			// How the fuck is this possible.
+			return NULL;
+		}
+
+		for (std::list<callerid_data *>::iterator it = dat2->wholistsme.begin(); it != dat2->wholistsme.end(); it++)
+		{
+			// Found me!
+			if (*it == dat)
+			{
+				dat2->wholistsme.erase(it);
+				break;
+			}
+		}
+
+		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 		return true;
 	}
 };
@@ -269,20 +321,24 @@ private:
 	 */
 	void RemoveFromAllAccepts(User* who)
 	{
-		for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
+		// First, find the list of people who have me on accept
+		callerid_data *userdata = GetData(who, false);
+		if (!userdata)
+			return;
+
+		// Iterate over the list of people who accept me, and remove all entries
+		for (std::list<callerid_data *>::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); it++)
 		{
-			callerid_data* dat = GetData(i->second, false);
+			callerid_data *dat = *(it);
 
-			if (!dat)
-				continue;
+			// Find me on their callerid list
+			std::set<User *>::iterator it2 = dat->accepting.find(who);
 
-			std::set<User*>::iterator iter = dat->accepting.find(who);
-
-			if (iter == dat->accepting.end())
-				continue;
-
-			dat->accepting.erase(iter);
+			if (it2 != dat->accepting.end())
+				dat->accepting.erase(it2);
 		}
+
+		userdata->wholistsme.clear();
 	}
 
 public:
@@ -417,8 +473,8 @@ public:
 
 	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
 	{
-		RemoveData(user);
 		RemoveFromAllAccepts(user);
+		RemoveData(user);
 	}
 
 	virtual void OnRehash(User* user, const std::string& parameter)
