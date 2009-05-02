@@ -111,6 +111,7 @@ launchd_dir:
 configureclean:
 	rm -f .config.cache
 	rm -f src/modules/Makefile
+	rm -f src/commands/Makefile
 	rm -f src/Makefile
 	rm -f Makefile
 	rm -f include/inspircd_config.h
