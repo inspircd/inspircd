@@ -241,8 +241,6 @@ class ModuleAlias : public Module
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: compare is %s and safe is %s", compare.c_str(), safe.c_str());
-
 		while (i != upperbound)
 		{
 			if (i->second.ChannelCommand)
@@ -365,7 +363,7 @@ class ModuleAlias : public Module
 		else
 		{
 			/* We don't want these in a user alias */
-			SearchAndReplace(newline, std::string("$chan"), "");
+			SearchAndReplace(newline, std::string("$chan"), std::string(""));
 		}
 
 		irc::tokenstream ss(newline);
