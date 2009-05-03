@@ -116,64 +116,75 @@ class BanRedirect : public ModeWatcher
 
 			if(mask[CHAN].length())
 			{
-				if(!IS_LOCAL(source) || ServerInstance->IsChannel(mask[CHAN].c_str(), ServerInstance->Config->Limits.ChanMax))
+				if (IS_LOCAL(source))
 				{
+					if (!ServerInstance->IsChannel(mask[CHAN].c_str(),  ServerInstance->Config->Limits.ChanMax))
+					{
+						source->WriteNumeric(403, "%s %s :Invalid channel name in redirection (%s)", source->nick.c_str(), channel->name.c_str(), mask[CHAN].c_str());
+						return false;
+					}
+
+					Channel *c = ServerInstance->FindChan(mask[CHAN].c_str());
+					if (!c)
+					{
+						source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
+						return false;
+					}
+					else if (c->GetStatus(source) < STATUS_OP)
+					{
+						source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
+						return false;
+					}
+
 					if (assign(channel->name) == mask[CHAN])
 					{
 						source->WriteNumeric(690, "%s %s :You cannot set a ban redirection to the channel the ban is on", source->nick.c_str(), channel->name.c_str());
 						return false;
 					}
-					else
+				}
+
+				if(adding)
+				{
+					/* It's a properly valid redirecting ban, and we're adding it */
+					if(!channel->GetExt("banredirects", redirects))
 					{
-						if(adding)
-						{
-							/* It's a properly valid redirecting ban, and we're adding it */
-							if(!channel->GetExt("banredirects", redirects))
-							{
-								redirects = new BanRedirectList;
-								channel->Extend("banredirects", redirects);
-							}
-
-							/* Here 'param' doesn't have the channel on it yet */
-							redirects->push_back(BanRedirectEntry(mask[CHAN].c_str(), param.c_str()));
-
-							/* Now it does */
-							param.append(mask[CHAN]);
-						}
-						else
-						{
-							/* Removing a ban, if there's no extensible there are no redirecting bans and we're fine. */
-							if(channel->GetExt("banredirects", redirects))
-							{
-								/* But there were, so we need to remove the matching one if there is one */
-
-								for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
-								{
-									/* Ugly as fuck */
-									if((irc::string(redir->targetchan.c_str()) == irc::string(mask[CHAN].c_str())) && (irc::string(redir->banmask.c_str()) == irc::string(param.c_str())))
-									{
-										redirects->erase(redir);
-
-										if(redirects->empty())
-										{
-											delete redirects;
-											channel->Shrink("banredirects");
-										}
-
-										break;
-									}
-								}
-							}
-
-							/* Append the channel so the default +b handler can remove the entry too */
-							param.append(mask[CHAN]);
-						}
+						redirects = new BanRedirectList;
+						channel->Extend("banredirects", redirects);
 					}
+
+					/* Here 'param' doesn't have the channel on it yet */
+					redirects->push_back(BanRedirectEntry(mask[CHAN].c_str(), param.c_str()));
+
+					/* Now it does */
+					param.append(mask[CHAN]);
 				}
 				else
 				{
-					source->WriteNumeric(403, "%s %s :Invalid channel name in redirection (%s)", source->nick.c_str(), channel->name.c_str(), mask[CHAN].c_str());
-					return false;
+					/* Removing a ban, if there's no extensible there are no redirecting bans and we're fine. */
+					if(channel->GetExt("banredirects", redirects))
+					{
+						/* But there were, so we need to remove the matching one if there is one */
+
+						for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
+						{
+							/* Ugly as fuck */
+							if((irc::string(redir->targetchan.c_str()) == irc::string(mask[CHAN].c_str())) && (irc::string(redir->banmask.c_str()) == irc::string(param.c_str())))
+							{
+								redirects->erase(redir);
+
+								if(redirects->empty())
+								{
+									delete redirects;
+									channel->Shrink("banredirects");
+								}
+
+								break;
+							}
+						}
+					}
+
+					/* Append the channel so the default +b handler can remove the entry too */
+					param.append(mask[CHAN]);
 				}
 			}
 		}
