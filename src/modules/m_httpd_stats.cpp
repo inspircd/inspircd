@@ -165,7 +165,8 @@ class ModuleHttpStats : public Module
 					data << "<parentname>" << b->parentname << "</parentname>";
 					data << "<gecos>" << b->gecos << "</gecos>";
 					data << "<usercount>" << b->usercount << "</usercount>";
-					data << "<opercount>" << b->opercount << "</opercount>";
+// This is currently not implemented, so, commented out.
+//					data << "<opercount>" << b->opercount << "</opercount>";
 					data << "<lagmillisecs>" << b->latencyms << "</lagmillisecs>";
 					data << "</server>";
 				}
