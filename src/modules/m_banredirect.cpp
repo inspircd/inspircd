@@ -127,12 +127,12 @@ class BanRedirect : public ModeWatcher
 					Channel *c = ServerInstance->FindChan(mask[CHAN].c_str());
 					if (!c)
 					{
-						source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
+						source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),mask[CHAN].c_str());
 						return false;
 					}
 					else if (c->GetStatus(source) < STATUS_OP)
 					{
-						source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
+						source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(), mask[CHAN].c_str());
 						return false;
 					}
 
