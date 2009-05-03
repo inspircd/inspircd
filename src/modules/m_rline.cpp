@@ -57,6 +57,9 @@ class RLine : public XLine
 
 	bool Matches(User *u)
 	{
+		if (u->exempt)
+			return false;
+
 		std::string compare = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
 		return regex->Matches(compare);
 	}

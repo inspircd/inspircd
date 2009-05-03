@@ -32,6 +32,10 @@ public:
 
 	bool Matches(User *u)
 	{
+		// E: overrides shun
+		if (u->exempt)
+			return false;
+
 		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetIPString(), matchtext))
 			return true;
 
