@@ -174,21 +174,22 @@ class CoreExport ListenSocketBase : public EventHandler
 	InspIRCd* ServerInstance;
 	/** Socket description (shown in stats p) */
 	std::string desc;
-	/** Socket address family */
-	int family;
+
 	/** Address socket is bound to */
 	std::string bind_addr;
 	/** Port socket is bound to */
 	int bind_port;
 
-	static sockaddr *sock_us;
-
-	static sockaddr *client;
-
-	static sockaddr *raddr;
-
-	static unsigned int socketcount;
-
+	/** The client address if the most recently connected client.
+	 * Should only be used when accepting a new client.
+	 */
+	static irc::sockets::sockaddrs client;
+	/** The server address used by the most recently connected client.
+	 * This may differ from the bind address by having a nonzero address,
+	 * if the port is wildcard bound, or being IPv4 on a 6to4 IPv6 port.
+	 * The address family will always match that of "client"
+	 */
+	static irc::sockets::sockaddrs server;
  public:
 	/** Create a new listening socket
 	 */
@@ -213,16 +214,11 @@ class CoreExport ListenSocketBase : public EventHandler
 	}
 	/** Get port number for socket
 	 */
-	int GetPort()
-	{
-		return bind_port;
-	}
+	int GetPort() { return bind_port; }
+
 	/** Get IP address socket is bound to
 	 */
-	std::string &GetIP()
-	{
-		return bind_addr;
-	}
+	const std::string &GetIP() { return bind_addr; }
 
 	/** Handles sockets internals crap of a connection, convenience wrapper really
 	 */

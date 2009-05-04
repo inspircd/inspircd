@@ -17,38 +17,27 @@
 #include "socket.h"
 #include "socketengine.h"
 
+/* Private static member data must be declared in this manner */
+irc::sockets::sockaddrs ListenSocketBase::client;
+irc::sockets::sockaddrs ListenSocketBase::server;
 
-/* Private static member data must be initialized in this manner */
-unsigned int ListenSocketBase::socketcount = 0;
-sockaddr* ListenSocketBase::sock_us = NULL;
-sockaddr* ListenSocketBase::client = NULL;
-sockaddr* ListenSocketBase::raddr = NULL;
-
-ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::string &addr) : ServerInstance(Instance), desc("plaintext"), bind_addr(addr), bind_port(port)
+ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::string &addr) : ServerInstance(Instance), desc("plaintext")
 {
-	this->SetFd(irc::sockets::OpenTCPSocket(addr.c_str()));
+	irc::sockets::sockaddrs bind_to;
+	irc::sockets::aptosa(addr.c_str(), port, &bind_to);
+	irc::sockets::satoap(&bind_to, bind_addr, bind_port);
+	
+	// Preserve empty string for wildcard binds, rather than "::" or "0.0.0.0"
+	if (addr.empty())
+		bind_addr = addr;
+
+	this->SetFd(irc::sockets::OpenTCPSocket(bind_addr.c_str()));
 	if (this->GetFd() > -1)
 	{
-		if (!Instance->BindSocket(this->fd,port,addr.c_str()))
+		if (!Instance->BindSocket(this->fd,port,bind_addr.c_str()))
 			this->fd = -1;
-#ifdef IPV6
-		if ((!*addr.c_str()) || (strchr(addr.c_str(),':')))
-			this->family = AF_INET6;
-		else
-#endif
-		this->family = AF_INET;
 		Instance->SE->AddFd(this);
 	}
-	/* Saves needless allocations */
-	if (socketcount == 0)
-	{
-		/* All instances of ListenSocket share these, so reference count it */
-		ServerInstance->Logs->Log("SOCKET", DEBUG,"Allocate sockaddr structures");
-		sock_us = new sockaddr[2];
-		client = new sockaddr[2];
-		raddr = new sockaddr[2];
-	}
-	socketcount++;
 }
 
 ListenSocketBase::~ListenSocketBase()
@@ -61,45 +50,29 @@ ListenSocketBase::~ListenSocketBase()
 			ServerInstance->Logs->Log("SOCKET", DEBUG,"Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
-	socketcount--;
-	if (socketcount == 0)
-	{
-		delete[] sock_us;
-		delete[] client;
-		delete[] raddr;
-	}
 }
 
 /* Just seperated into another func for tidiness really.. */
 void ListenSocketBase::AcceptInternal()
 {
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket");
-	socklen_t uslen, length;		// length of our port number
 	int incomingSockfd;
 
-#ifdef IPV6
-	if (this->family == AF_INET6)
-	{
-		uslen = sizeof(sockaddr_in6);
-		length = sizeof(sockaddr_in6);
-	}
-	else
-#endif
-	{
-		uslen = sizeof(sockaddr_in);
-		length = sizeof(sockaddr_in);
-	}
+	socklen_t length = sizeof(client);
+	incomingSockfd = ServerInstance->SE->Accept(this, &client.sa, &length);
 
-	incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
-
-	if (incomingSockfd < 0 ||
-		  ServerInstance->SE->GetSockName(this, sock_us, &uslen) == -1)
+	if (incomingSockfd < 0)
 	{
 		ServerInstance->SE->Shutdown(incomingSockfd, 2);
 		ServerInstance->SE->Close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
 		return;
 	}
+	
+	socklen_t sz = sizeof(server);
+	if (getsockname(incomingSockfd, &server.sa, &sz));
+		ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
+
 	/*
 	 * XXX -
 	 * this is done as a safety check to keep the file descriptors within range of fd_ref_table.
@@ -119,21 +92,8 @@ void ListenSocketBase::AcceptInternal()
 		return;
 	}
 
-	static char buf[MAXBUF];
-	static char target[MAXBUF];
-
-	*target = *buf = '\0';
-
-#ifdef IPV6
-	if (this->family == AF_INET6)
+	if (client.sa.sa_family == AF_INET6)
 	{
-		inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
-		socklen_t raddrsz = sizeof(sockaddr_in6);
-		if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
-			inet_ntop(AF_INET6, &((const sockaddr_in6*)raddr)->sin6_addr, target, sizeof(target));
-		else
-			ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
-
 		/*
 		 * This case is the be all and end all patch to catch and nuke 4in6
 		 * instead of special-casing shit all over the place and wreaking merry
@@ -146,35 +106,33 @@ void ListenSocketBase::AcceptInternal()
 		 * Big, big thanks to danieldg for his work on this.
 		 * -- w00t
 		 */
-		static const unsigned char prefix4in6[12] = { 0,0,0,0,  0,0,0,0, 0,0,0xFF,0xFF };
-		if (!memcmp(prefix4in6, &((const sockaddr_in6*)client)->sin6_addr, 12))
+		static const unsigned char prefix4in6[12] = { 0,0,0,0, 0,0,0,0, 0,0,0xFF,0xFF };
+		if (!memcmp(prefix4in6, &client.in6.sin6_addr, 12))
 		{
-			// strip leading ::ffff: from the IPs
-			memmove(buf, buf+7, sizeof(buf)-7);
-			memmove(target, target+7, sizeof(target)-7);
-
 			// recreate as a sockaddr_in using the IPv4 IP
-			uint16_t sport = ((const sockaddr_in6*)client)->sin6_port;
-			struct sockaddr_in* clientv4 = (struct sockaddr_in*)client;
-			clientv4->sin_family = AF_INET;
-			clientv4->sin_port = sport;
-			inet_pton(AF_INET, buf, &clientv4->sin_addr);
+			uint16_t sport = client.in6.sin6_port;
+			uint32_t addr = *reinterpret_cast<uint32_t*>(client.in6.sin6_addr.s6_addr + 12);
+			client.in4.sin_family = AF_INET;
+			client.in4.sin_port = sport;
+			client.in4.sin_addr.s_addr = addr;
+
+			sport = server.in6.sin6_port;
+			addr = *reinterpret_cast<uint32_t*>(server.in6.sin6_addr.s6_addr + 12);
+			server.in4.sin_family = AF_INET;
+			server.in4.sin_port = sport;
+			server.in4.sin_addr.s_addr = addr;
 		}
 	}
-	else
-#endif
-	{
-		inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
-		socklen_t raddrsz = sizeof(sockaddr_in);
-		if (getsockname(incomingSockfd, (sockaddr*) raddr, &raddrsz) == 0)
-			inet_ntop(AF_INET, &((const sockaddr_in*)raddr)->sin_addr, target, sizeof(target));
-		else
-			ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
-	}
+
+	std::string server_addr;
+	std::string client_addr;
+	int dummy_port;
+	irc::sockets::satoap(&server, server_addr, dummy_port);
+	irc::sockets::satoap(&client, client_addr, dummy_port);
 
 	ServerInstance->SE->NonBlocking(incomingSockfd);
 	ServerInstance->stats->statsAccept++;
-	this->OnAcceptReady(target, incomingSockfd, buf);
+	this->OnAcceptReady(server_addr, incomingSockfd, client_addr);
 }
 
 void ListenSocketBase::HandleEvent(EventType e, int err)
@@ -195,5 +153,5 @@ void ListenSocketBase::HandleEvent(EventType e, int err)
 
 void ClientListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 {
-	ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, client, ipconnectedto);
+	ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, &client.sa, ipconnectedto);
 }
