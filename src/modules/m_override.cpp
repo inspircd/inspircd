@@ -48,22 +48,20 @@ class ModuleOverride : public Module
 	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
-		ConfigReader* Conf = new ConfigReader(ServerInstance);
+		ConfigReader Conf(ServerInstance);
 
 		// re-read our config options on a rehash
-		NoisyOverride = Conf->ReadFlag("override", "noisy", 0);
-		RequireKey = Conf->ReadFlag("override", "requirekey", 0);
+		NoisyOverride = Conf.ReadFlag("override", "noisy", 0);
+		RequireKey = Conf.ReadFlag("override", "requirekey", 0);
 
 		overrides.clear();
 
-		for (int j =0; j < Conf->Enumerate("type"); j++)
+		for (int j =0; j < Conf.Enumerate("type"); j++)
 		{
-			std::string typen = Conf->ReadValue("type","name",j);
-			std::string tokenlist = Conf->ReadValue("type","override",j);
+			std::string typen = Conf.ReadValue("type","name",j);
+			std::string tokenlist = Conf.ReadValue("type","override",j);
 			overrides[typen] = tokenlist;
 		}
-
-		delete Conf;
 	}
 
 
