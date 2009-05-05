@@ -251,18 +251,21 @@ FilterBase::~FilterBase()
 
 int FilterBase::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
+	if (!IS_LOCAL(user))
+		return 0;
+
 	flags = FLAG_PRIVMSG;
 	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 }
 
 int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
-	if (!flags)
-		flags = FLAG_NOTICE;
-
 	/* Leave ulines alone */
 	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
 		return 0;
+
+	if (!flags)
+		flags = FLAG_NOTICE;
 
 	FilterResult* f = this->FilterMatch(user, text, flags);
 	if (f)
