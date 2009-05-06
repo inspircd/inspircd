@@ -498,6 +498,7 @@ class ModuleSSLOpenSSL : public Module
 				if (!Handshake(session))
 				{
 					// Couldn't resume handshake.
+					errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
 					return -1;
 				}
 			}
@@ -558,6 +559,7 @@ class ModuleSSLOpenSSL : public Module
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return 0;
 
+		errno = EAGAIN;
 		issl_session* session = &sessions[fd];
 
 		if (!session->sess)
@@ -574,7 +576,12 @@ class ModuleSSLOpenSSL : public Module
 			// The handshake isn't finished, try to finish it.
 			if (session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
 			{
-				Handshake(session);
+				if (!Handshake(session))
+				{
+					// Couldn't resume handshake.
+					errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
+					return -1;
+				}
 			}
 		}
 
@@ -832,6 +839,7 @@ class ModuleSSLOpenSSL : public Module
 		session->inbuf = NULL;
 		session->sess = NULL;
 		session->status = ISSL_NONE;
+		errno = EIO;
 	}
 
 	void VerifyCertificate(issl_session* session, Extensible* user)
