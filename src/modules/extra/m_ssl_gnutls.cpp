@@ -490,6 +490,7 @@ class ModuleSSLGnuTLS : public Module
 
 			if(!Handshake(session, fd))
 			{
+				errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
 				// Couldn't resume handshake.
 				return -1;
 			}
@@ -561,7 +562,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// The handshake isn't finished, try to finish it.
 			Handshake(session, fd);
-			errno = EAGAIN;
+			errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
 			return -1;
 		}
 
