@@ -286,7 +286,7 @@ public:
 		if (!dat2)
 		{
 			// How the fuck is this possible.
-			return NULL;
+			return false;
 		}
 
 		for (std::list<callerid_data *>::iterator it = dat2->wholistsme.begin(); it != dat2->wholistsme.end(); it++)

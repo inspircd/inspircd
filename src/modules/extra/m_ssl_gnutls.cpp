@@ -724,7 +724,7 @@ class ModuleSSLGnuTLS : public Module
 	void MakePollWrite(int fd)
 	{
 		//OnRawSocketWrite(fd, NULL, 0);
-		EventHandler* eh = ServerInstance->ServerInstance->SE->GetRef(fd);
+		EventHandler* eh = ServerInstance->SE->GetRef(fd);
 		if (eh)
 			ServerInstance->SE->WantWrite(eh);
 	}
