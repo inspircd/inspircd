@@ -325,7 +325,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 HandleProcessUser(this),
 	 HandleIsNick(this),
 	 HandleIsIdent(this),
-	 HandleFindDescriptor(this),
 	 HandleFloodQuitUser(this),
 	 HandleIsChannel(this),
 	 HandleIsSID(this),
@@ -342,7 +341,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
-	 FindDescriptor(&HandleFindDescriptor),
 	 FloodQuitUser(&HandleFloodQuitUser)
 
 {

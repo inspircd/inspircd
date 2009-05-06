@@ -274,7 +274,6 @@ class InspIRCd;
 DEFINE_HANDLER1(ProcessUserHandler, void, User*);
 DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
-DEFINE_HANDLER1(FindDescriptorHandler, User*, int);
 DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
@@ -390,7 +389,6 @@ class CoreExport InspIRCd : public classbase
 	ProcessUserHandler HandleProcessUser;
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
-	FindDescriptorHandler HandleFindDescriptor;
 	FloodQuitUserHandler HandleFloodQuitUser;
 	IsChannelHandler HandleIsChannel;
 	IsSIDHandler HandleIsSID;
@@ -684,13 +682,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return True if the ident is valid
 	 */
 	caller1<bool, const char*> IsIdent;
-
-	/** Find a username by their file descriptor.
-	 * It is preferred to use this over directly accessing the fd_ref_table array.
-	 * @param socket The file descriptor of a user
-	 * @return A pointer to the user if the user exists locally on this descriptor
-	 */
-	caller1<User*, int> FindDescriptor;
 
 	/** Add a dns Resolver class to this server's active set
 	 * @param r The resolver to add

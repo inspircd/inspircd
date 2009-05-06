@@ -771,11 +771,6 @@ void InspIRCd::DumpText(User* User, const std::string &LinePrefix, std::stringst
 	User->WriteServ(CompleteLine);
 }
 
-User* FindDescriptorHandler::Call(int socket)
-{
-	return reinterpret_cast<User*>(Server->SE->GetRef(socket));
-}
-
 bool InspIRCd::AddResolver(Resolver* r, bool cached)
 {
 	if (!cached)

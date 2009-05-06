@@ -758,7 +758,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			// Handshake complete.
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			User* u = ServerInstance->FindDescriptor(session->fd);
+			EventHandler *u = ServerInstance->SE->GetRef(session->fd);
 			if (u)
 			{
 				if (!u->GetExt("ssl", dummy))
@@ -798,7 +798,7 @@ class ModuleSSLOpenSSL : public Module
 	void MakePollWrite(issl_session* session)
 	{
 		//OnRawSocketWrite(session->fd, NULL, 0);
-		EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
+		EventHandler* eh = ServerInstance->SE->GetRef(session->fd);
 		if (eh)
 		{
 			ServerInstance->SE->WantWrite(eh);

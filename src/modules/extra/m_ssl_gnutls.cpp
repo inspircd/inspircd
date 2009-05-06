@@ -395,7 +395,7 @@ class ModuleSSLGnuTLS : public Module
 				issl_session* session = &sessions[ISR->Sock->GetFd()];
 				if (session->sess)
 				{
-					if ((Extensible*)ServerInstance->FindDescriptor(ISR->Sock->GetFd()) == (Extensible*)(ISR->Sock))
+					if ((Extensible*)ServerInstance->SE->GetRef(ISR->Sock->GetFd()) == (Extensible*)(ISR->Sock))
 					{
 						VerifyCertificate(session, (BufferedSocket*)ISR->Sock);
 						return "OK";
@@ -684,7 +684,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// Handshake complete.
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			User* extendme = ServerInstance->FindDescriptor(fd);
+			EventHandler *extendme = ServerInstance->SE->GetRef(fd);
 			if (extendme)
 			{
 				if (!extendme->GetExt("ssl", dummy))
@@ -724,7 +724,7 @@ class ModuleSSLGnuTLS : public Module
 	void MakePollWrite(int fd)
 	{
 		//OnRawSocketWrite(fd, NULL, 0);
-		EventHandler* eh = ServerInstance->FindDescriptor(fd);
+		EventHandler* eh = ServerInstance->ServerInstance->SE->GetRef(fd);
 		if (eh)
 			ServerInstance->SE->WantWrite(eh);
 	}

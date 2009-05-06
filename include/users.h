@@ -386,9 +386,7 @@ class CoreExport VisData
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
- * user's nickname and hostname. Use the FindNick method of the InspIRCd class to locate a specific user
- * by nickname, or the FindDescriptor method of the InspIRCd class to find a specific user by their
- * file descriptor value.
+ * user's nickname and hostname.
  */
 class CoreExport User : public EventHandler
 {
