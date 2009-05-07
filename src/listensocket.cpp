@@ -24,12 +24,13 @@ irc::sockets::sockaddrs ListenSocketBase::server;
 ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::string &addr) : ServerInstance(Instance), desc("plaintext")
 {
 	irc::sockets::sockaddrs bind_to;
-	irc::sockets::aptosa(addr.c_str(), port, &bind_to);
-	irc::sockets::satoap(&bind_to, bind_addr, bind_port);
-	
-	// Preserve empty string for wildcard binds, rather than "::" or "0.0.0.0"
-	if (addr.empty())
-		bind_addr = addr;
+
+	bind_addr = addr;
+	bind_port = port;
+
+	// canonicalize address if it is defined
+	if (!addr.empty() && irc::sockets::aptosa(addr.c_str(), port, &bind_to))
+		irc::sockets::satoap(&bind_to, bind_addr, bind_port);
 
 	this->SetFd(irc::sockets::OpenTCPSocket(bind_addr.c_str()));
 	if (this->GetFd() > -1)
@@ -68,7 +69,7 @@ void ListenSocketBase::AcceptInternal()
 		ServerInstance->stats->statsRefused++;
 		return;
 	}
-	
+
 	socklen_t sz = sizeof(server);
 	if (getsockname(incomingSockfd, &server.sa, &sz));
 		ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
