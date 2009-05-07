@@ -22,6 +22,7 @@
 #include "transport.h"
 
 #include "m_spanningtree/utils.h"
+#include "m_spanningtree/handshaketimer.h"
 
 /*
  * The server list in InspIRCd is maintained as two structures
@@ -90,6 +91,7 @@ class TreeSocket : public BufferedSocket
 	std::string OutboundPass;		/* Outbound password */
 	bool sentcapab;				/* Have sent CAPAB already */
  public:
+	HandshakeTimer* hstimer;		/* Handshake timer, needed to work around I/O hook buffering */
 
 	/** Because most of the I/O gubbins are encapsulated within
 	 * BufferedSocket, we just call the superclass constructor for

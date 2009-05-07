@@ -46,6 +46,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string sh
 	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName, maxtime);
 	if (Hook)
 		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+	hstimer = NULL;
 }
 
 /** When a listening socket gives us a new file descriptor,
@@ -65,7 +66,8 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	if (Hook)
 		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 
-	ServerInstance->Timers->AddTimer(new HandshakeTimer(ServerInstance, this, &(Utils->LinkBlocks[0]), this->Utils, 1));
+	hstimer = new HandshakeTimer(ServerInstance, this, &(Utils->LinkBlocks[0]), this->Utils, 1);
+	ServerInstance->Timers->AddTimer(hstimer);
 
 	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
 	Utils->timeoutlist[this] = std::pair<std::string, int>("<unknown>", 30);
@@ -85,6 +87,8 @@ TreeSocket::~TreeSocket()
 {
 	if (Hook)
 		BufferedSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
+	if (hstimer)
+		ServerInstance->Timers->DelTimer(hstimer);
 	Utils->timeoutlist.erase(this);
 }
 
@@ -115,7 +119,10 @@ bool TreeSocket::OnConnected()
 
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 				if (this->GetHook())
-					ServerInstance->Timers->AddTimer(new HandshakeTimer(ServerInstance, this, &(*x), this->Utils, 1));
+				{
+					hstimer = new HandshakeTimer(ServerInstance, this, &(*x), this->Utils, 1);
+					ServerInstance->Timers->AddTimer(hstimer);
+				}
 				else
 					this->SendCapabilities();
 

@@ -32,28 +32,24 @@ HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningT
 	thefd = sock->GetFd();
 }
 
+HandshakeTimer::~HandshakeTimer()
+{
+	sock->hstimer = NULL;
+}
+
 void HandshakeTimer::Tick(time_t TIME)
 {
-	if (Instance->SE->GetRef(thefd) == sock)
+	if (!sock->GetHook())
 	{
-		if (!sock->GetHook())
-		{
-			CancelRepeat();
-			sock->SendCapabilities();
-		}
-		else
-		{
-			if (sock->GetHook() && BufferedSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
-			{
-				CancelRepeat();
-				BufferedSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
-				sock->SendCapabilities();
-			}
-			else
-			{
-				// Try again later...
-			}
-		}
+		CancelRepeat();
+		sock->SendCapabilities();
 	}
+	else if (BufferedSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
+	{
+		CancelRepeat();
+		BufferedSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
+		sock->SendCapabilities();
+	}
+	// otherwise, try again later
 }
 
