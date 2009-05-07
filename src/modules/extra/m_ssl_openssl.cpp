@@ -498,7 +498,7 @@ class ModuleSSLOpenSSL : public Module
 				if (!Handshake(session))
 				{
 					// Couldn't resume handshake.
-					errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
+					errno = session->status == ISSL_NONE ? EIO : EAGAIN;
 					return -1;
 				}
 			}
@@ -579,7 +579,7 @@ class ModuleSSLOpenSSL : public Module
 				if (!Handshake(session))
 				{
 					// Couldn't resume handshake.
-					errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
+					errno = session->status == ISSL_NONE ? EIO : EAGAIN;
 					return -1;
 				}
 			}
