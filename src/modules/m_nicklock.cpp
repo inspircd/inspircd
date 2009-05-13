@@ -67,11 +67,11 @@ class CommandNicklock : public Command
 		{
 			// This has to be done *here*, because this metadata must be stored netwide.
 			target->Extend("nick_locked", "ON");
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
 
 			/* Only send out nick from local server */
 			if (IS_LOCAL(target))
 			{
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
 				std::string oldnick = user->nick;
 				std::string newnick = target->nick;
 				if (!target->ForceNickChange(parameters[1].c_str()))

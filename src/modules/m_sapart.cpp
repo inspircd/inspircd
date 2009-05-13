@@ -73,10 +73,6 @@ class CommandSapart : public Command
 					}
 				}
 			}
-			else
-			{
-				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" sent remote SAPART to make "+dest->nick+" part "+parameters[1]);
-			}
 
 			return CMD_SUCCESS;
 		}
