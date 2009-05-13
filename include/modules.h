@@ -247,13 +247,18 @@ do { \
  * (in fact, any FD less than -1 does)
  */
 #define FD_MAGIC_NUMBER -42
+/** Represents a fake user (i.e. a server)
+ */
+#define FD_FAKEUSER_NUMBER -7
 
 /* Useful macros */
 
 /** Is a local user */
-#define IS_LOCAL(x) ((x->GetFd() > -1))
+#define IS_LOCAL(x) (x->GetFd() > -1)
 /** Is a remote user */
 #define IS_REMOTE(x) (x->GetFd() < 0)
+/** Is a fake user */
+#define IS_FAKE(x) (x->GetFd() == FD_FAKEUSER_NUMBER)
 /** Is a module created user */
 #define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
 /** Is an oper */

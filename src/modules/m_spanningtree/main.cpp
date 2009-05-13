@@ -677,22 +677,16 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 
 void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 {
-	if (loopCall)
-		return;
-	if ((source) && (IS_LOCAL(source)))
+	std::deque<std::string> params;
+	params.push_back(chan->name);
+	params.push_back(user->uuid);
+	params.push_back(":"+reason);
+	if (IS_LOCAL(source))
 	{
-		std::deque<std::string> params;
-		params.push_back(chan->name);
-		params.push_back(user->uuid);
-		params.push_back(":"+reason);
 		Utils->DoOneToMany(source->uuid,"KICK",params);
 	}
-	else if (!source)
+	else if (IS_FAKE(source) && source != Utils->ServerUser)
 	{
-		std::deque<std::string> params;
-		params.push_back(chan->name);
-		params.push_back(user->uuid);
-		params.push_back(":"+reason);
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"KICK",params);
 	}
 }

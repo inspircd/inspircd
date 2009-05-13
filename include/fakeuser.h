@@ -21,7 +21,7 @@ class CoreExport FakeUser : public User
  public:
 	FakeUser(InspIRCd* Instance) : User(Instance, "!")
 	{
-		SetFd(FD_MAGIC_NUMBER);
+		SetFd(FD_FAKEUSER_NUMBER);
 	}
 
 	virtual const std::string GetFullHost() { return server; }
