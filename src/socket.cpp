@@ -278,8 +278,19 @@ int irc::sockets::insp_aton(const char* a, insp_inaddr* n)
 
 int irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa)
 {
-	memset(sa, 0, sizeof(sa));
-	if (inet_pton(AF_INET, addr, &sa->in4.sin_addr) > 0)
+	memset(sa, 0, sizeof(*sa));
+	if (!addr || !*addr)
+	{
+#ifdef IPV6
+		sa->in6.sin6_family = AF_INET6;
+		sa->in6.sin6_port = htons(port);
+#else
+		sa->in4.sin_family = AF_INET;
+		sa->in4.sin_port = htons(port);
+#endif
+		return true;
+	}
+	else if (inet_pton(AF_INET, addr, &sa->in4.sin_addr) > 0)
 	{
 		sa->in4.sin_family = AF_INET;
 		sa->in4.sin_port = htons(port);
