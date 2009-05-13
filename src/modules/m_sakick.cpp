@@ -61,12 +61,7 @@ class CommandSakick : public Command
 					delete channel;
 
 				Channel *n = ServerInstance->FindChan(parameters[1]);
-				if (!n || !n->HasUser(dest))
-				{
-					/* Success; send the global snomask */
-					ServerInstance->PI->SendSNONotice("A", std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
-				}
-				else
+				if (n && n->HasUser(dest))
 				{
 					/* Sort-of-bug: If the command was issued remotely, this message won't be sent */
 					user->WriteServ("NOTICE %s :*** Unable to kick %s from %s", user->nick.c_str(), dest->nick.c_str(), parameters[0].c_str());
@@ -76,8 +71,9 @@ class CommandSakick : public Command
 
 			if (IS_LOCAL(user))
 			{
-				/* Locally issued command; send the local snomask */
+				/* Locally issued command; send the snomasks */
 				ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
+				ServerInstance->PI->SendSNONotice("A", std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
 			}
 
 			return CMD_SUCCESS;

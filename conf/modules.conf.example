@@ -480,10 +480,13 @@
 #   lowercase        - Display the cloaked hostnames in lowercase     #
 #                      characters instead of uppercase                #
 #                                                                     #
-# <cloak key1="0x2AF39F40"                                            #
-#        key2="0x78E10B32"                                            #
-#        key3="0x4F2D2E82"                                            #
-#        key4="0x043A4C81"                                            #
+# It is VERY IMPORTANT that you do not use the keys shown here. You   #
+# MUST randomly create your own cloak keys.                           #
+#                                                                     #
+# <cloak key1="0x01234567"                                            #
+#        key2="0x89ABCDEF"                                            #
+#        key3="0x01234567"                                            #
+#        key4="0x89ABCDEF"                                            #
 #        prefix="mynet"                                               #
 #        ipalways="false"                                             #
 #        lowercase="false">                                           #
