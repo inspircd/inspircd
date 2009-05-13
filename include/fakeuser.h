@@ -24,8 +24,8 @@ class CoreExport FakeUser : public User
 		SetFd(FD_FAKEUSER_NUMBER);
 	}
 
-	virtual const std::string GetFullHost() { return nick; }
-	virtual const std::string GetFullRealHost() { return nick; }
+	virtual const std::string GetFullHost();
+	virtual const std::string GetFullRealHost();
 	void SetFakeServer(std::string name);
 };
 
