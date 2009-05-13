@@ -595,52 +595,11 @@ long Channel::PartUser(User *user, std::string &reason)
 
 long Channel::ServerKickUser(User* user, const char* reason, const char* servername)
 {
-	bool silent = false;
-
-	if (!user || !reason)
-		return this->GetUserCounter();
-
-	if (IS_LOCAL(user))
-	{
-		if (!this->HasUser(user))
-		{
-			/* Not on channel */
-			return this->GetUserCounter();
-		}
-	}
-
 	if (servername == NULL || *ServerInstance->Config->HideWhoisServer)
 		servername = ServerInstance->Config->ServerName;
 
-	FOREACH_MOD(I_OnUserKick,OnUserKick(NULL, user, this, reason, silent));
-
-	UCListIter i = user->chans.find(this);
-	if (i != user->chans.end())
-	{
-		if (!silent)
-			this->WriteChannelWithServ(servername, "KICK %s %s :%s", this->name.c_str(), user->nick.c_str(), reason);
-
-		user->chans.erase(i);
-		this->RemoveAllPrefixes(user);
-	}
-
-	if (!this->DelUser(user))
-	{
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
-			if (MOD_RESULT == 1)
-				return 1; // delete halted by module
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		return 0;
-	}
-
-	return this->GetUserCounter();
+	ServerInstance->FakeClient->server = servername;
+	return this->KickUser(ServerInstance->FakeClient, user, reason);
 }
 
 long Channel::KickUser(User *src, User *user, const char* reason)

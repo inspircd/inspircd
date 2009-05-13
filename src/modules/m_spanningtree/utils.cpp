@@ -154,6 +154,7 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
 
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
+	this->ServerUser = new FakeUser(ServerInstance);
 
 	this->ReadConfiguration(true);
 }
@@ -176,6 +177,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 		}
 	}
 	delete TreeRoot;
+	delete ServerUser;
 	ServerInstance->BufferedSocketCull();
 }
 

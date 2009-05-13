@@ -297,6 +297,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 			/* Find the server that this command originated from, used in the handlers below */
 			TreeServer *ServerSource = Utils->FindServer(prefix);
+			if (ServerSource)
+			{
+				Utils->ServerUser->server = ServerSource->GetName().c_str();
+				Utils->ServerUser->uid = ServerSource->GetID();
+			}
 
 			/* Find the link we just got this from so we don't bounce it back incorrectly */
 			std::string sourceserv = this->myhost;
@@ -428,34 +433,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Time(prefix,params);
 			}
-			else if ((command == "KICK") && (Utils->IsServer(prefix)))
-			{
-				if (params.size() == 3)
-				{
-					TreeServer* pf = Utils->FindServer(prefix);
-					if (pf)
-					{
-						irc::commasepstream nicks(params[1]);
-						std::string nick;
-						Channel* chan = this->ServerInstance->FindChan(params[0]);
-						if (chan)
-						{
-							while (nicks.GetToken(nick))
-							{
-								User* user = this->ServerInstance->FindNick(nick);
-								if (user)
-								{
-									if (!chan->ServerKickUser(user, params[2].c_str(), pf->GetName().c_str()))
-										/* Yikes, the channels gone! */
-										delete chan;
-								}
-							}
-						}
-					}
-				}
-
-				return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
-			}
 			else if (command == "SVSJOIN")
 			{
 				return this->ServiceJoin(prefix,params);
@@ -528,27 +505,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Encap(prefix, params);
 			}
-			else if (command == "MODE" && !this->ServerInstance->FindUUID(prefix)) // XXX we should check for no such serv?
-			{
-				// Server-prefix MODE.
-				std::vector<std::string> modelist(params.begin(), params.end());
-
-				/* We don't support this for channel mode changes any more! */
-				if (params.size() >= 1)
-				{
-					if (ServerInstance->FindChan(params[0]))
-					{
-						this->SendError("Protocol violation by '"+(ServerSource ? ServerSource->GetName().c_str() : prefix)+"'! MODE for channel mode changes is not supported by the InspIRCd 1.2 protocol. You must use FMODE to preserve channel timestamps.");
-						return false;
-					}
-				}
-
-				// Insert into the parser
-				this->ServerInstance->SendMode(modelist, this->ServerInstance->FakeClient);
-
-				// Pass out to the network
-				return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
-			}
 			else
 			{
 				/*
@@ -557,7 +513,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 */
 				User* who = this->ServerInstance->FindUUID(prefix);
 
-				if (!who)
+				if (ServerSource)
+				{
+					who = Utils->ServerUser;
+				}
+				else if (!who)
 				{
 					/* this looks ugly because command is an irc::string
 					 * It is important that we dont close the link here, unknown prefix can occur
@@ -600,7 +560,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					}
 				}
 
-				// its a user
+				// it's a user
 				std::vector<std::string> strparams(params.begin(), params.end());
 
 				switch (this->ServerInstance->CallCommandHandler(command.c_str(), strparams, who))

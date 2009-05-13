@@ -97,6 +97,9 @@ class SpanningTreeUtilities : public classbase
 	/** This variable represents the root of the server tree
 	 */
 	TreeServer *TreeRoot;
+	/** Represents the server whose command we are processing
+	 */
+	FakeUser *ServerUser;
 	/** IPs allowed to link to us
 	 */
 	std::vector<std::string> ValidIPs;
