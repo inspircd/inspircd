@@ -609,8 +609,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	/* set up fake client again this time with the correct uid */
-	this->FakeClient = new User(this, "#INVALID");
-	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
+	this->FakeClient = new FakeUser(this);
 
 	// Get XLine to do it's thing.
 	this->XLines->CheckELines();

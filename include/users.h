@@ -679,7 +679,7 @@ class CoreExport User : public EventHandler
 	 * on the server, in nick!ident&at;host form.
 	 * @return The full masked host of the user
 	 */
-	virtual const std::string& GetFullHost();
+	virtual const std::string GetFullHost();
 
 	/** Returns the full real host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -687,7 +687,7 @@ class CoreExport User : public EventHandler
 	 * e.g. through a module, then this method will ignore it and return the true hostname.
 	 * @return The full real host of the user
 	 */
-	virtual const std::string& GetFullRealHost();
+	virtual const std::string GetFullRealHost();
 
 	/** This clears any cached results that are used for GetFullRealHost() etc.
 	 * The results of these calls are cached as generating them can be generally expensive.

@@ -97,6 +97,7 @@ typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 #include "inspstring.h"
 #include "protocol.h"
 #include "threadengine.h"
+#include "fakeuser.h"
 
 #ifndef PATH_MAX
 #warning Potentially broken system, PATH_MAX undefined
@@ -407,7 +408,7 @@ class CoreExport InspIRCd : public classbase
 	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
 	 * falls into the abyss :p
 	 */
-	User* FakeClient;
+	FakeUser* FakeClient;
 
 	/** Returns the next available UID for this server.
 	 */

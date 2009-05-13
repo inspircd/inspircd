@@ -330,7 +330,7 @@ void User::CloseSocket()
 	}
 }
 
-const std::string& User::GetFullHost()
+const std::string User::GetFullHost()
 {
 	if (!this->cached_fullhost.empty())
 		return this->cached_fullhost;
@@ -379,7 +379,7 @@ int User::ReadData(void* buffer, size_t size)
 }
 
 
-const std::string& User::GetFullRealHost()
+const std::string User::GetFullRealHost()
 {
 	if (!this->cached_fullrealhost.empty())
 		return this->cached_fullrealhost;
