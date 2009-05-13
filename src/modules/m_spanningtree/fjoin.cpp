@@ -123,7 +123,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			modelist.push_back(params[idx]);
 		}
 
-		this->ServerInstance->SendMode(modelist, this->ServerInstance->FakeClient);
+		this->ServerInstance->SendMode(modelist, Utils->ServerUser);
 	}
 
 	/* Now, process every 'modes,nick' pair */
@@ -188,7 +188,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		while (modestack.GetStackedLine(stackresult))
 		{
 			mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-			ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
+			ServerInstance->SendMode(mode_junk, Utils->ServerUser);
 			mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
 		}
 	}
@@ -225,7 +225,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 		while (stack.GetStackedLine(stackresult))
 		{
 			mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-			ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
+			ServerInstance->SendMode(mode_junk, Utils->ServerUser);
 			mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
 		}
 	}

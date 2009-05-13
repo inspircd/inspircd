@@ -2045,6 +2045,12 @@ void User::DecreasePenalty(int decrease)
 	this->Penalty -= decrease;
 }
 
+void FakeUser::SetFakeServer(std::string name)
+{
+	this->nick = name;
+	this->server = nick.c_str();
+}
+
 VisData::VisData()
 {
 }

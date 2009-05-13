@@ -31,7 +31,6 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 		return true;
 	}
 
-	bool smode = false;
 	std::string sourceserv;
 
 	/* Are we dealing with an FMODE from a user, or from a server? */
@@ -44,8 +43,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	else
 	{
 		/* FMODE from a server, use a fake user to receive mode feedback */
-		who = this->ServerInstance->FakeClient;
-		smode = true;			/* Setting this flag tells us it is a server mode*/
+		who = Utils->ServerUser;
 		sourceserv = source;    /* Set sourceserv to the actual source string */
 	}
 	std::vector<std::string> modelist;
@@ -99,14 +97,8 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	 */
 	if (TS <= ourTS)
 	{
-		if (smode)
-		{
-			this->ServerInstance->SendMode(modelist, who);
-		}
-		else
-		{
-			this->ServerInstance->CallCommandHandler("MODE", modelist, who);
-		}
+		ServerInstance->Modes->Process(modelist, who, (who == Utils->ServerUser));
+
 		/* HOT POTATO! PASS IT ON! */
 		Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);
 	}
