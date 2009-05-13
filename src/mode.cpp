@@ -766,7 +766,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		if (!output_sequence.empty())
 		{
 			LastParseParams.push_front(output_sequence);
-			if (servermode)
+			if (!user)
 			{
 				if (type == MODETYPE_CHANNEL)
 				{

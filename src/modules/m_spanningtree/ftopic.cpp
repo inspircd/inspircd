@@ -39,7 +39,8 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 				c->topic.assign(params[3], 0, ServerInstance->Config->Limits.MaxTopic);
 				if (!user)
 				{
-					c->WriteChannelWithServ(ServerInstance->Config->ServerName, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
+					std::string sourceserv = Utils->FindServer(source)->GetName();
+					c->WriteChannelWithServ(sourceserv.c_str(), "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
 				}
 				else
 				{
