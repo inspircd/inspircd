@@ -243,11 +243,6 @@ class CloakUser : public ModeHandler
 
 			throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
 		}
-		else if (key1 == 0x01234567 || key2 == 0x01234567 || key3 == 0x01234567 || key4 = 0x01234567)
-		{
-			/* Simple test to see if the config was changed from the values in the example config, as these would be very insecure. */
-			throw ModuleException("You did not change the cloak keys for m_cloaking! You must randomly create your own keys in the <cloak> tag.");
-		}
 	}
 };
 
