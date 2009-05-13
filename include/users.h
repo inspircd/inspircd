@@ -391,12 +391,6 @@ class CoreExport VisData
 class CoreExport User : public EventHandler
 {
  private:
-	/** Pointer to creator.
-	 * This is required to make use of core functions
-	 * from within the User class.
-	 */
-	InspIRCd* ServerInstance;
-
 	/** A list of channels the user has a pending invite to.
 	 * Upon INVITE channels are added, and upon JOIN, the
 	 * channels are removed from this list.
@@ -439,6 +433,12 @@ class CoreExport User : public EventHandler
 	std::bitset<64> AllowedChanModes;
 
  public:
+	/** Pointer to creator.
+	 * This is required to make use of core functions
+	 * from within the User class.
+	 */
+	InspIRCd* ServerInstance;
+
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
 	 * The pointer is guarenteed to *always* be valid. :)
 	 */
