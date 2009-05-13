@@ -609,7 +609,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	/* set up fake client again this time with the correct uid */
-	this->FakeClient = new FakeUser(this);
+	this->FakeClient = new FakeUser(this, "!");
 
 	// Get XLine to do it's thing.
 	this->XLines->CheckELines();

@@ -299,8 +299,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			TreeServer *ServerSource = Utils->FindServer(prefix);
 			if (ServerSource)
 			{
-				Utils->ServerUser->server = ServerSource->GetName().c_str();
-				Utils->ServerUser->uid = ServerSource->GetID();
+				// ServerSource->GetName().c_str() may become invalid before it is used
+				Utils->ServerUser->nick = ServerSource->GetName().c_str();
+				Utils->ServerUser->server = Utils->ServerUser->nick.c_str();
+				Utils->ServerUser->uuid = ServerSource->GetID();
 			}
 
 			/* Find the link we just got this from so we don't bounce it back incorrectly */
