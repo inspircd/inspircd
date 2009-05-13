@@ -24,7 +24,7 @@ class CommandSakick : public Command
 	{
 		this->source = "m_sakick.so";
 		syntax = "<channel> <nick> [reason]";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
+		TRANSLATE4(TR_TEXT, TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -72,8 +72,7 @@ class CommandSakick : public Command
 			if (IS_LOCAL(user))
 			{
 				/* Locally issued command; send the snomasks */
-				ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
-				ServerInstance->PI->SendSNONotice("A", std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
+				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
 			}
 
 			return CMD_SUCCESS;
