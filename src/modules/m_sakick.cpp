@@ -47,7 +47,7 @@ class CommandSakick : public Command
 
 			if (ServerInstance->ULine(dest->server))
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client",user->nick.c_str());
+				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an SA command on a u-lined client", user->nick.c_str());
 				return CMD_FAILURE;
 			}
 
@@ -60,29 +60,24 @@ class CommandSakick : public Command
 				if (!channel->ServerKickUser(dest, reason, servername))
 					delete channel;
 
-				Channel* n = ServerInstance->FindChan(parameters[1]);
-				if (!n)
+				Channel *n = ServerInstance->FindChan(parameters[1]);
+				if (!n || !n->HasUser(dest))
 				{
-					ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" SAKICKed "+dest->nick+" on "+parameters[0]);
-					return CMD_SUCCESS;
+					/* Success; send the global snomask */
+					ServerInstance->PI->SendSNONotice("A", std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
 				}
 				else
 				{
-					if (!n->HasUser(dest))
-					{
-						ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" SAKICKed "+dest->nick+" on "+parameters[0]);
-						return CMD_SUCCESS;
-					}
-					else
-					{
-						user->WriteServ("NOTICE %s :*** Unable to kick %s from %s",user->nick.c_str(), dest->nick.c_str(), parameters[0].c_str());
-						return CMD_FAILURE;
-					}
+					/* Sort-of-bug: If the command was issued remotely, this message won't be sent */
+					user->WriteServ("NOTICE %s :*** Unable to kick %s from %s", user->nick.c_str(), dest->nick.c_str(), parameters[0].c_str());
+					return CMD_FAILURE;
 				}
 			}
-			else
+
+			if (IS_LOCAL(user))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" sent remote SAKICK to kick "+dest->nick+" from "+parameters[0]);
+				/* Locally issued command; send the local snomask */
+				ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
 			}
 
 			return CMD_SUCCESS;
