@@ -177,6 +177,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 		}
 	}
 	delete TreeRoot;
+	ServerUser->uuid = TreeRoot->GetID();
 	delete ServerUser;
 	ServerInstance->BufferedSocketCull();
 }
