@@ -316,7 +316,7 @@ void TreeServer::AddChild(TreeServer* Child)
 
 bool TreeServer::DelChild(TreeServer* Child)
 {
-	for (std::vector<TreeServer*>::iterator a = Children.begin(); a < Children.end(); a++)
+	for (std::vector<TreeServer*>::iterator a = Children.begin(); a != Children.end(); a++)
 	{
 		if (*a == Child)
 		{
@@ -337,7 +337,7 @@ bool TreeServer::Tidy()
 	while (stillchildren)
 	{
 		stillchildren = false;
-		for (std::vector<TreeServer*>::iterator a = Children.begin(); a < Children.end(); a++)
+		for (std::vector<TreeServer*>::iterator a = Children.begin(); a != Children.end(); a++)
 		{
 			TreeServer* s = (TreeServer*)*a;
 			s->Tidy();

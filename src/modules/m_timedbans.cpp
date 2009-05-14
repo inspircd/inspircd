@@ -134,7 +134,7 @@ class ModuleTimedBans : public Module
 	{
 		irc::string listitem = banmask.c_str();
 		irc::string thischan = chan->name.c_str();
-		for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); i++)
 		{
 			irc::string target = i->mask.c_str();
 			irc::string tchan = i->channel.c_str();
@@ -150,7 +150,7 @@ class ModuleTimedBans : public Module
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
 		timedbans::iterator safei;
-		for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end();)
+		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end();)
 		{
 			/* Safe copy of iterator, so we can erase as we iterate */
 			safei = i;

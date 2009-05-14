@@ -664,7 +664,7 @@ void SpanningTreeUtilities::DoFailOver(Link* x)
 
 Link* SpanningTreeUtilities::FindLink(const std::string& name)
 {
-	for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+	for (std::vector<Link>::iterator x = LinkBlocks.begin(); x != LinkBlocks.end(); x++)
 	{
 		if (InspIRCd::Match(x->Name.c_str(), name.c_str()))
 		{
