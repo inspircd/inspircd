@@ -2053,14 +2053,14 @@ void FakeUser::SetFakeServer(std::string name)
 
 const std::string FakeUser::GetFullHost()
 {
-	if (ServerInstance->Config->HideWhoisServer)
+	if (*ServerInstance->Config->HideWhoisServer)
 		return ServerInstance->Config->HideWhoisServer;
 	return nick;
 }
 
 const std::string FakeUser::GetFullRealHost()
 {
-	if (ServerInstance->Config->HideWhoisServer)
+	if (*ServerInstance->Config->HideWhoisServer)
 		return ServerInstance->Config->HideWhoisServer;
 	return nick;
 }
