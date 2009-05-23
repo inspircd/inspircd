@@ -259,7 +259,7 @@ class ModuleDNSBL : public Module
 			}
 
 			e->banaction = str2banaction(MyConf->ReadValue("dnsbl", "action", i));
-			e->duration = ServerInstance->Duration(MyConf->ReadValue("dnsbl", "duration", i));
+			e->duration = ServerInstance->Duration(MyConf->ReadValue("dnsbl", "duration", "60", i));
 
 			/* Use portparser for record replies */
 
@@ -279,6 +279,10 @@ class ModuleDNSBL : public Module
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
 				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(#%d): Invalid banaction", i);
+			}
+			else if (e->duration <= 0)
+			{
+				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(#%d): Invalid duration", i);
 			}
 			else
 			{
