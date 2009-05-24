@@ -114,7 +114,9 @@ void		Module::OnUserDisconnect(User*) { }
 void		Module::OnUserJoin(User*, Channel*, bool, bool&) { }
 void		Module::OnPostJoin(User*, Channel*) { }
 void		Module::OnUserPart(User*, Channel*, std::string&, bool&) { }
-void		Module::OnRehash(User*, const std::string&) { }
+void		Module::OnPreRehash(User*, const std::string&) { }
+void		Module::OnModuleRehash(User*, const std::string&) { }
+void		Module::OnRehash(User*) { }
 int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return 0; }
 void		Module::OnMode(User*, void*, int, const std::deque<std::string>&, const std::deque<TranslateType>&) { }
 Version		Module::GetVersion() { return Version("Misconfigured", VF_VENDOR, -1); }

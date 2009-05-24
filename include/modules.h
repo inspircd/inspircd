@@ -312,11 +312,11 @@ class CoreExport Request : public ModuleMessage
 	/** This member holds a pointer to arbitary data set by the emitter of the message
 	 */
 	char* data;
- 	/** This should be a null-terminated string identifying the type of request,
- 	 * all modules should define this and use it to determine the nature of the
- 	 * request before they attempt to cast the Request in any way.
- 	 */
- 	const char* id;
+	/** This should be a null-terminated string identifying the type of request,
+	 * all modules should define this and use it to determine the nature of the
+	 * request before they attempt to cast the Request in any way.
+	 */
+	const char* id;
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
@@ -326,26 +326,26 @@ class CoreExport Request : public ModuleMessage
 	Module* dest;
  public:
 	/** Create a new Request
- 	 * This is for the 'old' way of casting whatever the data is
- 	 * to char* and hoping you get the right thing at the other end.
- 	 * This is slowly being depreciated in favor of the 'new' way.
+	 * This is for the 'old' way of casting whatever the data is
+	 * to char* and hoping you get the right thing at the other end.
+	 * This is slowly being depreciated in favor of the 'new' way.
 	 */
 	Request(char* anydata, Module* src, Module* dst);
- 	/** Create a new Request
- 	 * This is for the 'new' way of defining a subclass
- 	 * of Request and defining it in a common header,
+	/** Create a new Request
+	 * This is for the 'new' way of defining a subclass
+	 * of Request and defining it in a common header,
 	 * passing an object of your Request subclass through
- 	 * as a Request* and using the ID string to determine
- 	 * what to cast it back to and the other end. This is
- 	 * much safer as there are no casts not confirmed by
- 	 * the ID string, and all casts are child->parent and
- 	 * can be checked at runtime with dynamic_cast<>()
- 	 */
- 	Request(Module* src, Module* dst, const char* idstr);
+	 * as a Request* and using the ID string to determine
+	 * what to cast it back to and the other end. This is
+	 * much safer as there are no casts not confirmed by
+	 * the ID string, and all casts are child->parent and
+	 * can be checked at runtime with dynamic_cast<>()
+	 */
+	Request(Module* src, Module* dst, const char* idstr);
 	/** Fetch the Request data
 	 */
 	char* GetData();
- 	/** Fetch the ID string
+	/** Fetch the ID string
 	 */
 	const char* GetId();
 	/** Fetch the request source
@@ -418,14 +418,15 @@ enum Implementation
 	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
 	I_OnGetServerDescription, I_OnSyncUser, I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData,
 	I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddLine,
-	I_OnDelLine, I_OnExpireLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
-	I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite, I_OnRawMode,
+	I_OnDelLine, I_OnExpireLine, I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill,
+	I_OnLoadModule, I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite, I_OnRawMode,
 	I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos,
 	I_OnLocalTopicChange, I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 	I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 	I_OnChannelPreDelete, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnUserList,
 	I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookUserIO, I_OnHostCycle,
+	I_OnPreRehash, I_OnModuleRehash,
 	I_END
 };
 
@@ -534,14 +535,33 @@ class CoreExport Module : public Extensible
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
-	 * system. You should use it to reload any files so that your module keeps in step with the
-	 * rest of the application. If a parameter is given, the core has done nothing. The module
-	 * receiving the event can decide if this parameter has any relevence to it.
-	 * @param user The user performing the rehash, if any -- if this is server initiated, the
-	 * value of this variable will be NULL.
-	 * @param parameter The (optional) parameter given to REHASH from the user.
+	 * system. This is called in all cases -- including when this server will not execute the
+	 * rehash because it is directed at a remote server.
+	 *
+	 * @param user The user performing the rehash, if any. If this is server initiated, the value of
+	 * this variable will be NULL.
+	 * @param parameter The (optional) parameter given to REHASH from the user. Empty when server
+	 * initiated.
 	 */
- 	virtual void OnRehash(User* user, const std::string &parameter);
+	virtual void OnPreRehash(User* user, const std::string &parameter);
+
+	/** Called on rehash.
+	 * This method is called when a user initiates a module-specific rehash. This can be used to do
+	 * expensive operations (such as reloading SSL certificates) that are not executed on a normal
+	 * rehash for efficiency. A rehash of this type does not reload the core configuration.
+	 *
+	 * @param user The user performing the rehash.
+	 * @param parameter The parameter given to REHASH
+	 */
+	virtual void OnModuleRehash(User* user, const std::string &parameter);
+
+	/** Called on rehash.
+	 * This method is called after a rehash has completed. You should use it to reload any module
+	 * configuration from the main configuration file.
+	 * @param user The user that performed the rehash, if it was initiated by a user and that user
+	 * is still connected.
+	 */
+	virtual void OnRehash(User* user);
 
 	/** Called whenever a snotice is about to be sent to a snomask.
 	 * snomask and type may both be modified; the message may not.
@@ -1641,7 +1661,7 @@ class CoreExport ModuleManager : public classbase
 	 */
 	std::string LastModuleError;
 
- 	/** The feature names published by various modules
+	/** The feature names published by various modules
 	 */
 	featurelist Features;
 

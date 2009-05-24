@@ -274,7 +274,7 @@ class ModuleSilence : public Module
 	ModuleSilence(InspIRCd* Me)
 		: Module(Me), maxsilence(32)
 	{
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 		cmdsilence = new CommandSilence(ServerInstance,maxsilence);
 		cmdsvssilence = new CommandSVSSilence(ServerInstance);
 		ServerInstance->AddCommand(cmdsilence);
@@ -284,7 +284,7 @@ class ModuleSilence : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);

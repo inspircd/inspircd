@@ -259,7 +259,7 @@ class ModuleDCCAllow : public Module
 	}
 
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);

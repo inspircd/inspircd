@@ -31,7 +31,7 @@ class ModuleGeoIP : public Module
  public:
 	ModuleGeoIP(InspIRCd *Me) : Module(Me)
 	{
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 
@@ -47,7 +47,7 @@ class ModuleGeoIP : public Module
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		GeoBans.clear();
 

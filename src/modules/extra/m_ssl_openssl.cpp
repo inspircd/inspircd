@@ -149,10 +149,13 @@ class ModuleSSLOpenSSL : public Module
 		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 
 		// Needs the flag as it ignores a plain /rehash
-		OnRehash(NULL,"ssl");
-		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup, I_On005Numeric,
-			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect, I_OnHookUserIO };
-		ServerInstance->Modules->Attach(eventlist, this, 16);
+		OnModuleRehash(NULL,"ssl");
+		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept,
+			I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup, I_On005Numeric,
+			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData,
+			I_OnUnloadModule, I_OnRehash, I_OnModuleRehash, I_OnWhois, I_OnPostConnect,
+			I_OnHookUserIO };
+		ServerInstance->Modules->Attach(eventlist, this, 17);
 	}
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
@@ -164,7 +167,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 	}
 
-	virtual void OnRehash(User* user, const std::string &param)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 
@@ -217,11 +220,16 @@ class ModuleSSLOpenSSL : public Module
 
 		if (!sslports.empty())
 			sslports.erase(sslports.end() - 1);
+	}
 
+	virtual void OnModuleRehash(User* user, const std::string &param)
+	{
 		if (param != "ssl")
-		{
 			return;
-		}
+
+		OnRehash(user);
+
+		ConfigReader Conf(ServerInstance);
 
 		std::string confdir(ServerInstance->ConfigFileName);
 		// +1 so we the path ends with a /

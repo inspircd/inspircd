@@ -789,7 +789,7 @@ class ModuleMsSQL : public Module
 		}
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		queryDispatcher->LockQueue();
 		ReadConf();

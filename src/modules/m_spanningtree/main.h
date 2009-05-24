@@ -173,7 +173,8 @@ class ModuleSpanningTree : public Module
 	virtual void OnUserPostNick(User* user, const std::string &oldnick);
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
 	virtual void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
-	virtual void OnRehash(User* user, const std::string &parameter);
+	virtual void OnPreRehash(User* user, const std::string &parameter);
+	virtual void OnRehash(User* user);
 	virtual void OnOper(User* user, const std::string &opertype);
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
 	virtual void OnAddLine(User *u, XLine *x);

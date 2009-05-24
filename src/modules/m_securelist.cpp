@@ -23,7 +23,7 @@ class ModuleSecureList : public Module
  public:
 	ModuleSecureList(InspIRCd* Me) : Module(Me)
 	{
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
@@ -37,7 +37,7 @@ class ModuleSecureList : public Module
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
-	void OnRehash(User* user, const std::string &parameter)
+	void OnRehash(User* user)
 	{
 		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 		allowlist.clear();

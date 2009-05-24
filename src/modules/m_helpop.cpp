@@ -164,7 +164,7 @@ class ModuleHelpop : public Module
 		}
 
 
-		virtual void OnRehash(User* user, const std::string &parameter)
+		virtual void OnRehash(User* user)
 		{
 			ReadConfig();
 		}

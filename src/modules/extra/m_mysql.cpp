@@ -101,7 +101,7 @@ class ModuleSQL : public Module
 	 ~ModuleSQL();
 	 unsigned long NewID();
 	 const char* OnRequest(Request* request);
-	 void OnRehash(User* user, const std::string &parameter);
+	 void OnRehash(User* user);
 	 Version GetVersion();
 };
 
@@ -746,7 +746,7 @@ const char* ModuleSQL::OnRequest(Request* request)
 	return NULL;
 }
 
-void ModuleSQL::OnRehash(User* user, const std::string &parameter)
+void ModuleSQL::OnRehash(User* user)
 {
 	Dispatcher->LockQueue();
 	rehashing = true;

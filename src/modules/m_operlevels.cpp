@@ -33,7 +33,7 @@ class ModuleOperLevels : public Module
 		}
 
 
-		virtual void OnRehash(User* user, const std::string &parameter)
+		virtual void OnRehash(User* user)
 		{
 			delete conf;
 			conf = new ConfigReader(ServerInstance);

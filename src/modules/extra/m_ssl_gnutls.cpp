@@ -93,11 +93,6 @@ class CommandStartTLS : public Command
 
 class ModuleSSLGnuTLS : public Module
 {
-
-	ConfigReader* Conf;
-
-	char* dummy;
-
 	std::vector<std::string> listenports;
 
 	issl_session* sessions;
@@ -130,35 +125,36 @@ class ModuleSSLGnuTLS : public Module
 
 		cred_alloc = false;
 		// Needs the flag as it ignores a plain /rehash
-		OnRehash(NULL,"ssl");
+		OnModuleRehash(NULL,"ssl");
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
-			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUnloadModule, I_OnRehash, I_OnWhois, I_OnPostConnect, I_OnEvent, I_OnHookUserIO };
-		ServerInstance->Modules->Attach(eventlist, this, 17);
+			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData,
+			I_OnUnloadModule, I_OnRehash, I_OnModuleRehash, I_OnWhois, I_OnPostConnect, I_OnEvent, I_OnHookUserIO };
+		ServerInstance->Modules->Attach(eventlist, this, 18);
 
 		starttls = new CommandStartTLS(ServerInstance, this);
 		ServerInstance->AddCommand(starttls);
 	}
 
-	virtual void OnRehash(User* user, const std::string &param)
+	virtual void OnRehash(User* user)
 	{
-		Conf = new ConfigReader(ServerInstance);
+		ConfigReader Conf(ServerInstance);
 
 		listenports.clear();
 		clientactive = 0;
 		sslports.clear();
 
-		for(int index = 0; index < Conf->Enumerate("bind"); index++)
+		for(int index = 0; index < Conf.Enumerate("bind"); index++)
 		{
 			// For each <bind> tag
-			std::string x = Conf->ReadValue("bind", "type", index);
-			if(((x.empty()) || (x == "clients")) && (Conf->ReadValue("bind", "ssl", index) == "gnutls"))
+			std::string x = Conf.ReadValue("bind", "type", index);
+			if(((x.empty()) || (x == "clients")) && (Conf.ReadValue("bind", "ssl", index) == "gnutls"))
 			{
 				// Get the port we're meant to be listening on with SSL
-				std::string port = Conf->ReadValue("bind", "port", index);
-				std::string addr = Conf->ReadValue("bind", "address", index);
+				std::string port = Conf.ReadValue("bind", "port", index);
+				std::string addr = Conf.ReadValue("bind", "address", index);
 
 				if (!addr.empty())
 				{
@@ -195,22 +191,26 @@ class ModuleSSLGnuTLS : public Module
 
 		if (!sslports.empty())
 			sslports.erase(sslports.end() - 1);
+	}
 
+	virtual void OnModuleRehash(User* user, const std::string &param)
+	{
 		if(param != "ssl")
-		{
-			delete Conf;
 			return;
-		}
+
+		OnRehash(user);
+
+		ConfigReader Conf(ServerInstance);
 
 		std::string confdir(ServerInstance->ConfigFileName);
 		// +1 so we the path ends with a /
 		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
 
-		cafile	= Conf->ReadValue("gnutls", "cafile", 0);
-		crlfile	= Conf->ReadValue("gnutls", "crlfile", 0);
-		certfile	= Conf->ReadValue("gnutls", "certfile", 0);
-		keyfile	= Conf->ReadValue("gnutls", "keyfile", 0);
-		dh_bits	= Conf->ReadInteger("gnutls", "dhbits", 0, false);
+		cafile = Conf.ReadValue("gnutls", "cafile", 0);
+		crlfile	= Conf.ReadValue("gnutls", "crlfile", 0);
+		certfile = Conf.ReadValue("gnutls", "certfile", 0);
+		keyfile	= Conf.ReadValue("gnutls", "keyfile", 0);
+		dh_bits	= Conf.ReadInteger("gnutls", "dhbits", 0, false);
 
 		// Set all the default values needed.
 		if (cafile.empty())
@@ -272,8 +272,6 @@ class ModuleSSLGnuTLS : public Module
 
 		// This may be on a large (once a day or week) timer eventually.
 		GenerateDHParams();
-
-		delete Conf;
 	}
 
 	void GenerateDHParams()
@@ -311,7 +309,7 @@ class ModuleSSLGnuTLS : public Module
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
 				user->DelIOHook();
 			}
-			if (user->GetExt("ssl_cert", dummy))
+			if (user->GetExt("ssl_cert"))
 			{
 				ssl_cert* tofree;
 				user->GetExt("ssl_cert", tofree);
@@ -460,7 +458,7 @@ class ModuleSSLGnuTLS : public Module
 
 		EventHandler* user = ServerInstance->SE->GetRef(fd);
 
-		if ((user) && (user->GetExt("ssl_cert", dummy)))
+		if ((user) && (user->GetExt("ssl_cert")))
 		{
 			ssl_cert* tofree;
 			user->GetExt("ssl_cert", tofree);
@@ -611,7 +609,7 @@ class ModuleSSLGnuTLS : public Module
 			return;
 
 		// Bugfix, only send this numeric for *our* SSL users
-		if (dest->GetExt("ssl", dummy))
+		if (dest->GetExt("ssl"))
 		{
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 		}
@@ -623,7 +621,7 @@ class ModuleSSLGnuTLS : public Module
 		if(extname == "ssl")
 		{
 			// check if this user has an swhois field to send
-			if(user->GetExt(extname, dummy))
+			if(user->GetExt(extname))
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
@@ -639,7 +637,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			User* dest = (User*)target;
 			// if they dont already have an ssl flag, accept the remote server's
-			if (!dest->GetExt(extname, dummy))
+			if (!dest->GetExt(extname))
 			{
 				dest->Extend(extname, "ON");
 			}
@@ -687,7 +685,7 @@ class ModuleSSLGnuTLS : public Module
 			EventHandler *extendme = ServerInstance->SE->GetRef(fd);
 			if (extendme)
 			{
-				if (!extendme->GetExt("ssl", dummy))
+				if (!extendme->GetExt("ssl"))
 					extendme->Extend("ssl", "ON");
 			}
 

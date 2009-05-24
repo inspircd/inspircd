@@ -60,13 +60,13 @@ class ModuleDeaf : public Module
 		if (!ServerInstance->Modes->AddMode(m1))
 			throw ModuleException("Could not add new modes!");
 
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnBuildExemptList };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 
-	virtual void OnRehash(User* user, const std::string&)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader* conf = new ConfigReader(ServerInstance);
 		deaf_bypasschars = conf->ReadValue("deaf", "bypasschars", 0);

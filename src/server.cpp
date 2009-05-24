@@ -54,7 +54,6 @@ void RehashHandler::Call(const std::string &reason)
 	if (!Server->ConfigThread)
 	{
 		Server->Config->RehashUserUID = "";
-		Server->Config->RehashParameter = "";
 
 		Server->ConfigThread = new ConfigReaderThread(Server, false, "");
 		Server->Threads->Start(Server->ConfigThread);

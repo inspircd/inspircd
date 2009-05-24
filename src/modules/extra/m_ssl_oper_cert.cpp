@@ -87,7 +87,7 @@ class ModuleOperSSLCert : public Module
 	}
 
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		delete cf;
 		cf = new ConfigReader(ServerInstance);

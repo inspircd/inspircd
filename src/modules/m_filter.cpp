@@ -113,7 +113,7 @@ protected:
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags) = 0;
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual void OnRehash(User* user, const std::string &parameter);
+	virtual void OnRehash(User* user);
 	virtual Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
@@ -409,7 +409,7 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 	return 0;
 }
 
-void FilterBase::OnRehash(User* user, const std::string &parameter)
+void FilterBase::OnRehash(User* user)
 {
 	ConfigReader MyConf(ServerInstance);
 	std::vector<std::string>().swap(exemptfromfilter);
@@ -559,7 +559,7 @@ class ModuleFilter : public FilterBase
 	ModuleFilter(InspIRCd* Me)
 	: FilterBase(Me, "m_filter.so")
 	{
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModuleFilter()
@@ -636,10 +636,10 @@ class ModuleFilter : public FilterBase
 		return std::make_pair(true, "");
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader MyConf(ServerInstance);
-		FilterBase::OnRehash(user, parameter);
+		FilterBase::OnRehash(user);
 		ReadFilters(MyConf);
 	}
 

@@ -59,7 +59,7 @@ class ModuleAuditorium : public Module
 			throw ModuleException("Could not add new modes!");
 		}
 
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnRehash, I_OnHostCycle };
 		Me->Modules->Attach(eventlist, this, 7);
@@ -72,7 +72,7 @@ class ModuleAuditorium : public Module
 		delete aum;
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader conf(ServerInstance);
 		ShowOps = conf.ReadFlag("auditorium", "showops", 0);

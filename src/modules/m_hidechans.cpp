@@ -58,7 +58,7 @@ class ModuleHideChans : public Module
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModuleHideChans()
@@ -72,7 +72,7 @@ class ModuleHideChans : public Module
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader conf(ServerInstance);
 		AffectsOpers = conf.ReadFlag("hidechans", "affectsopers", 0);

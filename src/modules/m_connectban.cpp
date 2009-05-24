@@ -29,7 +29,7 @@ class ModuleConnectBan : public Module
 	{
 		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModuleConnectBan()
@@ -41,7 +41,7 @@ class ModuleConnectBan : public Module
 		return Version("$Id$", VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 		std::string duration;

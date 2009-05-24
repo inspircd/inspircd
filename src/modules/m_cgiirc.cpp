@@ -145,7 +145,7 @@ public:
 	ModuleCgiIRC(InspIRCd* Me) : Module(Me)
 	{
 
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 		mycommand = new CommandWebirc(Me, Hosts, NotifyOpers);
 		ServerInstance->AddCommand(mycommand);
 
@@ -159,7 +159,7 @@ public:
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 		Hosts.clear();

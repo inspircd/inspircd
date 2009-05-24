@@ -195,7 +195,7 @@ class ModuleSQLLog : public Module
 
 		SQLModule = ServerInstance->Modules->FindFeature("SQL");
 
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 		MyMod = this;
 		active_queries.clear();
 
@@ -217,7 +217,7 @@ class ModuleSQLLog : public Module
 		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ReadConfig();
 	}

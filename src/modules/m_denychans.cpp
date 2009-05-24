@@ -31,7 +31,7 @@ class ModuleDenyChannels : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual void OnRehash(User* user, const std::string &param)
+	virtual void OnRehash(User* user)
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);

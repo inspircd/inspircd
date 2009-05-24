@@ -344,7 +344,7 @@ private:
 public:
 	ModuleCallerID(InspIRCd* Me) : Module(Me)
 	{
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 		mycommand = new CommandAccept(ServerInstance, maxaccepts);
 		myumode = new User_g(ServerInstance);
 
@@ -477,7 +477,7 @@ public:
 		RemoveData(user);
 	}
 
-	virtual void OnRehash(User* user, const std::string& parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 		maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);

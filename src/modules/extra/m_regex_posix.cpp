@@ -81,7 +81,7 @@ public:
 		Me->Modules->PublishInterface("RegularExpression", this);
 		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
 		Me->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
 	virtual Version GetVersion()
@@ -94,7 +94,7 @@ public:
 		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
 	}
 
-	virtual void OnRehash(User* u, const std::string& parameter)
+	virtual void OnRehash(User* u)
 	{
 		ConfigReader Conf(ServerInstance);
 		extended = Conf.ReadFlag("posix", "extended", 0);

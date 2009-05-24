@@ -95,7 +95,7 @@ class ModuleSWhois : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
-	void OnRehash(User* user, const std::string &parameter)
+	void OnRehash(User* user)
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);

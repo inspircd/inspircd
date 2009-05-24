@@ -45,13 +45,13 @@ class ModuleOperjoin : public Module
 	public:
 		ModuleOperjoin(InspIRCd* Me) : Module(Me)
 		{
-			OnRehash(NULL, "");
+			OnRehash(NULL);
 		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 
-		virtual void OnRehash(User* user, const std::string &parameter)
+		virtual void OnRehash(User* user)
 		{
 			ConfigReader* conf = new ConfigReader(ServerInstance);
 

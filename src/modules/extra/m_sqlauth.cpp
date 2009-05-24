@@ -46,7 +46,7 @@ public:
 		if (!SQLprovider)
 			throw ModuleException("Can't find an SQL provider module. Please load one before attempting to load m_sqlauth.");
 
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRequest, I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
@@ -58,7 +58,7 @@ public:
 	}
 
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 

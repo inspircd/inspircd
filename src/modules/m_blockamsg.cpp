@@ -46,7 +46,7 @@ class ModuleBlockAmsg : public Module
  public:
 	ModuleBlockAmsg(InspIRCd* Me) : Module(Me)
 	{
-		this->OnRehash(NULL,"");
+		this->OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
@@ -61,7 +61,7 @@ class ModuleBlockAmsg : public Module
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 

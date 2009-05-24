@@ -29,14 +29,14 @@ class ModuleChanLog : public Module
 		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModuleChanLog()
 	{
 	}
 
-	virtual void OnRehash(User *user, const std::string &parameter)
+	virtual void OnRehash(User *user)
 	{
 		ConfigReader MyConf(ServerInstance);
 		std::string snomasks;

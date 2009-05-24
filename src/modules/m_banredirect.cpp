@@ -212,7 +212,7 @@ class ModuleBanRedirect : public Module
 			throw ModuleException("Could not add mode watcher");
 		}
 
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 
 		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete, I_OnCleanup };
 		Me->Modules->Attach(list, this, 4);
@@ -262,7 +262,7 @@ class ModuleBanRedirect : public Module
 		}
 	}
 
-	virtual void OnRehash(User* user, const std::string &param)
+	virtual void OnRehash(User* user)
 	{
 		ExceptionModule = ServerInstance->Modules->Find("m_banexception.so");
 	}

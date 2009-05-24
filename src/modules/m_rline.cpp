@@ -195,7 +195,7 @@ class ModuleRLine : public Module
 	ModuleRLine(InspIRCd* Me) : Module(Me)
 	{
 		mymodule = this;
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 
 		Me->Modules->UseInterface("RegularExpression");
 
@@ -235,7 +235,7 @@ class ModuleRLine : public Module
 		}
 	}
 
-	virtual void OnRehash(User *user, const std::string &parameter)
+	virtual void OnRehash(User *user)
 	{
 		ConfigReader Conf(ServerInstance);
 

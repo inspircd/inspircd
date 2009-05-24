@@ -33,7 +33,7 @@ class ModuleOverride : public Module
 		: Module(Me)
 	{
 		// read our config options (main config file)
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('G', "GODMODE");
 		if (!ServerInstance->Modules->PublishFeature("Override", this))
 		{
@@ -45,7 +45,7 @@ class ModuleOverride : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		ConfigReader Conf(ServerInstance);

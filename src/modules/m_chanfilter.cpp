@@ -74,7 +74,7 @@ class ModuleChanFilter : public Module
 		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 
@@ -83,7 +83,7 @@ class ModuleChanFilter : public Module
 		cf->DoChannelDelete(chan);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 		hidemask = Conf.ReadFlag("chanfilter", "hidemask", 0);

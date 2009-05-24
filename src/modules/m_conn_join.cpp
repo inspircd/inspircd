@@ -45,7 +45,7 @@ class ModuleConnJoin : public Module
 		ModuleConnJoin(InspIRCd* Me)
 			: Module(Me)
 		{
-			OnRehash(NULL, "");
+			OnRehash(NULL);
 			Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
 			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
@@ -56,7 +56,7 @@ class ModuleConnJoin : public Module
 		}
 
 
-		virtual void OnRehash(User* user, const std::string &parameter)
+		virtual void OnRehash(User* user)
 		{
 			ConfigReader* conf = new ConfigReader(ServerInstance);
 			JoinChan = conf->ReadValue("autojoin", "channel", 0);

@@ -16,7 +16,6 @@
 #include "commands/cmd_rehash.h"
 
 
-
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
 	return new CommandRehash(Instance);
@@ -24,35 +23,47 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	std::string old_disabled = ServerInstance->Config->DisabledCommands;
+	std::string param = parameters.size() ? parameters[0] : "";
 
-	if (parameters.size() && parameters[0][0] != '-')
+	FOREACH_MOD(I_OnPreRehash,OnPreRehash(user, param));
+
+	if (param.empty())
 	{
+		// standard rehash of local server
+	}
+	else if (param.find_first_of("*.") != std::string::npos)
+	{
+		// rehash of servers by server name (with wildcard)
 		if (!InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
 		{
-			FOREACH_MOD(I_OnRehash,OnRehash(user, parameters[0]));
-			return CMD_SUCCESS; // rehash for a server, and not for us
+			// Doesn't match us. PreRehash is already done, nothing left to do
+			return CMD_SUCCESS;
 		}
 	}
-	else if (parameters.size())
+	else
 	{
-		FOREACH_MOD(I_OnRehash,OnRehash(user, parameters[0]));
+		// parameterized rehash
+
+		// the leading "-" is optional; remove it if present.
+		if (param[0] == '-')
+			param = param.substr(1);
+
+		FOREACH_MOD(I_OnModuleRehash,OnModuleRehash(user, param));
 		return CMD_SUCCESS;
 	}
 
-	// Rehash for me.
-	FOREACH_MOD(I_OnRehash,OnRehash(user, ""));
-
-	if (IS_LOCAL(user))
-		user->WriteNumeric(RPL_REHASHING, "%s %s :Rehashing",user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
-	else
-		ServerInstance->PI->SendUserNotice(user, std::string("*** Rehashing server ") + ServerInstance->ConfigFileName);
-
-
+	// Rehash for me. Try to start the rehash thread
 	if (!ServerInstance->ConfigThread)
 	{
 		std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
 		ServerInstance->SNO->WriteGlobalSno('a', m);
+
+		if (IS_LOCAL(user))
+			user->WriteNumeric(RPL_REHASHING, "%s %s :Rehashing",
+				user->nick.c_str(),ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
+		else
+			ServerInstance->PI->SendUserNotice(user, std::string("*** Rehashing server ") +
+				ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 
 		/* Don't do anything with the logs here -- logs are restarted
 		 * after the config thread has completed.
@@ -63,10 +74,11 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 
 
 		ServerInstance->Config->RehashUserUID = user->uuid;
-		ServerInstance->Config->RehashParameter = parameters.size() ? parameters[0] : "";
 
 		ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, false, ServerInstance->Config->RehashUserUID);
 		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
+
+		return CMD_SUCCESS;
 	}
 	else
 	{
@@ -81,7 +93,5 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 
 		return CMD_FAILURE;
 	}
-
-	return CMD_SUCCESS;
 }
 

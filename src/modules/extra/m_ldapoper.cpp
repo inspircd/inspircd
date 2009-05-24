@@ -47,7 +47,7 @@ public:
 		conn = NULL;
 		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModuleLDAPAuth()
@@ -56,7 +56,7 @@ public:
 			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 

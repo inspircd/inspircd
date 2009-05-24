@@ -161,7 +161,7 @@ class ModuleInvisible : public Module
 
 	virtual Version GetVersion();
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
-	virtual void OnRehash(User* user, const std::string &parameter);
+	virtual void OnRehash(User* user);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
 	bool OnHostCycle(User* user);
@@ -188,7 +188,7 @@ void ModuleInvisible::OnUserJoin(User* user, Channel* channel, bool sync, bool &
 	}
 }
 
-void ModuleInvisible::OnRehash(User* user, const std::string &parameter)
+void ModuleInvisible::OnRehash(User* user)
 {
 	delete conf;
 	conf = new ConfigReader(ServerInstance);

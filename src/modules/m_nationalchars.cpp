@@ -240,7 +240,7 @@ class ModuleNationalChars : public Module
 
 		Implementation eventlist[] = { I_OnRehash, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -250,7 +250,7 @@ class ModuleNationalChars : public Module
 		SearchAndReplace(output, std::string("CASEMAPPING=rfc1459"), tmp);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader* conf = new ConfigReader(ServerInstance);
 		charset = conf->ReadValue("nationalchars", "file", 0);

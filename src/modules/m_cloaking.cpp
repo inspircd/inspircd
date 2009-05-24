@@ -267,7 +267,7 @@ class ModuleCloaking : public Module
 
 		try
 		{
-			OnRehash(NULL,"");
+			OnRehash(NULL);
 		}
 		catch (ModuleException &e)
 		{
@@ -369,7 +369,7 @@ class ModuleCloaking : public Module
 		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		cu->DoRehash();
 	}

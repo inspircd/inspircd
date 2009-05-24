@@ -378,7 +378,7 @@ class ModuleAlias : public Module
 		ServerInstance->Parser->CallHandler(command, pars, user);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ReadAliases();
  	}

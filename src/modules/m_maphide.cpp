@@ -25,10 +25,10 @@ class ModuleMapHide : public Module
 		// Create a new command
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
 		ServerInstance->Modules->Attach(I_OnRehash, this);
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user, const std::string &parameter)
+	void OnRehash(User* user)
 	{
 		ConfigReader MyConf(ServerInstance);
 		url = MyConf.ReadValue("security", "maphide", 0);

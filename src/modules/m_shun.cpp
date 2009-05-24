@@ -191,7 +191,7 @@ class ModuleShun : public Module
 
 		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnUserConnect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModuleShun()
@@ -209,7 +209,7 @@ class ModuleShun : public Module
 		return 1;
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader MyConf(ServerInstance);
 		std::string cmds = MyConf.ReadValue("shun", "enabledcommands", 0);

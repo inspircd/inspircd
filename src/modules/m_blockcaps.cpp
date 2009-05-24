@@ -34,7 +34,7 @@ public:
 
 	ModuleBlockCAPS(InspIRCd* Me) : Module(Me)
 	{
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 		bc = new BlockCaps(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(bc))
 		{
@@ -50,7 +50,7 @@ public:
 		ServerInstance->AddExtBanChar('B');
 	}
 
-	virtual void OnRehash(User* user, const std::string &param)
+	virtual void OnRehash(User* user)
 	{
 		ReadConf();
 	}

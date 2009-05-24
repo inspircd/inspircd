@@ -375,7 +375,7 @@ class Modulewatch : public Module
 	Modulewatch(InspIRCd* Me)
 		: Module(Me), maxwatch(32)
 	{
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 		whos_watching_me = new watchentries();
 		mycommand = new CommandWatch(ServerInstance, maxwatch);
 		ServerInstance->AddCommand(mycommand);
@@ -385,7 +385,7 @@ class Modulewatch : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 		maxwatch = Conf.ReadInteger("watch", "maxentries", 0, true);

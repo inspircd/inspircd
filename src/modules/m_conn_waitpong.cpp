@@ -25,12 +25,12 @@ class ModuleWaitPong : public Module
 	ModuleWaitPong(InspIRCd* Me)
 	 : Module(Me), extenstr("waitpong_pingstr")
 	{
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash, I_OnUserDisconnect, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
-	virtual void OnRehash(User* user, const std::string &param)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 

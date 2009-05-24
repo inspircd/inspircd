@@ -153,7 +153,7 @@ public:
 		be->DoChannelDelete(chan);
 	}
 
-	virtual void OnRehash(User* user, const std::string &param)
+	virtual void OnRehash(User* user)
 	{
 		be->DoRehash();
 	}

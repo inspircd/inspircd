@@ -39,7 +39,7 @@ public:
 		ServerInstance->Modules->UseInterface("SQL");
 		ServerInstance->Modules->UseInterface("HashRequest");
 
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 
 		diduseiface = false;
 
@@ -112,7 +112,7 @@ public:
 	}
 
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 

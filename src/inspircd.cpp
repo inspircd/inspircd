@@ -774,11 +774,9 @@ int InspIRCd::Run()
 
 			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
 
-			/* These are currently not known to be threadsafe, so they are executed outside
-			 * of the thread. It would be pretty simple to move them to the thread Run method
-			 * once they are known threadsafe with all the correct mutexes in place. This might
-			 * not be worth the effort however as these functions execute relatively quickly
-			 * and would not benefit from being within the config read thread.
+			/*
+			 * Apply the changed configuration from the rehash. This is not done within the
+			 * configuration thread becasuse they may invoke functions that are not threadsafe.
 			 *
 			 * XXX: The order of these is IMPORTANT, do not reorder them without testing
 			 * thoroughly!!!
@@ -789,13 +787,9 @@ int InspIRCd::Run()
 			this->ResetMaxBans();
 			InitializeDisabledCommands(Config->DisabledCommands, this);
 			User* user = !Config->RehashUserUID.empty() ? FindNick(Config->RehashUserUID) : NULL;
-			FOREACH_MOD_I(this, I_OnRehash, OnRehash(user, Config->RehashParameter));
+			FOREACH_MOD_I(this, I_OnRehash, OnRehash(user));
 			this->BuildISupport();
 
-			/* IMPORTANT: This delete may hang if you fuck up your thread syncronization.
-			 * It will hang waiting for the ConfigThread to 'join' to avoid race conditons,
-			 * until the other thread is completed.
-			 */
 			delete ConfigThread;
 			ConfigThread = NULL;
 		}

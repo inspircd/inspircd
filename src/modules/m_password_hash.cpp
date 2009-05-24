@@ -85,7 +85,7 @@ class ModuleOperHash : public Module
 
 		/* Read the config file first */
 //		Conf = NULL;
-		OnRehash(NULL,"");
+		OnRehash(NULL);
 
 		/* Find all modules which implement the interface 'HashRequest' */
 		modulelist* ml = ServerInstance->Modules->FindInterface("HashRequest");

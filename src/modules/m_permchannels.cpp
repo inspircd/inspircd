@@ -91,7 +91,7 @@ public:
 		Implementation eventlist[] = { I_OnChannelPreDelete };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModulePermanentChannels()
@@ -100,7 +100,7 @@ public:
 		delete p;
 	}
 
-	virtual void OnRehash(User *user, const std::string &parameter)
+	virtual void OnRehash(User *user)
 	{
 		/*
 		 * Process config-defined list of permanent channels.

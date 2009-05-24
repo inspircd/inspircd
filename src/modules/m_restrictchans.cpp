@@ -45,7 +45,7 @@ class ModuleRestrictChans : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual void OnRehash(User* user, const std::string &parameter)
+	virtual void OnRehash(User* user)
 	{
 		ReadConfig();
 	}

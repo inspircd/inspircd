@@ -323,7 +323,7 @@ class ModuleIdent : public Module
 	ModuleIdent(InspIRCd *Me) : Module(Me)
 	{
 		Conf = new ConfigReader(ServerInstance);
-		OnRehash(NULL, "");
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnCleanup, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
@@ -338,7 +338,7 @@ class ModuleIdent : public Module
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
-	virtual void OnRehash(User *user, const std::string &param)
+	virtual void OnRehash(User *user)
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);

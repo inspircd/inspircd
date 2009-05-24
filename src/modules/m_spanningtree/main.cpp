@@ -50,11 +50,11 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
 		I_OnUserJoin, I_OnChangeLocalUserHost, I_OnChangeName, I_OnUserPart, I_OnUnloadModule,
-		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
+		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode, I_OnLoadModule,
 		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
 	};
-	ServerInstance->Modules->Attach(eventlist, this, 29);
+	ServerInstance->Modules->Attach(eventlist, this, 30);
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
@@ -706,19 +706,21 @@ void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::strin
 	Utils->DoOneToMany(source->uuid,"KILL",params);
 }
 
-void ModuleSpanningTree::OnRehash(User* user, const std::string &parameter)
+void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 {
 	ServerInstance->Logs->Log("remoterehash", DEBUG, "called with param %s", parameter.c_str());
 
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')
 	{
-		ServerInstance->Logs->Log("remoterehash", DEBUG, "sending out lol");
 		std::deque<std::string> params;
 		params.push_back(parameter);
 		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->ServerName);
 	}
+}
 
+void ModuleSpanningTree::OnRehash(User* user)
+{
 	// Re-read config stuff
 	Utils->ReadConfiguration(true);
 }

@@ -343,10 +343,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	std::string RehashUserUID;
 
-	/** Rehash parameter, as above
-	 */
-	std::string RehashParameter;
-
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
 	std::ostringstream* errstr;
