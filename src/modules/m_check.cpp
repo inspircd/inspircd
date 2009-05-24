@@ -26,16 +26,20 @@ class CommandCheck : public Command
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
 	}
 
+	std::string timestring(time_t time)
+	{
+		char timebuf[60];
+		struct tm *mytime = gmtime(&time);
+		strftime(timebuf, 59, "%Y-%m-%d %H:%M:%S UTC (%s)", mytime);
+		return std::string(timebuf);
+	}
+
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User *targuser;
 		Channel *targchan;
 		std::string checkstr;
 		std::string chliststr;
-
-		char timebuf[60];
-		struct tm *mytime;
-
 
 		checkstr = "304 " + std::string(user->nick) + " :CHECK";
 
@@ -61,15 +65,15 @@ class CommandCheck : public Command
 			user->WriteServ(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
 			user->WriteServ(checkstr + " server " + targuser->server);
 			user->WriteServ(checkstr + " uid " + targuser->uuid);
-			user->WriteServ(checkstr + " signon " + ConvToStr(targuser->signon));
-			user->WriteServ(checkstr + " nickts " + ConvToStr(targuser->age));
+			user->WriteServ(checkstr + " signon " + timestring(targuser->signon));
+			user->WriteServ(checkstr + " nickts " + timestring(targuser->age));
 			if (IS_LOCAL(targuser))
-				user->WriteServ(checkstr + " lastmsg " + ConvToStr(targuser->idle_lastmsg));
+				user->WriteServ(checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
 
 			if (IS_AWAY(targuser))
 			{
 				/* user is away */
-				user->WriteServ(checkstr + " awaytime " + ConvToStr(targuser->awaytime));
+				user->WriteServ(checkstr + " awaytime " + timestring(targuser->awaytime));
 				user->WriteServ(checkstr + " awaymsg " + targuser->awaymsg);
 			}
 
@@ -96,21 +100,14 @@ class CommandCheck : public Command
 		else if (targchan)
 		{
 			/* /check on a channel */
-			time_t creation_time = targchan->age;
-			time_t topic_time = targchan->topicset;
-
-			mytime = gmtime(&creation_time);
-			strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
-			user->WriteServ(checkstr + " timestamp " + timebuf);
+			user->WriteServ(checkstr + " timestamp " + timestring(targchan->age));
 
 			if (targchan->topic[0] != 0)
 			{
 				/* there is a topic, assume topic related information exists */
 				user->WriteServ(checkstr + " topic " + targchan->topic);
 				user->WriteServ(checkstr + " topic_setby " + targchan->setby);
-				mytime = gmtime(&topic_time);
-				strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
-				user->WriteServ(checkstr + " topic_setat " + timebuf);
+				user->WriteServ(checkstr + " topic_setat " + timestring(targchan->topicset));
 			}
 
 			user->WriteServ(checkstr + " modes " + targchan->ChanModes(true));
