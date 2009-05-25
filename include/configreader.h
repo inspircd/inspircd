@@ -905,12 +905,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	std::string GetFullProgDir();
 
-	/** Returns true if a directory is valid (within the modules directory).
-	 * @param dirandfile The directory and filename to check
-	 * @return True if the directory is valid
-	 */
-	static bool DirValid(const char* dirandfile);
-
 	/** Clean a filename, stripping the directories (and drives) from string.
 	 * @param name Directory to tidy
 	 * @return The cleaned filename

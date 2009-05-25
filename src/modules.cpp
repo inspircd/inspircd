@@ -397,13 +397,6 @@ bool ModuleManager::Load(const char* filename)
 	snprintf(modfile,MAXBUF,"%s/%s",Instance->Config->ModPath,filename);
 	std::string filename_str = filename;
 
-	if (!ServerConfig::DirValid(modfile))
-	{
-		LastModuleError = "Module " + std::string(filename) + " is not in the module directory that i am configured to look in (is "+Instance->Config->ModPath+" really a symlink?)";
-		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-		return false;
-	}
-
 	if (!ServerConfig::FileExists(modfile))
 	{
 		LastModuleError = "Module file could not be found: " + filename_str;

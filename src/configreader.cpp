@@ -2046,64 +2046,6 @@ char* ServerConfig::CleanFilename(char* name)
 }
 
 
-bool ServerConfig::DirValid(const char* dirandfile)
-{
-#ifdef WINDOWS
-	return true;
-#else
-
-	char work[1024];
-	char buffer[1024];
-	char otherdir[1024];
-	int p;
-
-	strlcpy(work, dirandfile, 1024);
-	p = strlen(work);
-
-	// we just want the dir
-	while (*work)
-	{
-		if (work[p] == '/')
-		{
-			work[p] = '\0';
-			break;
-		}
-
-		work[p--] = '\0';
-	}
-
-	// Get the current working directory
-	if (getcwd(buffer, 1024 ) == NULL )
-		return false;
-
-	if (chdir(work) == -1)
-		return false;
-
-	if (getcwd(otherdir, 1024 ) == NULL )
-		return false;
-
-	if (chdir(buffer) == -1)
-		return false;
-
-	size_t t = strlen(work);
-
-	if (strlen(otherdir) >= t)
-	{
-		otherdir[t] = '\0';
-		if (!strcmp(otherdir,work))
-		{
-			return true;
-		}
-
-		return false;
-	}
-	else
-	{
-		return false;
-	}
-#endif
-}
-
 std::string ServerConfig::GetFullProgDir()
 {
 	char buffer[PATH_MAX];
