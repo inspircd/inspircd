@@ -6,13 +6,23 @@
 # Please do not edit unless you know what you're doing.
 #
 
+ifdef D
+  ifeq ("$(origin D)", "command line")
+    NICEFLAGS = @DEVELOPER@
+    HEADER = debug-header
+  endif
+endif
+
+ifndef NICEFLAGS
+    NICEFLAGS = @FLAGS@
+endif
+
+ifndef HEADER
+    HEADER = std-header
+endif
+
 CC = @CC@
-MAKE = @MAKEPROG@ -s
-PROGS = inspircd
-NICEFLAGS = @FLAGS@
 FLAGS = $(NICEFLAGS) -pedantic
-NICEDEBUG = @DEVELOPER@
-DEBUG = $(NICEDEBUG) -pedantic
 LDLIBS = @LDLIBS@
 BASE = "$(DESTDIR)@BASE_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
@@ -22,27 +32,42 @@ LAUNCHDPATH = "$(DESTDIR)/System/Library/LaunchDaemons"
 LIBPATH = "$(DESTDIR)@LIBRARY_DIR@"
 MODULES = @MODULES@
 INSTMODE = 0755
-MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'NICEFLAGS=${NICEFLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'INSTMODE=${INSTMODE}'
+MAKEFLAGS += --no-print-directory
+MAKEARGS = 'FLAGS=${FLAGS}' 'NICEFLAGS=${NICEFLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'INSTMODE=${INSTMODE}'
 
-all: @MAKEORDER@ finishmessage
+all: ircd mods finishmessage
 
 debug:
-	@echo ""
+	@${MAKE} D=1 all
+
+debug-header:
 	@echo "*************************************"
 	@echo "*    BUILDING WITH DEBUG SYMBOLS    *"
 	@echo "*                                   *"
+	@echo "*   This will take a *long* time.   *"
 	@echo "*  Please be aware that this build  *"
 	@echo "*  will consume a very large amount *"
-	@echo "*   of disk space (350mb+) and may  *"
-	@echo "*  run noticably slower. Only build *"
-	@echo "*   InspIRCd with debug symbols if  *"
-	@echo "* you are developing modules or are *"
-	@echo "*      experiencing problems.       *"
+	@echo "*  of disk space (150MB+), and can  *"
+	@echo "*  run slower. Use the debug build  *"
+	@echo "*  for module development or if you *"
+	@echo "*    are experiencing problems.     *"
 	@echo "*                                   *"
 	@echo "*************************************"
-	@${MAKE} -C . 'FLAGS=${DEBUG}' 'NICEFLAGS=${NICEDEBUG}' all
 
-mods:
+std-header:
+	@echo "*************************************"
+	@echo "*       BUILDING INSPIRCD           *"
+	@echo "*                                   *"
+	@echo "*   This will take a *long* time.   *"
+	@echo "*     Why not read our wiki at      *"
+	@echo "*     http://wiki.inspircd.org      *"
+	@echo "*  while you wait for make to run?  *"
+	@echo "*************************************"
+
+ircd: $(HEADER)
+	@${MAKE} -C src DIRNAME="src" $(MAKEARGS)
+
+mods: $(HEADER)
 	@${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
 
 # Make this depend on 'ircd' and 'mods', so its always output last even with -j
@@ -54,17 +79,6 @@ finishmessage: ircd mods
 	@echo "*   To install InspIRCd, type:      *"
 	@echo "*         make install              *"
 	@echo "*************************************"
-
-ircd:
-	@echo "*************************************"
-	@echo "*       BUILDING INSPIRCD           *"
-	@echo "*                                   *"
-	@echo "*   This will take a *long* time.   *"
-	@echo "*     Why not read our wiki at      *"
-	@echo "*     http://wiki.inspircd.org      *"
-	@echo "*  while you wait for make to run?  *"
-	@echo "*************************************"
-	@${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install: all@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BASE)

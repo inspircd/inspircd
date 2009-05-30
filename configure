@@ -333,7 +333,6 @@ our $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
 $exec = $config{CC} . " -dumpversion | cut -c 3";
 chomp($config{GCCMINOR}		= `$exec`);
-$config{MAKEORDER}		= "ircd mods";				# build order
 $config{MAXBUF}			= "512";				# Max buffer size
 
 if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
@@ -1298,7 +1297,6 @@ EOF
 
 			print "Writing \e[1;32m$file\e[0m ...\n";
 			$tmp =~ s/\@CC\@/$config{CC}/ if defined $config{CC};
-			$tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/ if defined $config{MAKEPROG};
 			$tmp =~ s/\@FLAGS\@/$config{FLAGS}/ if defined $config{FLAGS};
 			$tmp =~ s/\@DEVELOPER\@/$config{DEVELOPER}/ if defined $config{DEVELOPER};
 			$tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/ if defined $config{LDLIBS};
@@ -1312,7 +1310,6 @@ EOF
 			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/ if defined $config{DESTINATION};
 			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/ if defined $config{EXTRA_DIR};
 			$tmp =~ s/\@EXECUTABLE\@/$exe/ if defined $exe;
-			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/ if defined $config{MAKEORDER};
 			$tmp =~ s/\@VERSION\@/$version/ if defined $version;
 			$tmp =~ s/\@INSTALL_LIST\@/$install_list/ if defined $install_list;
 			$tmp =~ s/\@UNINSTALL_LIST\@/$uninstall_list/ if defined $uninstall_list;
