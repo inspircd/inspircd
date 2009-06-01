@@ -166,7 +166,7 @@ class ModuleTimedBans : public Module
 
 					CUList empty;
 					std::string expiry = "*** Timed ban on " + chan + " expired.";
-					cr->WriteChannelWithServ(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
+					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
 					ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
 					if (ServerInstance->Config->AllowHalfop)
 					{
