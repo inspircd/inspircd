@@ -1057,13 +1057,13 @@ sub getosflags {
 
 	# Beware: Linux sets it's own cflags below for some retarded reason
 	$config{LDLIBS} = "-pthread -lstdc++";
-	$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall $config{OPTIMISATI}";
-	$config{DEVELOPER} = "-fPIC -Woverloaded-virtual -Wshadow -Wall -Wformat=2 -Wmissing-format-attribute -g";
+	$config{FLAGS}  = "-pipe -fPIC -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall $config{OPTIMISATI}";
+	$config{DEVELOPER} = "-pipe -fPIC -Woverloaded-virtual -Wshadow -Wall -Wformat=2 -Wmissing-format-attribute -g";
 	$SHARED = "-shared -export-dynamic";
 	$config{MAKEPROG} = "make";
 
 	if ($config{OSNAME} =~ /darwin/i) {
-		$config{FLAGS}  = "-DDARWIN -frtti -fPIC -Wall $config{OPTIMISATI}";
+		$config{FLAGS}  = "-pipe -DDARWIN -frtti -fPIC -Wall $config{OPTIMISATI}";
 		$SHARED = "-bundle -twolevel_namespace -undefined dynamic_lookup";
 		$config{LDLIBS} = "-ldl -pthread -lstdc++";
 	}
@@ -1385,14 +1385,14 @@ EOCHEESE
 		{
 			print FILEHANDLE "
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
-	\@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(NICEFLAGS) $cmflags \$(PICLDFLAGS) $liflags $SHARED -o m_$i.so m_$i.cpp
+	\$(RUNCC) \$(NICEFLAGS) $cmflags \$(PICLDFLAGS) $liflags $SHARED -o m_$i.so m_$i.cpp
 ";
 		}
 		else
 		{
 			print FILEHANDLE "
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
-	\@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(FLAGS) $cmflags \$(PICLDFLAGS) $liflags $SHARED -o m_$i.so m_$i.cpp
+	\$(RUNCC) \$(FLAGS) $cmflags \$(PICLDFLAGS) $liflags $SHARED -o m_$i.so m_$i.cpp
 ";
 		}
 		$install_list = $install_list . "	install -m \$(INSTMODE) src/modules/m_$i.so \$(MODPATH)\n";
@@ -1414,7 +1414,7 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 				read_module_directory("src/modules/$name", $name);
 				print "Composing Makefile rules for directory \e[1;32m$name\e[0m... (\e[1;32m$mfcount files found\e[0m)\n";
 				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $mobjs\n";
-				print FILEHANDLE "	\@../../make/run-cc.pl \$(CC) -pipe \$(FLAGS) $SHARED $mliflags -o $name.so $mobjs\n";
+				print FILEHANDLE "	\$(RUNCC) \$(FLAGS) $SHARED $mliflags -o $name.so $mobjs\n";
 				print FILEHANDLE "\n$mfrules\n";
 				closedir(MDIRHANDLE);
 				$install_list = $install_list . "	install -m \$(INSTMODE) src/modules/$name.so \$(MODPATH)\n";
@@ -1439,7 +1439,7 @@ sub read_module_directory {
 			my $oname = $fname;
 			$oname =~ s/\.cpp$/.o/g;
 			$mfrules = $mfrules .  "$reldpath/$oname: $reldpath/$fname ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps\n";
-			$mfrules = $mfrules .  "	\@../../make/run-cc.pl \$(CC) -pipe -I../../include -I. \$(FLAGS) $cmflags $SHARED -o $reldpath/$oname -c $reldpath/$fname\n\n";
+			$mfrules = $mfrules .  "	\$(RUNCC) -I. \$(FLAGS) $cmflags $SHARED -o $reldpath/$oname -c $reldpath/$fname\n\n";
 			$mobjs = $mobjs . " $reldpath/$oname";
 			$mfcount++;
 		}
@@ -1627,18 +1627,18 @@ sub write_dynamic_makefile
 	if ($config{IS_DARWIN} eq "YES")
 	{
 		$libraryext = "dylib";
-		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
+		$binary_rule = "	\$(RUNCC) -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
 	}
 	else
 	{
 		$libraryext = "so";
-		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) $freebsd4libs -rdynamic -L. -o inspircd \$(LDLIBS) ";
+		$binary_rule = "	\$(RUNCC) \$(FLAGS) $freebsd4libs -rdynamic -L. -o inspircd \$(LDLIBS) ";
 	}
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
 	print FH <<'EOM';
 
-CXXFLAGS = -I../include ${FLAGS}
+CXXFLAGS = ${FLAGS}
 CPPFILES = $(shell /bin/ls -l modes/ | grep '\.cpp' | sed 's/^.* //' | grep -v svn)
 RELCPPFILES = $(shell /bin/ls -l modes/ | grep '\.cpp' | sed 's/^.* /modes\//' | grep -v svn)
 
@@ -1683,11 +1683,11 @@ EOM
 		if (exists($core_files_list{$cpp}))
 		{
 			# core files are statically linked into the binary and do not require $SHARED shared libs switches
-			$buildstring = $buildstring . "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -c $rawcpp\n";
+			$buildstring = $buildstring . "	\$(RUNCC) \$(FLAGS) -c $rawcpp\n";
 		}
 		else
 		{
-			$buildstring = $buildstring . "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) $SHARED -c $rawcpp\n";
+			$buildstring = $buildstring . "	\$(RUNCC) \$(FLAGS) $SHARED -c $rawcpp\n";
 		}
 
 		if (exists($extrabuildlines{$cpp}))
@@ -1724,7 +1724,7 @@ EOM
 	# and now reopen the commands makefile
 	open(FH,">src/commands/Makefile") or die("Could not write src/commands/Makefile");
 	print FH <<ITEM;
-CXXFLAGS = -I../../include \${FLAGS}
+CXXFLAGS = \${FLAGS}
 
 all:
 	\@echo "Don't run make here! Run it in the root directory"
@@ -1740,7 +1740,7 @@ ITEM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
 cmd_$cmd.so: cmd_$cmd.cpp ../../include/base.h ../../include/modules.h ../../include/inspircd.h ../../include/channels.h ../../include/users.h ../../include/inspircd_config.h ../../include/commands/cmd_$cmd.h
-	\@../../make/run-cc.pl \$(CC) -pipe -I../../include \$(FLAGS) $SHARED -o cmd_$cmd.so cmd_$cmd.cpp
+	\$(RUNCC) \$(FLAGS) $SHARED -o cmd_$cmd.so cmd_$cmd.cpp
 
 ITEM
 	}

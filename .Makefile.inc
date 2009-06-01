@@ -6,6 +6,8 @@
 # Please do not edit unless you know what you're doing.
 #
 
+COMPILE_ROOT = $(shell pwd)
+
 ifdef D
   ifeq ("$(origin D)", "command line")
     NICEFLAGS = @DEVELOPER@
@@ -21,6 +23,8 @@ ifndef HEADER
     HEADER = std-header
 endif
 
+NICEFLAGS += -I$(COMPILE_ROOT)/include
+
 CC = @CC@
 FLAGS = $(NICEFLAGS) -pedantic
 LDLIBS = @LDLIBS@
@@ -32,8 +36,16 @@ LAUNCHDPATH = "/System/Library/LaunchDaemons"
 LIBPATH = "@LIBRARY_DIR@"
 MODULES = @MODULES@
 INSTMODE = 0755
-MAKEFLAGS += --no-print-directory -s
-export FLAGS NICEFLAGS CC LDLIBS MODULES MODPATH LIBPATH INSTMODE
+MAKEFLAGS += --no-print-directory
+
+ifdef V
+    RUNCC = $(CC)
+else
+    MAKEFLAGS += --silent
+    RUNCC = $(COMPILE_ROOT)/make/run-cc.pl $(CC)
+endif
+
+export COMPILE_ROOT RUNCC FLAGS NICEFLAGS CC LDLIBS MODULES MODPATH LIBPATH INSTMODE
 
 all: ircd mods finishmessage
 
@@ -133,3 +145,4 @@ configureclean:
 
 distclean: modclean clean configureclean
 
+.PHONY: all debug debug-header std-header ircd mods finishmessage install module clean modclean deinstall squeakyclean launchd_dir configureclean
