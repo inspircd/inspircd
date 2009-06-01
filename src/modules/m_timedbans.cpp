@@ -153,19 +153,19 @@ class ModuleTimedBans : public Module
 		{
 			if (curtime > i->expire)
 			{
-				std::string chan = i->mask;
+				std::string chan = i->channel;
 				std::string mask = i->mask;
 				Channel* cr = ServerInstance->FindChan(chan);
 				i = TimedBanList.erase(i);
 				if (cr)
 				{
 					std::vector<std::string> setban;
-					setban.push_back(safei->channel);
+					setban.push_back(chan);
 					setban.push_back("-b");
 					setban.push_back(mask);
 
 					CUList empty;
-					std::string expiry = "*** Timed ban on " + safei->mask + " expired.";
+					std::string expiry = "*** Timed ban on " + chan + " expired.";
 					cr->WriteChannelWithServ(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
 					ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
 					if (ServerInstance->Config->AllowHalfop)
