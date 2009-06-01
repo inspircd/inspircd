@@ -1,7 +1,8 @@
-CC = i am cornholio
 CXXFLAGS = -I../../include ${FLAGS}
 
-all: umode_w.o umode_o.o umode_s.o umode_i.o cmode_v.o cmode_t.o cmode_s.o cmode_p.o cmode_o.o cmode_n.o cmode_m.o cmode_l.o cmode_k.o cmode_i.o cmode_h.o cmode_b.o modeclasses.a
+all:
+	@echo "Don't run make here! Run it in the root directory"
+	false
 
 umode_w.o: umode_w.cpp ../../include/base.h ../../include/modules.h ../../include/inspircd.h ../../include/channels.h ../../include/users.h ../../include/inspircd_config.h ../../include/mode.h
 	@../../make/run-cc.pl $(CC) -pipe -I../../include $(FLAGS) -export-dynamic -c umode_w.cpp

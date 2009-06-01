@@ -1627,21 +1627,24 @@ sub write_dynamic_makefile
 	if ($config{IS_DARWIN} eq "YES")
 	{
 		$libraryext = "dylib";
-		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) -c inspircd.cpp\n	\@../make/run-cc.pl \$(CC) -pipe -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
+		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
 	}
 	else
 	{
 		$libraryext = "so";
-		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) $freebsd4libs -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) ";
+		$binary_rule = "	\@../make/run-cc.pl \$(CC) -pipe -I../include \$(FLAGS) $freebsd4libs -rdynamic -L. -o inspircd \$(LDLIBS) ";
 	}
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
-	print FH <<EOM;
+	print FH <<'EOM';
 
-CC = im a cheezeball
-CXXFLAGS = -I../include \${FLAGS}
-CPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* //' | grep -v svn)
-RELCPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* /modes\\//' | grep -v svn)
+CXXFLAGS = -I../include ${FLAGS}
+CPPFILES = $(shell /bin/ls -l modes/ | grep '\.cpp' | sed 's/^.* //' | grep -v svn)
+RELCPPFILES = $(shell /bin/ls -l modes/ | grep '\.cpp' | sed 's/^.* /modes\//' | grep -v svn)
+
+all:
+	@echo "Don't run make here! Run it in the parent directory"
+	false
 
 EOM
 
@@ -1693,14 +1696,21 @@ EOM
 		}
 	}
 
-	print FH "all: inspircd moo\n\n\n";
-
-	$deps = calcdeps("src/inspircd.cpp");
-	print FH "inspircd: inspircd.cpp $deps $all_core\n";
+	print FH "inspircd: $all_core\n";
 	print FH "$binary_rule $all_core\n\n";
 
 	print FH $buildstring;
-	print FH "moo:\n	\@\${MAKE} -C \"commands\" DIRNAME=\"src/commands\" CC=\"\$(CC)\" \$(MAKEARGS)\n\n";
+	print FH <<'EOM';
+
+.PHONY: all commands
+
+commands:
+	@${MAKE} -C commands $(MAKEARGS) commands
+
+modes/modeclasses.a: $(RELCPPFILES)
+	@${MAKE} -C modes $(MAKEARGS) CPPFILES="$(CPPFILES)" modeclasses.a
+
+EOM
 
 	# close main makefile
 	close(FH);
@@ -1714,11 +1724,15 @@ EOM
 	# and now reopen the commands makefile
 	open(FH,">src/commands/Makefile") or die("Could not write src/commands/Makefile");
 	print FH <<ITEM;
-CC = i am cornholio
 CXXFLAGS = -I../../include \${FLAGS}
 
-all: $cmdobjs
+all:
+	\@echo "Don't run make here! Run it in the root directory"
+	false
 
+.PHONY: all commands
+
+commands: $cmdobjs
 
 ITEM
 

@@ -24,16 +24,16 @@ endif
 CC = @CC@
 FLAGS = $(NICEFLAGS) -pedantic
 LDLIBS = @LDLIBS@
-BASE = "$(DESTDIR)@BASE_DIR@"
-CONPATH = "$(DESTDIR)@CONFIG_DIR@"
-MODPATH = "$(DESTDIR)@MODULE_DIR@"
-BINPATH = "$(DESTDIR)@BINARY_DIR@"
-LAUNCHDPATH = "$(DESTDIR)/System/Library/LaunchDaemons"
-LIBPATH = "$(DESTDIR)@LIBRARY_DIR@"
+BASE = "@BASE_DIR@"
+CONPATH = "@CONFIG_DIR@"
+MODPATH = "@MODULE_DIR@"
+BINPATH = "@BINARY_DIR@"
+LAUNCHDPATH = "/System/Library/LaunchDaemons"
+LIBPATH = "@LIBRARY_DIR@"
 MODULES = @MODULES@
 INSTMODE = 0755
-MAKEFLAGS += --no-print-directory
-MAKEARGS = 'FLAGS=${FLAGS}' 'NICEFLAGS=${NICEFLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'INSTMODE=${INSTMODE}'
+MAKEFLAGS += --no-print-directory -s
+export FLAGS NICEFLAGS CC LDLIBS MODULES MODPATH LIBPATH INSTMODE
 
 all: ircd mods finishmessage
 
@@ -65,10 +65,10 @@ std-header:
 	@echo "*************************************"
 
 ircd: $(HEADER)
-	@${MAKE} -C src DIRNAME="src" $(MAKEARGS)
+	@${MAKE} -C src $(MAKEARGS) inspircd commands
 
 mods: $(HEADER)
-	@${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
+	@${MAKE} -C src/modules $(MAKEARGS)
 
 # Make this depend on 'ircd' and 'mods', so its always output last even with -j
 finishmessage: ircd mods
@@ -80,7 +80,7 @@ finishmessage: ircd mods
 	@echo "*         make install              *"
 	@echo "*************************************"
 
-install: all@EXTRA_DIR@
+install: ircd mods@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BASE)
 	@-install -d -m $(INSTMODE) $(LIBPATH)
 	@-install -d -m $(INSTMODE) $(BINPATH)
@@ -98,7 +98,7 @@ install: all@EXTRA_DIR@
 	@echo "*************************************"
 
 module:
-	@${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) ${name}
+	@${MAKE} -C src/modules $(MAKEARGS) ${name}
 
 clean:
 	@echo Cleaning...
