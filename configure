@@ -1288,34 +1288,49 @@ EOF
 			next if (($config{OSNAME} !~ /darwin/) && ($file eq "org.inspircd.plist"));
 
 			# All .name.inc files need parsing!
-			$tmp = "";
 			open(FILEHANDLE, ".$file.inc") or die ("Can't open .$file.inc");
-			while (<FILEHANDLE>) {
-				$tmp .= $_;
-			}
+			$_ = join '', <FILEHANDLE>;
 			close(FILEHANDLE);
 
 			print "Writing \e[1;32m$file\e[0m ...\n";
-			$tmp =~ s/\@CC\@/$config{CC}/ if defined $config{CC};
-			$tmp =~ s/\@FLAGS\@/$config{FLAGS}/ if defined $config{FLAGS};
-			$tmp =~ s/\@DEVELOPER\@/$config{DEVELOPER}/ if defined $config{DEVELOPER};
-			$tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/ if defined $config{LDLIBS};
-			$tmp =~ s/\@BASE_DIR\@/$config{BASE_DIR}/ if defined $config{BASE_DIR};
-			$tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/ if defined $config{CONFIG_DIR};
-			$tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/ if defined $config{MODULE_DIR};
-			$tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/ if defined $config{BINARY_DIR};
-			$tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/ if defined $config{LIBRARY_DIR};
-			$tmp =~ s/\@MODULES\@/$modules/ if defined $modules;
-			$tmp =~ s/\@STARTSCRIPT\@/$config{STARTSCRIPT}/ if defined $config{STARTSCRIPT};
-			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/ if defined $config{DESTINATION};
-			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/ if defined $config{EXTRA_DIR};
-			$tmp =~ s/\@EXECUTABLE\@/$exe/ if defined $exe;
-			$tmp =~ s/\@VERSION\@/$version/ if defined $version;
-			$tmp =~ s/\@INSTALL_LIST\@/$install_list/ if defined $install_list;
-			$tmp =~ s/\@UNINSTALL_LIST\@/$uninstall_list/ if defined $uninstall_list;
+			for my $var (qw(
+				CC FLAGS DEVELOPER LDLIBS BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR LIBRARY_DIR
+				STARTSCRIPT DESTINATION EXTRA_DIR
+			)) {
+				s/\@$var\@/$config{$var}/g;
+			}
+			s/\@MODULES\@/$modules/ if defined $modules;
+			s/\@EXECUTABLE\@/$exe/ if defined $exe;
+			s/\@VERSION\@/$version/ if defined $version;
+			s/\@INSTALL_LIST\@/$install_list/ if defined $install_list;
+			s/\@UNINSTALL_LIST\@/$uninstall_list/ if defined $uninstall_list;
 
-			open(FILEHANDLE, ">$file") or die("Can't write to $file: $!\n");
-			print FILEHANDLE $tmp;
+			if ($file eq 'Makefile') {
+				my $mk_tmp = $_;
+				s/\@IFDEF (\S+)/ifdef $1/g;
+				s/\@IFNDEF (\S+)/ifndef $1/g;
+				s/\@ELSE/else/g;
+				s/\@ENDIF/endif/g;
+				s/\@BSD_ONLY .*\n//g;
+				s/\@GNU_ONLY //g;
+				open MKF, '>GNUmakefile' or die "Can't write to GNUmakefile: $!";
+				print MKF $_;
+				close MKF;
+				$_ = $mk_tmp;
+				s/\@IFDEF (\S+)/.if defined($1)/g;
+				s/\@IFNDEF (\S+)/.if !defined($1)/g;
+				s/\@ELSE/.else/g;
+				s/\@ENDIF/.endif/g;
+				s/\@BSD_ONLY //g;
+				s/\@GNU_ONLY .*\n//g;
+				open MKF, '>BSDmakefile' or die "Can't write to BSDmakefile: $!";
+				print MKF $_;
+				close MKF;
+			} else {
+				open(FILEHANDLE, ">$file") or die("Can't write to $file: $!\n");
+				print FILEHANDLE $_;
+				close(FILEHANDLE);
+			}
 		}
 	}
 	closedir(DIRHANDLE);

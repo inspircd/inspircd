@@ -6,22 +6,21 @@
 # Please do not edit unless you know what you're doing.
 #
 
-COMPILE_ROOT = $(shell pwd)
+@GNU_ONLY COMPILE_ROOT = $(shell pwd)
+@BSD_ONLY COMPILE_ROOT != pwd
 
-ifdef D
-  ifeq ("$(origin D)", "command line")
+@IFDEF D
     NICEFLAGS = @DEVELOPER@
     HEADER = debug-header
-  endif
-endif
+@ENDIF
 
-ifndef NICEFLAGS
+@IFNDEF NICEFLAGS
     NICEFLAGS = @FLAGS@
-endif
+@ENDIF
 
-ifndef HEADER
+@IFNDEF HEADER
     HEADER = std-header
-endif
+@ENDIF
 
 NICEFLAGS += -I$(COMPILE_ROOT)/include
 
@@ -36,16 +35,17 @@ LAUNCHDPATH = "/System/Library/LaunchDaemons"
 LIBPATH = "@LIBRARY_DIR@"
 MODULES = @MODULES@
 INSTMODE = 0755
-MAKEFLAGS += --no-print-directory
+@GNU_ONLY MAKEFLAGS += --no-print-directory
 
-ifdef V
+@IFDEF V
     RUNCC = $(CC)
-else
-    MAKEFLAGS += --silent
+@ELSE
+    @GNU_ONLY MAKEFLAGS += --silent
     RUNCC = $(COMPILE_ROOT)/make/run-cc.pl $(CC)
-endif
+@ENDIF
 
-export COMPILE_ROOT RUNCC FLAGS NICEFLAGS CC LDLIBS MODULES MODPATH LIBPATH INSTMODE
+@GNU_ONLY export COMPILE_ROOT RUNCC FLAGS NICEFLAGS CC LDLIBS MODULES MODPATH LIBPATH INSTMODE
+@BSD_ONLY MAKEARGS = -s 'RUNCC=${RUNCC}' 'FLAGS=${FLAGS}' 'NICEFLAGS=${NICEFLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'INSTMODE=${INSTMODE}'
 
 all: ircd mods finishmessage
 
