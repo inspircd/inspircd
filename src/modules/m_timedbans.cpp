@@ -149,46 +149,37 @@ class ModuleTimedBans : public Module
 
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
-		timedbans::iterator safei;
 		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end();)
 		{
-			/* Safe copy of iterator, so we can erase as we iterate */
-			safei = i;
-			++i;
-
-			if (curtime > safei->expire)
+			if (curtime > i->expire)
 			{
-				Channel* cr = ServerInstance->FindChan(safei->channel);
+				std::string chan = i->mask;
+				std::string mask = i->mask;
+				Channel* cr = ServerInstance->FindChan(chan);
+				i = TimedBanList.erase(i);
 				if (cr)
 				{
-					std::string mask = safei->mask;
 					std::vector<std::string> setban;
 					setban.push_back(safei->channel);
 					setban.push_back("-b");
 					setban.push_back(mask);
 
 					CUList empty;
-					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name.c_str(), safei->mask.c_str());
-					ServerInstance->PI->SendChannelNotice(cr, '@', "*** Timed ban on " + safei->mask + " expired.");
+					std::string expiry = "*** Timed ban on " + safei->mask + " expired.";
+					cr->WriteChannelWithServ(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
+					ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
 					if (ServerInstance->Config->AllowHalfop)
 					{
-						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :*** Timed ban on %s expired.", cr->name.c_str(), safei->mask.c_str());
-						ServerInstance->PI->SendChannelNotice(cr, '%', "*** Timed ban on " + safei->mask + " expired.");
+						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
+						ServerInstance->PI->SendChannelNotice(cr, '%', expiry);
 					}
 
-					/* Removes the ban item for us, no ::erase() needed */
-					ServerInstance->PI->SendModeStr(safei->channel, std::string("-b ") + setban[2]);
 					ServerInstance->SendMode(setban, ServerInstance->FakeClient);
-
-					if (ServerInstance->Modes->GetLastParse().empty())
-						TimedBanList.erase(safei);
-				}
-				else
-				{
-					/* Where the hell did our channel go?! */
-					TimedBanList.erase(safei);
+					ServerInstance->PI->SendMode(chan, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
 				}
 			}
+			else
+				++i;
 		}
 	}
 
