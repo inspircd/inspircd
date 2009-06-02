@@ -87,7 +87,7 @@ class ModuleOverride : public Module
 				if (OverOther)
 					msg += "others, ";
 				msg.replace(msg.length()-2, 2, 1, ']');
-				ServerInstance->SNO->WriteToSnoMask('G',msg);
+				ServerInstance->SNO->WriteGlobalSno('G',msg);
 			}
 
 			OverriddenMode = OverOther = false;
@@ -122,7 +122,7 @@ class ModuleOverride : public Module
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetStatus(source) < STATUS_HOP))
 			{
-				ServerInstance->SNO->WriteToSnoMask('G',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
+				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
 			}
 
 			// Explicit allow
@@ -139,7 +139,7 @@ class ModuleOverride : public Module
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((chan->GetStatus(source) < chan->GetStatus(user))			|| (chan->GetStatus(source) <= STATUS_VOICE))
 			{
-				ServerInstance->SNO->WriteToSnoMask('G',std::string(source->nick)+" used oper override to kick "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
+				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to kick "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
 			/* Returning -1 explicitly allows the kick */
 			return -1;
@@ -249,7 +249,7 @@ class ModuleOverride : public Module
 
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname, user->nick.c_str());
-						ServerInstance->SNO->WriteToSnoMask('G', user->nick+" used oper override to bypass +i on "+std::string(cname));
+						ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +i on "+std::string(cname));
 					}
 					return -1;
 				}
@@ -265,7 +265,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteToSnoMask('G', user->nick+" used oper override to bypass +k on "+std::string(cname));
+					ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +k on "+std::string(cname));
 					return -1;
 				}
 
@@ -280,7 +280,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteToSnoMask('G', user->nick+" used oper override to bypass +l on "+std::string(cname));
+					ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +l on "+std::string(cname));
 					return -1;
 				}
 
@@ -295,7 +295,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteToSnoMask('G',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
+					ServerInstance->SNO->WriteGlobalSno('G',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
 					return -1;
 				}
 			}
