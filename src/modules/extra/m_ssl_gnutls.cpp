@@ -22,8 +22,8 @@
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: exec("libgnutls-config --cflags") */
-/* $LinkerFlags: rpath("libgnutls-config --libs") exec("libgnutls-config --libs") */
+/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
+/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") */
 /* $ModDep: transport.h */
 /* $CopyInstall: conf/key.pem $(CONPATH) */
 /* $CopyInstall: conf/cert.pem $(CONPATH) */

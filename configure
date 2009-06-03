@@ -218,7 +218,7 @@ if (defined $opt_library_dir)
 {
 	$config{LIBRARY_DIR} = $opt_library_dir;
 }
-chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
+chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
 
 if (defined $opt_freebsd_port)
 {
