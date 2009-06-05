@@ -126,7 +126,7 @@ sub getmodversion {
 	my ($file) = @_;
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$ModVersion: (.+) \*\/$/) {
+		if (m#(?:^/* \$|")ModVersion: (\S+)(?: \*\/$|")#) {
 			my $x = translate_functions($1, $file);
 			next if ($x eq "");
 			close(FLAGS);
