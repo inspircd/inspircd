@@ -208,7 +208,8 @@ class ModuleSSLOpenSSL : public Module
 								ServerInstance->Config->ports[i]->SetDescription("ssl");
 						ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %ld", portno);
 
-						sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
+						if (addr != "127.0.0.1")
+							sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
 					}
 					catch (ModuleException &e)
 					{

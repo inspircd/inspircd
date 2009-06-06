@@ -179,7 +179,8 @@ class ModuleSSLGnuTLS : public Module
 								ServerInstance->Config->ports[i]->SetDescription("ssl");
 						ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %ld", portno);
 
-						sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
+						if (addr != "127.0.0.1")
+							sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
 					}
 					catch (ModuleException &e)
 					{
