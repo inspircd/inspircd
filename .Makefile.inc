@@ -14,13 +14,8 @@
     HEADER = debug-header
 @ENDIF
 
-@IFNDEF NICEFLAGS
-    NICEFLAGS = @FLAGS@
-@ENDIF
-
-@IFNDEF HEADER
-    HEADER = std-header
-@ENDIF
+NICEFLAGS ?= @FLAGS@
+HEADER ?= std-header
 
 NICEFLAGS += -I$(COMPILE_ROOT)/include
 
@@ -121,17 +116,16 @@ module:
 
 clean:
 	@echo Cleaning...
-	@rm -rf src/*.so src/*.dylib src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/commands/*.so src/commands/*.o src/modules/*/*.o src/modules/*/*.so src/socketengines/*.o
+	@rm -f src/inspircd src/modes/modeclasses.a
+	@rm -f src/*.so src/modules/*.so src/commands/*.so src/modules/*/*.so
+	@rm -f src/*.o src/*/*.o src/modules/*/*.o
 	@echo Completed.
 
 modclean:
-	rm -rf modules/*.so
-	rm -rf src/modules/*.so
-	rm -rf src/modules/*.o
-	rm -rf src/modules/*/*.so
-	rm -rf src/modules/*/*.o
-	rm -rf lib/*.so
-	rm -f bin/inspircd
+	rm -f src/modules/*.so
+	rm -f src/modules/*.o
+	rm -f src/modules/*/*.so
+	rm -f src/modules/*/*.o
 
 deinstall:
 @UNINSTALL_LIST@

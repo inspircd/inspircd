@@ -1250,7 +1250,7 @@ EOF
 			if (defined(opendir(MDIRHANDLE, "src/modules/$name2"))) {
 				closedir(MDIRHANDLE);
 				$modules .= "$name2.so ";
-				$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/$name2.so\n";
+				$uninstall_list = $uninstall_list . "	-rm \$(MODPATH)/$name2.so\n";
 			}
 		}
 	}
