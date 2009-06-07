@@ -531,6 +531,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L.Port = Conf->ReadInteger("link", "port", j, true);
 		L.SendPass = Conf->ReadValue("link", "sendpass", j);
 		L.RecvPass = Conf->ReadValue("link", "recvpass", j);
+		L.Fingerprint = Conf->ReadValue("link", "fingerprint", j);
 		L.AutoConnect = Conf->ReadInteger("link", "autoconnect", j, true);
 		L.HiddenFromStats = Conf->ReadFlag("link", "statshidden", j);
 		L.Timeout = Conf->ReadInteger("link", "timeout", j, true);

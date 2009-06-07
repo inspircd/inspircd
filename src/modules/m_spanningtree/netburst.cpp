@@ -31,7 +31,11 @@ void TreeSocket::DoBurst(TreeServer* s)
 	std::string name = s->GetName();
 	std::string burst = ":" + this->ServerInstance->Config->GetSID() + " BURST " +ConvToStr(ServerInstance->Time());
 	std::string endburst = ":" + this->ServerInstance->Config->GetSID() + " ENDBURST";
-	this->ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s).", name.c_str(), this->GetTheirChallenge().empty() ? "plaintext password" : "SHA256-HMAC challenge-response");
+	this->ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
+		name.c_str(),
+		this->auth_fingerprint ? "SSL Fingerprint and " : "",
+		this->auth_challenge ? "challenge-response" : "plaintext password");
+	this->CleanNegotiationInfo();
 	this->WriteLine(burst);
 	/* send our version string */
 	this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" VERSION :"+this->ServerInstance->GetVersionString());

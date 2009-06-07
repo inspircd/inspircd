@@ -82,7 +82,6 @@ class TreeSocket : public BufferedSocket
 	int num_lost_servers;			/* Servers lost in split */
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
-	unsigned int keylength;			/* Is this still used? */
 	std::string ModuleList;			/* Module list of other server from CAPAB */
 	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
 	Module* Hook;				/* I/O hooking module that we're attached to for this socket */
@@ -90,6 +89,8 @@ class TreeSocket : public BufferedSocket
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	std::string OutboundPass;		/* Outbound password */
 	bool sentcapab;				/* Have sent CAPAB already */
+	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
+	bool auth_challenge;			/* Did we auth using challenge/response */
  public:
 	HandshakeTimer* hstimer;		/* Handshake timer, needed to work around I/O hook buffering */
 
@@ -128,7 +129,11 @@ class TreeSocket : public BufferedSocket
 
 	/** Compare two passwords based on authentication scheme
 	 */
-	bool ComparePass(const std::string &ours, const std::string &theirs);
+	bool ComparePass(const Link& link, const std::string &theirs);
+
+	/** Clean up information used only during server negotiation
+	 */
+	void CleanNegotiationInfo();
 
 	/** Return the module which we are hooking to for I/O encapsulation
 	 */

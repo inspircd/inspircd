@@ -128,16 +128,33 @@ std::string TreeSocket::RandString(unsigned int ilength)
 	return out;
 }
 
-bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
+bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 {
-	if (Utils->ChallengeResponse && !ourchallenge.empty() && !theirchallenge.empty())
+	this->auth_fingerprint = !link.Fingerprint.empty();
+	this->auth_challenge = !ourchallenge.empty() && !theirchallenge.empty();
+
+	const char* fp = NULL;
+	if (GetHook())
+		fp = BufferedSocketFingerprintRequest(this, Utils->Creator, GetHook()).Send();
+
+	if (fp)
+		ServerInstance->Logs->Log("m_spanningtree", DEFAULT, std::string("Server SSL fingerprint ") + fp);
+
+	if (auth_fingerprint)
 	{
-		std::string our_hmac = this->MakePass(ours, ourchallenge);
+		/* Require fingerprint to exist and match */
+		if (!fp || link.Fingerprint != std::string(fp))
+			return false;
+	}
+
+	if (auth_challenge)
+	{
+		std::string our_hmac = MakePass(link.RecvPass, ourchallenge);
 
 		/* Straight string compare of hashes */
 		return our_hmac == theirs;
 	}
-	else
-		/* Straight string compare of plaintext */
-		return ours == theirs;
+
+	/* Straight string compare of plaintext */
+	return link.RecvPass == theirs;
 }

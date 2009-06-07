@@ -407,6 +407,20 @@ class ModuleSSLOpenSSL : public Module
 				return "OK";
 			}
 		}
+		else if (strcmp("GET_FP", request->GetId()) == 0)
+		{
+			if (ISR->Sock->GetFd() > -1)
+			{
+				issl_session* session = &sessions[ISR->Sock->GetFd()];
+				if (session->sess)
+				{
+					Extensible* ext = ISR->Sock;
+					ssl_cert* certinfo;
+					if (ext->GetExt("ssl_cert",certinfo))
+						return certinfo->GetFingerprint().c_str();
+				}
+			}
+		}
 		return NULL;
 	}
 

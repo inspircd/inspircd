@@ -227,4 +227,13 @@ class BufferedSocketNameRequest : public ISHRequest
 	}
 };
 
+class BufferedSocketFingerprintRequest : public ISHRequest
+{
+ public:
+	/** Initialize request as a fingerprint message */
+	BufferedSocketFingerprintRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "GET_FP", is)
+	{
+	}
+};
+
 #endif

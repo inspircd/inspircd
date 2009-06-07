@@ -128,7 +128,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 
-		if (!ComparePass(x->RecvPass, password))
+		if (!ComparePass(*x, password))
 		{
 			this->ServerInstance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
 			continue;
@@ -224,7 +224,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 
-		if (!ComparePass(x->RecvPass, password))
+		if (!ComparePass(*x, password))
 		{
 			this->ServerInstance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
 			continue;

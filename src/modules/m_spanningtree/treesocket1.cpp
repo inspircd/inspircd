@@ -83,6 +83,15 @@ Module* TreeSocket::GetHook()
 	return this->Hook;
 }
 
+void TreeSocket::CleanNegotiationInfo()
+{
+	ModuleList.clear();
+	CapKeys.clear();
+	ourchallenge.clear();
+	theirchallenge.clear();
+	OutboundPass.clear();
+}
+
 TreeSocket::~TreeSocket()
 {
 	if (Hook)
