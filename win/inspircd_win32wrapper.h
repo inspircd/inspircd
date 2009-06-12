@@ -37,6 +37,9 @@
 
 #define FD_SETSIZE 24000
 
+#define uint32_t DWORD
+#define uint16_t WORD
+
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
@@ -77,8 +80,6 @@
 
 /* Say we're building on windows 2000. Anyone running something older than this
  * reeeeeeeally needs to upgrade! */
-
-#define _WIN32_WINNT 0x500
 
 /* Normal windows (platform-specific) includes */
 #include <winsock2.h>
