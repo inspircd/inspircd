@@ -71,7 +71,7 @@ void ListenSocketBase::AcceptInternal()
 	}
 
 	socklen_t sz = sizeof(server);
-	if (getsockname(incomingSockfd, &server.sa, &sz));
+	if (getsockname(incomingSockfd, &server.sa, &sz))
 		ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
 
 	/*
