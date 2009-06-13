@@ -135,7 +135,7 @@ if (defined $opt_library_dir)
 {
 	$config{LIBRARY_DIR} = $opt_library_dir;
 }
-chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
+chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null`); # GNUTLS Version.
 chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version
 chomp($gnutls_ver = $config{HAS_GNUTLS});
 chomp($openssl_ver = $config{HAS_OPENSSL});
