@@ -47,7 +47,7 @@ class CommandSetname : public Command
 			return CMD_SUCCESS;
 		}
 
-		return CMD_SUCCESS;
+		return CMD_LOCALONLY;
 	}
 };
 
@@ -71,9 +71,8 @@ class ModuleSetName : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
-
 };
 
 MODULE_INIT(ModuleSetName)
