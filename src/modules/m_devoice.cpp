@@ -43,9 +43,8 @@ class CommandDevoice : public Command
 			modes.push_back(user->nick);
 
 			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
-
-			/* route it -- SendMode doesn't distribute over the whole network */
-			return CMD_SUCCESS;
+			ServerInstance->PI->SendMode(c->name, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
+			return CMD_LOCALONLY;
 		}
 
 		return CMD_FAILURE;
@@ -70,7 +69,7 @@ class ModuleDeVoice : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 };
 
