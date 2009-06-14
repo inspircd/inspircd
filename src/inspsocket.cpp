@@ -217,86 +217,34 @@ bool BufferedSocket::BindAddr(const std::string &ip_to_bind)
 
 bool BufferedSocket::DoConnect(unsigned long maxtime)
 {
-	/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
-	sockaddr* addr = new sockaddr[2];
-	socklen_t size = sizeof(sockaddr_in);
-#ifdef IPV6
-	bool v6 = false;
-	if ((!*this->host) || strchr(this->host, ':'))
-		v6 = true;
+	irc::sockets::sockaddrs addr;
+	irc::sockets::aptosa(this->host, this->port, &addr);
 
-	if (v6)
-	{
-		this->fd = socket(AF_INET6, SOCK_STREAM, 0);
-		if ((this->fd > -1) && ((strstr(this->IP,"::ffff:") != (char*)&this->IP) && (strstr(this->IP,"::FFFF:") != (char*)&this->IP)))
-		{
-			if (!this->BindAddr(this->cbindip))
-			{
-				this->Close();
-				this->fd = -1;
-				delete[] addr;
-				return false;
-			}
-		}
-	}
-	else
-#endif
-	{
-		this->fd = socket(AF_INET, SOCK_STREAM, 0);
-		if (this->fd > -1)
-		{
-			if (!this->BindAddr(this->cbindip))
-			{
-				this->Close();
-				this->fd = -1;
-				delete[] addr;
-				return false;
-			}
-		}
-	}
+	this->fd = socket(addr.sa.sa_family, SOCK_STREAM, 0);
 
 	if (this->fd == -1)
 	{
 		this->state = I_ERROR;
 		this->OnError(I_ERR_SOCKET);
-		delete[] addr;
 		return false;
 	}
 
-#ifdef IPV6
-	if (v6)
+	if (!this->BindAddr(this->cbindip))
 	{
-		in6_addr addy;
-		if (inet_pton(AF_INET6, this->host, &addy) > 0)
-		{
-			((sockaddr_in6*)addr)->sin6_family = AF_INET6;
-			memcpy(&((sockaddr_in6*)addr)->sin6_addr, &addy, sizeof(addy));
-			((sockaddr_in6*)addr)->sin6_port = htons(this->port);
-			size = sizeof(sockaddr_in6);
-		}
-	}
-	else
-#endif
-	{
-		in_addr addy;
-		if (inet_aton(this->host, &addy) > 0)
-		{
-			((sockaddr_in*)addr)->sin_family = AF_INET;
-			((sockaddr_in*)addr)->sin_addr = addy;
-			((sockaddr_in*)addr)->sin_port = htons(this->port);
-		}
+		this->Close();
+		this->fd = -1;
+		return false;
 	}
 
 	ServerInstance->SE->NonBlocking(this->fd);
 
-	if (ServerInstance->SE->Connect(this, (sockaddr*)addr, size) == -1)
+	if (ServerInstance->SE->Connect(this, &addr.sa, sizeof(addr)) == -1)
 	{
 		if (errno != EINPROGRESS)
 		{
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->state = I_ERROR;
-			delete[] addr;
 			return false;
 		}
 
@@ -305,7 +253,6 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 	}
 
 	this->state = I_CONNECTING;
-	delete[] addr;
 	if (this->fd > -1)
 	{
 		if (!this->ServerInstance->SE->AddFd(this))
