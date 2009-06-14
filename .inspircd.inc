@@ -201,8 +201,6 @@ sub dev_valdebug_unattended(@)
 	checkgdb();
 
 	# If we are still alive here.. Try starting the IRCd..
-	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
-	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
 	#
 	# NOTE: Saving the debug log (redirected stdout), while useful, is a potential security risk AND one hell of a spacehog. DO NOT SAVE THIS WHERE EVERYONE HAS ACCESS!
 	# Redirect stdout to /dev/null if you're worried about the security.
@@ -211,11 +209,17 @@ sub dev_valdebug_unattended(@)
 	if ($pid == 0) {
 		POSIX::setsid();
 		-d $valgrindlogpath or mkdir $valgrindlogpath or die "Cannot create $valgrindlogpath: $!\n";
+		-e "$binpath/valgrind.sup" or do { open my $f, '>', "$binpath/valgrind.sup"; };
 		my $suffix = strftime("%Y%m%d-%H%M%S", localtime(time)) . ".$$";
 		open STDIN, '<', '/dev/null' or die "Can't redirect STDIN to /dev/null: $!\n";
 		sysopen STDOUT, "$valgrindlogpath/out.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0600 or die "Can't open $valgrindlogpath/out.$suffix: $!\n";
 		sysopen STDERR, "$valgrindlogpath/valdebug.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0666 or die "Can't open $valgrindlogpath/valdebug.$suffix: $!\n";
-		exec qw(valgrind -v --tool=memcheck --leak-check=yes --num-callers=10 --time-stamp=yes --log-fd=2), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
+	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
+		exec qw(valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=15 --track-fds=yes),
+			"--suppressions=$binpath/valgrind.sup", qw(--gen-suppressions=all),
+			qw(--leak-resolution=med --time-stamp=yes --log-fd=2 --),
+			"$binpath/$executable", qw(-nofork -debug -nolog), @_;
 		die "Can't execute valgrind: $!\n";
 	}
 }
@@ -246,7 +250,7 @@ sub cmd_stop()
 	# Get to here, we have something to kill.
 	my $pid = getprocessid();
 	print "Stopping InspIRCd (pid: $pid)...\n";
-	my $maxwait = (`ps -o command $pid` =~ /valgrind/i) ? 30 : 5;
+	my $maxwait = (`ps -o command $pid` =~ /valgrind/i) ? 90 : 5;
 	kill TERM => $pid or die "Cannot terminate IRCd: $!\n";
 	for (1..$maxwait) {
 		sleep 1;
