@@ -32,6 +32,8 @@ bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &param
 			Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
 			event.Send(ServerInstance);
 		}
+		
+		params[params.size() - 1] = ":" + params[params.size() - 1];
 
 		if (params[0].find('*') != std::string::npos)
 		{
