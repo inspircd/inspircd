@@ -326,3 +326,11 @@ int irc::sockets::satoap(const irc::sockets::sockaddrs* sa, std::string& addr, i
 	return false;
 }
 
+int irc::sockets::sa_size(irc::sockets::sockaddrs& sa)
+{
+	if (sa.sa.sa_family == AF_INET)
+		return sizeof(sa.in4);
+	if (sa.sa.sa_family == AF_INET6)
+		return sizeof(sa.in6);
+	return 0;
+}
