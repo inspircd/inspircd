@@ -238,7 +238,7 @@ bool BufferedSocket::DoConnect(unsigned long maxtime)
 
 	ServerInstance->SE->NonBlocking(this->fd);
 
-	if (ServerInstance->SE->Connect(this, &addr.sa, sizeof(addr)) == -1)
+	if (ServerInstance->SE->Connect(this, &addr.sa, sa_size(addr)) == -1)
 	{
 		if (errno != EINPROGRESS)
 		{

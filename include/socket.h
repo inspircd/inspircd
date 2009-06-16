@@ -143,6 +143,12 @@ namespace irc
 		 */
 		CoreExport int OpenTCPSocket(const char* addr, int socktype = SOCK_STREAM);
 
+		/** Return the size of the structure for syscall passing */
+		int sa_size(irc::sockets::sockaddrs& sa)
+		{
+			return sa.sa.sa_family == AF_INET ? sizeof(sa.in4) : sizeof(sa.in6);
+		}
+
 		/** Convert an address-port pair into a binary sockaddr
 		 * @param addr The IP address, IPv4 or IPv6
 		 * @param port The port, 0 for unspecified
