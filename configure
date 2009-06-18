@@ -1722,7 +1722,7 @@ EOM
 commands:
 	@${MAKE} -C commands $(MAKEARGS) commands
 
-modes/modeclasses.a: $(RELCPPFILES)
+modes/modeclasses.a: $(RELCPPFILES) ../include/inspircd.h ../include/inspircd_config.h
 	@${MAKE} -C modes $(MAKEARGS) CPPFILES="$(CPPFILES)" modeclasses.a
 
 EOM
