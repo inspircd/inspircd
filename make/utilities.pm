@@ -116,9 +116,9 @@ sub pkgconfig_get_include_dirs($$$;$)
 	my $foo = "";
 	if ((!defined $v) || ($v eq ""))
 	{
-		$foo = `locate "$headername" | head -n 1`;
-		$foo =~ /(.+)\Q$headername\E/;
-		my $find = $1;
+		print "\e[31mCould not find $packagename via pkg-config\e[m (\e[1;32mplease install pkg-config\e[m)\n";
+		$foo = `locate "$headername" 2>/dev/null | head -n 1`;
+		my $find = $foo =~ /(.+)\Q$headername\E/ ? $1 : '';
 		chomp($find);
 		if ((defined $find) && ($find ne "") && ($find ne $packagename))
 		{
