@@ -400,14 +400,18 @@ public:
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
-			if (IS_LOCAL(user))
-				user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick.c_str(), dest->nick.c_str());
-			else
-				ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 716 " + user->nick + dest->nick + " :is in +g mode (server-side ignore).");
+			user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick.c_str(), dest->nick.c_str());
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
 				user->WriteNumeric(717, "%s %s :has been informed that you messaged them.", user->nick.c_str(), dest->nick.c_str());
-				dest->WriteNumeric(718, "%s %s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.", dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
+				if (IS_LOCAL(dest))
+				{
+					dest->WriteNumeric(718, "%s %s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.", dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
+				}
+				else
+				{
+					ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 718 " + dest->nick + " " + user->nick + " " + user->ident + "@" + user->dhost + " :is messaging you,  and you have umode +g. Use /ACCEPT +" + user->nick + " to allow.");
+				}
 				dat->lastnotify = now;
 			}
 			return 1;
