@@ -263,14 +263,6 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		// Checking MyClass exists because we *may* get here with NULL, not 100% sure.
 		if (user->MyClass && user->MyClass->GetMaxChans())
 		{
-			if (user->chans.size() >= user->MyClass->GetMaxChans())
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
-				return NULL;
-			}
-		}
-		else
-		{
 			if (user->HasPrivPermission("channels/high-join-limit"))
 			{
 				if (user->chans.size() >= Instance->Config->OperMaxChans)
