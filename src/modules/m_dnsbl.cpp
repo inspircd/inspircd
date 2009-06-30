@@ -60,12 +60,8 @@ class DNSBLResolver : public Resolver
 	}
 
 	/* Note: This may be called multiple times for multiple A record results */
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
-		/* for bitmask reply types, we arent interested in any but the first result (number 0) */
-		if ((ConfEntry->type == DNSBLConfEntry::A_BITMASK) && (resultnum))
-			return;
-
 		/* Check the user still exists */
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{

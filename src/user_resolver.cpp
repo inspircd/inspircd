@@ -21,12 +21,8 @@ UserResolver::UserResolver(InspIRCd* Instance, User* user, std::string to_resolv
 	this->bound_fd = user->GetFd();
 }
 
-void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum)
+void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 {
-	/* We are only interested in the first matching result */
-	if (resultnum)
-		return;
-
 	UserResolver *res_forward; // for forward-resolution
 
 	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))

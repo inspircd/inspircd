@@ -38,11 +38,8 @@ ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, 
 	/* Nothing in here, folks */
 }
 
-void ServernameResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum)
+void ServernameResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 {
-	if (resultnum)
-		return;
-
 	/* Initiate the connection, now that we have an IP to use.
 	 * Passing a hostname directly to BufferedSocket causes it to
 	 * just bail and set its FD to -1.

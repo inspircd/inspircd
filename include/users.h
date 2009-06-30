@@ -1139,9 +1139,8 @@ class CoreExport UserResolver : public Resolver
 	 * @param result Result string
 	 * @param ttl Time to live for result
 	 * @param cached True if the result was found in the cache
-	 * @param resultnum Result number, we are only interested in result 0
 	 */
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0);
+	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
 
 	/** Called on failed lookup
 	 * @param e Error code

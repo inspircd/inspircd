@@ -284,10 +284,8 @@ class CoreExport Resolver : public Extensible
 	 * result, this is the number of seconds remaining before refresh/expiry.
 	 * @param cached True if the result is a cached result, false if it was requested
 	 * from the DNS server.
-	 * @param resultnum Result number, for records with multiple matching results.
-	 * Normally, you will only want to act on this when the result is 0.
 	 */
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0) = 0;
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached) = 0;
 
 	/**
 	 * If an error occurs (such as NXDOMAIN, no domain name found) then this method
@@ -450,9 +448,8 @@ class CoreExport DNS : public EventHandler
 	/**
 	 * Fetch the result string (an ip or host)
 	 * and/or an error message to go with it.
-	 * @param resultnum Result number to fetch
 	 */
-	DNSResult GetResult(int resultnum);
+	DNSResult GetResult();
 
 	/**
 	 * Handle a SocketEngine read event

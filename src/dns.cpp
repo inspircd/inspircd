@@ -101,7 +101,7 @@ class DNSRequest
 
 	DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original);
 	~DNSRequest();
-	DNSInfo ResultIsReady(DNSHeader &h, int length, int result_we_want);
+	DNSInfo ResultIsReady(DNSHeader &h, int length);
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
@@ -610,7 +610,7 @@ void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 }
 
 /** Return the next id which is ready, and the result attached to it */
-DNSResult DNS::GetResult(int resultnum)
+DNSResult DNS::GetResult()
 {
 	/* Fetch dns query response and decide where it belongs */
 	DNSHeader header;
@@ -697,7 +697,7 @@ DNSResult DNS::GetResult(int resultnum)
 	 * When its finished it will return a DNSInfo which is a pair of
 	 * unsigned char* resource record data, and an error message.
 	 */
-	DNSInfo data = req->ResultIsReady(header, length, resultnum);
+	DNSInfo data = req->ResultIsReady(header, length);
 	std::string resultstr;
 
 	/* Check if we got a result, if we didnt, its an error */
@@ -773,7 +773,7 @@ DNSResult DNS::GetResult(int resultnum)
 }
 
 /** A result is ready, process it */
-DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length, int result_we_want)
+DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 {
 	int i = 0;
 	int q = 0;
@@ -844,10 +844,10 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length, int result_we_w
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
 		/* XXX: We actually initialise 'rr' here including its ttl field */
-		if (curanswer == result_we_want)
-			DNS::FillResourceRecord(&rr,&header.payload[i]);
+		DNS::FillResourceRecord(&rr,&header.payload[i]);
 
 		i += 10;
+		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Resolver: rr.type is %d and this.type is %d rr.class %d this.class %d", rr.type, this->type, rr.rr_class, this->rr_class);
 		if (rr.type != this->type)
 		{
 			curanswer++;
@@ -863,7 +863,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length, int result_we_w
 		break;
 	}
 	if ((unsigned int)curanswer == header.ancount)
-		return std::make_pair((unsigned char*)NULL,"No more answers (" + ConvToStr(header.ancount) + " answers, wanted #" + ConvToStr(result_we_want) + ")");
+		return std::make_pair((unsigned char*)NULL,"No A, AAAA or PTR type answers (" + ConvToStr(header.ancount) + " answers)");
 
 	if (i + rr.rdlength > (unsigned int)length)
 		return std::make_pair((unsigned char*)NULL,"Resource record larger than stated");
@@ -947,7 +947,7 @@ void DNS::DelCache(const std::string &source)
 void Resolver::TriggerCachedResult()
 {
 	if (CQ)
-		OnLookupComplete(CQ->data, time_left, true, 0);
+		OnLookupComplete(CQ->data, time_left, true);
 }
 
 /** High level abstraction of dns used by application at large */
@@ -1055,14 +1055,13 @@ Module* Resolver::GetCreator()
 void DNS::HandleEvent(EventType, int)
 {
 	/* Fetch the id and result of the next available packet */
-	int resultnum = 0;
 	DNSResult res(0,"",0,"");
 	res.id = 0;
 	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Handle DNS event");
 
-	res = this->GetResult(resultnum);
+	res = this->GetResult();
 
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Result %d id %d", resultnum, res.id);
+	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Result id %d", res.id);
 
 	/* Is there a usable request id? */
 	if (res.id != -1)
@@ -1094,7 +1093,7 @@ void DNS::HandleEvent(EventType, int)
 				if (!this->GetCache(res.original.c_str()))
 					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.ttl)));
 
-				Classes[res.id]->OnLookupComplete(res.result, res.ttl, false, resultnum);
+				Classes[res.id]->OnLookupComplete(res.result, res.ttl, false);
 				delete Classes[res.id];
 				Classes[res.id] = NULL;
 			}
@@ -1103,8 +1102,6 @@ void DNS::HandleEvent(EventType, int)
 		if (ServerInstance && ServerInstance->stats)
 			ServerInstance->stats->statsDns++;
 	}
-
-	resultnum++;
 }
 
 /** Add a derived Resolver to the working set */
