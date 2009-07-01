@@ -339,7 +339,7 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
-	std::ostringstream errstr;
+	std::stringstream errstr;
 
 	/** True if this configuration is valid enough to run with */
 	bool valid;

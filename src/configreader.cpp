@@ -721,8 +721,9 @@ void ServerConfig::Read()
 	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
 	static char disabledumodes[MAXBUF]; /* Disabled usermodes */
 	static char disabledcmodes[MAXBUF]; /* Disabled chanmodes */
-	/* std::ostringstream::clear() does not clear the string itself, only the error flags. */
 	valid = true;
+	/* std::ostringstream::clear() does not clear the string itself, only the error flags. */
+	errstr.clear();
 	errstr.str().clear();
 	include_stack.clear();
 
@@ -952,7 +953,6 @@ void ServerConfig::Read()
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 
-			// XXX: ServerInstance->Threads->Lock();
 			switch (dt)
 			{
 				case DT_NOSPACES:
@@ -981,7 +981,6 @@ void ServerConfig::Read()
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
 					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString(), MAXBUF))
 					{
-						// XXX: ServerInstance->Threads->Unlock();
 						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
 					}
 					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
@@ -1014,7 +1013,6 @@ void ServerConfig::Read()
 			}
 			/* We're done with this now */
 			delete Values[Index].val;
-			// XXX: ServerInstance->Threads->Unlock();
 		}
 
 		/* Read the multiple-tag items (class tags, connect tags, etc)
@@ -1023,9 +1021,7 @@ void ServerConfig::Read()
 		 */
 		for (int Index = 0; MultiValues[Index].tag; ++Index)
 		{
-			// XXX: ServerInstance->Threads->Lock();
 			MultiValues[Index].init_function(this, MultiValues[Index].tag);
-			// XXX: ServerInstance->Threads->Unlock();
 
 			int number_of_tags = ConfValueEnum(MultiValues[Index].tag);
 
@@ -1040,7 +1036,6 @@ void ServerConfig::Read()
 					dt &= ~DT_ALLOW_NEWLINE;
 					dt &= ~DT_ALLOW_WILD;
 
-					// XXX: ServerInstance->Threads->Lock();
 					/* We catch and rethrow any exception here just so we can free our mutex
 					 */
 					try
@@ -1119,10 +1114,8 @@ void ServerConfig::Read()
 					}
 					catch (CoreException &e)
 					{
-						// XXX: ServerInstance->Threads->Unlock();
 						throw e;
 					}
-					// XXX: ServerInstance->Threads->Unlock();
 				}
 				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 			}
@@ -1143,7 +1136,6 @@ void ServerConfig::Read()
 		return;
 	}
 
-	// XXX: ServerInstance->Threads->Lock();
 	for (int i = 0; i < ConfValueEnum("type"); ++i)
 	{
 		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
@@ -1198,6 +1190,20 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		}
 	}
 
+	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
+
+	while (errstr.good())
+	{
+		std::string line;
+		getline(errstr, line, '\n');
+		if (user)
+			user->WriteServ("NOTICE %s :*** %s", user->nick.c_str(), line.c_str());
+		else
+			ServerInstance->SNO->WriteGlobalSno('a', line);
+	}
+
+	errstr.clear();
+	errstr.str().clear();
 
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)
@@ -1217,12 +1223,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
-				if (!useruid.empty())
-				{
-					User* user = ServerInstance->FindNick(useruid);
-					if (user)
-						user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
-				}
+				if (user)
+					user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
 				else
 					ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully unloaded.", removing->c_str());
 
@@ -1230,12 +1232,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			}
 			else
 			{
-				if (!useruid.empty())
-				{
-					User* user = ServerInstance->FindNick(useruid);
-					if (user)
-						user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
-				}
+				if (user)
+					user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
 				else
 					 ServerInstance->SNO->WriteToSnoMask('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
 			}
@@ -1249,12 +1247,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			if (ServerInstance->Modules->Load(adding->c_str()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
-				if (!useruid.empty())
-				{
-					User* user = ServerInstance->FindNick(useruid);
-					if (user)
-						user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
-				}
+				if (user)
+					user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
 				else
 					ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully loaded.", adding->c_str());
 
@@ -1262,25 +1256,16 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			}
 			else
 			{
-				if (!useruid.empty())
-				{
-					User* user = ServerInstance->FindNick(useruid);
-					if (user)
-						user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
-				}
+				if (user)
+					user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 				else
 					ServerInstance->SNO->WriteToSnoMask('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 			}
 		}
 	}
-	// XXX: ServerInstance->Threads->Unlock();
 
-	if (!useruid.empty())
-	{
-		User* user = ServerInstance->FindNick(useruid);
-		if (user)
-			user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
-	}
+	if (user)
+		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
 	else
 		ServerInstance->SNO->WriteToSnoMask('a', "*** Successfully rehashed server.");
 }
