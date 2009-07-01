@@ -82,14 +82,14 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		/* stats p (show listening ports and registered clients on each) */
 		case 'p':
 		{
-			for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
+			for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 			{
-				std::string ip = ServerInstance->Config->ports[i]->GetIP();
+				std::string ip = ServerInstance->ports[i]->GetIP();
 				if (ip.empty())
 					ip.assign("*");
 
-				results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ServerInstance->Config->ports[i]->GetPort())+" (client, " +
-						ServerInstance->Config->ports[i]->GetDescription() + ")");
+				results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ServerInstance->ports[i]->GetPort())+" (client, " +
+						ServerInstance->ports[i]->GetDescription() + ")");
 			}
 		}
 		break;

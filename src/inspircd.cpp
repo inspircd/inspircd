@@ -95,13 +95,13 @@ void InspIRCd::Cleanup()
 {
 	if (Config)
 	{
-		for (unsigned int i = 0; i < Config->ports.size(); i++)
+		for (unsigned int i = 0; i < ports.size(); i++)
 		{
 			/* This calls the constructor and closes the listening socket */
-			delete Config->ports[i];
+			delete ports[i];
 		}
 
-		Config->ports.clear();
+		ports.clear();
 	}
 
 	/* Close all client sockets, or the new process inherits them */
@@ -628,7 +628,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->BuildISupport();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 
-	if (Config->ports.size() != (unsigned int)found_ports)
+	if (ports.size() != (unsigned int)found_ports)
 	{
 		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n", bounditems, found_ports);
 		printf("The following port(s) failed to bind:\n");

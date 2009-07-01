@@ -509,6 +509,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	chan_hash* chanlist;
 
+	/** List of the open ports
+	 */
+	std::vector<ListenSocketBase *> ports;
+
 	/** Set to the current signal recieved
 	 */
 	int s_signal;

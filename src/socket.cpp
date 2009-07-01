@@ -183,11 +183,11 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	int bound = 0;
-	bool started_with_nothing = (Config->ports.size() == 0);
+	bool started_with_nothing = (ports.size() == 0);
 	std::vector<std::pair<std::string, int> > old_ports;
 
 	/* XXX: Make a copy of the old ip/port pairs here */
-	for (std::vector<ListenSocketBase *>::iterator o = Config->ports.begin(); o != Config->ports.end(); ++o)
+	for (std::vector<ListenSocketBase *>::iterator o = ports.begin(); o != ports.end(); ++o)
 		old_ports.push_back(make_pair((*o)->GetIP(), (*o)->GetPort()));
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
@@ -209,7 +209,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 					*Addr = 0;
 
 				bool skip = false;
-				for (std::vector<ListenSocketBase *>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
+				for (std::vector<ListenSocketBase *>::iterator n = ports.begin(); n != ports.end(); ++n)
 				{
 					if (((*n)->GetIP() == Addr) && ((*n)->GetPort() == portno))
 					{
@@ -231,7 +231,7 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 					if (ll->GetFd() > -1)
 					{
 						bound++;
-						Config->ports.push_back(ll);
+						ports.push_back(ll);
 					}
 					else
 					{
@@ -248,13 +248,13 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 	{
 		for (size_t k = 0; k < old_ports.size(); ++k)
 		{
-			for (std::vector<ListenSocketBase *>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
+			for (std::vector<ListenSocketBase *>::iterator n = ports.begin(); n != ports.end(); ++n)
 			{
 				if (((*n)->GetIP() == old_ports[k].first) && ((*n)->GetPort() == old_ports[k].second))
 				{
 					this->Logs->Log("SOCKET",DEFAULT,"Port binding %s:%d was removed from the config file, closing.", old_ports[k].first.c_str(), old_ports[k].second);
 					delete *n;
-					Config->ports.erase(n);
+					ports.erase(n);
 					break;
 				}
 			}
