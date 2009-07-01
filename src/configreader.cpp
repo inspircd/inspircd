@@ -103,9 +103,9 @@ void ServerConfig::Send005(User* user)
 		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
 }
 
-bool ServerConfig::CheckOnce(const char* tag, ConfigDataHash &newconf)
+bool ServerConfig::CheckOnce(const char* tag)
 {
-	int count = ConfValueEnum(newconf, tag);
+	int count = ConfValueEnum(tag);
 
 	if (count > 1)
 		throw CoreException("You have more than one <"+std::string(tag)+"> tag, this is not permitted.");
@@ -707,53 +707,14 @@ bool DoneMaxBans(ServerConfig*, const char*)
 	return true;
 }
 
-void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail, const std::string &useruid)
+void ServerConfig::ReportConfigError(const std::string &errormessage)
 {
 	ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file: %s", errormessage.c_str());
-	if (bail)
-	{
-		/* Unneeded because of the ServerInstance->Log() aboive? */
-		printf("There were errors in your configuration:\n%s\n\n",errormessage.c_str());
-		ServerInstance->Exit(EXIT_STATUS_CONFIG);
-	}
-	else
-	{
-		std::string errors = errormessage;
-		std::string::size_type start;
-		unsigned int prefixlen;
-		start = 0;
-		/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
-		if (!useruid.empty())
-		{
-			User* user = ServerInstance->FindNick(useruid);
-			if (user)
-			{
-				prefixlen = strlen(this->ServerName) + user->nick.length() + 11;
-				user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick.c_str());
-				while (start < errors.length())
-				{
-					user->WriteServ("NOTICE %s :%s",user->nick.c_str(), errors.substr(start, 510 - prefixlen).c_str());
-					start += 510 - prefixlen;
-				}
-			}
-		}
-		else
-		{
-			ServerInstance->SNO->WriteToSnoMask('a', "There were errors in the configuration file:");
-			while (start < errors.length())
-			{
-				ServerInstance->SNO->WriteToSnoMask('a', errors.substr(start, 360));
-				start += 360;
-			}
-		}
-		return;
-	}
+	errstr << errormessage << std::endl;
 }
 
-void ServerConfig::Read(bool bail, const std::string &useruid)
+void ServerConfig::Read()
 {
-	int rem = 0, add = 0;	   /* Number of modules added, number of modules removed */
-
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
 	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
 	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
@@ -761,8 +722,8 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 	static char disabledumodes[MAXBUF]; /* Disabled usermodes */
 	static char disabledcmodes[MAXBUF]; /* Disabled chanmodes */
 	/* std::ostringstream::clear() does not clear the string itself, only the error flags. */
-	this->errstr = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-
+	valid = true;
+	errstr.str().clear();
 	include_stack.clear();
 
 	/* These tags MUST occur and must ONLY occur once in the config file */
@@ -795,10 +756,10 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		{"performance",	"softlimit",	"0",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
 		{"performance",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
 		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
-		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME|DT_BOOTONLY, ValidateServerName},
+		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME, ValidateServerName},
 		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
 		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_NOSPACES, NoValidation},
-		{"server",	"id",		"",			new ValueContainerChar (this->sid),			DT_CHARPTR|DT_BOOTONLY,  ValidateSID},
+		{"server",	"id",		"",			new ValueContainerChar (this->sid),			DT_CHARPTR,  ValidateSID},
 		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR,  NoValidation},
 		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR,  NoValidation},
 		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR,  NoValidation},
@@ -951,17 +912,11 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 
 	/* Load and parse the config file, if there are any errors then explode */
 
-	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
-	newconfig.clear();
-
-	if (!this->DoInclude(newconfig, ServerInstance->ConfigFileName, *errstr))
+	if (!this->DoInclude(ServerInstance->ConfigFileName))
 	{
-		ReportConfigError(errstr->str(), bail, useruid);
-		delete errstr;
+		valid = false;
 		return;
 	}
-
-	delete errstr;
 
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
@@ -969,14 +924,14 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 		/* Check we dont have more than one of singular tags, or any of them missing
 		 */
 		for (int Index = 0; Once[Index]; Index++)
-			if (!CheckOnce(Once[Index], newconfig))
+			if (!CheckOnce(Once[Index]))
 				return;
 
 		for (int Index = 0; ChangedConfig[Index].tag; Index++)
 		{
 			char item[MAXBUF];
 			*item = 0;
-			if (ConfValue(newconfig, ChangedConfig[Index].tag, ChangedConfig[Index].value, "", 0, item, MAXBUF, true) || *item)
+			if (ConfValue(ChangedConfig[Index].tag, ChangedConfig[Index].value, "", 0, item, MAXBUF, true) || *item)
 				throw CoreException(std::string("Your configuration contains a deprecated value: <") + ChangedConfig[Index].tag + ":" + ChangedConfig[Index].value + "> - " + ChangedConfig[Index].reason);
 		}
 
@@ -988,19 +943,10 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			int dt = Values[Index].datatype;
 			bool allow_newlines = ((dt & DT_ALLOW_NEWLINE) > 0);
 			bool allow_wild = ((dt & DT_ALLOW_WILD) > 0);
-			bool bootonly = ((dt & DT_BOOTONLY) > 0);
 			dt &= ~DT_ALLOW_NEWLINE;
 			dt &= ~DT_ALLOW_WILD;
-			dt &= ~DT_BOOTONLY;
 
-			/* Silently ignore boot only values */
-			if (bootonly && !bail)
-			{
-				delete Values[Index].val;
-				continue;
-			}
-
-			ConfValue(newconfig, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
+			ConfValue(Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
 
 			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
@@ -1081,7 +1027,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			MultiValues[Index].init_function(this, MultiValues[Index].tag);
 			// XXX: ServerInstance->Threads->Unlock();
 
-			int number_of_tags = ConfValueEnum(newconfig, MultiValues[Index].tag);
+			int number_of_tags = ConfValueEnum(MultiValues[Index].tag);
 
 			for (int tagnum = 0; tagnum < number_of_tags; ++tagnum)
 			{
@@ -1104,7 +1050,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							case DT_NOSPACES:
 							{
 								char item[MAXBUF];
-								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1114,7 +1060,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							case DT_HOSTNAME:
 							{
 								char item[MAXBUF];
-								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1124,7 +1070,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							case DT_IPADDRESS:
 							{
 								char item[MAXBUF];
-								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1134,7 +1080,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							case DT_CHANNEL:
 							{
 								char item[MAXBUF];
-								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1145,7 +1091,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							case DT_CHARPTR:
 							{
 								char item[MAXBUF];
-								if (ConfValue(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(""));
@@ -1154,7 +1100,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							case DT_INTEGER:
 							{
 								int item = 0;
-								if (ConfValueInteger(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
+								if (ConfValueInteger(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
 									vl.push_back(ValueItem(item));
 								else
 									vl.push_back(ValueItem(0));
@@ -1162,7 +1108,7 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 							break;
 							case DT_BOOLEAN:
 							{
-								bool item = ConfValueBool(newconfig, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
+								bool item = ConfValueBool(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
 								vl.push_back(ValueItem(item));
 							}
 							break;
@@ -1192,25 +1138,26 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 
 	catch (CoreException &ce)
 	{
-		ReportConfigError(ce.GetReason(), bail, useruid);
+		errstr << ce.GetReason();
+		valid = false;
 		return;
 	}
 
 	// XXX: ServerInstance->Threads->Lock();
-	for (int i = 0; i < ConfValueEnum(newconfig, "type"); ++i)
+	for (int i = 0; i < ConfValueEnum("type"); ++i)
 	{
 		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
 		std::string classname;
-		ConfValue(newconfig, "type", "classes", "", i, classes, MAXBUF, false);
+		ConfValue("type", "classes", "", i, classes, MAXBUF, false);
 		irc::spacesepstream str(classes);
-		ConfValue(newconfig, "type", "name", "", i, item, MAXBUF, false);
+		ConfValue("type", "name", "", i, item, MAXBUF, false);
 		while (str.GetToken(classname))
 		{
 			std::string lost;
 			bool foundclass = false;
-			for (int j = 0; j < ConfValueEnum(newconfig, "class"); ++j)
+			for (int j = 0; j < ConfValueEnum("class"); ++j)
 			{
-				ConfValue(newconfig, "class", "name", "", j, classn, MAXBUF, false);
+				ConfValue("class", "name", "", j, classn, MAXBUF, false);
 				if (!strcmp(classn, classname.c_str()))
 				{
 					foundclass = true;
@@ -1219,141 +1166,126 @@ void ServerConfig::Read(bool bail, const std::string &useruid)
 			}
 			if (!foundclass)
 			{
-				if (!useruid.empty())
-				{
-					User* user = ServerInstance->FindNick(useruid);
-					if (user)
-						user->WriteServ("NOTICE %s :*** Warning: Oper type '%s' has a missing class named '%s', this does nothing!", user->nick.c_str(), item, classname.c_str());
-				}
-				else
-				{
-					if (bail)
-						printf("Warning: Oper type '%s' has a missing class named '%s', this does nothing!\n", item, classname.c_str());
-					else
-						ServerInstance->SNO->WriteToSnoMask('a', "Warning: Oper type '%s' has a missing class named '%s', this does nothing!", item, classname.c_str());
-				}
+				char msg[MAXBUF];
+				snprintf(msg, MAXBUF, "	Warning: Oper type '%s' has a missing class named '%s', this does nothing!\n",
+					item, classname.c_str());
+				errstr << msg;
 			}
 		}
-	}
-
-	/* If we succeeded, set the ircd config to the new one */
-	this->config_data = newconfig;
-
-	// XXX: ServerInstance->Threads->Unlock();
-
-	// write once here, to try it out and make sure its ok
-	ServerInstance->WritePID(this->PID);
-
-	/* If we're rehashing, let's load any new modules, and unload old ones
-	 */
-	if (!bail)
-	{
-		int found_ports = 0;
-		FailedPortList pl;
-		ServerInstance->BindPorts(false, found_ports, pl);
-
-		if (pl.size() && !useruid.empty())
-		{
-			// XXX: ServerInstance->Threads->Lock();
-			User* user = ServerInstance->FindNick(useruid);
-			if (user)
-			{
-				user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick.c_str());
-				user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick.c_str());
-				int j = 1;
-				for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
-				{
-					user->WriteServ("NOTICE %s :*** %d.   Address: %s        Reason: %s", user->nick.c_str(), j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
-				}
-			}
-			// XXX: ServerInstance->Threads->Unlock();
-		}
-
-		// XXX: ServerInstance->Threads->Lock();
-		if (!removed_modules.empty())
-		{
-			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
-			{
-				if (ServerInstance->Modules->Unload(removing->c_str()))
-				{
-					ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
-
-					if (!useruid.empty())
-					{
-						User* user = ServerInstance->FindNick(useruid);
-						if (user)
-							user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
-					}
-					else
-						ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully unloaded.", removing->c_str());
-
-					rem++;
-				}
-				else
-				{
-					if (!useruid.empty())
-					{
-						User* user = ServerInstance->FindNick(useruid);
-						if (user)
-							user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
-					}
-					else
-						 ServerInstance->SNO->WriteToSnoMask('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
-				}
-			}
-		}
-
-		if (!added_modules.empty())
-		{
-			for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
-			{
-				if (ServerInstance->Modules->Load(adding->c_str()))
-				{
-					ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
-					if (!useruid.empty())
-					{
-						User* user = ServerInstance->FindNick(useruid);
-						if (user)
-							user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
-					}
-					else
-						ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully loaded.", adding->c_str());
-
-					add++;
-				}
-				else
-				{
-					if (!useruid.empty())
-					{
-						User* user = ServerInstance->FindNick(useruid);
-						if (user)
-							user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
-					}
-					else
-						ServerInstance->SNO->WriteToSnoMask('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
-				}
-			}
-		}
-		// XXX: ServerInstance->Threads->Unlock();
-
-	}
-
-	if (!bail)
-	{
-		if (!useruid.empty())
-		{
-			User* user = ServerInstance->FindNick(useruid);
-			if (user)
-				user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
-		}
-		else
-			ServerInstance->SNO->WriteToSnoMask('a', "*** Successfully rehashed server.");
 	}
 
 }
 
+void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
+{
+	int rem = 0, add = 0;
+	// write once here, to try it out and make sure its ok
+	ServerInstance->WritePID(this->PID);
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* filename, std::ostringstream &errorstream)
+	FailedPortList pl;
+	ServerInstance->BindPorts(pl);
+
+	if (pl.size())
+	{
+		errstr << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
+
+		int j = 1;
+		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+		{
+			char buf[MAXBUF];
+			snprintf(buf, MAXBUF, "%d.   Address: %s   Reason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
+			errstr << buf;
+		}
+	}
+
+
+	/* No old configuration -> initial boot, nothing more to do here */
+	if (!old)
+		return;
+	
+	/*
+	 * These values can only be set on boot. Keep their old values.
+	 */
+	memcpy(this->ServerName, old->ServerName, sizeof(this->ServerName));
+	memcpy(this->sid, old->sid, sizeof(this->sid));
+
+	if (!removed_modules.empty())
+	{
+		for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+		{
+			if (ServerInstance->Modules->Unload(removing->c_str()))
+			{
+				ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
+
+				if (!useruid.empty())
+				{
+					User* user = ServerInstance->FindNick(useruid);
+					if (user)
+						user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
+				}
+				else
+					ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully unloaded.", removing->c_str());
+
+				rem++;
+			}
+			else
+			{
+				if (!useruid.empty())
+				{
+					User* user = ServerInstance->FindNick(useruid);
+					if (user)
+						user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				}
+				else
+					 ServerInstance->SNO->WriteToSnoMask('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
+			}
+		}
+	}
+
+	if (!added_modules.empty())
+	{
+		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+		{
+			if (ServerInstance->Modules->Load(adding->c_str()))
+			{
+				ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
+				if (!useruid.empty())
+				{
+					User* user = ServerInstance->FindNick(useruid);
+					if (user)
+						user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
+				}
+				else
+					ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully loaded.", adding->c_str());
+
+				add++;
+			}
+			else
+			{
+				if (!useruid.empty())
+				{
+					User* user = ServerInstance->FindNick(useruid);
+					if (user)
+						user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				}
+				else
+					ServerInstance->SNO->WriteToSnoMask('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
+			}
+		}
+	}
+	// XXX: ServerInstance->Threads->Unlock();
+
+	if (!useruid.empty())
+	{
+		User* user = ServerInstance->FindNick(useruid);
+		if (user)
+			user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
+	}
+	else
+		ServerInstance->SNO->WriteToSnoMask('a', "*** Successfully rehashed server.");
+}
+
+bool ServerConfig::LoadConf(FILE* &conf, const char* filename)
 {
 	std::string line;
 	char ch;
@@ -1373,7 +1305,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 	/* Check if the file open failed first */
 	if (!conf)
 	{
-		errorstream << "LoadConf: Couldn't open config file: " << filename << std::endl;
+		errstr << "LoadConf: Couldn't open config file: " << filename << std::endl;
 		return false;
 	}
 
@@ -1381,7 +1313,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 	{
 		if (std::string(filename) == include_stack[t])
 		{
-			errorstream << "File " << filename << " is included recursively (looped inclusion)." << std::endl;
+			errstr << "File " << filename << " is included recursively (looped inclusion)." << std::endl;
 			return false;
 		}
 	}
@@ -1402,7 +1334,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 		 */
 		if ((character_count++ < 2) && (ch == '\xFF' || ch == '\xFE'))
 		{
-			errorstream << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
+			errstr << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
 			return false;
 		}
 
@@ -1458,7 +1390,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			}
 			else
 			{
-				errorstream << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
+				errstr << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
 				return false;
 			}
 		}
@@ -1468,7 +1400,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 
 		if ((ch != '<') && (!in_tag) && (!in_comment) && (ch > ' ') && (ch != 9))
 		{
-			errorstream << "You have stray characters beyond the tag which starts at " << filename << ":" << last_successful_parse << std::endl;
+			errstr << "You have stray characters beyond the tag which starts at " << filename << ":" << last_successful_parse << std::endl;
 			return false;
 		}
 
@@ -1478,7 +1410,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (!in_quote)
 				{
-					errorstream << "The tag at location " << filename << ":" << last_successful_parse << " was valid, but there is an error in the tag which comes after it. You are possibly missing a \" or >. Please check this." << std::endl;
+					errstr << "The tag at location " << filename << ":" << last_successful_parse << " was valid, but there is an error in the tag which comes after it. You are possibly missing a \" or >. Please check this." << std::endl;
 					return false;
 				}
 			}
@@ -1486,12 +1418,12 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_quote)
 				{
-					errorstream << "Parser error: Inside a quote but not within the last valid tag, which was opened at: " << filename << ":" << last_successful_parse << std::endl;
+					errstr << "Parser error: Inside a quote but not within the last valid tag, which was opened at: " << filename << ":" << last_successful_parse << std::endl;
 					return false;
 				}
 				else
 				{
-					// errorstream << "Opening new config tag on line " << linenumber << std::endl;
+					// errstr << "Opening new config tag on line " << linenumber << std::endl;
 					in_tag = true;
 				}
 			}
@@ -1502,12 +1434,12 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_quote)
 				{
-					// errorstream << "Closing quote in config tag on line " << linenumber << std::endl;
+					// errstr << "Closing quote in config tag on line " << linenumber << std::endl;
 					in_quote = false;
 				}
 				else
 				{
-					// errorstream << "Opening quote in config tag on line " << linenumber << std::endl;
+					// errstr << "Opening quote in config tag on line " << linenumber << std::endl;
 					in_quote = true;
 				}
 			}
@@ -1515,11 +1447,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_quote)
 				{
-					errorstream << "The tag immediately after the one at " << filename << ":" << last_successful_parse << " has a missing closing \" symbol. Please check this." << std::endl;
+					errstr << "The tag immediately after the one at " << filename << ":" << last_successful_parse << " has a missing closing \" symbol. Please check this." << std::endl;
 				}
 				else
 				{
-					errorstream << "You have opened a quote (\") beyond the tag at " << filename << ":" << last_successful_parse << " without opening a new tag. Please check this." << std::endl;
+					errstr << "You have opened a quote (\") beyond the tag at " << filename << ":" << last_successful_parse << " without opening a new tag. Please check this." << std::endl;
 				}
 			}
 		}
@@ -1529,7 +1461,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 			{
 				if (in_tag)
 				{
-					// errorstream << "Closing config tag on line " << linenumber << std::endl;
+					// errstr << "Closing config tag on line " << linenumber << std::endl;
 					in_tag = false;
 
 					/*
@@ -1537,7 +1469,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
 					long bl = linenumber;
-					if (!this->ParseLine(target, filename, line, linenumber, errorstream))
+					if (!this->ParseLine(filename, line, linenumber))
 						return false;
 					last_successful_parse = linenumber;
 
@@ -1547,7 +1479,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 				}
 				else
 				{
-					errorstream << "You forgot to close the tag which comes immediately after the one at " << filename << ":" << last_successful_parse << std::endl;
+					errstr << "You forgot to close the tag which comes immediately after the one at " << filename << ":" << last_successful_parse << std::endl;
 					return false;
 				}
 			}
@@ -1557,7 +1489,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 	/* Fix for bug #392 - if we reach the end of a file and we are still in a quote or comment, most likely the user fucked up */
 	if (in_comment || in_quote)
 	{
-		errorstream << "Reached end of file whilst still inside a quoted section or tag. This is most likely an error or there \
+		errstr << "Reached end of file whilst still inside a quoted section or tag. This is most likely an error or there \
 			is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
 	}
 
@@ -1565,12 +1497,12 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const char* fil
 }
 
 
-bool ServerConfig::LoadConf(ConfigDataHash &target, FILE* &conf, const std::string &filename, std::ostringstream &errorstream)
+bool ServerConfig::LoadConf(FILE* &conf, const std::string &filename)
 {
-	return this->LoadConf(target, conf, filename.c_str(), errorstream);
+	return this->LoadConf(conf, filename.c_str());
 }
 
-bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename, std::string &line, long &linenumber, std::ostringstream &errorstream)
+bool ServerConfig::ParseLine(const std::string &filename, std::string &line, long &linenumber)
 {
 	std::string tagname;
 	std::string current_key;
@@ -1597,7 +1529,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 						tagname += *c;
 					else
 					{
-						errorstream << "Invalid character in value name of tag: '" << *c << "' in value '" << tagname << "' in filename: " << filename << ":" << linenumber << std::endl;
+						errstr << "Invalid character in value name of tag: '" << *c << "' in value '" << tagname << "' in filename: " << filename << ":" << linenumber << std::endl;
 						return false;
 					}
 				}
@@ -1625,7 +1557,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 							current_key += *c;
 						else
 						{
-							errorstream << "Invalid character in key: '" << *c << "' in key '" << current_key << "' in filename: " << filename << ":" << linenumber << std::endl;
+							errstr << "Invalid character in key: '" << *c << "' in key '" << current_key << "' in filename: " << filename << ":" << linenumber << std::endl;
 							return false;
 						}
 					}
@@ -1654,7 +1586,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 				}
 				else if ((*c == '\\') && (!in_quote))
 				{
-					errorstream << "You can't have an escape sequence outside of a quoted section: " << filename << ":" << linenumber << std::endl;
+					errstr << "You can't have an escape sequence outside of a quoted section: " << filename << ":" << linenumber << std::endl;
 					return false;
 				}
 				else if ((*c == '\n') && (in_quote))
@@ -1688,13 +1620,13 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 
 						if ((tagname == "include") && (current_key == "file"))
 						{
-							if (!this->DoInclude(target, current_value, errorstream))
+							if (!this->DoInclude(current_value))
 								return false;
 						}
 						else if ((tagname == "include") && (current_key == "executable"))
 						{
 							/* Pipe an executable and use its stdout as config data */
-							if (!this->DoPipe(target, current_value, errorstream))
+							if (!this->DoPipe(current_value))
 								return false;
 						}
 
@@ -1715,23 +1647,23 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, const std::string &filename
 	}
 
 	/* Finished parsing the tag, add it to the config hash */
-	target.insert(std::pair<std::string, KeyValList > (tagname, results));
+	config_data.insert(std::pair<std::string, KeyValList > (tagname, results));
 
 	return true;
 }
 
-bool ServerConfig::DoPipe(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream)
+bool ServerConfig::DoPipe(const std::string &file)
 {
 	FILE* conf = popen(file.c_str(), "r");
 	bool ret = false;
 
 	if (conf)
 	{
-		ret = LoadConf(target, conf, file.c_str(), errorstream);
+		ret = LoadConf(conf, file.c_str());
 		pclose(conf);
 	}
 	else
-		errorstream << "Couldn't execute: " << file << std::endl;
+		errstr << "Couldn't execute: " << file << std::endl;
 
 	return ret;
 }
@@ -1741,7 +1673,7 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
 }
 
-bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream)
+bool ServerConfig::DoInclude(const std::string &file)
 {
 	std::string confpath;
 	std::string newfile;
@@ -1762,7 +1694,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 		}
 		else
 		{
-			errorstream << "Couldn't get config path from: " << ServerInstance->ConfigFileName << std::endl;
+			errstr << "Couldn't get config path from: " << ServerInstance->ConfigFileName << std::endl;
 			return false;
 		}
 	}
@@ -1772,39 +1704,39 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 
 	if (conf)
 	{
-		ret = LoadConf(target, conf, newfile, errorstream);
+		ret = LoadConf(conf, newfile);
 		fclose(conf);
 	}
 	else
-		errorstream << "Couldn't open config file: " << file << std::endl;
+		errstr << "Couldn't open config file: " << file << std::endl;
 
 	return ret;
 }
 
-bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds)
+bool ServerConfig::ConfValue(const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds)
 {
-	return ConfValue(target, tag, var, "", index, result, length, allow_linefeeds);
+	return ConfValue(tag, var, "", index, result, length, allow_linefeeds);
 }
 
-bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds)
+bool ServerConfig::ConfValue(const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds)
 {
 	std::string value;
-	bool r = ConfValue(target, std::string(tag), std::string(var), std::string(default_value), index, value, allow_linefeeds);
+	bool r = ConfValue(std::string(tag), std::string(var), std::string(default_value), index, value, allow_linefeeds);
 	strlcpy(result, value.c_str(), length);
 	return r;
 }
 
-bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds)
+bool ServerConfig::ConfValue(const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds)
 {
-	return ConfValue(target, tag, var, "", index, result, allow_linefeeds);
+	return ConfValue(tag, var, "", index, result, allow_linefeeds);
 }
 
-bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds)
+bool ServerConfig::ConfValue(const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds)
 {
 	ConfigDataHash::size_type pos = index;
-	if (pos < target.count(tag))
+	if (pos < config_data.count(tag))
 	{
-		ConfigDataHash::iterator iter = target.find(tag);
+		ConfigDataHash::iterator iter = config_data.find(tag);
 
 		for(int i = 0; i < index; i++)
 			iter++;
@@ -1844,26 +1776,26 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	return false;
 }
 
-bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result)
+bool ServerConfig::ConfValueInteger(const char* tag, const char* var, int index, int &result)
 {
-	return ConfValueInteger(target, std::string(tag), std::string(var), "", index, result);
+	return ConfValueInteger(std::string(tag), std::string(var), "", index, result);
 }
 
-bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, int &result)
+bool ServerConfig::ConfValueInteger(const char* tag, const char* var, const char* default_value, int index, int &result)
 {
-	return ConfValueInteger(target, std::string(tag), std::string(var), std::string(default_value), index, result);
+	return ConfValueInteger(std::string(tag), std::string(var), std::string(default_value), index, result);
 }
 
-bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result)
+bool ServerConfig::ConfValueInteger(const std::string &tag, const std::string &var, int index, int &result)
 {
-	return ConfValueInteger(target, tag, var, "", index, result);
+	return ConfValueInteger(tag, var, "", index, result);
 }
 
-bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result)
+bool ServerConfig::ConfValueInteger(const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result)
 {
 	std::string value;
 	std::istringstream stream;
-	bool r = ConfValue(target, tag, var, default_value, index, value);
+	bool r = ConfValue(tag, var, default_value, index, value);
 	stream.str(value);
 	if(!(stream >> result))
 		return false;
@@ -1907,52 +1839,52 @@ bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &t
 }
 
 
-bool ServerConfig::ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index)
+bool ServerConfig::ConfValueBool(const char* tag, const char* var, int index)
 {
-	return ConfValueBool(target, std::string(tag), std::string(var), "", index);
+	return ConfValueBool(std::string(tag), std::string(var), "", index);
 }
 
-bool ServerConfig::ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index)
+bool ServerConfig::ConfValueBool(const char* tag, const char* var, const char* default_value, int index)
 {
-	return ConfValueBool(target, std::string(tag), std::string(var), std::string(default_value), index);
+	return ConfValueBool(std::string(tag), std::string(var), std::string(default_value), index);
 }
 
-bool ServerConfig::ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index)
+bool ServerConfig::ConfValueBool(const std::string &tag, const std::string &var, int index)
 {
-	return ConfValueBool(target, tag, var, "", index);
+	return ConfValueBool(tag, var, "", index);
 }
 
-bool ServerConfig::ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index)
+bool ServerConfig::ConfValueBool(const std::string &tag, const std::string &var, const std::string &default_value, int index)
 {
 	std::string result;
-	if(!ConfValue(target, tag, var, default_value, index, result))
+	if(!ConfValue(tag, var, default_value, index, result))
 		return false;
 
 	return ((result == "yes") || (result == "true") || (result == "1"));
 }
 
-int ServerConfig::ConfValueEnum(ConfigDataHash &target, const char* tag)
+int ServerConfig::ConfValueEnum(const char* tag)
 {
-	return target.count(tag);
+	return config_data.count(tag);
 }
 
-int ServerConfig::ConfValueEnum(ConfigDataHash &target, const std::string &tag)
+int ServerConfig::ConfValueEnum(const std::string &tag)
 {
-	return target.count(tag);
+	return config_data.count(tag);
 }
 
-int ServerConfig::ConfVarEnum(ConfigDataHash &target, const char* tag, int index)
+int ServerConfig::ConfVarEnum(const char* tag, int index)
 {
-	return ConfVarEnum(target, std::string(tag), index);
+	return ConfVarEnum(std::string(tag), index);
 }
 
-int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index)
+int ServerConfig::ConfVarEnum(const std::string &tag, int index)
 {
 	ConfigDataHash::size_type pos = index;
 
-	if (pos < target.count(tag))
+	if (pos < config_data.count(tag))
 	{
-		ConfigDataHash::const_iterator iter = target.find(tag);
+		ConfigDataHash::const_iterator iter = config_data.find(tag);
 
 		for(int i = 0; i < index; i++)
 			iter++;
@@ -2304,6 +2236,15 @@ bool DoneELine(ServerConfig* conf, const char* tag)
 
 void ConfigReaderThread::Run()
 {
-	ServerInstance->Config->Read(do_bail, TheUserUID);
+	Config = new ServerConfig(ServerInstance);
+	Config->Read();
 	done = true;
+}
+
+void ConfigReaderThread::Finish()
+{
+	ServerConfig* old = ServerInstance->Config;
+	ServerInstance->Config = this->Config;
+	Config->Apply(old, TheUserUID);
+	delete old;
 }

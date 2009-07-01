@@ -561,9 +561,9 @@ void ModuleManager::LoadAll()
 	char configToken[MAXBUF];
 	ModCount = -1;
 
-	for(int count = 0; count < Instance->Config->ConfValueEnum(Instance->Config->config_data, "module"); count++)
+	for(int count = 0; count < Instance->Config->ConfValueEnum("module"); count++)
 	{
-		Instance->Config->ConfValue(Instance->Config->config_data, "module", "name", count, configToken, MAXBUF);
+		Instance->Config->ConfValue("module", "name", count, configToken, MAXBUF);
 		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
 
 		if (!this->Load(configToken))
@@ -799,36 +799,12 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 
 ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	this->error = CONF_NO_ERROR;
-	this->data = &ServerInstance->Config->config_data;
-	this->privatehash = false;
 	this->error = 0;
 }
 
 
 ConfigReader::~ConfigReader()
 {
-	if (this->errorlog)
-		delete this->errorlog;
-	if(this->privatehash)
-		delete this->data;
-}
-
-
-ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : ServerInstance(Instance)
-{
-	ServerInstance->Config->ClearStack();
-
-	this->error = CONF_NO_ERROR;
-	this->data = new ConfigDataHash;
-	this->privatehash = true;
-	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	/*** XXX: This might block! */
-	this->readerror = ServerInstance->Config->DoInclude(*this->data, filename, *this->errorlog);
-	if (!this->readerror)
-		this->error = CONF_FILE_NOT_FOUND;
-	this->error = 0;
 }
 
 
@@ -837,7 +813,7 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */
 	std::string result;
 
-	if (!ServerInstance->Config->ConfValue(*this->data, tag, name, default_value, index, result, allow_linefeeds))
+	if (!ServerInstance->Config->ConfValue(tag, name, default_value, index, result, allow_linefeeds))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 	}
@@ -851,7 +827,7 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
 {
-	return ServerInstance->Config->ConfValueBool(*this->data, tag, name, default_value, index);
+	return ServerInstance->Config->ConfValueBool(tag, name, default_value, index);
 }
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
@@ -864,7 +840,7 @@ int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, c
 {
 	int result;
 
-	if(!ServerInstance->Config->ConfValueInteger(*this->data, tag, name, default_value, index, result))
+	if(!ServerInstance->Config->ConfValueInteger(tag, name, default_value, index, result))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return 0;
@@ -891,27 +867,15 @@ long ConfigReader::GetError()
 	return olderr;
 }
 
-void ConfigReader::DumpErrors(bool bail, User* user)
-{
-	ServerInstance->Config->ReportConfigError(this->errorlog->str(), bail, user->uuid);
-}
-
-
 int ConfigReader::Enumerate(const std::string &tag)
 {
-	return ServerInstance->Config->ConfValueEnum(*this->data, tag);
+	return ServerInstance->Config->ConfValueEnum(tag);
 }
 
 int ConfigReader::EnumerateValues(const std::string &tag, int index)
 {
-	return ServerInstance->Config->ConfVarEnum(*this->data, tag, index);
+	return ServerInstance->Config->ConfVarEnum(tag, index);
 }
-
-bool ConfigReader::Verify()
-{
-	return this->readerror;
-}
-
 
 FileReader::FileReader(InspIRCd* Instance, const std::string &filename) : ServerInstance(Instance)
 {

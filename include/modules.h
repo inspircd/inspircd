@@ -1447,21 +1447,6 @@ class CoreExport ConfigReader : public classbase
 {
   protected:
 	InspIRCd* ServerInstance;
-	/** The contents of the configuration file
-	 * This protected member should never be accessed by a module (and cannot be accessed unless the
-	 * core is changed). It will contain a pointer to the configuration file data with unneeded data
-	 * (such as comments) stripped from it.
-	 */
-	ConfigDataHash* data;
-	/** Used to store errors
-	 */
-	std::ostringstream* errorlog;
-	/** If we're using our own config data hash or not
-	 */
-	bool privatehash;
-	/** True if an error occured reading the config file
-	 */
-	bool readerror;
 	/** Error code
 	 */
 	long error;
@@ -1472,10 +1457,6 @@ class CoreExport ConfigReader : public classbase
 	 * as specified when running ./configure.
 	 */
 	ConfigReader(InspIRCd* Instance);
-	/** Overloaded constructor.
-	 * This constructor initialises the ConfigReader class to read a user-specified config file
-	 */
-	ConfigReader(InspIRCd* Instance, const std::string &filename);
 	/** Default destructor.
 	 * This method destroys the ConfigReader class.
 	 */
@@ -1539,18 +1520,6 @@ class CoreExport ConfigReader : public classbase
 	 * multiple instance tag.
 	 */
 	int Enumerate(const std::string &tag);
-	/** Returns true if a config file is valid.
-	 * This method is partially implemented and will only return false if the config
-	 * file does not exist or could not be opened.
-	 */
-	bool Verify();
-	/** Dumps the list of errors in a config file to an output location. If bail is true,
-	 * then the program will abort. If bail is false and user points to a valid user
-	 * record, the error report will be spooled to the given user by means of NOTICE.
-	 * if bool is false AND user is false, the error report will be spooled to all opers
-	 * by means of a NOTICE to all opers.
-	 */
-	void DumpErrors(bool bail,User* user);
 
 	/** Returns the number of items within a tag.
 	 * For example if the tag was &lt;test tag="blah" data="foo"&gt; then this

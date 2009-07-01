@@ -56,13 +56,13 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
-	for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "oper"); i++)
+	for (int i = 0; i < ServerInstance->Config->ConfValueEnum("oper"); i++)
 	{
-		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "name", i, LoginName, MAXBUF);
-		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "password", i, Password, MAXBUF);
-		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "type", i, OperType, MAXBUF);
-		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
-		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "hash", i, HashType, MAXBUF);
+		ServerInstance->Config->ConfValue("oper", "name", i, LoginName, MAXBUF);
+		ServerInstance->Config->ConfValue("oper", "password", i, Password, MAXBUF);
+		ServerInstance->Config->ConfValue("oper", "type", i, OperType, MAXBUF);
+		ServerInstance->Config->ConfValue("oper", "host", i, HostName, MAXBUF);
+		ServerInstance->Config->ConfValue("oper", "hash", i, HashType, MAXBUF);
 
 		match_login = (LoginName == parameters[0]);
 		match_pass = !ServerInstance->PassCompare(user, Password, parameters[1], HashType);
@@ -71,10 +71,10 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 		if (match_login && match_pass && match_hosts)
 		{
 			type_invalid = true;
-			for (j =0; j < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "type"); j++)
+			for (j =0; j < ServerInstance->Config->ConfValueEnum("type"); j++)
 			{
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type", "name", j, TypeName, MAXBUF);
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type", "class", j, ClassName, MAXBUF);
+				ServerInstance->Config->ConfValue("type", "name", j, TypeName, MAXBUF);
+				ServerInstance->Config->ConfValue("type", "class", j, ClassName, MAXBUF);
 
 				if (!strcmp(TypeName,OperType))
 				{
@@ -86,7 +86,7 @@ CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User 
 						ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 						return CMD_FAILURE;
 					}
-					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
+					ServerInstance->Config->ConfValue("type","host", j, HostName, MAXBUF);
 					if (*HostName)
 						user->ChangeDisplayedHost(HostName);
 					if (*ClassName)

@@ -290,12 +290,12 @@ class BanCacheManager;
 class CoreExport ConfigReaderThread : public Thread
 {
 	InspIRCd* ServerInstance;
-	bool do_bail;
+	ServerConfig* Config;
 	bool done;
-	std::string TheUserUID;
  public:
-	ConfigReaderThread(InspIRCd* Instance, bool bail, const std::string &useruid)
-		: Thread(), ServerInstance(Instance), do_bail(bail), done(false), TheUserUID(useruid)
+	std::string TheUserUID;
+	ConfigReaderThread(InspIRCd* Instance, const std::string &useruid)
+		: Thread(), ServerInstance(Instance), done(false), TheUserUID(useruid)
 	{
 	}
 
@@ -304,6 +304,8 @@ class CoreExport ConfigReaderThread : public Thread
 	}
 
 	void Run();
+	/** Run in the main thread to apply the configuration */
+	void Finish();
 	bool IsDone() { return done; }
 };
 
@@ -536,11 +538,9 @@ class CoreExport InspIRCd : public classbase
 	caller1<void, User*> ProcessUser;
 
 	/** Bind all ports specified in the configuration file.
-	 * @param bail True if the function should bail back to the shell on failure
-	 * @param found_ports The actual number of ports found in the config, as opposed to the number actually bound
-	 * @return The number of ports actually bound without error
+	 * @return The number of ports bound without error
 	 */
-	int BindPorts(bool bail, int &found_ports, FailedPortList &failed_ports);
+	int BindPorts(FailedPortList &failed_ports);
 
 	/** Binds a socket on an already open file descriptor
 	 * @param sockfd A valid file descriptor of an open socket

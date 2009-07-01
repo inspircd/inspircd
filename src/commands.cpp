@@ -24,10 +24,10 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 	char itrigger[MAXBUF];
 	long matches = 0;
 
-	if (!Config->ConfValue(Config->config_data, "insane","trigger", 0, itrigger, MAXBUF))
+	if (!Config->ConfValue("insane","trigger", 0, itrigger, MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 
-	if (Config->ConfValueBool(Config->config_data, "insane","hostmasks", 0))
+	if (Config->ConfValueBool("insane","hostmasks", 0))
 		return false;
 
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
@@ -56,10 +56,10 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 	char itrigger[MAXBUF];
 	long matches = 0;
 
-	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+	if (!Config->ConfValue("insane","trigger",0,itrigger,MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 
-	if (Config->ConfValueBool(Config->config_data, "insane","ipmasks",0))
+	if (Config->ConfValueBool("insane","ipmasks",0))
 		return false;
 
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)
@@ -85,10 +85,10 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 	char itrigger[MAXBUF];
 	long matches = 0;
 
-	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+	if (!Config->ConfValue("insane","trigger",0,itrigger,MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 
-	if (Config->ConfValueBool(Config->config_data, "insane","nickmasks",0))
+	if (Config->ConfValueBool("insane","nickmasks",0))
 		return false;
 
 	for (user_hash::iterator u = this->Users->clientlist->begin(); u != this->Users->clientlist->end(); u++)

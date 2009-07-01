@@ -352,7 +352,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Avoid erroneous frees on early exit
 	WindowsIPC = 0;
 #endif
-	int found_ports = 0;
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,
 	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
@@ -374,6 +373,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->XLines = 0;
 	this->Modes = 0;
 	this->Res = 0;
+	this->ConfigThread = NULL;
 
 	// Initialise TIME
 	this->TIME = time(NULL);
@@ -573,11 +573,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* During startup we don't actually initialize this
 	 * in the thread engine.
 	 */
-	this->ConfigThread = new ConfigReaderThread(this, true, "");
-	ConfigThread->Run();
-	delete ConfigThread;
-	this->ConfigThread = NULL;
-        /* Switch over logfiles */
+	this->Config->Read();
+	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
 
 	/** Note: This is safe, the method checks for user == NULL */
@@ -618,7 +615,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->XLines->ApplyLines();
 
 	CheckDie();
-	int bounditems = BindPorts(true, found_ports, pl);
+	int bounditems = BindPorts(pl);
 
 	printf("\n");
 
@@ -628,9 +625,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->BuildISupport();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 
-	if (ports.size() != (unsigned int)found_ports)
+	if (!pl.empty())
 	{
-		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n", bounditems, found_ports);
+		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n",
+			bounditems, bounditems + (int)pl.size());
 		printf("The following port(s) failed to bind:\n");
 		printf("Hint: Try using a public IP instead of blank or *\n\n");
 		int j = 1;
@@ -768,12 +766,11 @@ int InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
+			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
 
 			/* Switch over logfiles */
 			Logs->CloseLogs();
 			Logs->OpenFileLogs();
-
-			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
 
 			/*
 			 * Apply the changed configuration from the rehash. This is not done within the
@@ -782,12 +779,13 @@ int InspIRCd::Run()
 			 * XXX: The order of these is IMPORTANT, do not reorder them without testing
 			 * thoroughly!!!
 			 */
+			this->ConfigThread->Finish();
 			this->XLines->CheckELines();
 			this->XLines->ApplyLines();
 			this->Res->Rehash();
 			this->ResetMaxBans();
 			InitializeDisabledCommands(Config->DisabledCommands, this);
-			User* user = !Config->RehashUserUID.empty() ? FindNick(Config->RehashUserUID) : NULL;
+			User* user = ConfigThread->TheUserUID.empty() ? FindNick(ConfigThread->TheUserUID) : NULL;
 			FOREACH_MOD_I(this, I_OnRehash, OnRehash(user));
 			this->BuildISupport();
 

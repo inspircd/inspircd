@@ -48,8 +48,7 @@ enum ConfigDataType
 	DT_IPADDRESS	 = 6,		/* IP address (v4, v6) */
 	DT_CHANNEL	 = 7,		/* Channel name */
 	DT_ALLOW_WILD	 = 64,		/* Allow wildcards/CIDR in DT_IPADDRESS */
-	DT_ALLOW_NEWLINE = 128,		/* New line characters allowed in DT_CHARPTR */
-	DT_BOOTONLY	 = 256		/* Can only be set on startup, not on rehash */
+	DT_ALLOW_NEWLINE = 128		/* New line characters allowed in DT_CHARPTR */
 };
 
 /** The maximum number of values in a core configuration tag. Can be increased if needed.
@@ -323,34 +322,27 @@ class CoreExport ServerConfig : public Extensible
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	bool ParseLine(ConfigDataHash &target, const std::string &filename, std::string &line, long &linenumber, std::ostringstream &errorstream);
+	bool ParseLine(const std::string &filename, std::string &line, long &linenumber);
 
 	/** Check that there is only one of each configuration item
 	 */
-	bool CheckOnce(const char* tag, ConfigDataHash &newconf);
+	bool CheckOnce(const char* tag);
 
  public:
 	/** Process an include executable directive
 	 */
-	bool DoPipe(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
+	bool DoPipe(const std::string &file);
 
 	/** Process an include file directive
 	 */
-	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
-
-	/** User that is currently performing a rehash, needed because the
-	 * rehash code is now threaded and needs to know who to give errors and feedback to.
-	 */
-	std::string RehashUserUID;
+	bool DoInclude(const std::string &file);
 
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
-	std::ostringstream* errstr;
+	std::ostringstream errstr;
 
-	/** Holds the new configuration when a rehash occurs so we dont overwrite the existing
-	 * working config with a broken one without checking it first and swapping pointers.
-	 */
-	ConfigDataHash newconfig;
+	/** True if this configuration is valid enough to run with */
+	bool valid;
 
 	/** Set of included files. Do we use this any more?
 	 */
@@ -794,7 +786,11 @@ class CoreExport ServerConfig : public Extensible
 	 * and initialize this class. All other methods
 	 * should be used only by the core.
 	 */
-	void Read(bool bail, const std::string &useruid);
+	void Read();
+
+	/** Apply configuration changes from the old configuration.
+	 */
+	void Apply(ServerConfig* old, const std::string &useruid);
 
 	/** Read a file into a file_cache object
 	 */
@@ -805,84 +801,80 @@ class CoreExport ServerConfig : public Extensible
 	bool StartsWithWindowsDriveLetter(const std::string &path);
 
 	/** Report a configuration error given in errormessage.
-	 * @param bail If this is set to true, the error is sent to the console, and the program exits
-	 * @param useruid If this is set to a non-empty value which is a valid UID, and bail is false,
-	 * the errors are spooled to this user as SNOTICEs.
-	 * If the parameter is not a valid UID, the messages are spooled to all opers.
 	 */
-	void ReportConfigError(const std::string &errormessage, bool bail, const std::string &useruid);
+	void ReportConfigError(const std::string &errormessage);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, FILE* &conf, const char* filename, std::ostringstream &errorstream);
+	bool LoadConf(FILE* &conf, const char* filename);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(ConfigDataHash &target, FILE* &conf, const std::string &filename, std::ostringstream &errorstream);
+	bool LoadConf(FILE* &conf, const std::string &filename);
 
 	/** Writes 'length' chars into 'result' as a string
 	 */
-	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
+	bool ConfValue(const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
 
 	/** Writes 'length' chars into 'result' as a string
 	 */
-	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds = false);
+	bool ConfValue(const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds = false);
 
 	/** Writes 'length' chars into 'result' as a string
 	 */
-	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds = false);
+	bool ConfValue(const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds = false);
 
 	/** Writes 'length' chars into 'result' as a string
 	 */
-	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds = false);
+	bool ConfValue(const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds = false);
 
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
-	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result);
+	bool ConfValueInteger(const char* tag, const char* var, int index, int &result);
 
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
-	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, int &result);
+	bool ConfValueInteger(const char* tag, const char* var, const char* default_value, int index, int &result);
 
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
-	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result);
+	bool ConfValueInteger(const std::string &tag, const std::string &var, int index, int &result);
 
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
-	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result);
+	bool ConfValueInteger(const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result);
 
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
-	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index);
+	bool ConfValueBool(const char* tag, const char* var, int index);
 
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
-	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index);
+	bool ConfValueBool(const char* tag, const char* var, const char* default_value, int index);
 
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
-	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index);
+	bool ConfValueBool(const std::string &tag, const std::string &var, int index);
 
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
-	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index);
+	bool ConfValueBool(const std::string &tag, const std::string &var, const std::string &default_value, int index);
 
 	/** Returns the number of occurences of tag in the config file
 	 */
-	int ConfValueEnum(ConfigDataHash &target, const char* tag);
+	int ConfValueEnum(const char* tag);
 	/** Returns the number of occurences of tag in the config file
 	 */
-	int ConfValueEnum(ConfigDataHash &target, const std::string &tag);
+	int ConfValueEnum(const std::string &tag);
 
 	/** Returns the numbers of vars inside the index'th 'tag in the config file
 	 */
-	int ConfVarEnum(ConfigDataHash &target, const char* tag, int index);
+	int ConfVarEnum(const char* tag, int index);
 	/** Returns the numbers of vars inside the index'th 'tag in the config file
 	 */
-	int ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index);
+	int ConfVarEnum(const std::string &tag, int index);
 
 	/** Validates a hostname value, throwing ConfigException if it is not valid
 	 */

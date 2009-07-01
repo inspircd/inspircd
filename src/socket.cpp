@@ -179,7 +179,7 @@ int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
 }
 
 // XXX: it would be VERY nice to genericize this so all listen stuff (server/client) could use the one function. -- w00t
-int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
+int InspIRCd::BindPorts(FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	int bound = 0;
@@ -190,11 +190,11 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 	for (std::vector<ListenSocketBase *>::iterator o = ports.begin(); o != ports.end(); ++o)
 		old_ports.push_back(make_pair((*o)->GetIP(), (*o)->GetPort()));
 
-	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
+	for (int count = 0; count < Config->ConfValueEnum("bind"); count++)
 	{
-		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
-		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
-		Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
+		Config->ConfValue("bind", "port", count, configToken, MAXBUF);
+		Config->ConfValue("bind", "address", count, Addr, MAXBUF);
+		Config->ConfValue("bind", "type", count, Type, MAXBUF);
 
 		if (strncmp(Addr, "::ffff:", 7) == 0)
 			this->Logs->Log("SOCKET",DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
@@ -237,7 +237,6 @@ int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 					{
 						failed_ports.push_back(std::make_pair((*Addr ? Addr : "*") + std::string(":") + ConvToStr(portno), strerror(errno)));
 					}
-					ports_found++;
 				}
 			}
 		}

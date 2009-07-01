@@ -127,9 +127,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		case 'U':
 		{
 			char ulined[MAXBUF];
-			for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "uline"); i++)
+			for (int i = 0; i < ServerInstance->Config->ConfValueEnum("uline"); i++)
 			{
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "uline","server", i, ulined, MAXBUF);
+				ServerInstance->Config->ConfValue("uline","server", i, ulined, MAXBUF);
 					results.push_back(sn+" 248 "+user->nick+" U "+std::string(ulined));
 			}
 		}
@@ -280,14 +280,14 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 		/* stats o */
 		case 'o':
-			for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "oper"); i++)
+			for (int i = 0; i < ServerInstance->Config->ConfValueEnum("oper"); i++)
 			{
 				char LoginName[MAXBUF];
 				char HostName[MAXBUF];
 				char OperType[MAXBUF];
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper","name", i, LoginName, MAXBUF);
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper","host", i, HostName, MAXBUF);
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper","type", i, OperType, MAXBUF);
+				ServerInstance->Config->ConfValue("oper","name", i, LoginName, MAXBUF);
+				ServerInstance->Config->ConfValue("oper","host", i, HostName, MAXBUF);
+				ServerInstance->Config->ConfValue("oper","type", i, OperType, MAXBUF);
 				results.push_back(sn+" 243 "+user->nick+" O "+HostName+" * "+LoginName+" "+OperType+" 0");
 			}
 		break;
