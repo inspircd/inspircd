@@ -203,9 +203,9 @@ class ModuleSSLOpenSSL : public Module
 					{
 						listenports.push_back(addr + ":" + ConvToStr(portno));
 
-						for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
-							if ((ServerInstance->Config->ports[i]->GetPort() == portno) && (ServerInstance->Config->ports[i]->GetIP() == addr))
-								ServerInstance->Config->ports[i]->SetDescription("ssl");
+						for (size_t i = 0; i < ServerInstance->ports.size(); i++)
+							if ((ServerInstance->ports[i]->GetPort() == portno) && (ServerInstance->ports[i]->GetIP() == addr))
+								ServerInstance->ports[i]->SetDescription("ssl");
 						ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %ld", portno);
 
 						if (addr != "127.0.0.1")
@@ -352,9 +352,9 @@ class ModuleSSLOpenSSL : public Module
 		{
 			for(unsigned int i = 0; i < listenports.size(); i++)
 			{
-				for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
-					if (listenports[i] == (ServerInstance->Config->ports[j]->GetIP()+":"+ConvToStr(ServerInstance->Config->ports[j]->GetPort())))
-						ServerInstance->Config->ports[j]->SetDescription("plaintext");
+				for (size_t j = 0; j < ServerInstance->ports.size(); j++)
+					if (listenports[i] == (ServerInstance->ports[j]->GetIP()+":"+ConvToStr(ServerInstance->ports[j]->GetPort())))
+						ServerInstance->ports[j]->SetDescription("plaintext");
 			}
 		}
 	}
