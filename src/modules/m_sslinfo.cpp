@@ -71,8 +71,8 @@ class ModuleSSLInfo : public Module
 		newcommand = new CommandSSLInfo(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 
-		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnWhois, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 
@@ -157,6 +157,90 @@ class ModuleSSLInfo : public Module
 			}
 		}
 	}
+
+	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
+	{
+		std::stringstream hl(hostlist);
+		std::string xhost;
+		while (hl >> xhost)
+		{
+			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	{
+		irc::string cmd = command.c_str();
+
+		if ((cmd == "OPER") && (validated))
+		{
+			ConfigReader cf(ServerInstance);
+			char TheHost[MAXBUF];
+			char TheIP[MAXBUF];
+			std::string LoginName;
+			std::string Password;
+			std::string OperType;
+			std::string HostName;
+			std::string HashType;
+			std::string FingerPrint;
+			bool SSLOnly;
+			ssl_cert* cert = NULL;
+
+			snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
+			snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
+
+			user->GetExt("ssl_cert",cert);
+
+			for (int i = 0; i < cf.Enumerate("oper"); i++)
+			{
+				LoginName = cf.ReadValue("oper", "name", i);
+				Password = cf.ReadValue("oper", "password", i);
+				OperType = cf.ReadValue("oper", "type", i);
+				HostName = cf.ReadValue("oper", "host", i);
+				HashType = cf.ReadValue("oper", "hash", i);
+				FingerPrint = cf.ReadValue("oper", "fingerprint", i);
+				SSLOnly = cf.ReadFlag("oper", "sslonly", i);
+
+				if (FingerPrint.empty() && !SSLOnly)
+					continue;
+
+				if (LoginName != parameters[0])
+					continue;
+
+				if (!OneOfMatches(TheHost, TheIP, HostName.c_str()))
+					continue;
+
+				if (Password.length() && ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str()))
+					continue;
+
+				if (SSLOnly && !user->GetExt("ssl"))
+				{
+					user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick.c_str());
+					return 1;
+				}
+
+				/*
+				 * No cert found or the fingerprint doesn't match
+				 */
+				if ((!cert) || (cert->GetFingerprint() != FingerPrint))
+				{
+					user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick.c_str());
+					ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick.c_str());
+					ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+					return 1;
+				}
+			}
+		}
+
+		// Let core handle it for extra stuff
+		return 0;
+	}
+
+
 };
 
 MODULE_INIT(ModuleSSLInfo)
