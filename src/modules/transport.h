@@ -17,14 +17,6 @@
 #include <map>
 #include <string>
 
-/** A generic container for certificate data
- */
-typedef std::map<std::string,std::string> ssl_data;
-
-/** A shorthand way of representing an iterator into ssl_data
- */
-typedef ssl_data::iterator ssl_data_iter;
-
 /** ssl_cert is a class which abstracts SSL certificate
  * and key information.
  *
@@ -34,34 +26,21 @@ typedef ssl_data::iterator ssl_data_iter;
  * connected local users using Extensible::Extend() and the
  * key 'ssl_cert'.
  */
-class ssl_cert : public Extensible
+class ssl_cert
 {
-	/** Always contains an empty string
-	 */
-	const std::string empty;
-
  public:
-	/** The data for this certificate
-	 */
-	ssl_data data;
-
-	/** Default constructor, initializes 'empty'
-	 */
-	ssl_cert() : empty("")
-	{
-	}
+	std::string dn;
+	std::string issuer;
+	std::string error;
+	std::string fingerprint;
+	bool trusted, invalid, unknownsigner, revoked;
 
 	/** Get certificate distinguished name
 	 * @return Certificate DN
 	 */
 	const std::string& GetDN()
 	{
-		ssl_data_iter ssldi = data.find("dn");
-
-		if (ssldi != data.end())
-			return ssldi->second;
-		else
-			return empty;
+		return dn;
 	}
 
 	/** Get Certificate issuer
@@ -69,12 +48,7 @@ class ssl_cert : public Extensible
 	 */
 	const std::string& GetIssuer()
 	{
-		ssl_data_iter ssldi = data.find("issuer");
-
-		if (ssldi != data.end())
-			return ssldi->second;
-		else
-			return empty;
+		return issuer;
 	}
 
 	/** Get error string if an error has occured
@@ -83,12 +57,7 @@ class ssl_cert : public Extensible
 	 */
 	const std::string& GetError()
 	{
-		ssl_data_iter ssldi = data.find("error");
-
-		if (ssldi != data.end())
-			return ssldi->second;
-		else
-			return empty;
+		return error;
 	}
 
 	/** Get key fingerprint.
@@ -96,12 +65,7 @@ class ssl_cert : public Extensible
 	 */
 	const std::string& GetFingerprint()
 	{
-		ssl_data_iter ssldi = data.find("fingerprint");
-
-		if (ssldi != data.end())
-			return ssldi->second;
-		else
-			return empty;
+		return fingerprint;
 	}
 
 	/** Get trust status
@@ -110,12 +74,7 @@ class ssl_cert : public Extensible
 	 */
 	bool IsTrusted()
 	{
-		ssl_data_iter ssldi = data.find("trusted");
-
-		if (ssldi != data.end())
-			return (ssldi->second == "1");
-		else
-			return false;
+		return trusted;
 	}
 
 	/** Get validity status
@@ -124,12 +83,7 @@ class ssl_cert : public Extensible
 	 */
 	bool IsInvalid()
 	{
-		ssl_data_iter ssldi = data.find("invalid");
-
-		if (ssldi != data.end())
-			return (ssldi->second == "1");
-		else
-			return false;
+		return invalid;
 	}
 
 	/** Get signer status
@@ -138,12 +92,7 @@ class ssl_cert : public Extensible
 	 */
 	bool IsUnknownSigner()
 	{
-		ssl_data_iter ssldi = data.find("unknownsigner");
-
-		if (ssldi != data.end())
-			return (ssldi->second == "1");
-		else
-			return false;
+		return unknownsigner;
 	}
 
 	/** Get revokation status.
@@ -153,12 +102,7 @@ class ssl_cert : public Extensible
 	 */
 	bool IsRevoked()
 	{
-		ssl_data_iter ssldi = data.find("revoked");
-
-		if (ssldi != data.end())
-			return (ssldi->second == "1");
-		else
-			return false;
+		return revoked;
 	}
 };
 

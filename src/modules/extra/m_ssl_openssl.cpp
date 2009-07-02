@@ -839,38 +839,38 @@ class ModuleSSLOpenSSL : public Module
 
 		if (!cert)
 		{
-			certinfo->data.insert(std::make_pair("error","Could not get peer certificate: "+std::string(get_error())));
+			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
 			return;
 		}
 
-		certinfo->data.insert(std::make_pair("invalid", SSL_get_verify_result(session->sess) != X509_V_OK ? ConvToStr(1) : ConvToStr(0)));
+		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
 
 		if (SelfSigned)
 		{
-			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(0)));
-			certinfo->data.insert(std::make_pair("trusted",ConvToStr(1)));
+			certinfo->unknownsigner = false;
+			certinfo->trusted = true;
 		}
 		else
 		{
-			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(1)));
-			certinfo->data.insert(std::make_pair("trusted",ConvToStr(0)));
+			certinfo->unknownsigner = true;
+			certinfo->trusted = false;
 		}
 
-		certinfo->data.insert(std::make_pair("dn",std::string(X509_NAME_oneline(X509_get_subject_name(cert),0,0))));
-		certinfo->data.insert(std::make_pair("issuer",std::string(X509_NAME_oneline(X509_get_issuer_name(cert),0,0))));
+		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
+		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
 
 		if (!X509_digest(cert, digest, md, &n))
 		{
-			certinfo->data.insert(std::make_pair("error","Out of memory generating fingerprint"));
+			certinfo->error = "Out of memory generating fingerprint";
 		}
 		else
 		{
-			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(md, n)));
+			certinfo->fingerprint = irc::hex(md, n);
 		}
 
 		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
 		{
-			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
+			certinfo->error = "Not activated, or expired certificate";
 		}
 
 		X509_free(cert);

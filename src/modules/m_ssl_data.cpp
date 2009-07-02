@@ -96,25 +96,19 @@ class ModuleSSLData : public Module
 			std::string v;
 			getline(s,v,' ');
 
-			cert->data.insert(std::make_pair("invalid", ConvToStr(v.find('v') != std::string::npos)));
-			cert->data.insert(std::make_pair("trusted", ConvToStr(v.find('T') != std::string::npos)));
-			cert->data.insert(std::make_pair("revoked", ConvToStr(v.find('R') != std::string::npos)));
-			cert->data.insert(std::make_pair("unknownsigner", ConvToStr(v.find('s') != std::string::npos)));
+			cert->invalid = (v.find('v') != std::string::npos);
+			cert->trusted = (v.find('T') != std::string::npos);
+			cert->revoked = (v.find('R') != std::string::npos);
+			cert->unknownsigner = (v.find('s') != std::string::npos);
 			if (v.find('E') != std::string::npos)
 			{
-				getline(s,v,'\n');
-				cert->data.insert(std::make_pair("error", v));
+				getline(s,cert->error,'\n');
 			}
 			else
 			{
-				getline(s,v,' ');
-				cert->data.insert(std::make_pair("fingerprint", v));
-
-				getline(s,v,' ');
-				cert->data.insert(std::make_pair("dn", v));
-
-				getline(s,v,'\n');
-				cert->data.insert(std::make_pair("issuer", v));
+				getline(s,cert->fingerprint,' ');
+				getline(s,cert->dn,' ');
+				getline(s,cert->issuer,'\n');
 			}
 		}
 	}

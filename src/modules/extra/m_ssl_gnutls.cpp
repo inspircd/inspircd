@@ -749,42 +749,14 @@ class ModuleSSLGnuTLS : public Module
 
 		if (ret < 0)
 		{
-			certinfo->data.insert(std::make_pair("error",std::string(gnutls_strerror(ret))));
+			certinfo->error = std::string(gnutls_strerror(ret));
 			return;
 		}
 
-		if (status & GNUTLS_CERT_INVALID)
-		{
-			certinfo->data.insert(std::make_pair("invalid",ConvToStr(1)));
-		}
-		else
-		{
-			certinfo->data.insert(std::make_pair("invalid",ConvToStr(0)));
-		}
-		if (status & GNUTLS_CERT_SIGNER_NOT_FOUND)
-		{
-			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(1)));
-		}
-		else
-		{
-			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(0)));
-		}
-		if (status & GNUTLS_CERT_REVOKED)
-		{
-			certinfo->data.insert(std::make_pair("revoked",ConvToStr(1)));
-		}
-		else
-		{
-			certinfo->data.insert(std::make_pair("revoked",ConvToStr(0)));
-		}
-		if (status & GNUTLS_CERT_SIGNER_NOT_CA)
-		{
-			certinfo->data.insert(std::make_pair("trusted",ConvToStr(0)));
-		}
-		else
-		{
-			certinfo->data.insert(std::make_pair("trusted",ConvToStr(1)));
-		}
+		certinfo->invalid = (status & GNUTLS_CERT_INVALID);
+		certinfo->unknownsigner = (status & GNUTLS_CERT_SIGNER_NOT_FOUND);
+		certinfo->revoked = (status & GNUTLS_CERT_REVOKED);
+		certinfo->trusted = !(status & GNUTLS_CERT_SIGNER_NOT_CA);
 
 		/* Up to here the process is the same for X.509 certificates and
 		 * OpenPGP keys. From now on X.509 certificates are assumed. This can
@@ -792,14 +764,14 @@ class ModuleSSLGnuTLS : public Module
 		 */
 		if (gnutls_certificate_type_get(session->sess) != GNUTLS_CRT_X509)
 		{
-			certinfo->data.insert(std::make_pair("error","No X509 keys sent"));
+			certinfo->error = "No X509 keys sent";
 			return;
 		}
 
 		ret = gnutls_x509_crt_init(&cert);
 		if (ret < 0)
 		{
-			certinfo->data.insert(std::make_pair("error",gnutls_strerror(ret)));
+			certinfo->error = gnutls_strerror(ret);
 			return;
 		}
 
@@ -807,7 +779,7 @@ class ModuleSSLGnuTLS : public Module
 		cert_list = gnutls_certificate_get_peers(session->sess, &cert_list_size);
 		if (cert_list == NULL)
 		{
-			certinfo->data.insert(std::make_pair("error","No certificate was found"));
+			certinfo->error = "No certificate was found";
 			return;
 		}
 
@@ -818,32 +790,30 @@ class ModuleSSLGnuTLS : public Module
 		ret = gnutls_x509_crt_import(cert, &cert_list[0], GNUTLS_X509_FMT_DER);
 		if (ret < 0)
 		{
-			certinfo->data.insert(std::make_pair("error",gnutls_strerror(ret)));
+			certinfo->error = gnutls_strerror(ret);
 			return;
 		}
 
 		gnutls_x509_crt_get_dn(cert, name, &name_size);
-
-		certinfo->data.insert(std::make_pair("dn",name));
+		certinfo->dn = name;
 
 		gnutls_x509_crt_get_issuer_dn(cert, name, &name_size);
-
-		certinfo->data.insert(std::make_pair("issuer",name));
+		certinfo->issuer = name;
 
 		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GNUTLS_DIG_MD5, digest, &digest_size)) < 0)
 		{
-			certinfo->data.insert(std::make_pair("error",gnutls_strerror(ret)));
+			certinfo->error = gnutls_strerror(ret);
 		}
 		else
 		{
-			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(digest, digest_size)));
+			certinfo->fingerprint = irc::hex(digest, digest_size);
 		}
 
 		/* Beware here we do not check for errors.
 		 */
 		if ((gnutls_x509_crt_get_expiration_time(cert) < ServerInstance->Time()) || (gnutls_x509_crt_get_activation_time(cert) > ServerInstance->Time()))
 		{
-			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
+			certinfo->error = "Not activated, or expired certificate";
 		}
 
 		gnutls_x509_crt_deinit(cert);
