@@ -129,10 +129,11 @@ class ModuleSSLGnuTLS : public Module
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
-		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
-			I_OnBufferFlushed, I_OnRequest, I_OnSyncUserMetaData, I_OnDecodeMetaData,
-			I_OnUnloadModule, I_OnRehash, I_OnModuleRehash, I_OnWhois, I_OnPostConnect, I_OnEvent, I_OnHookUserIO };
-		ServerInstance->Modules->Attach(eventlist, this, 18);
+		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept,
+			I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
+			I_OnBufferFlushed, I_OnRequest, I_OnUnloadModule, I_OnRehash, I_OnModuleRehash,
+			I_OnPostConnect, I_OnEvent, I_OnHookUserIO };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		starttls = new CommandStartTLS(ServerInstance, this);
 		ServerInstance->AddCommand(starttls);
@@ -615,48 +616,6 @@ class ModuleSSLGnuTLS : public Module
 		 * This fucks the buffer up in BufferedSocket :p
 		 */
 		return ret < 1 ? 0 : ret;
-	}
-
-	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
-	virtual void OnWhois(User* source, User* dest)
-	{
-		if (!clientactive)
-			return;
-
-		// Bugfix, only send this numeric for *our* SSL users
-		if (dest->GetExt("ssl"))
-		{
-			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
-		}
-	}
-
-	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
-	{
-		// check if the linking module wants to know about OUR metadata
-		if(extname == "ssl")
-		{
-			// check if this user has an swhois field to send
-			if(user->GetExt(extname))
-			{
-				// call this function in the linking module, let it format the data how it
-				// sees fit, and send it on its way. We dont need or want to know how.
-				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, displayable ? "Enabled" : "ON");
-			}
-		}
-	}
-
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
-	{
-		// check if its our metadata key, and its associated with a user
-		if ((target_type == TYPE_USER) && (extname == "ssl"))
-		{
-			User* dest = (User*)target;
-			// if they dont already have an ssl flag, accept the remote server's
-			if (!dest->GetExt(extname))
-			{
-				dest->Extend(extname, "ON");
-			}
-		}
 	}
 
 	bool Handshake(issl_session* session, int fd)
