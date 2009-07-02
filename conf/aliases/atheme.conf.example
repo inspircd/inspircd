@@ -5,6 +5,7 @@
 <alias text="MEMOSERV" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
 <alias text="GAMESERV" replace="PRIVMSG GameServ :$2-" requires="GameServ" uline="yes">
 <alias text="BOTSERV" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
+<alias text="HOSTSERV" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
 <alias text="ALIS" replace="PRIVMSG ALIS :$2-" requires="ALIS" uline="yes">
 
 # Shorthand aliases for nickserv, chanserv, operserv, memoserv
@@ -14,6 +15,7 @@
 <alias text="MS" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
 <alias text="GS" replace="PRIVMSG GameServ :$2-" requires="GameServ" uline="yes">
 <alias text="BS" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
+<alias text="HS" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
 <alias text="LS" replace="PRIVMSG ALIS :$2-" requires="ALIS" uline="yes">
 
 # /id [channel] <password>

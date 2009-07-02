@@ -151,9 +151,15 @@
 #<alias text="NICKSERV" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
 #<alias text="CHANSERV" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
 #<alias text="OPERSERV" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
+#<alias text="BOTSERV" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
+#<alias text="HOSTSERV" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
+#<alias text="MEMOSERV" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
 #<alias text="NS" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
 #<alias text="CS" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
 #<alias text="OS" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
+#<alias text="BS" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
+#<alias text="HS" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
+#<alias text="MS" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
 #
 # An example of using the format value to create an alias with two
 # different behaviours depending on the format of the parameters.
@@ -1510,13 +1516,6 @@
 #<module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Dummy ssl module: If you have other servers on your network which
-# have SSL, but your server does not have ssl enabled, you should load
-# this module, which will handle SSL metadata (e.g. the "Is using ssl"
-# field in the WHOIS information).
-#<module name="m_ssl_dummy.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS ssl module: Adds support for client-server SSL using GnuTLS,
 # if enabled. You must copy the source for this module from the directory
 # src/modules/extra, or answer 'yes' in ./configure when asked if you
@@ -1536,10 +1535,12 @@
 # SSL Info module: Allows users to retrieve information about other
 # user's peer SSL certificates and keys. This can be used by client
 # scripts to validate users. For this to work, one of m_ssl_gnutls.so
-# or m_ssl_openssl.so must be loaded. You must symlink the source for
-# this module from the directory src/modules/extra.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sslinfo.cpp
-# and run make install, then uncomment this module to enable it.
+# or m_ssl_openssl.so must be loaded. This module also adds the 
+# "* <user> is using a secure connection" whois line, the ability for
+# opers to use SSL fingerprints to verify their identity and the ability
+# to force opers to use SSL connections in order to oper up.
+# It is highly recommended to load this module especially if
+# you use SSL on your network.
 #
 #<module name="m_sslinfo.so">
 

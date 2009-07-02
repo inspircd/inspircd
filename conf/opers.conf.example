@@ -93,14 +93,21 @@
       host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
 
       # ** ADVANCED ** This option is disabled by default.
-      # fingerprint: When using the m_oper_ssl_cert module, you may specify
+      # fingerprint: When using the m_sslinfo module, you may specify
       # a key fingerprint here. This can be obtained by using the
       # /fingerprint command while the module is loaded. This enhances
       # security by verifying that the person opering up has the matching
       # key/certificate combination. This enhances security a great deal.
-      # If m_oper_ssl and m_ssl_gnutls/m_ssl_openssl aren't loaded,
+      # If m_sslinfo and m_ssl_gnutls/m_ssl_openssl aren't loaded,
       # this option will be ignored.
       #fingerprint="67:CB:9D:C0:13:24:8A:82:9B:B2:17:1E:D1:1B:EC:D4"
+
+      # sslonly: This oper can only oper up if they're using a SSL connection.
+      # Setting this option adds a decent bit of security. Highly recommended if
+      # the oper is on wifi or specifically, unsecured wifi.
+      # This setting only takes effect if m_sslinfo and m_ssl_gnutls or m_ssl_openssl
+      # are loaded.
+      #sslonly="yes"
 
       # type: What oper type this oline is. See the block above for list
       # of types. NOTE: This is case-sensitive as well.
