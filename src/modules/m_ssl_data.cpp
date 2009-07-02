@@ -58,16 +58,7 @@ class ModuleSSLData : public Module
 			if (!user->GetExt("ssl_cert", cert))
 				return;
 
-			std::stringstream value;
-			bool hasError = cert->GetError().length();
-			value << (cert->IsInvalid() ? "v" : "V") << (cert->IsTrusted() ? "T" : "t") << (cert->IsRevoked() ? "R" : "r")
-				<< (cert->IsUnknownSigner() ? "s" : "S") << (hasError ? "E" : "e") << " ";
-			if (hasError)
-				value << cert->GetError();
-			else
-				value << cert->GetFingerprint() << " " << cert->GetDN() << " " << cert->GetIssuer();
-
-			proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, value.str().c_str());
+			proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, cert->GetMetaLine().c_str());
 		}
 	}
 

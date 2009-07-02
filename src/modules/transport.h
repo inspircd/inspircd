@@ -104,6 +104,19 @@ class ssl_cert
 	{
 		return revoked;
 	}
+
+	std::string GetMetaLine()
+	{
+		std::stringstream value;
+		bool hasError = error.length();
+		value << (IsInvalid() ? "v" : "V") << (IsTrusted() ? "T" : "t") << (IsRevoked() ? "R" : "r")
+			<< (IsUnknownSigner() ? "s" : "S") << (hasError ? "E" : "e") << " ";
+		if (hasError)
+			value << GetError();
+		else
+			value << GetFingerprint() << " " << GetDN() << " " << GetIssuer();
+		return value.str();
+	}
 };
 
 /** Used to represent a request to a transport provider module

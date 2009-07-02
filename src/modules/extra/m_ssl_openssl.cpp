@@ -776,9 +776,13 @@ class ModuleSSLOpenSSL : public Module
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
 			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "on");
 
-			VerifyCertificate(&sessions[user->GetFd()], user);
+			ssl_cert* certdata = VerifyCertificate(&sessions[user->GetFd()], user);
 			if (sessions[user->GetFd()].sess)
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), SSL_get_cipher(sessions[user->GetFd()].sess));
+
+			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "ON");
+			if (certdata)
+				ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl_cert", certdata->GetMetaLine().c_str());
 		}
 	}
 
@@ -822,10 +826,10 @@ class ModuleSSLOpenSSL : public Module
 		errno = EIO;
 	}
 
-	void VerifyCertificate(issl_session* session, Extensible* user)
+	ssl_cert* VerifyCertificate(issl_session* session, Extensible* user)
 	{
 		if (!session->sess || !user)
-			return;
+			return NULL;
 
 		X509* cert;
 		ssl_cert* certinfo = new ssl_cert;
@@ -840,7 +844,7 @@ class ModuleSSLOpenSSL : public Module
 		if (!cert)
 		{
 			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
-			return;
+			return certinfo;
 		}
 
 		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
@@ -874,6 +878,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		X509_free(cert);
+		return certinfo;
 	}
 
 	void Prioritize()

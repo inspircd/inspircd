@@ -679,10 +679,7 @@ class ModuleSSLGnuTLS : public Module
 		// protocol module has propagated the NICK message.
 		if (user->GetIOHook() == this && (IS_LOCAL(user)))
 		{
-			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
-			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "on");
-
-			VerifyCertificate(&sessions[user->GetFd()],user);
+			ssl_cert* certdata = VerifyCertificate(&sessions[user->GetFd()],user);
 			if (sessions[user->GetFd()].sess)
 			{
 				std::string cipher = gnutls_kx_get_name(gnutls_kx_get(sessions[user->GetFd()].sess));
@@ -690,6 +687,9 @@ class ModuleSSLGnuTLS : public Module
 				cipher.append(gnutls_mac_get_name(gnutls_mac_get(sessions[user->GetFd()].sess)));
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
 			}
+
+			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "ON");
+			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl_cert", certdata->GetMetaLine().c_str());
 		}
 	}
 
@@ -724,10 +724,10 @@ class ModuleSSLGnuTLS : public Module
 		session->status = ISSL_NONE;
 	}
 
-	void VerifyCertificate(issl_session* session, Extensible* user)
+	ssl_cert* VerifyCertificate(issl_session* session, Extensible* user)
 	{
 		if (!session->sess || !user)
-			return;
+			return NULL;
 
 		unsigned int status;
 		const gnutls_datum_t* cert_list;
@@ -750,7 +750,7 @@ class ModuleSSLGnuTLS : public Module
 		if (ret < 0)
 		{
 			certinfo->error = std::string(gnutls_strerror(ret));
-			return;
+			return certinfo;
 		}
 
 		certinfo->invalid = (status & GNUTLS_CERT_INVALID);
@@ -765,14 +765,14 @@ class ModuleSSLGnuTLS : public Module
 		if (gnutls_certificate_type_get(session->sess) != GNUTLS_CRT_X509)
 		{
 			certinfo->error = "No X509 keys sent";
-			return;
+			return certinfo;
 		}
 
 		ret = gnutls_x509_crt_init(&cert);
 		if (ret < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
-			return;
+			return certinfo;
 		}
 
 		cert_list_size = 0;
@@ -780,7 +780,7 @@ class ModuleSSLGnuTLS : public Module
 		if (cert_list == NULL)
 		{
 			certinfo->error = "No certificate was found";
-			return;
+			return certinfo;
 		}
 
 		/* This is not a real world example, since we only check the first
@@ -791,7 +791,7 @@ class ModuleSSLGnuTLS : public Module
 		if (ret < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
-			return;
+			return certinfo;
 		}
 
 		gnutls_x509_crt_get_dn(cert, name, &name_size);
@@ -818,7 +818,7 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_x509_crt_deinit(cert);
 
-		return;
+		return certinfo;
 	}
 
 	void OnEvent(Event* ev)
