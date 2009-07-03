@@ -410,7 +410,7 @@ public:
 				}
 				else
 				{
-					ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 718 " + dest->nick + " " + user->nick + " " + user->ident + "@" + user->dhost + " :is messaging you,  and you have umode +g. Use /ACCEPT +" + user->nick + " to allow.");
+					ServerInstance->PI->PushToClient(dest, std::string("::") + ServerInstance->Config->ServerName + " 718 " + dest->nick + " " + user->nick + " " + user->ident + "@" + user->dhost + " :is messaging you,  and you have umode +g. Use /ACCEPT +" + user->nick + " to allow.");
 				}
 				dat->lastnotify = now;
 			}
