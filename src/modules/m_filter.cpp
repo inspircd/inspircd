@@ -144,7 +144,7 @@ class CommandFilter : public Command
 			if (Base->DeleteFilter(parameters[0]))
 			{
 				user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
-				ServerInstance->SNO->WriteGlobalSno('a', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
+				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
 				return CMD_SUCCESS;
 			}
 			else
@@ -195,7 +195,7 @@ class CommandFilter : public Command
 							type.c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
 							flags.c_str(), reason.c_str());
 
-					ServerInstance->SNO->WriteGlobalSno('a', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
+					ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
 
 					return CMD_SUCCESS;
 				}
