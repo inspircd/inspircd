@@ -905,7 +905,9 @@ if ($config{USE_GNUTLS} eq "y") {
 	{
 		print "Skipping SSL certificate generation\nin non-interactive mode.\n\n";
 	}
-} elsif ($config{USE_OPENSSL} eq "y") {
+}
+
+if ($config{USE_OPENSSL} eq "y") {
 	unless (-r "src/modules/m_ssl_openssl.cpp") {
 		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
 		symlink "extra/m_ssl_openssl.cpp", "src/modules/m_ssl_openssl.cpp" or print STDERR "Symlink failed: $!";
