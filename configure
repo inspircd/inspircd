@@ -870,13 +870,15 @@ if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 }
 our $failed = 0;
 
+$config{CERTGEN} ||= 'y';
+yesno('CERTGEN',"Would you like generate SSL certificates now?") if $config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y";
+
 if ($config{USE_GNUTLS} eq "y") {
 	unless (-r "src/modules/m_ssl_gnutls.cpp") {
 		print "Symlinking src/modules/m_ssl_gnutls.cpp from extra/\n";
 		symlink "extra/m_ssl_gnutls.cpp", "src/modules/m_ssl_gnutls.cpp" or print STDERR "Symlink failed: $!";
 	}
-	getmodules();
-	if ($interactive)
+	if ($interactive && $config{CERTGEN} eq 'y')
 	{
 		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
 			print "SSL Certificates Not found, Generating.. \n\n
@@ -912,9 +914,8 @@ if ($config{USE_OPENSSL} eq "y") {
 		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
 		symlink "extra/m_ssl_openssl.cpp", "src/modules/m_ssl_openssl.cpp" or print STDERR "Symlink failed: $!";
 	}
-	getmodules();
 	$failed = 0;
-	if ($interactive)
+	if ($interactive && $config{CERTGEN} eq 'y')
 	{
 		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
 			print "SSL Certificates Not found, Generating.. \n\n
