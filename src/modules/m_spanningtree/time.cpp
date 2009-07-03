@@ -57,13 +57,14 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 		User* u = this->ServerInstance->FindNick(params[1]);
 		if ((u) && (IS_LOCAL(u)))
 		{
+			std::string sourceserv = Utils->FindServer(prefix)->GetName();
 			time_t rawtime = atol(params[2].c_str());
 			struct tm * timeinfo;
 			timeinfo = localtime(&rawtime);
 			char tms[26];
 			snprintf(tms,26,"%s",asctime(timeinfo));
 			tms[24] = 0;
-			u->WriteNumeric(RPL_TIME, "%s %s :%s",u->nick.c_str(),prefix.c_str(),tms);
+			u->WriteNumeric(RPL_TIME, "%s %s :%s",u->nick.c_str(),sourceserv.c_str(),tms);
 		}
 		else
 		{
