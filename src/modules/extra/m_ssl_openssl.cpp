@@ -773,9 +773,6 @@ class ModuleSSLOpenSSL : public Module
 		// protocol module has propagated the NICK message.
 		if ((user->GetIOHook() == this) && (IS_LOCAL(user)))
 		{
-			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
-			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "on");
-
 			ssl_cert* certdata = VerifyCertificate(&sessions[user->GetFd()], user);
 			if (sessions[user->GetFd()].sess)
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), SSL_get_cipher(sessions[user->GetFd()].sess));

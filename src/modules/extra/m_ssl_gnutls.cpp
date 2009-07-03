@@ -689,7 +689,8 @@ class ModuleSSLGnuTLS : public Module
 			}
 
 			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "ON");
-			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl_cert", certdata->GetMetaLine().c_str());
+			if (certdata)
+				ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl_cert", certdata->GetMetaLine().c_str());
 		}
 	}
 
