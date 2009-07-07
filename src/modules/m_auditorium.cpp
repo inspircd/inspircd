@@ -18,22 +18,14 @@
 class AuditoriumMode : public ModeHandler
 {
  public:
-	AuditoriumMode(InspIRCd* Instance) : ModeHandler(Instance, 'u', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	AuditoriumMode(InspIRCd* Instance) : ModeHandler(Instance, 'u', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@') { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		if (channel->IsModeSet('u') != adding)
 		{
-			if (IS_LOCAL(source) && (channel->GetStatus(source) < STATUS_OP))
-			{
-				source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only channel operators may %sset channel mode +u", source->nick.c_str(), channel->name.c_str(), adding ? "" : "un");
-				return MODEACTION_DENY;
-			}
-			else
-			{
-				channel->SetMode('u', adding);
-				return MODEACTION_ALLOW;
-			}
+			channel->SetMode('u', adding);
+			return MODEACTION_ALLOW;
 		}
 		else
 		{
