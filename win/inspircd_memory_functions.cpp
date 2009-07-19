@@ -40,7 +40,8 @@ void * ::operator new(size_t iSize)
 
 void ::operator delete(void * ptr)
 {
-	HeapFree(GetProcessHeap(), 0, ptr);
+	if (ptr)
+		HeapFree(GetProcessHeap(), 0, ptr);
 }
 
 void * operator new[] (size_t iSize) {
@@ -53,5 +54,6 @@ void * operator new[] (size_t iSize) {
 
 void operator delete[] (void* ptr)
 {
-	HeapFree(GetProcessHeap(), 0, ptr);
+	if (ptr)
+		HeapFree(GetProcessHeap(), 0, ptr);
 }
