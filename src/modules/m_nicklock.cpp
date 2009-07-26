@@ -128,12 +128,11 @@ class CommandNickunlock : public Command
 			}
 		}
 
-		/* If we made it this far, the command is going out on the wire so send local snotice */
-		ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
-
 		if (target)
 		{
 			target->Shrink("nick_locked");
+			if (IS_LOCAL(target))
+				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 			if (IS_LOCAL(user))
 				user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
 		}
