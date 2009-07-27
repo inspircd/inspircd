@@ -73,7 +73,7 @@ class CommandStartTLS : public Command
 		 */
 		if (user->registered != REG_NONE)
 		{
-			ServerInstance->Users->QuitUser(user, "STARTTLS is not permitted after client registration has started");
+			user->WriteNumeric(691, "%s :STARTTLS is not permitted after client registration has started", user->nick.c_str());
 		}
 		else
 		{
