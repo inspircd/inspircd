@@ -278,7 +278,7 @@ if (defined $opt_away)
 	$config{MAX_AWAY} = $opt_away;
 }
 
-$config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/;
+$config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-([a-z][0-9]|rhel[0-9]))?$/;
 $config{HAS_OPENSSL} = $1;
 
 if ($config{GCCVER} eq "") {
