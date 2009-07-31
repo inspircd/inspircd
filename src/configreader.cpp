@@ -1196,14 +1196,17 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	{
 		std::string line;
 		getline(errstr, line, '\n');
-		if (user)
-			user->WriteServ("NOTICE %s :*** %s", user->nick.c_str(), line.c_str());
-		else
-			ServerInstance->SNO->WriteGlobalSno('a', line);
+		if (!line.empty())
+		{
+			if (user)
+				user->WriteServ("NOTICE %s :*** %s", user->nick.c_str(), line.c_str());
+			else
+				ServerInstance->SNO->WriteGlobalSno('a', line);
+		}
 	}
 
 	errstr.clear();
-	errstr.str().clear();
+	errstr.str(std::string());
 
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)
