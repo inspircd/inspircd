@@ -1210,6 +1210,12 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', line);
 		}
+
+		if (!old)
+		{
+			// Starting up, so print it out so it's seen. XXX this is a bit of a hack.
+			printf("%s\n", line.c_str());
+		}
 	}
 
 	errstr.clear();
