@@ -142,12 +142,24 @@ public:
 
 		if ((res = ldap_sasl_bind_s(conn, username.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
 		{
-			free(authpass);
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP bind failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
-			ldap_unbind_ext(conn, NULL, NULL);
-			conn = NULL;
-			return false;
+			if (res == LDAP_SERVER_DOWN)
+			{
+				// Attempt to reconnect if the connection dropped
+				if (verbose)
+					ServerInstance->SNO->WriteToSnomask('a', "LDAP server has gone away - reconnecting...");
+				Connect();
+				res = ldap_sasl_bind_s(conn, username.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
+			}
+
+			if (res != LDAP_SUCCESS)
+			{
+				if (verbose)
+					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP bind failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				free(authpass);
+				ldap_unbind_ext(conn, NULL, NULL);
+				conn = NULL;
+				return false;
+			}
 		}
 		free(authpass);
 
