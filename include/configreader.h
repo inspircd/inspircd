@@ -800,10 +800,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool StartsWithWindowsDriveLetter(const std::string &path);
 
-	/** Report a configuration error given in errormessage.
-	 */
-	void ReportConfigError(const std::string &errormessage);
-
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */

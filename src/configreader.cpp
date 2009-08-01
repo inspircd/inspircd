@@ -707,12 +707,6 @@ bool DoneMaxBans(ServerConfig*, const char*)
 	return true;
 }
 
-void ServerConfig::ReportConfigError(const std::string &errormessage)
-{
-	ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file: %s", errormessage.c_str());
-	errstr << errormessage << std::endl;
-}
-
 void ServerConfig::Read()
 {
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
@@ -1171,11 +1165,21 @@ void ServerConfig::Read()
 void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 {
 	int rem = 0, add = 0;
+	bool errors = false;
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
 	FailedPortList pl;
 	ServerInstance->BindPorts(pl);
+
+	/*
+	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
+	 */
+	if (old)
+	{
+		memcpy(this->ServerName, old->ServerName, sizeof(this->ServerName));
+		memcpy(this->sid, old->sid, sizeof(this->sid));
+	}
 
 	if (pl.size())
 	{
@@ -1194,6 +1198,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	while (errstr.good())
 	{
+		if (errors == false)
+			ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
+		errors = true; // XXX: has to be a nicer way to accomplish this.
 		std::string line;
 		getline(errstr, line, '\n');
 		if (!line.empty())
@@ -1212,11 +1219,10 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	if (!old)
 		return;
 	
-	/*
-	 * These values can only be set on boot. Keep their old values.
-	 */
-	memcpy(this->ServerName, old->ServerName, sizeof(this->ServerName));
-	memcpy(this->sid, old->sid, sizeof(this->sid));
+	// If there were errors processing configuration, don't touch modules.
+	if (errors)
+		return;
+
 
 	if (!removed_modules.empty())
 	{
