@@ -342,6 +342,10 @@ void XLineManager::ApplyLines()
 	{
 		User* u = (User*)(*u2);
 
+		// Don't ban people who are exempt.
+		if (u->exempt)
+			continue;
+
 		for (std::vector<XLine *>::iterator i = pending_lines.begin(); i != pending_lines.end(); i++)
 		{
 			XLine *x = *i;
