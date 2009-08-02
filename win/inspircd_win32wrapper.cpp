@@ -46,8 +46,7 @@ int inet_aton(const char *cp, struct in_addr *addr)
 	return (addr->s_addr == INADDR_NONE) ? 0 : 1;
 }
 
-#if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_LONGHORN)
-const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
+const char *insp_inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
 {
 
 	if (af == AF_INET)
@@ -70,15 +69,13 @@ const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
 	}
 	return NULL;
 }
-#endif
 
 int geteuid()
 {
 	return 1;
 }
 
-#if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_LONGHORN)
-int inet_pton(int af, const char *src, void *dst)
+int insp_inet_pton(int af, const char *src, void *dst)
 {
 	sockaddr_in sa;
 	int len = sizeof(SOCKADDR);
