@@ -110,11 +110,13 @@
 #define EINPROGRESS WSAEWOULDBLOCK
 #define EADDRNOTAVAIL WSAEADDRNOTAVAIL
 
+#if !defined(NTDDI_VERSION) || (NTDDI_VERSION < NTDDI_LONGHORN)
 /* Convert formatted (xxx.xxx.xxx.xxx) string to in_addr struct */
 CoreExport int inet_pton(int af, const char * src, void * dst);
 
 /* Convert struct to formatted (xxx.xxx.xxx.xxx) string */
 CoreExport const char * inet_ntop(int af, const void * src, char * dst, socklen_t cnt);
+#endif
 
 /* Safe printf functions aren't defined in VC2003 */
 #define snprintf _snprintf
