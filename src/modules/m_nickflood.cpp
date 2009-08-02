@@ -258,7 +258,7 @@ class ModuleNickFlood : public Module
 	/*
 	 * XXX: HACK: We do the increment on the *POST* event here (instead of all together) because we have no way of knowing whether other modules would block a nickchange.
 	 */
-	virtual void OnUserPostNick(User* user, const std::string oldnick)
+	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
