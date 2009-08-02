@@ -150,6 +150,7 @@ struct option
 	int *flag;
 	int val;
 };
+extern int optind;
 extern char optarg[514];
 int getopt_long_only (int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind);
 

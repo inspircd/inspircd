@@ -236,16 +236,17 @@ int printf_c(const char * format, ...)
 	return c;
 }
 
-int arg_counter = 1;
+int optind = 1;
 char optarg[514];
 int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind)
 {
 	// burlex todo: handle the shortops, at the moment it only works with longopts.
 
-	if (___argc == 1 || arg_counter == ___argc)			// No arguments (apart from filename)
+	if (___argc == 1 || optind == ___argc)			// No arguments (apart from filename)
 		return -1;
 
-	const char * opt = ___argv[arg_counter];
+	const char * opt = ___argv[optind];
+	optind++;
 
 	// if we're not an option, return an error.
 	if (strnicmp(opt, "--", 2) != 0)
@@ -262,18 +263,18 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 		{
 			// woot, found a valid argument =)
 			char * par = 0;
-			if ((arg_counter + 1) != ___argc)
+			if ((optind) != ___argc)
 			{
 				// grab the parameter from the next argument (if its not another argument)
-				if (strnicmp(___argv[arg_counter+1], "--", 2) != 0)
+				if (strnicmp(___argv[optind], "--", 2) != 0)
 				{
-					arg_counter++;		// Trash this next argument, we won't be needing it.
-					par = ___argv[arg_counter];
+//					optind++;		// Trash this next argument, we won't be needing it.
+					par = ___argv[optind-1];
 				}
 			}			
 
 			// increment the argument for next time
-			arg_counter++;
+//			optind++;
 
 			// determine action based on type
 			if (__longopts[i].has_arg == required_argument && !par)
