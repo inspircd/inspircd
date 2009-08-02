@@ -146,7 +146,7 @@ public:
 			{
 				// Attempt to reconnect if the connection dropped
 				if (verbose)
-					ServerInstance->SNO->WriteToSnomask('a', "LDAP server has gone away - reconnecting...");
+					ServerInstance->SNO->WriteToSnoMask('a', "LDAP server has gone away - reconnecting...");
 				Connect();
 				res = ldap_sasl_bind_s(conn, username.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
 			}
