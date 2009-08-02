@@ -4,6 +4,7 @@
 /GNUmakefile
 /BSDmakefile
 /.config.cache
+/.gitignore
 /inspircd
 /inspircd.pid
 /inspircd.core
