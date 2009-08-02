@@ -90,7 +90,6 @@ int insp_inet_pton(int af, const char *src, void *dst)
 	memcpy(dst, &sa.sin_addr, sizeof(struct in_addr));
 	return rv;
 }
-#endif
 
 void setcolor(int color_code)
 {
