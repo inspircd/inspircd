@@ -48,7 +48,11 @@ class nickfloodsettings : public classbase
 
 	bool shouldlock()
 	{
-		return (counter >= this->nicks);
+		/* XXX HACK: using counter + 1 here now to allow the counter to only be incremented
+		 * on successful nick changes; this will be checked before the counter is
+		 * incremented.
+		 */
+		return (counter + 1 >= this->nicks);
 	}
 
 	void clear()
@@ -213,8 +217,8 @@ class ModuleNickFlood : public Module
 		jf = new NickFlood(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNick };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNick, I_OnUserPostNick };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual int OnUserPreNick(User* user, const std::string &newnick)
@@ -238,7 +242,6 @@ class ModuleNickFlood : public Module
 					return 1;
 				}
 
-				f->addnick();
 				if (f->shouldlock())
 				{
 					f->clear();
@@ -250,6 +253,34 @@ class ModuleNickFlood : public Module
 		}
 
 		return 0;
+	}
+
+	/*
+	 * XXX: HACK: We do the increment on the *POST* event here (instead of all together) because we have no way of knowing whether other modules would block a nickchange.
+	 */
+	virtual void OnUserPostNick(User* user, const std::string oldnick)
+	{
+		if (isdigit(user->nick[0])) /* allow switches to UID */
+			return;
+
+		for (UCListIter i = user->chans.begin(); i != user->chans.end(); ++i)
+		{
+			Channel *channel = i->first;
+
+			nickfloodsettings *f;
+			if (channel->GetExt("nickflood", f))
+			{
+				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetStatus(user) == STATUS_OP)
+					return;
+				
+				/* moved this here to avoid incrementing the counter for nick
+				 * changes that are denied for some other reason (bans, +N, etc.)
+				 * per bug #874.
+				 */
+				f->addnick();
+			}
+		}
+		return;
 	}
 
 	void OnChannelDelete(Channel* chan)
