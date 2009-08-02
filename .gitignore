@@ -1,0 +1,121 @@
+
+# /
+/Makefile
+/GNUmakefile
+/BSDmakefile
+/.config.cache
+/inspircd
+/inspircd.pid
+/inspircd.core
+/*~
+/*.swp
+/modules
+/org.inspircd.plist
+/*.patch
+/*.diff
+/*.orig
+/*.rej
+
+# /bin/
+/bin/inspircd
+/bin/*.so
+/bin/ircd.log
+/bin/*core*
+
+# /conf/
+/conf/*.conf
+/conf/*.pem
+/conf/inspircd.conf.example
+/conf/*.pid
+
+# /docs/
+
+# /extras/
+
+# /http/
+
+# /include/
+/include/inspircd_config.h
+/include/inspircd_se_config.h
+/include/*.h.*
+
+# /include/commands/
+/include/commands/*.h.*
+
+# /include/modes/
+/include/modes/*.h.*
+
+# /include/socketengines/
+/include/socketengines/*.h.*
+
+# /include/threadengines/
+/include/threadengines/*.h.*
+
+# /lib/
+/lib/*.so
+
+# /src/
+/src/inspircd
+/src/*.so
+/src/*.o
+/src/*~
+/src/*.swp
+/src/Makefile
+/src/*.cpp.*
+
+# /src/commands/
+/src/commands/Makefile
+/src/commands/*.so
+/src/commands/*.cpp.*
+
+# /src/modes/
+/src/modes/*.a
+/src/modes/*.o
+/src/modes/*.cpp.*
+
+# /src/modules/
+/src/modules/m_geoip.cpp
+/src/modules/m_ldapauth.cpp
+/src/modules/m_ldapoper.cpp
+/src/modules/m_mssql.cpp
+/src/modules/m_mysql.cpp
+/src/modules/m_pgsql.cpp
+/src/modules/m_regex_pcre.cpp
+/src/modules/m_regex_posix.cpp
+/src/modules/m_regex_tre.cpp
+/src/modules/m_sqlauth.cpp
+/src/modules/m_sqlite3.cpp
+/src/modules/m_sqllog.cpp
+/src/modules/m_sqloper.cpp
+/src/modules/m_sqlutils.cpp
+/src/modules/m_sqlutils.h
+/src/modules/m_sqlv2.h
+/src/modules/m_ssl_gnutls.cpp
+/src/modules/m_ssl_openssl.cpp
+/src/modules/m_ssl_oper_cert.cpp
+/src/modules/m_sslinfo.cpp
+/src/modules/m_testclient.cpp
+/src/modules/m_ziplink.cpp
+/src/modules/ssl_cert.h
+/src/modules/*.so
+/src/modules/*.o
+/src/modules/*~
+/src/modules/*.swp
+/src/modules/*.cpp.*
+/src/modules/Makefile
+/src/modules/README
+
+# /src/modules/extra/
+/src/modules/extra/*.swp
+/src/modules/extra/*~
+/src/modules/extra/*.cpp.*
+
+# /src/modules/m_spanningtree/
+/src/modules/m_spanningtree/*.cpp.*
+/src/modules/m_spanningtree/*.o
+
+# /src/socketengines/
+/src/socketengines/*.cpp.*
+
+# /src/threadengines/
+/src/threadengines/*.cpp.*
