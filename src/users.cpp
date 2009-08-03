@@ -747,6 +747,13 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	if (this->IsModeSet('o'))
 		this->UnOper();
 
+	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
+	if (iter_opertype == ServerInstance->Config->opertypes.end())
+	{
+		ServerInstance->Logs->Log("OPER", DEBUG, "%s!%s@%s opered as type: %s which didn't exist, failing", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), opertype.c_str());
+		return;
+	}
+
 	this->modes[UM_OPERATOR] = 1;
 	this->WriteServ("MODE %s :+o", this->nick.c_str());
 	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
@@ -758,65 +765,61 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	this->oper.assign(opertype, 0, 512);
 	ServerInstance->Users->all_opers.push_back(this);
 
-	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
-	if (iter_opertype != ServerInstance->Config->opertypes.end())
+	if (AllowedOperCommands)
+		AllowedOperCommands->clear();
+	else
+		AllowedOperCommands = new std::set<std::string>;
+
+	if (AllowedPrivs)
+		AllowedPrivs->clear();
+	else
+		AllowedPrivs = new std::set<std::string>;
+
+	AllowedUserModes.reset();
+	AllowedChanModes.reset();
+	this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
+
+	std::string myclass, mycmd, mypriv;
+	irc::spacesepstream Classes(iter_opertype->second.c_str());
+	while (Classes.GetToken(myclass))
 	{
-		if (AllowedOperCommands)
-			AllowedOperCommands->clear();
-		else
-			AllowedOperCommands = new std::set<std::string>;
-
-		if (AllowedPrivs)
-			AllowedPrivs->clear();
-		else
-			AllowedPrivs = new std::set<std::string>;
-
-		AllowedUserModes.reset();
-		AllowedChanModes.reset();
-		this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
-
-		std::string myclass, mycmd, mypriv;
-		irc::spacesepstream Classes(iter_opertype->second.c_str());
-		while (Classes.GetToken(myclass))
+		operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());
+		if (iter_operclass != ServerInstance->Config->operclass.end())
 		{
-			operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());
-			if (iter_operclass != ServerInstance->Config->operclass.end())
+			/* Process commands */
+			irc::spacesepstream CommandList(iter_operclass->second.commandlist);
+			while (CommandList.GetToken(mycmd))
 			{
-				/* Process commands */
-				irc::spacesepstream CommandList(iter_operclass->second.commandlist);
-				while (CommandList.GetToken(mycmd))
-				{
-					this->AllowedOperCommands->insert(mycmd);
-				}
+				this->AllowedOperCommands->insert(mycmd);
+			}
 
-				irc::spacesepstream PrivList(iter_operclass->second.privs);
-				while (PrivList.GetToken(mypriv))
-				{
-					this->AllowedPrivs->insert(mypriv);
-				}
+			irc::spacesepstream PrivList(iter_operclass->second.privs);
+			while (PrivList.GetToken(mypriv))
+			{
+				this->AllowedPrivs->insert(mypriv);
+			}
 
-				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
+			for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
+			{
+				if (*c == '*')
 				{
-					if (*c == '*')
-					{
-						this->AllowedUserModes.set();
-					}
-					else
-					{
-						this->AllowedUserModes[*c - 'A'] = true;
-					}
+					this->AllowedUserModes.set();
 				}
-
-				for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist; *c; ++c)
+				else
 				{
-					if (*c == '*')
-					{
-						this->AllowedChanModes.set();
-					}
-					else
-					{
-						this->AllowedChanModes[*c - 'A'] = true;
-					}
+					this->AllowedUserModes[*c - 'A'] = true;
+				}
+			}
+
+			for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist; *c; ++c)
+			{
+				if (*c == '*')
+				{
+					this->AllowedChanModes.set();
+				}
+				else
+				{
+					this->AllowedChanModes[*c - 'A'] = true;
 				}
 			}
 		}
