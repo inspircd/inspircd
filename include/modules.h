@@ -1676,14 +1676,14 @@ class CoreExport ModuleManager : public classbase
 	 * @param i The event to change the priority of
 	 * @param s The state you wish to use for this event. Use one of
 	 * PRIO_FIRST to set the event to be first called, PRIO_LAST to
-	 * set it to be the last called, or PRIO_BEFORE and PRIO_AFTER
+	 * set it to be the last called, or PRIO_BEFORE and PRIORITY_AFTER
 	 * to set it to be before or after one or more other modules.
-	 * @param modules If PRIO_BEFORE or PRIO_AFTER is set in parameter 's',
+	 * @param modules If PRIO_BEFORE or PRIORITY_AFTER is set in parameter 's',
 	 * then this contains a list of one or more modules your module must be
 	 * placed before or after. Your module will be placed before the highest
 	 * priority module in this list for PRIO_BEFORE, or after the lowest
-	 * priority module in this list for PRIO_AFTER.
-	 * @param sz The number of modules being passed for PRIO_BEFORE and PRIO_AFTER.
+	 * priority module in this list for PRIORITY_AFTER.
+	 * @param sz The number of modules being passed for PRIO_BEFORE and PRIORITY_AFTER.
 	 * Defaults to 1, as most of the time you will only want to prioritize your module
 	 * to be before or after one other module.
 	 */
@@ -1693,7 +1693,7 @@ class CoreExport ModuleManager : public classbase
 	 * @param mod The module to set the priority of
 	 * @param s The priority of all events in the module.
 	 * Note that with this method, it is not possible to effectively use
-	 * PRIO_BEFORE or PRIO_AFTER, you should use the more fine tuned
+	 * PRIO_BEFORE or PRIORITY_AFTER, you should use the more fine tuned
 	 * SetPriority method for this, where you may specify other modules to
 	 * be prioritized against.
 	 */
