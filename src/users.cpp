@@ -747,7 +747,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	if (this->IsModeSet('o'))
 		this->UnOper();
 
-	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(opertype.c_str());
+	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
 	if (iter_opertype == ServerInstance->Config->opertypes.end())
 	{
 		ServerInstance->Logs->Log("OPER", DEBUG, "%s!%s@%s opered as type: %s which didn't exist, failing", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), opertype.c_str());
