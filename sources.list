@@ -5,5 +5,10 @@
 # To manage these, you want the ./modulemanager binary.
 #
 # Feel free to add additional sources! :)
-http://www.inspircd.com/modules/modules.lst
+
+
+# official repository
+http://gitorious.org/inspircd/inspircd-extras/blobs/raw/master/modules.lst
+
+# daniel's repository
 http://github.com/danieldg/insp-mods/raw/master/list
