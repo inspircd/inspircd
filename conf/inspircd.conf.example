@@ -239,7 +239,7 @@
          # disconnecting a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /nick, /user or /pass)
-         timeout="60"
+         timeout="10"
 
          # pingfreq: How often (in seconds) the server tries to ping connecting clients.
          pingfreq="120"
@@ -288,7 +288,7 @@
          # disconnecting a user if they do not do anything on connect.
          # (Note, this is a client-side thing, if the client does not
          # send /nick, /user or /pass)
-         timeout="60"
+         timeout="10"
 
          # pingfreq: How often (in seconds) the server tries to ping connecting clients.
          pingfreq="120"
