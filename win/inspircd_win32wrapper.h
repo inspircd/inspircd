@@ -37,8 +37,8 @@
 
 #define FD_SETSIZE 24000
 
-#define uint32_t DWORD
-#define uint16_t WORD
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int32 uint32_t;
 
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
