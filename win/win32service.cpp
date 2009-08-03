@@ -181,7 +181,6 @@ VOID ServiceCtrlHandler(DWORD controlCode)
 VOID ServiceMain(DWORD argc, LPTSTR *argv)
 {
 	BOOL success;
-	DWORD type=0, size=0;
 
 	serviceStatusHandle = RegisterServiceCtrlHandler("InspIRCd", (LPHANDLER_FUNCTION)ServiceCtrlHandler);
 	if (!serviceStatusHandle)
