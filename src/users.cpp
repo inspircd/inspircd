@@ -758,6 +758,13 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	this->oper.assign(opertype, 0, 512);
 	ServerInstance->Users->all_opers.push_back(this);
 
+	/*
+	 * This might look like it's in the wrong place.
+	 * It is *not*!
+	 *
+	 * For multi-network servers, we may not have the opertypes of the remote server, but we still want to mark the user as an oper of that type.
+	 * -- w00t
+	 */
 	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
 	if (iter_opertype != ServerInstance->Config->opertypes.end())
 	{
