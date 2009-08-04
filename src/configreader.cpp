@@ -1223,7 +1223,14 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)
+	{
+		if (errors)
+		{
+			ServerInstance->Exit(EXIT_STATUS_CONFIG);
+		}
+
 		return;
+	}
 	
 	// If there were errors processing configuration, don't touch modules.
 	if (errors)
