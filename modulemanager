@@ -102,6 +102,15 @@ my %todo = %installed;
 
 sub ver_cmp {
 	($a,$b) = @_ if @_;
+
+	# string versions first, git IDs
+	if ($a =~ /[a-z0-9]{40}/ or $b =~ /[a-z0-9]{40}/)
+	{
+		# it's a string version. compare them as such.
+		return $a ne $b;
+	}
+
+	# else it's probably a numerical type version.. i.e. 1.0
 	my @a = split /\./, $a;
 	my @b = split /\./, $b;
 	push @a, 0 while $#a < $#b;
