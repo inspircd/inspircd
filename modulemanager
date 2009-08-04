@@ -185,7 +185,7 @@ sub resolve_deps {
 			my $ver = $todo{$mod};
 			my $info = $modules{$mod}{$ver} or die "no dependency information on $mod $ver";
 			for my $dep (@{$info->{depends}}) {
-				$dep =~ /^(\S+)(?: ([-0-9.]+))?/ or die "Bad dependency $dep from $info->{from}";
+				$dep =~ /^(\S+)(?: \S+))?/ or die "Bad dependency $dep from $info->{from}";
 				my($depmod, $depvers) = ($1,$2);
 				next if $todo{$depmod} && ver_in_range($todo{$depmod}, $depvers);
 				# need to install a dependency
@@ -198,7 +198,7 @@ sub resolve_deps {
 				}
 			}
 			for my $dep (@{$info->{conflicts}}) {
-				$dep =~ /^(\S+)(?: ([-0-9.]+))?/ or die "Bad dependency $dep from $info->{from}";
+				$dep =~ /^(\S+)(?: (\S+))?/ or die "Bad dependency $dep from $info->{from}";
 				my($depmod, $depvers) = ($1,$2);
 				next unless $todo{$depmod} && ver_in_range($todo{$depmod}, $depvers);
 				# if there are changes this round, maybe the conflict won't come up after they are resolved.
