@@ -20,7 +20,7 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies getmodversion nopedantic resolve_directory yesno showhelp promptstring_s);
+our @EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s);
 
 my $no_svn = 0;
 
@@ -112,21 +112,6 @@ sub getdependencies {
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
-			my $x = translate_functions($1, $file);
-			next if ($x eq "");
-			close(FLAGS);
-			return $x;
-		}
-	}
-	close(FLAGS);
-	return "";
-}
-
-sub getmodversion {
-	my ($file) = @_;
-	open(FLAGS, $file) or return "";
-	while (<FLAGS>) {
-		if (m#(?:^/* \$|")ModVersion: (\S+)(?: \*\/$|")#) {
 			my $x = translate_functions($1, $file);
 			next if ($x eq "");
 			close(FLAGS);
