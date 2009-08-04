@@ -2631,18 +2631,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\modules\m_testcommand.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\src\modules\m_timedbans.cpp"
 				>
 				<FileConfiguration
