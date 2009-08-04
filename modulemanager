@@ -278,11 +278,15 @@ resolve_deps(0);
 
 $| = 1; # immediate print of lines without \n
 
+print "Processing changes for $action...\n";
 for my $mod (keys %installed) {
 	next if $todo{$mod};
 	print "Uninstalling $mod $installed{$mod}\n";
 	unlink "src/modules/$mod.cpp";
 }
+
+my $count = scalar keys %todo;
+print "Checking $count items...\n";
 for my $mod (sort keys %todo) {
 	my $ver = $todo{$mod};
 	my $oldver = $installed{$mod};
@@ -313,3 +317,4 @@ for my $mod (sort keys %todo) {
 	}
 	close SRC;
 }
+print "Done!\n";
