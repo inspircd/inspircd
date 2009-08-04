@@ -5,6 +5,5 @@
 # To manage these, you want the ./modulemanager binary.
 #
 # Feel free to add additional sources! :)
-
 # official repository
 http://gitorious.org/inspircd/inspircd-extras/blobs/raw/master/modules.lst
