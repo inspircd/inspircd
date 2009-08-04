@@ -871,7 +871,7 @@ if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 our $failed = 0;
 
 $config{CERTGEN} ||= 'y';
-yesno('CERTGEN',"Would you like generate SSL certificates now?") if $config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y";
+yesno('CERTGEN',"Would you like generate SSL certificates now?") if ($interactive && ($config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y"));
 
 if ($config{USE_GNUTLS} eq "y") {
 	unless (-r "src/modules/m_ssl_gnutls.cpp") {
