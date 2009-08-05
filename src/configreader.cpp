@@ -1030,85 +1030,76 @@ void ServerConfig::Read()
 					dt &= ~DT_ALLOW_NEWLINE;
 					dt &= ~DT_ALLOW_WILD;
 
-					/* We catch and rethrow any exception here just so we can free our mutex
-					 */
-					try
+					switch (dt)
 					{
-						switch (dt)
+						case DT_NOSPACES:
 						{
-							case DT_NOSPACES:
-							{
-								char item[MAXBUF];
-								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-									vl.push_back(ValueItem(item));
-								else
-									vl.push_back(ValueItem(""));
-								this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
-							}
-							break;
-							case DT_HOSTNAME:
-							{
-								char item[MAXBUF];
-								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-									vl.push_back(ValueItem(item));
-								else
-									vl.push_back(ValueItem(""));
-								this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
-							}
-							break;
-							case DT_IPADDRESS:
-							{
-								char item[MAXBUF];
-								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-									vl.push_back(ValueItem(item));
-								else
-									vl.push_back(ValueItem(""));
-								this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
-							}
-							break;
-							case DT_CHANNEL:
-							{
-								char item[MAXBUF];
-								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-									vl.push_back(ValueItem(item));
-								else
-									vl.push_back(ValueItem(""));
-								if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString(), MAXBUF))
-									throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
-							}
-							break;
-							case DT_CHARPTR:
-							{
-								char item[MAXBUF];
-								if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
-									vl.push_back(ValueItem(item));
-								else
-									vl.push_back(ValueItem(""));
-							}
-							break;
-							case DT_INTEGER:
-							{
-								int item = 0;
-								if (ConfValueInteger(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
-									vl.push_back(ValueItem(item));
-								else
-									vl.push_back(ValueItem(0));
-							}
-							break;
-							case DT_BOOLEAN:
-							{
-								bool item = ConfValueBool(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
+							char item[MAXBUF];
+							if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 								vl.push_back(ValueItem(item));
-							}
-							break;
-							default:
-								/* Someone was smoking craq if we got here, and we're all gonna die. */
-							break;
+							else
+								vl.push_back(ValueItem(""));
+							this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
 						}
-					}
-					catch (CoreException &e)
-					{
-						throw e;
+						break;
+						case DT_HOSTNAME:
+						{
+							char item[MAXBUF];
+							if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+							this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+						}
+						break;
+						case DT_IPADDRESS:
+						{
+							char item[MAXBUF];
+							if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+							this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
+						}
+						break;
+						case DT_CHANNEL:
+						{
+							char item[MAXBUF];
+							if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+							if (!ServerInstance->IsChannel(vl[vl.size()-1].GetString(), MAXBUF))
+								throw CoreException("The value of <"+std::string(MultiValues[Index].tag)+":"+MultiValues[Index].items[valuenum]+"> number "+ConvToStr(tagnum + 1)+" is not a valid channel name");
+						}
+						break;
+						case DT_CHARPTR:
+						{
+							char item[MAXBUF];
+							if (ConfValue(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
+						}
+						break;
+						case DT_INTEGER:
+						{
+							int item = 0;
+							if (ConfValueInteger(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(0));
+						}
+						break;
+						case DT_BOOLEAN:
+						{
+							bool item = ConfValueBool(MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
+							vl.push_back(ValueItem(item));
+						}
+						break;
+						default:
+							/* Someone was smoking craq if we got here, and we're all gonna die. */
+						break;
 					}
 				}
 				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
