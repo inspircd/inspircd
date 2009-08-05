@@ -30,11 +30,20 @@
 #undef ERROR
 #endif
 
+ // Required system headers.
+#include <ctime>
+#include <cstdarg>
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <climits>
+#include <cstdio>
 #include <time.h>
 #include <string>
 #include <sstream>
 #include <list>
-#include <climits>
+
+
 #include "inspircd_config.h"
 #include "users.h"
 #include "channels.h"
