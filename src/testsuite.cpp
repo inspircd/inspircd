@@ -55,6 +55,7 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 		cout << "(3) Unload a module\n";
 		cout << "(4) Threading tests\n";
 		cout << "(5) Wildcard and CIDR tests\n";
+		cout << "(6) Comma sepstream tests\n";
 
 		cout << endl << "(X) Exit test suite\n";
 
@@ -68,29 +69,32 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 		{
 			case '1':
 				FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
-			break;
+				break;
 			case '2':
 				cout << "Enter module filename to load: ";
 				cin >> modname;
 				cout << (Instance->Modules->Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
-			break;
+				break;
 			case '3':
 				cout << "Enter module filename to unload: ";
 				cin >> modname;
 				cout << (Instance->Modules->Unload(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
-			break;
+				break;
 			case '4':
 				cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
-			break;
+				break;
 			case '5':
 				cout << (DoWildTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
-			break;
+				break;
+			case '6':
+				cout << (DoCommaSepStreamTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				break;
 			case 'X':
 				return;
-			break;
+				break;
 			default:
 				cout << "Invalid option\n";
-			break;
+				break;
 		}
 		cout << endl;
 	}
@@ -174,6 +178,46 @@ bool TestSuite::DoWildTests()
 	CIDRTESTNOT("brain@1.2.3.4", "@1.2.3.4/9");
 	CIDRTESTNOT("brain@1.2.3.4", "@");
 	CIDRTESTNOT("brain@1.2.3.4", "");
+
+	return true;
+}
+
+
+#define STREQUALTEST(x, y) cout << "commasepstreamtoken(\"" << x << ",\"" << y "\") " << ((passed = (x == y)) ? "SUCCESS\n" : "FAILURE\n")
+
+bool TestSuite::DoCommaSepStreamTests()
+{
+	bool passed = false;
+	irc::commasepstream items("this,is,a,comma,stream");
+	std::string item;
+	int idx = 0;
+
+	while (items.GetToken(item))
+	{
+		idx++;
+
+		switch (idx)
+		{
+			case 1:
+				STREQUALTEST(item, "this");
+				break;
+			case 2:
+				STREQUALTEST(item, "is");
+				break;
+			case 3:
+				STREQUALTEST(item, "a");
+				break;
+			case 4:
+				STREQUALTEST(item, "comma");
+				break;
+			case 5:
+				STREQUALTEST(item, "stream");
+				break;
+			default:
+				cout << "COMMASEPSTREAM: FAILURE: Got an index too many! " << idx << " items\n";
+				break;
+		}
+	}
 
 	return true;
 }
