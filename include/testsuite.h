@@ -27,6 +27,7 @@ class TestSuite : public Extensible
 	bool DoThreadTests();
 	bool DoWildTests();
 	bool DoCommaSepStreamTests();
+	bool DoSpaceSepStreamTests();
 };
 
 #endif

@@ -56,6 +56,7 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 		cout << "(4) Threading tests\n";
 		cout << "(5) Wildcard and CIDR tests\n";
 		cout << "(6) Comma sepstream tests\n";
+		cout << "(7) Space sepstream tests\n";
 
 		cout << endl << "(X) Exit test suite\n";
 
@@ -88,6 +89,9 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 				break;
 			case '6':
 				cout << (DoCommaSepStreamTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				break;
+			case '7':
+				cout << (DoSpaceSepStreamTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case 'X':
 				return;
@@ -183,7 +187,7 @@ bool TestSuite::DoWildTests()
 }
 
 
-#define STREQUALTEST(x, y) cout << "commasepstreamtoken(\"" << x << ",\"" << y "\") " << ((passed = (x == y)) ? "SUCCESS\n" : "FAILURE\n")
+#define STREQUALTEST(x, y) cout << "==(\"" << x << ",\"" << y "\") " << ((passed = (x == y)) ? "SUCCESS\n" : "FAILURE\n")
 
 bool TestSuite::DoCommaSepStreamTests()
 {
@@ -219,6 +223,43 @@ bool TestSuite::DoCommaSepStreamTests()
 		}
 	}
 
+	return true;
+}
+
+bool TestSuite::DoSpaceSepStreamTests()
+{
+	bool passed = false;
+
+	irc::spacesepstream list("this is a space stream");
+	std::string item;
+	int idx = 0;
+
+	while (list.GetToken(item))
+	{
+		idx++;
+
+		switch (idx)
+		{
+			case 1:
+				STREQUALTEST(item, "this");
+				break;
+			case 2:
+				STREQUALTEST(item, "is");
+				break;
+			case 3:
+				STREQUALTEST(item, "a");
+				break;
+			case 4:
+				STREQUALTEST(item, "space");
+				break;
+			case 5:
+				STREQUALTEST(item, "stream");
+				break;
+			default:
+				cout << "SPACESEPSTREAM: FAILURE: Got an index too many! " << idx << " items\n";
+				break;
+		}
+	}
 	return true;
 }
 
