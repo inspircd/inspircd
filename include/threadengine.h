@@ -30,7 +30,7 @@ class ThreadData;
  * code. Be sure to keep your code thread-safe and not prone to deadlocks
  * and race conditions if you MUST use threading!
  */
-class CoreExport Thread : public Extensible
+class CoreExport Thread
 {
  private:
 	/** Set to true when the thread is to exit
@@ -55,6 +55,7 @@ class CoreExport Thread : public Extensible
 	{
 	}
 
+	/* If the thread is running, you MUST join BEFORE deletion */
 	virtual ~Thread();
 
 	/** Override this method to put your actual
@@ -64,10 +65,11 @@ class CoreExport Thread : public Extensible
 
 	/** Signal the thread to exit gracefully.
 	 */
-	virtual void SetExitFlag()
-	{
-		ExitFlag = true;
-	}
+	virtual void SetExitFlag();
+
+	/** Join the thread (calls SetExitFlag and waits for exit)
+	 */
+	void join();
 };
 
 

@@ -788,6 +788,7 @@ int InspIRCd::Run()
 			FOREACH_MOD_I(this, I_OnRehash, OnRehash(user));
 			this->BuildISupport();
 
+			ConfigThread->join();
 			delete ConfigThread;
 			ConfigThread = NULL;
 		}

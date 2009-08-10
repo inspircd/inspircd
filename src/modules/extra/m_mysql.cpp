@@ -682,8 +682,7 @@ ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
 
 	if (!ServerInstance->Modules->PublishFeature("SQL", this))
 	{
-		/* Tell worker thread to exit NOW,
-		 * Automatically joins */
+		Dispatcher->join();
 		delete Dispatcher;
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
 		throw ModuleException("m_mysql: Unable to publish feature 'SQL'");

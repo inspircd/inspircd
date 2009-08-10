@@ -20,14 +20,21 @@
 #include "inspircd.h"
 #include "threadengine.h"
 
+void Thread::SetExitFlag()
+{
+	ExitFlag = true;
+}
+
+void Thread::join()
+{
+		state->FreeThread(this);
+		delete state;
+		state = 0;
+}
+
 /** If this thread has a Creator set, call it to
  * free the thread
  */
 Thread::~Thread()
 {
-	if (state)
-	{
-		state->FreeThread(this);
-		delete state;
-	}
 }

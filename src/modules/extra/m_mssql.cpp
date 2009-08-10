@@ -668,6 +668,7 @@ class ModuleMsSQL : public Module
 
 	virtual ~ModuleMsSQL()
 	{
+		queryDispatcher->join();
 		delete queryDispatcher;
 		ClearQueue();
 		ClearAllConnections();
