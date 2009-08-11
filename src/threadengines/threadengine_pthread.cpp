@@ -141,5 +141,4 @@ void SocketThread::NotifyParent()
 
 SocketThread::~SocketThread()
 {
-	delete signal.sock;
 }
