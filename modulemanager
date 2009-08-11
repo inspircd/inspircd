@@ -185,7 +185,7 @@ sub resolve_deps {
 			my $ver = $todo{$mod};
 			my $info = $modules{$mod}{$ver} or die "no dependency information on $mod $ver";
 			for my $dep (@{$info->{depends}}) {
-				$dep =~ /^(\S+)(?: \S+))?/ or die "Bad dependency $dep from $info->{from}";
+				$dep =~ /^(\S+)(?: \S+)?/ or die "Bad dependency $dep from $info->{from}";
 				my($depmod, $depvers) = ($1,$2);
 				next if $todo{$depmod} && ver_in_range($todo{$depmod}, $depvers);
 				# need to install a dependency
