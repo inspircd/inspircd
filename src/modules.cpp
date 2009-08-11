@@ -288,11 +288,16 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 		break;
 		/* Module wants to be first, sod everything else */
 		case PRIORITY_FIRST:
-			swap_pos = 0;
+			if (prioritizationState != PRIO_STATE_FIRST)
+				swap = false;
+			else
+				swap_pos = 0;
 		break;
-		/* Module is submissive and wants to be last... awww. */
+		/* Module wants to be last. */
 		case PRIORITY_LAST:
-			if (EventHandlers[i].empty())
+			if (prioritizationState != PRIO_STATE_FIRST)
+				swap = false;
+			else if (EventHandlers[i].empty())
 				swap_pos = 0;
 			else
 				swap_pos = EventHandlers[i].size() - 1;
@@ -339,6 +344,9 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	/* Do we need to swap? */
 	if (swap && (swap_pos != source))
 	{
+		// We are going to change positions; we'll need to run again to verify all requirements
+		if (prioritizationState == PRIO_STATE_LAST)
+			prioritizationState = PRIO_STATE_AGAIN;
 		/* Suggestion from Phoenix, "shuffle" the modules to better retain call order */
 		int incrmnt = 1;
 
@@ -492,8 +500,17 @@ bool ModuleManager::Load(const char* filename)
 	 * not just the one thats loading, as the new module could affect the preference
 	 * of others
 	 */
-	for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator n = Modules.begin(); n != Modules.end(); ++n)
-		n->second.second->Prioritize();
+	for(int tries = 0; tries < 20; tries++)
+	{
+		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
+		for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator n = Modules.begin(); n != Modules.end(); ++n)
+			n->second.second->Prioritize();
+
+		if (prioritizationState == PRIO_STATE_LAST)
+			break;
+		if (tries == 19)
+			Instance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename_str);
+	}
 
 	Instance->BuildISupport();
 	return true;

@@ -1651,6 +1651,11 @@ class CoreExport ModuleManager : public classbase
 	 */
 	std::map<std::string, std::pair<ircd_module*, Module*> > Modules;
 
+	enum {
+		PRIO_STATE_FIRST,
+		PRIO_STATE_AGAIN,
+		PRIO_STATE_LAST
+	} prioritizationState;
  public:
 
 	/** Event handler hooks.
