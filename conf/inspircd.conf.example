@@ -374,7 +374,10 @@
 
 <dns
      # server: DNS server to use to attempt to resolve IP's to hostnames.
-     server="127.0.0.1"
+     # in most cases, you won't need to change this, as inspircd will
+     # automatically detect the nameserver depending on /etc/resolv.conf
+     # (or, on windows, your set nameservers in the registry.)
+     # server="127.0.0.1"
 
      # timeout: seconds to wait to try to resolve DNS/hostname.
      timeout="5">
