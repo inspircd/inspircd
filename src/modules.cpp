@@ -379,7 +379,7 @@ bool ModuleManager::Load(const char* filename)
 	if (strchr(filename,'*') || (strchr(filename,'?')))
 	{
 		int n_match = 0;
-		DIR* library = opendir(Instance->Config->ModPath);
+		DIR* library = opendir(Instance->Config->ModPath.c_str());
 		if (library)
 		{
 			/* Try and locate and load all modules matching the pattern */
@@ -402,7 +402,7 @@ bool ModuleManager::Load(const char* filename)
 	}
 
 	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",Instance->Config->ModPath,filename);
+	snprintf(modfile,MAXBUF,"%s/%s",Instance->Config->ModPath.c_str(),filename);
 	std::string filename_str = filename;
 
 	if (!ServerConfig::FileExists(modfile))

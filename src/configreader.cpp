@@ -32,19 +32,12 @@
 #include "commands/cmd_whowas.h"
 #include "modes/cmode_h.h"
 
-std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
-
-/* Needs forward declaration */
-bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
-bool DoneELine(ServerConfig* conf, const char* tag);
-
 ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	this->ClearStack();
 	*sid = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = *FixedQuit = *HideKillsServer = '\0';
 	*DefaultModes = *CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
-	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = *SuffixQuit = '\0';
+	*UserStats = *DisabledCommands = *SuffixQuit = '\0';
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
 	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
@@ -60,13 +53,6 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	OperMaxChans = 30;
 	c_ipv4_range = 32;
 	c_ipv6_range = 128;
-	maxbans.clear();
-	DNSServerValidator = &ValidateDnsServer;
-}
-
-void ServerConfig::ClearStack()
-{
-	include_stack.clear();
 }
 
 void ServerConfig::Update005()
@@ -114,17 +100,7 @@ bool ServerConfig::CheckOnce(const char* tag)
 	return true;
 }
 
-bool NoValidation(ServerConfig*, const char*, const char*, ValueItem&)
-{
-	return true;
-}
-
-bool DoneConfItem(ServerConfig* conf, const char* tag)
-{
-	return true;
-}
-
-void ServerConfig::ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val)
+static void ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val)
 {
 	for (const char* ptr = p; *ptr; ++ptr)
 	{
@@ -137,7 +113,7 @@ void ServerConfig::ValidateNoSpaces(const char* p, const std::string &tag, const
  * even in strerror(errno). They just return 'yes' or 'no' to an address without such detail as to whats WRONG with the address.
  * Because ircd users arent as technical as they used to be (;)) we are going to give more of a useful error message.
  */
-void ServerConfig::ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild)
+static void ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild)
 {
 	int num_dots = 0;
 	int num_seps = 0;
@@ -194,7 +170,7 @@ void ServerConfig::ValidateIP(const char* p, const std::string &tag, const std::
 	}
 }
 
-void ServerConfig::ValidateHostname(const char* p, const std::string &tag, const std::string &val)
+static void ValidateHostname(const char* p, const std::string &tag, const std::string &val)
 {
 	int num_dots = 0;
 	if (*p)
@@ -217,17 +193,19 @@ void ServerConfig::ValidateHostname(const char* p, const std::string &tag, const
 	}
 }
 
-bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem &data)
+// Specialized validators
+
+static bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	if ((data.GetInteger() < 0) || (data.GetInteger() > 31))
+	if ((data.GetInteger() < 1) || (data.GetInteger() > 31))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <security:maxtargets> value is greater than 31 or less than 0, set to 20.");
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <security:maxtargets> value is greater than 31 or less than 1, set to 20.");
 		data.Set(20);
 	}
 	return true;
 }
 
-bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if ((data.GetInteger() < 1) || (data.GetInteger() > conf->GetInstance()->SE->GetMaxFds()))
 	{
@@ -237,14 +215,14 @@ bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &
 	return true;
 }
 
-bool ValidateMaxConn(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateMaxConn(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (data.GetInteger() > SOMAXCONN)
 		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <performance:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	return true;
 }
 
-bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
+bool ServerConfig::ApplyDisabledCommands(const char* data)
 {
 	std::stringstream dcmds(data);
 	std::string thiscmd;
@@ -265,7 +243,7 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 	return true;
 }
 
-bool ValidateDisabledUModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateDisabledUModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	memset(conf->DisabledUModes, 0, sizeof(conf->DisabledUModes));
 	for (const unsigned char* p = (const unsigned char*)data.GetString(); *p; ++p)
@@ -276,7 +254,7 @@ bool ValidateDisabledUModes(ServerConfig* conf, const char*, const char*, ValueI
 	return true;
 }
 
-bool ValidateDisabledCModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateDisabledCModes(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	memset(conf->DisabledCModes, 0, sizeof(conf->DisabledCModes));
 	for (const unsigned char* p = (const unsigned char*)data.GetString(); *p; ++p)
@@ -287,7 +265,11 @@ bool ValidateDisabledCModes(ServerConfig* conf, const char*, const char*, ValueI
 	return true;
 }
 
-bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &data)
+#ifdef WINDOWS
+// Note: the windows validator is in win32wrapper.cpp
+bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &data);
+#else
+static bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (!*(data.GetString()))
 	{
@@ -324,22 +306,24 @@ bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &
 	}
 	return true;
 }
+#endif
 
-bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server name");
 	/* If we already have a servername, and they changed it, we should throw an exception. */
 	if (!strchr(data.GetString(), '.'))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",data.GetString(),data.GetString(),'.');
-		std::string moo = std::string(data.GetString()).append(".");
-		data.Set(moo.c_str());
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s.'",
+			data.GetString(),data.GetString());
+		std::string moo = data.GetValue();
+		data.Set(moo.append("."));
 	}
-	conf->ValidateHostname(data.GetString(), "server", "name");
+	ValidateHostname(data.GetString(), "server", "name");
 	return true;
 }
 
-bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	// 65534 not 65535 because of null terminator
 	if ((!data.GetInteger()) || (data.GetInteger() > 65534) || (data.GetInteger() < 1024))
@@ -350,7 +334,7 @@ bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, ValueIt
 	return true;
 }
 
-bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if ((data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
@@ -360,44 +344,41 @@ bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &dat
 	return true;
 }
 
-bool ValidateHalfOp(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateHalfOp(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	ModeHandler* mh = conf->GetInstance()->Modes->FindMode('h', MODETYPE_CHANNEL);
-	if (data.GetBool() && !mh)
-	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Enabling halfop mode.");
+	if (data.GetBool() && !mh) {
+		conf->GetInstance()->Logs->Log("CONFIG", DEFAULT, "Enabling halfop mode.");
 		mh = new ModeChannelHalfOp(conf->GetInstance());
 		conf->GetInstance()->Modes->AddMode(mh);
-	}
-	else if (!data.GetBool() && mh)
-	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Disabling halfop mode.");
+	} else if (!data.GetBool() && mh) {
+		conf->GetInstance()->Logs->Log("CONFIG", DEFAULT, "Disabling halfop mode.");
 		conf->GetInstance()->Modes->DelMode(mh);
 		delete mh;
 	}
 	return true;
 }
 
-bool ValidateMotd(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateMotd(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->ReadFile(conf->MOTD, data.GetString());
 	return true;
 }
 
-bool ValidateNotEmpty(ServerConfig*, const char* tag, const char* val, ValueItem &data)
+static bool ValidateNotEmpty(ServerConfig*, const char* tag, const char* val, ValueItem &data)
 {
-	if (!*data.GetString())
+	if (data.GetValue().empty())
 		throw CoreException(std::string("The value for <")+tag+":"+val+"> cannot be empty!");
 	return true;
 }
 
-bool ValidateRules(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateRules(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->ReadFile(conf->RULES, data.GetString());
 	return true;
 }
 
-bool ValidateModeLists(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateModeLists(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	memset(conf->HideModeLists, 0, sizeof(conf->HideModeLists));
 	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
@@ -405,7 +386,7 @@ bool ValidateModeLists(ServerConfig* conf, const char*, const char*, ValueItem &
 	return true;
 }
 
-bool ValidateExemptChanOps(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateExemptChanOps(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	memset(conf->ExemptChanOps, 0, sizeof(conf->ExemptChanOps));
 	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
@@ -413,9 +394,9 @@ bool ValidateExemptChanOps(ServerConfig* conf, const char*, const char*, ValueIt
 	return true;
 }
 
-bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	std::string v = data.GetString();
+	const std::string& v = data.GetValue();
 
 	if (v == "ops")
 		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_OPS;
@@ -429,7 +410,7 @@ bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &dat
 	return true;
 }
 
-bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server id");
 
@@ -445,7 +426,7 @@ bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 	return true;
 }
 
-bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &data)
+static bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
 
@@ -471,148 +452,9 @@ bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &dat
 	return true;
 }
 
-/* Callback called before processing the first <connect> tag
- */
-bool InitConnect(ServerConfig* conf, const char*)
-{
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Reading connect classes... class list is:");
-
-	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end() ; )
-	{
-		ConnectClass* c = *i;
-
-		/*
-		 * only delete a class with refcount 0.
-		 * this is needed to avoid trampling on a wild pointer (User::MyClass)!
-		 * it's also the most simple way to do it, given that we're looking at threads..
-		 * -- w00t
-		 */
-		if (c->RefCount == 0)
-		{
-			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Removing connect class, refcount is 0!");
-
-			/* This was causing a crash, because we'd set i to .begin() just here, but then the for loop's increment would
-			 * set it to .begin() + 1. Which if it was already the last thing in the list, wasn't good.
-			 * Now the increment is in the else { } below.
-			 */
-			conf->Classes.erase(i);
-			i = conf->Classes.begin(); // start over so we don't trample on a bad iterator
-		}
-		else
-		{
-			/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
-			c->SetDisabled(true);
-			i++;
-		}
-	}
-
-	return true;
-}
-
-/* Callback called to process a single <connect> tag
- */
-bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
-{
-	ConnectClass c;
-	const char* allow = values[0].GetString(); /* Yeah, there are a lot of values. Live with it. */
-	const char* deny = values[1].GetString();
-	const char* password = values[2].GetString();
-	int timeout = values[3].GetInteger();
-	int pingfreq = values[4].GetInteger();
-	int sendq = values[5].GetInteger();
-	int recvq = values[6].GetInteger();
-	int localmax = values[7].GetInteger();
-	int globalmax = values[8].GetInteger();
-	int port = values[9].GetInteger();
-	const char* name = values[10].GetString();
-	const char* parent = values[11].GetString();
-	int maxchans = values[12].GetInteger();
-	unsigned long limit = values[13].GetInteger();
-	const char* hashtype = values[14].GetString();
-
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Adding a connect class!");
-
-	ConnectClass *cc = NULL;
-
-	if (*parent)
-	{
-		/* Find 'parent' and inherit a new class from it,
-		 * then overwrite any values that are set here
-		 */
-		ClassVector::iterator item = conf->Classes.begin();
-		for (; item != conf->Classes.end(); ++item)
-		{
-			cc = *item;
-			conf->GetInstance()->Logs->Log("CONFIG",DEBUG,"Class: %s", cc->GetName().c_str());
-			if (cc->GetName() == parent)
-			{
-				cc = new ConnectClass(name, cc);
-				cc->Update(timeout, *allow ? allow : deny, pingfreq, password, sendq, recvq, localmax, globalmax, maxchans, port, limit);
-				conf->Classes.push_back(cc);
-				break;
-			}
-		}
-		if (item == conf->Classes.end())
-			throw CoreException("Class name '" + std::string(name) + "' is configured to inherit from class '" + std::string(parent) + "' which cannot be found.");
-	}
-	else
-	{
-		if (*allow)
-		{
-			/* Find existing class by mask, the mask should be unique */
-			for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
-			{
-				if ((*item)->GetHost() == allow && !(*item)->GetDisabled())
-				{
-					(*item)->Update(timeout, allow, pingfreq, password, sendq, recvq, localmax, globalmax, maxchans, port, limit);
-					return true;
-				}
-			}
-			cc = new ConnectClass(name, timeout, allow, pingfreq, password, hashtype, sendq, recvq, localmax, globalmax, maxchans);
-			cc->limit = limit;
-			cc->SetPort(port);
-			conf->Classes.push_back(cc);
-		}
-		else
-		{
-			/* Find existing class by mask, the mask should be unique */
-			for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
-			{
-				if ((*item)->GetHost() == deny && !(*item)->GetDisabled())
-				{
-					(*item)->Update(name, deny);
-					(*item)->SetPort(port);
-					return true;
-				}
-			}
-			cc = new ConnectClass(name, deny);
-			cc->SetPort(port);
-			conf->Classes.push_back(cc);
-		}
-	}
-
-	return true;
-}
-
-/* Callback called when there are no more <connect> tags
- */
-bool DoneConnect(ServerConfig *conf, const char*)
-{
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT, "Done adding connect classes!");
-	return true;
-}
-
-/* Callback called before processing the first <uline> tag
- */
-bool InitULine(ServerConfig* conf, const char*)
-{
-	conf->ulines.clear();
-	return true;
-}
-
 /* Callback called to process a single <uline> tag
  */
-bool DoULine(ServerConfig* conf, const char*, char**, ValueList &values, int*)
+static bool DoULine(ServerConfig* conf, const char*, const char**, ValueList &values, int*)
 {
 	const char* server = values[0].GetString();
 	const bool silent = values[1].GetBool();
@@ -620,79 +462,9 @@ bool DoULine(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	return true;
 }
 
-/* Callback called when there are no more <uline> tags
- */
-bool DoneULine(ServerConfig*, const char*)
-{
-	return true;
-}
-
-/* Callback called before processing the first <module> tag
- */
-bool InitModule(ServerConfig* conf, const char*)
-{
-	old_module_names = conf->GetInstance()->Modules->GetAllModuleNames(0);
-	new_module_names.clear();
-	added_modules.clear();
-	removed_modules.clear();
-	return true;
-}
-
-/* Callback called to process a single <module> tag
- */
-bool DoModule(ServerConfig*, const char*, char**, ValueList &values, int*)
-{
-	const char* modname = values[0].GetString();
-	new_module_names.push_back(modname);
-	return true;
-}
-
-/* Callback called when there are no more <module> tags
- */
-bool DoneModule(ServerConfig*, const char*)
-{
-	// now create a list of new modules that are due to be loaded
-	// and a seperate list of modules which are due to be unloaded
-	for (std::vector<std::string>::iterator _new = new_module_names.begin(); _new != new_module_names.end(); _new++)
-	{
-		bool added = true;
-
-		for (std::vector<std::string>::iterator old = old_module_names.begin(); old != old_module_names.end(); old++)
-		{
-			if (*old == *_new)
-				added = false;
-		}
-
-		if (added)
-			added_modules.push_back(*_new);
-	}
-
-	for (std::vector<std::string>::iterator oldm = old_module_names.begin(); oldm != old_module_names.end(); oldm++)
-	{
-		bool removed = true;
-		for (std::vector<std::string>::iterator newm = new_module_names.begin(); newm != new_module_names.end(); newm++)
-		{
-			if (*newm == *oldm)
-				removed = false;
-		}
-
-		if (removed)
-			removed_modules.push_back(*oldm);
-	}
-	return true;
-}
-
-/* Callback called before processing the first <banlist> tag
- */
-bool InitMaxBans(ServerConfig* conf, const char*)
-{
-	conf->maxbans.clear();
-	return true;
-}
-
 /* Callback called to process a single <banlist> tag
  */
-bool DoMaxBans(ServerConfig* conf, const char*, char**, ValueList &values, int*)
+static bool DoMaxBans(ServerConfig* conf, const char*, const char**, ValueList &values, int*)
 {
 	const char* channel = values[0].GetString();
 	int limit = values[1].GetInteger();
@@ -700,211 +472,438 @@ bool DoMaxBans(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	return true;
 }
 
-/* Callback called when there are no more <banlist> tags.
- */
-bool DoneMaxBans(ServerConfig*, const char*)
+static bool DoZLine(ServerConfig* conf, const char* tag, const char** entries, ValueList &values, int* types)
 {
+	const char* reason = values[0].GetString();
+	const char* ipmask = values[1].GetString();
+
+	ZLine* zl = new ZLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ipmask);
+	if (!conf->GetInstance()->XLines->AddLine(zl, NULL))
+		delete zl;
+
 	return true;
 }
 
+static bool DoQLine(ServerConfig* conf, const char* tag, const char** entries, ValueList &values, int* types)
+{
+	const char* reason = values[0].GetString();
+	const char* nick = values[1].GetString();
+
+	QLine* ql = new QLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, nick);
+	if (!conf->GetInstance()->XLines->AddLine(ql, NULL))
+		delete ql;
+
+	return true;
+}
+
+static bool DoKLine(ServerConfig* conf, const char* tag, const char** entries, ValueList &values, int* types)
+{
+	const char* reason = values[0].GetString();
+	const char* host = values[1].GetString();
+
+	XLineManager* xlm = conf->GetInstance()->XLines;
+
+	IdentHostPair ih = xlm->IdentSplit(host);
+
+	KLine* kl = new KLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
+	if (!xlm->AddLine(kl, NULL))
+		delete kl;
+	return true;
+}
+
+static bool DoELine(ServerConfig* conf, const char* tag, const char** entries, ValueList &values, int* types)
+{
+	const char* reason = values[0].GetString();
+	const char* host = values[1].GetString();
+
+	XLineManager* xlm = conf->GetInstance()->XLines;
+
+	IdentHostPair ih = xlm->IdentSplit(host);
+
+	ELine* el = new ELine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
+	if (!xlm->AddLine(el, NULL))
+		delete el;
+	return true;
+}
+
+static bool DoType(ServerConfig* conf, const char*, const char**, ValueList &values, int*)
+{
+	const char* TypeName = values[0].GetString();
+	const char* Classes = values[1].GetString();
+
+	conf->opertypes[TypeName] = std::string(Classes);
+	return true;
+}
+
+static bool DoClass(ServerConfig* conf, const char* tag, const char**, ValueList &values, int*)
+{
+	const char* ClassName = values[0].GetString();
+	const char* CommandList = values[1].GetString();
+	const char* UModeList = values[2].GetString();
+	const char* CModeList = values[3].GetString();
+	const char *PrivsList = values[4].GetString();
+
+	for (const char* c = UModeList; *c; ++c)
+	{
+		if ((*c < 'A' || *c > 'z') && *c != '*')
+		{
+			throw CoreException("Character " + std::string(1, *c) + " is not a valid mode in <class:usermodes>");
+		}
+	}
+	for (const char* c = CModeList; *c; ++c)
+	{
+		if ((*c < 'A' || *c > 'z') && *c != '*')
+		{
+			throw CoreException("Character " + std::string(1, *c) + " is not a valid mode in <class:chanmodes>");
+		}
+	}
+
+	conf->operclass[ClassName].commandlist = strnewdup(CommandList);
+	conf->operclass[ClassName].umodelist = strnewdup(UModeList);
+	conf->operclass[ClassName].cmodelist = strnewdup(CModeList);
+	conf->operclass[ClassName].privs = strnewdup(PrivsList);
+	return true;
+}
+
+void ServerConfig::CrossCheckOperClassType()
+{
+	for (int i = 0; i < ConfValueEnum("type"); ++i)
+	{
+		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
+		std::string classname;
+		ConfValue("type", "classes", "", i, classes, MAXBUF, false);
+		irc::spacesepstream str(classes);
+		ConfValue("type", "name", "", i, item, MAXBUF, false);
+		while (str.GetToken(classname))
+		{
+			std::string lost;
+			bool foundclass = false;
+			for (int j = 0; j < ConfValueEnum("class"); ++j)
+			{
+				ConfValue("class", "name", "", j, classn, MAXBUF, false);
+				if (!strcmp(classn, classname.c_str()))
+				{
+					foundclass = true;
+					break;
+				}
+			}
+			if (!foundclass)
+			{
+				char msg[MAXBUF];
+				snprintf(msg, MAXBUF, "	Warning: Oper type '%s' has a missing class named '%s', this does nothing!\n",
+					item, classname.c_str());
+				throw CoreException(msg);
+			}
+		}
+	}
+}
+
+void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
+{
+	typedef std::map<std::string, ConnectClass*> ClassMap;
+	ClassMap oldBlocksByMask;
+	if (current)
+	{
+		for(ClassVector::iterator i = current->Classes.begin(); i != current->Classes.end(); ++i)
+		{
+			ConnectClass* c = *i;
+			std::string typeMask = (c->type == CC_ALLOW) ? "a" : "d";
+			typeMask += c->host;
+			oldBlocksByMask[typeMask] = c;
+		}
+	}
+
+	int block_count = ConfValueEnum("connect");
+	ClassMap newBlocksByMask;
+	Classes.resize(block_count, NULL);
+	std::map<std::string, int> names;
+
+	bool try_again = true;
+	for(int tries=0; try_again && tries < block_count + 1; tries++)
+	{
+		try_again = false;
+		for(int i=0; i < block_count; i++)
+		{
+			if (Classes[i])
+				continue;
+
+			ConnectClass* parent = NULL;
+			std::string parentName;
+			if (ConfValue("connect", "parent", i, parentName, false))
+			{
+				std::map<std::string,int>::iterator parentIter = names.find(parentName);
+				if (parentIter == names.end())
+				{
+					try_again = true;
+					// couldn't find parent this time. If it's the last time, we'll never find it.
+					if (tries == block_count)
+						throw CoreException("Could not find parent connect class \"" + parentName + "\" for connect block " + ConvToStr(i));
+					continue;
+				}
+				parent = Classes[parentIter->second];
+			}
+
+			std::string name;
+			if (ConfValue("connect", "name", i, name, false))
+			{
+				if (names.find(name) != names.end())
+					throw CoreException("Two connect classes with name \"" + name + "\" defined!");
+				names[name] = i;
+			}
+
+			std::string mask, typeMask;
+			char type;
+
+			if (ConfValue("connect", "allow", i, mask, false))
+			{
+				type = CC_ALLOW;
+				typeMask = 'a' + mask;
+			}
+			else if (ConfValue("connect", "deny", i, mask, false))
+			{
+				type = CC_DENY;
+				typeMask = 'd' + mask;
+			}
+			else
+			{
+				throw CoreException("Connect class must have an allow or deny mask (#" + ConvToStr(i) + ")");
+			}
+			ClassMap::iterator dupMask = newBlocksByMask.find(typeMask);
+			if (dupMask != newBlocksByMask.end())
+				throw CoreException("Two connect classes cannot have the same mask (" + mask + ")");
+
+			ConnectClass* me = parent ? 
+				new ConnectClass(type, mask, *parent) :
+				new ConnectClass(type, mask);
+
+			if (!name.empty())
+				me->name = name;
+
+			std::string tmpv;
+			if (ConfValue("connect", "password", i, tmpv, false))
+				me->pass= tmpv;
+			if (ConfValue("connect", "hash", i, tmpv, false))
+				me->hash = tmpv;
+			if (ConfValue("connect", "timeout", i, tmpv, false))
+				me->registration_timeout = atol(tmpv.c_str());
+			if (ConfValue("connect", "pingfreq", i, tmpv, false))
+				me->pingtime = atol(tmpv.c_str());
+			if (ConfValue("connect", "sendq", i, tmpv, false))
+				me->sendqmax = atol(tmpv.c_str());
+			if (ConfValue("connect", "recvq", i, tmpv, false))
+				me->recvqmax = atol(tmpv.c_str());
+			if (ConfValue("connect", "localmax", i, tmpv, false))
+				me->maxlocal = atol(tmpv.c_str());
+			if (ConfValue("connect", "globalmax", i, tmpv, false))
+				me->maxglobal = atol(tmpv.c_str());
+			if (ConfValue("connect", "port", i, tmpv, false))
+				me->port = atol(tmpv.c_str());
+			if (ConfValue("connect", "maxchans", i, tmpv, false))
+				me->maxchans = atol(tmpv.c_str());
+			if (ConfValue("connect", "limit", i, tmpv, false))
+				me->limit = atol(tmpv.c_str());
+
+			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
+			if (oldMask != oldBlocksByMask.end())
+			{
+				oldBlocksByMask.erase(oldMask);
+				ConnectClass* old = oldMask->second;
+				old->Update(me);
+				delete me;
+				me = old;
+			}
+			newBlocksByMask[typeMask] = me;
+			Classes[i] = me;
+		}
+	}
+
+	for(ClassMap::iterator toRemove = oldBlocksByMask.begin(); toRemove != oldBlocksByMask.end(); toRemove++)
+	{
+		removed_classes.push_back(toRemove->second);
+	}
+}
+
+
+static const Deprecated ChangedConfig[] = {
+	{"options", "hidelinks",		"has been moved to <security:hidelinks> as of 1.2a3"},
+	{"options", "hidewhois",		"has been moved to <security:hidewhois> as of 1.2a3"},
+	{"options", "userstats",		"has been moved to <security:userstats> as of 1.2a3"},
+	{"options", "customversion",	"has been moved to <security:customversion> as of 1.2a3"},
+	{"options", "hidesplits",		"has been moved to <security:hidesplits> as of 1.2a3"},
+	{"options", "hidebans",		"has been moved to <security:hidebans> as of 1.2a3"},
+	{"options", "hidekills",		"has been moved to <security:hidekills> as of 1.2a3"},
+	{"options", "operspywhois",		"has been moved to <security:operspywhois> as of 1.2a3"},
+	{"options", "announceinvites",	"has been moved to <security:announceinvites> as of 1.2a3"},
+	{"options", "hidemodes",		"has been moved to <security:hidemodes> as of 1.2a3"},
+	{"options", "maxtargets",		"has been moved to <security:maxtargets> as of 1.2a3"},
+	{"options",	"nouserdns",		"has been moved to <performance:nouserdns> as of 1.2a3"},
+	{"options",	"maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
+	{"options",	"softlimit",		"has been moved to <performance:softlimit> as of 1.2a3"},
+	{"options", "somaxconn",		"has been moved to <performance:somaxconn> as of 1.2a3"},
+	{"options", "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
+	{"options", "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
+	{"options",	"loglevel",		"1.2 does not use the loglevel value. Please define <log> tags instead."},
+	{"die",     "value",            "has always been deprecated"},
+};
+
+/* These tags can occur ONCE or not at all */
+static const InitialConfig Values[] = {
+	{"performance",	"softlimit",	"0",			new ValueContainerUInt (&ServerConfig::SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
+	{"performance",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&ServerConfig::MaxConn),		DT_INTEGER,  ValidateMaxConn},
+	{"options",	"moronbanner",	"You're banned!",	new ValueContainerChar (&ServerConfig::MoronBanner),		DT_CHARPTR,  NULL},
+	{"server",	"name",		"",			new ValueContainerChar (&ServerConfig::ServerName),		DT_HOSTNAME, ValidateServerName},
+	{"server",	"description",	"Configure Me",		new ValueContainerChar (&ServerConfig::ServerDesc),		DT_CHARPTR,  NULL},
+	{"server",	"network",	"Network",		new ValueContainerChar (&ServerConfig::Network),			DT_NOSPACES, NULL},
+	{"server",	"id",		"",			new ValueContainerChar (&ServerConfig::sid),			DT_CHARPTR,  ValidateSID},
+	{"admin",	"name",		"",			new ValueContainerChar (&ServerConfig::AdminName),		DT_CHARPTR,  NULL},
+	{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (&ServerConfig::AdminEmail),		DT_CHARPTR,  NULL},
+	{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (&ServerConfig::AdminNick),		DT_CHARPTR,  NULL},
+	{"files",	"motd",		"",			new ValueContainerChar (&ServerConfig::motd),			DT_CHARPTR,  ValidateMotd},
+	{"files",	"rules",	"",			new ValueContainerChar (&ServerConfig::rules),			DT_CHARPTR,  ValidateRules},
+	{"power",	"diepass",	"",			new ValueContainerChar (&ServerConfig::diepass),			DT_CHARPTR,  ValidateNotEmpty},
+	{"power",	"pause",	"",			new ValueContainerInt  (&ServerConfig::DieDelay),		DT_INTEGER,  NULL},
+	{"power",	"hash",		"",			new ValueContainerChar (&ServerConfig::powerhash),		DT_CHARPTR,  NULL},
+	{"power",	"restartpass",	"",			new ValueContainerChar (&ServerConfig::restartpass),		DT_CHARPTR,  ValidateNotEmpty},
+	{"options",	"prefixquit",	"",			new ValueContainerChar (&ServerConfig::PrefixQuit),		DT_CHARPTR,  NULL},
+	{"options",	"suffixquit",	"",			new ValueContainerChar (&ServerConfig::SuffixQuit),		DT_CHARPTR,  NULL},
+	{"options",	"fixedquit",	"",			new ValueContainerChar (&ServerConfig::FixedQuit),		DT_CHARPTR,  NULL},
+	{"options",	"prefixpart",	"",			new ValueContainerChar (&ServerConfig::PrefixPart),		DT_CHARPTR,  NULL},
+	{"options",	"suffixpart",	"",			new ValueContainerChar (&ServerConfig::SuffixPart),		DT_CHARPTR,  NULL},
+	{"options",	"fixedpart",	"",			new ValueContainerChar (&ServerConfig::FixedPart),		DT_CHARPTR,  NULL},
+	{"performance",	"netbuffersize","10240",		new ValueContainerInt  (&ServerConfig::NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
+	{"performance",	"maxwho",	"128",			new ValueContainerInt  (&ServerConfig::MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
+	{"options",	"allowhalfop",	"0",			new ValueContainerBool (&ServerConfig::AllowHalfop),		DT_BOOLEAN,  ValidateHalfOp},
+	{"dns",		"server",	"",			new ValueContainerChar (&ServerConfig::DNSServer),		DT_IPADDRESS,ValidateDnsServer},
+	{"dns",		"timeout",	"5",			new ValueContainerInt  (&ServerConfig::dns_timeout),		DT_INTEGER,  NULL},
+	{"options",	"moduledir",	MOD_PATH,		new ValueContainerString (&ServerConfig::ModPath),			DT_CHARPTR,  NULL},
+	{"disabled",	"commands",	"",			new ValueContainerChar (&ServerConfig::DisabledCommands),	DT_CHARPTR,  NULL},
+	{"disabled",	"usermodes",	"",			NULL, DT_NOTHING,  ValidateDisabledUModes},
+	{"disabled",	"chanmodes",	"",			NULL, DT_NOTHING,  ValidateDisabledCModes},
+	{"disabled",	"fakenonexistant",	"0",		new ValueContainerBool (&ServerConfig::DisabledDontExist),		DT_BOOLEAN,  NULL},
+
+	{"security",		"runasuser",	"",		new ValueContainerChar(&ServerConfig::SetUser),				DT_CHARPTR, NULL},
+	{"security",		"runasgroup",	"",		new ValueContainerChar(&ServerConfig::SetGroup),				DT_CHARPTR, NULL},
+	{"security",	"userstats",	"",			new ValueContainerChar (&ServerConfig::UserStats),		DT_CHARPTR,  NULL},
+	{"security",	"customversion","",			new ValueContainerChar (&ServerConfig::CustomVersion),		DT_CHARPTR,  NULL},
+	{"security",	"hidesplits",	"0",			new ValueContainerBool (&ServerConfig::HideSplits),		DT_BOOLEAN,  NULL},
+	{"security",	"hidebans",	"0",			new ValueContainerBool (&ServerConfig::HideBans),		DT_BOOLEAN,  NULL},
+	{"security",	"hidewhois",	"",			new ValueContainerChar (&ServerConfig::HideWhoisServer),		DT_NOSPACES, NULL},
+	{"security",	"hidekills",	"",			new ValueContainerChar (&ServerConfig::HideKillsServer),		DT_NOSPACES,  NULL},
+	{"security",	"operspywhois",	"0",			new ValueContainerBool (&ServerConfig::OperSpyWhois),		DT_BOOLEAN,  NULL},
+	{"security",	"restrictbannedusers",	"1",		new ValueContainerBool (&ServerConfig::RestrictBannedUsers),		DT_BOOLEAN,  NULL},
+	{"security",	"genericoper",	"0",			new ValueContainerBool (&ServerConfig::GenericOper),		DT_BOOLEAN,  NULL},
+	{"performance",	"nouserdns",	"0",			new ValueContainerBool (&ServerConfig::NoUserDns),		DT_BOOLEAN,  NULL},
+	{"options",	"syntaxhints",	"0",			new ValueContainerBool (&ServerConfig::SyntaxHints),		DT_BOOLEAN,  NULL},
+	{"options",	"cyclehosts",	"0",			new ValueContainerBool (&ServerConfig::CycleHosts),		DT_BOOLEAN,  NULL},
+	{"options",	"ircumsgprefix","0",			new ValueContainerBool (&ServerConfig::UndernetMsgPrefix),	DT_BOOLEAN,  NULL},
+	{"security",	"announceinvites", "1",			NULL, DT_NOTHING,  ValidateInvite},
+	{"options",	"hostintopic",	"1",			new ValueContainerBool (&ServerConfig::FullHostInTopic),	DT_BOOLEAN,  NULL},
+	{"security",	"hidemodes",	"",			NULL, DT_NOTHING,  ValidateModeLists},
+	{"options",	"exemptchanops","",			NULL, DT_NOTHING,  ValidateExemptChanOps},
+	{"security",	"maxtargets",	"20",			new ValueContainerUInt (&ServerConfig::MaxTargets),		DT_INTEGER,  ValidateMaxTargets},
+	{"options",	"defaultmodes", "nt",			new ValueContainerChar (&ServerConfig::DefaultModes),		DT_CHARPTR,  NULL},
+	{"pid",		"file",		"",			new ValueContainerString (&ServerConfig::PID),			DT_CHARPTR,  NULL},
+	{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&ServerConfig::WhoWasGroupSize),	DT_INTEGER,  NULL},
+	{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&ServerConfig::WhoWasMaxGroups),	DT_INTEGER,  NULL},
+	{"whowas",	"maxkeep",	"3600",			NULL, DT_NOTHING,  ValidateWhoWas},
+	{"die",		"value",	"",			new ValueContainerChar (&ServerConfig::DieValue),		DT_CHARPTR,  NULL},
+	{"channels",	"users",	"20",			new ValueContainerUInt (&ServerConfig::MaxChans),		DT_INTEGER,  NULL},
+	{"channels",	"opers",	"60",			new ValueContainerUInt (&ServerConfig::OperMaxChans),		DT_INTEGER,  NULL},
+	{"cidr",	"ipv4clone",	"32",			new ValueContainerInt (&ServerConfig::c_ipv4_range),		DT_INTEGER,  NULL},
+	{"cidr",	"ipv6clone",	"128",			new ValueContainerInt (&ServerConfig::c_ipv6_range),		DT_INTEGER,  NULL},
+	{"limits",	"maxnick",	"32",			new ValueContainerLimit (&ServerLimits::NickMax),		DT_LIMIT,  NULL},
+	{"limits",	"maxchan",	"64",			new ValueContainerLimit (&ServerLimits::ChanMax),		DT_LIMIT,  NULL},
+	{"limits",	"maxmodes",	"20",			new ValueContainerLimit (&ServerLimits::MaxModes),		DT_LIMIT,  NULL},
+	{"limits",	"maxident",	"11",			new ValueContainerLimit (&ServerLimits::IdentMax),		DT_LIMIT,  NULL},
+	{"limits",	"maxquit",	"255",			new ValueContainerLimit (&ServerLimits::MaxQuit),		DT_LIMIT,  NULL},
+	{"limits",	"maxtopic",	"307",			new ValueContainerLimit (&ServerLimits::MaxTopic),		DT_LIMIT,  NULL},
+	{"limits",	"maxkick",	"255",			new ValueContainerLimit (&ServerLimits::MaxKick),		DT_LIMIT,  NULL},
+	{"limits",	"maxgecos",	"128",			new ValueContainerLimit (&ServerLimits::MaxGecos),		DT_LIMIT,  NULL},
+	{"limits",	"maxaway",	"200",			new ValueContainerLimit (&ServerLimits::MaxAway),		DT_LIMIT,  NULL},
+	{"options",	"invitebypassmodes",	"1",			new ValueContainerBool (&ServerConfig::InvBypassModes),		DT_BOOLEAN,  NULL},
+};
+
+/* These tags can occur multiple times, and therefore they have special code to read them
+ * which is different to the code for reading the singular tags listed above.
+ */
+MultiConfig MultiValues[] = {
+
+	{"connect",
+			{"allow",	"deny",		"password",	"timeout",	"pingfreq",
+			"sendq",	"recvq",	"localmax",	"globalmax",	"port",
+			"name",		"parent",	"maxchans",     "limit",	"hash",
+			NULL},
+			{"",		"",				"",			"",			"120",
+			 "",		"",				"3",		"3",		"0",
+			 "",		"",				"0",	    "0",		"",
+			 NULL},
+			{DT_IPADDRESS|DT_ALLOW_WILD, DT_IPADDRESS|DT_ALLOW_WILD, DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,
+			DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
+			DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER,	DT_CHARPTR},
+			NULL,},
+
+	{"uline",
+			{"server",	"silent",	NULL},
+			{"",		"0",		NULL},
+			{DT_HOSTNAME,	DT_BOOLEAN},
+			DoULine},
+
+	{"banlist",
+			{"chan",	"limit",	NULL},
+			{"",		"",		NULL},
+			{DT_CHARPTR,	DT_INTEGER},
+			DoMaxBans},
+
+	{"module",
+			{"name",	NULL},
+			{"",		NULL},
+			{DT_CHARPTR},
+			NULL},
+
+	{"badip",
+			{"reason",	"ipmask",	NULL},
+			{"No reason",	"",		NULL},
+			{DT_CHARPTR,	DT_IPADDRESS|DT_ALLOW_WILD},
+			DoZLine},
+
+	{"badnick",
+			{"reason",	"nick",		NULL},
+			{"No reason",	"",		NULL},
+			{DT_CHARPTR,	DT_CHARPTR},
+			DoQLine},
+
+	{"badhost",
+			{"reason",	"host",		NULL},
+			{"No reason",	"",		NULL},
+			{DT_CHARPTR,	DT_CHARPTR},
+			DoKLine},
+
+	{"exception",
+			{"reason",	"host",		NULL},
+			{"No reason",	"",		NULL},
+			{DT_CHARPTR,	DT_CHARPTR},
+			DoELine},
+
+	{"type",
+			{"name",	"classes",	NULL},
+			{"",		"",		NULL},
+			{DT_NOSPACES,	DT_CHARPTR},
+			DoType},
+
+	{"class",
+			{"name",	"commands",	"usermodes",	"chanmodes",	"privs",	NULL},
+			{"",		"",				"",				"",			"",			NULL},
+			{DT_NOSPACES,	DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR, DT_CHARPTR},
+			DoClass},
+};
+
+/* These tags MUST occur and must ONLY occur once in the config file */
+static const char* Once[] = { "server", "admin", "files", "power", "options" };
+
+// WARNING: it is not safe to use most of the codebase in this function, as it
+// will run in the config reader thread
 void ServerConfig::Read()
 {
-	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
-	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
-	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
-	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
-	static char disabledumodes[MAXBUF]; /* Disabled usermodes */
-	static char disabledcmodes[MAXBUF]; /* Disabled chanmodes */
-	valid = true;
-	/* std::ostringstream::clear() does not clear the string itself, only the error flags. */
-	errstr.clear();
-	errstr.str().clear();
-	include_stack.clear();
-
-	/* These tags MUST occur and must ONLY occur once in the config file */
-	static const char* Once[] = { "server", "admin", "files", "power", "options", NULL };
-
-	Deprecated ChangedConfig[] = {
-		{"options",	"hidelinks",		"has been moved to <security:hidelinks> as of 1.2a3"},
-		{"options",	"hidewhois",		"has been moved to <security:hidewhois> as of 1.2a3"},
-		{"options",     "userstats",		"has been moved to <security:userstats> as of 1.2a3"},
-		{"options",     "customversion",	"has been moved to <security:customversion> as of 1.2a3"},
-		{"options",     "hidesplits",		"has been moved to <security:hidesplits> as of 1.2a3"},
-		{"options",     "hidebans",		"has been moved to <security:hidebans> as of 1.2a3"},
-		{"options",     "hidekills",		"has been moved to <security:hidekills> as of 1.2a3"},
-		{"options",     "operspywhois",		"has been moved to <security:operspywhois> as of 1.2a3"},
-		{"options",     "announceinvites",	"has been moved to <security:announceinvites> as of 1.2a3"},
-		{"options",     "hidemodes",		"has been moved to <security:hidemodes> as of 1.2a3"},
-		{"options",     "maxtargets",		"has been moved to <security:maxtargets> as of 1.2a3"},
-		{"options",	"nouserdns",		"has been moved to <performance:nouserdns> as of 1.2a3"},
-		{"options",	"maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
-		{"options",	"softlimit",		"has been moved to <performance:softlimit> as of 1.2a3"},
-		{"options",     "somaxconn",		"has been moved to <performance:somaxconn> as of 1.2a3"},
-		{"options",     "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
-		{"options",     "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
-		{"options",	"loglevel",		"1.2 does not use the loglevel value. Please define <log> tags instead."},
-		{NULL,		NULL,			NULL}
-	};
-
-	/* These tags can occur ONCE or not at all */
-	InitialConfig Values[] = {
-		{"performance",	"softlimit",	"0",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
-		{"performance",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER,  ValidateMaxConn},
-		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR,  NoValidation},
-		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_HOSTNAME, ValidateServerName},
-		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR,  NoValidation},
-		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_NOSPACES, NoValidation},
-		{"server",	"id",		"",			new ValueContainerChar (this->sid),			DT_CHARPTR,  ValidateSID},
-		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR,  NoValidation},
-		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR,  NoValidation},
-		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR,  NoValidation},
-		{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR,  ValidateMotd},
-		{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR,  ValidateRules},
-		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR,  ValidateNotEmpty},
-		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER,  NoValidation},
-		{"power",	"hash",		"",			new ValueContainerChar (this->powerhash),		DT_CHARPTR,  NoValidation},
-		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR,  ValidateNotEmpty},
-		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR,  NoValidation},
-		{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR,  NoValidation},
-		{"options",	"fixedquit",	"",			new ValueContainerChar (this->FixedQuit),		DT_CHARPTR,  NoValidation},
-		{"options",	"prefixpart",	"",			new ValueContainerChar (this->PrefixPart),		DT_CHARPTR,  NoValidation},
-		{"options",	"suffixpart",	"",			new ValueContainerChar (this->SuffixPart),		DT_CHARPTR,  NoValidation},
-		{"options",	"fixedpart",	"",			new ValueContainerChar (this->FixedPart),		DT_CHARPTR,  NoValidation},
-		{"performance",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
-		{"performance",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
-		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN,  ValidateHalfOp},
-		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_IPADDRESS,DNSServerValidator},
-		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER,  NoValidation},
-		{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR,  NoValidation},
-		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR,  NoValidation},
-		{"disabled",	"usermodes",	"",			new ValueContainerChar (disabledumodes),		DT_CHARPTR,  ValidateDisabledUModes},
-		{"disabled",	"chanmodes",	"",			new ValueContainerChar (disabledcmodes),		DT_CHARPTR,  ValidateDisabledCModes},
-		{"disabled",	"fakenonexistant",	"0",		new ValueContainerBool (&this->DisabledDontExist),		DT_BOOLEAN,  NoValidation},
-
-		{"security",		"runasuser",	"",		new ValueContainerChar(this->SetUser),				DT_CHARPTR, NoValidation},
-		{"security",		"runasgroup",	"",		new ValueContainerChar(this->SetGroup),				DT_CHARPTR, NoValidation},
-		{"security",	"userstats",	"",			new ValueContainerChar (this->UserStats),		DT_CHARPTR,  NoValidation},
-		{"security",	"customversion","",			new ValueContainerChar (this->CustomVersion),		DT_CHARPTR,  NoValidation},
-		{"security",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN,  NoValidation},
-		{"security",	"hidebans",	"0",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN,  NoValidation},
-		{"security",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_NOSPACES, NoValidation},
-		{"security",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_NOSPACES,  NoValidation},
-		{"security",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN,  NoValidation},
-		{"security",	"restrictbannedusers",	"1",		new ValueContainerBool (&this->RestrictBannedUsers),		DT_BOOLEAN,  NoValidation},
-		{"security",	"genericoper",	"0",			new ValueContainerBool (&this->GenericOper),		DT_BOOLEAN,  NoValidation},
-		{"performance",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN,  NoValidation},
-		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN,  NoValidation},
-		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN,  NoValidation},
-		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN,  NoValidation},
-		{"security",	"announceinvites", "1",			new ValueContainerChar (announceinvites),		DT_CHARPTR,  ValidateInvite},
-		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN,  NoValidation},
-		{"security",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR,  ValidateModeLists},
-		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR,  ValidateExemptChanOps},
-		{"security",	"maxtargets",	"20",			new ValueContainerUInt (&this->MaxTargets),		DT_INTEGER,  ValidateMaxTargets},
-		{"options",	"defaultmodes", "nt",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR,  NoValidation},
-		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR,  NoValidation},
-		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER,  NoValidation},
-		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER,  NoValidation},
-		{"whowas",	"maxkeep",	"3600",			new ValueContainerChar (maxkeep),			DT_CHARPTR,  ValidateWhoWas},
-		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR,  NoValidation},
-		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER,  NoValidation},
-		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER,  NoValidation},
-		{"cidr",	"ipv4clone",	"32",			new ValueContainerInt (&this->c_ipv4_range),		DT_INTEGER,  NoValidation},
-		{"cidr",	"ipv6clone",	"128",			new ValueContainerInt (&this->c_ipv6_range),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxnick",	"32",			new ValueContainerST (&this->Limits.NickMax),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxchan",	"64",			new ValueContainerST (&this->Limits.ChanMax),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxmodes",	"20",			new ValueContainerST (&this->Limits.MaxModes),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxident",	"11",			new ValueContainerST (&this->Limits.IdentMax),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxquit",	"255",			new ValueContainerST (&this->Limits.MaxQuit),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxtopic",	"307",			new ValueContainerST (&this->Limits.MaxTopic),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxkick",	"255",			new ValueContainerST (&this->Limits.MaxKick),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxgecos",	"128",			new ValueContainerST (&this->Limits.MaxGecos),		DT_INTEGER,  NoValidation},
-		{"limits",	"maxaway",	"200",			new ValueContainerST (&this->Limits.MaxAway),		DT_INTEGER,  NoValidation},
-		{"options",	"invitebypassmodes",	"1",			new ValueContainerBool (&this->InvBypassModes),		DT_BOOLEAN,  NoValidation},
-		{NULL,		NULL,		NULL,			NULL,							DT_NOTHING,  NoValidation}
-	};
-
-
-	/* These tags can occur multiple times, and therefore they have special code to read them
-	 * which is different to the code for reading the singular tags listed above.
-	 */
-	MultiConfig MultiValues[] = {
-
-		{"connect",
-				{"allow",	"deny",		"password",	"timeout",	"pingfreq",
-				"sendq",	"recvq",	"localmax",	"globalmax",	"port",
-				"name",		"parent",	"maxchans",     "limit",	"hash",
-				NULL},
-				{"",		"",				"",			"",			"120",
-				 "",		"",				"3",		"3",		"0",
-				 "",		"",				"0",	    "0",		"",
-				 NULL},
-				{DT_IPADDRESS|DT_ALLOW_WILD, DT_IPADDRESS|DT_ALLOW_WILD, DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,
-				DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				DT_NOSPACES,	DT_NOSPACES,	DT_INTEGER,     DT_INTEGER,	DT_CHARPTR},
-				InitConnect, DoConnect, DoneConnect},
-
-		{"uline",
-				{"server",	"silent",	NULL},
-				{"",		"0",		NULL},
-				{DT_HOSTNAME,	DT_BOOLEAN},
-				InitULine,DoULine,DoneULine},
-
-		{"banlist",
-				{"chan",	"limit",	NULL},
-				{"",		"",		NULL},
-				{DT_CHARPTR,	DT_INTEGER},
-				InitMaxBans, DoMaxBans, DoneMaxBans},
-
-		{"module",
-				{"name",	NULL},
-				{"",		NULL},
-				{DT_CHARPTR},
-				InitModule, DoModule, DoneModule},
-
-		{"badip",
-				{"reason",	"ipmask",	NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_IPADDRESS|DT_ALLOW_WILD},
-				InitXLine, DoZLine, DoneConfItem},
-
-		{"badnick",
-				{"reason",	"nick",		NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoQLine, DoneConfItem},
-
-		{"badhost",
-				{"reason",	"host",		NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoKLine, DoneConfItem},
-
-		{"exception",
-				{"reason",	"host",		NULL},
-				{"No reason",	"",		NULL},
-				{DT_CHARPTR,	DT_CHARPTR},
-				InitXLine, DoELine, DoneELine},
-
-		{"type",
-				{"name",	"classes",	NULL},
-				{"",		"",		NULL},
-				{DT_NOSPACES,	DT_CHARPTR},
-				InitTypes, DoType, DoneClassesAndTypes},
-
-		{"class",
-				{"name",	"commands",	"usermodes",	"chanmodes",	"privs",	NULL},
-				{"",		"",				"",				"",			"",			NULL},
-				{DT_NOSPACES,	DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR, DT_CHARPTR},
-				InitClasses, DoClass, DoneClassesAndTypes},
-
-		{NULL,
-				{NULL},
-				{NULL},
-				{0},
-				NULL, NULL, NULL}
-	};
-
 	/* Load and parse the config file, if there are any errors then explode */
 
 	if (!this->DoInclude(ServerInstance->ConfigFileName))
@@ -912,17 +911,25 @@ void ServerConfig::Read()
 		valid = false;
 		return;
 	}
+}
+
+void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
+{
+	valid = true;
+	/* std::ostringstream::clear() does not clear the string itself, only the error flags. */
+	errstr.clear();
+	errstr.str().clear();
+	include_stack.clear();
 
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
 		/* Check we dont have more than one of singular tags, or any of them missing
 		 */
-		for (int Index = 0; Once[Index]; Index++)
-			if (!CheckOnce(Once[Index]))
-				return;
+		for (int Index = 0; Index * sizeof(*Once) < sizeof(Once); Index++)
+			CheckOnce(Once[Index]);
 
-		for (int Index = 0; ChangedConfig[Index].tag; Index++)
+		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
 		{
 			char item[MAXBUF];
 			*item = 0;
@@ -932,7 +939,7 @@ void ServerConfig::Read()
 
 		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
 		 */
-		for (int Index = 0; Values[Index].tag; ++Index)
+		for (int Index = 0; Index * sizeof(*Values) < sizeof(Values); ++Index)
 		{
 			char item[MAXBUF];
 			int dt = Values[Index].datatype;
@@ -944,7 +951,7 @@ void ServerConfig::Read()
 			ConfValue(Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
 
-			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
+			if (Values[Index].validation_function && !Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
 				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 
 			switch (dt)
@@ -952,22 +959,22 @@ void ServerConfig::Read()
 				case DT_NOSPACES:
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					this->ValidateNoSpaces(vi.GetString(), Values[Index].tag, Values[Index].value);
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					ValidateNoSpaces(vi.GetString(), Values[Index].tag, Values[Index].value);
+					vcc->Set(this, vi);
 				}
 				break;
 				case DT_HOSTNAME:
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					this->ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
+					vcc->Set(this, vi);
 				}
 				break;
 				case DT_IPADDRESS:
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					this->ValidateIP(vi.GetString(), Values[Index].tag, Values[Index].value, allow_wild);
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					ValidateIP(vi.GetString(), Values[Index].tag, Values[Index].value, allow_wild);
+					vcc->Set(this, vi);
 				}
 				break;
 				case DT_CHANNEL:
@@ -977,32 +984,39 @@ void ServerConfig::Read()
 					{
 						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
 					}
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					vcc->Set(this, vi);
 				}
 				break;
 				case DT_CHARPTR:
 				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					/* Make sure we also copy the null terminator */
-					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
+					ValueContainerChar* vcc = dynamic_cast<ValueContainerChar*>(Values[Index].val);
+					if (vcc)
+						vcc->Set(this, vi);
+					ValueContainerString* vcs = dynamic_cast<ValueContainerString*>(Values[Index].val);
+					if (vcs)
+						vcs->Set(this, vi.GetValue());
 				}
 				break;
 				case DT_INTEGER:
 				{
 					int val = vi.GetInteger();
 					ValueContainerInt* vci = (ValueContainerInt*)Values[Index].val;
-					vci->Set(&val, sizeof(int));
+					vci->Set(this, val);
+				}
+				break;
+				case DT_LIMIT:
+				{
+					int val = vi.GetInteger();
+					ValueContainerLimit* vci = (ValueContainerLimit*)Values[Index].val;
+					vci->Set(this, val);
 				}
 				break;
 				case DT_BOOLEAN:
 				{
 					bool val = vi.GetBool();
 					ValueContainerBool* vcb = (ValueContainerBool*)Values[Index].val;
-					vcb->Set(&val, sizeof(bool));
+					vcb->Set(this, val);
 				}
-				break;
-				default:
-					/* You don't want to know what happens if someones bad code sends us here. */
 				break;
 			}
 			/* We're done with this now */
@@ -1013,10 +1027,8 @@ void ServerConfig::Read()
 		 * and call the callbacks associated with them. We have three
 		 * callbacks for these, a 'start', 'item' and 'end' callback.
 		 */
-		for (int Index = 0; MultiValues[Index].tag; ++Index)
+		for (int Index = 0; Index * sizeof(MultiConfig) < sizeof(MultiValues); ++Index)
 		{
-			MultiValues[Index].init_function(this, MultiValues[Index].tag);
-
 			int number_of_tags = ConfValueEnum(MultiValues[Index].tag);
 
 			for (int tagnum = 0; tagnum < number_of_tags; ++tagnum)
@@ -1039,7 +1051,7 @@ void ServerConfig::Read()
 								vl.push_back(ValueItem(item));
 							else
 								vl.push_back(ValueItem(""));
-							this->ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+							ValidateNoSpaces(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
 						}
 						break;
 						case DT_HOSTNAME:
@@ -1049,7 +1061,7 @@ void ServerConfig::Read()
 								vl.push_back(ValueItem(item));
 							else
 								vl.push_back(ValueItem(""));
-							this->ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
+							ValidateHostname(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum]);
 						}
 						break;
 						case DT_IPADDRESS:
@@ -1059,7 +1071,7 @@ void ServerConfig::Read()
 								vl.push_back(ValueItem(item));
 							else
 								vl.push_back(ValueItem(""));
-							this->ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
+							ValidateIP(vl[vl.size()-1].GetString(), MultiValues[Index].tag, MultiValues[Index].items[valuenum], allow_wild);
 						}
 						break;
 						case DT_CHANNEL:
@@ -1097,14 +1109,11 @@ void ServerConfig::Read()
 							vl.push_back(ValueItem(item));
 						}
 						break;
-						default:
-							/* Someone was smoking craq if we got here, and we're all gonna die. */
-						break;
 					}
 				}
-				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
+				if (MultiValues[Index].validation_function)
+					MultiValues[Index].validation_function(this, MultiValues[Index].tag, MultiValues[Index].items, vl, MultiValues[Index].datatype);
 			}
-			MultiValues[Index].finish_function(this, MultiValues[Index].tag);
 		}
 
 		/* Finalise the limits, increment them all by one so that we can just put assign(str, 0, val)
@@ -1112,51 +1121,16 @@ void ServerConfig::Read()
 		 */
 		Limits.Finalise();
 
+		// Handle special items
+		CrossCheckOperClassType();
+		CrossCheckConnectBlocks(old);
 	}
-
 	catch (CoreException &ce)
 	{
 		errstr << ce.GetReason();
 		valid = false;
-		return;
 	}
 
-	for (int i = 0; i < ConfValueEnum("type"); ++i)
-	{
-		char item[MAXBUF], classn[MAXBUF], classes[MAXBUF];
-		std::string classname;
-		ConfValue("type", "classes", "", i, classes, MAXBUF, false);
-		irc::spacesepstream str(classes);
-		ConfValue("type", "name", "", i, item, MAXBUF, false);
-		while (str.GetToken(classname))
-		{
-			std::string lost;
-			bool foundclass = false;
-			for (int j = 0; j < ConfValueEnum("class"); ++j)
-			{
-				ConfValue("class", "name", "", j, classn, MAXBUF, false);
-				if (!strcmp(classn, classname.c_str()))
-				{
-					foundclass = true;
-					break;
-				}
-			}
-			if (!foundclass)
-			{
-				char msg[MAXBUF];
-				snprintf(msg, MAXBUF, "	Warning: Oper type '%s' has a missing class named '%s', this does nothing!\n",
-					item, classname.c_str());
-				errstr << msg;
-			}
-		}
-	}
-
-}
-
-void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
-{
-	int rem = 0, add = 0;
-	bool errors = false;
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
@@ -1187,8 +1161,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
 
-	errors = !errstr.str().empty();
-	if (errors)
+	valid = errstr.str().empty();
+	if (!valid)
 		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
 
 	while (errstr.good())
@@ -1216,65 +1190,82 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)
 	{
-		if (errors)
+		if (!valid)
 		{
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
 		}
 
 		return;
 	}
-	
+
 	// If there were errors processing configuration, don't touch modules.
-	if (errors)
+	if (!valid)
 		return;
 
-
-	if (!removed_modules.empty())
+	ApplyModules(user);
+	for (std::vector<ConnectClass*>::iterator i = removed_classes.begin(); i != removed_classes.end(); i++)
 	{
-		for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+		ConnectClass* c = *i;
+		if (0 == --c->RefCount)
+			delete c;
+	}
+}
+
+void ServerConfig::ApplyModules(User* user)
+{
+	const std::vector<std::string> v = ServerInstance->Modules->GetAllModuleNames(0);
+	std::vector<std::string> added_modules;
+	std::set<std::string> removed_modules(v.begin(), v.end());
+
+	int new_module_count = ConfValueEnum("module");
+	for(int i=0; i < new_module_count; i++)
+	{
+		std::string name;
+		if (ConfValue("module", "name", i, name, false))
 		{
-			if (ServerInstance->Modules->Unload(removing->c_str()))
-			{
-				ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
-
-				if (user)
-					user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
-				else
-					ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully unloaded.", removing->c_str());
-
-				rem++;
-			}
-			else
-			{
-				if (user)
-					user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
-				else
-					 ServerInstance->SNO->WriteToSnoMask('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
-			}
+			// if this module is already loaded, the erase will succeed, so we need do nothing
+			// otherwise, we need to add the module (which will be done later)
+			if (removed_modules.erase(name) == 0)
+				added_modules.push_back(name);
 		}
 	}
 
-	if (!added_modules.empty())
+	for (std::set<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 	{
-		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+		if (ServerInstance->Modules->Unload(removing->c_str()))
 		{
-			if (ServerInstance->Modules->Load(adding->c_str()))
-			{
-				ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
-				if (user)
-					user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
-				else
-					ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully loaded.", adding->c_str());
+			ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
-				add++;
-			}
+			if (user)
+				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
 			else
-			{
-				if (user)
-					user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
-				else
-					ServerInstance->SNO->WriteToSnoMask('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
-			}
+				ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully unloaded.", removing->c_str());
+		}
+		else
+		{
+			if (user)
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+			else
+				 ServerInstance->SNO->WriteToSnoMask('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
+		}
+	}
+
+	for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
+	{
+		if (ServerInstance->Modules->Load(adding->c_str()))
+		{
+			ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
+			if (user)
+				user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
+			else
+				ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully loaded.", adding->c_str());
+		}
+		else
+		{
+			if (user)
+				user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+			else
+				ServerInstance->SNO->WriteToSnoMask('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 
@@ -2036,12 +2027,7 @@ ValueItem::ValueItem(bool value)
 	v = n.str();
 }
 
-ValueItem::ValueItem(const char* value)
-{
-	v = value;
-}
-
-void ValueItem::Set(const char* value)
+void ValueItem::Set(const std::string& value)
 {
 	v = value;
 }
@@ -2060,9 +2046,9 @@ int ValueItem::GetInteger()
 	return atoi(v.c_str());
 }
 
-char* ValueItem::GetString()
+const char* ValueItem::GetString() const
 {
-	return (char*)v.c_str();
+	return v.c_str();
 }
 
 bool ValueItem::GetBool()
@@ -2070,168 +2056,6 @@ bool ValueItem::GetBool()
 	return (GetInteger() || v == "yes" || v == "true");
 }
 
-
-
-
-/*
- * XXX should this be in a class? -- w00t
- */
-bool InitTypes(ServerConfig* conf, const char*)
-{
-	conf->opertypes.clear();
-	return true;
-}
-
-/*
- * XXX should this be in a class? -- w00t
- */
-bool InitClasses(ServerConfig* conf, const char*)
-{
-	if (conf->operclass.size())
-	{
-		for (operclass_t::iterator n = conf->operclass.begin(); n != conf->operclass.end(); n++)
-		{
-			if (n->second.commandlist)
-				delete[] n->second.commandlist;
-			if (n->second.cmodelist)
-				delete[] n->second.cmodelist;
-			if (n->second.umodelist)
-				delete[] n->second.umodelist;
-			if (n->second.privs)
-				delete[] n->second.privs;
-		}
-	}
-
-	conf->operclass.clear();
-	return true;
-}
-
-/*
- * XXX should this be in a class? -- w00t
- */
-bool DoType(ServerConfig* conf, const char*, char**, ValueList &values, int*)
-{
-	const char* TypeName = values[0].GetString();
-	const char* Classes = values[1].GetString();
-
-	conf->opertypes[TypeName] = std::string(Classes);
-	return true;
-}
-
-/*
- * XXX should this be in a class? -- w00t
- */
-bool DoClass(ServerConfig* conf, const char* tag, char**, ValueList &values, int*)
-{
-	const char* ClassName = values[0].GetString();
-	const char* CommandList = values[1].GetString();
-	const char* UModeList = values[2].GetString();
-	const char* CModeList = values[3].GetString();
-	const char *PrivsList = values[4].GetString();
-
-	for (const char* c = UModeList; *c; ++c)
-	{
-		if ((*c < 'A' || *c > 'z') && *c != '*')
-		{
-			throw CoreException("Character " + std::string(1, *c) + " is not a valid mode in <class:usermodes>");
-		}
-	}
-	for (const char* c = CModeList; *c; ++c)
-	{
-		if ((*c < 'A' || *c > 'z') && *c != '*')
-		{
-			throw CoreException("Character " + std::string(1, *c) + " is not a valid mode in <class:chanmodes>");
-		}
-	}
-
-	conf->operclass[ClassName].commandlist = strnewdup(CommandList);
-	conf->operclass[ClassName].umodelist = strnewdup(UModeList);
-	conf->operclass[ClassName].cmodelist = strnewdup(CModeList);
-	conf->operclass[ClassName].privs = strnewdup(PrivsList);
-	return true;
-}
-
-/*
- * XXX should this be in a class? -- w00t
- */
-bool DoneClassesAndTypes(ServerConfig*, const char*)
-{
-	return true;
-}
-
-
-
-bool InitXLine(ServerConfig* conf, const char* tag)
-{
-	return true;
-}
-
-bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* ipmask = values[1].GetString();
-
-	ZLine* zl = new ZLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ipmask);
-	if (!conf->GetInstance()->XLines->AddLine(zl, NULL))
-		delete zl;
-
-	return true;
-}
-
-bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* nick = values[1].GetString();
-
-	QLine* ql = new QLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, nick);
-	if (!conf->GetInstance()->XLines->AddLine(ql, NULL))
-		delete ql;
-
-	return true;
-}
-
-bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* host = values[1].GetString();
-
-	XLineManager* xlm = conf->GetInstance()->XLines;
-
-	IdentHostPair ih = xlm->IdentSplit(host);
-
-	KLine* kl = new KLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
-	if (!xlm->AddLine(kl, NULL))
-		delete kl;
-	return true;
-}
-
-bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* reason = values[0].GetString();
-	const char* host = values[1].GetString();
-
-	XLineManager* xlm = conf->GetInstance()->XLines;
-
-	IdentHostPair ih = xlm->IdentSplit(host);
-
-	ELine* el = new ELine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
-	if (!xlm->AddLine(el, NULL))
-		delete el;
-	return true;
-}
-
-// this should probably be moved to configreader, but atm it relies on CheckELines above.
-bool DoneELine(ServerConfig* conf, const char* tag)
-{
-	for (std::vector<User*>::const_iterator u2 = conf->GetInstance()->Users->local_users.begin(); u2 != conf->GetInstance()->Users->local_users.end(); u2++)
-	{
-		User* u = (User*)(*u2);
-		u->exempt = false;
-	}
-
-	conf->GetInstance()->XLines->CheckELines();
-	return true;
-}
 
 void ConfigReaderThread::Run()
 {
@@ -2243,7 +2067,44 @@ void ConfigReaderThread::Run()
 void ConfigReaderThread::Finish()
 {
 	ServerConfig* old = ServerInstance->Config;
+	ServerInstance->Logs->Log("CONFIG",DEBUG,"Switching to new configuration...");
+	ServerInstance->Logs->CloseLogs();
 	ServerInstance->Config = this->Config;
+	ServerInstance->Logs->OpenFileLogs();
 	Config->Apply(old, TheUserUID);
-	delete old;
+
+	if (Config->valid)
+	{
+		/*
+		 * Apply the changed configuration from the rehash.
+		 *
+		 * XXX: The order of these is IMPORTANT, do not reorder them without testing
+		 * thoroughly!!!
+		 */
+		ServerInstance->XLines->CheckELines();
+		ServerInstance->XLines->CheckELines();
+		ServerInstance->XLines->ApplyLines();
+		ServerInstance->Res->Rehash();
+		ServerInstance->ResetMaxBans();
+		Config->ApplyDisabledCommands(Config->DisabledCommands);
+		User* user = TheUserUID.empty() ? ServerInstance->FindNick(TheUserUID) : NULL;
+		FOREACH_MOD_I(ServerInstance, I_OnRehash, OnRehash(user));
+		ServerInstance->BuildISupport();
+
+		delete old;
+	}
+	else
+	{
+		// whoops, abort!
+		ServerInstance->Logs->CloseLogs();
+		ServerInstance->Config = old;
+		ServerInstance->Logs->OpenFileLogs();
+		delete this->Config;
+	}
+}
+
+template<>
+void ValueContainer<char[MAXBUF]>::Set(ServerConfig* conf, ValueItem const& item)
+{
+	strlcpy(conf->*vptr, item.GetString(), MAXBUF);
 }

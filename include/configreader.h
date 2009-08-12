@@ -32,194 +32,9 @@
 
 /* Required forward definitions */
 class ServerConfig;
+class ServerLimits;
 class InspIRCd;
 class BufferedSocket;
-
-/** Types of data in the core config
- */
-enum ConfigDataType
-{
-	DT_NOTHING       = 0,		/* No data */
-	DT_INTEGER       = 1,		/* Integer */
-	DT_CHARPTR       = 2,		/* Char pointer */
-	DT_BOOLEAN       = 3,		/* Boolean */
-	DT_HOSTNAME	 = 4,		/* Hostname syntax */
-	DT_NOSPACES	 = 5,		/* No spaces */
-	DT_IPADDRESS	 = 6,		/* IP address (v4, v6) */
-	DT_CHANNEL	 = 7,		/* Channel name */
-	DT_ALLOW_WILD	 = 64,		/* Allow wildcards/CIDR in DT_IPADDRESS */
-	DT_ALLOW_NEWLINE = 128		/* New line characters allowed in DT_CHARPTR */
-};
-
-/** The maximum number of values in a core configuration tag. Can be increased if needed.
- */
-#define MAX_VALUES_PER_TAG 18
-
-/** Holds a config value, either string, integer or boolean.
- * Callback functions receive one or more of these, either on
- * their own as a reference, or in a reference to a deque of them.
- * The callback function can then alter the values of the ValueItem
- * classes to validate the settings.
- */
-class ValueItem
-{
-	/** Actual data */
-	std::string v;
- public:
-	/** Initialize with an int */
-	ValueItem(int value);
-	/** Initialize with a bool */
-	ValueItem(bool value);
-	/** Initialize with a char pointer */
-	ValueItem(const char* value);
-	/** Change value to a char pointer */
-	void Set(const char* val);
-	/** Change value to an int */
-	void Set(int value);
-	/** Get value as an int */
-	int GetInteger();
-	/** Get value as a string */
-	char* GetString();
-	/** Get value as a bool */
-	bool GetBool();
-};
-
-/** The base class of the container 'ValueContainer'
- * used internally by the core to hold core values.
- */
-class ValueContainerBase
-{
- public:
-	/** Constructor */
-	ValueContainerBase() { }
-	/** Destructor */
-	virtual ~ValueContainerBase() { }
-};
-
-/** ValueContainer is used to contain pointers to different
- * core values such as the server name, maximum number of
- * clients etc.
- * It is specialized to hold a data type, then pointed at
- * a value in the ServerConfig class. When the value has been
- * read and validated, the Set method is called to write the
- * value safely in a type-safe manner.
- */
-template<typename T> class ValueContainer : public ValueContainerBase
-{
-	/** Contained item */
-	T val;
- public:
-
-	/** Initialize with nothing */
-	ValueContainer()
-	{
-		val = NULL;
-	}
-
-	/** Initialize with a value of type T */
-	ValueContainer(T Val)
-	{
-		val = Val;
-	}
-
-	/** Change value to type T of size s */
-	void Set(T newval, size_t s)
-	{
-		memcpy(val, newval, s);
-	}
-};
-
-/** A specialization of ValueContainer to hold a pointer to a bool
- */
-typedef ValueContainer<bool*> ValueContainerBool;
-
-/** A specialization of ValueContainer to hold a pointer to
- * an unsigned int
- */
-typedef ValueContainer<unsigned int*> ValueContainerUInt;
-
-/** A specialization of ValueContainer to hold a pointer to
- * a char array.
- */
-typedef ValueContainer<char*> ValueContainerChar;
-
-/** A specialization of ValueContainer to hold a pointer to
- * an int
- */
-typedef ValueContainer<int*> ValueContainerInt;
-
-/** A specialization of ValueContainer to hold a pointer to
- * a size_t.
- */
-typedef ValueContainer<size_t*> ValueContainerST;
-
-/** A set of ValueItems used by multi-value validator functions
- */
-typedef std::deque<ValueItem> ValueList;
-
-/** A callback for validating a single value
- */
-typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, ValueItem&);
-/** A callback for validating multiple value entries
- */
-typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, ValueList&, int*);
-/** A callback indicating the end of a group of entries
- */
-typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
-
-/** Holds a core configuration item and its callbacks
- */
-struct InitialConfig
-{
-	/** Tag name */
-	const char* tag;
-	/** Value name */
-	const char* value;
-	/** Default, if not defined */
-	const char* default_value;
-	/** Value containers */
-	ValueContainerBase* val;
-	/** Data types */
-	int datatype;
-	/** Validation function */
-	Validator validation_function;
-};
-
-/** Represents a deprecated configuration tag.
- */
-struct Deprecated
-{
-	/** Tag name
-	 */
-	const char* tag;
-	/** Tag value
-	 */
-	const char* value;
-	/** Reason for deprecation
-	 */
-	const char* reason;
-};
-
-/** Holds a core configuration item and its callbacks
- * where there may be more than one item
- */
-struct MultiConfig
-{
-	/** Tag name */
-	const char*	tag;
-	/** One or more items within tag */
-	const char*	items[MAX_VALUES_PER_TAG];
-	/** One or more defaults for items within tags */
-	const char* items_default[MAX_VALUES_PER_TAG];
-	/** One or more data types */
-	int		datatype[MAX_VALUES_PER_TAG];
-	/** Initialization function */
-	MultiNotify	init_function;
-	/** Validation function */
-	MultiValidator	validation_function;
-	/** Completion function */
-	MultiNotify	finish_function;
-};
 
 /** A set of oper types
  */
@@ -318,6 +133,9 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	std::vector<std::string> include_stack;
 
+	/* classes removed by this rehash */
+	std::vector<ConnectClass*> removed_classes;
+
 	/** This private method processes one line of
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
@@ -327,6 +145,9 @@ class CoreExport ServerConfig : public Extensible
 	/** Check that there is only one of each configuration item
 	 */
 	bool CheckOnce(const char* tag);
+
+	void CrossCheckOperClassType();
+	void CrossCheckConnectBlocks(ServerConfig* current);
 
  public:
 	/** Process an include executable directive
@@ -350,9 +171,6 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
-
-	/** Pointer to function that validates dns server addresses (can be changed depending on platform) */
-	Validator DNSServerValidator;
 
 	/** Returns the creator InspIRCd pointer
 	 */
@@ -513,12 +331,12 @@ class CoreExport ServerConfig : public Extensible
 	 * overridden in the configuration file via
 	 * the <options> tag.
 	 */
-	char ModPath[1024];
+	std::string ModPath;
 
 	/** The full pathname to the executable, as
 	 * given in argv[0] when the program starts.
 	 */
-	char MyExecutable[1024];
+	std::string MyExecutable;
 
 	/** The file handle of the logfile. If this
 	 * value is NULL, the log file is not open,
@@ -658,7 +476,7 @@ class CoreExport ServerConfig : public Extensible
 	/** The full pathname and filename of the PID
 	 * file as defined in the configuration.
 	 */
-	char PID[1024];
+	std::string PID;
 
 	/** The connect classes in use by the IRC server.
 	 */
@@ -766,10 +584,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	ServerConfig(InspIRCd* Instance);
 
-	/** Clears the include stack in preperation for a Read() call.
-	 */
-	void ClearStack();
-
 	/** Get server ID as string with required leading zeroes
 	 */
 	std::string GetSID();
@@ -791,6 +605,7 @@ class CoreExport ServerConfig : public Extensible
 	/** Apply configuration changes from the old configuration.
 	 */
 	void Apply(ServerConfig* old, const std::string &useruid);
+	void ApplyModules(User* user);
 
 	/** Read a file into a file_cache object
 	 */
@@ -872,17 +687,7 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	int ConfVarEnum(const std::string &tag, int index);
 
-	/** Validates a hostname value, throwing ConfigException if it is not valid
-	 */
-	void ValidateHostname(const char* p, const std::string &tag, const std::string &val);
-
-	/** Validates an IP address value, throwing ConfigException if it is not valid
-	 */
-	void ValidateIP(const char* p, const std::string &tag, const std::string &val, bool wild);
-
-	/** Validates a value that should not contain spaces, throwing ConfigException of it is not valid
-	 */
-	void ValidateNoSpaces(const char* p, const std::string &tag, const std::string &val);
+	bool ApplyDisabledCommands(const char* data);
 
 	/** Returns the fully qualified path to the inspircd directory
 	 * @return The full program directory
@@ -907,50 +712,202 @@ class CoreExport ServerConfig : public Extensible
 
 };
 
-/** Initialize the disabled commands list
+
+/** Types of data in the core config
  */
-CoreExport bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance);
+enum ConfigDataType
+{
+	DT_NOTHING       = 0,		/* No data */
+	DT_INTEGER       = 1,		/* Integer */
+	DT_CHARPTR       = 2,		/* Char pointer */
+	DT_BOOLEAN       = 3,		/* Boolean */
+	DT_HOSTNAME	 = 4,		/* Hostname syntax */
+	DT_NOSPACES	 = 5,		/* No spaces */
+	DT_IPADDRESS	 = 6,		/* IP address (v4, v6) */
+	DT_CHANNEL	 = 7,		/* Channel name */
+	DT_LIMIT     = 8,       /* size_t */
+	DT_ALLOW_WILD	 = 64,		/* Allow wildcards/CIDR in DT_IPADDRESS */
+	DT_ALLOW_NEWLINE = 128		/* New line characters allowed in DT_CHARPTR */
+};
 
-/** Initialize the oper types
+/** The maximum number of values in a core configuration tag. Can be increased if needed.
  */
-bool InitTypes(ServerConfig* conf, const char* tag);
+#define MAX_VALUES_PER_TAG 18
 
-/** Initialize the oper classes
+/** Holds a config value, either string, integer or boolean.
+ * Callback functions receive one or more of these, either on
+ * their own as a reference, or in a reference to a deque of them.
+ * The callback function can then alter the values of the ValueItem
+ * classes to validate the settings.
  */
-bool InitClasses(ServerConfig* conf, const char* tag);
+class ValueItem
+{
+	/** Actual data */
+	std::string v;
+ public:
+	/** Initialize with an int */
+	ValueItem(int value);
+	/** Initialize with a bool */
+	ValueItem(bool value);
+	/** Initialize with a string */
+	ValueItem(const char* value) : v(value) { }
+	/** Change value to a string */
+	void Set(const std::string &val);
+	/** Change value to an int */
+	void Set(int value);
+	/** Get value as an int */
+	int GetInteger();
+	/** Get value as a string */
+	const char* GetString() const;
+	/** Get value as a string */
+	inline const std::string& GetValue() const { return v; }
+	/** Get value as a bool */
+	bool GetBool();
+};
 
-/** Initialize an oper type
+/** The base class of the container 'ValueContainer'
+ * used internally by the core to hold core values.
  */
-bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+class ValueContainerBase
+{
+ public:
+	/** Constructor */
+	ValueContainerBase() { }
+	/** Destructor */
+	virtual ~ValueContainerBase() { }
+};
 
-/** Initialize an oper class
+/** ValueContainer is used to contain pointers to different
+ * core values such as the server name, maximum number of
+ * clients etc.
+ * It is specialized to hold a data type, then pointed at
+ * a value in the ServerConfig class. When the value has been
+ * read and validated, the Set method is called to write the
+ * value safely in a type-safe manner.
  */
-bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+template<typename T> class ValueContainer : public ValueContainerBase
+{
+	T ServerConfig::* const vptr;
+ public:
+	/** Initialize with a value of type T */
+	ValueContainer(T ServerConfig::* const offset) : vptr(offset)
+	{
+	}
 
-/** Finish initializing the oper types and classes
+	/** Change value to type T of size s */
+	void Set(ServerConfig* conf, const T& value)
+	{
+		conf->*vptr = value;
+	}
+
+	void Set(ServerConfig* conf, const ValueItem& item);
+};
+
+template<> void ValueContainer<char[MAXBUF]>::Set(ServerConfig* conf, ValueItem const& item);
+
+
+class ValueContainerLimit : public ValueContainerBase
+{
+	size_t ServerLimits::* const vptr;
+ public:
+	/** Initialize with a value of type T */
+	ValueContainerLimit(size_t ServerLimits::* const offset) : vptr(offset)
+	{
+	}
+
+	/** Change value to type T of size s */
+	void Set(ServerConfig* conf, const size_t& value)
+	{
+		conf->Limits.*vptr = value;
+	}
+};
+
+/** A specialization of ValueContainer to hold a pointer to a bool
  */
-bool DoneClassesAndTypes(ServerConfig* conf, const char* tag);
+typedef ValueContainer<bool> ValueContainerBool;
 
-
-
-/** Initialize x line
+/** A specialization of ValueContainer to hold a pointer to
+ * an unsigned int
  */
-bool InitXLine(ServerConfig* conf, const char* tag);
+typedef ValueContainer<unsigned int> ValueContainerUInt;
 
-/** Add a config-defined zline
+/** A specialization of ValueContainer to hold a pointer to
+ * a char array.
  */
-bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+typedef ValueContainer<char[MAXBUF]> ValueContainerChar;
 
-/** Add a config-defined qline
+/** A specialization of ValueContainer to hold a pointer to
+ * a char array.
  */
-bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+typedef ValueContainer<std::string> ValueContainerString;
 
-/** Add a config-defined kline
+/** A specialization of ValueContainer to hold a pointer to
+ * an int
  */
-bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+typedef ValueContainer<int> ValueContainerInt;
 
-/** Add a config-defined eline
+/** A set of ValueItems used by multi-value validator functions
  */
-bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+typedef std::deque<ValueItem> ValueList;
+
+/** A callback for validating a single value
+ */
+typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, ValueItem&);
+/** A callback for validating multiple value entries
+ */
+typedef bool (*MultiValidator)(ServerConfig* conf, const char*, const char**, ValueList&, int*);
+/** A callback indicating the end of a group of entries
+ */
+typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
+
+/** Holds a core configuration item and its callbacks
+ */
+struct InitialConfig
+{
+	/** Tag name */
+	const char* tag;
+	/** Value name */
+	const char* value;
+	/** Default, if not defined */
+	const char* default_value;
+	/** Value containers */
+	ValueContainerBase* val;
+	/** Data types */
+	int datatype;
+	/** Validation function */
+	Validator validation_function;
+};
+
+/** Represents a deprecated configuration tag.
+ */
+struct Deprecated
+{
+	/** Tag name
+	 */
+	const char* tag;
+	/** Tag value
+	 */
+	const char* value;
+	/** Reason for deprecation
+	 */
+	const char* reason;
+};
+
+/** Holds a core configuration item and its callbacks
+ * where there may be more than one item
+ */
+struct MultiConfig
+{
+	/** Tag name */
+	const char*	tag;
+	/** One or more items within tag */
+	const char*	items[MAX_VALUES_PER_TAG];
+	/** One or more defaults for items within tags */
+	const char* items_default[MAX_VALUES_PER_TAG];
+	/** One or more data types */
+	int		datatype[MAX_VALUES_PER_TAG];
+	/** Validation function */
+	MultiValidator	validation_function;
+};
 
 #endif

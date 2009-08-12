@@ -245,6 +245,8 @@ User::~User()
 	{
 		this->MyClass->RefCount--;
 		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %lu", this->MyClass->RefCount);
+		if (MyClass->RefCount == 0)
+			delete MyClass;
 	}
 
 	if (this->AllowedOperCommands)
@@ -901,7 +903,7 @@ void User::CheckClass()
 {
 	ConnectClass* a = this->MyClass;
 
-	if ((!a) || (a->GetType() == CC_DENY))
+	if ((!a) || (a->type == CC_DENY))
 	{
 		ServerInstance->Users->QuitUser(this, "Unauthorised connection");
 		return;
@@ -1839,10 +1841,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
-			if (c->GetDisabled())
-				continue; // can't possibly match, removed from conf
-
-			if (explicit_name == c->GetName())
+			if (explicit_name == c->name)
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Explicitly set to %s", explicit_name.c_str());
 				found = c;
@@ -1855,20 +1854,13 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
-			if (c->GetType() == CC_ALLOW)
+			if (c->type == CC_ALLOW)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "ALLOW %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "ALLOW %s %d %s", c->host.c_str(), c->GetPort(), c->GetName().c_str());
 			}
 			else
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "DENY %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
-			}
-
-			/* if it's disabled, we can't match this one. */
-			if (c->GetDisabled())
-			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class disabled");
-				continue;
 			}
 
 			/* check if host matches.. */
@@ -1883,7 +1875,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			 * deny change if change will take class over the limit check it HERE, not after we found a matching class,
 			 * because we should attempt to find another class if this one doesn't match us. -- w00t
 			 */
-			if (c->limit && (c->RefCount + 1 >= c->limit))
+			if (c->limit && (c->RefCount >= c->limit))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
 				continue;
@@ -1920,6 +1912,8 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 				return this->MyClass;
 			this->MyClass->RefCount--;
 			ServerInstance->Logs->Log("USERS", DEBUG, "Untying user from connect class -- refcount: %lu", this->MyClass->RefCount);
+			if (MyClass->RefCount == 0)
+				delete MyClass;
 		}
 
 		this->MyClass = found;
@@ -2083,4 +2077,30 @@ VisData::~VisData()
 bool VisData::VisibleTo(User* user)
 {
 	return true;
+}
+
+
+ConnectClass::ConnectClass(char t, const std::string& mask)
+	: type(t), name("unnamed"), registration_timeout(0), host(mask), pingtime(0), pass(""), hash(""), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), limit(0), RefCount(1)
+{
+}
+
+ConnectClass::ConnectClass(char t, const std::string& mask, const ConnectClass& parent)
+	: type(t), name("unnamed"), registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash), sendqmax(parent.sendqmax), recvqmax(parent.recvqmax), maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), limit(parent.limit), RefCount(1)
+{
+}
+
+void ConnectClass::Update(const ConnectClass* src)
+{
+	name = src->name;
+	registration_timeout = src->registration_timeout;
+	host = src->host;
+	pingtime = src->pingtime;
+	pass = src->pass;
+	hash = src->hash;
+	sendqmax = src->sendqmax;
+	recvqmax = src->recvqmax;
+	maxlocal = src->maxlocal;
+	maxglobal = src->maxglobal;
+	limit = src->limit;
 }

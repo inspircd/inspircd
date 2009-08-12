@@ -340,16 +340,6 @@ void InspIRCd::CheckRoot()
 	}
 }
 
-void InspIRCd::CheckDie()
-{
-	if (*Config->DieValue)
-	{
-		printf("WARNING: %s\n\n",Config->DieValue);
-		this->Logs->Log("CONFIG",DEFAULT,"Died because of <die> tag: %s",Config->DieValue);
-		Exit(EXIT_STATUS_DIETAG);
-	}
-}
-
 void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::string &text)
 {
 	std::string copy_text = text;

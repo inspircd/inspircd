@@ -32,7 +32,7 @@ CmdResult CommandPass::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 
 	user->password.assign(parameters[0], 0, 63);
-	if (!ServerInstance->PassCompare(user, a->GetPass().c_str(), parameters[0].c_str(), a->GetHash().c_str()))
+	if (!ServerInstance->PassCompare(user, a->pass.c_str(), parameters[0].c_str(), a->hash.c_str()))
 		user->haspassed = true;
 
 	return CMD_SUCCESS;

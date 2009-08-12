@@ -87,7 +87,7 @@ class CommandCheck : public Command
 			if (IS_LOCAL(targuser))
 			{
 				user->WriteServ(checkstr + " onport " + ConvToStr(targuser->GetPort()));
-				std::string classname = targuser->GetClass()->GetName();
+				std::string classname = targuser->GetClass()->name;
 				if (!classname.empty())
 					user->WriteServ(checkstr + " connectclass " + classname);
 			}

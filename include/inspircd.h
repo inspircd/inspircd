@@ -611,11 +611,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	Channel* FindChan(const char* chan);
 
-	/** Check for a 'die' tag in the config file, and abort if found
-	 * @return Depending on the configuration, this function may never return
-	 */
-	void CheckDie();
-
 	/** Check we aren't running as root, and exit if we are
 	 * @return Depending on the configuration, this function may never return
 	 */

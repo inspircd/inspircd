@@ -416,7 +416,6 @@ void ClearConsole()
 void ChangeWindowsSpecificPointers(InspIRCd* Instance)
 {
 	Instance->Logs->Log("win32",DEBUG,"Changing to windows specific pointer and functor set");
-	Instance->Config->DNSServerValidator = &ValidateWindowsDnsServer;
 }
 
 DWORD WindowsForkStart(InspIRCd* Instance)
@@ -518,7 +517,7 @@ void WindowsForkKillOwner(InspIRCd * Instance)
         CloseHandle(hProcess);
 }
 
-bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	if (!*(data.GetString()))
 	{

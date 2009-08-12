@@ -74,9 +74,8 @@ class UserResolver;
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
-class CoreExport ConnectClass : public classbase
+struct CoreExport ConnectClass : public classbase
 {
- private:
 	/** Type of line, either CC_ALLOW or CC_DENY
 	 */
 	char type;
@@ -129,141 +128,33 @@ class CoreExport ConnectClass : public classbase
 	 */
 	int port;
 
-public:
-
-	/** Create a new connect class based on an existing connect class. This is required for std::vector (at least under windows).
-	 */
-	ConnectClass(const ConnectClass* source) : classbase(), type(source->type), name(source->name),
-		registration_timeout(source->registration_timeout), host(source->host),
-		pingtime(source->pingtime), pass(source->pass), hash(source->hash), sendqmax(source->sendqmax),
-		recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
-		port(source->port), RefCount(0), disabled(false), limit(source->limit)
-	{
-	}
-
-	/** Create a new connect class with no settings.
-	 */
-	ConnectClass() : type(CC_DENY), name("unnamed"), registration_timeout(0), host(""), pingtime(0), pass(""), hash(""),
-			sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), RefCount(0), disabled(false), limit(0)
-	{
-	}
-
-	/** Create a new connect class to ALLOW connections.
-	 * @param thename Name of the connect class
-	 * @param timeout The registration timeout
-	 * @param hst The IP mask to allow
-	 * @param ping The ping frequency
-	 * @param pas The password to be used
-	 * @param hsh The hash to be used
-	 * @param sendq The maximum sendq value
-	 * @param recvq The maximum recvq value
-	 * @param maxl The maximum local sessions
-	 * @param maxg The maximum global sessions
-	 */
-	ConnectClass(const std::string &thename, unsigned int timeout,const std::string &hst, unsigned int ping,
-			const std::string &pas, const std::string &hsh, unsigned long sendq, unsigned long recvq,
-			unsigned long maxl, unsigned long maxg, unsigned int maxc, int p = 0) :
-			type(CC_ALLOW), name(thename), registration_timeout(timeout), host(hst), pingtime(ping), pass(pas), hash(hsh),
-			sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg), maxchans(maxc), port(p), RefCount(0), disabled(false), limit(0) { }
-
-	/** Create a new connect class to DENY connections
-	 * @param thename Name of the connect class
-	 * @param hst The IP mask to deny
-	 */
-	ConnectClass(const std::string &thename, const std::string &hst) : type(CC_DENY), name(thename), registration_timeout(0),
-			host(hst), pingtime(0), pass(""), hash(""), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), RefCount(0), disabled(false), limit(0)
-	{
-	}
-
-	/* Create a new connect class based on another class
-	 * @param thename The name of the connect class
-	 * @param source Another connect class to inherit all but the name from
-	 */
-	ConnectClass(const std::string &thename, const ConnectClass* source) : type(source->type), name(thename),
-				registration_timeout(source->registration_timeout), host(source->host),
-				pingtime(source->pingtime), pass(source->pass), hash(source->hash), sendqmax(source->sendqmax),
-				recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
-				port(source->port), RefCount(0), disabled(false), limit(source->limit)
-	{
-	}
-
-	void SetDisabled(bool t)
-	{
-		this->disabled = t;
-	}
-
-	bool GetDisabled()
-	{
-		return this->disabled;
-	}
-
-	/* Update an existing entry with new values
-	 */
-	void Update(unsigned int timeout, const std::string &hst, unsigned int ping,
-				const std::string &pas, unsigned long sendq, unsigned long recvq,
-				unsigned long maxl, unsigned long maxg, unsigned int maxc, int p, unsigned long llimit)
-	{
-		if (timeout)
-			registration_timeout = timeout;
-		if (!hst.empty())
-			host = hst;
-		if (ping)
-			pingtime = ping;
-		if (!pas.empty())
-			pass = pas;
-		if (sendq)
-			sendqmax = sendq;
-		if (recvq)
-			recvqmax = recvq;
-		if (maxl)
-			maxlocal = maxl;
-		if (maxg)
-			maxglobal = maxg;
-		if (maxc)
-			maxchans = maxc;
-		if (p)
-			port = p;
-
-		this->limit = llimit;
-	}
-
-	void Update(const std::string &n, const std::string &hst)
-	{
-		name = n;
-		host = hst;
-	}
-
-	/** Reference counter. Contains an int as to how many users are connected to this class. :)
-	 * This will be 0 if no users are connected. If a <connect> is removed from the config, and there
-	 * are 0 users on it - it will go away in RAM. :)
-	 */
-	unsigned long RefCount;
-
-	/** If this is true, any attempt to set a user to this class will fail. Default false. This is really private, it's only in the public section thanks to the way this class is written
-	 */
-	bool disabled;
-
-	/** How many users may be in this connect class before they are refused? (0 = disabled = default)
+	/** How many users may be in this connect class before they are refused?
+	 * (0 = no limit = default)
 	 */
 	unsigned long limit;
 
-	size_t GetMaxChans()
-	{
-		return maxchans;
-	}
-
-	/** Returns the type, CC_ALLOW or CC_DENY
+	/** Reference counter.
+	 * This will be 1 if no users are connected, as long as it is a valid connect block
+	 * When it reaches 0, the object should be deleted
 	 */
-	char GetType()
-	{
-		return (type == CC_ALLOW ? CC_ALLOW : CC_DENY);
-	}
+	unsigned long RefCount;
 
-	std::string& GetName()
-	{
-		return name;
-	}
+	/** Create a new connect class with no settings.
+	 */
+	ConnectClass(char type, const std::string& mask);
+	/** Create a new connect class with inherited settings.
+	 */
+	ConnectClass(char type, const std::string& mask, const ConnectClass& parent);
+	
+	/** Update the settings in this block to match the given block */
+	void Update(const ConnectClass* newSettings);
 
+
+	const std::string& GetName() { return name; }
+	const std::string& GetPass() { return pass; }
+	const std::string& GetHost() { return host; }
+	const int GetPort() { return port; }
+	
 	/** Returns the registration timeout
 	 */
 	time_t GetRegTimeout()
@@ -271,46 +162,11 @@ public:
 		return (registration_timeout ? registration_timeout : 90);
 	}
 
-	/** Returns the allowed or denied IP mask
-	 */
-	const std::string& GetHost()
-	{
-		return host;
-	}
-
-	/** Get port number
-	 */
-	int GetPort()
-	{
-		return port;
-	}
-
-	/** Set port number
-	 */
-	void SetPort(int p)
-	{
-		port = p;
-	}
-
 	/** Returns the ping frequency
 	 */
 	unsigned int GetPingTime()
 	{
 		return (pingtime ? pingtime : 120);
-	}
-
-	/** Returns the password or an empty string
-	 */
-	const std::string& GetPass()
-	{
-		return pass;
-	}
-
-	/** Returns the hash or an empty string
-	 */
-	const std::string& GetHash()
-	{
-		return hash;
 	}
 
 	/** Returns the maximum sendq value

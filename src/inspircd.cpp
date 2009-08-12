@@ -495,7 +495,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	WSAStartup(MAKEWORD(2,0), &wsadata);
 	ChangeWindowsSpecificPointers(this);
 #endif
-	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
+	Config->MyExecutable = argv[0];
 
 	/* Set the finished argument values */
 	Config->nofork = do_nofork;
@@ -535,8 +535,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	printf_c("\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special\n");
 	printf_c("\t\033[1;32mpeavey, aquanight, psychon, dz, danieldg\033[0m\n\n");
 	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
-
-	Config->ClearStack();
 
 	this->Modes = new ModeParser(this);
 
@@ -613,7 +611,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->XLines->CheckELines();
 	this->XLines->ApplyLines();
 
-	CheckDie();
 	int bounditems = BindPorts(pl);
 
 	printf("\n");
@@ -622,7 +619,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
-	InitializeDisabledCommands(Config->DisabledCommands, this);
+	Config->ApplyDisabledCommands(Config->DisabledCommands);
 
 	if (!pl.empty())
 	{
@@ -767,26 +764,7 @@ int InspIRCd::Run()
 			/* Rehash has completed */
 			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
 
-			/* Switch over logfiles */
-			Logs->CloseLogs();
-			Logs->OpenFileLogs();
-
-			/*
-			 * Apply the changed configuration from the rehash. This is not done within the
-			 * configuration thread becasuse they may invoke functions that are not threadsafe.
-			 *
-			 * XXX: The order of these is IMPORTANT, do not reorder them without testing
-			 * thoroughly!!!
-			 */
 			this->ConfigThread->Finish();
-			this->XLines->CheckELines();
-			this->XLines->ApplyLines();
-			this->Res->Rehash();
-			this->ResetMaxBans();
-			InitializeDisabledCommands(Config->DisabledCommands, this);
-			User* user = ConfigThread->TheUserUID.empty() ? FindNick(ConfigThread->TheUserUID) : NULL;
-			FOREACH_MOD_I(this, I_OnRehash, OnRehash(user));
-			this->BuildISupport();
 
 			ConfigThread->join();
 			delete ConfigThread;
