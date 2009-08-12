@@ -112,13 +112,13 @@ class ThreadSignalSocket : public BufferedSocket
 	void Notify()
 	{
 		char dummy = '*';
-		send(send_fd, &dummy, 1, 0);
+		write(send_fd, &dummy, 1);
 	}
 
 	virtual bool OnDataReady()
 	{
 		char data;
-		if (ServerInstance->SE->Recv(this, &data, 1, 0) <= 0)
+		if (read(this->fd, &data, 1) <= 0)
 			return false;
 		parent->OnNotify();
 		return true;
