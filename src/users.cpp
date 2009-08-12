@@ -2081,12 +2081,12 @@ bool VisData::VisibleTo(User* user)
 
 
 ConnectClass::ConnectClass(char t, const std::string& mask)
-	: type(t), name("unnamed"), registration_timeout(0), host(mask), pingtime(0), pass(""), hash(""), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), limit(0), RefCount(1)
+	: type(t), name("unnamed"), registration_timeout(0), host(mask), pingtime(0), pass(""), hash(""), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0), RefCount(1)
 {
 }
 
 ConnectClass::ConnectClass(char t, const std::string& mask, const ConnectClass& parent)
-	: type(t), name("unnamed"), registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash), sendqmax(parent.sendqmax), recvqmax(parent.recvqmax), maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), limit(parent.limit), RefCount(1)
+	: type(t), name("unnamed"), registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash), sendqmax(parent.sendqmax), recvqmax(parent.recvqmax), maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxchans(parent.maxchans), port(parent.port), limit(parent.limit), RefCount(1)
 {
 }
 

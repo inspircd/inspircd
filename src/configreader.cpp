@@ -1019,8 +1019,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 				}
 				break;
 			}
-			/* We're done with this now */
-			delete Values[Index].val;
 		}
 
 		/* Read the multiple-tag items (class tags, connect tags, etc)
