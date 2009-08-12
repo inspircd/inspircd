@@ -377,6 +377,9 @@
      # in most cases, you won't need to change this, as inspircd will
      # automatically detect the nameserver depending on /etc/resolv.conf
      # (or, on windows, your set nameservers in the registry.)
+     # Note that this must be an IP address and not a hostname, because
+     # there is no resolver to resolve the name until this is defined!
+     #
      # server="127.0.0.1"
 
      # timeout: seconds to wait to try to resolve DNS/hostname.
