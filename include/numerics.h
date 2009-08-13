@@ -66,6 +66,7 @@ enum Numerics
 	RPL_RULESEND					=	309, // unrealircd
 	RPL_CHANNELMODEIS				=	324,
 	RPL_CHANNELCREATED				=	329, // ???
+	RPL_NOTOPICSET					=	331,
 	RPL_TOPIC					=	332,
 	RPL_TOPICTIME					=	333, // not RFC, extremely common though
 
