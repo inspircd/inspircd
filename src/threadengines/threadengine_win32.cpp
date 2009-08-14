@@ -112,10 +112,17 @@ SocketThread::SocketThread(InspIRCd* SI)
 	if (connFD == -1)
 		throw CoreException("Could not create ITC pipe");
 	
-	struct sockaddr_in addr;
+	irc::sockets::insp_sockaddr addr;
+
+#ifdef IPV6
+	irc::sockets::insp_aton("::1", &addr.sin6_addr);
+	addr.sin6_family = AF_INET6;
+	addr.sin6_port = htons(listener->GetPort());
+#else
 	irc::sockets::insp_aton("127.0.0.1", &addr.sin_addr);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(listener->GetPort());
+#endif
 
 	if (connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) == -1)
 	{
