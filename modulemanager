@@ -278,11 +278,15 @@ resolve_deps(0);
 
 $| = 1; # immediate print of lines without \n
 
+# whether or not to invoke ./configure -modupdate after processing
+my $regen_modules_list = 0;
+
 print "Processing changes for $action...\n";
 for my $mod (keys %installed) {
 	next if $todo{$mod};
 	print "Uninstalling $mod $installed{$mod}\n";
 	unlink "src/modules/$mod.cpp";
+	$regen_modules_list = 1;
 }
 
 my $count = scalar keys %todo;
@@ -308,6 +312,7 @@ for my $mod (sort keys %todo) {
 	} else {
 		print " - HTTP $stat\n";
 	}
+	$regen_modules_list = 1;
 }
 
 # write database of installed versions
@@ -317,4 +322,11 @@ foreach my $key (keys %mod_versions)
 	print SRC "$key $mod_versions{$key}\n";
 }
 close SRC;
-print "Done!\n";
+
+# regenerate makefiles if necessary
+if ($regen_modules_list)
+{
+	print "Done... Re-generating makefiles\n";
+	system "./configure -modupdate";
+}
+print "Finished!\n";
