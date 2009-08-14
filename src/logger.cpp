@@ -341,13 +341,15 @@ void FileWriter::HandleEvent(EventType ev, int)
 
 void FileWriter::WriteLogLine(const std::string &line)
 {
-	if (log)
+	if (log == NULL)
+		return;
+// XXX: For now, just return. Don't throw an exception. It'd be nice to find out if this is happening, but I'm terrified of breaking so close to final release. -- w00t
+//		throw CoreException("FileWriter::WriteLogLine called with a closed logfile");
+
+	fprintf(log,"%s",line.c_str());
+	if (writeops++ % 20)
 	{
-		fprintf(log,"%s",line.c_str());
-		if (writeops++ % 20)
-		{
-			fflush(log);
-		}
+		fflush(log);
 	}
 }
 
@@ -357,6 +359,7 @@ void FileWriter::Close()
 	{
 		fflush(log);
 		fclose(log);
+		log = NULL;
 	}
 }
 
