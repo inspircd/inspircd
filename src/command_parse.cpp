@@ -266,6 +266,16 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	/* find the command, check it exists */
 	Commandtable::iterator cm = cmdlist.find(command);
 
+	/* Modify the user's penalty regardless of whether or not the command exists */
+	bool do_more = true;
+	if (!user->HasPrivPermission("users/flood/no-throttle"))
+	{
+		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
+		user->IncreasePenalty(cm != cmdlist.end() ? cm->second->Penalty : 2);
+		do_more = (user->Penalty < 10);
+	}
+
+
 	if (cm == cmdlist.end())
 	{
 		int MOD_RESULT = 0;
@@ -335,14 +345,6 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
 	if (MOD_RESULT == 1)
 		return true;
-
-	/* Modify the user's penalty */
-	bool do_more = true;
-	if (!user->HasPrivPermission("users/flood/no-throttle"))
-	{
-		user->IncreasePenalty(cm->second->Penalty);
-		do_more = (user->Penalty < 10);
-	}
 
 	/* activity resets the ping pending timer */
 	if (user->MyClass)
