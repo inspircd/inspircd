@@ -452,9 +452,7 @@ class ModuleIdent : public Module
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", isock->GetResult());
 
 		/* Copy the ident string to the user */
-		std::string ident;
-		ident.assign(isock->GetResult(), 0, ServerInstance->Config->Limits.IdentMax + 1);
-		user->ChangeIdent(ident.c_str());
+		user->ChangeIdent(isock->GetResult());
 
 		/* The user isnt actually disconnecting, we call this to clean up the user */
 		OnUserDisconnect(user);
