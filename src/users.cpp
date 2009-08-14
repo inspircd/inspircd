@@ -520,7 +520,6 @@ bool User::HasPermission(const std::string &command)
 
 bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 {
-	ServerInstance->Logs->Log("PRIVS", DEBUG, "Checking if I have " + privstr);
 	if (!IS_LOCAL(this))
 	{
 		ServerInstance->Logs->Log("PRIVS", DEBUG, "Remote (yes)");
@@ -531,7 +530,6 @@ bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 	{
 		if (noisy)
 			this->WriteServ("NOTICE %s :You are not an oper", this->nick.c_str());
-		ServerInstance->Logs->Log("PRIVS", DEBUG, "Not oper (no)");
 		return false;
 	}
 
@@ -539,7 +537,6 @@ bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 	{
 		if (noisy)
 			this->WriteServ("NOTICE %s :Privset empty(!?)", this->nick.c_str());
-		ServerInstance->Logs->Log("PRIVS", DEBUG, "No privs(?) (no)");
 		return false;
 	}
 
