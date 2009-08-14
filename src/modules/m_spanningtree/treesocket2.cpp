@@ -84,7 +84,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 		if (prefix.empty())
 		{
-			this->SendError("BUG (?) Empty prefix recieved.");
+			this->SendError("BUG (?) Empty prefix recieved: " + line);
 			return false;
 		}
 	}
