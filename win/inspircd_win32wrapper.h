@@ -18,6 +18,15 @@
 #ifndef INSPIRCD_WIN32WRAPPER_H
 #define INSPIRCD_WIN32WRAPPER_H
 
+/*
+ * Starting with PSAPI version 2 for Windows 7 and Windows Server 2008 R2, this function is defined as K32GetProcessMemoryInfo in Psapi.h and exported
+ * in Kernel32.lib and Kernel32.dll. However, you should always call this function as GetProcessMemoryInfo. To ensure correct resolution of symbols
+ * for programs that will run on earlier versions ofWindows, add Psapi.lib to the TARGETLIBS macro and compile the program with PSAPI_VERSION=1.
+ * 
+ * We do this before anything to make sure it's done.
+ */
+#define PSAPI_VERSION 1
+
 #ifndef CONFIGURE_BUILD
 #include "win32service.h"
 #endif
