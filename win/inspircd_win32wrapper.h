@@ -103,12 +103,14 @@ typedef unsigned __int32 uint32_t;
 #define popen _popen
 #define pclose _pclose
 
-/* Error macros need to be redirected to winsock error codes */
-#define ETIMEDOUT WSAETIMEDOUT
-#define ECONNREFUSED WSAECONNREFUSED
-#define EADDRINUSE WSAEADDRINUSE
-#define EINPROGRESS WSAEWOULDBLOCK
-#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+/* Error macros need to be redirected to winsock error codes, apart from on VS2010 *SIGH* */
+#if _MSC_VER < 1600
+	#define ETIMEDOUT WSAETIMEDOUT
+	#define ECONNREFUSED WSAECONNREFUSED
+	#define EADDRINUSE WSAEADDRINUSE
+	#define EINPROGRESS WSAEWOULDBLOCK
+	#define EADDRNOTAVAIL WSAEADDRNOTAVAIL
+#endif
 
 /* Convert formatted (xxx.xxx.xxx.xxx) string to in_addr struct */
 CoreExport int insp_inet_pton(int af, const char * src, void * dst);
