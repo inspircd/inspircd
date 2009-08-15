@@ -103,10 +103,10 @@ class CoreExport CachedQuery : public classbase
 
 /** DNS cache information. Holds IPs mapped to hostnames, and hostnames mapped to IPs.
  */
-#ifndef WIN32
-typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash<irc::string> > dnscache;
-#else
+#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
 typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash_compare<irc::string> > dnscache;
+#else
+typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash<irc::string> > dnscache;
 #endif
 
 /**

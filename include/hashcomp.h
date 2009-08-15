@@ -627,13 +627,13 @@ inline std::string& trim(std::string &str)
 }
 
 /** Hashing stuff is totally different on vc++'s hash_map implementation, so to save a buttload of
- * #ifdefs we'll just do it all at once
+ * #ifdefs we'll just do it all at once. Except, of course, with TR1, when it's the same as GCC.
  */
 BEGIN_HASHMAP_NAMESPACE
 
 	/** Hashing function to hash irc::string
 	 */
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(HAS_TR1_UNORDERED)
 	template<> class CoreExport hash_compare<irc::string, std::less<irc::string> >
 	{
 	public:
@@ -679,7 +679,7 @@ BEGIN_HASHMAP_NAMESPACE
 		 * @param s A string to hash
 		 * @return The hash value
 		 */
-		size_t operator()(const irc::string &s) const;
+		size_t CoreExport operator()(const irc::string &s) const;
 	};
 
 	/* XXX FIXME: Implement a hash function overriding std::string's that works with TR1! */
@@ -687,10 +687,10 @@ BEGIN_HASHMAP_NAMESPACE
 #ifdef HASHMAP_DEPRECATED
 	struct insensitive
 #else
-	template<> struct hash<std::string>
+	CoreExport template<> struct hash<std::string>
 #endif
 	{
-		size_t operator()(const std::string &s) const;
+		size_t CoreExport operator()(const std::string &s) const;
 	};
 
 #endif

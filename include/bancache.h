@@ -62,10 +62,10 @@ class CoreExport BanCacheHit : public classbase
 /* A container of ban cache items.
  * must be defined after class BanCacheHit.
  */
-#ifndef WIN32
-typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash<std::string> > BanCacheHash;
-#else
+#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
 typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash_compare<std::string, std::less<std::string> > > BanCacheHash;
+#else
+typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash<std::string> > BanCacheHash;
 #endif
 
 /** A manager for ban cache, which allocates and deallocates and checks cached bans.

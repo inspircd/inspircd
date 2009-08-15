@@ -26,7 +26,7 @@ class SpanningTreeUtilities;
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
 	typedef nspace::hash_map<std::string, TreeServer*, nspace::hash_compare<std::string, std::less<std::string> > > server_hash;
 #else
 	#ifdef HASHCOMP_DEPRECATED

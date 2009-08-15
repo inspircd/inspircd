@@ -60,14 +60,14 @@ void nspace::strlower(char *n)
 	}
 }
 
-#ifndef WIN32
+#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
+	size_t nspace::hash_compare<std::string, std::less<std::string> >::operator()(const std::string &s) const
+#else
 	#ifdef HASHMAP_DEPRECATED
-		size_t nspace::insensitive::operator()(const std::string &s) const
+		size_t CoreExport nspace::insensitive::operator()(const std::string &s) const
 	#else
 		size_t nspace::hash<std::string>::operator()(const std::string &s) const
 	#endif
-#else
-	size_t nspace::hash_compare<std::string, std::less<std::string> >::operator()(const std::string &s) const
 #endif
 {
 	/* XXX: NO DATA COPIES! :)
@@ -83,10 +83,10 @@ void nspace::strlower(char *n)
 }
 
 
-#ifndef WIN32
-size_t nspace::hash<irc::string>::operator()(const irc::string &s) const
+#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
+	size_t nspace::hash_compare<irc::string, std::less<irc::string> >::operator()(const irc::string &s) const
 #else
-size_t nspace::hash_compare<irc::string, std::less<irc::string> >::operator()(const irc::string &s) const
+	size_t CoreExport nspace::hash<irc::string>::operator()(const irc::string &s) const
 #endif
 {
 	register size_t t = 0;
