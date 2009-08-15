@@ -48,7 +48,7 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 			}
 			else
 			{
-				user->WriteNumeric(331, "%s %s :No topic is set.", user->nick.c_str(), c->name.c_str());
+				user->WriteNumeric(RPL_NOTOPICSET, "%s %s :No topic is set.", user->nick.c_str(), c->name.c_str());
 			}
 		}
 		return CMD_SUCCESS;
