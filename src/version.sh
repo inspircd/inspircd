@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.22+Azeitao"
+echo "InspIRCd-1.1.23"
