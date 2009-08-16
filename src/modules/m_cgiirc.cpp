@@ -56,7 +56,7 @@ class CommandWebirc : public Command
 	CGIHostlist Hosts;
 	bool notify;
 	public:
-		CommandWebirc(InspIRCd* Instance, CGIHostlist &cHosts, bool bnotify) : Command(Instance, "WEBIRC", 0, 4, true), Hosts(cHosts), notify(bnotify)
+		CommandWebirc(InspIRCd* Instance, bool bnotify) : Command(Instance, "WEBIRC", 0, 4, true), notify(bnotify)
 		{
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
@@ -85,6 +85,11 @@ class CommandWebirc : public Command
 
 			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
+		}
+
+		void SetHosts(CGIHostlist &phosts)
+		{
+			this->Hosts = phosts;
 		}
 };
 
@@ -141,9 +146,8 @@ class ModuleCgiIRC : public Module
 public:
 	ModuleCgiIRC(InspIRCd* Me) : Module(Me)
 	{
-
+		mycommand = new CommandWebirc(Me, NotifyOpers);
 		OnRehash(NULL);
-		mycommand = new CommandWebirc(Me, Hosts, NotifyOpers);
 		ServerInstance->AddCommand(mycommand);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
@@ -203,6 +207,8 @@ public:
 				continue;
 			}
 		}
+
+		mycommand->SetHosts(Hosts);
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
