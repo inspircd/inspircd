@@ -1,15 +1,16 @@
+*~
+*.swp
+*.so
+*.o
+.*.d
 
-# /
-/Makefile
 /GNUmakefile
 /BSDmakefile
+/.modulemanager
 /.config.cache
-/.gitignore
 /inspircd
 /inspircd.pid
 /inspircd.core
-/*~
-/*.swp
 /modules
 /org.inspircd.plist
 /*.patch
@@ -19,7 +20,6 @@
 
 # /bin/
 /bin/inspircd
-/bin/*.so
 /bin/ircd.log
 /bin/*core*
 
@@ -29,38 +29,13 @@
 /conf/inspircd.conf.example
 /conf/*.pid
 
-# /docs/
-
-# /extras/
-
-# /http/
-
 # /include/
 /include/inspircd_config.h
+/include/inspircd_version.h
 /include/inspircd_se_config.h
-/include/*.h.*
-
-# /include/commands/
-/include/commands/*.h.*
-
-# /include/modes/
-/include/modes/*.h.*
-
-# /include/socketengines/
-/include/socketengines/*.h.*
-
-# /include/threadengines/
-/include/threadengines/*.h.*
-
-# /lib/
-/lib/*.so
 
 # /src/
 /src/inspircd
-/src/*.so
-/src/*.o
-/src/*~
-/src/*.swp
 /src/Makefile
 /src/*.cpp.*
 
@@ -98,25 +73,5 @@
 /src/modules/m_testclient.cpp
 /src/modules/m_ziplink.cpp
 /src/modules/ssl_cert.h
-/src/modules/*.so
-/src/modules/*.o
-/src/modules/*~
-/src/modules/*.swp
-/src/modules/*.cpp.*
 /src/modules/Makefile
 /src/modules/README
-
-# /src/modules/extra/
-/src/modules/extra/*.swp
-/src/modules/extra/*~
-/src/modules/extra/*.cpp.*
-
-# /src/modules/m_spanningtree/
-/src/modules/m_spanningtree/*.cpp.*
-/src/modules/m_spanningtree/*.o
-
-# /src/socketengines/
-/src/socketengines/*.cpp.*
-
-# /src/threadengines/
-/src/threadengines/*.cpp.*
