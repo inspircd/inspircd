@@ -178,12 +178,19 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			reason = "We don't both support linking to IPV6 servers";
 		if (((this->CapKeys.find("IP6NATIVE") != this->CapKeys.end()) && (this->CapKeys.find("IP6NATIVE")->second == "1")) && (!ip6support))
 			reason = "The remote server is IPV6 native, and we don't support linking to IPV6 servers";
-		if (((this->CapKeys.find("PROTOCOL") == this->CapKeys.end()) || ((this->CapKeys.find("PROTOCOL") != this->CapKeys.end()) && (this->CapKeys.find("PROTOCOL")->second != ConvToStr(ProtocolVersion)))))
+		if (this->CapKeys.find("PROTOCOL") == this->CapKeys.end())
 		{
-			if (this->CapKeys.find("PROTOCOL") != this->CapKeys.end())
-				reason = "Mismatched protocol versions "+this->CapKeys.find("PROTOCOL")->second+" and "+ConvToStr(ProtocolVersion);
-			else
-				reason = "Protocol version not specified";
+			reason = "Protocol version not specified";
+		}
+		else
+		{
+			int otherProto = atoi(CapKeys.find("PROTOCOL")->second.c_str());
+			if (otherProto < MinCompatProtocol)
+			{
+				reason = "Server is using protocol version " + ConvToStr(otherProto) +
+					" which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
+					+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")");
+			}
 		}
 
 		if(this->CapKeys.find("PREFIX") != this->CapKeys.end() && this->CapKeys.find("PREFIX")->second != this->ServerInstance->Modes->BuildPrefixes())
@@ -194,11 +201,6 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 
 		if(this->CapKeys.find("USERMODES") != this->CapKeys.end() && this->CapKeys.find("USERMODES")->second != this->ServerInstance->Modes->GiveModeList(MASK_USER))
 			reason = "One or more of the user modes on the remote server are invalid on this server.";
-
-
-		if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (ServerInstance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(ServerInstance->Config->AllowHalfop))))
-			reason = "We don't both have halfop support enabled/disabled identically";
-
 
 
 		/* Challenge response, store their challenge for our password */
