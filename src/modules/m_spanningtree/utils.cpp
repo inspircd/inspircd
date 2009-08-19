@@ -176,8 +176,10 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 			sock->Close();
 		}
 	}
-	delete TreeRoot;
+	
+	// This avoids a collision on reload
 	ServerUser->uuid = TreeRoot->GetID();
+	delete TreeRoot;
 	delete ServerUser;
 	ServerInstance->BufferedSocketCull();
 }
