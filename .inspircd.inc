@@ -316,9 +316,22 @@ sub getpidfile
 		{
 			# Set the PID file and return.
 			$pidfile = $1;
+			if (-f $pidfile)
+			{
+				return;
+			}
+			else
+			{
+				if (-f $confpath . $pidfile)
+				{
+					$pidfile = $confpath . $pidfile;
+					return;
+				}
+			}
 			return;
 		}
 	}
+
 
 	# If we get here, NO PID FILE! -- Check for includes
 	for my $i (@lines) {
@@ -328,6 +341,18 @@ sub getpidfile
 			# Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
 			getpidfile($1);
 			# Was a PID found?
+			if (-f $pidfile)
+			{
+				return;
+			}
+			else
+			{
+				if (-f $confpath . $pidfile)
+				{
+					$pidfile = $confpath . $pidfile;
+					return;
+				}
+			}
 			if ($pidfile ne "") {
 				# Yes, Return.
 				return;
