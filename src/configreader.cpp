@@ -706,8 +706,8 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
 			{
-				oldBlocksByMask.erase(oldMask);
 				ConnectClass* old = oldMask->second;
+				oldBlocksByMask.erase(oldMask);
 				old->Update(me);
 				delete me;
 				me = old;
