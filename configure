@@ -1095,12 +1095,14 @@ sub getosflags {
 #		$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wall $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
+		$config{LDLIBS} .= " " . $ENV{LDFLAGS} if exists($ENV{LDFLAGS});
 		$config{MAKEPROG} = "make";
 	}
 
 	if ($config{OSNAME} =~ /FreeBSD/i) {
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
+		$config{LDLIBS} .= " " . $ENV{LDFLAGS} if exists($ENV{LDFLAGS});
 	}
 
 	if ($config{OSNAME} =~ /SunOS/i or $config{OSNAME} =~ /solaris/i)
