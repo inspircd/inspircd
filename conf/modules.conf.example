@@ -438,6 +438,9 @@
 # CHGHOST module: Adds the /CHGHOST command
 # This module is oper-only.
 # To use, CHGHOST must be in one of your oper class blocks.
+# NOTE: Services will not be able to set vhosts on users if this module
+# isn't loaded. If you're planning on running services, you probably
+# want to load this.
 #<module name="m_chghost.so">
 #
 #-#-#-#-#-#-#-#-# /CHGHOST - /SETHOST  CONFIGURATION #-#-#-#-#-#-#-#-#
@@ -731,6 +734,9 @@
 # GeoIP module: Allows the server admin to ban users by country code.
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_geoip.cpp
 # and run make install, then uncomment this module to enable it.
+# This module requires GeoIP to be installed on your system,
+# use your package manager to find the appropriate packages
+# or check the InspIRCd wiki page for this module.
 #<module name="m_geoip.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#  GEOIP CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#
@@ -878,7 +884,7 @@
 # opers are still able to see invisible users, and if an oper with +Q
 # deopers, they will become visible. 
 #
-# This module is oper-only.
+# This module is oper-only and seen by many to be quite abusive.
 #
 #<module name="m_invisible.so">
 
@@ -1279,6 +1285,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Registered users only channel creation
 # Allows only registered users and opers to create new channels.
+#
+# You probably *DO NOT* want to load this module on a public network.
+#
 #<module name="m_regonlycreate.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1287,11 +1296,17 @@
 #<module name="m_remove.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Restricted channels module: Allows only opers to create channels
+# Restricted channels module: Allows only opers to create channels.
+#
+# You probably *DO NOT* want to load this module on a public network.
+#
 #<module name="m_restrictchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Restrict message module: Allows users to only message opers
+# Restrict message module: Allows users to only message opers.
+#
+# You probably *DO NOT* want to load this module on a public network.
+#
 #<module name="m_restrictmsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
