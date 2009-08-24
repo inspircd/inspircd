@@ -244,20 +244,20 @@
          # pingfreq: How often (in seconds) the server tries to ping connecting clients.
          pingfreq="120"
 
-         # sendq: Amount of data that the server is allowed to send to the user
+         # sendq: Amount of data (in bytes) that the server is allowed to send to the user
          # before they are dropped.
          sendq="262144"
 
-         # recvq: amount of data allowed in a clients queue before they are dropped.
+         # recvq: Amount of data (in bytes) allowed in a clients queue before they are dropped.
          recvq="8192"
 
-         # localmax: Maximum local connections per IP.
+         # localmax: Maximum local connections per IP (or CIDR mask, see below).
          localmax="3"
 
-         # globalmax: Maximum global (network-wide) connections per IP.
+         # globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
          globalmax="3"
 
-         # useident: Defines if users in this class must respond to a ident query or not.
+         # useident: Defines if users in this class MUST respond to a ident query or not.
          useident="no"
 
          # limit: How many users are allowed in this class
@@ -266,6 +266,8 @@
          # modes: Usermodes that are set on users in this block on connect.
          # Enabling this option requires that the m_conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
+         # For the example to work, this also requires that the m_cloaking
+         # module be loaded as well.
          modes="+x"
 
          # port: What port this user is allowed to connect on. (optional)
@@ -315,6 +317,8 @@
          # modes: Usermodes that are set on users in this block on connect.
          # Enabling this option requires that the m_conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP Cloaking/masking.
+         # For the example to work, this also requires that the m_cloaking
+         # module be loaded as well.
          modes="+x">
 
 
@@ -324,7 +328,9 @@
 # throttle limits across a CIDR range. (A CIDR range is a group of    #
 # IPs, for example, the CIDR range 192.168.1.0-192.168.1.255 may be   #
 # represented as 192.168.1.0/24). This means that abuse across an ISP #
-# is detected and curtailed much easier.                              #
+# is detected and curtailed much easier. Here is a good chart that    #
+# shows how many IPs the different CIDRs correspond to:               #
+# http://en.wikipedia.org/wiki/CIDR#Prefix_aggregation                #
 #                                                                     #
 
 <cidr
@@ -356,6 +362,7 @@
        motd="inspircd.motd.example"
 
        # rules: Path to your rules file. Path is relative to the conf directory.
+       # This is optional and is displayed when a user does /rules on the network.
        rules="inspircd.rules.example">
 
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -479,12 +486,12 @@
          # it will just message the user normally.
          ircumsgprefix="no"
 
-         # announcets: If set to yes, when the TS on a channel changes, all users
+         # announcets: If set to yes, when the TimeStamp on a channel changes, all users
          # in channel will be sent a NOTICE about it.
          announcets="yes"
 
          # hostintopic: If enabled, channels will show the host of the topicsetter
-         # in the topic.
+         # in the topic. If set to no, it will only show the nick of the topicsetter.
          hostintopic="yes"
 
          # pingwarning: If a server does not respond to a ping within x seconds,
@@ -644,6 +651,10 @@
 # defined to account for a null terminator on the end of the text.    #
 #                                                                     #
 # These values should match network-wide otherwise issues will occur. #
+#                                                                     #
+# The highest safe value you can set any of these options to is 500,  #
+# but it is recommended that you keep them somewhat                   #
+# near their defaults (or lower).                                     #
 
 <limits
         # maxnick: Maximum length of a nickname.

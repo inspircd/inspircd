@@ -28,7 +28,8 @@
       # Can also be a hostname, but hostname must resolve.
       ipaddr="penguin.box.com"
 
-      # port: the port to connect to this server on
+      # port: The port to connect to the server on.
+      # It must be bound as a server port on the other server.
       port="7000"
 
       # allowmask: Range of IP addresses to allow for this link.

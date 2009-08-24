@@ -90,6 +90,8 @@
 
       # host: What hostnames/IP's are allowed to oper up with this oline.
       # Multiple options can be separated by spaces and CIDR's are allowed.
+      # You CAN use just * or *@* for this section, but it is not recommended
+      # for security reasons.
       host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
 
       # ** ADVANCED ** This option is disabled by default.
@@ -141,6 +143,8 @@
 
       # host: What hostnames/IP's are allowed to oper up with this oline.
       # Multiple options can be separated by spaces and CIDR's are allowed.
+      # You CAN use just * or *@* for this section, but it is not recommended
+      # for security reasons.
       host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
 
       # type: What oper type this oline is. See the block above for list
