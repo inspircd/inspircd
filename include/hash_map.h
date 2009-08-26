@@ -36,8 +36,9 @@
 			#define HAS_TR1_UNORDERED
 			#define HASHMAP_DEPRECATED
 		#else
-			#define nspace stdext
 			/** Oddball windows namespace for hash_map */
+			#include <hash_map>
+			#define nspace stdext
 			using stdext::hash_map;
 			#define BEGIN_HASHMAP_NAMESPACE namespace nspace {
 			#define END_HASHMAP_NAMESPACE }
