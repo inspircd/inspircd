@@ -244,7 +244,7 @@ class ModuleOverride : public Module
 						{
 							// Can't join normally -- must use a special key to bypass restrictions
 							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-							return 1;
+							return 0;
 						}
 
 						if (NoisyOverride)
@@ -260,7 +260,7 @@ class ModuleOverride : public Module
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
 						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return 1;
+						return 0;
 					}
 
 					if (NoisyOverride)
@@ -275,7 +275,7 @@ class ModuleOverride : public Module
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
 						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return 1;
+						return 0;
 					}
 
 					if (NoisyOverride)
@@ -290,7 +290,7 @@ class ModuleOverride : public Module
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
 						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return 1;
+						return 0;
 					}
 
 					if (NoisyOverride)
