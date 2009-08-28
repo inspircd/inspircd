@@ -181,21 +181,18 @@ class ModuleAlias : public Module
 	{
 		if (target_type != TYPE_CHANNEL)
 		{
-			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not a channel msg");
 			return;
 		}
 
 		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
-		if (!IS_LOCAL(user))
+		if (!user || !IS_LOCAL(user))
 		{
-			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not local");
 			return;
 		}
 
 		/* Stop here if the user is +B and allowbot is set to no. */
 		if (!AllowBots && user->IsModeSet('B'))
 		{
-			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: user is +B and allowbot is set to no");
 			return;
 		}
 
@@ -208,24 +205,18 @@ class ModuleAlias : public Module
 
 		if (fcommand.empty())
 		{
-			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: empty (?)");
 			return; // wtfbbq
 		}
-
-		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: looking at fcommand %s", fcommand.c_str());
 
 		// we don't want to touch non-fantasy stuff
 		if (*fcommand.c_str() != fprefix)
 		{
-			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not a fcommand");
 			return;
 		}
 
 		// nor do we give a shit about the prefix
 		fcommand.erase(fcommand.begin());
 		std::transform(fcommand.begin(), fcommand.end(), fcommand.begin(), ::toupper);
-		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: now got %s", fcommand.c_str());
-
 
 		std::multimap<std::string, Alias>::iterator i = Aliases.find(fcommand);
 
