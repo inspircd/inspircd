@@ -259,7 +259,7 @@ is started, and any omitted values are defaulted.
 Arguments with a single \"-\" symbol, as in
 InspIRCd 1.0.x, are also allowed.
 
-  --disable-interactive        Sets no options intself, but
+  --disable-interactive        Sets no options itself, but
                                will disable any interactive prompting.
   --disable-rpath              Disable runtime paths. DO NOT USE UNLESS
                                YOU KNOW WHAT YOU ARE DOING!
