@@ -99,7 +99,7 @@ class ModuleAlias : public Module
 		ReadAliases();
 		Me->Modules->Attach(I_OnPreCommand, this);
 		Me->Modules->Attach(I_OnRehash, this);
-		Me->Modules->Attach(I_OnUserPreMessage, this);
+		Me->Modules->Attach(I_OnUserMessage, this);
 
 	}
 
@@ -177,26 +177,26 @@ class ModuleAlias : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 	{
 		if (target_type != TYPE_CHANNEL)
 		{
 			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not a channel msg");
-			return 0;
+			return;
 		}
 
 		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
 		if (!IS_LOCAL(user))
 		{
 			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not local");
-			return 0;
+			return;
 		}
 
 		/* Stop here if the user is +B and allowbot is set to no. */
 		if (!AllowBots && user->IsModeSet('B'))
 		{
 			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: user is +B and allowbot is set to no");
-			return 0;
+			return;
 		}
 
 		Channel *c = (Channel *)dest;
@@ -209,7 +209,7 @@ class ModuleAlias : public Module
 		if (fcommand.empty())
 		{
 			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: empty (?)");
-			return 0; // wtfbbq
+			return; // wtfbbq
 		}
 
 		ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: looking at fcommand %s", fcommand.c_str());
@@ -218,7 +218,7 @@ class ModuleAlias : public Module
 		if (*fcommand.c_str() != fprefix)
 		{
 			ServerInstance->Logs->Log("FANTASY", DEBUG, "fantasy: not a fcommand");
-			return 0;
+			return;
 		}
 
 		// nor do we give a shit about the prefix
@@ -230,7 +230,7 @@ class ModuleAlias : public Module
 		std::multimap<std::string, Alias>::iterator i = Aliases.find(fcommand);
 
 		if (i == Aliases.end())
-			return 0;
+			return;
 
 		/* Avoid iterating on to other aliases if no patterns match */
 		std::multimap<std::string, Alias>::iterator upperbound = Aliases.upper_bound(fcommand);
@@ -247,13 +247,13 @@ class ModuleAlias : public Module
 			{
 				// We use substr(1) here to remove the fantasy prefix
 				if (DoAlias(user, c, &(i->second), compare, text.substr(1)))
-					return 0;
+					return;
 			}
 
 			i++;
 		}
 
-		return 0;
+		return;
 	}
 
 
@@ -382,6 +382,13 @@ class ModuleAlias : public Module
 	{
 		ReadAliases();
  	}
+
+	virtual void Prioritize()
+	{
+		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
+		Module* linkmod = ServerInstance->Modules->Find("m_spanningtree.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserMessage, PRIORITY_AFTER, &linkmod);
+	}
 };
 
 MODULE_INIT(ModuleAlias)
