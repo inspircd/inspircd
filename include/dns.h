@@ -159,12 +159,6 @@ enum QueryType
 	DNS_QUERY_PTR6	= 0xFFFE
 };
 
-#ifdef IPV6
-const QueryType DNS_QUERY_FORWARD = DNS_QUERY_AAAA;
-#else
-const QueryType DNS_QUERY_FORWARD = DNS_QUERY_A;
-#endif
-const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
 /**
  * Used internally to force PTR lookups to use a certain protocol scemantics,
  * e.g. x.x.x.x.in-addr.arpa for v4, and *.ip6.arpa for v6.
@@ -237,21 +231,12 @@ class CoreExport Resolver : public Extensible
 	 * the object to go 'out of scope' and cause a segfault in the core if the result
 	 * arrives at a later time.
 	 * @param source The IP or hostname to resolve
-	 * @param qt The query type to perform. If you just want to perform a forward
-	 * or reverse lookup, and you don't care wether you get ipv4 or ipv6, then use
-	 * the constants DNS_QUERY_FORWARD and DNS_QUERY_REVERSE, which automatically
-	 * select from 'A' record or 'AAAA' record lookups. However, if you want to resolve
-	 * a specific record type, resolution of 'A', 'AAAA', 'PTR' and 'CNAME' records
+	 * @param qt The query type to perform. Resolution of 'A', 'AAAA', 'PTR' and 'CNAME' records
 	 * is supported. Use one of the QueryType enum values to initiate this type of
 	 * lookup. Resolution of 'AAAA' ipv6 records is always supported, regardless of
 	 * wether InspIRCd is built with ipv6 support.
-	 * If you attempt to resolve a 'PTR' record using DNS_QUERY_PTR, and InspIRCd is
-	 * built with ipv6 support, the 'PTR' record will be formatted to ipv6 specs,
-	 * e.g. x.x.x.x.x....ip6.arpa. otherwise it will be formatted to ipv4 specs,
-	 * e.g. x.x.x.x.in-addr.arpa. This translation is automatic.
-	 * To get around this automatic behaviour, you must use one of the values
-	 * DNS_QUERY_PTR4 or DNS_QUERY_PTR6 to force ipv4 or ipv6 behaviour on the lookup,
-	 * irrespective of what protocol InspIRCd has been built for.
+	 * To look up reverse records, specify one of DNS_QUERY_PTR4 or DNS_QUERY_PTR6 depending
+	 * on the type of address you are looking up.
 	 * @param cached The constructor will set this boolean to true or false depending
 	 * on whether the DNS lookup you are attempting is cached (and not expired) or not.
 	 * If the value is cached, upon return this will be set to true, otherwise it will
@@ -419,14 +404,6 @@ class CoreExport DNS : public EventHandler
 	 * Start the lookup of an ipv4 from a hostname
 	 */
 	int GetIP(const char* name);
-
-	/**
-	 * Start the lookup of a hostname from an ip,
-	 * always using the protocol inspircd is built for,
-	 * e.g. use ipv6 reverse lookup when built for ipv6,
-	 * or ipv4 lookup when built for ipv4.
-	 */
-	int GetName(const irc::sockets::insp_inaddr* ip);
 
 	/**
 	 * Start lookup of a hostname from an ip, but

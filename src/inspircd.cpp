@@ -378,9 +378,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Initialise TIME
 	this->TIME = time(NULL);
 
-	memset(&server, 0, sizeof(server));
-	memset(&client, 0, sizeof(client));
-
 	// This must be created first, so other parts of Insp can use it while starting up
 	this->Logs = new LogManager(this);
 

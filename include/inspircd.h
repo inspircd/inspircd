@@ -369,14 +369,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	char ReadBuffer[65535];
 
-	/** Used when connecting clients
-	 */
-	irc::sockets::insp_sockaddr client, server;
-
-	/** Used when connecting clients
-	 */
-	socklen_t length;
-
 #ifdef WIN32
 	IPC* WindowsIPC;
 #endif

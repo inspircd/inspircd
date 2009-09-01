@@ -248,18 +248,6 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 	return bound;
 }
 
-const char* irc::sockets::insp_ntoa(insp_inaddr n)
-{
-	static char buf[1024];
-	inet_ntop(AF_FAMILY, &n, buf, sizeof(buf));
-	return buf;
-}
-
-int irc::sockets::insp_aton(const char* a, insp_inaddr* n)
-{
-	return inet_pton(AF_FAMILY, a, n);
-}
-
 int irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa)
 {
 	memset(sa, 0, sizeof(*sa));

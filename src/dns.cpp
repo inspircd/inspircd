@@ -512,38 +512,6 @@ int DNS::GetCName(const char *alias)
 }
 
 /** Start lookup of an IP address to a hostname */
-int DNS::GetName(const irc::sockets::insp_inaddr *ip)
-{
-	char query[128];
-	DNSHeader h;
-	int id;
-	int length;
-
-#ifdef IPV6
-	unsigned char* c = (unsigned char*)&ip->s6_addr;
-	if (c[0] == 0 && c[1] == 0 && c[2] == 0 && c[3] == 0 &&
-	    c[4] == 0 && c[5] == 0 && c[6] == 0 && c[7] == 0 &&
-	    c[8] == 0 && c[9] == 0 && c[10] == 0xFF && c[11] == 0xFF)
-		sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[15],c[14],c[13],c[12]);
-	else
-		DNS::MakeIP6Int(query, (in6_addr*)ip);
-#else
-	unsigned char* c = (unsigned char*)&ip->s_addr;
-	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
-#endif
-
-	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
-		return -1;
-
-	DNSRequest* req = this->AddQuery(&h, id, irc::sockets::insp_ntoa(*ip));
-
-	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1))
-		return -1;
-
-	return id;
-}
-
-/** Start lookup of an IP address to a hostname */
 int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 {
 	char query[128];
@@ -959,26 +927,10 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 		}
 	}
 
-	irc::sockets::insp_inaddr binip;
-
 	switch (querytype)
 	{
 		case DNS_QUERY_A:
 			this->myid = ServerInstance->Res->GetIP(source.c_str());
-		break;
-
-		case DNS_QUERY_PTR:
-			if (irc::sockets::insp_aton(source.c_str(), &binip) > 0)
-			{
-				/* Valid ip address */
-				this->myid = ServerInstance->Res->GetName(&binip);
-			}
-			else
-			{
-				this->OnError(RESOLVER_BADIP, "Bad IP address for reverse lookup");
-				throw ModuleException("Resolver: Bad IP address");
-				return;
-			}
 		break;
 
 		case DNS_QUERY_PTR4:

@@ -52,26 +52,6 @@ namespace irc
 			struct sockaddr_in6 in6;
 		} sockaddrs;
 
-	/* macros to the relevant system address description structs */
-#ifdef IPV6
-		/** insp_sockaddr for ipv6
-		 */
-		typedef struct sockaddr_in6 insp_sockaddr;
-		/** insp_inaddr for ipv6
-		 */
-		typedef struct in6_addr     insp_inaddr;
-#define AF_FAMILY AF_INET6
-
-#else
-		/** insp_sockaddr for ipv4
-		 */
-		typedef struct sockaddr_in  insp_sockaddr;
-		/** insp_inaddr for ipv4
-		 */
-		typedef struct in_addr      insp_inaddr;
-#define AF_FAMILY AF_INET
-
-#endif
 		/** Match raw binary data using CIDR rules.
 		 *
 		 * This function will use binary comparison to compare the
@@ -110,29 +90,6 @@ namespace irc
 		 * @return True if the mask matches the address
 		 */
 		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);
-
-		/** Convert an insp_inaddr into human readable form.
-		 *
-		 * @param n An insp_inaddr (IP address) structure
-		 * @return A human-readable address. IPV6 addresses
-		 * will be shortened to remove fields which are 0.
-		 */
-		CoreExport const char* insp_ntoa(insp_inaddr n);
-
-		/** Convert a human-readable address into an insp_inaddr.
-		 *
-		 * @param a A human-readable address
-		 * @param n An insp_inaddr struct which the result
-		 * will be copied into on success.
-		 * @return This method will return a negative value if address
-		 * does not contain a valid address family. 0 if the address is
-		 * does not contain a valid string representing a valid network
-		 * address. A positive value is returned if the network address
-		 * was successfully converted.
-
-		 * or any other number upon failure.
-		 */
-		CoreExport int insp_aton(const char* a, insp_inaddr* n);
 
 		/** Create a new valid file descriptor using socket()
 		 * @return On return this function will return a value >= 0 for success,
