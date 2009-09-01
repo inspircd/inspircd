@@ -90,8 +90,8 @@ allreal: $(HEADER) alldep
 	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk all
 
 module:
-	@cd src; ../make/calcdep.pl modules/$(MODNAME).cpp
-	@$(MAKEENV) $(MAKE) -C src -f modules/.$(MODNAME).d modules/$(MODNAME).so
+	cd src; if [ -d modules/$(MODNAME) ]; then ../make/calcdep.pl modules/$(MODNAME) modules/$(MODNAME)/*.cpp; else ../make/calcdep.pl modules/$(MODNAME).cpp; fi
+	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk modules/$(MODNAME).so
 
 debug:
 	@${MAKE} D=1 all

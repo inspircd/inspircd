@@ -32,16 +32,31 @@ sub gendep {
 }
 
 for my $file (@ARGV) {
-	next unless $file =~ /cpp$/;
-	gendep $file;
-	my($path,$base) = $file =~ m#^((?:.*/)?)([^/]+)\.cpp#;
-	my $cmd = "$path.$base.d";
-	my $ext = $path eq 'modules/' || $path eq 'commands/' ? '.so' : '.o';
-	my $out = "$path$base$ext";
+	if (-e $file && $file =~ /cpp$/) {
+		gendep $file;
+		my($path,$base) = $file =~ m#^((?:.*/)?)([^/]+)\.cpp#;
+		my $cmd = "$path.$base.d";
+		my $ext = $path eq 'modules/' || $path eq 'commands/' ? '.so' : '.o';
+		my $out = "$path$base$ext";
 
-	open OUT, '>', $cmd;
-	print OUT "$out: $file $f2dep{$file}\n";
-	print OUT "\t@../make/unit-cc.pl \$(VERBOSE) $file $out\n";
-	print OUT "$cmd: $file $f2dep{$file}\n";
-	print OUT "\t../make/calcdep.pl $file\n";
+		open OUT, '>', $cmd;
+		print OUT "$out: $file $f2dep{$file}\n";
+		print OUT "\t@../make/unit-cc.pl \$(VERBOSE) $file $out\n";
+		print OUT "$cmd: $file $f2dep{$file}\n";
+		print OUT "\t../make/calcdep.pl $file\n";
+	} elsif (-d $file && $file =~ m#^(.*?)([^/]+)/?$#) {
+		my($path,$base) = ($1,$2);
+		my $cmd = "$path.$base.d";
+		my $out = "$path$base.so";
+		opendir DIR, $file;
+		my $ofiles = join ' ', grep s#(.*)\.cpp$#$path$base/$1.o#, readdir DIR;
+		closedir DIR;
+		open OUT, '>', $cmd;
+		print OUT "$out: $ofiles\n\t".'$(RUNCC) $(FLAGS) $(PICLDFLAGS) -o $@ '
+			.$ofiles."\n";
+		print OUT "$cmd: $file\n\t".'@../make/calcdep.pl '."$path$base\n";
+	} else {
+		print "Cannot generate depencency for $file\n";
+		exit 1;
+	}
 }
