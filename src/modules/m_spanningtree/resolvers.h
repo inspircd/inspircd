@@ -19,10 +19,10 @@
 #include "socket.h"
 #include "inspircd.h"
 #include "xline.h"
-#include "transport.h"
+#include "../transport.h"
 
-#include "m_spanningtree/utils.h"
-#include "m_spanningtree/link.h"
+#include "utils.h"
+#include "link.h"
 
 /** Handle resolving of server IPs for the cache
  */

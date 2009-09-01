@@ -1,7 +1,7 @@
-DFILES != perl -e 'print join " ", grep s/\.cpp/.d/, <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>'
+DFILES != perl -e 'print join " ", grep s/\.cpp/.d/, <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_spanningtree/*.cpp>'
 DFILES += socketengines/$(SOCKETENGINE).d threadengines/threadengine_pthread.d
 
-all: $(DFILES)
+alldep: $(DFILES)
 
 .SUFFIXES: .d .cpp
 

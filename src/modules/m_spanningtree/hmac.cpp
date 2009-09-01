@@ -16,17 +16,17 @@
 #include "commands/cmd_stats.h"
 #include "socket.h"
 #include "xline.h"
-#include "transport.h"
-#include "m_hash.h"
+#include "../transport.h"
+#include "../m_hash.h"
 #include "socketengine.h"
 
-#include "m_spanningtree/main.h"
-#include "m_spanningtree/utils.h"
-#include "m_spanningtree/treeserver.h"
-#include "m_spanningtree/link.h"
-#include "m_spanningtree/treesocket.h"
-#include "m_spanningtree/resolvers.h"
-#include "m_spanningtree/handshaketimer.h"
+#include "main.h"
+#include "utils.h"
+#include "treeserver.h"
+#include "link.h"
+#include "treesocket.h"
+#include "resolvers.h"
+#include "handshaketimer.h"
 
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h */
 

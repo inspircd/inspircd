@@ -1,9 +1,9 @@
 #include "inspircd.h"
-#include "m_spanningtree/main.h"
-#include "m_spanningtree/utils.h"
-#include "m_spanningtree/treeserver.h"
-#include "m_spanningtree/treesocket.h"
-#include "m_spanningtree/protocolinterface.h"
+#include "main.h"
+#include "utils.h"
+#include "treeserver.h"
+#include "treesocket.h"
+#include "protocolinterface.h"
 
 /*
  * For documentation on this class, see include/protocol.h.

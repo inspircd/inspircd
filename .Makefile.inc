@@ -24,6 +24,7 @@ NICEFLAGS += -I$(COMPILE_ROOT)/include
 CC = @CC@
 FLAGS = $(NICEFLAGS) -pedantic
 PICLDFLAGS = -fPIC -DPIC -shared -export-dynamic
+CORE_FLAGS = @CORE_FLAGS@
 LDLIBS = @LDLIBS@
 BASE = "@BASE_DIR@"
 CONPATH = "@CONFIG_DIR@"
@@ -44,7 +45,7 @@ SOCKETENGINE = @SOCKETENGINE@
     RUNCC = $(COMPILE_ROOT)/make/run-cc.pl $(CC)
 @ENDIF
 
-@DO_EXPORT RUNCC FLAGS NICEFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE
+@DO_EXPORT RUNCC FLAGS NICEFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORE_FLAGS
 
 # Default target
 
@@ -56,7 +57,7 @@ all: finishmessage
 
 alldep: $(HEADER)
 	@echo -n "Generating module dependencies..."
-	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-dep.mk all
+	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-dep.mk alldep
 	@echo 'done'
 
 allreal: alldep

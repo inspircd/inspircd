@@ -16,10 +16,10 @@
 #include "commands/cmd_stats.h"
 #include "socket.h"
 #include "xline.h"
-#include "transport.h"
+#include "../transport.h"
 
-#include "m_spanningtree/utils.h"
-#include "m_spanningtree/treeserver.h"
+#include "utils.h"
+#include "treeserver.h"
 
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h */
 

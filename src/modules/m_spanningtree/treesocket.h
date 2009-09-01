@@ -19,10 +19,10 @@
 #include "socket.h"
 #include "inspircd.h"
 #include "xline.h"
-#include "transport.h"
+#include "../transport.h"
 
-#include "m_spanningtree/utils.h"
-#include "m_spanningtree/handshaketimer.h"
+#include "utils.h"
+#include "handshaketimer.h"
 
 /*
  * The server list in InspIRCd is maintained as two structures
