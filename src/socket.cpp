@@ -211,7 +211,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 	return bound;
 }
 
-int irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa)
+bool irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa)
 {
 	memset(sa, 0, sizeof(*sa));
 	if (!addr || !*addr)
@@ -240,7 +240,7 @@ int irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa
 	return false;
 }
 
-int irc::sockets::satoap(const irc::sockets::sockaddrs* sa, std::string& addr, int &port) {
+bool irc::sockets::satoap(const irc::sockets::sockaddrs* sa, std::string& addr, int &port) {
 	char addrv[INET6_ADDRSTRLEN+1];
 	if (sa->sa.sa_family == AF_INET)
 	{
