@@ -44,7 +44,7 @@ use make::opensslcert;
 
 our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_ports,
     $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue,
-    $opt_ipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port);
+    $opt_noipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port);
 
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
     $opt_library_dir);
@@ -69,7 +69,7 @@ GetOptions (
 	'disable-ports' => \$opt_noports,
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
-	'enable-ipv6' => \$opt_ipv6,
+	'disable-ipv6' => \$opt_noipv6,
 	'with-cc=s' => \$opt_cc,
 	'with-maxbuf=i' => \$opt_maxbuf,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
@@ -109,7 +109,7 @@ our $non_interactive = (
 	(defined $opt_binary_dir) ||
 	(defined $opt_nointeractive) ||
 	(defined $opt_cc) ||
-	(defined $opt_ipv6) ||
+	(defined $opt_noipv6) ||
 	(defined $opt_kqueue) ||
 	(defined $opt_epoll) ||
 	(defined $opt_ports) ||
@@ -234,10 +234,10 @@ if (defined $opt_noports)
 {
 	$config{USE_PORTS} = "n";
 }
-$config{IPV6}	       = "n";						# IPv6 support (experimental)
-if (defined $opt_ipv6)
+$config{IPV6}	       = "y";					# IPv6 support
+if (defined $opt_noipv6)
 {
-	$config{IPV6} = "y";
+	$config{IPV6} = "n";
 }
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Version
 chomp($config{GCCMINOR}     = `g++ -dumpversion | cut -c 3`);
