@@ -523,7 +523,8 @@ if ($config{OSNAME} =~ /FreeBSD/i)
 	my $version = `uname -r`;
 	if ($version =~ /^4\./)
 	{
-		print "yes. Please upgrade, FreeBSD 4.x is no longer supported\n";
+		print "yes.\n"
+		print "FreeBSD 4.x is no longer supported. By ANYONE.\n";
 		print "To build, you will need to add the following to CXXFLAGS:\n";
 		print "\t-L/usr/local/lib -lgnugetopt -DHAVE_DECL_GETOPT=1\n";
  	}
