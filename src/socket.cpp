@@ -61,7 +61,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 #endif
 		}
 	}
-	ret = SE->Bind(sockfd, &servaddr.sa, sizeof(servaddr));
+	ret = SE->Bind(sockfd, &servaddr.sa, sa_size(servaddr));
 
 	if (ret < 0)
 	{

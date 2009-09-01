@@ -98,7 +98,7 @@ bool BufferedSocket::DoBindMagic(const std::string &current_ip)
 		return false;
 	}
 
-	if (ServerInstance->SE->Bind(this->fd, &s.sa, sizeof(s)) < 0)
+	if (ServerInstance->SE->Bind(this->fd, &s.sa, sa_size(s)) < 0)
 	{
 		this->state = I_ERROR;
 		this->OnError(I_ERR_BIND);
