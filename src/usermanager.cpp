@@ -37,6 +37,12 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 
 	New->SetFd(socket);
 	memcpy(&New->ip, ip, sizeof(*ip));
+	// change the port number of their stored sockaddr to be the server port rather than the client port
+	if (New->ip.sa.sa_family == AF_INET6)
+		New->ip.in6.sin6_port = port;
+	else
+		New->ip.in4.sin_port = port;
+
 
 	/* Give each of the modules an attempt to hook the user for I/O */
 	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New, targetip));
