@@ -472,23 +472,32 @@ class CoreExport User : public EventHandler
 	 */
 	bool quitting;
 
-	/** IPV4 or IPV6 ip address, binary format. Use SetSockAddr to set this and
-	 * GetIPString/GetPort to obtain its value in a readable manner
+	/** Server address and port that this user is connected to.
+	 * If unknown, address family is AF_UNKNOWN
 	 */
-	irc::sockets::sockaddrs ip;
-
-	/** Initialize the clients sockaddr
-	 * @param ip A human-readable IP address for this user
-	 * @param port The port number of this user (zero if unknown)
+	irc::sockets::sockaddrs server_sa;
+	/** Client address that the user is connected from.
+	 * Port number is only valid if local.
+	 *
+	 * Do not modify this value directly, use SetClientIP() to change it
 	 */
-	void SetSockAddr(const char* ip, int port);
+	irc::sockets::sockaddrs client_sa;
 
-	/** Get port number from sockaddr
+	/** Sets the client IP for this user
+	 * @return true if the conversion was successful
+	 */
+	bool SetClientIP(const char* sip);
+
+	/**
 	 * @return The port number of this user.
 	 */
 	int GetServerPort();
+	/**
+	 * @return The server IP address
+	 */
+	std::string GetServerIP();
 
-	/** Get IP string from sockaddr, using static internal buffer
+	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */
 	const char* GetIPString();

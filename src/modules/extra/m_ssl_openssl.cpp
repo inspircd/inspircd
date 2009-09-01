@@ -157,9 +157,9 @@ class ModuleSSLOpenSSL : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnHookUserIO(User* user, const std::string &targetip)
+	virtual void OnHookUserIO(User* user)
 	{
-		if (!user->GetIOHook() && isin(targetip,user->GetServerPort(), listenports))
+		if (!user->GetIOHook() && isin(user->GetServerIP(),user->GetServerPort(), listenports))
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);
@@ -424,7 +424,7 @@ class ModuleSSLOpenSSL : public Module
 	}
 
 
-	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
+	virtual void OnRawSocketAccept(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))

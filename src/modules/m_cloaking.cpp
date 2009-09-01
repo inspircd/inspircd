@@ -410,35 +410,20 @@ class ModuleCloaking : public Module
 				 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
 				 * vhost.
 				 */
-#ifdef IPV6
 				in6_addr testaddr;
-				in_addr testaddr2;
-				if ((dest->ip.sa.sa_family == AF_INET6) && (inet_pton(AF_INET6,dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv6 address, and ipv6 user (resolved host) */
+				if (inet_pton(dest->client_sa.sa.sa_family, dest->host.c_str(), &testaddr) < 1 && (hostcloak.length() <= 64))
+					/* not a valid address, must have been a host, so cloak as a host */
 					b = hostcloak;
-				else if ((dest->ip.sa.sa_family == AF_INET) && (inet_aton(dest->host.c_str(),&testaddr2) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv4 address, and ipv4 user (resolved host) */
-					b = hostcloak;
+				else if (dest->client_sa.sa.sa_family == AF_INET6)
+					b = cu->Cloak6(dest->GetIPString());
 				else
-					/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
-					b = ((!strchr(dest->host.c_str(),':')) ? cu->Cloak4(dest->host.c_str()) : cu->Cloak6(dest->host.c_str()));
-#else
-				in_addr testaddr;
-				if ((inet_aton(dest->host.c_str(),&testaddr) < 1) && (hostcloak.length() <= 64))
-					/* Invalid ipv4 address, and ipv4 user (resolved host) */
-					b = hostcloak;
-				else
-					/* Valid ipv4 address (not resolved) ipv4 user */
-					b = cu->Cloak4(dest->host.c_str());
-#endif
+					b = cu->Cloak4(dest->GetIPString());
 			}
 			else
 			{
-#ifdef IPV6
-				if (dest->ip.sa.sa_family == AF_INET6)
+				if (dest->client_sa.sa.sa_family == AF_INET6)
 					b = cu->Cloak6(dest->GetIPString());
 				else
-#endif
 					b = cu->Cloak4(dest->GetIPString());
 			}
 

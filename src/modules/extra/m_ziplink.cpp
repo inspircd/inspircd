@@ -211,7 +211,7 @@ class ModuleZLib : public Module
 		session->status = IZIP_OPEN;
 	}
 
-	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
+	virtual void OnRawSocketAccept(int fd, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*)
 	{
 		/* Nothing special needs doing here compared to connect() */
 		OnRawSocketConnect(fd);

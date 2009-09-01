@@ -117,7 +117,7 @@ class CGIResolver : public Resolver
 			them->host.assign(result,0, 64);
 			them->dhost.assign(result, 0, 64);
 			if (querytype)
-				them->SetSockAddr(result.c_str(), them->GetServerPort());
+				them->SetClientIP(result.c_str());
 			them->ident.assign("~cgiirc", 0, 8);
 			them->InvalidateCache();
 			them->CheckLines(true);
@@ -318,7 +318,7 @@ public:
 		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
 		{
 			ServerInstance->Users->RemoveCloneCounts(user);
-			user->SetSockAddr(webirc_ip->c_str(), user->GetServerPort());
+			user->SetClientIP(webirc_ip->c_str());
 			delete webirc_ip;
 			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_ip");
@@ -341,15 +341,7 @@ public:
 
 			bool valid = false;
 			ServerInstance->Users->RemoveCloneCounts(user);
-#ifdef IPV6
-			if (user->ip.sa.sa_family == AF_INET6)
-				valid = (inet_pton(AF_INET6, user->password.c_str(), &user->ip.in6.sin6_addr) > 0);
-			else
-				valid = (inet_aton(user->password.c_str(), &user->ip.in4.sin_addr));
-#else
-			if (inet_aton(user->password.c_str(), &((sockaddr_in*)user->ip)->sin_addr))
-				valid = true;
-#endif
+			valid = user->SetClientIP(user->password.c_str());
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
 			user->CheckClass();
@@ -386,10 +378,9 @@ public:
 
 	bool CheckIdent(User* user)
 	{
-		int ip[4];
 		const char* ident;
-		char newip[16];
 		int len = user->ident.length();
+		in_addr newip;
 
 		if(len == 8)
 			ident = user->ident.c_str();
@@ -398,34 +389,32 @@ public:
 		else
 			return false;
 
-		for(int i = 0; i < 4; i++)
-			if(!HexToInt(ip[i], ident + i*2))
-				return false;
-
-		snprintf(newip, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+		errno = 0;
+		unsigned long ipaddr = strtoul(ident, NULL, 16);
+		if (errno)
+			return false;
+		newip.s_addr = htonl(ipaddr);
+		char* newipstr = inet_ntoa(newip);
 
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetSockAddr(newip, user->GetServerPort());
+		user->SetClientIP(newipstr);
 		ServerInstance->Users->AddLocalClone(user);
 		ServerInstance->Users->AddGlobalClone(user);
 		user->CheckClass();
+		user->host = newipstr;
+		user->dhost = newipstr;
+		user->ident.assign("~cgiirc", 0, 8);
 		try
 		{
-			user->host.assign(newip, 0, 16);
-			user->dhost.assign(newip, 0, 16);
-			user->ident.assign("~cgiirc", 0, 8);
 
 			bool cached;
-			CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, newip, false, user, user->GetFd(), "IDENT", cached);
+			CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, newipstr, false, user, user->GetFd(), "IDENT", cached);
 			ServerInstance->AddResolver(r, cached);
 		}
 		catch (...)
 		{
-			user->host.assign(newip, 0, 16);
-			user->dhost.assign(newip, 0, 16);
-			user->ident.assign("~cgiirc", 0, 8);
 			user->InvalidateCache();
 
 			if(NotifyOpers)
@@ -486,20 +475,6 @@ public:
 		}
 
 		if(dots != 3)
-			return false;
-
-		return true;
-	}
-
-	bool HexToInt(int &out, const char* in)
-	{
-		char ip[3];
-		ip[0] = in[0];
-		ip[1] = in[1];
-		ip[2] = 0;
-		out = strtol(ip, NULL, 16);
-
-		if(out > 255 || out < 0)
 			return false;
 
 		return true;

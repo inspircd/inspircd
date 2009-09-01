@@ -81,7 +81,7 @@ class CommandStartTLS : public Command
 			{
 				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
 				user->AddIOHook(Caller);
-				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetServerPort());
+				Caller->OnRawSocketAccept(user->GetFd(), NULL, NULL);
 			}
 			else
 				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());
@@ -347,9 +347,9 @@ class ModuleSSLGnuTLS : public Module
 		output.append(" STARTTLS");
 	}
 
-	virtual void OnHookUserIO(User* user, const std::string &targetip)
+	virtual void OnHookUserIO(User* user)
 	{
-		if (!user->GetIOHook() && isin(targetip,user->GetServerPort(),listenports))
+		if (!user->GetIOHook() && isin(user->GetServerIP(),user->GetServerPort(),listenports))
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);
@@ -421,7 +421,7 @@ class ModuleSSLGnuTLS : public Module
 	}
 
 
-	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
+	virtual void OnRawSocketAccept(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))

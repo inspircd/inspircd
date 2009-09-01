@@ -18,7 +18,7 @@
 #include "bancache.h"
 
 /* add a client connection to the sockets list */
-void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscached, irc::sockets::sockaddrs* ip, const std::string &targetip)
+void UserManager::AddUser(InspIRCd* Instance, int socket, bool iscached, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
@@ -36,22 +36,17 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, int port, bool iscache
 	}
 
 	New->SetFd(socket);
-	memcpy(&New->ip, ip, sizeof(*ip));
-	// change the port number of their stored sockaddr to be the server port rather than the client port
-	if (New->ip.sa.sa_family == AF_INET6)
-		New->ip.in6.sin6_port = port;
-	else
-		New->ip.in4.sin_port = port;
-
+	memcpy(&New->client_sa, client, sizeof(irc::sockets::sockaddrs));
+	memcpy(&New->server_sa, server, sizeof(irc::sockets::sockaddrs));
 
 	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New, targetip));
+	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New));
 
 	if (New->GetIOHook())
 	{
 		try
 		{
-			New->GetIOHook()->OnRawSocketAccept(socket, New->GetIPString(), port);
+			New->GetIOHook()->OnRawSocketAccept(socket, client, server);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -218,7 +213,7 @@ void UserManager::AddLocalClone(User *user)
 {
 	int range = 32;
 	clonemap::iterator x;
-	switch (user->ip.sa.sa_family)
+	switch (user->client_sa.sa.sa_family)
 	{
 		case AF_INET6:
 			range = ServerInstance->Config->c_ipv6_range;
@@ -239,7 +234,7 @@ void UserManager::AddGlobalClone(User *user)
 {
 	int range = 32;
 	clonemap::iterator x;
-	switch (user->ip.sa.sa_family)
+	switch (user->client_sa.sa.sa_family)
 	{
 		case AF_INET6:
 			range = ServerInstance->Config->c_ipv6_range;
@@ -259,7 +254,7 @@ void UserManager::AddGlobalClone(User *user)
 void UserManager::RemoveCloneCounts(User *user)
 {
 	int range = 32;
-	switch (user->ip.sa.sa_family)
+	switch (user->client_sa.sa.sa_family)
 	{
 		case AF_INET6:
 			range = ServerInstance->Config->c_ipv6_range;
@@ -293,7 +288,7 @@ void UserManager::RemoveCloneCounts(User *user)
 unsigned long UserManager::GlobalCloneCount(User *user)
 {
 	int range = 32;
-	switch (user->ip.sa.sa_family)
+	switch (user->client_sa.sa.sa_family)
 	{
 		case AF_INET6:
 			range = ServerInstance->Config->c_ipv6_range;
@@ -312,7 +307,7 @@ unsigned long UserManager::GlobalCloneCount(User *user)
 unsigned long UserManager::LocalCloneCount(User *user)
 {
 	int range = 32;
-	switch (user->ip.sa.sa_family)
+	switch (user->client_sa.sa.sa_family)
 	{
 		case AF_INET6:
 			range = ServerInstance->Config->c_ipv6_range;

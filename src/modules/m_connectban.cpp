@@ -72,7 +72,7 @@ class ModuleConnectBan : public Module
 		int range = 32;
 		clonemap::iterator i;
 
-		switch (u->ip.sa.sa_family)
+		switch (u->client_sa.sa.sa_family)
 		{
 			case AF_INET6:
 				range = ipv6_cidr;

@@ -159,7 +159,7 @@ void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
 int		Module::OnAddBan(User*, Channel*, const std::string &) { return 0; }
 int		Module::OnDelBan(User*, Channel*, const std::string &) { return 0; }
-void		Module::OnRawSocketAccept(int, const std::string&, int) { }
+void		Module::OnRawSocketAccept(int, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
 int		Module::OnRawSocketWrite(int, const char*, int) { return 0; }
 void		Module::OnRawSocketClose(int) { }
 void		Module::OnRawSocketConnect(int) { }
@@ -197,7 +197,7 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, User*, Channel*, std::string&, std::string&) { }
 int		Module::OnNumeric(User*, unsigned int, const std::string&) { return 0; }
-void		Module::OnHookUserIO(User*, const std::string&) { }
+void		Module::OnHookUserIO(User*) { }
 bool		Module::OnHostCycle(User* user) { return false; }
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)

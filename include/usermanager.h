@@ -73,12 +73,12 @@ class CoreExport UserManager : public Extensible
 	 * initialize it as not yet registered, and add it to the socket engine.
 	 * @param Instance a pointer to the server instance
 	 * @param socket The socket id (file descriptor) this user is on
-	 * @param port The port number this user connected on
 	 * @param iscached This variable is reserved for future use
-	 * @param ip The IP address of the user
+	 * @param client The IP address and client port of the user
+	 * @param server The server IP address and port used by the user
 	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
-	void AddUser(InspIRCd* Instance, int socket, int port, bool iscached, irc::sockets::sockaddrs* ip, const std::string &targetip);
+	void AddUser(InspIRCd* Instance, int socket, bool iscached, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Disconnect a user gracefully
  	 * @param user The user to remove

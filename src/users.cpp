@@ -107,7 +107,7 @@ void User::StartDNSLookup()
 		const char* sip = this->GetIPString();
 		UserResolver *res_reverse;
 
-		QueryType resolvtype = this->ip.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
+		QueryType resolvtype = this->client_sa.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
 		res_reverse = new UserResolver(this->ServerInstance, this, sip, resolvtype, cached);
 
 		this->ServerInstance->AddResolver(res_reverse, cached);
@@ -213,7 +213,8 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	quietquit = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
-	ip.sa.sa_family = AF_UNSPEC;
+	server_sa.sa.sa_family = AF_UNSPEC;
+	client_sa.sa.sa_family = AF_UNSPEC;
 	recvq.clear();
 	sendq.clear();
 	Visibility = NULL;
@@ -262,7 +263,7 @@ User::~User()
 	this->InvalidateCache();
 	this->DecrementModes();
 
-	if (ip.sa.sa_family != AF_UNSPEC)
+	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
 
 	ServerInstance->Users->uuidlist->erase(uuid);
@@ -1060,36 +1061,14 @@ bool User::ForceNickChange(const char* newnick)
 	return false;
 }
 
-void User::SetSockAddr(const char* sip, int port)
-{
-	this->cachedip = "";
-
-	if (inet_pton(AF_INET, sip, &ip.in4.sin_addr))
-	{
-		ip.in4.sin_family = AF_INET;
-		ip.in4.sin_port = port;
-		return;
-	}
-	else if (inet_pton(AF_INET6, sip, &ip.in6.sin6_addr))
-	{
-		ip.in6.sin6_family = AF_INET6;
-		ip.in6.sin6_port = port;
-	}
-	else
-	{
-		ServerInstance->Logs->Log("USERS",DEBUG,"Uh oh, I dont know how to read IP '%s' on '%s'!",
-			sip, this->nick.c_str());
-	}
-}
-
 int User::GetServerPort()
 {
-	switch (this->ip.sa.sa_family)
+	switch (this->server_sa.sa.sa_family)
 	{
 		case AF_INET6:
-			return this->ip.in6.sin6_port;
+			return this->server_sa.in6.sin6_port;
 		case AF_INET:
-			return this->ip.in4.sin_port;
+			return this->server_sa.in4.sin_port;
 	}
 	return 0;
 }
@@ -1105,7 +1084,7 @@ const char* User::GetCIDRMask(int range)
 	 * Original code written by Oliver Lupton (Om).
 	 * Integrated by me. Thanks. :) -- w00t
 	 */
-	switch (this->ip.sa.sa_family)
+	switch (this->client_sa.sa.sa_family)
 	{
 		case AF_INET6:
 		{
@@ -1135,7 +1114,7 @@ const char* User::GetCIDRMask(int range)
 			 */
 			for(i = 0; i < (16 - bytestozero); i++)
 			{
-				v6.s6_addr[i] = ip.in6.sin6_addr.s6_addr[i];
+				v6.s6_addr[i] = client_sa.in6.sin6_addr.s6_addr[i];
 			}
 
 			/* And zero all the remaining bytes in the IP. */
@@ -1160,7 +1139,7 @@ const char* User::GetCIDRMask(int range)
 				throw "CIDR mask width greater than address width (IPv4, 32 bit)";
 
 			/* Users already have a sockaddr* pointer (User::ip) which contains either a v4 or v6 structure */
-			v4.s_addr = ip.in4.sin_addr.s_addr;
+			v4.s_addr = client_sa.in4.sin_addr.s_addr;
 
 			/* To create the CIDR mask we want to set all the bits after 'range' bits of the address
 			 * to zero. This means the last (32 - range) bits of the address must be set to zero.
@@ -1197,13 +1176,13 @@ const char* User::GetIPString()
 	if (!this->cachedip.empty())
 		return this->cachedip.c_str();
 
-	switch (this->ip.sa.sa_family)
+	switch (this->client_sa.sa.sa_family)
 	{
 		case AF_INET6:
 		{
 			static char temp[41];
 
-			inet_ntop(ip.in6.sin6_family, &ip.in6.sin6_addr, buf, sizeof(buf));
+			inet_ntop(client_sa.in6.sin6_family, &client_sa.in6.sin6_addr, buf, sizeof(buf));
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 			if (*buf == ':')
 			{
@@ -1219,7 +1198,7 @@ const char* User::GetIPString()
 		break;
 		case AF_INET:
 		{
-			inet_ntop(ip.in4.sin_family, &ip.in4.sin_addr, buf, sizeof(buf));
+			inet_ntop(client_sa.in4.sin_family, &client_sa.in4.sin_addr, buf, sizeof(buf));
 			this->cachedip = buf;
 			return buf;
 		}
@@ -1230,6 +1209,24 @@ const char* User::GetIPString()
 
 	// Unreachable, probably
 	return "";
+}
+
+bool User::SetClientIP(const char* sip)
+{
+	this->cachedip = "";
+	if (inet_pton(AF_INET, sip, &client_sa.in4.sin_addr))
+	{
+		client_sa.in4.sin_family = AF_INET;
+		client_sa.in4.sin_port = 0;
+		return true;
+	}
+	else if (inet_pton(AF_INET6, sip, &client_sa.in6.sin6_addr))
+	{
+		client_sa.in6.sin6_family = AF_INET6;
+		client_sa.in6.sin6_port = 0;
+		return true;
+	}
+	return false;
 }
 
 /** NOTE: We cannot pass a const reference to this method.

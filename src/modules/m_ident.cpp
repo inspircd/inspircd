@@ -80,60 +80,36 @@ class IdentRequestSocket : public EventHandler
 	std::string result;		/* Holds the ident string if done */
  public:
 
-	IdentRequestSocket(InspIRCd *Server, User* u, const std::string &bindip) : user(u), ServerInstance(Server), result(u->ident)
+	IdentRequestSocket(InspIRCd *Server, User* u) : user(u), ServerInstance(Server), result(u->ident)
 	{
 		socklen_t size = 0;
-#ifdef IPV6
-		/* Does this look like a v6 ip address? */
-		bool v6 = false;
-		if ((bindip.empty()) || bindip.find(':') != std::string::npos)
-		v6 = true;
 
-		if (v6)
-			SetFd(socket(AF_INET6, SOCK_STREAM, 0));
-		else
-#endif
-			SetFd(socket(AF_INET, SOCK_STREAM, 0));
+		SetFd(socket(user->server_sa.sa.sa_family, SOCK_STREAM, 0));
 
 		if (GetFd() == -1)
 			throw ModuleException("Could not create socket");
 
 		done = false;
 
-		/* We allocate two of these because sizeof(sockaddr_in6) > sizeof(sockaddr_in) */
-		irc::sockets::sockaddrs s;
-		irc::sockets::sockaddrs addr;
+		irc::sockets::sockaddrs bindaddr;
+		irc::sockets::sockaddrs connaddr;
 
-#ifdef IPV6
-		/* Horrid icky nasty ugly berkely socket crap. */
-		if (v6)
+		memcpy(&bindaddr, &user->server_sa, sizeof(bindaddr));
+		memcpy(&connaddr, &user->client_sa, sizeof(connaddr));
+
+		if (connaddr.sa.sa_family == AF_INET6)
 		{
-			if (inet_pton(AF_INET6, user->GetIPString(), &addr.in6.sin6_addr) > 0)
-			{
-				addr.in6.sin6_family = AF_INET6;
-				addr.in6.sin6_port = htons(113);
-				size = sizeof(sockaddr_in6);
-				inet_pton(AF_INET6, bindip.c_str(), &s.in6.sin6_addr);
-				s.in6.sin6_family = AF_INET6;
-				s.in6.sin6_port = 0;
-			}
+			bindaddr.in6.sin6_port = 0;
+			connaddr.in6.sin6_port = htons(113);
 		}
 		else
-#endif
 		{
-			if (inet_aton(user->GetIPString(), &addr.in4.sin_addr) > 0)
-			{
-				addr.in4.sin_family = AF_INET;
-				addr.in4.sin_port = htons(113);
-				size = sizeof(sockaddr_in);
-				inet_aton(bindip.c_str(), &s.in4.sin_addr);
-				s.in4.sin_family = AF_INET;
-				s.in4.sin_port = 0;
-			}
+			bindaddr.in4.sin_port = 0;
+			connaddr.in4.sin_port = htons(113);
 		}
 
 		/* Attempt to bind (ident requests must come from the ip the query is referring to */
-		if (ServerInstance->SE->Bind(GetFd(), &s.sa, size) < 0)
+		if (ServerInstance->SE->Bind(GetFd(), &bindaddr.sa, size) < 0)
 		{
 			this->Close();
 			throw ModuleException("failed to bind()");
@@ -142,7 +118,7 @@ class IdentRequestSocket : public EventHandler
 		ServerInstance->SE->NonBlocking(GetFd());
 
 		/* Attempt connection (nonblocking) */
-		if (ServerInstance->SE->Connect(this, &addr.sa, size) == -1 && errno != EINPROGRESS)
+		if (ServerInstance->SE->Connect(this, &connaddr.sa, size) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
 			throw ModuleException("connect() failed");
@@ -165,30 +141,16 @@ class IdentRequestSocket : public EventHandler
 	{
 		ServerInstance->Logs->Log("m_ident",DEBUG,"OnConnected()");
 
-		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
-		 * only members we use are in a part of the struct that should always be identical (at the
-		 * byte level). */
-		irc::sockets::sockaddrs laddr, raddr;
-
-		socklen_t laddrsz = sizeof(laddr);
-		socklen_t raddrsz = sizeof(raddr);
-
-		if ((getsockname(user->GetFd(), &laddr.sa, &laddrsz) != 0) || (getpeername(user->GetFd(), &raddr.sa, &raddrsz) != 0))
-		{
-			done = true;
-			return;
-		}
-
 		char req[32];
 
 		/* Build request in the form 'localport,remoteport\r\n' */
 		int req_size;
-#ifdef IPV6
-		if (raddr.sa.sa_family == AF_INET6)
-			req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.in6.sin6_port), ntohs(laddr.in6.sin6_port));
+		if (user->client_sa.sa.sa_family == AF_INET6)
+			req_size = snprintf(req, sizeof(req), "%d,%d\r\n",
+				ntohs(user->client_sa.in6.sin6_port), ntohs(user->server_sa.in6.sin6_port));
 		else
-#endif
-			req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.in4.sin_port), ntohs(laddr.in4.sin_port));
+			req_size = snprintf(req, sizeof(req), "%d,%d\r\n",
+				ntohs(user->client_sa.in4.sin_port), ntohs(user->server_sa.in4.sin_port));
 
 		/* Send failed if we didnt write the whole ident request --
 		 * might as well give up if this happens!
@@ -371,36 +333,16 @@ class ModuleIdent : public Module
 
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
 
-		// Get the IP that the user is connected to, and bind to that for the outgoing connection
-		irc::sockets::sockaddrs laddr;
-		socklen_t laddrsz = sizeof(laddr);
-
-		if (getsockname(user->GetFd(), &laddr.sa, &laddrsz) != 0)
-		{
-			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident.c_str());
-			return 0;
-		}
-
-		char ip[INET6_ADDRSTRLEN + 1];
-#ifdef IPV6
-		if (laddr.sa.sa_family == AF_INET6)
-			inet_ntop(laddr.in6.sin6_family, &laddr.in6.sin6_addr, ip, INET6_ADDRSTRLEN);
-		else
-#endif
-			inet_ntop(laddr.in4.sin_family, &laddr.in4.sin_addr, ip, INET6_ADDRSTRLEN);
-
-		IdentRequestSocket *isock = NULL;
 		try
 		{
-			isock = new IdentRequestSocket(ServerInstance, user, ip);
+			IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user);
+			user->Extend("ident_socket", isock);
 		}
 		catch (ModuleException &e)
 		{
 			ServerInstance->Logs->Log("m_ident",DEBUG,"Ident exception: %s", e.GetReason());
-			return 0;
 		}
 
-		user->Extend("ident_socket", isock);
 		return 0;
 	}
 

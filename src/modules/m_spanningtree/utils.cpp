@@ -56,7 +56,7 @@ void ServerSocketListener::OnAcceptReady(const std::string &ipconnectedto, int n
 
 	if (this->GetIOHook())
 	{
-		this->GetIOHook()->OnRawSocketAccept(newsock, incomingip.c_str(), this->bind_port);
+		this->GetIOHook()->OnRawSocketAccept(newsock, &client, &server);
 	}
 
 	/* we don't need a pointer to this, creating it stores it in the necessary places */

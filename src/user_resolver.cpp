@@ -35,7 +35,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			{
 				bool lcached = false;
 #ifdef IPV6
-				if (this->bound_user->ip.sa.sa_family == AF_INET6)
+				if (this->bound_user->client_sa.sa.sa_family == AF_INET6)
 				{
 					/* IPV6 forward lookup */
 					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_AAAA, lcached);
@@ -59,7 +59,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 	{
 		/* Both lookups completed */
 
-		irc::sockets::sockaddrs* user_ip = &this->bound_user->ip;
+		irc::sockets::sockaddrs* user_ip = &this->bound_user->client_sa;
 		bool rev_match = false;
 #ifdef IPV6
 		if (user_ip->sa.sa_family == AF_INET6)
