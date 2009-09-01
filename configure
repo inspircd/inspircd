@@ -821,7 +821,7 @@ writefiles(1);
 makecache();
 
 print "\n\n";
-print "To build your server with these settings, please type '\e[1;32m$config{MAKEPROG}\e[0m' now.\n";
+print "To build your server with these settings, please run '\e[1;32mmake\e[0m' now.\n";
 if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
 	print "modules in your config. This configure script has added those modules to the\n";
