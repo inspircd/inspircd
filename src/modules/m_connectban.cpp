@@ -74,17 +74,11 @@ class ModuleConnectBan : public Module
 
 		switch (u->GetProtocolFamily())
 		{
-	#ifdef SUPPORT_IP6LINKS
 			case AF_INET6:
-			{
 				range = ipv6_cidr;
-			}
 			break;
-	#endif
 			case AF_INET:
-			{
 				range = ipv4_cidr;
-			}
 			break;
 		}
 

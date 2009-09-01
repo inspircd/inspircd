@@ -272,12 +272,10 @@ User::~User()
 		{
 			delete (sockaddr_in*)ip;
 		}
-#ifdef SUPPORT_IP6LINKS
 		else
 		{
 			delete (sockaddr_in6*)ip;
 		}
-#endif
 	}
 
 	ServerInstance->Users->uuidlist->erase(uuid);
@@ -1080,7 +1078,6 @@ void User::SetSockAddr(int protocol_family, const char* sip, int port)
 
 	switch (protocol_family)
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
 			sockaddr_in6* sin = new sockaddr_in6;
@@ -1090,7 +1087,6 @@ void User::SetSockAddr(int protocol_family, const char* sip, int port)
 			this->ip = (sockaddr*)sin;
 		}
 		break;
-#endif
 		case AF_INET:
 		{
 			sockaddr_in* sin = new sockaddr_in;
@@ -1113,14 +1109,12 @@ int User::GetPort()
 
 	switch (this->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
 			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			return sin->sin6_port;
 		}
 		break;
-#endif
 		case AF_INET:
 		{
 			sockaddr_in* sin = (sockaddr_in*)this->ip;
@@ -1158,7 +1152,6 @@ const char* User::GetCIDRMask(int range)
 	 */
 	switch (this->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
 			/* unsigned char s6_addr[16]; */
@@ -1207,7 +1200,6 @@ const char* User::GetCIDRMask(int range)
 			return buf;
 		}
 		break;
-#endif
 		case AF_INET:
 		{
 			struct in_addr v4;
@@ -1261,7 +1253,6 @@ const char* User::GetIPString()
 
 	switch (this->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
 			static char temp[1024];
@@ -1281,7 +1272,6 @@ const char* User::GetIPString()
 			return buf;
 		}
 		break;
-#endif
 		case AF_INET:
 		{
 			sockaddr_in* sin = (sockaddr_in*)this->ip;

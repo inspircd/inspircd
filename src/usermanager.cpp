@@ -222,17 +222,11 @@ void UserManager::AddLocalClone(User *user)
 	clonemap::iterator x;
 	switch (user->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
-		{
 			range = ServerInstance->Config->c_ipv6_range;
-		}
 		break;
-#endif
 		case AF_INET:
-		{
 			range = ServerInstance->Config->c_ipv4_range;
-		}
 		break;
 	}
 
@@ -249,17 +243,11 @@ void UserManager::AddGlobalClone(User *user)
 	clonemap::iterator x;
 	switch (user->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
-		{
 			range = ServerInstance->Config->c_ipv6_range;
-		}
 		break;
-#endif
 		case AF_INET:
-		{
 			range = ServerInstance->Config->c_ipv4_range;
-		}
 		break;
 	}
 
@@ -275,17 +263,11 @@ void UserManager::RemoveCloneCounts(User *user)
 	int range = 32;
 	switch (user->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
-		{
 			range = ServerInstance->Config->c_ipv6_range;
-		}
 		break;
-#endif
 		case AF_INET:
-		{
 			range = ServerInstance->Config->c_ipv4_range;
-		}
 		break;
 	}
 
@@ -315,17 +297,11 @@ unsigned long UserManager::GlobalCloneCount(User *user)
 	int range = 32;
 	switch (user->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
-		{
 			range = ServerInstance->Config->c_ipv6_range;
-		}
 		break;
-#endif
 		case AF_INET:
-		{
 			range = ServerInstance->Config->c_ipv4_range;
-		}
 		break;
 	}
 	clonemap::iterator x = global_clones.find(user->GetCIDRMask(range));
@@ -340,17 +316,11 @@ unsigned long UserManager::LocalCloneCount(User *user)
 	int range = 32;
 	switch (user->GetProtocolFamily())
 	{
-#ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
-		{
 			range = ServerInstance->Config->c_ipv6_range;
-		}
 		break;
-#endif
 		case AF_INET:
-		{
 			range = ServerInstance->Config->c_ipv4_range;
-		}
 		break;
 	}
 	clonemap::iterator x = local_clones.find(user->GetCIDRMask(range));

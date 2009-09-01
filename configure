@@ -44,7 +44,7 @@ use make::opensslcert;
 
 our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_ports,
     $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue,
-    $opt_ipv6, $opt_ipv6links, $opt_noipv6links, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port);
+    $opt_ipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port);
 
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
     $opt_library_dir);
@@ -70,8 +70,6 @@ GetOptions (
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
 	'enable-ipv6' => \$opt_ipv6,
-	'enable-remote-ipv6' => \$opt_ipv6links,
-	'disable-remote-ipv6' => \$opt_noipv6links,
 	'with-cc=s' => \$opt_cc,
 	'with-maxbuf=i' => \$opt_maxbuf,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
@@ -112,8 +110,6 @@ our $non_interactive = (
 	(defined $opt_nointeractive) ||
 	(defined $opt_cc) ||
 	(defined $opt_ipv6) ||
-	(defined $opt_ipv6links) ||
-	(defined $opt_noipv6links) ||
 	(defined $opt_kqueue) ||
 	(defined $opt_epoll) ||
 	(defined $opt_ports) ||
@@ -242,15 +238,6 @@ $config{IPV6}	       = "n";						# IPv6 support (experimental)
 if (defined $opt_ipv6)
 {
 	$config{IPV6} = "y";
-}
-$config{SUPPORT_IP6LINKS}   = "y";					# IPv4 supporting IPv6 links (experimental)
-if (defined $opt_ipv6links)
-{
-	$config{SUPPORT_IP6LINKS} = "y";
-}
-if (defined $opt_noipv6links)
-{
-	$config{SUPPORT_IP6LINKS} = "n";
 }
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Version
 chomp($config{GCCMINOR}     = `g++ -dumpversion | cut -c 3`);
@@ -654,7 +641,7 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	}
 
 	if (!$chose_hiperf) {
-		yesno('USE_POLL', "Would you like to use poll?\n This is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable poll?\n");
+		yesno('USE_POLL', "Would you like to use poll?\n This is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable poll?");
 		if ($config{USE_POLL} ne "y")
 		{
 			print "No high-performance socket engines are available, or you chose\n";
@@ -662,16 +649,8 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		}
 	}
 
-	yesno('IPV6',"Would you like to build InspIRCd with IPv6 support?");
+	yesno('IPV6',"Would you like to build InspIRCd with IPv6 support?\nYou can still use IPv4 addresses in your port bindings.\n\nEnable IPv6?");
 	print "\n";
-
-	if ($config{IPV6} eq "y") {
-		print "You have chosen to build an \e[1;32mIPV6-enabled\e[0m server.\nTo accept IPV4 users, you can still use IPV4 addresses\nin your port bindings..\n\n";
-		$config{SUPPORT_IP6LINKS} = "y";
-	} else {
-		yesno('SUPPORT_IP6LINKS',"You have chosen to build an \e[1;32mIPV4-only\e[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers? If you are using a recent operating system and are\nunsure, answer yes. If you answer 'no' here, your InspIRCd server will\nbe unable to parse IPV6 addresses (e.g. for CIDR bans)\n\nEnable linking to servers which have IPV6 enabled?");
-		print "\n";
-	}
 
 	$config{USE_FREEBSD_BASE_SSL} = "n";
 	$config{USE_FREEBSD_PORTS_SSL} = "n";
@@ -986,9 +965,6 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		}
 		if ($config{IPV6} =~ /y/i) {
 			print FILEHANDLE "#define IPV6\n";
-		}
-		if ($config{SUPPORT_IP6LINKS} =~ /y/i) {
-			print FILEHANDLE "#define SUPPORT_IP6LINKS\n";
 		}
 		if ($config{HAS_EVENTFD} eq 'true') {
 			print FILEHANDLE "#define HAS_EVENTFD\n";

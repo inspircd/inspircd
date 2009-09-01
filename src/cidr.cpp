@@ -121,7 +121,6 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 		return false;
 	}
 
-#ifdef SUPPORT_IP6LINKS
 	in6_addr address_in6;
 	in6_addr mask_in6;
 
@@ -143,9 +142,7 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 			return false;
 		}
 	}
-	else
-#endif
-	if (inet_pton(AF_INET, address_copy.c_str(), &address_in4) > 0)
+	else if (inet_pton(AF_INET, address_copy.c_str(), &address_in4) > 0)
 	{
 		if (inet_pton(AF_INET, cidr_copy.c_str(), &mask_in4) > 0)
 		{

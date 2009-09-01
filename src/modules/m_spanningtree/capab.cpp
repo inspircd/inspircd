@@ -65,12 +65,8 @@ void TreeSocket::SendCapabilities()
 		this->WriteLine(line);
 
 	int ip6 = 0;
-	int ip6support = 0;
 #ifdef IPV6
 	ip6 = 1;
-#endif
-#ifdef SUPPORT_IP6LINKS
-	ip6support = 1;
 #endif
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
@@ -92,7 +88,7 @@ void TreeSocket::SendCapabilities()
 			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
 			" IP6NATIVE="+ConvToStr(ip6)+
-			" IP6SUPPORT="+ConvToStr(ip6support)+
+			" IP6SUPPORT=1"+
 			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
 			" CHANMODES="+ServerInstance->Modes->GiveModeList(MASK_CHANNEL)+
@@ -148,13 +144,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 	else if (params[0] == "END")
 	{
 		std::string reason;
-		int ip6support = 0;
-#ifdef SUPPORT_IP6LINKS
-		ip6support = 1;
-#endif
-		/* Compare ModuleList and check CapKeys...
-		 * Maybe this could be tidier? -- Brain
-		 */
+		/* Compare ModuleList and check CapKeys */
 		if ((this->ModuleList != this->MyCapabilities()) && (this->ModuleList.length()))
 		{
 			std::string diffIneed = ListDifference(this->ModuleList, this->MyCapabilities());
@@ -174,10 +164,6 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			this->SendError("CAPAB negotiation failed: "+reason);
 			return false;
 		}
-		if (((this->CapKeys.find("IP6SUPPORT") == this->CapKeys.end()) && (ip6support)) || ((this->CapKeys.find("IP6SUPPORT") != this->CapKeys.end()) && (this->CapKeys.find("IP6SUPPORT")->second != ConvToStr(ip6support))))
-			reason = "We don't both support linking to IPV6 servers";
-		if (((this->CapKeys.find("IP6NATIVE") != this->CapKeys.end()) && (this->CapKeys.find("IP6NATIVE")->second == "1")) && (!ip6support))
-			reason = "The remote server is IPV6 native, and we don't support linking to IPV6 servers";
 		if (this->CapKeys.find("PROTOCOL") == this->CapKeys.end())
 		{
 			reason = "Protocol version not specified";
