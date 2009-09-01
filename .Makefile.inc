@@ -56,6 +56,7 @@ INSTMODE = 0755
     NICEFLAGS += -g1
     HEADER = std-header
 @ENDIF
+FOOTER = finishmessage
 
 NICEFLAGS += -I$(COMPILE_ROOT)/include
 
@@ -74,30 +75,28 @@ NICEFLAGS += -I$(COMPILE_ROOT)/include
 @DO_EXPORT BASE CONPATH MODPATH BINPATH LIBPATH
 
 # Default target
+TARGET = all
 
 @IFDEF M
-    _all: module
-    @BSD_ONLY MODNAME = ${M:S/.so$//}
-    @GNU_ONLY MODNAME = $(M:.so=)
+    HEADER = mod-header
+    FOOTER = mod-footer
+    @BSD_ONLY TARGET = modules/${M:S/.so$//}.so
+    @GNU_ONLY TARGET = modules/$(M:.so=).so
 @ENDIF
 
-@IFDEF F
-    _all: single
+@IFDEF T
+    HEADER =
+    FOOTER = target
+    TARGET = $(T)
 @ENDIF
 
-all: finishmessage
+all: $(FOOTER)
 
-alldep:
+dep:
 	@cd src; ../make/calcdep.pl `perl -e 'print join " ", <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_*/*.cpp>'` socketengines/$(SOCKETENGINE).cpp threadengines/threadengine_pthread.cpp
 
-allreal: $(HEADER) alldep
-	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk all
-
-module: alldep
-	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk modules/$(MODNAME).so
-
-single: alldep
-	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk $(F)
+target: $(HEADER) dep
+	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk $(TARGET)
 
 debug:
 	@${MAKE} D=1 all
@@ -116,6 +115,13 @@ debug-header:
 	@echo "*                                   *"
 	@echo "*************************************"
 
+mod-header:
+	@echo 'Building single module:'
+
+mod-footer: target
+	@echo 'To install, copy src/$(TARGET) to $(MODPATH)'
+	@echo 'Or, run "make install"'
+
 std-header:
 	@echo "*************************************"
 	@echo "*       BUILDING INSPIRCD           *"
@@ -126,7 +132,7 @@ std-header:
 	@echo "*  while you wait for make to run?  *"
 	@echo "*************************************"
 
-finishmessage: allreal
+finishmessage: target
 	@echo ""
 	@echo "*************************************"
 	@echo "*        BUILD COMPLETE!            *"
@@ -135,7 +141,7 @@ finishmessage: allreal
 	@echo "*         make install              *"
 	@echo "*************************************"
 
-install: allreal@EXTRA_DIR@
+install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BASE)
 	@-install -d -m $(INSTMODE) $(LIBPATH)
 	@-install -d -m $(INSTMODE) $(BINPATH)
@@ -164,12 +170,6 @@ clean:
 	@rm -f src/.*.d src/*/.*.d src/modules/*/.*.d
 	@echo Completed.
 
-modclean:
-	rm -f src/modules/*.so
-	rm -f src/modules/*.o
-	rm -f src/modules/*/*.so
-	rm -f src/modules/*/*.o
-
 deinstall:
 	-rm $(BINPATH)/inspircd
 	-rm $(LIBPATH)/*.so
@@ -192,7 +192,7 @@ configureclean:
 	rm -f include/inspircd_config.h
 	rm -f include/inspircd_se_config.h
 
-distclean: modclean clean configureclean
+distclean: clean configureclean
 
 help:
 	@echo 'InspIRCd Makefile'
@@ -209,15 +209,17 @@ help:
 	@echo ' install   Build and install InspIRCd to the directory chosen in ./configure'
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
-	@echo ' module    Builds a single module, which is specified by "M=m_modname"'
-	@echo '           The command "make M=m_modname" is a shortcut for this target'
-	@echo ' single    Builds a single target, which is specified by "F=filename"'
-	@echo '           The command "make F=filename" is a shortcut for this target'
-	@echo '           Paths are relative to the src/ directory'
+	@echo ''
+	@echo ' M=m_foo   Builds a single module'
+	@echo ' T=target  Builds a user-specified target'
+	@echo '           Target can be a file path relative to src/, or one of:'
+	@echo '            inspircd  commands  modules'
+	@echo '           Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
 	@echo ' distclean Cleans all files produced by compile and ./configure'
+	@echo '           Note: this includes the Makefile'
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all help debug debug-header std-header ircd mods finishmessage install module single clean modclean deinstall squeakyclean launchd_dir configureclean
+.PHONY: all dep target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean launchd_dir configureclean help
