@@ -14,7 +14,7 @@
 CC = @CC@
 SYSTEM = @SYSTEM@
 SOCKETENGINE = @SOCKETENGINE@
-CXXFLAGS = -pipe -fPIC -DPIC
+CXXFLAGS += -pipe -fPIC -DPIC
 LDLIBS = -pthread -lstdc++
 LDFLAGS = 
 SHARED = -shared -rdynamic
@@ -91,10 +91,7 @@ TARGET = all
 
 all: $(FOOTER)
 
-dep:
-	@cd src; ../make/calcdep.pl `perl -e 'print join " ", <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_*/*.cpp>'` socketengines/$(SOCKETENGINE).cpp threadengines/threadengine_pthread.cpp
-
-target: $(HEADER) dep
+target: $(HEADER)
 	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk $(TARGET)
 
 debug:
@@ -221,4 +218,4 @@ help:
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all dep target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean launchd_dir configureclean help
+.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean launchd_dir configureclean help
