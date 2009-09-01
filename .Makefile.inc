@@ -58,12 +58,10 @@ SOCKETENGINE = @SOCKETENGINE@
 
 all: finishmessage
 
-alldep: $(HEADER)
-	@echo -n "Generating module dependencies..."
+alldep:
 	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-dep.mk alldep
-	@echo 'done'
 
-allreal: alldep
+allreal: $(HEADER) alldep
 	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk all
 
 module:

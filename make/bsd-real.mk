@@ -8,8 +8,8 @@ CORE_TARGS += modeclasses.a threadengines/threadengine_pthread.o
 CORE_TARGS += socketengines/$(SOCKETENGINE).o
 MOD_TARGS += modules/m_spanningtree.so
 
-DFILES != perl -e 'print join " ", grep s/\.cpp/.d/, <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_spanningtree/*.cpp>'
-DFILES += socketengines/$(SOCKETENGINE).d threadengines/threadengine_pthread.d
+DFILES != perl -e 'print join " ", grep s!([^/]+)\.cpp!.$$1.d!, <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_spanningtree/*.cpp>'
+DFILES += socketengines/.$(SOCKETENGINE).d threadengines/.threadengine_pthread.d
 
 all: inspircd commands modules
 

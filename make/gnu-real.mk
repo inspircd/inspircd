@@ -27,9 +27,7 @@ inspircd: $(CORE_TARGS)
 	$(RUNCC) $(FLAGS) $(CORE_FLAGS) -o inspircd $(LDLIBS) $(CORE_TARGS)
 
 .%.d: %.cpp
-	@$(VDEP_IN)
 	@../make/calcdep.pl $<
-	@$(VDEP_OUT)
 
 .PHONY: all alldep commands modules
 
