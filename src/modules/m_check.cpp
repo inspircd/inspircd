@@ -88,7 +88,7 @@ class CommandCheck : public Command
 			user->WriteServ(checkstr + " onip " + targuser->GetIPString());
 			if (IS_LOCAL(targuser))
 			{
-				user->WriteServ(checkstr + " onport " + ConvToStr(targuser->GetPort()));
+				user->WriteServ(checkstr + " onport " + ConvToStr(targuser->GetServerPort()));
 				std::string classname = targuser->GetClass()->name;
 				if (!classname.empty())
 					user->WriteServ(checkstr + " connectclass " + classname);

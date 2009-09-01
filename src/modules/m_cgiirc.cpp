@@ -117,7 +117,7 @@ class CGIResolver : public Resolver
 			them->host.assign(result,0, 64);
 			them->dhost.assign(result, 0, 64);
 			if (querytype)
-				them->SetSockAddr(result.c_str(), them->GetPort());
+				them->SetSockAddr(result.c_str(), them->GetServerPort());
 			them->ident.assign("~cgiirc", 0, 8);
 			them->InvalidateCache();
 			them->CheckLines(true);
@@ -318,7 +318,7 @@ public:
 		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
 		{
 			ServerInstance->Users->RemoveCloneCounts(user);
-			user->SetSockAddr(webirc_ip->c_str(), user->GetPort());
+			user->SetSockAddr(webirc_ip->c_str(), user->GetServerPort());
 			delete webirc_ip;
 			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_ip");
@@ -407,7 +407,7 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetSockAddr(newip, user->GetPort());
+		user->SetSockAddr(newip, user->GetServerPort());
 		ServerInstance->Users->AddLocalClone(user);
 		ServerInstance->Users->AddGlobalClone(user);
 		user->CheckClass();

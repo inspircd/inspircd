@@ -159,7 +159,7 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->GetIOHook() && isin(targetip,user->GetPort(), listenports))
+		if (!user->GetIOHook() && isin(targetip,user->GetServerPort(), listenports))
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);

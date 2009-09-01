@@ -81,7 +81,7 @@ class CommandStartTLS : public Command
 			{
 				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
 				user->AddIOHook(Caller);
-				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
+				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetServerPort());
 			}
 			else
 				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());
@@ -349,7 +349,7 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
 	{
-		if (!user->GetIOHook() && isin(targetip,user->GetPort(),listenports))
+		if (!user->GetIOHook() && isin(targetip,user->GetServerPort(),listenports))
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);

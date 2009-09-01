@@ -81,7 +81,7 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 			irc::portparser portrange(matchtext, false);
 			long portno = -1;
 			while ((portno = portrange.GetToken()))
-				if (portno == user->GetPort())
+				if (portno == user->GetServerPort())
 				{
 					match = true;
 					break;

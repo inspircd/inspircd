@@ -486,7 +486,7 @@ class CoreExport User : public EventHandler
 	/** Get port number from sockaddr
 	 * @return The port number of this user.
 	 */
-	int GetPort();
+	int GetServerPort();
 
 	/** Get IP string from sockaddr, using static internal buffer
 	 * @return The IP string

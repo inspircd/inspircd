@@ -988,7 +988,8 @@ void User::FullConnect()
 
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
-	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), this->GetIPString(), this->fullname.c_str());
+	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]",
+		this->GetServerPort(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), this->GetIPString(), this->fullname.c_str());
 	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 }
@@ -1081,7 +1082,7 @@ void User::SetSockAddr(const char* sip, int port)
 	}
 }
 
-int User::GetPort()
+int User::GetServerPort()
 {
 	switch (this->ip.sa.sa_family)
 	{
@@ -1817,9 +1818,9 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port (%d)", c->GetPort());
 
 				/* and our port doesn't match, fail. */
-				if (this->GetPort() != c->GetPort())
+				if (this->GetServerPort() != c->GetPort())
 				{
-					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port match failed (%d)", this->GetPort());
+					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port match failed (%d)", this->GetServerPort());
 					continue;
 				}
 			}

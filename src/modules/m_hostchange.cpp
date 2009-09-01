@@ -107,7 +107,7 @@ class ModuleHostChange : public Module
 					bool foundany = false;
 
 					while ((portno = portrange.GetToken()))
-						if (portno == user->GetPort())
+						if (portno == user->GetServerPort())
 							foundany = true;
 
 					if (!foundany)
