@@ -46,6 +46,7 @@ SOCKETENGINE = @SOCKETENGINE@
 @ENDIF
 
 @DO_EXPORT RUNCC FLAGS NICEFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORE_FLAGS
+@DO_EXPORT BASE CONPATH MODPATH BINPATH LIBPATH
 
 # Default target
 
@@ -108,7 +109,8 @@ install: allreal@EXTRA_DIR@
 	-install -m $(INSTMODE) src/commands/*.so $(LIBPATH)
 	-install -m $(INSTMODE) src/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
-@INSTALL_LIST@	-install -m $(INSTMODE) src/inspircd $(BINPATH)
+	-install -m $(INSTMODE) src/inspircd $(BINPATH)
+	@$(MAKEENV) make/install-extras.pl install
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
@@ -141,7 +143,7 @@ deinstall:
 	-rm $(BINPATH)/inspircd
 	-rm $(LIBPATH)/*.so
 	-rm $(MODPATH)/*.so
-@UNINSTALL_LIST@
+	@make/install-extras.pl deinstall
 
 squeakyclean: distclean
 
