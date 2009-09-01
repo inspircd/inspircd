@@ -6,7 +6,9 @@
 #   Please do not edit unless you know what you're doing.
 #
 
-@GNU_ONLY COMPILE_ROOT = $(shell pwd)
+@GNU_ONLY MAKESTYLE = gnu
+@GNU_ONLY COMPILE_ROOT ?= $(shell pwd)
+@BSD_ONLY MAKESTYLE = bsd
 @BSD_ONLY COMPILE_ROOT != pwd
 
 @IFDEF D
@@ -21,6 +23,7 @@ NICEFLAGS += -I$(COMPILE_ROOT)/include
 
 CC = @CC@
 FLAGS = $(NICEFLAGS) -pedantic
+PICLDFLAGS = -fPIC -DPIC -shared -export-dynamic
 LDLIBS = @LDLIBS@
 BASE = "@BASE_DIR@"
 CONPATH = "@CONFIG_DIR@"
@@ -28,19 +31,20 @@ MODPATH = "@MODULE_DIR@"
 BINPATH = "@BINARY_DIR@"
 LAUNCHDPATH = "/System/Library/LaunchDaemons"
 LIBPATH = "@LIBRARY_DIR@"
-MODULES = @MODULES@
 INSTMODE = 0755
+SOCKETENGINE = @SOCKETENGINE@
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
 @IFDEF V
     RUNCC = $(CC)
+    VERBOSE = -v
 @ELSE
     @GNU_ONLY MAKEFLAGS += --silent
+    @BSD_ONLY MAKE += -s
     RUNCC = $(COMPILE_ROOT)/make/run-cc.pl $(CC)
 @ENDIF
 
-@GNU_ONLY export COMPILE_ROOT RUNCC FLAGS NICEFLAGS CC LDLIBS MODULES MODPATH LIBPATH INSTMODE
-@BSD_ONLY MAKEARGS = -s 'RUNCC=${RUNCC}' 'FLAGS=${FLAGS}' 'NICEFLAGS=${NICEFLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'INSTMODE=${INSTMODE}'
+@DO_EXPORT RUNCC FLAGS NICEFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE
 
 # Default target
 
@@ -48,7 +52,15 @@ INSTMODE = 0755
    _all: module
 @ENDIF
 
-all: ircd mods finishmessage
+all: finishmessage
+
+alldep: $(HEADER)
+	@echo -n "Generating module dependencies..."
+	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-dep.mk all
+	@echo 'done'
+
+allreal: alldep
+	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk all
 
 debug:
 	@${MAKE} D=1 all
@@ -77,14 +89,7 @@ std-header:
 	@echo "*  while you wait for make to run?  *"
 	@echo "*************************************"
 
-ircd: $(HEADER)
-	@${MAKE} -C src $(MAKEARGS) inspircd commands
-
-mods: $(HEADER)
-	@${MAKE} -C src/modules $(MAKEARGS)
-
-# Make this depend on 'ircd' and 'mods', so its always output last even with -j
-finishmessage: ircd mods
+finishmessage: allreal
 	@echo ""
 	@echo "*************************************"
 	@echo "*        BUILD COMPLETE!            *"
@@ -93,14 +98,15 @@ finishmessage: ircd mods
 	@echo "*         make install              *"
 	@echo "*************************************"
 
-install: ircd mods@EXTRA_DIR@
+install: allreal@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BASE)
 	@-install -d -m $(INSTMODE) $(LIBPATH)
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) $(MODPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
-@INSTALL_LIST@	@echo ""
+@INSTALL_LIST@	-install -m $(INSTMODE) src/inspircd $(BINPATH)
+	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
 	@echo "*                                   *"
@@ -128,6 +134,7 @@ modclean:
 	rm -f src/modules/*/*.o
 
 deinstall:
+	-rm $(BINPATH)/inspircd
 @UNINSTALL_LIST@
 
 squeakyclean: distclean

@@ -1131,7 +1131,6 @@ my ($mliflags, $mfrules, $mobjs, $mfcount) = ("", "", "", 0);
 
 sub writefiles {
 	my($writeheader) = @_;
-	my $se = "";
 	# First File.. inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh src/version.sh`);
@@ -1196,17 +1195,17 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		my $use_hiperf = 0;
 		if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
 			print FILEHANDLE "#define USE_KQUEUE\n";
-			$se = "socketengine_kqueue";
+			$config{SOCKETENGINE} = "socketengine_kqueue";
 			$use_hiperf = 1;
 		}
 		if (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
 			print FILEHANDLE "#define USE_EPOLL\n";
-			$se = "socketengine_epoll";
+			$config{SOCKETENGINE} = "socketengine_epoll";
 			$use_hiperf = 1;
 		}
 		if (($has_ports) && ($config{USE_PORTS} eq "y")) {
 			print FILEHANDLE "#define USE_PORTS\n";
-			$se = "socketengine_ports";
+			$config{SOCKETENGINE} = "socketengine_ports";
 			$use_hiperf = 1;
 		}
 		# user didn't choose either epoll or select for their OS.
@@ -1216,12 +1215,12 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 			if ($config{USE_POLL} eq "y")
 			{
 				print FILEHANDLE "#define USE_POLL\n";
-				$se = "socketengine_poll";
+				$config{SOCKETENGINE} = "socketengine_poll";
 			}
 			else
 			{
 				print FILEHANDLE "#define USE_SELECT\n";
-				$se = "socketengine_select";
+				$config{SOCKETENGINE} = "socketengine_select";
 			}
 		}
 		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n\n#endif\n";
@@ -1236,7 +1235,7 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 #ifndef __CONFIGURATION_SOCKETENGINE__
 #define __CONFIGURATION_SOCKETENGINE__
 
-#include "socketengines/$se.h"
+#include "socketengines/$config{SOCKETENGINE}.h"
 
 #endif
 EOF
@@ -1303,11 +1302,10 @@ EOF
 			print "Writing \e[1;32m$file\e[0m ...\n";
 			for my $var (qw(
 				CC FLAGS DEVELOPER LDLIBS BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR LIBRARY_DIR
-				STARTSCRIPT DESTINATION EXTRA_DIR
+				STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE
 			)) {
 				s/\@$var\@/$config{$var}/g;
 			}
-			s/\@MODULES\@/$modules/ if defined $modules;
 			s/\@EXECUTABLE\@/$exe/ if defined $exe;
 			s/\@VERSION\@/$version/ if defined $version;
 			s/\@INSTALL_LIST\@/$install_list/ if defined $install_list;
@@ -1319,8 +1317,9 @@ EOF
 				s/\@IFNDEF (\S+)/ifndef $1/g;
 				s/\@ELSE/else/g;
 				s/\@ENDIF/endif/g;
-				s/\@BSD_ONLY .*\n//g;
+				s/ *\@BSD_ONLY .*\n//g;
 				s/\@GNU_ONLY //g;
+				s/\@DO_EXPORT (.*)/export $1/g;
 				open MKF, '>GNUmakefile' or die "Can't write to GNUmakefile: $!";
 				print MKF $_;
 				close MKF;
@@ -1330,9 +1329,11 @@ EOF
 				s/\@ELSE/.else/g;
 				s/\@ENDIF/.endif/g;
 				s/\@BSD_ONLY //g;
-				s/\@GNU_ONLY .*\n//g;
+				s/ *\@GNU_ONLY .*\n//g;
+				$mk_tmp = $_;
+				$mk_tmp =~ s#\@DO_EXPORT (.*)#"MAKEENV += ".join ' ', map "$_='\${$_}'", split /\s/, $1#eg;
 				open MKF, '>BSDmakefile' or die "Can't write to BSDmakefile: $!";
-				print MKF $_;
+				print MKF $mk_tmp;
 				close MKF;
 			} else {
 				open(FILEHANDLE, ">$file") or die("Can't write to $file: $!\n");
@@ -1573,50 +1574,6 @@ sub write_dynamic_makefile
 						if (!exists($core_files_list{$name}))
 						{
 							$core_files_list{$name} = 1;
-						}
-					}
-					elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//i)
-					{
-						$specialdeps{$name} = $1;
-					}
-					elsif ($line =~ /\/\* \$ExtraObjects: (.*?) \*\//i)
-					{
-						$extraobjects{$name} = $1;
-					}
-					elsif ($line =~ /\/\* \$ExtraBuild: (.*?) \*\//i)
-					{
-						$extrabuildlines{$name} = $1;
-					}
-					elsif ($line =~ /\/\* \$ExtraSources: (.*?) \*\//i)
-					{
-						$extrasources{$name} = $1;
-						}
-					elsif ($line =~ /\/\* \$If: (\w+) \*\//i)
-					{
-						if (defined $config{$1})
-						{
-							if (($config{$1} !~ /y/i) and ($config{$1} ne "1"))
-							{
-								# Skip to 'endif'
-								while (defined($line = <CPP>))
-								{
-									chomp($line);
-									die ("\$If buildsystem instruction within another \$If in file $dir/$name") if ($line =~ /\/\* \$If: (\w+) \*\//i);
-									last if ($line =~ /\/\* \$EndIf \*\//i);
-								}
-							}
-						}
-					}
-					elsif ($line =~ /\/\* \$Install: (.*?) \*\//i)
-					{
-						if (!exists($existing_install_list{$1}))
-						{
-							$existing_install_list{$1} = 1;
-							my $idir = (split(' ',$1))[1];
-							my $ifile = (split(' ',$1))[0];
-							$install_list = $install_list . "	-install -m \$(INSTMODE) $1\n";
-							$ifile =~ s/.*\///g;
-							$uninstall_list = $uninstall_list . "	-rm $idir/$ifile\n";
 						}
 					}
 					elsif ($line =~ /\/\* \$CopyInstall: (.*?) \*\//i)
