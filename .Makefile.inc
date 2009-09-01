@@ -81,6 +81,10 @@ NICEFLAGS += -I$(COMPILE_ROOT)/include
     @GNU_ONLY MODNAME = $(M:.so=)
 @ENDIF
 
+@IFDEF F
+    _all: single
+@ENDIF
+
 all: finishmessage
 
 alldep:
@@ -89,9 +93,11 @@ alldep:
 allreal: $(HEADER) alldep
 	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk all
 
-module:
-	cd src; if [ -d modules/$(MODNAME) ]; then ../make/calcdep.pl modules/$(MODNAME) modules/$(MODNAME)/*.cpp; else ../make/calcdep.pl modules/$(MODNAME).cpp; fi
+module: alldep
 	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk modules/$(MODNAME).so
+
+single: alldep
+	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk $(F)
 
 debug:
 	@${MAKE} D=1 all
@@ -205,10 +211,13 @@ help:
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ' module    Builds a single module, which is specified by "M=m_modname"'
 	@echo '           The command "make M=m_modname" is a shortcut for this target'
+	@echo ' single    Builds a single target, which is specified by "F=filename"'
+	@echo '           The command "make F=filename" is a shortcut for this target'
+	@echo '           Paths are relative to the src/ directory'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
 	@echo ' distclean Cleans all files produced by compile and ./configure'
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all help debug debug-header std-header ircd mods finishmessage install module clean modclean deinstall squeakyclean launchd_dir configureclean
+.PHONY: all help debug debug-header std-header ircd mods finishmessage install module single clean modclean deinstall squeakyclean launchd_dir configureclean
