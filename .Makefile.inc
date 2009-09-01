@@ -88,7 +88,7 @@ NICEFLAGS += -I$(COMPILE_ROOT)/include
 all: finishmessage
 
 alldep:
-	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-dep.mk alldep
+	@cd src; ../make/calcdep.pl `perl -e 'print join " ", <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_*/*.cpp>'` socketengines/$(SOCKETENGINE).cpp threadengines/threadengine_pthread.cpp
 
 allreal: $(HEADER) alldep
 	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk all
