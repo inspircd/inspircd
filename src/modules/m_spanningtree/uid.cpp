@@ -157,10 +157,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	if (params[8][0] != '+')
 		params[8] = "+" + params[8];
 
-	if (params[6].find_first_of(":") != std::string::npos)
-		_new->SetSockAddr(AF_INET6, params[6].c_str(), 0);
-	else
-		_new->SetSockAddr(AF_INET, params[6].c_str(), 0);
+	_new->SetSockAddr(params[6].c_str(), 0);
 
 	ServerInstance->Users->AddGlobalClone(_new);
 

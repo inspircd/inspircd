@@ -472,27 +472,21 @@ class CoreExport User : public EventHandler
 	 */
 	bool quitting;
 
-	/** IPV4 or IPV6 ip address. Use SetSockAddr to set this and GetProtocolFamily/
-	 * GetIPString/GetPort to obtain its values.
+	/** IPV4 or IPV6 ip address, binary format. Use SetSockAddr to set this and
+	 * GetIPString/GetPort to obtain its value in a readable manner
 	 */
-	sockaddr* ip;
+	irc::sockets::sockaddrs ip;
 
 	/** Initialize the clients sockaddr
-	 * @param protocol_family The protocol family of the IP address, AF_INET or AF_INET6
-	 * @param ip A human-readable IP address for this user matching the protcol_family
-	 * @param port The port number of this user or zero for a remote user
+	 * @param ip A human-readable IP address for this user
+	 * @param port The port number of this user (zero if unknown)
 	 */
-	void SetSockAddr(int protocol_family, const char* ip, int port);
+	void SetSockAddr(const char* ip, int port);
 
 	/** Get port number from sockaddr
 	 * @return The port number of this user.
 	 */
 	int GetPort();
-
-	/** Get protocol family from sockaddr
-	 * @return The protocol family of this user, either AF_INET or AF_INET6
-	 */
-	int GetProtocolFamily();
 
 	/** Get IP string from sockaddr, using static internal buffer
 	 * @return The IP string

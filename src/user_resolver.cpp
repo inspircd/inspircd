@@ -35,11 +35,10 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			{
 				bool lcached = false;
 #ifdef IPV6
-				if (this->bound_user->GetProtocolFamily() == AF_INET6)
+				if (this->bound_user->ip.sa.sa_family == AF_INET6)
 				{
-					/* IPV6 forward lookup (with possibility of 4in6) */
-					const char* ip = this->bound_user->GetIPString();
-					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (!strncmp(ip, "0::ffff:", 8) ? DNS_QUERY_A : DNS_QUERY_AAAA), lcached);
+					/* IPV6 forward lookup */
+					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_AAAA, lcached);
 				}
 				else
 					/* IPV4 lookup (mixed protocol mode) */
@@ -60,16 +59,15 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 	{
 		/* Both lookups completed */
 
-		sockaddr* user_ip = this->bound_user->ip;
+		irc::sockets::sockaddrs* user_ip = &this->bound_user->ip;
 		bool rev_match = false;
 #ifdef IPV6
-		if (user_ip->sa_family == AF_INET6)
+		if (user_ip->sa.sa_family == AF_INET6)
 		{
 			struct in6_addr res_bin;
 			if (inet_pton(AF_INET6, result.c_str(), &res_bin))
 			{
-				sockaddr_in6* user_ip6 = reinterpret_cast<sockaddr_in6*>(user_ip);
-				rev_match = !memcmp(&user_ip6->sin6_addr, &res_bin, sizeof(res_bin));
+				rev_match = !memcmp(&user_ip->in6.sin6_addr, &res_bin, sizeof(res_bin));
 			}
 		}
 		else
@@ -78,8 +76,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			struct in_addr res_bin;
 			if (inet_pton(AF_INET, result.c_str(), &res_bin))
 			{
-				sockaddr_in* user_ip4 = reinterpret_cast<sockaddr_in*>(user_ip);
-				rev_match = !memcmp(&user_ip4->sin_addr, &res_bin, sizeof(res_bin));
+				rev_match = !memcmp(&user_ip->in4.sin_addr, &res_bin, sizeof(res_bin));
 			}
 		}
 		

@@ -107,9 +107,7 @@ void User::StartDNSLookup()
 		const char* sip = this->GetIPString();
 		UserResolver *res_reverse;
 
-		QueryType resolvtype = strchr(sip, ':') ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
-		// when GetProtocolFamily() works correctly with 4in6, this can be replaced by
-		// this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6;
+		QueryType resolvtype = this->ip.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
 		res_reverse = new UserResolver(this->ServerInstance, this, sip, resolvtype, cached);
 
 		this->ServerInstance->AddResolver(res_reverse, cached);
@@ -215,10 +213,10 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	quietquit = quitting = exempt = haspassed = dns_done = false;
 	fd = -1;
+	ip.sa.sa_family = AF_UNSPEC;
 	recvq.clear();
 	sendq.clear();
 	Visibility = NULL;
-	ip = NULL;
 	MyClass = NULL;
 	AllowedPrivs = AllowedOperCommands = NULL;
 	chans.clear();
@@ -264,19 +262,8 @@ User::~User()
 	this->InvalidateCache();
 	this->DecrementModes();
 
-	if (ip)
-	{
+	if (ip.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
-
-		if (this->GetProtocolFamily() == AF_INET)
-		{
-			delete (sockaddr_in*)ip;
-		}
-		else
-		{
-			delete (sockaddr_in6*)ip;
-		}
-	}
 
 	ServerInstance->Users->uuidlist->erase(uuid);
 }
@@ -1072,76 +1059,43 @@ bool User::ForceNickChange(const char* newnick)
 	return false;
 }
 
-void User::SetSockAddr(int protocol_family, const char* sip, int port)
+void User::SetSockAddr(const char* sip, int port)
 {
 	this->cachedip = "";
 
-	switch (protocol_family)
+	if (inet_pton(AF_INET, sip, &ip.in4.sin_addr))
 	{
-		case AF_INET6:
-		{
-			sockaddr_in6* sin = new sockaddr_in6;
-			sin->sin6_family = AF_INET6;
-			sin->sin6_port = port;
-			inet_pton(AF_INET6, sip, &sin->sin6_addr);
-			this->ip = (sockaddr*)sin;
-		}
-		break;
-		case AF_INET:
-		{
-			sockaddr_in* sin = new sockaddr_in;
-			sin->sin_family = AF_INET;
-			sin->sin_port = port;
-			inet_pton(AF_INET, sip, &sin->sin_addr);
-			this->ip = (sockaddr*)sin;
-		}
-		break;
-		default:
-			ServerInstance->Logs->Log("USERS",DEBUG,"Uh oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick.c_str());
-		break;
+		ip.in4.sin_family = AF_INET;
+		ip.in4.sin_port = port;
+		return;
+	}
+	else if (inet_pton(AF_INET6, sip, &ip.in6.sin6_addr))
+	{
+		ip.in6.sin6_family = AF_INET6;
+		ip.in6.sin6_port = port;
+	}
+	else
+	{
+		ServerInstance->Logs->Log("USERS",DEBUG,"Uh oh, I dont know how to read IP '%s' on '%s'!",
+			sip, this->nick.c_str());
 	}
 }
 
 int User::GetPort()
 {
-	if (this->ip == NULL)
-		return 0;
-
-	switch (this->GetProtocolFamily())
+	switch (this->ip.sa.sa_family)
 	{
 		case AF_INET6:
-		{
-			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
-			return sin->sin6_port;
-		}
-		break;
+			return this->ip.in6.sin6_port;
 		case AF_INET:
-		{
-			sockaddr_in* sin = (sockaddr_in*)this->ip;
-			return sin->sin_port;
-		}
-		break;
-		default:
-		break;
+			return this->ip.in4.sin_port;
 	}
 	return 0;
-}
-
-int User::GetProtocolFamily()
-{
-	if (this->ip == NULL)
-		return 0;
-
-	sockaddr_in* sin = (sockaddr_in*)this->ip;
-	return sin->sin_family;
 }
 
 const char* User::GetCIDRMask(int range)
 {
 	static char buf[44];
-
-	if (this->ip == NULL)
-		return "";
 
 	if (range < 0)
 		throw "Negative range, sorry, no.";
@@ -1150,21 +1104,17 @@ const char* User::GetCIDRMask(int range)
 	 * Original code written by Oliver Lupton (Om).
 	 * Integrated by me. Thanks. :) -- w00t
 	 */
-	switch (this->GetProtocolFamily())
+	switch (this->ip.sa.sa_family)
 	{
 		case AF_INET6:
 		{
 			/* unsigned char s6_addr[16]; */
 			struct in6_addr v6;
-			sockaddr_in6* sin;
 			int i, bytestozero, extrabits;
 			char buffer[40];
 
 			if(range > 128)
 				throw "CIDR mask width greater than address width (IPv6, 128 bit)";
-
-			/* Access the user's IP structure directly */
-			sin = (sockaddr_in6*)this->ip;
 
 			/* To create the CIDR mask we want to set all the bits after 'range' bits of the address
 			 * to zero. This means the last (128 - range) bits of the address must be set to zero.
@@ -1184,7 +1134,7 @@ const char* User::GetCIDRMask(int range)
 			 */
 			for(i = 0; i < (16 - bytestozero); i++)
 			{
-				v6.s6_addr[i] = sin->sin6_addr.s6_addr[i];
+				v6.s6_addr[i] = ip.in6.sin6_addr.s6_addr[i];
 			}
 
 			/* And zero all the remaining bytes in the IP. */
@@ -1203,15 +1153,13 @@ const char* User::GetCIDRMask(int range)
 		case AF_INET:
 		{
 			struct in_addr v4;
-			sockaddr_in* sin;
 			char buffer[16];
 
 			if (range > 32)
 				throw "CIDR mask width greater than address width (IPv4, 32 bit)";
 
 			/* Users already have a sockaddr* pointer (User::ip) which contains either a v4 or v6 structure */
-			sin = (sockaddr_in*)this->ip;
-			v4.s_addr = sin->sin_addr.s_addr;
+			v4.s_addr = ip.in4.sin_addr.s_addr;
 
 			/* To create the CIDR mask we want to set all the bits after 'range' bits of the address
 			 * to zero. This means the last (32 - range) bits of the address must be set to zero.
@@ -1245,20 +1193,16 @@ const char* User::GetIPString()
 {
 	static char buf[40];
 
-	if (this->ip == NULL)
-		return "";
-
 	if (!this->cachedip.empty())
 		return this->cachedip.c_str();
 
-	switch (this->GetProtocolFamily())
+	switch (this->ip.sa.sa_family)
 	{
 		case AF_INET6:
 		{
-			static char temp[1024];
+			static char temp[41];
 
-			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
-			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
+			inet_ntop(ip.in6.sin6_family, &ip.in6.sin6_addr, buf, sizeof(buf));
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 			if (*buf == ':')
 			{
@@ -1274,8 +1218,7 @@ const char* User::GetIPString()
 		break;
 		case AF_INET:
 		{
-			sockaddr_in* sin = (sockaddr_in*)this->ip;
-			inet_ntop(sin->sin_family, &sin->sin_addr, buf, sizeof(buf));
+			inet_ntop(ip.in4.sin_family, &ip.in4.sin_addr, buf, sizeof(buf));
 			this->cachedip = buf;
 			return buf;
 		}

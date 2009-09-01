@@ -154,5 +154,5 @@ void ListenSocketBase::HandleEvent(EventType e, int err)
 
 void ClientListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
 {
-	ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, &client.sa, ipconnectedto);
+	ServerInstance->Users->AddUser(ServerInstance, nfd, bind_port, false, &client, ipconnectedto);
 }

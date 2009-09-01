@@ -117,7 +117,7 @@ class CGIResolver : public Resolver
 			them->host.assign(result,0, 64);
 			them->dhost.assign(result, 0, 64);
 			if (querytype)
-				them->SetSockAddr(them->GetProtocolFamily(), result.c_str(), them->GetPort());
+				them->SetSockAddr(result.c_str(), them->GetPort());
 			them->ident.assign("~cgiirc", 0, 8);
 			them->InvalidateCache();
 			them->CheckLines(true);
@@ -318,7 +318,7 @@ public:
 		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
 		{
 			ServerInstance->Users->RemoveCloneCounts(user);
-			user->SetSockAddr(user->GetProtocolFamily(), webirc_ip->c_str(), user->GetPort());
+			user->SetSockAddr(webirc_ip->c_str(), user->GetPort());
 			delete webirc_ip;
 			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_ip");
@@ -342,10 +342,10 @@ public:
 			bool valid = false;
 			ServerInstance->Users->RemoveCloneCounts(user);
 #ifdef IPV6
-			if (user->GetProtocolFamily() == AF_INET6)
-				valid = (inet_pton(AF_INET6, user->password.c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
+			if (user->ip.sa.sa_family == AF_INET6)
+				valid = (inet_pton(AF_INET6, user->password.c_str(), &user->ip.in6.sin6_addr) > 0);
 			else
-				valid = (inet_aton(user->password.c_str(), &((sockaddr_in*)user->ip)->sin_addr));
+				valid = (inet_aton(user->password.c_str(), &user->ip.in4.sin_addr));
 #else
 			if (inet_aton(user->password.c_str(), &((sockaddr_in*)user->ip)->sin_addr))
 				valid = true;
@@ -407,7 +407,7 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetSockAddr(user->GetProtocolFamily(), newip, user->GetPort());
+		user->SetSockAddr(newip, user->GetPort());
 		ServerInstance->Users->AddLocalClone(user);
 		ServerInstance->Users->AddGlobalClone(user);
 		user->CheckClass();

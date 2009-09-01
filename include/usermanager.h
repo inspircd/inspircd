@@ -78,7 +78,7 @@ class CoreExport UserManager : public Extensible
 	 * @param ip The IP address of the user
 	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
-	void AddUser(InspIRCd* Instance, int socket, int port, bool iscached, sockaddr* ip, const std::string &targetip);
+	void AddUser(InspIRCd* Instance, int socket, int port, bool iscached, irc::sockets::sockaddrs* ip, const std::string &targetip);
 
 	/** Disconnect a user gracefully
  	 * @param user The user to remove
