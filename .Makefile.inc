@@ -51,7 +51,9 @@ SOCKETENGINE = @SOCKETENGINE@
 # Default target
 
 @IFDEF M
-   _all: module
+    _all: module
+    @BSD_ONLY MODNAME = ${M:S/.so$//}
+    @GNU_ONLY MODNAME = $(M:.so=)
 @ENDIF
 
 all: finishmessage
@@ -63,6 +65,10 @@ alldep: $(HEADER)
 
 allreal: alldep
 	@$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk all
+
+module:
+	@cd src; ../make/calcdep.pl modules/$(MODNAME).cpp
+	@$(MAKEENV) $(MAKE) -C src -f modules/.$(MODNAME).d modules/$(MODNAME).so
 
 debug:
 	@${MAKE} D=1 all
@@ -120,10 +126,6 @@ install: allreal@EXTRA_DIR@
 	@echo "*                                   *"
 	@echo "* REMEMBER TO EDIT YOUR CONFIG FILE *"
 	@echo "*************************************"
-
-module:
-	@BSD_ONLY @${MAKE} -C src/modules $(MAKEARGS) ${M:S/.so$//}.so
-	@GNU_ONLY @${MAKE} -C src/modules $(MAKEARGS) $(M:.so=).so
 
 clean:
 	@echo Cleaning...
