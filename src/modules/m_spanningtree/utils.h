@@ -49,7 +49,7 @@ class ServerSocketListener : public ListenSocketBase
 		this->Utils = u;
 	}
 
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip);
+	virtual void OnAcceptReady(int nfd);
 };
 
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;

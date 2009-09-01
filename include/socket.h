@@ -184,16 +184,14 @@ class CoreExport ListenSocketBase : public EventHandler
 	void AcceptInternal();
 
 	/** Called when a new connection has successfully been accepted on this listener.
-	 * @param ipconnectedto The IP address the connection arrived on
 	 * @param fd The file descriptor of the new connection
-	 * @param incomingip The IP from which the connection was made
 	 */
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd, const std::string &incomingip) = 0;
+	virtual void OnAcceptReady(int fd) = 0;
 };
 
 class CoreExport ClientListenSocket : public ListenSocketBase
 {
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int fd, const std::string &incomingip);
+	virtual void OnAcceptReady(int fd);
  public:
 	ClientListenSocket(InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr) { }
 };

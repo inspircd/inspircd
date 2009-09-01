@@ -48,7 +48,7 @@ class HttpServerSocket : public BufferedSocket
 
  public:
 
-	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0)
+	HttpServerSocket(InspIRCd* SI, int newfd, const char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 	}
@@ -353,9 +353,12 @@ class HttpListener : public ListenSocketBase
 		this->index = idx;
 	}
 
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	virtual void OnAcceptReady(int nfd)
 	{
-		new HttpServerSocket(ServerInstance, nfd, (char *)incomingip.c_str(), index); // ugly cast courtesy of bufferedsocket
+		int port;
+		std::string incomingip;
+		irc::sockets::satoap(&client, incomingip, port);
+		new HttpServerSocket(ServerInstance, nfd, incomingip.c_str(), index);
 	}
 };
 

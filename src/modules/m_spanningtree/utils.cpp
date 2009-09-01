@@ -29,10 +29,13 @@
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
 /* Create server sockets off a listener. */
-void ServerSocketListener::OnAcceptReady(const std::string &ipconnectedto, int newsock, const std::string &incomingip)
+void ServerSocketListener::OnAcceptReady(int newsock)
 {
 	bool found = false;
-	char *ip = (char *)incomingip.c_str(); // XXX ugly cast
+	int port;
+	std::string incomingip;
+	irc::sockets::satoap(&client, incomingip, port);
+	char *ip = const_cast<char*>(incomingip.c_str());
 
 	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), ip) != Utils->ValidIPs.end());
 	if (!found)

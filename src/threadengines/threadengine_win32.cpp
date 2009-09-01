@@ -55,7 +55,7 @@ class ThreadSignalSocket : public BufferedSocket
 {
 	SocketThread* parent;
  public:
-	ThreadSignalSocket(SocketThread* t, InspIRCd* SI, int newfd, char* ip)
+	ThreadSignalSocket(SocketThread* t, InspIRCd* SI, int newfd, const char* ip)
 		: BufferedSocket(SI, newfd, ip), parent(t)
 	{
 	}
@@ -86,11 +86,10 @@ class ThreadSignalListener : public ListenSocketBase
 		}
 	}
 
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	virtual void OnAcceptReady(int nfd)
 	{
-		new ThreadSignalSocket(parent, ServerInstance, nfd, const_cast<char*>(ipconnectedto.c_str()));
+		new ThreadSignalSocket(parent, ServerInstance, nfd, "");
 		ServerInstance->SE->DelFd(this);
-		// XXX unsafe casts suck
 	}
 /* Using getsockname and ntohs, we can determine which port number we were allocated */
 	int GetPort()

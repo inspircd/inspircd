@@ -125,15 +125,9 @@ void ListenSocketBase::AcceptInternal()
 		}
 	}
 
-	std::string server_addr;
-	std::string client_addr;
-	int dummy_port;
-	irc::sockets::satoap(&server, server_addr, dummy_port);
-	irc::sockets::satoap(&client, client_addr, dummy_port);
-
 	ServerInstance->SE->NonBlocking(incomingSockfd);
 	ServerInstance->stats->statsAccept++;
-	this->OnAcceptReady(server_addr, incomingSockfd, client_addr);
+	this->OnAcceptReady(incomingSockfd);
 }
 
 void ListenSocketBase::HandleEvent(EventType e, int err)
@@ -152,7 +146,7 @@ void ListenSocketBase::HandleEvent(EventType e, int err)
 	}
 }
 
-void ClientListenSocket::OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+void ClientListenSocket::OnAcceptReady(int nfd)
 {
 	ServerInstance->Users->AddUser(ServerInstance, nfd, false, &client, &server);
 }
