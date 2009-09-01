@@ -61,7 +61,6 @@ namespace irc
 		 */
 		typedef struct in6_addr     insp_inaddr;
 #define AF_FAMILY AF_INET6
-#define PF_PROTOCOL PF_INET6
 
 #else
 		/** insp_sockaddr for ipv4
@@ -71,7 +70,6 @@ namespace irc
 		 */
 		typedef struct in_addr      insp_inaddr;
 #define AF_FAMILY AF_INET
-#define PF_PROTOCOL PF_INET
 
 #endif
 		/** Match raw binary data using CIDR rules.
@@ -193,6 +191,7 @@ class CoreExport ListenSocketBase : public EventHandler
 	 * The address family will always match that of "client"
 	 */
 	static irc::sockets::sockaddrs server;
+
  public:
 	/** Create a new listening socket
 	 */

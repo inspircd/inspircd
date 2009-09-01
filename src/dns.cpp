@@ -611,22 +611,17 @@ DNSResult DNS::GetResult()
 	DNSHeader header;
 	DNSRequest *req;
 	unsigned char buffer[sizeof(DNSHeader)];
-	sockaddr* from = new sockaddr[2];
-#ifdef IPV6
+	irc::sockets::sockaddrs from;
 	socklen_t x = this->socketfamily == AF_INET ? sizeof(sockaddr_in) : sizeof(sockaddr_in6);
-#else
-	socklen_t x = sizeof(sockaddr_in);
-#endif
 	const char* ipaddr_from;
 	unsigned short int port_from = 0;
 
-	int length = ServerInstance->SE->RecvFrom(this, (char*)buffer, sizeof(DNSHeader), 0, from, &x);
+	int length = ServerInstance->SE->RecvFrom(this, (char*)buffer, sizeof(DNSHeader), 0, &from.sa, &x);
 
 	/* Did we get the whole header? */
 	if (length < 12)
 	{
 		/* Nope - something screwed up. */
-		delete[] from;
 		return DNSResult(-1,"",0,"");
 	}
 
@@ -643,17 +638,15 @@ DNSResult DNS::GetResult()
 	char nbuf[MAXBUF];
 	if (this->socketfamily == AF_INET6)
 	{
-		ipaddr_from = inet_ntop(AF_INET6, &((sockaddr_in6*)from)->sin6_addr, nbuf, sizeof(nbuf));
-		port_from = ntohs(((sockaddr_in6*)from)->sin6_port);
+		ipaddr_from = inet_ntop(AF_INET6, &from.in6.sin6_addr, nbuf, sizeof(nbuf));
+		port_from = ntohs(from.in6.sin6_port);
 	}
 	else
 #endif
 	{
-		ipaddr_from = inet_ntoa(((sockaddr_in*)from)->sin_addr);
-		port_from = ntohs(((sockaddr_in*)from)->sin_port);
+		ipaddr_from = inet_ntoa(from.in4.sin_addr);
+		port_from = ntohs(from.in4.sin_port);
 	}
-
-	delete[] from;
 
 	/* We cant perform this security check if you're using 4in6.
 	 * Tough luck to you, choose one or't other!

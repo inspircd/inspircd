@@ -105,56 +105,47 @@ void BufferedSocket::SetQueues()
 
 bool BufferedSocket::DoBindMagic(const std::string &current_ip, bool v6)
 {
-	/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
+	irc::sockets::sockaddrs s;
 	socklen_t size = sizeof(sockaddr_in);
-	sockaddr* s = new sockaddr[2];
 #ifdef IPV6
 	if (v6)
 	{
-		in6_addr n;
-		if (inet_pton(AF_INET6, current_ip.c_str(), &n) > 0)
+		if (inet_pton(AF_INET6, current_ip.c_str(), &s.in6.sin6_addr) > 0)
 		{
-			memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(sockaddr_in6));
-			((sockaddr_in6*)s)->sin6_port = 0;
-			((sockaddr_in6*)s)->sin6_family = AF_INET6;
+			s.in6.sin6_port = 0;
+			s.in6.sin6_family = AF_INET6;
 			size = sizeof(sockaddr_in6);
 		}
 		else
 		{
 			// Well, this is as good as it's gonna get.
 			errno = EADDRNOTAVAIL;
-			delete[] s;
 			return false;
 		}
 	}
 	else
 #endif
 	{
-		in_addr n;
-		if (inet_aton(current_ip.c_str(), &n) > 0)
+		if (inet_aton(current_ip.c_str(), &s.in4.sin_addr) > 0)
 		{
-			((sockaddr_in*)s)->sin_addr = n;
-			((sockaddr_in*)s)->sin_port = 0;
-			((sockaddr_in*)s)->sin_family = AF_INET;
+			s.in4.sin_port = 0;
+			s.in4.sin_family = AF_INET;
 		}
 		else
 		{
 			// Well, this is as good as it's gonna get.
 			errno = EADDRNOTAVAIL;
-			delete[] s;
 			return false;
 		}
 	}
 
-	if (ServerInstance->SE->Bind(this->fd, s, size) < 0)
+	if (ServerInstance->SE->Bind(this->fd, &s.sa, size) < 0)
 	{
 		this->state = I_ERROR;
 		this->OnError(I_ERR_BIND);
-		delete[] s;
 		return false;
 	}
 
-	delete[] s;
 	return true;
 }
 
