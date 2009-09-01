@@ -1035,12 +1035,9 @@ sub writefiles {
 
 #define CONFIG_FILE "$config{CONFIG_DIR}/inspircd.conf"
 #define MOD_PATH "$config{MODULE_DIR}"
-#define VERSION "$version"
-#define REVISION "$revision2"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
 #define OPTIMISATION $config{OPTIMITEMP}
 #define LIBRARYDIR "$config{LIBRARY_DIR}"
-#define SYSTEM "$incos"
 #define ENTRYPOINT int main(int argc, char** argv)
 
 EOF
@@ -1123,7 +1120,15 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 EOF
 		close(FILEHANDLE);
 
-		for my $file (qw(include/inspircd_config.h include/inspircd_se_config.h)) {
+		open(FILEHANDLE, ">include/inspircd_version.h.tmp");
+		print FILEHANDLE <<EOF;
+#define VERSION "$version"
+#define REVISION "$revision2"
+#define SYSTEM "$incos"
+EOF
+		close FILEHANDLE;
+
+		for my $file (qw(include/inspircd_config.h include/inspircd_se_config.h include/inspircd_version.h)) {
 			my $diff = 0;
 			open my $fh1, $file or $diff = 1;
 			open my $fh2, $file.'.tmp' or die "Can't read $file.tmp that we just wrote: $!";

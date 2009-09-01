@@ -16,6 +16,7 @@
 #include <signal.h>
 #include "exitcodes.h"
 #include "inspircd.h"
+#include "inspircd_version.h"
 
 
 void InspIRCd::SignalHandler(int signal)

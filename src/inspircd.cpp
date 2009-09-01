@@ -12,8 +12,8 @@
  */
 
 /* $Core */
-/* $Install: src/inspircd $(BINPATH) */
 #include "inspircd.h"
+#include "inspircd_version.h"
 #include <signal.h>
 
 #ifndef WIN32
