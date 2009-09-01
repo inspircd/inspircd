@@ -16,7 +16,7 @@ commands: $(CMD_TARGS)
 modules: $(MOD_TARGS) $(MDIR_TARGS)
 
 inspircd: $(CORE_TARGS)
-	$(RUNCC) $(FLAGS) $(CORE_FLAGS) -o inspircd $(LDLIBS) $(CORE_TARGS)
+	$(RUNCC) -o $@ $(CORELDFLAGS) $(LDLIBS) $(CORE_TARGS)
 
 .for FILE in $(DFILES)
 .include "$(FILE)"

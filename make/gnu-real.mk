@@ -19,7 +19,7 @@ commands: $(CMD_TARGS)
 modules: $(MOD_TARGS)
 
 inspircd: $(CORE_TARGS)
-	$(RUNCC) $(FLAGS) $(CORE_FLAGS) -o $@ $(LDLIBS) $(CORE_TARGS)
+	$(RUNCC) -o $@ $(CORELDFLAGS) $(LDLIBS) $(CORE_TARGS)
 
 .%.d: %.cpp
 	@../make/calcdep.pl $<

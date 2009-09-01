@@ -15,7 +15,8 @@ if ($file =~ /^-/) {
 
 my $out = shift;
 
-my $cflags = nopedantic($file) ? $ENV{NICEFLAGS} : $ENV{FLAGS};
+my $cflags = $ENV{CXXFLAGS};
+$cflags =~ s/ -pedantic// if nopedantic($file);
 $cflags .= ' ' . getcompilerflags($file);
 
 my $flags;

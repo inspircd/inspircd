@@ -14,11 +14,12 @@
 CC = @CC@
 SYSTEM = @SYSTEM@
 SOCKETENGINE = @SOCKETENGINE@
-NICEFLAGS = -pipe -fPIC
+CXXFLAGS = -pipe -fPIC -DPIC
 LDLIBS = -pthread -lstdc++
+LDFLAGS = 
 SHARED = -shared -rdynamic
-CORE_FLAGS = -rdynamic -L.
-PICLDFLAGS = -fPIC -DPIC -shared -rdynamic
+CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
+PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "@BASE_DIR@"
 CONPATH = "@CONFIG_DIR@"
 MODPATH = "@MODULE_DIR@"
@@ -28,11 +29,9 @@ LIBPATH = "@LIBRARY_DIR@"
 INSTMODE = 0755
 
 @IFEQ $(CC) icc
-  NICEFLAGS += -Wshadow
-  FLAGS = $(NICEFLAGS)
+  CXXFLAGS += -Wshadow
 @ELSE
-  NICEFLAGS += -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall
-  FLAGS = $(NICEFLAGS) -pedantic
+  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall
 @ENDIF
 
 
@@ -43,22 +42,22 @@ INSTMODE = 0755
 @ELSIFEQ $(SYSTEM) sunos
   LDLIBS += -lsocket -lnsl -lrt -lresolv
 @ELSIFEQ $(SYSTEM) darwin
-  NICEFLAGS += -DDARWIN -frtti
+  CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
   SHARED = -bundle -twolevel_namespace -undefined dynamic_lookup
   CORE_FLAGS = -dynamic -bind_at_load -L.
 @ENDIF 
 
 @IFDEF D
-    NICEFLAGS += -g3
+    CXXFLAGS += -g3
     HEADER = debug-header
 @ELSE
-    NICEFLAGS += -g1
+    CXXFLAGS += -g1
     HEADER = std-header
 @ENDIF
 FOOTER = finishmessage
 
-NICEFLAGS += -I$(COMPILE_ROOT)/include
+CXXFLAGS += -I$(COMPILE_ROOT)/include
 
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
@@ -71,7 +70,7 @@ NICEFLAGS += -I$(COMPILE_ROOT)/include
     RUNCC = $(COMPILE_ROOT)/make/run-cc.pl $(CC)
 @ENDIF
 
-@DO_EXPORT RUNCC FLAGS NICEFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORE_FLAGS
+@DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
 @DO_EXPORT BASE CONPATH MODPATH BINPATH LIBPATH
 
 # Default target

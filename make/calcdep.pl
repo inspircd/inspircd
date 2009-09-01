@@ -52,7 +52,7 @@ for my $file (@ARGV) {
 		my $ofiles = join ' ', grep s#(.*)\.cpp$#$path$base/$1.o#, readdir DIR;
 		closedir DIR;
 		open OUT, '>', $cmd;
-		print OUT "$out: $ofiles\n\t".'$(RUNCC) $(FLAGS) $(PICLDFLAGS) -o $@ '
+		print OUT "$out: $ofiles\n\t".'$(RUNCC) $(PICLDFLAGS) -o $@ '
 			.$ofiles."\n";
 		print OUT "$cmd: $file\n\t".'@../make/calcdep.pl '."$path$base\n";
 	} else {
