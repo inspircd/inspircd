@@ -11,21 +11,14 @@
 @BSD_ONLY MAKESTYLE = bsd
 @BSD_ONLY COMPILE_ROOT != pwd
 
-@IFDEF D
-    NICEFLAGS = @DEVELOPER@
-    HEADER = debug-header
-@ENDIF
-
-NICEFLAGS ?= @FLAGS@
-HEADER ?= std-header
-
-NICEFLAGS += -I$(COMPILE_ROOT)/include
-
 CC = @CC@
-FLAGS = $(NICEFLAGS) -pedantic
-PICLDFLAGS = -fPIC -DPIC -shared -export-dynamic
-CORE_FLAGS = @CORE_FLAGS@
-LDLIBS = @LDLIBS@
+SYSTEM = @SYSTEM@
+SOCKETENGINE = @SOCKETENGINE@
+NICEFLAGS = -pipe -fPIC
+LDLIBS = -pthread -lstdc++
+SHARED = -shared -rdynamic
+CORE_FLAGS = -rdynamic -L.
+PICLDFLAGS = -fPIC -DPIC -shared -rdynamic
 BASE = "@BASE_DIR@"
 CONPATH = "@CONFIG_DIR@"
 MODPATH = "@MODULE_DIR@"
@@ -33,7 +26,39 @@ BINPATH = "@BINARY_DIR@"
 LAUNCHDPATH = "/System/Library/LaunchDaemons"
 LIBPATH = "@LIBRARY_DIR@"
 INSTMODE = 0755
-SOCKETENGINE = @SOCKETENGINE@
+
+@IFEQ $(CC) icc
+  NICEFLAGS += -Wshadow
+  FLAGS = $(NICEFLAGS)
+@ELSE
+  NICEFLAGS += -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall
+  FLAGS = $(NICEFLAGS) -pedantic
+@ENDIF
+
+
+@IFEQ $(SYSTEM) linux
+  LDLIBS += -ldl
+@ELSIFEQ $(SYSTEM) solaris
+  LDLIBS += -lsocket -lnsl -lrt -lresolv
+@ELSIFEQ $(SYSTEM) sunos
+  LDLIBS += -lsocket -lnsl -lrt -lresolv
+@ELSIFEQ $(SYSTEM) darwin
+  NICEFLAGS += -DDARWIN -frtti
+  LDLIBS += -ldl
+  SHARED = -bundle -twolevel_namespace -undefined dynamic_lookup
+  CORE_FLAGS = -dynamic -bind_at_load -L.
+@ENDIF 
+
+@IFDEF D
+    NICEFLAGS += -g3
+    HEADER = debug-header
+@ELSE
+    NICEFLAGS += -g1
+    HEADER = std-header
+@ENDIF
+
+NICEFLAGS += -I$(COMPILE_ROOT)/include
+
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
 @IFDEF V

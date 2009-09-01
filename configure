@@ -313,12 +313,10 @@ sub update
 		} else {
 			# We've Loaded the cache file and all our variables..
 			print "Updating files...\n";
-			getosflags();
 			if (defined($opt_disable_debug) && $opt_disable_debug == 1)
 			{
 				print "Disabling debug information (-g).\n";
 				$config{OPTIMISATI} = "";
-				getosflags();
 			}
 			$has_epoll = $config{HAS_EPOLL};
 			$has_ports = $config{HAS_PORTS};
@@ -427,8 +425,8 @@ sub test_compile {
 print "Running non-interactive configure...\n" unless $interactive;
 print "Checking for cache from previous configure... ";
 print ((!getcache()) ? "not found\n" : "found\n");
-print "Checking operating system version... ";
-print getosflags() . "\n";
+$config{SYSTEM} = lc $^O;
+print "Checking operating system version... $config{SYSTEM}\n";
 
 printf "Checking if stdint.h exists... ";
 $config{HAS_STDINT} = "true";
@@ -538,27 +536,16 @@ if ($config{OSNAME} =~ /FreeBSD/i)
 	my $version = `uname -r`;
 	if ($version =~ /^4\./)
 	{
-		my $foundit = `ls -l /usr/local/lib/libgnugetopt* | wc -l`;
-		if ($foundit > 0)
-		{
-			# ICKY ICKY ICK, FREEBSD 4.x! GET AN UPGRADE!
-			$config{CRAQ} = "-L/usr/local/lib -lgnugetopt -DHAVE_DECL_GETOPT=1";
-			print "yes (upgrade ffs, freebsd 4 is *way* out of date)\n";
-		}
-		else
-		{
-			print "\n\nERROR: You require libgnugetopt (from ports or packages) to build InspIRCd on FreeBSD 4.11.\n";
-		}
+		print "yes\n";
+		exit 1;
  	}
 	else
 	{
-		$config{CRAQ} = " ";
 		print "no ($version)\n";
 	}
 }
 else
 {
-	$config{CRAQ} = " ";
 	print "no ($config{OSNAME})\n";
 }
 
@@ -830,7 +817,6 @@ if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
 	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
 }
 
-getosflags();
 writefiles(1);
 makecache();
 
@@ -943,74 +929,6 @@ sub dir_check {
 }
 
 our $SHARED = "";
-
-sub getosflags {
-
-	# Beware: Linux sets it's own cflags below for some retarded reason
-	$config{LDLIBS} = "-pthread -lstdc++";
-	$config{FLAGS}  = "-pipe -fPIC -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall $config{OPTIMISATI}";
-	$config{DEVELOPER} = "-pipe -fPIC -Woverloaded-virtual -Wshadow -Wall -Wformat=2 -Wmissing-format-attribute -g";
-	$SHARED = "-shared -export-dynamic";
-	$config{MAKEPROG} = "make";
-
-	if ($config{OSNAME} =~ /darwin/i) {
-		$config{FLAGS}  = "-pipe -DDARWIN -frtti -fPIC -Wall $config{OPTIMISATI}";
-		$SHARED = "-bundle -twolevel_namespace -undefined dynamic_lookup";
-		$config{LDLIBS} = "-ldl -pthread -lstdc++";
-	}
-
-	if ($config{OSNAME} =~ /OpenBSD/i) {
-		$config{MAKEPROG} = "gmake";
-# apparantly (Dagonet says) that this causes problems, so let's try without it.
-#		$config{LDLIBS} = $config{LDLIBS} . " -lunwind";
-		chomp(my $foo = `eg++ -dumpversion | cut -c 1`);
-		# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
-		# if theyre not running this, configure lets the build continue but they probably wont manage to
-		# compile as this standard version is 2.95.3!
-		if ($foo ne "") {
-			$config{CC} = "eg++";
-			chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change the compiler path
-			chomp($config{GCCMINOR}     = `eg++ -dumpversion | cut -c 3`);
-		}
-		return "OpenBSD";
-	}
-
-	if ($config{OSNAME} =~ /Linux/i) {
-		$config{LDLIBS} = "-ldl -lstdc++ -pthread";
-#		$config{FLAGS}  = "-fPIC -Woverloaded-virtual -Wshadow -Wall $config{OPTIMISATI}";
-		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
-		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
-		$config{LDLIBS} .= " " . $ENV{LDFLAGS} if exists($ENV{LDFLAGS});
-		$config{MAKEPROG} = "make";
-	}
-
-	if ($config{OSNAME} =~ /FreeBSD/i) {
-		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
-		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
-		$config{LDLIBS} .= " " . $ENV{LDFLAGS} if exists($ENV{LDFLAGS});
-	}
-
-	if ($config{OSNAME} =~ /SunOS/i or $config{OSNAME} =~ /solaris/i)
-	{
-		# solaris/sunos needs these
-		# socket = bsd sockets api
-		# nsl = dns stuff
-		# rt = POSIX realtime extensions
-		# resolv = inet_aton only (why isnt this in nsl?!)
-		$config{MAKEPROG} = "gmake";
-		$config{LDLIBS} .= " -lsocket -lnsl -lrt -lresolv -pthread";
-		return "Solaris";
-	}
-
-	if($config{OSNAME} =~ /MINGW32/i)
-	{
-		# All code is position-independent on windows
-		$config{FLAGS} =~ s/-fPIC //;
-		return "MinGW";
-	}
-
-	return $config{OSNAME};
-}
 
 my ($mliflags, $mfrules, $mobjs, $mfcount) = ("", "", "", 0);
 
@@ -1188,7 +1106,7 @@ EOF
 
 			print "Writing \e[1;32m$file\e[0m ...\n";
 			for my $var (qw(
-				CC FLAGS DEVELOPER LDLIBS BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR LIBRARY_DIR
+				CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR LIBRARY_DIR
 				STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE CORE_FLAGS
 			)) {
 				s/\@$var\@/$config{$var}/g;
@@ -1200,6 +1118,8 @@ EOF
 				my $mk_tmp = $_;
 				s/\@IFDEF (\S+)/ifdef $1/g;
 				s/\@IFNDEF (\S+)/ifndef $1/g;
+				s/\@IFEQ (\S+) (\S+)/ifeq ($1,$2)/g;
+				s/\@ELSIFEQ (\S+) (\S+)/else ifeq ($1,$2)/g;
 				s/\@ELSE/else/g;
 				s/\@ENDIF/endif/g;
 				s/ *\@BSD_ONLY .*\n//g;
@@ -1211,6 +1131,8 @@ EOF
 				$_ = $mk_tmp;
 				s/\@IFDEF (\S+)/.if defined($1)/g;
 				s/\@IFNDEF (\S+)/.if !defined($1)/g;
+				s/\@IFEQ (\S+) (\S+)/.if $1 == $2/g;
+				s/\@ELSIFEQ (\S+) (\S+)/.elif $1 == $2/g;
 				s/\@ELSE/.else/g;
 				s/\@ENDIF/.endif/g;
 				s/\@BSD_ONLY //g;
@@ -1248,15 +1170,6 @@ sub prepare_dynamic_makefile
 	if (!$has_ports)
 	{
 		$config{USE_PORTS} = 0;
-	}
-
-	if ($config{IS_DARWIN} eq "YES")
-	{
-		$config{CORE_FLAGS} = '-dynamic -bind_at_load -L.';
-	}
-	else
-	{
-		$config{CORE_FLAGS} = (defined $config{CRAQ} ? $config{CRAQ}. ' ' : "").'-rdynamic -L.'
 	}
 }
 

@@ -4,8 +4,9 @@ CMD_TARGS = $(patsubst %.cpp,%.so,$(wildcard commands/*.cpp))
 MOD_TARGS = $(patsubst %.cpp,%.so,$(wildcard modules/*.cpp))
 SPANNINGTREE_TARGS = $(patsubst %.cpp,%.o,$(wildcard modules/m_spanningtree/*.cpp))
 
-CORE_TARGS += modeclasses.a threadengines/threadengine_pthread.o
+CORE_TARGS += threadengines/threadengine_pthread.o
 CORE_TARGS += socketengines/$(SOCKETENGINE).o
+CORE_TARGS += $(MODE_TARGS)
 MOD_TARGS += modules/m_spanningtree.so
 
 DFILES = $(shell perl -e 'print join " ", grep s!([^/]+)\.cpp!.$$1.d!, <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_spanningtree/*.cpp>')
@@ -17,14 +18,11 @@ commands: $(CMD_TARGS)
 
 modules: $(MOD_TARGS)
 
-modeclasses.a: $(MODE_TARGS)
-	@../make/run-cc.pl ar crs modeclasses.a $(MODE_TARGS)
-
 modules/m_spanningtree.so: $(SPANNINGTREE_TARGS)
-	$(RUNCC) $(FLAGS) -shared -export-dynamic -o $@ $(SPANNINGTREE_TARGS)
+	$(RUNCC) $(FLAGS) $(PICLDFLAGS) -o $@ $(SPANNINGTREE_TARGS)
 
 inspircd: $(CORE_TARGS)
-	$(RUNCC) $(FLAGS) $(CORE_FLAGS) -o inspircd $(LDLIBS) $(CORE_TARGS)
+	$(RUNCC) $(FLAGS) $(CORE_FLAGS) -o $@ $(LDLIBS) $(CORE_TARGS)
 
 .%.d: %.cpp
 	@../make/calcdep.pl $<
