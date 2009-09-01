@@ -105,6 +105,8 @@ install: allreal@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) $(MODPATH)
+	-install -m $(INSTMODE) src/commands/*.so $(LIBPATH)
+	-install -m $(INSTMODE) src/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
 @INSTALL_LIST@	-install -m $(INSTMODE) src/inspircd $(BINPATH)
 	@echo ""
@@ -136,6 +138,8 @@ modclean:
 
 deinstall:
 	-rm $(BINPATH)/inspircd
+	-rm $(LIBPATH)/*.so
+	-rm $(MODPATH)/*.so
 @UNINSTALL_LIST@
 
 squeakyclean: distclean

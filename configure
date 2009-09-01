@@ -1214,27 +1214,6 @@ EOF
 	}
 
 
-	# Create a Modules List..
-	my $modules = "";
-	foreach my $i (@modlist)
-	{
-		$modules .= "m_".$i.".so ";
-	}
-	chomp($modules);   # Remove Redundant whitespace..
-
-	opendir(DIRHANDLE, "src/modules");
-	foreach my $name2 (sort readdir(DIRHANDLE)) {
-		if ($name2 =~ /^m_(.+?)$/) {
-			if (defined(opendir(MDIRHANDLE, "src/modules/$name2"))) {
-				closedir(MDIRHANDLE);
-				$modules .= "$name2.so ";
-				$uninstall_list = $uninstall_list . "	-rm \$(MODPATH)/$name2.so\n";
-			}
-		}
-	}
-	closedir(DIRHANDLE);
-
-
 	# Write all .in files.
 	my $tmp = "";
 	my $file = "";
@@ -1318,89 +1297,10 @@ EOF
 	chmod 0744, 'inspircd';
 }
 
-sub read_module_directory {
-	my ($dpath, $reldpath) = @_;
-
-	if (opendir(MDIRHANDLE, $dpath) == 0) {
-		return;
-	}
-
-	foreach my $fname (sort readdir(MDIRHANDLE)) {
-		if ($fname =~ /\.cpp$/) {
-			my $cmflags = getcompilerflags("$dpath/$fname");
-			$mliflags = $mliflags . " " . getlinkerflags("$dpath/$fname");
-			my $deps = getdependencies("$dpath/$fname");
-			my $oname = $fname;
-			$oname =~ s/\.cpp$/.o/g;
-			$mfrules = $mfrules .  "$reldpath/$oname: $reldpath/$fname ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps\n";
-			$mfrules = $mfrules .  "	\$(RUNCC) -I. \$(FLAGS) $cmflags $SHARED -o $reldpath/$oname -c $reldpath/$fname\n\n";
-			$mobjs = $mobjs . " $reldpath/$oname";
-			$mfcount++;
-		}
-		elsif ((-d "$dpath/$fname") && !($fname eq ".") && !($fname eq "..")) {
-			read_module_directory($dpath."/".$fname, $reldpath."/".$fname);
-		}
-	}
-}
-
-sub calcdeps($)
-{
-	# Yes i know we could use gcc -M but it seems to ideneify a lot of 'deep'
-	# dependencies which are not relevent in C++.
-
-	my $file = $_[0];
-
-	open (CPP, "<$file") or die("Can't open $file for reading!");
-
-	my %dupe = ();
-	my $retlist = "";
-
-	foreach my $d (@ignoredeps)
-	{
-		$dupe{$d} = 1;
-	}
-
-	my $immutable = "";
-	foreach my $dep (@immutabledeps)
-	{
-		$immutable = $immutable . "../include/$dep ";
-	}
-	$immutable =~ s/ $//g;
-
-	while (defined(my $line = <CPP>))
-	{
-		chomp($line);
-		if ($line =~ /#include "(.+\.h)"/)
-		{
-			if (!exists($dupe{$1}))
-			{
-				$retlist = $retlist . "../include/$1 ";
-				$dupe{$1} = 1;
-			}
-		}
-	}
-	close CPP;
-	return length($immutable) ? $immutable . " " . $retlist : $retlist;
-}
-
 sub prepare_dynamic_makefile
 {
 	my $i = 0;
-	my @cmdlist = ();
 	my %existing_install_list = ();
-	my %core_files_list = ();
-
-	opendir(DIRHANDLE, "src/commands");
-	foreach my $name (sort readdir(DIRHANDLE))
-	{
-		if ($name =~ /^cmd_(.+)\.cpp$/)
-		{
-			$cmdlist[$i++] = $1;
-			$install_list = $install_list . "	-install -m \$(INSTMODE) src/commands/cmd_" . $1 . ".so \$(LIBPATH)\n";
-			$uninstall_list = $uninstall_list . "	-rm \$(LIBPATH)/cmd_$1.so\n";
-	   	}
-	}
-	closedir(DIRHANDLE);
 
 	if (!$has_epoll)
 	{
