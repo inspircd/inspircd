@@ -19,8 +19,10 @@
  */
 class CommandCheck : public Command
 {
+	Module* Parent;
  public:
- 	CommandCheck (InspIRCd* Instance) : Command(Instance,"CHECK", "o", 1)
+	bool md_sent;
+	CommandCheck (InspIRCd* Instance, Module* parent) : Command(Instance,"CHECK", "o", 1), Parent(parent)
 	{
 		this->source = "m_check.so";
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
@@ -96,6 +98,19 @@ class CommandCheck : public Command
 			std::stringstream dump(chliststr);
 
 			ServerInstance->DumpText(user,checkstr + " onchans ", dump);
+
+			std::deque<std::string> extlist;
+			targuser->GetExtList(extlist);
+			std::stringstream dumpkeys;
+			for(std::deque<std::string>::iterator i = extlist.begin(); i != extlist.end(); i++)
+			{
+				md_sent = false;
+				FOREACH_MOD_I(ServerInstance,I_OnSyncUserMetaData,OnSyncUserMetaData(targuser,Parent,(void*)user,*i, true));
+				if (!md_sent)
+					dumpkeys << " " << *i;
+			}
+			if (!dumpkeys.str().empty())
+				ServerInstance->DumpText(user,checkstr + " metadata ", dumpkeys);
 		}
 		else if (targchan)
 		{
@@ -127,6 +142,19 @@ class CommandCheck : public Command
 				snprintf(tmpbuf, MAXBUF, "%-3lu %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
 				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
+
+			std::deque<std::string> extlist;
+			targchan->GetExtList(extlist);
+			std::stringstream dumpkeys;
+			for(std::deque<std::string>::iterator i = extlist.begin(); i != extlist.end(); i++)
+			{
+				md_sent = false;
+				FOREACH_MOD_I(ServerInstance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(targchan,Parent,(void*)user,*i, true));
+				if (!md_sent)
+					dumpkeys << " " << *i;
+			}
+			if (!dumpkeys.str().empty())
+				ServerInstance->DumpText(user,checkstr + " metadata ", dumpkeys);
 		}
 		else
 		{
@@ -166,10 +194,8 @@ class ModuleCheck : public Module
  public:
 	ModuleCheck(InspIRCd* Me) : Module(Me)
 	{
-
-		mycommand = new CommandCheck(ServerInstance);
+		mycommand = new CommandCheck(ServerInstance, this);
 		ServerInstance->AddCommand(mycommand);
-
 	}
 
 	virtual ~ModuleCheck()
@@ -181,7 +207,12 @@ class ModuleCheck : public Module
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
-
+	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags type, void* target, const std::string& name, const std::string& value)
+	{
+		User* user = static_cast<User*>(opaque);
+		user->WriteServ("304 " + std::string(user->nick) + " :CHECK meta:" + name + " " + value);
+		mycommand->md_sent = true;
+	}
 };
 
 MODULE_INIT(ModuleCheck)
