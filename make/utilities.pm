@@ -454,6 +454,7 @@ sub translate_functions($$)
 		my $err = $@;
 		#$err =~ s/at .+? line \d+.*//g;
 		print "\n\nConfiguration failed. The following error occured:\n\n$err\n";
+		print "\nMake sure you have pkg-config installed\n";
 		print "\nIn the case of gnutls configuration errors on debian,\n";
 		print "Ubuntu, etc, you should ensure that you have installed\n";
 		print "gnutls-bin as well as gnutls-dev and gnutls.\n";

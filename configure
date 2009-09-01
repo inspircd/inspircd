@@ -817,6 +817,7 @@ if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
 	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
 }
 
+depcheck();
 writefiles(1);
 makecache();
 
@@ -1153,6 +1154,15 @@ EOF
 
 	# Make inspircd executable!
 	chmod 0744, 'inspircd';
+}
+
+sub depcheck
+{
+	getmodules();
+	for my $mod (@modlist) {
+		getcompilerflags("src/modules/m_$mod.cpp");
+		getlinkerflags("src/modules/m_$mod.cpp");
+	}
 }
 
 sub prepare_dynamic_makefile
