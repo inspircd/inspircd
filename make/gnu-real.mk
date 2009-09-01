@@ -8,15 +8,10 @@ CORE_TARGS += modeclasses.a threadengines/threadengine_pthread.o
 CORE_TARGS += socketengines/$(SOCKETENGINE).o
 MOD_TARGS += modules/m_spanningtree.so
 
-DFILES = $(patsubst %.cpp,%.d,$(wildcard *.cpp))
-DFILES += $(patsubst %.cpp,%.d,$(wildcard commands/*.cpp))
-DFILES += $(patsubst %.cpp,%.d,$(wildcard modes/*.cpp))
-DFILES += $(patsubst %.cpp,%.d,$(wildcard modules/*.cpp))
-DFILES += $(patsubst %.cpp,%.d,$(wildcard modules/m_spanningtree/*.cpp))
-DFILES += socketengines/$(SOCKETENGINE).d threadengines/threadengine_pthread.d
+DFILES = $(shell perl -e 'print join " ", grep s!([^/]+)\.cpp!.$$1.d!, <*.cpp>, <commands/*.cpp>, <modes/*.cpp>, <modules/*.cpp>, <modules/m_spanningtree/*.cpp>')
+DFILES += socketengines/.$(SOCKETENGINE).d threadengines/.threadengine_pthread.d
 
 all: inspircd commands modules
-alldep: $(DFILES)
 
 commands: $(CMD_TARGS)
 
@@ -31,7 +26,7 @@ modules/m_spanningtree.so: $(SPANNINGTREE_TARGS)
 inspircd: $(CORE_TARGS)
 	$(RUNCC) $(FLAGS) $(CORE_FLAGS) -o inspircd $(LDLIBS) $(CORE_TARGS)
 
-%.d: %.cpp
+.%.d: %.cpp
 	@$(VDEP_IN)
 	@../make/calcdep.pl $<
 	@$(VDEP_OUT)

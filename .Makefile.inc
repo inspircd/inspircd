@@ -128,6 +128,7 @@ clean:
 	@rm -f src/inspircd src/modes/modeclasses.a
 	@rm -f src/*.so src/modules/*.so src/commands/*.so src/modules/*/*.so
 	@rm -f src/*.o src/*/*.o src/modules/*/*.o
+	@rm -f src/.*.d src/*/.*.d src/modules/*/.*.d
 	@echo Completed.
 
 modclean:

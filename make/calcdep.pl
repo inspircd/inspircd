@@ -1,25 +1,47 @@
 #!/usr/bin/perl
 use strict;
-BEGIN { push @INC, '..'; }
-use make::configure;
+use warnings;
 
-my $file = shift;
+# This used to be a wrapper around cc -M; however, this is a very slow
+# operation and we don't conditionally include our own files often enough
+# to justify the full preprocesor invocation for all ~200 files.
 
-$file =~ /(.*)\.cpp$/ or die "Cannot process $file";
-my $base = $1;
+my %f2dep;
 
-my $out = "$base.d";
+sub gendep;
+sub gendep {
+	my $f = shift;
+	my $basedir = $f =~ m#(.*)/# ? $1 : '.';
+	return $f2dep{$f} if exists $f2dep{$f};
+	$f2dep{$f} = '';
+	my %dep;
+	open my $in, '<', $f;
+	while (<$in>) {
+		if (/^\s*#\s*include\s*"([^"]+)"/) {
+			my $inc = $1;
+			for my $loc ("$basedir/$inc", "../include/$inc") {
+				next unless -e $loc;
+				$dep{$loc}++;
+				$dep{$_}++ for split / /, gendep $loc;
+			}
+		}
+	}
+	close $in;
+	$f2dep{$f} = join ' ', sort keys %dep;
+	$f2dep{$f};
+}
 
-open IN, '<', $file or die "Could not read $file: $!";
-open OUT, '>', $out or die "Could not write $out: $!";
+for my $file (@ARGV) {
+	next unless $file =~ /cpp$/;
+	gendep $file;
+	my($path,$base) = $file =~ m#^((?:.*/)?)([^/]+)\.cpp#;
+	my $cmd = "$path.$base.d";
+	my $ext = $path eq 'modules/' || $path eq 'commands/' ? '.so' : '.o';
+	my $out = "$path$base$ext";
 
-my $cc_deps = qx($ENV{CC} $ENV{FLAGS} -MM $file);
-$cc_deps =~ s/.*?:\s*//;
-
-my $ext = $file =~ m#(modules|commands)/[^/]+$# ? '.so' : '.o';
-print OUT "$base$ext: $cc_deps";
-print OUT "\t@../make/unit-cc.pl \$(VERBOSE) $file $base$ext\n";
-print OUT "$base.d: $cc_deps";
-print OUT "\t\@\$(VDEP_IN)\n";
-print OUT "\t../make/calcdep.pl $file\n";
-print OUT "\t\@\$(VDEP_OUT)\n";
+	open OUT, '>', $cmd;
+	print OUT "$out: $file $f2dep{$file}\n";
+	print OUT "\t@../make/unit-cc.pl \$(VERBOSE) $file $out\n";
+	print OUT "$cmd: $file $f2dep{$file}\n";
+	print OUT "\t../make/calcdep.pl $file\n";
+}
