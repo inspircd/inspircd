@@ -358,12 +358,11 @@ class CoreExport DNS : public EventHandler
 	 */
 	int socketfamily;
 
-#ifdef IPV6
 	/**
 	 * IPV6 server address
 	 */
 	in6_addr myserver6;
-#endif
+
 	/**
 	 * IPV4 server address
 	 */

@@ -75,7 +75,7 @@ class ThreadSignalSocket : public BufferedSocket
 class ThreadSignalListener : public ListenSocketBase
 {
 	SocketThread* parent;
-	irc::sockets::insp_sockaddr sock_us;
+	sockaddr_in sock_us;
  public:
 	ThreadSignalListener(SocketThread* t, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), parent(t)
 	{
@@ -94,11 +94,7 @@ class ThreadSignalListener : public ListenSocketBase
 /* Using getsockname and ntohs, we can determine which port number we were allocated */
 	int GetPort()
 	{
-#ifdef IPV6
-		return ntohs(sock_us.sin6_port);
-#else
 		return ntohs(sock_us.sin_port);
-#endif
 	}
 };
 
@@ -111,17 +107,10 @@ SocketThread::SocketThread(InspIRCd* SI)
 	if (connFD == -1)
 		throw CoreException("Could not create ITC pipe");
 	
-	irc::sockets::insp_sockaddr addr;
-
-#ifdef IPV6
-	irc::sockets::insp_aton("::1", &addr.sin6_addr);
-	addr.sin6_family = AF_INET6;
-	addr.sin6_port = htons(listener->GetPort());
-#else
-	irc::sockets::insp_aton("127.0.0.1", &addr.sin_addr);
+	struct sockaddr_in addr;
+	inet_aton("127.0.0.1", &addr.sin_addr);
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(listener->GetPort());
-#endif
 
 	if (connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) == -1)
 	{

@@ -173,7 +173,7 @@ class CoreExport BufferedSocket : public EventHandler
 
 	/** (really) Try bind to a given IP setup. For internal use only.
 	 */
-	bool DoBindMagic(const std::string &current_ip, bool v6);
+	bool DoBindMagic(const std::string &current_ip);
 
 	/**
 	 * The default constructor does nothing

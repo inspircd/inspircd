@@ -36,7 +36,6 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	}
 	else
 	{
-#ifdef IPV6
 		if (port == -1)
 		{
 			/* Port -1: Means UDP IPV4 port binding - Special case
@@ -48,17 +47,19 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 		}
 		else
 		{
-			/* There's no address here, default to ipv6 bind to all */
+			/* No address */
+#ifdef IPV6
+			/* Default to ipv6 bind to all */
 			servaddr.in6.sin6_family = AF_INET6;
 			servaddr.in6.sin6_port = htons(port);
 			memset(&servaddr.in6.sin6_addr, 0, sizeof(servaddr.in6.sin6_addr));
-		}
 #else
-		/* Bind ipv4 to all */
-		servaddr.in4.sin_family = AF_INET;
-		servaddr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
-		servaddr.in4.sin_port = htons(port);
+			/* Bind ipv4 to all */
+			servaddr.in4.sin_family = AF_INET;
+			servaddr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
+			servaddr.in4.sin_port = htons(port);
 #endif
+		}
 	}
 	ret = SE->Bind(sockfd, &servaddr.sa, sizeof(servaddr));
 
@@ -97,21 +98,20 @@ int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
 	int on = 1;
 	addr = addr;
 	struct linger linger = { 0, 0 };
-#ifdef IPV6
 	if (!*addr)
 	{
+#ifdef IPV6
 		sockfd = socket (PF_INET6, socktype, 0);
 		if (sockfd < 0)
+#endif
 			sockfd = socket (PF_INET, socktype, 0);
 	}
 	else if (strchr(addr,':'))
 		sockfd = socket (PF_INET6, socktype, 0);
 	else
 		sockfd = socket (PF_INET, socktype, 0);
+
 	if (sockfd < 0)
-#else
-	if ((sockfd = socket (PF_INET, socktype, 0)) < 0)
-#endif
 	{
 		return ERROR;
 	}

@@ -34,17 +34,14 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			if (this->bound_user->registered != REG_ALL)
 			{
 				bool lcached = false;
-#ifdef IPV6
 				if (this->bound_user->client_sa.sa.sa_family == AF_INET6)
 				{
 					/* IPV6 forward lookup */
 					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_AAAA, lcached);
 				}
 				else
-					/* IPV4 lookup (mixed protocol mode) */
-#endif
 				{
-					/* IPV4 lookup (ipv4 only mode) */
+					/* IPV4 lookup */
 					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, lcached);
 				}
 				this->ServerInstance->AddResolver(res_forward, lcached);
@@ -61,7 +58,6 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 
 		irc::sockets::sockaddrs* user_ip = &this->bound_user->client_sa;
 		bool rev_match = false;
-#ifdef IPV6
 		if (user_ip->sa.sa_family == AF_INET6)
 		{
 			struct in6_addr res_bin;
@@ -71,7 +67,6 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			}
 		}
 		else
-#endif
 		{
 			struct in_addr res_bin;
 			if (inet_pton(AF_INET, result.c_str(), &res_bin))

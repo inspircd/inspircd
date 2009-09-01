@@ -217,7 +217,6 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 
 	DNS::EmptyHeader(payload,header,length);
 
-#ifdef IPV6
 	if (this->dnsobj->socketfamily == AF_INET6)
 	{
 		sockaddr_in6 addr;
@@ -229,7 +228,6 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 			return -1;
 	}
 	else
-#endif
 	{
 		sockaddr_in addr;
 		memset(&addr,0,sizeof(addr));
@@ -334,7 +332,6 @@ void DNS::Rehash()
 	}
 
 	this->socketfamily = AF_INET;
-#ifdef IPV6
 	if (strchr(ServerInstance->Config->DNSServer,':'))
 	{
 		this->socketfamily = AF_INET6;
@@ -345,9 +342,6 @@ void DNS::Rehash()
 		inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
 		portpass = -1;
 	}
-#else
-	inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
-#endif
 
 	/* Initialize mastersocket */
 	int s = irc::sockets::OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
@@ -602,7 +596,6 @@ DNSResult DNS::GetResult()
 	 *
 	 * -- Thanks jilles for pointing this one out.
 	 */
-#ifdef IPV6
 	char nbuf[MAXBUF];
 	if (this->socketfamily == AF_INET6)
 	{
@@ -610,7 +603,6 @@ DNSResult DNS::GetResult()
 		port_from = ntohs(from.in6.sin6_port);
 	}
 	else
-#endif
 	{
 		ipaddr_from = inet_ntoa(from.in4.sin_addr);
 		port_from = ntohs(from.in4.sin_port);

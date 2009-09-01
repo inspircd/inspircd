@@ -259,7 +259,6 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 	}
 
 	QueryType start_type = DNS_QUERY_A;
-#ifdef IPV6
 	start_type = DNS_QUERY_AAAA;
 	if (strchr(x->IPAddr.c_str(),':'))
 	{
@@ -268,7 +267,6 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 			ipvalid = false;
 	}
 	else
-#endif
 	{
 		in_addr n;
 		if (inet_aton(x->IPAddr.c_str(),&n) < 1)

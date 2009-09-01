@@ -405,7 +405,6 @@ void SpanningTreeUtilities::RefreshIPCache()
 		/* Needs resolving */
 		bool ipvalid = true;
 		QueryType start_type = DNS_QUERY_A;
-#ifdef IPV6
 		start_type = DNS_QUERY_AAAA;
 		if (strchr(L->IPAddr.c_str(),':'))
 		{
@@ -414,7 +413,6 @@ void SpanningTreeUtilities::RefreshIPCache()
 				ipvalid = false;
 		}
 		else
-#endif
 		{
 			in_addr n;
 			if (inet_aton(L->IPAddr.c_str(),&n) < 1)
@@ -571,7 +569,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			/* Needs resolving */
 			bool ipvalid = true;
 			QueryType start_type = DNS_QUERY_A;
-#ifdef IPV6
 			start_type = DNS_QUERY_AAAA;
 			if (strchr(L.IPAddr.c_str(),':'))
 			{
@@ -585,11 +582,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 				if (inet_aton(L.IPAddr.c_str(),&n) < 1)
 					ipvalid = false;
 			}
-#else
-			in_addr n;
-			if (inet_aton(L.IPAddr.c_str(),&n) < 1)
-				ipvalid = false;
-#endif
 
 			if (!ipvalid)
 			{
