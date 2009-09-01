@@ -1066,9 +1066,9 @@ int User::GetServerPort()
 	switch (this->server_sa.sa.sa_family)
 	{
 		case AF_INET6:
-			return this->server_sa.in6.sin6_port;
+			return htons(this->server_sa.in6.sin6_port);
 		case AF_INET:
-			return this->server_sa.in4.sin_port;
+			return htons(this->server_sa.in4.sin_port);
 	}
 	return 0;
 }
@@ -1169,64 +1169,32 @@ const char* User::GetCIDRMask(int range)
 	return ""; // unused, but oh well
 }
 
+std::string User::GetServerIP()
+{
+	int port;
+	std::string ip;
+	irc::sockets::satoap(&server_sa, ip, port);
+	return ip;
+}
+
 const char* User::GetIPString()
 {
-	static char buf[40];
-
-	if (!this->cachedip.empty())
-		return this->cachedip.c_str();
-
-	switch (this->client_sa.sa.sa_family)
+	int port;
+	if (cachedip.empty())
 	{
-		case AF_INET6:
-		{
-			static char temp[41];
-
-			inet_ntop(client_sa.in6.sin6_family, &client_sa.in6.sin6_addr, buf, sizeof(buf));
-			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
-			if (*buf == ':')
-			{
-				strlcpy(&temp[1], buf, sizeof(temp) - 1);
-				*temp = '0';
-				this->cachedip = temp;
-				return temp;
-			}
-
-			this->cachedip = buf;
-			return buf;
-		}
-		break;
-		case AF_INET:
-		{
-			inet_ntop(client_sa.in4.sin_family, &client_sa.in4.sin_addr, buf, sizeof(buf));
-			this->cachedip = buf;
-			return buf;
-		}
-		break;
-		default:
-		break;
+		irc::sockets::satoap(&client_sa, cachedip, port);
+		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
+		if (cachedip.c_str()[0] == ':')
+			cachedip.insert(0,1,'0');
 	}
 
-	// Unreachable, probably
-	return "";
+	return cachedip.c_str();
 }
 
 bool User::SetClientIP(const char* sip)
 {
 	this->cachedip = "";
-	if (inet_pton(AF_INET, sip, &client_sa.in4.sin_addr))
-	{
-		client_sa.in4.sin_family = AF_INET;
-		client_sa.in4.sin_port = 0;
-		return true;
-	}
-	else if (inet_pton(AF_INET6, sip, &client_sa.in6.sin6_addr))
-	{
-		client_sa.in6.sin6_family = AF_INET6;
-		client_sa.in6.sin6_port = 0;
-		return true;
-	}
-	return false;
+	return irc::sockets::aptosa(sip, 0, &client_sa);
 }
 
 /** NOTE: We cannot pass a const reference to this method.

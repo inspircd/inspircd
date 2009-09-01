@@ -410,8 +410,9 @@ class ModuleCloaking : public Module
 				 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
 				 * vhost.
 				 */
-				in6_addr testaddr;
-				if (inet_pton(dest->client_sa.sa.sa_family, dest->host.c_str(), &testaddr) < 1 && (hostcloak.length() <= 64))
+				std::string testaddr;
+				int testport;
+				if (!irc::sockets::satoap(&dest->client_sa, testaddr, testport) && (hostcloak.length() <= 64))
 					/* not a valid address, must have been a host, so cloak as a host */
 					b = hostcloak;
 				else if (dest->client_sa.sa.sa_family == AF_INET6)

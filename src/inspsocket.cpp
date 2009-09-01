@@ -53,22 +53,8 @@ BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int apor
 	strlcpy(this->host,ipaddr.c_str(),MAXBUF);
 	this->port = aport;
 
-	bool ipvalid = true;
-#ifdef IPV6
-	if (strchr(host,':'))
-	{
-		in6_addr n;
-		if (inet_pton(AF_INET6, host, &n) < 1)
-			ipvalid = false;
-	}
-	else
-#endif
-	{
-		in_addr n;
-		if (inet_aton(host,&n) < 1)
-			ipvalid = false;
-	}
-	if (!ipvalid)
+	irc::sockets::sockaddrs testaddr;
+	if (!irc::sockets::aptosa(host, aport, &testaddr))
 	{
 		this->ServerInstance->Logs->Log("SOCKET", DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 		this->OnError(I_ERR_CONNECT);
@@ -106,40 +92,13 @@ void BufferedSocket::SetQueues()
 bool BufferedSocket::DoBindMagic(const std::string &current_ip, bool v6)
 {
 	irc::sockets::sockaddrs s;
-	socklen_t size = sizeof(sockaddr_in);
-#ifdef IPV6
-	if (v6)
+	if (!irc::sockets::aptosa(current_ip.c_str(), 0, &s))
 	{
-		if (inet_pton(AF_INET6, current_ip.c_str(), &s.in6.sin6_addr) > 0)
-		{
-			s.in6.sin6_port = 0;
-			s.in6.sin6_family = AF_INET6;
-			size = sizeof(sockaddr_in6);
-		}
-		else
-		{
-			// Well, this is as good as it's gonna get.
-			errno = EADDRNOTAVAIL;
-			return false;
-		}
-	}
-	else
-#endif
-	{
-		if (inet_aton(current_ip.c_str(), &s.in4.sin_addr) > 0)
-		{
-			s.in4.sin_port = 0;
-			s.in4.sin_family = AF_INET;
-		}
-		else
-		{
-			// Well, this is as good as it's gonna get.
-			errno = EADDRNOTAVAIL;
-			return false;
-		}
+		errno = EADDRNOTAVAIL;
+		return false;
 	}
 
-	if (ServerInstance->SE->Bind(this->fd, &s.sa, size) < 0)
+	if (ServerInstance->SE->Bind(this->fd, &s.sa, sizeof(s)) < 0)
 	{
 		this->state = I_ERROR;
 		this->OnError(I_ERR_BIND);

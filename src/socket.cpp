@@ -25,40 +25,18 @@ using irc::sockets::sockaddrs;
 bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 {
 	sockaddrs servaddr;
-	memset(&servaddr, 0, sizeof(servaddr));
-
-	int ret, size;
+	int ret;
 
 	if (*addr == '*')
 		addr = "";
 
-#ifdef IPV6
 	if (*addr)
 	{
-		/* There is an address here. Is it ipv6? */
-		if (strchr(addr,':'))
-		{
-			if (inet_pton(AF_INET6, addr, &servaddr.in6.sin6_addr) < 1)
-			{
-				return false;
-			}
-			servaddr.in6.sin6_family = AF_INET6;
-			servaddr.in6.sin6_port = htons(port);
-			size = sizeof(sockaddr_in6);
-		}
-		else
-		{
-			if (inet_pton(AF_INET, addr, &servaddr.in4.sin_addr) < 1)
-			{
-				return false;
-			}
-			servaddr.in4.sin_family = AF_INET;
-			servaddr.in4.sin_port = htons(port);
-			size = sizeof(sockaddr_in);
-		}
+		irc::sockets::aptosa(addr, port, &servaddr);
 	}
 	else
 	{
+#ifdef IPV6
 		if (port == -1)
 		{
 			/* Port -1: Means UDP IPV4 port binding - Special case
@@ -67,37 +45,22 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 			servaddr.in4.sin_family = AF_INET;
 			servaddr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
 			servaddr.in4.sin_port = 0;
-			size = sizeof(sockaddr_in);
 		}
 		else
 		{
 			/* There's no address here, default to ipv6 bind to all */
 			servaddr.in6.sin6_family = AF_INET6;
 			servaddr.in6.sin6_port = htons(port);
-			size = sizeof(sockaddr_in6);
+			memset(&servaddr.in6.sin6_addr, 0, sizeof(servaddr.in6.sin6_addr));
 		}
-	}
 #else
-	/* If we aren't built with ipv6, the choice becomes simple */
-	servaddr.in4.sin_family = AF_INET;
-	if (*addr)
-	{
-		/* There is an address here. */
-		if (inet_pton(AF_INET, addr, &servaddr.in4.sin_addr) < 1)
-		{
-			return false;
-		}
-	}
-	else
-	{
 		/* Bind ipv4 to all */
+		servaddr.in4.sin_family = AF_INET;
 		servaddr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
-	}
-	/* Bind ipv4 port number */
-	servaddr.in4.sin_port = htons(port);
-	size = sizeof(sockaddr_in);
+		servaddr.in4.sin_port = htons(port);
 #endif
-	ret = SE->Bind(sockfd, &servaddr.sa, size);
+	}
+	ret = SE->Bind(sockfd, &servaddr.sa, sizeof(servaddr));
 
 	if (ret < 0)
 	{
