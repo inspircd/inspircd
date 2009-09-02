@@ -232,6 +232,7 @@ class ModuleXLineDB : public Module
 			}
 		}
 
+		fclose(f);
 		return true;
 	}
 

@@ -43,6 +43,7 @@ void InspIRCd::Exit(int status)
 	{
 		this->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
 		this->Cleanup();
+		delete this;
 	}
 	exit (status);
 }

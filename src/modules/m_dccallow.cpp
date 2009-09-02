@@ -470,6 +470,8 @@ class ModuleDCCAllow : public Module
 
 	virtual ~ModuleDCCAllow()
 	{
+		delete Conf;
+		Conf = NULL;
 	}
 
 	virtual Version GetVersion()

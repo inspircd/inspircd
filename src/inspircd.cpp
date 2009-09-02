@@ -150,6 +150,7 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->PI);
 	DeleteZero(this->Threads);
 	DeleteZero(this->Timers);
+	DeleteZero(this->SE);
 	/* Close logging */
 	this->Logs->CloseLogs();
 	DeleteZero(this->Logs);
