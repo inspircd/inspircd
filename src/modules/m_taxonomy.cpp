@@ -20,10 +20,9 @@
 class CommandTaxonomy : public Command
 {
 	Module* Creator;
-	bool& claimed;
  public:
 	/* Command 'taxonomy', takes no parameters and needs no special modes */
-	CommandTaxonomy (InspIRCd* Instance, Module* maker, bool &claim) : Command(Instance,"TAXONOMY", "o", 1), Creator(maker), claimed(claim)
+	CommandTaxonomy (InspIRCd* Instance, Module* maker) : Command(Instance,"TAXONOMY", "o", 1), Creator(maker)
 	{
 		this->source = "m_taxonomy.so";
 		syntax = "<nickname>";
@@ -37,15 +36,7 @@ class CommandTaxonomy : public Command
 			std::deque<std::string> list;
 			dest->GetExtList(list);
 			user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY ITEMS " + std::string(dest->nick) + " " +ConvToStr(list.size()));
-			for (unsigned int j = 0; j < list.size(); j++)
-			{
-				claimed = false;
-				FOREACH_MOD(I_OnSyncUserMetaData, OnSyncUserMetaData(dest, Creator, user, list[j], true));
-				if (!claimed)
-				{
-					user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY METADATA " + list[j] + " = <unknown>");
-				}
-			}
+			FOREACH_MOD(I_OnSyncUser, OnSyncUser(dest, Creator, user));
 			user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY END");
 		}
 		return CMD_LOCALONLY;
@@ -55,24 +46,19 @@ class CommandTaxonomy : public Command
 class ModuleTaxonomy : public Module
 {
 	CommandTaxonomy cmd;
-	bool claimed;
  public:
 	ModuleTaxonomy(InspIRCd* Me)
-		: Module(Me), cmd(Me, this, claimed)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}
 
 
-	void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata)
+	void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata)
 	{
-		if (target_type == TYPE_USER)
-		{
-			User* spoolto = (User*)opaque;
-			std::string taxstr = "304 " + std::string(spoolto->nick) + ":TAXONOMY METADATA "+extname+" = "+extdata;
-			spoolto->WriteServ(taxstr);
-			claimed = true;
-		}
+		User* spoolto = (User*)opaque;
+		std::string taxstr = "304 " + std::string(spoolto->nick) + ":TAXONOMY METADATA "+extname+" = "+extdata;
+		spoolto->WriteServ(taxstr);
 	}
 
 	virtual ~ModuleTaxonomy()
@@ -82,6 +68,17 @@ class ModuleTaxonomy : public Module
 	virtual Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR, API_VERSION);
+	}
+
+	virtual std::string ProtoTranslate(Extensible* item)
+	{
+		User* u = dynamic_cast<User*>(item);
+		Channel* c = dynamic_cast<Channel*>(item);
+		if (u)
+			return u->nick;
+		if (c)
+			return c->name;
+		return "?";
 	}
 };
 

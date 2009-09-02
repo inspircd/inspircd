@@ -134,8 +134,8 @@ protected:
 	virtual Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
+	virtual void OnSyncNetwork(Module* proto, void* opaque);
+	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 	virtual int OnStats(char symbol, User* user, string_list &results) = 0;
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
@@ -240,7 +240,7 @@ FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me), fi
 {
 	Me->Modules->UseInterface("RegularExpression");
 	ServerInstance->AddCommand(&filtcommand);
-	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnLoadModule };
+	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnLoadModule };
 	ServerInstance->Modules->Attach(eventlist, this, 8);
 }
 
@@ -510,19 +510,19 @@ FilterResult FilterBase::DecodeFilter(const std::string &data)
 	return res;
 }
 
-void FilterBase::OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable)
+void FilterBase::OnSyncNetwork(Module* proto, void* opaque)
 {
 	this->SyncFilters(proto, opaque);
 }
 
 void FilterBase::SendFilter(Module* proto, void* opaque, FilterResult* iter)
 {
-	proto->ProtoSendMetaData(opaque, TYPE_OTHER, NULL, "filter", EncodeFilter(iter));
+	proto->ProtoSendMetaData(opaque, NULL, "filter", EncodeFilter(iter));
 }
 
-void FilterBase::OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
+void FilterBase::OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 {
-	if ((target_type == TYPE_OTHER) && (extname == "filter"))
+	if ((target == NULL) && (extname == "filter"))
 	{
 		FilterResult data = DecodeFilter(extdata);
 		this->AddFilter(data.freeform, data.action, data.reason, data.gline_time, data.flags);

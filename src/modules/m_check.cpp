@@ -99,18 +99,7 @@ class CommandCheck : public Command
 
 			ServerInstance->DumpText(user,checkstr + " onchans ", dump);
 
-			std::deque<std::string> extlist;
-			targuser->GetExtList(extlist);
-			std::stringstream dumpkeys;
-			for(std::deque<std::string>::iterator i = extlist.begin(); i != extlist.end(); i++)
-			{
-				md_sent = false;
-				FOREACH_MOD_I(ServerInstance,I_OnSyncUserMetaData,OnSyncUserMetaData(targuser,Parent,(void*)user,*i, true));
-				if (!md_sent)
-					dumpkeys << " " << *i;
-			}
-			if (!dumpkeys.str().empty())
-				ServerInstance->DumpText(user,checkstr + " metadata ", dumpkeys);
+			FOREACH_MOD_I(ServerInstance,I_OnSyncUser,OnSyncUser(targuser,Parent,(void*)user));
 		}
 		else if (targchan)
 		{
@@ -143,18 +132,7 @@ class CommandCheck : public Command
 				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
 
-			std::deque<std::string> extlist;
-			targchan->GetExtList(extlist);
-			std::stringstream dumpkeys;
-			for(std::deque<std::string>::iterator i = extlist.begin(); i != extlist.end(); i++)
-			{
-				md_sent = false;
-				FOREACH_MOD_I(ServerInstance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(targchan,Parent,(void*)user,*i, true));
-				if (!md_sent)
-					dumpkeys << " " << *i;
-			}
-			if (!dumpkeys.str().empty())
-				ServerInstance->DumpText(user,checkstr + " metadata ", dumpkeys);
+			FOREACH_MOD_I(ServerInstance,I_OnSyncChannel,OnSyncChannel(targchan,Parent,(void*)user));
 		}
 		else
 		{
@@ -206,11 +184,22 @@ class ModuleCheck : public Module
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
-	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags type, void* target, const std::string& name, const std::string& value)
+	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string& name, const std::string& value)
 	{
 		User* user = static_cast<User*>(opaque);
 		user->WriteServ("304 " + std::string(user->nick) + " :CHECK meta:" + name + " " + value);
 		mycommand.md_sent = true;
+	}
+
+	virtual std::string ProtoTranslate(Extensible* item)
+	{
+		User* u = dynamic_cast<User*>(item);
+		Channel* c = dynamic_cast<Channel*>(item);
+		if (u)
+			return u->nick;
+		if (c)
+			return c->name;
+		return "?";
 	}
 };
 

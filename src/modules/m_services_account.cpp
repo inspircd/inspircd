@@ -115,7 +115,7 @@ class ModuleServicesAccount : public Module
 			throw ModuleException("Some other module has claimed our modes!");
 
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
-			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
+			I_OnSyncUser, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 
 		ServerInstance->Modules->Attach(eventlist, this, 10);
 	}
@@ -254,23 +254,19 @@ class ModuleServicesAccount : public Module
 	// this method is called. We should use the ProtoSendMetaData function after we've
 	// corrected decided how the data should look, to send the metadata on its way if
 	// it is ours.
-	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
 	{
-		// check if the linking module wants to know about OUR metadata
-		if (extname == "accountname")
+		// check if this user has an swhois field to send
+		std::string* account;
+		user->GetExt("accountname", account);
+		if (account)
 		{
-			// check if this user has an swhois field to send
-			std::string* account;
-			user->GetExt("accountname", account);
-			if (account)
-			{
-				// remove any accidental leading/trailing spaces
-				trim(*account);
+			// remove any accidental leading/trailing spaces
+			trim(*account);
 
-				// call this function in the linking module, let it format the data how it
-				// sees fit, and send it on its way. We dont need or want to know how.
-				proto->ProtoSendMetaData(opaque,TYPE_USER,user,extname,*account);
-			}
+			// call this function in the linking module, let it format the data how it
+			// sees fit, and send it on its way. We dont need or want to know how.
+			proto->ProtoSendMetaData(opaque,user,"accountname",*account);
 		}
 	}
 
@@ -309,13 +305,12 @@ class ModuleServicesAccount : public Module
 	// In our case we're only sending a single string around, so we just construct a std::string.
 	// Some modules will probably get much more complex and format more detailed structs and classes
 	// in a textual way for sending over the link.
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
+	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 	{
+		User* dest = dynamic_cast<User*>(target);
 		// check if its our metadata key, and its associated with a user
-		if ((target_type == TYPE_USER) && (extname == "accountname"))
+		if (dest && (extname == "accountname"))
 		{
-			User* dest = (User*)target;
-
 			std::string* account;
 			if (dest->GetExt("accountname", account)) {
 				// remove old account so that we can set new (or leave unset)

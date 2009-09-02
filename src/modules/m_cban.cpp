@@ -165,8 +165,8 @@ class ModuleCBan : public Module
 		ServerInstance->XLines->RegisterFactory(&f);
 
 		ServerInstance->AddCommand(&mycommand);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleCBan()

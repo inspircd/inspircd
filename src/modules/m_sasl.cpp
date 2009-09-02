@@ -272,7 +272,7 @@ class ModuleSASL : public Module
 		std::string* str = NULL;
 
 		if (user->GetExt("accountname", str))
-			ServerInstance->PI->SendMetaData(user, TYPE_USER, "accountname", *str);
+			ServerInstance->PI->SendMetaData(user, "accountname", *str);
 
 		return;
 	}

@@ -697,9 +697,9 @@ class ModuleSSLGnuTLS : public Module
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
 			}
 
-			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "ON");
+			ServerInstance->PI->SendMetaData(user, "ssl", "ON");
 			if (certdata)
-				ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl_cert", certdata->GetMetaLine().c_str());
+				ServerInstance->PI->SendMetaData(user, "ssl_cert", certdata->GetMetaLine().c_str());
 		}
 	}
 

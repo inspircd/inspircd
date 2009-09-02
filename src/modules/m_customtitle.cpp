@@ -71,7 +71,7 @@ class CommandTitle : public Command
 				text = new std::string(title);
 				user->Extend("ctitle", text);
 
-				ServerInstance->PI->SendMetaData(user, TYPE_USER, "ctitle", *text);
+				ServerInstance->PI->SendMetaData(user, "ctitle", *text);
 
 				if (!vhost.empty())
 					user->ChangeDisplayedHost(vhost.c_str());
@@ -96,7 +96,7 @@ class ModuleCustomTitle : public Module
 	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
 		ServerInstance->AddCommand(&cmd);
-		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup };
+		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUser, I_OnUserQuit, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -123,20 +123,12 @@ class ModuleCustomTitle : public Module
 	// this method is called. We should use the ProtoSendMetaData function after we've
 	// corrected decided how the data should look, to send the metadata on its way if
 	// it is ours.
-	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
 	{
-		// check if the linking module wants to know about OUR metadata
-		if (extname == "ctitle")
-		{
-			// check if this user has an ctitle field to send
-			std::string* ctitle;
-			if (user->GetExt("ctitle", ctitle))
-			{
-				// call this function in the linking module, let it format the data how it
-				// sees fit, and send it on its way. We dont need or want to know how.
-				proto->ProtoSendMetaData(opaque,TYPE_USER,user,extname,*ctitle);
-			}
-		}
+		// check if this user has an ctitle field to send
+		std::string* ctitle;
+		if (user->GetExt("ctitle", ctitle))
+			proto->ProtoSendMetaData(opaque,user,"ctitle",*ctitle);
 	}
 
 	// when a user quits, tidy up their metadata
@@ -172,12 +164,12 @@ class ModuleCustomTitle : public Module
 	// In our case we're only sending a single string around, so we just construct a std::string.
 	// Some modules will probably get much more complex and format more detailed structs and classes
 	// in a textual way for sending over the link.
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
+	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 	{
+		User* dest = dynamic_cast<User*>(target);
 		// check if its our metadata key, and its associated with a user
-		if ((target_type == TYPE_USER) && (extname == "ctitle"))
+		if (dest && (extname == "ctitle"))
 		{
-			User* dest = (User*)target;
 			std::string* text;
 			if (dest->GetExt("ctitle", text))
 			{

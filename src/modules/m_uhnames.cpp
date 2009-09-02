@@ -24,7 +24,7 @@ class ModuleUHNames : public Module
 	ModuleUHNames(InspIRCd* Me)
 		: Module(Me)
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnSyncUserMetaData, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
+		Implementation eventlist[] = { I_OnEvent, I_OnSyncUser, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -32,10 +32,10 @@ class ModuleUHNames : public Module
 	{
 	}
 
-	void OnSyncUserMetaData(User* user, Module* proto,void* opaque, const std::string &extname, bool displayable)
+	void OnSyncUser(User* user, Module* proto,void* opaque)
 	{
-		if ((displayable) && (extname == "UHNAMES"))
-			proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, "Enabled");
+		if (proto->ProtoTranslate(NULL) == "?" && user->GetExt("UHNAMES"))
+			proto->ProtoSendMetaData(opaque, user, "UHNAMES", "Enabled");
 	}
 
 	virtual Version GetVersion()

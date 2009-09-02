@@ -449,7 +449,7 @@ enum Implementation
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
-	I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnWallops,
+	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine, I_OnCleanup,
 	I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
@@ -458,7 +458,7 @@ enum Implementation
 	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
+	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookUserIO,
 	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash,
@@ -853,9 +853,7 @@ class CoreExport Module : public Extensible
 	 * the linking protocol. This currently is m_spanningtree.so. A pointer to this module
 	 * is given in Module* proto, so that you may call its methods such as ProtoSendMode
 	 * (see below). This function will be called for every user visible on your side
-	 * of the burst, allowing you to for example set modes, etc. Do not use this call to
-	 * synchronize data which you have stored using class Extensible -- There is a specialist
-	 * function OnSyncUserMetaData and OnSyncChannelMetaData for this!
+	 * of the burst, allowing you to for example set modes, etc.
 	 *
 	 * For a good example of how to use this function, please see src/modules/m_chanprotect.cpp
 	 *
@@ -864,36 +862,6 @@ class CoreExport Module : public Extensible
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 */
 	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque);
-
-	/* Allows modules to syncronize metadata related to channels over the network during a netburst.
-	 * Whenever the linking module wants to send out data, but doesnt know what the data
-	 * represents (e.g. it is Extensible metadata, added to a User or Channel by a module) then
-	 * this method is called.You should use the ProtoSendMetaData function after you've
-	 * correctly decided how the data should be represented, to send the metadata on its way if it belongs
-	 * to your module. For a good example of how to use this method, see src/modules/m_swhois.cpp.
-	 * @param chan The channel whos metadata is being syncronized
-	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param extname The extensions name which is being searched for
-	 * @param displayable If this value is true, the data is going to be displayed to a user,
-	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
-	 */
-	virtual void OnSyncChannelMetaData(Channel* chan, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
-
-	/* Allows modules to syncronize metadata related to users over the network during a netburst.
-	 * Whenever the linking module wants to send out data, but doesnt know what the data
-	 * represents (e.g. it is Extensible metadata, added to a User or Channel by a module) then
-	 * this method is called. You should use the ProtoSendMetaData function after you've
-	 * correctly decided how the data should be represented, to send the metadata on its way if
-	 * if it belongs to your module.
-	 * @param user The user whos metadata is being syncronized
-	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param extname The extensions name which is being searched for
-	 * @param displayable If this value is true, the data is going to be displayed to a user,
-	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
-	 */
-	virtual void OnSyncUserMetaData(User* user, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
 
 	/* Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
@@ -906,7 +874,7 @@ class CoreExport Module : public Extensible
 	 * @param displayable If this value is true, the data is going to be displayed to a user,
 	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
 	 */
-	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
+	virtual void OnSyncNetwork(Module* proto, void* opaque);
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
@@ -915,7 +883,7 @@ class CoreExport Module : public Extensible
 	 * @param extname The extension name which is being sent
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
 	 */
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
+	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 
 	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows transparent sending of servermodes
@@ -947,7 +915,14 @@ class CoreExport Module : public Extensible
 	 * @param extname The extension name to send metadata for
 	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
 	 */
-	virtual void ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata);
+	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
+
+	/**
+	 * Implemented by all modules that implement ProtoSendMetaData.
+	 * Translates the item into a string format suitable for sending to other servers.
+	 * Currently, this just translates nicks to their UID and channels to their name
+	 */
+	virtual std::string ProtoTranslate(Extensible* item);
 
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS

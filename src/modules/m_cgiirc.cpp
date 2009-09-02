@@ -143,7 +143,7 @@ public:
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUser, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
@@ -224,29 +224,22 @@ public:
 		}
 	}
 
-	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
 	{
-		if((extname == "cgiirc_realhost") || (extname == "cgiirc_realip"))
-		{
-			std::string* data;
-
-			if(user->GetExt(extname, data))
-			{
-				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, *data);
-			}
-		}
+		std::string* data;
+		if (user->GetExt("cgiirc_realhost", data))
+			proto->ProtoSendMetaData(opaque, user, "cgiirc_realhost", *data);
+		if (user->GetExt("cgiirc_realip", data))
+			proto->ProtoSendMetaData(opaque, user, "cgiirc_realip", *data);
 	}
 
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
+	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 	{
-		if(target_type == TYPE_USER)
+		User* dest = dynamic_cast<User*>(target);
+		std::string* bleh;
+		if(dest && ((extname == "cgiirc_realhost") || (extname == "cgiirc_realip")) && (!dest->GetExt(extname, bleh)))
 		{
-			User* dest = (User*)target;
-			std::string* bleh;
-			if(((extname == "cgiirc_realhost") || (extname == "cgiirc_realip")) && (!dest->GetExt(extname, bleh)))
-			{
-				dest->Extend(extname, new std::string(extdata));
-			}
+			dest->Extend(extname, new std::string(extdata));
 		}
 	}
 

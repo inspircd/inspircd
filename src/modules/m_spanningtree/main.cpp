@@ -899,26 +899,28 @@ void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type
 	}
 }
 
-void ModuleSpanningTree::ProtoSendMetaData(void* opaque, TargetTypeFlags target_type, void* target, const std::string &extname, const std::string &extdata)
+void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata)
 {
-	TreeSocket* s = (TreeSocket*)opaque;
-	if (target)
-	{
-		if (target_type == TYPE_USER)
-		{
-			User* u = (User*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
-		}
-		else if (target_type == TYPE_CHANNEL)
-		{
-			Channel* c = (Channel*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
-		}
-	}
-	if (target_type == TYPE_OTHER)
-	{
+	TreeSocket* s = static_cast<TreeSocket*>(opaque);
+	User* u = dynamic_cast<User*>(target);
+	Channel* c = dynamic_cast<Channel*>(target);
+	if (u)
+		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
+	else if (c)
+		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
+	else if (!target)
 		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
-	}
+}
+
+std::string ModuleSpanningTree::ProtoTranslate(Extensible* item)
+{
+	User* u = dynamic_cast<User*>(item);
+	Channel* c = dynamic_cast<Channel*>(item);
+	if (u)
+		return u->uuid;
+	if (c)
+		return c->name;
+	return "*";
 }
 
 void ModuleSpanningTree::OnEvent(Event* event)

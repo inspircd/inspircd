@@ -14,7 +14,7 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 	virtual ~SpanningTreeProtocolInterface() { }
 
 	virtual void SendEncapsulatedData(parameterlist &encap);
-	virtual void SendMetaData(void* target, TargetTypeFlags type, const std::string &key, const std::string &data);
+	virtual void SendMetaData(Extensible* target, const std::string &key, const std::string &data);
 	virtual void SendTopic(Channel* channel, std::string &topic);
 	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &types);
 	virtual void SendModeNotice(const std::string &modes, const std::string &text);

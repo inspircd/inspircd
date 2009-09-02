@@ -282,20 +282,17 @@ class ModuleCloaking : public Module
 
 		ServerInstance->Modules->UseInterface("HashRequest");
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserDisconnect, I_OnCleanup, I_OnCheckBan, I_OnUserConnect, I_OnSyncUserMetaData, I_OnCleanup };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserDisconnect, I_OnCleanup, I_OnCheckBan, I_OnUserConnect, I_OnSyncUser, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 
 		CloakExistingUsers();
 	}
 
-	void OnSyncUserMetaData(User* user, Module* proto,void* opaque, const std::string &extname, bool displayable)
+	void OnSyncUser(User* user, Module* proto,void* opaque)
 	{
-		if ((displayable) && (extname == "cloaked_host"))
-		{
-			std::string* cloak;
-			if (user->GetExt("cloaked_host", cloak))
-				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, *cloak);
-		}
+		std::string* cloak;
+		if (user->GetExt("cloaked_host", cloak) && proto->ProtoTranslate(NULL) == "?")
+			proto->ProtoSendMetaData(opaque, user, "cloaked_host", *cloak);
 	}
 
 	void CloakExistingUsers()

@@ -56,14 +56,14 @@ class callerid_data : public classbase
 		}
 	}
 
-	std::string ToString(bool displayable) const
+	std::string ToString(Module* proto) const
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
 		for (std::set<User*>::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
 		{
 			// Encode UIDs.
-			oss << "," << (displayable ? (*i)->nick : (*i)->uuid);
+			oss << "," << proto->ProtoTranslate(*i);
 		}
 		oss << std::ends;
 		return oss.str();
@@ -430,24 +430,21 @@ public:
 		RemoveData(u);
 	}
 
-	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string& extname, bool displayable)
+	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
 	{
-		if (extname == "callerid_data")
+		callerid_data* dat = GetData(user, false);
+		if (dat)
 		{
-			callerid_data* dat = GetData(user, false);
-			if (dat)
-			{
-				std::string str = dat->ToString(displayable);
-				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, str);
-			}
+			std::string str = dat->ToString(proto);
+			proto->ProtoSendMetaData(opaque, user, "callerid_data", str);
 		}
 	}
 
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string& extname, const std::string& extdata)
+	virtual void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
 	{
-		if (target_type == TYPE_USER && extname == "callerid_data")
+		User* u = dynamic_cast<User*>(target);
+		if (u && extname == "callerid_data")
 		{
-			User* u = (User*)target;
 			callerid_data* dat = new callerid_data(extdata, ServerInstance);
 			u->Extend("callerid_data", dat);
 		}

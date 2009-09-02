@@ -70,7 +70,7 @@ class ModuleSSLInfo : public Module
 	{
 		ServerInstance->AddCommand(&cmd);
 
-		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnWhois, I_OnPreCommand };
+		Implementation eventlist[] = { I_OnSyncUser, I_OnDecodeMetaData, I_OnWhois, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
@@ -92,44 +92,30 @@ class ModuleSSLInfo : public Module
 		}
 	}
 
-	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
 	{
-		// check if the linking module wants to know about OUR metadata
-		if (extname == "ssl")
-		{
-			// check if this user has an ssl field to send
-			if (!user->GetExt(extname))
-				return;
-
-			// call this function in the linking module, let it format the data how it
-			// sees fit, and send it on its way. We dont need or want to know how.
-			proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, displayable ? "Enabled" : "ON");
-		}
-		else if (extname == "ssl_cert")
-		{
-			ssl_cert* cert;
-			if (!user->GetExt("ssl_cert", cert))
-				return;
-
-			proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, cert->GetMetaLine().c_str());
-		}
+		if (user->GetExt("ssl"))
+			proto->ProtoSendMetaData(opaque, user, "ssl", "ON");
+		
+		ssl_cert* cert;
+		if (user->GetExt("ssl_cert", cert))
+			proto->ProtoSendMetaData(opaque, user, "ssl_cert", cert->GetMetaLine().c_str());
 	}
 
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
+	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 	{
+		User* dest = dynamic_cast<User*>(target);
 		// check if its our metadata key, and its associated with a user
-		if ((target_type == TYPE_USER) && (extname == "ssl"))
+		if (dest && (extname == "ssl"))
 		{
-			User* dest = static_cast<User*>(target);
 			// if they dont already have an ssl flag, accept the remote server's
 			if (!dest->GetExt(extname))
 			{
 				dest->Extend(extname);
 			}
 		}
-		else if ((target_type == TYPE_USER) && (extname == "ssl_cert"))
+		else if (dest && (extname == "ssl_cert"))
 		{
-			User* dest = static_cast<User*>(target);
 			if (dest->GetExt(extname))
 				return;
 
@@ -173,9 +159,9 @@ class ModuleSSLInfo : public Module
 
 	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
-		irc::string cmd = command.c_str();
+		irc::string pcmd = command.c_str();
 
-		if ((cmd == "OPER") && (validated))
+		if ((pcmd == "OPER") && (validated))
 		{
 			ConfigReader cf(ServerInstance);
 			char TheHost[MAXBUF];

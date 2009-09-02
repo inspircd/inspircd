@@ -777,9 +777,9 @@ class ModuleSSLOpenSSL : public Module
 			if (sessions[user->GetFd()].sess)
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), SSL_get_cipher(sessions[user->GetFd()].sess));
 
-			ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl", "ON");
+			ServerInstance->PI->SendMetaData(user, "ssl", "ON");
 			if (certdata)
-				ServerInstance->PI->SendMetaData(user, TYPE_USER, "ssl_cert", certdata->GetMetaLine().c_str());
+				ServerInstance->PI->SendMetaData(user, "ssl_cert", certdata->GetMetaLine().c_str());
 		}
 	}
 

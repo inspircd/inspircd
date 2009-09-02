@@ -46,7 +46,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 	/* Send everything else (channel modes, xlines etc) */
 	this->SendChannelModes(s);
 	this->SendXLines(s);
-	FOREACH_MOD_I(this->ServerInstance,I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)Utils->Creator,(void*)this));
+	FOREACH_MOD_I(this->ServerInstance,I_OnSyncNetwork,OnSyncNetwork((Module*)Utils->Creator,(void*)this));
 	this->WriteLine(endburst);
 	this->ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
 }
@@ -219,12 +219,6 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 			this->WriteLine(data);
 		}
 		FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannel,OnSyncChannel(c->second,(Module*)Utils->Creator,(void*)this));
-		list.clear();
-		c->second->GetExtList(list);
-		for (unsigned int j = 0; j < list.size(); j++)
-		{
-			FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)Utils->Creator,(void*)this,list[j]));
-		}
 	}
 }
 
@@ -232,7 +226,6 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 void TreeSocket::SendUsers(TreeServer* Current)
 {
 	char data[MAXBUF];
-	std::deque<std::string> list;
 	std::string dataline;
 	for (user_hash::iterator u = this->ServerInstance->Users->clientlist->begin(); u != this->ServerInstance->Users->clientlist->end(); u++)
 	{
@@ -267,12 +260,6 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			}
 
 			FOREACH_MOD_I(this->ServerInstance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
-			list.clear();
-			u->second->GetExtList(list);
-			for (unsigned int j = 0; j < list.size(); j++)
-			{
-				FOREACH_MOD_I(this->ServerInstance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,list[j]));
-			}
 		}
 	}
 }

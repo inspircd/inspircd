@@ -64,7 +64,7 @@ class CommandSwhois : public Command
 		 * Sorry w00t i know this was your fix, but i got bored and wanted to clear down the tracker :)
 		 * -- Brain
 		 */
- 		ServerInstance->PI->SendMetaData(dest, TYPE_USER, "swhois", *text);
+		ServerInstance->PI->SendMetaData(dest, "swhois", *text);
 
 		// If it's an empty swhois, unset it (not ideal, but ok)
 		if (text->empty())
@@ -90,7 +90,7 @@ class ModuleSWhois : public Module
 
 		Conf = new ConfigReader(ServerInstance);
 		ServerInstance->AddCommand(&cmd);
-		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnRehash, I_OnPostCommand };
+		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUser, I_OnUserQuit, I_OnCleanup, I_OnRehash, I_OnPostCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
@@ -124,20 +124,12 @@ class ModuleSWhois : public Module
 	// this method is called. We should use the ProtoSendMetaData function after we've
 	// corrected decided how the data should look, to send the metadata on its way if
 	// it is ours.
-	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
 	{
-		// check if the linking module wants to know about OUR metadata
-		if (extname == "swhois")
-		{
-			// check if this user has an swhois field to send
-			std::string* swhois;
-			if (user->GetExt("swhois", swhois))
-			{
-				// call this function in the linking module, let it format the data how it
-				// sees fit, and send it on its way. We dont need or want to know how.
-				proto->ProtoSendMetaData(opaque,TYPE_USER,user,extname,*swhois);
-			}
-		}
+		// check if this user has an swhois field to send
+		std::string* swhois;
+		if (user->GetExt("swhois", swhois))
+			proto->ProtoSendMetaData(opaque,user,"swhois",*swhois);
 	}
 
 	// when a user quits, tidy up their metadata
@@ -154,15 +146,13 @@ class ModuleSWhois : public Module
 	// if the module is unloaded, tidy up all our dangling metadata
 	virtual void OnCleanup(int target_type, void* item)
 	{
-		if (target_type == TYPE_USER)
+		if (target_type != TYPE_USER) return;
+		User* user = static_cast<User*>(item);
+		std::string* swhois;
+		if (user && user->GetExt("swhois", swhois))
 		{
-			User* user = (User*)item;
-			std::string* swhois;
-			if (user->GetExt("swhois", swhois))
-			{
-				user->Shrink("swhois");
-				delete swhois;
-			}
+			user->Shrink("swhois");
+			delete swhois;
 		}
 	}
 
@@ -173,27 +163,26 @@ class ModuleSWhois : public Module
 	// In our case we're only sending a single string around, so we just construct a std::string.
 	// Some modules will probably get much more complex and format more detailed structs and classes
 	// in a textual way for sending over the link.
-	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
+	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 	{
+		User* dest = dynamic_cast<User*>(target);
 		// check if its our metadata key, and its associated with a user
-		if ((target_type == TYPE_USER) && (extname == "swhois"))
+		if (extname != "swhois" || !dest)
+			return;
+
+		// if they already have an swhois field, trash it and replace it with the remote one.
+		std::string* text;
+		if (dest->GetExt("swhois", text))
 		{
-			User* dest = (User*)target;
-
-			// if they already have an swhois field, trash it and replace it with the remote one.
-			std::string* text;
-			if (dest->GetExt("swhois", text))
-			{
-				dest->Shrink("swhois");
-				delete text;
-			}
-
-			if (extdata.empty())
-				return; // XXX does the command parser even allow sending blank mdata? it needs to here! -- w00t
-
-			text = new std::string(extdata);
-			dest->Extend("swhois", text);
+			dest->Shrink("swhois");
+			delete text;
 		}
+
+		if (extdata.empty())
+			return;
+
+		text = new std::string(extdata);
+		dest->Extend("swhois", text);
 	}
 
 	virtual void OnPostCommand(const std::string &command, const std::vector<std::string> &params, User *user, CmdResult result, const std::string &original_line)
@@ -240,7 +229,7 @@ class ModuleSWhois : public Module
 
 		std::string *text = new std::string(swhois);
 		user->Extend("swhois", text);
-		ServerInstance->PI->SendMetaData(user, TYPE_USER, "swhois", *text);
+		ServerInstance->PI->SendMetaData(user, "swhois", *text);
 	}
 
 	virtual ~ModuleSWhois()
