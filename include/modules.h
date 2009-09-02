@@ -277,7 +277,7 @@ class CoreExport Version : public classbase
  public:
 	/** Version information.
 	 */
-	std::string version;
+	const std::string version;
 
 	/** Flags and API version
 	 */
@@ -285,7 +285,8 @@ class CoreExport Version : public classbase
 
 	/** Initialize version class
 	 */
-	Version(const std::string &sversion, int flags, int api_ver);
+	Version(const std::string &customver, int flags,
+		int api_ver = API_VERSION, const std::string& src_rev = VERSION " r" REVISION);
 };
 
 /** The ModuleMessage class is the base class of Request and Event

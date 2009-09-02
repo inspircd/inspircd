@@ -27,8 +27,8 @@
 
 
 // version is a simple class for holding a modules version number
-Version::Version(const std::string &sversion, int flags, int api_ver)
-: version(sversion), Flags(flags), API(api_ver)
+Version::Version(const std::string &modv, int flags, int api_ver, const std::string& rev)
+: version(modv + " " + rev), Flags(flags), API(api_ver)
 {
 }
 
