@@ -88,15 +88,12 @@ class CommandSakick : public Command
 
 class ModuleSakick : public Module
 {
-	CommandSakick*	mycommand;
+	CommandSakick cmd;
  public:
 	ModuleSakick(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSakick(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSakick()

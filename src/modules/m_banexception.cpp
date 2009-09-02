@@ -37,18 +37,16 @@ class BanException : public ListModeBase
 
 class ModuleBanException : public Module
 {
-	BanException* be;
-
+	BanException be;
 
 public:
-	ModuleBanException(InspIRCd* Me) : Module(Me)
+	ModuleBanException(InspIRCd* Me) : Module(Me), be(Me)
 	{
-		be = new BanException(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(be))
+		if (!ServerInstance->Modes->AddMode(&be))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
-		be->DoImplements(this);
+		be.DoImplements(this);
 		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan };
 		Me->Modules->Attach(list, this, 6);
 
@@ -64,7 +62,7 @@ public:
 		if (chan != NULL)
 		{
 			modelist *list;
-			chan->GetExt(be->GetInfoKey(), list);
+			chan->GetExt(be.GetInfoKey(), list);
 
 			if (!list)
 				return 0;
@@ -93,7 +91,7 @@ public:
 		if (chan != NULL)
 		{
 			modelist *list;
-			chan->GetExt(be->GetInfoKey(), list);
+			chan->GetExt(be.GetInfoKey(), list);
 
 			if (!list)
 				return 0;
@@ -117,7 +115,7 @@ public:
 		if (chan != NULL)
 		{
 			modelist* list;
-			chan->GetExt(be->GetInfoKey(), list);
+			chan->GetExt(be.GetInfoKey(), list);
 
 			if (!list)
 			{
@@ -140,27 +138,27 @@ public:
 
 	virtual void OnCleanup(int target_type, void* item)
 	{
-		be->DoCleanup(target_type, item);
+		be.DoCleanup(target_type, item);
 	}
 
 	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
-		be->DoSyncChannel(chan, proto, opaque);
+		be.DoSyncChannel(chan, proto, opaque);
 	}
 
 	virtual void OnChannelDelete(Channel* chan)
 	{
-		be->DoChannelDelete(chan);
+		be.DoChannelDelete(chan);
 	}
 
 	virtual void OnRehash(User* user)
 	{
-		be->DoRehash();
+		be.DoRehash();
 	}
 
 	virtual const char* OnRequest(Request* request)
 	{
-		return be->DoOnRequest(request);
+		return be.DoOnRequest(request);
 	}
 
 	virtual Version GetVersion()
@@ -170,8 +168,7 @@ public:
 
 	virtual ~ModuleBanException()
 	{
-		ServerInstance->Modes->DelMode(be);
-		delete be;
+		ServerInstance->Modes->DelMode(&be);
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };

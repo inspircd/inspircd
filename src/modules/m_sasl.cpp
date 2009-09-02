@@ -186,17 +186,16 @@ class CommandAuthenticate : public Command
 
 class ModuleSASL : public Module
 {
-	CommandAuthenticate* sasl;
+	CommandAuthenticate sasl;
  public:
 
 	ModuleSASL(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), sasl(Me, this)
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 
-		sasl = new CommandAuthenticate(ServerInstance, this);
-		ServerInstance->AddCommand(sasl);
+		ServerInstance->AddCommand(&sasl);
 
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");

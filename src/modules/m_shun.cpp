@@ -174,20 +174,17 @@ class CommandShun : public Command
 
 class ModuleShun : public Module
 {
-	CommandShun* mycommand;
-	ShunFactory *f;
+	CommandShun cmd;
+	ShunFactory f;
 	std::set<std::string> ShunEnabledCommands;
 	bool NotifyOfShun;
 	bool affectopers;
 
  public:
-	ModuleShun(InspIRCd* Me) : Module(Me)
+	ModuleShun(InspIRCd* Me) : Module(Me), cmd(Me), f(Me)
 	{
-		f = new ShunFactory(ServerInstance);
-		ServerInstance->XLines->RegisterFactory(f);
-
-		mycommand = new CommandShun(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->XLines->RegisterFactory(&f);
+		ServerInstance->AddCommand(&cmd);
 
 		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnUserConnect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
@@ -197,7 +194,7 @@ class ModuleShun : public Module
 	virtual ~ModuleShun()
 	{
 		ServerInstance->XLines->DelAll("SHUN");
-		ServerInstance->XLines->UnregisterFactory(f);
+		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
 	virtual int OnStats(char symbol, User* user, string_list& out)

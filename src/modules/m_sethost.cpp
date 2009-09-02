@@ -64,15 +64,14 @@ class CommandSethost : public Command
 
 class ModuleSetHost : public Module
 {
-	CommandSethost* mycommand;
+	CommandSethost cmd;
 	char hostmap[256];
  public:
 	ModuleSetHost(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me, hostmap)
 	{
 		OnRehash(NULL);
-		mycommand = new CommandSethost(ServerInstance, hostmap);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

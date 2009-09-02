@@ -130,18 +130,16 @@ class InvisibleDeOper : public ModeWatcher
 class ModuleInvisible : public Module
 {
  private:
-	InvisibleMode* qm;
-	InvisibleDeOper* ido;
+	InvisibleMode qm;
+	InvisibleDeOper ido;
  public:
 	ModuleInvisible(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), qm(Me), ido(Me)
 	{
 		conf = new ConfigReader(ServerInstance);
-		qm = new InvisibleMode(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(qm))
+		if (!ServerInstance->Modes->AddMode(&qm))
 			throw ModuleException("Could not add new modes!");
-		ido = new InvisibleDeOper(ServerInstance);
-		if (!ServerInstance->Modes->AddModeWatcher(ido))
+		if (!ServerInstance->Modes->AddModeWatcher(&ido))
 			throw ModuleException("Could not add new mode watcher on usermode +o!");
 
 		/* Yeah i know people can take this out. I'm not about to obfuscate code just to be a pain in the ass. */
@@ -152,10 +150,8 @@ class ModuleInvisible : public Module
 
 	virtual ~ModuleInvisible()
 	{
-		ServerInstance->Modes->DelMode(qm);
-		ServerInstance->Modes->DelModeWatcher(ido);
-		delete qm;
-		delete ido;
+		ServerInstance->Modes->DelMode(&qm);
+		ServerInstance->Modes->DelModeWatcher(&ido);
 		delete conf;
 	};
 

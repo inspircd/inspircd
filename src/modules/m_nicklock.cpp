@@ -145,18 +145,15 @@ class CommandNickunlock : public Command
 
 class ModuleNickLock : public Module
 {
-	CommandNicklock*	cmd1;
-	CommandNickunlock*	cmd2;
+	CommandNicklock	cmd1;
+	CommandNickunlock	cmd2;
 	char* n;
  public:
 	ModuleNickLock(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd1(Me), cmd2(Me)
 	{
-
-		cmd1 = new CommandNicklock(ServerInstance);
-		cmd2 = new CommandNickunlock(ServerInstance);
-		ServerInstance->AddCommand(cmd1);
-		ServerInstance->AddCommand(cmd2);
+		ServerInstance->AddCommand(&cmd1);
+		ServerInstance->AddCommand(&cmd2);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserQuit, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}

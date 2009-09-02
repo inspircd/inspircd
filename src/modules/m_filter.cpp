@@ -95,11 +95,28 @@ class FilterResult : public classbase
 	}
 };
 
-class CommandFilter;
+class FilterBase;
+
+class CommandFilter : public Command
+{
+	FilterBase* Base;
+ public:
+	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource) : Command(Me, "FILTER", "o", 1, 5), Base(f)
+	{
+		this->source = ssource;
+		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
+	}
+	CmdResult Handle(const std::vector<std::string>&, User*);
+
+	void TooFewParams(User* user, const std::string &extra_text)
+	{
+		user->WriteServ("NOTICE %s :*** Not enough parameters%s", user->nick.c_str(), extra_text.c_str());
+	}
+};
 
 class FilterBase : public Module
 {
-	CommandFilter* filtcommand;
+	CommandFilter filtcommand;
 	int flags;
 protected:
 	std::vector<std::string> exemptfromfilter; // List of channel names excluded from filtering.
@@ -126,99 +143,83 @@ protected:
 	virtual void ReadFilters(ConfigReader &MyConf) = 0;
 };
 
-class CommandFilter : public Command
+CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User *user)
 {
-	FilterBase* Base;
- public:
-	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource) : Command(Me, "FILTER", "o", 1, 5), Base(f)
+	if (parameters.size() == 1)
 	{
-		this->source = ssource;
-		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
-	}
-
-	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
-	{
-		if (parameters.size() == 1)
+		/* Deleting a filter */
+		if (Base->DeleteFilter(parameters[0]))
 		{
-			/* Deleting a filter */
-			if (Base->DeleteFilter(parameters[0]))
+			user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
+			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
+			return CMD_SUCCESS;
+		}
+		else
+		{
+			user->WriteServ("NOTICE %s :*** Filter '%s' not found in list, try /stats s.", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+	}
+	else
+	{
+		/* Adding a filter */
+		if (parameters.size() >= 4)
+		{
+			std::string freeform = parameters[0];
+			std::string type = parameters[1];
+			std::string flags = parameters[2];
+			std::string reason;
+			long duration = 0;
+
+
+			if ((type != "gline") && (type != "none") && (type != "block") && (type != "kill") && (type != "silent"))
 			{
-				user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
-				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
+				user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick.c_str(), type.c_str());
+				return CMD_FAILURE;
+			}
+
+			if (type == "gline")
+			{
+				if (parameters.size() >= 5)
+				{
+					duration = ServerInstance->Duration(parameters[3]);
+					reason = parameters[4];
+				}
+				else
+				{
+					this->TooFewParams(user, ": When setting a gline type filter, a gline duration must be specified as the third parameter.");
+					return CMD_FAILURE;
+				}
+			}
+			else
+			{
+				reason = parameters[3];
+			}
+			std::pair<bool, std::string> result = Base->AddFilter(freeform, type, reason, duration, flags);
+			if (result.first)
+			{
+				user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
+						type.c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
+						flags.c_str(), reason.c_str());
+
+				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
+
 				return CMD_SUCCESS;
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Filter '%s' not found in list, try /stats s.", user->nick.c_str(), parameters[0].c_str());
+				user->WriteServ("NOTICE %s :*** Filter '%s' could not be added: %s", user->nick.c_str(), freeform.c_str(), result.second.c_str());
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
-			/* Adding a filter */
-			if (parameters.size() >= 4)
-			{
-				std::string freeform = parameters[0];
-				std::string type = parameters[1];
-				std::string flags = parameters[2];
-				std::string reason;
-				long duration = 0;
-
-
-				if ((type != "gline") && (type != "none") && (type != "block") && (type != "kill") && (type != "silent"))
-				{
-					user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick.c_str(), type.c_str());
-					return CMD_FAILURE;
-				}
-
-				if (type == "gline")
-				{
-					if (parameters.size() >= 5)
-					{
-						duration = ServerInstance->Duration(parameters[3]);
-						reason = parameters[4];
-					}
-					else
-					{
-						this->TooFewParams(user, ": When setting a gline type filter, a gline duration must be specified as the third parameter.");
-						return CMD_FAILURE;
-					}
-				}
-				else
-				{
-					reason = parameters[3];
-				}
-				std::pair<bool, std::string> result = Base->AddFilter(freeform, type, reason, duration, flags);
-				if (result.first)
-				{
-					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
-							type.c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
-							flags.c_str(), reason.c_str());
-
-					ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
-
-					return CMD_SUCCESS;
-				}
-				else
-				{
-					user->WriteServ("NOTICE %s :*** Filter '%s' could not be added: %s", user->nick.c_str(), freeform.c_str(), result.second.c_str());
-					return CMD_FAILURE;
-				}
-			}
-			else
-			{
-				this->TooFewParams(user, ".");
-				return CMD_FAILURE;
-			}
-
+			this->TooFewParams(user, ".");
+			return CMD_FAILURE;
 		}
-	}
 
-	void TooFewParams(User* user, const std::string &extra_text)
-	{
-		user->WriteServ("NOTICE %s :*** Not enough parameters%s", user->nick.c_str(), extra_text.c_str());
 	}
-};
+}
 
 bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
@@ -235,11 +236,10 @@ bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	return true;
 }
 
-FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me)
+FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me), filtcommand(this, Me, source)
 {
 	Me->Modules->UseInterface("RegularExpression");
-	filtcommand = new CommandFilter(this, Me, source);
-	ServerInstance->AddCommand(filtcommand);
+	ServerInstance->AddCommand(&filtcommand);
 	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnLoadModule };
 	ServerInstance->Modules->Attach(eventlist, this, 8);
 }

@@ -88,15 +88,12 @@ class CommandSapart : public Command
 
 class ModuleSapart : public Module
 {
-	CommandSapart*	mycommand;
+	CommandSapart cmd;
  public:
 	ModuleSapart(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSapart(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSapart()

@@ -431,7 +431,6 @@ void CommandParser::RemoveCommand(Commandtable::iterator safei, const char* sour
 	if (x->source == std::string(source))
 	{
 		cmdlist.erase(safei);
-		delete x;
 	}
 }
 

@@ -23,16 +23,13 @@ class NoNotice : public SimpleChannelModeHandler
 
 class ModuleNoNotice : public Module
 {
-
-	NoNotice* nt;
+	NoNotice nt;
  public:
 
 	ModuleNoNotice(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), nt(Me)
 	{
-
-		nt = new NoNotice(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(nt))
+		if (!ServerInstance->Modes->AddMode(&nt))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -72,8 +69,7 @@ class ModuleNoNotice : public Module
 
 	virtual ~ModuleNoNotice()
 	{
-		ServerInstance->Modes->DelMode(nt);
-		delete nt;
+		ServerInstance->Modes->DelMode(&nt);
 	}
 
 	virtual Version GetVersion()

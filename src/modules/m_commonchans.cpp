@@ -47,12 +47,11 @@ class PrivacyMode : public ModeHandler
 
 class ModulePrivacyMode : public Module
 {
-	PrivacyMode* pm;
+	PrivacyMode pm;
  public:
-	ModulePrivacyMode(InspIRCd* Me) : Module(Me)
+	ModulePrivacyMode(InspIRCd* Me) : Module(Me), pm(Me)
 	{
-		pm = new PrivacyMode(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(pm))
+		if (!ServerInstance->Modes->AddMode(&pm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -61,8 +60,7 @@ class ModulePrivacyMode : public Module
 
 	virtual ~ModulePrivacyMode()
 	{
-		ServerInstance->Modes->DelMode(pm);
-		delete pm;
+		ServerInstance->Modes->DelMode(&pm);
 	}
 
 	virtual Version GetVersion()

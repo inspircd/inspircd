@@ -58,15 +58,12 @@ class CommandVhost : public Command
 class ModuleVHost : public Module
 {
  private:
-
-	CommandVhost* mycommand;
+	CommandVhost cmd;
 
  public:
-	ModuleVHost(InspIRCd* Me) : Module(Me)
+	ModuleVHost(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-		mycommand = new CommandVhost(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleVHost()

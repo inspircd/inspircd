@@ -54,15 +54,12 @@ class CommandSetname : public Command
 
 class ModuleSetName : public Module
 {
-	CommandSetname*	mycommand;
+	CommandSetname cmd;
  public:
 	ModuleSetName(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSetname(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSetName()

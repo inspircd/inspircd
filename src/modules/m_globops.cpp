@@ -45,13 +45,12 @@ class CommandGlobops : public Command
 
 class ModuleGlobops : public Module
 {
-	CommandGlobops* mycommand;
+	CommandGlobops cmd;
  public:
 	ModuleGlobops(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-		mycommand = new CommandGlobops(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 
 	}

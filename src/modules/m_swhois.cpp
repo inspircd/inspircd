@@ -80,17 +80,16 @@ class CommandSwhois : public Command
 
 class ModuleSWhois : public Module
 {
-	CommandSwhois* mycommand;
+	CommandSwhois cmd;
 
 	ConfigReader* Conf;
 
  public:
-	ModuleSWhois(InspIRCd* Me) : Module(Me)
+	ModuleSWhois(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
 
 		Conf = new ConfigReader(ServerInstance);
-		mycommand = new CommandSwhois(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnRehash, I_OnPostCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}

@@ -55,11 +55,11 @@ class CommandRandquote : public Command
 class ModuleRandQuote : public Module
 {
  private:
-	CommandRandquote* mycommand;
+	CommandRandquote cmd;
 	ConfigReader *conf;
  public:
 	ModuleRandQuote(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
 
 		conf = new ConfigReader(ServerInstance);
@@ -69,8 +69,6 @@ class ModuleRandQuote : public Module
 		q_file = conf->ReadValue("randquote","file",0);
 		prefix = conf->ReadValue("randquote","prefix",0);
 		suffix = conf->ReadValue("randquote","suffix",0);
-
-		mycommand = NULL;
 
 		if (q_file.empty())
 		{
@@ -85,8 +83,7 @@ class ModuleRandQuote : public Module
 		else
 		{
 			/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
-			mycommand = new CommandRandquote(ServerInstance);
-			ServerInstance->AddCommand(mycommand);
+			ServerInstance->AddCommand(&cmd);
 		}
 		Implementation eventlist[] = { I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
@@ -106,8 +103,7 @@ class ModuleRandQuote : public Module
 
 	virtual void OnUserConnect(User* user)
 	{
-		if (mycommand)
-			mycommand->Handle(std::vector<std::string>(), user);
+		cmd.Handle(std::vector<std::string>(), user);
 	}
 };
 

@@ -90,14 +90,12 @@ class CommandTitle : public Command
 
 class ModuleCustomTitle : public Module
 {
-	CommandTitle* mycommand;
+	CommandTitle cmd;
 
  public:
-	ModuleCustomTitle(InspIRCd* Me) : Module(Me)
+	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandTitle(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}

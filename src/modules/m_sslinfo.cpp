@@ -63,13 +63,12 @@ class CommandSSLInfo : public Command
 
 class ModuleSSLInfo : public Module
 {
-	CommandSSLInfo* newcommand;
+	CommandSSLInfo cmd;
  public:
 	ModuleSSLInfo(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-		newcommand = new CommandSSLInfo(ServerInstance);
-		ServerInstance->AddCommand(newcommand);
+		ServerInstance->AddCommand(&cmd);
 
 		Implementation eventlist[] = { I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnWhois, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 4);

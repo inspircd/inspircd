@@ -28,13 +28,12 @@ class DelayJoinMode : public ModeHandler
 class ModuleDelayJoin : public Module
 {
  private:
-	DelayJoinMode* djm;
+	DelayJoinMode djm;
 	CUList nl;
  public:
-	ModuleDelayJoin(InspIRCd* Me) : Module(Me)
+	ModuleDelayJoin(InspIRCd* Me) : Module(Me), djm(Me, this)
 	{
-		djm = new DelayJoinMode(ServerInstance, this);
-		if (!ServerInstance->Modes->AddMode(djm))
+		if (!ServerInstance->Modes->AddMode(&djm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnText, I_OnHostCycle };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
@@ -76,8 +75,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 
 ModuleDelayJoin::~ModuleDelayJoin()
 {
-	ServerInstance->Modes->DelMode(djm);
-	delete djm;
+	ServerInstance->Modes->DelMode(&djm);
 }
 
 Version ModuleDelayJoin::GetVersion()

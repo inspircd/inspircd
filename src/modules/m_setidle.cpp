@@ -49,15 +49,12 @@ class CommandSetidle : public Command
 
 class ModuleSetIdle : public Module
 {
-	CommandSetidle*	mycommand;
+	CommandSetidle cmd;
  public:
 	ModuleSetIdle(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSetidle(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSetIdle()

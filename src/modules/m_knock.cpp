@@ -78,26 +78,21 @@ class Knock : public SimpleChannelModeHandler
 
 class ModuleKnock : public Module
 {
-	CommandKnock* mycommand;
-	Knock* kn;
+	CommandKnock cmd;
+	Knock kn;
  public:
-	ModuleKnock(InspIRCd* Me) : Module(Me)
+	ModuleKnock(InspIRCd* Me) : Module(Me), cmd(Me), kn(Me)
 	{
-		kn = new Knock(ServerInstance);
-
-		if (!ServerInstance->Modes->AddMode(kn))
+		if (!ServerInstance->Modes->AddMode(&kn))
 			throw ModuleException("Could not add new modes!");
-
-		mycommand = new CommandKnock(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 
 	}
 
 
 	virtual ~ModuleKnock()
 	{
-		ServerInstance->Modes->DelMode(kn);
-		delete kn;
+		ServerInstance->Modes->DelMode(&kn);
 	}
 
 	virtual Version GetVersion()

@@ -88,15 +88,12 @@ class CommandSajoin : public Command
 
 class ModuleSajoin : public Module
 {
-	CommandSajoin*	mycommand;
+	CommandSajoin cmd;
  public:
 	ModuleSajoin(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSajoin(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSajoin()

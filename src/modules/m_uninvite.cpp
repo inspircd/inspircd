@@ -79,16 +79,13 @@ class CommandUninvite : public Command
 
 class ModuleUninvite : public Module
 {
-	CommandUninvite *mycommand;
+	CommandUninvite cmd;
 
  public:
 
-	ModuleUninvite(InspIRCd* Me) : Module(Me)
+	ModuleUninvite(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandUninvite(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleUninvite()

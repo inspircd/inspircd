@@ -250,16 +250,14 @@ class CloakUser : public ModeHandler
 class ModuleCloaking : public Module
 {
  private:
-
  	CloakUser* cu;
-	Module* HashModule;
 
  public:
 	ModuleCloaking(InspIRCd* Me)
 		: Module(Me)
 	{
 		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		HashModule = ServerInstance->Modules->Find("m_md5.so");
+		Module* HashModule = ServerInstance->Modules->Find("m_md5.so");
 		if (!HashModule)
 			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
 

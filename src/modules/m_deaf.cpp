@@ -47,17 +47,16 @@ class User_d : public ModeHandler
 
 class ModuleDeaf : public Module
 {
-	User_d* m1;
+	User_d m1;
 
 	std::string deaf_bypasschars;
 	std::string deaf_bypasschars_uline;
 
  public:
 	ModuleDeaf(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), m1(Me)
 	{
-		m1 = new User_d(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(m1))
+		if (!ServerInstance->Modes->AddMode(&m1))
 			throw ModuleException("Could not add new modes!");
 
 		OnRehash(NULL);
@@ -159,8 +158,7 @@ class ModuleDeaf : public Module
 
 	virtual ~ModuleDeaf()
 	{
-		ServerInstance->Modes->DelMode(m1);
-		delete m1;
+		ServerInstance->Modes->DelMode(&m1);
 	}
 
 	virtual Version GetVersion()

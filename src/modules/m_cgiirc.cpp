@@ -53,9 +53,9 @@ typedef std::vector<CGIhost> CGIHostlist;
  */
 class CommandWebirc : public Command
 {
-	CGIHostlist Hosts;
-	bool notify;
+		bool notify;
 	public:
+		CGIHostlist Hosts;
 		CommandWebirc(InspIRCd* Instance, bool bnotify) : Command(Instance, "WEBIRC", 0, 4, true), notify(bnotify)
 		{
 			this->source = "m_cgiirc.so";
@@ -85,11 +85,6 @@ class CommandWebirc : public Command
 
 			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
-		}
-
-		void SetHosts(CGIHostlist &phosts)
-		{
-			this->Hosts = phosts;
 		}
 };
 
@@ -140,15 +135,13 @@ class CGIResolver : public Resolver
 
 class ModuleCgiIRC : public Module
 {
-	CommandWebirc* mycommand;
+	CommandWebirc cmd;
 	bool NotifyOpers;
-	CGIHostlist Hosts;
 public:
-	ModuleCgiIRC(InspIRCd* Me) : Module(Me)
+	ModuleCgiIRC(InspIRCd* Me) : Module(Me), cmd(Me, NotifyOpers)
 	{
-		mycommand = new CommandWebirc(Me, NotifyOpers);
 		OnRehash(NULL);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUserMetaData, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
@@ -163,7 +156,7 @@ public:
 	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
-		Hosts.clear();
+		cmd.Hosts.clear();
 
 		NotifyOpers = Conf.ReadFlag("cgiirc", "opernotice", 0);	// If we send an oper notice when a CGI:IRC has their host changed.
 
@@ -198,7 +191,7 @@ public:
 					if (cgitype == INVALID)
 						cgitype = PASS;
 
-					Hosts.push_back(CGIhost(hostmask,cgitype, password.length() ? password : "" ));
+					cmd.Hosts.push_back(CGIhost(hostmask,cgitype, password.length() ? password : "" ));
 				}
 			}
 			else
@@ -207,8 +200,6 @@ public:
 				continue;
 			}
 		}
-
-		mycommand->SetHosts(Hosts);
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -267,7 +258,7 @@ public:
 
 	virtual int OnUserRegister(User* user)
 	{
-		for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
+		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
 		{
 			if(InspIRCd::Match(user->host, iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
 			{

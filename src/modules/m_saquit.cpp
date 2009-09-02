@@ -58,15 +58,12 @@ class CommandSaquit : public Command
 
 class ModuleSaquit : public Module
 {
-	CommandSaquit*	mycommand;
+	CommandSaquit cmd;
  public:
 	ModuleSaquit(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSaquit(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSaquit()

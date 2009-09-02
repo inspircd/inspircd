@@ -921,6 +921,9 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	/* This will also free the listeners */
 	delete Utils;
 
+	delete command_rconnect;
+	delete command_rsquit;
+
 	ServerInstance->Timers->DelTimer(RefreshTimer);
 
 	ServerInstance->Modules->DoneWithInterface("BufferedSocketHook");

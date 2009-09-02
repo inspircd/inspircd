@@ -63,15 +63,12 @@ class CommandChgname : public Command
 
 class ModuleChgName : public Module
 {
-	CommandChgname* mycommand;
-
+	CommandChgname cmd;
 
 public:
-	ModuleChgName(InspIRCd* Me) : Module(Me)
+	ModuleChgName(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-		mycommand = new CommandChgname(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleChgName()

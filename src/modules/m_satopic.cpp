@@ -55,13 +55,12 @@ class CommandSATopic : public Command
 
 class ModuleSATopic : public Module
 {
-	CommandSATopic*	mycommand;
+	CommandSATopic cmd;
  public:
 	ModuleSATopic(InspIRCd* Me)
-	: Module(Me)
+	: Module(Me), cmd(Me)
 	{
-		mycommand = new CommandSATopic(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSATopic()

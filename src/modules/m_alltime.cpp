@@ -50,14 +50,12 @@ class CommandAlltime : public Command
 
 class Modulealltime : public Module
 {
-	CommandAlltime *mycommand;
+	CommandAlltime mycommand;
  public:
 	Modulealltime(InspIRCd *Me)
-		: Module(Me)
+		: Module(Me), mycommand(Me)
 	{
-		mycommand = new CommandAlltime(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&mycommand);
 	}
 
 	virtual ~Modulealltime()

@@ -39,16 +39,15 @@ class InviteException : public ListModeBase
 
 class ModuleInviteException : public Module
 {
-	InviteException* ie;
+	InviteException ie;
 public:
-	ModuleInviteException(InspIRCd* Me) : Module(Me)
+	ModuleInviteException(InspIRCd* Me) : Module(Me), ie(Me)
 	{
-		ie = new InviteException(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(ie))
+		if (!ServerInstance->Modes->AddMode(&ie))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
-		ie->DoImplements(this);
+		ie.DoImplements(this);
 		Implementation eventlist[] = { I_OnRequest, I_On005Numeric, I_OnCheckInvite };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
@@ -63,7 +62,7 @@ public:
 		if(chan != NULL)
 		{
 			modelist* list;
-			chan->GetExt(ie->GetInfoKey(), list);
+			chan->GetExt(ie.GetInfoKey(), list);
 			if (list)
 			{
 				std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
@@ -84,27 +83,27 @@ public:
 
 	virtual const char* OnRequest(Request* request)
 	{
-		return ie->DoOnRequest(request);
+		return ie.DoOnRequest(request);
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
 	{
-		ie->DoCleanup(target_type, item);
+		ie.DoCleanup(target_type, item);
 	}
 
 	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
-		ie->DoSyncChannel(chan, proto, opaque);
+		ie.DoSyncChannel(chan, proto, opaque);
 	}
 
 	virtual void OnChannelDelete(Channel* chan)
 	{
-		ie->DoChannelDelete(chan);
+		ie.DoChannelDelete(chan);
 	}
 
 	virtual void OnRehash(User* user)
 	{
-		ie->DoRehash();
+		ie.DoRehash();
 	}
 
 	virtual Version GetVersion()
@@ -114,8 +113,7 @@ public:
 
 	~ModuleInviteException()
 	{
-		ServerInstance->Modes->DelMode(ie);
-		delete ie;
+		ServerInstance->Modes->DelMode(&ie);
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };

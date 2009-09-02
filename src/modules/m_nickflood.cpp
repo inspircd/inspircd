@@ -206,16 +206,14 @@ class NickFlood : public ModeHandler
 
 class ModuleNickFlood : public Module
 {
-	NickFlood* jf;
+	NickFlood jf;
 
  public:
 
 	ModuleNickFlood(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), jf(Me)
 	{
-
-		jf = new NickFlood(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(jf))
+		if (!ServerInstance->Modes->AddMode(&jf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNick, I_OnUserPostNick };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -296,8 +294,7 @@ class ModuleNickFlood : public Module
 
 	virtual ~ModuleNickFlood()
 	{
-		ServerInstance->Modes->DelMode(jf);
-		delete jf;
+		ServerInstance->Modes->DelMode(&jf);
 	}
 
 	virtual Version GetVersion()

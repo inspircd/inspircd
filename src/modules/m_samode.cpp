@@ -54,15 +54,12 @@ class CommandSamode : public Command
 
 class ModuleSaMode : public Module
 {
-	CommandSamode*	mycommand;
+	CommandSamode cmd;
  public:
 	ModuleSaMode(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSamode(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSaMode()

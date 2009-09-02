@@ -23,13 +23,12 @@ class AllowInvite : public SimpleChannelModeHandler
 
 class ModuleAllowInvite : public Module
 {
-	AllowInvite *ni;
+	AllowInvite ni;
  public:
 
-	ModuleAllowInvite(InspIRCd* Me) : Module(Me)
+	ModuleAllowInvite(InspIRCd* Me) : Module(Me), ni(Me)
 	{
-		ni = new AllowInvite(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(ni))
+		if (!ServerInstance->Modes->AddMode(&ni))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreInvite, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -62,8 +61,7 @@ class ModuleAllowInvite : public Module
 
 	virtual ~ModuleAllowInvite()
 	{
-		ServerInstance->Modes->DelMode(ni);
-		delete ni;
+		ServerInstance->Modes->DelMode(&ni);
 	}
 
 	virtual Version GetVersion()

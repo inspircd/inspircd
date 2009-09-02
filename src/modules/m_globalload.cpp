@@ -125,21 +125,17 @@ class CommandGreloadmodule : public Command
 
 class ModuleGlobalLoad : public Module
 {
-	CommandGloadmodule *mycommand;
-	CommandGunloadmodule *mycommand2;
-	CommandGreloadmodule *mycommand3;
+	CommandGloadmodule cmd1;
+	CommandGunloadmodule cmd2;
+	CommandGreloadmodule cmd3;
 
  public:
-	ModuleGlobalLoad(InspIRCd* Me) : Module(Me)
+	ModuleGlobalLoad(InspIRCd* Me)
+		: Module(Me), cmd1(Me), cmd2(Me), cmd3(Me)
 	{
-
-		mycommand = new CommandGloadmodule(ServerInstance);
-		mycommand2 = new CommandGunloadmodule(ServerInstance);
-		mycommand3 = new CommandGreloadmodule(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-		ServerInstance->AddCommand(mycommand2);
-		ServerInstance->AddCommand(mycommand3);
-
+		ServerInstance->AddCommand(&cmd1);
+		ServerInstance->AddCommand(&cmd2);
+		ServerInstance->AddCommand(&cmd3);
 	}
 
 	virtual ~ModuleGlobalLoad()

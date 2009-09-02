@@ -57,20 +57,18 @@ class ChanFilter : public ListModeBase
 
 class ModuleChanFilter : public Module
 {
-
-	ChanFilter* cf;
+	ChanFilter cf;
 	bool hidemask;
 
  public:
 
 	ModuleChanFilter(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cf(Me)
 	{
-		cf = new ChanFilter(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(cf))
+		if (!ServerInstance->Modes->AddMode(&cf))
 			throw ModuleException("Could not add new modes!");
 
-		cf->DoImplements(this);
+		cf.DoImplements(this);
 		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 
@@ -80,14 +78,14 @@ class ModuleChanFilter : public Module
 
 	virtual void OnChannelDelete(Channel* chan)
 	{
-		cf->DoChannelDelete(chan);
+		cf.DoChannelDelete(chan);
 	}
 
 	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 		hidemask = Conf.ReadFlag("chanfilter", "hidemask", 0);
-		cf->DoRehash();
+		cf.DoRehash();
 	}
 
 	virtual int ProcessMessages(User* user,Channel* chan,std::string &text)
@@ -96,7 +94,7 @@ class ModuleChanFilter : public Module
 			return 0;
 
 		modelist* list;
-		chan->GetExt(cf->GetInfoKey(), list);
+		chan->GetExt(cf.GetInfoKey(), list);
 
 		if (list)
 		{
@@ -127,12 +125,12 @@ class ModuleChanFilter : public Module
 
 	virtual void OnCleanup(int target_type, void* item)
 	{
-		cf->DoCleanup(target_type, item);
+		cf.DoCleanup(target_type, item);
 	}
 
 	virtual const char* OnRequest(Request* request)
 	{
-		return cf->DoOnRequest(request);
+		return cf.DoOnRequest(request);
 	}
 
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -142,7 +140,7 @@ class ModuleChanFilter : public Module
 
 	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
-		cf->DoSyncChannel(chan, proto, opaque);
+		cf.DoSyncChannel(chan, proto, opaque);
 	}
 
 	virtual Version GetVersion()
@@ -152,8 +150,7 @@ class ModuleChanFilter : public Module
 
 	virtual ~ModuleChanFilter()
 	{
-		ServerInstance->Modes->DelMode(cf);
-		delete cf;
+		ServerInstance->Modes->DelMode(&cf);
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };

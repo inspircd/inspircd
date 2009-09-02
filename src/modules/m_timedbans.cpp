@@ -112,14 +112,12 @@ class CommandTban : public Command
 
 class ModuleTimedBans : public Module
 {
-	CommandTban* mycommand;
+	CommandTban cmd;
  public:
 	ModuleTimedBans(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandTban(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		TimedBanList.clear();
 		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

@@ -47,15 +47,13 @@ class HideOper : public ModeHandler
 
 class ModuleHideOper : public Module
 {
-
-	HideOper* hm;
+	HideOper hm;
  public:
 	ModuleHideOper(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), hm(Me)
 	{
 
-		hm = new HideOper(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(hm))
+		if (!ServerInstance->Modes->AddMode(&hm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhoisLine };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
@@ -64,8 +62,7 @@ class ModuleHideOper : public Module
 
 	virtual ~ModuleHideOper()
 	{
-		ServerInstance->Modes->DelMode(hm);
-		delete hm;
+		ServerInstance->Modes->DelMode(&hm);
 	}
 
 	virtual Version GetVersion()

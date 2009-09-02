@@ -203,16 +203,15 @@ class JoinFlood : public ModeHandler
 class ModuleJoinFlood : public Module
 {
 
-	JoinFlood* jf;
+	JoinFlood jf;
 
  public:
 
 	ModuleJoinFlood(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), jf(Me)
 	{
 
-		jf = new JoinFlood(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(jf))
+		if (!ServerInstance->Modes->AddMode(&jf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreJoin, I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -269,8 +268,7 @@ class ModuleJoinFlood : public Module
 
 	virtual ~ModuleJoinFlood()
 	{
-		ServerInstance->Modes->DelMode(jf);
-		delete jf;
+		ServerInstance->Modes->DelMode(&jf);
 	}
 
 	virtual Version GetVersion()

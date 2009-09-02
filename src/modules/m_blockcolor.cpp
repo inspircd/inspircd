@@ -26,13 +26,12 @@ class BlockColor : public SimpleChannelModeHandler
 class ModuleBlockColour : public Module
 {
 	bool AllowChanOps;
-	BlockColor *bc;
+	BlockColor bc;
  public:
 
-	ModuleBlockColour(InspIRCd* Me) : Module(Me)
+	ModuleBlockColour(InspIRCd* Me) : Module(Me), bc(Me)
 	{
-		bc = new BlockColor(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(bc))
+		if (!ServerInstance->Modes->AddMode(&bc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -83,8 +82,7 @@ class ModuleBlockColour : public Module
 
 	virtual ~ModuleBlockColour()
 	{
-		ServerInstance->Modes->DelMode(bc);
-		delete bc;
+		ServerInstance->Modes->DelMode(&bc);
 	}
 
 	virtual Version GetVersion()

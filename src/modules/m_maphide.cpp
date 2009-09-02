@@ -22,7 +22,6 @@ class ModuleMapHide : public Module
 	ModuleMapHide(InspIRCd* Me)
 		: Module(Me)
 	{
-		// Create a new command
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
 		ServerInstance->Modules->Attach(I_OnRehash, this);
 		OnRehash(NULL);

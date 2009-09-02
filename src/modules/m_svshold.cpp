@@ -142,17 +142,15 @@ class CommandSvshold : public Command
 
 class ModuleSVSHold : public Module
 {
-	CommandSvshold *mycommand;
-	SVSHoldFactory *s;
+	CommandSvshold cmd;
+	SVSHoldFactory s;
 
 
  public:
-	ModuleSVSHold(InspIRCd* Me) : Module(Me)
+	ModuleSVSHold(InspIRCd* Me) : Module(Me), cmd(Me), s(Me)
 	{
-		s = new SVSHoldFactory(ServerInstance);
-		ServerInstance->XLines->RegisterFactory(s);
-		mycommand = new CommandSvshold(Me);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->XLines->RegisterFactory(&s);
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
@@ -183,7 +181,7 @@ class ModuleSVSHold : public Module
 	virtual ~ModuleSVSHold()
 	{
 		ServerInstance->XLines->DelAll("SVSHOLD");
-		ServerInstance->XLines->UnregisterFactory(s);
+		ServerInstance->XLines->UnregisterFactory(&s);
 	}
 
 	virtual Version GetVersion()

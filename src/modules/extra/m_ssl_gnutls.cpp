@@ -110,12 +110,12 @@ class ModuleSSLGnuTLS : public Module
 	int clientactive;
 	bool cred_alloc;
 
-	CommandStartTLS* starttls;
+	CommandStartTLS starttls;
 
  public:
 
 	ModuleSSLGnuTLS(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), starttls(Me, this)
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
@@ -135,8 +135,7 @@ class ModuleSSLGnuTLS : public Module
 			I_OnPostConnect, I_OnEvent, I_OnHookUserIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
-		starttls = new CommandStartTLS(ServerInstance, this);
-		ServerInstance->AddCommand(starttls);
+		ServerInstance->AddCommand(&starttls);
 	}
 
 	virtual void OnRehash(User* user)

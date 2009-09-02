@@ -47,14 +47,12 @@ class OperChans : public ModeHandler
 class ModuleOperChans : public Module
 {
 
-	OperChans* oc;
+	OperChans oc;
  public:
 	ModuleOperChans(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), oc(Me)
 	{
-
-		oc = new OperChans(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(oc))
+		if (!ServerInstance->Modes->AddMode(&oc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnCheckBan, I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -81,8 +79,7 @@ class ModuleOperChans : public Module
 
 	virtual ~ModuleOperChans()
 	{
-		ServerInstance->Modes->DelMode(oc);
-		delete oc;
+		ServerInstance->Modes->DelMode(&oc);
 	}
 
 	virtual Version GetVersion()

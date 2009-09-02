@@ -79,15 +79,12 @@ class CommandCycle : public Command
 
 class ModuleCycle : public Module
 {
-	CommandCycle*	mycommand;
+	CommandCycle cmd;
  public:
 	ModuleCycle(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandCycle(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleCycle()

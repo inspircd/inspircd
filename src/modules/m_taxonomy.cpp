@@ -54,16 +54,13 @@ class CommandTaxonomy : public Command
 
 class ModuleTaxonomy : public Module
 {
-	CommandTaxonomy* newcommand;
+	CommandTaxonomy cmd;
 	bool claimed;
  public:
 	ModuleTaxonomy(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me, this, claimed)
 	{
-
-		// Create a new command
-		newcommand = new CommandTaxonomy(ServerInstance, this, claimed);
-		ServerInstance->AddCommand(newcommand);
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_ProtoSendMetaData };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

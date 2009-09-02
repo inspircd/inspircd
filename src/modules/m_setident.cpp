@@ -57,15 +57,12 @@ class CommandSetident : public Command
 
 class ModuleSetIdent : public Module
 {
-	CommandSetident*	mycommand;
+	CommandSetident cmd;
 
  public:
-	ModuleSetIdent(InspIRCd* Me) : Module(Me)
+	ModuleSetIdent(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSetident(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSetIdent()

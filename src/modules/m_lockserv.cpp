@@ -71,8 +71,8 @@ class ModuleLockserv : public Module
 {
 private:
 	bool locked;
-	CommandLockserv* lockcommand;
-	CommandUnlockserv* unlockcommand;
+	CommandLockserv lockcommand;
+	CommandUnlockserv unlockcommand;
 
 	virtual void ResetLocked()
 	{
@@ -80,14 +80,11 @@ private:
 	}
 
 public:
-	ModuleLockserv(InspIRCd* Me) : Module(Me)
+	ModuleLockserv(InspIRCd* Me) : Module(Me), lockcommand(Me, locked), unlockcommand(Me, locked)
 	{
 		ResetLocked();
-		lockcommand = new CommandLockserv(ServerInstance, locked);
-		ServerInstance->AddCommand(lockcommand);
-
-		unlockcommand = new CommandUnlockserv(ServerInstance, locked);
-		ServerInstance->AddCommand(unlockcommand);
+		ServerInstance->AddCommand(&lockcommand);
+		ServerInstance->AddCommand(&unlockcommand);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}

@@ -65,15 +65,12 @@ class CommandClose : public Command
 
 class ModuleClose : public Module
 {
-	CommandClose* newcommand;
+	CommandClose cmd;
  public:
 	ModuleClose(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-		// Create a new command
-		newcommand = new CommandClose(ServerInstance);
-		ServerInstance->AddCommand(newcommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleClose()

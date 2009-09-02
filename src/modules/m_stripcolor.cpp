@@ -35,16 +35,13 @@ class UserStripColor : public SimpleUserModeHandler
 class ModuleStripColor : public Module
 {
 	bool AllowChanOps;
-	ChannelStripColor *csc;
-	UserStripColor *usc;
+	ChannelStripColor csc;
+	UserStripColor usc;
 
  public:
-	ModuleStripColor(InspIRCd* Me) : Module(Me)
+	ModuleStripColor(InspIRCd* Me) : Module(Me), csc(Me), usc(Me)
 	{
-		usc = new UserStripColor(ServerInstance);
-		csc = new ChannelStripColor(ServerInstance);
-
-		if (!ServerInstance->Modes->AddMode(usc) || !ServerInstance->Modes->AddMode(csc))
+		if (!ServerInstance->Modes->AddMode(&usc) || !ServerInstance->Modes->AddMode(&csc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -52,10 +49,8 @@ class ModuleStripColor : public Module
 
 	virtual ~ModuleStripColor()
 	{
-		ServerInstance->Modes->DelMode(usc);
-		ServerInstance->Modes->DelMode(csc);
-		delete usc;
-		delete csc;
+		ServerInstance->Modes->DelMode(&usc);
+		ServerInstance->Modes->DelMode(&csc);
 	}
 
 	virtual void On005Numeric(std::string &output)

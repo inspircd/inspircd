@@ -66,16 +66,13 @@ class SSLMode : public ModeHandler
 class ModuleSSLModes : public Module
 {
 
-	SSLMode* sslm;
+	SSLMode sslm;
 
  public:
 	ModuleSSLModes(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), sslm(Me)
 	{
-
-
-		sslm = new SSLMode(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(sslm))
+		if (!ServerInstance->Modes->AddMode(&sslm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
@@ -104,8 +101,7 @@ class ModuleSSLModes : public Module
 
 	virtual ~ModuleSSLModes()
 	{
-		ServerInstance->Modes->DelMode(sslm);
-		delete sslm;
+		ServerInstance->Modes->DelMode(&sslm);
 	}
 
 	virtual Version GetVersion()

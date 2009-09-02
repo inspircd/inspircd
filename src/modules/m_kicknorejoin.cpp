@@ -112,16 +112,14 @@ class KickRejoin : public ModeHandler
 class ModuleKickNoRejoin : public Module
 {
 
-	KickRejoin* kr;
+	KickRejoin kr;
 
 public:
 
 	ModuleKickNoRejoin(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), kr(Me)
 	{
-
-		kr = new KickRejoin(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(kr))
+		if (!ServerInstance->Modes->AddMode(&kr))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnUserPreJoin, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
@@ -201,8 +199,7 @@ public:
 
 	virtual ~ModuleKickNoRejoin()
 	{
-		ServerInstance->Modes->DelMode(kr);
-		delete kr;
+		ServerInstance->Modes->DelMode(&kr);
 	}
 
 	virtual Version GetVersion()

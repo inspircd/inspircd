@@ -307,8 +307,8 @@ public:
 class ModuleCallerID : public Module
 {
 private:
-	CommandAccept *mycommand;
-	User_g* myumode;
+	CommandAccept mycommand;
+	User_g myumode;
 
 	// Configuration variables:
 	unsigned int maxaccepts; // Maximum ACCEPT entries.
@@ -342,28 +342,14 @@ private:
 	}
 
 public:
-	ModuleCallerID(InspIRCd* Me) : Module(Me)
+	ModuleCallerID(InspIRCd* Me) : Module(Me), mycommand(Me, maxaccepts), myumode(Me)
 	{
 		OnRehash(NULL);
-		mycommand = new CommandAccept(ServerInstance, maxaccepts);
-		myumode = new User_g(ServerInstance);
 
-		if (!ServerInstance->Modes->AddMode(myumode))
-		{
-			delete mycommand;
-			delete myumode;
+		if (!ServerInstance->Modes->AddMode(&myumode))
 			throw ModuleException("Could not add usermode +g");
-		}
-		try
-		{
-			ServerInstance->AddCommand(mycommand);
-		}
-		catch (const ModuleException& e)
-		{
-			delete mycommand;
-			delete myumode;
-			throw ModuleException("Could not add command!");
-		}
+
+		ServerInstance->AddCommand(&mycommand);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
@@ -371,8 +357,7 @@ public:
 
 	virtual ~ModuleCallerID()
 	{
-		ServerInstance->Modes->DelMode(myumode);
-		delete myumode;
+		ServerInstance->Modes->DelMode(&myumode);
 	}
 
 	virtual Version GetVersion()

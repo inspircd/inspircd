@@ -186,25 +186,21 @@ class CommandRLine : public Command
 class ModuleRLine : public Module
 {
  private:
-	CommandRLine *r;
-	RLineFactory *f;
+	CommandRLine r;
+	RLineFactory f;
 	bool MatchOnNickChange;
 	std::string RegexEngine;
 
  public:
-	ModuleRLine(InspIRCd* Me) : Module(Me)
+	ModuleRLine(InspIRCd* Me) : Module(Me), r(Me), f(Me)
 	{
 		mymodule = this;
 		OnRehash(NULL);
 
 		Me->Modules->UseInterface("RegularExpression");
 
-		// Create a new command
-		r = new CommandRLine(ServerInstance);
-		ServerInstance->AddCommand(r);
-
-		f = new RLineFactory(ServerInstance);
-		ServerInstance->XLines->RegisterFactory(f);
+		ServerInstance->AddCommand(&r);
+		ServerInstance->XLines->RegisterFactory(&f);
 
 		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnLoadModule, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
@@ -215,7 +211,7 @@ class ModuleRLine : public Module
 	{
 		ServerInstance->Modules->DoneWithInterface("RegularExpression");
 		ServerInstance->XLines->DelAll("R");
-		ServerInstance->XLines->UnregisterFactory(f);
+		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
 	virtual Version GetVersion()

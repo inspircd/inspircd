@@ -23,14 +23,13 @@ class NoKicks : public SimpleChannelModeHandler
 
 class ModuleNoKicks : public Module
 {
-	NoKicks* nk;
+	NoKicks nk;
 
  public:
 	ModuleNoKicks(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), nk(Me)
 	{
-		nk = new NoKicks(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(nk))
+		if (!ServerInstance->Modes->AddMode(&nk))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnAccessCheck, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -65,8 +64,7 @@ class ModuleNoKicks : public Module
 
 	virtual ~ModuleNoKicks()
 	{
-		ServerInstance->Modes->DelMode(nk);
-		delete nk;
+		ServerInstance->Modes->DelMode(&nk);
 	}
 
 	virtual Version GetVersion()

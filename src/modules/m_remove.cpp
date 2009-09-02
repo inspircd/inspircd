@@ -238,19 +238,17 @@ class CommandFpart : public Command, public RemoveBase
 
 class ModuleRemove : public Module
 {
-	CommandRemove* mycommand;
-	CommandFpart* mycommand2;
+	CommandRemove cmd1;
+	CommandFpart cmd2;
 	bool supportnokicks;
 
 
  public:
 	ModuleRemove(InspIRCd* Me)
-	: Module(Me)
+	: Module(Me), cmd1(Me, supportnokicks), cmd2(Me, supportnokicks)
 	{
-		mycommand = new CommandRemove(ServerInstance, supportnokicks);
-		mycommand2 = new CommandFpart(ServerInstance, supportnokicks);
-		ServerInstance->AddCommand(mycommand);
-		ServerInstance->AddCommand(mycommand2);
+		ServerInstance->AddCommand(&cmd1);
+		ServerInstance->AddCommand(&cmd2);
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

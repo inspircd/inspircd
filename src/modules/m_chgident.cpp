@@ -68,15 +68,12 @@ class CommandChgident : public Command
 
 class ModuleChgIdent : public Module
 {
-	CommandChgident* mycommand;
-
+	CommandChgident cmd;
 
 public:
-	ModuleChgIdent(InspIRCd* Me) : Module(Me)
+	ModuleChgIdent(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-		mycommand = new CommandChgident(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleChgIdent()

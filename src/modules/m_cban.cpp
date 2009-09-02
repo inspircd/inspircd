@@ -156,17 +156,15 @@ class CommandCBan : public Command
 
 class ModuleCBan : public Module
 {
-	CommandCBan* mycommand;
-	CBanFactory *f;
+	CommandCBan mycommand;
+	CBanFactory f;
 
  public:
-	ModuleCBan(InspIRCd* Me) : Module(Me)
+	ModuleCBan(InspIRCd* Me) : Module(Me), mycommand(Me), f(Me)
 	{
-		f = new CBanFactory(ServerInstance);
-		ServerInstance->XLines->RegisterFactory(f);
+		ServerInstance->XLines->RegisterFactory(&f);
 
-		mycommand = new CommandCBan(Me);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&mycommand);
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
@@ -174,7 +172,7 @@ class ModuleCBan : public Module
 	virtual ~ModuleCBan()
 	{
 		ServerInstance->XLines->DelAll("CBAN");
-		ServerInstance->XLines->UnregisterFactory(f);
+		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
 	virtual int OnStats(char symbol, User* user, string_list &out)

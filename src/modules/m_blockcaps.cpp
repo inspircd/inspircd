@@ -26,21 +26,17 @@ class BlockCaps : public SimpleChannelModeHandler
 
 class ModuleBlockCAPS : public Module
 {
-	BlockCaps* bc;
+	BlockCaps bc;
 	int percent;
 	unsigned int minlen;
 	char capsmap[256];
 public:
 
-	ModuleBlockCAPS(InspIRCd* Me) : Module(Me)
+	ModuleBlockCAPS(InspIRCd* Me) : Module(Me), bc(Me)
 	{
 		OnRehash(NULL);
-		bc = new BlockCaps(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(bc))
-		{
-			delete bc;
+		if (!ServerInstance->Modes->AddMode(&bc))
 			throw ModuleException("Could not add new modes!");
-		}
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
@@ -128,8 +124,7 @@ public:
 
 	virtual ~ModuleBlockCAPS()
 	{
-		ServerInstance->Modes->DelMode(bc);
-		delete bc;
+		ServerInstance->Modes->DelMode(&bc);
 	}
 
 	virtual Version GetVersion()

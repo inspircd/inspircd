@@ -81,15 +81,14 @@ class CommandChghost : public Command
 
 class ModuleChgHost : public Module
 {
-	CommandChghost* mycommand;
+	CommandChghost cmd;
 	char hostmap[256];
  public:
 	ModuleChgHost(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me, hostmap)
 	{
 		OnRehash(NULL);
-		mycommand = new CommandChghost(ServerInstance, hostmap);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

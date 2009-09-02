@@ -190,12 +190,11 @@ class CommandCheck : public Command
 class ModuleCheck : public Module
 {
  private:
-	CommandCheck *mycommand;
+	CommandCheck mycommand;
  public:
-	ModuleCheck(InspIRCd* Me) : Module(Me)
+	ModuleCheck(InspIRCd* Me) : Module(Me), mycommand(Me, this)
 	{
-		mycommand = new CommandCheck(ServerInstance, this);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&mycommand);
 	}
 
 	virtual ~ModuleCheck()
@@ -211,7 +210,7 @@ class ModuleCheck : public Module
 	{
 		User* user = static_cast<User*>(opaque);
 		user->WriteServ("304 " + std::string(user->nick) + " :CHECK meta:" + name + " " + value);
-		mycommand->md_sent = true;
+		mycommand.md_sent = true;
 	}
 };
 

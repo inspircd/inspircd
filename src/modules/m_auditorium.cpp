@@ -37,19 +37,15 @@ class AuditoriumMode : public ModeHandler
 class ModuleAuditorium : public Module
 {
  private:
-	AuditoriumMode* aum;
+	AuditoriumMode aum;
 	bool ShowOps;
 	bool OperOverride;
  public:
 	ModuleAuditorium(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), aum(Me)
 	{
-		aum = new AuditoriumMode(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(aum))
-		{
-			delete aum;
+		if (!ServerInstance->Modes->AddMode(&aum))
 			throw ModuleException("Could not add new modes!");
-		}
 
 		OnRehash(NULL);
 
@@ -60,8 +56,7 @@ class ModuleAuditorium : public Module
 
 	virtual ~ModuleAuditorium()
 	{
-		ServerInstance->Modes->DelMode(aum);
-		delete aum;
+		ServerInstance->Modes->DelMode(&aum);
 	}
 
 	virtual void OnRehash(User* user)

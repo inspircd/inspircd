@@ -114,21 +114,19 @@ class ModuleHelpop : public Module
 {
 	private:
 		std::string  h_file;
-		CommandHelpop* mycommand;
-		Helpop* ho;
+		CommandHelpop cmd;
+		Helpop ho;
 
 	public:
 		ModuleHelpop(InspIRCd* Me)
-			: Module(Me)
+			: Module(Me), cmd(Me), ho(Me)
 		{
 			ReadConfig();
-			ho = new Helpop(ServerInstance);
-			if (!ServerInstance->Modes->AddMode(ho))
+			if (!ServerInstance->Modes->AddMode(&ho))
 				throw ModuleException("Could not add new modes!");
-			mycommand = new CommandHelpop(ServerInstance);
-			ServerInstance->AddCommand(mycommand);
-		Implementation eventlist[] = { I_OnRehash, I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+			ServerInstance->AddCommand(&cmd);
+			Implementation eventlist[] = { I_OnRehash, I_OnWhois };
+			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 		virtual void ReadConfig()
@@ -179,8 +177,7 @@ class ModuleHelpop : public Module
 
 		virtual ~ModuleHelpop()
 		{
-			ServerInstance->Modes->DelMode(ho);
-			delete ho;
+			ServerInstance->Modes->DelMode(&ho);
 		}
 
 		virtual Version GetVersion()

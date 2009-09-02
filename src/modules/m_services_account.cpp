@@ -99,21 +99,19 @@ class AChannel_M : public SimpleChannelModeHandler
 
 class ModuleServicesAccount : public Module
 {
-	AChannel_R* m1;
-	AChannel_M* m2;
-	AUser_R* m3;
-	Channel_r *m4;
-	User_r *m5;
+	AChannel_R m1;
+	AChannel_M m2;
+	AUser_R m3;
+	Channel_r m4;
+	User_r m5;
  public:
-	ModuleServicesAccount(InspIRCd* Me) : Module(Me)
+	ModuleServicesAccount(InspIRCd* Me) : Module(Me),
+		m1(Me), m2(Me), m3(Me), m4(Me), m5(Me)
 	{
-		m1 = new AChannel_R(ServerInstance);
-		m2 = new AChannel_M(ServerInstance);
-		m3 = new AUser_R(ServerInstance);
-		m4 = new Channel_r(ServerInstance);
-		m5 = new User_r(ServerInstance);
 
-		if (!ServerInstance->Modes->AddMode(m1) || !ServerInstance->Modes->AddMode(m2) || !ServerInstance->Modes->AddMode(m3) || !ServerInstance->Modes->AddMode(m4) || !ServerInstance->Modes->AddMode(m5))
+		if (!ServerInstance->Modes->AddMode(&m1) || !ServerInstance->Modes->AddMode(&m2) ||
+			!ServerInstance->Modes->AddMode(&m3) || !ServerInstance->Modes->AddMode(&m4) ||
+			!ServerInstance->Modes->AddMode(&m5))
 			throw ModuleException("Some other module has claimed our modes!");
 
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
@@ -347,16 +345,11 @@ class ModuleServicesAccount : public Module
 
 	virtual ~ModuleServicesAccount()
 	{
-		ServerInstance->Modes->DelMode(m1);
-		ServerInstance->Modes->DelMode(m2);
-		ServerInstance->Modes->DelMode(m3);
-		ServerInstance->Modes->DelMode(m4);
-		ServerInstance->Modes->DelMode(m5);
-		delete m1;
-		delete m2;
-		delete m3;
-		delete m4;
-		delete m5;
+		ServerInstance->Modes->DelMode(&m1);
+		ServerInstance->Modes->DelMode(&m2);
+		ServerInstance->Modes->DelMode(&m3);
+		ServerInstance->Modes->DelMode(&m4);
+		ServerInstance->Modes->DelMode(&m5);
 	}
 
 	virtual Version GetVersion()

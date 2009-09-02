@@ -266,19 +266,17 @@ class CommandSilence : public Command
 
 class ModuleSilence : public Module
 {
-	CommandSilence* cmdsilence;
-	CommandSVSSilence *cmdsvssilence;
 	unsigned int maxsilence;
+	CommandSilence cmdsilence;
+	CommandSVSSilence cmdsvssilence;
  public:
 
 	ModuleSilence(InspIRCd* Me)
-		: Module(Me), maxsilence(32)
+		: Module(Me), maxsilence(32), cmdsilence(Me, maxsilence), cmdsvssilence(Me)
 	{
 		OnRehash(NULL);
-		cmdsilence = new CommandSilence(ServerInstance,maxsilence);
-		cmdsvssilence = new CommandSVSSilence(ServerInstance);
-		ServerInstance->AddCommand(cmdsilence);
-		ServerInstance->AddCommand(cmdsvssilence);
+		ServerInstance->AddCommand(&cmdsilence);
+		ServerInstance->AddCommand(&cmdsvssilence);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnBuildExemptList, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnUserPreInvite };
 		ServerInstance->Modules->Attach(eventlist, this, 7);

@@ -60,14 +60,11 @@ class CommandClones : public Command
 class ModuleClones : public Module
 {
  private:
-	CommandClones *mycommand;
+	CommandClones cmd;
  public:
-	ModuleClones(InspIRCd* Me) : Module(Me)
+	ModuleClones(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandClones(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleClones()

@@ -367,20 +367,18 @@ class CommandWatch : public Command
 
 class Modulewatch : public Module
 {
-	CommandWatch* mycommand;
-	CommandSVSWatch *sw;
 	unsigned int maxwatch;
+	CommandWatch cmdw;
+	CommandSVSWatch sw;
 
  public:
 	Modulewatch(InspIRCd* Me)
-		: Module(Me), maxwatch(32)
+		: Module(Me), maxwatch(32), cmdw(Me, maxwatch), sw(Me)
 	{
 		OnRehash(NULL);
 		whos_watching_me = new watchentries();
-		mycommand = new CommandWatch(ServerInstance, maxwatch);
-		ServerInstance->AddCommand(mycommand);
-		sw = new CommandSVSWatch(ServerInstance);
-		ServerInstance->AddCommand(sw);
+		ServerInstance->AddCommand(&cmdw);
+		ServerInstance->AddCommand(&sw);
 		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnCleanup, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}

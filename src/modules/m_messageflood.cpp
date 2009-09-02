@@ -198,17 +198,14 @@ class MsgFlood : public ModeHandler
 
 class ModuleMsgFlood : public Module
 {
-
-	MsgFlood* mf;
+	MsgFlood mf;
 
  public:
 
 	ModuleMsgFlood(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), mf(Me)
 	{
-
-		mf = new MsgFlood(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(mf))
+		if (!ServerInstance->Modes->AddMode(&mf))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -284,8 +281,7 @@ class ModuleMsgFlood : public Module
 
 	virtual ~ModuleMsgFlood()
 	{
-		ServerInstance->Modes->DelMode(mf);
-		delete mf;
+		ServerInstance->Modes->DelMode(&mf);
 	}
 
 	virtual Version GetVersion()

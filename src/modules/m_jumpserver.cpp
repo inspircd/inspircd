@@ -134,14 +134,12 @@ class CommandJumpserver : public Command
 
 class ModuleJumpServer : public Module
 {
-	CommandJumpserver*	js;
+	CommandJumpserver js;
  public:
 	ModuleJumpServer(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), js(Me)
 	{
-
-		js = new CommandJumpserver(ServerInstance);
-		ServerInstance->AddCommand(js);
+		ServerInstance->AddCommand(&js);
 		Implementation eventlist[] = { I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
@@ -152,10 +150,11 @@ class ModuleJumpServer : public Module
 
 	virtual int OnUserRegister(User* user)
 	{
-		if (js->port && js->redirect_new_users)
+		if (js.port && js.redirect_new_users)
 		{
-			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead", user->nick.c_str(), js->redirect_to.c_str(), js->port);
-			ServerInstance->Users->QuitUser(user, js->reason);
+			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead",
+				user->nick.c_str(), js.redirect_to.c_str(), js.port);
+			ServerInstance->Users->QuitUser(user, js.reason);
 			return 0;
 		}
 		return 0;

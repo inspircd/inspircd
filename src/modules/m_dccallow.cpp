@@ -244,15 +244,14 @@ class CommandDccallow : public Command
 
 class ModuleDCCAllow : public Module
 {
-	CommandDccallow* mycommand;
+	CommandDccallow cmd;
  public:
 
 	ModuleDCCAllow(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
 		Conf = new ConfigReader(ServerInstance);
-		mycommand = new CommandDccallow(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		ReadFileConf();
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 5);

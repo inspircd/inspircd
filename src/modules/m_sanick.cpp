@@ -80,15 +80,12 @@ class CommandSanick : public Command
 
 class ModuleSanick : public Module
 {
-	CommandSanick*	mycommand;
+	CommandSanick cmd;
  public:
 	ModuleSanick(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandSanick(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleSanick()

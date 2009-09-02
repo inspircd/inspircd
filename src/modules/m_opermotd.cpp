@@ -58,7 +58,7 @@ class CommandOpermotd : public Command
 
 class ModuleOpermotd : public Module
 {
-	CommandOpermotd* mycommand;
+	CommandOpermotd cmd;
 	bool onoper;
  public:
 
@@ -78,11 +78,10 @@ class ModuleOpermotd : public Module
 	}
 
 	ModuleOpermotd(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
 		opermotd = NULL;
-		mycommand = new CommandOpermotd(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		opermotd = new FileReader(ServerInstance);
 		LoadOperMOTD();
 		Implementation eventlist[] = { I_OnRehash, I_OnOper };

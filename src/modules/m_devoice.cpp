@@ -53,14 +53,11 @@ class CommandDevoice : public Command
 
 class ModuleDeVoice : public Module
 {
-	CommandDevoice *mycommand;
+	CommandDevoice cmd;
  public:
-	ModuleDeVoice(InspIRCd* Me) : Module(Me)
+	ModuleDeVoice(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandDevoice(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	virtual ~ModuleDeVoice()

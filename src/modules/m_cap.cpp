@@ -132,14 +132,12 @@ class CommandCAP : public Command
 
 class ModuleCAP : public Module
 {
-	CommandCAP* newcommand;
+	CommandCAP newcommand;
  public:
 	ModuleCAP(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), newcommand(Me, this)
 	{
-		// Create a new command
-		newcommand = new CommandCAP(ServerInstance, this);
-		ServerInstance->AddCommand(newcommand);
+		ServerInstance->AddCommand(&newcommand);
 
 		Implementation eventlist[] = { I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

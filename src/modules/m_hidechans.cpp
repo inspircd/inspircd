@@ -48,13 +48,11 @@ class HideChans : public ModeHandler
 class ModuleHideChans : public Module
 {
 	bool AffectsOpers;
-	HideChans* hm;
+	HideChans hm;
  public:
-	ModuleHideChans(InspIRCd* Me) : Module(Me)
+	ModuleHideChans(InspIRCd* Me) : Module(Me), hm(Me)
 	{
-
-		hm = new HideChans(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(hm))
+		if (!ServerInstance->Modes->AddMode(&hm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -63,8 +61,7 @@ class ModuleHideChans : public Module
 
 	virtual ~ModuleHideChans()
 	{
-		ServerInstance->Modes->DelMode(hm);
-		delete hm;
+		ServerInstance->Modes->DelMode(&hm);
 	}
 
 	virtual Version GetVersion()

@@ -195,22 +195,18 @@ class BanRedirect : public ModeWatcher
 
 class ModuleBanRedirect : public Module
 {
-	BanRedirect* re;
+	BanRedirect re;
 	bool nofollow;
 	Module* ExceptionModule;
 
  public:
 	ModuleBanRedirect(InspIRCd* Me)
-	: Module(Me)
+	: Module(Me), re(Me)
 	{
-		re = new BanRedirect(Me);
 		nofollow = false;
 
-		if(!ServerInstance->Modes->AddModeWatcher(re))
-		{
-			delete re;
+		if(!ServerInstance->Modes->AddModeWatcher(&re))
 			throw ModuleException("Could not add mode watcher");
-		}
 
 		OnRehash(NULL);
 
@@ -333,8 +329,7 @@ class ModuleBanRedirect : public Module
 
 	virtual ~ModuleBanRedirect()
 	{
-		ServerInstance->Modes->DelModeWatcher(re);
-		delete re;
+		ServerInstance->Modes->DelModeWatcher(&re);
 	}
 
 	virtual Version GetVersion()

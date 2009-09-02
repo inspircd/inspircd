@@ -56,14 +56,12 @@ class CommandUserip : public Command
 
 class ModuleUserIP : public Module
 {
-	CommandUserip* mycommand;
+	CommandUserip cmd;
  public:
 	ModuleUserIP(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		mycommand = new CommandUserip(ServerInstance);
-		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

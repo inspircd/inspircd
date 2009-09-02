@@ -41,14 +41,12 @@ class ServProtectMode : public ModeHandler
 class ModuleServProtectMode : public Module
 {
 
-	ServProtectMode* bm;
+	ServProtectMode bm;
  public:
 	ModuleServProtectMode(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), bm(Me)
 	{
-
-		bm = new ServProtectMode(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(bm))
+		if (!ServerInstance->Modes->AddMode(&bm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnUserPreKick };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
@@ -57,8 +55,7 @@ class ModuleServProtectMode : public Module
 
 	virtual ~ModuleServProtectMode()
 	{
-		ServerInstance->Modes->DelMode(bm);
-		delete bm;
+		ServerInstance->Modes->DelMode(&bm);
 	}
 
 	virtual Version GetVersion()

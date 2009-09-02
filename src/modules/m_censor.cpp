@@ -40,24 +40,18 @@ class CensorChannel : public SimpleChannelModeHandler
 class ModuleCensor : public Module
 {
 	censor_t censors;
-	CensorUser *cu;
-	CensorChannel *cc;
+	CensorUser cu;
+	CensorChannel cc;
 
  public:
 	ModuleCensor(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cu(Me), cc(Me)
 	{
 		/* Read the configuration file on startup.
 		 */
 		OnRehash(NULL);
-		cu = new CensorUser(ServerInstance);
-		cc = new CensorChannel(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(cu) || !ServerInstance->Modes->AddMode(cc))
-		{
-			delete cu;
-			delete cc;
+		if (!ServerInstance->Modes->AddMode(&cu) || !ServerInstance->Modes->AddMode(&cc))
 			throw ModuleException("Could not add new modes!");
-		}
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRunTestSuite };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
@@ -65,10 +59,8 @@ class ModuleCensor : public Module
 
 	virtual ~ModuleCensor()
 	{
-		ServerInstance->Modes->DelMode(cu);
-		ServerInstance->Modes->DelMode(cc);
-		delete cu;
-		delete cc;
+		ServerInstance->Modes->DelMode(&cu);
+		ServerInstance->Modes->DelMode(&cc);
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">

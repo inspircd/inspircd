@@ -62,15 +62,12 @@ class CommandTline : public Command
 
 class ModuleTLine : public Module
 {
-	CommandTline* newcommand;
+	CommandTline cmd;
  public:
 	ModuleTLine(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), cmd(Me)
 	{
-
-		newcommand = new CommandTline(ServerInstance);
-		ServerInstance->AddCommand(newcommand);
-
+		ServerInstance->AddCommand(&cmd);
 	}
 
 

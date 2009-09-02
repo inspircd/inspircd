@@ -45,21 +45,18 @@ class NoNicks : public ModeHandler
 
 class ModuleNoNickChange : public Module
 {
-	NoNicks* nn;
+	NoNicks nn;
  public:
-	ModuleNoNickChange(InspIRCd* Me) : Module(Me)
+	ModuleNoNickChange(InspIRCd* Me) : Module(Me), nn(Me)
 	{
-
-		nn = new NoNicks(ServerInstance);
-		ServerInstance->Modes->AddMode(nn);
+		ServerInstance->Modes->AddMode(&nn);
 		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleNoNickChange()
 	{
-		ServerInstance->Modes->DelMode(nn);
-		delete nn;
+		ServerInstance->Modes->DelMode(&nn);
 	}
 
 	virtual Version GetVersion()

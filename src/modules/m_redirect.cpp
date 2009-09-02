@@ -85,16 +85,15 @@ class Redirect : public ModeHandler
 class ModuleRedirect : public Module
 {
 
-	Redirect* re;
+	Redirect re;
 
  public:
 
 	ModuleRedirect(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), re(Me)
 	{
 
-		re = new Redirect(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(re))
+		if (!ServerInstance->Modes->AddMode(&re))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
@@ -131,8 +130,7 @@ class ModuleRedirect : public Module
 
 	virtual ~ModuleRedirect()
 	{
-		ServerInstance->Modes->DelMode(re);
-		delete re;
+		ServerInstance->Modes->DelMode(&re);
 	}
 
 	virtual Version GetVersion()

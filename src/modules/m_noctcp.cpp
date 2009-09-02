@@ -46,16 +46,14 @@ class NoCTCP : public ModeHandler
 class ModuleNoCTCP : public Module
 {
 
-	NoCTCP* nc;
+	NoCTCP nc;
 
  public:
 
 	ModuleNoCTCP(InspIRCd* Me)
-		: Module(Me)
+		: Module(Me), nc(Me)
 	{
-
-		nc = new NoCTCP(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(nc))
+		if (!ServerInstance->Modes->AddMode(&nc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -63,8 +61,7 @@ class ModuleNoCTCP : public Module
 
 	virtual ~ModuleNoCTCP()
 	{
-		ServerInstance->Modes->DelMode(nc);
-		delete nc;
+		ServerInstance->Modes->DelMode(&nc);
 	}
 
 	virtual Version GetVersion()

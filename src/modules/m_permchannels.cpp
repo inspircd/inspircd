@@ -77,17 +77,13 @@ class PermChannel : public ModeHandler
 
 class ModulePermanentChannels : public Module
 {
-	PermChannel *p;
+	PermChannel p;
 public:
 
-	ModulePermanentChannels(InspIRCd* Me) : Module(Me)
+	ModulePermanentChannels(InspIRCd* Me) : Module(Me), p(Me)
 	{
-		p = new PermChannel(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(p))
-		{
-			delete p;
+		if (!ServerInstance->Modes->AddMode(&p))
 			throw ModuleException("Could not add new modes!");
-		}
 		Implementation eventlist[] = { I_OnChannelPreDelete };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 
@@ -96,8 +92,7 @@ public:
 
 	virtual ~ModulePermanentChannels()
 	{
-		ServerInstance->Modes->DelMode(p);
-		delete p;
+		ServerInstance->Modes->DelMode(&p);
 	}
 
 	virtual void OnRehash(User *user)
