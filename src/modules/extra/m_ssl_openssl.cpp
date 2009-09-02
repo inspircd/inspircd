@@ -153,13 +153,13 @@ class ModuleSSLOpenSSL : public Module
 		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept,
 			I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup, I_On005Numeric,
 			I_OnBufferFlushed, I_OnRequest, I_OnUnloadModule, I_OnRehash, I_OnModuleRehash,
-			I_OnPostConnect, I_OnHookUserIO };
+			I_OnPostConnect, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnHookUserIO(User* user)
+	virtual void OnHookIO(EventHandler* user, ListenSocketBase* lsb)
 	{
-		if (!user->GetIOHook() && isin(user->GetServerIP(),user->GetServerPort(), listenports))
+		if (!user->GetIOHook() && isin(lsb->GetIP(),lsb->GetPort(),listenports))
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);

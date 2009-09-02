@@ -461,7 +461,7 @@ enum Implementation
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
-	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookUserIO,
+	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
 	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash,
 	I_END
 };
@@ -1313,7 +1313,11 @@ class CoreExport Module : public Extensible
 	 */
 	virtual int OnDelBan(User* source, Channel* channel,const std::string &banmask);
 
-	virtual void OnHookUserIO(User* user);
+	/** Called to install an I/O hook on an event handler
+	 * @param user The item to possibly install the I/O hook on
+	 * @param via The port that <user> connected on
+	 */
+	virtual void OnHookIO(EventHandler* user, ListenSocketBase* via);
 
 	/** Called immediately after any  connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides

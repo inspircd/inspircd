@@ -148,5 +148,5 @@ void ListenSocketBase::HandleEvent(EventType e, int err)
 
 void ClientListenSocket::OnAcceptReady(int nfd)
 {
-	ServerInstance->Users->AddUser(ServerInstance, nfd, false, &client, &server);
+	ServerInstance->Users->AddUser(ServerInstance, nfd, this, &client, &server);
 }

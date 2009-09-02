@@ -196,7 +196,7 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, User*, Channel*, std::string&, std::string&) { }
 int		Module::OnNumeric(User*, unsigned int, const std::string&) { return 0; }
-void		Module::OnHookUserIO(User*) { }
+void		Module::OnHookIO(EventHandler*, ListenSocketBase*) { }
 bool		Module::OnHostCycle(User* user) { return false; }
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)

@@ -18,7 +18,7 @@
 #include "bancache.h"
 
 /* add a client connection to the sockets list */
-void UserManager::AddUser(InspIRCd* Instance, int socket, bool iscached, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
@@ -40,7 +40,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, bool iscached, irc::so
 	memcpy(&New->server_sa, server, sizeof(irc::sockets::sockaddrs));
 
 	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD_I(Instance, I_OnHookUserIO, OnHookUserIO(New));
+	FOREACH_MOD_I(Instance, I_OnHookIO, OnHookIO(New, via));
 
 	if (New->GetIOHook())
 	{
