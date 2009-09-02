@@ -68,7 +68,8 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 		 * Note that we are encoding the hex hash, not the binary
 		 * output of the hash which is slightly different to standard.
 		 *
-		 * Don't ask me why its always 0x5c and 0x36... it just is.
+		 * 5c and 36 were chosen as part of the HMAC standard, because they
+		 * flip the bits in a way likely to strengthen the function.
 		 */
 		std::string hmac1, hmac2;
 
@@ -98,21 +99,17 @@ std::string TreeSocket::RandString(unsigned int ilength)
 {
 	char* randombuf = new char[ilength+1];
 	std::string out;
-#ifdef WINDOWS
-	int f = -1;
-#else
+#ifndef WINDOWS
 	int f = open("/dev/urandom", O_RDONLY, 0);
-#endif
 
 	if (f >= 0)
 	{
-#ifndef WINDOWS
-		if (read(f, randombuf, ilength) < 1)
-			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "There are crack smoking monkeys in your kernel (in other words, nonblocking /dev/urandom blocked.)");
+		if (read(f, randombuf, ilength) < ilength)
+			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Entropy source has gone predictable (did not return enough data)");
 		close(f);
-#endif
 	}
 	else
+#endif
 	{
 		for (unsigned int i = 0; i < ilength; i++)
 			randombuf[i] = rand();
@@ -120,8 +117,8 @@ std::string TreeSocket::RandString(unsigned int ilength)
 
 	for (unsigned int i = 0; i < ilength; i++)
 	{
-		char randchar = static_cast<char>((randombuf[i] & 0x7F) | 0x21);
-		out += (randchar == '=' ? '_' : randchar);
+		char randchar = static_cast<char>(0x3F + (randombuf[i] & 0x3F));
+		out += randchar;
 	}
 
 	delete[] randombuf;
