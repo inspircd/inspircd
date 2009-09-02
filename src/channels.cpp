@@ -475,9 +475,11 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 bool Channel::IsBanned(User* user)
 {
 	int result = 0;
-	FOREACH_RESULT_MAP(I_OnCheckBan, OnCheckBan(user, this),
-		result = banmatch_reduce(result, MOD_RESULT);
-	);
+	DO_EACH_HOOK(ServerInstance, OnCheckBan, int modresult, (user, this))
+	{
+		result = banmatch_reduce(result, modresult);
+	}
+	WHILE_EACH_HOOK(ServerInstance, OnCheckBan);
 
 	if (result)
 		return (result < 0);
@@ -499,9 +501,11 @@ bool Channel::IsBanned(User* user)
 int Channel::GetExtBanStatus(const std::string &str, char type)
 {
 	int result = 0;
-	FOREACH_RESULT_MAP(I_OnCheckStringExtBan, OnCheckStringExtBan(str, this, type),
-		result = banmatch_reduce(result, MOD_RESULT);
-	);
+	DO_EACH_HOOK(ServerInstance, OnCheckStringExtBan, int modresult, (str, this, type))
+	{
+		result = banmatch_reduce(result, modresult);
+	}
+	WHILE_EACH_HOOK(ServerInstance, OnCheckStringExtBan);
 
 	if (result)
 		return result;
@@ -525,9 +529,11 @@ int Channel::GetExtBanStatus(const std::string &str, char type)
 int Channel::GetExtBanStatus(User *user, char type)
 {
 	int result = 0;
-	FOREACH_RESULT_MAP(I_OnCheckExtBan, OnCheckExtBan(user, this, type),
-		result = banmatch_reduce(result, MOD_RESULT);
-	);
+	DO_EACH_HOOK(ServerInstance, OnCheckExtBan, int modresult, (user, this, type))
+	{
+		result = banmatch_reduce(result, modresult);
+	}
+	WHILE_EACH_HOOK(ServerInstance, OnCheckExtBan);
 
 	if (result)
 		return result;

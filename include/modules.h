@@ -213,25 +213,32 @@ do { \
 	} \
 } while (0);
 
-#define FOREACH_RESULT_MAP(y,x,f) \
+/**
+ * Custom module result handling loop. This is a paired macro, and should only
+ * be used with while_each_hook.
+ *
+ * See src/channels.cpp for an example of use.
+ */
+#define DO_EACH_HOOK(z,n,v,args) \
 do { \
-	EventHandlerIter safei; \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
+	EventHandlerIter iter_ ## n = z->Modules->EventHandlers[I_ ## n].begin(); \
+	while (iter_ ## n != z->Modules->EventHandlers[I_ ## n].end()) \
 	{ \
-		safei = _i; \
-		++safei; \
+		Module* mod_ ## n = *iter_ ## n; \
+		iter_ ## n ++; \
 		try \
 		{ \
-			int MOD_RESULT = (*_i)->x ; \
-			f; \
+			v = (mod_ ## n)->n args;
+
+#define WHILE_EACH_HOOK(z,n) \
 		} \
-		catch (CoreException& modexcept) \
+		catch (CoreException& except_ ## n) \
 		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+			z->Logs->Log("MODULE",DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
+			(void) mod_ ## n; /* catch mismatched pairs */ \
 		} \
-		_i = safei; \
 	} \
-} while(0);
+} while(0)
 
 /** Represents a non-local user.
  * (in fact, any FD less than -1 does)
