@@ -126,7 +126,7 @@ int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
 // XXX: it would be VERY nice to genericize this so all listen stuff (server/client) could use the one function. -- w00t
 int InspIRCd::BindPorts(FailedPortList &failed_ports)
 {
-	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
+	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF], Desc[MAXBUF];
 	int bound = 0;
 	bool started_with_nothing = (ports.size() == 0);
 	std::vector<std::pair<std::string, int> > old_ports;
@@ -140,6 +140,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		Config->ConfValue("bind", "port", count, configToken, MAXBUF);
 		Config->ConfValue("bind", "address", count, Addr, MAXBUF);
 		Config->ConfValue("bind", "type", count, Type, MAXBUF);
+		Config->ConfValue("bind", "ssl", count, Desc, MAXBUF);
 
 		if (strncmp(Addr, "::ffff:", 7) == 0)
 			this->Logs->Log("SOCKET",DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
@@ -176,6 +177,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 					if (ll->GetFd() > -1)
 					{
 						bound++;
+						ll->SetDescription(*Desc ? Desc : "plaintext");
 						ports.push_back(ll);
 					}
 					else

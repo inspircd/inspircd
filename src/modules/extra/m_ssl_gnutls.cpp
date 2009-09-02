@@ -30,17 +30,6 @@
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-bool isin(const std::string &host, int port, const std::vector<std::string> &portlist)
-{
-	if (std::find(portlist.begin(), portlist.end(), "*:" + ConvToStr(port)) != portlist.end())
-		return true;
-
-	if (std::find(portlist.begin(), portlist.end(), ":" + ConvToStr(port)) != portlist.end())
-		return true;
-
-	return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
-}
-
 /** Represents an SSL user's extra data
  */
 class issl_session : public classbase
@@ -93,7 +82,7 @@ class CommandStartTLS : public Command
 
 class ModuleSSLGnuTLS : public Module
 {
-	std::vector<std::string> listenports;
+	std::set<ListenSocketBase*> listenports;
 
 	issl_session* sessions;
 
@@ -107,7 +96,6 @@ class ModuleSSLGnuTLS : public Module
 	std::string sslports;
 	int dh_bits;
 
-	int clientactive;
 	bool cred_alloc;
 
 	CommandStartTLS starttls;
@@ -131,8 +119,8 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept,
 			I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
-			I_OnBufferFlushed, I_OnRequest, I_OnUnloadModule, I_OnRehash, I_OnModuleRehash,
-			I_OnPostConnect, I_OnEvent, I_OnHookIO };
+			I_OnBufferFlushed, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+			I_OnEvent, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->AddCommand(&starttls);
@@ -143,51 +131,21 @@ class ModuleSSLGnuTLS : public Module
 		ConfigReader Conf(ServerInstance);
 
 		listenports.clear();
-		clientactive = 0;
 		sslports.clear();
 
-		for(int index = 0; index < Conf.Enumerate("bind"); index++)
+		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 		{
-			// For each <bind> tag
-			std::string x = Conf.ReadValue("bind", "type", index);
-			if(((x.empty()) || (x == "clients")) && (Conf.ReadValue("bind", "ssl", index) == "gnutls"))
-			{
-				// Get the port we're meant to be listening on with SSL
-				std::string port = Conf.ReadValue("bind", "port", index);
-				std::string addr = Conf.ReadValue("bind", "address", index);
+			ListenSocketBase* port = ServerInstance->ports[i];
+			std::string desc = port->GetDescription();
+			if (desc != "gnutls")
+				continue;
 
-				if (!addr.empty())
-				{
-					// normalize address, important for IPv6
-					int portint = 0;
-					irc::sockets::sockaddrs bin;
-					if (irc::sockets::aptosa(addr.c_str(), portint, &bin))
-						irc::sockets::satoap(&bin, addr, portint);
-				}
+			listenports.insert(port);
+			std::string portid = port->GetBindDesc();
 
-				irc::portparser portrange(port, false);
-				long portno = -1;
-				while ((portno = portrange.GetToken()))
-				{
-					clientactive++;
-					try
-					{
-						listenports.push_back(addr + ":" + ConvToStr(portno));
-
-						for (size_t i = 0; i < ServerInstance->ports.size(); i++)
-							if ((ServerInstance->ports[i]->GetPort() == portno) && (ServerInstance->ports[i]->GetIP() == addr))
-								ServerInstance->ports[i]->SetDescription("ssl");
-						ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %ld", portno);
-
-						if (addr != "127.0.0.1")
-							sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
-					}
-					catch (ModuleException &e)
-					{
-						ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %ld: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
-					}
-				}
-			}
+			ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %s", portid.c_str());
+			if (port->GetIP() != "127.0.0.1")
+				sslports.append(portid).append(";");
 		}
 
 		if (!sslports.empty())
@@ -320,19 +278,6 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	virtual void OnUnloadModule(Module* mod, const std::string &name)
-	{
-		if(mod == this)
-		{
-			for(unsigned int i = 0; i < listenports.size(); i++)
-			{
-				for (size_t j = 0; j < ServerInstance->ports.size(); j++)
-					if (listenports[i] == (ServerInstance->ports[j]->GetIP()+":"+ConvToStr(ServerInstance->ports[j]->GetPort())))
-						ServerInstance->ports[j]->SetDescription("plaintext");
-			}
-		}
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR, API_VERSION);
@@ -348,7 +293,7 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnHookIO(EventHandler* user, ListenSocketBase* lsb)
 	{
-		if (!user->GetIOHook() && isin(lsb->GetIP(),lsb->GetPort(),listenports))
+		if (!user->GetIOHook() && listenports.find(lsb) != listenports.end())
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);

@@ -139,10 +139,12 @@ class CoreExport ListenSocketBase : public EventHandler
 	/** Socket description (shown in stats p) */
 	std::string desc;
 
-	/** Address socket is bound to */
+	/** Raw address socket is bound to */
 	std::string bind_addr;
 	/** Port socket is bound to */
 	int bind_port;
+	/** Human-readable address/port socket is bound to */
+	std::string bind_desc;
 
 	/** The client address if the most recently connected client.
 	 * Should only be used when accepting a new client.
@@ -173,17 +175,16 @@ class CoreExport ListenSocketBase : public EventHandler
 	}
 	/** Get description for socket
 	 */
-	const std::string& GetDescription()
-	{
-		return desc;
-	}
+	const std::string& GetDescription() { return desc; }
 	/** Get port number for socket
 	 */
-	int GetPort() { return bind_port; }
+	const int GetPort() { return bind_port; }
 
 	/** Get IP address socket is bound to
 	 */
 	const std::string &GetIP() { return bind_addr; }
+
+	const std::string &GetBindDesc() { return bind_desc; }
 
 	/** Handles sockets internals crap of a connection, convenience wrapper really
 	 */

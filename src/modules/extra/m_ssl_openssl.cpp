@@ -40,17 +40,6 @@ enum issl_io_status { ISSL_WRITE, ISSL_READ };
 
 static bool SelfSigned = false;
 
-bool isin(const std::string &host, int port, const std::vector<std::string> &portlist)
-{
-	if (std::find(portlist.begin(), portlist.end(), "*:" + ConvToStr(port)) != portlist.end())
-		return true;
-
-	if (std::find(portlist.begin(), portlist.end(), ":" + ConvToStr(port)) != portlist.end())
-		return true;
-
-	return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
-}
-
 char* get_error()
 {
 	return ERR_error_string(ERR_get_error(), NULL);
@@ -98,7 +87,7 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 
 class ModuleSSLOpenSSL : public Module
 {
-	std::vector<std::string> listenports;
+	std::set<ListenSocketBase*> listenports;
 
 	int inbufsize;
 	issl_session* sessions;
@@ -115,8 +104,6 @@ class ModuleSSLOpenSSL : public Module
 	// std::string crlfile;
 	std::string dhfile;
 	std::string sslports;
-
-	int clientactive;
 
  public:
 
@@ -152,14 +139,14 @@ class ModuleSSLOpenSSL : public Module
 		OnModuleRehash(NULL,"ssl");
 		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept,
 			I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup, I_On005Numeric,
-			I_OnBufferFlushed, I_OnRequest, I_OnUnloadModule, I_OnRehash, I_OnModuleRehash,
-			I_OnPostConnect, I_OnHookIO };
+			I_OnBufferFlushed, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+			I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void OnHookIO(EventHandler* user, ListenSocketBase* lsb)
 	{
-		if (!user->GetIOHook() && isin(lsb->GetIP(),lsb->GetPort(),listenports))
+		if (!user->GetIOHook() && listenports.find(lsb) != listenports.end())
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);
@@ -171,51 +158,21 @@ class ModuleSSLOpenSSL : public Module
 		ConfigReader Conf(ServerInstance);
 
 		listenports.clear();
-		clientactive = 0;
 		sslports.clear();
 
-		for(int index = 0; index < Conf.Enumerate("bind"); index++)
+		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 		{
-			// For each <bind> tag
-			std::string x = Conf.ReadValue("bind", "type", index);
-			if(((x.empty()) || (x == "clients")) && (Conf.ReadValue("bind", "ssl", index) == "openssl"))
-			{
-				// Get the port we're meant to be listening on with SSL
-				std::string port = Conf.ReadValue("bind", "port", index);
-				std::string addr = Conf.ReadValue("bind", "address", index);
+			ListenSocketBase* port = ServerInstance->ports[i];
+			std::string desc = port->GetDescription();
+			if (desc != "openssl")
+				continue;
 
-				if (!addr.empty())
-				{
-					// normalize address, important for IPv6
-					int portint = 0;
-					irc::sockets::sockaddrs bin;
-					if (irc::sockets::aptosa(addr.c_str(), portint, &bin))
-						irc::sockets::satoap(&bin, addr, portint);
-				}
+			listenports.insert(port);
+			std::string portid = port->GetBindDesc();
 
-				irc::portparser portrange(port, false);
-				long portno = -1;
-				while ((portno = portrange.GetToken()))
-				{
-					clientactive++;
-					try
-					{
-						listenports.push_back(addr + ":" + ConvToStr(portno));
-
-						for (size_t i = 0; i < ServerInstance->ports.size(); i++)
-							if ((ServerInstance->ports[i]->GetPort() == portno) && (ServerInstance->ports[i]->GetIP() == addr))
-								ServerInstance->ports[i]->SetDescription("ssl");
-						ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %ld", portno);
-
-						if (addr != "127.0.0.1")
-							sslports.append((addr.empty() ? "*" : addr)).append(":").append(ConvToStr(portno)).append(";");
-					}
-					catch (ModuleException &e)
-					{
-						ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %ld: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
-					}
-				}
-			}
+			ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
+			if (port->GetIP() != "127.0.0.1")
+				sslports.append(portid).append(";");
 		}
 
 		if (!sslports.empty())
@@ -311,7 +268,8 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		output.append(" SSL=" + sslports);
+		if (!sslports.empty())
+			output.append(" SSL=" + sslports);
 	}
 
 	virtual ~ModuleSSLOpenSSL()
@@ -341,19 +299,6 @@ class ModuleSSLOpenSSL : public Module
 				user->GetExt("ssl_cert", tofree);
 				delete tofree;
 				user->Shrink("ssl_cert");
-			}
-		}
-	}
-
-	virtual void OnUnloadModule(Module* mod, const std::string &name)
-	{
-		if (mod == this)
-		{
-			for(unsigned int i = 0; i < listenports.size(); i++)
-			{
-				for (size_t j = 0; j < ServerInstance->ports.size(); j++)
-					if (listenports[i] == (ServerInstance->ports[j]->GetIP()+":"+ConvToStr(ServerInstance->ports[j]->GetPort())))
-						ServerInstance->ports[j]->SetDescription("plaintext");
 			}
 		}
 	}

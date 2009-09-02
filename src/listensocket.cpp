@@ -25,12 +25,18 @@ ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::stri
 {
 	irc::sockets::sockaddrs bind_to;
 
-	bind_addr = addr;
-	bind_port = port;
-
 	// canonicalize address if it is defined
-	if (!addr.empty() && irc::sockets::aptosa(addr.c_str(), port, &bind_to))
+	if (irc::sockets::aptosa(addr.c_str(), port, &bind_to))
+	{
 		irc::sockets::satoap(&bind_to, bind_addr, bind_port);
+		bind_desc = irc::sockets::satouser(&bind_to);
+	}
+	else
+	{
+		bind_addr = addr;
+		bind_port = port;
+		bind_desc = addr + ":" + ConvToStr(port);
+	}
 
 	this->SetFd(irc::sockets::OpenTCPSocket(bind_addr.c_str()));
 	if (this->GetFd() > -1)
