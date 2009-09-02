@@ -787,7 +787,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					this->AllowedPrivs->insert(mypriv);
 				}
 
-				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist; *c; ++c)
+				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist.c_str(); *c; ++c)
 				{
 					if (*c == '*')
 					{
@@ -799,7 +799,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					}
 				}
 
-				for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist; *c; ++c)
+				for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist.c_str(); *c; ++c)
 				{
 					if (*c == '*')
 					{

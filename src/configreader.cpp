@@ -558,10 +558,10 @@ static bool DoClass(ServerConfig* conf, const char* tag, const char**, ValueList
 		}
 	}
 
-	conf->operclass[ClassName].commandlist = strnewdup(CommandList);
-	conf->operclass[ClassName].umodelist = strnewdup(UModeList);
-	conf->operclass[ClassName].cmodelist = strnewdup(CModeList);
-	conf->operclass[ClassName].privs = strnewdup(PrivsList);
+	conf->operclass[ClassName].commandlist = CommandList;
+	conf->operclass[ClassName].umodelist = UModeList;
+	conf->operclass[ClassName].cmodelist = CModeList;
+	conf->operclass[ClassName].privs = PrivsList;
 	return true;
 }
 

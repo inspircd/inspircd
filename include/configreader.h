@@ -46,19 +46,19 @@ struct operclass_data : public classbase
 {
 	/** Command list for the class
 	 */
-	char *commandlist;
+	std::string commandlist;
 
 	/** Channel mode list for the class
 	 */
-	char *cmodelist;
+	std::string cmodelist;
 
 	/** User mode list for the class
 	 */
-	char *umodelist;
+	std::string umodelist;
 
 	/** Priviledges given by this class
 	 */
-	char *privs;
+	std::string privs;
 };
 
 /** A Set of oper classes

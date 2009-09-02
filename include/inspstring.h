@@ -39,19 +39,5 @@ CoreExport int charlcat(char* x,char y,int z);
  */
 CoreExport bool charremove(char* mp, char remove);
 
-/** strnewdup() is an implemenetation of strdup() which calls operator new
- * rather than malloc to allocate the new string, therefore allowing it to
- * be hooked into the C++ memory manager, and freed with operator delete.
- * This is required for windows, where we override operators new and delete
- * to allow for global allocation between modules and the core.
- */
-inline char * strnewdup(const char * s1)
-{
-	size_t len = strlen(s1) + 1;
-	char * p = new char[len];
-	memcpy(p, s1, len);
-	return p;
-}
-
 #endif
 
