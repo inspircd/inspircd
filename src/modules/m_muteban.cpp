@@ -36,16 +36,14 @@ class ModuleQuietBan : public Module
 
 	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		if (!IS_LOCAL(user))
+		if (!IS_LOCAL(user) || target_type != TYPE_CHANNEL)
 			return 0;
 
-		if (target_type == TYPE_CHANNEL)
+		Channel* chan = static_cast<Channel*>(dest);
+		if (chan->GetExtBanStatus(user, 'm') < 0 && chan->GetStatus(user) < STATUS_VOICE)
 		{
-			if (((Channel *)dest)->GetExtBanStatus(user, 'm') < 0)
-			{
-				user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)",user->nick.c_str(), ((Channel *)dest)->name.c_str());
-				return 1;
-			}
+			user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)",user->nick.c_str(), ((Channel *)dest)->name.c_str());
+			return 1;
 		}
 
 		return 0;
@@ -53,19 +51,7 @@ class ModuleQuietBan : public Module
 
 	virtual int OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		if (!IS_LOCAL(user))
-			return 0;
-
-		if (target_type == TYPE_CHANNEL)
-		{
-			if (((Channel *)dest)->GetExtBanStatus(user, 'm') < 0)
-			{
-				user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)",user->nick.c_str(), ((Channel *)dest)->name.c_str());
-				return 1;
-			}
-		}
-
-		return 0;
+		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
 	virtual void On005Numeric(std::string &output)
