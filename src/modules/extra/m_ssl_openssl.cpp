@@ -748,8 +748,7 @@ class ModuleSSLOpenSSL : public Module
 			EventHandler *u = ServerInstance->SE->GetRef(session->fd);
 			if (u)
 			{
-				if (!u->GetExt("ssl", dummy))
-					u->Extend("ssl", "ON");
+				u->Extend("ssl");
 			}
 
 			session->status = ISSL_OPEN;

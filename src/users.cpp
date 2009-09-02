@@ -1029,7 +1029,7 @@ bool User::ForceNickChange(const char* newnick)
 
 	this->InvalidateCache();
 
-	this->Extend("NICKForced", "Enabled");
+	this->Extend("NICKForced");
 
 	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
 
@@ -1048,7 +1048,7 @@ bool User::ForceNickChange(const char* newnick)
 		std::vector<std::string> parameters;
 		nickhandler->HandleInternal(1, dummy);
 		parameters.push_back(newnick);
-		this->Extend("NICKForced", "Enabled");
+		this->Extend("NICKForced");
 		bool result = (ServerInstance->Parser->CallHandler("NICK", parameters, this) == CMD_SUCCESS);
 		this->Shrink("NICKForced");
 		nickhandler->HandleInternal(0, dummy);

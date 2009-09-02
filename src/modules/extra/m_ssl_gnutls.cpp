@@ -668,8 +668,7 @@ class ModuleSSLGnuTLS : public Module
 			EventHandler *extendme = ServerInstance->SE->GetRef(fd);
 			if (extendme)
 			{
-				if (!extendme->GetExt("ssl"))
-					extendme->Extend("ssl", "ON");
+				extendme->Extend("ssl");
 			}
 
 			// Change the seesion state
