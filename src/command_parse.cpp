@@ -436,6 +436,9 @@ void CommandParser::RemoveRFCCommands()
 		dlclose(c->second);
 	}
 	RFCCommands.clear();
+	// special case: reload isn't in the RFCCommands list but is allocated anyway
+	Command* reload = cmdlist.find("RELOAD")->second;
+	delete reload;
 }
 
 void CommandParser::RemoveCommand(Commandtable::iterator safei, const char* source)

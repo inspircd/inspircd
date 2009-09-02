@@ -125,6 +125,7 @@ class CoreExport TimerManager
 	/** Constructor
 	 */
 	TimerManager(InspIRCd* Instance);
+	~TimerManager();
 
 	/** Tick all pending Timers
 	 * @param TIME the current system time

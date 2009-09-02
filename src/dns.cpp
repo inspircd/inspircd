@@ -129,6 +129,10 @@ class RequestTimeout : public Timer
 	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : Timer(n, SI->Time()), ServerInstance(SI), watch(watching), watchid(id)
 	{
 	}
+	~RequestTimeout()
+	{
+		Tick(0);
+	}
 
 	void Tick(time_t)
 	{
@@ -143,7 +147,6 @@ class RequestTimeout : public Timer
 			}
 			ServerInstance->Res->requests[watchid] = NULL;
 			delete watch;
-			return;
 		}
 	}
 };
@@ -876,6 +879,8 @@ DNS::~DNS()
 	ServerInstance->SE->Shutdown(this, 2);
 	ServerInstance->SE->Close(this);
 	ServerInstance->Timers->DelTimer(this->PruneTimer);
+	if (cache)
+		delete cache;
 }
 
 CachedQuery* DNS::GetCache(const std::string &source)

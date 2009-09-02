@@ -161,6 +161,12 @@ class CoreExport LogManager : public classbase
 		Logging = false;
 	}
 
+	~LogManager()
+	{
+		if (noforkstream)
+			delete noforkstream;
+	}
+
 	/** Sets up the logstream for -nofork. Called by InspIRCd::OpenLog() and LogManager::OpenFileLogs().
 	 * First time called it creates the nofork stream and stores it in noforkstream. Each call thereafter just readds it to GlobalLogStreams
 	 * and updates the loglevel.

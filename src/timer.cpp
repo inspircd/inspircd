@@ -20,6 +20,12 @@ TimerManager::TimerManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
+TimerManager::~TimerManager()
+{
+	for(std::vector<Timer *>::iterator i = Timers.begin(); i != Timers.end(); i++)
+		delete *i;
+}
+
 void TimerManager::TickTimers(time_t TIME)
 {
 	while ((Timers.size()) && (TIME > (*Timers.begin())->GetTimer()))
