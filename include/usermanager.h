@@ -83,10 +83,10 @@ class CoreExport UserManager : public Extensible
 	void AddUser(InspIRCd* Instance, int socket, bool iscached, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Disconnect a user gracefully
- 	 * @param user The user to remove
- 	 * @param r The quit reason to show to normal users
- 	 * @param oreason The quit reason to show to opers
- 	 * @return Although this function has no return type, on exit the user provided will no longer exist.
+	 * @param user The user to remove
+	 * @param r The quit reason to show to normal users
+	 * @param oreason The quit reason to show to opers
+	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
 	void QuitUser(User *user, const std::string &quitreason, const char* operreason = "");
 

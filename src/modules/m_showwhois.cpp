@@ -45,14 +45,41 @@ class SeeWhois : public ModeHandler
 	}
 };
 
+class WhoisNoticeCmd : public Command
+{
+ public:
+	WhoisNoticeCmd(InspIRCd* Instance) : Command(Instance,"WHOISNOTICE", 0, 1)
+	{
+		this->source = "m_showwhois.cpp";
+	}
+
+	void HandleFast(User* dest, User* src)
+	{
+		dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you",
+			dest->nick.c_str(), src->nick.c_str(), src->ident.c_str(),
+			dest->HasPrivPermission("users/auspex") ? src->host.c_str() : src->dhost.c_str());
+	}
+
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+
+		if (IS_LOCAL(dest))
+			HandleFast(dest, user);
+
+		return CMD_SUCCESS;
+	}
+};
+
 class ModuleShowwhois : public Module
 {
 	bool ShowWhoisFromOpers;
 	SeeWhois* sw;
+	WhoisNoticeCmd cmd;
 
  public:
 
-	ModuleShowwhois(InspIRCd* Me) : Module(Me)
+	ModuleShowwhois(InspIRCd* Me) : Module(Me), cmd(Me)
 	{
 		ConfigReader conf(ServerInstance);
 		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", "yes", 0);
@@ -61,6 +88,7 @@ class ModuleShowwhois : public Module
 		sw = new SeeWhois(ServerInstance, OpersOnly);
 		if (!ServerInstance->Modes->AddMode(sw))
 			throw ModuleException("Could not add new modes!");
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnWhois };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
@@ -78,35 +106,23 @@ class ModuleShowwhois : public Module
 
 	virtual void OnWhois(User* source, User* dest)
 	{
-		if ((dest->IsModeSet('W')) && (source != dest))
+		if (!dest->IsModeSet('W') || source == dest)
+			return;
+
+		if (!ShowWhoisFromOpers && (IS_OPER(source) != IS_OPER(dest)))
+			return;
+
+		if (IS_LOCAL(dest))
 		{
-			if (!ShowWhoisFromOpers && IS_OPER(source))
-				return;
-
-			std::string wmsg = "*** ";
-			wmsg += source->nick + " (" + source->ident + "@";
-
-			/* XXX HasPrivPermission doesn't work correctly for remote users */
-			if (IS_LOCAL(dest) && dest->HasPrivPermission("users/auspex"))
-			{
-				wmsg += source->host;
-			}
-			else
-			{
-				wmsg += source->dhost;
-			}
-
-			wmsg += ") did a /whois on you";
-
-			if (IS_LOCAL(dest))
-			{
-				dest->WriteServ("NOTICE %s :%s", dest->nick.c_str(), wmsg.c_str());
-			}
-			else
-			{
-				std::string msg = std::string("::") + dest->server + " NOTICE " + dest->nick + " :" + wmsg;
-				ServerInstance->PI->PushToClient(dest, msg);
-			}
+			cmd.HandleFast(dest, source);
+		}
+		else
+		{
+			std::vector<std::string> params;
+			params.push_back(dest->server);
+			params.push_back("WHOISNOTICE");
+			params.push_back(dest->uuid);
+			ServerInstance->PI->SendEncapsulatedData(params);
 		}
 	}
 
