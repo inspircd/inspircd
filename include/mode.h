@@ -440,6 +440,15 @@ class CoreExport ModeParser : public classbase
 	 * Used by ModeParser::Process.
 	 */
 	void DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text);
+	/** Displays the value of a list mode
+	 * Used by ModeParser::Process.
+	 */
+	void DisplayListModes(User* user, Channel* chan, std::string &mode_sequence);
+
+	/**
+	 * Attempts to apply a mode change to a user or channel
+	 */
+	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool servermode, bool SkipACL);
 
 	/** The string representing the last set of modes to be parsed.
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
