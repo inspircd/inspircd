@@ -480,6 +480,9 @@ class CoreExport Module : public Extensible
 	 */
 	InspIRCd* ServerInstance;
  public:
+	/** File that this module was loaded from
+	 */
+	std::string ModuleSourceFile;
 
 	/** Default constructor.
 	 * Creates a module class.

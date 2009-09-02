@@ -431,6 +431,7 @@ bool ModuleManager::Load(const char* filename)
 
 		if (newmod)
 		{
+			newmod->ModuleSourceFile = filename_str;
 			Version v = newmod->GetVersion();
 
 			if (v.API != API_VERSION)
