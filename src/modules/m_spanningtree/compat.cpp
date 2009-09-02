@@ -62,6 +62,13 @@ void TreeSocket::WriteLine(std::string line)
 				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Rewriting FIDENT for 1201-protocol server");
 				line = ":" + ServerInstance->Config->GetSID() + " CHGIDENT " +  line.substr(1,a-2) + line.substr(b);
 			}
+			else if (proto_version < 1202 && command == "SAVE")
+			{
+				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Rewriting SAVE for 1201-protocol server");
+				std::string::size_type c = line.find(' ', b + 1);
+				std::string uid = line.substr(b, c - b);
+				line = ":" + ServerInstance->Config->GetSID() + " SVSNICK " + uid + line.substr(b);
+			}
 		}
 	}
 
