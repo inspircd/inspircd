@@ -22,15 +22,20 @@
 
 
 
-/** remote MOTD. leet, huh? */
+/** ENCAP */
 bool TreeSocket::Encap(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() > 1)
 	{
 		if (InspIRCd::Match(ServerInstance->Config->GetSID(), params[0]))
 		{
-			Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
-			event.Send(ServerInstance);
+			User* who = this->ServerInstance->FindUUID(prefix);
+			if (!who)
+				who = Utils->ServerUser;
+
+			parameterlist plist(params.begin() + 2, params.end());
+			ServerInstance->CallCommandHandler(params[1].c_str(), plist, who);
+			// discard return value, ENCAP shall succeed even if the command does not exist
 		}
 		
 		params[params.size() - 1] = ":" + params[params.size() - 1];

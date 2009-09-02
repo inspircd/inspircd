@@ -39,25 +39,43 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 
 	RouteDescriptor routing = thiscmd->GetRouting(user, parameters);
 
+	std::string sent_cmd = command;
+	parameterlist params;
+
 	if (routing.type == ROUTE_TYPE_LOCALONLY)
+	{
 		return;
+	}
+	else if (routing.type == ROUTE_TYPE_OPT_BCAST)
+	{
+		params.push_back("*");
+		params.push_back(command);
+		sent_cmd = "ENCAP";
+	}
+	else if (routing.type == ROUTE_TYPE_OPT_UCAST)
+	{
+		params.push_back(routing.serverdest);
+		params.push_back(command);
+		sent_cmd = "ENCAP";
+	}
+	else
+	{
+		Module* srcmodule = ServerInstance->Modules->Find(thiscmd->source);
 
-	Module* srcmodule = ServerInstance->Modules->Find(thiscmd->source);
-
-	if (srcmodule && !(srcmodule->GetVersion().Flags & VF_COMMON)) {
-		ServerInstance->Logs->Log("m_spanningtree",ERROR,"Routed command %s from non-VF_COMMON module %s",
-			command.c_str(), thiscmd->source.c_str());
-		return;
+		if (srcmodule && !(srcmodule->GetVersion().Flags & VF_COMMON)) {
+			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Routed command %s from non-VF_COMMON module %s",
+				command.c_str(), thiscmd->source.c_str());
+			return;
+		}
 	}
 
 	std::string output_text;
 	ServerInstance->Parser->TranslateUIDs(thiscmd->translation, parameters, output_text, true, thiscmd);
 
-	parameterlist params;
 	params.push_back(output_text);
 
-	if (routing.type == ROUTE_TYPE_BROADCAST)
-		Utils->DoOneToMany(user->uuid, command, params);
+	if (routing.type == ROUTE_TYPE_BROADCAST || routing.type == ROUTE_TYPE_OPT_BCAST)
+		Utils->DoOneToMany(user->uuid, sent_cmd, params);
 	else
-		Utils->DoOneToOne(user->uuid, command, params, routing.serverdest);
+		Utils->DoOneToOne(user->uuid, sent_cmd, params, routing.serverdest);
 }

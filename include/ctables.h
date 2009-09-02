@@ -41,7 +41,9 @@ enum RouteType
 {
 	ROUTE_TYPE_LOCALONLY,
 	ROUTE_TYPE_BROADCAST,
-	ROUTE_TYPE_UNICAST
+	ROUTE_TYPE_UNICAST,
+	ROUTE_TYPE_OPT_BCAST,
+	ROUTE_TYPE_OPT_UCAST
 };
 
 struct RouteDescriptor
@@ -54,9 +56,16 @@ struct RouteDescriptor
 		: type(t), serverdest(d) { }
 };
 
+/** Do not route this command */
 #define ROUTE_LOCALONLY (RouteDescriptor(ROUTE_TYPE_LOCALONLY, ""))
+/** Route this command to all servers, fail if not understood */
 #define ROUTE_BROADCAST (RouteDescriptor(ROUTE_TYPE_BROADCAST, ""))
+/** Route this command to a single server (do nothing if own server name specified) */
 #define ROUTE_UNICAST(x) (RouteDescriptor(ROUTE_TYPE_UNICAST, x))
+/** Route this command to all servers, ignore if not understood */
+#define ROUTE_OPT_BCAST (RouteDescriptor(ROUTE_TYPE_OPT_BCAST, ""))
+/** Route this command to a single server, ignore if not understood */
+#define ROUTE_OPT_UCAST(x) (RouteDescriptor(ROUTE_TYPE_OPT_UCAST, x))
 
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.

@@ -51,7 +51,7 @@ class SaslAuthenticator : public classbase
 		ServerInstance->PI->SendEncapsulatedData(params);
 	}
 
-	SaslResult GetSaslResult(std::string &result_)
+	SaslResult GetSaslResult(const std::string &result_)
 	{
 		if (result_ == "F")
 			return SASL_FAIL;
@@ -63,25 +63,25 @@ class SaslAuthenticator : public classbase
 	}
 
 	/* checks for and deals with a state change. */
-	SaslState ProcessInboundMessage(parameterlist &msg)
+	SaslState ProcessInboundMessage(const std::vector<std::string> &msg)
 	{
 		switch (this->state)
 		{
 		 case SASL_INIT:
-			this->agent = msg[2];
-			this->user->Write("AUTHENTICATE %s", msg[5].c_str());
+			this->agent = msg[0];
+			this->user->Write("AUTHENTICATE %s", msg[3].c_str());
 			this->state = SASL_COMM;
 			break;
 		 case SASL_COMM:
-			if (msg[2] != this->agent)
+			if (msg[0] != this->agent)
 				return this->state;
 
-			if (msg[4] != "D")
-				this->user->Write("AUTHENTICATE %s", msg[5].c_str());
+			if (msg[2] != "D")
+				this->user->Write("AUTHENTICATE %s", msg[3].c_str());
 			else
 			{
 				this->state = SASL_DONE;
-				this->result = this->GetSaslResult(msg[5]);
+				this->result = this->GetSaslResult(msg[3]);
 			}
 
 			break;
@@ -183,18 +183,52 @@ class CommandAuthenticate : public Command
 	}
 };
 
+class CommandSASL : public Command
+{
+	Module* Creator;
+ public:
+	CommandSASL(InspIRCd* Instance, Module* creator) : Command(Instance, "SASL", 0, 2), Creator(creator)
+	{
+		this->source = "m_sasl.so";
+		this->disabled = true; // should not be called by users
+	}
+
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
+	{
+		User* target = ServerInstance->FindNick(parameters[1]);
+		if (!target)
+		{
+			ServerInstance->Logs->Log("m_sasl", DEBUG,"User not found in sasl ENCAP event: %s", parameters[1].c_str());
+			return CMD_FAILURE;
+		}
+
+		SaslAuthenticator *sasl;
+		if (!target->GetExt("sasl_authenticator", sasl))
+			return CMD_FAILURE;
+
+		SaslState state = sasl->ProcessInboundMessage(parameters);
+		if (state == SASL_DONE)
+		{
+			delete sasl;
+			target->Shrink("sasl");
+		}
+		return CMD_SUCCESS;
+	}
+};
 
 class ModuleSASL : public Module
 {
-	CommandAuthenticate sasl;
+	CommandAuthenticate auth;
+	CommandSASL sasl;
  public:
 
 	ModuleSASL(InspIRCd* Me)
-		: Module(Me), sasl(Me, this)
+		: Module(Me), auth(Me, this), sasl(Me, this)
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 
+		ServerInstance->AddCommand(&auth);
 		ServerInstance->AddCommand(&sasl);
 
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
@@ -255,32 +289,6 @@ class ModuleSASL : public Module
 	virtual void OnEvent(Event *ev)
 	{
 		GenericCapHandler(ev, "sasl", "sasl");
-
-		if (ev->GetEventID() == "encap_received")
-		{
-			parameterlist* parameters = (parameterlist*)ev->GetData();
-
-			if ((*parameters)[1] != "SASL")
-				return;
-
-			User* target = ServerInstance->FindNick((*parameters)[3]);
-			if (!target)
-			{
-				ServerInstance->Logs->Log("m_sasl", DEBUG,"User not found in sasl ENCAP event: %s", (*parameters)[3].c_str());
-				return;
-			}
-
-			SaslAuthenticator *sasl_;
-			if (!target->GetExt("sasl_authenticator", sasl_))
-				return;
-
-			SaslState state = sasl_->ProcessInboundMessage(*parameters);
-			if (state == SASL_DONE)
-			{
-				delete sasl_;
-				target->Shrink("sasl");
-			}
-		}
 	}
 };
 
