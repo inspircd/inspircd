@@ -41,9 +41,9 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string sh
 {
 	age = SI->Time();
 	myhost = ServerName;
-	theirchallenge.clear();
-	ourchallenge.clear();
-	this->LinkState = CONNECTING;
+	capab_phase = 0;
+	proto_version = 0;
+	LinkState = CONNECTING;
 	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName, maxtime);
 	if (Hook)
 		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
@@ -58,10 +58,9 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	: BufferedSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
 {
 	age = SI->Time();
-	this->LinkState = WAIT_AUTH_1;
-	theirchallenge.clear();
-	ourchallenge.clear();
-	sentcapab = false;
+	LinkState = WAIT_AUTH_1;
+	capab_phase = 0;
+	proto_version = 0;
 	/* If we have a transport module hooked to the parent, hook the same module to this
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
@@ -127,7 +126,6 @@ bool TreeSocket::OnConnected()
 							x->Hook.c_str());
 				}
 				this->OutboundPass = x->SendPass;
-				sentcapab = false;
 
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 				if (this->GetHook())
@@ -136,7 +134,7 @@ bool TreeSocket::OnConnected()
 					ServerInstance->Timers->AddTimer(hstimer);
 				}
 				else
-					this->SendCapabilities();
+					this->SendCapabilities(1);
 
 				return true;
 			}

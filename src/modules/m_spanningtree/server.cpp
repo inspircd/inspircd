@@ -107,8 +107,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 	this->InboundDescription = description;
 	this->InboundSID = sid;
 
-	if (!sentcapab)
-		this->SendCapabilities();
+	this->SendCapabilities(2);
 
 	if (hops)
 	{
@@ -203,8 +202,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 	this->InboundDescription = description;
 	this->InboundSID = sid;
 
-	if (!sentcapab)
-		this->SendCapabilities();
+	this->SendCapabilities(2);
 
 	if (hops)
 	{
@@ -261,7 +259,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 
 		// this is good. Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
-		this->SendCapabilities();
+		this->SendCapabilities(2);
 		this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
 		// move to the next state, we are now waiting for THEM.
 		this->LinkState = WAIT_AUTH_2;

@@ -21,10 +21,13 @@
 
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-
 std::string TreeSocket::MyModules(int filter)
 {
 	std::vector<std::string> modlist = this->ServerInstance->Modules->GetAllModuleNames(filter);
+
+	if (filter == VF_COMMON && proto_version != ProtocolVersion)
+		CompatAddModules(modlist);
+
 	std::string capabilities;
 	sort(modlist.begin(),modlist.end());
 	for (unsigned int i = 0; i < modlist.size(); i++)
@@ -36,16 +39,20 @@ std::string TreeSocket::MyModules(int filter)
 	return capabilities;
 }
 
-void TreeSocket::SendCapabilities()
+void TreeSocket::SendCapabilities(int phase)
 {
-	if (sentcapab)
+	if (capab_phase >= phase)
 		return;
 
-	sentcapab = true;
+	if (capab_phase < 1 && phase >= 1)
+		WriteLine("CAPAB START " + ConvToStr(ProtocolVersion));
+
+	capab_phase = phase;
+	if (phase < 2)
+		return;
+
 	irc::commasepstream modulelist(MyModules(VF_COMMON));
 	irc::commasepstream optmodulelist(MyModules(VF_OPTCOMMON));
-	this->WriteLine("CAPAB START");
-
 	/* Send module names, split at 509 length */
 	std::string item;
 	std::string line = "CAPAB MODULES ";
@@ -160,6 +167,9 @@ bool TreeSocket::Capab(const parameterlist &params)
 		ModuleList.clear();
 		OptModuleList.clear();
 		CapKeys.clear();
+		if (params.size() > 1)
+			proto_version = atoi(params[1].c_str());
+		SendCapabilities(2);
 	}
 	else if (params[0] == "END")
 	{
@@ -244,7 +254,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 			this->SetTheirChallenge(n->second);
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
-				this->SendCapabilities();
+				this->SendCapabilities(2);
 				this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 "+
 						ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
 			}
@@ -254,7 +264,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 			/* They didnt specify a challenge or we don't have m_sha256.so, we use plaintext */
 			if (this->LinkState == CONNECTING)
 			{
-				this->SendCapabilities();
+				this->SendCapabilities(2);
 				this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+OutboundPass+" 0 "+ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
 			}
 		}

@@ -89,7 +89,7 @@ class TreeSocket : public BufferedSocket
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	std::string OutboundPass;		/* Outbound password */
-	bool sentcapab;				/* Have sent CAPAB already */
+	int capab_phase;			/* Have sent CAPAB already */
 	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
 	int proto_version;			/* Remote protocol version */
@@ -194,7 +194,10 @@ class TreeSocket : public BufferedSocket
 
 	/** Send my capabilities to the remote side
 	 */
-	void SendCapabilities();
+	void SendCapabilities(int phase);
+
+	/** Add modules to VF_COMMON list for backwards compatability */
+	void CompatAddModules(std::vector<std::string>& modlist);
 
 	/* Check a comma seperated list for an item */
 	bool HasItem(const std::string &list, const std::string &item);
