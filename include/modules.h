@@ -428,7 +428,7 @@ enum Implementation
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
-	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash,
+	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine,
 	I_END
 };
 
@@ -1413,6 +1413,14 @@ class CoreExport Module : public Extensible
 	 * even if it is enabled.
 	 */
 	virtual ModResult OnHostCycle(User* user);
+
+	/** Called whenever a result from /WHO is about to be returned
+	 * @param source The user running the /WHO query
+	 * @param user The user that this line of the query is about
+	 * @param channel The channel being queried (or NULL if not a channel query)
+	 * @param line The raw line to send; modifiable, if empty no line will be returned.
+	 */
+	virtual void OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line);
 };
 
 

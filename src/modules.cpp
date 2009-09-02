@@ -198,6 +198,7 @@ void		Module::OnNamesListItem(User*, User*, Channel*, std::string&, std::string&
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnHookIO(EventHandler*, ListenSocketBase*) { }
 ModResult	Module::OnHostCycle(User*) { return MOD_RES_PASSTHRU; }
+void		Module::OnSendWhoLine(User*, User*, Channel*, std::string&) { }
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
 {

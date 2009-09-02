@@ -86,6 +86,17 @@ class ModuleHideOper : public Module
 
 		return MOD_RES_PASSTHRU;
 	}
+
+	void OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line)
+	{
+		if (user->IsModeSet('H') && !source->HasPrivPermission("users/auspex"))
+		{
+			// hide the "*" that marks the user as an oper from the /WHO line
+			std::string::size_type pos = line.find("* ");
+			if (pos != std::string::npos)
+				line.erase(pos);
+		}
+	}
 };
 
 

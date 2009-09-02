@@ -171,7 +171,11 @@ void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch
 	}
 
 	wholine = wholine + (ch ? ch->GetPrefixChar(u) : (chlast ? chlast->GetPrefixChar(u) : "")) + " :0 " + u->fullname;
-	whoresults.push_back(wholine);
+
+	FOREACH_MOD(I_OnSendWhoLine, OnSendWhoLine(user, u, ch, wholine));
+
+	if (!wholine.empty())
+		whoresults.push_back(wholine);
 }
 
 CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *user)

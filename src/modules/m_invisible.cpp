@@ -117,8 +117,11 @@ class ModuleInvisible : public Module
 
 		/* Yeah i know people can take this out. I'm not about to obfuscate code just to be a pain in the ass. */
 		ServerInstance->Users->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin, I_OnUserPart, I_OnUserQuit, I_OnRehash, I_OnHostCycle };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = {
+			I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin, I_OnUserPart, I_OnUserQuit,
+			I_OnRehash, I_OnHostCycle, I_OnSendWhoLine
+		};
+		ServerInstance->Modules->Attach(eventlist, this, 8);
 	};
 
 	virtual ~ModuleInvisible()
@@ -128,17 +131,16 @@ class ModuleInvisible : public Module
 		delete conf;
 	};
 
-	virtual Version GetVersion();
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
-	virtual void OnRehash(User* user);
+	Version GetVersion();
+	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
+	void OnRehash(User* user);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
 	ModResult OnHostCycle(User* user);
-	/* No privmsg response when hiding - submitted by Eric at neowin */
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	/* Fix by Eric @ neowin.net, thanks :) -- Brain */
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5);
+	void OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line);
 };
 
 Version ModuleInvisible::GetVersion()
@@ -244,6 +246,12 @@ void ModuleInvisible::WriteCommonFrom(User *user, Channel* channel, const char* 
 			i->first->Write(std::string(tb));
 		}
 	}
+}
+
+void ModuleInvisible::OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line)
+{
+	if (user->IsModeSet('Q') && !IS_OPER(source))
+		line.clear();
 }
 
 MODULE_INIT(ModuleInvisible)
