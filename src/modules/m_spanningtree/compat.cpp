@@ -69,6 +69,14 @@ void TreeSocket::WriteLine(std::string line)
 				std::string uid = line.substr(b, c - b);
 				line = ":" + ServerInstance->Config->GetSID() + " SVSNICK " + uid + line.substr(b);
 			}
+			else if (proto_version < 1202 && command == "AWAY")
+			{
+				if (b != std::string::npos)
+				{
+					std::string::size_type c = line.find(' ', b + 1);
+					line.erase(b,c-b);
+				}
+			}
 		}
 	}
 

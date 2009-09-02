@@ -361,6 +361,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->OperType(prefix,params);
 			}
+			else if (command == "AWAY")
+			{
+				return this->Away(prefix,params);
+			}
 			else if (command == "FMODE")
 			{
 				return this->ForceMode(prefix,params);

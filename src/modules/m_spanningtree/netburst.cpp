@@ -254,7 +254,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 				}
 				if (IS_AWAY(u->second))
 				{
-					snprintf(data,MAXBUF,":%s AWAY :%s", u->second->uuid.c_str(), u->second->awaymsg.c_str());
+					snprintf(data,MAXBUF,":%s AWAY %ld :%s", u->second->uuid.c_str(), (long)u->second->awaytime, u->second->awaymsg.c_str());
 					this->WriteLine(data);
 				}
 			}

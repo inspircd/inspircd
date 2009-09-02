@@ -291,6 +291,9 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool OperType(const std::string &prefix, parameterlist &params);
 
+	/** Remote AWAY */
+	bool Away(const std::string &prefix, parameterlist &params);
+
 	/** Because Andy insists that services-compatible servers must
 	 * implement SVSNICK and SVSJOIN, that's exactly what we do :p
 	 */

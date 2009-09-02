@@ -881,12 +881,12 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 		if (awaymsg.empty())
 		{
 			parameterlist params;
-			params.clear();
 			Utils->DoOneToMany(user->uuid,"AWAY",params);
 		}
 		else
 		{
 			parameterlist params;
+			params.push_back(ConvToStr(user->awaytime));
 			params.push_back(":" + awaymsg);
 			Utils->DoOneToMany(user->uuid,"AWAY",params);
 		}
