@@ -18,11 +18,7 @@
 #include "treeserver.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-
-
-/** remote MOTD. leet, huh? */
+/** remote server PRIVMSG/NOTICE */
 bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string &prefix, parameterlist &params, const std::string &sourceserv)
 {
 	if (params.size() >= 2)
@@ -44,16 +40,16 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 		{
 			if (messagetype == "PRIVMSG")
 			{
-				FOREACH_MOD_I(ServerInstance, I_OnUserMessage, OnUserMessage(NULL, channel, TYPE_CHANNEL, text, status, except_list));
+				FOREACH_MOD_I(ServerInstance, I_OnUserMessage, OnUserMessage(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
 			}
 			else
 			{
-				FOREACH_MOD_I(ServerInstance, I_OnUserNotice, OnUserNotice(NULL, channel, TYPE_CHANNEL, text, status, except_list));
+				FOREACH_MOD_I(ServerInstance, I_OnUserNotice, OnUserNotice(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
 			}
 			TreeServer* s = Utils->FindServer(prefix);
 			if (s)
 			{
-				FOREACH_MOD_I(ServerInstance, I_OnText, OnText(NULL, channel, TYPE_CHANNEL, text, status, except_list));
+				FOREACH_MOD_I(ServerInstance, I_OnText, OnText(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
 				channel->WriteChannelWithServ(s->GetName().c_str(), "%s %s :%s", messagetype.c_str(), channel->name.c_str(), text.c_str());
 			}
 		}
@@ -65,16 +61,16 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 			{
 				if (messagetype == "PRIVMSG")
 				{
-					FOREACH_MOD_I(ServerInstance, I_OnUserMessage, OnUserMessage(NULL, user, TYPE_USER, text, 0, except_list));
+					FOREACH_MOD_I(ServerInstance, I_OnUserMessage, OnUserMessage(Utils->ServerUser, user, TYPE_USER, text, 0, except_list));
 				}
 				else
 				{
-					FOREACH_MOD_I(ServerInstance, I_OnUserNotice, OnUserNotice(NULL, user, TYPE_USER, text, 0, except_list));
+					FOREACH_MOD_I(ServerInstance, I_OnUserNotice, OnUserNotice(Utils->ServerUser, user, TYPE_USER, text, 0, except_list));
 				}
 				TreeServer* s = Utils->FindServer(prefix);
 				if (s)
 				{
-					FOREACH_MOD_I(ServerInstance, I_OnText, OnText(NULL, user, TYPE_USER, text, status, except_list));
+					FOREACH_MOD_I(ServerInstance, I_OnText, OnText(Utils->ServerUser, user, TYPE_USER, text, status, except_list));
 					user->Write(":%s %s %s :%s", s->GetName().c_str(), messagetype.c_str(), user->nick.c_str(), text.c_str());
 				}
 
