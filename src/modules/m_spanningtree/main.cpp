@@ -699,6 +699,13 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 		params.push_back(ConvToStr(user->age));
 		Utils->DoOneToMany(user->uuid,"NICK",params);
 	}
+	else if (!loopCall && user->nick == user->uuid)
+	{
+		parameterlist params;
+		params.push_back(user->uuid);
+		params.push_back(ConvToStr(user->age));
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
+	}
 }
 
 void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
