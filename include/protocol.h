@@ -135,11 +135,6 @@ class ProtocolInterface : public Extensible
 	 * XXX: document me properly, this is shit.
 	 */
 	virtual void GetServerList(ProtoServerList &sl) { }
-
-	/** Send information about a user connection to linked servers.
-	 * @param u The user to send information about.
-	 */
-	virtual void Introduce(User* u) { }
 };
 
 #endif

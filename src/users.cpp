@@ -985,8 +985,6 @@ void User::FullConnect()
 
 	this->registered = REG_ALL;
 
-	ServerInstance->PI->Introduce(this);
-
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]",

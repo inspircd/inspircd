@@ -160,6 +160,7 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	_new->SetClientIP(params[6].c_str());
 
 	ServerInstance->Users->AddGlobalClone(_new);
+	remoteserver->SetUserCount(1); // increment by 1
 
 	bool dosend = true;
 
@@ -172,7 +173,6 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	params[params.size() - 1] = ":" + params[params.size() - 1];
 	Utils->DoOneToAllButSender(source, "UID", params, source);
 
-	ServerInstance->PI->Introduce(_new);
 	FOREACH_MOD_I(ServerInstance,I_OnPostConnect,OnPostConnect(_new));
 
 	return true;

@@ -176,30 +176,3 @@ void SpanningTreeProtocolInterface::SendUserNotice(User* target, const std::stri
 		}
 	}
 }
-
-void SpanningTreeProtocolInterface::Introduce(User* user)
-{
-	if (user->quitting)
-		return;
-	if (IS_LOCAL(user))
-	{
-		parameterlist params;
-		params.push_back(user->uuid);
-		params.push_back(ConvToStr(user->age));
-		params.push_back(user->nick);
-		params.push_back(user->host);
-		params.push_back(user->dhost);
-		params.push_back(user->ident);
-		params.push_back(user->GetIPString());
-		params.push_back(ConvToStr(user->signon));
-		params.push_back("+"+std::string(user->FormatModes(true)));
-		params.push_back(":"+std::string(user->fullname));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
-	}
-
-	TreeServer* SourceServer = Utils->FindServer(user->server);
-	if (SourceServer)
-	{
-		SourceServer->SetUserCount(1); // increment by 1
-	}
-}

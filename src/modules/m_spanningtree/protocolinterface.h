@@ -25,7 +25,6 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 	virtual void SendUserPrivmsg(User* target, const std::string &text);
 	virtual void SendUserNotice(User* target, const std::string &text);
 	virtual void GetServerList(ProtoServerList &sl);
-	virtual void Introduce(User* u);
 };
 
 #endif
