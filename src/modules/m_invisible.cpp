@@ -156,7 +156,7 @@ class ModuleInvisible : public Module
 	};
 
 	virtual Version GetVersion();
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
 	virtual void OnRehash(User* user);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
@@ -173,7 +173,7 @@ Version ModuleInvisible::GetVersion()
 	return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 }
 
-void ModuleInvisible::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
+void ModuleInvisible::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
 {
 	if (user->IsModeSet('Q'))
 	{

@@ -111,7 +111,7 @@ class CoreExport Channel : public Extensible
 
 	/** Connect a Channel to a User
 	 */
-	static Channel* ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting);
+	static Channel* ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created);
 
 	/** Set default modes for the channel on creation
 	 */

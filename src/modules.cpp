@@ -111,7 +111,7 @@ int		Module::OnSendSnotice(char &snomask, std::string &type, const std::string &
 void		Module::OnUserConnect(User*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }
-void		Module::OnUserJoin(User*, Channel*, bool, bool&) { }
+void		Module::OnUserJoin(User*, Channel*, bool, bool&, bool) { }
 void		Module::OnPostJoin(User*, Channel*) { }
 void		Module::OnUserPart(User*, Channel*, std::string&, bool&) { }
 void		Module::OnPreRehash(User*, const std::string&) { }

@@ -501,8 +501,9 @@ class CoreExport Module : public Extensible
 	 * of the channel (useful for modules such as auditorium)
 	 * @param sync This is set to true if the JOIN is the result of a network sync and the remote user is being introduced
 	 * to a channel due to the network sync.
+	 * @param created This is true if the join created the channel
 	 */
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has

@@ -228,7 +228,7 @@ class ModuleJoinFlood : public Module
 		return 0;
 	}
 
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
 	{
 		joinfloodsettings *f;
 

@@ -41,7 +41,7 @@ class ModuleDelayJoin : public Module
 	virtual ~ModuleDelayJoin();
 	virtual Version GetVersion();
 	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent);
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
 	void CleanUser(User* user);
 	bool OnHostCycle(User* user);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
@@ -100,7 +100,7 @@ void ModuleDelayJoin::OnNamesListItem(User* issuer, User* user, Channel* channel
 		nick.clear();
 }
 
-void ModuleDelayJoin::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
+void ModuleDelayJoin::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
 {
 	if (channel->IsModeSet('D'))
 	{

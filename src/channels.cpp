@@ -405,10 +405,10 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		Ptr->SetDefaultModes();
 	}
 
-	return Channel::ForceChan(Instance, Ptr, user, privs, bursting);
+	return Channel::ForceChan(Instance, Ptr, user, privs, bursting, created_by_local);
 }
 
-Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting)
+Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created)
 {
 	std::string nick = user->nick;
 	bool silent = false;
@@ -448,7 +448,7 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		}
 	}
 
-	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, bursting, silent));
+	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, bursting, silent, created));
 
 	if (!silent)
 		Ptr->WriteChannel(user,"JOIN :%s",Ptr->name.c_str());

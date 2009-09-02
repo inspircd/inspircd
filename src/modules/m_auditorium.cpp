@@ -113,7 +113,7 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
 	{
 		if (channel->IsModeSet('u'))
 		{
