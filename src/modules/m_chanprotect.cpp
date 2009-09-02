@@ -408,6 +408,9 @@ class ModuleChanProtect : public Module
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 			return MOD_RES_ALLOW;
 
+		if (!channel)
+			return MOD_RES_PASSTHRU;
+
 		std::string founder("cm_founder_"+channel->name);
 		std::string protect("cm_protect_"+channel->name);
 
