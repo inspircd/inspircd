@@ -55,18 +55,19 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 				WhoWasGroup* u = *ux;
 				time_t rawtime = u->signon;
 				tm *timeinfo;
-				char b[MAXBUF];
+				char b[25];
 
 				timeinfo = localtime(&rawtime);
 
-				/* XXX - 'b' could be only 25 chars long and then strlcpy() would terminate it for us too? */
-				strlcpy(b,asctime(timeinfo),MAXBUF);
+				strncpy(b,asctime(timeinfo),24);
 				b[24] = 0;
 
-				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick.c_str(),parameters[0].c_str(),u->ident,u->dhost,u->gecos);
+				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick.c_str(),parameters[0].c_str(),
+					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
 
 				if (user->HasPrivPermission("users/auspex"))
-					user->WriteNumeric(379, "%s %s :was connecting from *@%s", user->nick.c_str(), parameters[0].c_str(), u->host);
+					user->WriteNumeric(379, "%s %s :was connecting from *@%s",
+						user->nick.c_str(), parameters[0].c_str(), u->host.c_str());
 
 				if (*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
 					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer, b);
@@ -315,25 +316,13 @@ CommandWhowas::~CommandWhowas()
 	}
 }
 
-WhoWasGroup::WhoWasGroup(User* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
+WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ident(user->ident),
+	server(user->server), gecos(user->fullname), signon(user->signon)
 {
-	this->host = strdup(user->host.c_str());
-	this->dhost = strdup(user->dhost.c_str());
-	this->ident = strdup(user->ident.c_str());
-	this->server = user->server;
-	this->gecos = strdup(user->fullname.c_str());
 }
 
 WhoWasGroup::~WhoWasGroup()
 {
-	if (host)
-		free(host);
-	if (dhost)
-		free(dhost);
-	if (ident)
-		free(ident);
-	if (gecos)
-		free(gecos);
 }
 
 /* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */

@@ -32,7 +32,8 @@ class RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char* regexs) : XLine(Instance, s_time, d, src, re, "R")
+	RLine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string regexs)
+		: XLine(Instance, s_time, d, src, re, "R")
 	{
 		matchtext = regexs;
 
@@ -76,7 +77,8 @@ class RLine : public XLine
 
 	void DisplayExpiry()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired R-Line %s (set by %s %ld seconds ago)", this->matchtext.c_str(), this->source, (long int)(ServerInstance->Time() - this->set_time));
+		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired R-Line %s (set by %s %ld seconds ago)",
+			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
 	}
 
 	const char* Displayable()
@@ -101,7 +103,7 @@ class RLineFactory : public XLineFactory
 
 	/** Generate a RLine
 	 */
-	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
 		return new RLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
 	}

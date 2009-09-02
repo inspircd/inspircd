@@ -788,7 +788,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 
 	char data[MAXBUF];
 	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(),
-	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason);
+	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason.c_str());
 	parameterlist params;
 	params.push_back(data);
 

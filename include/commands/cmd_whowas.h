@@ -102,19 +102,19 @@ class WhoWasGroup : public classbase
  public:
 	/** Real host
 	 */
-	char* host;
+	std::string host;
 	/** Displayed host
 	 */
-	char* dhost;
+	std::string dhost;
 	/** Ident
 	 */
-	char* ident;
+	std::string ident;
 	/** Server name
 	 */
 	const char* server;
 	/** Fullname (GECOS)
 	 */
-	char* gecos;
+	std::string gecos;
 	/** Signon time
 	 */
 	time_t signon;

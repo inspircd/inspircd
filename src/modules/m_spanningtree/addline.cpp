@@ -50,7 +50,7 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 	XLine* xl = NULL;
 	try
 	{
-		xl = xlf->Generate(ServerInstance->Time(), atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+		xl = xlf->Generate(ServerInstance->Time(), atoi(params[4].c_str()), params[2], params[5], params[1]);
 	}
 	catch (ModuleException &e)
 	{

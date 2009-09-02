@@ -23,9 +23,10 @@ class SVSHold : public XLine
 public:
 	irc::string nickname;
 
-	SVSHold(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char *nick) : XLine(Instance, s_time, d, src, re, "SVSHOLD")
+	SVSHold(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string nick)
+		: XLine(Instance, s_time, d, src, re, "SVSHOLD")
 	{
-		this->nickname = nick;
+		this->nickname = nick.c_str();
 	}
 
 	~SVSHold()
@@ -48,7 +49,8 @@ public:
 
 	void DisplayExpiry()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired SVSHOLD %s (set by %s %ld seconds ago)", this->nickname.c_str(), this->source, (long int)(ServerInstance->Time() - this->set_time));
+		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
+			this->nickname.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
 	}
 
 	const char* Displayable()
@@ -66,7 +68,7 @@ class SVSHoldFactory : public XLineFactory
 
 	/** Generate a shun
  	*/
-	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
 		return new SVSHold(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
 	}
@@ -171,7 +173,7 @@ class ModuleSVSHold : public Module
 
 		if (rl)
 		{
-			user->WriteServ( "432 %s %s :Services reserved nickname: %s", user->nick.c_str(), newnick.c_str(), rl->reason);
+			user->WriteServ( "432 %s %s :Services reserved nickname: %s", user->nick.c_str(), newnick.c_str(), rl->reason.c_str());
 			return 1;
 		}
 

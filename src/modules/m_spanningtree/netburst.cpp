@@ -193,10 +193,10 @@ void TreeSocket::SendXLines(TreeServer* Current)
 					continue;
 
 				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s",sn, it->c_str(), i->second->Displayable(),
-						i->second->source,
+						i->second->source.c_str(),
 						(unsigned long)i->second->set_time,
 						(unsigned long)i->second->duration,
-						i->second->reason);
+						i->second->reason.c_str());
 				this->WriteLine(data);
 			}
 		}

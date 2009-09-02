@@ -21,7 +21,8 @@ class Shun : public XLine
 public:
 	std::string matchtext;
 
-	Shun(InspIRCd* Instance, time_t s_time, long d, const char* src, const char* re, const char *shunmask) : XLine(Instance, s_time, d, src, re, "SHUN")
+	Shun(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string shunmask)
+		: XLine(Instance, s_time, d, src, re, "SHUN")
 	{
 		this->matchtext = shunmask;
 	}
@@ -56,7 +57,8 @@ public:
 
 	void DisplayExpiry()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired shun %s (set by %s %ld seconds ago)", this->matchtext.c_str(), this->source, (long int)(ServerInstance->Time() - this->set_time));
+		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired shun %s (set by %s %ld seconds ago)",
+			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
 	}
 
 	const char* Displayable()
@@ -74,7 +76,7 @@ class ShunFactory : public XLineFactory
 
 	/** Generate a shun
  	*/
-	XLine* Generate(time_t set_time, long duration, const char* source, const char* reason, const char* xline_specific_mask)
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
 		return new Shun(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
 	}

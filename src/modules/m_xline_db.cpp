@@ -118,7 +118,7 @@ class ModuleXLineDB : public Module
 		{
 			line = (*i);
 			fprintf(f, "LINE %s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
-				ServerInstance->Config->ServerName, (unsigned long)line->set_time, (unsigned long)line->duration, line->reason);
+				ServerInstance->Config->ServerName, (unsigned long)line->set_time, (unsigned long)line->duration, line->reason.c_str());
 		}
 
 		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
@@ -191,7 +191,7 @@ class ModuleXLineDB : public Module
 
 			while (tokens.GetToken(tmp) && (items < MAXPARAMETERS))
 			{
-				command_p[items] = tmp.c_str();
+				command_p[items] = tmp;
 				items++;
 			}
 
@@ -222,7 +222,7 @@ class ModuleXLineDB : public Module
 					continue;
 				}
 
-				XLine* xl = xlf->Generate(ServerInstance->Time(), atoi(command_p[5].c_str()), command_p[3].c_str(), command_p[6].c_str(), command_p[2].c_str());
+				XLine* xl = xlf->Generate(ServerInstance->Time(), atoi(command_p[5].c_str()), command_p[3], command_p[6], command_p[2]);
 				xl->SetCreateTime(atoi(command_p[4].c_str()));
 
 				if (ServerInstance->XLines->AddLine(xl, NULL))
