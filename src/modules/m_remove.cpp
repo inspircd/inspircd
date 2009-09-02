@@ -23,14 +23,14 @@
 
 /** Base class for /FPART and /REMOVE
  */
-class RemoveBase
+class RemoveBase : public Command
 {
  private:
 	bool& supportnokicks;
-	InspIRCd* ServerInstance;
 
- protected:
-	RemoveBase(InspIRCd* Instance, bool& snk) : supportnokicks(snk), ServerInstance(Instance)
+ public:
+	RemoveBase(InspIRCd* Instance, Module* Creator, bool& snk, const char* cmdn, const char* a, int b, int c, bool d, int e)
+		: Command(Instance, Creator, cmdn, a,b,c,d,e), supportnokicks(snk)
 	{
 	}
 
@@ -69,7 +69,7 @@ class RemoveBase
 		}
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user, bool neworder)
+	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool neworder)
 	{
 		const char* channame;
 		const char* username;
@@ -196,18 +196,18 @@ class RemoveBase
 			return CMD_FAILURE;
 		}
 
-		/* route me */
 		return CMD_SUCCESS;
 	}
+	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) = 0;
 };
 
 /** Handle /REMOVE
  */
-class CommandRemove : public Command, public RemoveBase
+class CommandRemove : public RemoveBase
 {
  public:
 	CommandRemove(InspIRCd* Instance, Module* Creator, bool& snk)
-		: Command(Instance, Creator, "REMOVE", 0, 2, 2, false, 0), RemoveBase(Instance, snk)
+		: RemoveBase(Instance, Creator, snk, "REMOVE", 0, 2, 2, false, 0)
 	{
 		syntax = "<nick> <channel> [<reason>]";
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
@@ -215,24 +215,41 @@ class CommandRemove : public Command, public RemoveBase
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		return RemoveBase::Handle(parameters, user, false);
+		return HandleRMB(parameters, user, false);
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
 /** Handle /FPART
  */
-class CommandFpart : public Command, public RemoveBase
+class CommandFpart : public RemoveBase
 {
  public:
 	CommandFpart(InspIRCd* Instance, Module* Creator, bool& snk)
-		: Command(Instance, Creator, "FPART", 0, 2), RemoveBase(Instance, snk)
+		: RemoveBase(Instance, Creator, snk, "FPART", 0, 2, 2, false, 0)
 	{
 		syntax = "<channel> <nick> [<reason>]";
+		TRANSLATE4(TR_TEXT, TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		return RemoveBase::Handle(parameters, user, true);
+		return HandleRMB(parameters, user, true);
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[1]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -272,7 +289,7 @@ class ModuleRemove : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

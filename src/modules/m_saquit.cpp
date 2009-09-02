@@ -44,14 +44,21 @@ class CommandSaquit : public Command
 			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+parameters[1]);
 
 			ServerInstance->Users->QuitUser(dest, parameters[1]);
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 		else
 		{
 			user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
 		}
+	}
 
-		return CMD_FAILURE;
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -71,7 +78,7 @@ class ModuleSaquit : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

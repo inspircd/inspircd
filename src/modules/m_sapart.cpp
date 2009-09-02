@@ -82,6 +82,14 @@ class CommandSapart : public Command
 
 		return CMD_FAILURE;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
+	}
 };
 
 
@@ -101,7 +109,7 @@ class ModuleSapart : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

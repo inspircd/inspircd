@@ -67,12 +67,17 @@ class CommandSanick : public Command
 				ServerInstance->SNO->WriteToSnoMask('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 				ServerInstance->PI->SendSNONotice("A", oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 			}
-			/* Yes, hit target and we have sent our NICK out, we can now bail */
-			return CMD_LOCALONLY;
 		}
 
-		/* No, route it on */
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -93,7 +98,7 @@ class ModuleSanick : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };
