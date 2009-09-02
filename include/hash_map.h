@@ -11,8 +11,10 @@
  * ---------------------------------------------------
  */
 
-	#ifndef INSPIRCD_HASHMAP_H
-	#define INSPIRCD_HASHMAP_H
+#ifndef INSPIRCD_HASHMAP_H
+#define INSPIRCD_HASHMAP_H
+
+#include "inspircd_config.h"
 
 	/** Where hash_map is varies from compiler to compiler
 	 * as it is not standard unless we have tr1.
