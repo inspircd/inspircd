@@ -156,36 +156,20 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 
 	float avg_users = totusers * 1.0 / totservers;
 
-	// dump the whole lot to the user.
-	if (IS_LOCAL(user))
+	ServerInstance->Logs->Log("map",DEBUG,"local");
+	for (int t = 0; t < line; t++)
 	{
-		ServerInstance->Logs->Log("map",DEBUG,"local");
-		for (int t = 0; t < line; t++)
-		{
-			// terminate the string at maxnamew characters
-			names[100 * t + maxnamew] = '\0';
-			user->WriteNumeric(RPL_MAP, "%s :%s %s",user->nick.c_str(),names + 100 * t, stats + 50 * t);
-		}
-		user->WriteNumeric(RPL_MAPUSERS, "%s :%d server%s and %d user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
-		user->WriteNumeric(RPL_ENDMAP, "%s :End of /MAP",user->nick.c_str());
+		// terminate the string at maxnamew characters
+		names[100 * t + maxnamew] = '\0';
+		ServerInstance->DumpText(user, ":%s %d %s :%s %s", ServerInstance->Config->ServerName,
+			RPL_MAP, user->nick.c_str(), names + 100 * t, stats + 50 * t);
 	}
-	else
-	{
-		ServerInstance->Logs->Log("map", DEBUG, "remote dump lines=%d", line);
+	ServerInstance->DumpText(user, ":%s %d %s :%d server%s and %d user%s, average %.2f users per server",
+		ServerInstance->Config->ServerName, RPL_MAPUSERS, user->nick.c_str(),
+		totservers, (totservers > 1 ? "s" : ""), totusers, (totusers > 1 ? "s" : ""), avg_users);
+	ServerInstance->DumpText(user, ":%s %d %s :End of /MAP", ServerInstance->Config->ServerName,
+		RPL_ENDMAP, user->nick.c_str());
 
-		// XXX: annoying that we have to use hardcoded numerics here..
-		for (int t = 0; t < line; t++)
-		{
-			// terminate the string at maxnamew characters
-			char* name = names + 100 * t;
-			char* stat = stats + 50 * t;
-			name[maxnamew] = '\0';
-			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + name + " " + stat);
-		}
-
-		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(totservers) + " server"+(totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + " user"+(totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
-		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 007 " + user->nick + " :End of /MAP");
-	}
 	delete[] names;
 	delete[] stats;
 

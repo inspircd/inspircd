@@ -116,7 +116,7 @@ class CommandCheck : public Command
 			chliststr = targuser->ChannelList(targuser);
 			std::stringstream dump(chliststr);
 
-			ServerInstance->DumpText(user,checkstr + " onchans ", dump);
+			ServerInstance->DumpText(user,checkstr + " onchans", dump);
 
 			FOREACH_MOD_I(ServerInstance,I_OnSyncUser,OnSyncUser(targuser,creator,(void*)user));
 			dumpExtra(user, checkstr, targuser);

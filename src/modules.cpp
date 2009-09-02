@@ -777,15 +777,28 @@ void InspIRCd::DumpText(User* user, const std::string &text)
 	}
 	else
 	{
-		PI->PushToClient(user, ":" + text);
+		PI->PushToClient(user, text);
 	}
+}
+
+void InspIRCd::DumpText(User* user, const char *text, ...)
+{
+	va_list argsPtr;
+	char line[MAXBUF];
+
+	va_start(argsPtr, text);
+	vsnprintf(line, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	DumpText(user, std::string(line));
 }
 
 void InspIRCd::DumpText(User* user, const std::string &LinePrefix, std::stringstream &TextStream)
 {
 	char line[MAXBUF];
-	int start_pos = snprintf(line, MAXBUF, ":%s %s", Config->ServerName, LinePrefix.c_str());
+	int start_pos = LinePrefix.length();
 	int pos = start_pos;
+	memcpy(line, LinePrefix.data(), pos);
 	std::string Word;
 	while (TextStream >> Word)
 	{
@@ -793,14 +806,15 @@ void InspIRCd::DumpText(User* user, const std::string &LinePrefix, std::stringst
 		if (pos + len + 12 > MAXBUF)
 		{
 			line[pos] = '\0';
-			DumpText(user, line);
+			DumpText(user, std::string(line));
 			pos = start_pos;
 		}
 		line[pos] = ' ';
 		memcpy(line + pos + 1, Word.data(), len);
 		pos += len + 1;
 	}
-	DumpText(user, line);
+	line[pos] = '\0';
+	DumpText(user, std::string(line));
 }
 
 bool InspIRCd::AddResolver(Resolver* r, bool cached)

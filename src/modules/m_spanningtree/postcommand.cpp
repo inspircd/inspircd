@@ -54,7 +54,14 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 	}
 	else if (routing.type == ROUTE_TYPE_OPT_UCAST)
 	{
-		params.push_back(routing.serverdest);
+		TreeServer* sdest = Utils->FindServer(routing.serverdest);
+		if (!sdest)
+		{
+			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Trying to route ENCAP to nonexistant server %s",
+				routing.serverdest.c_str());
+			return;
+		}
+		params.push_back(sdest->GetID());
 		params.push_back(command);
 		sent_cmd = "ENCAP";
 	}

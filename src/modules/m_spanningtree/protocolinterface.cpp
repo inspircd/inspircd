@@ -114,7 +114,7 @@ void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string
 {
 	parameterlist p;
 	p.push_back(target->uuid);
-	p.push_back(rawline);
+	p.push_back(":" + rawline);
 	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", p, target->server);
 }
 

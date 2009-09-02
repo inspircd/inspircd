@@ -770,6 +770,12 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void DumpText(User* user, const std::string &text);
 
+	/** Dump text to a user target (local or remote)
+	 * @param user the user to dump the text to
+	 * @param format the printf format string for the text to send
+	 */
+	void DumpText(User* user, const char* format, ...) CUSTOM_PRINTF(3, 4);
+
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against
 	 * @param user A user to send error text to

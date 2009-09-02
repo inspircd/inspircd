@@ -32,14 +32,7 @@ class CommandAlltime : public Command
 
 		std::string msg = ":" + std::string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time is " + fmtdate + "(" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 
-		if (IS_LOCAL(user))
-		{
-			user->Write(msg);
-		}
-		else
-		{
-			ServerInstance->PI->PushToClient(user, ":" + msg);
-		}
+		ServerInstance->DumpText(user, msg);
 
 		/* we want this routed out! */
 		return CMD_SUCCESS;
