@@ -18,39 +18,15 @@
 
 static ConfigReader* conf;
 
-class QuietOper : public VisData
-{
- public:
-	QuietOper()
-	{
-	}
-
-	virtual ~QuietOper()
-	{
-	}
-
-	virtual bool VisibleTo(User* user)
-	{
-		return IS_OPER(user);
-	}
-};
-
-
 class InvisibleMode : public ModeHandler
 {
-	QuietOper* qo;
  public:
 	InvisibleMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'Q', 0, 0, false, MODETYPE_USER, true)
 	{
-		qo = new QuietOper();
 	}
 
 	~InvisibleMode()
 	{
-		for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
-			if (i->second->Visibility == qo)
-				i->second->Visibility = NULL;
-		delete qo;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
@@ -65,9 +41,6 @@ class InvisibleMode : public ModeHandler
 			/* This must come before setting/unsetting the handler */
 			if (m && adding)
 				m->OnUserQuit(dest, "Connection closed", "Connection closed");
-
-			/* Set visibility handler object */
-			dest->Visibility = adding ? qo : NULL;
 
 			/* This has to come after setting/unsetting the handler */
 			if (m && !adding)

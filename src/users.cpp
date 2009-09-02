@@ -217,7 +217,6 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	client_sa.sa.sa_family = AF_UNSPEC;
 	recvq.clear();
 	sendq.clear();
-	Visibility = NULL;
 	MyClass = NULL;
 	AllowedPrivs = AllowedOperCommands = NULL;
 	chans.clear();
@@ -1955,20 +1954,6 @@ const std::string FakeUser::GetFullRealHost()
 		return ServerInstance->Config->HideWhoisServer;
 	return nick;
 }
-
-VisData::VisData()
-{
-}
-
-VisData::~VisData()
-{
-}
-
-bool VisData::VisibleTo(User* user)
-{
-	return true;
-}
-
 
 ConnectClass::ConnectClass(char t, const std::string& mask)
 	: type(t), name("unnamed"), registration_timeout(0), host(mask), pingtime(0), pass(""), hash(""), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0), RefCount(1)

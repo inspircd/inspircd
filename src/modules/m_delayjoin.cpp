@@ -229,10 +229,6 @@ void ModuleDelayJoin::WriteCommonFrom(User *user, Channel* channel, const char* 
 		if (user == i->first)
 			continue;
 
-		/* Users with a visibility state that hides them dont appear */
-		if (user->Visibility && !user->Visibility->VisibleTo(i->first))
-			continue;
-
 		i->first->Write(std::string(tb));
 	}
 }

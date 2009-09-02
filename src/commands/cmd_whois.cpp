@@ -17,13 +17,6 @@
 
 void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
-	if ((dest->Visibility && !dest->Visibility->VisibleTo(user)) || dest->registered != REG_ALL)
-	{
-		ServerInstance->SendWhoisLine(user, dest, 401, "%s %s :No such nick/channel",user->nick.c_str(), *nick ? nick : "*");
-		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick.c_str(), *nick ? nick : "*");
-		return;
-	}
-
 	ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
 	if (user == dest || user->HasPrivPermission("users/auspex"))
 	{

@@ -911,9 +911,6 @@ void Channel::UserList(User *user, CUList *ulist)
 			continue;
 		}
 
-		if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
-			continue;
-
 		std::string prefixlist = this->GetPrefixChar(i->first);
 		std::string nick = i->first->nick;
 

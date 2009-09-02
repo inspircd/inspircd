@@ -35,9 +35,6 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 
 		if (u)
 		{
-			if (u->Visibility && !u->Visibility->VisibleTo(user))
-				continue;
-
 			reply.append(u->nick).append(" ");
 			if (reply.length() > 450)
 			{
@@ -63,9 +60,6 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 
 					if (u)
 					{
-						if (u->Visibility && !u->Visibility->VisibleTo(user))
-							continue;
-
 						reply.append(u->nick).append(" ");
 						if (reply.length() > 450)
 						{

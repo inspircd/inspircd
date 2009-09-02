@@ -218,27 +218,6 @@ typedef UserChanList::iterator UCListIter;
  */
 class User;
 
-/** Visibility data for a user.
- * If a user has a non-null instance of this class in their User,
- * then it is used to determine if this user is visible to other users
- * or not.
- */
-class CoreExport VisData
-{
- public:
-	/** Create a visdata
-	 */
-	VisData();
-	/** Destroy a visdata
-	 */
-	virtual ~VisData();
-	/** Is this user visible to some other user?
-	 * @param user The other user to compare to
-	 * @return true True if the user is visible to the other user, false if not
-	 */
-	virtual bool VisibleTo(User* user);
-};
-
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
@@ -299,10 +278,6 @@ class CoreExport User : public EventHandler
 	 * The pointer is guarenteed to *always* be valid. :)
 	 */
 	ConnectClass *MyClass;
-
-	/** User visibility state, see definition of VisData.
-	 */
-	VisData* Visibility;
 
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.

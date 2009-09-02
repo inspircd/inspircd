@@ -147,10 +147,6 @@ bool CommandWho::CanView(Channel* chan, User* user)
 
 void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
 {
-	/* Not visible to this user */
-	if (u->Visibility && !u->Visibility->VisibleTo(user))
-		return;
-
 	const std::string& lcn = get_first_visible_channel(u);
 	Channel* chlast = ServerInstance->FindChan(lcn);
 

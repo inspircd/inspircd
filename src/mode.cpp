@@ -319,12 +319,6 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	}
 	else
 	{
-		if (targetuser->Visibility && !targetuser->Visibility->VisibleTo(user))
-		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), text);
-			return;
-		}
-
 		if (targetuser == user || user->HasPrivPermission("users/auspex"))
 		{
 			/* Display user's current mode string */
