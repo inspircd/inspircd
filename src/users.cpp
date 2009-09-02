@@ -1195,27 +1195,12 @@ bool User::SetClientIP(const char* sip)
 	return irc::sockets::aptosa(sip, 0, &client_sa);
 }
 
-/** NOTE: We cannot pass a const reference to this method.
- * The string is changed by the workings of the method,
- * so that if we pass const ref, we end up copying it to
- * something we can change anyway. Makes sense to just let
- * the compiler do that copy for us.
- */
-void User::Write(std::string text)
+void User::Write(const std::string& text)
 {
 	if (!ServerInstance->SE->BoundsCheckFd(this))
 		return;
 
-	try
-	{
-		ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
-		text.append("\r\n");
-	}
-	catch (...)
-	{
-		ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"Exception in User::Write() std::string::append");
-		return;
-	}
+	ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
 
 	if (this->GetIOHook())
 	{
@@ -1225,6 +1210,7 @@ void User::Write(std::string text)
 		try
 		{
 			this->GetIOHook()->OnRawSocketWrite(this->fd, text.data(), text.length());
+			this->GetIOHook()->OnRawSocketWrite(this->fd, "\r\n", 2);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -1234,8 +1220,9 @@ void User::Write(std::string text)
 	else
 	{
 		this->AddWriteBuf(text);
+		this->AddWriteBuf("\r\n");
 	}
-	ServerInstance->stats->statsSent += text.length();
+	ServerInstance->stats->statsSent += text.length() + 2;
 	this->ServerInstance->SE->WantWrite(this);
 }
 
@@ -1255,10 +1242,7 @@ void User::Write(const char *text, ...)
 
 void User::WriteServ(const std::string& text)
 {
-	char textbuffer[MAXBUF];
-
-	snprintf(textbuffer,MAXBUF,":%s %s",ServerInstance->Config->ServerName,text.c_str());
-	this->Write(std::string(textbuffer));
+	this->Write(":%s %s",ServerInstance->Config->ServerName,text.c_str());
 }
 
 /** WriteServ()

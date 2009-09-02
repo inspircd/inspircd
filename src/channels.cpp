@@ -770,21 +770,28 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 	if (!text)
 		return;
 
+	int offset = snprintf(textbuffer,MAXBUF,":%s ", user->GetFullHost().c_str());
+
 	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	vsnprintf(textbuffer + offset, MAXBUF - offset, text, argsPtr);
 	va_end(argsPtr);
 
-	this->WriteAllExcept(user, serversource, status, except_list, std::string(textbuffer));
+	this->RawWriteAllExcept(user, serversource, status, except_list, std::string(textbuffer));
 }
 
 void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &text)
 {
-	CUList *ulist = this->GetUsers();
 	char tb[MAXBUF];
 
-	snprintf(tb,MAXBUF,":%s %s", user->GetFullHost().c_str(), text.c_str());
+	snprintf(tb,MAXBUF,":%s %s", serversource ? ServerInstance->Config->ServerName : user->GetFullHost().c_str(), text.c_str());
 	std::string out = tb;
 
+	this->RawWriteAllExcept(user, serversource, status, except_list, std::string(tb));
+}
+
+void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &out)
+{
+	CUList *ulist = this->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if ((IS_LOCAL(i->first)) && (except_list.find(i->first) == except_list.end()))
@@ -793,10 +800,7 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 			if (status && !strchr(this->GetAllPrefixChars(i->first), status))
 				continue;
 
-			if (serversource)
-				i->first->WriteServ(text);
-			else
-				i->first->Write(out);
+			i->first->Write(out);
 		}
 	}
 }

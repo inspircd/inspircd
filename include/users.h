@@ -767,7 +767,7 @@ class CoreExport User : public EventHandler
 	/** Write text to this user, appending CR/LF.
 	 * @param text A std::string to send to the user
 	 */
-	void Write(std::string text);
+	void Write(const std::string &text);
 
 	/** Write text to this user, appending CR/LF.
 	 * @param text The format string for text to send to the user

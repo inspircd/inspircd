@@ -425,6 +425,8 @@ class CoreExport Channel : public Extensible
 	 * @param text A std::string containing the output line without prefix
 	 */
 	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
+	/** Write a line of text that already includes the source */
+	void RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
 
 	/** Returns the maximum number of bans allowed to be set on this channel
 	 * @return The maximum number of bans allowed
