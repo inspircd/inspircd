@@ -23,7 +23,7 @@
 
 
 
-bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::RemoteKill(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() != 2)
 		return true;

@@ -94,7 +94,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		}
 		else if (s && s != Utils->TreeRoot)
 		{
-			std::deque<std::string> params;
+			parameterlist params;
 			params.push_back(parameters[0]);
 
 			params[0] = s->GetName();

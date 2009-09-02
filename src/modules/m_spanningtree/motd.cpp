@@ -23,7 +23,7 @@
 
 
 /** remote MOTD. leet, huh? */
-bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::Motd(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() > 0)
 	{
@@ -35,7 +35,7 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 
 			if (source)
 			{
-				std::deque<std::string> par;
+				parameterlist par;
 				par.push_back(prefix);
 				par.push_back("");
 

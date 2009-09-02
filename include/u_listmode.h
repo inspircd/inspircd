@@ -200,9 +200,6 @@ class ListModeBase : public ModeHandler
 		if (el)
 		{
 			irc::modestacker modestack(ServerInstance, false);
-			std::deque<std::string> stackresult;
-			std::vector<std::string> mode_junk;
-			mode_junk.push_back(channel->name);
 
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
@@ -215,11 +212,13 @@ class ListModeBase : public ModeHandler
 			if (stack)
 				return;
 
+			std::vector<std::string> stackresult;
+			stackresult.push_back(channel->name);
 			while (modestack.GetStackedLine(stackresult))
 			{
-				mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-				ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
-				mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
+				ServerInstance->SendMode(stackresult, ServerInstance->FakeClient);
+				stackresult.clear();
+				stackresult.push_back(channel->name);
 			}
 		}
 	}
@@ -419,8 +418,8 @@ class ListModeBase : public ModeHandler
 		modelist* mlist;
 		chan->GetExt(infokey, mlist);
 		irc::modestacker modestack(ServerInstance, true);
-		std::deque<std::string> stackresult;
-		std::deque<TranslateType> types;
+		std::vector<std::string> stackresult;
+		std::vector<TranslateType> types;
 		types.push_back(TR_TEXT);
 		if (mlist)
 		{
@@ -433,6 +432,7 @@ class ListModeBase : public ModeHandler
 		{
 			types.assign(stackresult.size(), this->GetTranslateType());
 			proto->ProtoSendMode(opaque, TYPE_CHANNEL, chan, stackresult, types);
+			stackresult.clear();
 		}
 	}
 

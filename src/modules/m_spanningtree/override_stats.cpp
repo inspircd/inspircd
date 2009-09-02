@@ -36,7 +36,7 @@ int ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, 
 			return 0;
 
 		/* Remote STATS, the server is within the 2nd parameter */
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(parameters[0]);
 		params.push_back(parameters[1]);
 		/* Send it out remotely, generate no reply yet */

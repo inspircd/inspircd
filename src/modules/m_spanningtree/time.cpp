@@ -26,7 +26,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::Time(const std::string &prefix, parameterlist &params)
 {
 	// :source.server TIME remote.server sendernick
 	// :remote.server TIME source.server sendernick TS

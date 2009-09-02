@@ -38,7 +38,7 @@ int ModuleSpanningTree::HandleTime(const std::vector<std::string>& parameters, U
 			if (found == Utils->TreeRoot)
 				return 0;
 
-			std::deque<std::string> params;
+			parameterlist params;
 			params.push_back(found->GetName());
 			params.push_back(user->uuid);
 			Utils->DoOneToOne(ServerInstance->Config->GetSID(),"TIME",params,found->GetName());

@@ -23,7 +23,7 @@
 
 
 /** remote MOTD. leet, huh? */
-bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::Encap(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() > 1)
 	{

@@ -607,10 +607,10 @@ void CommandParser::SetupCommandTable()
 		this->CreateCommand(new CommandReload(ServerInstance));
 }
 
-int CommandParser::TranslateUIDs(const std::deque<TranslateType> to, const std::deque<std::string> &source, std::string &dest)
+int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest)
 {
-	std::deque<std::string>::const_iterator items = source.begin();
-	std::deque<TranslateType>::const_iterator types = to.begin();
+	std::vector<std::string>::const_iterator items = source.begin();
+	std::vector<TranslateType>::const_iterator types = to.begin();
 	User* user = NULL;
 	int translations = 0;
 	dest.clear();

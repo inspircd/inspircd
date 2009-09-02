@@ -35,7 +35,7 @@ int ModuleSpanningTree::HandleMotd(const std::vector<std::string>& parameters, U
 			return 0;
 
 		/* Remote MOTD, the server is within the 1st parameter */
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(parameters[0]);
 		/* Send it out remotely, generate no reply yet */
 		TreeServer* s = Utils->FindServerMask(parameters[0]);

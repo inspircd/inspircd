@@ -343,26 +343,26 @@ void irc::modestacker::PushMinus()
 	this->Push('-',"");
 }
 
-int irc::modestacker::GetStackedLine(std::deque<std::string> &result, int max_line_size)
+int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_line_size)
 {
 	if (sequence.empty())
 	{
-		result.clear();
 		return 0;
 	}
 
-	int n = 0;
+	unsigned int n = 0;
 	int size = 1; /* Account for initial +/- char */
 	int nextsize = 0;
-	result.clear();
-	result.push_back(adding ? "+" : "-");
+	int start = result.size();
+	std::string modeline = adding ? "+" : "-";
+	result.push_back(modeline);
 
 	if (sequence.size() > 1)
 		nextsize = sequence[1].length() + 2;
 
-	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < ServerInstance->Config->Limits.MaxModes) && ((size + nextsize) < max_line_size))
+	while (!sequence[0].empty() && (sequence.size() > 1) && (n < ServerInstance->Config->Limits.MaxModes) && ((size + nextsize) < max_line_size))
 	{
-		result[0] += *(sequence[0].begin());
+		modeline += *(sequence[0].begin());
 		if (!sequence[1].empty())
 		{
 			result.push_back(sequence[1]);
@@ -376,6 +376,7 @@ int irc::modestacker::GetStackedLine(std::deque<std::string> &result, int max_li
 
 		n++;
 	}
+	result[start] = modeline;
 
 	return n;
 }

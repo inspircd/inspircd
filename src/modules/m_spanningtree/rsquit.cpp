@@ -79,7 +79,7 @@ void CommandRSQuit::NoticeUser(User* user, const std::string &msg)
 	}
 	else
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(user->nick);
 		params.push_back("NOTICE "+ConvToStr(user->nick)+" :"+msg);
 		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", params, user->server);

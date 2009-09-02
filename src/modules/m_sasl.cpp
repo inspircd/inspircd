@@ -40,7 +40,7 @@ class SaslAuthenticator : public classbase
 	{
 		this->user->Extend("sasl_authenticator", this);
 
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back("*");
 		params.push_back("SASL");
 		params.push_back(user->uuid);
@@ -63,7 +63,7 @@ class SaslAuthenticator : public classbase
 	}
 
 	/* checks for and deals with a state change. */
-	SaslState ProcessInboundMessage(std::deque<std::string> &msg)
+	SaslState ProcessInboundMessage(parameterlist &msg)
 	{
 		switch (this->state)
 		{
@@ -106,7 +106,7 @@ class SaslAuthenticator : public classbase
 		if (this->state != SASL_COMM)
 			return true;
 
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back("*");
 		params.push_back("SASL");
 		params.push_back(this->user->uuid);
@@ -258,7 +258,7 @@ class ModuleSASL : public Module
 
 		if (ev->GetEventID() == "encap_received")
 		{
-			std::deque<std::string>* parameters = (std::deque<std::string>*)ev->GetData();
+			parameterlist* parameters = (parameterlist*)ev->GetData();
 
 			if ((*parameters)[1] != "SASL")
 				return;

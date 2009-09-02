@@ -47,7 +47,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 		// can just handle commands locally, without having
 		// to have any special provision in place for remote
 		// commands and linking protocols.
-		std::deque<std::string> params;
+		parameterlist params;
 		params.clear();
 		unsigned int n_translate = thiscmd->translation.size();
 		TranslateType translate_to;

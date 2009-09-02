@@ -23,7 +23,7 @@
 
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h m_spanningtree/handshaketimer.h */
 
-bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &params)
+bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 {
 	/** Do we have enough parameters:
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)

@@ -34,7 +34,7 @@ int ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parame
 		User* remote = ServerInstance->FindNick(parameters[1]);
 		if ((remote) && (remote->GetFd() < 0))
 		{
-			std::deque<std::string> params;
+			parameterlist params;
 			params.push_back(remote->uuid);
 			Utils->DoOneToOne(user->uuid,"IDLE",params,remote->server);
 			return 1;

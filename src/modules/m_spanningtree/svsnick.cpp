@@ -29,7 +29,7 @@
 /** Because Andy insists that services-compatible servers must
  * implement SVSNICK and SVSJOIN, that's exactly what we do :p
  */
-bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::ForceNick(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 3)
 		return true;
@@ -42,7 +42,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 
 		if (IS_LOCAL(u))
 		{
-			std::deque<std::string> par;
+			parameterlist par;
 			par.push_back(params[1]);
 
 			if (!u->ForceNickChange(params[1].c_str()))

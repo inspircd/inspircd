@@ -22,7 +22,7 @@
 
 
 /** FMODE command - server mode with timestamp checks */
-bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &params)
+bool TreeSocket::ForceMode(const std::string &source, parameterlist &params)
 {
 	/* Chances are this is a 1.0 FMODE without TS */
 	if (params.size() < 3)

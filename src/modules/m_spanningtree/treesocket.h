@@ -198,7 +198,7 @@ class TreeSocket : public BufferedSocket
 	/* Isolate and return the elements that are different between two comma seperated lists */
 	std::string ListDifference(const std::string &one, const std::string &two);
 
-	bool Capab(const std::deque<std::string> &params);
+	bool Capab(const parameterlist &params);
 
 	/** This function forces this server to quit, removing this server
 	 * and any users on it (and servers and users below that, etc etc).
@@ -215,19 +215,19 @@ class TreeSocket : public BufferedSocket
 	void Squit(TreeServer* Current, const std::string &reason);
 
 	/** FMODE command - server mode with timestamp checks */
-	bool ForceMode(const std::string &source, std::deque<std::string> &params);
+	bool ForceMode(const std::string &source, parameterlist &params);
 
 	/** FTOPIC command */
-	bool ForceTopic(const std::string &source, std::deque<std::string> &params);
+	bool ForceTopic(const std::string &source, parameterlist &params);
 
 	/** FJOIN, similar to TS6 SJOIN, but not quite. */
-	bool ForceJoin(const std::string &source, std::deque<std::string> &params);
+	bool ForceJoin(const std::string &source, parameterlist &params);
 
 	/* Used on nick collision ... XXX ugly function HACK */
 	int DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid);
 
 	/** UID command */
-	bool ParseUID(const std::string &source, std::deque<std::string> &params);
+	bool ParseUID(const std::string &source, parameterlist &params);
 
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
@@ -266,117 +266,117 @@ class TreeSocket : public BufferedSocket
 	void WriteLine(std::string line);
 
 	/** Handle ERROR command */
-	bool Error(std::deque<std::string> &params);
+	bool Error(parameterlist &params);
 
 	/** remote MOTD. leet, huh? */
-	bool Motd(const std::string &prefix, std::deque<std::string> &params);
+	bool Motd(const std::string &prefix, parameterlist &params);
 
 	/** remote ADMIN. leet, huh? */
-	bool Admin(const std::string &prefix, std::deque<std::string> &params);
+	bool Admin(const std::string &prefix, parameterlist &params);
 
 	/** Remote MODULES */
-	bool Modules(const std::string &prefix, std::deque<std::string> &params);
+	bool Modules(const std::string &prefix, parameterlist &params);
 
-	bool Stats(const std::string &prefix, std::deque<std::string> &params);
+	bool Stats(const std::string &prefix, parameterlist &params);
 
 	/** Because the core won't let users or even SERVERS set +o,
 	 * we use the OPERTYPE command to do this.
 	 */
-	bool OperType(const std::string &prefix, std::deque<std::string> &params);
+	bool OperType(const std::string &prefix, parameterlist &params);
 
 	/** Because Andy insists that services-compatible servers must
 	 * implement SVSNICK and SVSJOIN, that's exactly what we do :p
 	 */
-	bool ForceNick(const std::string &prefix, std::deque<std::string> &params);
+	bool ForceNick(const std::string &prefix, parameterlist &params);
 
 	/** PRIVMSG or NOTICE with server origin ONLY
 	 */
-	bool ServerMessage(const std::string &messagetype, const std::string &prefix, std::deque<std::string> &params, const std::string &sourceserv);
+	bool ServerMessage(const std::string &messagetype, const std::string &prefix, parameterlist &params, const std::string &sourceserv);
 
 	/** ENCAP command
 	 */
-	bool Encap(const std::string &prefix, std::deque<std::string> &params);
+	bool Encap(const std::string &prefix, parameterlist &params);
 
 	/** OPERQUIT command
 	 */
-	bool OperQuit(const std::string &prefix, std::deque<std::string> &params);
+	bool OperQuit(const std::string &prefix, parameterlist &params);
 
 	/** SVSJOIN
 	 */
-	bool ServiceJoin(const std::string &prefix, std::deque<std::string> &params);
+	bool ServiceJoin(const std::string &prefix, parameterlist &params);
 
 	/** SVSPART
 	 */
-	bool ServicePart(const std::string &prefix, std::deque<std::string> &params);
+	bool ServicePart(const std::string &prefix, parameterlist &params);
 
 	/** KILL
 	 */
-	bool RemoteKill(const std::string &prefix, std::deque<std::string> &params);
+	bool RemoteKill(const std::string &prefix, parameterlist &params);
 
 	/** PONG
 	 */
-	bool LocalPong(const std::string &prefix, std::deque<std::string> &params);
+	bool LocalPong(const std::string &prefix, parameterlist &params);
 
 	/** METADATA
 	 */
-	bool MetaData(const std::string &prefix, std::deque<std::string> &params);
+	bool MetaData(const std::string &prefix, parameterlist &params);
 
 	/** VERSION
 	 */
-	bool ServerVersion(const std::string &prefix, std::deque<std::string> &params);
+	bool ServerVersion(const std::string &prefix, parameterlist &params);
 
 	/** CHGHOST
 	 */
-	bool ChangeHost(const std::string &prefix, std::deque<std::string> &params);
+	bool ChangeHost(const std::string &prefix, parameterlist &params);
 
 	/** ADDLINE
 	 */
-	bool AddLine(const std::string &prefix, std::deque<std::string> &params);
+	bool AddLine(const std::string &prefix, parameterlist &params);
 
 	/** DELLINE
 	 */
-	bool DelLine(const std::string &prefix, std::deque<std::string> &params);
+	bool DelLine(const std::string &prefix, parameterlist &params);
 
 	/** CHGNAME
 	 */
-	bool ChangeName(const std::string &prefix, std::deque<std::string> &params);
+	bool ChangeName(const std::string &prefix, parameterlist &params);
 
 	/** WHOIS
 	 */
-	bool Whois(const std::string &prefix, std::deque<std::string> &params);
+	bool Whois(const std::string &prefix, parameterlist &params);
 
 	/** PUSH
 	 */
-	bool Push(const std::string &prefix, std::deque<std::string> &params);
+	bool Push(const std::string &prefix, parameterlist &params);
 
 	/** TIME
 	 */
-	bool Time(const std::string &prefix, std::deque<std::string> &params);
+	bool Time(const std::string &prefix, parameterlist &params);
 
 	/** PING
 	 */
-	bool LocalPing(const std::string &prefix, std::deque<std::string> &params);
+	bool LocalPing(const std::string &prefix, parameterlist &params);
 
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
 	 * This does not update the timestamp of the target channel, this must be done seperately.
 	 */
-	bool RemoveStatus(const std::string &prefix, std::deque<std::string> &params);
+	bool RemoveStatus(const std::string &prefix, parameterlist &params);
 
 	/** <- (remote) <- SERVER
 	 */
-	bool RemoteServer(const std::string &prefix, std::deque<std::string> &params);
+	bool RemoteServer(const std::string &prefix, parameterlist &params);
 
 	/** (local) -> SERVER
 	 */
-	bool Outbound_Reply_Server(std::deque<std::string> &params);
+	bool Outbound_Reply_Server(parameterlist &params);
 
 	/** (local) <- SERVER
 	 */
-	bool Inbound_Server(std::deque<std::string> &params);
+	bool Inbound_Server(parameterlist &params);
 
 	/** Handle netsplit
 	 */
-	void Split(const std::string &line, std::deque<std::string> &n);
+	void Split(const std::string &line, parameterlist &n);
 
 	/** Process complete line from buffer
 	 */

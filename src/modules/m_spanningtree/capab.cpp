@@ -129,7 +129,7 @@ std::string TreeSocket::ListDifference(const std::string &one, const std::string
 	return result;
 }
 
-bool TreeSocket::Capab(const std::deque<std::string> &params)
+bool TreeSocket::Capab(const parameterlist &params)
 {
 	if (params.size() < 1)
 	{

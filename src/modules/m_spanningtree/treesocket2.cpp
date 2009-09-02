@@ -38,7 +38,7 @@ void TreeSocket::WriteLine(std::string line)
 
 
 /* Handle ERROR command */
-bool TreeSocket::Error(std::deque<std::string> &params)
+bool TreeSocket::Error(parameterlist &params)
 {
 	if (params.size() < 1)
 		return false;
@@ -47,7 +47,7 @@ bool TreeSocket::Error(std::deque<std::string> &params)
 	return false;
 }
 
-void TreeSocket::Split(const std::string &line, std::deque<std::string> &n)
+void TreeSocket::Split(const std::string &line, parameterlist &n)
 {
 	n.clear();
 	irc::tokenstream tokens(line);
@@ -61,7 +61,7 @@ void TreeSocket::Split(const std::string &line, std::deque<std::string> &n)
 
 bool TreeSocket::ProcessLine(std::string &line)
 {
-	std::deque<std::string> params;
+	parameterlist params;
 	irc::string command;
 	std::string prefix;
 
@@ -80,17 +80,20 @@ bool TreeSocket::ProcessLine(std::string &line)
 	if ((params[0][0] == ':') && (params.size() > 1))
 	{
 		prefix = params[0].substr(1);
-		params.pop_front();
 
 		if (prefix.empty())
 		{
 			this->SendError("BUG (?) Empty prefix recieved: " + line);
 			return false;
 		}
+		command = params[1].c_str();
+		params.erase(params.begin(), params.begin() + 2);
 	}
-
-	command = params[0].c_str();
-	params.pop_front();
+	else
+	{
+		command = params[0].c_str();
+		params.erase(params.begin());
+	}
 
 	switch (this->LinkState)
 	{

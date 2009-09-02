@@ -102,7 +102,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		 * Local-side nick needs to change. Just in case we are hub, and
 		 * this "local" nick is actually behind us, send an SVSNICK out.
 		 */
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(u->uuid);
 		params.push_back(u->uuid);
 		params.push_back(ConvToStr(u->age));

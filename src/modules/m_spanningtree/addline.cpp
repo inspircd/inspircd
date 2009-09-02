@@ -20,7 +20,7 @@
 
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 6)
 	{

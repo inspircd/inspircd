@@ -21,7 +21,7 @@
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 
-bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::Modules(const std::string &prefix, parameterlist &params)
 {
 	if (params.empty())
 		return true;
@@ -34,7 +34,7 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 	}
 
 	char strbuf[MAXBUF];
-	std::deque<std::string> par;
+	parameterlist par;
 	par.push_back(prefix);
 	par.push_back("");
 

@@ -203,7 +203,7 @@ class CoreExport CommandParser : public classbase
 	 */
 	int TranslateUIDs(TranslateType to, const std::string &source, std::string &dest);
 
-	int TranslateUIDs(const std::deque<TranslateType> to, const std::deque<std::string> &source, std::string &dest);
+	int TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest);
 };
 
 /** Command handler class for the RELOAD command.

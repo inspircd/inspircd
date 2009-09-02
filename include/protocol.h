@@ -19,7 +19,7 @@
 class InspIRCd;
 class User;
 
-typedef std::deque<std::string> parameterlist;
+typedef std::vector<std::string> parameterlist;
 
 class ProtoServer
 {
@@ -68,7 +68,7 @@ class ProtocolInterface : public Extensible
 	 * @param target The channel name or user to send mode changes for.
 	 * @param The mode changes to send.
 	 */
-	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::deque<TranslateType> &translate) { }
+	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &translate) { }
 
 	/** Convenience function, string wrapper around the above.
 	  */
@@ -76,7 +76,7 @@ class ProtocolInterface : public Extensible
 	{
 		irc::spacesepstream x(modeline);
 		parameterlist n;
-		std::deque<TranslateType> types;
+		std::vector<TranslateType> types;
 		std::string v;
 		while (x.GetToken(v))
 		{

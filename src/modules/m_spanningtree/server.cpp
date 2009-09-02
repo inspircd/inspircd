@@ -31,7 +31,7 @@
  * Some server somewhere in the network introducing another server.
  *	-- w
  */
-bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::RemoteServer(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 5)
 	{
@@ -88,7 +88,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
  * This is used after the other side of a connection has accepted our credentials.
  * They are then introducing themselves to us, BEFORE either of us burst. -- w
  */
-bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
+bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 {
 	if (params.size() < 5)
 	{
@@ -184,7 +184,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
  * Someone else is attempting to connect to us if this is called. Validate their credentials etc.
  *		-- w
  */
-bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
+bool TreeSocket::Inbound_Server(parameterlist &params)
 {
 	if (params.size() < 5)
 	{

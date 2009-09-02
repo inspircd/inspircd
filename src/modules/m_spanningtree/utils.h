@@ -149,27 +149,27 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string target);
+	bool DoOneToOne(const std::string &prefix, const std::string &command, parameterlist &params, std::string target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string omit);
+	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, parameterlist &params, std::string omit);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit);
+	bool DoOneToAllButSender(const char* prefix, const char* command, parameterlist &params, std::string omit);
 
 	/** Send a message from this server to all others
 	 */
-	bool DoOneToMany(const std::string &prefix, const std::string &command, std::deque<std::string> &params);
+	bool DoOneToMany(const std::string &prefix, const std::string &command, parameterlist &params);
 
 	/** Send a message from this server to all others
 	 */
-	bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params);
+	bool DoOneToMany(const char* prefix, const char* command, parameterlist &params);
 
 	/** Send a message from this server to all others, without doing any processing on the command (e.g. send it as-is with colons and all)
 	 */
-	bool DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, std::deque<std::string> &params);
+	bool DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, parameterlist &params);
 
 	/** Read the spanningtree module's tags from the config file
 	 */

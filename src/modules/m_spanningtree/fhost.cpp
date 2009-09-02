@@ -21,7 +21,7 @@
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 
-bool TreeSocket::ChangeHost(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::ChangeHost(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
 		return true;

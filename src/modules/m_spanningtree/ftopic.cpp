@@ -22,7 +22,7 @@
 
 
 /** FTOPIC command */
-bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &params)
+bool TreeSocket::ForceTopic(const std::string &source, parameterlist &params)
 {
 	if (params.size() != 4)
 		return true;

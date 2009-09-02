@@ -442,7 +442,7 @@ void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, 
 {
 	if (IS_LOCAL(source))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(dest->uuid);
 		params.push_back(channel->name);
 		params.push_back(ConvToStr(expiry));
@@ -452,7 +452,7 @@ void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, 
 
 void ModuleSpanningTree::OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic)
 {
-	std::deque<std::string> params;
+	parameterlist params;
 	params.push_back(chan->name);
 	params.push_back(":"+topic);
 	Utils->DoOneToMany(user->uuid,"TOPIC",params);
@@ -462,7 +462,7 @@ void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
 {
 	if (IS_LOCAL(user))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(":"+text);
 		Utils->DoOneToMany(user->uuid,"WALLOPS",params);
 	}
@@ -479,8 +479,7 @@ void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, c
 		User* d = (User*)dest;
 		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
 		{
-			std::deque<std::string> params;
-			params.clear();
+			parameterlist params;
 			params.push_back(d->uuid);
 			params.push_back(":"+text);
 			Utils->DoOneToOne(user->uuid,"NOTICE",params,d->server);
@@ -512,7 +511,7 @@ void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, c
 		if (IS_LOCAL(user))
 		{
 			char* target = (char*)dest;
-			std::deque<std::string> par;
+			parameterlist par;
 			par.push_back(target);
 			par.push_back(":"+text);
 			Utils->DoOneToMany(user->uuid,"NOTICE",par);
@@ -533,8 +532,7 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 		User* d = (User*)dest;
 		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
 		{
-			std::deque<std::string> params;
-			params.clear();
+			parameterlist params;
 			params.push_back(d->uuid);
 			params.push_back(":"+text);
 			Utils->DoOneToOne(user->uuid,"PRIVMSG",params,d->server);
@@ -566,7 +564,7 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 		if (IS_LOCAL(user))
 		{
 			char* target = (char*)dest;
-			std::deque<std::string> par;
+			parameterlist par;
 			par.push_back(target);
 			par.push_back(":"+text);
 			Utils->DoOneToMany(user->uuid,"PRIVMSG",par);
@@ -586,7 +584,7 @@ void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, boo
 	// Only do this for local users
 	if (IS_LOCAL(user))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		// set up their permissions and the channel TS with FJOIN.
 		// All users are FJOINed now, because a module may specify
 		// new joining permissions for the user.
@@ -603,7 +601,7 @@ int ModuleSpanningTree::OnChangeLocalUserHost(User* user, const std::string &new
 	if (user->registered != REG_ALL)
 		return 0;
 
-	std::deque<std::string> params;
+	parameterlist params;
 	params.push_back(newhost);
 	Utils->DoOneToMany(user->uuid,"FHOST",params);
 	return 0;
@@ -615,7 +613,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	if (user->registered != REG_ALL)
 		return;
 
-	std::deque<std::string> params;
+	parameterlist params;
 	params.push_back(gecos);
 	Utils->DoOneToMany(user->uuid,"FNAME",params);
 }
@@ -624,7 +622,7 @@ void ModuleSpanningTree::OnUserPart(User* user, Channel* channel,  std::string &
 {
 	if (IS_LOCAL(user))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(channel->name);
 		if (!partmessage.empty())
 			params.push_back(":"+partmessage);
@@ -636,7 +634,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 
 		if (oper_message != reason)
 		{
@@ -660,7 +658,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 {
 	if (IS_LOCAL(user))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(user->nick);
 
 		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
@@ -675,7 +673,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 
 void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 {
-	std::deque<std::string> params;
+	parameterlist params;
 	params.push_back(chan->name);
 	params.push_back(user->uuid);
 	params.push_back(":"+reason);
@@ -694,7 +692,7 @@ void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::strin
 	if (!IS_LOCAL(source))
 		return; // Only start routing if we're origin.
 
-	std::deque<std::string> params;
+	parameterlist params;
 	params.push_back(":"+reason);
 	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
 	params.clear();
@@ -711,7 +709,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(parameter);
 		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->ServerName);
 	}
@@ -758,7 +756,7 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 {
 	if (IS_LOCAL(user))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(opertype);
 		Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
 	}
@@ -772,7 +770,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 	char data[MAXBUF];
 	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(),
 	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason);
-	std::deque<std::string> params;
+	parameterlist params;
 	params.push_back(data);
 
 	if (!user)
@@ -794,7 +792,7 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 
 	char data[MAXBUF];
 	snprintf(data,MAXBUF,"%s %s", x->type.c_str(), x->Displayable());
-	std::deque<std::string> params;
+	parameterlist params;
 	params.push_back(data);
 
 	if (!user)
@@ -809,11 +807,11 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	}
 }
 
-void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::deque<std::string> &text, const std::deque<TranslateType> &translate)
+void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const parameterlist &text, const std::vector<TranslateType> &translate)
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		std::string command;
 		std::string output_text;
 
@@ -845,13 +843,13 @@ int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	{
 		if (awaymsg.empty())
 		{
-			std::deque<std::string> params;
+			parameterlist params;
 			params.clear();
 			Utils->DoOneToMany(user->uuid,"AWAY",params);
 		}
 		else
 		{
-			std::deque<std::string> params;
+			parameterlist params;
 			params.push_back(":" + awaymsg);
 			Utils->DoOneToMany(user->uuid,"AWAY",params);
 		}
@@ -860,7 +858,7 @@ int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	return 0;
 }
 
-void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::deque<std::string> &modeline, const std::deque<TranslateType> &translate)
+void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const parameterlist &modeline, const std::vector<TranslateType> &translate)
 {
 	TreeSocket* s = (TreeSocket*)opaque;
 	std::string output_text;

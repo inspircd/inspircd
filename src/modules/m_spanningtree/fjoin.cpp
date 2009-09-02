@@ -22,7 +22,7 @@
 
 
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
-bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &params)
+bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 {
 	/* 1.1 FJOIN works as follows:
 	 *
@@ -97,7 +97,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		{
 			/* Our TS greater than theirs, clear all our modes from the channel, accept theirs. */
 			ServerInstance->SNO->WriteToSnoMask('d', "Removing our modes, accepting remote");
-			std::deque<std::string> param_list;
+			parameterlist param_list;
 			if (Utils->AnnounceTSChange && chan)
 				chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), chan->name.c_str(), (unsigned long) ourTS, (unsigned long) TS);
 			ourTS = TS;
@@ -181,22 +181,20 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	/* Flush mode stacker if we lost the FJOIN or had equal TS */
 	if (apply_other_sides_modes)
 	{
-		std::deque<std::string> stackresult;
-		std::vector<std::string> mode_junk;
-		mode_junk.push_back(channel);
+		parameterlist stackresult;
+		stackresult.push_back(channel);
 
 		while (modestack.GetStackedLine(stackresult))
 		{
-			mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-			ServerInstance->SendMode(mode_junk, Utils->ServerUser);
-			mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
+			ServerInstance->SendMode(stackresult, Utils->ServerUser);
+			stackresult.erase(stackresult.begin() + 1, stackresult.end());
 		}
 	}
 
 	return true;
 }
 
-bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::RemoveStatus(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
 		return true;
@@ -206,9 +204,8 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 	if (c)
 	{
 		irc::modestacker stack(ServerInstance, false);
-		std::deque<std::string> stackresult;
-		std::vector<std::string> mode_junk;
-		mode_junk.push_back(c->name);
+		parameterlist stackresult;
+		stackresult.push_back(c->name);
 
 		for (char modeletter = 'A'; modeletter <= 'z'; ++modeletter)
 		{
@@ -224,9 +221,8 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 
 		while (stack.GetStackedLine(stackresult))
 		{
-			mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-			ServerInstance->SendMode(mode_junk, Utils->ServerUser);
-			mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
+			ServerInstance->SendMode(stackresult, Utils->ServerUser);
+			stackresult.erase(stackresult.begin() + 1, stackresult.end());
 		}
 	}
 	return true;

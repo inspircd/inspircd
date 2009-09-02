@@ -21,7 +21,7 @@
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 /** remote ADMIN. leet, huh? */
-bool TreeSocket::Admin(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::Admin(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() > 0)
 	{
@@ -32,7 +32,7 @@ bool TreeSocket::Admin(const std::string &prefix, std::deque<std::string> &param
 			User* source = this->ServerInstance->FindNick(prefix);
 			if (source)
 			{
-				std::deque<std::string> par;
+				parameterlist par;
 				par.push_back(prefix);
 				par.push_back("");
 				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 256 "+source->nick+" :Administrative info for "+ServerInstance->Config->ServerName;

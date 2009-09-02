@@ -26,7 +26,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
 		return true;
@@ -43,7 +43,7 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 				char idle[MAXBUF];
 				snprintf(signon, MAXBUF, "%lu", (unsigned long)x->signon);
 				snprintf(idle, MAXBUF, "%lu", (unsigned long)abs((long)((x->idle_lastmsg) - ServerInstance->Time())));
-				std::deque<std::string> par;
+				parameterlist par;
 				par.push_back(prefix);
 				par.push_back(signon);
 				par.push_back(idle);

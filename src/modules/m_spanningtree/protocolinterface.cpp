@@ -68,7 +68,7 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC", params);
 }
 
-void SpanningTreeProtocolInterface::SendMode(const std::string &target, const parameterlist &modedata, const std::deque<TranslateType> &translate)
+void SpanningTreeProtocolInterface::SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &translate)
 {
 	if (modedata.empty())
 		return;
@@ -183,7 +183,7 @@ void SpanningTreeProtocolInterface::Introduce(User* user)
 		return;
 	if (IS_LOCAL(user))
 	{
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(user->uuid);
 		params.push_back(ConvToStr(user->age));
 		params.push_back(user->nick);

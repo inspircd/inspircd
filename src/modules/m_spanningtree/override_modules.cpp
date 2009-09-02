@@ -34,7 +34,7 @@ int ModuleSpanningTree::HandleModules(const std::vector<std::string>& parameters
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
 			return 0;
 
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(parameters[0]);
 		TreeServer* s = Utils->FindServerMask(parameters[0].c_str());
 		if (s)

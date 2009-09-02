@@ -24,7 +24,7 @@
 /** Because the core won't let users or even SERVERS set +o,
  * we use the OPERTYPE command to do this.
  */
-bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::OperType(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() != 1)
 		return true;

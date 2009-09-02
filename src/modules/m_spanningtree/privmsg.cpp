@@ -23,7 +23,7 @@
 
 
 /** remote MOTD. leet, huh? */
-bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string &prefix, std::deque<std::string> &params, const std::string &sourceserv)
+bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string &prefix, parameterlist &params, const std::string &sourceserv)
 {
 	if (params.size() >= 2)
 	{

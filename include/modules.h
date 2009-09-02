@@ -776,7 +776,7 @@ class CoreExport Module : public Extensible
 	 * @param text The actual modes and their parameters if any
 	 * @param translate The translation types of the mode parameters
 	 */
-	virtual void OnMode(User* user, void* dest, int target_type, const std::deque<std::string> &text, const std::deque<TranslateType> &translate);
+	virtual void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate);
 
 	/** Allows modules to alter or create server descriptions
 	 * Whenever a module requires a server description, for example for display in
@@ -885,7 +885,7 @@ class CoreExport Module : public Extensible
 	 * @param modeline The modes and parameters to be sent
 	 * @param translate The translation types of the mode parameters
 	 */
-	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::deque<std::string> &modeline, const std::deque<TranslateType> &translate);
+	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
 
 	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows metadata (extra data added to

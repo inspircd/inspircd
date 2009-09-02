@@ -231,7 +231,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Event rmode((char*)Current->GetName().c_str(), (Module*)Utils->Creator, "lost_server");
 		rmode.Send(ServerInstance);
 
-		std::deque<std::string> params;
+		parameterlist params;
 		params.push_back(Current->GetName());
 		params.push_back(":"+reason);
 		Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());

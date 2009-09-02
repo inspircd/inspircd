@@ -513,6 +513,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		unsigned int parameter_counter = 2; /* Index of first parameter */
 		unsigned int parameter_count = 0;
 		bool last_successful_state_change = false;
+		LastParseParams.push_back(output_sequence);
 		LastParseTranslate.push_back(TR_TEXT);
 
 		/* A mode sequence that doesnt start with + or -. Assume +. - Thanks for the suggestion spike (bug#132) */
@@ -762,7 +763,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		/* Was there at least one valid mode in the sequence? */
 		if (!output_sequence.empty())
 		{
-			LastParseParams.push_front(output_sequence);
+			LastParseParams[0] = output_sequence;
 			if (!user)
 			{
 				if (type == MODETYPE_CHANNEL)

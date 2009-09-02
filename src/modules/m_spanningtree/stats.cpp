@@ -27,7 +27,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &params)
+bool TreeSocket::Stats(const std::string &prefix, parameterlist &params)
 {
 	/* Get the reply to a STATS query if it matches this servername,
 	 * and send it back as a load of PUSH queries
@@ -41,7 +41,7 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 			User* source = this->ServerInstance->FindNick(prefix);
 			if (source)
 			{
-				std::deque<std::string> par;
+				parameterlist par;
 				par.push_back(prefix);
 				par.push_back("");
 				DoStats(this->ServerInstance, *(params[0].c_str()), source, results);

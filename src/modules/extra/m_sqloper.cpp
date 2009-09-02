@@ -29,7 +29,7 @@ class ModuleSQLOper : public Module
 	irc::string hashtype;
 	hashymodules hashers;
 	bool diduseiface;
-	std::deque<std::string> names;
+	parameterlist names;
 
 public:
 	ModuleSQLOper(InspIRCd* Me)
