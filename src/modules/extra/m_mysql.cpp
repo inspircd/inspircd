@@ -305,6 +305,7 @@ class SQLConnection : public classbase
 	std::map<std::string,std::string> thisrow;
 	bool Enabled;
 	ModuleSQL* Parent;
+	std::string initquery;
 
  public:
 
@@ -335,6 +336,9 @@ class SQLConnection : public classbase
 	{
 		if (!CheckConnection())
 			return;
+
+		if( !initquery.empty() )
+			mysql_query(connection,initquery.c_str());
 
 		/* Parse the command string and dispatch it to mysql */
 		SQLrequest& req = queue.front();
@@ -507,6 +511,11 @@ class SQLConnection : public classbase
 		return host.host;
 	}
 
+	void setInitialQuery(std::string init)
+	{
+		initquery = init;
+	}
+
 	void SetEnable(bool Enable)
 	{
 		Enabled = Enable;
@@ -617,6 +626,7 @@ void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Pare
 		host.user	= conf->ReadValue("database", "username", j);
 		host.pass	= conf->ReadValue("database", "password", j);
 		host.ssl	= conf->ReadFlag("database", "ssl", j);
+		std::string initquery = conf->ReadValue("database", "initialquery", j);
 
 		if (HasHost(host))
 			continue;
@@ -625,6 +635,8 @@ void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Pare
 		{
 			SQLConnection* ThisSQL = new SQLConnection(host, Parent);
 			Connections[host.id] = ThisSQL;
+
+			ThisSQL->setInitialQuery(initquery);
 		}
 	}
 	ConnectDatabases(ServerInstance, Parent);
