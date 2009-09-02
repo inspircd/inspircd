@@ -188,7 +188,7 @@ int SocketEngine::Blocking(int fd)
 	return ioctlsocket(fd, FIONBIO, &opt);
 #else
 	int flags = fcntl(fd, F_GETFL, 0);
-	return fcntl(fd, F_SETFL, flags ^ O_NONBLOCK);
+	return fcntl(fd, F_SETFL, flags & ~O_NONBLOCK);
 #endif
 }
 

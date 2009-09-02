@@ -59,7 +59,7 @@ class ThreadSignalSocket : public BufferedSocket
 		: BufferedSocket(SI, newfd, ip), parent(t)
 	{
 	}
-	
+
 	virtual bool OnDataReady()
 	{
 		char data = 0;
@@ -72,52 +72,30 @@ class ThreadSignalSocket : public BufferedSocket
 	}
 };
 
-class ThreadSignalListener : public ListenSocketBase
-{
-	SocketThread* parent;
-	sockaddr_in sock_us;
- public:
-	ThreadSignalListener(SocketThread* t, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), parent(t)
-	{
-		socklen_t uslen = sizeof(sock_us);
-		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
-		{
-			throw ModuleException("Could not getsockname() to find out port number for ITC port");
-		}
-	}
-
-	virtual void OnAcceptReady(int nfd)
-	{
-		new ThreadSignalSocket(parent, ServerInstance, nfd, "");
-		ServerInstance->SE->DelFd(this);
-	}
-/* Using getsockname and ntohs, we can determine which port number we were allocated */
-	int GetPort()
-	{
-		return ntohs(sock_us.sin_port);
-	}
-};
-
 SocketThread::SocketThread(InspIRCd* SI)
 {
-	ThreadSignalListener* listener = new ThreadSignalListener(this, SI, 0, "127.0.0.1");
-	if (listener->GetFd() == -1)
+	int listenFD = socket(AF_INET, SOCK_STREAM, 0);
+	if (listenFD == -1)
 		throw CoreException("Could not create ITC pipe");
 	int connFD = socket(AF_INET, SOCK_STREAM, 0);
 	if (connFD == -1)
 		throw CoreException("Could not create ITC pipe");
-	
-	struct sockaddr_in addr;
-	inet_aton("127.0.0.1", &addr.sin_addr);
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(listener->GetPort());
 
-	if (connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) == -1)
-	{
-		SI->SE->DelFd(listener);
-		closesocket(connFD);
-		throw CoreException("Could not connet to ITC pipe");
-	}
+	if (!SI->BindSocket(listenFD, 0, "127.0.0.1", true))
+		throw CoreException("Could not create ITC pipe");
+	SI->SE->NonBlocking(connFD);
+
+	struct sockaddr_in addr;
+	socklen_t sz = sizeof(addr);
+	getsockname(listenFD, reinterpret_cast<struct sockaddr*>(&addr), &sz);
+	connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sz);
+	int nfd = accept(listenFD);
+	if (nfd < 0)
+		throw CoreException("Could not create ITC pipe");
+	new ThreadSignalSocket(parent, ServerInstance, nfd, "127.0.0.1");
+	closesocket(listenFD);
+
+	SI->SE->Blocking(connFD);
 	this->signal.connFD = connFD;
 }
 
