@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_k.h"
 
-ModeChannelKey::ModeChannelKey(InspIRCd* Instance) : ModeHandler(Instance, 'k', 1, 1, false, MODETYPE_CHANNEL, false)
+ModeChannelKey::ModeChannelKey(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'k', 1, 1, false, MODETYPE_CHANNEL, false)
 {
 }
 

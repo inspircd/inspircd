@@ -20,9 +20,8 @@
 class CommandCycle : public Command
 {
  public:
-	CommandCycle (InspIRCd* Instance) : Command(Instance,"CYCLE", 0, 1, false, 3)
+	CommandCycle (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"CYCLE", 0, 1, false, 3)
 	{
-		this->source = "m_cycle.so";
 		syntax = "<channel> :[reason]";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
@@ -82,7 +81,7 @@ class ModuleCycle : public Module
 	CommandCycle cmd;
  public:
 	ModuleCycle(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

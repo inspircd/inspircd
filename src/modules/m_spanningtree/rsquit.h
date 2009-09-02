@@ -18,7 +18,6 @@
  */
 class CommandRSQuit : public Command
 {
-        Module* Creator;		/* Creator */
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
         CommandRSQuit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);

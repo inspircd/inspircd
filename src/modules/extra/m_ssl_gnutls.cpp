@@ -47,11 +47,9 @@ public:
 
 class CommandStartTLS : public Command
 {
-	Module* Caller;
  public:
-	CommandStartTLS (InspIRCd* Instance, Module* mod) : Command(Instance,"STARTTLS", 0, 0, true), Caller(mod)
+	CommandStartTLS (InspIRCd* Instance, Module* mod) : Command(Instance, mod, "STARTTLS", 0, 0, true)
 	{
-		this->source = "m_ssl_gnutls.so";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -69,8 +67,8 @@ class CommandStartTLS : public Command
 			if (!user->GetIOHook())
 			{
 				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
-				user->AddIOHook(Caller);
-				Caller->OnRawSocketAccept(user->GetFd(), NULL, NULL);
+				user->AddIOHook(creator);
+				creator->OnRawSocketAccept(user->GetFd(), NULL, NULL);
 			}
 			else
 				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());

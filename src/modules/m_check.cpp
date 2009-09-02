@@ -19,12 +19,10 @@
  */
 class CommandCheck : public Command
 {
-	Module* Parent;
  public:
 	std::set<std::string> meta_seen;
-	CommandCheck (InspIRCd* Instance, Module* parent) : Command(Instance,"CHECK", "o", 1), Parent(parent)
+	CommandCheck (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"CHECK", "o", 1)
 	{
-		this->source = "m_check.so";
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
 	}
 
@@ -114,7 +112,7 @@ class CommandCheck : public Command
 
 			ServerInstance->DumpText(user,checkstr + " onchans ", dump);
 
-			FOREACH_MOD_I(ServerInstance,I_OnSyncUser,OnSyncUser(targuser,Parent,(void*)user));
+			FOREACH_MOD_I(ServerInstance,I_OnSyncUser,OnSyncUser(targuser,creator,(void*)user));
 			dumpExtra(user, checkstr, targuser);
 		}
 		else if (targchan)
@@ -148,7 +146,7 @@ class CommandCheck : public Command
 				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
 
-			FOREACH_MOD_I(ServerInstance,I_OnSyncChannel,OnSyncChannel(targchan,Parent,(void*)user));
+			FOREACH_MOD_I(ServerInstance,I_OnSyncChannel,OnSyncChannel(targchan,creator,(void*)user));
 			dumpExtra(user, checkstr, targchan);
 		}
 		else

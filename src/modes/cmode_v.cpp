@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "modes/cmode_v.h"
 
-ModeChannelVoice::ModeChannelVoice(InspIRCd* Instance) : ModeHandler(Instance, 'v', 1, 1, true, MODETYPE_CHANNEL, false, '+', '%', TR_NICK)
+ModeChannelVoice::ModeChannelVoice(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'v', 1, 1, true, MODETYPE_CHANNEL, false, '+', '%', TR_NICK)
 {
 }
 

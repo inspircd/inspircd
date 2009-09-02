@@ -32,7 +32,7 @@ class CommandWhois : public Command
  public:
 	/** Constructor for whois.
 	 */
-	CommandWhois (InspIRCd* Instance) : Command(Instance,"WHOIS",0,1,false,2) { syntax = "<nick>{,<nick>}"; }
+	CommandWhois (InspIRCd* Instance) : Command(Instance,NULL,"WHOIS",0,1,false,2) { syntax = "<nick>{,<nick>}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

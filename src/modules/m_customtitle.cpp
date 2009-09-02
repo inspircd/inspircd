@@ -20,9 +20,8 @@
 class CommandTitle : public Command
 {
  public:
-	CommandTitle (InspIRCd* Instance) : Command(Instance,"TITLE",0,2)
+	CommandTitle (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"TITLE",0,2)
 	{
-		this->source = "m_customtitle.so";
 		syntax = "<user> <password>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -93,7 +92,7 @@ class ModuleCustomTitle : public Module
 	CommandTitle cmd;
 
  public:
-	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(Me)
+	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUser, I_OnUserQuit, I_OnCleanup };

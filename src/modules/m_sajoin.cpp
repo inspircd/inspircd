@@ -20,9 +20,8 @@
 class CommandSajoin : public Command
 {
  public:
-	CommandSajoin (InspIRCd* Instance) : Command(Instance,"SAJOIN", "o", 2, false, 0)
+	CommandSajoin (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SAJOIN", "o", 2, false, 0)
 	{
-		this->source = "m_sajoin.so";
 		syntax = "<nick> <channel>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -91,7 +90,7 @@ class ModuleSajoin : public Module
 	CommandSajoin cmd;
  public:
 	ModuleSajoin(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

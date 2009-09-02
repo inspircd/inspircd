@@ -23,14 +23,11 @@
 
 class CommandLockserv : public Command
 {
-private:
 	bool& locked;
-
 public:
-	CommandLockserv (InspIRCd* Instance, bool &lock)
-	: Command(Instance, "LOCKSERV", "o", 0), locked(lock)
+	CommandLockserv (InspIRCd* Instance, Module* Creator, bool& lock)
+		: Command(Instance, Creator, "LOCKSERV", "o", 0), locked(lock)
 	{
-		this->source = "m_lockserv.so";
 		syntax.clear();
 	}
 
@@ -50,10 +47,9 @@ private:
 	bool& locked;
 
 public:
-	CommandUnlockserv (InspIRCd* Instance, bool &lock)
-	: Command(Instance, "UNLOCKSERV", "o", 0), locked(lock)
+	CommandUnlockserv (InspIRCd* Instance, Module* Creator, bool &lock)
+		: Command(Instance, Creator, "UNLOCKSERV", "o", 0), locked(lock)
 	{
-		this->source = "m_lockserv.so";
 		syntax.clear();
 	}
 
@@ -80,7 +76,7 @@ private:
 	}
 
 public:
-	ModuleLockserv(InspIRCd* Me) : Module(Me), lockcommand(Me, locked), unlockcommand(Me, locked)
+	ModuleLockserv(InspIRCd* Me) : Module(Me), lockcommand(Me, this, locked), unlockcommand(Me, this, locked)
 	{
 		ResetLocked();
 		ServerInstance->AddCommand(&lockcommand);

@@ -32,7 +32,7 @@ class CommandMotd : public Command
  public:
 	/** Constructor for motd.
 	 */
-	CommandMotd (InspIRCd* Instance) : Command(Instance,"MOTD",0,0) { syntax = "[<servername>]"; }
+	CommandMotd (InspIRCd* Instance) : Command(Instance,NULL,"MOTD",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

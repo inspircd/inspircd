@@ -20,9 +20,8 @@
 class CommandUserip : public Command
 {
  public:
-	CommandUserip (InspIRCd* Instance) : Command(Instance,"USERIP", "o", 1)
+	CommandUserip (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"USERIP", "o", 1)
 	{
-		this->source = "m_userip.so";
 		syntax = "<nick>{,<nick>}";
 	}
 
@@ -59,7 +58,7 @@ class ModuleUserIP : public Module
 	CommandUserip cmd;
  public:
 	ModuleUserIP(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_On005Numeric };

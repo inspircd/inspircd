@@ -29,7 +29,7 @@ class CommandLoadmodule : public Command
  public:
 	/** Constructor for loadmodule.
 	 */
-	CommandLoadmodule (InspIRCd* Instance) : Command(Instance,"LOADMODULE","o",1) { syntax = "<modulename>"; }
+	CommandLoadmodule (InspIRCd* Instance) : Command(Instance,NULL,"LOADMODULE","o",1) { syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

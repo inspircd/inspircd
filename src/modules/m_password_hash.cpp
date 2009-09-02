@@ -23,14 +23,12 @@ typedef std::map<irc::string, Module*> hashymodules;
  */
 class CommandMkpasswd : public Command
 {
-	Module* Sender;
 	hashymodules &hashers;
 	std::deque<std::string> &names;
  public:
-	CommandMkpasswd (InspIRCd* Instance, Module* S, hashymodules &h, std::deque<std::string> &n)
-		: Command(Instance,"MKPASSWD", 0, 2), Sender(S), hashers(h), names(n)
+	CommandMkpasswd (InspIRCd* Instance, Module* Creator, hashymodules &h, std::deque<std::string> &n)
+		: Command(Instance, Creator, "MKPASSWD", 0, 2), hashers(h), names(n)
 	{
-		this->source = "m_password_hash.so";
 		syntax = "<hashtype> <any-text>";
 	}
 
@@ -41,9 +39,9 @@ class CommandMkpasswd : public Command
 		if (x != hashers.end())
 		{
 			/* Yup, reset it first (Always ALWAYS do this) */
-			HashResetRequest(Sender, x->second).Send();
+			HashResetRequest(creator, x->second).Send();
 			/* Now attempt to generate a hash */
-			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick.c_str(), algo, stuff, HashSumRequest(Sender, x->second, stuff).Send() );
+			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick.c_str(), algo, stuff, HashSumRequest(creator, x->second, stuff).Send() );
 		}
 		else if (names.empty())
 		{

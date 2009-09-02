@@ -124,7 +124,7 @@ class ListModeBase : public ModeHandler
 	bool tidy;
 	/** Config tag to check for max items per channel
 	 */
- 	std::string configtag;
+	std::string configtag;
 	/** Limits on a per-channel basis read from the tag
 	 * specified in ListModeBase::configtag
 	 */
@@ -140,8 +140,8 @@ class ListModeBase : public ModeHandler
 	 * @param autotidy Automatically tidy list entries on add
 	 * @param ctag Configuration tag to get limits from
 	 */
-	ListModeBase(InspIRCd* Instance, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
- 	: ModeHandler(Instance, modechar, 1, 1, true, MODETYPE_CHANNEL, false), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
+	ListModeBase(InspIRCd* Instance, Module* Creator, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
+		: ModeHandler(Instance, Creator, modechar, 1, 1, true, MODETYPE_CHANNEL, false), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
 	{
 		this->DoRehash();
 		infokey = "listbase_mode_" + std::string(1, mode) + "_list";

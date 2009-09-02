@@ -20,9 +20,8 @@
 class CommandVhost : public Command
 {
  public:
-	CommandVhost (InspIRCd* Instance) : Command(Instance,"VHOST", 0, 2)
+	CommandVhost (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"VHOST", 0, 2)
 	{
-		this->source = "m_vhost.so";
 		syntax = "<username> <password>";
 	}
 
@@ -61,7 +60,7 @@ class ModuleVHost : public Module
 	CommandVhost cmd;
 
  public:
-	ModuleVHost(InspIRCd* Me) : Module(Me), cmd(Me)
+	ModuleVHost(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

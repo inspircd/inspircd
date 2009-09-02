@@ -29,7 +29,7 @@ class CommandList : public Command
  public:
 	/** Constructor for list.
 	 */
-	CommandList (InspIRCd* Instance) : Command(Instance,"LIST", 0, 0, false, 5) { }
+	CommandList (InspIRCd* Instance) : Command(Instance,NULL,"LIST", 0, 0, false, 5) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

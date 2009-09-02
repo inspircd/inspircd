@@ -20,7 +20,7 @@
 class ChannelStripColor : public SimpleChannelModeHandler
 {
  public:
-	ChannelStripColor(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'S') { }
+	ChannelStripColor(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'S') { }
 };
 
 /** Handles user mode +S
@@ -28,7 +28,7 @@ class ChannelStripColor : public SimpleChannelModeHandler
 class UserStripColor : public SimpleUserModeHandler
 {
  public:
-	UserStripColor(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'S') { }
+	UserStripColor(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'S') { }
 };
 
 
@@ -39,7 +39,7 @@ class ModuleStripColor : public Module
 	UserStripColor usc;
 
  public:
-	ModuleStripColor(InspIRCd* Me) : Module(Me), csc(Me), usc(Me)
+	ModuleStripColor(InspIRCd* Me) : Module(Me), csc(Me, this), usc(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&usc) || !ServerInstance->Modes->AddMode(&csc))
 			throw ModuleException("Could not add new modes!");

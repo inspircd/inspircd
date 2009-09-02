@@ -20,10 +20,9 @@
 class CommandSATopic : public Command
 {
  public:
-	CommandSATopic (InspIRCd* Instance)
-	: Command(Instance,"SATOPIC", "o", 2, 2, false, 0)
+	CommandSATopic (InspIRCd* Instance, Module* Creator)
+		: Command(Instance,Creator,"SATOPIC", "o", 2, 2, false, 0)
 	{
-		this->source = "m_satopic.so";
 		syntax = "<target> <topic>";
 	}
 
@@ -58,7 +57,7 @@ class ModuleSATopic : public Module
 	CommandSATopic cmd;
  public:
 	ModuleSATopic(InspIRCd* Me)
-	: Module(Me), cmd(Me)
+	: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

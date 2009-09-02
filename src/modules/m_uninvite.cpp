@@ -20,9 +20,8 @@
 class CommandUninvite : public Command
 {
  public:
-	CommandUninvite (InspIRCd* Instance) : Command(Instance,"UNINVITE", 0, 2)
+	CommandUninvite (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"UNINVITE", 0, 2)
 	{
-		this->source = "m_uninvite.so";
 		syntax = "<nick> <channel>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -83,7 +82,7 @@ class ModuleUninvite : public Module
 
  public:
 
-	ModuleUninvite(InspIRCd* Me) : Module(Me), cmd(Me)
+	ModuleUninvite(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

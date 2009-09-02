@@ -20,9 +20,8 @@
 class CommandSamode : public Command
 {
  public:
-	CommandSamode (InspIRCd* Instance) : Command(Instance,"SAMODE", "o", 2, false, 0)
+	CommandSamode (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SAMODE", "o", 2, false, 0)
 	{
-		this->source = "m_samode.so";
 		syntax = "<target> <modes> {<mode-parameters>}";
 	}
 
@@ -57,7 +56,7 @@ class ModuleSaMode : public Module
 	CommandSamode cmd;
  public:
 	ModuleSaMode(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

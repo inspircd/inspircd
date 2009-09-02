@@ -29,7 +29,7 @@ class CommandMap : public Command
  public:
 	/** Constructor for map.
 	 */
-	CommandMap (InspIRCd* Instance) : Command(Instance,"MAP",0,0,false,2) { }
+	CommandMap (InspIRCd* Instance) : Command(Instance,NULL,"MAP",0,0,false,2) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

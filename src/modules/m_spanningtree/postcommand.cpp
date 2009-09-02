@@ -60,11 +60,11 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 	}
 	else
 	{
-		Module* srcmodule = ServerInstance->Modules->Find(thiscmd->source);
+		Module* srcmodule = thiscmd->creator;
 
 		if (srcmodule && !(srcmodule->GetVersion().Flags & VF_COMMON)) {
 			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Routed command %s from non-VF_COMMON module %s",
-				command.c_str(), thiscmd->source.c_str());
+				command.c_str(), srcmodule->ModuleSourceFile.c_str());
 			return;
 		}
 	}

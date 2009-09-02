@@ -29,7 +29,7 @@ class CommandNames : public Command
  public:
 	/** Constructor for names.
 	 */
-	CommandNames (InspIRCd* Instance) : Command(Instance,"NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
+	CommandNames (InspIRCd* Instance) : Command(Instance,NULL,"NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -161,7 +161,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, unsigned int 
 
 	if (n != cmdlist.end())
 	{
-		if ((pcnt >= n->second->min_params) && (n->second->source != "<core>"))
+		if ((pcnt >= n->second->min_params) && (n->second->creator != NULL))
 		{
 			if (IS_LOCAL(user) && n->second->flags_needed)
 			{
@@ -414,7 +414,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	}
 }
 
-void CommandParser::RemoveCommands(const char* source)
+void CommandParser::RemoveCommands(Module* source)
 {
 	Commandtable::iterator i,safei;
 	for (i = cmdlist.begin(); i != cmdlist.end();)
@@ -441,10 +441,10 @@ void CommandParser::RemoveRFCCommands()
 	delete reload;
 }
 
-void CommandParser::RemoveCommand(Commandtable::iterator safei, const char* source)
+void CommandParser::RemoveCommand(Commandtable::iterator safei, Module* source)
 {
 	Command* x = safei->second;
-	if (x->source == std::string(source))
+	if (x->creator == source)
 	{
 		cmdlist.erase(safei);
 	}

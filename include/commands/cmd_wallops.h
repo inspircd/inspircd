@@ -29,7 +29,7 @@ class CommandWallops : public Command
  public:
 	/** Constructor for wallops.
 	 */
-	CommandWallops (InspIRCd* Instance) : Command(Instance,"WALLOPS","o",1,1) { syntax = "<any-text>"; }
+	CommandWallops (InspIRCd* Instance) : Command(Instance,NULL,"WALLOPS","o",1,1) { syntax = "<any-text>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -18,7 +18,7 @@
 class NoNotice : public SimpleChannelModeHandler
 {
  public:
-	NoNotice(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'T') { }
+	NoNotice(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'T') { }
 };
 
 class ModuleNoNotice : public Module
@@ -27,7 +27,7 @@ class ModuleNoNotice : public Module
  public:
 
 	ModuleNoNotice(InspIRCd* Me)
-		: Module(Me), nt(Me)
+		: Module(Me), nt(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&nt))
 			throw ModuleException("Could not add new modes!");

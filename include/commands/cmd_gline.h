@@ -29,7 +29,7 @@ class CommandGline : public Command
  public:
 	/** Constructor for gline.
 	 */
-	CommandGline (InspIRCd* Instance) : Command(Instance,"GLINE","o",1,3,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
+	CommandGline (InspIRCd* Instance) : Command(Instance,NULL,"GLINE","o",1,3,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

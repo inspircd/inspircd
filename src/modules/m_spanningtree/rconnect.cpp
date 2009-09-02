@@ -28,9 +28,9 @@
 
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h */
 
-CommandRConnect::CommandRConnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RCONNECT", "o", 2), Creator(Callback), Utils(Util)
+CommandRConnect::CommandRConnect (InspIRCd* Instance, Module* Creator, SpanningTreeUtilities* Util)
+	: Command(Instance, Creator, "RCONNECT", "o", 2), Utils(Util)
 {
-	this->source = "m_spanningtree.so";
 	syntax = "<remote-server-mask> <target-server-mask>";
 }
 
@@ -55,7 +55,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 		para.push_back(parameters[1]);
 		std::string cmd("CONNECT");
 		std::string original_command = cmd + " " + parameters[1];
-		Creator->OnPreCommand(cmd, para, user, true, original_command);
+		creator->OnPreCommand(cmd, para, user, true, original_command);
 	}
 	return CMD_SUCCESS;
 }

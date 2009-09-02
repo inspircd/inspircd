@@ -34,14 +34,14 @@ class InspIRCd* ServerInstance;
 class InviteException : public ListModeBase
 {
  public:
-	InviteException(InspIRCd* Instance) : ListModeBase(Instance, 'I', "End of Channel Invite Exception List", 346, 347, true) { }
+	InviteException(InspIRCd* Instance, Module* Creator) : ListModeBase(Instance, Creator, 'I', "End of Channel Invite Exception List", 346, 347, true) { }
 };
 
 class ModuleInviteException : public Module
 {
 	InviteException ie;
 public:
-	ModuleInviteException(InspIRCd* Me) : Module(Me), ie(Me)
+	ModuleInviteException(InspIRCd* Me) : Module(Me), ie(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&ie))
 			throw ModuleException("Could not add new modes!");

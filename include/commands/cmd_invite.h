@@ -29,7 +29,7 @@ class CommandInvite : public Command
  public:
 	/** Constructor for invite.
 	 */
-	CommandInvite (InspIRCd* Instance) : Command(Instance,"INVITE", 0, 0, false, 4) { syntax = "[<nick> <channel>]"; }
+	CommandInvite (InspIRCd* Instance) : Command(Instance,NULL,"INVITE", 0, 0, false, 4) { syntax = "[<nick> <channel>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

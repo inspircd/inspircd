@@ -27,7 +27,6 @@ class SaslAuthenticator : public classbase
 {
  private:
 	InspIRCd *ServerInstance;
-	Module *Creator;
 	std::string agent;
 	User *user;
 	SaslState state;
@@ -36,7 +35,7 @@ class SaslAuthenticator : public classbase
 
  public:
 	SaslAuthenticator(User *user_, std::string method, InspIRCd *instance, Module *ctor)
-		: ServerInstance(instance), Creator(ctor), user(user_), state(SASL_INIT), state_announced(false)
+		: ServerInstance(instance), user(user_), state(SASL_INIT), state_announced(false)
 	{
 		this->user->Extend("sasl_authenticator", this);
 
@@ -158,11 +157,9 @@ class SaslAuthenticator : public classbase
 
 class CommandAuthenticate : public Command
 {
-	Module* Creator;
  public:
-	CommandAuthenticate (InspIRCd* Instance, Module* creator) : Command(Instance,"AUTHENTICATE", 0, 1, true), Creator(creator)
+	CommandAuthenticate (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "AUTHENTICATE", 0, 1, true)
 	{
-		this->source = "m_sasl.so";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -175,7 +172,7 @@ class CommandAuthenticate : public Command
 
 			SaslAuthenticator *sasl;
 			if (!(user->GetExt("sasl_authenticator", sasl)))
-				sasl = new SaslAuthenticator(user, parameters[0], ServerInstance, Creator);
+				sasl = new SaslAuthenticator(user, parameters[0], ServerInstance, creator);
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
 				delete sasl;
 		}
@@ -185,11 +182,9 @@ class CommandAuthenticate : public Command
 
 class CommandSASL : public Command
 {
-	Module* Creator;
  public:
-	CommandSASL(InspIRCd* Instance, Module* creator) : Command(Instance, "SASL", 0, 2), Creator(creator)
+	CommandSASL(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "SASL", 0, 2)
 	{
-		this->source = "m_sasl.so";
 		this->disabled = true; // should not be called by users
 	}
 

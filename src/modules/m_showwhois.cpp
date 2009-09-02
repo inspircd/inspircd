@@ -20,7 +20,7 @@
 class SeeWhois : public ModeHandler
 {
  public:
-	SeeWhois(InspIRCd* Instance, bool IsOpersOnly) : ModeHandler(Instance, 'W', 0, 0, false, MODETYPE_USER, IsOpersOnly) { }
+	SeeWhois(InspIRCd* Instance, Module* Creator, bool IsOpersOnly) : ModeHandler(Instance, Creator, 'W', 0, 0, false, MODETYPE_USER, IsOpersOnly) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -48,9 +48,8 @@ class SeeWhois : public ModeHandler
 class WhoisNoticeCmd : public Command
 {
  public:
-	WhoisNoticeCmd(InspIRCd* Instance) : Command(Instance,"WHOISNOTICE", 0, 1)
+	WhoisNoticeCmd(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"WHOISNOTICE", 0, 1)
 	{
-		this->source = "m_showwhois.cpp";
 	}
 
 	void HandleFast(User* dest, User* src)
@@ -79,13 +78,13 @@ class ModuleShowwhois : public Module
 
  public:
 
-	ModuleShowwhois(InspIRCd* Me) : Module(Me), cmd(Me)
+	ModuleShowwhois(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 		ConfigReader conf(ServerInstance);
 		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", "yes", 0);
 		ShowWhoisFromOpers = conf.ReadFlag("showwhois", "showfromopers", "yes", 0);
 
-		sw = new SeeWhois(ServerInstance, OpersOnly);
+		sw = new SeeWhois(ServerInstance, this, OpersOnly);
 		if (!ServerInstance->Modes->AddMode(sw))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->AddCommand(&cmd);

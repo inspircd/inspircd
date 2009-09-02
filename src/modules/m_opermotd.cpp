@@ -43,9 +43,8 @@ CmdResult ShowOperMOTD(User* user)
 class CommandOpermotd : public Command
 {
  public:
-	CommandOpermotd (InspIRCd* Instance) : Command(Instance,"OPERMOTD", "o", 0)
+	CommandOpermotd (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"OPERMOTD", "o", 0)
 	{
-		this->source = "m_opermotd.so";
 		syntax = "[<servername>]";
 	}
 
@@ -78,7 +77,7 @@ class ModuleOpermotd : public Module
 	}
 
 	ModuleOpermotd(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		opermotd = NULL;
 		ServerInstance->AddCommand(&cmd);

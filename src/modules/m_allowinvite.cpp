@@ -18,7 +18,7 @@
 class AllowInvite : public SimpleChannelModeHandler
 {
  public:
-	AllowInvite(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'A') { }
+	AllowInvite(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'A') { }
 };
 
 class ModuleAllowInvite : public Module
@@ -26,7 +26,7 @@ class ModuleAllowInvite : public Module
 	AllowInvite ni;
  public:
 
-	ModuleAllowInvite(InspIRCd* Me) : Module(Me), ni(Me)
+	ModuleAllowInvite(InspIRCd* Me) : Module(Me), ni(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&ni))
 			throw ModuleException("Could not add new modes!");

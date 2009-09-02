@@ -28,7 +28,6 @@ class CloakUser : public ModeHandler
 	unsigned int key3;
 	unsigned int key4;
 	bool ipalways;
-	Module* Sender;
 	Module* HashProvider;
 	const char *xtab[4];
 
@@ -63,7 +62,8 @@ class CloakUser : public ModeHandler
 			return host.substr(splitdot);
 	}
 
-	CloakUser(InspIRCd* Instance, Module* source, Module* Hash) : ModeHandler(Instance, 'x', 0, 0, false, MODETYPE_USER, false), Sender(source), HashProvider(Hash)
+	CloakUser(InspIRCd* Instance, Module* source, Module* Hash) 
+		: ModeHandler(Instance, source, 'x', 0, 0, false, MODETYPE_USER, false), HashProvider(Hash)
 	{
 	}
 
@@ -100,7 +100,7 @@ class CloakUser : public ModeHandler
 				if (!dest->GetExt("cloaked_host", cloak))
 				{
 					/* Force creation of missing cloak */
-					Sender->OnUserConnect(dest);
+					creator->OnUserConnect(dest);
 				}
 				if (dest->GetExt("cloaked_host", cloak))
 				{
@@ -145,14 +145,14 @@ class CloakUser : public ModeHandler
 		octet[1] = octet[0] + "." + octet[1];
 
 		/* Reset the Hash module and send it our IV */
-		HashResetRequest(Sender, HashProvider).Send();
-		HashKeyRequest(Sender, HashProvider, iv).Send();
+		HashResetRequest(creator, HashProvider).Send();
+		HashKeyRequest(creator, HashProvider, iv).Send();
 
 		/* Send the Hash module a different hex table for each octet group's Hash sum */
 		for (int k = 0; k < 4; k++)
 		{
-			HashHexRequest(Sender, HashProvider, xtab[(iv[k]+i[k]) % 4]).Send();
-			ra[k] = std::string(HashSumRequest(Sender, HashProvider, octet[k]).Send()).substr(0,6);
+			HashHexRequest(creator, HashProvider, xtab[(iv[k]+i[k]) % 4]).Send();
+			ra[k] = std::string(HashSumRequest(creator, HashProvider, octet[k]).Send()).substr(0,6);
 		}
 		/* Stick them all together */
 		return std::string().append(ra[0]).append(".").append(ra[1]).append(".").append(ra[2]).append(".").append(ra[3]);
@@ -166,8 +166,8 @@ class CloakUser : public ModeHandler
 		int rounds = 0;
 
 		/* Reset the Hash module and send it our IV */
-		HashResetRequest(Sender, HashProvider).Send();
-		HashKeyRequest(Sender, HashProvider, iv).Send();
+		HashResetRequest(creator, HashProvider).Send();
+		HashKeyRequest(creator, HashProvider, iv).Send();
 
 		for (const char* input = ip; *input; input++)
 		{
@@ -175,8 +175,8 @@ class CloakUser : public ModeHandler
 			if (item.length() > 7)
 			{
 				/* Send the Hash module a different hex table for each octet group's Hash sum */
-				HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
-				hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,8));
+				HashHexRequest(creator, HashProvider, xtab[(key1+rounds) % 4]).Send();
+				hashies.push_back(std::string(HashSumRequest(creator, HashProvider, item).Send()).substr(0,8));
 				item.clear();
 			}
 			rounds++;
@@ -184,8 +184,8 @@ class CloakUser : public ModeHandler
 		if (!item.empty())
 		{
 			/* Send the Hash module a different hex table for each octet group's Hash sum */
-			HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
-			hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,8));
+			HashHexRequest(creator, HashProvider, xtab[(key1+rounds) % 4]).Send();
+			hashies.push_back(std::string(HashSumRequest(creator, HashProvider, item).Send()).substr(0,8));
 			item.clear();
 		}
 		/* Stick them all together */

@@ -29,7 +29,7 @@ class CommandRehash : public Command
  public:
 	/** Constructor for rehash.
 	 */
-	CommandRehash (InspIRCd* Instance) : Command(Instance,"REHASH","o",0,false,3) { syntax = "[<servermask>]"; }
+	CommandRehash (InspIRCd* Instance) : Command(Instance,NULL,"REHASH","o",0,false,3) { syntax = "[<servermask>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

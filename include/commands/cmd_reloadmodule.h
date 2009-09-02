@@ -29,7 +29,7 @@ class CommandReloadmodule : public Command
  public:
 	/** Constructor for reloadmodule.
 	 */
-	CommandReloadmodule (InspIRCd* Instance) : Command(Instance,"RELOADMODULE","o",1) { syntax = "<modulename>"; }
+	CommandReloadmodule (InspIRCd* Instance) : Command(Instance,NULL,"RELOADMODULE","o",1) { syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

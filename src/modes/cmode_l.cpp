@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_l.h"
 
-ModeChannelLimit::ModeChannelLimit(InspIRCd* Instance) : ModeHandler(Instance, 'l', 1, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelLimit::ModeChannelLimit(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'l', 1, 0, false, MODETYPE_CHANNEL, false)
 {
 }
 

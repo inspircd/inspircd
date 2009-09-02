@@ -29,7 +29,7 @@ class CommandModules : public Command
  public:
 	/** Constructor for modules.
 	 */
-	CommandModules (InspIRCd* Instance) : Command(Instance,"MODULES",0,0) { syntax = "[debug]"; }
+	CommandModules (InspIRCd* Instance) : Command(Instance,NULL,"MODULES",0,0) { syntax = "[debug]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

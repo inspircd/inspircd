@@ -20,9 +20,8 @@
 class CommandGloadmodule : public Command
 {
  public:
-	CommandGloadmodule (InspIRCd* Instance) : Command(Instance,"GLOADMODULE", "o", 1)
+	CommandGloadmodule (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"GLOADMODULE", "o", 1)
 	{
-		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
@@ -55,9 +54,8 @@ class CommandGloadmodule : public Command
 class CommandGunloadmodule : public Command
 {
  public:
-	CommandGunloadmodule (InspIRCd* Instance) : Command(Instance,"GUNLOADMODULE", "o", 1)
+	CommandGunloadmodule (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"GUNLOADMODULE", "o", 1)
 	{
-		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
 	}
 
@@ -89,9 +87,8 @@ class CommandGunloadmodule : public Command
 class CommandGreloadmodule : public Command
 {
  public:
-	CommandGreloadmodule (InspIRCd* Instance) : Command(Instance, "GRELOADMODULE", "o", 1)
+	CommandGreloadmodule (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "GRELOADMODULE", "o", 1)
 	{
-		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
 	}
 
@@ -131,7 +128,7 @@ class ModuleGlobalLoad : public Module
 
  public:
 	ModuleGlobalLoad(InspIRCd* Me)
-		: Module(Me), cmd1(Me), cmd2(Me), cmd3(Me)
+		: Module(Me), cmd1(Me, this), cmd2(Me, this), cmd3(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

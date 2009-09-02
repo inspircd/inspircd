@@ -26,9 +26,8 @@ std::string suffix;
 class CommandRandquote : public Command
 {
  public:
-	CommandRandquote (InspIRCd* Instance) : Command(Instance,"RANDQUOTE", 0, 0)
+	CommandRandquote (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"RANDQUOTE", 0, 0)
 	{
-		this->source = "m_randquote.so";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -59,7 +58,7 @@ class ModuleRandQuote : public Module
 	ConfigReader *conf;
  public:
 	ModuleRandQuote(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 
 		conf = new ConfigReader(ServerInstance);

@@ -56,9 +56,9 @@ class CommandWebirc : public Command
 		bool notify;
 	public:
 		CGIHostlist Hosts;
-		CommandWebirc(InspIRCd* Instance, bool bnotify) : Command(Instance, "WEBIRC", 0, 4, true), notify(bnotify)
+		CommandWebirc(InspIRCd* Instance, Module* Creator, bool bnotify)
+			: Command(Instance, Creator, "WEBIRC", 0, 4, true), notify(bnotify)
 		{
-			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
 		}
 		CmdResult Handle(const std::vector<std::string> &parameters, User *user)
@@ -138,7 +138,7 @@ class ModuleCgiIRC : public Module
 	CommandWebirc cmd;
 	bool NotifyOpers;
 public:
-	ModuleCgiIRC(InspIRCd* Me) : Module(Me), cmd(Me, NotifyOpers)
+	ModuleCgiIRC(InspIRCd* Me) : Module(Me), cmd(Me, this, NotifyOpers)
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);

@@ -29,7 +29,7 @@ class CommandQuit : public Command
  public:
 	/** Constructor for quit.
 	 */
-	CommandQuit (InspIRCd* Instance) : Command(Instance,"QUIT",0,0,true) { syntax = "[<message>]"; }
+	CommandQuit (InspIRCd* Instance) : Command(Instance,NULL,"QUIT",0,0,true) { syntax = "[<message>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

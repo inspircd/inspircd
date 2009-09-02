@@ -21,9 +21,8 @@ class CommandNicklock : public Command
 {
 
  public:
-	CommandNicklock (InspIRCd* Instance) : Command(Instance,"NICKLOCK", "o", 2)
+	CommandNicklock (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"NICKLOCK", "o", 2)
 	{
-		this->source = "m_nicklock.so";
 		syntax = "<oldnick> <newnick>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -92,9 +91,8 @@ class CommandNicklock : public Command
 class CommandNickunlock : public Command
 {
  public:
-	CommandNickunlock (InspIRCd* Instance) : Command(Instance,"NICKUNLOCK", "o", 1)
+	CommandNickunlock (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"NICKUNLOCK", "o", 1)
 	{
-		this->source = "m_nicklock.so";
 		syntax = "<locked-nick>";
 		TRANSLATE2(TR_NICK, TR_END);
 	}
@@ -148,11 +146,11 @@ class CommandNickunlock : public Command
 
 class ModuleNickLock : public Module
 {
-	CommandNicklock	cmd1;
-	CommandNickunlock	cmd2;
+	CommandNicklock cmd1;
+	CommandNickunlock cmd2;
  public:
 	ModuleNickLock(InspIRCd* Me)
-		: Module(Me), cmd1(Me), cmd2(Me)
+		: Module(Me), cmd1(Me, this), cmd2(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

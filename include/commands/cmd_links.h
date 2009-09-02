@@ -29,7 +29,7 @@ class CommandLinks : public Command
  public:
 	/** Constructor for links.
 	 */
-	CommandLinks (InspIRCd* Instance) : Command(Instance,"LINKS",0,0) { }
+	CommandLinks (InspIRCd* Instance) : Command(Instance,NULL,"LINKS",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

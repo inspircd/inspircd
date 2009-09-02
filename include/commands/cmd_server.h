@@ -29,7 +29,7 @@ class CommandServer : public Command
  public:
 	/** Constructor for server.
 	 */
-	CommandServer (InspIRCd* Instance) : Command(Instance,"SERVER",0,0,true) { }
+	CommandServer (InspIRCd* Instance) : Command(Instance,NULL,"SERVER",0,0,true) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

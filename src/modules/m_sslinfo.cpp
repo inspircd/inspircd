@@ -21,9 +21,8 @@
 class CommandSSLInfo : public Command
 {
  public:
-	CommandSSLInfo (InspIRCd* Instance) : Command(Instance,"SSLINFO", 0, 1)
+	CommandSSLInfo(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "SSLINFO", 0, 1)
 	{
-		this->source = "m_sslinfo.so";
 		this->syntax = "<nick>";
 	}
 
@@ -66,7 +65,7 @@ class ModuleSSLInfo : public Module
 	CommandSSLInfo cmd;
  public:
 	ModuleSSLInfo(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 

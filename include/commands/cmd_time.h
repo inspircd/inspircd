@@ -29,7 +29,7 @@ class CommandTime : public Command
  public:
 	/** Constructor for time.
 	 */
-	CommandTime (InspIRCd* Instance) : Command(Instance,"TIME",0,0) { syntax = "[<servername>]"; }
+	CommandTime (InspIRCd* Instance) : Command(Instance,NULL,"TIME",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -156,8 +156,8 @@ class FounderProtectBase
 class ChanFounder : public ModeHandler, public FounderProtectBase
 {
  public:
-	ChanFounder(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
+	ChanFounder(InspIRCd* Instance, Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
+		: ModeHandler(Instance, Creator, 'q', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
 		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
@@ -232,8 +232,8 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 class ChanProtect : public ModeHandler, public FounderProtectBase
 {
  public:
-	ChanProtect(InspIRCd* Instance, char my_prefix, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
+	ChanProtect(InspIRCd* Instance, Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
+		: ModeHandler(Instance, Creator, 'a', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
 		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
@@ -328,8 +328,8 @@ class ModuleChanProtect : public Module
 
 		/* Initialise module variables */
 
-		cp = new ChanProtect(ServerInstance, APrefix, DeprivSelf, DeprivOthers);
-		cf = new ChanFounder(ServerInstance, QPrefix, DeprivSelf, DeprivOthers);
+		cp = new ChanProtect(ServerInstance, this, APrefix, DeprivSelf, DeprivOthers);
+		cf = new ChanFounder(ServerInstance, this, QPrefix, DeprivSelf, DeprivOthers);
 
 		if (!ServerInstance->Modes->AddMode(cp) || !ServerInstance->Modes->AddMode(cf))
 		{

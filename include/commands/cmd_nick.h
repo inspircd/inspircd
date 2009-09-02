@@ -30,7 +30,7 @@ class CommandNick : public Command
  public:
 	/** Constructor for nick.
 	 */
-	CommandNick (InspIRCd* Instance) : Command(Instance,"NICK", 0, 1, true, 3), allowinvalid(false) { syntax = "<newnick>"; }
+	CommandNick (InspIRCd* Instance) : Command(Instance,NULL,"NICK", 0, 1, true, 3), allowinvalid(false) { syntax = "<newnick>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

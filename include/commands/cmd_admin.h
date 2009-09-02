@@ -27,7 +27,7 @@ class CommandAdmin : public Command
  public:
 	/** Constructor for admin.
 	 */
-	CommandAdmin (InspIRCd* Instance) : Command(Instance,"ADMIN",0,0) { syntax = "[<servername>]"; }
+	CommandAdmin (InspIRCd* Instance) : Command(Instance,NULL,"ADMIN",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

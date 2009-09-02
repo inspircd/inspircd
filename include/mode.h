@@ -150,6 +150,9 @@ class CoreExport ModeHandler : public classbase
 	char prefixneeded;
 
  public:
+	/** Module that created this mode. NULL for core modes */
+	Module* creator;
+
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
 	 * The constructor of any class you derive from ModeHandler should
@@ -165,9 +168,12 @@ class CoreExport ModeHandler : public classbase
 	 * In the core, the only modes to implement prefixes are +ovh (ops, voice, halfop) which define the prefix characters @, % and +
 	 * and the rank values OP_VALUE, HALFOP_VALUE and VOICE_VALUE respectively. Any prefixes you define should have unique values proportional
 	 * to these three defaults or proportional to another mode in a module you depend on. See src/cmode_o.cpp as an example.
+	 * @param prefixrequired The prefix required to change this mode
+	 * @param translate The translation type for the argument(s) of this mode
 	 */
-	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly,
-		char mprefix = 0, char prefixrequired = '%', TranslateType translate = TR_TEXT);
+	ModeHandler(InspIRCd* Instance, Module* me, char modeletter, int parameters_on, int parameters_off,
+		bool listmode, ModeType type, bool operonly, char mprefix = 0,
+		char prefixrequired = '%', TranslateType translate = TR_TEXT);
 	/**
 	 * The default destructor does nothing
 	 */
@@ -321,8 +327,9 @@ class CoreExport ModeHandler : public classbase
 class CoreExport SimpleUserModeHandler : public ModeHandler
 {
  public:
-	SimpleUserModeHandler(InspIRCd* Instance, char modeletter);
-	virtual ~SimpleUserModeHandler();
+	SimpleUserModeHandler(InspIRCd* Instance, Module* Creator, char modeletter)
+		: ModeHandler(Instance, Creator, modeletter, 0, 0, false, MODETYPE_USER, false) {}
+	virtual ~SimpleUserModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false);
 };
 
@@ -334,8 +341,9 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
 class CoreExport SimpleChannelModeHandler : public ModeHandler
 {
  public:
-	SimpleChannelModeHandler(InspIRCd* Instance, char modeletter);
-	virtual ~SimpleChannelModeHandler();
+	SimpleChannelModeHandler(InspIRCd* Instance, Module* Creator, char modeletter)
+		: ModeHandler(Instance, Creator, modeletter, 0, 0, false, MODETYPE_CHANNEL, false) {}
+	virtual ~SimpleChannelModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false);
 };
 

@@ -20,7 +20,7 @@
 class HideChans : public ModeHandler
 {
  public:
-	HideChans(InspIRCd* Instance) : ModeHandler(Instance, 'I', 0, 0, false, MODETYPE_USER, false) { }
+	HideChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'I', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -50,7 +50,7 @@ class ModuleHideChans : public Module
 	bool AffectsOpers;
 	HideChans hm;
  public:
-	ModuleHideChans(InspIRCd* Me) : Module(Me), hm(Me)
+	ModuleHideChans(InspIRCd* Me) : Module(Me), hm(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&hm))
 			throw ModuleException("Could not add new modes!");

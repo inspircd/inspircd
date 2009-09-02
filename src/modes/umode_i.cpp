@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/umode_i.h"
 
-ModeUserInvisible::ModeUserInvisible(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'i')
+ModeUserInvisible::ModeUserInvisible(InspIRCd* Instance) : SimpleUserModeHandler(Instance, NULL, 'i')
 {
 }
 

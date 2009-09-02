@@ -26,7 +26,7 @@ typedef std::map<irc::string,irc::string> censor_t;
 class CensorUser : public SimpleUserModeHandler
 {
  public:
-	CensorUser(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'G') { }
+	CensorUser(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'G') { }
 };
 
 /** Handles channel mode +G
@@ -34,7 +34,7 @@ class CensorUser : public SimpleUserModeHandler
 class CensorChannel : public SimpleChannelModeHandler
 {
  public:
-	CensorChannel(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'G') { }
+	CensorChannel(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'G') { }
 };
 
 class ModuleCensor : public Module
@@ -45,7 +45,7 @@ class ModuleCensor : public Module
 
  public:
 	ModuleCensor(InspIRCd* Me)
-		: Module(Me), cu(Me), cc(Me)
+		: Module(Me), cu(Me, this), cc(Me, this)
 	{
 		/* Read the configuration file on startup.
 		 */

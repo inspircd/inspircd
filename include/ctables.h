@@ -79,7 +79,10 @@ class CoreExport Command : public Extensible
  public:
 	/** Command name
 	*/
-	 std::string command;
+	std::string command;
+
+	/** Creator module, NULL for core commands */
+	Module* creator;
 
 	/** User flags needed to execute the command or 0
 	 */
@@ -100,12 +103,8 @@ class CoreExport Command : public Extensible
 	long double use_count;
 
 	/** used by /stats m
- 	 */
-	long double total_bytes;
-
-	/** used for resource tracking between modules
 	 */
-	std::string source;
+	long double total_bytes;
 
 	/** True if the command is disabled to non-opers
 	 */
@@ -140,22 +139,20 @@ class CoreExport Command : public Extensible
 	 * be allowed before the user is 'registered' (has sent USER,
 	 * NICK, optionally PASS, and been resolved).
 	 */
-	Command(InspIRCd* Instance, const std::string &cmd, const char *flags, int minpara, bool before_reg = false, int penalty = 1) : 	ServerInstance(Instance), command(cmd), flags_needed(flags ? *flags : 0), min_params(minpara), max_params(0), disabled(false), works_before_reg(before_reg), Penalty(penalty)
+	Command(InspIRCd* Instance, Module* me, const std::string &cmd, const char *flags, int minpara, bool before_reg = false, int penalty = 1) :
+		ServerInstance(Instance), command(cmd), creator(me), flags_needed(flags ? *flags : 0),
+		min_params(minpara), max_params(0), disabled(false), works_before_reg(before_reg), Penalty(penalty)
 	{
 		use_count = 0;
 		total_bytes = 0;
-		source = "<core>";
-		syntax = "";
-		translation.clear();
 	}
 
-	Command(InspIRCd* Instance, const std::string &cmd, const char *flags, int minpara, int maxpara, bool before_reg = false, int penalty = 1) : 	ServerInstance(Instance), command(cmd), flags_needed(flags ? *flags : 0), min_params(minpara), max_params(maxpara), disabled(false), works_before_reg(before_reg), Penalty(penalty)
+	Command(InspIRCd* Instance, Module* me, const std::string &cmd, const char *flags, int minpara, int maxpara, bool before_reg = false, int penalty = 1) :
+		ServerInstance(Instance), command(cmd), creator(me), flags_needed(flags ? *flags : 0),
+		min_params(minpara), max_params(maxpara), disabled(false), works_before_reg(before_reg), Penalty(penalty)
 	{
 		use_count = 0;
 		total_bytes = 0;
-		source = "<core>";
-		syntax = "";
-		translation.clear();
 	}
 
 	/** Handle the command from a user.

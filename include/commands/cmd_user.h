@@ -29,7 +29,7 @@ class CommandUser : public Command
  public:
 	/** Constructor for user.
 	 */
-	CommandUser (InspIRCd* Instance) : Command(Instance,"USER",0,4,true,0) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
+	CommandUser (InspIRCd* Instance) : Command(Instance,NULL,"USER",0,4,true,0) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

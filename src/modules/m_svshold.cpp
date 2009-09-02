@@ -79,9 +79,8 @@ class SVSHoldFactory : public XLineFactory
 class CommandSvshold : public Command
 {
  public:
-	CommandSvshold(InspIRCd* Me) : Command(Me, "SVSHOLD", "o", 1)
+	CommandSvshold(InspIRCd* Me, Module* Creator) : Command(Me, Creator, "SVSHOLD", "o", 1)
 	{
-		this->source = "m_svshold.so";
 		this->syntax = "<nickname> [<duration> :<reason>]";
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
@@ -149,7 +148,7 @@ class ModuleSVSHold : public Module
 
 
  public:
-	ModuleSVSHold(InspIRCd* Me) : Module(Me), cmd(Me), s(Me)
+	ModuleSVSHold(InspIRCd* Me) : Module(Me), cmd(Me, this), s(Me)
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->AddCommand(&cmd);

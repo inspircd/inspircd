@@ -19,12 +19,10 @@
  */
 class CommandTaxonomy : public Command
 {
-	Module* Creator;
  public:
 	/* Command 'taxonomy', takes no parameters and needs no special modes */
-	CommandTaxonomy (InspIRCd* Instance, Module* maker) : Command(Instance,"TAXONOMY", "o", 1), Creator(maker)
+	CommandTaxonomy (InspIRCd* Instance, Module* maker) : Command(Instance,maker,"TAXONOMY", "o", 1)
 	{
-		this->source = "m_taxonomy.so";
 		syntax = "<nickname>";
 	}
 
@@ -36,7 +34,7 @@ class CommandTaxonomy : public Command
 			std::deque<std::string> list;
 			dest->GetExtList(list);
 			user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY ITEMS " + std::string(dest->nick) + " " +ConvToStr(list.size()));
-			FOREACH_MOD(I_OnSyncUser, OnSyncUser(dest, Creator, user));
+			FOREACH_MOD(I_OnSyncUser, OnSyncUser(dest, creator, user));
 			user->WriteNumeric(304, "" + std::string(user->nick) + ":TAXONOMY END");
 		}
 		return CMD_LOCALONLY;

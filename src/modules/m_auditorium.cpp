@@ -18,7 +18,7 @@
 class AuditoriumMode : public ModeHandler
 {
  public:
-	AuditoriumMode(InspIRCd* Instance) : ModeHandler(Instance, 'u', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@') { }
+	AuditoriumMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'u', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@') { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -42,7 +42,7 @@ class ModuleAuditorium : public Module
 	bool OperOverride;
  public:
 	ModuleAuditorium(InspIRCd* Me)
-		: Module(Me), aum(Me)
+		: Module(Me), aum(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&aum))
 			throw ModuleException("Could not add new modes!");

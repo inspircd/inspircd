@@ -121,9 +121,8 @@ class CommandRLine : public Command
 	std::string rxengine;
 
  public:
-	CommandRLine (InspIRCd* Instance) : Command(Instance,"RLINE", "o", 1, 3)
+	CommandRLine (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"RLINE", "o", 1, 3)
 	{
-		this->source = "m_rline.so";
 		this->syntax = "<regex> [<rline-duration>] :<reason>";
 	}
 
@@ -194,7 +193,7 @@ class ModuleRLine : public Module
 	std::string RegexEngine;
 
  public:
-	ModuleRLine(InspIRCd* Me) : Module(Me), r(Me), f(Me)
+	ModuleRLine(InspIRCd* Me) : Module(Me), r(Me, this), f(Me)
 	{
 		mymodule = this;
 		OnRehash(NULL);

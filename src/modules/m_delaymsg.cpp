@@ -18,9 +18,8 @@ class DelayMsgMode : public ModeHandler
 {
  private:
 	CUList empty;
-	Module* Creator;
  public:
-	DelayMsgMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, 'd', 1, 0, false, MODETYPE_CHANNEL, false, 0, '@'), Creator(Parent) {};
+	DelayMsgMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, Parent, 'd', 1, 0, false, MODETYPE_CHANNEL, false, 0, '@') {};
 
 	ModePair ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 	{

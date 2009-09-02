@@ -32,7 +32,7 @@ class CommandStats : public Command
  public:
 	/** Constructor for stats.
 	 */
-	CommandStats (InspIRCd* Instance) : Command(Instance,"STATS",0,1) { syntax = "<stats-symbol> [<servername>]"; }
+	CommandStats (InspIRCd* Instance) : Command(Instance,NULL,"STATS",0,1) { syntax = "<stats-symbol> [<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

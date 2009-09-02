@@ -25,7 +25,7 @@
 #include "hashcomp.h"
 #include "modes/cmode_b.h"
 
-ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, 'b', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'b', 1, 1, true, MODETYPE_CHANNEL, false)
 {
 }
 

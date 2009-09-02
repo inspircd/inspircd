@@ -29,7 +29,7 @@ class CommandTrace : public Command
  public:
 	/** Constructor for trace.
 	 */
-	CommandTrace (InspIRCd* Instance) : Command(Instance,"TRACE","o",0) { syntax = "[<object>]"; }
+	CommandTrace (InspIRCd* Instance) : Command(Instance,NULL,"TRACE","o",0) { syntax = "[<object>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

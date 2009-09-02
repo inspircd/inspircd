@@ -206,9 +206,9 @@ class RemoveBase
 class CommandRemove : public Command, public RemoveBase
 {
  public:
-	CommandRemove(InspIRCd* Instance, bool& snk) : Command(Instance, "REMOVE", 0, 2, 2, false, 0), RemoveBase(Instance, snk)
+	CommandRemove(InspIRCd* Instance, Module* Creator, bool& snk)
+		: Command(Instance, Creator, "REMOVE", 0, 2, 2, false, 0), RemoveBase(Instance, snk)
 	{
-		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
@@ -224,9 +224,9 @@ class CommandRemove : public Command, public RemoveBase
 class CommandFpart : public Command, public RemoveBase
 {
  public:
-	CommandFpart(InspIRCd* Instance, bool& snk) : Command(Instance, "FPART", 0, 2), RemoveBase(Instance, snk)
+	CommandFpart(InspIRCd* Instance, Module* Creator, bool& snk)
+		: Command(Instance, Creator, "FPART", 0, 2), RemoveBase(Instance, snk)
 	{
-		this->source = "m_remove.so";
 		syntax = "<channel> <nick> [<reason>]";
 	}
 
@@ -245,7 +245,7 @@ class ModuleRemove : public Module
 
  public:
 	ModuleRemove(InspIRCd* Me)
-	: Module(Me), cmd1(Me, supportnokicks), cmd2(Me, supportnokicks)
+	: Module(Me), cmd1(Me, this, supportnokicks), cmd2(Me, this, supportnokicks)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

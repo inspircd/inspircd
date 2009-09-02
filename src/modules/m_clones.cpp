@@ -20,9 +20,8 @@
 class CommandClones : public Command
 {
  public:
- 	CommandClones (InspIRCd* Instance) : Command(Instance,"CLONES", "o", 1)
+ 	CommandClones (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"CLONES", "o", 1)
 	{
-		this->source = "m_clones.so";
 		syntax = "<limit>";
 	}
 
@@ -62,7 +61,7 @@ class ModuleClones : public Module
  private:
 	CommandClones cmd;
  public:
-	ModuleClones(InspIRCd* Me) : Module(Me), cmd(Me)
+	ModuleClones(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

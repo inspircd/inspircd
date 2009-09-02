@@ -20,9 +20,8 @@
 class CommandSakick : public Command
 {
  public:
-	CommandSakick (InspIRCd* Instance) : Command(Instance,"SAKICK", "o", 2, 3, false, 0)
+	CommandSakick (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SAKICK", "o", 2, 3, false, 0)
 	{
-		this->source = "m_sakick.so";
 		syntax = "<channel> <nick> [reason]";
 		TRANSLATE4(TR_TEXT, TR_NICK, TR_TEXT, TR_END);
 	}
@@ -91,7 +90,7 @@ class ModuleSakick : public Module
 	CommandSakick cmd;
  public:
 	ModuleSakick(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

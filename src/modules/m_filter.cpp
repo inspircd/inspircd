@@ -101,9 +101,9 @@ class CommandFilter : public Command
 {
 	FilterBase* Base;
  public:
-	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource) : Command(Me, "FILTER", "o", 1, 5), Base(f)
+	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource)
+		: Command(Me, reinterpret_cast<Module*>(f), "FILTER", "o", 1, 5), Base(f)
 	{
-		this->source = ssource;
 		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
 	}
 	CmdResult Handle(const std::vector<std::string>&, User*);

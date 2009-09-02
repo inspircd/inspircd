@@ -20,7 +20,7 @@
 class Redirect : public ModeHandler
 {
  public:
-	Redirect(InspIRCd* Instance) : ModeHandler(Instance, 'L', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	Redirect(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'L', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
@@ -90,7 +90,7 @@ class ModuleRedirect : public Module
  public:
 
 	ModuleRedirect(InspIRCd* Me)
-		: Module(Me), re(Me)
+		: Module(Me), re(Me, this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&re))

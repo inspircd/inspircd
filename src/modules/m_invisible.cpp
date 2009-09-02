@@ -40,7 +40,7 @@ class InvisibleMode : public ModeHandler
 {
 	QuietOper* qo;
  public:
-	InvisibleMode(InspIRCd* Instance) : ModeHandler(Instance, 'Q', 0, 0, false, MODETYPE_USER, true)
+	InvisibleMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'Q', 0, 0, false, MODETYPE_USER, true)
 	{
 		qo = new QuietOper();
 	}
@@ -134,7 +134,7 @@ class ModuleInvisible : public Module
 	InvisibleDeOper ido;
  public:
 	ModuleInvisible(InspIRCd* Me)
-		: Module(Me), qm(Me), ido(Me)
+		: Module(Me), qm(Me, this), ido(Me)
 	{
 		conf = new ConfigReader(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(&qm))

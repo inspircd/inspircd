@@ -103,9 +103,8 @@ watchentries* whos_watching_me;
 class CommandSVSWatch : public Command
 {
  public:
-	CommandSVSWatch (InspIRCd* Instance) : Command(Instance,"SVSWATCH", 0, 2)
+	CommandSVSWatch (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SVSWATCH", 0, 2)
 	{
-		this->source = "m_watch.so";
 		syntax = "<target> [C|L|S]|[+|-<nick>]";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
@@ -251,9 +250,8 @@ class CommandWatch : public Command
 		return CMD_LOCALONLY;
 	}
 
-	CommandWatch (InspIRCd* Instance, unsigned int &maxwatch) : Command(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
+	CommandWatch (InspIRCd* Instance, Module* parent, unsigned int &maxwatch) : Command(Instance,parent,"WATCH",0,0), MAX_WATCH(maxwatch)
 	{
-		this->source = "m_watch.so";
 		syntax = "[C|L|S]|[+|-<nick>]";
 		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
@@ -373,7 +371,7 @@ class Modulewatch : public Module
 
  public:
 	Modulewatch(InspIRCd* Me)
-		: Module(Me), maxwatch(32), cmdw(Me, maxwatch), sw(Me)
+		: Module(Me), maxwatch(32), cmdw(Me, this, maxwatch), sw(Me,this) 
 	{
 		OnRehash(NULL);
 		whos_watching_me = new watchentries();

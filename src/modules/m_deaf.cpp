@@ -20,7 +20,7 @@
 class User_d : public ModeHandler
 {
  public:
-	User_d(InspIRCd* Instance) : ModeHandler(Instance, 'd', 0, 0, false, MODETYPE_USER, false) { }
+	User_d(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'd', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -54,7 +54,7 @@ class ModuleDeaf : public Module
 
  public:
 	ModuleDeaf(InspIRCd* Me)
-		: Module(Me), m1(Me)
+		: Module(Me), m1(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&m1))
 			throw ModuleException("Could not add new modes!");

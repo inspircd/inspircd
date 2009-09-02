@@ -20,7 +20,7 @@
 class ServProtectMode : public ModeHandler
 {
  public:
-	ServProtectMode(InspIRCd* Instance) : ModeHandler(Instance, 'k', 0, 0, false, MODETYPE_USER, true) { }
+	ServProtectMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'k', 0, 0, false, MODETYPE_USER, true) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -44,7 +44,7 @@ class ModuleServProtectMode : public Module
 	ServProtectMode bm;
  public:
 	ModuleServProtectMode(InspIRCd* Me)
-		: Module(Me), bm(Me)
+		: Module(Me), bm(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&bm))
 			throw ModuleException("Could not add new modes!");

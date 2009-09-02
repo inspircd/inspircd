@@ -29,7 +29,7 @@ class CommandIson : public Command
  public:
 	/** Constructor for ison.
 	 */
-	CommandIson (InspIRCd* Instance) : Command(Instance,"ISON",0,0) { syntax = "<nick> {nick}"; }
+	CommandIson (InspIRCd* Instance) : Command(Instance,NULL,"ISON",0,0) { syntax = "<nick> {nick}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

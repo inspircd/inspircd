@@ -18,7 +18,6 @@
  */
 class CommandRConnect : public Command
 {
-        Module* Creator;		/* Creator */
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
         CommandRConnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);

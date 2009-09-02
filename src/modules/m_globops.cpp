@@ -22,9 +22,8 @@
 class CommandGlobops : public Command
 {
  public:
-	CommandGlobops (InspIRCd* Instance) : Command(Instance,"GLOBOPS","o",1,1)
+	CommandGlobops (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"GLOBOPS","o",1,1)
 	{
-		this->source = "m_globops.so";
 		syntax = "<any-text>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
@@ -48,7 +47,7 @@ class ModuleGlobops : public Module
 	CommandGlobops cmd;
  public:
 	ModuleGlobops(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");

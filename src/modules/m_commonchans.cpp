@@ -20,7 +20,7 @@
 class PrivacyMode : public ModeHandler
 {
  public:
-	PrivacyMode(InspIRCd* Instance) : ModeHandler(Instance, 'c', 0, 0, false, MODETYPE_USER, false) { }
+	PrivacyMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'c', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -49,7 +49,7 @@ class ModulePrivacyMode : public Module
 {
 	PrivacyMode pm;
  public:
-	ModulePrivacyMode(InspIRCd* Me) : Module(Me), pm(Me)
+	ModulePrivacyMode(InspIRCd* Me) : Module(Me), pm(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&pm))
 			throw ModuleException("Could not add new modes!");

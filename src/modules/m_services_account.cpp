@@ -22,7 +22,7 @@ class Channel_r : public ModeHandler
 {
 
  public:
-	Channel_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	Channel_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -52,7 +52,7 @@ class User_r : public ModeHandler
 {
 
  public:
-	User_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false) { }
+	User_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'r', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
 	{
@@ -78,7 +78,7 @@ class User_r : public ModeHandler
 class AChannel_R : public SimpleChannelModeHandler
 {
  public:
-	AChannel_R(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'R') { }
+	AChannel_R(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'R') { }
 };
 
 /** User mode +R - unidentified users cannot message
@@ -86,7 +86,7 @@ class AChannel_R : public SimpleChannelModeHandler
 class AUser_R : public SimpleUserModeHandler
 {
  public:
-	AUser_R(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'R') { }
+	AUser_R(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'R') { }
 };
 
 /** Channel mode +M - unidentified users cannot message channel
@@ -94,7 +94,7 @@ class AUser_R : public SimpleUserModeHandler
 class AChannel_M : public SimpleChannelModeHandler
 {
  public:
-	AChannel_M(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'M') { }
+	AChannel_M(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'M') { }
 };
 
 class ModuleServicesAccount : public Module
@@ -106,7 +106,7 @@ class ModuleServicesAccount : public Module
 	User_r m5;
  public:
 	ModuleServicesAccount(InspIRCd* Me) : Module(Me),
-		m1(Me), m2(Me), m3(Me), m4(Me), m5(Me)
+		m1(Me, this), m2(Me, this), m3(Me, this), m4(Me, this), m5(Me, this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&m1) || !ServerInstance->Modes->AddMode(&m2) ||

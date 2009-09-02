@@ -29,7 +29,7 @@ class CommandZline : public Command
  public:
 	/** Constructor for zline.
 	 */
-	CommandZline (InspIRCd* Instance) : Command(Instance,"ZLINE","o",1,3,false,0) { syntax = "<ipmask> [<duration> :<reason>]"; }
+	CommandZline (InspIRCd* Instance) : Command(Instance,NULL,"ZLINE","o",1,3,false,0) { syntax = "<ipmask> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

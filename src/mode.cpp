@@ -49,8 +49,8 @@
 /* +s (server notice masks) */
 #include "modes/umode_s.h"
 
-ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired, TranslateType translate)
-	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), m_paramtype(translate), oper(operonly), prefix(mprefix), count(0), prefixneeded(prefixrequired)
+ModeHandler::ModeHandler(InspIRCd* Instance, Module* Creator, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired, TranslateType translate)
+	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), m_paramtype(translate), oper(operonly), prefix(mprefix), count(0), prefixneeded(prefixrequired), creator(Creator)
 {
 }
 
@@ -158,22 +158,6 @@ void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 bool ModeHandler::CheckTimeStamp(std::string& theirs, const std::string& ours, Channel*)
 {
 	return (theirs < ours);
-}
-
-SimpleUserModeHandler::SimpleUserModeHandler(InspIRCd* Instance, char modeletter) : ModeHandler(Instance, modeletter, 0, 0, false, MODETYPE_USER, false)
-{
-}
-
-SimpleUserModeHandler::~SimpleUserModeHandler()
-{
-}
-
-SimpleChannelModeHandler::~SimpleChannelModeHandler()
-{
-}
-
-SimpleChannelModeHandler::SimpleChannelModeHandler(InspIRCd* Instance, char modeletter) : ModeHandler(Instance, modeletter, 0, 0, false, MODETYPE_CHANNEL, false)
-{
 }
 
 ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)

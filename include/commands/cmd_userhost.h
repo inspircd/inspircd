@@ -29,7 +29,7 @@ class CommandUserhost : public Command
  public:
 	/** Constructor for userhost.
 	 */
-	CommandUserhost (InspIRCd* Instance) : Command(Instance,"USERHOST",0,1) { syntax = "<nick>{,<nick>}"; }
+	CommandUserhost (InspIRCd* Instance) : Command(Instance,NULL,"USERHOST",0,1) { syntax = "<nick>{,<nick>}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

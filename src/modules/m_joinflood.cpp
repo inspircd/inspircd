@@ -86,7 +86,7 @@ class joinfloodsettings : public classbase
 class JoinFlood : public ModeHandler
 {
  public:
-	JoinFlood(InspIRCd* Instance) : ModeHandler(Instance, 'j', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	JoinFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'j', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
@@ -202,7 +202,7 @@ class ModuleJoinFlood : public Module
  public:
 
 	ModuleJoinFlood(InspIRCd* Me)
-		: Module(Me), jf(Me)
+		: Module(Me), jf(Me, this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&jf))

@@ -26,9 +26,9 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h m_spanningtree/rsquit.h */
 
-CommandRSQuit::CommandRSQuit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : Command(Instance, "RSQUIT", "o", 1), Creator(Callback), Utils(Util)
+CommandRSQuit::CommandRSQuit (InspIRCd* Instance, Module* Creator, SpanningTreeUtilities* Util)
+	: Command(Instance, Creator, "RSQUIT", "o", 1), Utils(Util)
 {
-	this->source = "m_spanningtree.so";
 	syntax = "<target-server-mask> [reason]";
 }
 

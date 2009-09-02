@@ -87,9 +87,8 @@ class ShunFactory : public XLineFactory
 class CommandShun : public Command
 {
  public:
-	CommandShun(InspIRCd* Me) : Command(Me, "SHUN", "o", 1, 3)
+	CommandShun(InspIRCd* Me, Module* Creator) : Command(Me, Creator, "SHUN", "o", 1, 3)
 	{
-		this->source = "m_shun.so";
 		this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
 	}
 
@@ -183,7 +182,7 @@ class ModuleShun : public Module
 	bool affectopers;
 
  public:
-	ModuleShun(InspIRCd* Me) : Module(Me), cmd(Me), f(Me)
+	ModuleShun(InspIRCd* Me) : Module(Me), cmd(Me, this), f(Me)
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->AddCommand(&cmd);

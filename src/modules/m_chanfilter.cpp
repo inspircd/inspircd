@@ -25,7 +25,7 @@
 class ChanFilter : public ListModeBase
 {
  public:
-	ChanFilter(InspIRCd* Instance) : ListModeBase(Instance, 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
+	ChanFilter(InspIRCd* Instance, Module* Creator) : ListModeBase(Instance, Creator, 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
 
 	virtual bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
@@ -63,7 +63,7 @@ class ModuleChanFilter : public Module
  public:
 
 	ModuleChanFilter(InspIRCd* Me)
-		: Module(Me), cf(Me)
+		: Module(Me), cf(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&cf))
 			throw ModuleException("Could not add new modes!");

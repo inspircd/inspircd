@@ -29,7 +29,7 @@ class CommandQline : public Command
  public:
 	/** Constructor for qline.
 	 */
-	CommandQline (InspIRCd* Instance) : Command(Instance,"QLINE","o",1,3,false,0) { syntax = "<nick> [<duration> :<reason>]"; }
+	CommandQline (InspIRCd* Instance) : Command(Instance,NULL,"QLINE","o",1,3,false,0) { syntax = "<nick> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

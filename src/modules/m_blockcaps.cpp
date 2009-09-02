@@ -21,7 +21,7 @@
 class BlockCaps : public SimpleChannelModeHandler
 {
  public:
-	BlockCaps(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'B') { }
+	BlockCaps(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'B') { }
 };
 
 class ModuleBlockCAPS : public Module
@@ -32,7 +32,7 @@ class ModuleBlockCAPS : public Module
 	char capsmap[256];
 public:
 
-	ModuleBlockCAPS(InspIRCd* Me) : Module(Me), bc(Me)
+	ModuleBlockCAPS(InspIRCd* Me) : Module(Me), bc(Me, this)
 	{
 		OnRehash(NULL);
 		if (!ServerInstance->Modes->AddMode(&bc))

@@ -29,7 +29,7 @@ class CommandCommands : public Command
  public:
 	/** Constructor for commands.
 	 */
-	CommandCommands (InspIRCd* Instance) : Command(Instance,"COMMANDS",0,0) { }
+	CommandCommands (InspIRCd* Instance) : Command(Instance,NULL,"COMMANDS",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

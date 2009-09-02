@@ -68,7 +68,7 @@ class CoreExport CommandParser : public classbase
 	/** Removes a command if the sources match. Used as a helper for
 	 *  safe hash_map delete while iter in RemoveCommands(const char* source).
 	 */
-	void RemoveCommand(nspace::hash_map<std::string,Command*>::iterator safei, const char* source);
+	void RemoveCommand(nspace::hash_map<std::string,Command*>::iterator safei, Module* source);
 
 
  public:
@@ -178,9 +178,9 @@ class CoreExport CommandParser : public classbase
 	void DoLines(User* current, bool one_only = false);
 
 	/** Remove all commands relating to module 'source'.
-	 * @param source A module name which has introduced new commands
+	 * @param source A module which has introduced new commands
 	 */
-	void RemoveCommands(const char* source);
+	void RemoveCommands(Module* source);
 
 	/** Remove all core commands and unload their shared objects
 	 */
@@ -226,7 +226,7 @@ class CommandReload : public Command
  public:
 	/** Standard constructor
 	 */
-	CommandReload (InspIRCd* Instance) : Command(Instance,"RELOAD","o",1) { syntax = "<core-command>"; }
+	CommandReload (InspIRCd* Instance) : Command(Instance,NULL,"RELOAD","o",1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);

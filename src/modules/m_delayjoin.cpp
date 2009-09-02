@@ -18,9 +18,8 @@ class DelayJoinMode : public ModeHandler
 {
  private:
 	CUList empty;
-	Module* Creator;
  public:
-	DelayJoinMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, 'D', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@'), Creator(Parent) {};
+	DelayJoinMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, Parent, 'D', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@') {};
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool);
 };
@@ -67,7 +66,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 */
 		CUList* names = channel->GetUsers();
 		for (CUListIter n = names->begin(); n != names->end(); ++n)
-			Creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
+			creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
 	}
 	channel->SetMode('D', adding);
 	return MODEACTION_ALLOW;

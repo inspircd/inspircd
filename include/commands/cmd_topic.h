@@ -29,7 +29,7 @@ class CommandTopic : public Command
  public:
 	/** Constructor for topic.
 	 */
-	CommandTopic (InspIRCd* Instance) : Command(Instance,"TOPIC",0,1,false,2) { syntax = "<channel> [<topic>]"; }
+	CommandTopic (InspIRCd* Instance) : Command(Instance,NULL,"TOPIC",0,1,false,2) { syntax = "<channel> [<topic>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

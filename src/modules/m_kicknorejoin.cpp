@@ -30,7 +30,7 @@ typedef std::map<User*, time_t> delaylist;
 class KickRejoin : public ModeHandler
 {
  public:
-	KickRejoin(InspIRCd* Instance) : ModeHandler(Instance, 'J', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	KickRejoin(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'J', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
@@ -111,7 +111,7 @@ class ModuleKickNoRejoin : public Module
 public:
 
 	ModuleKickNoRejoin(InspIRCd* Me)
-		: Module(Me), kr(Me)
+		: Module(Me), kr(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&kr))
 			throw ModuleException("Could not add new modes!");

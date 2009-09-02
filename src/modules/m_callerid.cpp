@@ -127,17 +127,15 @@ void RemoveData(User* who)
 class User_g : public SimpleUserModeHandler
 {
 public:
-	User_g(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'g') { }
+	User_g(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'g') { }
 };
 
 class CommandAccept : public Command
 {
-private:
-	unsigned int& maxaccepts;
 public:
-	CommandAccept(InspIRCd* Instance, unsigned int& max) : Command(Instance, "ACCEPT", 0, 1), maxaccepts(max)
+	unsigned int maxaccepts;
+	CommandAccept(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "ACCEPT", 0, 1)
 	{
-		source = "m_callerid.so";
 		syntax = "{[+|-]<nicks>}|*}";
 		TRANSLATE2(TR_CUSTOM, TR_END);
 	}
@@ -311,7 +309,6 @@ private:
 	User_g myumode;
 
 	// Configuration variables:
-	unsigned int maxaccepts; // Maximum ACCEPT entries.
 	bool operoverride; // Operators can override callerid.
 	bool tracknick; // Allow ACCEPT entries to update with nick changes.
 	unsigned int notify_cooldown; // Seconds between notifications.
@@ -342,7 +339,7 @@ private:
 	}
 
 public:
-	ModuleCallerID(InspIRCd* Me) : Module(Me), mycommand(Me, maxaccepts), myumode(Me)
+	ModuleCallerID(InspIRCd* Me) : Module(Me), mycommand(Me, this), myumode(Me, this)
 	{
 		OnRehash(NULL);
 
@@ -466,7 +463,7 @@ public:
 	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
-		maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
+		mycommand.maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
 		operoverride = Conf.ReadFlag("callerid", "operoverride", "0", 0);
 		tracknick = Conf.ReadFlag("callerid", "tracknick", "0", 0);
 		notify_cooldown = Conf.ReadInteger("callerid", "cooldown", "60", 0, true);

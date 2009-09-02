@@ -20,9 +20,8 @@
 class CommandSapart : public Command
 {
  public:
-	CommandSapart (InspIRCd* Instance) : Command(Instance,"SAPART", "o", 2, 3, false, 0)
+	CommandSapart (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SAPART", "o", 2, 3, false, 0)
 	{
-		this->source = "m_sapart.so";
 		syntax = "<nick> <channel> [reason]";
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
@@ -91,7 +90,7 @@ class ModuleSapart : public Module
 	CommandSapart cmd;
  public:
 	ModuleSapart(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

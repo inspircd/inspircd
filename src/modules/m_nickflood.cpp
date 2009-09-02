@@ -90,7 +90,7 @@ class nickfloodsettings : public classbase
 class NickFlood : public ModeHandler
 {
  public:
-	NickFlood(InspIRCd* Instance) : ModeHandler(Instance, 'F', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	NickFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'F', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
@@ -205,7 +205,7 @@ class ModuleNickFlood : public Module
  public:
 
 	ModuleNickFlood(InspIRCd* Me)
-		: Module(Me), jf(Me)
+		: Module(Me), jf(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&jf))
 			throw ModuleException("Could not add new modes!");

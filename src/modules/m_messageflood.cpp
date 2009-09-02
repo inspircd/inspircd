@@ -76,7 +76,7 @@ class floodsettings : public classbase
 class MsgFlood : public ModeHandler
 {
  public:
-	MsgFlood(InspIRCd* Instance) : ModeHandler(Instance, 'f', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	MsgFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'f', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
@@ -197,7 +197,7 @@ class ModuleMsgFlood : public Module
  public:
 
 	ModuleMsgFlood(InspIRCd* Me)
-		: Module(Me), mf(Me)
+		: Module(Me), mf(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&mf))
 			throw ModuleException("Could not add new modes!");

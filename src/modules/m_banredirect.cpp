@@ -38,8 +38,7 @@ typedef std::deque<std::string> StringDeque;
 class BanRedirect : public ModeWatcher
 {
  public:
-	BanRedirect(InspIRCd* Instance)
-	: ModeWatcher(Instance, 'b', MODETYPE_CHANNEL)
+	BanRedirect(InspIRCd* Instance) : ModeWatcher(Instance, 'b', MODETYPE_CHANNEL)
 	{
 	}
 

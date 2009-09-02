@@ -29,7 +29,7 @@ class CommandUnloadmodule : public Command
  public:
 	/** Constructor for unloadmodule.
 	 */
-	CommandUnloadmodule (InspIRCd* Instance) : Command(Instance,"UNLOADMODULE","o",1) { syntax = "<modulename>"; }
+	CommandUnloadmodule (InspIRCd* Instance) : Command(Instance,NULL,"UNLOADMODULE","o",1) { syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

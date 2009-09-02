@@ -22,9 +22,8 @@ class CommandSethost : public Command
  private:
 	char* hostmap;
  public:
-	CommandSethost (InspIRCd* Instance, char* hmap) : Command(Instance,"SETHOST","o",1), hostmap(hmap)
+	CommandSethost (InspIRCd* Instance, Module* Creator, char* hmap) : Command(Instance,Creator,"SETHOST","o",1), hostmap(hmap)
 	{
-		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
@@ -68,7 +67,7 @@ class ModuleSetHost : public Module
 	char hostmap[256];
  public:
 	ModuleSetHost(InspIRCd* Me)
-		: Module(Me), cmd(Me, hostmap)
+		: Module(Me), cmd(Me, this, hostmap)
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);

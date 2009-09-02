@@ -29,7 +29,7 @@ class CommandPing : public Command
  public:
 	/** Constructor for ping.
 	 */
-	CommandPing (InspIRCd* Instance) : Command(Instance,"PING", 0, 1, false, 0) { syntax = "<servername> [:<servername>]"; }
+	CommandPing (InspIRCd* Instance) : Command(Instance,NULL,"PING", 0, 1, false, 0) { syntax = "<servername> [:<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

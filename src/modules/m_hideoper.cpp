@@ -20,7 +20,7 @@
 class HideOper : public ModeHandler
 {
  public:
-	HideOper(InspIRCd* Instance) : ModeHandler(Instance, 'H', 0, 0, false, MODETYPE_USER, true) { }
+	HideOper(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'H', 0, 0, false, MODETYPE_USER, true) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -50,7 +50,7 @@ class ModuleHideOper : public Module
 	HideOper hm;
  public:
 	ModuleHideOper(InspIRCd* Me)
-		: Module(Me), hm(Me)
+		: Module(Me), hm(Me, this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&hm))

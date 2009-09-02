@@ -31,7 +31,7 @@
 class BanException : public ListModeBase
 {
  public:
-	BanException(InspIRCd* Instance) : ListModeBase(Instance, 'e', "End of Channel Exception List", 348, 349, true) { }
+	BanException(InspIRCd* Instance, Module* Creator) : ListModeBase(Instance, Creator, 'e', "End of Channel Exception List", 348, 349, true) { }
 };
 
 
@@ -40,7 +40,7 @@ class ModuleBanException : public Module
 	BanException be;
 
 public:
-	ModuleBanException(InspIRCd* Me) : Module(Me), be(Me)
+	ModuleBanException(InspIRCd* Me) : Module(Me), be(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&be))
 			throw ModuleException("Could not add new modes!");

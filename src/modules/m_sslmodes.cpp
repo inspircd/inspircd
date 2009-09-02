@@ -22,7 +22,7 @@ static char* dummy;
 class SSLMode : public ModeHandler
 {
  public:
-	SSLMode(InspIRCd* Instance) : ModeHandler(Instance, 'z', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	SSLMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'z', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -70,7 +70,7 @@ class ModuleSSLModes : public Module
 
  public:
 	ModuleSSLModes(InspIRCd* Me)
-		: Module(Me), sslm(Me)
+		: Module(Me), sslm(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&sslm))
 			throw ModuleException("Could not add new modes!");

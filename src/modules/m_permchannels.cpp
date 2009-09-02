@@ -21,7 +21,7 @@
 class PermChannel : public ModeHandler
 {
  public:
-	PermChannel(InspIRCd* Instance) : ModeHandler(Instance, 'P', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	PermChannel(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'P', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool sm)
 	{
@@ -80,7 +80,7 @@ class ModulePermanentChannels : public Module
 	PermChannel p;
 public:
 
-	ModulePermanentChannels(InspIRCd* Me) : Module(Me), p(Me)
+	ModulePermanentChannels(InspIRCd* Me) : Module(Me), p(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&p))
 			throw ModuleException("Could not add new modes!");

@@ -47,9 +47,8 @@ bannedfilelist bfl;
 class CommandDccallow : public Command
 {
  public:
-	CommandDccallow(InspIRCd* Me) : Command(Me, "DCCALLOW", 0, 0)
+	CommandDccallow(InspIRCd* Me, Module* parent) : Command(Me, parent, "DCCALLOW", 0, 0)
 	{
-		this->source = "m_dccallow.so";
 		syntax = "{[+|-]<nick> <time>|HELP|LIST}";
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
@@ -248,7 +247,7 @@ class ModuleDCCAllow : public Module
  public:
 
 	ModuleDCCAllow(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		Conf = new ConfigReader(ServerInstance);
 		ServerInstance->AddCommand(&cmd);

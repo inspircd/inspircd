@@ -29,7 +29,7 @@ class CommandJoin : public Command
  public:
 	/** Constructor for join.
 	 */
-	CommandJoin (InspIRCd* Instance) : Command(Instance,"JOIN", 0, 1, false, 2) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; }
+	CommandJoin (InspIRCd* Instance) : Command(Instance,NULL,"JOIN", 0, 1, false, 2) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

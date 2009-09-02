@@ -84,9 +84,8 @@ class CBanFactory : public XLineFactory
 class CommandCBan : public Command
 {
  public:
-	CommandCBan(InspIRCd* Me) : Command(Me, "CBAN", "o", 1, 3)
+	CommandCBan(InspIRCd* Me, Module* Creator) : Command(Me, Creator, "CBAN", "o", 1, 3)
 	{
-		this->source = "m_cban.so";
 		this->syntax = "<channel> [<duration> :<reason>]";
 		TRANSLATE4(TR_TEXT,TR_TEXT,TR_TEXT,TR_END);
 	}
@@ -162,7 +161,7 @@ class ModuleCBan : public Module
 	CBanFactory f;
 
  public:
-	ModuleCBan(InspIRCd* Me) : Module(Me), mycommand(Me), f(Me)
+	ModuleCBan(InspIRCd* Me) : Module(Me), mycommand(Me, this), f(Me)
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 

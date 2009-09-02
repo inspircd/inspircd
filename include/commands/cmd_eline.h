@@ -29,7 +29,7 @@ class CommandEline : public Command
  public:
 	/** Constructor for eline.
 	 */
-	CommandEline (InspIRCd* Instance) : Command(Instance,"ELINE","o",1,3,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
+	CommandEline (InspIRCd* Instance) : Command(Instance,NULL,"ELINE","o",1,3,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

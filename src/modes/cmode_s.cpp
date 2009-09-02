@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_s.h"
 
-ModeChannelSecret::ModeChannelSecret(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 's')
+ModeChannelSecret::ModeChannelSecret(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, NULL, 's')
 {
 }
 

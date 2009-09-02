@@ -18,7 +18,7 @@
 class NoNicks : public ModeHandler
 {
  public:
-	NoNicks(InspIRCd* Instance) : ModeHandler(Instance, 'N', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	NoNicks(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'N', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
@@ -47,7 +47,7 @@ class ModuleNoNickChange : public Module
 {
 	NoNicks nn;
  public:
-	ModuleNoNickChange(InspIRCd* Me) : Module(Me), nn(Me)
+	ModuleNoNickChange(InspIRCd* Me) : Module(Me), nn(Me, this)
 	{
 		ServerInstance->Modes->AddMode(&nn);
 		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric };

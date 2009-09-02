@@ -32,7 +32,7 @@ class CommandRestart : public Command
  public:
 	/** Constructor for restart.
 	 */
-	CommandRestart (InspIRCd* Instance) : Command(Instance,"RESTART","o",1,false,0) { syntax = "<password>"; }
+	CommandRestart (InspIRCd* Instance) : Command(Instance,NULL,"RESTART","o",1,false,0) { syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

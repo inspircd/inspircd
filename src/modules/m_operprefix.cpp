@@ -51,7 +51,7 @@ void AddPrefixChan(User* user, Channel* channel)
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(InspIRCd* Instance, char pfx) : ModeHandler(Instance, 'y', 1, 1, true, MODETYPE_CHANNEL, false, pfx, pfx, TR_NICK) { }
+		OperPrefixMode(InspIRCd* Instance, Module* Creator, char pfx) : ModeHandler(Instance, Creator, 'y', 1, 1, true, MODETYPE_CHANNEL, false, pfx, pfx, TR_NICK) { }
 
 		unsigned int GetPrefixRank()
 		{
@@ -113,7 +113,7 @@ class ModuleOperPrefixMode : public Module
 		ConfigReader Conf(ServerInstance);
 		std::string pfx = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
 
-		opm = new OperPrefixMode(ServerInstance, pfx[0]);
+		opm = new OperPrefixMode(ServerInstance, this, pfx[0]);
 		if ((!ServerInstance->Modes->AddMode(opm)))
 			throw ModuleException("Could not add a new mode!");
 

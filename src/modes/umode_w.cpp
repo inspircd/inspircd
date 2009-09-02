@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/umode_w.h"
 
-ModeUserWallops::ModeUserWallops(InspIRCd* Instance) : SimpleUserModeHandler(Instance, 'w')
+ModeUserWallops::ModeUserWallops(InspIRCd* Instance) : SimpleUserModeHandler(Instance, NULL, 'w')
 {
 }
 

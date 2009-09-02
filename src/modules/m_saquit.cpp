@@ -20,9 +20,8 @@
 class CommandSaquit : public Command
 {
  public:
-	CommandSaquit (InspIRCd* Instance) : Command(Instance, "SAQUIT", "o", 2, 2, false, 0)
+	CommandSaquit (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "SAQUIT", "o", 2, 2, false, 0)
 	{
-		this->source = "m_saquit.so";
 		syntax = "<nick> <reason>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -61,7 +60,7 @@ class ModuleSaquit : public Module
 	CommandSaquit cmd;
  public:
 	ModuleSaquit(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

@@ -18,7 +18,7 @@
 class NoKicks : public SimpleChannelModeHandler
 {
  public:
-	NoKicks(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, 'Q') { }
+	NoKicks(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'Q') { }
 };
 
 class ModuleNoKicks : public Module
@@ -27,7 +27,7 @@ class ModuleNoKicks : public Module
 
  public:
 	ModuleNoKicks(InspIRCd* Me)
-		: Module(Me), nk(Me)
+		: Module(Me), nk(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&nk))
 			throw ModuleException("Could not add new modes!");

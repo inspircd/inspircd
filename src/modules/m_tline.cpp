@@ -20,9 +20,8 @@
 class CommandTline : public Command
 {
  public:
-	CommandTline (InspIRCd* Instance) : Command(Instance,"TLINE", "o", 1)
+	CommandTline (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"TLINE", "o", 1)
 	{
-		this->source = "m_tline.so";
 		this->syntax = "<mask>";
 	}
 
@@ -65,7 +64,7 @@ class ModuleTLine : public Module
 	CommandTline cmd;
  public:
 	ModuleTLine(InspIRCd* Me)
-		: Module(Me), cmd(Me)
+		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

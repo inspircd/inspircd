@@ -31,7 +31,7 @@ class CommandOper : public Command
  public:
 	/** Constructor for oper.
 	 */
-	CommandOper (InspIRCd* Instance) : Command(Instance,"OPER",0,2,false,2) { syntax = "<username> <password>"; }
+	CommandOper (InspIRCd* Instance) : Command(Instance,NULL,"OPER",0,2,false,2) { syntax = "<username> <password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

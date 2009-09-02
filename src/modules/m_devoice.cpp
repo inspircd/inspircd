@@ -25,9 +25,8 @@
 class CommandDevoice : public Command
 {
  public:
-	CommandDevoice (InspIRCd* Instance) : Command(Instance,"DEVOICE", 0, 1)
+	CommandDevoice (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"DEVOICE", 0, 1)
 	{
-		this->source = "m_devoice.so";
 		syntax = "<channel>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
@@ -55,7 +54,7 @@ class ModuleDeVoice : public Module
 {
 	CommandDevoice cmd;
  public:
-	ModuleDeVoice(InspIRCd* Me) : Module(Me), cmd(Me)
+	ModuleDeVoice(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

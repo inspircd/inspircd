@@ -21,9 +21,8 @@ class CommandSwhois : public Command
 {
 
  public:
-	CommandSwhois (InspIRCd* Instance) : Command(Instance,"SWHOIS","o",2, 2)
+	CommandSwhois (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SWHOIS","o",2, 2)
 	{
-		this->source = "m_swhois.so";
 		syntax = "<nick> :<swhois>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -85,7 +84,7 @@ class ModuleSWhois : public Module
 	ConfigReader* Conf;
 
  public:
-	ModuleSWhois(InspIRCd* Me) : Module(Me), cmd(Me)
+	ModuleSWhois(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 
 		Conf = new ConfigReader(ServerInstance);

@@ -28,7 +28,7 @@ class CommandMode : public Command
  public:
 	/** Constructor for mode.
 	 */
-	CommandMode (InspIRCd* Instance) : Command(Instance,"MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
+	CommandMode (InspIRCd* Instance) : Command(Instance,NULL,"MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

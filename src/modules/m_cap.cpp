@@ -34,11 +34,9 @@ CAP END
  */
 class CommandCAP : public Command
 {
-	Module* Creator;
  public:
-	CommandCAP (InspIRCd* Instance, Module* mod) : Command(Instance,"CAP", 0, 1, true), Creator(mod)
+	CommandCAP (InspIRCd* Instance, Module* mod) : Command(Instance, mod, "CAP", 0, 1, true)
 	{
-		this->source = "m_cap.so";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -51,7 +49,7 @@ class CommandCAP : public Command
 
 			Data.type = subcommand;
 			Data.user = user;
-			Data.creator = this->Creator;
+			Data.creator = this->creator;
 
 			if (parameters.size() < 2)
 				return CMD_FAILURE;
@@ -67,7 +65,7 @@ class CommandCAP : public Command
 			}
 
 			user->Extend("CAP_REGHOLD");
-			Event event((char*) &Data, (Module*)this->Creator, "cap_req");
+			Event event((char*) &Data, this->creator, "cap_req");
 			event.Send(this->ServerInstance);
 
 			if (Data.ack.size() > 0)
@@ -92,10 +90,10 @@ class CommandCAP : public Command
 
 			Data.type = subcommand;
 			Data.user = user;
-			Data.creator = this->Creator;
+			Data.creator = this->creator;
 
 			user->Extend("CAP_REGHOLD");
-			Event event((char*) &Data, (Module*)this->Creator, subcommand == "LS" ? "cap_ls" : "cap_list");
+			Event event((char*) &Data, this->creator, subcommand == "LS" ? "cap_ls" : "cap_list");
 			event.Send(this->ServerInstance);
 
 			std::string Result;
@@ -112,10 +110,10 @@ class CommandCAP : public Command
 
 			Data.type = subcommand;
 			Data.user = user;
-			Data.creator = this->Creator;
+			Data.creator = this->creator;
 
 			user->Extend("CAP_REGHOLD");
-			Event event((char*) &Data, (Module*)this->Creator, "cap_clear");
+			Event event((char*) &Data, this->creator, "cap_clear");
 			event.Send(this->ServerInstance);
 
 			std::string Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
