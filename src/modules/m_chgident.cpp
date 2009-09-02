@@ -54,13 +54,23 @@ class CommandChgident : public Command
 			return CMD_FAILURE;
 		}
 
-		dest->ChangeIdent(parameters[1].c_str());
+		if (IS_LOCAL(dest))
+		{
+			dest->ChangeIdent(parameters[1].c_str());
 
-		if (!ServerInstance->ULine(user->server))
-			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(dest) ? 'a' : 'A', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
+			if (!ServerInstance->ULine(user->server))
+				ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
+		}
 
-		/* route it! */
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -81,7 +91,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

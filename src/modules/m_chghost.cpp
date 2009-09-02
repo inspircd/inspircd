@@ -66,14 +66,17 @@ class CommandChghost : public Command
 				// fix by brain - ulines set hosts silently
 				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
 			}
-
-			/* ChangeDisplayedHost fixes it for us */
-			return CMD_LOCALONLY;
 		}
 
-		/* route it! */
 		return CMD_SUCCESS;
+	}
 
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -112,7 +115,7 @@ class ModuleChgHost : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };
