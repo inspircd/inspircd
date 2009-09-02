@@ -26,24 +26,39 @@ ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::stri
 	irc::sockets::sockaddrs bind_to;
 
 	// canonicalize address if it is defined
-	if (irc::sockets::aptosa(addr.c_str(), port, &bind_to))
+	if (!irc::sockets::aptosa(addr.c_str(), port, &bind_to))
 	{
-		irc::sockets::satoap(&bind_to, bind_addr, bind_port);
-		bind_desc = irc::sockets::satouser(&bind_to);
-	}
-	else
-	{
+		// malformed address
 		bind_addr = addr;
 		bind_port = port;
 		bind_desc = addr + ":" + ConvToStr(port);
+		this->fd = -1;
+	}
+	else
+	{
+		irc::sockets::satoap(&bind_to, bind_addr, bind_port);
+		bind_desc = irc::sockets::satouser(&bind_to);
+
+		this->fd = irc::sockets::OpenTCPSocket(bind_addr.c_str());
 	}
 
-	this->SetFd(irc::sockets::OpenTCPSocket(bind_addr.c_str()));
-	if (this->GetFd() > -1)
+	if (this->fd > -1)
 	{
-		if (!Instance->BindSocket(this->fd,port,bind_addr.c_str()))
+		int rv = Instance->SE->Bind(this->fd, &bind_to.sa, sizeof(bind_to));
+		if (rv >= 0)
+			rv = Instance->SE->Listen(this->fd, Instance->Config->MaxConn);
+
+		if (rv < 0)
+		{
+			Instance->SE->Shutdown(this, 2);
+			Instance->SE->Close(this);
 			this->fd = -1;
-		Instance->SE->AddFd(this);
+		}
+		else
+		{
+			Instance->SE->NonBlocking(this->fd);
+			Instance->SE->AddFd(this);
+		}
 	}
 }
 

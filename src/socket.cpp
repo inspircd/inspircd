@@ -27,37 +27,20 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	sockaddrs servaddr;
 	int ret;
 
-	if (*addr == '*')
-		addr = "";
+	if (*addr == '*' || *addr == '\0')
+		addr = NULL;
 
-	if (*addr)
+	if (port == -1 && !addr)
 	{
-		irc::sockets::aptosa(addr, port, &servaddr);
-	}
-	else
-	{
+		/* Port -1: Means UDP IPV4 port binding - Special case
+		 * used by DNS engine.
+		 */
 		memset(&servaddr, 0, sizeof(servaddr));
-		if (port == -1)
-		{
-			/* Port -1: Means UDP IPV4 port binding - Special case
-			 * used by DNS engine.
-			 */
-			servaddr.in4.sin_family = AF_INET;
-		}
-		else
-		{
-			/* No address */
-#ifdef IPV6
-			/* Default to ipv6 bind to all */
-			servaddr.in6.sin6_family = AF_INET6;
-			servaddr.in6.sin6_port = htons(port);
-#else
-			/* Bind ipv4 to all */
-			servaddr.in4.sin_family = AF_INET;
-			servaddr.in4.sin_port = htons(port);
-#endif
-		}
+		servaddr.in4.sin_family = AF_INET;
 	}
+	else if (!irc::sockets::aptosa(addr, port, &servaddr))
+		return false;
+
 	ret = SE->Bind(sockfd, &servaddr.sa, sa_size(servaddr));
 
 	if (ret < 0)
