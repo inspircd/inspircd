@@ -711,13 +711,13 @@ void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::strin
 	if (!IS_LOCAL(source))
 		return; // Only start routing if we're origin.
 
+	dest->Extend("operquit", new std::string(operreason));
 	parameterlist params;
-	params.push_back(":"+reason);
+	params.push_back(":"+operreason);
 	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
 	params.clear();
 	params.push_back(dest->uuid);
 	params.push_back(":"+reason);
-	dest->SetOperQuit(operreason);
 	Utils->DoOneToMany(source->uuid,"KILL",params);
 }
 

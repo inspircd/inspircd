@@ -176,22 +176,13 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	ServerInstance->Logs->Log("USERS", DEBUG, "QuitUser: %s '%s'", user->nick.c_str(), quitreason.c_str());
 	user->Write("ERROR :Closing link: (%s@%s) [%s]", user->ident.c_str(), user->host.c_str(), *operreason ? operreason : quitreason.c_str());
 
-	user->quietquit = false;
-	user->quitmsg = quitreason;
-
 	std::string reason;
 	std::string oper_reason;
 	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	if (!*operreason)
-	{
-		user->operquitmsg = quitreason;
-		oper_reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	}
-	else
-	{
-		user->operquitmsg = operreason;
+	if (operreason && *operreason)
 		oper_reason.assign(operreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	}
+	else
+		oper_reason = quitreason;
 
 	ServerInstance->GlobalCulls.AddItem(user);
 
@@ -244,7 +235,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			if (!user->quietquit)
 			{
 				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",
-					user->nick.c_str(), user->ident.c_str(), user->host.c_str(), user->operquitmsg.c_str());
+					user->nick.c_str(), user->ident.c_str(), user->host.c_str(), oper_reason.c_str());
 			}
 		}
 		else
@@ -252,7 +243,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			if ((!ServerInstance->SilentULine(user->server)) && (!user->quietquit))
 			{
 				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",
-					user->server, user->nick.c_str(), user->ident.c_str(), user->host.c_str(), user->operquitmsg.c_str());
+					user->server, user->nick.c_str(), user->ident.c_str(), user->host.c_str(), oper_reason.c_str());
 			}
 		}
 		user->AddToWhoWas();

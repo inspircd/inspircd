@@ -30,7 +30,7 @@ bool TreeSocket::OperQuit(const std::string &prefix, parameterlist &params)
 
 	if (u)
 	{
-		u->SetOperQuit(params[0]);
+		u->Extend("operquit", new std::string(params[0]));
 		params[0] = ":" + params[0];
 		Utils->DoOneToAllButSender(prefix,"OPERQUIT",params,prefix);
 	}

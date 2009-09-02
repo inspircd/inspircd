@@ -176,13 +176,13 @@ int TreeServer::QuitUsers(const std::string &reason)
 		User* a = (User*)*n;
 		if (!IS_LOCAL(a))
 		{
+			if (this->Utils->quiet_bursts)
+				a->quietquit = true;
+
 			if (ServerInstance->Config->HideSplits)
 				ServerInstance->Users->QuitUser(a, "*.net *.split", reason_s);
 			else
 				ServerInstance->Users->QuitUser(a, reason_s);
-
-			if (this->Utils->quiet_bursts)
-				a->quietquit = true;
 		}
 	}
 	return time_to_die.size();

@@ -457,14 +457,6 @@ class CoreExport User : public EventHandler
 	 */
 	std::string sendq;
 
-	/** Message user will quit with. Not to be set externally.
-	 */
-	std::string quitmsg;
-
-	/** Quit message shown to opers - not to be set externally.
-	 */
-	std::string operquitmsg;
-
 	/** Whether or not to send an snotice about this user's quitting
 	 */
 	bool quietquit;
@@ -951,16 +943,6 @@ class CoreExport User : public EventHandler
 	/** Show the server RULES file to this user
 	 */
 	void ShowRULES();
-
-	/** Set oper-specific quit message shown to opers only when the user quits
-	 * (overrides any sent by QuitUser)
-	 */
-	void SetOperQuit(const std::string &oquit);
-
-	/** Get oper-specific quit message shown only to opers when the user quits.
-	 * (overrides any sent by QuitUser)
-	 */
-	const std::string& GetOperQuit();
 
 	/** Increases a user's command penalty by a set amount.
 	 */

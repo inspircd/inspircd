@@ -1926,16 +1926,6 @@ void User::HandleEvent(EventType et, int errornum)
 	}
 }
 
-void User::SetOperQuit(const std::string &oquit)
-{
-	operquitmsg = oquit;
-}
-
-const std::string& User::GetOperQuit()
-{
-	return operquitmsg;
-}
-
 void User::IncreasePenalty(int increase)
 {
 	this->Penalty += increase;

@@ -38,7 +38,16 @@ CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User 
 	else
 		quitmsg = parameters.size() ? parameters[0] : "Client exited";
 
-	ServerInstance->Users->QuitUser(user, quitmsg);
+	std::string* operquit;
+	if (user->GetExt("operquit", operquit))
+	{
+		ServerInstance->Users->QuitUser(user, quitmsg, operquit->c_str());
+		delete operquit;
+	}
+	else
+	{
+		ServerInstance->Users->QuitUser(user, quitmsg);
+	}
 
 	return CMD_SUCCESS;
 }
