@@ -188,10 +188,10 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		/* stats z (debug and memory info) */
 		case 'z':
 		{
-			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
-			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->Users->clientlist->size())+" ("+ConvToStr(ServerInstance->Users->clientlist->size()*sizeof(User))+" bytes)");
-			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(Channel))+" bytes)");
-			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(Command))+" bytes)");
+			results.push_back(sn+" 240 "+user->nick+" :InspIRCd: "+ConvToStr(sizeof(InspIRCd))+" bytes");
+			results.push_back(sn+" 249 "+user->nick+" :Users: "+ConvToStr(ServerInstance->Users->clientlist->size()));
+			results.push_back(sn+" 249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->chanlist->size()));
+			results.push_back(sn+" 249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
 
 			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
 			{
@@ -211,7 +211,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 				}
 			}
 
-			results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
+			results.push_back(sn+" 249 "+user->nick+" :MOTD "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES "+ConvToStr(ServerInstance->Config->RULES.size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
