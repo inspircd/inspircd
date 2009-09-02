@@ -98,14 +98,17 @@ class CommandCheck : public Command
 				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
 			}
 
-			user->WriteServ(checkstr + " onip " + targuser->GetIPString());
 			if (IS_LOCAL(targuser))
 			{
-				user->WriteServ(checkstr + " onport " + ConvToStr(targuser->GetServerPort()));
+				user->WriteServ(checkstr + " clientaddr " + irc::sockets::satouser(&targuser->client_sa));
+				user->WriteServ(checkstr + " serveraddr " + irc::sockets::satouser(&targuser->server_sa));
+
 				std::string classname = targuser->GetClass()->name;
 				if (!classname.empty())
 					user->WriteServ(checkstr + " connectclass " + classname);
 			}
+			else
+				user->WriteServ(checkstr + " onip " + targuser->GetIPString());
 
 			chliststr = targuser->ChannelList(targuser);
 			std::stringstream dump(chliststr);
