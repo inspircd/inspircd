@@ -27,9 +27,9 @@
 class DNSBLConfEntry : public classbase
 {
 	public:
-		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE, I_CIDENT };
+		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE, I_MARK };
 		enum EnumType { A_RECORD, A_BITMASK };
-		std::string name, domain, reason;
+		std::string name, ident, host, domain, reason;
 		EnumBanaction banaction;
 		EnumType type;
 		long duration;
@@ -107,10 +107,20 @@ class DNSBLResolver : public Resolver
 							ServerInstance->Users->QuitUser(them, std::string("Killed (") + reason + ")");
 							break;
 						}
-						case DNSBLConfEntry::I_CIDENT:
+						case DNSBLConfEntry::I_MARK:
 						{
-							them->WriteServ("304 " + them->nick + " :Your ident has been set to " + ConfEntry->name + " because you matched " + reason);
-							them->ChangeIdent(ConfEntry->name.c_str());
+							if (!ConfEntry->ident.empty())
+							{
+								them->WriteServ("304 " + them->nick + " :Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
+								them->ChangeIdent(ConfEntry->ident.c_str());
+							}
+
+							if (!ConfEntry->host.empty())
+							{
+								them->WriteServ("304 " + them->nick + " :Your host has been set to " + ConfEntry->host + " because you matched " + reason);
+								them->ChangeDisplayedHost(ConfEntry->host.c_str());
+							}
+
 							break;
 						}
 						case DNSBLConfEntry::I_KLINE:
@@ -162,7 +172,7 @@ class DNSBLResolver : public Resolver
 						break;
 					}
 
-					ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost().c_str(), ConfEntry->name.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
+					ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
 				}
 				else
 					ConfEntry->stats_misses++;
@@ -199,9 +209,8 @@ class ModuleDNSBL : public Module
 			return DNSBLConfEntry::I_ZLINE;
 		if(action.compare("GLINE")==0)
 			return DNSBLConfEntry::I_GLINE;
-		if(action.compare("IDENT")==0)
-			return DNSBLConfEntry::I_CIDENT;
-
+		if(action.compare("MARK")==0)
+			return DNSBLConfEntry::I_MARK;
 
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
@@ -245,6 +254,8 @@ class ModuleDNSBL : public Module
 			DNSBLConfEntry *e = new DNSBLConfEntry();
 
 			e->name = MyConf->ReadValue("dnsbl", "name", i);
+			e->ident = MyConf->ReadValue("dnsbl", "ident", i);
+			e->host = MyConf->ReadValue("dnsbl", "host", i);
 			e->reason = MyConf->ReadValue("dnsbl", "reason", i);
 			e->domain = MyConf->ReadValue("dnsbl", "domain", i);
 
