@@ -47,12 +47,6 @@ class CommandNicklock : public Command
 				return CMD_FAILURE;
 			}
 
-			if (target->GetExt("nick_locked"))
-			{
-				user->WriteNumeric(946, "%s %s :This user's nickname is already locked.",user->nick.c_str(),target->nick.c_str());
-				return CMD_FAILURE;
-			}
-
 			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
@@ -63,31 +57,33 @@ class CommandNicklock : public Command
 		}
 
 		/* If we made it this far, extend the user */
-		if (target)
+		if (target && IS_LOCAL(target))
 		{
 			// This has to be done *here*, because this metadata must be stored netwide.
 			target->Extend("nick_locked", "ON");
 
 			/* Only send out nick from local server */
-			if (IS_LOCAL(target))
+			target->Extend("nick_locked");
+
+			std::string oldnick = target->nick;
+			if (target->ForceNickChange(parameters[1].c_str()))
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+oldnick+" to "+parameters[1]);
+			else
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+target->nick+" to "+parameters[1]);
-				std::string oldnick = user->nick;
 				std::string newnick = target->nick;
-				if (!target->ForceNickChange(parameters[1].c_str()))
-				{
-					/* XXX: We failed, this *should* not happen but if it does
-					 * tell everybody. Note user is still nick locked on their old
-					 * nick instead.
-					 */
-					ServerInstance->SNO->WriteToSnoMask('a', oldnick+" failed nickchange on NICKLOCK (from "+newnick+" to "+parameters[1]+") Locked to "+newnick+" instead");
-					ServerInstance->PI->SendSNONotice("A", oldnick+" failed nickchange on NICKLOCK (from "+newnick+" to "+parameters[1]+") Locked to "+newnick+" instead");
-				}
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK, but "+oldnick+" failed nick change to "+parameters[1]+" and was locked to "+newnick+" instead");
 			}
 		}
 
-		/* Route it */
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -100,6 +96,7 @@ class CommandNickunlock : public Command
 	{
 		this->source = "m_nicklock.so";
 		syntax = "<locked-nick>";
+		TRANSLATE2(TR_NICK, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -120,25 +117,31 @@ class CommandNickunlock : public Command
 				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
+		}
 
-			if (!target->GetExt("nick_locked"))
+		if (target && IS_LOCAL(target))
+		{
+			if (target->Shrink("nick_locked"))
+			{
+				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
+				user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
+			}
+			else
 			{
 				user->WriteNumeric(946, "%s %s :This user's nickname is not locked.",user->nick.c_str(),target->nick.c_str());
 				return CMD_FAILURE;
 			}
 		}
 
-		if (target)
-		{
-			target->Shrink("nick_locked");
-			if (IS_LOCAL(target))
-				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
-			if (IS_LOCAL(user))
-				user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
-		}
-
-		/* Route it */
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -147,7 +150,6 @@ class ModuleNickLock : public Module
 {
 	CommandNicklock	cmd1;
 	CommandNickunlock	cmd2;
-	char* n;
  public:
 	ModuleNickLock(InspIRCd* Me)
 		: Module(Me), cmd1(Me), cmd2(Me)
@@ -179,7 +181,7 @@ class ModuleNickLock : public Module
 		if (user->GetExt("NICKForced")) /* Allow forced nick changes */
 			return 0;
 
-		if (user->GetExt("nick_locked", n))
+		if (user->GetExt("nick_locked"))
 		{
 			user->WriteNumeric(447, "%s :You cannot change your nickname (your nick is locked)",user->nick.c_str());
 			return 1;
