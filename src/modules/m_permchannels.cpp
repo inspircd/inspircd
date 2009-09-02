@@ -93,6 +93,25 @@ public:
 	virtual ~ModulePermanentChannels()
 	{
 		ServerInstance->Modes->DelMode(&p);
+		/*
+		 * DelMode can't remove the +P mode on empty channels, or it will break
+		 * merging modes with remote servers. Remove the empty channels now as
+		 * we know this is not the case.
+		 */
+		chan_hash::iterator iter = ServerInstance->chanlist->begin();
+		while (iter != ServerInstance->chanlist->end())
+		{
+			Channel* c = iter->second;
+			if (c->GetUserCounter() == 0)
+			{
+				chan_hash::iterator at = iter;
+				iter++;
+				ServerInstance->chanlist->erase(at);
+				delete c;
+			}
+			else
+				iter++;
+		}
 	}
 
 	virtual void OnRehash(User *user)
