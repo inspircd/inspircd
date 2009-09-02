@@ -58,9 +58,9 @@ class OperPrefixMode : public ModeHandler
 			return OPERPREFIX_VALUE;
 		}
 
-		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
+		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 		{
-			if (servermode || (source && ServerInstance->ULine(source->server)))
+			if (IS_FAKE(source) || (source && ServerInstance->ULine(source->server)))
 				return MODEACTION_ALLOW;
 			else
 			{
@@ -151,10 +151,10 @@ class ModuleOperPrefixMode : public Module
 	}
 
 	// XXX: is there a better way to do this?
-	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt, bool servermode)
+	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		/* force event propagation to its ModeHandler */
-		if (!servermode && chan && (mode == 'y'))
+		if (!IS_FAKE(user) && chan && (mode == 'y'))
 			return ACR_ALLOW;
 		return 0;
 	}

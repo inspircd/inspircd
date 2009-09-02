@@ -39,7 +39,7 @@ class DelayMsgMode : public ModeHandler
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 
 class ModuleDelayMsg : public Module
@@ -65,7 +65,7 @@ class ModuleDelayMsg : public Module
 
 /* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
 
-ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	if (adding)
 	{

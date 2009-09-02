@@ -126,7 +126,7 @@ std::string ModeHandler::GetUserParameter(User* user)
 	return "";
 }
 
-ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool, bool)
+ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool)
 {
 	return MODEACTION_DENY;
 }
@@ -160,7 +160,7 @@ bool ModeHandler::CheckTimeStamp(std::string& theirs, const std::string& ours, C
 	return (theirs < ours);
 }
 
-ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
+ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	if (adding)
 	{
@@ -183,7 +183,7 @@ ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel
 }
 
 
-ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
+ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	if (adding)
 	{
@@ -223,12 +223,12 @@ ModeType ModeWatcher::GetModeType()
 	return m_type;
 }
 
-bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool, ModeType, bool)
+bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool, ModeType)
 {
 	return true;
 }
 
-void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, ModeType, bool)
+void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, ModeType)
 {
 }
 
@@ -342,7 +342,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 }
 
 ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool adding, const unsigned char modechar,
-		std::string &parameter, bool servermode, bool SkipACL)
+		std::string &parameter, bool SkipACL)
 {
 	ModeType type = chan ? MODETYPE_CHANNEL : MODETYPE_USER;
 	unsigned char mask = chan ? MASK_CHANNEL : MASK_USER;
@@ -351,7 +351,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	int pcnt = mh->GetNumParams(adding);
 
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnRawMode, OnRawMode(user, chan, modechar, parameter, adding, pcnt, servermode));
+	FOREACH_RESULT(I_OnRawMode, OnRawMode(user, chan, modechar, parameter, adding, pcnt));
 
 	if (IS_LOCAL(user) && (MOD_RESULT == ACR_DENY))
 		return MODEACTION_DENY;
@@ -397,7 +397,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 	{
-		if ((*watchers)->BeforeMode(user, targetuser, chan, parameter, adding, type, servermode) == false)
+		if ((*watchers)->BeforeMode(user, targetuser, chan, parameter, adding, type) == false)
 			return MODEACTION_DENY;
 		/* A module whacked the parameter completely, and there was one. abort. */
 		if (pcnt && parameter.empty())
@@ -432,7 +432,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	}
 
 	/* Call the handler for the mode */
-	ModeAction ma = mh->OnModeChange(user, targetuser, chan, parameter, adding, servermode);
+	ModeAction ma = mh->OnModeChange(user, targetuser, chan, parameter, adding);
 
 	if (pcnt && parameter.empty())
 		return MODEACTION_DENY;
@@ -450,12 +450,12 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	}
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
-		(*watchers)->AfterMode(user, targetuser, chan, parameter, adding, type, servermode);
+		(*watchers)->AfterMode(user, targetuser, chan, parameter, adding, type);
 
 	return MODEACTION_ALLOW;
 }
 
-void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool servermode, bool merge)
+void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool merge)
 {
 	std::string target = parameters[0];
 	Channel* targetchannel = ServerInstance->FindChan(target);
@@ -481,7 +481,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 
 	bool SkipAccessChecks = false;
 
-	if (servermode || !IS_LOCAL(user) || ServerInstance->ULine(user->server))
+	if (!IS_LOCAL(user) || ServerInstance->ULine(user->server))
 	{
 		SkipAccessChecks = true;
 	}
@@ -555,7 +555,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			}
 		}
 
-		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, modechar, parameter, servermode, SkipAccessChecks);
+		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, modechar, parameter, SkipAccessChecks);
 
 		if (ma != MODEACTION_ALLOW)
 			continue;
@@ -593,16 +593,12 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		LastParse.append(output_mode);
 		LastParse.append(output_parameters.str());
 
-		if (!user && targetchannel)
-			targetchannel->WriteChannelWithServ(ServerInstance->Config->ServerName, "MODE %s", LastParse.c_str());
-		else if (!user && targetuser)
-			targetuser->WriteServ("MODE %s", LastParse.c_str());
-		else if (targetchannel)
+		if (targetchannel)
 		{
 			targetchannel->WriteChannel(user, "MODE %s", LastParse.c_str());
 			FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, LastParseParams, LastParseTranslate));
 		}
-		else if (targetuser)
+		else
 		{
 			targetuser->WriteFrom(user, "MODE %s", LastParse.c_str());
 			FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, LastParseParams, LastParseTranslate));
@@ -1033,7 +1029,7 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 			sprintf(moderemove,"-%c",this->GetModeChar());
 			parameters.push_back(user->nick);
 			parameters.push_back(moderemove);
-			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient, true);
+			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
 		}
 	}
 }

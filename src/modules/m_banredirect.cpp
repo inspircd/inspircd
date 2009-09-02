@@ -42,7 +42,7 @@ class BanRedirect : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type, bool)
+	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type)
 	{
 		/* nick!ident@host -> nick!ident@host
 		 * nick!ident@host#chan -> nick!ident@host#chan

@@ -21,7 +21,7 @@ ModeChannelTopicOps::ModeChannelTopicOps(InspIRCd* Instance) : ModeHandler(Insta
 {
 }
 
-ModeAction ModeChannelTopicOps::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding, bool servermode)
+ModeAction ModeChannelTopicOps::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding)
 {
 	if (channel->modes[CM_TOPICLOCK] != adding)
 	{

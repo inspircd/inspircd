@@ -24,8 +24,8 @@ class ModeChannelBan : public ModeHandler
 	BanItem b;
  public:
 	ModeChannelBan(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
-	std::string& AddBan(User *user,std::string& dest,Channel *chan,int status, bool servermode);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	std::string& AddBan(User *user,std::string& dest,Channel *chan,int status);
 	std::string& DelBan(User *user,std::string& dest,Channel *chan,int status);
 	void DisplayList(User* user, Channel* channel);
 	void DisplayEmptyList(User* user, Channel* channel);

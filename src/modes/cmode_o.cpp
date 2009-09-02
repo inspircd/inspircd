@@ -73,7 +73,7 @@ void ModeChannelOp::RemoveMode(User*, irc::modestacker* stack)
 {
 }
 
-ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
+ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);
 

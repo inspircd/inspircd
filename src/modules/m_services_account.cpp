@@ -24,7 +24,7 @@ class Channel_r : public ModeHandler
  public:
 	Channel_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		// only a u-lined server may add or remove the +r mode.
 		if (IS_REMOTE(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
@@ -54,9 +54,9 @@ class User_r : public ModeHandler
  public:
 	User_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'r', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		if (servermode || IS_REMOTE(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
+		if (IS_REMOTE(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
 		{
 			if ((adding && !dest->IsModeSet('r')) || (!adding && dest->IsModeSet('r')))
 			{

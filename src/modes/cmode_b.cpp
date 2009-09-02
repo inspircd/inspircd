@@ -29,13 +29,13 @@ ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, NULL,
 {
 }
 
-ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
+ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
 	{
-		parameter = this->AddBan(source, parameter, channel, status, servermode);
+		parameter = this->AddBan(source, parameter, channel, status);
 	}
 	else
 	{
@@ -92,7 +92,7 @@ void ModeChannelBan::DisplayEmptyList(User* user, Channel* channel)
 	user->WriteServ("368 %s %s :End of channel ban list",user->nick.c_str(), channel->name.c_str());
 }
 
-std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan, int, bool servermode)
+std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan, int)
 {
 	if ((!user) || (!chan))
 	{
@@ -135,7 +135,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 
 	b.set_time = ServerInstance->Time();
 	b.data.assign(dest, 0, MAXBUF);
-	b.set_by.assign(servermode ? ServerInstance->Config->ServerName : user->nick, 0, 64);
+	b.set_by.assign(user->nick, 0, 64);
 	chan->bans.push_back(b);
 	return dest;
 }

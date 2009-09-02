@@ -21,6 +21,6 @@ class ModeUserOperator : public ModeHandler
 {
  public:
 	ModeUserOperator(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	unsigned int GetCount();
 };

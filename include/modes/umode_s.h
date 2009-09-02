@@ -21,7 +21,7 @@ class ModeUserServerNoticeMask : public ModeHandler
 {
  public:
 	ModeUserServerNoticeMask(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	void OnParameterMissing(User* user, User* dest, Channel* channel);
 	std::string GetUserParameter(User* user);
 };

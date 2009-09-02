@@ -22,7 +22,7 @@ class User_d : public ModeHandler
  public:
 	User_d(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'd', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{

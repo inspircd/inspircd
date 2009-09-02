@@ -141,7 +141,7 @@ bool		Module::OnCheckReady(User*) { return true; }
 int		Module::OnUserRegister(User*) { return 0; }
 int		Module::OnUserPreKick(User*, User*, Channel*, const std::string&) { return 0; }
 void		Module::OnUserKick(User*, User*, Channel*, const std::string&, bool&) { }
-int		Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int, bool) { return 0; }
+int		Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return 0; }
 int		Module::OnCheckInvite(User*, Channel*) { return 0; }
 int		Module::OnCheckKey(User*, Channel*, const std::string&) { return 0; }
 int		Module::OnCheckLimit(User*, Channel*) { return 0; }
@@ -764,7 +764,7 @@ void InspIRCd::AddCommand(Command *f)
 
 void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
 {
-	this->Modes->Process(parameters, user, true);
+	this->Modes->Process(parameters, user);
 }
 
 void InspIRCd::DumpText(User* User, const std::string &LinePrefix, std::stringstream &TextStream)

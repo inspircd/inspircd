@@ -23,7 +23,7 @@ class PermChannel : public ModeHandler
  public:
 	PermChannel(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'P', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool sm)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (!source->HasPrivPermission("channels/set-permanent"))
 		{
@@ -43,7 +43,7 @@ class PermChannel : public ModeHandler
 		{
 			if (channel->IsModeSet('P'))
 			{
-				if (channel->GetUserCounter() == 0 && !sm)
+				if (channel->GetUserCounter() == 0 && !IS_FAKE(source))
 				{
 					/*
 					 * ugh, ugh, UGH!

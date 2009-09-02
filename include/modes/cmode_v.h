@@ -23,7 +23,7 @@ class ModeChannelVoice : public ModeHandler
  private:
  public:
 	ModeChannelVoice(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	std::string AddVoice(User *user,const char *dest,Channel *chan,int status);
 	std::string DelVoice(User *user,const char *dest,Channel *chan,int status);
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);

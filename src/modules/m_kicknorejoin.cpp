@@ -40,7 +40,7 @@ class KickRejoin : public ModeHandler
 			return std::make_pair(false, parameter);
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (!adding)
 		{

@@ -21,7 +21,7 @@ class ModeChannelLimit : public ModeHandler
 {
  public:
 	ModeChannelLimit(InspIRCd* Instance);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 	bool CheckTimeStamp(std::string &their_param, const std::string &our_param, Channel* channel);
 };

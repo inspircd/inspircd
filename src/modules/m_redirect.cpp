@@ -30,7 +30,7 @@ class Redirect : public ModeHandler
 			return std::make_pair(false, parameter);
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool server)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -44,7 +44,7 @@ class Redirect : public ModeHandler
 				}
 			}
 
-			if (IS_LOCAL(source) && !IS_OPER(source) && !server)
+			if (IS_LOCAL(source) && !IS_OPER(source))
 			{
 				Channel* c = ServerInstance->FindChan(parameter);
 				if (!c)

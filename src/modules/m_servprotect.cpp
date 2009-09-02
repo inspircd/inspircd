@@ -22,7 +22,7 @@ class ServProtectMode : public ModeHandler
  public:
 	ServProtectMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'k', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		/* Because this returns MODEACTION_DENY all the time, there is only ONE
 		 * way to add this mode and that is at client introduction in the UID command,
@@ -71,12 +71,12 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
-	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt, bool servermode)
+	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
 		 */
-		if (!servermode && !adding && chan && IS_LOCAL(user) && !param.empty() && !ServerInstance->ULine(user->server))
+		if (!adding && chan && IS_LOCAL(user) && !param.empty() && !ServerInstance->ULine(user->server))
 		{
 			/* Check if the parameter is a valid nick/uuid
 			 */

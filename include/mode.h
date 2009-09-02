@@ -243,7 +243,7 @@ class CoreExport ModeHandler : public classbase
 	 * @param adding This value is true when the mode is being set, or false when it is being unset.
 	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
 	 */
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false); /* Can change the mode parameter as its a ref */
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
 	/**
 	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE #channel +modechar
 	 * without any parameter or other modes in the command.
@@ -330,7 +330,7 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
 	SimpleUserModeHandler(InspIRCd* Instance, Module* Creator, char modeletter)
 		: ModeHandler(Instance, Creator, modeletter, 0, 0, false, MODETYPE_USER, false) {}
 	virtual ~SimpleUserModeHandler() {}
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false);
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 
 /** A prebuilt mode handler which handles a simple channel mode, e.g. no parameters, usable by any user, with no extra
@@ -344,7 +344,7 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
 	SimpleChannelModeHandler(InspIRCd* Instance, Module* Creator, char modeletter)
 		: ModeHandler(Instance, Creator, modeletter, 0, 0, false, MODETYPE_CHANNEL, false) {}
 	virtual ~SimpleChannelModeHandler() {}
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool servermode = false);
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 
 /**
@@ -403,7 +403,7 @@ class CoreExport ModeWatcher : public classbase
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
-	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type, bool servermode = false);
+	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type);
 	/**
 	 * After the mode character has been processed by the ModeHandler, this method will be called.
 	 * @param source The sender of the mode
@@ -414,7 +414,7 @@ class CoreExport ModeWatcher : public classbase
 	 * @param adding True if the mode is being added and false if it is being removed
 	 * @type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 */
-	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type, bool servermode = false);
+	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
 };
 
 typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
@@ -454,7 +454,7 @@ class CoreExport ModeParser : public classbase
 	/**
 	 * Attempts to apply a mode change to a user or channel
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool servermode, bool SkipACL);
+	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool SkipACL);
 
 	/** The string representing the last set of modes to be parsed.
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
@@ -541,9 +541,8 @@ class CoreExport ModeParser : public classbase
 	 * @param user The user setting or removing the modes. When the modes are set
 	 * by a server, an 'uninitialized' User is used, where *user::nick == NULL
 	 * and *user->server == NULL.
-	 * @param servermode True if a server is setting the mode.
 	 */
-	void Process(const std::vector<std::string>& parameters, User *user, bool servermode, bool merge = false);
+	void Process(const std::vector<std::string>& parameters, User *user, bool merge = false);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for

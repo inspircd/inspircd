@@ -21,7 +21,7 @@ class OperChans : public ModeHandler
 	/* This is an oper-only mode */
 	OperChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'O', 0, 0, false, MODETYPE_CHANNEL, true) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{

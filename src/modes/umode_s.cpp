@@ -21,7 +21,7 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHan
 {
 }
 
-ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding, bool servermode)
+ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)
 {
 	/* Set the array fields */
 	if (adding)

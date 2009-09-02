@@ -21,7 +21,7 @@ class DelayJoinMode : public ModeHandler
  public:
 	DelayJoinMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, Parent, 'D', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@') {};
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 
 class ModuleDelayJoin : public Module
@@ -52,7 +52,7 @@ class ModuleDelayJoin : public Module
 
 /* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
 
-ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* no change */
 	if (channel->IsModeSet('D') == adding)
