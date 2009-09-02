@@ -36,14 +36,13 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	}
 	else
 	{
+		memset(&servaddr, 0, sizeof(servaddr));
 		if (port == -1)
 		{
 			/* Port -1: Means UDP IPV4 port binding - Special case
 			 * used by DNS engine.
 			 */
 			servaddr.in4.sin_family = AF_INET;
-			servaddr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
-			servaddr.in4.sin_port = 0;
 		}
 		else
 		{
@@ -52,11 +51,9 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 			/* Default to ipv6 bind to all */
 			servaddr.in6.sin6_family = AF_INET6;
 			servaddr.in6.sin6_port = htons(port);
-			memset(&servaddr.in6.sin6_addr, 0, sizeof(servaddr.in6.sin6_addr));
 #else
 			/* Bind ipv4 to all */
 			servaddr.in4.sin_family = AF_INET;
-			servaddr.in4.sin_addr.s_addr = htonl(INADDR_ANY);
 			servaddr.in4.sin_port = htons(port);
 #endif
 		}
