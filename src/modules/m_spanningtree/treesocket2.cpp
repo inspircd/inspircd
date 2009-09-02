@@ -29,14 +29,6 @@
 
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/handshaketimer.h */
 
-void TreeSocket::WriteLine(std::string line)
-{
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
-	line.append("\r\n");
-	this->Write(line);
-}
-
-
 /* Handle ERROR command */
 bool TreeSocket::Error(parameterlist &params)
 {

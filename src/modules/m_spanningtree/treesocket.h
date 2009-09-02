@@ -92,6 +92,7 @@ class TreeSocket : public BufferedSocket
 	bool sentcapab;				/* Have sent CAPAB already */
 	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
+	int proto_version;			/* Remote protocol version */
  public:
 	HandshakeTimer* hstimer;		/* Handshake timer, needed to work around I/O hook buffering */
 	time_t age;

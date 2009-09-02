@@ -217,10 +217,10 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else
 		{
-			int otherProto = atoi(CapKeys.find("PROTOCOL")->second.c_str());
-			if (otherProto < MinCompatProtocol)
+			proto_version = atoi(CapKeys.find("PROTOCOL")->second.c_str());
+			if (proto_version < MinCompatProtocol)
 			{
-				reason = "Server is using protocol version " + ConvToStr(otherProto) +
+				reason = "Server is using protocol version " + ConvToStr(proto_version) +
 					" which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
 					+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")");
 			}
