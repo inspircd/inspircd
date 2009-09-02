@@ -206,7 +206,7 @@ void User::DecrementModes()
 
 User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
 {
-	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
+	server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	age = ServerInstance->Time();
 	Penalty = 0;
 	lastping = signon = idle_lastmsg = nping = registered = 0;

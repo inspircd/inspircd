@@ -117,11 +117,11 @@ int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
 	}
 	else
 	{
-		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
+		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 		/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
 		linger.l_onoff = 1;
 		linger.l_linger = 1;
-		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (char*)&linger,sizeof(linger));
+		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger));
 		return (sockfd);
 	}
 }

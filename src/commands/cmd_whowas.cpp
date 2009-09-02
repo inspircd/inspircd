@@ -91,11 +91,11 @@ CmdResult CommandWhowas::HandleInternal(const unsigned int id, const std::deque<
 	switch (id)
 	{
 		case WHOWAS_ADD:
-			AddToWhoWas((User*)parameters[0]);
+			AddToWhoWas(static_cast<User*>(parameters[0]));
 		break;
 
 		case WHOWAS_STATS:
-			GetStats((Extensible*)parameters[0]);
+			GetStats(static_cast<Extensible*>(parameters[0]));
 		break;
 
 		case WHOWAS_PRUNE:

@@ -29,7 +29,7 @@ static void* entry_point(void* parameter)
 	sigaddset(&set, SIGPIPE);
 	pthread_sigmask(SIG_BLOCK, &set, NULL);
 
-	Thread* pt = reinterpret_cast<Thread*>(parameter);
+	Thread* pt = static_cast<Thread*>(parameter);
 	pt->Run();
 	return parameter;
 }

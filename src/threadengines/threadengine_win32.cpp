@@ -40,7 +40,7 @@ ThreadEngine::~ThreadEngine()
 
 DWORD WINAPI ThreadEngine::Entry(void* parameter)
 {
-	Thread* pt = reinterpret_cast<Thread*>(parameter);
+	Thread* pt = static_cast<Thread*>(parameter);
 	pt->Run();
 	return 0;
 }

@@ -73,7 +73,7 @@ typedef std::deque<SQLresult*> ResultQueue;
 unsigned long count(const char * const str, char a)
 {
 	unsigned long n = 0;
-	for (const char *p = reinterpret_cast<const char *>(str); *p; ++p)
+	for (const char *p = str; *p; ++p)
 	{
 		if (*p == '?')
 			++n;

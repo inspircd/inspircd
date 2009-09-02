@@ -32,7 +32,7 @@ DLLManager::DLLManager(InspIRCd*, const char *fname)
 	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
 	if (!h)
 	{
-		err = (char*)dlerror();
+		err = dlerror();
 		return;
 	}
 }
@@ -57,7 +57,7 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 	{
 		dlerror(); // clear value
 		*v = dlsym(h, sym_name);
-		err = (char*)dlerror();
+		err = dlerror();
 		if (!*v || err)
 			return false;
 	}

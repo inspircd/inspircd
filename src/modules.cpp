@@ -82,7 +82,7 @@ Event::Event(char* anydata, Module* src, const std::string &eventid) : data(anyd
 
 char* Event::GetData()
 {
-	return (char*)this->data;
+	return this->data;
 }
 
 Module* Event::GetSource()

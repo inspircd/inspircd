@@ -301,7 +301,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if(target_type == TYPE_USER)
 		{
-			User* user = (User*)item;
+			User* user = static_cast<User*>(item);
 
 			if (user->GetIOHook() == this)
 			{
@@ -357,7 +357,7 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual const char* OnRequest(Request* request)
 	{
-		ISHRequest* ISR = (ISHRequest*)request;
+		ISHRequest* ISR = static_cast<ISHRequest*>(request);
 		if (strcmp("IS_NAME", request->GetId()) == 0)
 		{
 			return "gnutls";
@@ -367,7 +367,7 @@ class ModuleSSLGnuTLS : public Module
 			const char* ret = "OK";
 			try
 			{
-				ret = ISR->Sock->AddIOHook((Module*)this) ? "OK" : NULL;
+				ret = ISR->Sock->AddIOHook(this) ? "OK" : NULL;
 			}
 			catch (ModuleException &e)
 			{
@@ -394,9 +394,9 @@ class ModuleSSLGnuTLS : public Module
 				issl_session* session = &sessions[ISR->Sock->GetFd()];
 				if (session->sess)
 				{
-					if ((Extensible*)ServerInstance->SE->GetRef(ISR->Sock->GetFd()) == (Extensible*)(ISR->Sock))
+					if (static_cast<Extensible*>(ServerInstance->SE->GetRef(ISR->Sock->GetFd())) == static_cast<Extensible*>(ISR->Sock))
 					{
-						VerifyCertificate(session, (BufferedSocket*)ISR->Sock);
+						VerifyCertificate(session, ISR->Sock);
 						return "OK";
 					}
 				}
@@ -438,7 +438,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 
-		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(fd)); // Give gnutls the fd for the socket.
 
 		gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
 
@@ -458,7 +458,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
-		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(fd)); // Give gnutls the fd for the socket.
 
 		Handshake(session, fd);
 	}

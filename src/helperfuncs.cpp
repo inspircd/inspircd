@@ -150,11 +150,11 @@ long InspIRCd::ChannelCount()
 
 bool InspIRCd::IsValidMask(const std::string &mask)
 {
-	char* dest = (char*)mask.c_str();
+	const char* dest = mask.c_str();
 	int exclamation = 0;
 	int atsign = 0;
 
-	for (char* i = dest; *i; i++)
+	for (const char* i = dest; *i; i++)
 	{
 		/* out of range character, bad mask */
 		if (*i < 32 || *i > 126)
