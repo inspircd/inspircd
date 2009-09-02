@@ -51,21 +51,21 @@ public:
 		ReadConf();
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
 			if ((!IS_LOCAL(user)) || (text.length() < minlen))
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			Channel* c = (Channel*)dest;
 
 			if (CHANOPS_EXEMPT(ServerInstance, 'B') && c->GetStatus(user) == STATUS_OP)
 			{
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
-			if (c->IsModeSet('B') || c->GetExtBanStatus(user, 'B') < 0)
+			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet('B')))
 			{
 				int caps = 0;
 				const char* actstr = "\1ACTION ";
@@ -87,14 +87,14 @@ public:
 				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Your message cannot contain more than %d%% capital letters if it's longer than %d characters", user->nick.c_str(), c->name.c_str(), percent, minlen);
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}

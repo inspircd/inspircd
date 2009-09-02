@@ -70,17 +70,17 @@ class ModuleNoNickChange : public Module
 		ServerInstance->AddExtBanChar('N');
 	}
 
-	virtual int OnUserPreNick(User* user, const std::string &newnick)
+	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (isdigit(newnick[0])) /* don't even think about touching a switch to uid! */
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		// Allow forced nick changes.
 		if (user->GetExt("NICKForced"))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
@@ -89,14 +89,15 @@ class ModuleNoNickChange : public Module
 			if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
 				continue;
 
-			if (curr->IsModeSet('N') || curr->GetExtBanStatus(user, 'N') < 0)
+			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))
 			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)", user->nick.c_str(), curr->name.c_str());
-				return 1;
+				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)",
+					user->nick.c_str(), curr->name.c_str());
+				return MOD_RES_DENY;
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

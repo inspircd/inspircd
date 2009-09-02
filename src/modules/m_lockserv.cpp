@@ -95,19 +95,19 @@ public:
 		ResetLocked();
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		if (locked)
 		{
 			ServerInstance->Users->QuitUser(user, "Server is temporarily closed. Please try again later.");
-			return 1;
+			return MOD_RES_DENY;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual bool OnCheckReady(User* user)
+	virtual ModResult OnCheckReady(User* user)
 	{
-		return !locked;
+		return locked ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	virtual Version GetVersion()

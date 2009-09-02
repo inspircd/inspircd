@@ -68,24 +68,24 @@ class ModuleSafeList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (command == "LIST")
 		{
 			return this->HandleList(parameters, user);
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	/*
 	 * HandleList()
 	 *   Handle (override) the LIST command.
 	 */
-	int HandleList(const std::vector<std::string> &parameters, User* user)
+	ModResult HandleList(const std::vector<std::string> &parameters, User* user)
 	{
 		int pcnt = parameters.size();
 		int minusers = 0, maxusers = 0;
@@ -95,7 +95,7 @@ class ModuleSafeList : public Module
 			user->WriteServ("NOTICE %s :*** Server load is currently too heavy. Please try again later.", user->nick.c_str());
 			user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 			user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 
 		/* First, let's check if the user is currently /list'ing */
@@ -105,7 +105,7 @@ class ModuleSafeList : public Module
 		if (ld)
 		{
 			/* user is already /list'ing, we don't want to do shit. */
-			return 1;
+			return MOD_RES_DENY;
 		}
 
 		/* Work around mIRC suckyness. YOU SUCK, KHALED! */
@@ -134,7 +134,7 @@ class ModuleSafeList : public Module
 				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick.c_str());
 				user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 				user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
-				return 1;
+				return MOD_RES_DENY;
 			}
 
 			delete last_list_time;
@@ -156,7 +156,7 @@ class ModuleSafeList : public Module
 
 		global_listing++;
 
-		return 1;
+		return MOD_RES_DENY;
 	}
 
 	virtual void OnBufferFlushed(User* user)

@@ -80,7 +80,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 // and divisons, we instead render the map onto a backplane of characters
 // (a character matrix), then draw the branches as a series of "L" shapes
 // from the nodes. This is not only friendlier on CPU it uses less stack.
-int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, User* user)
+bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, User* user)
 {
 	if (parameters.size() > 0)
 	{
@@ -104,7 +104,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 
 		// Don't return if s == Utils->TreeRoot (us)
 		if (ret)
-			return 1;
+			return true;
 	}
 
 	// These arrays represent a virtual screen which we will
@@ -189,6 +189,6 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 	delete[] names;
 	delete[] stats;
 
-	return 1;
+	return true;
 }
 

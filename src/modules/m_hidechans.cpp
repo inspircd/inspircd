@@ -75,30 +75,30 @@ class ModuleHideChans : public Module
 		AffectsOpers = conf.ReadFlag("hidechans", "affectsopers", 0);
 	}
 
-	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
 		/* always show to self */
 		if (user == dest)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* don't touch anything except 319 */
 		if (numeric != 319)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* don't touch if -I */
 		if (!dest->IsModeSet('I'))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* if it affects opers, we don't care if they are opered */
 		if (AffectsOpers)
-			return 1;
+			return MOD_RES_DENY;
 
 		/* doesn't affect opers, sender is opered */
 		if (user->HasPrivPermission("users/auspex"))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* user must be opered, boned. */
-		return 1;
+		return MOD_RES_DENY;
 	}
 };
 

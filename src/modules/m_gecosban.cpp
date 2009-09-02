@@ -34,7 +34,7 @@ class ModuleGecosBan : public Module
 		return Version("$Id$", VF_COMMON|VF_VENDOR, API_VERSION);
 	}
 
-	virtual int OnCheckBan(User *user, Channel *c)
+	virtual ModResult OnCheckBan(User *user, Channel *c)
 	{
 		return c->GetExtBanStatus(user->fullname, 'r');
 	}

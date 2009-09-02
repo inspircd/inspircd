@@ -127,7 +127,7 @@ class ModuleTimedBans : public Module
 		TimedBanList.clear();
 	}
 
-	virtual int OnDelBan(User* source, Channel* chan, const std::string &banmask)
+	virtual ModResult OnDelBan(User* source, Channel* chan, const std::string &banmask)
 	{
 		irc::string listitem = banmask.c_str();
 		irc::string thischan = chan->name.c_str();
@@ -141,7 +141,7 @@ class ModuleTimedBans : public Module
 				break;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnBackgroundTimer(time_t curtime)

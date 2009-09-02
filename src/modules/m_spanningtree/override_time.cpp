@@ -27,7 +27,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-int ModuleSpanningTree::HandleTime(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleTime(const std::vector<std::string>& parameters, User* user)
 {
 	if ((IS_LOCAL(user)) && (parameters.size() > 0))
 	{
@@ -36,7 +36,7 @@ int ModuleSpanningTree::HandleTime(const std::vector<std::string>& parameters, U
 		{
 			// we dont' override for local server
 			if (found == Utils->TreeRoot)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			parameterlist params;
 			params.push_back(found->GetName());
@@ -48,6 +48,6 @@ int ModuleSpanningTree::HandleTime(const std::vector<std::string>& parameters, U
 			user->WriteNumeric(ERR_NOSUCHSERVER, "%s %s :No such server",user->nick.c_str(),parameters[0].c_str());
 		}
 	}
-	return 1;
+	return MOD_RES_DENY;
 }
 

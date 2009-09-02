@@ -57,7 +57,7 @@ public:
 		output.append(" INVEX=I");
 	}
 
-	virtual int OnCheckInvite(User* user, Channel* chan)
+	virtual ModResult OnCheckInvite(User* user, Channel* chan)
 	{
 		if(chan != NULL)
 		{
@@ -71,14 +71,14 @@ public:
 					if(InspIRCd::Match(user->GetFullRealHost(), it->mask) || InspIRCd::Match(user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
 					{
 						// They match an entry on the list, so let them in.
-						return 1;
+						return MOD_RES_DENY;
 					}
 				}
 			}
 			// or if there wasn't a list, there can't be anyone on it, so we don't need to do anything.
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual const char* OnRequest(Request* request)

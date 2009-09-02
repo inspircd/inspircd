@@ -69,20 +69,20 @@ public:
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
 			user->Extend("sqlauthed");
-			return 0;
+			return MOD_RES_PASSTHRU;
 		}
 
 		if (!CheckCredentials(user))
 		{
 			ServerInstance->Users->QuitUser(user, killreason);
-			return 1;
+			return MOD_RES_DENY;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	bool CheckCredentials(User* user)
@@ -196,9 +196,9 @@ public:
 		user->Shrink("sqlauth_failed");
 	}
 
-	virtual bool OnCheckReady(User* user)
+	virtual ModResult OnCheckReady(User* user)
 	{
-		return user->GetExt("sqlauthed");
+		return user->GetExt("sqlauthed") ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
 	virtual Version GetVersion()

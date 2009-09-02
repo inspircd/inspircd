@@ -868,12 +868,9 @@ void InspIRCd::BufferedSocketCull()
  */
 bool InspIRCd::AllModulesReportReady(User* user)
 {
-	for (EventHandlerIter i = Modules->EventHandlers[I_OnCheckReady].begin(); i != Modules->EventHandlers[I_OnCheckReady].end(); ++i)
-	{
-		if (!(*i)->OnCheckReady(user))
-			return false;
-	}
-	return true;
+	ModResult res;
+	FIRST_MOD_RESULT(this, OnCheckReady, res, (user));
+	return (res == MOD_RES_PASSTHRU);
 }
 
 time_t InspIRCd::Time()

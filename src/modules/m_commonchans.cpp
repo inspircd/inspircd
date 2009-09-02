@@ -68,7 +68,7 @@ class ModulePrivacyMode : public Module
 		return Version("$Id$", VF_COMMON|VF_VENDOR, API_VERSION);
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -76,13 +76,13 @@ class ModulePrivacyMode : public Module
 			if (!IS_OPER(user) && (t->IsModeSet('c')) && (!ServerInstance->ULine(user->server)) && !user->SharesChannelWith(t))
 			{
 				user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+c set)", user->nick.c_str(), t->nick.c_str());
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}

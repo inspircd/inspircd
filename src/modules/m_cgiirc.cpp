@@ -249,7 +249,7 @@ public:
 	}
 
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
 		{
@@ -282,10 +282,10 @@ public:
 				{
 					// We don't need to do anything here
 				}
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserConnect(User* user)

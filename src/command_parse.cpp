@@ -28,15 +28,15 @@
 
 int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 {
-	int MOD_RESULT = 0;
-	FOREACH_RESULT_I(this,I_OnPassCompare,OnPassCompare(ex, data, input, hashtype))
+	ModResult res;
+	FIRST_MOD_RESULT(this, OnPassCompare, res, (ex, data, input, hashtype));
 
 	/* Module matched */
-	if (MOD_RESULT == 1)
+	if (res == MOD_RES_ALLOW)
 		return 0;
 
 	/* Module explicitly didnt match */
-	if (MOD_RESULT == -1)
+	if (res == MOD_RES_DENY)
 		return 1;
 
 	/* We dont handle any hash types except for plaintext - Thanks tra26 */
@@ -278,9 +278,9 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 	if (cm == cmdlist.end())
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
-		if (MOD_RESULT == 1)
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return true;
 
 		/*
@@ -341,9 +341,9 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	 * We call OnPreCommand here seperately if the command exists, so the magic above can
 	 * truncate to max_params if necessary. -- w00t
 	 */
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, false, cmd));
-	if (MOD_RESULT == 1)
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
+	if (MOD_RESULT == MOD_RES_DENY)
 		return true;
 
 	/* activity resets the ping pending timer */
@@ -399,9 +399,8 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		cm->second->total_bytes += cmd.length();
 
 		/* module calls too */
-		MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, true, cmd));
-		if (MOD_RESULT == 1)
+		FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, command_p, user, true, cmd));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return do_more;
 
 		/*

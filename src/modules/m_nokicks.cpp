@@ -40,26 +40,26 @@ class ModuleNoKicks : public Module
 		ServerInstance->AddExtBanChar('Q');
 	}
 
-	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		if (access_type == AC_KICK)
 		{
-			if (channel->IsModeSet('Q') || channel->GetExtBanStatus(source, 'Q') < 0)
+			if (!channel->GetExtBanStatus(source, 'Q').check(!channel->IsModeSet('Q')))
 			{
 				if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 				{
 					// ulines can still kick with +Q in place
-					return ACR_ALLOW;
+					return MOD_RES_PASSTHRU;
 				}
 				else
 				{
 					// nobody else can (not even opers with override, and founders)
 					source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), channel->name.c_str(), dest->nick.c_str());
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 			}
 		}
-		return ACR_DEFAULT;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleNoKicks()

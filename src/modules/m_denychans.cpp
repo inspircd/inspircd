@@ -86,7 +86,7 @@ class ModuleDenyChannels : public Module
 	}
 
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{
@@ -94,7 +94,7 @@ class ModuleDenyChannels : public Module
 			{
 				if (IS_OPER(user) && Conf->ReadFlag("badchan","allowopers",j))
 				{
-					return 0;
+					return MOD_RES_PASSTHRU;
 				}
 				else
 				{
@@ -105,7 +105,7 @@ class ModuleDenyChannels : public Module
 					{
 						if (InspIRCd::Match(cname, Conf->ReadValue("goodchan", "name", i)))
 						{
-							return 0;
+							return MOD_RES_PASSTHRU;
 						}
 					}
 
@@ -117,16 +117,16 @@ class ModuleDenyChannels : public Module
 						{
 							user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname,cname,redirect.c_str(), reason.c_str());
 							Channel::JoinUser(ServerInstance,user,redirect.c_str(),false,"",false,ServerInstance->Time());
-							return 1;
+							return MOD_RES_DENY;
 						}
 					}
 
 					user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",user->nick.c_str(),cname,cname,reason.c_str());
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

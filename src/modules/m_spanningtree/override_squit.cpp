@@ -27,7 +27,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-int ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, User* user)
 {
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
 	if (s)
@@ -35,7 +35,7 @@ int ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, 
 		if (s == Utils->TreeRoot)
 		{
 			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick.c_str(),parameters[0].c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 
 		TreeSocket* sock = s->GetSocket();
@@ -56,6 +56,6 @@ int ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parameters, 
 	{
 		 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick.c_str(),parameters[0].c_str());
 	}
-	return 1;
+	return MOD_RES_DENY;
 }
 

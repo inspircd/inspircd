@@ -134,7 +134,7 @@ class ModuleZLib : public Module
 	}
 
 	/* Handle stats z (misc stats) */
-	virtual int OnStats(char symbol, User* user, string_list &results)
+	virtual ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 'z')
 		{
@@ -168,10 +168,10 @@ class ModuleZLib : public Module
 			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS percentage_of_original_outbound_traffic        = "+outbound_ratio);
 			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS percentage_of_orignal_inbound_traffic         = "+inbound_ratio);
 			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS total_size_of_original_traffic        = "+combined_ratio);
-			return 0;
+			return MOD_RES_PASSTHRU;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnRawSocketConnect(int fd)

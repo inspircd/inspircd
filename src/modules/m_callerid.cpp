@@ -367,13 +367,13 @@ public:
 		output += " CALLERID=g";
 	}
 
-	int PreText(User* user, User* dest, std::string& text, bool notice)
+	ModResult PreText(User* user, User* dest, std::string& text, bool notice)
 	{
 		if (!dest->IsModeSet('g'))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (operoverride && IS_OPER(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = GetData(dest, true);
 		std::set<User*>::iterator i = dat->accepting.find(user);
@@ -396,25 +396,25 @@ public:
 				}
 				dat->lastnotify = now;
 			}
-			return 1;
+			return MOD_RES_DENY;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text, true);
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text, true);
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnCleanup(int type, void* item)
@@ -447,11 +447,11 @@ public:
 		}
 	}
 
-	virtual int OnUserPreNick(User* user, const std::string& newnick)
+	virtual ModResult OnUserPreNick(User* user, const std::string& newnick)
 	{
 		if (!tracknick)
 			RemoveFromAllAccepts(user);
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)

@@ -71,7 +71,7 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
-	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
@@ -91,42 +91,42 @@ class ModuleServProtectMode : public Module
 				{
 					/* BZZZT, Denied! */
 					user->WriteNumeric(482, "%s %s :You are not permitted to remove privileges from %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network);
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 			}
 		}
 		/* Mode allowed */
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnKill(User* src, User* dst, const std::string &reason)
+	virtual ModResult OnKill(User* src, User* dst, const std::string &reason)
 	{
 		if (src == NULL)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (dst->IsModeSet('k'))
 		{
 			src->WriteNumeric(485, "%s :You are not permitted to kill %s services!", src->nick.c_str(), ServerInstance->Config->Network);
 			ServerInstance->SNO->WriteGlobalSno('a', std::string(src->nick)+" tried to kill service "+dst->nick+" ("+reason+")");
-			return 1;
+			return MOD_RES_DENY;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreKick(User *src, User *dst, Channel *c, const std::string &reason)
+	virtual ModResult OnUserPreKick(User *src, User *dst, Channel *c, const std::string &reason)
 	{
 		if (dst->IsModeSet('k'))
 		{
 			src->WriteNumeric(484, "%s %s :You are not permitted to kick services", src->nick.c_str(), c->name.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)
+	virtual ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)
 	{
-		return ((src != dst) && (numeric == 319) && dst->IsModeSet('k'));
+		return ((src != dst) && (numeric == 319) && dst->IsModeSet('k')) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

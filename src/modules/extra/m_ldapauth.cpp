@@ -111,20 +111,20 @@ public:
 		return true;
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
 			user->Extend("ldapauthed");
-			return 0;
+			return MOD_RES_PASSTHRU;
 		}
 
 		if (!CheckCredentials(user))
 		{
 			ServerInstance->Users->QuitUser(user, killreason);
-			return 1;
+			return MOD_RES_DENY;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	bool CheckCredentials(User* user)
@@ -217,9 +217,9 @@ public:
 		user->Shrink("ldapauth_failed");
 	}
 
-	virtual bool OnCheckReady(User* user)
+	virtual ModResult OnCheckReady(User* user)
 	{
-		return user->GetExt("ldapauthed");
+		return user->GetExt("ldapauthed") ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
 	virtual Version GetVersion()

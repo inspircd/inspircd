@@ -120,7 +120,7 @@ public:
 		hashtype = assign(Conf.ReadValue("sqloper", "hash", 0));
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		if ((validated) && (command == "OPER"))
 		{
@@ -131,10 +131,10 @@ public:
 				 * If the oper lookup fails later, we pass the command to the original handler
 				 * for /oper by calling its Handle method directly.
 				 */
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	bool LookupOper(User* user, const std::string &username, const std::string &password)

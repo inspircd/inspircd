@@ -37,10 +37,10 @@ class ModuleOperInvex : public Module
 		return Version("$Id$", VF_COMMON|VF_VENDOR, API_VERSION);
 	}
 
-	virtual int OnCheckInvite(User *user, Channel *c)
+	virtual ModResult OnCheckInvite(User *user, Channel *c)
 	{
 		if (!IS_LOCAL(user) || !IS_OPER(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		Module* ExceptionModule = ServerInstance->Modules->Find("m_inviteexception.so");
 		if (ExceptionModule)
@@ -48,17 +48,17 @@ class ModuleOperInvex : public Module
 			if (ListModeRequest(this, ExceptionModule, user->oper, 'O', c).Send())
 			{
 				// Oper type is exempt
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnCheckBan(User *user, Channel *c)
+	virtual ModResult OnCheckBan(User *user, Channel *c)
 	{
 		if (!IS_OPER(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 		return c->GetExtBanStatus(user->oper, 'O');
 	}
 

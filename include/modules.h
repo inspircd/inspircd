@@ -77,12 +77,17 @@ enum MessageType {
 	MSG_NOTICE = 1
 };
 
+#define MOD_RES_ALLOW (ModResult(1))
+#define MOD_RES_PASSTHRU (ModResult(0))
+#define MOD_RES_DENY (ModResult(-1))
+
 /** Used to represent an allow/deny module result.
  * Not constructed as an enum because it reverses the value logic of some functions;
  * the compiler will inline accesses to have the same efficiency as integer operations.
  */
 struct ModResult {
 	int res;
+	ModResult() : res(0) {}
 	explicit ModResult(int r) : res(r) {}
 	bool operator==(const ModResult& r) const
 	{
@@ -96,11 +101,23 @@ struct ModResult {
 	{
 		return !res;
 	}
+	bool check(bool def)
+	{
+		return (res == 1 || (res == 0 && def));
+	}
+	/**
+	 * Merges two results, preferring ALLOW to DENY
+	 */
+	const ModResult operator+(const ModResult& r)
+	{
+		if (res == r.res || r.res == 0)
+			return *this;
+		if (res == 0)
+			return r;
+		// they are different, and neither is passthru
+		return MOD_RES_ALLOW;
+	}
 };
-
-#define MOD_RES_ALLOW (ModResult(1))
-#define MOD_RES_PASSTHRU (ModResult(0))
-#define MOD_RES_DENY (ModResult(-1))
 
 /** If you change the module API, change this value. */
 #define API_VERSION 13000
@@ -181,65 +198,6 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 } while (0);
 
 /**
- * This define is similar to the one above but returns a result in MOD_RESULT.
- * The first module to return a nonzero result is the value to be accepted,
- * and any modules after are ignored.
- */
-#define FOREACH_RESULT(y,x) \
-do { \
-	EventHandlerIter safei; \
-	MOD_RESULT = 0; \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
-	{ \
-		safei = _i; \
-		++safei; \
-		try \
-		{ \
-			int res = (*_i)->x ; \
-			if (res != 0) { \
-				MOD_RESULT = res; \
-				break; \
-			} \
-		} \
-		catch (CoreException& modexcept) \
-		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
-		} \
-		_i = safei; \
-	} \
-} while(0);
-
-
-/**
- * This define is similar to the one above but returns a result in MOD_RESULT.
- * The first module to return a nonzero result is the value to be accepted,
- * and any modules after are ignored.
- */
-#define FOREACH_RESULT_I(z,y,x) \
-do { \
-	EventHandlerIter safei; \
-	MOD_RESULT = 0; \
-	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ) \
-	{ \
-		safei = _i; \
-		++safei; \
-		try \
-		{ \
-			int res = (*_i)->x ; \
-			if (res != 0) { \
-				MOD_RESULT = res; \
-				break; \
-			} \
-		} \
-		catch (CoreException& modexcept) \
-		{ \
-			z->Logs->Log("MODULE",DEBUG,"Exception caught: %s",modexcept.GetReason()); \
-		} \
-		_i = safei; \
-	} \
-} while (0);
-
-/**
  * Custom module result handling loop. This is a paired macro, and should only
  * be used with while_each_hook.
  *
@@ -266,6 +224,13 @@ do { \
 	} \
 } while(0)
 
+/**
+ * Module result iterator
+ * Runs the given hook until some module returns a useful result.
+ *
+ * Example: ModResult result;
+ * FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, result, (user, newnick))
+ */
 #define FIRST_MOD_RESULT(z,n,v,args) do { \
 	v = MOD_RES_PASSTHRU; \
 	DO_EACH_HOOK(z,n,v,args) \
@@ -534,7 +499,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being deleted
 	 * @return An integer specifying whether or not the channel may be deleted. 0 for yes, 1 for no.
 	 */
-	virtual int OnChannelPreDelete(Channel *chan);
+	virtual ModResult OnChannelPreDelete(Channel *chan);
 
 	/** Called whenever a channel is deleted, either by QUIT, KICK or PART.
 	 * @param chan The channel being deleted
@@ -610,7 +575,7 @@ class CoreExport Module : public Extensible
 	 * @param message The text message to be sent via snotice
 	 * @return 1 to block the snotice from being sent entirely, 0 else.
 	 */
-	virtual int OnSendSnotice(char &snomask, std::string &type, const std::string &message);
+	virtual ModResult OnSendSnotice(char &snomask, std::string &type, const std::string &message);
 
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -632,7 +597,7 @@ class CoreExport Module : public Extensible
 	 * @param keygiven The key given to join the channel, or an empty string if none was provided
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
 
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -644,7 +609,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
 	 */
-	virtual int OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason);
+	virtual ModResult OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason);
 
 	/** Called whenever a user is kicked.
 	 * If this method is called, the kick is already underway and cannot be prevented, so
@@ -706,7 +671,7 @@ class CoreExport Module : public Extensible
 	 * @param timeout The time the invite will expire (0 == never)
 	 * @return 1 to deny the invite, 0 to check whether or not the user has permission to invite, -1 to explicitly allow the invite
 	 */
-	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout);
+	virtual ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout);
 
 	/** Called after a user has been successfully invited to a channel.
 	 * You cannot prevent the invite from occuring using this function, to do that,
@@ -734,7 +699,7 @@ class CoreExport Module : public Extensible
 	 * It will be ignored for private messages.
 	 * @return 1 to deny the message, 0 to allow it
 	 */
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 
 	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
@@ -755,7 +720,7 @@ class CoreExport Module : public Extensible
 	 * It will be ignored for private notices.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 
 	/** Called whenever the server wants to build the exemption list for a channel, but is not directly doing a PRIVMSG or NOTICE.
 	 * For example, the spanningtree protocol will call this event when passing a privmsg on (but not processing it directly).
@@ -778,7 +743,7 @@ class CoreExport Module : public Extensible
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
 	 */
-	virtual int OnUserPreNick(User* user, const std::string &newnick);
+	virtual ModResult OnUserPreNick(User* user, const std::string &newnick);
 
 	/** Called after any PRIVMSG sent from a user.
 	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
@@ -1015,7 +980,7 @@ class CoreExport Module : public Extensible
 	 * @param channel The channel which is being checked
 	 * @param access_type See above
 	 */
-	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type);
+	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type);
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
@@ -1036,7 +1001,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The kill reason
 	 * @return 1 to prevent the kill, 0 to allow
 	 */
-	virtual int OnKill(User* source, User* dest, const std::string &reason);
+	virtual ModResult OnKill(User* source, User* dest, const std::string &reason);
 
 	/** Called when an oper wants to disconnect a remote user via KILL
 	 * @param source The user sending the KILL
@@ -1099,7 +1064,7 @@ class CoreExport Module : public Extensible
 	 * @param original_line The entire original line as passed to the parser from the user
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
 
 	/** Called after any command has been executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,
@@ -1125,7 +1090,7 @@ class CoreExport Module : public Extensible
 	 * @param user The user to check
 	 * @return true to indicate readiness, false if otherwise
 	 */
-	virtual bool OnCheckReady(User* user);
+	virtual ModResult OnCheckReady(User* user);
 
 	/** Called whenever a user is about to register their connection (e.g. before the user
 	 * is sent the MOTD etc). Modules can use this method if they are performing a function
@@ -1136,7 +1101,7 @@ class CoreExport Module : public Extensible
 	 * @param user The user registering
 	 * @return 1 to indicate user quit, 0 to continue
 	 */
-	virtual int OnUserRegister(User* user);
+	virtual ModResult OnUserRegister(User* user);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +i, and
@@ -1146,7 +1111,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual int OnCheckInvite(User* user, Channel* chan);
+	virtual ModResult OnCheckInvite(User* user, Channel* chan);
 
 	/** Called whenever a mode character is processed.
 	 * Return 1 from this function to block the mode character from being processed entirely.
@@ -1160,7 +1125,7 @@ class CoreExport Module : public Extensible
 	 * to skip all permission checking. Please note that for remote mode changes, your return value
 	 * will be ignored!
 	 */
-	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt);
+	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and
@@ -1171,7 +1136,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual int OnCheckKey(User* user, Channel* chan, const std::string &keygiven);
+	virtual ModResult OnCheckKey(User* user, Channel* chan, const std::string &keygiven);
 
 	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +l, and
@@ -1181,7 +1146,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual int OnCheckLimit(User* user, Channel* chan);
+	virtual ModResult OnCheckLimit(User* user, Channel* chan);
 
 	/** Called whenever a user joins a channel, to determine if banlist checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the user actually matches a channel ban, and
@@ -1192,7 +1157,7 @@ class CoreExport Module : public Extensible
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal. Return -1 to explicitly deny the
 	 * join to the channel.
 	 */
-	virtual int OnCheckBan(User* user, Channel* chan);
+	virtual ModResult OnCheckBan(User* user, Channel* chan);
 
 	/* Called whenever checking whether or not a user is matched by an applicable extended bantype.
 	 * NOTE: may also trigger extra OnCheckStringExtBan events!
@@ -1201,13 +1166,13 @@ class CoreExport Module : public Extensible
 	 * @param type The type of extended ban to check for.
 	 * @returns 1 = exempt, 0 = no match, -1 = banned
 	 */
-	virtual int OnCheckExtBan(User *u, Channel *c, char type);
+	virtual ModResult OnCheckExtBan(User *u, Channel *c, char type);
 
 	/** Called whenever checking whether or not a string is extbanned. NOTE: one OnCheckExtBan will also trigger a number of
 	 * OnCheckStringExtBan events for seperate host/IP comnbinations.
 	 * @returns 1 = exempt, 0 = no match, -1 = banned
 	 */
-	virtual int OnCheckStringExtBan(const std::string &s, Channel *c, char type);
+	virtual ModResult OnCheckStringExtBan(const std::string &s, Channel *c, char type);
 
 	/** Called on all /STATS commands
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
@@ -1218,7 +1183,7 @@ class CoreExport Module : public Extensible
 	 * work when remote STATS queries are received.
 	 * @return 1 to block the /STATS from being processed by the core, 0 to allow it
 	 */
-	virtual int OnStats(char symbol, User* user, string_list &results);
+	virtual ModResult OnStats(char symbol, User* user, string_list &results);
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.
@@ -1226,7 +1191,7 @@ class CoreExport Module : public Extensible
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
-	virtual int OnChangeLocalUserHost(User* user, const std::string &newhost);
+	virtual ModResult OnChangeLocalUserHost(User* user, const std::string &newhost);
 
 	/** Called whenever a change of a local users GECOS (fullname field) is attempted.
 	 * return 1 to deny the name change, or 0 to allow it.
@@ -1234,7 +1199,7 @@ class CoreExport Module : public Extensible
 	 * @param newhost The new GECOS
 	 * @return 1 to deny the GECOS change, 0 to allow
 	 */
-	virtual int OnChangeLocalUserGECOS(User* user, const std::string &newhost);
+	virtual ModResult OnChangeLocalUserGECOS(User* user, const std::string &newhost);
 
 	/** Called whenever a topic is changed by a local user.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks
@@ -1243,7 +1208,7 @@ class CoreExport Module : public Extensible
 	 * @param topic The actual topic text
 	 * @param 1 to block the topic change, 0 to allow
 	 */
-	virtual int OnLocalTopicChange(User* user, Channel* chan, const std::string &topic);
+	virtual ModResult OnLocalTopicChange(User* user, Channel* chan, const std::string &topic);
 
 	/** Called whenever a local topic has been changed.
 	 * To block topic changes you must use OnLocalTopicChange instead.
@@ -1280,7 +1245,7 @@ class CoreExport Module : public Extensible
 	 * @param hashtype The hash value from the config
 	 * @return 0 to do nothing (pass on to next module/default), 1 == password is OK, -1 == password is not OK
 	 */
-	virtual int OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
+	virtual ModResult OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
 
 	/** Called whenever a user is given usermode +o, anywhere on the network.
 	 * You cannot override this and prevent it from happening as it is already happened and
@@ -1305,7 +1270,7 @@ class CoreExport Module : public Extensible
 	 * @param banmask The ban mask being added
 	 * @return 1 to block the ban, 0 to continue as normal
 	 */
-	virtual int OnAddBan(User* source, Channel* channel,const std::string &banmask);
+	virtual ModResult OnAddBan(User* source, Channel* channel,const std::string &banmask);
 
 	/** Called whenever a ban is removed from a channel's list.
 	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
@@ -1314,7 +1279,7 @@ class CoreExport Module : public Extensible
 	 * @param banmask The ban mask being deleted
 	 * @return 1 to block the unban, 0 to continue as normal
 	 */
-	virtual int OnDelBan(User* source, Channel* channel,const std::string &banmask);
+	virtual ModResult OnDelBan(User* source, Channel* channel,const std::string &banmask);
 
 	/** Called to install an I/O hook on an event handler
 	 * @param user The item to possibly install the I/O hook on
@@ -1383,7 +1348,7 @@ class CoreExport Module : public Extensible
 	 * @param awaymsg The away message of the user, or empty if returning from away
 	 * @return nonzero if the away message should be blocked - should ONLY be nonzero for LOCAL users (IS_LOCAL) (no output is returned by core)
 	 */
-	virtual int OnSetAway(User* user, const std::string &awaymsg);
+	virtual ModResult OnSetAway(User* user, const std::string &awaymsg);
 
 	/** Called whenever a NAMES list is requested.
 	 * You can produce the nameslist yourself, overriding the current list,
@@ -1398,7 +1363,7 @@ class CoreExport Module : public Extensible
 	 * Returning -1 allows the names list, but bypasses any checks which check for
 	 * channel membership before sending the names list.
 	 */
-	virtual int OnUserList(User* user, Channel* Ptr, CUList* &userlist);
+	virtual ModResult OnUserList(User* user, Channel* Ptr, CUList* &userlist);
 
 	/** Called whenever a line of WHOIS output is sent to a user.
 	 * You may change the numeric and the text of the output by changing
@@ -1411,7 +1376,7 @@ class CoreExport Module : public Extensible
 	 * @return nonzero to drop the line completely so that the user does not
 	 * receive it, or zero to allow the line to be sent.
 	 */
-	virtual int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text);
+	virtual ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text);
 
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be
@@ -1440,13 +1405,13 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
 
-	virtual int OnNumeric(User* user, unsigned int numeric, const std::string &text);
+	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
 
 	/** Called for every time the user's host or ident changes, to indicate wether or not the 'Changing host'
 	 * message should be sent, if enabled. Certain modules such as auditorium may opt to hide this message
 	 * even if it is enabled.
 	 */
-	virtual bool OnHostCycle(User* user);
+	virtual ModResult OnHostCycle(User* user);
 };
 
 

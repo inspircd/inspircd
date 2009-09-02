@@ -970,10 +970,10 @@ void User::FullConnect()
 		ServerInstance->Users->unregistered_count--;
 
 	/* Trigger LUSERS output, give modules a chance too */
-	int MOD_RESULT = 0;
+	ModResult MOD_RESULT;
 	std::string command("LUSERS");
 	std::vector<std::string> parameters;
-	FOREACH_RESULT(I_OnPreCommand, OnPreCommand(command, parameters, this, true, "LUSERS"));
+	FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, parameters, this, true, "LUSERS"));
 	if (!MOD_RESULT)
 		ServerInstance->CallCommandHandler(command, parameters, this);
 
@@ -1025,17 +1025,17 @@ void User::InvalidateCache()
 
 bool User::ForceNickChange(const char* newnick)
 {
-	int MOD_RESULT = 0;
+	ModResult MOD_RESULT;
 
 	this->InvalidateCache();
 
 	this->Extend("NICKForced");
 
-	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
+	FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, MOD_RESULT, (this, newnick));
 
 	this->Shrink("NICKForced");
 
-	if (MOD_RESULT)
+	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		ServerInstance->stats->statsCollisions++;
 		return false;
@@ -1276,11 +1276,11 @@ void User::WriteNumeric(unsigned int numeric, const char* text, ...)
 void User::WriteNumeric(unsigned int numeric, const std::string &text)
 {
 	char textbuffer[MAXBUF];
-	int MOD_RESULT = 0;
+	ModResult MOD_RESULT;
 
-	FOREACH_RESULT(I_OnNumeric, OnNumeric(this, numeric, text));
+	FIRST_MOD_RESULT(ServerInstance, OnNumeric, MOD_RESULT, (this, numeric, text));
 
-	if (MOD_RESULT)
+	if (MOD_RESULT == MOD_RES_DENY)
 		return;
 
 	snprintf(textbuffer,MAXBUF,":%s %03u %s",ServerInstance->Config->ServerName, numeric, text.c_str());
@@ -1538,9 +1538,9 @@ bool User::ChangeName(const char* gecos)
 
 	if (IS_LOCAL(this))
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnChangeLocalUserGECOS,OnChangeLocalUserGECOS(this,gecos));
-		if (MOD_RESULT)
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(ServerInstance, OnChangeLocalUserGECOS, MOD_RESULT, (this,gecos));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
 	}
@@ -1553,10 +1553,12 @@ void User::DoHostCycle(const std::string &quitline)
 {
 	char buffer[MAXBUF];
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
+	ModResult result = MOD_RES_PASSTHRU;
+	FIRST_MOD_RESULT(ServerInstance, OnHostCycle, result, (this));
 
-	if (!ServerInstance->Config->CycleHosts || MOD_RESULT)
+	if (result == MOD_RES_DENY)
+		return;
+	if (result == MOD_RES_PASSTHRU && !ServerInstance->Config->CycleHosts)
 		return;
 
 	uniq_id++;
@@ -1602,9 +1604,9 @@ bool User::ChangeDisplayedHost(const char* shost)
 
 	if (IS_LOCAL(this))
 	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(this,shost));
-		if (MOD_RESULT)
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(ServerInstance, OnChangeLocalUserHost, MOD_RESULT, (this,shost));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 	}
 
@@ -1860,9 +1862,9 @@ void User::PurgeEmptyChannels()
 		chan_hash::iterator i2 = ServerInstance->chanlist->find(thischan->name);
 		if (i2 != ServerInstance->chanlist->end())
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(i2->second));
-			if (MOD_RESULT == 1)
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnChannelPreDelete, MOD_RESULT, (i2->second));
+			if (MOD_RESULT == MOD_RES_DENY)
 				continue; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
 			delete i2->second;

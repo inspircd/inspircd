@@ -176,16 +176,16 @@ class ModuleCBan : public Module
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	virtual int OnStats(char symbol, User* user, string_list &out)
+	virtual ModResult OnStats(char symbol, User* user, string_list &out)
 	{
 		if (symbol != 'C')
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		ServerInstance->XLines->InvokeStats("CBAN", 210, user, out);
-		return 1;
+		return MOD_RES_DENY;
 	}
 
-	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 
@@ -196,10 +196,10 @@ class ModuleCBan : public Module
 			ServerInstance->SNO->WriteToSnoMask('a', "%s tried to join %s which is CBANed (%s)",
 				 user->nick.c_str(), cname, rl->reason.c_str());
 			ServerInstance->PI->SendSNONotice("A", user->nick + " tried to join " + std::string(cname) + " which is CBANed (" + rl->reason + ")");
-			return 1;
+			return MOD_RES_DENY;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual Version GetVersion()

@@ -88,10 +88,10 @@ class ModuleChanFilter : public Module
 		cf.DoRehash();
 	}
 
-	virtual int ProcessMessages(User* user,Channel* chan,std::string &text)
+	virtual ModResult ProcessMessages(User* user,Channel* chan,std::string &text)
 	{
 		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetStatus(user) == STATUS_OP))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		modelist* list;
 		chan->GetExt(cf.GetInfoKey(), list);
@@ -106,21 +106,21 @@ class ModuleChanFilter : public Module
 						user->WriteNumeric(404, "%s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str());
 					else
 						user->WriteNumeric(404, "%s %s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str(), i->mask.c_str());
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
 			return ProcessMessages(user,(Channel*)dest,text);
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -133,7 +133,7 @@ class ModuleChanFilter : public Module
 		return cf.DoOnRequest(request);
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}

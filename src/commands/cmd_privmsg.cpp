@@ -35,10 +35,10 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		if (!user->HasPrivPermission("users/mass-message"))
 			return CMD_SUCCESS;
 
-		int MOD_RESULT = 0;
+		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list));
-		if (MOD_RESULT)
+		FIRST_MOD_RESULT(ServerInstance, OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
 		const char* text = temp.c_str();
@@ -91,13 +91,13 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 					}
 				}
 			}
-			int MOD_RESULT = 0;
+			ModResult MOD_RESULT;
 
 			std::string temp = parameters[1];
-			FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status,except_list));
-			if (MOD_RESULT) {
+			FIRST_MOD_RESULT(ServerInstance, OnUserPreMessage, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status,except_list));
+			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
-			}
+
 			const char* text = temp.c_str();
 
 			/* Check again, a module may have zapped the input string */
@@ -175,13 +175,13 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			user->WriteNumeric(301, "%s %s :%s", user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
 		}
 
-		int MOD_RESULT = 0;
+		ModResult MOD_RESULT;
 
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user, dest, TYPE_USER, temp, 0, except_list));
-		if (MOD_RESULT) {
+		FIRST_MOD_RESULT(ServerInstance, OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
-		}
+
 		const char* text = temp.c_str();
 
 		FOREACH_MOD(I_OnText,OnText(user, dest, TYPE_USER, text, 0, except_list));

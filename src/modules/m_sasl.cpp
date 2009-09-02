@@ -230,7 +230,7 @@ class ModuleSASL : public Module
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
-	virtual int OnUserRegister(User *user)
+	virtual ModResult OnUserRegister(User *user)
 	{
 		SaslAuthenticator *sasl_;
 		if (user->GetExt("sasl_authenticator", sasl_))
@@ -240,7 +240,7 @@ class ModuleSASL : public Module
 			user->Shrink("sasl_authenticator");
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnCleanup(int target_type, void *item)

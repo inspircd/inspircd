@@ -267,13 +267,13 @@ class ModuleRLine : public Module
 		}
 	}
 
-	virtual int OnStats(char symbol, User* user, string_list &results)
+	virtual ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol != 'R')
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		ServerInstance->XLines->InvokeStats("R", 223, user, results);
-		return 1;
+		return MOD_RES_DENY;
 	}
 
 	virtual void OnLoadModule(Module* mod, const std::string& name)

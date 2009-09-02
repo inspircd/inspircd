@@ -63,7 +63,7 @@ class ModuleGeoIP : public Module
 		}
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		/* only do lookups on local users */
 		if (IS_LOCAL(user))
@@ -81,7 +81,7 @@ class ModuleGeoIP : public Module
 					ServerInstance->Users->QuitUser(user, "Could not identify your country of origin. Access denied.");
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

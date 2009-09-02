@@ -34,12 +34,12 @@ class ModuleBadChannelExtban : public Module
 		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnCheckBan(User *user, Channel *c)
+	virtual ModResult OnCheckBan(User *user, Channel *c)
 	{
-		int rv = 0;
+		ModResult rv;
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			rv = banmatch_reduce(rv, c->GetExtBanStatus(i->first->name, 'j'));
+			rv = rv + c->GetExtBanStatus(i->first->name, 'j');
 		}
 
 		return rv;

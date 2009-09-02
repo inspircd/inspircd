@@ -64,13 +64,13 @@ class ModuleChanLog : public Module
 
 	}
 
-	virtual int OnSendSnotice(char &sno, std::string &desc, const std::string &msg)
+	virtual ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg)
 	{
 		std::multimap<char, std::string>::const_iterator it = logstreams.find(sno);
 		char buf[MAXBUF];
 
 		if (it == logstreams.end())
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		snprintf(buf, MAXBUF, "\2%s\2: %s", desc.c_str(), msg.c_str());
 
@@ -92,7 +92,7 @@ class ModuleChanLog : public Module
 			it++;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual Version GetVersion()

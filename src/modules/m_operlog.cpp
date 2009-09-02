@@ -37,11 +37,11 @@ class ModuleOperLog : public Module
 	}
 
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if ((IS_OPER(user)) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
@@ -50,7 +50,7 @@ class ModuleOperLog : public Module
 				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s %s",user->nick.c_str(), user->ident.c_str(), user->host.c_str(), command.c_str(), parameters.empty() ? "" : irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined().c_str());
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void On005Numeric(std::string &output)

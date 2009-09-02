@@ -97,7 +97,7 @@ public:
 		return true;
 	}
 
-	virtual int OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
+	virtual ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 	{
 		User* user = dynamic_cast<User*>(ex);
 		if (hashtype == "ldap")
@@ -105,11 +105,11 @@ public:
 			if (LookupOper(user, data, input))
 			{
 				/* This is an ldap oper and has been found, claim the OPER command */
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
 		/* We don't know this oper! */
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	bool LookupOper(User* user, const std::string &what, const std::string &opassword)

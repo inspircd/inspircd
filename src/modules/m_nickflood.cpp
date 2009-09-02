@@ -213,10 +213,10 @@ class ModuleNickFlood : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	virtual int OnUserPreNick(User* user, const std::string &newnick)
+	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (isdigit(newnick[0])) /* allow switches to UID */
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
@@ -231,7 +231,7 @@ class ModuleNickFlood : public Module
 				if (f->islocked())
 				{
 					user->WriteNumeric(447, "%s :%s has been locked for nickchanges for 60 seconds because there have been more than %d nick changes in %d seconds", user->nick.c_str(), channel->name.c_str(), f->nicks, f->secs);
-					return 1;
+					return MOD_RES_DENY;
 				}
 
 				if (f->shouldlock())
@@ -239,12 +239,12 @@ class ModuleNickFlood : public Module
 					f->clear();
 					f->lock();
 					channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName, "NOTICE %s :No nick changes are allowed for 60 seconds because there have been more than %d nick changes in %d seconds.", channel->name.c_str(), f->nicks, f->secs);
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	/*

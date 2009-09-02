@@ -211,7 +211,7 @@ class ModuleJoinFlood : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{
@@ -221,11 +221,11 @@ class ModuleJoinFlood : public Module
 				if (f->islocked())
 				{
 					user->WriteNumeric(609, "%s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick.c_str(),chan->name.c_str());
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)

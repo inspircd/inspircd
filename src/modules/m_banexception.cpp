@@ -57,7 +57,7 @@ public:
 		output.append(" EXCEPTS=e");
 	}
 
-	virtual int OnCheckExtBan(User *user, Channel *chan, char type)
+	virtual ModResult OnCheckExtBan(User *user, Channel *chan, char type)
 	{
 		if (chan != NULL)
 		{
@@ -65,7 +65,7 @@ public:
 			chan->GetExt(be.GetInfoKey(), list);
 
 			if (!list)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
@@ -78,15 +78,15 @@ public:
 				if (InspIRCd::Match(user->GetFullRealHost(), maskptr) || InspIRCd::Match(user->GetFullHost(), maskptr) || (InspIRCd::MatchCIDR(mask, maskptr)))
 				{
 					// They match an entry on the list, so let them pass this.
-					return 1;
+					return MOD_RES_ALLOW;
 				}
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnCheckStringExtBan(const std::string &str, Channel *chan, char type)
+	virtual ModResult OnCheckStringExtBan(const std::string &str, Channel *chan, char type)
 	{
 		if (chan != NULL)
 		{
@@ -94,7 +94,7 @@ public:
 			chan->GetExt(be.GetInfoKey(), list);
 
 			if (!list)
-				return 0;
+				return MOD_RES_PASSTHRU;
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (it->mask[0] != type || it->mask[1] != ':')
@@ -103,14 +103,14 @@ public:
 				std::string maskptr = it->mask.substr(2);
 				if (InspIRCd::Match(str, maskptr))
 					// They match an entry on the list, so let them in.
-					return 1;
+					return MOD_RES_ALLOW;
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnCheckBan(User* user, Channel* chan)
+	virtual ModResult OnCheckBan(User* user, Channel* chan)
 	{
 		if (chan != NULL)
 		{
@@ -120,7 +120,7 @@ public:
 			if (!list)
 			{
 				// No list, proceed normally
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
 			std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
@@ -129,11 +129,11 @@ public:
 				if (InspIRCd::Match(user->GetFullRealHost(), it->mask) || InspIRCd::Match(user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
 				{
 					// They match an entry on the list, so let them in.
-					return 1;
+					return MOD_RES_ALLOW;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnCleanup(int target_type, void* item)

@@ -84,11 +84,11 @@ class ModuleBlockAmsg : public Module
 			action = IBLOCK_KILLOPERS;
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		// Don't do anything with unregistered users, or remote ones.
 		if(!user || (user->registered != REG_ALL) || !IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		// We want case insensitive command comparison.
 		// Add std::string contructor for irc::string :x
@@ -119,7 +119,7 @@ class ModuleBlockAmsg : public Module
 			 */
 			if(targets == 0)
 			{
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
 			userchans = user->chans.size();
@@ -144,7 +144,7 @@ class ModuleBlockAmsg : public Module
 				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
 					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick.c_str());
 
-				return 1;
+				return MOD_RES_DENY;
 			}
 
 			if(m)
@@ -160,7 +160,7 @@ class ModuleBlockAmsg : public Module
 				user->Extend("amsgblock", (char*)m);
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnCleanup(int target_type, void* item)

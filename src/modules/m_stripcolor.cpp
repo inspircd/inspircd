@@ -98,10 +98,10 @@ class ModuleStripColor : public Module
 		}
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		bool active = false;
 		if (target_type == TYPE_USER)
@@ -117,10 +117,10 @@ class ModuleStripColor : public Module
 			// note: short circut logic here, don't wreck it. -- w00t
 			if (CHANOPS_EXEMPT(ServerInstance, 'S') && t->GetStatus(user) == STATUS_OP)
 			{
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
-			active = t->IsModeSet('S') || t->GetExtBanStatus(user, 'S') < 0;
+			active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet('S'));
 		}
 
 		if (active)
@@ -128,10 +128,10 @@ class ModuleStripColor : public Module
 			this->ReplaceLine(text);
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}

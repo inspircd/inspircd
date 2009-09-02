@@ -60,7 +60,7 @@ class ModuleDelayMsg : public Module
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
 	void OnCleanup(int target_type, void* item);
-	int OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
 };
 
 /* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
@@ -130,21 +130,21 @@ void ModuleDelayMsg::OnCleanup(int target_type, void* item)
 	}
 }
 
-int ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	/* Server origin */
 	if (!user)
-		return false;
+		return MOD_RES_PASSTHRU;
 
 	if (target_type != TYPE_CHANNEL)
-		return false;
+		return MOD_RES_PASSTHRU;
 
 	Channel* channel = (Channel*) dest;
 
 	void* jointime_as_ptr;
 
 	if (!user->GetExt("delaymsg_"+channel->name, jointime_as_ptr))
-		return false;
+		return MOD_RES_PASSTHRU;
 
 	time_t jointime = reinterpret_cast<time_t>(jointime_as_ptr);
 
@@ -156,7 +156,7 @@ int ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, st
 		{
 			user->WriteNumeric(404, "%s %s :You must wait %s seconds after joining to send to channel (+d)",
 				user->nick.c_str(), channel->name.c_str(), len.c_str());
-			return true;
+			return MOD_RES_DENY;
 		}
 	}
 	else
@@ -164,7 +164,7 @@ int ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, st
 		/* Timer has expired, we can stop checking now */
 		user->Shrink("delaymsg_"+channel->name);
 	}
-	return false;
+	return MOD_RES_PASSTHRU;
 }
 
 MODULE_INIT(ModuleDelayMsg)

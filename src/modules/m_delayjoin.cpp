@@ -42,7 +42,7 @@ class ModuleDelayJoin : public Module
 	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
 	void CleanUser(User* user);
-	bool OnHostCycle(User* user);
+	ModResult OnHostCycle(User* user);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
@@ -158,9 +158,9 @@ void ModuleDelayJoin::OnUserKick(User* source, User* user, Channel* chan, const 
 	}
 }
 
-bool ModuleDelayJoin::OnHostCycle(User* user)
+ModResult ModuleDelayJoin::OnHostCycle(User* user)
 {
-	return user->GetExt("delayjoin");
+	return user->GetExt("delayjoin") ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 }
 
 void ModuleDelayJoin::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)

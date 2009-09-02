@@ -74,7 +74,7 @@ class ModuleDeaf : public Module
 		delete conf;
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -83,10 +83,10 @@ class ModuleDeaf : public Module
 				this->BuildDeafList(MSG_NOTICE, chan, user, status, text, exempt_list);
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -95,7 +95,7 @@ class ModuleDeaf : public Module
 				this->BuildDeafList(MSG_PRIVMSG, chan, user, status, text, exempt_list);
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)

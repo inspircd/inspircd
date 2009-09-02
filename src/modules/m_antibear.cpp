@@ -37,7 +37,7 @@ class ModuleAntiBear : public Module
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		if (command == "NOTICE" && !validated && parameters.size() > 1 && user->GetExt("antibear_timewait"))
 		{
@@ -52,24 +52,24 @@ class ModuleAntiBear : public Module
 				else
 					delete zl;
 
-				return 1;
+				return MOD_RES_DENY;
 			}
 
 			user->Shrink("antibear_timewait");
 			// Block the command, so the user doesn't receive a no such nick notice
-			return 1;
+			return MOD_RES_DENY;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		user->WriteNumeric(439, "%s :This server has anti-spambot mechanisms enabled.", user->nick.c_str());
 		user->WriteNumeric(931, "%s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick.c_str());
 		user->WriteServ("PRIVMSG %s :\1TIME\1", user->nick.c_str());
 		user->Extend("antibear_timewait");
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

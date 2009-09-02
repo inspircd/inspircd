@@ -56,7 +56,7 @@ class ModuleWaitPong : public Module
 		return (char*)out;
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		char* pingrpl = RandString(10);
 
@@ -66,10 +66,10 @@ class ModuleWaitPong : public Module
 			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick.c_str(), pingrpl, pingrpl);
 
 		user->Extend(extenstr, pingrpl);
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User* user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User* user, bool validated, const std::string &original_line)
 	{
 		if (command == "PONG")
 		{
@@ -82,23 +82,23 @@ class ModuleWaitPong : public Module
 				{
 					delete[] pingrpl;
 					user->Shrink(extenstr);
-					return 1;
+					return MOD_RES_DENY;
 				}
 				else
 				{
 					if(killonbadreply)
 						ServerInstance->Users->QuitUser(user, "Incorrect ping reply for registration");
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual bool OnCheckReady(User* user)
+	virtual ModResult OnCheckReady(User* user)
 	{
 		char* pingrpl;
-		return (!user->GetExt(extenstr, pingrpl));
+		return user->GetExt(extenstr, pingrpl) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserDisconnect(User* user)

@@ -34,22 +34,22 @@ class ModuleQuietBan : public Module
 		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user) || target_type != TYPE_CHANNEL)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		Channel* chan = static_cast<Channel*>(dest);
-		if (chan->GetExtBanStatus(user, 'm') < 0 && chan->GetStatus(user) < STATUS_VOICE)
+		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetStatus(user) < STATUS_VOICE)
 		{
-			user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)",user->nick.c_str(), ((Channel *)dest)->name.c_str());
-			return 1;
+			user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)", user->nick.c_str(), chan->name.c_str());
+			return MOD_RES_DENY;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}

@@ -67,9 +67,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 		return;
 	}
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnStats,OnStats(statschar, user, results));
-	if (MOD_RESULT)
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(ServerInstance, OnStats, MOD_RESULT, (statschar, user, results));
+	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",

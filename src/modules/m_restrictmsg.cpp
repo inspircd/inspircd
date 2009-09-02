@@ -30,7 +30,7 @@ class ModuleRestrictMsg : public Module
 	}
 
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 		{
@@ -42,17 +42,17 @@ class ModuleRestrictMsg : public Module
 			// anything else, blocked.
 			if (IS_OPER(u) || IS_OPER(user))
 			{
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 			user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user",user->nick.c_str(),u->nick.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 
 		// however, we must allow channel messages...
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return this->OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}

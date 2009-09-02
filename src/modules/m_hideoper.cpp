@@ -70,21 +70,21 @@ class ModuleHideOper : public Module
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper
 		 */
 		if (numeric != 313)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (!dest->IsModeSet('H'))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (!user->HasPrivPermission("users/auspex"))
-			return 1;
+			return MOD_RES_DENY;
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

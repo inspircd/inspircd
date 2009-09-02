@@ -141,13 +141,13 @@ class ModuleCAP : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	virtual bool OnCheckReady(User* user)
+	virtual ModResult OnCheckReady(User* user)
 	{
 		/* Users in CAP state get held until CAP END */
 		if (user->GetExt("CAP_REGHOLD"))
-			return false;
+			return MOD_RES_DENY;
 
-		return true;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleCAP()

@@ -184,12 +184,12 @@ public:
 		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnChannelPreDelete(Channel *c)
+	virtual ModResult OnChannelPreDelete(Channel *c)
 	{
 		if (c->IsModeSet('P'))
-			return 1;
+			return MOD_RES_DENY;
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

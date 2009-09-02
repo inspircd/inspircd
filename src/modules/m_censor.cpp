@@ -64,10 +64,10 @@ class ModuleCensor : public Module
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		bool active = false;
 
@@ -79,12 +79,12 @@ class ModuleCensor : public Module
 			Channel* c = (Channel*)dest;
 			if (CHANOPS_EXEMPT(ServerInstance, 'G') && c->GetStatus(user) == STATUS_OP)
 			{
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 		}
 
 		if (!active)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		irc::string text2 = text.c_str();
 		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
@@ -94,17 +94,17 @@ class ModuleCensor : public Module
 				if (index->second.empty())
 				{
 					user->WriteNumeric(ERR_WORDFILTERED, "%s %s %s :Your message contained a censored word, and was blocked", user->nick.c_str(), ((Channel*)dest)->name.c_str(), index->first.c_str());
-					return 1;
+					return MOD_RES_DENY;
 				}
 
 				SearchAndReplace(text2, index->first, index->second);
 			}
 		}
 		text = text2.c_str();
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}

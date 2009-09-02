@@ -105,12 +105,12 @@ std::string ModeChannelVoice::AddVoice(User *user,const char* dest,Channel *chan
 	{
 		if (IS_LOCAL(user))
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_VOICE));
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user,d,chan,AC_VOICE));
 
-			if (MOD_RESULT == ACR_DENY)
+			if (MOD_RESULT == MOD_RES_DENY)
 				return "";
-			if (MOD_RESULT == ACR_DEFAULT)
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				if ((status < STATUS_HOP) && (!ServerInstance->ULine(user->server)))
 				{
@@ -133,12 +133,12 @@ std::string ModeChannelVoice::DelVoice(User *user,const char *dest,Channel *chan
 	{
 		if (IS_LOCAL(user))
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEVOICE));
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user,d,chan,AC_DEVOICE));
 
-			if (MOD_RESULT == ACR_DENY)
+			if (MOD_RESULT == MOD_RES_DENY)
 				return "";
-			if (MOD_RESULT == ACR_DEFAULT)
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				if ((status < STATUS_HOP) && (!ServerInstance->ULine(user->server)))
 				{

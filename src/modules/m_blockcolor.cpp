@@ -42,7 +42,7 @@ class ModuleBlockColour : public Module
 		ServerInstance->AddExtBanChar('c');
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
@@ -50,10 +50,10 @@ class ModuleBlockColour : public Module
 
 			if (CHANOPS_EXEMPT(ServerInstance, 'c') && c->GetStatus(user) == STATUS_OP)
 			{
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
-			if(c->IsModeSet('c') || c->GetExtBanStatus(user, 'c') < 0)
+			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet('c')))
 			{
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
@@ -66,16 +66,16 @@ class ModuleBlockColour : public Module
 						case 22:
 						case 31:
 							user->WriteNumeric(404, "%s %s :Can't send colours to channel (+c set)",user->nick.c_str(), c->name.c_str());
-							return 1;
+							return MOD_RES_DENY;
 						break;
 					}
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}

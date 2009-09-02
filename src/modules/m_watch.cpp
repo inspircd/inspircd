@@ -389,7 +389,7 @@ class Modulewatch : public Module
 			maxwatch = 32;
 	}
 
-	virtual int OnSetAway(User *user, const std::string &awaymsg)
+	virtual ModResult OnSetAway(User *user, const std::string &awaymsg)
 	{
 		std::string numeric;
 		int inum;
@@ -415,7 +415,7 @@ class Modulewatch : public Module
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)

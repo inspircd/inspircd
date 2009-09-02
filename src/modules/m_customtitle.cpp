@@ -101,7 +101,7 @@ class ModuleCustomTitle : public Module
 
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
 		if (numeric == 312)
@@ -114,7 +114,7 @@ class ModuleCustomTitle : public Module
 			}
 		}
 		/* Dont block anything */
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	// Whenever the linking module wants to send out data, but doesnt know what the data

@@ -23,13 +23,13 @@ class ModuleSpy : public Module
 		ServerInstance->Modules->Attach(I_OnUserList, this);
 	}
 
-	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
+	virtual ModResult OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
 	{
 		/* User has priv and is NOT on the channel */
 		if (user->HasPrivPermission("channels/auspex") && !Ptr->HasUser(user))
-			return -1;
+			return MOD_RES_ALLOW;
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	void Prioritize()

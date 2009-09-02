@@ -72,14 +72,14 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 	{
 		if(!forceset)
 		{
-			int MOD_RESULT = 0;
+			ModResult res;
 			/* 0: check status, 1: don't, -1: disallow change silently */
 
-			FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(u,this,ntopic));
+			FIRST_MOD_RESULT(ServerInstance, OnLocalTopicChange, res, (u,this,ntopic));
 
-			if (MOD_RESULT == 1)
+			if (res == MOD_RES_DENY)
 				return CMD_FAILURE;
-			else if (MOD_RESULT == 0)
+			if (res != MOD_RES_ALLOW)
 			{
 				if (!this->HasUser(u))
 				{
@@ -248,7 +248,6 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		return NULL;
 
 	char cname[MAXBUF];
-	int MOD_RESULT = 0;
 	std::string privs;
 	Channel *Ptr;
 
@@ -304,9 +303,9 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 
 		if (IS_LOCAL(user) && override == false)
 		{
-			MOD_RESULT = 0;
-			FOREACH_RESULT_I(Instance,I_OnUserPreJoin, OnUserPreJoin(user, NULL, cname, privs, key ? key : ""));
-			if (MOD_RESULT == 1)
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(Instance, OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key ? key : ""));
+			if (MOD_RESULT == MOD_RES_DENY)
 				return NULL;
 		}
 
@@ -324,13 +323,13 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		 */
 		if (IS_LOCAL(user) && override == false)
 		{
-			MOD_RESULT = 0;
-			FOREACH_RESULT_I(Instance,I_OnUserPreJoin, OnUserPreJoin(user, Ptr, cname, privs, key ? key : ""));
-			if (MOD_RESULT == 1)
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(Instance, OnUserPreJoin, MOD_RESULT, (user, Ptr, cname, privs, key ? key : ""));
+			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				return NULL;
 			}
-			else if (MOD_RESULT == 0)
+			else if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
 				bool invited = user->IsInvited(Ptr->name.c_str());
@@ -338,46 +337,33 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 
 				if (!ckey.empty())
 				{
-					MOD_RESULT = 0;
-					FOREACH_RESULT_I(Instance, I_OnCheckKey, OnCheckKey(user, Ptr, key ? key : ""));
-					if (!MOD_RESULT)
+					FIRST_MOD_RESULT(Instance, OnCheckKey, MOD_RESULT, (user, Ptr, key ? key : ""));
+					if (!MOD_RESULT.check((key && ckey == key) || can_bypass))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-						if ((!key || ckey != key) && !can_bypass)
-						{
-							user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
-							return NULL;
-						}
+						user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
+						return NULL;
 					}
 				}
 
 				if (Ptr->IsModeSet('i'))
 				{
-					MOD_RESULT = 0;
-					FOREACH_RESULT_I(Instance,I_OnCheckInvite,OnCheckInvite(user, Ptr));
-					if (!MOD_RESULT)
+					FIRST_MOD_RESULT(Instance, OnCheckInvite, MOD_RESULT, (user, Ptr));
+					if (!MOD_RESULT.check(invited))
 					{
-						if (!invited)
-						{
-							user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
-							return NULL;
-						}
+						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
+						return NULL;
 					}
 				}
 
 				std::string limit = Ptr->GetModeParameter('l');
 				if (!limit.empty())
 				{
-					MOD_RESULT = 0;
-					FOREACH_RESULT_I(Instance, I_OnCheckLimit, OnCheckLimit(user, Ptr));
-					if (!MOD_RESULT)
+					FIRST_MOD_RESULT(Instance, OnCheckLimit, MOD_RESULT, (user, Ptr));
+					if (!MOD_RESULT.check((Ptr->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
 					{
-						long llimit = atol(limit.c_str());
-						if (Ptr->GetUserCounter() >= llimit && !can_bypass)
-						{
-							user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
-							return NULL;
-						}
+						user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
+						return NULL;
 					}
 				}
 
@@ -474,15 +460,15 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 
 bool Channel::IsBanned(User* user)
 {
-	int result = 0;
-	DO_EACH_HOOK(ServerInstance, OnCheckBan, int modresult, (user, this))
+	ModResult result;
+	DO_EACH_HOOK(ServerInstance, OnCheckBan, ModResult modresult, (user, this))
 	{
-		result = banmatch_reduce(result, modresult);
+		result = result + modresult;
 	}
 	WHILE_EACH_HOOK(ServerInstance, OnCheckBan);
 
-	if (result)
-		return (result < 0);
+	if (result != MOD_RES_PASSTHRU)
+		return (result == MOD_RES_DENY);
 
 	char mask[MAXBUF];
 	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
@@ -498,16 +484,16 @@ bool Channel::IsBanned(User* user)
 	return false;
 }
 
-int Channel::GetExtBanStatus(const std::string &str, char type)
+ModResult Channel::GetExtBanStatus(const std::string &str, char type)
 {
-	int result = 0;
-	DO_EACH_HOOK(ServerInstance, OnCheckStringExtBan, int modresult, (str, this, type))
+	ModResult result;
+	DO_EACH_HOOK(ServerInstance, OnCheckStringExtBan, ModResult modresult, (str, this, type))
 	{
-		result = banmatch_reduce(result, modresult);
+		result = result + modresult;
 	}
 	WHILE_EACH_HOOK(ServerInstance, OnCheckStringExtBan);
 
-	if (result)
+	if (result != MOD_RES_PASSTHRU)
 		return result;
 
 	// nobody decided for us, check the ban list
@@ -520,32 +506,30 @@ int Channel::GetExtBanStatus(const std::string &str, char type)
 		ServerInstance->Logs->Log("EXTBANS", DEBUG, "Checking %s against %s, type is %c", str.c_str(), maskptr.c_str(), type);
 
 		if (InspIRCd::Match(str, maskptr, NULL))
-			return -1;
+			return MOD_RES_DENY;
 	}
 
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 
-int Channel::GetExtBanStatus(User *user, char type)
+ModResult Channel::GetExtBanStatus(User *user, char type)
 {
-	int result = 0;
-	DO_EACH_HOOK(ServerInstance, OnCheckExtBan, int modresult, (user, this, type))
+	ModResult rv;
+	DO_EACH_HOOK(ServerInstance, OnCheckExtBan, ModResult modresult, (user, this, type))
 	{
-		result = banmatch_reduce(result, modresult);
+		rv = rv + modresult;
 	}
 	WHILE_EACH_HOOK(ServerInstance, OnCheckExtBan);
 
-	if (result)
-		return result;
+	if (rv != MOD_RES_PASSTHRU)
+		return rv;
 
 	char mask[MAXBUF];
-	int rv = 0;
 	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 
-	// XXX: we should probably hook cloaked hosts in here somehow too..
-	rv = banmatch_reduce(rv, this->GetExtBanStatus(mask, type));
-	rv = banmatch_reduce(rv, this->GetExtBanStatus(user->GetFullHost(), type));
-	rv = banmatch_reduce(rv, this->GetExtBanStatus(user->GetFullRealHost(), type));
+	rv = rv + this->GetExtBanStatus(mask, type);
+	rv = rv + this->GetExtBanStatus(user->GetFullHost(), type);
+	rv = rv + this->GetExtBanStatus(user->GetFullRealHost(), type);
 	return rv;
 }
 
@@ -578,9 +562,9 @@ long Channel::PartUser(User *user, std::string &reason)
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
-			if (MOD_RESULT == 1)
+			ModResult res;
+			FIRST_MOD_RESULT(ServerInstance, OnChannelPreDelete, res, (this));
+			if (res == MOD_RES_DENY)
 				return 1; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
@@ -619,31 +603,26 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick.c_str(), this->name.c_str());
 			return this->GetUserCounter();
 		}
-		int MOD_RESULT = 0;
 
-		if (!ServerInstance->ULine(src->server))
-		{
-			MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,this,reason));
-			if (MOD_RESULT == 1)
-				return this->GetUserCounter();
-		}
-		/* Set to -1 by OnUserPreKick if explicit allow was set */
-		if (MOD_RESULT != -1)
-		{
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,this,AC_KICK));
-			if ((MOD_RESULT == ACR_DENY) && (!ServerInstance->ULine(src->server)))
-				return this->GetUserCounter();
+		ModResult res;
+		if (ServerInstance->ULine(src->server))
+			res = MOD_RES_ALLOW;
+		if (res == MOD_RES_PASSTHRU)
+			FIRST_MOD_RESULT(ServerInstance, OnUserPreKick, res, (src,user,this,reason));
+		if (res == MOD_RES_PASSTHRU)
+			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, res, (src,user,this,AC_KICK));
 
-			if ((MOD_RESULT == ACR_DEFAULT) || (!ServerInstance->ULine(src->server)))
+		if (res == MOD_RES_DENY)
+			return this->GetUserCounter();
+
+		if (res == MOD_RES_PASSTHRU)
+		{
+			int them = this->GetStatus(src);
+			int us = this->GetStatus(user);
+			if ((them < STATUS_HOP) || (them < us))
 			{
-				int them = this->GetStatus(src);
-				int us = this->GetStatus(user);
-   			 	if ((them < STATUS_HOP) || (them < us))
-				{
-					src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them == STATUS_HOP ? "" : "half-");
-					return this->GetUserCounter();
-				}
+				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them == STATUS_HOP ? "" : "half-");
+				return this->GetUserCounter();
 			}
 		}
 	}
@@ -669,9 +648,9 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
-			if (MOD_RESULT == 1)
+			ModResult res;
+			FIRST_MOD_RESULT(ServerInstance, OnChannelPreDelete, res, (this));
+			if (res == MOD_RES_DENY)
 				return 1; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
@@ -892,17 +871,14 @@ void Channel::UserList(User *user, CUList *ulist)
 {
 	char list[MAXBUF];
 	size_t dlen, curlen;
-	int MOD_RESULT = 0;
-	bool call_modules = true;
+	ModResult call_modules;
 
 	if (!IS_LOCAL(user))
 		return;
 
-	FOREACH_RESULT(I_OnUserList,OnUserList(user, this, ulist));
-	if (MOD_RESULT == 1)
-		call_modules = false;
+	FIRST_MOD_RESULT(ServerInstance, OnUserList, call_modules, (user, this, ulist));
 
-	if (MOD_RESULT != -1)
+	if (call_modules != MOD_RES_ALLOW)
 	{
 		if ((this->IsModeSet('s')) && (!this->HasUser(user)))
 		{
@@ -941,7 +917,7 @@ void Channel::UserList(User *user, CUList *ulist)
 		std::string prefixlist = this->GetPrefixChar(i->first);
 		std::string nick = i->first->nick;
 
-		if (call_modules)
+		if (call_modules != MOD_RES_DENY)
 		{
 			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prefixlist, nick));
 

@@ -27,12 +27,12 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-int ModuleSpanningTree::HandleAdmin(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleAdmin(const std::vector<std::string>& parameters, User* user)
 {
 	if (parameters.size() > 0)
 	{
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* Remote ADMIN, the server is within the 1st parameter */
 		parameterlist params;
@@ -46,8 +46,8 @@ int ModuleSpanningTree::HandleAdmin(const std::vector<std::string>& parameters, 
 		}
 		else
 			user->WriteNumeric(ERR_NOSUCHSERVER, "%s %s :No such server", user->nick.c_str(), parameters[0].c_str());
-		return 1;
+		return MOD_RES_DENY;
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 

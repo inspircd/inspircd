@@ -35,10 +35,10 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 		if (!user->HasPrivPermission("users/mass-message"))
 			return CMD_SUCCESS;
 
-		int MOD_RESULT = 0;
+		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, exempt_list));
-		if (MOD_RESULT)
+		FIRST_MOD_RESULT(ServerInstance, OnUserPreNotice, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, exempt_list));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 		const char* text = temp.c_str();
 		const char* servermask = (parameters[0].c_str()) + 1;
@@ -80,13 +80,13 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 					return CMD_FAILURE;
 				}
 			}
-			int MOD_RESULT = 0;
+			ModResult MOD_RESULT;
 
 			std::string temp = parameters[1];
-			FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,chan,TYPE_CHANNEL,temp,status, exempt_list));
-			if (MOD_RESULT) {
+			FIRST_MOD_RESULT(ServerInstance, OnUserPreNotice, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status, exempt_list));
+			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
-			}
+
 			const char* text = temp.c_str();
 
 			if (temp.empty())
@@ -157,10 +157,10 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			return CMD_FAILURE;
 		}
 
-		int MOD_RESULT = 0;
+		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,dest,TYPE_USER,temp,0,exempt_list));
-		if (MOD_RESULT) {
+		FIRST_MOD_RESULT(ServerInstance, OnUserPreNotice, MOD_RESULT, (user,dest,TYPE_USER,temp,0,exempt_list));
+		if (MOD_RESULT == MOD_RES_DENY) {
 			return CMD_FAILURE;
 		}
 		const char* text = temp.c_str();

@@ -48,7 +48,7 @@ class ModuleNamesX : public Module
 		output.append(" NAMESX");
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string c = command.c_str();
 		/* We don't actually create a proper command handler class for PROTOCTL,
@@ -61,10 +61,10 @@ class ModuleNamesX : public Module
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"NAMESX")))
 			{
 				user->Extend("NAMESX");
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)

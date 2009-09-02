@@ -33,11 +33,11 @@ class ModuleAbbreviation : public Module
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* Command is already validated, has a length of 0, or last character is not a . */
 		if (validated || command.empty() || *command.rbegin() != '.')
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* Whack the . off the end */
 		command.erase(command.end() - 1);
@@ -56,7 +56,7 @@ class ModuleAbbreviation : public Module
 				if (matchlist.length() > 450)
 				{
 					user->WriteNumeric(420, "%s :Ambiguous abbreviation and too many possible matches.", user->nick.c_str());
-					return true;
+					return MOD_RES_DENY;
 				}
 
 				if (!foundmatch)
@@ -74,7 +74,7 @@ class ModuleAbbreviation : public Module
 		if (!matchlist.empty())
 		{
 			user->WriteNumeric(420, "%s :Ambiguous abbreviation, posssible matches: %s%s", user->nick.c_str(), foundcommand.c_str(), matchlist.c_str());
-			return true;
+			return MOD_RES_DENY;
 		}
 
 		if (foundcommand.empty())
@@ -87,7 +87,7 @@ class ModuleAbbreviation : public Module
 			command = foundcommand;
 		}
 
-		return false;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

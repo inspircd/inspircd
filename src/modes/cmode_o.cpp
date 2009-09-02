@@ -105,12 +105,12 @@ std::string ModeChannelOp::AddOp(User *user,const char* dest,Channel *chan,int s
 	{
 		if (IS_LOCAL(user))
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_OP));
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user,d,chan,AC_OP));
 
-			if (MOD_RESULT == ACR_DENY)
+			if (MOD_RESULT == MOD_RES_DENY)
 				return "";
-			if (MOD_RESULT == ACR_DEFAULT)
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)))
 				{
@@ -133,12 +133,12 @@ std::string ModeChannelOp::DelOp(User *user,const char *dest,Channel *chan,int s
 	{
 		if (IS_LOCAL(user))
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEOP));
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user,d,chan,AC_DEOP));
 
-			if (MOD_RESULT == ACR_DENY)
+			if (MOD_RESULT == MOD_RES_DENY)
 				return "";
-			if (MOD_RESULT == ACR_DEFAULT)
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)) && (IS_LOCAL(user)))
 				{

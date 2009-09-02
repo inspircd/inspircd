@@ -307,7 +307,7 @@ class ModuleCloaking : public Module
 		}
 	}
 
-	virtual int OnCheckBan(User* user, Channel* chan)
+	virtual ModResult OnCheckBan(User* user, Channel* chan)
 	{
 		char mask[MAXBUF];
 		std::string* tofree;
@@ -318,10 +318,10 @@ class ModuleCloaking : public Module
 			for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 			{
 				if (InspIRCd::Match(mask,i->data))
-					return -1;
+					return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
  	void Prioritize()

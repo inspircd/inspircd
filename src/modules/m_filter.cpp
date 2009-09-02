@@ -123,21 +123,21 @@ protected:
  public:
 	FilterBase(InspIRCd* Me, const std::string &source);
 	virtual ~FilterBase();
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags) = 0;
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
 	virtual void SyncFilters(Module* proto, void* opaque) = 0;
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags) = 0;
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	virtual void OnRehash(User* user);
 	virtual Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
 	virtual void OnSyncNetwork(Module* proto, void* opaque);
 	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
-	virtual int OnStats(char symbol, User* user, string_list &results) = 0;
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
+	virtual ModResult OnStats(char symbol, User* user, string_list &results) = 0;
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void OnLoadModule(Module* mod, const std::string& name);
 	virtual void ReadFilters(ConfigReader &MyConf) = 0;
@@ -249,20 +249,20 @@ FilterBase::~FilterBase()
 	ServerInstance->Modules->DoneWithInterface("RegularExpression");
 }
 
-int FilterBase::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult FilterBase::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	if (!IS_LOCAL(user))
-		return 0;
+		return MOD_RES_PASSTHRU;
 
 	flags = FLAG_PRIVMSG;
 	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 }
 
-int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	/* Leave ulines alone */
 	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
-		return 0;
+		return MOD_RES_PASSTHRU;
 
 	if (!flags)
 		flags = FLAG_NOTICE;
@@ -281,7 +281,7 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 			Channel* t = (Channel*)dest;
 			target = std::string(t->name);
 			std::vector<std::string>::iterator i = find(exemptfromfilter.begin(), exemptfromfilter.end(), target);
-			if (i != exemptfromfilter.end()) return 0;
+			if (i != exemptfromfilter.end()) return MOD_RES_PASSTHRU;
 		}
 		if (f->action == "block")
 		{
@@ -314,12 +314,12 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		}
 
 		ServerInstance->Logs->Log("FILTER",DEFAULT,"FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + f->action);
-		return 1;
+		return MOD_RES_DENY;
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 
-int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+ModResult FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 {
 	flags = 0;
 	if (validated && IS_LOCAL(user))
@@ -332,7 +332,7 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 		{
 			/* QUIT with no reason: nothing to do */
 			if (parameters.size() < 1)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			checkline = parameters[0];
 			replacepoint = 0;
@@ -343,10 +343,10 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 		{
 			/* PART with no reason: nothing to do */
 			if (parameters.size() < 2)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			std::vector<std::string>::iterator i = find(exemptfromfilter.begin(), exemptfromfilter.end(), parameters[0]);
-			if (i != exemptfromfilter.end()) return 0;
+			if (i != exemptfromfilter.end()) return MOD_RES_PASSTHRU;
 			checkline = parameters[1];
 			replacepoint = 1;
 			parting = true;
@@ -354,7 +354,7 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 		}
 		else
 			/* We're only messing with PART and QUIT */
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		FilterResult* f = NULL;
 
@@ -363,7 +363,7 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 
 		if (!f)
 			/* PART or QUIT reason doesnt match a filter */
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* We cant block a part or quit, so instead we change the reason to 'Reason filtered' */
 		Command* c = ServerInstance->Parser->GetHandler(command);
@@ -380,7 +380,7 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 			if ((f->action == "block") || (((!parting) && (f->action == "kill"))) || (f->action == "silent"))
 			{
 				c->Handle(params, user);
-				return 1;
+				return MOD_RES_DENY;
 			}
 			else
 			{
@@ -401,12 +401,12 @@ int FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &par
 					else
 						delete gl;
 				}
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 
 void FilterBase::OnRehash(User* user)
@@ -671,7 +671,7 @@ class ModuleFilter : public FilterBase
 		}
 	}
 
-	virtual int OnStats(char symbol, User* user, string_list &results)
+	virtual ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 's')
 		{
@@ -685,7 +685,7 @@ class ModuleFilter : public FilterBase
 				results.push_back(sn+" 223 "+user->nick+" :EXEMPT "+(*i));
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

@@ -23,13 +23,13 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	int MOD_RESULT = 0;
+	ModResult MOD_RESULT;
 
 	if ((parameters.size()) && (!parameters[0].empty()))
 	{
-		FOREACH_RESULT(I_OnSetAway, OnSetAway(user, parameters[0]));
+		FIRST_MOD_RESULT(ServerInstance, OnSetAway, MOD_RESULT, (user, parameters[0]));
 
-		if (MOD_RESULT != 0 && IS_LOCAL(user))
+		if (MOD_RESULT == MOD_RES_DENY && IS_LOCAL(user))
 			return CMD_FAILURE;
 
 		user->awaytime = ServerInstance->Time();
@@ -39,9 +39,9 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 	}
 	else
 	{
-		FOREACH_RESULT(I_OnSetAway, OnSetAway(user, ""));
+		FIRST_MOD_RESULT(ServerInstance, OnSetAway, MOD_RESULT, (user, ""));
 
-		if (MOD_RESULT != 0 && IS_LOCAL(user))
+		if (MOD_RESULT == MOD_RES_DENY && IS_LOCAL(user))
 			return CMD_FAILURE;
 
 		user->awaymsg.clear();

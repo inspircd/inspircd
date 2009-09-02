@@ -115,9 +115,9 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 		return dest;
 	}
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnAddBan,OnAddBan(user,chan,dest));
-	if (MOD_RESULT)
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(ServerInstance, OnAddBan, MOD_RESULT, (user,chan,dest));
+	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		dest = "";
 		return dest;
@@ -149,7 +149,7 @@ ModePair ModeChannelBan::ModeSet(User*, User*, Channel* channel, const std::stri
 			return std::make_pair(true, i->data);
 		}
 	}
-        return std::make_pair(false, parameter);
+	return std::make_pair(false, parameter);
 }
 
 std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan, int)
@@ -168,9 +168,9 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 	{
 		if (!strcasecmp(i->data.c_str(), dest.c_str()))
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnDelBan,OnDelBan(user, chan, dest));
-			if (MOD_RESULT)
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnDelBan, MOD_RESULT, (user, chan, dest));
+			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				dest = "";
 				return dest;

@@ -23,7 +23,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  */
 CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	int MOD_RESULT = 0;
+	ModResult MOD_RESULT;
 
 	if (parameters.size() == 2 || parameters.size() == 3)
 	{
@@ -56,13 +56,13 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 	  		return CMD_FAILURE;
 		}
 
-		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c,timeout));
+		FIRST_MOD_RESULT(ServerInstance, OnUserPreInvite, MOD_RESULT, (user,u,c,timeout));
 
-		if (MOD_RESULT == 1)
+		if (MOD_RESULT == MOD_RES_DENY)
 		{
 			return CMD_FAILURE;
 		}
-		else if (MOD_RESULT == 0)
+		else if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
 			if (IS_LOCAL(user))
 			{

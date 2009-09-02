@@ -139,13 +139,13 @@ void Snomask::SendMessage(const std::string &message)
 		LastMessage = message;
 
 		std::string desc = this->Description;
-		int MOD_RESULT = 0;
+		ModResult MOD_RESULT;
 		char mysnomask = MySnomask;
 		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", desc.c_str(), message.c_str());
 
-		FOREACH_RESULT(I_OnSendSnotice, OnSendSnotice(mysnomask, desc, message));
+		FIRST_MOD_RESULT(ServerInstance, OnSendSnotice, MOD_RESULT, (mysnomask, desc, message));
 
-		LastBlocked = (MOD_RESULT == 1); // 1 blocks the message
+		LastBlocked = (MOD_RESULT == MOD_RES_DENY);
 
 		if (!LastBlocked)
 		{

@@ -156,7 +156,7 @@ class ModuleSSLInfo : public Module
 		return false;
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string pcmd = command.c_str();
 
@@ -204,7 +204,7 @@ class ModuleSSLInfo : public Module
 				if (SSLOnly && !user->GetExt("ssl"))
 				{
 					user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick.c_str());
-					return 1;
+					return MOD_RES_DENY;
 				}
 
 				/*
@@ -215,13 +215,13 @@ class ModuleSSLInfo : public Module
 					user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick.c_str());
 					ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick.c_str());
 					ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
 
 		// Let core handle it for extra stuff
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 

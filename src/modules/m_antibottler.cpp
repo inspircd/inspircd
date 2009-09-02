@@ -37,7 +37,7 @@ class ModuleAntiBottler : public Module
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		char data[MAXBUF];
 		strlcpy(data,original_line.c_str(),MAXBUF);
@@ -56,7 +56,7 @@ class ModuleAntiBottler : public Module
 			}
 			// Bug Fix (#14) -- FCS
 			if (!*data)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			strtok(data," ");
 			char *ident = strtok(NULL," ");
@@ -65,7 +65,7 @@ class ModuleAntiBottler : public Module
 			char *gecos = strtok(NULL,"\r\n");
 
 			if (!ident || !local || !remote || !gecos)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			for (char* j = remote; *j; j++)
 			{
@@ -84,10 +84,10 @@ class ModuleAntiBottler : public Module
 				modified.push_back(remote);
 				modified.push_back(strgecos);
 				ServerInstance->Parser->CallHandler("USER", modified, user);
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
  	}
 };
 

@@ -344,8 +344,8 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::str
 {
 	std::string copy_text = text;
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT_I(this, I_OnWhoisLine, OnWhoisLine(user, dest, numeric, copy_text));
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(this, OnWhoisLine, MOD_RESULT, (user, dest, numeric, copy_text));
 
 	if (!MOD_RESULT)
 		user->WriteServ("%d %s", numeric, copy_text.c_str());

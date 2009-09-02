@@ -28,12 +28,12 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-int ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, User* user)
 {
 	if (parameters.size() > 1)
 	{
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, parameters[1]))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* Remote STATS, the server is within the 2nd parameter */
 		parameterlist params;
@@ -51,12 +51,12 @@ int ModuleSpanningTree::HandleStats(const std::vector<std::string>& parameters, 
 		{
 			user->WriteServ( "402 %s %s :No such server", user->nick.c_str(), parameters[1].c_str());
 		}
-		return 1;
+		return MOD_RES_DENY;
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 
-int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results)
+ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results)
 {
 	if ((statschar == 'c') || (statschar == 'n'))
 	{
@@ -66,7 +66,7 @@ int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results
 			if (statschar == 'c')
 				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+Utils->LinkBlocks[i].Name.c_str());
 		}
-		return 1;
+		return MOD_RES_DENY;
 	}
 
 	if (statschar == 'p')
@@ -87,6 +87,6 @@ int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results
 				" (server, " + transport + ")");
 		}
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 

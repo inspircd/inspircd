@@ -381,7 +381,7 @@ class ModuleChanProtect : public Module
 		DeprivOthers = Conf.ReadFlag("chanprotect","deprotectothers", "yes", 0);
 	}
 
-	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set
@@ -389,10 +389,10 @@ class ModuleChanProtect : public Module
 		if (FirstInGetsFounder && !chan)
 			privs = std::string(1, QPrefix) + "@";
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		// here we perform access checks, this is the important bit that actually stops kicking/deopping
 		// etc of protected users. There are many types of access check, we're going to handle
@@ -406,14 +406,14 @@ class ModuleChanProtect : public Module
 		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
 		// without any access checks, we're not worthy :p
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
-			return ACR_ALLOW;
+			return MOD_RES_ALLOW;
 
 		std::string founder("cm_founder_"+channel->name);
 		std::string protect("cm_protect_"+channel->name);
 
 		// Can do anything to yourself if deprotectself is enabled.
 		if (DeprivSelf && source == dest)
-			return ACR_DEFAULT;
+			return MOD_RES_PASSTHRU;
 
 		bool candepriv_founder = (DeprivOthers && source->GetExt(founder));
 		bool candepriv_protected = (source->GetExt(founder) || (DeprivOthers && source->GetExt(protect))); // Can the source remove +a?
@@ -425,12 +425,12 @@ class ModuleChanProtect : public Module
 				if (dest->GetExt(founder) && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're a channel founder");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 				if ((dest->GetExt(protect)) && !candepriv_protected)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're protected (+a)");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 			break;
 
@@ -439,12 +439,12 @@ class ModuleChanProtect : public Module
 				if (dest->GetExt(founder) && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're a channel founder");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 				if ((dest->GetExt(protect)) && !candepriv_protected)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're protected (+a)");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 			break;
 
@@ -453,12 +453,12 @@ class ModuleChanProtect : public Module
 				if (dest->GetExt(founder) && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're a channel founder");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 				if ((dest->GetExt(protect)) && !candepriv_protected)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're protected (+a)");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 			break;
 
@@ -467,18 +467,18 @@ class ModuleChanProtect : public Module
 				if (dest->GetExt(founder) && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're a channel founder");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 				if ((dest->GetExt(protect)) && !candepriv_protected)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're protected (+a)");
-					return ACR_DENY;
+					return MOD_RES_DENY;
 				}
 			break;
 		}
 
 		// we dont know what this access check is, or dont care. just carry on, nothing to see here.
-		return ACR_DEFAULT;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleChanProtect()

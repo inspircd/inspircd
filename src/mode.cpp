@@ -350,13 +350,13 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	ModeHandler *mh = FindMode(modechar, type);
 	int pcnt = mh->GetNumParams(adding);
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnRawMode, OnRawMode(user, chan, modechar, parameter, adding, pcnt));
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(ServerInstance, OnRawMode, MOD_RESULT, (user, chan, modechar, parameter, adding, pcnt));
 
-	if (IS_LOCAL(user) && (MOD_RESULT == ACR_DENY))
+	if (IS_LOCAL(user) && (MOD_RESULT == MOD_RES_DENY))
 		return MODEACTION_DENY;
 
-	if (chan && !SkipACL && (MOD_RESULT != ACR_ALLOW))
+	if (chan && !SkipACL && (MOD_RESULT != MOD_RES_ALLOW))
 	{
 		char needed = mh->GetNeededPrefix();
 		ModeHandler* prefixmode = FindPrefix(needed);
@@ -489,12 +489,12 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 	{
 		/* Overall access control hook for mode change */
 		LastParse = mode_sequence;
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user, NULL, targetchannel, AC_GENERAL_MODE));
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user, NULL, targetchannel, AC_GENERAL_MODE));
 		LastParse.clear();
-		if (MOD_RESULT == ACR_DENY)
+		if (MOD_RESULT == MOD_RES_DENY)
 			return;
-		SkipAccessChecks = (MOD_RESULT == ACR_ALLOW);
+		SkipAccessChecks = (MOD_RESULT == MOD_RES_ALLOW);
 	}
 	else
 	{
@@ -636,9 +636,9 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 		if (!mh || !mh->IsListMode())
 			return;
 
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnRawMode, OnRawMode(user, chan, mletter, "", true, 0));
-		if (MOD_RESULT == ACR_DENY)
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(ServerInstance, OnRawMode, MOD_RESULT, (user, chan, mletter, "", true, 0));
+		if (MOD_RESULT == MOD_RES_DENY)
 			continue;
 
 		bool display = true;

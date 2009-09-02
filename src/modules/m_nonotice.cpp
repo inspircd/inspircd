@@ -40,31 +40,31 @@ class ModuleNoNotice : public Module
 		ServerInstance->AddExtBanChar('T');
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if (c->IsModeSet('T') || c->GetExtBanStatus(user, 'T') < 0)
+			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet('T')))
 			{
 				if (ServerInstance->ULine(user->server))
 				{
 					// ulines are exempt.
-					return 0;
+					return MOD_RES_PASSTHRU;
 				}
 				else if (CHANOPS_EXEMPT(ServerInstance, 'T') && c->GetStatus(user) == STATUS_OP)
 				{
 					// channel ops are exempt if set in conf.
-					return 0;
+					return MOD_RES_PASSTHRU;
 				}
 				else
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Can't send NOTICE to channel (+T set)",user->nick.c_str(), c->name.c_str());
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleNoNotice()

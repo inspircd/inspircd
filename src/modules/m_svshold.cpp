@@ -157,26 +157,26 @@ class ModuleSVSHold : public Module
 	}
 
 
-	virtual int OnStats(char symbol, User* user, string_list &out)
+	virtual ModResult OnStats(char symbol, User* user, string_list &out)
 	{
 		if(symbol != 'S')
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		ServerInstance->XLines->InvokeStats("SVSHOLD", 210, user, out);
-		return 1;
+		return MOD_RES_DENY;
 	}
 
-	virtual int OnUserPreNick(User *user, const std::string &newnick)
+	virtual ModResult OnUserPreNick(User *user, const std::string &newnick)
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("SVSHOLD", newnick);
 
 		if (rl)
 		{
 			user->WriteServ( "432 %s %s :Services reserved nickname: %s", user->nick.c_str(), newnick.c_str(), rl->reason.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleSVSHold()

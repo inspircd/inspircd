@@ -116,7 +116,7 @@ class ModuleOverride : public Module
 	}
 
 
-	virtual int OnLocalTopicChange(User *source, Channel *channel, const std::string &topic)
+	virtual ModResult OnLocalTopicChange(User *source, Channel *channel, const std::string &topic)
 	{
 		if (IS_OPER(source) && CanOverride(source, "TOPIC"))
 		{
@@ -126,13 +126,13 @@ class ModuleOverride : public Module
 			}
 
 			// Explicit allow
-			return -1;
+			return MOD_RES_ALLOW;
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason)
+	virtual ModResult OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason)
 	{
 		if (IS_OPER(source) && CanOverride(source,"KICK"))
 		{
@@ -141,18 +141,17 @@ class ModuleOverride : public Module
 			{
 				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to kick "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
-			/* Returning -1 explicitly allows the kick */
-			return -1;
+			return MOD_RES_ALLOW;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		if (!IS_OPER(source))
-			return ACR_DEFAULT;
+			return MOD_RES_PASSTHRU;
 		if (!source || !channel)
-			return ACR_DEFAULT;
+			return MOD_RES_PASSTHRU;
 
 		int mode = STATUS_NORMAL;
 		if (channel->HasUser(source))
@@ -221,15 +220,15 @@ class ModuleOverride : public Module
 		if (over_this)
 		{
 			OverriddenMode = true;
-			return ACR_ALLOW;
+			return MOD_RES_ALLOW;
 		}
 		else
 		{
-			return ACR_DEFAULT;
+			return MOD_RES_PASSTHRU;
 		}
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (IS_LOCAL(user) && IS_OPER(user))
 		{
@@ -244,14 +243,14 @@ class ModuleOverride : public Module
 						{
 							// Can't join normally -- must use a special key to bypass restrictions
 							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-							return 0;
+							return MOD_RES_PASSTHRU;
 						}
 
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname, user->nick.c_str());
 						ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +i on "+std::string(cname));
 					}
-					return -1;
+					return MOD_RES_ALLOW;
 				}
 
 				if ((chan->modes[CM_KEY]) && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter('k'))
@@ -260,13 +259,13 @@ class ModuleOverride : public Module
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
 						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return 0;
+						return MOD_RES_PASSTHRU;
 					}
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname, user->nick.c_str());
 					ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +k on "+std::string(cname));
-					return -1;
+					return MOD_RES_ALLOW;
 				}
 
 				if ((chan->modes[CM_LIMIT]) && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && (CanOverride(user,"LIMIT")))
@@ -275,13 +274,13 @@ class ModuleOverride : public Module
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
 						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return 0;
+						return MOD_RES_PASSTHRU;
 					}
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname, user->nick.c_str());
 					ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +l on "+std::string(cname));
-					return -1;
+					return MOD_RES_ALLOW;
 				}
 
 				if (chan->IsBanned(user) && CanOverride(user,"BANWALK"))
@@ -290,17 +289,17 @@ class ModuleOverride : public Module
 					{
 						// Can't join normally -- must use a special key to bypass restrictions
 						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return 0;
+						return MOD_RES_PASSTHRU;
 					}
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname, user->nick.c_str());
 					ServerInstance->SNO->WriteGlobalSno('G',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
-					return -1;
+					return MOD_RES_ALLOW;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual const char* OnRequest(Request* request)

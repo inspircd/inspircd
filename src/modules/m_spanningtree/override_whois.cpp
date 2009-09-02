@@ -27,7 +27,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-int ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parameters, User* user)
+ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parameters, User* user)
 {
 	if ((IS_LOCAL(user)) && (parameters.size() > 1))
 	{
@@ -37,15 +37,15 @@ int ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parame
 			parameterlist params;
 			params.push_back(remote->uuid);
 			Utils->DoOneToOne(user->uuid,"IDLE",params,remote->server);
-			return 1;
+			return MOD_RES_DENY;
 		}
 		else if (!remote)
 		{
 			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[1].c_str());
 			user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick.c_str(), parameters[1].c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 

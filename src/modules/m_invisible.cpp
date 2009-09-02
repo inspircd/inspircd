@@ -160,10 +160,10 @@ class ModuleInvisible : public Module
 	virtual void OnRehash(User* user);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
-	bool OnHostCycle(User* user);
+	ModResult OnHostCycle(User* user);
 	/* No privmsg response when hiding - submitted by Eric at neowin */
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	/* Fix by Eric @ neowin.net, thanks :) -- Brain */
 	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5);
 };
@@ -224,13 +224,13 @@ void ModuleInvisible::OnUserQuit(User* user, const std::string &reason, const st
 	}
 }
 
-bool ModuleInvisible::OnHostCycle(User* user)
+ModResult ModuleInvisible::OnHostCycle(User* user)
 {
-	return user->IsModeSet('Q');
+	return user->IsModeSet('Q') ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 }
 
 /* No privmsg response when hiding - submitted by Eric at neowin */
-int ModuleInvisible::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleInvisible::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 	{
@@ -238,13 +238,13 @@ int ModuleInvisible::OnUserPreNotice(User* user,void* dest,int target_type, std:
 		if(target->IsModeSet('Q') && !IS_OPER(user))
 		{
 			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target->nick.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 
-int ModuleInvisible::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleInvisible::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 }

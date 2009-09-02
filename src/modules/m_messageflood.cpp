@@ -205,11 +205,11 @@ class ModuleMsgFlood : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	int ProcessMessages(User* user,Channel* dest, const std::string &text)
+	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
 		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP))
 		{
-			return 0;
+			return MOD_RES_PASSTHRU;
 		}
 
 		floodsettings *f;
@@ -239,27 +239,27 @@ class ModuleMsgFlood : public Module
 					delete dest;
 				}
 
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnChannelDelete(Channel* chan)

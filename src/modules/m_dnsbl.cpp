@@ -305,7 +305,7 @@ class ModuleDNSBL : public Module
 		ReadConf();
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		/* only do lookups on local users */
 		if (IS_LOCAL(user))
@@ -320,7 +320,7 @@ class ModuleDNSBL : public Module
 			success = inet_aton(user->GetIPString(), &in);
 
 			if (!success)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			d = (unsigned char) (in.s_addr >> 24) & 0xFF;
 			c = (unsigned char) (in.s_addr >> 16) & 0xFF;
@@ -344,13 +344,13 @@ class ModuleDNSBL : public Module
 		}
 
 		/* don't do anything with this hot potato */
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnStats(char symbol, User* user, string_list &results)
+	virtual ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol != 'd')
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		unsigned long total_hits = 0, total_misses = 0;
 
@@ -366,7 +366,7 @@ class ModuleDNSBL : public Module
 		results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
 		results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 };
 

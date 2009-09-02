@@ -51,11 +51,11 @@ class ModuleRestrictChans : public Module
 	}
 
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		irc::string x = cname;
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
 		if (!chan)
@@ -64,10 +64,10 @@ class ModuleRestrictChans : public Module
 			if ((!IS_OPER(user)) && (allowchans.find(x) == allowchans.end()))
 			{
 				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Only IRC operators may create new channels",user->nick.c_str(),cname);
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleRestrictChans()

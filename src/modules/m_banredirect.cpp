@@ -262,13 +262,13 @@ class ModuleBanRedirect : public Module
 		ExceptionModule = ServerInstance->Modules->Find("m_banexception.so");
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		/* This prevents recursion when a user sets multiple ban redirects in a chain
 		 * (thanks Potter)
 		 */
 		if (nofollow)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* Return 1 to prevent the join, 0 to allow it */
 		if (chan)
@@ -288,7 +288,7 @@ class ModuleBanRedirect : public Module
 					ListModeRequest n(this, ExceptionModule, user, chan);
 					/* Users with ban exceptions are allowed to join without being redirected */
 					if (n.Send())
-						return 0;
+						return MOD_RES_PASSTHRU;
 				}
 
 				std::string ipmask(user->nick);
@@ -308,7 +308,7 @@ class ModuleBanRedirect : public Module
 						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
 						{
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
-							return 1;
+							return MOD_RES_ALLOW;
 						}
 						else
 						{
@@ -317,13 +317,13 @@ class ModuleBanRedirect : public Module
 							nofollow = true;
 							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
 							nofollow = false;
-							return 1;
+							return MOD_RES_ALLOW;
 						}
 					}
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleBanRedirect()

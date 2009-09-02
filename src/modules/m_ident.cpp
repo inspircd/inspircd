@@ -312,7 +312,7 @@ class ModuleIdent : public Module
 			RequestTimeout = 5;
 	}
 
-	virtual int OnUserRegister(User *user)
+	virtual ModResult OnUserRegister(User *user)
 	{
 		for (int j = 0; j < Conf->Enumerate("connect"); j++)
 		{
@@ -323,7 +323,7 @@ class ModuleIdent : public Module
 				bool useident = Conf->ReadFlag("connect", "useident", "yes", j);
 
 				if (!useident)
-					return 0;
+					return MOD_RES_PASSTHRU;
 			}
 		}
 
@@ -345,21 +345,21 @@ class ModuleIdent : public Module
 			ServerInstance->Logs->Log("m_ident",DEBUG,"Ident exception: %s", e.GetReason());
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	/* This triggers pretty regularly, we can use it in preference to
 	 * creating a Timer object and especially better than creating a
 	 * Timer per ident lookup!
 	 */
-	virtual bool OnCheckReady(User *user)
+	virtual ModResult OnCheckReady(User *user)
 	{
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = NULL;
 		if (!user->GetExt("ident_socket", isock))
 		{
 			ServerInstance->Logs->Log("m_ident",DEBUG, "No ident socket :(");
-			return true;
+			return MOD_RES_PASSTHRU;
 		}
 
 		ServerInstance->Logs->Log("m_ident",DEBUG, "Has ident_socket");
@@ -377,14 +377,14 @@ class ModuleIdent : public Module
 			 * we call this to clean up the user
 			 */
 			OnUserDisconnect(user);
-			return true;
+			return MOD_RES_PASSTHRU;
 		}
 
 		/* Got a result yet? */
 		if (!isock->HasResult())
 		{
 			ServerInstance->Logs->Log("m_ident",DEBUG, "No result yet");
-			return false;
+			return MOD_RES_DENY;
 		}
 
 		ServerInstance->Logs->Log("m_ident",DEBUG, "Yay, result!");
@@ -400,7 +400,7 @@ class ModuleIdent : public Module
 
 		/* The user isnt actually disconnecting, we call this to clean up the user */
 		OnUserDisconnect(user);
-		return true;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnCleanup(int target_type, void *item)

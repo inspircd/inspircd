@@ -79,24 +79,24 @@ class ModuleSSLModes : public Module
 	}
 
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
 			if(user->GetExt("ssl", dummy))
 			{
 				// Let them in
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 			else
 			{
 				// Deny
 				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname);
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleSSLModes()

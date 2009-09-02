@@ -331,7 +331,7 @@ class ModuleSilence : public Module
 		{
 			if (IS_LOCAL(i->first))
 			{
-				if (MatchPattern(i->first, sender, public_silence) == 1)
+				if (MatchPattern(i->first, sender, public_silence) == MOD_RES_ALLOW)
 				{
 					exempt_list[i->first] = i->first->nick;
 				}
@@ -339,7 +339,7 @@ class ModuleSilence : public Module
 		}
 	}
 
-	virtual int PreText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
+	virtual ModResult PreText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
 	{
 		if (target_type == TYPE_USER && IS_LOCAL(((User*)dest)))
 		{
@@ -353,29 +353,29 @@ class ModuleSilence : public Module
 				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list, "");
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_PRIVATE);
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
 	}
 
-	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout)
+	virtual ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout)
 	{
 		return MatchPattern(dest, source, SILENCE_INVITE);
 	}
 
-	int MatchPattern(User* dest, User* source, int pattern)
+	ModResult MatchPattern(User* dest, User* source, int pattern)
 	{
 		/* Server source */
 		if (!source || !dest)
-			return 1;
+			return MOD_RES_ALLOW;
 
 		silencelist* sl;
 		dest->GetExt("silence_list", sl);
@@ -384,10 +384,10 @@ class ModuleSilence : public Module
 			for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 			{
 				if (((((c->second & pattern) > 0)) || ((c->second & SILENCE_ALL) > 0)) && (InspIRCd::Match(source->GetFullHost(), c->first)))
-					return !(((c->second & SILENCE_EXCLUDE) > 0));
+					return (c->second & SILENCE_EXCLUDE) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleSilence()

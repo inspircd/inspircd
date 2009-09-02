@@ -69,12 +69,12 @@ class ModuleNoCTCP : public Module
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
@@ -82,22 +82,22 @@ class ModuleNoCTCP : public Module
 
 			if (CHANOPS_EXEMPT(ServerInstance, 'C') && c->GetStatus(user) == STATUS_OP)
 			{
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
-			if (c->IsModeSet('C') || c->GetExtBanStatus(user, 'C') < 0)
+			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet('C')))
 			{
 				if ((text.length()) && (text[0] == '\1'))
 				{
 					if (strncmp(text.c_str(),"\1ACTION ",8))
 					{
 						user->WriteNumeric(ERR_NOCTCPALLOWED, "%s %s :Can't send CTCP to channel (+C set)",user->nick.c_str(), c->name.c_str());
-						return 1;
+						return MOD_RES_DENY;
 					}
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void On005Numeric(std::string &output)

@@ -137,7 +137,7 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		std::multimap<std::string, Alias>::iterator i, upperbound;
 
@@ -145,12 +145,12 @@ class ModuleAlias : public Module
 		 * to know.
 		 */
 		if (user->registered != REG_ALL)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */
 		i = Aliases.find(command);
 		if (i == Aliases.end())
-			return 0;
+			return MOD_RES_PASSTHRU;
 		/* Avoid iterating on to different aliases if no patterns match. */
 		upperbound = Aliases.upper_bound(command);
 
@@ -166,7 +166,7 @@ class ModuleAlias : public Module
 			{
 				if (DoAlias(user, NULL, &(i->second), compare, original_line))
 				{
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 
@@ -174,7 +174,7 @@ class ModuleAlias : public Module
 		}
 
 		// If we made it here, no aliases actually matched.
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
@@ -243,8 +243,6 @@ class ModuleAlias : public Module
 
 			i++;
 		}
-
-		return;
 	}
 
 

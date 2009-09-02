@@ -87,35 +87,35 @@ class ModuleSpanningTree : public Module
 
 	/** Handle remote MOTD
 	 */
-	int HandleMotd(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleMotd(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote ADMIN
 	 */
-	int HandleAdmin(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleAdmin(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote STATS
 	 */
-	int HandleStats(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleStats(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle MAP command
 	 */
-	int HandleMap(const std::vector<std::string>& parameters, User* user);
+	bool HandleMap(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle SQUIT
 	 */
-	int HandleSquit(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleSquit(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle TIME
 	 */
-	int HandleTime(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleTime(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote WHOIS
 	 */
-	int HandleRemoteWhois(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleRemoteWhois(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote MODULES
 	 */
-	int HandleModules(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleModules(const std::vector<std::string>& parameters, User* user);
 
 	/** Ping all local servers
 	 */
@@ -135,11 +135,11 @@ class ModuleSpanningTree : public Module
 
 	/** Handle remote VERSON
 	 */
-	int HandleVersion(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleVersion(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle CONNECT
 	 */
-	int HandleConnect(const std::vector<std::string>& parameters, User* user);
+	ModResult HandleConnect(const std::vector<std::string>& parameters, User* user);
 
 	/** Attempt to send a message to a user
 	 */
@@ -157,7 +157,7 @@ class ModuleSpanningTree : public Module
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
 	virtual void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line);
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
 	virtual void OnUserConnect(User* source);
@@ -168,7 +168,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 	virtual void OnBackgroundTimer(time_t curtime);
 	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
-	virtual int OnChangeLocalUserHost(User* user, const std::string &newhost);
+	virtual ModResult OnChangeLocalUserHost(User* user, const std::string &newhost);
 	virtual void OnChangeName(User* user, const std::string &gecos);
 	virtual void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
@@ -182,8 +182,8 @@ class ModuleSpanningTree : public Module
 	virtual void OnAddLine(User *u, XLine *x);
 	virtual void OnDelLine(User *u, XLine *x);
 	virtual void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate);
-	virtual int OnStats(char statschar, User* user, string_list &results);
-	virtual int OnSetAway(User* user, const std::string &awaymsg);
+	virtual ModResult OnStats(char statschar, User* user, string_list &results);
+	virtual ModResult OnSetAway(User* user, const std::string &awaymsg);
 	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
 	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
 	virtual std::string ProtoTranslate(Extensible* item);

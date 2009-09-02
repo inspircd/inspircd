@@ -151,12 +151,12 @@ class ModuleOperPrefixMode : public Module
 	}
 
 	// XXX: is there a better way to do this?
-	virtual int OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		/* force event propagation to its ModeHandler */
 		if (!IS_FAKE(user) && chan && (mode == 'y'))
-			return ACR_ALLOW;
-		return 0;
+			return MOD_RES_ALLOW;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnOper(User *user, const std::string&)

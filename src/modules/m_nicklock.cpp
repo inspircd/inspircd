@@ -168,23 +168,23 @@ class ModuleNickLock : public Module
 	}
 
 
-	virtual int OnUserPreNick(User* user, const std::string &newnick)
+	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (isdigit(newnick[0])) /* Allow a switch to a UID */
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (user->GetExt("NICKForced")) /* Allow forced nick changes */
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (user->GetExt("nick_locked"))
 		{
 			user->WriteNumeric(447, "%s :You cannot change your nickname (your nick is locked)",user->nick.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)

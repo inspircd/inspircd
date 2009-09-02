@@ -282,21 +282,21 @@ class ModuleDCCAllow : public Module
 	}
 
 
-	virtual int OnUserPreNick(User* user, const std::string &newnick)
+	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
 		RemoveNick(user);
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 	}
 
-	virtual int OnUserPreNotice(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (target_type == TYPE_USER)
 		{
@@ -304,7 +304,7 @@ class ModuleDCCAllow : public Module
 
 			/* Always allow a user to dcc themselves (although... why?) */
 			if (user == u)
-				return 0;
+				return MOD_RES_PASSTHRU;
 
 			if ((text.length()) && (text[0] == '\1'))
 			{
@@ -319,7 +319,7 @@ class ModuleDCCAllow : public Module
 					{
 						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
 							if (InspIRCd::Match(user->GetFullHost(), iter->hostmask))
-								return 0;
+								return MOD_RES_PASSTHRU;
 					}
 
 					// tokenize
@@ -346,7 +346,7 @@ class ModuleDCCAllow : public Module
 							{
 								/* We have a matching badfile entry, override whatever the default action is */
 								if (bfl[i].action == "allow")
-									return 0;
+									return MOD_RES_PASSTHRU;
 								else
 								{
 									found = true;
@@ -357,24 +357,24 @@ class ModuleDCCAllow : public Module
 
 						/* only follow the default action if no badfile matches were found above */
 						if ((!found) && (defaultaction == "allow"))
-							return 0;
+							return MOD_RES_PASSTHRU;
 
 						user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick.c_str(), u->nick.c_str(), filename.c_str());
 						u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), filename.c_str());
 						u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick.c_str(), user->nick.c_str());
-						return 1;
+						return MOD_RES_DENY;
 					}
 					else if ((type == "CHAT") && (blockchat))
 					{
 						user->WriteServ("NOTICE %s :The user %s is not accepting DCC CHAT requests from you.", user->nick.c_str(), u->nick.c_str());
 						u->WriteServ("NOTICE %s :%s (%s@%s) attempted to initiate a DCC CHAT session, which was blocked.", u->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str());
 						u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick.c_str(), user->nick.c_str());
-						return 1;
+						return MOD_RES_DENY;
 					}
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	void Expire()

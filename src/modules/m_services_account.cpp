@@ -156,10 +156,10 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		std::string *account;
 		bool is_registered = user->GetExt("accountname", account);
@@ -168,7 +168,7 @@ class ModuleServicesAccount : public Module
 		if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 		{
 			// user is ulined, can speak regardless
-			return 0;
+			return MOD_RES_PASSTHRU;
 		}
 
 		if (target_type == TYPE_CHANNEL)
@@ -179,16 +179,16 @@ class ModuleServicesAccount : public Module
 			{
 				// user messaging a +M channel and is not registered
 				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
-				return 1;
+				return MOD_RES_DENY;
 			}
 
 			if (account)
 			{
-				if (c->GetExtBanStatus(*account, 'M') < 0)
+				if (c->GetExtBanStatus(*account, 'M') == MOD_RES_DENY)
 				{
 					// may not speak (text is deliberately vague, so they don't know which restriction to evade)
 					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You may not speak in this channel");
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
@@ -200,29 +200,29 @@ class ModuleServicesAccount : public Module
 			{
 				// user messaging a +R user and is not registered
 				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnCheckBan(User* user, Channel* chan)
+	virtual ModResult OnCheckBan(User* user, Channel* chan)
 	{
 		std::string* account;
 		if (!user->GetExt("accountname", account))
-			return 0;
+			return MOD_RES_PASSTHRU;
 		return chan->GetExtBanStatus(*account, 'R');
 	}
 
-	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (!IS_LOCAL(user))
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		std::string *account;
 		bool is_registered = user->GetExt("accountname", account);
@@ -233,7 +233,7 @@ class ModuleServicesAccount : public Module
 			if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 			{
 				// user is ulined, won't be stopped from joining
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
 			if (chan->IsModeSet('R'))
@@ -242,11 +242,11 @@ class ModuleServicesAccount : public Module
 				{
 					// joining a +R channel and not identified
 					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
-					return 1;
+					return MOD_RES_DENY;
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	// Whenever the linking module wants to send out data, but doesnt know what the data

@@ -70,9 +70,9 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 * the nick AAA is the same as the nick aaa.
 		 */
 		oldnick.assign(user->nick, 0, IS_LOCAL(user) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
-		if (MOD_RESULT)
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, MOD_RESULT, (user,parameters[0]));
+		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 		if (user->registered == REG_ALL)
 			user->WriteCommon("NICK %s",parameters[0].c_str());
@@ -151,9 +151,9 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	}
 
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user, parameters[0]));
-	if (MOD_RESULT)
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, MOD_RESULT, (user, parameters[0]));
+	if (MOD_RESULT == MOD_RES_DENY)
 		// if a module returns true, the nick change is silently forbidden.
 		return CMD_FAILURE;
 
@@ -187,9 +187,8 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		if (user->registered == REG_NICKUSER)
 		{
 			/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-			MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnUserRegister,OnUserRegister(user));
-			if (MOD_RESULT > 0)
+			FIRST_MOD_RESULT(ServerInstance, OnUserRegister, MOD_RESULT, (user));
+			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
 			// return early to not penalize new users

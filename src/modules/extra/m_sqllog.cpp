@@ -269,19 +269,19 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
 	}
 
-	virtual int OnKill(User* source, User* dest, const std::string &reason)
+	virtual ModResult OnKill(User* source, User* dest, const std::string &reason)
 	{
 		AddLogEntry(LT_KILL,dest->nick,dest->host,source->nick);
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		if ((command == "GLINE" || command == "KLINE" || command == "ELINE" || command == "ZLINE") && validated)
 		{
 			AddLogEntry(LT_XLINE,user->nick,command[0]+std::string(":")+parameters[0],user->server);
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserConnect(User* user)

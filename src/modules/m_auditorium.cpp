@@ -159,13 +159,13 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	bool OnHostCycle(User* user)
+	ModResult OnHostCycle(User* user)
 	{
 		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
 			if (f->first->IsModeSet('u'))
-				return true;
+				return MOD_RES_DENY;
 
-		return false;
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)

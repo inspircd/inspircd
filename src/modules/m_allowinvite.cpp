@@ -39,24 +39,25 @@ class ModuleAllowInvite : public Module
 		ServerInstance->AddExtBanChar('A');
 	}
 
-	virtual int OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
+	virtual ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
 	{
 		if (IS_LOCAL(user))
 		{
-			if (channel->GetExtBanStatus(user, 'A') == -1)
+			ModResult res = channel->GetExtBanStatus(user, 'A');
+			if (res == MOD_RES_DENY)
 			{
 				// Matching extban, explicitly deny /invite
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You are banned from using INVITE", user->nick.c_str(), channel->name.c_str());
-				return 1;
+				return res;
 			}
-			if (channel->IsModeSet('A') || channel->GetExtBanStatus(user, 'A') == 1)
+			if (channel->IsModeSet('A') || res == MOD_RES_ALLOW)
 			{
 				// Explicitly allow /invite
-				return -1;
+				return MOD_RES_ALLOW;
 			}
 		}
 
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleAllowInvite()

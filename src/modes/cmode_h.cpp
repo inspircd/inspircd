@@ -107,12 +107,12 @@ std::string ModeChannelHalfOp::AddHalfOp(User *user,const char* dest,Channel *ch
 	{
 		if (IS_LOCAL(user))
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_HALFOP));
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user,d,chan,AC_HALFOP));
 
-			if (MOD_RESULT == ACR_DENY)
+			if (MOD_RESULT == MOD_RES_DENY)
 				return "";
-			if (MOD_RESULT == ACR_DEFAULT)
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)))
 				{
@@ -135,12 +135,12 @@ std::string ModeChannelHalfOp::DelHalfOp(User *user,const char *dest,Channel *ch
 	{
 		if (IS_LOCAL(user))
 		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEHALFOP));
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user,d,chan,AC_DEHALFOP));
 
-			if (MOD_RESULT == ACR_DENY)
+			if (MOD_RESULT == MOD_RES_DENY)
 				return "";
-			if (MOD_RESULT == ACR_DEFAULT)
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				if ((user != d) && ((status < STATUS_OP) && (!ServerInstance->ULine(user->server))))
 				{

@@ -54,18 +54,18 @@ class ModuleSecureList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */
-	virtual int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!IS_OPER(user)))
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
 				if (InspIRCd::Match(user->MakeHost(), *x, ascii_case_insensitive_map))
-					return 0;
+					return MOD_RES_PASSTHRU;
 
 			/* Not exempt, BOOK EM DANNO! */
 			user->WriteServ("NOTICE %s :*** You cannot list within the first %lu seconds of connecting. Please try again later.",user->nick.c_str(), (unsigned long) WaitTime);
@@ -74,9 +74,9 @@ class ModuleSecureList : public Module
 			 */
 			user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 			user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void On005Numeric(std::string &output)

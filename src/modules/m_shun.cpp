@@ -198,13 +198,13 @@ class ModuleShun : public Module
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	virtual int OnStats(char symbol, User* user, string_list& out)
+	virtual ModResult OnStats(char symbol, User* user, string_list& out)
 	{
 		if (symbol != 'S')
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		ServerInstance->XLines->InvokeStats("SHUN", 223, user, out);
-		return 1;
+		return MOD_RES_DENY;
 	}
 
 	virtual void OnRehash(User* user)
@@ -246,21 +246,21 @@ class ModuleShun : public Module
 		}
 	}
 
-	virtual int OnPreCommand(std::string &command, std::vector<std::string>& parameters, User* user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, User* user, bool validated, const std::string &original_line)
 	{
 		if (validated)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		if (!ServerInstance->XLines->MatchesLine("SHUN", user))
 		{
 			/* Not shunned, don't touch. */
-			return 0;
+			return MOD_RES_PASSTHRU;
 		}
 
 		if (!affectopers && IS_OPER(user))
 		{
 			/* Don't do anything if the user is an operator and affectopers isn't set */
-			return 0;
+			return MOD_RES_PASSTHRU;
 		}
 
 		std::set<std::string>::iterator i = ShunEnabledCommands.find(command);
@@ -269,7 +269,7 @@ class ModuleShun : public Module
 		{
 			if (NotifyOfShun)
 				user->WriteServ("NOTICE %s :*** Command %s not processed, as you have been blocked from issuing commands (SHUN)", user->nick.c_str(), command.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 
 		if (command == "QUIT")
@@ -284,7 +284,7 @@ class ModuleShun : public Module
 		}
 
 		/* if we're here, allow the command. */
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual Version GetVersion()

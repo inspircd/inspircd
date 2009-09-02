@@ -134,7 +134,7 @@ class ModuleOperHash : public Module
 		}
 	}
 
-	virtual int OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
+	virtual ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 	{
 		/* First, lets see what hash theyre using on this oper */
 		hashymodules::iterator x = hashers.find(hashtype.c_str());
@@ -146,13 +146,14 @@ class ModuleOperHash : public Module
 			HashResetRequest(this, x->second).Send();
 			/* Compare the hash in the config to the generated hash */
 			if (!strcasecmp(data.c_str(), HashSumRequest(this, x->second, input.c_str()).Send()))
-				return 1;
+				return MOD_RES_ALLOW;
 			/* No match, and must be hashed, forbid */
-			else return -1;
+			else
+				return MOD_RES_DENY;
 		}
 
 		/* Not a hash, fall through to strcmp in core */
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual Version GetVersion()

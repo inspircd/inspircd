@@ -61,12 +61,12 @@ public:
 		first = ServerInstance->Time();
 	}
 
-	virtual int OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(User* user)
 	{
 		time_t next = ServerInstance->Time();
 
 		if ((ServerInstance->startup_time + boot_wait) > next)
-			return 0;
+			return MOD_RES_PASSTHRU;
 
 		/* time difference between first and latest connection */
 		time_t tdiff = next - first;
@@ -81,11 +81,11 @@ public:
 				/* expire throttle */
 				throttled = 0;
 				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle deactivated");
-				return 0;
+				return MOD_RES_PASSTHRU;
 			}
 
 			ServerInstance->Users->QuitUser(user, quitmsg);
-			return 1;
+			return MOD_RES_DENY;
 		}
 
 		if (tdiff <= seconds)
@@ -95,7 +95,7 @@ public:
 				throttled = 1;
 				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle activated");
 				ServerInstance->Users->QuitUser(user, quitmsg);
-				return 1;
+				return MOD_RES_DENY;
 			}
 		}
 		else
@@ -103,7 +103,7 @@ public:
 			conns = 1;
 			first = next;
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnRehash(User* user)

@@ -33,15 +33,15 @@ class ModuleMapHide : public Module
 		url = MyConf.ReadValue("security", "maphide", 0);
 	}
 
-	int OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		if (!IS_OPER(user) && !url.empty() && (command == "MAP" || command == "LINKS"))
 		{
 			user->WriteServ("NOTICE %s :/%s has been disabled; visit %s", user->nick.c_str(), command.c_str(), url.c_str());
-			return 1;
+			return MOD_RES_DENY;
 		}
 		else
-			return 0;
+			return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleMapHide()

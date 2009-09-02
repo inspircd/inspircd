@@ -107,7 +107,7 @@ std::string Event::GetEventID()
 Module::Module(InspIRCd* Me) : ServerInstance(Me) { }
 Module::~Module() { }
 
-int		Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return 0; }
+ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(User*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }
@@ -117,48 +117,48 @@ void		Module::OnUserPart(User*, Channel*, std::string&, bool&) { }
 void		Module::OnPreRehash(User*, const std::string&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
-int		Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return 0; }
+ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, void*, int, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
 Version		Module::GetVersion() { return Version("Misconfigured", VF_VENDOR, -1); }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }
 void		Module::OnWhois(User*, User*) { }
-int		Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return 0; }
-int		Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&) { return 0; }
-int		Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return 0; }
-int		Module::OnUserPreNick(User*, const std::string&) { return 0; }
+ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { }
-int		Module::OnAccessCheck(User*, User*, Channel*, int) { return ACR_DEFAULT; }
+ModResult	Module::OnAccessCheck(User*, User*, Channel*, int) { return MOD_RES_PASSTHRU; }
 void		Module::On005Numeric(std::string&) { }
-int		Module::OnKill(User*, User*, const std::string&) { return 0; }
+ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnLoadModule(Module*, const std::string&) { }
 void		Module::OnUnloadModule(Module*, const std::string&) { }
 void		Module::OnBackgroundTimer(time_t) { }
-int		Module::OnPreCommand(std::string&, std::vector<std::string>&, User *, bool, const std::string&) { return 0; }
+ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, User *, bool, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, User *, CmdResult, const std::string&) { }
-bool		Module::OnCheckReady(User*) { return true; }
-int		Module::OnUserRegister(User*) { return 0; }
-int		Module::OnUserPreKick(User*, User*, Channel*, const std::string&) { return 0; }
+ModResult	Module::OnCheckReady(User*) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserRegister(User*) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreKick(User*, User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserKick(User*, User*, Channel*, const std::string&, bool&) { }
-int		Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return 0; }
-int		Module::OnCheckInvite(User*, Channel*) { return 0; }
-int		Module::OnCheckKey(User*, Channel*, const std::string&) { return 0; }
-int		Module::OnCheckLimit(User*, Channel*) { return 0; }
-int		Module::OnCheckBan(User*, Channel*) { return 0; }
-int		Module::OnCheckExtBan(User *, Channel *, char) { return 0; }
-int		Module::OnCheckStringExtBan(const std::string &s, Channel *c, char type) { return 0; }
-int		Module::OnStats(char, User*, string_list&) { return 0; }
-int		Module::OnChangeLocalUserHost(User*, const std::string&) { return 0; }
-int		Module::OnChangeLocalUserGECOS(User*, const std::string&) { return 0; }
-int		Module::OnLocalTopicChange(User*, Channel*, const std::string&) { return 0; }
+ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckBan(User*, Channel*) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckExtBan(User *, Channel *, char) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckStringExtBan(const std::string &s, Channel *c, char type) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnChangeLocalUserHost(User*, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnChangeLocalUserGECOS(User*, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnLocalTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnEvent(Event*) { return; }
 const char*		Module::OnRequest(Request*) { return NULL; }
-int		Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return 0; }
+ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
 void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
-int		Module::OnAddBan(User*, Channel*, const std::string &) { return 0; }
-int		Module::OnDelBan(User*, Channel*, const std::string &) { return 0; }
+ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnDelBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
 void		Module::OnRawSocketAccept(int, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
 int		Module::OnRawSocketWrite(int, const char*, int) { return 0; }
 void		Module::OnRawSocketClose(int) { }
@@ -184,20 +184,20 @@ void		Module::OnAddLine(User*, XLine*) { }
 void		Module::OnDelLine(User*, XLine*) { }
 void		Module::OnExpireLine(XLine*) { }
 void 		Module::OnCleanup(int, void*) { }
-int		Module::OnChannelPreDelete(Channel*) { return 0; }
+ModResult	Module::OnChannelPreDelete(Channel*) { return MOD_RES_PASSTHRU; }
 void		Module::OnChannelDelete(Channel*) { }
-int		Module::OnSetAway(User*, const std::string &) { return 0; }
-int		Module::OnUserList(User*, Channel*, CUList*&) { return 0; }
-int		Module::OnWhoisLine(User*, User*, int&, std::string&) { return 0; }
+ModResult	Module::OnSetAway(User*, const std::string &) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserList(User*, Channel*, CUList*&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnBuildExemptList(MessageType, Channel*, User*, char, CUList&, const std::string&) { }
 void		Module::OnGarbageCollect() { }
 void		Module::OnBufferFlushed(User*) { }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, User*, Channel*, std::string&, std::string&) { }
-int		Module::OnNumeric(User*, unsigned int, const std::string&) { return 0; }
+ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnHookIO(EventHandler*, ListenSocketBase*) { }
-bool		Module::OnHostCycle(User* user) { return false; }
+ModResult	Module::OnHostCycle(User*) { return MOD_RES_PASSTHRU; }
 
 ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
 {

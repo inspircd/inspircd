@@ -27,11 +27,11 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-int ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line)
+ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line)
 {
 	/* If the command doesnt appear to be valid, we dont want to mess with it. */
 	if (!validated)
-		return 0;
+		return MOD_RES_PASSTHRU;
 
 	if (command == "CONNECT")
 	{
@@ -55,7 +55,7 @@ int ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::stri
 	}
 	else if (command == "MAP")
 	{
-		return this->HandleMap(parameters,user);
+		return this->HandleMap(parameters,user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 	else if ((command == "TIME") && (parameters.size() > 0))
 	{
@@ -64,12 +64,12 @@ int ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::stri
 	else if (command == "LUSERS")
 	{
 		this->HandleLusers(parameters,user);
-		return 1;
+		return MOD_RES_DENY;
 	}
 	else if (command == "LINKS")
 	{
 		this->HandleLinks(parameters,user);
-		return 1;
+		return MOD_RES_DENY;
 	}
 	else if (command == "WHOIS")
 	{
@@ -82,12 +82,12 @@ int ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::stri
 	else if ((command == "VERSION") && (parameters.size() > 0))
 	{
 		this->HandleVersion(parameters,user);
-		return 1;
+		return MOD_RES_DENY;
 	}
 	else if ((command == "MODULES") && (parameters.size() > 0))
 	{
 		return this->HandleModules(parameters,user);
 	}
-	return 0;
+	return MOD_RES_PASSTHRU;
 }
 

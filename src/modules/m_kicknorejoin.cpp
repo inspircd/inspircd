@@ -119,7 +119,7 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{
@@ -135,7 +135,7 @@ public:
 						if (iter->first == user)
 						{
 							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)", user->nick.c_str(), chan->name.c_str(), chan->GetModeParameter('J').c_str());
-							return 1;
+							return MOD_RES_DENY;
 						}
 					}
 					else
@@ -156,7 +156,7 @@ public:
 				}
 			}
 		}
-		return 0;
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
