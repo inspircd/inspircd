@@ -21,7 +21,7 @@ class CommandCheck : public Command
 {
 	Module* Parent;
  public:
-	bool md_sent;
+	std::set<std::string> meta_seen;
 	CommandCheck (InspIRCd* Instance, Module* parent) : Command(Instance,"CHECK", "o", 1), Parent(parent)
 	{
 		this->source = "m_check.so";
@@ -34,6 +34,21 @@ class CommandCheck : public Command
 		struct tm *mytime = gmtime(&time);
 		strftime(timebuf, 59, "%Y-%m-%d %H:%M:%S UTC (%s)", mytime);
 		return std::string(timebuf);
+	}
+
+	void dumpExtra(User* user, std::string checkstr, Extensible* ext)
+	{
+		std::deque<std::string> extlist;
+		ext->GetExtList(extlist);
+		std::stringstream dumpkeys;
+		for(std::deque<std::string>::iterator i = extlist.begin(); i != extlist.end(); i++)
+		{
+			if (meta_seen.find(*i) == meta_seen.end())
+				dumpkeys << " " << *i;
+		}
+		meta_seen.clear();
+		if (!dumpkeys.str().empty())
+			ServerInstance->DumpText(user,checkstr + " metadata ", dumpkeys);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -100,6 +115,7 @@ class CommandCheck : public Command
 			ServerInstance->DumpText(user,checkstr + " onchans ", dump);
 
 			FOREACH_MOD_I(ServerInstance,I_OnSyncUser,OnSyncUser(targuser,Parent,(void*)user));
+			dumpExtra(user, checkstr, targuser);
 		}
 		else if (targchan)
 		{
@@ -133,6 +149,7 @@ class CommandCheck : public Command
 			}
 
 			FOREACH_MOD_I(ServerInstance,I_OnSyncChannel,OnSyncChannel(targchan,Parent,(void*)user));
+			dumpExtra(user, checkstr, targchan);
 		}
 		else
 		{
@@ -188,7 +205,7 @@ class ModuleCheck : public Module
 	{
 		User* user = static_cast<User*>(opaque);
 		user->WriteServ("304 " + std::string(user->nick) + " :CHECK meta:" + name + " " + value);
-		mycommand.md_sent = true;
+		mycommand.meta_seen.insert(name);
 	}
 
 	virtual std::string ProtoTranslate(Extensible* item)
