@@ -762,7 +762,13 @@ class CoreExport InspIRCd : public classbase
 	 * @param LinePrefix text to prefix each complete line with
 	 * @param TextStream the text to send to the user
 	 */
-	void DumpText(User* User, const std::string &LinePrefix, std::stringstream &TextStream);
+	void DumpText(User* user, const std::string &LinePrefix, std::stringstream &TextStream);
+
+	/** Dump text to a user target (local or remote)
+	 * @param user the user to dump the text to
+	 * @param text the full line of text
+	 */
+	void DumpText(User* user, const std::string &text);
 
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against

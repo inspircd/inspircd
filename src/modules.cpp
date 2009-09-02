@@ -768,20 +768,38 @@ void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
 	this->Modes->Process(parameters, user);
 }
 
-void InspIRCd::DumpText(User* User, const std::string &LinePrefix, std::stringstream &TextStream)
+void InspIRCd::DumpText(User* user, const std::string &text)
 {
-	std::string CompleteLine = LinePrefix;
+	if (IS_LOCAL(user))
+	{
+		user->Write(text);
+	}
+	else
+	{
+		PI->PushToClient(user, ":" + text);
+	}
+}
+
+void InspIRCd::DumpText(User* user, const std::string &LinePrefix, std::stringstream &TextStream)
+{
+	char line[MAXBUF];
+	int start_pos = snprintf(line, MAXBUF, ":%s %s", Config->ServerName, LinePrefix.c_str());
+	int pos = start_pos;
 	std::string Word;
 	while (TextStream >> Word)
 	{
-		if (CompleteLine.length() + Word.length() + 3 > 500)
+		int len = Word.length();
+		if (pos + len + 12 > MAXBUF)
 		{
-			User->WriteServ(CompleteLine);
-			CompleteLine = LinePrefix;
+			line[pos] = '\0';
+			DumpText(user, line);
+			pos = start_pos;
 		}
-		CompleteLine = CompleteLine + Word + " ";
+		line[pos] = ' ';
+		memcpy(line + pos + 1, Word.data(), len);
+		pos += len + 1;
 	}
-	User->WriteServ(CompleteLine);
+	DumpText(user, line);
 }
 
 bool InspIRCd::AddResolver(Resolver* r, bool cached)

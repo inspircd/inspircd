@@ -23,7 +23,7 @@ class CommandCheck : public Command
 	std::set<std::string> meta_seen;
 	CommandCheck (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"CHECK", "o", 1)
 	{
-		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
+		syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
 	}
 
 	std::string timestring(time_t time)
@@ -46,17 +46,20 @@ class CommandCheck : public Command
 		}
 		meta_seen.clear();
 		if (!dumpkeys.str().empty())
-			ServerInstance->DumpText(user,checkstr + " metadata ", dumpkeys);
+			ServerInstance->DumpText(user,checkstr + " metadata", dumpkeys);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
+			return CMD_SUCCESS;
+
 		User *targuser;
 		Channel *targchan;
 		std::string checkstr;
 		std::string chliststr;
 
-		checkstr = "304 " + std::string(user->nick) + " :CHECK";
+		checkstr = std::string(":") + ServerInstance->Config->ServerName + " 304 " + std::string(user->nick) + " :CHECK";
 
 		targuser = ServerInstance->FindNick(parameters[0]);
 		targchan = ServerInstance->FindChan(parameters[0]);
@@ -68,47 +71,47 @@ class CommandCheck : public Command
 		 *  :server.name 304 target :CHECK END
 		 */
 
-		user->WriteServ(checkstr + " START " + parameters[0]);
+		ServerInstance->DumpText(user, checkstr + " START " + parameters[0]);
 
 		if (targuser)
 		{
 			/* /check on a user */
-			user->WriteServ(checkstr + " nuh " + targuser->GetFullHost());
-			user->WriteServ(checkstr + " realnuh " + targuser->GetFullRealHost());
-			user->WriteServ(checkstr + " realname " + targuser->fullname);
-			user->WriteServ(checkstr + " modes +" + targuser->FormatModes());
-			user->WriteServ(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
-			user->WriteServ(checkstr + " server " + targuser->server);
-			user->WriteServ(checkstr + " uid " + targuser->uuid);
-			user->WriteServ(checkstr + " signon " + timestring(targuser->signon));
-			user->WriteServ(checkstr + " nickts " + timestring(targuser->age));
+			ServerInstance->DumpText(user, checkstr + " nuh " + targuser->GetFullHost());
+			ServerInstance->DumpText(user, checkstr + " realnuh " + targuser->GetFullRealHost());
+			ServerInstance->DumpText(user, checkstr + " realname " + targuser->fullname);
+			ServerInstance->DumpText(user, checkstr + " modes +" + targuser->FormatModes());
+			ServerInstance->DumpText(user, checkstr + " snomasks +" + targuser->FormatNoticeMasks());
+			ServerInstance->DumpText(user, checkstr + " server " + targuser->server);
+			ServerInstance->DumpText(user, checkstr + " uid " + targuser->uuid);
+			ServerInstance->DumpText(user, checkstr + " signon " + timestring(targuser->signon));
+			ServerInstance->DumpText(user, checkstr + " nickts " + timestring(targuser->age));
 			if (IS_LOCAL(targuser))
-				user->WriteServ(checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
+				ServerInstance->DumpText(user, checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
 
 			if (IS_AWAY(targuser))
 			{
 				/* user is away */
-				user->WriteServ(checkstr + " awaytime " + timestring(targuser->awaytime));
-				user->WriteServ(checkstr + " awaymsg " + targuser->awaymsg);
+				ServerInstance->DumpText(user, checkstr + " awaytime " + timestring(targuser->awaytime));
+				ServerInstance->DumpText(user, checkstr + " awaymsg " + targuser->awaymsg);
 			}
 
 			if (IS_OPER(targuser))
 			{
 				/* user is an oper of type ____ */
-				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
+				ServerInstance->DumpText(user, checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
 			}
 
 			if (IS_LOCAL(targuser))
 			{
-				user->WriteServ(checkstr + " clientaddr " + irc::sockets::satouser(&targuser->client_sa));
-				user->WriteServ(checkstr + " serveraddr " + irc::sockets::satouser(&targuser->server_sa));
+				ServerInstance->DumpText(user, checkstr + " clientaddr " + irc::sockets::satouser(&targuser->client_sa));
+				ServerInstance->DumpText(user, checkstr + " serveraddr " + irc::sockets::satouser(&targuser->server_sa));
 
 				std::string classname = targuser->GetClass()->name;
 				if (!classname.empty())
-					user->WriteServ(checkstr + " connectclass " + classname);
+					ServerInstance->DumpText(user, checkstr + " connectclass " + classname);
 			}
 			else
-				user->WriteServ(checkstr + " onip " + targuser->GetIPString());
+				ServerInstance->DumpText(user, checkstr + " onip " + targuser->GetIPString());
 
 			chliststr = targuser->ChannelList(targuser);
 			std::stringstream dump(chliststr);
@@ -121,18 +124,18 @@ class CommandCheck : public Command
 		else if (targchan)
 		{
 			/* /check on a channel */
-			user->WriteServ(checkstr + " timestamp " + timestring(targchan->age));
+			ServerInstance->DumpText(user, checkstr + " timestamp " + timestring(targchan->age));
 
 			if (targchan->topic[0] != 0)
 			{
 				/* there is a topic, assume topic related information exists */
-				user->WriteServ(checkstr + " topic " + targchan->topic);
-				user->WriteServ(checkstr + " topic_setby " + targchan->setby);
-				user->WriteServ(checkstr + " topic_setat " + timestring(targchan->topicset));
+				ServerInstance->DumpText(user, checkstr + " topic " + targchan->topic);
+				ServerInstance->DumpText(user, checkstr + " topic_setby " + targchan->setby);
+				ServerInstance->DumpText(user, checkstr + " topic_setat " + timestring(targchan->topicset));
 			}
 
-			user->WriteServ(checkstr + " modes " + targchan->ChanModes(true));
-			user->WriteServ(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
+			ServerInstance->DumpText(user, checkstr + " modes " + targchan->ChanModes(true));
+			ServerInstance->DumpText(user, checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
 
 			/* now the ugly bit, spool current members of a channel. :| */
 
@@ -146,7 +149,7 @@ class CommandCheck : public Command
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
 				snprintf(tmpbuf, MAXBUF, "%-3lu %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
-				user->WriteServ(checkstr + " member " + tmpbuf);
+				ServerInstance->DumpText(user, checkstr + " member " + tmpbuf);
 			}
 
 			FOREACH_MOD_I(ServerInstance,I_OnSyncChannel,OnSyncChannel(targchan,creator,(void*)user));
@@ -163,22 +166,29 @@ class CommandCheck : public Command
 				if (InspIRCd::Match(a->second->host, parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->dhost, parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
-					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					ServerInstance->DumpText(user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 				/* IP address */
 				else if (InspIRCd::MatchCIDR(a->second->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					ServerInstance->DumpText(user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 			}
 
-			user->WriteServ(checkstr + " matches " + ConvToStr(x));
+			ServerInstance->DumpText(user, checkstr + " matches " + ConvToStr(x));
 		}
 
-		user->WriteServ(checkstr + " END " + parameters[0]);
+		ServerInstance->DumpText(user, checkstr + " END " + parameters[0]);
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (parameters.size() > 1)
+			return ROUTE_OPT_UCAST(parameters[1]);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -199,13 +209,14 @@ class ModuleCheck : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR|VF_OPTCOMMON, API_VERSION);
 	}
 
 	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string& name, const std::string& value)
 	{
 		User* user = static_cast<User*>(opaque);
-		user->WriteServ("304 " + std::string(user->nick) + " :CHECK meta:" + name + " " + value);
+		ServerInstance->DumpText(user, std::string(":") + ServerInstance->Config->ServerName + " 304 " + std::string(user->nick)
+			+ " :CHECK meta:" + name + " " + value);
 		mycommand.meta_seen.insert(name);
 	}
 
