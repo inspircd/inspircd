@@ -83,6 +83,14 @@ class ModuleSSLInfo : public Module
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		if (target_type != TYPE_USER)
+			return;
+		User* user = static_cast<User*>(item);
+		user->Shrink("ssl_cert");
+	}
+
 	virtual void OnWhois(User* source, User* dest)
 	{
 		if(dest->GetExt("ssl"))
