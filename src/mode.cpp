@@ -1086,19 +1086,22 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 		new ModeChannelPrivate(Instance),
 		new ModeChannelModerated(Instance),
 		new ModeChannelTopicOps(Instance),
+
 		new ModeChannelNoExternal(Instance),
 		new ModeChannelInviteOnly(Instance),
 		new ModeChannelKey(Instance),
 		new ModeChannelLimit(Instance),
+
 		new ModeChannelBan(Instance),
 		new ModeChannelOp(Instance),
 		new ModeChannelHalfOp(Instance),
 		new ModeChannelVoice(Instance),
+
 		new ModeUserWallops(Instance),
 		new ModeUserInvisible(Instance),
 		new ModeUserOperator(Instance),
 		new ModeUserServerNoticeMask(Instance),
-		NULL
+#define BUILTIN_MODE_COUNT 16
 	};
 
 	/* Clear mode handler list */
@@ -1108,9 +1111,25 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	LastParse.clear();
 
 	/* Initialise the RFC mode letters */
-	for (int index = 0; modes[index]; index++)
+	for (int index = 0; index < BUILTIN_MODE_COUNT; index++)
 		this->AddMode(modes[index]);
 
 	seq = 0;
 	memset(&sent, 0, sizeof(sent));
+}
+
+ModeParser::~ModeParser()
+{
+	int count = 0;
+	for(int i=0; i < 256; i++)
+	{
+		ModeHandler* mh = modehandlers[i];
+		if (mh)
+		{
+			count++;
+			delete mh;
+		}
+	}
+	if (count != BUILTIN_MODE_COUNT)
+		throw CoreException("Mode handler found non-core modes remaining at deallocation");
 }

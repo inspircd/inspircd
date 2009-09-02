@@ -39,6 +39,8 @@ class CoreExport UserManager : public Extensible
 			delete i->second;
 		}
 		clientlist->clear();
+		delete clientlist;
+		delete uuidlist;
 	}
 
 	/** Client list, a hash_map containing all clients, local and remote

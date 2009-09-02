@@ -464,6 +464,7 @@ class CoreExport ModeParser : public classbase
 	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().
 	 */
 	ModeParser(InspIRCd* Instance);
+	~ModeParser();
 
 	/** Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
 	 * for example, should 'user A' be able to 'op' on 'channel B'.
