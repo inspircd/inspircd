@@ -48,13 +48,13 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	Implementation eventlist[] =
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
-		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer,
-		I_OnUserJoin, I_OnChangeLocalUserHost, I_OnChangeName, I_OnUserPart, I_OnUnloadModule,
-		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
-		I_OnOper, I_OnAddLine, I_OnDelLine, I_ProtoSendMode, I_OnMode, I_OnLoadModule,
-		I_OnStats, I_ProtoSendMetaData, I_OnEvent, I_OnSetAway, I_OnPostCommand
+		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
+		I_OnChangeLocalUserHost, I_OnChangeName, I_OnUserPart, I_OnUnloadModule, I_OnUserQuit,
+		I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash, I_OnOper,
+		I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats, I_OnEvent, I_OnSetAway,
+		I_OnPostCommand
 	};
-	ServerInstance->Modules->Attach(eventlist, this, 30);
+	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);

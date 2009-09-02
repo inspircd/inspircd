@@ -61,8 +61,6 @@ class ModuleTaxonomy : public Module
 		: Module(Me), cmd(Me, this, claimed)
 	{
 		ServerInstance->AddCommand(&cmd);
-		Implementation eventlist[] = { I_ProtoSendMetaData };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 
