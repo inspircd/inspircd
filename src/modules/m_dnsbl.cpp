@@ -27,7 +27,7 @@
 class DNSBLConfEntry : public classbase
 {
 	public:
-		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE };
+		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE, I_CIDENT };
 		enum EnumType { A_RECORD, A_BITMASK };
 		std::string name, domain, reason;
 		EnumBanaction banaction;
@@ -105,6 +105,12 @@ class DNSBLResolver : public Resolver
 						case DNSBLConfEntry::I_KILL:
 						{
 							ServerInstance->Users->QuitUser(them, std::string("Killed (") + reason + ")");
+							break;
+						}
+						case DNSBLConfEntry::I_CIDENT:
+						{
+							them->WriteServ("304 " + them->nick + " :Your ident has been set to " + ConfEntry->name + " because you matched " + reason);
+							them->ChangeIdent(ConfEntry->name.c_str());
 							break;
 						}
 						case DNSBLConfEntry::I_KLINE:
@@ -193,6 +199,9 @@ class ModuleDNSBL : public Module
 			return DNSBLConfEntry::I_ZLINE;
 		if(action.compare("GLINE")==0)
 			return DNSBLConfEntry::I_GLINE;
+		if(action.compare("IDENT")==0)
+			return DNSBLConfEntry::I_CIDENT;
+
 
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
