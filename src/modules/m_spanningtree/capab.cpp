@@ -22,9 +22,9 @@
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 
-std::string TreeSocket::MyCapabilities()
+std::string TreeSocket::MyModules(int filter)
 {
-	std::vector<std::string> modlist = this->ServerInstance->Modules->GetAllModuleNames(VF_COMMON);
+	std::vector<std::string> modlist = this->ServerInstance->Modules->GetAllModuleNames(filter);
 	std::string capabilities;
 	sort(modlist.begin(),modlist.end());
 	for (unsigned int i = 0; i < modlist.size(); i++)
@@ -42,7 +42,8 @@ void TreeSocket::SendCapabilities()
 		return;
 
 	sentcapab = true;
-	irc::commasepstream modulelist(MyCapabilities());
+	irc::commasepstream modulelist(MyModules(VF_COMMON));
+	irc::commasepstream optmodulelist(MyModules(VF_OPTCOMMON));
 	this->WriteLine("CAPAB START");
 
 	/* Send module names, split at 509 length */
@@ -63,6 +64,24 @@ void TreeSocket::SendCapabilities()
 	}
 	if (line != "CAPAB MODULES ")
 		this->WriteLine(line);
+
+	line = "CAPAB MODSUPPORT ";
+	while (optmodulelist.GetToken(item))
+	{
+		if (line.length() + item.length() + 1 > 509)
+		{
+			this->WriteLine(line);
+			line = "CAPAB MODSUPPORT ";
+		}
+
+		if (line != "CAPAB MODSUPPORT ")
+			line.append(",");
+
+		line.append(item);
+	}
+	if (line != "CAPAB MODSUPPORT ")
+		this->WriteLine(line);
+
 
 	int ip6 = 0;
 #ifdef IPV6
@@ -138,17 +157,18 @@ bool TreeSocket::Capab(const parameterlist &params)
 	}
 	if (params[0] == "START")
 	{
-		this->ModuleList.clear();
-		this->CapKeys.clear();
+		ModuleList.clear();
+		OptModuleList.clear();
+		CapKeys.clear();
 	}
 	else if (params[0] == "END")
 	{
 		std::string reason;
 		/* Compare ModuleList and check CapKeys */
-		if ((this->ModuleList != this->MyCapabilities()) && (this->ModuleList.length()))
+		if ((this->ModuleList != this->MyModules(VF_COMMON)) && (this->ModuleList.length()))
 		{
-			std::string diffIneed = ListDifference(this->ModuleList, this->MyCapabilities());
-			std::string diffUneed = ListDifference(this->MyCapabilities(), this->ModuleList);
+			std::string diffIneed = ListDifference(this->ModuleList, this->MyModules(VF_COMMON));
+			std::string diffUneed = ListDifference(this->MyModules(VF_COMMON), this->ModuleList);
 			if (diffIneed.length() == 0 && diffUneed.length() == 0)
 			{
 				reason = "Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
@@ -164,6 +184,23 @@ bool TreeSocket::Capab(const parameterlist &params)
 			this->SendError("CAPAB negotiation failed: "+reason);
 			return false;
 		}
+		if (this->OptModuleList != this->MyModules(VF_OPTCOMMON) && this->OptModuleList.length())
+		{
+			std::string diffIneed = ListDifference(this->OptModuleList, this->MyModules(VF_OPTCOMMON));
+			std::string diffUneed = ListDifference(this->MyModules(VF_OPTCOMMON), this->OptModuleList);
+			if (diffIneed.length() == 0 && diffUneed.length() == 0)
+			{
+				reason = "Optional Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
+			}
+			else
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',
+					"Optional module lists do not match, some commands may not work globally.%s%s%s%s",
+					diffIneed.length() ? " Not loaded here:" : "", diffIneed.c_str(),
+					diffUneed.length() ? " Not loaded there:" : "", diffUneed.c_str());
+			}
+		}
+
 		if (this->CapKeys.find("PROTOCOL") == this->CapKeys.end())
 		{
 			reason = "Protocol version not specified";
@@ -230,7 +267,18 @@ bool TreeSocket::Capab(const parameterlist &params)
 			this->ModuleList.append(params[1]);
 		}
 	}
-
+	else if ((params[0] == "MODSUPPORT") && (params.size() == 2))
+	{
+		if (!this->OptModuleList.length())
+		{
+			this->OptModuleList.append(params[1]);
+		}
+		else
+		{
+			this->OptModuleList.append(",");
+			this->OptModuleList.append(params[1]);
+		}
+	}
 	else if ((params[0] == "CAPABILITIES") && (params.size() == 2))
 	{
 		irc::tokenstream capabs(params[1]);

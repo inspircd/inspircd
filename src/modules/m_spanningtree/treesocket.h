@@ -82,7 +82,8 @@ class TreeSocket : public BufferedSocket
 	int num_lost_servers;			/* Servers lost in split */
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
-	std::string ModuleList;			/* Module list of other server from CAPAB */
+	std::string ModuleList;			/* Required module list of other server from CAPAB */
+	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
 	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
 	Module* Hook;				/* I/O hooking module that we're attached to for this socket */
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
@@ -185,9 +186,10 @@ class TreeSocket : public BufferedSocket
 	 */
 	void SendServers(TreeServer* Current, TreeServer* s, int hops);
 
-	/** Returns my capabilities as a string
+	/** Returns module list as a string, filtered by filter
+	 * @param filter a module version bitmask, such as VF_COMMON or VF_OPTCOMMON
 	 */
-	std::string MyCapabilities();
+	std::string MyModules(int filter);
 
 	/** Send my capabilities to the remote side
 	 */

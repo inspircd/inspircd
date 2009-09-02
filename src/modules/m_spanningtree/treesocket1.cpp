@@ -88,6 +88,7 @@ Module* TreeSocket::GetHook()
 void TreeSocket::CleanNegotiationInfo()
 {
 	ModuleList.clear();
+	OptModuleList.clear();
 	CapKeys.clear();
 	ourchallenge.clear();
 	theirchallenge.clear();
