@@ -25,7 +25,7 @@
  * Yes, this function looks a little ugly.
  * However, in some circumstances we may not have a User, so we need to do things this way.
  * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
- * Sends SVSNICKs as appropriate and forces nickchanges too.
+ * Sends SAVEs as appropriate and forces nickchanges too.
  */
 int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid)
 {
@@ -86,11 +86,11 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 
 	/*
 	 * Cheat a little here. Instead of a dedicated command to change UID,
-	 * use SVSNICK and accept the losing client with its UID (as we know the SVSNICK will
+	 * use SAVE and accept the losing client with its UID (as we know the SAVE will
 	 * not fail under any circumstances -- UIDs are netwide exclusive).
 	 *
 	 * This means that each side of a collide will generate one extra NICK back to where
-	 * they have just linked (and where it got the SVSNICK from), however, it will
+	 * they have just linked (and where it got the SAVE from), however, it will
 	 * be dropped harmlessly as it will come in as :928AAAB NICK 928AAAB, and we already
 	 * have 928AAAB's nick set to that.
 	 *   -- w00t
@@ -100,13 +100,12 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 	{
 		/*
 		 * Local-side nick needs to change. Just in case we are hub, and
-		 * this "local" nick is actually behind us, send an SVSNICK out.
+		 * this "local" nick is actually behind us, send an SAVE out.
 		 */
 		parameterlist params;
 		params.push_back(u->uuid);
-		params.push_back(u->uuid);
 		params.push_back(ConvToStr(u->age));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SVSNICK",params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
 
 		u->ForceNickChange(u->uuid.c_str());
 
@@ -119,9 +118,9 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		/*
 		 * remote side needs to change. If this happens, we will modify
 		 * the UID or halt the propagation of the nick change command,
-		 * so other servers don't need to see the SVSNICK
+		 * so other servers don't need to see the SAVE
 		 */
-		WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid + " " + ConvToStr(remotets));
+		WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
 
 		if (remote)
 		{

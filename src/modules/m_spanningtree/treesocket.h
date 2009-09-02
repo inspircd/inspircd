@@ -294,6 +294,9 @@ class TreeSocket : public BufferedSocket
 	/** Because Andy insists that services-compatible servers must
 	 * implement SVSNICK and SVSJOIN, that's exactly what we do :p
 	 */
+	bool SVSNick(const std::string &prefix, parameterlist &params);
+
+	/** SAVE to resolve nick collisions without killing */
 	bool ForceNick(const std::string &prefix, parameterlist &params);
 
 	/** PRIVMSG or NOTICE with server origin ONLY

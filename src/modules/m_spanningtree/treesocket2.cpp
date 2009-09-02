@@ -413,6 +413,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "SVSNICK")
 			{
+				return this->SVSNick(prefix,params);
+			}
+			else if (command == "SAVE")
+			{
 				return this->ForceNick(prefix,params);
 			}
 			else if (command == "OPERQUIT")

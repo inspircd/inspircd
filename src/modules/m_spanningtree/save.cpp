@@ -26,36 +26,24 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-/** Because Andy insists that services-compatible servers must
- * implement SVSNICK and SVSJOIN, that's exactly what we do :p
+/**
+ * SAVE command - force nick change to UID on timestamp match
  */
-bool TreeSocket::SVSNick(const std::string &prefix, parameterlist &params)
+bool TreeSocket::ForceNick(const std::string &prefix, parameterlist &params)
 {
-	if (params.size() < 3)
+	if (params.size() < 2)
 		return true;
 
 	User* u = this->ServerInstance->FindNick(params[0]);
+	time_t ts = atol(params[1].c_str());
 
-	if (u)
+	if (u && u->age == ts)
 	{
-		Utils->DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
+		Utils->DoOneToAllButSender(prefix,"SAVE",params,prefix);
 
-		if (IS_LOCAL(u))
+		if (!u->ForceNickChange(u->uuid.c_str()))
 		{
-			parameterlist par;
-			par.push_back(params[1]);
-
-			if (!u->ForceNickChange(params[1].c_str()))
-			{
-				/* buh. UID them */
-				if (!u->ForceNickChange(u->uuid.c_str()))
-				{
-					this->ServerInstance->Users->QuitUser(u, "Nickname collision");
-					return true;
-				}
-			}
-
-			u->age = atoi(params[2].c_str());
+			this->ServerInstance->Users->QuitUser(u, "Nickname collision");
 		}
 	}
 
