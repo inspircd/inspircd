@@ -354,8 +354,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				User* user = ServerInstance->FindNick(prefix);
 				if (user)
 				{
-					std::vector<std::string> p(params.begin(), params.end());
-					return Utils->Creator->HandleMap(p, user);
+					return Utils->Creator->HandleMap(params, user);
 				}
 			}
 			else if (command == "SERVER")
@@ -563,10 +562,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					}
 				}
 
-				// it's a user
-				std::vector<std::string> strparams(params.begin(), params.end());
-
-				switch (this->ServerInstance->CallCommandHandler(command.c_str(), strparams, who))
+				switch (this->ServerInstance->CallCommandHandler(command.c_str(), params, who))
 				{
 					case CMD_INVALID:
 						/*
