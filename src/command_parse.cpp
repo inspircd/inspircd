@@ -425,6 +425,19 @@ void CommandParser::RemoveCommands(const char* source)
 	}
 }
 
+void CommandParser::RemoveRFCCommands()
+{
+	for(SharedObjectList::iterator c = RFCCommands.begin(); c != RFCCommands.end(); c++)
+	{
+		std::string cmd = c->first;
+		Command* cmdptr = cmdlist.find(cmd)->second;
+		cmdlist.erase(cmdlist.find(cmd));
+		delete cmdptr;
+		dlclose(c->second);
+	}
+	RFCCommands.clear();
+}
+
 void CommandParser::RemoveCommand(Commandtable::iterator safei, const char* source)
 {
 	Command* x = safei->second;

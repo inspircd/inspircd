@@ -182,6 +182,10 @@ class CoreExport CommandParser : public classbase
 	 */
 	void RemoveCommands(const char* source);
 
+	/** Remove all core commands and unload their shared objects
+	 */
+	void RemoveRFCCommands();
+
 	/** Add a new command to the commands hash
 	 * @param f The new Command to add to the list
 	 * @param so_handle The handle to the shared object where the command can be found.

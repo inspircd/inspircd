@@ -127,7 +127,7 @@ void InspIRCd::Cleanup()
 		}
 	}
 	/* Remove core commands */
-	Parser->RemoveCommands("<core>");
+	Parser->RemoveRFCCommands();
 
 	/* Cleanup Server Names */
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
