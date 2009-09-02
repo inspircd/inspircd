@@ -111,12 +111,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF], Desc[MAXBUF];
 	int bound = 0;
-	bool started_with_nothing = (ports.size() == 0);
-	std::vector<std::pair<std::string, int> > old_ports;
-
-	/* XXX: Make a copy of the old ip/port pairs here */
-	for (std::vector<ListenSocketBase *>::iterator o = ports.begin(); o != ports.end(); ++o)
-		old_ports.push_back(make_pair((*o)->GetIP(), (*o)->GetPort()));
+	std::vector<ListenSocketBase*> old_ports(ports.begin(), ports.end());
 
 	for (int count = 0; count < Config->ConfValueEnum("bind"); count++)
 	{
@@ -137,21 +132,18 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 				if (*Addr == '*')
 					*Addr = 0;
 
+				irc::sockets::sockaddrs bindspec;
+				irc::sockets::aptosa(Addr, portno, &bindspec);
+				std::string bind_readable = irc::sockets::satouser(&bindspec);
+
 				bool skip = false;
-				for (std::vector<ListenSocketBase *>::iterator n = ports.begin(); n != ports.end(); ++n)
+				for (std::vector<ListenSocketBase *>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
 				{
-					if (((*n)->GetIP() == Addr) && ((*n)->GetPort() == portno))
+					if ((*n)->GetBindDesc() == bind_readable)
 					{
 						skip = true;
-						/* XXX: Here, erase from our copy of the list */
-						for (std::vector<std::pair<std::string, int> >::iterator k = old_ports.begin(); k != old_ports.end(); ++k)
-						{
-							if ((k->first == Addr) && (k->second == portno))
-							{
-								old_ports.erase(k);
-								break;
-							}
-						}
+						old_ports.erase(n);
+						break;
 					}
 				}
 				if (!skip)
@@ -165,29 +157,30 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 					}
 					else
 					{
-						failed_ports.push_back(std::make_pair((*Addr ? Addr : "*") + std::string(":") + ConvToStr(portno), strerror(errno)));
+						failed_ports.push_back(std::make_pair(bind_readable, strerror(errno)));
 					}
 				}
 			}
 		}
 	}
 
-	/* XXX: Here, anything left in our copy list, close as removed */
-	if (!started_with_nothing)
+	std::vector<ListenSocketBase *>::iterator n = ports.begin();
+	for (std::vector<ListenSocketBase *>::iterator o = old_ports.begin(); o != old_ports.end(); ++o)
 	{
-		for (size_t k = 0; k < old_ports.size(); ++k)
+		while (n != ports.end() && *n != *o)
+			n++;
+		if (n == ports.end())
 		{
-			for (std::vector<ListenSocketBase *>::iterator n = ports.begin(); n != ports.end(); ++n)
-			{
-				if (((*n)->GetIP() == old_ports[k].first) && ((*n)->GetPort() == old_ports[k].second))
-				{
-					this->Logs->Log("SOCKET",DEFAULT,"Port binding %s:%d was removed from the config file, closing.", old_ports[k].first.c_str(), old_ports[k].second);
-					delete *n;
-					ports.erase(n);
-					break;
-				}
-			}
+			this->Logs->Log("SOCKET",ERROR,"Port bindings slipped out of vector, aborting close!");
+			break;
 		}
+
+		this->Logs->Log("SOCKET",DEFAULT, "Port binding %s was removed from the config file, closing.",
+			(*n)->GetBindDesc().c_str());
+		delete *n;
+
+		// this keeps the iterator valid, pointing to the next element
+		n = ports.erase(n);
 	}
 
 	return bound;
