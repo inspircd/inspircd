@@ -31,7 +31,7 @@ class Thread;
  * access non-threadsafe code from a Thread, use the Mutex class to wrap
  * access to the code carefully.
  */
-class CoreExport ThreadEngine : public Extensible
+class CoreExport ThreadEngine
 {
  public:
 

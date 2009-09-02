@@ -79,9 +79,11 @@ class IdentRequestSocket : public EventHandler
 	bool done;			/* True if lookup is finished */
 	std::string result;		/* Holds the ident string if done */
  public:
+	time_t age;
 
 	IdentRequestSocket(InspIRCd *Server, User* u) : user(u), ServerInstance(Server), result(u->ident)
 	{
+		age = ServerInstance->Time();
 		socklen_t size = 0;
 
 		SetFd(socket(user->server_sa.sa.sa_family, SOCK_STREAM, 0));

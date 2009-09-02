@@ -30,6 +30,7 @@
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id)
 						: ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
 {
+	age = Instance->Time();
 	bursting = false;
 	Parent = NULL;
 	VersionString.clear();
@@ -50,6 +51,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
+	age = Instance->Time();
 	bursting = true;
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;

@@ -18,7 +18,7 @@
  * the container which holds them. For some reason, nobody finished this.
  * TODO: Finish in future release!
  */
-class CoreExport ChannelManager : public Extensible
+class CoreExport ChannelManager
 {
  private:
 	InspIRCd *ServerInstance;

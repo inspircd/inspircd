@@ -174,7 +174,7 @@ class CoreExport EventHandler : public Extensible
  * have to be aware of which SocketEngine derived
  * class they are using.
  */
-class CoreExport SocketEngine : public Extensible
+class CoreExport SocketEngine
 {
 protected:
 	/** Owner/Creator

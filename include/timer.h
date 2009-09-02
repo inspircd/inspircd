@@ -26,7 +26,7 @@
  * your object (which you should override) will be called
  * at the given time.
  */
-class CoreExport Timer : public Extensible
+class CoreExport Timer
 {
  private:
 	/** The triggering time
@@ -111,7 +111,7 @@ class CoreExport Timer : public Extensible
  * This will ensure timers are not missed, as well as removing timers that have
  * expired and allowing the addition of new ones.
  */
-class CoreExport TimerManager : public Extensible
+class CoreExport TimerManager
 {
  protected:
 	/** A list of all pending timers

@@ -39,6 +39,7 @@
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod)
 	: BufferedSocket(SI, shost, iport, maxtime, bindto), Utils(Util), Hook(HookMod)
 {
+	age = SI->Time();
 	myhost = ServerName;
 	theirchallenge.clear();
 	ourchallenge.clear();
@@ -56,6 +57,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string sh
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Module* HookMod)
 	: BufferedSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
 {
+	age = SI->Time();
 	this->LinkState = WAIT_AUTH_1;
 	theirchallenge.clear();
 	ourchallenge.clear();

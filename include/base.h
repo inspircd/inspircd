@@ -29,10 +29,6 @@ typedef std::map<std::string,char*> ExtensibleStore;
 class CoreExport classbase
 {
  public:
- 	/** Time that the object was instantiated (used for TS calculation etc)
- 	*/
-	time_t age;
-
 	/** Constructor.
 	 * Sets the object's time
 	 */

@@ -91,7 +91,7 @@ typedef std::pair<bool,std::string> ModePair;
  * mode is expected to have a parameter, then this is
  * equivalent to returning MODEACTION_DENY.
  */
-class CoreExport ModeHandler : public Extensible
+class CoreExport ModeHandler : public classbase
 {
  protected:
 	/**
@@ -345,7 +345,7 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
  * and attach it to the mode using Server::AddModeWatcher and Server::DelModeWatcher.
  * A ModeWatcher will be called both before and after the mode change.
  */
-class CoreExport ModeWatcher : public Extensible
+class CoreExport ModeWatcher : public classbase
 {
  protected:
 	/**

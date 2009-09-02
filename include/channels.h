@@ -136,6 +136,10 @@ class CoreExport Channel : public Extensible
 	 */
 	std::string name; /* CHANMAX */
 
+	/** Time that the object was instantiated (used for TS calculation etc)
+	*/
+	time_t age;
+
 	/** Modes for the channel.
 	 * This is not a null terminated string! It is a bitset where
 	 * each item in it represents if a mode is set. For example

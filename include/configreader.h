@@ -42,7 +42,7 @@ typedef std::map<irc::string,std::string> opertype_t;
 
 /** Holds an oper class.
  */
-struct operclass_data : public Extensible
+struct operclass_data : public classbase
 {
 	/** Command list for the class
 	 */
@@ -68,7 +68,7 @@ typedef std::map<irc::string, operclass_data> operclass_t;
 /** Defines the server's length limits on various length-limited
  * items such as topics, nicknames, channel names etc.
  */
-class ServerLimits : public Extensible
+class ServerLimits
 {
  public:
 	/** Maximum nickname length */
@@ -119,7 +119,7 @@ class ServerLimits : public Extensible
  * and storage of the configuration data needed to run the ircd, such as
  * the servername, connect classes, /ADMIN data, MOTDs and filenames etc.
  */
-class CoreExport ServerConfig : public Extensible
+class CoreExport ServerConfig : public classbase
 {
   private:
 	/** Creator/owner pointer

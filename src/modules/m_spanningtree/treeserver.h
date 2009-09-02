@@ -52,6 +52,7 @@ class TreeServer : public classbase
 	void SetID(const std::string &id);
 
  public:
+	time_t age;
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
 	bool bursting;				/* whether or not this server is bursting */

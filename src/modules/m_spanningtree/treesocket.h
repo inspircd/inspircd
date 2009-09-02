@@ -93,6 +93,7 @@ class TreeSocket : public BufferedSocket
 	bool auth_challenge;			/* Did we auth using challenge/response */
  public:
 	HandshakeTimer* hstimer;		/* Handshake timer, needed to work around I/O hook buffering */
+	time_t age;
 
 	/** Because most of the I/O gubbins are encapsulated within
 	 * BufferedSocket, we just call the superclass constructor for

@@ -339,6 +339,10 @@ class CoreExport User : public EventHandler
 	 */
 	time_t lastping;
 
+	/** Time that the object was instantiated (used for TS calculation etc)
+	*/
+	time_t age;
+
 	/** Time the connection was created, set in the constructor. This
 	 * may be different from the time the user's classbase object was
 	 * created.
