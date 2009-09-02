@@ -20,34 +20,21 @@
 class CommandSamode : public Command
 {
  public:
+	bool active;
 	CommandSamode (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SAMODE", "o", 2, false, 0)
 	{
 		syntax = "<target> <modes> {<mode-parameters>}";
+		active = false;
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		/*
-		 * Handles an SAMODE request. Notifies all +s users.
-	 	 */
-		ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
-
+		this->active = true;
+		ServerInstance->Parser->CallHandler("MODE", parameters, user);
 		if (ServerInstance->Modes->GetLastParse().length())
-		{
-			ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
-			ServerInstance->PI->SendSNONotice("A", user->nick + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
-
-			std::string channel = parameters[0];
-			ServerInstance->PI->SendMode(channel, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
-
-			return CMD_LOCALONLY;
-		}
-		else
-		{
-			user->WriteServ("NOTICE %s :*** Invalid SAMODE sequence.", user->nick.c_str());
-		}
-
-		return CMD_FAILURE;
+			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick) + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
+		this->active = false;
+		return CMD_LOCALONLY;
 	}
 };
 
@@ -59,6 +46,7 @@ class ModuleSaMode : public Module
 		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->Attach(I_OnAccessCheck, this);
 	}
 
 	virtual ~ModuleSaMode()
@@ -68,6 +56,19 @@ class ModuleSaMode : public Module
 	virtual Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR, API_VERSION);
+	}
+
+	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	{
+		if (cmd.active)
+			return MOD_RES_ALLOW;
+		return MOD_RES_PASSTHRU;
+	}
+
+	void Prioritize()
+	{
+		Module *override = ServerInstance->Modules->Find("m_override.so");
+		ServerInstance->Modules->SetPriority(this, I_OnAccessCheck, PRIORITY_BEFORE, &override);
 	}
 };
 

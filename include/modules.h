@@ -41,7 +41,8 @@ enum AccessControlType {
 	AC_HALFOP,		// a user is being halfopped
 	AC_DEHALFOP,		// a user is being dehalfopped
 	AC_INVITE,		// a user is being invited
-	AC_GENERAL_MODE		// a channel mode is being changed
+	AC_GENERAL_MODE,	// a channel mode is being changed
+	AC_GENERAL_UMODE	// a user mode is being changed
 };
 
 /** Used to define a set of behavior bits for a module

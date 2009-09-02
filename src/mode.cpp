@@ -329,7 +329,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 		}
 		else
 		{
-			user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", user->nick.c_str());
+			user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't view modes for other users", user->nick.c_str());
 			return;
 		}
 	}
@@ -479,26 +479,25 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 	{
 		SkipAccessChecks = true;
 	}
-	else if (targetchannel)
+	else
 	{
 		/* Overall access control hook for mode change */
+		int hook = targetchannel ? AC_GENERAL_MODE : AC_GENERAL_UMODE;
+
 		LastParse = mode_sequence;
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user, NULL, targetchannel, AC_GENERAL_MODE));
+		FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user, targetuser, targetchannel, hook));
 		LastParse.clear();
 		if (MOD_RESULT == MOD_RES_DENY)
 			return;
 		SkipAccessChecks = (MOD_RESULT == MOD_RES_ALLOW);
 	}
-	else
-	{
-		if (user != targetuser)
-		{
-			user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", user->nick.c_str());
-			return;
-		}
-	}
 
+	if (targetuser && !SkipAccessChecks && user != targetuser)
+	{
+		user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", user->nick.c_str());
+		return;
+	}
 
 	std::string output_mode;
 	std::ostringstream output_parameters;
