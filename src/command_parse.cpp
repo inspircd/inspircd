@@ -607,20 +607,29 @@ void CommandParser::SetupCommandTable()
 		this->CreateCommand(new CommandReload(ServerInstance));
 }
 
-int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest)
+int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final, Command* custom_translator)
 {
-	std::vector<std::string>::const_iterator items = source.begin();
 	std::vector<TranslateType>::const_iterator types = to.begin();
 	User* user = NULL;
+	unsigned int i;
 	int translations = 0;
 	dest.clear();
 
-	while (items != source.end() && types != to.end())
+	for(i=0; i < source.size(); i++)
 	{
-		TranslateType t = *types;
-		std::string item = *items;
-		types++;
-		items++;
+		TranslateType t;
+		std::string item = source[i];
+
+		if (types == to.end())
+			t = TR_TEXT;
+		else
+		{
+			t = *types;
+			types++;
+		}
+
+		if (prefix_final && i == source.size() - 1)
+			dest.append(":");
 
 		switch (t)
 		{
@@ -635,6 +644,10 @@ int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std:
 				else
 					dest.append(item);
 			break;
+			case TR_CUSTOM:
+				if (custom_translator)
+					custom_translator->EncodeParameter(item, i);
+				dest.append(item);
 			break;
 			case TR_END:
 			case TR_TEXT:
@@ -643,11 +656,10 @@ int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std:
 				dest.append(item);
 			break;
 		}
-		dest.append(" ");
+		if (i != source.size() - 1)
+			dest.append(" ");
 	}
 
-	if (!dest.empty())
-		dest.erase(dest.end() - 1);
 	return translations;
 }
 

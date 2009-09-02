@@ -21,6 +21,7 @@ enum CmdResult
 	CMD_FAILURE = 0,	/* Command exists, but failed */
 	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
 	CMD_INVALID = 2		/* Command doesnt exist at all! */
+#define CMD_LOCALONLY CMD_FAILURE
 };
 
 /** Translation types for translation of parameters to UIDs.
@@ -36,14 +37,26 @@ enum TranslateType
 	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */
 };
 
-/** For commands which should not be replicated to other
- * servers, we usually return CMD_FAILURE. this isnt readable,
- * so we define this alias for CMD_FAILURE called
- * CMD_LOCALONLY, which of course does the same thing but is
- * much more readable.
- */
-#define CMD_LOCALONLY CMD_FAILURE
+enum RouteType
+{
+	ROUTE_TYPE_LOCALONLY,
+	ROUTE_TYPE_BROADCAST,
+	ROUTE_TYPE_UNICAST
+};
 
+struct RouteDescriptor
+{
+	const RouteType type;
+	/** For unicast, the destination server's name
+	 */
+	const std::string serverdest;
+	RouteDescriptor(RouteType t, const std::string d)
+		: type(t), serverdest(d) { }
+};
+
+#define ROUTE_LOCALONLY (RouteDescriptor(ROUTE_TYPE_LOCALONLY, ""))
+#define ROUTE_BROADCAST (RouteDescriptor(ROUTE_TYPE_BROADCAST, ""))
+#define ROUTE_UNICAST(x) (RouteDescriptor(ROUTE_TYPE_UNICAST, x))
 
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.
@@ -144,6 +157,11 @@ class CoreExport Command : public Extensible
 	 * return CMD_LOCALONLY.
 	 */
 	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
+
+	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 
 	/** Handle an internal request from another command, the core, or a module
 	 * @param Command ID

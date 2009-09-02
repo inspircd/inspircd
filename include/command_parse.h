@@ -199,11 +199,19 @@ class CoreExport CommandParser : public classbase
 	 * @param to The translation type to use for the process.
 	 * @param source The input string
 	 * @param dest The output string, it is safe to pass source and dest as the same variable only for translation type TR_TEXT.
-	 * @return returns the number of substitutions made. Will always be 0 or 1 for TR_TEXT and 0..n for other types.
+	 * @return returns the number of substitutions made. Will always be 0 or 1
 	 */
 	int TranslateUIDs(TranslateType to, const std::string &source, std::string &dest);
 
-	int TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest);
+	/** Translate nicknames in a list of strings into UIDs, based on the TranslateTypes given.
+	 * @param to The translation types to use for the process. If this list is too short, TR_TEXT is assumed for the rest.
+	 * @param source The strings to translate
+	 * @param dest The output string
+	 * @param prefix_final True if the final source argument should have a colon prepended (if it could contain a space)
+	 * @param custom_translator Used to translate the parameter if the TR_CUSTOM type is found in to
+	 * @return returns the number of substitutions made.
+	 */
+	int TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final = false, Command* custom_translator = NULL);
 };
 
 /** Command handler class for the RELOAD command.
