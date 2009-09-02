@@ -131,7 +131,8 @@ class RequestTimeout : public Timer
 	}
 	~RequestTimeout()
 	{
-		Tick(0);
+		if (ServerInstance->Res)
+			Tick(0);
 	}
 
 	void Tick(time_t)
