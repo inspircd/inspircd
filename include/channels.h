@@ -218,7 +218,8 @@ class CoreExport Channel : public Extensible
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
 	  */
-	bool IsModeSet(char mode);
+	inline bool IsModeSet(char mode) { return modes[mode-'A']; }
+
 
 	/** Returns the parameter for a custom mode on a channel.
 	  * @param mode The mode character you wish to query

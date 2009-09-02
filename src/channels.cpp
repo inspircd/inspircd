@@ -53,11 +53,6 @@ void Channel::SetModeParam(char mode, std::string parameter)
 	}
 }
 
-bool Channel::IsModeSet(char mode)
-{
-	return modes[mode-65];
-}
-
 std::string Channel::GetModeParameter(char mode)
 {
 	CustomModeList::iterator n = custom_mode_params.find(mode);
