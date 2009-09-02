@@ -97,7 +97,7 @@ bool TreeSocket::ForceMode(const std::string &source, parameterlist &params)
 	 */
 	if (TS <= ourTS)
 	{
-		ServerInstance->Modes->Process(modelist, who, true);
+		ServerInstance->Modes->Process(modelist, who, (who == Utils->ServerUser));
 
 		/* HOT POTATO! PASS IT ON! */
 		Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);
