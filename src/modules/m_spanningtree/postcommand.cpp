@@ -33,6 +33,15 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 	{
 		/* Safe, we know its non-null because IsValidModuleCommand returned true */
 		Command* thiscmd = ServerInstance->Parser->GetHandler(command);
+
+		Module* srcmodule = ServerInstance->Modules->Find(thiscmd->source);
+
+		if (srcmodule && !(srcmodule->GetVersion().Flags & VF_COMMON)) {
+			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Routed command %s from non-VF_COMMON module %s",
+				command.c_str(), thiscmd->source.c_str());
+			return;
+		}
+
 		// this bit of code cleverly routes all module commands
 		// to all remote severs *automatically* so that modules
 		// can just handle commands locally, without having
