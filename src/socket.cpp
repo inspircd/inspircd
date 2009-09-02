@@ -258,6 +258,43 @@ bool irc::sockets::satoap(const irc::sockets::sockaddrs* sa, std::string& addr, 
 	return false;
 }
 
+static const char all_zero[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
+
+std::string irc::sockets::satouser(const irc::sockets::sockaddrs* sa) {
+	char buffer[MAXBUF];
+	if (sa->sa.sa_family == AF_INET)
+	{
+		if (sa->in4.sin_addr.s_addr == 0)
+		{
+			sprintf(buffer, "*:%u", ntohs(sa->in4.sin_port));
+		}
+		else
+		{
+			const uint8_t* bits = reinterpret_cast<const uint8_t*>(&sa->in4.sin_addr);
+			sprintf(buffer, "%d.%d.%d.%d:%u", bits[0], bits[1], bits[2], bits[3], ntohs(sa->in4.sin_port));
+		}
+	}
+	else if (sa->sa.sa_family == AF_INET6)
+	{
+		if (!memcmp(all_zero, &sa->in6.sin6_addr, 16))
+		{
+			sprintf(buffer, "*:%u", ntohs(sa->in6.sin6_port));
+		}
+		else
+		{
+			buffer[0] = '[';
+			if (!inet_ntop(AF_INET6, &sa->in6.sin6_addr, buffer+1, MAXBUF - 10))
+				return "<unknown>"; // should never happen, buffer is large enough
+			int len = strlen(buffer);
+			// no need for snprintf, buffer has at least 9 chars left, max short len = 5
+			sprintf(buffer + len, "]:%u", ntohs(sa->in6.sin6_port));
+		}
+	}
+	else
+		return "<unknown>";
+	return std::string(buffer);
+}
+
 int irc::sockets::sa_size(irc::sockets::sockaddrs& sa)
 {
 	if (sa.sa.sa_family == AF_INET)
