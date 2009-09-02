@@ -864,6 +864,14 @@ class CoreExport User : public EventHandler
 	 */
 	bool SharesChannelWith(User *other);
 
+	/** Send fake quit/join messages for host or ident cycle.
+	 * Run this after the item in question has changed.
+	 * You should not need to use this function, call ChangeDisplayedHost instead
+	 *
+	 * @param The entire QUIT line, including the source using the old value
+	 */
+	void DoHostCycle(const std::string &quitline);
+
 	/** Change the displayed host of a user.
 	 * ALWAYS use this function, rather than writing User::dhost directly,
 	 * as this triggers module events allowing the change to be syncronized to

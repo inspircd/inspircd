@@ -1565,6 +1565,52 @@ bool User::ChangeName(const char* gecos)
 	return true;
 }
 
+void User::DoHostCycle(const std::string &quitline)
+{
+	char buffer[MAXBUF];
+
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
+
+	if (!ServerInstance->Config->CycleHosts || MOD_RESULT)
+		return;
+
+	uniq_id++;
+
+	if (!already_sent)
+		InitializeAlreadySent(ServerInstance->SE);
+
+	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
+	{
+		Channel* c = v->first;
+		snprintf(buffer, MAXBUF, ":%s JOIN %s", GetFullHost().c_str(), c->name.c_str());
+		std::string joinline(buffer);
+		std::string modeline = this->ServerInstance->Modes->ModeString(this, c);
+		if (modeline.length() > 0)
+		{
+			snprintf(buffer, MAXBUF, ":%s MODE %s +%s", GetFullHost().c_str(), c->name.c_str(), modeline.c_str());
+			modeline = buffer;
+		}
+
+		CUList *ulist = c->GetUsers();
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		{
+			User* u = i->first;
+			if (u == this || !IS_LOCAL(u))
+				continue;
+
+			if (already_sent[i->first->fd] != uniq_id)
+			{
+				u->Write(quitline);
+				already_sent[i->first->fd] = uniq_id;
+			}
+			u->Write(joinline);
+			if (modeline.length() > 0)
+				u->Write(modeline);
+		}
+	}
+}
+
 bool User::ChangeDisplayedHost(const char* shost)
 {
 	if (dhost == shost)
@@ -1580,27 +1626,14 @@ bool User::ChangeDisplayedHost(const char* shost)
 
 	FOREACH_MOD(I_OnChangeHost, OnChangeHost(this,shost));
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
-
-	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
-		this->WriteCommonExcept("QUIT :Changing hosts");
+	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing host";
 
 	/* Fix by Om: User::dhost is 65 long, this was truncating some long hosts */
 	this->dhost.assign(shost, 0, 64);
 
 	this->InvalidateCache();
 
-	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
-	{
-		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
-		{
-			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name.c_str());
-			std::string n = this->ServerInstance->Modes->ModeString(this, i->first);
-			if (n.length() > 0)
-				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name.c_str(), n.c_str());
-		}
-	}
+	this->DoHostCycle(quitstr);
 
 	if (IS_LOCAL(this))
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, "%s %s :is now your displayed host",this->nick.c_str(),this->dhost.c_str());
@@ -1613,26 +1646,13 @@ bool User::ChangeIdent(const char* newident)
 	if (this->ident == newident)
 		return true;
 
-	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnHostCycle, OnHostCycle(this));
-
-	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
-		this->WriteCommonExcept("%s","QUIT :Changing ident");
+	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing ident";
 
 	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax + 1);
 
 	this->InvalidateCache();
 
-	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
-	{
-		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
-		{
-			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name.c_str());
-			std::string n = this->ServerInstance->Modes->ModeString(this, i->first);
-			if (n.length() > 0)
-				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name.c_str(), n.c_str());
-		}
-	}
+	this->DoHostCycle(quitstr);
 
 	return true;
 }
