@@ -510,6 +510,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	FlatLinks = Conf->ReadFlag("security","flatlinks",0);
 	HideULines = Conf->ReadFlag("security","hideulines",0);
 	AnnounceTSChange = Conf->ReadFlag("options","announcets",0);
+	AllowOptCommon = Conf->ReadFlag("options", "allowmismatch", 0);
 	ChallengeResponse = !Conf->ReadFlag("security", "disablehmac", 0);
 	quiet_bursts = Conf->ReadFlag("performance", "quietbursts", 0);
 	PingWarnTime = Conf->ReadInteger("options", "pingwarning", 0, true);

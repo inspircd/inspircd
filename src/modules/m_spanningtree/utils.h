@@ -83,6 +83,10 @@ class SpanningTreeUtilities : public classbase
 	 */
 	bool AnnounceTSChange;
 
+	/** Allow modules marked as VF_OPTCOMMON to be mismatched when linking
+	 */
+	bool AllowOptCommon;
+
 	/** Make snomasks +CQ quiet during bursts and splits
 	 */
 	bool quiet_bursts;

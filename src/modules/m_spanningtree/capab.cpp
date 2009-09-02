@@ -192,12 +192,22 @@ bool TreeSocket::Capab(const parameterlist &params)
 			{
 				reason = "Optional Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
 			}
-			else
+			else if (Utils->AllowOptCommon)
 			{
 				ServerInstance->SNO->WriteToSnoMask('l',
 					"Optional module lists do not match, some commands may not work globally.%s%s%s%s",
 					diffIneed.length() ? " Not loaded here:" : "", diffIneed.c_str(),
 					diffUneed.length() ? " Not loaded there:" : "", diffUneed.c_str());
+			}
+			else
+			{
+				reason = "Optional modules incorrectly matched on these servers, and options::allowmismatch not set.";
+				if (diffIneed.length())
+					reason += " Not loaded here:" + diffIneed;
+				if (diffUneed.length())
+					reason += " Not loaded there:" + diffUneed;
+				this->SendError("CAPAB negotiation failed: "+reason);
+				return false;
 			}
 		}
 
