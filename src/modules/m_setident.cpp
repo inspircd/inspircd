@@ -49,7 +49,7 @@ class CommandSetident : public Command
 		user->ChangeIdent(parameters[0].c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
-		return CMD_SUCCESS;
+		return CMD_LOCALONLY;
 	}
 };
 
@@ -70,7 +70,7 @@ class ModuleSetIdent : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
 };

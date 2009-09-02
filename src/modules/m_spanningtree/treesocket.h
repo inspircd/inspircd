@@ -344,6 +344,9 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool ChangeName(const std::string &prefix, parameterlist &params);
 
+	/** FIDENT */
+	bool ChangeIdent(const std::string &prefix, parameterlist &params);
+
 	/** WHOIS
 	 */
 	bool Whois(const std::string &prefix, parameterlist &params);

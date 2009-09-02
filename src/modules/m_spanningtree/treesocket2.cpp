@@ -407,6 +407,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->ChangeName(prefix,params);
 			}
+			else if (command == "FIDENT")
+			{
+				return this->ChangeIdent(prefix,params);
+			}
 			else if (command == "ADDLINE")
 			{
 				return this->AddLine(prefix,params);

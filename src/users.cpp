@@ -1631,6 +1631,8 @@ bool User::ChangeIdent(const char* newident)
 	if (this->ident == newident)
 		return true;
 
+	FOREACH_MOD(I_OnChangeIdent, OnChangeIdent(this,newident));
+
 	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing ident";
 
 	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax + 1);

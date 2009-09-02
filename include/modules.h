@@ -428,7 +428,7 @@ enum Implementation
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
-	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine,
+	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
 };
 
@@ -913,6 +913,13 @@ class CoreExport Module : public Extensible
 	 * @param gecos The new GECOS being set on the user
 	 */
 	virtual void OnChangeName(User* user, const std::string &gecos);
+
+	/** Called whenever a user's IDENT is changed.
+	 * This event triggers after the name has been set.
+	 * @param user The user who's IDENT is being changed
+	 * @param gecos The new IDENT being set on the user
+	 */
+	virtual void OnChangeIdent(User* user, const std::string &ident);
 
 	/** Called whenever an xline is added by a local user.
 	 * This method is triggered after the line is added.

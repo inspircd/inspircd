@@ -49,10 +49,10 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
-		I_OnChangeLocalUserHost, I_OnChangeName, I_OnUserPart, I_OnUnloadModule, I_OnUserQuit,
-		I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash, I_OnOper,
-		I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats, I_OnEvent, I_OnSetAway,
-		I_OnPostCommand, I_OnUserConnect
+		I_OnChangeLocalUserHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
+		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
+		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats, I_OnEvent,
+		I_OnSetAway, I_OnPostCommand, I_OnUserConnect
 	};
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
@@ -635,6 +635,17 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	parameterlist params;
 	params.push_back(gecos);
 	Utils->DoOneToMany(user->uuid,"FNAME",params);
+}
+
+void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
+{
+	// only occurs for local clients
+	if (user->registered != REG_ALL)
+		return;
+
+	parameterlist params;
+	params.push_back(ident);
+	Utils->DoOneToMany(user->uuid,"FIDENT",params);
 }
 
 void ModuleSpanningTree::OnUserPart(User* user, Channel* channel,  std::string &partmessage, bool &silent)

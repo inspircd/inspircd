@@ -180,6 +180,7 @@ std::string	Module::ProtoTranslate(Extensible*) { return "?"; }
 void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }
 void		Module::OnChangeName(User*, const std::string&) { }
+void		Module::OnChangeIdent(User*, const std::string&) { }
 void		Module::OnAddLine(User*, XLine*) { }
 void		Module::OnDelLine(User*, XLine*) { }
 void		Module::OnExpireLine(XLine*) { }
