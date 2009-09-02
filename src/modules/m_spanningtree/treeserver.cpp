@@ -182,7 +182,7 @@ int TreeServer::QuitUsers(const std::string &reason)
 				ServerInstance->Users->QuitUser(a, reason_s);
 
 			if (this->Utils->quiet_bursts)
-				ServerInstance->GlobalCulls.MakeSilent(a);
+				a->quietquit = true;
 		}
 	}
 	return time_to_die.size();

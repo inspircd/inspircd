@@ -317,9 +317,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	}
 }
 
-InspIRCd::InspIRCd(int argc, char** argv)
-	: GlobalCulls(this),
-
+InspIRCd::InspIRCd(int argc, char** argv) :
 	 /* Functor initialisation. Note that the ordering here is very important.
 	  *
 	  * THIS MUST MATCH ORDER OF DECLARATION OF THE HandleWhateverFunc classes
