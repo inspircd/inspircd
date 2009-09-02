@@ -34,7 +34,7 @@ ModePair ModeChannelLimit::ModeSet(User*, User*, Channel* channel, const std::st
 	}
 }
 
-bool ModeChannelLimit::CheckTimeStamp(time_t, time_t, const std::string &their_param, const std::string &our_param, Channel*)
+bool ModeChannelLimit::CheckTimeStamp(std::string &their_param, const std::string &our_param, Channel*)
 {
 	/* When TS is equal, the higher channel limit wins */
 	return (atoi(their_param.c_str()) < atoi(our_param.c_str()));

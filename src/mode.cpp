@@ -155,9 +155,9 @@ void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
 }
 
-bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string&, const std::string&, Channel*)
+bool ModeHandler::CheckTimeStamp(std::string& theirs, const std::string& ours, Channel*)
 {
-	return (ours < theirs);
+	return (theirs < ours);
 }
 
 SimpleUserModeHandler::SimpleUserModeHandler(InspIRCd* Instance, char modeletter) : ModeHandler(Instance, modeletter, 0, 0, false, MODETYPE_USER, false)
@@ -471,7 +471,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	return MODEACTION_ALLOW;
 }
 
-void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool servermode)
+void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool servermode, bool merge)
 {
 	std::string target = parameters[0];
 	Channel* targetchannel = ServerInstance->FindChan(target);
@@ -562,6 +562,13 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			/* Make sure the user isn't trying to slip in an invalid parameter */
 			if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
 				continue;
+			if (merge && targetchannel && targetchannel->IsModeSet(modechar) && !mh->IsListMode())
+			{
+				std::string ours = targetchannel->GetModeParameter(modechar);
+				if (!mh->CheckTimeStamp(parameter, ours, targetchannel))
+					/* we won the mode merge, don't apply this mode */
+					continue;
+			}
 		}
 
 		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, modechar, parameter, servermode, SkipAccessChecks);

@@ -87,12 +87,6 @@ class MsgFlood : public ModeHandler
 			return std::make_pair(false, parameter);
 	}
 
-	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
-	{
-		/* When TS is equal, the alphabetically later one wins */
-		return (their_param < our_param);
-	}
-
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
 		floodsettings *f;

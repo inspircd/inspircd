@@ -61,12 +61,6 @@ void ModeChannelKey::RemoveMode(User*, irc::modestacker* stack)
 {
 }
 
-bool ModeChannelKey::CheckTimeStamp(time_t, time_t, const std::string &their_param, const std::string &our_param, Channel*)
-{
-	/* When TS is equal, the alphabetically later channel key wins */
-	return (their_param < our_param);
-}
-
 ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding, bool servermode)
 {
 	bool exists = channel->IsModeSet('k');

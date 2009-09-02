@@ -266,14 +266,12 @@ class CoreExport ModeHandler : public Extensible
 	 * override this function and use it to return true or false. The default implementation just returns true if
 	 * theirs < ours. This will only be called for non-listmodes with parameters, when adding the mode and where
 	 * theirs == ours (therefore the default implementation will always return false).
-	 * @param theirs The timestamp of the remote side
-	 * @param ours The timestamp of the local side
 	 * @param their_param Their parameter if the mode has a parameter
 	 * @param our_param Our parameter if the mode has a parameter
 	 * @param channel The channel we are checking against
 	 * @return True if the other side wins the merge, false if we win the merge for this mode.
 	 */
-	virtual bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel);
+	virtual bool CheckTimeStamp(std::string &their_param, const std::string &our_param, Channel* channel);
 
 	/**
 	 * When a remote server needs to bounce a set of modes, it will call this method for every mode
@@ -536,7 +534,7 @@ class CoreExport ModeParser : public classbase
 	 * and *user->server == NULL.
 	 * @param servermode True if a server is setting the mode.
 	 */
-	void Process(const std::vector<std::string>& parameters, User *user, bool servermode);
+	void Process(const std::vector<std::string>& parameters, User *user, bool servermode, bool merge = false);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
