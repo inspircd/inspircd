@@ -520,34 +520,43 @@ class ModuleSSLGnuTLS : public Module
 
 		if (session->status == ISSL_HANDSHAKEN)
 		{
-			int ret = gnutls_record_recv(session->sess, buffer, count);
+			unsigned int len = 0;
+			while (len < count)
+			{
+				int ret = gnutls_record_recv(session->sess, buffer + len, count - len);
+				if (ret > 0)
+				{
+					len += ret;
+				}
+				else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+				{
+					break;
+				}
+				else
+				{
+					if (ret != 0)
+						ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
+							"m_ssl_gnutls.so: Error while reading on fd %d: %s",
+							fd, gnutls_strerror(ret));
 
-			if (ret > 0)
-			{
-				readresult = ret;
+					// if ret == 0, client closed connection.
+					readresult = 0;
+					CloseSession(session);
+					return 1;
+				}
 			}
-			else if (ret == 0)
+			readresult = len;
+			if (len)
 			{
-				// Client closed connection.
-				readresult = 0;
-				CloseSession(session);
 				return 1;
 			}
-			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+			else
 			{
 				errno = EAGAIN;
 				return -1;
 			}
-			else
-			{
-				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
-						"m_ssl_gnutls.so: Error while reading on fd %d: %s",
-						fd, gnutls_strerror(ret));
-				readresult = 0;
-				CloseSession(session);
-			}
 		}
-		else if(session->status == ISSL_CLOSING)
+		else if (session->status == ISSL_CLOSING)
 			readresult = 0;
 
 		return 1;
@@ -610,7 +619,8 @@ class ModuleSSLGnuTLS : public Module
 			}
 		}
 
-		MakePollWrite(fd);
+		if (!session->outbuf.empty())
+			MakePollWrite(fd);
 
 		/* Who's smart idea was it to return 1 when we havent written anything?
 		 * This fucks the buffer up in BufferedSocket :p
