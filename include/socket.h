@@ -178,7 +178,7 @@ class CoreExport ListenSocketBase : public EventHandler
 	const std::string& GetDescription() { return desc; }
 	/** Get port number for socket
 	 */
-	const int GetPort() { return bind_port; }
+	int GetPort() const { return bind_port; }
 
 	/** Get IP address socket is bound to
 	 */

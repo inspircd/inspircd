@@ -101,14 +101,14 @@ struct ModResult {
 	{
 		return !res;
 	}
-	bool check(bool def)
+	bool check(bool def) const
 	{
 		return (res == 1 || (res == 0 && def));
 	}
 	/**
 	 * Merges two results, preferring ALLOW to DENY
 	 */
-	const ModResult operator+(const ModResult& r)
+	ModResult operator+(const ModResult& r) const
 	{
 		if (res == r.res || r.res == 0)
 			return *this;
