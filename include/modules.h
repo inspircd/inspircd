@@ -76,6 +76,31 @@ enum MessageType {
 	MSG_NOTICE = 1
 };
 
+/** Used to represent an allow/deny module result.
+ * Not constructed as an enum because it reverses the value logic of some functions;
+ * the compiler will inline accesses to have the same efficiency as integer operations.
+ */
+struct ModResult {
+	int res;
+	explicit ModResult(int r) : res(r) {}
+	bool operator==(const ModResult& r) const
+	{
+		return res == r.res;
+	}
+	bool operator!=(const ModResult& r) const
+	{
+		return res != r.res;
+	}
+	bool operator!() const
+	{
+		return !res;
+	}
+};
+
+#define MOD_RES_ALLOW (ModResult(1))
+#define MOD_RES_PASSTHRU (ModResult(0))
+#define MOD_RES_DENY (ModResult(-1))
+
 /** If you change the module API, change this value. */
 #define API_VERSION 13000
 
@@ -239,6 +264,16 @@ do { \
 		} \
 	} \
 } while(0)
+
+#define FIRST_MOD_RESULT(z,n,v,args) do { \
+	v = MOD_RES_PASSTHRU; \
+	DO_EACH_HOOK(z,n,v,args) \
+	{ \
+		if (v != MOD_RES_PASSTHRU) \
+			break; \
+	} \
+	WHILE_EACH_HOOK(z,n); \
+} while (0)
 
 /** Represents a non-local user.
  * (in fact, any FD less than -1 does)
