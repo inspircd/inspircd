@@ -37,6 +37,11 @@ enum TranslateType
 	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */
 };
 
+/** Routing types for a command. Any command which is created defaults
+ * to having its command broadcasted on success. This behaviour may be
+ * overridden to one of the route types shown below (see the #defines
+ * below for more information on each one's behaviour)
+ */
 enum RouteType
 {
 	ROUTE_TYPE_LOCALONLY,
@@ -46,13 +51,21 @@ enum RouteType
 	ROUTE_TYPE_OPT_UCAST
 };
 
+/** Defines routing information for a command, containing a destination
+ * server id (if applicable) and a routing type from the enum above.
+ */
 struct RouteDescriptor
 {
+	/** Routing type from the enum above
+	 */
 	const RouteType type;
 	/** For unicast, the destination server's name
 	 */
 	const std::string serverdest;
-	RouteDescriptor(RouteType t, const std::string d)
+
+	/** Create a RouteDescriptor
+	 */
+	RouteDescriptor(RouteType t, const std::string &d)
 		: type(t), serverdest(d) { }
 };
 
@@ -62,9 +75,9 @@ struct RouteDescriptor
 #define ROUTE_BROADCAST (RouteDescriptor(ROUTE_TYPE_BROADCAST, ""))
 /** Route this command to a single server (do nothing if own server name specified) */
 #define ROUTE_UNICAST(x) (RouteDescriptor(ROUTE_TYPE_UNICAST, x))
-/** Route this command to all servers, ignore if not understood */
+/** Route this command to all servers wrapped via ENCAP, so ignored if not understood */
 #define ROUTE_OPT_BCAST (RouteDescriptor(ROUTE_TYPE_OPT_BCAST, ""))
-/** Route this command to a single server, ignore if not understood */
+/** Route this command to a single server wrapped via ENCAP, so ignored if not understood */
 #define ROUTE_OPT_UCAST(x) (RouteDescriptor(ROUTE_TYPE_OPT_UCAST, x))
 
 /** A structure that defines a command. Every command available
