@@ -179,27 +179,6 @@ class CoreExport Command : public Extensible
 		return ROUTE_LOCALONLY;
 	}
 
-	/** Handle an internal request from another command, the core, or a module
-	 * @param Command ID
-	 * @param Zero or more parameters, whos form is specified by the command ID.
-	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 */
-	virtual CmdResult HandleInternal(const unsigned int /* id */, const std::deque<classbase*>& /* params */)
-	{
-		return CMD_INVALID;
-	}
-
-	/** Handle the command from a server.
-	 * Not currently used in this version of InspIRCd.
-	 * @param parameters The parameters given
-	 * @param servername The server name which issued the command
-	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 */
-	virtual CmdResult HandleServer(const std::vector<std::string>& /* parameters */, const std::string& /* servername */)
-	{
-		return CMD_INVALID;
-	}
-
 	/** Encode a parameter for server->server transmission.
 	 * Used for parameters for which the translation type is TR_CUSTOM.
 	 * @param parameter The parameter to encode. Can be modified in place.

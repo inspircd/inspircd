@@ -157,19 +157,13 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 			if (!this->Config->WhoWasGroupSize == 0 && !this->Config->WhoWasMaxGroups == 0)
 			{
-				Command* whowas_command = this->Parser->GetHandler("WHOWAS");
-				if (whowas_command)
+				Module* whowas = Modules->Find("cmd_whowas.so");
+				if (whowas)
 				{
-					std::deque<classbase*> params;
-					Extensible whowas_stats;
-					params.push_back(&whowas_stats);
-					whowas_command->HandleInternal(WHOWAS_STATS, params);
-					if (whowas_stats.GetExt("stats"))
-					{
-						char* statc;
-						whowas_stats.GetExt("stats", statc);
-						results.push_back(sn+" 249 "+user->nick+" :"+ConvToStr(statc));
-					}
+					WhowasRequest req(NULL, whowas, WhowasRequest::WHOWAS_STATS);
+					req.user = user;
+					req.Send();
+					results.push_back(sn+" 249 "+user->nick+" :"+req.value);
 				}
 			}
 

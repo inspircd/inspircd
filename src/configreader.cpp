@@ -442,11 +442,10 @@ static bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueIt
 		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
 	}
 
-	Command* whowas_command = conf->GetInstance()->Parser->GetHandler("WHOWAS");
-	if (whowas_command)
+	Module* whowas = conf->GetInstance()->Modules->Find("cmd_whowas.so");
+	if (whowas)
 	{
-		std::deque<classbase*> params;
-		whowas_command->HandleInternal(WHOWAS_PRUNE, params);
+		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
 	}
 
 	return true;

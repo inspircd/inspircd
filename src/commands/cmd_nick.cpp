@@ -41,11 +41,10 @@
  */
 class CommandNick : public Command
 {
-	bool allowinvalid;
  public:
 	/** Constructor for nick.
 	 */
-	CommandNick (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"NICK", 0, 1, true, 3), allowinvalid(false) { syntax = "<newnick>"; }
+	CommandNick (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"NICK", 0, 1, true, 3) { syntax = "<newnick>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -53,13 +52,6 @@ class CommandNick : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-
-	/** Handle internal command
-	 * @param id Used to indicate if invalid nick changes are allowed.
-	 * Set to 1 to allow invalid nicks and 0 to deny them.
-	 * @param parameters Currently unused
-	 */
-	CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters);
 };
 
 #endif
@@ -83,17 +75,16 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (((!ServerInstance->IsNick(parameters[0].c_str(), ServerInstance->Config->Limits.NickMax))) && (IS_LOCAL(user)))
 	{
-		if (!allowinvalid)
+		if (!user->GetExt("NICKForced"))
 		{
 			if (parameters[0] == "0")
 			{
 				// Special case, Fake a /nick UIDHERE. Useful for evading "ERR: NICK IN USE" on connect etc.
 				std::vector<std::string> p2;
-				std::deque<classbase*> dummy;
 				p2.push_back(user->uuid);
-				this->HandleInternal(1, dummy);
+				user->Extend("NICKForced");
 				this->Handle(p2, user);
-				this->HandleInternal(0, dummy);
+				user->Shrink("NICKForced");
 				return CMD_SUCCESS;
 			}
 
@@ -136,7 +127,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 * Also don't check Q:Lines for remote nickchanges, they should have our Q:Lines anyway to enforce themselves.
 		 *		-- w00t
 		 */
-		if (!allowinvalid || !IS_LOCAL(user))
+		if (!IS_LOCAL(user))
 		{
 			XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
 			if (mq)
@@ -249,12 +240,6 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	return CMD_SUCCESS;
 
-}
-
-CmdResult CommandNick::HandleInternal(const unsigned int id, const std::deque<classbase*>&)
-{
-	allowinvalid = (id != 0);
-	return CMD_SUCCESS;
 }
 
 

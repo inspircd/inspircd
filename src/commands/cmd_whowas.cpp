@@ -82,33 +82,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandWhowas::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
-{
-	switch (id)
-	{
-		case WHOWAS_ADD:
-			AddToWhoWas(static_cast<User*>(parameters[0]));
-		break;
-
-		case WHOWAS_STATS:
-			GetStats(static_cast<Extensible*>(parameters[0]));
-		break;
-
-		case WHOWAS_PRUNE:
-			PruneWhoWas(ServerInstance->Time());
-		break;
-
-		case WHOWAS_MAINTAIN:
-			MaintainWhoWas(ServerInstance->Time());
-		break;
-
-		default:
-		break;
-	}
-	return CMD_SUCCESS;
-}
-
-void CommandWhowas::GetStats(Extensible* ext)
+std::string CommandWhowas::GetStats()
 {
 	int whowas_size = 0;
 	int whowas_bytes = 0;
@@ -123,7 +97,7 @@ void CommandWhowas::GetStats(Extensible* ext)
 		}
 	}
 	stats.assign("Whowas(MAPSETS) " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)");
-	ext->Extend("stats", stats.c_str());
+	return stats;
 }
 
 void CommandWhowas::AddToWhoWas(User* user)
@@ -323,12 +297,47 @@ WhoWasGroup::~WhoWasGroup()
 /* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
 void WhoWasMaintainTimer::Tick(time_t)
 {
-	Command* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
-	if (whowas_command)
+	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
+	if (whowas)
 	{
-		std::deque<classbase*> params;
-		whowas_command->HandleInternal(WHOWAS_MAINTAIN, params);
+		WhowasRequest(whowas, whowas, WhowasRequest::WHOWAS_MAINTAIN).Send();
 	}
 }
 
-COMMAND_INIT(CommandWhowas)
+class ModuleWhoWas : public Module
+{
+	CommandWhowas cmd;
+ public:
+	ModuleWhoWas(InspIRCd *Me) : Module(Me), cmd(Me, this)
+	{
+		ServerInstance->AddCommand(&cmd);
+	}
+
+	const char* OnRequest(Request* request)
+	{
+		WhowasRequest* req = static_cast<WhowasRequest*>(request);
+		switch (req->type)
+		{
+			case WhowasRequest::WHOWAS_ADD:
+				cmd.AddToWhoWas(req->user);
+				break;
+			case WhowasRequest::WHOWAS_STATS:
+				req->value = cmd.GetStats();
+				break;
+			case WhowasRequest::WHOWAS_PRUNE:
+				cmd.PruneWhoWas(ServerInstance->Time());
+				break;
+			case WhowasRequest::WHOWAS_MAINTAIN:
+				cmd.MaintainWhoWas(ServerInstance->Time());
+				break;
+		}
+		return NULL;
+	}
+
+	Version GetVersion()
+	{
+		return Version("WHOWAS Command", VF_VENDOR);
+	}
+};
+
+MODULE_INIT(ModuleWhoWas)

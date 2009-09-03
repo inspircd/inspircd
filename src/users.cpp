@@ -869,12 +869,12 @@ void User::UnOper()
 /* adds or updates an entry in the whowas list */
 void User::AddToWhoWas()
 {
-	Command* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
-	if (whowas_command)
+	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
+	if (whowas)
 	{
-		std::deque<classbase*> params;
-		params.push_back(this);
-		whowas_command->HandleInternal(WHOWAS_ADD, params);
+		WhowasRequest req(NULL, whowas, WhowasRequest::WHOWAS_ADD);
+		req.user = this;
+		req.Send();
 	}
 }
 
@@ -1045,12 +1045,10 @@ bool User::ForceNickChange(const char* newnick)
 	if (nickhandler) // wtfbbq, when would this not be here
 	{
 		std::vector<std::string> parameters;
-		nickhandler->HandleInternal(1, dummy);
 		parameters.push_back(newnick);
 		this->Extend("NICKForced");
 		bool result = (ServerInstance->Parser->CallHandler("NICK", parameters, this) == CMD_SUCCESS);
 		this->Shrink("NICKForced");
-		nickhandler->HandleInternal(0, dummy);
 		return result;
 	}
 

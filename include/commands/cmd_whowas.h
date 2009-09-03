@@ -13,20 +13,25 @@
 
 #ifndef __CMD_WHOWAS_H__
 #define __CMD_WHOWAS_H__
+#include "modules.h"
 
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
-/* list of available internal commands */
-enum Internals
+struct WhowasRequest : public Request
 {
-	WHOWAS_ADD = 1,
-	WHOWAS_STATS = 2,
-	WHOWAS_PRUNE = 3,
-	WHOWAS_MAINTAIN = 4
+	/* list of available internal commands */
+	enum Internals
+	{
+		WHOWAS_ADD = 1,
+		WHOWAS_STATS = 2,
+		WHOWAS_PRUNE = 3,
+		WHOWAS_MAINTAIN = 4
+	};
+
+	const Internals type;
+	std::string value;
+	User* user;
+
+	WhowasRequest(Module* src, Module* whowas, Internals Type) : Request(src, whowas, "WHOWAS"), type(Type)
+	{}
 };
 
 /* Forward ref for timer */
@@ -80,19 +85,11 @@ class CommandWhowas : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	/** Handle an internal request from another command, the core, or a module
-	 * @param Command ID
-	 * @param Zero or more parameters, whos form is specified by the command ID.
-	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 * If the command succeeds but should remain local to this server,
-	 * return CMD_LOCALONLY.
-	 */
-	CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters);
 	void AddToWhoWas(User* user);
-	void GetStats(Extensible* ext);
+	std::string GetStats();
 	void PruneWhoWas(time_t t);
 	void MaintainWhoWas(time_t t);
-	virtual ~CommandWhowas();
+	~CommandWhowas();
 };
 
 /** Used to hold WHOWAS information
