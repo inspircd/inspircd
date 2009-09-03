@@ -41,7 +41,7 @@ class CommandSetidle : public Command
 		ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
 		user->WriteNumeric(944, "%s :Idle time set.",user->nick.c_str());
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

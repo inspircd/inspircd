@@ -93,6 +93,11 @@ class CommandOjoin : public Command
 			return CMD_FAILURE;
 		}
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 /** Abstraction of NetworkPrefixBase for channel mode +Y

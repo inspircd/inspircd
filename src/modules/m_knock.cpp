@@ -65,6 +65,11 @@ class CommandKnock : public Command
 		user->WriteServ("NOTICE %s :KNOCKing on %s", user->nick.c_str(), c->name.c_str());
 		return CMD_SUCCESS;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 /** Handles channel mode +K

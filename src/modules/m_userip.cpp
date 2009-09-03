@@ -49,7 +49,7 @@ class CommandUserip : public Command
 			user->WriteServ(retbuf);
 
 		/* Dont send to the network */
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

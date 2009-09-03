@@ -61,7 +61,6 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 			sock->Squit(server_target, std::string("Server quit by ") + user->GetFullRealHost() + " (" + reason + ")");
 			ServerInstance->SE->DelFd(sock);
 			sock->Close();
-			return CMD_LOCALONLY;
 		}
 	}
 

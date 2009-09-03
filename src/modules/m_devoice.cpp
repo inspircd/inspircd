@@ -43,7 +43,7 @@ class CommandDevoice : public Command
 
 			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
 			ServerInstance->PI->SendMode(c->name, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 
 		return CMD_FAILURE;

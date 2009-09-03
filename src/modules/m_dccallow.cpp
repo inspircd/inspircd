@@ -199,6 +199,11 @@ class CommandDccallow : public Command
 		return CMD_FAILURE;
 	}
 
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
+
 	void DisplayHelp(User* user)
 	{
 		user->WriteNumeric(998, "%s :DCCALLOW [<+|->nick [time]] [list] [help]", user->nick.c_str());

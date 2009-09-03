@@ -47,7 +47,7 @@ class CommandRandquote : public Command
 			return CMD_FAILURE;
 		}
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

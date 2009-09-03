@@ -82,6 +82,11 @@ class CommandSVSSilence : public Command
 
 		return CMD_SUCCESS;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 class CommandSilence : public Command
@@ -112,7 +117,7 @@ class CommandSilence : public Command
 			}
 			user->WriteNumeric(272, "%s :End of Silence List",user->nick.c_str());
 
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 		else if (parameters.size() > 0)
 		{
@@ -199,7 +204,7 @@ class CommandSilence : public Command
 				return CMD_SUCCESS;
 			}
 		}
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 
 	/* turn the nice human readable pattern into a mask */

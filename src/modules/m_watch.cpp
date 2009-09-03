@@ -125,6 +125,11 @@ class CommandSVSWatch : public Command
 
 		return CMD_SUCCESS;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 /** Handle /WATCH
@@ -182,7 +187,7 @@ class CommandWatch : public Command
 			}
 		}
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 
 	CmdResult add_watch(User* user, const char* nick)
@@ -240,7 +245,7 @@ class CommandWatch : public Command
 			}
 		}
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 
 	CommandWatch (InspIRCd* Instance, Module* parent, unsigned int &maxwatch) : Command(Instance,parent,"WATCH",0,0), MAX_WATCH(maxwatch)
@@ -352,7 +357,7 @@ class CommandWatch : public Command
 				}
 			}
 		}
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

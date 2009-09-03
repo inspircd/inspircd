@@ -42,7 +42,7 @@ class CommandSATopic : public Command
 			ServerInstance->SNO->WriteToSnoMask('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 			ServerInstance->PI->SendSNONotice("A", user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 		else
 		{

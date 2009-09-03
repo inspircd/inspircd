@@ -72,7 +72,7 @@ class CommandSwhois : public Command
 			delete text;
 		}
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 
 };

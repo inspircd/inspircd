@@ -112,6 +112,11 @@ class CommandFilter : public Command
 	{
 		user->WriteServ("NOTICE %s :*** Not enough parameters%s", user->nick.c_str(), extra_text.c_str());
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 class FilterBase : public Module

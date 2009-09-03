@@ -107,6 +107,11 @@ class CommandTban : public Command
 		user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 class ModuleTimedBans : public Module

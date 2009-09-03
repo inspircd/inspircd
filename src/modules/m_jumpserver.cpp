@@ -55,7 +55,7 @@ class CommandJumpserver : public Command
 
 			port = 0;
 			redirect_to.clear();
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 
 		port = 0;
@@ -126,7 +126,7 @@ class CommandJumpserver : public Command
 					reason.c_str());
 		}
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

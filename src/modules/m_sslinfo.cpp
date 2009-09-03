@@ -45,7 +45,7 @@ class CommandSSLInfo : public Command
 					user->WriteServ("NOTICE %s :*** Issuer:            %s", user->nick.c_str(), cert->GetIssuer().c_str());
 					user->WriteServ("NOTICE %s :*** Key Fingerprint:   %s", user->nick.c_str(), cert->GetFingerprint().c_str());
 				}
-				return CMD_LOCALONLY;
+				return CMD_SUCCESS;
 			}
 			else
 			{

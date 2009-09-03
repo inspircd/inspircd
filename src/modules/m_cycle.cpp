@@ -64,7 +64,7 @@ class CommandCycle : public Command
 				Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
 			}
 
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 		else
 		{

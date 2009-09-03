@@ -35,7 +35,7 @@ CmdResult ShowOperMOTD(User* user)
 	user->WriteServ(std::string("376 ") + user->nick + std::string(" :- End of OPERMOTD"));
 
 	/* don't route me */
-	return CMD_LOCALONLY;
+	return CMD_SUCCESS;
 }
 
 /** Handle /OPERMOTD

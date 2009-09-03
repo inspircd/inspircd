@@ -47,6 +47,11 @@ class CommandGloadmodule : public Command
 
 		return CMD_SUCCESS;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 /** Handle /GUNLOADMODULE
@@ -79,6 +84,11 @@ class CommandGunloadmodule : public Command
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
 	}
 };
 
@@ -117,6 +127,11 @@ class CommandGreloadmodule : public Command
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
 	}
 };
 

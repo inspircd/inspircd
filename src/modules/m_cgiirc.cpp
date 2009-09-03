@@ -78,7 +78,7 @@ class CommandWebirc : public Command
 							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
 						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
 						user->Extend("cgiirc_webirc_ip", new std::string(parameters[3]));
-						return CMD_LOCALONLY;
+						return CMD_SUCCESS;
 					}
 				}
 			}

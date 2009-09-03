@@ -55,7 +55,7 @@ class CommandTline : public Command
 		else
 			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against no user(s).", user->nick.c_str(), n_counted, parameters[0].c_str());
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

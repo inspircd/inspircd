@@ -34,7 +34,7 @@ class CommandSamode : public Command
 		if (ServerInstance->Modes->GetLastParse().length())
 			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick) + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
 		this->active = false;
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

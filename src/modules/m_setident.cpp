@@ -49,7 +49,7 @@ class CommandSetident : public Command
 		user->ChangeIdent(parameters[0].c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

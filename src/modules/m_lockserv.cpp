@@ -37,7 +37,7 @@ public:
 		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick.c_str(), user->server);
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily close for new connections", user->nick.c_str());
 		/* Dont send to the network */
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 
@@ -59,7 +59,7 @@ public:
 		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick.c_str(), user->server);
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow for new connections", user->nick.c_str());
 		/* Dont send to the network */
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

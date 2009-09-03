@@ -68,10 +68,6 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 		Module* srcmodule = thiscmd->creator;
 		Version ver = srcmodule->GetVersion();
 
-		// XXX Temporary check to avoid routing cmd_* entries while they default to global routing
-		if (srcmodule->ModuleSourceFile[0] == 'c')
-			return;
-
 		if (!(ver.Flags & VF_COMMON))
 		{
 			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Routed command %s from non-VF_COMMON module %s",

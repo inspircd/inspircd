@@ -62,7 +62,7 @@ class CommandMkpasswd : public Command
 		// Slow down the user if they are trying to flood mkpasswd requests
 		user->IncreasePenalty(5);
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

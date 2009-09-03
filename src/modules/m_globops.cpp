@@ -40,6 +40,11 @@ class CommandGlobops : public Command
 		/* route it (ofc :p) */
 		return CMD_SUCCESS;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 class ModuleGlobops : public Module

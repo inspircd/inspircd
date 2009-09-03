@@ -43,7 +43,7 @@ class CommandVhost : public Command
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
 					user->ChangeDisplayedHost(mask.c_str());
 					delete Conf;
-					return CMD_LOCALONLY;
+					return CMD_SUCCESS;
 				}
 			}
 		}

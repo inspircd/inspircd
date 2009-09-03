@@ -53,7 +53,7 @@ class CommandSethost : public Command
 		if (user->ChangeDisplayedHost(parameters[0].c_str()))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used SETHOST to change their displayed host to "+user->dhost);
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 
 		return CMD_FAILURE;

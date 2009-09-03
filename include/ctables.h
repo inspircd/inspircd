@@ -21,7 +21,6 @@ enum CmdResult
 	CMD_FAILURE = 0,	/* Command exists, but failed */
 	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
 	CMD_INVALID = 2		/* Command doesnt exist at all! */
-#define CMD_LOCALONLY CMD_FAILURE
 };
 
 /** Translation types for translation of parameters to UIDs.
@@ -172,22 +171,18 @@ class CoreExport Command : public Extensible
 	 * @param parameters The parameters for the command.
 	 * @param user The user who issued the command.
 	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 * If the command succeeds but should remain local to this server,
-	 * return CMD_LOCALONLY.
 	 */
 	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
 
 	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_LOCALONLY;
 	}
 
 	/** Handle an internal request from another command, the core, or a module
 	 * @param Command ID
 	 * @param Zero or more parameters, whos form is specified by the command ID.
 	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 * If the command succeeds but should remain local to this server,
-	 * return CMD_LOCALONLY.
 	 */
 	virtual CmdResult HandleInternal(const unsigned int /* id */, const std::deque<classbase*>& /* params */)
 	{
@@ -199,8 +194,6 @@ class CoreExport Command : public Extensible
 	 * @param parameters The parameters given
 	 * @param servername The server name which issued the command
 	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 * If the command succeeds but should remain local to this server,
-	 * return CMD_LOCALONLY.
 	 */
 	virtual CmdResult HandleServer(const std::vector<std::string>& /* parameters */, const std::string& /* servername */)
 	{

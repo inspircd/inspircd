@@ -51,7 +51,7 @@ class CommandClones : public Command
 
 		user->WriteServ(clonesstr + " END");
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

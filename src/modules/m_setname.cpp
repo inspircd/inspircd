@@ -46,7 +46,7 @@ class CommandSetname : public Command
 			return CMD_SUCCESS;
 		}
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

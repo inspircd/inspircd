@@ -58,7 +58,7 @@ class CommandClose : public Command
 		else
 			user->WriteServ("NOTICE %s :*** No unknown connections found",user->nick.c_str());
 
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 };
 

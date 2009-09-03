@@ -77,12 +77,12 @@ class CommandTitle : public Command
 
 				user->WriteServ("NOTICE %s :Custom title set to '%s'",user->nick.c_str(), title.c_str());
 
-				return CMD_LOCALONLY;
+				return CMD_SUCCESS;
 			}
 		}
 
 		user->WriteServ("NOTICE %s :Invalid title credentials",user->nick.c_str());
-		return CMD_LOCALONLY;
+		return CMD_SUCCESS;
 	}
 
 };

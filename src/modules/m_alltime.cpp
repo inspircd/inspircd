@@ -37,6 +37,11 @@ class CommandAlltime : public Command
 		/* we want this routed out! */
 		return CMD_SUCCESS;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 

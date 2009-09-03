@@ -74,6 +74,11 @@ class CommandUninvite : public Command
 
 		return CMD_SUCCESS;
 	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 class ModuleUninvite : public Module

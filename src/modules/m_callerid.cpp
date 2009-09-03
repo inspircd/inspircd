@@ -196,7 +196,7 @@ public:
 		{
 			if (IS_LOCAL(user))
 				ListAccept(user);
-			return CMD_LOCALONLY;
+			return CMD_SUCCESS;
 		}
 		else if (tok[0] == '-')
 		{
