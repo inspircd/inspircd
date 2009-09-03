@@ -245,7 +245,7 @@ class ModuleOjoin : public Module
  public:
 
 	ModuleOjoin(InspIRCd* Me)
-		: Module(Me), mycommand(Me, this)
+		: Module(Me), np(NULL), mycommand(Me, this)
 	{
 		/* Load config stuff */
 		OnRehash(NULL);
@@ -293,11 +293,15 @@ class ModuleOjoin : public Module
 	{
 		ConfigReader Conf(ServerInstance);
 
-		std::string npre = Conf.ReadValue("ojoin", "prefix", 0);
-		NPrefix = npre.empty() ? 0 : npre[0];
+		if (!np)
+		{
+			// This is done on module load only
+			std::string npre = Conf.ReadValue("ojoin", "prefix", 0);
+			NPrefix = npre.empty() ? 0 : npre[0];
 
-		if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
-			throw ModuleException("Looks like the +Y prefix you picked for m_ojoin is already in use. Pick another.");
+			if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
+				throw ModuleException("Looks like the +Y prefix you picked for m_ojoin is already in use. Pick another.");
+		}
 
 		notice = Conf.ReadFlag("ojoin", "notice", "yes", 0);
 		op = Conf.ReadFlag("ojoin", "op", "yes", 0);
