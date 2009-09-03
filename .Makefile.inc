@@ -6,11 +6,6 @@
 #   Please do not edit unless you know what you're doing.
 #
 
-@GNU_ONLY MAKESTYLE = gnu
-@GNU_ONLY COMPILE_ROOT ?= $(shell pwd)
-@BSD_ONLY MAKESTYLE = bsd
-@BSD_ONLY COMPILE_ROOT != pwd
-
 CC = @CC@
 SYSTEM = @SYSTEM@
 SOCKETENGINE = @SOCKETENGINE@
@@ -57,7 +52,7 @@ INSTMODE = 0755
 @ENDIF
 FOOTER = finishmessage
 
-CXXFLAGS += -I$(COMPILE_ROOT)/include
+CXXFLAGS += -I../include
 
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
@@ -67,7 +62,7 @@ CXXFLAGS += -I$(COMPILE_ROOT)/include
 @ELSE
     @GNU_ONLY MAKEFLAGS += --silent
     @BSD_ONLY MAKE += -s
-    RUNCC = $(COMPILE_ROOT)/make/run-cc.pl $(CC)
+    RUNCC = ../make/run-cc.pl $(CC)
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
@@ -92,7 +87,8 @@ TARGET = all
 all: $(FOOTER)
 
 target: $(HEADER)
-	$(MAKEENV) $(MAKE) -C src -f ../make/$(MAKESTYLE)-real.mk $(TARGET)
+@GNU_ONLY 	$(MAKEENV) $(MAKE) -C src -f ../make/gnu-real.mk $(TARGET)
+@BSD_ONLY 	$(MAKEENV) $(MAKE) -C src -f ../make/bsd-real.mk $(TARGET)
 
 debug:
 	@${MAKE} D=1 all
