@@ -12,12 +12,37 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_kill.h"
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+#ifndef __CMD_KILL_H__
+#define __CMD_KILL_H__
+
+// include the common header files
+
+#include "users.h"
+#include "channels.h"
+
+/** Handle /KILL. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandKill : public Command
 {
-	return new CommandKill(Instance);
-}
+ public:
+	/** Constructor for kill.
+	 */
+	CommandKill (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"KILL","o",2,false,0) { syntax = "<nickname> <reason>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
 
 /** Handle /KILL
  */
@@ -113,3 +138,5 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
+
+COMMAND_INIT(CommandKill)

@@ -12,14 +12,39 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_wallops.h"
 
+#ifndef __CMD_WALLOPS_H__
+#define __CMD_WALLOPS_H__
 
+// include the common header files
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+#include "users.h"
+#include "channels.h"
+
+/** Handle /WALLOPS. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandWallops : public Command
 {
-	return new CommandWallops(Instance);
-}
+ public:
+	/** Constructor for wallops.
+	 */
+	CommandWallops (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"WALLOPS","o",1,1) { syntax = "<any-text>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
+
+
 
 CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -27,3 +52,5 @@ CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, Us
 	FOREACH_MOD(I_OnWallops,OnWallops(user,parameters[0]));
 	return CMD_SUCCESS;
 }
+
+COMMAND_INIT(CommandWallops)

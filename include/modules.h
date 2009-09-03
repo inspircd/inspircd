@@ -1922,4 +1922,6 @@ class CoreExport ModuleManager : public classbase
 	}
 #endif
 
+#define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)
+
 #endif

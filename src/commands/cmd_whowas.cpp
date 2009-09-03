@@ -16,12 +16,7 @@
 
 WhoWasMaintainTimer * timer;
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
-{
-	return new CommandWhowas(Instance);
-}
-
-CommandWhowas::CommandWhowas(InspIRCd* Instance) : Command(Instance, NULL, "WHOWAS", 0, 1, false, 2)
+CommandWhowas::CommandWhowas(InspIRCd* Instance, Module* parent) : Command(Instance,parent, "WHOWAS", 0, 1, false, 2)
 {
 	syntax = "<nick>{,<nick>}";
 	timer = new WhoWasMaintainTimer(Instance, 3600);
@@ -335,3 +330,5 @@ void WhoWasMaintainTimer::Tick(time_t)
 		whowas_command->HandleInternal(WHOWAS_MAINTAIN, params);
 	}
 }
+
+COMMAND_INIT(CommandWhowas)

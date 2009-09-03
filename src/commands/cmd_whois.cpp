@@ -12,84 +12,27 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_whois.h"
-#include "hashcomp.h"
 
-void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick)
+/** Handle /WHOIS. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandWhois : public Command
 {
-	ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
-	if (user == dest || user->HasPrivPermission("users/auspex"))
-	{
-		ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString());
-	}
-
-	std::string cl = dest->ChannelList(user);
-
-	if (cl.length())
-	{
-		if (cl.length() > 400)
-		{
-			user->SplitChanList(dest,cl);
-		}
-		else
-		{
-			ServerInstance->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), cl.c_str());
-		}
-	}
-	if (user != dest && *ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
-	{
-		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
-	}
-	else
-	{
-		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
-	}
-
-	if (IS_AWAY(dest))
-	{
-		ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
-	}
-
-	if (IS_OPER(dest))
-	{
-		if (ServerInstance->Config->GenericOper)
-			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());
-		else
-			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper[0]) ? "an" : "a"),irc::Spacify(dest->oper.c_str()), ServerInstance->Config->Network);
-	}
-
-	if (user == dest || user->HasPrivPermission("users/auspex"))
-	{
-		if (dest->IsModeSet('s') != 0)
-		{
-			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes(), dest->FormatNoticeMasks());
-		}
-		else
-		{
-			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes());
-		}
-	}
-
-	FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
-
-	/*
-	 * We only send these if we've been provided them. That is, if hidewhois is turned off, and user is local, or
-	 * if remote whois is queried, too. This is to keep the user hidden, and also since you can't reliably tell remote time. -- w00t
+ public:
+	/** Constructor for whois.
 	 */
-	if ((idle) || (signon))
-	{
-		ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %lu %lu :seconds idle, signon time",user->nick.c_str(), dest->nick.c_str(), idle, signon);
-	}
+	CommandWhois (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"WHOIS",0,1,false,2) { syntax = "<nick>{,<nick>}"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
 
-	ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick.c_str(), dest->nick.c_str());
-}
-
-
-
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
-{
-	return new CommandWhois(Instance);
-}
 
 CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -129,7 +72,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 			signon = dest->signon;
 		}
 
-		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[userindex].c_str());
+		ServerInstance->DoWhois(user,dest,signon,idle,parameters[userindex].c_str());
 	}
 	else
 	{
@@ -143,3 +86,5 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 }
 
 
+
+COMMAND_INIT(CommandWhois)

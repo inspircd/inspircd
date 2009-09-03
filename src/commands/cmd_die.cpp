@@ -12,13 +12,38 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_die.h"
-#include "exitcodes.h"
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+#ifndef __CMD_DIE_H__
+#define __CMD_DIE_H__
+
+// include the common header files
+
+#include "users.h"
+#include "channels.h"
+
+/** Handle /DIE. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandDie : public Command
 {
-	return new CommandDie(Instance);
-}
+ public:
+	/** Constructor for die.
+	 */
+	CommandDie (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"DIE","o",1,false,0) { syntax = "<password>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
+#include "exitcodes.h"
 
 /** Handle /DIE
  */
@@ -45,3 +70,5 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	}
 	return CMD_SUCCESS;
 }
+
+COMMAND_INIT(CommandDie)

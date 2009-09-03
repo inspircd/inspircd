@@ -20,7 +20,6 @@ CONPATH = "@CONFIG_DIR@"
 MODPATH = "@MODULE_DIR@"
 BINPATH = "@BINARY_DIR@"
 LAUNCHDPATH = "/System/Library/LaunchDaemons"
-LIBPATH = "@LIBRARY_DIR@"
 INSTMODE = 0755
 
 @IFEQ $(CC) icc
@@ -66,7 +65,7 @@ CXXFLAGS += -I../include
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT BASE CONPATH MODPATH BINPATH LIBPATH
+@DO_EXPORT BASE CONPATH MODPATH BINPATH
 
 # Default target
 TARGET = all
@@ -135,11 +134,10 @@ finishmessage: target
 
 install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BASE)
-	@-install -d -m $(INSTMODE) $(LIBPATH)
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) $(MODPATH)
-	-install -m $(INSTMODE) src/commands/*.so $(LIBPATH)
+	-install -m $(INSTMODE) src/commands/*.so $(MODPATH)
 	-install -m $(INSTMODE) src/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
 	-install -m $(INSTMODE) src/inspircd $(BINPATH)
@@ -164,7 +162,6 @@ clean:
 
 deinstall:
 	-rm $(BINPATH)/inspircd
-	-rm $(LIBPATH)/*.so
 	-rm $(MODPATH)/*.so
 	@make/install-extras.pl deinstall
 

@@ -12,12 +12,37 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_notice.h"
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+#ifndef __CMD_NOTICE_H__
+#define __CMD_NOTICE_H__
+
+// include the common header files
+
+#include "users.h"
+#include "channels.h"
+
+/** Handle /NOTICE. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandNotice : public Command
 {
-	return new CommandNotice(Instance);
-}
+ public:
+	/** Constructor for notice.
+	 */
+	CommandNotice (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"NOTICE",0,2) { syntax = "<target>{,<target>} <message>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
 
 CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -185,3 +210,5 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 
 }
+
+COMMAND_INIT(CommandNotice)

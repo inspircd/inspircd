@@ -12,12 +12,40 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_motd.h"
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+#ifndef __CMD_MOTD_H__
+#define __CMD_MOTD_H__
+
+// include the common header files
+
+#include <string>
+#include <vector>
+#include "inspircd.h"
+#include "users.h"
+#include "channels.h"
+
+/** Handle /MOTD. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandMotd : public Command
 {
-	return new CommandMotd(Instance);
-}
+ public:
+	/** Constructor for motd.
+	 */
+	CommandMotd (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"MOTD",0,0) { syntax = "[<servername>]"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
 
 /** Handle /MOTD
  */
@@ -26,3 +54,5 @@ CmdResult CommandMotd::Handle (const std::vector<std::string>&, User *user)
 	user->ShowMOTD();
 	return CMD_SUCCESS;
 }
+
+COMMAND_INIT(CommandMotd)

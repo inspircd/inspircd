@@ -12,12 +12,37 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_modules.h"
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+#ifndef __CMD_MODULES_H__
+#define __CMD_MODULES_H__
+
+// include the common header files
+
+#include "users.h"
+#include "channels.h"
+
+/** Handle /MODULES. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandModules : public Command
 {
-	return new CommandModules(Instance);
-}
+ public:
+	/** Constructor for modules.
+	 */
+	CommandModules (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"MODULES",0,0) { syntax = "[debug]"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
 
 /** Handle /MODULES
  */
@@ -49,3 +74,5 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 
 	return CMD_SUCCESS;
 }
+
+COMMAND_INIT(CommandModules)

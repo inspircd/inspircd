@@ -580,6 +580,32 @@ void ModuleManager::LoadAll()
 	char configToken[MAXBUF];
 	ModCount = -1;
 
+	printf("\nLoading core commands");
+	fflush(stdout);
+
+	DIR* library = opendir(Instance->Config->ModPath.c_str());
+	if (library)
+	{
+		dirent* entry = NULL;
+		while (0 != (entry = readdir(library)))
+		{
+			if (InspIRCd::Match(entry->d_name, "cmd_*.so", ascii_case_insensitive_map))
+			{
+				printf(".");
+				fflush(stdout);
+
+				if (!Load(entry->d_name))
+				{
+					Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
+					printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
+					Instance->Exit(EXIT_STATUS_MODULE);
+				}
+			}
+		}
+		closedir(library);
+		printf("\n");
+	}
+
 	for(int count = 0; count < Instance->Config->ConfValueEnum("module"); count++)
 	{
 		Instance->Config->ConfValue("module", "name", count, configToken, MAXBUF);

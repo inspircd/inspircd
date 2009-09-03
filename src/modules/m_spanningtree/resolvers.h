@@ -14,8 +14,6 @@
 #ifndef __RESOLVERS__H__
 #define __RESOLVERS__H__
 
-#include "commands/cmd_whois.h"
-#include "commands/cmd_stats.h"
 #include "socket.h"
 #include "inspircd.h"
 #include "xline.h"

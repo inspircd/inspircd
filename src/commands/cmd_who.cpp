@@ -12,7 +12,53 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_who.h"
+
+#ifndef __CMD_WHO_H__
+#define __CMD_WHO_H__
+
+// include the common header files
+
+#include "users.h"
+#include "channels.h"
+
+/** Handle /WHO. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandWho : public Command
+{
+	bool CanView(Channel* chan, User* user);
+	bool opt_viewopersonly;
+	bool opt_showrealhost;
+	bool opt_unlimit;
+	bool opt_realname;
+	bool opt_mode;
+	bool opt_ident;
+	bool opt_metadata;
+	bool opt_port;
+	bool opt_away;
+	bool opt_local;
+	bool opt_far;
+	bool opt_time;
+
+ public:
+	/** Constructor for who.
+	 */
+	CommandWho (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"WHO", 0, 1, false, 2) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]"; }
+	void SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	bool whomatch(User* user, const char* matchtext);
+};
+
+#endif
+
 
 static const std::string star = "*";
 
@@ -119,11 +165,6 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 }
 
 
-
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
-{
-	return new CommandWho(Instance);
-}
 
 bool CommandWho::CanView(Channel* chan, User* user)
 {
@@ -367,3 +408,5 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		return CMD_FAILURE;
 	}
 }
+
+COMMAND_INIT(CommandWho)

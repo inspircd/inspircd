@@ -47,24 +47,6 @@ class CoreExport CommandParser : public classbase
 	 */
 	bool ProcessCommand(User *user, std::string &cmd);
 
-	/** Finds the init_command symbol in a .so file
-	 * @param v A function pointer to be initialized
-	 * @param h A valid shared object handle
-	 * @param name The filename being loaded, used for error reporting
-	 * @return True if the symbol could be found
-	 */
-	bool FindSym(void** v, void* h, const std::string &name);
-
-	/** A list of core-implemented modes and their shared object handles
-	 */
-	SharedObjectList RFCCommands;
-
-	/** Load a command from a shared object on disk.
-	 * @param name The shared object to load (without path)
-	 * @return NULL on success, pointer to dlerrr() error message on failure
-	 */
-	const char* LoadCommand(const char* name);
-
 	/** Removes a command if the sources match. Used as a helper for
 	 *  safe hash_map delete while iter in RemoveCommands(const char* source).
 	 */
@@ -75,16 +57,6 @@ class CoreExport CommandParser : public classbase
 	/** Command list, a hash_map of command names to Command*
 	 */
 	Commandtable cmdlist;
-
-	/** Reload a core command.
-	 * This will only reload commands implemented by the core,
-	 * to reload a modular command, you must reload that module.
-	 * @param cmd The command to reload. This will cause the shared
-	 * object which implements this command to be closed, and then reloaded.
-	 * @return True if the command was reloaded, false if it could not be found
-	 * or another error occured
-	 */
-	bool ReloadCommand(std::string cmd, User* user);
 
 	/** Default constructor.
 	 * @param Instance The creator of this class
@@ -182,22 +154,11 @@ class CoreExport CommandParser : public classbase
 	 */
 	void RemoveCommands(Module* source);
 
-	/** Remove all core commands and unload their shared objects
-	 */
-	void RemoveRFCCommands();
-
 	/** Add a new command to the commands hash
 	 * @param f The new Command to add to the list
-	 * @param so_handle The handle to the shared object where the command can be found.
-	 * Only core commands loaded via cmd_*.so files should set this parameter to anything
-	 * meaningful. Module authors should leave this parameter at its default of NULL.
 	 * @return True if the command was added
 	 */
-	bool CreateCommand(Command *f, void* so_handle = NULL);
-
-	/** Insert the default RFC1459 commands into the command hash.
-	 */
-	void SetupCommandTable();
+	bool CreateCommand(Command *f);
 
 	/** Translate nicknames in a string into UIDs, based on the TranslationType given.
 	 * @param to The translation type to use for the process.
@@ -216,20 +177,6 @@ class CoreExport CommandParser : public classbase
 	 * @return returns the number of substitutions made.
 	 */
 	int TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final = false, Command* custom_translator = NULL);
-};
-
-/** Command handler class for the RELOAD command.
- * A command cant really reload itself, so this has to be in here.
- */
-class CommandReload : public Command
-{
- public:
-	/** Standard constructor
-	 */
-	CommandReload (InspIRCd* Instance) : Command(Instance,NULL,"RELOAD","o",1) { syntax = "<core-command>"; }
-	/** Handle RELOAD
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
 /** A lookup table of values for multiplier characters used by

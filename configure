@@ -139,7 +139,6 @@ if (defined $opt_base_dir)
 $config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
 $config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
 $config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
-$config{LIBRARY_DIR}	= resolve_directory($config{BASE_DIR}."/lib");		# Library Directory
 
 if (defined $opt_config_dir)
 {
@@ -152,10 +151,6 @@ if (defined $opt_module_dir)
 if (defined $opt_binary_dir)
 {
 	$config{BINARY_DIR} = $opt_binary_dir;
-}
-if (defined $opt_library_dir)
-{
-	$config{LIBRARY_DIR} = $opt_library_dir;
 }
 chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
 
@@ -611,13 +606,11 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	   # Configuration Dir
 		$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
 		$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");	    # Binary Directory
-		$config{LIBRARY_DIR}	= resolve_directory($config{BASE_DIR}."/lib");	    # Library Directory
 	}
 
 	dir_check("are the configuration files", "CONFIG_DIR");
 	dir_check("are the modules to be compiled to", "MODULE_DIR");
 	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
-	dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
 
 	my $chose_hiperf = 0;
 	if ($has_kqueue) {
@@ -936,7 +929,6 @@ sub writefiles {
 #define CONFIG_FILE "$config{CONFIG_DIR}/inspircd.conf"
 #define MOD_PATH "$config{MODULE_DIR}"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
-#define LIBRARYDIR "$config{LIBRARY_DIR}"
 #define ENTRYPOINT int main(int argc, char** argv)
 
 EOF
@@ -1084,7 +1076,7 @@ EOF
 
 			print "Writing \e[1;32m$file\e[0m ...\n";
 			for my $var (qw(
-				CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR LIBRARY_DIR
+				CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR
 				STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE CORE_FLAGS
 			)) {
 				s/\@$var\@/$config{$var}/g;

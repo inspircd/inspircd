@@ -14,8 +14,6 @@
 #ifndef __TREESOCKET_H__
 #define __TREESOCKET_H__
 
-#include "commands/cmd_whois.h"
-#include "commands/cmd_stats.h"
 #include "socket.h"
 #include "inspircd.h"
 #include "xline.h"

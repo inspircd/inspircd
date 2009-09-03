@@ -126,8 +126,6 @@ void InspIRCd::Cleanup()
 			this->Modules->Unload(k->c_str());
 		}
 	}
-	/* Remove core commands */
-	Parser->RemoveRFCCommands();
 
 	/* Cleanup Server Names */
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
@@ -570,9 +568,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
-
-	/** Note: This is safe, the method checks for user == NULL */
-	this->Parser->SetupCommandTable();
 
 	this->Res = new DNS(this);
 

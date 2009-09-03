@@ -12,15 +12,40 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_list.h"
+
+#ifndef __CMD_LIST_H__
+#define __CMD_LIST_H__
+
+// include the common header files
+
+#include "users.h"
+#include "channels.h"
+
+/** Handle /LIST. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandList : public Command
+{
+ public:
+	/** Constructor for list.
+	 */
+	CommandList (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"LIST", 0, 0, false, 5) { }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
 
 /** Handle /LIST
  */
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
-{
-	return new CommandList(Instance);
-}
-
 CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	int minusers = 0, maxusers = 0;
@@ -79,3 +104,5 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
+
+COMMAND_INIT(CommandList)

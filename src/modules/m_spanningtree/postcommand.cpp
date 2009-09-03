@@ -14,8 +14,6 @@
 /* $ModDesc: Provides a spanning tree server link protocol */
 
 #include "inspircd.h"
-#include "commands/cmd_whois.h"
-#include "commands/cmd_stats.h"
 #include "socket.h"
 #include "xline.h"
 #include "../transport.h"
@@ -68,8 +66,14 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 	else
 	{
 		Module* srcmodule = thiscmd->creator;
+		Version ver = srcmodule->GetVersion();
 
-		if (srcmodule && !(srcmodule->GetVersion().Flags & VF_COMMON)) {
+		// XXX Temporary check to avoid routing cmd_* entries while they default to global routing
+		if (srcmodule->ModuleSourceFile[0] == 'c')
+			return;
+
+		if (!(ver.Flags & VF_COMMON))
+		{
 			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Routed command %s from non-VF_COMMON module %s",
 				command.c_str(), srcmodule->ModuleSourceFile.c_str());
 			return;

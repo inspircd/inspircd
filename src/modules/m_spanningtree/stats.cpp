@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_whois.h"
-#include "commands/cmd_stats.h"
 #include "socket.h"
 #include "xline.h"
 #include "../transport.h"
@@ -44,7 +42,7 @@ bool TreeSocket::Stats(const std::string &prefix, parameterlist &params)
 				parameterlist par;
 				par.push_back(prefix);
 				par.push_back("");
-				DoStats(this->ServerInstance, *(params[0].c_str()), source, results);
+				ServerInstance->DoStats(params[0][0], source, results);
 				for (size_t i = 0; i < results.size(); i++)
 				{
 					par[1] = "::" + results[i];

@@ -12,12 +12,21 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_reloadmodule.h"
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+class CommandReloadmodule : public Command
 {
-	return new CommandReloadmodule(Instance);
-}
+ public:
+	/** Constructor for reloadmodule.
+	 */
+	CommandReloadmodule (InspIRCd* Instance, Module* parent) : Command(Instance, parent, "RELOADMODULE","o",1) { syntax = "<modulename>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
 
 CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -36,3 +45,5 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 	user->WriteNumeric(975, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 	return CMD_FAILURE;
 }
+
+COMMAND_INIT(CommandReloadmodule)

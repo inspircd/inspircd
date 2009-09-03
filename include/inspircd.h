@@ -870,6 +870,14 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
 
+	/** Handle /STATS
+	 */
+	void DoStats(char statschar, User* user, string_list &results);
+
+	/** Handle /WHOIS
+	 */
+	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
+
 	/** Quit a user for excess flood, and if they are not
 	 * fully registered yet, temporarily zline their IP.
 	 * @param current user to quit
@@ -928,5 +936,21 @@ class CoreExport InspIRCd : public classbase
 };
 
 ENTRYPOINT;
+
+template<class Cmd>
+class CommandModule : public Module
+{
+	Cmd cmd;
+ public:
+	CommandModule(InspIRCd* me) : Module(me), cmd(me, this)
+	{
+		me->AddCommand(&cmd);
+	}
+
+	Version GetVersion()
+	{
+		return Version(cmd.command, VF_VENDOR);
+	}
+};
 
 #endif

@@ -12,12 +12,37 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_join.h"
 
-extern "C" DllExport Command* init_command(InspIRCd* Instance)
+#ifndef __CMD_JOIN_H__
+#define __CMD_JOIN_H__
+
+// include the common header files
+
+#include "users.h"
+#include "channels.h"
+
+/** Handle /JOIN. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandJoin : public Command
 {
-	return new CommandJoin(Instance);
-}
+ public:
+	/** Constructor for join.
+	 */
+	CommandJoin (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"JOIN", 0, 1, false, 2) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+};
+
+#endif
+
 
 /** Handle /JOIN
  */
@@ -49,3 +74,5 @@ CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User 
 	user->WriteNumeric(ERR_NOSUCHCHANNEL, "%s %s :Invalid channel name",user->nick.c_str(), parameters[0].c_str());
 	return CMD_FAILURE;
 }
+
+COMMAND_INIT(CommandJoin)

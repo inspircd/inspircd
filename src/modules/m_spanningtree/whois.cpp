@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "commands/cmd_whois.h"
-#include "commands/cmd_stats.h"
 #include "socket.h"
 #include "xline.h"
 #include "../transport.h"
@@ -69,7 +67,7 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 				unsigned long idle = atoi(params[2].c_str());
 				if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 				{
-					do_whois(this->ServerInstance, who_to_send_to, u, signon, idle, nick_whoised.c_str());
+					ServerInstance->DoWhois(who_to_send_to, u, signon, idle, nick_whoised.c_str());
 				}
 			}
 			else
