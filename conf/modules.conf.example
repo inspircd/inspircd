@@ -722,10 +722,6 @@
 #<include file="filter.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Foobar module: does nothing - historical relic
-#<module name="m_foobar.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Gecosban: Implements extended ban r:, which stops anyone matching
 # a mask like +b r:*realname?here* from joining a channel.
 #<module name="m_gecosban.so">
@@ -1085,6 +1081,20 @@
 # No Notice module: adds the channel mode +T and the extban T to block
 # specific users from noticing the channel.
 #<module name="m_nonotice.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Network buisness join module
+# Allows an oper to join a channel using /OJOIN, giving them +Y on the
+# channel which makes them immune to kick/deop/etc.
+#<module name="m_ojoin.so">
+#
+#<ojoin prefix="!" notice="yes" op="yes">
+# Specify the prefix that +Y will grant here
+# Leave prefix empty if you do not wish +Y to grant a prefix
+# If notice is set to on, upon ojoin, the server will notice
+# the channel saying that the oper is joining on network business
+# If op is set to on, it will give them +o along with +Y
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper channels mode: Adds the +O channel mode
@@ -1679,17 +1689,6 @@
 # This module is oper-only.
 # To use, SWHOIS must be in one of your oper class blocks.
 #<module name="m_swhois.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Taxonomy module: Adds the /TAXONOMY command, used to view all
-#                  metadata attached to a user.
-# This module is oper-only.
-# To use, TAXONOMY must be in one of your oper class blocks.
-#<module name="m_taxonomy.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Test command module: Does nothing significant. Read: pointless.
-#<module name="m_testcommand.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Timed bans module: Adds timed channel bans and the /TBAN command
