@@ -954,9 +954,9 @@ void User::FullConnect()
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
 	this->WriteNumeric(RPL_WELCOME, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network, this->nick.c_str(), this->ident.c_str(), this->host.c_str());
-	this->WriteNumeric(RPL_YOURHOSTIS, "%s :Your host is %s, running version InspIRCd-1.2",this->nick.c_str(),ServerInstance->Config->ServerName);
+	this->WriteNumeric(RPL_YOURHOSTIS, "%s :Your host is %s, running version InspIRCd-2.0",this->nick.c_str(),ServerInstance->Config->ServerName);
 	this->WriteNumeric(RPL_SERVERCREATED, "%s :This server was created %s %s", this->nick.c_str(), __TIME__, __DATE__);
-	this->WriteNumeric(RPL_SERVERVERSION, "%s %s InspIRCd-1.2 %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
+	this->WriteNumeric(RPL_SERVERVERSION, "%s %s InspIRCd-2.0 %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
 	this->WriteNumeric(RPL_YOURUUID, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());

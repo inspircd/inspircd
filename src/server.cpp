@@ -70,11 +70,11 @@ std::string InspIRCd::GetVersionString()
 	char versiondata[MAXBUF];
 	if (*Config->CustomVersion)
 	{
-		snprintf(versiondata,MAXBUF,"InspIRCd-1.2 %s :%s",Config->ServerName,Config->CustomVersion);
+		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s",Config->ServerName,Config->CustomVersion);
 	}
 	else
 	{
-		snprintf(versiondata,MAXBUF,"InspIRCd-1.2 %s :%s (%s) [FLAGS=%s,%s,%s]",Config->ServerName,SYSTEM,VERSION,REVISION,SE->GetName().c_str(),Config->sid);
+		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s (%s) [FLAGS=%s,%s,%s]",Config->ServerName,SYSTEM,VERSION,REVISION,SE->GetName().c_str(),Config->sid);
 	}
 	return versiondata;
 }

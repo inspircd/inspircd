@@ -20,7 +20,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "InspIRCd"
-!define PRODUCT_VERSION "1.2"
+!define PRODUCT_VERSION "2.0"
 !define PRODUCT_PUBLISHER "InspIRCd Development Team"
 !define PRODUCT_WEB_SITE "http://www.inspircd.org/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\inspircd.exe"
