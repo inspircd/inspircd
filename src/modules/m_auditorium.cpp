@@ -155,12 +155,12 @@ class ModuleAuditorium : public Module
 		{
 			silent = true;
 			/* Send silenced event only to the user being kicked and the user doing the kick */
-			source->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
+			source->WriteFrom(source, "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			if (ShowOps)
-				chan->WriteAllExceptSender(source, false, chan->GetStatus(user) >= STATUS_OP ? 0 : '@', "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
+				chan->WriteAllExceptSender(source, false, chan->GetStatus(user) >= STATUS_OP ? 0 : '@', "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			if ((!ShowOps) || (chan->GetStatus(user) < STATUS_OP)) /* make sure the target gets the event */
-				user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-			WriteOverride(source, chan, "KICK " + chan->name + " " + user->nick + " " + reason);
+				user->WriteFrom(source, "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
+			WriteOverride(source, chan, "KICK " + chan->name + " " + user->nick + " :" + reason);
 		}
 	}
 
