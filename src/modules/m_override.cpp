@@ -41,7 +41,7 @@ class ModuleOverride : public Module
 		}
 		OverriddenMode = OverOther = false;
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
-		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnLocalTopicChange, I_OnRequest };
+		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnPreTopicChange, I_OnRequest };
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
@@ -116,9 +116,9 @@ class ModuleOverride : public Module
 	}
 
 
-	virtual ModResult OnLocalTopicChange(User *source, Channel *channel, const std::string &topic)
+	virtual ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic)
 	{
-		if (IS_OPER(source) && CanOverride(source, "TOPIC"))
+		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, "TOPIC"))
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetStatus(source) < STATUS_HOP))
 			{

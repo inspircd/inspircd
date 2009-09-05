@@ -63,14 +63,14 @@ std::string Channel::GetModeParameter(char mode)
 
 int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 {
-	if (u && IS_LOCAL(u))
+	if (u)
 	{
 		if(!forceset)
 		{
 			ModResult res;
 			/* 0: check status, 1: don't, -1: disallow change silently */
 
-			FIRST_MOD_RESULT(ServerInstance, OnLocalTopicChange, res, (u,this,ntopic));
+			FIRST_MOD_RESULT(ServerInstance, OnPreTopicChange, res, (u,this,ntopic));
 
 			if (res == MOD_RES_DENY)
 				return CMD_FAILURE;

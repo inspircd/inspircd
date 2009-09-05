@@ -151,7 +151,7 @@ ModResult	Module::OnCheckStringExtBan(const std::string &s, Channel *c, char typ
 ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserHost(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserGECOS(User*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnLocalTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnEvent(Event*) { return; }
 const char*		Module::OnRequest(Request*) { return NULL; }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
