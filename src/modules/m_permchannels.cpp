@@ -15,6 +15,68 @@
 
 /* $ModDesc: Provides support for channel mode +P to provide permanent channels */
 
+// Not in a class due to circular dependancy hell.
+static std::string permchannelsconf;
+static bool WriteDatabase(InspIRCd *ServerInstance)
+{
+	FILE *f;
+
+	if (permchannelsconf.empty())
+	{
+		// Fake success.
+		return true;
+	}
+
+	std::string tempname = permchannelsconf + ".tmp";
+
+	/*
+	 * We need to perform an atomic write so as not to fuck things up.
+	 * So, let's write to a temporary file, flush and sync the FD, then rename the file..
+	 *		-- w00t
+	 */
+	f = fopen(tempname.c_str(), "w");
+	if (!f)
+	{
+		ServerInstance->Logs->Log("m_permchannels",DEFAULT, "permchannels: Cannot create database! %s (%d)", strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
+		return false;
+	}
+
+	// Now, let's write.
+	Channel *c = NULL;
+
+	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
+	{
+		c = i->second;
+
+		if (c->IsModeSet('P'))
+		{
+			fprintf(f, "<permchannels channel=\"%s\" topic=\"%s\" modes=\"%s\">\n", c->name.c_str(), c->topic.c_str(), c->ChanModes(true));
+		}
+	}
+
+	int write_error = 0;
+	write_error = ferror(f);
+	write_error |= fclose(f);
+	if (write_error)
+	{
+		ServerInstance->Logs->Log("m_permchannels",DEFAULT, "permchannels: Cannot write to new database! %s (%d)", strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('x', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
+		return false;
+	}
+
+	// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
+	if (rename(tempname.c_str(), permchannelsconf.c_str()) < 0)
+	{
+		ServerInstance->Logs->Log("m_permchannels",DEFAULT, "permchannels: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('x', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+		return false;
+	}
+
+	return true;
+}
+
+
 
 /** Handles the +P channel mode
  */
@@ -36,6 +98,9 @@ class PermChannel : public ModeHandler
 			if (!channel->IsModeSet('P'))
 			{
 				channel->SetMode('P',true);
+
+				// Save permchannels db if needed.
+				WriteDatabase(ServerInstance);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -67,6 +132,9 @@ class PermChannel : public ModeHandler
 
 				/* for servers, remove +P (to avoid desyncs) but don't bother trying to delete. */
 				channel->SetMode('P',false);
+
+				// Save permchannels db if needed.
+				WriteDatabase(ServerInstance);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -84,8 +152,8 @@ public:
 	{
 		if (!ServerInstance->Modes->AddMode(&p))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnChannelPreDelete };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 		OnRehash(NULL);
 	}
@@ -121,6 +189,9 @@ public:
 		 * -- w00t
 		 */
 		ConfigReader MyConf(ServerInstance);
+
+		permchannelsconf = MyConf.ReadValue("permchanneldb", "filename", "", 0, false);
+
 		for (int i = 0; i < MyConf.Enumerate("permchannels"); i++)
 		{
 			std::string channel = MyConf.ReadValue("permchannels", "channel", i);
@@ -177,6 +248,20 @@ public:
 				}
 			}
 		}
+	}
+
+	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	{
+		if (chan && chan->IsModeSet('P'))
+			WriteDatabase(ServerInstance);
+
+		return MOD_RES_PASSTHRU;
+	}
+
+	virtual void OnPostTopicChange(User*, Channel *c, const std::string&)
+	{
+		if (c->IsModeSet('P'))
+			WriteDatabase(ServerInstance);
 	}
 
 	virtual Version GetVersion()
