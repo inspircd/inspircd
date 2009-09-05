@@ -104,9 +104,10 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 
 	this->topicset = ServerInstance->Time();
 
-	if (u && IS_LOCAL(u))
+	// XXX: this check for 'u' is probably pre-fake-user, and it fucking sucks anyway. we need to change this.
+	if (u)
 	{
-		FOREACH_MOD(I_OnPostLocalTopicChange,OnPostLocalTopicChange(u, this, this->topic));
+		FOREACH_MOD(I_OnPostTopicChange,OnPostTopicChange(u, this, this->topic));
 	}
 
 	return CMD_SUCCESS;

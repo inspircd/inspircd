@@ -162,7 +162,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
 	virtual void OnUserConnect(User* source);
 	virtual void OnUserInvite(User* source,User* dest,Channel* channel, time_t);
-	virtual void OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic);
+	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
 	virtual void OnWallops(User* user, const std::string &text);
 	virtual void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);

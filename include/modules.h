@@ -423,7 +423,7 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
-	I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
+	I_OnPostTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
@@ -1219,13 +1219,13 @@ class CoreExport Module : public Extensible
 	 */
 	virtual ModResult OnLocalTopicChange(User* user, Channel* chan, const std::string &topic);
 
-	/** Called whenever a local topic has been changed.
+	/** Called whenever a topic has been changed.
 	 * To block topic changes you must use OnLocalTopicChange instead.
 	 * @param user The user changing the topic
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text
 	 */
-	virtual void OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic);
+	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
 
 	/** Called whenever an Event class is sent to all module by another module.
 	 * Please see the documentation of Event::Send() for further information. The Event sent can

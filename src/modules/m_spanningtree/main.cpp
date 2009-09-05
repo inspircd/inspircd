@@ -45,7 +45,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 
 	Implementation eventlist[] =
 	{
-		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostLocalTopicChange,
+		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeLocalUserHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
@@ -446,8 +446,12 @@ void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, 
 	}
 }
 
-void ModuleSpanningTree::OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic)
+void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std::string &topic)
 {
+	// Drop remote events on the floor.
+	if (!IS_LOCAL(user))
+		return;
+
 	parameterlist params;
 	params.push_back(chan->name);
 	params.push_back(":"+topic);
