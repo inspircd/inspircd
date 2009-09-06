@@ -1229,6 +1229,9 @@ void ServerConfig::ApplyModules(User* user)
 
 	for (std::set<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 	{
+		// Don't remove cmd_*.so, just remove m_*.so
+		if (removing[0] == 'c')
+			continue;
 		if (ServerInstance->Modules->Unload(removing->c_str()))
 		{
 			ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
