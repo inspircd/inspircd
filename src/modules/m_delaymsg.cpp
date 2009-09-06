@@ -14,6 +14,8 @@
 #include "inspircd.h"
 #include <stdarg.h>
 
+/* $ModDesc: Provides channelmode +d <int>, to deny messages to a channel until <int> seconds. */
+
 class DelayMsgMode : public ModeHandler
 {
  private:
@@ -62,8 +64,6 @@ class ModuleDelayMsg : public Module
 	void OnCleanup(int target_type, void* item);
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
 };
-
-/* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
 
 ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
