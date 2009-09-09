@@ -84,32 +84,29 @@ class CommandOjoin : public Command
 					parameters[0].c_str(), user->nick.c_str());
 				ServerInstance->PI->SendChannelNotice(channel, 0, std::string(user->nick) + " joined on official network business.");
 			}
-
-			return CMD_SUCCESS;
 		}
 		else
 		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+parameters[0]);
-			return CMD_FAILURE;
+			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used OJOIN in "+channel->name);
+			// they're already in the channel
+			std::vector<std::string> modes;
+			modes.push_back(parameters[0]);
+			modes.push_back("+Y");
+			modes.push_back(user->nick);
+			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
+			ServerInstance->PI->SendMode(channel->name, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
 		}
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return ROUTE_BROADCAST;
+		return CMD_SUCCESS;
 	}
 };
 
-/** Abstraction of NetworkPrefixBase for channel mode +Y
+/** channel mode +Y
  */
 class NetworkPrefix : public ModeHandler
 {
  public:
 	NetworkPrefix(InspIRCd* Instance, Module* parent)
 		: ModeHandler(Instance, parent, 'Y', 1, 1, true, MODETYPE_CHANNEL, false, NPrefix, 0, TR_NICK)
-// NetworkPrefixBase(Instance,"cm_network_","official user", 388, 389) { }
-// NetworkPrefixBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e) :
-//  extend(ext), type(mtype), list(l), end(e)
 	{
 	}
 
@@ -256,7 +253,7 @@ class ModuleOjoin : public Module
 		OnRehash(NULL);
 
 		/* Initialise module variables */
-		np = new NetworkPrefix(ServerInstance, this);
+		np = new NetworkPrefix(Me, this);
 
 		if (!ServerInstance->Modes->AddMode(np))
 		{
