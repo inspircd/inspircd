@@ -33,10 +33,10 @@ class SelectEngine : public SocketEngine
 private:
 	/** Because select() does not track an fd list for us between calls, we have one of our own
 	 */
-	std::map<int,int> fds;
+	std::set<int> fds;
 	/** List of writeable ones (WantWrite())
 	 */
-	bool* writeable;
+	std::vector<bool> writeable;
 	/** The read set and write set, populated before each call to select().
 	 */
 	fd_set wfdset, rfdset, errfdset;
