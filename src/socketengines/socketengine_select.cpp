@@ -24,8 +24,7 @@ SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 	EngineHandle = 0;
 	CurrentSetSize = 0;
 
-	writeable = new bool [GetMaxFds()];
-	memset(writeable, 0, sizeof(writeable));
+	writeable.assign(GetMaxFds(), false);
 	ref = new EventHandler* [GetMaxFds()];
 	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
@@ -47,7 +46,7 @@ bool SelectEngine::AddFd(EventHandler* eh)
 	if (ref[fd])
 		return false;
 
-	fds[fd] = fd;
+	fds.insert(fd);
 	ref[fd] = eh;
 	CurrentSetSize++;
 
@@ -67,7 +66,7 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	std::map<int,int>::iterator t = fds.find(fd);
+	std::set<int>::iterator t = fds.find(fd);
 	if (t != fds.end())
 		fds.erase(t);
 
@@ -100,21 +99,21 @@ int SelectEngine::DispatchEvents()
 	FD_ZERO(&errfdset);
 
 	/* Populate the select FD set (this is why select sucks compared to epoll, kqueue, IOCP) */
-	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
+	for (std::set<int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
-		if (ref[a->second]->Readable())
+		if (ref[*a]->Readable())
 			/* Read notifications */
-			FD_SET (a->second, &rfdset);
+			FD_SET (*a, &rfdset);
 		else
 			/* Write notifications */
-			FD_SET (a->second, &wfdset);
+			FD_SET (*a, &wfdset);
 
 		/* Explicitly one-time writeable */
-		if (writeable[a->second])
-			FD_SET (a->second, &wfdset);
+		if (writeable[*a])
+			FD_SET (*a, &wfdset);
 
 		/* All sockets must receive error notifications regardless */
-		FD_SET (a->second, &errfdset);
+		FD_SET (*a, &errfdset);
 	}
 
 	/* One second waits */
@@ -127,10 +126,10 @@ int SelectEngine::DispatchEvents()
 	if (sresult < 1)
 		return 0;
 
-	/* Safe assumption (as of 1.1 anyway) that a socket can't remove itself from the list in the middle of the loop */
-	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
+	std::vector<int> copy(fds.begin(), fds.end());
+	for (std::vector<int>::iterator a = copy.begin(); a != copy.end(); a++)
 	{
-		EventHandler* ev = ref[a->second];
+		EventHandler* ev = ref[*a];
 		if (ev)
 		{
 			if (FD_ISSET (ev->GetFd(), &errfdset))
