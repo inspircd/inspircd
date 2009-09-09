@@ -87,7 +87,7 @@ class CommandOjoin : public Command
 		}
 		else
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used OJOIN in "+channel->name);
+			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used OJOIN in "+parameters[0]);
 			// they're already in the channel
 			std::vector<std::string> modes;
 			modes.push_back(parameters[0]);
