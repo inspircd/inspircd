@@ -94,7 +94,7 @@ class CommandOjoin : public Command
 			modes.push_back("+Y");
 			modes.push_back(user->nick);
 			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
-			ServerInstance->PI->SendMode(channel->name, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
+			ServerInstance->PI->SendMode(parameters[0], ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
 		}
 		return CMD_SUCCESS;
 	}
