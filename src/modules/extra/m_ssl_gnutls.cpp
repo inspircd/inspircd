@@ -30,7 +30,7 @@
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-bool isin(const std::string &host, int port, const std::vector<std::string> &portlist)
+static bool isin(const std::string &host, int port, const std::vector<std::string> &portlist)
 {
 	if (std::find(portlist.begin(), portlist.end(), "*:" + ConvToStr(port)) != portlist.end())
 		return true;
@@ -39,6 +39,20 @@ bool isin(const std::string &host, int port, const std::vector<std::string> &por
 		return true;
 
 	return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
+}
+
+static gnutls_x509_crt_t x509_cert;
+static gnutls_x509_privkey_t x509_key;
+static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
+	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st) {
+
+	st->type = GNUTLS_CRT_X509;
+	st->ncerts = 1;
+	st->cert.x509 = &x509_cert;
+	st->key.x509 = x509_key;
+	st->deinit_all = 0;
+
+	return 0;
 }
 
 /** Represents an SSL user's extra data
@@ -122,6 +136,8 @@ class ModuleSSLGnuTLS : public Module
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		gnutls_global_init(); // This must be called once in the program
+		gnutls_x509_crt_init(&x509_cert);
+		gnutls_x509_privkey_init(&x509_key);
 
 		cred_alloc = false;
 		// Needs the flag as it ignores a plain /rehash
@@ -257,20 +273,36 @@ class ModuleSSLGnuTLS : public Module
 		if((ret = gnutls_certificate_allocate_credentials(&x509_cred)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
 
-		if((ret = gnutls_dh_params_init(&dh_params)) < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
-
 		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
 
 		if((ret = gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
 
-		if((ret = gnutls_certificate_set_x509_key_file (x509_cred, certfile.c_str(), keyfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
-		{
-			// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
-			throw ModuleException("Unable to load GnuTLS server certificate (" + certfile + ", key: " + keyfile + "): " + std::string(gnutls_strerror(ret)));
-		}
+		FileReader reader(ServerInstance);
+
+		reader.LoadFile(certfile);
+		std::string cert_string = reader.Contents();
+		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), cert_string.length() };
+
+		reader.LoadFile(keyfile);
+		std::string key_string = reader.Contents();
+		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), key_string.length() };
+
+		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
+		if((ret = gnutls_x509_crt_import(x509_cert, &cert_datum, GNUTLS_X509_FMT_PEM)) < 0)
+			throw ModuleException("Unable to load GnuTLS server certificate (" + certfile + "): " + std::string(gnutls_strerror(ret)));
+
+		if((ret = gnutls_x509_privkey_import(x509_key, &key_datum, GNUTLS_X509_FMT_PEM)) < 0)
+			throw ModuleException("Unable to load GnuTLS server private key (" + keyfile + "): " + std::string(gnutls_strerror(ret)));
+
+		if((ret = gnutls_certificate_set_x509_key(x509_cred, &x509_cert, 1, x509_key)) < 0)
+			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
+
+		gnutls_certificate_client_set_retrieve_function (x509_cred, cert_callback);
+
+		if((ret = gnutls_dh_params_init(&dh_params)) < 0)
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
 
 		// This may be on a large (once a day or week) timer eventually.
 		GenerateDHParams();
@@ -291,6 +323,8 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual ~ModuleSSLGnuTLS()
 	{
+		gnutls_x509_crt_deinit(x509_cert);
+		gnutls_x509_privkey_deinit(x509_key);
 		gnutls_dh_params_deinit(dh_params);
 		gnutls_certificate_free_credentials(x509_cred);
 		gnutls_global_deinit();
