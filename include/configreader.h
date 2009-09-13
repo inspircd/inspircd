@@ -140,7 +140,7 @@ class CoreExport ServerConfig : public classbase
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	bool ParseLine(const std::string &filename, std::string &line, long &linenumber);
+	bool ParseLine(const std::string &filename, std::string &line, long &linenumber, bool allowexeinc);
 
 	/** Check that there is only one of each configuration item
 	 */
@@ -156,7 +156,7 @@ class CoreExport ServerConfig : public classbase
 
 	/** Process an include file directive
 	 */
-	bool DoInclude(const std::string &file);
+	bool DoInclude(const std::string &file, bool allowexeinc);
 
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
@@ -618,12 +618,12 @@ class CoreExport ServerConfig : public classbase
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(FILE* &conf, const char* filename);
+	bool LoadConf(FILE* &conf, const char* filename, bool allowexeinc);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
-	bool LoadConf(FILE* &conf, const std::string &filename);
+	bool LoadConf(FILE* &conf, const std::string &filename, bool allowexeinc);
 
 	/** Writes 'length' chars into 'result' as a string
 	 */

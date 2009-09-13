@@ -905,7 +905,7 @@ void ServerConfig::Read()
 {
 	/* Load and parse the config file, if there are any errors then explode */
 
-	if (!this->DoInclude(ServerInstance->ConfigFileName))
+	if (!this->DoInclude(ServerInstance->ConfigFileName, true))
 	{
 		valid = false;
 		return;
@@ -1275,7 +1275,7 @@ void ServerConfig::ApplyModules(User* user)
 		ServerInstance->SNO->WriteToSnoMask('a', "*** Successfully rehashed server.");
 }
 
-bool ServerConfig::LoadConf(FILE* &conf, const char* filename)
+bool ServerConfig::LoadConf(FILE* &conf, const char* filename, bool allowexeinc)
 {
 	std::string line;
 	char ch;
@@ -1459,7 +1459,7 @@ bool ServerConfig::LoadConf(FILE* &conf, const char* filename)
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
 					long bl = linenumber;
-					if (!this->ParseLine(filename, line, linenumber))
+					if (!this->ParseLine(filename, line, linenumber, allowexeinc))
 						return false;
 					last_successful_parse = linenumber;
 
@@ -1487,12 +1487,12 @@ bool ServerConfig::LoadConf(FILE* &conf, const char* filename)
 }
 
 
-bool ServerConfig::LoadConf(FILE* &conf, const std::string &filename)
+bool ServerConfig::LoadConf(FILE* &conf, const std::string &filename, bool allowexeinc)
 {
-	return this->LoadConf(conf, filename.c_str());
+	return this->LoadConf(conf, filename.c_str(), allowexeinc);
 }
 
-bool ServerConfig::ParseLine(const std::string &filename, std::string &line, long &linenumber)
+bool ServerConfig::ParseLine(const std::string &filename, std::string &line, long &linenumber, bool allowexeinc)
 {
 	std::string tagname;
 	std::string current_key;
@@ -1610,11 +1610,17 @@ bool ServerConfig::ParseLine(const std::string &filename, std::string &line, lon
 
 						if ((tagname == "include") && (current_key == "file"))
 						{
-							if (!this->DoInclude(current_value))
+							if (!this->DoInclude(current_value, allowexeinc))
 								return false;
 						}
 						else if ((tagname == "include") && (current_key == "executable"))
 						{
+							if (!allowexeinc)
+							{
+								errstr << "Configuration added by <include:executable> is not allowed to have its own <include:executable> tags for security reasons." << std::endl;
+								return false;
+							}
+
 							/* Pipe an executable and use its stdout as config data */
 							if (!this->DoPipe(current_value))
 								return false;
@@ -1649,7 +1655,7 @@ bool ServerConfig::DoPipe(const std::string &file)
 
 	if (conf)
 	{
-		ret = LoadConf(conf, file.c_str());
+		ret = LoadConf(conf, file.c_str(), false);
 		pclose(conf);
 	}
 	else
@@ -1663,7 +1669,7 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
 }
 
-bool ServerConfig::DoInclude(const std::string &file)
+bool ServerConfig::DoInclude(const std::string &file, bool allowexeinc)
 {
 	std::string confpath;
 	std::string newfile;
@@ -1694,7 +1700,7 @@ bool ServerConfig::DoInclude(const std::string &file)
 
 	if (conf)
 	{
-		ret = LoadConf(conf, newfile);
+		ret = LoadConf(conf, newfile, allowexeinc);
 		fclose(conf);
 	}
 	else
