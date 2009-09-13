@@ -115,14 +115,14 @@ class NetworkPrefix : public ModeHandler
 		User* x = ServerInstance->FindNick(parameter);
 		if (x)
 		{
-			if (!channel->HasUser(x))
+			Membership* m = channel->GetUser(x);
+			if (!m)
 			{
 				return std::make_pair(false, parameter);
 			}
 			else
 			{
-				std::string item = "cm_network_"+std::string(channel->name);
-				if (x->GetExt(item))
+				if (m->hasMode('Y'))
 				{
 					return std::make_pair(true, x->nick);
 				}
@@ -137,16 +137,15 @@ class NetworkPrefix : public ModeHandler
 
 	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
-		CUList* cl = channel->GetUsers();
-		std::string item = "cm_network_" + std::string(channel->name);
+		const UserMembList* cl = channel->GetUsers();
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
 		irc::modestacker modestack(ServerInstance, false);
 		std::deque<std::string> stackresult;
 
-		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
+		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
 		{
-			if (i->first->GetExt(item))
+			if (i->second->hasMode('Y'))
 			{
 				if (stack)
 					stack->Push(this->GetModeChar(), i->first->nick);
@@ -179,22 +178,19 @@ class NetworkPrefix : public ModeHandler
 
 	ModeAction HandleChange(User* source, User* theuser, bool adding, Channel* channel, std::string &parameter)
 	{
-		std::string item = "cm_network_" + std::string(channel->name);
-
-		if (adding)
+		Membership* m = channel->GetUser(theuser);
+		if (m && adding)
 		{
-			if (!theuser->GetExt(item))
+			if (!m->hasMode('Y'))
 			{
-				theuser->Extend(item);
 				parameter = theuser->nick;
 				return MODEACTION_ALLOW;
 			}
 		}
-		else
+		else if (m && !adding)
 		{
-			if (theuser->GetExt(item))
+			if (m->hasMode('Y'))
 			{
-				theuser->Shrink(item);
 				parameter = theuser->nick;
 				return MODEACTION_ALLOW;
 			}
@@ -271,24 +267,13 @@ class ModuleOjoin : public Module
 	{
 		if (mycommand.active)
 		{
-			if (NPrefix)
-				privs += NPrefix;
-			if (op && privs.find('@') == std::string::npos)
-				privs += '@';
+			privs += 'Y';
+			if (op)
+				privs += 'o';
 			return MOD_RES_ALLOW;
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
-	{
-		user->Shrink("cm_network_"+std::string(chan->name));
-	}
-
-	void OnUserPart(User* user, Channel* channel, std::string &partreason, bool &silent)
-	{
-		user->Shrink("cm_network_"+std::string(channel->name));
 	}
 
 	void OnRehash(User* user)
@@ -321,12 +306,12 @@ class ModuleOjoin : public Module
 		// If a ulined nickname, or a server is setting the mode, let it
 		// do whatever it wants.
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
-			return MOD_RES_ALLOW;
+			return MOD_RES_PASSTHRU;
 
-		std::string network("cm_network_"+channel->name);
+		Membership* m = channel->GetUser(dest);
 
 		// Don't do anything if they're not +Y
-		if (!dest->GetExt(network))
+		if (!m || !m->hasMode('Y'))
 			return MOD_RES_PASSTHRU;
 
 		// Let them do whatever they want to themselves.

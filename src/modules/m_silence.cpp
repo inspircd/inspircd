@@ -298,30 +298,15 @@ class ModuleSilence : public Module
 	void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
 	{
 		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
-		CUList *ulist;
-		switch (status)
-		{
-			case '@':
-				ulist = chan->GetOppedUsers();
-				break;
-			case '%':
-				ulist = chan->GetHalfoppedUsers();
-				break;
-			case '+':
-				ulist = chan->GetVoicedUsers();
-				break;
-			default:
-				ulist = chan->GetUsers();
-				break;
-		}
+		const UserMembList *ulist = chan->GetUsers();
 
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 		{
 			if (IS_LOCAL(i->first))
 			{
 				if (MatchPattern(i->first, sender, public_silence) == MOD_RES_ALLOW)
 				{
-					exempt_list[i->first] = i->first->nick;
+					exempt_list.insert(i->first);
 				}
 			}
 		}

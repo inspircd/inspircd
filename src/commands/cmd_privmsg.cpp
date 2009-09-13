@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_PRIVMSG_H__
-#define __CMD_PRIVMSG_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /PRIVMSG. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -40,9 +32,6 @@ class CommandPrivmsg : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -89,11 +78,11 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	{
 		chan = ServerInstance->FindChan(target);
 
-		except_list[user] = user->nick;
+		except_list.insert(user);
 
 		if (chan)
 		{
-			if (IS_LOCAL(user) && chan->GetStatus(user) < STATUS_VOICE)
+			if (IS_LOCAL(user) && chan->GetPrefixValue(user) < VOICE_VALUE)
 			{
 				if (chan->IsModeSet('n') && !chan->HasUser(user))
 				{

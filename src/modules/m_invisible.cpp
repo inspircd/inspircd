@@ -49,21 +49,21 @@ class InvisibleMode : public ModeHandler
 			/* User appears to vanish or appear from nowhere */
 			for (UCListIter f = dest->chans.begin(); f != dest->chans.end(); f++)
 			{
-				CUList *ulist = f->first->GetUsers();
+				const UserMembList *ulist = (*f)->GetUsers();
 				char tb[MAXBUF];
 
-				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost().c_str(), adding ? "PART" : "JOIN", f->first->name.c_str());
+				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost().c_str(), adding ? "PART" : "JOIN", (*f)->name.c_str());
 				std::string out = tb;
-				std::string n = this->ServerInstance->Modes->ModeString(dest, f->first);
+				std::string n = this->ServerInstance->Modes->ModeString(dest, (*f));
 
-				for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+				for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 				{
 					/* User only appears to vanish for non-opers */
 					if (IS_LOCAL(i->first) && !IS_OPER(i->first))
 					{
 						i->first->Write(out);
 						if (!n.empty() && !adding)
-							i->first->WriteServ("MODE %s +%s", f->first->name.c_str(), n.c_str());
+							i->first->WriteServ("MODE %s +%s", (*f)->name.c_str(), n.c_str());
 					}
 				}
 			}
@@ -186,7 +186,7 @@ void ModuleInvisible::OnUserQuit(User* user, const std::string &reason, const st
 		if (parthandler)
 		{
 			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-					to_leave.push_back(f->first->name);
+					to_leave.push_back((*f)->name);
 			/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
 			for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
 			{
@@ -236,9 +236,9 @@ void ModuleInvisible::WriteCommonFrom(User *user, Channel* channel, const char* 
 	va_end(argsPtr);
 	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(), textbuffer);
 
-	CUList *ulist = channel->GetUsers();
+	const UserMembList *ulist = channel->GetUsers();
 
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 	{
 		/* User only appears to vanish for non-opers */
 		if (IS_LOCAL(i->first) && IS_OPER(i->first))

@@ -53,7 +53,7 @@ class Redirect : public ModeHandler
 					parameter.clear();
 					return MODEACTION_DENY;
 				}
-				else if (c->GetStatus(source) < STATUS_OP)
+				else if (c->GetPrefixValue(source) < OP_VALUE)
 				{
 					source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
 					parameter.clear();

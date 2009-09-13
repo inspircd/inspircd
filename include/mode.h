@@ -478,12 +478,6 @@ class CoreExport ModeParser : public classbase
 	 * for example, should 'user A' be able to 'op' on 'channel B'.
 	 */
 	User* SanityChecks(User *user,const char *dest,Channel *chan,int status);
-	/** Grant a built in privilage (e.g. ops, halfops, voice) to a user on a channel
-	 */
-	const char* Grant(User *d,Channel *chan,int MASK);
-	/** Revoke a built in privilage (e.g. ops, halfops, voice) to a user on a channel
-	 */
-	const char* Revoke(User *d,Channel *chan,int MASK);
 	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.
 	 *
@@ -581,9 +575,7 @@ class CoreExport ModeParser : public classbase
 	 */
 	std::string GiveModeList(ModeMasks m);
 
-	/** Used by this class internally during std::sort and 005 generation
-	 */
-	static bool PrefixComparison(prefixtype one, prefixtype two);
+	static bool PrefixComparison(ModeHandler* one, ModeHandler* two);
 
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
 	 */

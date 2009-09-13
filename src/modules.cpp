@@ -188,7 +188,7 @@ void 		Module::OnCleanup(int, void*) { }
 ModResult	Module::OnChannelPreDelete(Channel*) { return MOD_RES_PASSTHRU; }
 void		Module::OnChannelDelete(Channel*) { }
 ModResult	Module::OnSetAway(User*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserList(User*, Channel*, CUList*&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserList(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnBuildExemptList(MessageType, Channel*, User*, char, CUList&, const std::string&) { }
 void		Module::OnGarbageCollect() { }

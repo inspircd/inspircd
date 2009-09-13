@@ -21,33 +21,6 @@
 
 #define OPERPREFIX_VALUE 1000000
 
-std::set<std::string>* SetupExt(User* user)
-{
-	std::set<std::string>* ext;
-	if (!user->GetExt("m_operprefix",ext))
-	{
-		ext=new std::set<std::string>;
-		ext->clear();
-		user->Extend("m_operprefix",ext);
-	}
-	return ext;
-}
-
-
-void DelPrefixChan(User* user, Channel* channel)
-{
-	std::set<std::string>* chans = SetupExt(user);
-	chans->erase(channel->name);
-}
-
-
-void AddPrefixChan(User* user, Channel* channel)
-{
-	std::set<std::string>* chans = SetupExt(user);
-	chans->insert(channel->name);
-}
-
-
 class OperPrefixMode : public ModeHandler
 {
 	public:
@@ -73,28 +46,19 @@ class OperPrefixMode : public ModeHandler
 		ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 		{
 			User* x = ServerInstance->FindNick(parameter);
+			Membership* m = channel->GetUser(x);
 			if (x)
 			{
-				if (!channel->HasUser(x))
+				if (!m)
 				{
 					return std::make_pair(false, parameter);
 				}
 				else
 				{
-					std::set<std::string>* ext;
-					if (x->GetExt("m_operprefix",ext))
-					{
-						if (ext->find(channel->name)!=ext->end())
-						{
-							return std::make_pair(true, x->nick);
-						}
-						else
-							return std::make_pair(false, parameter);
-					}
+					if (m->hasMode('y'))
+						return std::make_pair(true, x->nick);
 					else
-					{
-						return std::make_pair(false, parameter);
-					}
+							return std::make_pair(false, parameter);
 				}
 			}
 			return std::make_pair(false, parameter);
@@ -117,19 +81,13 @@ class ModuleOperPrefixMode : public Module
 		if ((!ServerInstance->Modes->AddMode(opm)))
 			throw ModuleException("Could not add a new mode!");
 
-		Implementation eventlist[] = { I_OnPostJoin, I_OnCleanup, I_OnUserQuit, I_OnUserKick, I_OnUserPart, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnPostJoin, I_OnUserQuit, I_OnUserKick, I_OnUserPart, I_OnOper };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
-	void PushChanMode(Channel* channel, User* user, bool negate = false)
+	void PushChanMode(Channel* channel, User* user)
 	{
-		if (negate)
-			DelPrefixChan(user, channel);
-		else
-			AddPrefixChan(user, channel);
 		char modeline[] = "+y";
-		if (negate)
-			modeline[0] = '-';
 		std::vector<std::string> modechange;
 		modechange.push_back(channel->name);
 		modechange.push_back(modeline);
@@ -137,7 +95,7 @@ class ModuleOperPrefixMode : public Module
 		ServerInstance->SendMode(modechange,this->ServerInstance->FakeClient);
 	}
 
-	virtual void OnPostJoin(User *user, Channel *channel)
+	void OnPostJoin(User *user, Channel *channel)
 	{
 		if (user && IS_OPER(user))
 		{
@@ -151,7 +109,7 @@ class ModuleOperPrefixMode : public Module
 	}
 
 	// XXX: is there a better way to do this?
-	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		/* force event propagation to its ModeHandler */
 		if (!IS_FAKE(user) && chan && (mode == 'y'))
@@ -159,72 +117,24 @@ class ModuleOperPrefixMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnOper(User *user, const std::string&)
+	void OnOper(User *user, const std::string&)
 	{
 		if (user && !user->IsModeSet('H'))
 		{
 			for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 			{
-				PushChanMode(v->first, user);
+				PushChanMode(*v, user);
 			}
 		}
 	}
 
-	virtual ~ModuleOperPrefixMode()
+	~ModuleOperPrefixMode()
 	{
 		ServerInstance->Modes->DelMode(opm);
 		delete opm;
 	}
 
-	void CleanUser(User* user, bool quitting)
-	{
-
-		std::set<std::string>* ext;
-		if (user->GetExt("m_operprefix",ext))
-		{
-			// Don't want to announce -mode when they're quitting anyway..
-			if (!quitting)
-			{
-				for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
-				{
-					ModePair ms = opm->ModeSet(NULL, NULL , v->first, user->nick);
-					if (ms.first)
-					{
-						PushChanMode(v->first, user, true);
-					}
-				}
-			}
-			ext->clear();
-			delete ext;
-			user->Shrink("m_operprefix");
-		}
-	}
-
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if (target_type == TYPE_USER)
-		{
-			User* user = (User*)item;
-			CleanUser(user, false);
-		}
-	}
-
-	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
-	{
-		CleanUser(user,true);
-	}
-
-	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
-	{
-		DelPrefixChan(user, chan);
-	}
-
-	virtual void OnUserPart(User* user, Channel* channel, std::string &partreason, bool &silent)
-	{
-		DelPrefixChan(user, channel);
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}

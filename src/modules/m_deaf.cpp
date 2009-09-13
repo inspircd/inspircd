@@ -105,7 +105,7 @@ class ModuleDeaf : public Module
 
 	virtual void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
 	{
-		CUList *ulist = chan->GetUsers();
+		const UserMembList *ulist = chan->GetUsers();
 		bool is_a_uline;
 		bool is_bypasschar, is_bypasschar_avail;
 		bool is_bypasschar_uline, is_bypasschar_uline_avail;
@@ -131,7 +131,7 @@ class ModuleDeaf : public Module
 		if (!is_bypasschar_uline_avail && is_bypasschar)
 			return;
 
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 		{
 			/* not +d ? */
 			if (!i->first->IsModeSet('d'))
@@ -152,7 +152,7 @@ class ModuleDeaf : public Module
 				continue;
 
 			/* don't deliver message! */
-			exempt_list[i->first] = i->first->nick;
+			exempt_list.insert(i->first);
 		}
 	}
 

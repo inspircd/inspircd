@@ -12,15 +12,6 @@
  */
 
 #include "inspircd.h"
-
-#ifndef __CMD_NOTICE_H__
-#define __CMD_NOTICE_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /NOTICE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -40,8 +31,6 @@ class CommandNotice : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
 
 
 CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, User *user)
@@ -88,7 +77,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 	{
 		chan = ServerInstance->FindChan(target);
 
-		exempt_list[user] = user->nick;
+		exempt_list.insert(user);
 
 		if (chan)
 		{
@@ -99,7 +88,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
-				if ((chan->IsModeSet('m')) && (chan->GetStatus(user) < STATUS_VOICE))
+				if ((chan->IsModeSet('m')) && (chan->GetPrefixValue(user) < VOICE_VALUE))
 				{
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;

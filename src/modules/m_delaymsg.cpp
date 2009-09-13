@@ -21,7 +21,8 @@ class DelayMsgMode : public ModeHandler
  private:
 	CUList empty;
  public:
-	DelayMsgMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, Parent, 'd', 1, 0, false, MODETYPE_CHANNEL, false, 0, '@') {};
+	LocalIntExt jointime;
+	DelayMsgMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, Parent, 'd', 1, 0, false, MODETYPE_CHANNEL, false, 0, '@'), jointime("delaymsg", Parent) {};
 
 	ModePair ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 	{
@@ -53,11 +54,12 @@ class ModuleDelayMsg : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&djm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnCleanup, I_OnUserPreMessage};
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Extensible::Register(&djm.jointime);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-	virtual ~ModuleDelayMsg();
-	virtual Version GetVersion();
+	~ModuleDelayMsg();
+	Version GetVersion();
 	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
 	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
 	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
@@ -83,9 +85,9 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 		/*
 		 * Clean up metadata
 		 */
-		CUList* names = channel->GetUsers();
-		for (CUListIter n = names->begin(); n != names->end(); ++n)
-			n->first->Shrink("delaymsg_" + channel->name);
+		const UserMembList* names = channel->GetUsers();
+		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
+			jointime.set(n->second, 0);
 	}
 	channel->SetModeParam('d', adding ? parameter : "");
 	return MODEACTION_ALLOW;
@@ -104,29 +106,9 @@ Version ModuleDelayMsg::GetVersion()
 void ModuleDelayMsg::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
 {
 	if (channel->IsModeSet('d'))
-		user->Extend("delaymsg_"+channel->name, reinterpret_cast<char*>(ServerInstance->Time()));
-}
-
-void ModuleDelayMsg::OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
-{
-	user->Shrink("delaymsg_"+channel->name);
-}
-
-void ModuleDelayMsg::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
-{
-	user->Shrink("delaymsg_"+chan->name);
-}
-
-void ModuleDelayMsg::OnCleanup(int target_type, void* item)
-{
-	if (target_type == TYPE_USER)
 	{
-		User* user = (User*)item;
-		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-		{
-			Channel* chan = f->first;
-			user->Shrink("delaymsg_"+chan->name);
-		}
+		Membership* memb = channel->GetUser(user);
+		djm.jointime.set(memb, ServerInstance->Time());
 	}
 }
 
@@ -140,19 +122,21 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 		return MOD_RES_PASSTHRU;
 
 	Channel* channel = (Channel*) dest;
+	Membership* memb = channel->GetUser(user);
 
-	void* jointime_as_ptr;
-
-	if (!user->GetExt("delaymsg_"+channel->name, jointime_as_ptr))
+	if (!memb)
 		return MOD_RES_PASSTHRU;
+	
+	time_t ts = djm.jointime.get(memb);
 
-	time_t jointime = reinterpret_cast<time_t>(jointime_as_ptr);
+	if (ts == 0)
+		return MOD_RES_PASSTHRU;
 
 	std::string len = channel->GetModeParameter('d');
 
-	if (jointime + atoi(len.c_str()) > ServerInstance->Time())
+	if (ts + atoi(len.c_str()) > ServerInstance->Time())
 	{
-		if (channel->GetStatus(user) < STATUS_VOICE)
+		if (channel->GetPrefixValue(user) < VOICE_VALUE)
 		{
 			user->WriteNumeric(404, "%s %s :You must wait %s seconds after joining to send to channel (+d)",
 				user->nick.c_str(), channel->name.c_str(), len.c_str());
@@ -162,7 +146,7 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 	else
 	{
 		/* Timer has expired, we can stop checking now */
-		user->Shrink("delaymsg_"+channel->name);
+		djm.jointime.set(memb, 0);
 	}
 	return MOD_RES_PASSTHRU;
 }

@@ -18,19 +18,6 @@
 #include "dns.h"
 #include "mode.h"
 
-/** Channel status for a user
- */
-enum ChanStatus {
-	/** Op */
-	STATUS_OP     = 4,
-	/** Halfop */
-	STATUS_HOP    = 2,
-	/** Voice */
-	STATUS_VOICE  = 1,
-	/** None */
-	STATUS_NORMAL = 0
-};
-
 /** connect class types
  */
 enum ClassTypes {
@@ -208,7 +195,7 @@ typedef std::vector<ConnectClass*> ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */
-typedef std::map<Channel*, char> UserChanList;
+typedef std::set<Channel*> UserChanList;
 
 /** Shorthand for an iterator into a UserChanList
  */

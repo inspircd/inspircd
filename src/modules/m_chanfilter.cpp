@@ -85,7 +85,7 @@ class ModuleChanFilter : public Module
 
 	virtual ModResult ProcessMessages(User* user,Channel* chan,std::string &text)
 	{
-		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetStatus(user) == STATUS_OP))
+		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetPrefixValue(user) == OP_VALUE))
 			return MOD_RES_PASSTHRU;
 
 		modelist* list = cf.extItem.get(chan);

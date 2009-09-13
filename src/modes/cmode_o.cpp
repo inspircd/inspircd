@@ -33,7 +33,8 @@ ModePair ModeChannelOp::ModeSet(User*, User*, Channel* channel, const std::strin
 	User* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
-		if (channel->GetStatusFlags(x) & UCMODE_OP)
+		Membership* memb = channel->GetUser(x);
+		if (memb && memb->hasMode('o'))
 		{
 			return std::make_pair(true, x->nick);
 		}
@@ -48,22 +49,18 @@ ModePair ModeChannelOp::ModeSet(User*, User*, Channel* channel, const std::strin
 
 void ModeChannelOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
-	CUList* clist = channel->GetOppedUsers();
-	CUList copy;
+	const UserMembList* clist = channel->GetUsers();
 
-	for (CUList::iterator i = clist->begin(); i != clist->end(); i++)
-	{
-		User* n = i->first;
-		copy.insert(std::make_pair(n,n->nick));
-	}
-
-	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
+	for (UserMembCIter i = clist->begin(); i != clist->end(); i++)
 	{
 		if (stack)
 			stack->Push(this->GetModeChar(), i->first->nick);
 		else
 		{
-			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-o"); parameters.push_back(i->first->nick);
+			std::vector<std::string> parameters;
+			parameters.push_back(channel->name);
+			parameters.push_back("-o");
+			parameters.push_back(i->first->nick);
 			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
@@ -75,7 +72,7 @@ void ModeChannelOp::RemoveMode(User*, irc::modestacker* stack)
 
 ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
-	int status = channel->GetStatus(source);
+	int status = channel->GetPrefixValue(source);
 
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
@@ -112,7 +109,7 @@ std::string ModeChannelOp::AddOp(User *user,const char* dest,Channel *chan,int s
 				return "";
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)))
+				if ((status < OP_VALUE) && (!ServerInstance->ULine(user->server)))
 				{
 					user->WriteServ("482 %s %s :You're not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
@@ -120,7 +117,7 @@ std::string ModeChannelOp::AddOp(User *user,const char* dest,Channel *chan,int s
 			}
 		}
 
-		return ServerInstance->Modes->Grant(d,chan,UCMODE_OP);
+		return d->nick;
 	}
 	return "";
 }
@@ -140,7 +137,7 @@ std::string ModeChannelOp::DelOp(User *user,const char *dest,Channel *chan,int s
 				return "";
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)) && (IS_LOCAL(user)))
+				if ((status < OP_VALUE) && (!ServerInstance->ULine(user->server)) && (IS_LOCAL(user)))
 				{
 					user->WriteServ("482 %s %s :You are not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
@@ -148,7 +145,7 @@ std::string ModeChannelOp::DelOp(User *user,const char *dest,Channel *chan,int s
 			}
 		}
 
-		return ServerInstance->Modes->Revoke(d,chan,UCMODE_OP);
+		return d->nick;
 	}
 	return "";
 }

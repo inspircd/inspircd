@@ -31,8 +31,8 @@ class SSLMode : public ModeHandler
 			{
 				if (IS_LOCAL(source))
 				{
-					CUList* userlist = channel->GetUsers();
-					for(CUList::iterator i = userlist->begin(); i != userlist->end(); i++)
+					const UserMembList* userlist = channel->GetUsers();
+					for(UserMembCIter i = userlist->begin(); i != userlist->end(); i++)
 					{
 						BufferedSocketCertificateRequest req(i->first, creator, i->first->GetIOHook());
 						req.Send();

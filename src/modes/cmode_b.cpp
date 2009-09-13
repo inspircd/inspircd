@@ -31,7 +31,7 @@ ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, NULL,
 
 ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
-	int status = channel->GetStatus(source);
+	int status = channel->GetPrefixValue(source);
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
 	{

@@ -207,7 +207,7 @@ class ModuleMsgFlood : public Module
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
-		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP))
+		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetPrefixValue(user) == OP_VALUE))
 		{
 			return MOD_RES_PASSTHRU;
 		}

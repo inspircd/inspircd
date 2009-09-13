@@ -214,12 +214,12 @@ class ModuleNickFlood : public Module
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			Channel *channel = i->first;
+			Channel *channel = *i;
 
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetStatus(user) == STATUS_OP)
+				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetPrefixValue(user) == OP_VALUE)
 					continue;
 
 				if (f->islocked())
@@ -251,12 +251,12 @@ class ModuleNickFlood : public Module
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); ++i)
 		{
-			Channel *channel = i->first;
+			Channel *channel = *i;
 
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetStatus(user) == STATUS_OP)
+				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetPrefixValue(user) == OP_VALUE)
 					return;
 				
 				/* moved this here to avoid incrementing the counter for nick

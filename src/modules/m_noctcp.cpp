@@ -80,7 +80,7 @@ class ModuleNoCTCP : public Module
 		{
 			Channel* c = (Channel*)dest;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'C') && c->GetStatus(user) == STATUS_OP)
+			if (CHANOPS_EXEMPT(ServerInstance, 'C') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}

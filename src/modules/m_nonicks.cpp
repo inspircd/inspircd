@@ -84,9 +84,9 @@ class ModuleNoNickChange : public Module
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			Channel* curr = i->first;
+			Channel* curr = *i;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
+			if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetPrefixValue(user) == OP_VALUE)
 				continue;
 
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))

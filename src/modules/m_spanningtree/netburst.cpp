@@ -96,11 +96,11 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	char* ptr = list + curlen;
 	bool looped_once = false;
 
-	CUList *ulist = c->GetUsers();
+	const UserMembList *ulist = c->GetUsers();
 	std::string modes;
 	std::string params;
 
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 	{
 		size_t ptrlen = 0;
 		std::string modestr = this->ServerInstance->Modes->ModeString(i->first, c, false);

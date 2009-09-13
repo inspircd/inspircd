@@ -120,7 +120,7 @@ class ModuleOverride : public Module
 	{
 		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, "TOPIC"))
 		{
-			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetStatus(source) < STATUS_HOP))
+			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
 				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
 			}
@@ -137,7 +137,7 @@ class ModuleOverride : public Module
 		if (IS_OPER(source) && CanOverride(source,"KICK"))
 		{
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
-			if ((chan->GetStatus(source) < chan->GetStatus(user))			|| (chan->GetStatus(source) <= STATUS_VOICE))
+			if ((chan->GetPrefixValue(source) < chan->GetPrefixValue(user))	|| (chan->GetPrefixValue(source) <= VOICE_VALUE))
 			{
 				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to kick "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
@@ -153,50 +153,50 @@ class ModuleOverride : public Module
 		if (!source || !channel)
 			return MOD_RES_PASSTHRU;
 
-		int mode = STATUS_NORMAL;
+		int mode = 0;
 		if (channel->HasUser(source))
-			mode = channel->GetStatus(source);
+			mode = channel->GetPrefixValue(source);
 		bool over_this = false;
 
 		switch (access_type)
 		{
 			case AC_DEOP:
-				if (mode < STATUS_OP && CanOverride(source,"MODEDEOP"))
+				if (mode < OP_VALUE && CanOverride(source,"MODEDEOP"))
 				{
 					over_this = true;
 					OverDeops++;
 				}
 			break;
 			case AC_OP:
-				if (mode < STATUS_OP && CanOverride(source,"MODEOP"))
+				if (mode < OP_VALUE && CanOverride(source,"MODEOP"))
 				{
 					over_this = true;
 					OverOps++;
 				}
 			break;
 			case AC_VOICE:
-				if (mode < STATUS_HOP && CanOverride(source,"MODEVOICE"))
+				if (mode < HALFOP_VALUE && CanOverride(source,"MODEVOICE"))
 				{
 					over_this = true;
 					OverVoices++;
 				}
 			break;
 			case AC_DEVOICE:
-				if (mode < STATUS_HOP && CanOverride(source,"MODEDEVOICE"))
+				if (mode < HALFOP_VALUE && CanOverride(source,"MODEDEVOICE"))
 				{
 					over_this = true;
 					OverDevoices++;
 				}
 			break;
 			case AC_HALFOP:
-				if (mode < STATUS_OP && CanOverride(source,"MODEHALFOP"))
+				if (mode < OP_VALUE && CanOverride(source,"MODEHALFOP"))
 				{
 					over_this = true;
 					OverHalfops++;
 				}
 			break;
 			case AC_DEHALFOP:
-				if (mode < STATUS_OP && CanOverride(source,"MODEDEHALFOP"))
+				if (mode < OP_VALUE && CanOverride(source,"MODEDEHALFOP"))
 				{
 					over_this = true;
 					OverDehalfops++;
@@ -207,7 +207,7 @@ class ModuleOverride : public Module
 				std::string modes = ServerInstance->Modes->GetLastParse();
 				bool ohv_only = (modes.find_first_not_of("+-ohv") == std::string::npos);
 
-				if (mode < STATUS_HOP && (ohv_only || CanOverride(source,"OTHERMODE")))
+				if (mode < HALFOP_VALUE && (ohv_only || CanOverride(source,"OTHERMODE")))
 				{
 					over_this = true;
 					if (!ohv_only)

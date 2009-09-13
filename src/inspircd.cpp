@@ -350,6 +350,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// Avoid erroneous frees on early exit
 	WindowsIPC = 0;
 #endif
+
+	Extensible::Register(&User::NICKForced);
+	Extensible::Register(&User::OperQuit);
+
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,
 	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */

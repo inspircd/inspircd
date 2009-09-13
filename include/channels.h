@@ -14,6 +14,8 @@
 #ifndef __CHANNELS_H__
 #define __CHANNELS_H__
 
+#include "membership.h"
+
 /** RFC1459 channel modes
  */
 enum ChannelModes {
@@ -61,22 +63,9 @@ class BanItem : public HostItem
  */
 typedef std::list<BanItem> 	BanList;
 
-/** A list of users on a channel
- */
-typedef std::map<User*,std::string> CUList;
-
-/** Shorthand for CUList::iterator
- */
-typedef CUList::iterator CUListIter;
-
-/** Shorthand for CUList::const_iterator
- */
-typedef CUList::const_iterator CUListConstIter;
-
 /** A list of custom modes parameters on a channel
  */
 typedef std::map<char,std::string> CustomModeList;
-
 
 /** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
  */
@@ -85,18 +74,6 @@ enum UserChannelModes {
 	UCMODE_VOICE	= 2,	/* Voiced user */
 	UCMODE_HOP	= 4	/* Halfopped user */
 };
-
-/** A stored prefix and its rank
- */
-typedef std::pair<char, unsigned int> prefixtype;
-
-/** A list of prefixes set on a user in a channel
- */
-typedef std::vector<prefixtype> pfxcontainer;
-
-/** A list of users with zero or more prefixes set on them
- */
-typedef std::map<User*, std::vector<prefixtype> > prefixlist;
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, topic, topic set time,
@@ -117,11 +94,6 @@ class CoreExport Channel : public Extensible
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();
-
-	/** A list of prefixes associated with each user in the channel
-	 * (e.g. &%+ etc)
-	 */
-	prefixlist prefixes;
 
 	/** Maximum number of bans (cached)
 	 */
@@ -149,33 +121,9 @@ class CoreExport Channel : public Extensible
 	 */
 	std::bitset<64> modes;
 
-	/** User lists.
-	 * There are four user lists, one for
-	 * all the users, one for the ops, one for
-	 * the halfops and another for the voices.
+	/** User list.
 	 */
-	CUList internal_userlist;
-
-	/** Opped users.
-	 * There are four user lists, one for
-	 * all the users, one for the ops, one for
-	 * the halfops and another for the voices.
-	 */
-	CUList internal_op_userlist;
-
-	/** Halfopped users.
-	 * There are four user lists, one for
-	 * all the users, one for the ops, one for
-	 * the halfops and another for the voices.
-	 */
-	CUList internal_halfop_userlist;
-
-	/** Voiced users.
-	 * There are four user lists, one for
-	 * all the users, one for the ops, one for
-	 * the halfops and another for the voices.
-	 */
-	CUList internal_voice_userlist;
+	UserMembList userlist;
 
 	/** Parameters for custom modes.
 	 * One for each custom mode letter.
@@ -256,43 +204,13 @@ class CoreExport Channel : public Extensible
 	 * an arbitary pointer compared to other users by its memory address,
 	 * as this is a very fast 32 or 64 bit integer comparison.
 	 */
-	void AddUser(User* user);
-
-	/** Add a user pointer to the internal reference list of opped users
-	 * @param user The user to add
-	 */
-	void AddOppedUser(User* user);
-
-	/** Add a user pointer to the internal reference list of halfopped users
-	 * @param user The user to add
-	 */
-	void AddHalfoppedUser(User* user);
-
-	/** Add a user pointer to the internal reference list of voiced users
-	 * @param user The user to add
-	 */
-	void AddVoicedUser(User* user);
+	Membership* AddUser(User* user);
 
 	/** Delete a user pointer to the internal reference list
 	 * @param user The user to delete
 	 * @return number of users left on the channel after deletion of the user
 	 */
 	unsigned long DelUser(User* user);
-
-	/** Delete a user pointer to the internal reference list of opped users
-	 * @param user The user to delete
-	 */
-	void DelOppedUser(User* user);
-
-	/** Delete a user pointer to the internal reference list of halfopped users
-	 * @param user The user to delete
-	 */
-	void DelHalfoppedUser(User* user);
-
-	/** Delete a user pointer to the internal reference list of voiced users
-	 * @param user The user to delete
-	 */
-	void DelVoicedUser(User* user);
 
 	/** Obtain the internal reference list
 	 * The internal reference list contains a list of User*.
@@ -303,28 +221,15 @@ class CoreExport Channel : public Extensible
 	 *
 	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
-	CUList* GetUsers();
-
-	/** Obtain the internal reference list of opped users
-	 * @return This function returns pointer to a map of User pointers (CUList*).
-	 */
-	CUList* GetOppedUsers();
-
-	/** Obtain the internal reference list of halfopped users
-	 * @return This function returns pointer to a map of User pointers (CUList*).
-	 */
-	CUList* GetHalfoppedUsers();
-
-	/** Obtain the internal reference list of voiced users
-	 * @return This function returns pointer to a map of User pointers (CUList*).
-	 */
-	CUList* GetVoicedUsers();
+	const UserMembList* GetUsers();
 
 	/** Returns true if the user given is on the given channel.
 	 * @param The user to look for
 	 * @return True if the user is on this channel
 	 */
 	bool HasUser(User* user);
+
+	Membership* GetUser(User* user);
 
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
@@ -448,27 +353,13 @@ class CoreExport Channel : public Extensible
 
 	/** Spool the NAMES list for this channel to the given user
 	 * @param user The user to spool the NAMES list to
-	 * @param ulist The user list to send, NULL to use the
-	 * channel's default names list of everyone
 	 */
-	void UserList(User *user, CUList* ulist = NULL);
+	void UserList(User *user);
 
 	/** Get the number of invisible users on this channel
 	 * @return Number of invisible users
 	 */
 	int CountInvisible();
-
-	/** Get a users status on this channel
-	 * @param user The user to look up
-	 * @return One of STATUS_OP, STATUS_HOP, STATUS_VOICE, or zero.
-	 */
-	int GetStatus(User *user);
-
-	/** Get a users status on this channel in a bitmask
-	 * @param user The user to look up
-	 * @return A bitmask containing zero or more of STATUS_OP, STATUS_HOP, STATUS_VOICE
-	 */
-	int GetStatusFlags(User *user);
 
 	/** Get a users prefix on this channel in a string.
 	 * @param user The user to look up

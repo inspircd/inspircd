@@ -91,9 +91,11 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		{
 			if (IS_LOCAL(user))
 			{
-				if (c->GetStatus(user) < STATUS_HOP)
+				int rank = c->GetPrefixValue(user);
+				if (rank < HALFOP_VALUE)
 				{
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",
+						user->nick.c_str(), c->name.c_str(), rank >= HALFOP_VALUE ? "" : "half-");
 					return CMD_FAILURE;
 				}
 			}

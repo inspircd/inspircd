@@ -1365,14 +1365,8 @@ class CoreExport Module : public Extensible
 	 * return 0.
 	 * @param The user requesting the NAMES list
 	 * @param Ptr The channel the NAMES list is requested for
-	 * @param userlist The user list for the channel (you may change this pointer.
-	 * If you want to change the values, take a copy first, and change the copy, then
-	 * point the pointer at your copy)
-	 * @return 1 to prevent the user list being sent to the client, 0 to allow it.
-	 * Returning -1 allows the names list, but bypasses any checks which check for
-	 * channel membership before sending the names list.
 	 */
-	virtual ModResult OnUserList(User* user, Channel* Ptr, CUList* &userlist);
+	virtual ModResult OnUserList(User* user, Channel* Ptr);
 
 	/** Called whenever a line of WHOIS output is sent to a user.
 	 * You may change the numeric and the text of the output by changing

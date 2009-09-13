@@ -44,8 +44,8 @@ class CommandTban : public Command
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		if (channel)
 		{
-			int cm = channel->GetStatus(user);
-			if ((cm == STATUS_HOP) || (cm == STATUS_OP))
+			int cm = channel->GetPrefixValue(user);
+			if ((cm == HALFOP_VALUE) || (cm == OP_VALUE))
 			{
 				if (!ServerInstance->IsValidMask(parameters[2]))
 				{

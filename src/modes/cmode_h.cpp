@@ -33,13 +33,14 @@ ModePair ModeChannelHalfOp::ModeSet(User*, User*, Channel* channel, const std::s
 	User* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
-		if (channel->GetStatusFlags(x) & UCMODE_HOP)
+		Membership* memb = channel->GetUser(x);
+		if (memb && memb->hasMode('h'))
 		{
 			return std::make_pair(true, x->nick);
 		}
 		else
 		{
-			return std::make_pair(false, parameter);
+			return std::make_pair(false, x->nick);
 		}
 	}
 	return std::make_pair(false, parameter);
@@ -47,16 +48,9 @@ ModePair ModeChannelHalfOp::ModeSet(User*, User*, Channel* channel, const std::s
 
 void ModeChannelHalfOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
-	CUList* clist = channel->GetHalfoppedUsers();
-	CUList copy;
+	const UserMembList* clist = channel->GetUsers();
 
-	for (CUList::iterator i = clist->begin(); i != clist->end(); i++)
-	{
-		User* n = i->first;
-		copy.insert(std::make_pair(n,n->nick));
-	}
-
-	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
+	for (UserMembCIter i = clist->begin(); i != clist->end(); i++)
 	{
 		if (stack)
 		{
@@ -64,7 +58,10 @@ void ModeChannelHalfOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 		}
 		else
 		{
-			std::vector<std::string> parameters; parameters.push_back(channel->name); parameters.push_back("-h"); parameters.push_back(i->first->nick);
+			std::vector<std::string> parameters;
+			parameters.push_back(channel->name);
+			parameters.push_back("-h");
+			parameters.push_back(i->first->nick);
 			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
@@ -77,7 +74,7 @@ void ModeChannelHalfOp::RemoveMode(User*, irc::modestacker* stack)
 
 ModeAction ModeChannelHalfOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
-	int status = channel->GetStatus(source);
+	int status = channel->GetPrefixValue(source);
 
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
@@ -114,7 +111,7 @@ std::string ModeChannelHalfOp::AddHalfOp(User *user,const char* dest,Channel *ch
 				return "";
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)))
+				if ((status < OP_VALUE) && (!ServerInstance->ULine(user->server)))
 				{
 					user->WriteServ("482 %s %s :You're not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
@@ -122,7 +119,7 @@ std::string ModeChannelHalfOp::AddHalfOp(User *user,const char* dest,Channel *ch
 			}
 		}
 
-		return ServerInstance->Modes->Grant(d,chan,UCMODE_HOP);
+		return d->nick;
 	}
 	return "";
 }
@@ -142,7 +139,7 @@ std::string ModeChannelHalfOp::DelHalfOp(User *user,const char *dest,Channel *ch
 				return "";
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				if ((user != d) && ((status < STATUS_OP) && (!ServerInstance->ULine(user->server))))
+				if ((user != d) && ((status < OP_VALUE) && (!ServerInstance->ULine(user->server))))
 				{
 					user->WriteServ("482 %s %s :You are not a channel operator",user->nick.c_str(), chan->name.c_str());
 					return "";
@@ -150,7 +147,7 @@ std::string ModeChannelHalfOp::DelHalfOp(User *user,const char *dest,Channel *ch
 			}
 		}
 
-		return ServerInstance->Modes->Revoke(d,chan,UCMODE_HOP);
+		return d->nick;
 	}
 	return "";
 }

@@ -24,17 +24,17 @@
 class FounderProtectBase
 {
  private:
-	InspIRCd* MyInstance;
-	std::string extend;
-	std::string type;
-	int list;
-	int end;
+	InspIRCd* const MyInstance;
+	const std::string type;
+	const char mode;
+	const int list;
+	const int end;
  protected:
 	bool& remove_own_privs;
 	bool& remove_other_privs;
  public:
-	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e, bool &remove_own, bool &remove_others) :
-		MyInstance(Instance), extend(ext), type(mtype), list(l), end(e), remove_own_privs(remove_own), remove_other_privs(remove_others)
+	FounderProtectBase(InspIRCd* Instance, char Mode, const std::string &mtype, int l, int e, bool &remove_own, bool &remove_others) :
+		MyInstance(Instance), type(mtype), mode(Mode), list(l), end(e), remove_own_privs(remove_own), remove_other_privs(remove_others)
 	{
 	}
 
@@ -43,14 +43,14 @@ class FounderProtectBase
 		User* x = MyInstance->FindNick(parameter);
 		if (x)
 		{
-			if (!channel->HasUser(x))
+			Membership* memb = channel->GetUser(x);
+			if (!memb)
 			{
 				return std::make_pair(false, parameter);
 			}
 			else
 			{
-				std::string item = extend+std::string(channel->name);
-				if (x->GetExt(item))
+				if (memb->hasMode(mode))
 				{
 					return std::make_pair(true, x->nick);
 				}
@@ -63,23 +63,22 @@ class FounderProtectBase
 		return std::make_pair(false, parameter);
 	}
 
-	void RemoveMode(Channel* channel, char mc, irc::modestacker* stack)
+	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
-		CUList* cl = channel->GetUsers();
-		std::string item = extend + std::string(channel->name);
+		const UserMembList* cl = channel->GetUsers();
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
 		irc::modestacker modestack(MyInstance, false);
 		std::deque<std::string> stackresult;
 
-		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
+		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
 		{
-			if (i->first->GetExt(item))
+			if (i->second->hasMode(mode))
 			{
 				if (stack)
-					stack->Push(mc, i->first->nick);
+					stack->Push(mode, i->first->nick);
 				else
-					modestack.Push(mc, i->first->nick);
+					modestack.Push(mode, i->first->nick);
 			}
 		}
 
@@ -96,11 +95,10 @@ class FounderProtectBase
 
 	void DisplayList(User* user, Channel* channel)
 	{
-		CUList* cl = channel->GetUsers();
-		std::string item = extend+std::string(channel->name);
-		for (CUList::reverse_iterator i = cl->rbegin(); i != cl->rend(); ++i)
+		const UserMembList* cl = channel->GetUsers();
+		for (UserMembCIter i = cl->begin(); i != cl->end(); ++i)
 		{
-			if (i->first->GetExt(item))
+			if (i->second->hasMode(mode))
 			{
 				user->WriteServ("%d %s %s %s", list, user->nick.c_str(), channel->name.c_str(), i->first->nick.c_str());
 			}
@@ -108,46 +106,10 @@ class FounderProtectBase
 		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick.c_str(), channel->name.c_str(), type.c_str());
 	}
 
-	User* FindAndVerify(std::string &parameter, Channel* channel)
+	bool CanRemoveOthers(User* u1, Channel* c)
 	{
-		User* theuser = MyInstance->FindNick(parameter);
-		if ((!theuser) || (!channel->HasUser(theuser)))
-		{
-			parameter.clear();
-			return NULL;
-		}
-		return theuser;
-	}
-
-	bool CanRemoveOthers(User* u1, User* u2, Channel* c)
-	{
-		std::string item = extend+std::string(c->name);
-		return (remove_other_privs && u1->GetExt(item) && u2->GetExt(item));
-	}
-
-	ModeAction HandleChange(User* source, User* theuser, bool adding, Channel* channel, std::string &parameter)
-	{
-		std::string item = extend+std::string(channel->name);
-
-		if (adding)
-		{
-			if (!theuser->GetExt(item))
-			{
-				theuser->Extend(item);
-				parameter = theuser->nick;
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (theuser->GetExt(item))
-			{
-				theuser->Shrink(item);
-				parameter = theuser->nick;
-				return MODEACTION_ALLOW;
-			}
-		}
-		return MODEACTION_DENY;
+		Membership* m1 = c->GetUser(u1);
+		return (remove_other_privs && m1 && m1->hasMode(mode));
 	}
 };
 
@@ -158,7 +120,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
  public:
 	ChanFounder(InspIRCd* Instance, Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, Creator, 'q', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
-		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self, depriv_others) { }
+		  FounderProtectBase(Instance, 'q', "founder", 386, 387, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
 	{
@@ -172,7 +134,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 
 	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
-		FounderProtectBase::RemoveMode(channel, this->GetModeChar(), stack);
+		FounderProtectBase::RemoveMode(channel, stack);
 	}
 
 	void RemoveMode(User* user, irc::modestacker* stack)
@@ -181,16 +143,16 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		User* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
+		User* theuser = ServerInstance->FindNick(parameter);
 
 		if (!theuser)
 		{
 			return MODEACTION_DENY;
 		}
 
-		if ((!adding) && FounderProtectBase::CanRemoveOthers(source, theuser, channel))
+		if ((!adding) && FounderProtectBase::CanRemoveOthers(source, channel))
 		{
-			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+			return MODEACTION_ALLOW;
 		}
 
 		char isoverride=0;
@@ -202,15 +164,14 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 			isoverride = tmp[0];
 		}
 		 // source is a server, or ulined, we'll let them +-q the user.
-		if (source == ServerInstance->FakeClient ||
+		if (!IS_LOCAL(source) ||
 				((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
 				(ServerInstance->ULine(source->nick.c_str())) ||
 				(ServerInstance->ULine(source->server)) ||
 				(!*source->server) ||
-				(!IS_LOCAL(source)) ||
 				isoverride)
 		{
-			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+			return MODEACTION_ALLOW;
 		}
 		else
 		{
@@ -234,7 +195,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
  public:
 	ChanProtect(InspIRCd* Instance, Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, Creator, 'a', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
-		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self, depriv_others) { }
+		  FounderProtectBase(Instance,'a',"protected user", 388, 389, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
 	{
@@ -248,7 +209,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
-		FounderProtectBase::RemoveMode(channel, this->GetModeChar(), stack);
+		FounderProtectBase::RemoveMode(channel, stack);
 	}
 
 	void RemoveMode(User* user, irc::modestacker* stack)
@@ -257,16 +218,14 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		User* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
+		User* theuser = ServerInstance->FindNick(parameter);
 
 		if (!theuser)
 			return MODEACTION_DENY;
 
-		std::string founder = "cm_founder_"+std::string(channel->name);
-
-		if ((!adding) && FounderProtectBase::CanRemoveOthers(source, theuser, channel))
+		if ((!adding) && FounderProtectBase::CanRemoveOthers(source, channel))
 		{
-			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+			return MODEACTION_ALLOW;
 		}
 
 		char isoverride=0;
@@ -278,17 +237,16 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 			isoverride = tmp[0];
 		}
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if (source == ServerInstance->FakeClient ||
+		if (!IS_LOCAL(source) ||
 			((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) ||
 			(ServerInstance->ULine(source->nick.c_str())) ||
 			(ServerInstance->ULine(source->server)) ||
 			(!*source->server) ||
-			(source->GetExt(founder)) ||
-			(!IS_LOCAL(source)) ||
+			(channel->GetPrefixValue(source) > PROTECT_VALUE) ||
 			isoverride
 			)
 		{
-			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+			return MODEACTION_ALLOW;
 		}
 		else
 		{
@@ -342,20 +300,6 @@ class ModuleChanProtect : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
-	{
-		// FIX: when someone gets kicked from a channel we must remove their Extensibles!
-		user->Shrink("cm_founder_"+std::string(chan->name));
-		user->Shrink("cm_protect_"+std::string(chan->name));
-	}
-
-	virtual void OnUserPart(User* user, Channel* channel, std::string &partreason, bool &silent)
-	{
-		// FIX: when someone parts a channel we must remove their Extensibles!
-		user->Shrink("cm_founder_"+std::string(channel->name));
-		user->Shrink("cm_protect_"+std::string(channel->name));
-	}
-
 	void LoadSettings()
 	{
 		ConfigReader Conf(ServerInstance);
@@ -403,34 +347,33 @@ class ModuleChanProtect : public Module
 		// always allow the action if:
 		// (A) The source is ulined
 
-		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
-		// without any access checks, we're not worthy :p
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
-			return MOD_RES_ALLOW;
+			return MOD_RES_PASSTHRU;
 
 		if (!channel)
 			return MOD_RES_PASSTHRU;
-
-		std::string founder("cm_founder_"+channel->name);
-		std::string protect("cm_protect_"+channel->name);
 
 		// Can do anything to yourself if deprotectself is enabled.
 		if (DeprivSelf && source == dest)
 			return MOD_RES_PASSTHRU;
 
-		bool candepriv_founder = (DeprivOthers && source->GetExt(founder));
-		bool candepriv_protected = (source->GetExt(founder) || (DeprivOthers && source->GetExt(protect))); // Can the source remove +a?
+		Membership* smemb = channel->GetUser(source);
+		Membership* dmemb = channel->GetUser(source);
+		bool candepriv_founder = (DeprivOthers && smemb && smemb->hasMode('q'));
+		bool candepriv_protect = smemb && (smemb->hasMode('q') || (DeprivOthers && smemb->hasMode('a')));
+		bool desthas_founder = dmemb->hasMode('q');
+		bool desthas_protect = dmemb->hasMode('a');
 
 		switch (access_type)
 		{
 			// a user has been deopped. Do we let them? hmmm...
 			case AC_DEOP:
-				if (dest->GetExt(founder) && !candepriv_founder)
+				if (desthas_founder && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're a channel founder");
 					return MOD_RES_DENY;
 				}
-				if ((dest->GetExt(protect)) && !candepriv_protected)
+				if (desthas_protect && !candepriv_protect)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're protected (+a)");
 					return MOD_RES_DENY;
@@ -439,12 +382,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being kicked. do we chop off the end of the army boot?
 			case AC_KICK:
-				if (dest->GetExt(founder) && !candepriv_founder)
+				if (desthas_founder && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're a channel founder");
 					return MOD_RES_DENY;
 				}
-				if ((dest->GetExt(protect)) && !candepriv_protected)
+				if (desthas_protect && !candepriv_protect)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're protected (+a)");
 					return MOD_RES_DENY;
@@ -453,12 +396,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being dehalfopped. Yes, we do disallow -h of a +ha user
 			case AC_DEHALFOP:
-				if (dest->GetExt(founder) && !candepriv_founder)
+				if (desthas_founder && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're a channel founder");
 					return MOD_RES_DENY;
 				}
-				if ((dest->GetExt(protect)) && !candepriv_protected)
+				if (desthas_protect && !candepriv_protect)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're protected (+a)");
 					return MOD_RES_DENY;
@@ -467,12 +410,12 @@ class ModuleChanProtect : public Module
 
 			// same with devoice.
 			case AC_DEVOICE:
-				if (dest->GetExt(founder) && !candepriv_founder)
+				if (desthas_founder && !candepriv_founder)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're a channel founder");
 					return MOD_RES_DENY;
 				}
-				if ((dest->GetExt(protect)) && !candepriv_protected)
+				if (desthas_protect && !candepriv_protect)
 				{
 					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're protected (+a)");
 					return MOD_RES_DENY;
@@ -494,7 +437,7 @@ class ModuleChanProtect : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Founder and Protect modes (+qa)", VF_COMMON | VF_VENDOR);
 	}
 };
 

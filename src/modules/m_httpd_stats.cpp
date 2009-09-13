@@ -116,18 +116,15 @@ class ModuleHttpStats : public Module
 
 					data << "<channel>";
 					data << "<usercount>" << c->GetUsers()->size() << "</usercount><channelname>" << c->name << "</channelname>";
-					data << "<channelops>" << c->GetOppedUsers()->size() << "</channelops>";
-					data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
-					data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
 					data << "<channeltopic>";
 					data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
 					data << "<setby>" << Sanitize(c->setby) << "</setby>";
 					data << "<settime>" << c->topicset << "</settime>";
 					data << "</channeltopic>";
 					data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
-					CUList* ulist = c->GetUsers();
+					const UserMembList* ulist = c->GetUsers();
 
-					for (CUList::iterator x = ulist->begin(); x != ulist->end(); ++x)
+					for (UserMembCIter x = ulist->begin(); x != ulist->end(); ++x)
 					{
 						data << "<channelmember><uid>" << x->first->uuid << "</uid><privs>" << Sanitize(c->GetAllPrefixChars(x->first)) << "</privs></channelmember>";
 					}

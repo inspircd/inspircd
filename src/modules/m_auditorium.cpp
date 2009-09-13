@@ -84,7 +84,7 @@ class ModuleAuditorium : public Module
 		if (OperOverride && issuer->HasPrivPermission("channels/auspex"))
 			return;
 
-		if (ShowOps && (issuer != user) && (channel->GetStatus(user) < STATUS_OP))
+		if (ShowOps && (issuer != user) && (channel->GetPrefixValue(user) < OP_VALUE))
 		{
 			/* Showops is set, hide all non-ops from the user, except themselves */
 			nick.clear();
@@ -104,11 +104,11 @@ class ModuleAuditorium : public Module
 		if (!OperOverride)
 			return;
 
-		CUList *ulist = channel->GetUsers();
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		const UserMembList *ulist = channel->GetUsers();
+		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 		{
 			if (i->first->HasPrivPermission("channels/auspex") && source != i->first)
-				if (!ShowOps || (ShowOps && channel->GetStatus(i->first) < STATUS_OP))
+				if (!ShowOps || (ShowOps && channel->GetPrefixValue(i->first) < OP_VALUE))
 					i->first->WriteFrom(source, "%s",text.c_str());
 		}
 	}
@@ -121,7 +121,7 @@ class ModuleAuditorium : public Module
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
 			user->WriteFrom(user, "JOIN %s", channel->name.c_str());
 			if (ShowOps)
-				channel->WriteAllExceptSender(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', "JOIN %s", channel->name.c_str());
+				channel->WriteAllExceptSender(user, false, channel->GetPrefixValue(user) >= OP_VALUE ? 0 : '@', "JOIN %s", channel->name.c_str());
 			WriteOverride(user, channel, "JOIN "+channel->name);
 		}
 	}
@@ -137,7 +137,7 @@ class ModuleAuditorium : public Module
 					partmessage.empty() ? "" : partmessage.c_str());
 			if (ShowOps)
 			{
-				channel->WriteAllExceptSender(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :",
+				channel->WriteAllExceptSender(user, false, channel->GetPrefixValue(user) >= OP_VALUE ? 0 : '@', "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :",
 						partmessage.empty() ? "" : partmessage.c_str());
 			}
 			WriteOverride(user, channel, "PART " + channel->name + (partmessage.empty() ? "" : (" :" + partmessage)));
@@ -152,8 +152,8 @@ class ModuleAuditorium : public Module
 			/* Send silenced event only to the user being kicked and the user doing the kick */
 			source->WriteFrom(source, "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			if (ShowOps)
-				chan->WriteAllExceptSender(source, false, chan->GetStatus(user) >= STATUS_OP ? 0 : '@', "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-			if ((!ShowOps) || (chan->GetStatus(user) < STATUS_OP)) /* make sure the target gets the event */
+				chan->WriteAllExceptSender(source, false, chan->GetPrefixValue(user) >= OP_VALUE ? 0 : '@', "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
+			if ((!ShowOps) || (chan->GetPrefixValue(user) < OP_VALUE)) /* make sure the target gets the event */
 				user->WriteFrom(source, "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
 			WriteOverride(source, chan, "KICK " + chan->name + " " + user->nick + " :" + reason);
 		}
@@ -162,7 +162,7 @@ class ModuleAuditorium : public Module
 	ModResult OnHostCycle(User* user)
 	{
 		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-			if (f->first->IsModeSet('u'))
+			if ((*f)->IsModeSet('u'))
 				return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;
@@ -176,8 +176,8 @@ class ModuleAuditorium : public Module
 		{
 			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
 			{
-				if (f->first->IsModeSet('u'))
-					to_leave.push_back(f->first->name);
+				if ((*f)->IsModeSet('u'))
+					to_leave.push_back((*f)->name);
 			}
 			/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
 			for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)

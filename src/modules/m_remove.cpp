@@ -34,49 +34,12 @@ class RemoveBase : public Command
 	{
 	}
 
-	enum ModeLevel { PEON = 0, HALFOP = 1, OP = 2, ADMIN = 3, OWNER = 4, ULINE = 5 };
-
-	/* This little function just converts a chanmode character (U ~ & @ & +) into an integer (5 4 3 2 1 0) */
-	/* XXX - We should probably use the new mode prefix rank stuff
-	 * for this instead now -- Brain */
-	ModeLevel chartolevel(const std::string &privs)
-	{
-		if(privs.empty())
-		{
-			return PEON;
-		}
-
-		switch (privs[0])
-		{
-			case 'U':
-				/* Ulined */
-				return ULINE;
-			case '~':
-				/* Owner */
-				return OWNER;
-			case '&':
-				/* Admin */
-				return ADMIN;
-			case '@':
-				/* Operator */
-				return OP;
-			case '%':
-				/* Halfop */
-				return HALFOP;
-			default:
-				/* Peon */
-				return PEON;
-		}
-	}
-
 	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool neworder)
 	{
 		const char* channame;
 		const char* username;
 		User* target;
 		Channel* channel;
-		ModeLevel tlevel;
-		ModeLevel ulevel;
 		std::string reason;
 		std::string protectkey;
 		std::string founderkey;
@@ -109,57 +72,20 @@ class RemoveBase : public Command
 			return CMD_FAILURE;
 		}
 
-		/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set.
-		 * Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
-		protectkey = "cm_protect_" + std::string(channel->name);
-		founderkey = "cm_founder_" + std::string(channel->name);
-
-		if (ServerInstance->ULine(user->server) || ServerInstance->ULine(user->nick.c_str()))
-		{
-			ulevel = chartolevel("U");
-		}
-		if (user->GetExt(founderkey))
-		{
-			ulevel = chartolevel("~");
-		}
-		else if (user->GetExt(protectkey))
-		{
-			ulevel = chartolevel("&");
-		}
-		else
-		{
-			ulevel = chartolevel(channel->GetPrefixChar(user));
-		}
-
-		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
-		if (ServerInstance->ULine(target->server) || ServerInstance->ULine(target->nick.c_str()))
-		{
-			tlevel = chartolevel("U");
-		}
-		else if (target->GetExt(founderkey))
-		{
-			tlevel = chartolevel("~");
-		}
-		else if (target->GetExt(protectkey))
-		{
-			tlevel = chartolevel("&");
-		}
-		else
-		{
-			tlevel = chartolevel(channel->GetPrefixChar(target));
-		}
+		int ulevel = channel->GetPrefixValue(user);
+		int tlevel = channel->GetPrefixValue(target);
 
 		hasnokicks = (ServerInstance->Modules->Find("m_nokicks.so") && channel->IsModeSet('Q'));
 
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
-		if ((!IS_LOCAL(user)) || (!supportnokicks || !hasnokicks || (ulevel == ULINE)))
+		if ((!IS_LOCAL(user)) || (!supportnokicks || !hasnokicks))
 		{
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
 			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
 			 * Nobody may remove a founder.
 			 */
-			if ((!IS_LOCAL(user)) || ((ulevel > PEON) && (ulevel >= tlevel) && (tlevel != OWNER)))
+			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && (tlevel != 50000)))
 			{
 				// no you can't just go from a std::ostringstream to a std::string, Om. -nenolod
 				// but you can do this, nenolod -brain

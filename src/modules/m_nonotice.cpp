@@ -52,7 +52,7 @@ class ModuleNoNotice : public Module
 					// ulines are exempt.
 					return MOD_RES_PASSTHRU;
 				}
-				else if (CHANOPS_EXEMPT(ServerInstance, 'T') && c->GetStatus(user) == STATUS_OP)
+				else if (CHANOPS_EXEMPT(ServerInstance, 'T') && c->GetPrefixValue(user) == OP_VALUE)
 				{
 					// channel ops are exempt if set in conf.
 					return MOD_RES_PASSTHRU;

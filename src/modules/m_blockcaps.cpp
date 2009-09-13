@@ -60,7 +60,7 @@ public:
 
 			Channel* c = (Channel*)dest;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'B') && c->GetStatus(user) == STATUS_OP)
+			if (CHANOPS_EXEMPT(ServerInstance, 'B') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}

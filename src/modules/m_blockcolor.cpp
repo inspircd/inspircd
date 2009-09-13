@@ -48,7 +48,7 @@ class ModuleBlockColour : public Module
 		{
 			Channel* c = (Channel*)dest;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'c') && c->GetStatus(user) == STATUS_OP)
+			if (CHANOPS_EXEMPT(ServerInstance, 'c') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}

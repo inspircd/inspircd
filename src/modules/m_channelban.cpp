@@ -39,7 +39,7 @@ class ModuleBadChannelExtban : public Module
 		ModResult rv;
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			rv = rv + c->GetExtBanStatus(i->first->name, 'j');
+			rv = rv + c->GetExtBanStatus((*i)->name, 'j');
 		}
 
 		return rv;

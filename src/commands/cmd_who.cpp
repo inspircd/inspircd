@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_WHO_H__
-#define __CMD_WHO_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /WHO. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -57,18 +49,17 @@ class CommandWho : public Command
 	bool whomatch(User* cuser, User* user, const char* matchtext);
 };
 
-#endif
-
 
 static const std::string star = "*";
 
 static const std::string& get_first_visible_channel(User *u)
 {
 	UCListIter i = u->chans.begin();
-	if (i != u->chans.end())
+	while (i != u->chans.end())
 	{
-		if (!i->first->IsModeSet('s'))
-			return i->first->name;
+		Channel* c = *i++;
+		if (!c->IsModeSet('s'))
+			return c->name;
 	}
 
 	return star;
@@ -334,9 +325,9 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 			bool inside = ch->HasUser(user);
 
 			/* who on a channel. */
-			CUList *cu = ch->GetUsers();
+			const UserMembList *cu = ch->GetUsers();
 
-			for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
+			for (UserMembCIter i = cu->begin(); i != cu->end(); i++)
 			{
 				/* None of this applies if we WHO ourselves */
 				if (user != i->first)

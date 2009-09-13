@@ -194,9 +194,9 @@ void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &li
 /* returns a list of DIRECT servernames for a specific channel */
 void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
 {
-	CUList *ulist = c->GetUsers();
+	const UserMembList *ulist = c->GetUsers();
 
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if (IS_LOCAL(i->first))
 			continue;

@@ -28,11 +28,8 @@ static unsigned long* already_sent = NULL;
 LocalIntExt User::NICKForced("NICKForced", NULL);
 LocalStringExt User::OperQuit("OperQuit", NULL);
 
-static bool dummy_init = Extensible::Register(&User::NICKForced) ^ Extensible::Register(&User::OperQuit);
-
 void InitializeAlreadySent(SocketEngine* SE)
 {
-	(void)dummy_init;
 	already_sent = new unsigned long[SE->GetMaxFds()];
 	memset(already_sent, 0, SE->GetMaxFds() * sizeof(unsigned long));
 }
@@ -1365,8 +1362,8 @@ void User::WriteCommon(const std::string &text)
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		CUList* ulist = v->first->GetUsers();
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		const UserMembList* ulist = (*v)->GetUsers();
+		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 			{
@@ -1424,8 +1421,8 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		CUList *ulist = v->first->GetUsers();
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		const UserMembList* ulist = (*v)->GetUsers();
+		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			if (this != i->first)
 			{
@@ -1457,8 +1454,8 @@ void User::WriteCommonExcept(const std::string &text)
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		CUList *ulist = v->first->GetUsers();
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		const UserMembList* ulist = (*v)->GetUsers();
+		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			if (this != i->first)
 			{
@@ -1524,7 +1521,7 @@ bool User::SharesChannelWith(User *other)
 		/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
 		 * by replacing it with a map::find which *should* be more efficient
 		 */
-		if (i->first->HasUser(other))
+		if ((*i)->HasUser(other))
 			return true;
 	}
 	return false;
@@ -1567,7 +1564,7 @@ void User::DoHostCycle(const std::string &quitline)
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		Channel* c = v->first;
+		Channel* c = *v;
 		snprintf(buffer, MAXBUF, ":%s JOIN %s", GetFullHost().c_str(), c->name.c_str());
 		std::string joinline(buffer);
 		std::string modeline = this->ServerInstance->Modes->ModeString(this, c);
@@ -1577,8 +1574,8 @@ void User::DoHostCycle(const std::string &quitline)
 			modeline = buffer;
 		}
 
-		CUList *ulist = c->GetUsers();
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		const UserMembList *ulist = c->GetUsers();
+		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			User* u = i->first;
 			if (u == this || !IS_LOCAL(u))
@@ -1670,13 +1667,14 @@ std::string User::ChannelList(User* source)
 
 	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 	{
+		Channel* c = *i;
 		/* If the target is the same as the sender, let them see all their channels.
 		 * If the channel is NOT private/secret OR the user shares a common channel
 		 * If the user is an oper, and the <options:operspywhois> option is set.
 		 */
-		if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!i->first->IsModeSet('p')) && (!i->first->IsModeSet('s'))) || (i->first->HasUser(source))))
+		if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!c->IsModeSet('p')) && (!c->IsModeSet('s'))) || (c->HasUser(source))))
 		{
-			list.append(i->first->GetPrefixChar(this)).append(i->first->name).append(" ");
+			list.append(c->GetPrefixChar(this)).append(c->name).append(" ");
 		}
 	}
 
@@ -1842,13 +1840,14 @@ void User::PurgeEmptyChannels()
 	// firstly decrement the count on each channel
 	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
 	{
-		f->first->RemoveAllPrefixes(this);
-		if (f->first->DelUser(this) == 0)
+		Channel* c = *f;
+		c->RemoveAllPrefixes(this);
+		if (c->DelUser(this) == 0)
 		{
 			/* No users left in here, mark it for deletion */
 			try
 			{
-				to_delete.push_back(f->first);
+				to_delete.push_back(c);
 			}
 			catch (...)
 			{

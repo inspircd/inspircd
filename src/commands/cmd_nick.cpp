@@ -13,26 +13,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *      the file COPYING for details.
- *
- * ---------------------------------------------------
- */
-
-#ifndef __CMD_NICK_H__
-#define __CMD_NICK_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
 
 /** Handle /NICK. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
@@ -53,9 +33,6 @@ class CommandNick : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 /** Handle nick changes from users.
  * NOTE: If you are used to ircds based on ircd2.8, and are looking
@@ -145,8 +122,8 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 			{
 				for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 				{
-					Channel *chan = i->first;
-					if (chan->GetStatus(user) < STATUS_VOICE && chan->IsBanned(user))
+					Channel *chan = *i;
+					if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
 					{
 						user->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", user->nick.c_str(), chan->name.c_str());
 						return CMD_FAILURE;
@@ -207,15 +184,6 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	user->nick.assign(parameters[0], 0, IS_LOCAL(user) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
 	user->InvalidateCache();
-
-	/* Update display nicks */
-	for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
-	{
-		CUList* ulist = v->first->GetUsers();
-		CUList::iterator i = ulist->find(user);
-		if (i != ulist->end())
-			i->second = user->nick;
-	}
 
 	if (user->registered < REG_NICKUSER)
 	{

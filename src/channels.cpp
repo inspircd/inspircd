@@ -81,7 +81,7 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 					u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
 					return CMD_FAILURE;
 				}
-				if ((this->IsModeSet('t')) && (this->GetStatus(u) < STATUS_HOP))
+				if ((this->IsModeSet('t')) && (this->GetPrefixValue(u) < HALFOP_VALUE))
 				{
 					u->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", u->nick.c_str(), this->name.c_str());
 					return CMD_FAILURE;
@@ -115,98 +115,45 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 
 long Channel::GetUserCounter()
 {
-	return (this->internal_userlist.size());
+	return userlist.size();
 }
 
-void Channel::AddUser(User* user)
+Membership* Channel::AddUser(User* user)
 {
-	internal_userlist[user] = user->nick;
+	Membership* memb = new Membership(user, this);
+	userlist[user] = memb;
+	return memb;
 }
 
 unsigned long Channel::DelUser(User* user)
 {
-	CUListIter a = internal_userlist.find(user);
+	UserMembIter a = userlist.find(user);
 
-	if (a != internal_userlist.end())
+	if (a != userlist.end())
 	{
-		internal_userlist.erase(a);
-		/* And tidy any others... */
-		DelOppedUser(user);
-		DelHalfoppedUser(user);
-		DelVoicedUser(user);
+		delete a->second;
+		userlist.erase(a);
 	}
 
-	return internal_userlist.size();
+	return userlist.size();
 }
 
 bool Channel::HasUser(User* user)
 {
-	return (internal_userlist.find(user) != internal_userlist.end());
+	return (userlist.find(user) != userlist.end());
 }
 
-void Channel::AddOppedUser(User* user)
+Membership* Channel::GetUser(User* user)
 {
-	internal_op_userlist[user] = user->nick;
+	UserMembIter i = userlist.find(user);
+	if (i == userlist.end())
+		return NULL;
+	return i->second;
 }
 
-void Channel::DelOppedUser(User* user)
+const UserMembList* Channel::GetUsers()
 {
-	CUListIter a = internal_op_userlist.find(user);
-	if (a != internal_op_userlist.end())
-	{
-		internal_op_userlist.erase(a);
-		return;
-	}
-}
-
-void Channel::AddHalfoppedUser(User* user)
-{
-	internal_halfop_userlist[user] = user->nick;
-}
-
-void Channel::DelHalfoppedUser(User* user)
-{
-	CUListIter a = internal_halfop_userlist.find(user);
-
-	if (a != internal_halfop_userlist.end())
-	{
-		internal_halfop_userlist.erase(a);
-	}
-}
-
-void Channel::AddVoicedUser(User* user)
-{
-	internal_voice_userlist[user] = user->nick;
-}
-
-void Channel::DelVoicedUser(User* user)
-{
-	CUListIter a = internal_voice_userlist.find(user);
-
-	if (a != internal_voice_userlist.end())
-	{
-		internal_voice_userlist.erase(a);
-	}
-}
-
-CUList* Channel::GetUsers()
-{
-	return &internal_userlist;
-}
-
-CUList* Channel::GetOppedUsers()
-{
-	return &internal_op_userlist;
-}
-
-CUList* Channel::GetHalfoppedUsers()
-{
-	return &internal_halfop_userlist;
-}
-
-CUList* Channel::GetVoicedUsers()
-{
-	return &internal_voice_userlist;
+	return &userlist;
 }
 
 void Channel::SetDefaultModes()
@@ -396,9 +343,7 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 	bool silent = false;
 
 	Ptr->AddUser(user);
-
-	/* Just in case they have no permissions */
-	user->chans[Ptr] = 0;
+	user->chans.insert(Ptr);
 
 	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
 	{
@@ -407,26 +352,8 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		if (mh)
 		{
 			/* Set, and make sure that the mode handler knows this mode was now set */
-			Ptr->SetPrefix(user, status, mh->GetPrefixRank(), true);
+			Ptr->SetPrefix(user, mh->GetModeChar(), mh->GetPrefixRank(), true);
 			mh->OnModeChange(Instance->FakeClient, Instance->FakeClient, Ptr, nick, true);
-
-			switch (mh->GetPrefix())
-			{
-				/* These logic ops are SAFE IN THIS CASE because if the entry doesnt exist,
-				 * addressing operator[] creates it. If they do exist, it points to it.
-				 * At all other times where we dont want to create an item if it doesnt exist, we
-				 * must stick to ::find().
-				 */
-				case '@':
-					user->chans[Ptr] |= UCMODE_OP;
-				break;
-				case '%':
-					user->chans[Ptr] |= UCMODE_HOP;
-				break;
-				case '+':
-					user->chans[Ptr] |= UCMODE_VOICE;
-				break;
-			}
 		}
 	}
 
@@ -613,11 +540,11 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 
 		if (res == MOD_RES_PASSTHRU)
 		{
-			int them = this->GetStatus(src);
-			int us = this->GetStatus(user);
-			if ((them < STATUS_HOP) || (them < us))
+			int them = this->GetPrefixValue(src);
+			int us = this->GetPrefixValue(user);
+			if ((them < HALFOP_VALUE) || (them < us))
 			{
-				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them == STATUS_HOP ? "" : "half-");
+				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them >= HALFOP_VALUE ? "" : "half-");
 				return this->GetUserCounter();
 			}
 		}
@@ -674,7 +601,6 @@ void Channel::WriteChannel(User* user, const char* text, ...)
 
 void Channel::WriteChannel(User* user, const std::string &text)
 {
-	CUList *ulist = this->GetUsers();
 	char tb[MAXBUF];
 
 	if (!user)
@@ -683,7 +609,7 @@ void Channel::WriteChannel(User* user, const std::string &text)
 	snprintf(tb,MAXBUF,":%s %s", user->GetFullHost().c_str(), text.c_str());
 	std::string out = tb;
 
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
 			i->first->Write(out);
@@ -707,13 +633,12 @@ void Channel::WriteChannelWithServ(const char* ServName, const char* text, ...)
 
 void Channel::WriteChannelWithServ(const char* ServName, const std::string &text)
 {
-	CUList *ulist = this->GetUsers();
 	char tb[MAXBUF];
 
 	snprintf(tb,MAXBUF,":%s %s", ServName ? ServName : ServerInstance->Config->ServerName, text.c_str());
 	std::string out = tb;
 
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
 			i->first->Write(out);
@@ -766,8 +691,7 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 
 void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &out)
 {
-	CUList *ulist = this->GetUsers();
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if ((IS_LOCAL(i->first)) && (except_list.find(i->first) == except_list.end()))
 		{
@@ -783,7 +707,7 @@ void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CULi
 void Channel::WriteAllExceptSender(User* user, bool serversource, char status, const std::string& text)
 {
 	CUList except_list;
-	except_list[user] = user->nick;
+	except_list.insert(user);
 	this->WriteAllExcept(user, serversource, status, except_list, std::string(text));
 }
 
@@ -794,8 +718,7 @@ void Channel::WriteAllExceptSender(User* user, bool serversource, char status, c
 int Channel::CountInvisible()
 {
 	int count = 0;
-	CUList *ulist= this->GetUsers();
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (!(i->first->IsModeSet('i')))
 			count++;
@@ -863,7 +786,7 @@ char* Channel::ChanModes(bool showkey)
 /* compile a userlist of a channel into a string, each nick seperated by
  * spaces and op, voice etc status shown as @ and +, and send it to 'user'
  */
-void Channel::UserList(User *user, CUList *ulist)
+void Channel::UserList(User *user)
 {
 	char list[MAXBUF];
 	size_t dlen, curlen;
@@ -872,7 +795,7 @@ void Channel::UserList(User *user, CUList *ulist)
 	if (!IS_LOCAL(user))
 		return;
 
-	FIRST_MOD_RESULT(ServerInstance, OnUserList, call_modules, (user, this, ulist));
+	FIRST_MOD_RESULT(ServerInstance, OnUserList, call_modules, (user, this));
 
 	if (call_modules != MOD_RES_ALLOW)
 	{
@@ -888,15 +811,12 @@ void Channel::UserList(User *user, CUList *ulist)
 	int numusers = 0;
 	char* ptr = list + dlen;
 
-	if (!ulist)
-		ulist = this->GetUsers();
-
 	/* Improvement by Brain - this doesnt change in value, so why was it inside
 	 * the loop?
 	 */
 	bool has_user = this->HasUser(user);
 
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if ((!has_user) && (i->first->IsModeSet('i')))
 		{
@@ -984,42 +904,43 @@ void Channel::ResetMaxBans()
 const char* Channel::GetPrefixChar(User *user)
 {
 	static char pf[2] = {0, 0};
+	*pf = 0;
+	unsigned int bestrank = 0;
 
-	prefixlist::iterator n = prefixes.find(user);
-	if (n != prefixes.end())
+	UserMembIter m = userlist.find(user);
+	if (m != userlist.end())
 	{
-		if (n->second.size())
+		for(unsigned int i=0; i < m->second->modes.length(); i++)
 		{
-			/* If the user has any prefixes, their highest prefix
-			 * will always be at the head of the list, as the list is
-			 * sorted in rank order highest first (see SetPrefix()
-			 * for reasons why)
-			 */
-			*pf = n->second.begin()->first;
-			return pf;
+			char mchar = m->second->modes[i];
+			ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
+			if (mh && mh->GetPrefixRank() > bestrank)
+			{
+				bestrank = mh->GetPrefixRank();
+				pf[0] = mh->GetPrefix();
+			}
 		}
 	}
-
-	*pf = 0;
 	return pf;
 }
 
 
 const char* Channel::GetAllPrefixChars(User* user)
 {
-	static char prefix[MAXBUF];
+	static char prefix[64];
 	int ctr = 0;
-	*prefix = 0;
 
-	prefixlist::iterator n = prefixes.find(user);
-	if (n != prefixes.end())
+	UserMembIter m = userlist.find(user);
+	if (m != userlist.end())
 	{
-		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
+		for(unsigned int i=0; i < m->second->modes.length(); i++)
 		{
-			prefix[ctr++] = x->first;
+			char mchar = m->second->modes[i];
+			ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
+			if (mh && mh->GetPrefix())
+				prefix[ctr++] = mh->GetPrefix();
 		}
 	}
-
 	prefix[ctr] = 0;
 
 	return prefix;
@@ -1027,92 +948,49 @@ const char* Channel::GetAllPrefixChars(User* user)
 
 unsigned int Channel::GetPrefixValue(User* user)
 {
-	prefixlist::iterator n = prefixes.find(user);
-	if (n != prefixes.end())
-	{
-		if (n->second.size())
-			return n->second.begin()->second;
-	}
-	return 0;
-}
+	unsigned int bestrank = 0;
 
-int Channel::GetStatusFlags(User *user)
-{
-	UCListIter i = user->chans.find(this);
-	if (i != user->chans.end())
+	UserMembIter m = userlist.find(user);
+	if (m != userlist.end())
 	{
-		return i->second;
+		for(unsigned int i=0; i < m->second->modes.length(); i++)
+		{
+			char mchar = m->second->modes[i];
+			ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
+			if (mh && mh->GetPrefixRank() > bestrank)
+				bestrank = mh->GetPrefixRank();
+		}
 	}
-	return 0;
-}
-
-int Channel::GetStatus(User *user)
-{
-	if (ServerInstance->ULine(user->server))
-		return STATUS_OP;
-
-	UCListIter i = user->chans.find(this);
-	if (i != user->chans.end())
-	{
-		if ((i->second & UCMODE_OP) > 0)
-		{
-			return STATUS_OP;
-		}
-		if ((i->second & UCMODE_HOP) > 0)
-		{
-			return STATUS_HOP;
-		}
-		if ((i->second & UCMODE_VOICE) > 0)
-		{
-			return STATUS_VOICE;
-		}
-		return STATUS_NORMAL;
-	}
-	return STATUS_NORMAL;
+	return bestrank;
 }
 
 void Channel::SetPrefix(User* user, char prefix, unsigned int prefix_value, bool adding)
 {
-	prefixlist::iterator n = prefixes.find(user);
-	prefixtype pfx = std::make_pair(prefix,prefix_value);
-	if (adding)
+	UserMembIter m = userlist.find(user);
+	if (m != userlist.end())
 	{
-		if (n != prefixes.end())
+		for(unsigned int i=0; i < m->second->modes.length(); i++)
 		{
-			if (std::find(n->second.begin(), n->second.end(), pfx) == n->second.end())
+			char mchar = m->second->modes[i];
+			ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
+			if (mh && mh->GetPrefixRank() <= prefix_value)
 			{
-				n->second.push_back(pfx);
-				/* We must keep prefixes in rank order, largest first.
-				 * This is for two reasons, firstly because x-chat *ass-u-me's* this
-				 * state, and secondly it turns out to be a benefit to us later.
-				 * See above in GetPrefix().
-				 */
-				std::sort(n->second.begin(), n->second.end(), ModeParser::PrefixComparison);
+				m->second->modes =
+					m->second->modes.substr(0,i-1) +
+					(adding ? std::string(1, prefix) : "") +
+					m->second->modes.substr(mchar == prefix ? i+1 : i);
+				return;
 			}
 		}
-		else
-		{
-			pfxcontainer one;
-			one.push_back(pfx);
-			prefixes.insert(std::make_pair<User*,pfxcontainer>(user, one));
-		}
-	}
-	else
-	{
-		if (n != prefixes.end())
-		{
-			pfxcontainer::iterator x = std::find(n->second.begin(), n->second.end(), pfx);
-			if (x != n->second.end())
-				n->second.erase(x);
-		}
+		m->second->modes += std::string(1, prefix);
 	}
 }
 
 void Channel::RemoveAllPrefixes(User* user)
 {
-	prefixlist::iterator n = prefixes.find(user);
-	if (n != prefixes.end())
+	UserMembIter m = userlist.find(user);
+	if (m != userlist.end())
 	{
-		prefixes.erase(n);
+		m->second->modes.clear();
 	}
 }

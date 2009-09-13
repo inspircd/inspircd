@@ -77,7 +77,7 @@ class ModuleCensor : public Module
 		{
 			active = ((Channel*)dest)->IsModeSet('G');
 			Channel* c = (Channel*)dest;
-			if (CHANOPS_EXEMPT(ServerInstance, 'G') && c->GetStatus(user) == STATUS_OP)
+			if (CHANOPS_EXEMPT(ServerInstance, 'G') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}

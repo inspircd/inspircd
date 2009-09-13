@@ -248,66 +248,6 @@ User* ModeParser::SanityChecks(User *user, const char *dest, Channel *chan, int)
 	return d;
 }
 
-const char* ModeParser::Grant(User *d,Channel *chan,int MASK)
-{
-	if (!chan)
-		return "";
-
-	UCListIter n = d->chans.find(chan);
-	if (n != d->chans.end())
-	{
-		if (n->second & MASK)
-		{
-			return "";
-		}
-		n->second = n->second | MASK;
-		switch (MASK)
-		{
-			case UCMODE_OP:
-				n->first->AddOppedUser(d);
-			break;
-			case UCMODE_HOP:
-				n->first->AddHalfoppedUser(d);
-			break;
-			case UCMODE_VOICE:
-				n->first->AddVoicedUser(d);
-			break;
-		}
-		return d->nick.c_str();
-	}
-	return "";
-}
-
-const char* ModeParser::Revoke(User *d,Channel *chan,int MASK)
-{
-	if (!chan)
-		return "";
-
-	UCListIter n = d->chans.find(chan);
-	if (n != d->chans.end())
-	{
-		if ((n->second & MASK) == 0)
-		{
-			return "";
-		}
-		n->second ^= MASK;
-		switch (MASK)
-		{
-			case UCMODE_OP:
-				n->first->DelOppedUser(d);
-			break;
-			case UCMODE_HOP:
-				n->first->DelHalfoppedUser(d);
-			break;
-			case UCMODE_VOICE:
-				n->first->DelVoicedUser(d);
-			break;
-		}
-		return d->nick.c_str();
-	}
-	return "";
-}
-
 void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text)
 {
 	if (targetchannel)
@@ -374,10 +314,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 			 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
 			 * first, so we don't need to iterate, we just look up the first instead.
 			 */
-			std::string modestring = chan->GetAllPrefixChars(user);
-			char ml = (modestring.empty() ? '\0' : modestring[0]);
-			ModeHandler* ourmode = FindPrefix(ml);
-			if (!ourmode || ourmode->GetPrefixRank() < neededrank)
+			unsigned int ourrank = chan->GetPrefixValue(user);
+			if (ourrank < neededrank)
 			{
 				/* Bog off */
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
@@ -436,11 +374,11 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	mh->ChangeCount(adding ? 1 : -1);
 
-	if (mh->GetPrefix() && chan)
+	if (mh->GetPrefixRank() && chan)
 	{
 		User* user_to_prefix = ServerInstance->FindNick(parameter);
 		if (user_to_prefix)
-			chan->SetPrefix(user_to_prefix, mh->GetPrefix(), mh->GetPrefixRank(), adding);
+			chan->SetPrefix(user_to_prefix, modechar, mh->GetPrefixRank(), adding);
 	}
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
@@ -635,7 +573,7 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 			continue;
 
 		bool display = true;
-		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetStatus(user) < STATUS_HOP))
+		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetPrefixValue(user) < HALFOP_VALUE))
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only half-operators and above may view the +%c list",
 				user->nick.c_str(), chan->name.c_str(), mletter);
@@ -925,17 +863,11 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 	return type1 + "," + type2 + "," + type3 + "," + type4;
 }
 
-bool ModeParser::PrefixComparison(prefixtype one, prefixtype two)
-{
-	return one.second > two.second;
-}
-
 std::string ModeParser::BuildPrefixes()
 {
 	std::string mletters;
 	std::string mprefixes;
-	pfxcontainer pfx;
-	std::map<char,char> prefix_to_mode;
+	std::map<int,std::pair<char,char> > prefixes;
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
@@ -943,17 +875,15 @@ std::string ModeParser::BuildPrefixes()
 
 		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix()))
 		{
-			pfx.push_back(std::make_pair<char,unsigned int>(modehandlers[pos]->GetPrefix(), modehandlers[pos]->GetPrefixRank()));
-			prefix_to_mode[modehandlers[pos]->GetPrefix()] = modehandlers[pos]->GetModeChar();
+			prefixes[modehandlers[pos]->GetPrefixRank()] = std::make_pair(
+				modehandlers[pos]->GetPrefix(), modehandlers[pos]->GetModeChar());
 		}
 	}
 
-	sort(pfx.begin(), pfx.end(), ModeParser::PrefixComparison);
-
-	for (pfxcontainer::iterator n = pfx.begin(); n != pfx.end(); n++)
+	for(std::map<int,std::pair<char,char> >::iterator n = prefixes.begin(); n != prefixes.end(); n++)
 	{
-		mletters = mletters + n->first;
-		mprefixes = mprefixes + prefix_to_mode.find(n->first)->second;
+		mletters = mletters + n->second.first;
+		mprefixes = mprefixes + n->second.second;
 	}
 
 	return "(" + mprefixes + ")" + mletters;

@@ -47,9 +47,9 @@ class CommandUninvite : public Command
 
 		if (IS_LOCAL(user))
 		{
-			if (c->GetStatus(user) < STATUS_HOP)
+			if (c->GetPrefixValue(user) < HALFOP_VALUE)
 			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetStatus(u) == STATUS_HOP ? "" : "half-");
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator", user->nick.c_str(), c->name.c_str(), c->GetPrefixValue(u) == HALFOP_VALUE ? "" : "half-");
 				return CMD_FAILURE;
 			}
 		}

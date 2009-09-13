@@ -43,6 +43,7 @@ typedef std::vector<DCCAllow> dccallowlist;
 dccallowlist* dl;
 typedef std::vector<BannedFileList> bannedfilelist;
 bannedfilelist bfl;
+SimpleExtItem<dccallowlist>* ext;
 
 class CommandDccallow : public Command
 {
@@ -97,7 +98,8 @@ class CommandDccallow : public Command
 				if (action == '-')
 				{
 					// check if it contains any entries
-					if (user->GetExt("dccallow_list", dl))
+					dl = ext->get(user);
+					if (dl)
 					{
 						for (dccallowlist::iterator i = dl->begin(); i != dl->end(); ++i)
 						{
@@ -106,22 +108,6 @@ class CommandDccallow : public Command
 							{
 								dl->erase(i);
 								user->WriteNumeric(995, "%s %s :Removed %s from your DCCALLOW list", user->nick.c_str(), user->nick.c_str(), target->nick.c_str());
-								break;
-							}
-						}
-					}
-					else
-					{
-						delete  dl;
-						user->Shrink("dccallow_list");
-
-						// remove from userlist
-						for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)
-						{
-							User* u = (User*)(*j);
-							if (u == user)
-							{
-								ul.erase(j);
 								break;
 							}
 						}
@@ -135,10 +121,11 @@ class CommandDccallow : public Command
 						return CMD_FAILURE;
 					}
 
-					if (!user->GetExt("dccallow_list", dl))
+					dl = ext->get(user);
+					if (!dl)
 					{
 						dl = new dccallowlist;
-						user->Extend("dccallow_list", dl);
+						ext->set(user, dl);
 						// add this user to the userlist
 						ul.push_back(user);
 					}
@@ -233,7 +220,8 @@ class CommandDccallow : public Command
 		 // display current DCCALLOW list
 		user->WriteNumeric(990, "%s :Users on your DCCALLOW list:", user->nick.c_str());
 
-		if (user->GetExt("dccallow_list", dl))
+		dl = ext->get(user);
+		if (dl)
 		{
 			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
 			{
@@ -255,6 +243,8 @@ class ModuleDCCAllow : public Module
 		: Module(Me), cmd(Me, this)
 	{
 		Conf = new ConfigReader(ServerInstance);
+		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
+		Extensible::Register(ext);
 		ServerInstance->AddCommand(&cmd);
 		ReadFileConf();
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick, I_OnRehash };
@@ -271,13 +261,11 @@ class ModuleDCCAllow : public Module
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
-		dccallowlist* udl;
+		dccallowlist* udl = ext->get(user);
 
 		// remove their DCCALLOW list if they have one
-		if (user->GetExt("dccallow_list", udl))
+		if (udl)
 		{
-			delete udl;
-			user->Shrink("dccallow_list");
 			RemoveFromUserlist(user);
 		}
 
@@ -285,7 +273,6 @@ class ModuleDCCAllow : public Module
 		// they are currently on
 		RemoveNick(user);
 	}
-
 
 	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
@@ -320,7 +307,8 @@ class ModuleDCCAllow : public Module
 
 				if (strncmp(text.c_str(), "\1DCC ", 5) == 0)
 				{
-					if (u->GetExt("dccallow_list", dl) && dl->size())
+					dl = ext->get(u);
+					if (dl && dl->size())
 					{
 						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
 							if (InspIRCd::Match(user->GetFullHost(), iter->hostmask))
@@ -387,7 +375,8 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end(); ++iter)
 		{
 			User* u = (User*)(*iter);
-			if (u->GetExt("dccallow_list", dl))
+			dl = ext->get(u);
+			if (dl)
 			{
 				if (dl->size())
 				{
@@ -419,7 +408,8 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end(); ++iter)
 		{
 			User *u = (User*)(*iter);
-			if (u->GetExt("dccallow_list", dl))
+			dl = ext->get(u);
+			if (dl)
 			{
 				if (dl->size())
 				{
@@ -475,6 +465,7 @@ class ModuleDCCAllow : public Module
 	virtual ~ModuleDCCAllow()
 	{
 		delete Conf;
+		delete ext;
 		Conf = NULL;
 	}
 
