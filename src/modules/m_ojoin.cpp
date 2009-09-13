@@ -67,16 +67,6 @@ class CommandOjoin : public Command
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used OJOIN to join "+channel->name);
 
-			if (!NPrefix)
-			{
-				std::vector<std::string> modes;
-				modes.push_back(parameters[0]);
-				modes.push_back("+Y");
-				modes.push_back(user->nick);
-				ServerInstance->SendMode(modes, ServerInstance->FakeClient);
-				ServerInstance->PI->SendMode(channel->name, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
-			}
-
 			if (notice)
 			{
 				channel = ServerInstance->FindChan(parameters[0]);

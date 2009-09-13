@@ -240,7 +240,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		}
 		else
 		{
-			privs = "@";
+			privs = "o";
 			created_by_local = true;
 		}
 
@@ -347,7 +347,7 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
 	{
 		const char status = *x;
-		ModeHandler* mh = Instance->Modes->FindPrefix(status);
+		ModeHandler* mh = Instance->Modes->FindMode(status, MODETYPE_CHANNEL);
 		if (mh)
 		{
 			/* Set, and make sure that the mode handler knows this mode was now set */
