@@ -857,13 +857,6 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
 
-	/**
-	 * Implemented by all modules that implement ProtoSendMetaData.
-	 * Translates the item into a string format suitable for sending to other servers.
-	 * Currently, this just translates nicks to their UID and channels to their name
-	 */
-	virtual std::string ProtoTranslate(Extensible* item);
-
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS
 	 * @param text The content of the WALLOPS message

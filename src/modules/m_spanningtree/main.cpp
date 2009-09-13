@@ -932,17 +932,6 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 }
 
-std::string ModuleSpanningTree::ProtoTranslate(Extensible* item)
-{
-	User* u = dynamic_cast<User*>(item);
-	Channel* c = dynamic_cast<Channel*>(item);
-	if (u)
-		return u->uuid;
-	if (c)
-		return c->name;
-	return "*";
-}
-
 void ModuleSpanningTree::OnEvent(Event* event)
 {
 	if ((event->GetEventID() == "send_encap") || (event->GetEventID() == "send_metadata") || (event->GetEventID() == "send_topic") || (event->GetEventID() == "send_mode") || (event->GetEventID() == "send_mode_explicit") || (event->GetEventID() == "send_opers")

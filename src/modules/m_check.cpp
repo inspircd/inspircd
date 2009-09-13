@@ -41,7 +41,7 @@ class CommandCheck : public Command
 			ExtensionItem* item = Extensible::GetItem(i->first);
 			std::string value;
 			if (item)
-				value = item->serialize(creator, ext, i->second);
+				value = item->serialize(FORMAT_USER, ext, i->second);
 			if (value.empty())
 				dumpkeys << " " << i->first;
 			else
@@ -210,17 +210,6 @@ class ModuleCheck : public Module
 	Version GetVersion()
 	{
 		return Version("CHECK command, view user/channel details", VF_VENDOR|VF_OPTCOMMON);
-	}
-
-	std::string ProtoTranslate(Extensible* item)
-	{
-		User* u = dynamic_cast<User*>(item);
-		Channel* c = dynamic_cast<Channel*>(item);
-		if (u)
-			return u->nick;
-		if (c)
-			return c->name;
-		return "?";
 	}
 };
 

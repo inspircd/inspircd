@@ -147,17 +147,34 @@ LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(
 {
 }
 
-std::string LocalExtItem::serialize(Module* requestor, const Extensible* container, void* item)
+std::string LocalExtItem::serialize(SerializeFormat format, const Extensible* container, void* item)
 {
 	return "";
 }
 
-void LocalExtItem::unserialize(Module* requestor, Extensible* container, const std::string& value)
+void LocalExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 {
+}
+
+LocalStringExt::LocalStringExt(const std::string& Key, Module* Owner)
+	: SimpleExtItem<std::string>(Key, Owner) { }
+
+std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item)
+{
+	if (item && format == FORMAT_USER)
+		return *static_cast<std::string*>(item);
+	return "";
 }
 
 LocalIntExt::LocalIntExt(const std::string& Key, Module* mod) : LocalExtItem(Key, mod)
 {
+}
+
+std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* container, void* item)
+{
+	if (format != FORMAT_USER)
+		return "";
+	return ConvToStr(reinterpret_cast<intptr_t>(item));
 }
 
 intptr_t LocalIntExt::get(const Extensible* container)
@@ -186,12 +203,12 @@ std::string* StringExtItem::get(const Extensible* container)
 	return static_cast<std::string*>(get_raw(container));
 }
 
-std::string StringExtItem::serialize(Module* requestor, const Extensible* container, void* item)
+std::string StringExtItem::serialize(SerializeFormat format, const Extensible* container, void* item)
 {
 	return item ? *static_cast<std::string*>(item) : "";
 }
 
-void StringExtItem::unserialize(Module* requestor, Extensible* container, const std::string& value)
+void StringExtItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 {
 	if (value.empty())
 		unset(container);

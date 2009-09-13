@@ -53,7 +53,7 @@ class InvisibleMode : public ModeHandler
 
 				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost().c_str(), adding ? "PART" : "JOIN", (*f)->name.c_str());
 				std::string out = tb;
-				std::string n = this->ServerInstance->Modes->ModeString(dest, (*f));
+				std::string n = ServerInstance->Modes->ModeString(dest, (*f));
 
 				for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 				{

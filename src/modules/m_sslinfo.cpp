@@ -29,12 +29,12 @@ class SSLCertExt : public ExtensionItem {
 		delete old;
 	}
 
-	std::string serialize(Module* requestor, const Extensible* container, void* item)
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item)
 	{
 		return static_cast<ssl_cert*>(item)->GetMetaLine();
 	}
 
-	void unserialize(Module* requestor, Extensible* container, const std::string& value)
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
 		ssl_cert* cert = new ssl_cert;
 		set(container, cert);

@@ -56,14 +56,15 @@ class callerid_data : public classbase
 		}
 	}
 
-	std::string ToString(Module* proto) const
+	std::string ToString(SerializeFormat format) const
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
 		for (std::set<User*>::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
 		{
+			User* u = *i;
 			// Encode UIDs.
-			oss << "," << proto->ProtoTranslate(*i);
+			oss << "," << (format == FORMAT_USER ? u->nick : u->uuid);
 		}
 		oss << std::ends;
 		return oss.str();
@@ -77,13 +78,13 @@ struct CallerIDExtInfo : public ExtensionItem
 	{
 	}
 
-	std::string serialize(Module* requestor, const Extensible* container, void* item)
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item)
 	{
 		callerid_data* dat = static_cast<callerid_data*>(item);
-		return dat->ToString(requestor);
+		return dat->ToString(format);
 	}
 
-	void unserialize(Module* requestor, Extensible* container, const std::string& value)
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
 		callerid_data* dat = new callerid_data(value);
 		set_raw(container, dat);

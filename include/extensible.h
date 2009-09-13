@@ -1,6 +1,18 @@
 class Extensible;
 class Module;
 
+enum SerializeFormat
+{
+	/** Shown to a human (does not need to be unserializable) */
+	FORMAT_USER,
+	/** Passed internally to this process (i.e. for /RELOADMODULE) */
+	FORMAT_INTERNAL,
+	/** Passed to other servers on the network (i.e. METADATA s2s command) */
+	FORMAT_NETWORK,
+	/** Stored on disk (i.e. permchannel database) */
+	FORMAT_PERSIST
+};
+
 /** Class represnting an extension of some object
  */
 class CoreExport ExtensionItem
@@ -9,10 +21,19 @@ class CoreExport ExtensionItem
 	const std::string key;
 	Module* const owner;
 	ExtensionItem(const std::string& key, Module* owner);
-	/** Serialize this item into a string */
-	virtual std::string serialize(Module* requestor, const Extensible* container, void* item) = 0;
-	/** Convert the string form back into an item */
-	virtual void unserialize(Module* requestor, Extensible* container, const std::string& value) = 0;
+	/** Serialize this item into a string
+	 *
+	 * @param format The format to serialize to
+	 * @param container The object containing this item
+	 * @param item The item itself
+	 */
+	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) = 0;
+	/** Convert the string form back into an item
+	 * @param format The format to serialize from (not FORMAT_USER)
+	 * @param container The object that this item applies to
+	 * @param value The return from a serialize() call that was run elsewhere with this key
+	 */
+	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value) = 0;
 	/** Free the item */
 	virtual void free(void* item) = 0;
 
@@ -71,9 +92,8 @@ class CoreExport LocalExtItem : public ExtensionItem
 {
  public:
 	LocalExtItem(const std::string& key, Module* owner);
-	// this is deliberately NOT virtual; don't subclass LocalExtItem if you want to sync data!
-	std::string serialize(Module* requestor, const Extensible* container, void* item);
-	void unserialize(Module* requestor, Extensible* container, const std::string& value);
+	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item);
+	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	virtual void free(void* item) = 0;
 };
 
@@ -126,12 +146,18 @@ class CoreExport SimpleExtItem : public LocalExtItem
 	}
 };
 
-typedef SimpleExtItem<std::string> LocalStringExt;
+class CoreExport LocalStringExt : public SimpleExtItem<std::string>
+{
+ public:
+	LocalStringExt(const std::string& key, Module* owner);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
+};
 
 class CoreExport LocalIntExt : public LocalExtItem
 {
  public:
 	LocalIntExt(const std::string& key, Module* owner);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
 	intptr_t get(const Extensible* container);
 	intptr_t set(Extensible* container, intptr_t value);
 	void free(void* item);
@@ -142,8 +168,8 @@ class CoreExport StringExtItem : public ExtensionItem
  public:
 	StringExtItem(const std::string& key, Module* owner);
 	std::string* get(const Extensible* container);
-	std::string serialize(Module* requestor, const Extensible* container, void* item);
-	void unserialize(Module* requestor, Extensible* container, const std::string& value);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	void set(Extensible* container, const std::string& value);
 	void unset(Extensible* container);
 	void free(void* item);
