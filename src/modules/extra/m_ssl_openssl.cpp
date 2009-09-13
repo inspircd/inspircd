@@ -293,13 +293,6 @@ class ModuleSSLOpenSSL : public Module
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
 				user->DelIOHook();
 			}
-			if (user->GetExt("ssl_cert", dummy))
-			{
-				ssl_cert* tofree;
-				user->GetExt("ssl_cert", tofree);
-				delete tofree;
-				user->Shrink("ssl_cert");
-			}
 		}
 	}
 
@@ -347,23 +340,14 @@ class ModuleSSLOpenSSL : public Module
 			issl_session* session = &sessions[ISR->Sock->GetFd()];
 			if (session->sess)
 			{
-				VerifyCertificate(session, (BufferedSocket*)ISR->Sock);
 				return "OK";
 			}
 		}
-		else if (strcmp("GET_FP", request->GetId()) == 0)
+		else if (strcmp("GET_CERT", request->GetId()) == 0)
 		{
-			if (ISR->Sock->GetFd() > -1)
-			{
-				issl_session* session = &sessions[ISR->Sock->GetFd()];
-				if (session->sess)
-				{
-					Extensible* ext = ISR->Sock;
-					ssl_cert* certinfo;
-					if (ext->GetExt("ssl_cert",certinfo))
-						return certinfo->GetFingerprint().c_str();
-				}
-			}
+			Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
+			if (sslinfo)
+				return sslinfo->OnRequest(request);
 		}
 		return NULL;
 	}
@@ -430,16 +414,6 @@ class ModuleSSLOpenSSL : public Module
 			return;
 
 		CloseSession(&sessions[fd]);
-
-		EventHandler* user = ServerInstance->SE->GetRef(fd);
-
-		if ((user) && (user->GetExt("ssl_cert", dummy)))
-		{
-			ssl_cert* tofree;
-			user->GetExt("ssl_cert", tofree);
-			delete tofree;
-			user->Shrink("ssl_cert");
-		}
 	}
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
@@ -691,10 +665,7 @@ class ModuleSSLOpenSSL : public Module
 			// Handshake complete.
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
 			EventHandler *u = ServerInstance->SE->GetRef(session->fd);
-			if (u)
-			{
-				u->Extend("ssl");
-			}
+			VerifyCertificate(session, u);
 
 			session->status = ISSL_OPEN;
 
@@ -717,13 +688,8 @@ class ModuleSSLOpenSSL : public Module
 		// protocol module has propagated the NICK message.
 		if ((user->GetIOHook() == this) && (IS_LOCAL(user)))
 		{
-			ssl_cert* certdata = VerifyCertificate(&sessions[user->GetFd()], user);
 			if (sessions[user->GetFd()].sess)
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), SSL_get_cipher(sessions[user->GetFd()].sess));
-
-			ServerInstance->PI->SendMetaData(user, "ssl", "ON");
-			if (certdata)
-				ServerInstance->PI->SendMetaData(user, "ssl_cert", certdata->GetMetaLine().c_str());
 		}
 	}
 
@@ -767,10 +733,14 @@ class ModuleSSLOpenSSL : public Module
 		errno = EIO;
 	}
 
-	ssl_cert* VerifyCertificate(issl_session* session, Extensible* user)
+	void VerifyCertificate(issl_session* session, Extensible* user)
 	{
 		if (!session->sess || !user)
-			return NULL;
+			return;
+
+		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
+		if (!sslinfo)
+			return;
 
 		X509* cert;
 		ssl_cert* certinfo = new ssl_cert;
@@ -778,14 +748,13 @@ class ModuleSSLOpenSSL : public Module
 		unsigned char md[EVP_MAX_MD_SIZE];
 		const EVP_MD *digest = EVP_md5();
 
-		user->Extend("ssl_cert",certinfo);
-
 		cert = SSL_get_peer_certificate((SSL*)session->sess);
 
 		if (!cert)
 		{
 			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
-			return certinfo;
+			BufferedSocketFingerprintSubmission(user, this, sslinfo, certinfo).Send();
+			return;
 		}
 
 		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
@@ -819,7 +788,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		X509_free(cert);
-		return certinfo;
+		BufferedSocketFingerprintSubmission(user, this, sslinfo, certinfo).Send();
 	}
 
 	void Prioritize()

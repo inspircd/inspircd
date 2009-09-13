@@ -76,12 +76,14 @@ class floodsettings : public classbase
 class MsgFlood : public ModeHandler
 {
  public:
-	MsgFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'f', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	SimpleExtItem<floodsettings> ext;
+	MsgFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'f', 1, 0, false, MODETYPE_CHANNEL, false),
+		ext("messageflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
-		floodsettings* x;
-		if (channel->GetExt("flood",x))
+		floodsettings* x = ext.get(channel);
+		if (x)
 			return std::make_pair(true, (x->ban ? "*" : "")+ConvToStr(x->lines)+":"+ConvToStr(x->secs));
 		else
 			return std::make_pair(false, parameter);
@@ -89,7 +91,7 @@ class MsgFlood : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		floodsettings *f;
+		floodsettings *f = ext.get(channel);
 
 		if (adding)
 		{
@@ -132,11 +134,11 @@ class MsgFlood : public ModeHandler
 				}
 				else
 				{
-					if (!channel->GetExt("flood", f))
+					if (!f)
 					{
 						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
-						floodsettings *fs = new floodsettings(ServerInstance,ban,nsecs,nlines);
-						channel->Extend("flood",fs);
+						f = new floodsettings(ServerInstance,ban,nsecs,nlines);
+						ext.set(channel, f);
 						channel->SetModeParam('f', parameter);
 						return MODEACTION_ALLOW;
 					}
@@ -153,10 +155,8 @@ class MsgFlood : public ModeHandler
 						{
 							if ((((nlines != f->lines) || (nsecs != f->secs) || (ban != f->ban))) && (((nsecs > 0) && (nlines > 0))))
 							{
-								delete f;
 								floodsettings *fs = new floodsettings(ServerInstance,ban,nsecs,nlines);
-								channel->Shrink("flood");
-								channel->Extend("flood",fs);
+								ext.set(channel, fs);
 								channel->SetModeParam('f', parameter);
 								return MODEACTION_ALLOW;
 							}
@@ -177,10 +177,9 @@ class MsgFlood : public ModeHandler
 		}
 		else
 		{
-			if (channel->GetExt("flood", f))
+			if (f)
 			{
-				delete f;
-				channel->Shrink("flood");
+				ext.unset(channel);
 				channel->SetModeParam('f', "");
 				return MODEACTION_ALLOW;
 			}
@@ -201,8 +200,9 @@ class ModuleMsgFlood : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&mf))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Extensible::Register(&mf.ext);
+		Implementation eventlist[] = { I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
@@ -212,8 +212,8 @@ class ModuleMsgFlood : public Module
 			return MOD_RES_PASSTHRU;
 		}
 
-		floodsettings *f;
-		if (dest->GetExt("flood", f))
+		floodsettings *f = mf.ext.get(dest);
+		if (f)
 		{
 			f->addmessage(user);
 			if (f->shouldkick(user))
@@ -246,7 +246,7 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
@@ -254,7 +254,7 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
@@ -262,23 +262,12 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnChannelDelete(Channel* chan)
-	{
-		floodsettings* f;
-		if (chan->GetExt("flood", f))
-		{
-			delete f;
-			chan->Shrink("flood");
-		}
-	}
-
-
-	virtual ~ModuleMsgFlood()
+	~ModuleMsgFlood()
 	{
 		ServerInstance->Modes->DelMode(&mf);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}

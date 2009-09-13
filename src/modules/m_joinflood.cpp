@@ -86,12 +86,14 @@ class joinfloodsettings : public classbase
 class JoinFlood : public ModeHandler
 {
  public:
-	JoinFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'j', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	SimpleExtItem<joinfloodsettings> ext;
+	JoinFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'j', 1, 0, false, MODETYPE_CHANNEL, false),
+		ext("joinflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
-		joinfloodsettings* x;
-		if (channel->GetExt("joinflood",x))
+		joinfloodsettings* x = ext.get(channel);
+		if (x)
 			return std::make_pair(true, ConvToStr(x->joins)+":"+ConvToStr(x->secs));
 		else
 			return std::make_pair(false, parameter);
@@ -99,8 +101,6 @@ class JoinFlood : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		joinfloodsettings* dummy;
-
 		if (adding)
 		{
 			char ndata[MAXBUF];
@@ -133,11 +133,12 @@ class JoinFlood : public ModeHandler
 				}
 				else
 				{
-					if (!channel->GetExt("joinflood", dummy))
+					joinfloodsettings* f = ext.get(channel);
+					if (!f)
 					{
 						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
-						joinfloodsettings *f = new joinfloodsettings(ServerInstance, nsecs, njoins);
-						channel->Extend("joinflood", f);
+						f = new joinfloodsettings(ServerInstance, nsecs, njoins);
+						ext.set(channel, f);
 						channel->SetModeParam('j', parameter);
 						return MODEACTION_ALLOW;
 					}
@@ -155,12 +156,8 @@ class JoinFlood : public ModeHandler
 							// new mode param, replace old with new
 							if ((nsecs > 0) && (njoins > 0))
 							{
-								joinfloodsettings* f;
-								channel->GetExt("joinflood", f);
-								delete f;
 								f = new joinfloodsettings(ServerInstance, nsecs, njoins);
-								channel->Shrink("joinflood");
-								channel->Extend("joinflood", f);
+								ext.set(channel, f);
 								channel->SetModeParam('j', parameter);
 								return MODEACTION_ALLOW;
 							}
@@ -180,12 +177,10 @@ class JoinFlood : public ModeHandler
 		}
 		else
 		{
-			if (channel->GetExt("joinflood", dummy))
+			joinfloodsettings* f = ext.get(channel);
+			if (f)
 			{
-				joinfloodsettings *f;
-				channel->GetExt("joinflood", f);
-				delete f;
-				channel->Shrink("joinflood");
+				ext.unset(channel);
 				channel->SetModeParam('j', "");
 				return MODEACTION_ALLOW;
 			}
@@ -207,37 +202,35 @@ class ModuleJoinFlood : public Module
 
 		if (!ServerInstance->Modes->AddMode(&jf))
 			throw ModuleException("Could not add new modes!");
+		Extensible::Register(&jf.ext);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreJoin, I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{
-			joinfloodsettings *f;
-			if (chan->GetExt("joinflood", f))
+			joinfloodsettings *f = jf.ext.get(chan);
+			if (f && f->islocked())
 			{
-				if (f->islocked())
-				{
-					user->WriteNumeric(609, "%s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick.c_str(),chan->name.c_str());
-					return MOD_RES_DENY;
-				}
+				user->WriteNumeric(609, "%s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick.c_str(),chan->name.c_str());
+				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
 	{
-		joinfloodsettings *f;
-
 		/* We arent interested in JOIN events caused by a network burst */
 		if (sync)
 			return;
 
+		joinfloodsettings *f = jf.ext.get(channel);
+
 		/* But all others are OK */
-		if (channel->GetExt("joinflood",f))
+		if (f)
 		{
 			f->addjoin();
 			if (f->shouldlock())
@@ -249,23 +242,12 @@ class ModuleJoinFlood : public Module
 		}
 	}
 
-	void OnChannelDelete(Channel* chan)
-	{
-		joinfloodsettings *f;
-		if (chan->GetExt("joinflood",f))
-		{
-			delete f;
-			chan->Shrink("joinflood");
-		}
-	}
-
-
-	virtual ~ModuleJoinFlood()
+	~ModuleJoinFlood()
 	{
 		ServerInstance->Modes->DelMode(&jf);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}

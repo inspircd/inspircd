@@ -25,16 +25,16 @@ class ModuleBadChannelExtban : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleBadChannelExtban()
+	~ModuleBadChannelExtban()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual ModResult OnCheckBan(User *user, Channel *c)
+	ModResult OnCheckBan(User *user, Channel *c)
 	{
 		ModResult rv;
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
@@ -45,7 +45,7 @@ class ModuleBadChannelExtban : public Module
 		return rv;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		ServerInstance->AddExtBanChar('j');
 	}

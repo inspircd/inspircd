@@ -35,7 +35,9 @@ CAP END
 class CommandCAP : public Command
 {
  public:
-	CommandCAP (InspIRCd* Instance, Module* mod) : Command(Instance, mod, "CAP", 0, 1, true)
+	LocalIntExt reghold;
+	CommandCAP (InspIRCd* Instance, Module* mod) : Command(Instance, mod, "CAP", 0, 1, true),
+		reghold("CAP_REGHOLD", mod)
 	{
 	}
 
@@ -64,7 +66,7 @@ class CommandCAP : public Command
 				Data.wanted.push_back(cap_);
 			}
 
-			user->Extend("CAP_REGHOLD");
+			reghold.set(user, 1);
 			Event event((char*) &Data, this->creator, "cap_req");
 			event.Send(this->ServerInstance);
 
@@ -82,7 +84,7 @@ class CommandCAP : public Command
 		}
 		else if (subcommand == "END")
 		{
-			user->Shrink("CAP_REGHOLD");
+			reghold.set(user, 0);
 		}
 		else if ((subcommand == "LS") || (subcommand == "LIST"))
 		{
@@ -92,7 +94,7 @@ class CommandCAP : public Command
 			Data.user = user;
 			Data.creator = this->creator;
 
-			user->Extend("CAP_REGHOLD");
+			reghold.set(user, 1);
 			Event event((char*) &Data, this->creator, subcommand == "LS" ? "cap_ls" : "cap_list");
 			event.Send(this->ServerInstance);
 
@@ -112,7 +114,7 @@ class CommandCAP : public Command
 			Data.user = user;
 			Data.creator = this->creator;
 
-			user->Extend("CAP_REGHOLD");
+			reghold.set(user, 1);
 			Event event((char*) &Data, this->creator, "cap_clear");
 			event.Send(this->ServerInstance);
 
@@ -130,33 +132,34 @@ class CommandCAP : public Command
 
 class ModuleCAP : public Module
 {
-	CommandCAP newcommand;
+	CommandCAP cmd;
  public:
 	ModuleCAP(InspIRCd* Me)
-		: Module(Me), newcommand(Me, this)
+		: Module(Me), cmd(Me, this)
 	{
-		ServerInstance->AddCommand(&newcommand);
+		ServerInstance->AddCommand(&cmd);
+		Extensible::Register(&cmd.reghold);
 
 		Implementation eventlist[] = { I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	virtual ModResult OnCheckReady(User* user)
+	ModResult OnCheckReady(User* user)
 	{
 		/* Users in CAP state get held until CAP END */
-		if (user->GetExt("CAP_REGHOLD"))
+		if (cmd.reghold.get(user))
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleCAP()
+	~ModuleCAP()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Client CAP extension support", VF_VENDOR);
 	}
 };
 

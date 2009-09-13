@@ -18,12 +18,11 @@
 
 class ModuleAntiBear : public Module
 {
- private:
-
+	LocalIntExt bearExt;
  public:
-	ModuleAntiBear(InspIRCd* Me) : Module(Me)
+	ModuleAntiBear(InspIRCd* Me) : Module(Me), bearExt("antibear_timewait", this)
 	{
-
+		Extensible::Register(&bearExt);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -39,7 +38,7 @@ class ModuleAntiBear : public Module
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
-		if (command == "NOTICE" && !validated && parameters.size() > 1 && user->GetExt("antibear_timewait"))
+		if (command == "NOTICE" && !validated && parameters.size() > 1 && bearExt.get(user))
 		{
 			if (!strncmp(parameters[1].c_str(), "\1TIME Mon May 01 18:54:20 2006", 30))
 			{
@@ -55,7 +54,7 @@ class ModuleAntiBear : public Module
 				return MOD_RES_DENY;
 			}
 
-			user->Shrink("antibear_timewait");
+			bearExt.set(user, 0);
 			// Block the command, so the user doesn't receive a no such nick notice
 			return MOD_RES_DENY;
 		}
@@ -68,7 +67,7 @@ class ModuleAntiBear : public Module
 		user->WriteNumeric(439, "%s :This server has anti-spambot mechanisms enabled.", user->nick.c_str());
 		user->WriteNumeric(931, "%s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick.c_str());
 		user->WriteServ("PRIVMSG %s :\1TIME\1", user->nick.c_str());
-		user->Extend("antibear_timewait");
+		bearExt.set(user, 1);
 		return MOD_RES_PASSTHRU;
 	}
 };

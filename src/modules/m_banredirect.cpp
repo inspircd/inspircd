@@ -38,7 +38,9 @@ typedef std::deque<std::string> StringDeque;
 class BanRedirect : public ModeWatcher
 {
  public:
-	BanRedirect(InspIRCd* Instance) : ModeWatcher(Instance, 'b', MODETYPE_CHANNEL)
+	SimpleExtItem<BanRedirectList> extItem;
+	BanRedirect(InspIRCd* Instance, Module* parent) : ModeWatcher(Instance, 'b', MODETYPE_CHANNEL),
+		extItem("banredirect", parent)
 	{
 	}
 
@@ -145,10 +147,11 @@ class BanRedirect : public ModeWatcher
 				if(adding)
 				{
 					/* It's a properly valid redirecting ban, and we're adding it */
-					if(!channel->GetExt("banredirects", redirects))
+					redirects = extItem.get(channel);
+					if (!redirects)
 					{
 						redirects = new BanRedirectList;
-						channel->Extend("banredirects", redirects);
+						extItem.set(channel, redirects);
 					}
 
 					/* Here 'param' doesn't have the channel on it yet */
@@ -160,7 +163,8 @@ class BanRedirect : public ModeWatcher
 				else
 				{
 					/* Removing a ban, if there's no extensible there are no redirecting bans and we're fine. */
-					if(channel->GetExt("banredirects", redirects))
+					redirects = extItem.get(channel);
+					if (redirects)
 					{
 						/* But there were, so we need to remove the matching one if there is one */
 
@@ -173,8 +177,7 @@ class BanRedirect : public ModeWatcher
 
 								if(redirects->empty())
 								{
-									delete redirects;
-									channel->Shrink("banredirects");
+									extItem.unset(channel);
 								}
 
 								break;
@@ -200,7 +203,7 @@ class ModuleBanRedirect : public Module
 
  public:
 	ModuleBanRedirect(InspIRCd* Me)
-	: Module(Me), re(Me)
+	: Module(Me), re(Me, this)
 	{
 		nofollow = false;
 
@@ -209,9 +212,9 @@ class ModuleBanRedirect : public Module
 
 		OnRehash(NULL);
 
+		Extensible::Register(&re.extItem);
 		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete, I_OnCleanup };
 		Me->Modules->Attach(list, this, 4);
-
 	}
 
 	virtual void OnChannelDelete(Channel* chan)
@@ -224,9 +227,9 @@ class ModuleBanRedirect : public Module
 		if(target_type == TYPE_CHANNEL)
 		{
 			Channel* chan = static_cast<Channel*>(item);
-			BanRedirectList* redirects;
+			BanRedirectList* redirects = re.extItem.get(chan);
 
-			if(chan->GetExt("banredirects", redirects))
+			if(redirects)
 			{
 				irc::modestacker modestack(ServerInstance, false);
 				StringDeque stackresult;
@@ -250,9 +253,6 @@ class ModuleBanRedirect : public Module
 					ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
 					mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
 				}
-
-				delete redirects;
-				chan->Shrink("banredirects");
 			}
 		}
 	}
@@ -273,9 +273,9 @@ class ModuleBanRedirect : public Module
 		/* Return 1 to prevent the join, 0 to allow it */
 		if (chan)
 		{
-			BanRedirectList* redirects;
+			BanRedirectList* redirects = re.extItem.get(chan);
 
-			if(chan->GetExt("banredirects", redirects))
+			if (redirects)
 			{
 				/* We actually had some ban redirects to check */
 

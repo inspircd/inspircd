@@ -61,8 +61,7 @@ public:
 	{
 		if (chan != NULL)
 		{
-			modelist *list;
-			chan->GetExt(be.GetInfoKey(), list);
+			modelist *list = be.extItem.get(chan);
 
 			if (!list)
 				return MOD_RES_PASSTHRU;
@@ -90,8 +89,7 @@ public:
 	{
 		if (chan != NULL)
 		{
-			modelist *list;
-			chan->GetExt(be.GetInfoKey(), list);
+			modelist *list = be.extItem.get(chan);
 
 			if (!list)
 				return MOD_RES_PASSTHRU;
@@ -114,8 +112,7 @@ public:
 	{
 		if (chan != NULL)
 		{
-			modelist* list;
-			chan->GetExt(be.GetInfoKey(), list);
+			modelist *list = be.extItem.get(chan);
 
 			if (!list)
 			{
@@ -144,11 +141,6 @@ public:
 	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		be.DoSyncChannel(chan, proto, opaque);
-	}
-
-	virtual void OnChannelDelete(Channel* chan)
-	{
-		be.DoChannelDelete(chan);
 	}
 
 	virtual void OnRehash(User* user)

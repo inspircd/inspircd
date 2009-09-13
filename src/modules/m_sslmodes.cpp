@@ -12,10 +12,9 @@
  */
 
 #include "inspircd.h"
+#include "transport.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +z */
-
-static char* dummy;
 
 /** Handle channel mode +z
  */
@@ -35,7 +34,9 @@ class SSLMode : public ModeHandler
 					CUList* userlist = channel->GetUsers();
 					for(CUList::iterator i = userlist->begin(); i != userlist->end(); i++)
 					{
-						if(!i->first->GetExt("ssl", dummy) && !ServerInstance->ULine(i->first->server))
+						BufferedSocketCertificateRequest req(i->first, creator, i->first->GetIOHook());
+						req.Send();
+						if(!req.cert && !ServerInstance->ULine(i->first->server))
 						{
 							source->WriteNumeric(ERR_ALLMUSTSSL, "%s %s :all members of the channel must be connected via SSL", source->nick.c_str(), channel->name.c_str());
 							return MODEACTION_DENY;
@@ -74,16 +75,17 @@ class ModuleSSLModes : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&sslm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
-			if(user->GetExt("ssl", dummy))
+			BufferedSocketCertificateRequest req(user, this, user->GetIOHook());
+			req.Send();
+			if (req.cert)
 			{
 				// Let them in
 				return MOD_RES_PASSTHRU;
@@ -99,12 +101,26 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleSSLModes()
+	ModResult OnCheckBan(User *user, Channel *c)
+	{
+		BufferedSocketCertificateRequest req(user, this, user->GetIOHook());
+		req.Send();
+		if (req.cert)
+			return c->GetExtBanStatus(req.cert->GetFingerprint(), 'z');
+		return MOD_RES_PASSTHRU;
+	}
+
+	~ModuleSSLModes()
 	{
 		ServerInstance->Modes->DelMode(&sslm);
 	}
 
-	virtual Version GetVersion()
+	void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('z');
+	}
+
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}

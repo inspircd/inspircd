@@ -53,11 +53,18 @@ typedef std::vector<CGIhost> CGIHostlist;
  */
 class CommandWebirc : public Command
 {
-		bool notify;
-	public:
-		CGIHostlist Hosts;
-		CommandWebirc(InspIRCd* Instance, Module* Creator, bool bnotify)
-			: Command(Instance, Creator, "WEBIRC", 0, 4, true), notify(bnotify)
+	bool notify;
+ public:
+	StringExtItem realhost;
+	StringExtItem realip;
+	LocalStringExt webirc_hostname;
+	LocalStringExt webirc_ip;
+
+	CGIHostlist Hosts;
+	CommandWebirc(InspIRCd* Instance, Module* Creator, bool bnotify)
+		: Command(Instance, Creator, "WEBIRC", 0, 4, true), notify(bnotify),
+		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator),
+		  webirc_hostname("cgiirc_webirc_hostname", Creator), webirc_ip("cgiirc_webirc_ip", Creator)
 		{
 			this->syntax = "password client hostname ip";
 		}
@@ -72,12 +79,12 @@ class CommandWebirc : public Command
 				{
 					if(iter->type == WEBIRC && parameters[0] == iter->password)
 					{
-						user->Extend("cgiirc_realhost", new std::string(user->host));
-						user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
+						realhost.set(user, user->host);
+						realip.set(user, user->GetIPString());
 						if (notify)
 							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
-						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
-						user->Extend("cgiirc_webirc_ip", new std::string(parameters[3]));
+						webirc_hostname.set(user, parameters[2]);
+						webirc_ip.set(user, parameters[3]);
 						return CMD_SUCCESS;
 					}
 				}
@@ -142,6 +149,10 @@ public:
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
+		Extensible::Register(&cmd.realhost);
+		Extensible::Register(&cmd.realip);
+		Extensible::Register(&cmd.webirc_hostname);
+		Extensible::Register(&cmd.webirc_ip);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUser, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
@@ -202,53 +213,6 @@ public:
 		}
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if(target_type == TYPE_USER)
-		{
-			User* user = (User*)item;
-			std::string* realhost;
-			std::string* realip;
-
-			if(user->GetExt("cgiirc_realhost", realhost))
-			{
-				delete realhost;
-				user->Shrink("cgiirc_realhost");
-			}
-
-			if(user->GetExt("cgiirc_realip", realip))
-			{
-				delete realip;
-				user->Shrink("cgiirc_realip");
-			}
-		}
-	}
-
-	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
-	{
-		std::string* data;
-		if (user->GetExt("cgiirc_realhost", data))
-			proto->ProtoSendMetaData(opaque, user, "cgiirc_realhost", *data);
-		if (user->GetExt("cgiirc_realip", data))
-			proto->ProtoSendMetaData(opaque, user, "cgiirc_realip", *data);
-	}
-
-	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
-	{
-		User* dest = dynamic_cast<User*>(target);
-		std::string* bleh;
-		if(dest && ((extname == "cgiirc_realhost") || (extname == "cgiirc_realip")) && (!dest->GetExt(extname, bleh)))
-		{
-			dest->Extend(extname, new std::string(extdata));
-		}
-	}
-
-	virtual void OnUserDisconnect(User* user)
-	{
-		OnCleanup(TYPE_USER, user);
-	}
-
-
 	virtual ModResult OnUserRegister(User* user)
 	{
 		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
@@ -290,22 +254,21 @@ public:
 
 	virtual void OnUserConnect(User* user)
 	{
-		std::string *webirc_hostname, *webirc_ip;
-		if(user->GetExt("cgiirc_webirc_hostname", webirc_hostname))
+		std::string *webirc_hostname = cmd.webirc_hostname.get(user);
+		std::string *webirc_ip = cmd.webirc_ip.get(user);
+		if (webirc_hostname)
 		{
 			user->host.assign(*webirc_hostname, 0, 64);
 			user->dhost.assign(*webirc_hostname, 0, 64);
-			delete webirc_hostname;
 			user->InvalidateCache();
-			user->Shrink("cgiirc_webirc_hostname");
+			cmd.webirc_hostname.unset(user);
 		}
-		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
+		if (webirc_ip)
 		{
 			ServerInstance->Users->RemoveCloneCounts(user);
 			user->SetClientIP(webirc_ip->c_str());
-			delete webirc_ip;
 			user->InvalidateCache();
-			user->Shrink("cgiirc_webirc_ip");
+			cmd.webirc_ip.unset(user);
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
 			user->CheckClass();
@@ -317,8 +280,8 @@ public:
 	{
 		if(IsValidHost(user->password))
 		{
-			user->Extend("cgiirc_realhost", new std::string(user->host));
-			user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
+			cmd.realhost.set(user, user->host);
+			cmd.realip.set(user, user->GetIPString());
 			user->host.assign(user->password, 0, 64);
 			user->dhost.assign(user->password, 0, 64);
 			user->InvalidateCache();
@@ -380,8 +343,8 @@ public:
 		newip.s_addr = htonl(ipaddr);
 		char* newipstr = inet_ntoa(newip);
 
-		user->Extend("cgiirc_realhost", new std::string(user->host));
-		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
+		cmd.realhost.set(user, user->host);
+		cmd.realip.set(user, user->GetIPString());
 		ServerInstance->Users->RemoveCloneCounts(user);
 		user->SetClientIP(newipstr);
 		ServerInstance->Users->AddLocalClone(user);

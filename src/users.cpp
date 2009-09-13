@@ -25,13 +25,17 @@ unsigned long uniq_id = 1;
 
 static unsigned long* already_sent = NULL;
 
+LocalIntExt User::NICKForced("NICKForced", NULL);
+LocalStringExt User::OperQuit("OperQuit", NULL);
+
+static bool dummy_init = Extensible::Register(&User::NICKForced) ^ Extensible::Register(&User::OperQuit);
 
 void InitializeAlreadySent(SocketEngine* SE)
 {
+	(void)dummy_init;
 	already_sent = new unsigned long[SE->GetMaxFds()];
 	memset(already_sent, 0, SE->GetMaxFds() * sizeof(unsigned long));
 }
-
 
 std::string User::ProcessNoticeMasks(const char *sm)
 {
@@ -1028,11 +1032,9 @@ bool User::ForceNickChange(const char* newnick)
 
 	this->InvalidateCache();
 
-	this->Extend("NICKForced");
-
+	NICKForced.set(this, 1);
 	FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, MOD_RESULT, (this, newnick));
-
-	this->Shrink("NICKForced");
+	NICKForced.set(this, 0);
 
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
@@ -1046,9 +1048,9 @@ bool User::ForceNickChange(const char* newnick)
 	{
 		std::vector<std::string> parameters;
 		parameters.push_back(newnick);
-		this->Extend("NICKForced");
+		NICKForced.set(this, 1);
 		bool result = (ServerInstance->Parser->CallHandler("NICK", parameters, this) == CMD_SUCCESS);
-		this->Shrink("NICKForced");
+		NICKForced.set(this, 0);
 		return result;
 	}
 

@@ -78,7 +78,6 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 {
 	bool match = false;
 	bool positive = false;
-	char* dummy = NULL;
 
 	if (user->registered != REG_ALL)
 		return false;
@@ -115,7 +114,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 		 * -- w00t
 		 */
 		if (opt_metadata)
-			match = user->GetExt(matchtext, dummy);
+			match = user->GetExtList().find(matchtext) != user->GetExtList().end();
 		else if (opt_realname)
 			match = InspIRCd::Match(user->fullname, matchtext);
 		else if (opt_showrealhost)

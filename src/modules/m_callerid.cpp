@@ -70,59 +70,59 @@ class callerid_data : public classbase
 	}
 };
 
-/** Retrieves the callerid information for a given user record
- * @param who The user to retrieve callerid information for
- * @param extend true to add callerid information if it doesn't already exist, false to return NULL if it doesn't exist
- * @return NULL if extend is false and it doesn't exist, a callerid_data instance otherwise.
- */
-callerid_data* GetData(User* who, bool extend = true)
+struct CallerIDExtInfo : public ExtensionItem
 {
-	callerid_data* dat;
-	if (who->GetExt("callerid_data", dat))
-		return dat;
-	else
+	CallerIDExtInfo(Module* parent)
+		: ExtensionItem("callerid_data", parent)
 	{
-		if (extend)
+	}
+
+	std::string serialize(Module* requestor, const Extensible* container, void* item)
+	{
+		callerid_data* dat = static_cast<callerid_data*>(item);
+		return dat->ToString(requestor);
+	}
+
+	void unserialize(Module* requestor, Extensible* container, const std::string& value)
+	{
+		callerid_data* dat = new callerid_data(value, requestor->ServerInstance);
+		set_raw(container, dat);
+	}
+
+	callerid_data* get(User* user, bool create)
+	{
+		callerid_data* dat = static_cast<callerid_data*>(get_raw(user));
+		if (!dat)
 		{
 			dat = new callerid_data;
-			who->Extend("callerid_data", dat);
-			return dat;
+			set_raw(user, dat);
 		}
-		else
-			return NULL;
+		return dat;
 	}
-}
 
-void RemoveData(User* who)
-{
-	callerid_data* dat;
-	who->GetExt("callerid_data", dat);
-
-	if (!dat)
-		return;
-
-	// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
-	for (std::set<User *>::iterator it = dat->accepting.begin(); it != dat->accepting.end(); it++)
+	void free(void* item)
 	{
-		callerid_data *targ = GetData(*it, false);
+		callerid_data* dat = static_cast<callerid_data*>(item);
 
-		if (!targ)
-			continue; // shouldn't happen, but oh well.
-
-		for (std::list<callerid_data *>::iterator it2 = targ->wholistsme.begin(); it2 != targ->wholistsme.end(); it2++)
+		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
+		for (std::set<User *>::iterator it = dat->accepting.begin(); it != dat->accepting.end(); it++)
 		{
-			if (*it2 == dat)
+			callerid_data *targ = this->get(*it, false);
+
+			if (!targ)
+				continue; // shouldn't happen, but oh well.
+
+			for (std::list<callerid_data *>::iterator it2 = targ->wholistsme.begin(); it2 != targ->wholistsme.end(); it2++)
 			{
-				targ->wholistsme.erase(it2);
-				break;
+				if (*it2 == dat)
+				{
+					targ->wholistsme.erase(it2);
+					break;
+				}
 			}
 		}
 	}
-
-	who->Shrink("callerid_data");
-	delete dat;
-}
-
+};
 
 class User_g : public SimpleUserModeHandler
 {
@@ -133,8 +133,10 @@ public:
 class CommandAccept : public Command
 {
 public:
+	CallerIDExtInfo extInfo;
 	unsigned int maxaccepts;
-	CommandAccept(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "ACCEPT", 0, 1)
+	CommandAccept(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "ACCEPT", 0, 1),
+		extInfo(Creator)
 	{
 		syntax = "{[+|-]<nicks>}|*}";
 		TRANSLATE2(TR_CUSTOM, TR_END);
@@ -221,7 +223,7 @@ public:
 
 	void ListAccept(User* user)
 	{
-		callerid_data* dat = GetData(user, false);
+		callerid_data* dat = extInfo.get(user, false);
 		if (dat)
 		{
 			for (std::set<User*>::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
@@ -233,7 +235,7 @@ public:
 	bool AddAccept(User* user, User* whotoadd, bool quiet)
 	{
 		// Add this user to my accept list first, so look me up..
-		callerid_data* dat = GetData(user, true);
+		callerid_data* dat = extInfo.get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
 			if (!quiet)
@@ -250,7 +252,7 @@ public:
 		}
 
 		// Now, look them up, and add me to their list
-		callerid_data *targ = GetData(whotoadd, true);
+		callerid_data *targ = extInfo.get(whotoadd, true);
 		targ->wholistsme.push_back(dat);
 
 		user->WriteServ("NOTICE %s :%s is now on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
@@ -260,7 +262,7 @@ public:
 	bool RemoveAccept(User* user, User* whotoremove, bool quiet)
 	{
 		// Remove them from my list, so look up my list..
-		callerid_data* dat = GetData(user, false);
+		callerid_data* dat = extInfo.get(user, false);
 		if (!dat)
 		{
 			if (!quiet)
@@ -280,7 +282,7 @@ public:
 		dat->accepting.erase(i);
 
 		// Look up their list to remove me.
-		callerid_data *dat2 = GetData(whotoremove, false);
+		callerid_data *dat2 = extInfo.get(whotoremove, false);
 		if (!dat2)
 		{
 			// How the fuck is this possible.
@@ -305,7 +307,7 @@ public:
 class ModuleCallerID : public Module
 {
 private:
-	CommandAccept mycommand;
+	CommandAccept cmd;
 	User_g myumode;
 
 	// Configuration variables:
@@ -319,7 +321,7 @@ private:
 	void RemoveFromAllAccepts(User* who)
 	{
 		// First, find the list of people who have me on accept
-		callerid_data *userdata = GetData(who, false);
+		callerid_data *userdata = cmd.extInfo.get(who, false);
 		if (!userdata)
 			return;
 
@@ -339,17 +341,18 @@ private:
 	}
 
 public:
-	ModuleCallerID(InspIRCd* Me) : Module(Me), mycommand(Me, this), myumode(Me, this)
+	ModuleCallerID(InspIRCd* Me) : Module(Me), cmd(Me, this), myumode(Me, this)
 	{
 		OnRehash(NULL);
 
 		if (!ServerInstance->Modes->AddMode(&myumode))
 			throw ModuleException("Could not add usermode +g");
 
-		ServerInstance->AddCommand(&mycommand);
+		ServerInstance->AddCommand(&cmd);
+		Extensible::Register(&cmd.extInfo);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 	virtual ~ModuleCallerID()
@@ -375,7 +378,7 @@ public:
 		if (operoverride && IS_OPER(user))
 			return MOD_RES_PASSTHRU;
 
-		callerid_data* dat = GetData(dest, true);
+		callerid_data* dat = cmd.extInfo.get(dest, true);
 		std::set<User*>::iterator i = dat->accepting.find(user);
 
 		if (i == dat->accepting.end())
@@ -411,53 +414,22 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnCleanup(int type, void* item)
-	{
-		if (type != TYPE_USER)
-			return;
-
-		User* u = (User*)item;
-		/* Cleanup only happens on unload (before dtor), so keep this O(n) instead of O(n^2) which deferring to OnUserQuit would do.  */
-		RemoveData(u);
-	}
-
-	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
-	{
-		callerid_data* dat = GetData(user, false);
-		if (dat)
-		{
-			std::string str = dat->ToString(proto);
-			proto->ProtoSendMetaData(opaque, user, "callerid_data", str);
-		}
-	}
-
-	virtual void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
-	{
-		User* u = dynamic_cast<User*>(target);
-		if (u && extname == "callerid_data")
-		{
-			callerid_data* dat = new callerid_data(extdata, ServerInstance);
-			u->Extend("callerid_data", dat);
-		}
-	}
-
-	virtual ModResult OnUserPreNick(User* user, const std::string& newnick)
+	ModResult OnUserPreNick(User* user, const std::string& newnick)
 	{
 		if (!tracknick)
 			RemoveFromAllAccepts(user);
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
 	{
 		RemoveFromAllAccepts(user);
-		RemoveData(user);
 	}
 
 	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
-		mycommand.maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
+		cmd.maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
 		operoverride = Conf.ReadFlag("callerid", "operoverride", "0", 0);
 		tracknick = Conf.ReadFlag("callerid", "tracknick", "0", 0);
 		notify_cooldown = Conf.ReadInteger("callerid", "cooldown", "60", 0, true);

@@ -558,6 +558,7 @@ bool ModuleManager::Unload(const char* filename)
 		this->DetachAll(modfind->second.second);
 
 		Instance->Parser->RemoveCommands(modfind->second.second);
+		Extensible::UnRegister(modfind->second.second);
 
 		delete modfind->second.second;
 		delete modfind->second.first;

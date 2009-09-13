@@ -75,16 +75,16 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (((!ServerInstance->IsNick(parameters[0].c_str(), ServerInstance->Config->Limits.NickMax))) && (IS_LOCAL(user)))
 	{
-		if (!user->GetExt("NICKForced"))
+		if (!User::NICKForced.get(user))
 		{
 			if (parameters[0] == "0")
 			{
 				// Special case, Fake a /nick UIDHERE. Useful for evading "ERR: NICK IN USE" on connect etc.
 				std::vector<std::string> p2;
 				p2.push_back(user->uuid);
-				user->Extend("NICKForced");
+				User::NICKForced.set(user, 1);
 				this->Handle(p2, user);
-				user->Shrink("NICKForced");
+				User::NICKForced.set(user, 0);
 				return CMD_SUCCESS;
 			}
 

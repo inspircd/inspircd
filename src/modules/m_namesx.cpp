@@ -19,36 +19,29 @@
 class ModuleNamesX : public Module
 {
  public:
-
-	ModuleNamesX(InspIRCd* Me)
-		: Module(Me)
+	GenericCap cap;
+	ModuleNamesX(InspIRCd* Me) : Module(Me), cap(this, "multi-prefix")
 	{
-		Implementation eventlist[] = { I_OnSyncUser, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 
-	virtual ~ModuleNamesX()
+	~ModuleNamesX()
 	{
 	}
 
-	void OnSyncUser(User* user, Module* proto,void* opaque)
+	Version GetVersion()
 	{
-		if (proto->ProtoTranslate(NULL) == "?" && user->GetExt("NAMESX"))
-			proto->ProtoSendMetaData(opaque, user, "NAMESX", "Enabled");
+		return Version("$Id$",VF_VENDOR);
 	}
 
-	virtual Version GetVersion()
-	{
-		return Version("$Id$",VF_VENDOR,API_VERSION);
-	}
-
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		output.append(" NAMESX");
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string c = command.c_str();
 		/* We don't actually create a proper command handler class for PROTOCTL,
@@ -60,16 +53,16 @@ class ModuleNamesX : public Module
 		{
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"NAMESX")))
 			{
-				user->Extend("NAMESX");
+				cap.ext.set(user, 1);
 				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
+	void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
 	{
-		if (!issuer->GetExt("NAMESX"))
+		if (!cap.ext.get(issuer))
 			return;
 
 		/* Some module hid this from being displayed, dont bother */
@@ -79,9 +72,9 @@ class ModuleNamesX : public Module
 		prefixes = channel->GetAllPrefixChars(user);
 	}
 
-	virtual void OnEvent(Event *ev)
+	void OnEvent(Event *ev)
 	{
-		GenericCapHandler(ev, "NAMESX", "multi-prefix");
+		cap.HandleEvent(ev);
 	}
 };
 

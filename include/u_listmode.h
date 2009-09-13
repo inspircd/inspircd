@@ -107,9 +107,6 @@ class ListModeRequest : public Request
 class ListModeBase : public ModeHandler
 {
  protected:
-	/** Storage key
-	 */
-	std::string infokey;
 	/** Numeric to use when outputting the list
 	 */
 	unsigned int listnumeric;
@@ -131,6 +128,10 @@ class ListModeBase : public ModeHandler
 	limitlist chanlimits;
 
  public:
+	/** Storage key
+	 */
+	SimpleExtItem<modelist> extItem;
+
 	/** Constructor.
 	 * @param Instance The creator of this class
 	 * @param modechar Mode character
@@ -141,18 +142,19 @@ class ListModeBase : public ModeHandler
 	 * @param ctag Configuration tag to get limits from
 	 */
 	ListModeBase(InspIRCd* Instance, Module* Creator, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
-		: ModeHandler(Instance, Creator, modechar, 1, 1, true, MODETYPE_CHANNEL, false), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
+		: ModeHandler(Instance, Creator, modechar, 1, 1, true, MODETYPE_CHANNEL, false), 
+		listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
+		configtag(ctag), extItem("listbase_mode_" + std::string(1, mode) + "_list", Creator)
 	{
 		this->DoRehash();
-		infokey = "listbase_mode_" + std::string(1, mode) + "_list";
+		Extensible::Register(&extItem);
 	}
 
 	/** See mode.h
 	 */
 	std::pair<bool,std::string> ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 	{
-		modelist* el;
-		channel->GetExt(infokey, el);
+		modelist* el = extItem.get(channel);
 		if (el)
 		{
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
@@ -172,8 +174,7 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DisplayList(User* user, Channel* channel)
 	{
-		modelist* el;
-		channel->GetExt(infokey, el);
+		modelist* el = extItem.get(channel);
 		if (el)
 		{
 			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
@@ -195,8 +196,7 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
-		modelist* el;
-		channel->GetExt(infokey, el);
+		modelist* el = extItem.get(channel);
 		if (el)
 		{
 			irc::modestacker modestack(ServerInstance, false);
@@ -271,8 +271,7 @@ class ListModeBase : public ModeHandler
 	virtual ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 	{
 		// Try and grab the list
-		modelist* el;
-		channel->GetExt(infokey, el);
+		modelist* el = extItem.get(channel);
 
 		if (adding)
 		{
@@ -281,7 +280,7 @@ class ListModeBase : public ModeHandler
 			{
 				// Make one
 				el = new modelist;
-				channel->Extend(infokey, el);
+				extItem.set(channel, el);
 			}
 
 			// Clean the mask up
@@ -362,8 +361,7 @@ class ListModeBase : public ModeHandler
 						el->erase(it);
 						if (el->size() == 0)
 						{
-							channel->Shrink(infokey);
-							delete el;
+							extItem.unset(channel);
 						}
 						return MODEACTION_ALLOW;
 					}
@@ -384,29 +382,6 @@ class ListModeBase : public ModeHandler
 		return MODEACTION_DENY;
 	}
 
-	/** Get Extensible key for this mode
-	 */
-	virtual std::string& GetInfoKey()
-	{
-		return infokey;
-	}
-
-	/** Handle channel deletion.
-	 * See modules.h.
-	 * @param chan Channel being deleted
-	 */
-	virtual void DoChannelDelete(Channel* chan)
-	{
-		modelist* mlist;
-		chan->GetExt(infokey, mlist);
-
-		if (mlist)
-		{
-			chan->Shrink(infokey);
-			delete mlist;
-		}
-	}
-
 	/** Syncronize channel item list with another server.
 	 * See modules.h
 	 * @param chan Channel to syncronize
@@ -415,8 +390,7 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DoSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
-		modelist* mlist;
-		chan->GetExt(infokey, mlist);
+		modelist* mlist = extItem.get(chan);
 		irc::modestacker modestack(ServerInstance, true);
 		std::vector<std::string> stackresult;
 		std::vector<TranslateType> types;
@@ -493,8 +467,7 @@ class ListModeBase : public ModeHandler
 		ListModeRequest* LM = (ListModeRequest*)request;
 		if (strcmp("LM_CHECKLIST", request->GetId()) == 0)
 		{
-			modelist* mlist;
-			LM->chan->GetExt(GetInfoKey(), mlist);
+			modelist* mlist = extItem.get(LM->chan);
 			if (mlist)
 			{
 				std::string mask = LM->user->nick + "!" + LM->user->ident + "@" + LM->user->GetIPString();
@@ -508,8 +481,7 @@ class ListModeBase : public ModeHandler
 		}
 		else if (strcmp("LM_CHECKLIST_EX", request->GetId()) == 0)
 		{
-			modelist* mlist;
-			LM->chan->GetExt(GetInfoKey(), mlist);
+			modelist* mlist = extItem.get(LM->chan);
 
 			if (mlist)
 			{

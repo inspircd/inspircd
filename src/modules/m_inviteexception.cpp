@@ -52,17 +52,16 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		output.append(" INVEX=I");
 	}
 
-	virtual ModResult OnCheckInvite(User* user, Channel* chan)
+	ModResult OnCheckInvite(User* user, Channel* chan)
 	{
 		if(chan != NULL)
 		{
-			modelist* list;
-			chan->GetExt(ie.GetInfoKey(), list);
+			modelist* list = ie.extItem.get(chan);
 			if (list)
 			{
 				std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
@@ -81,32 +80,27 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual const char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		return ie.DoOnRequest(request);
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
+	void OnCleanup(int target_type, void* item)
 	{
 		ie.DoCleanup(target_type, item);
 	}
 
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		ie.DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual void OnChannelDelete(Channel* chan)
-	{
-		ie.DoChannelDelete(chan);
-	}
-
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ie.DoRehash();
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
 	}

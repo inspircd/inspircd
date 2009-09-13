@@ -42,13 +42,15 @@ class ModuleBlockAmsg : public Module
 {
 	int ForgetDelay;
 	BlockAction action;
+	SimpleExtItem<BlockedMessage> blockamsg;
 
  public:
-	ModuleBlockAmsg(InspIRCd* Me) : Module(Me)
+	ModuleBlockAmsg(InspIRCd* Me) : Module(Me), blockamsg("blockamsg", this)
 	{
 		this->OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Extensible::Register(&blockamsg);
+		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 
@@ -125,8 +127,7 @@ class ModuleBlockAmsg : public Module
 			userchans = user->chans.size();
 
 			// Check that this message wasn't already sent within a few seconds.
-			BlockedMessage* m;
-			user->GetExt("amsgblock", m);
+			BlockedMessage* m = blockamsg.get(user);
 
 			// If the message is identical and within the time.
 			// We check the target is *not* identical, that'd straying into the realms of flood control. Which isn't what we're doing...
@@ -157,25 +158,10 @@ class ModuleBlockAmsg : public Module
 			else
 			{
 				m = new BlockedMessage(parameters[1], parameters[0].c_str(), ServerInstance->Time());
-				user->Extend("amsgblock", (char*)m);
+				blockamsg.set(user, m);
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnCleanup(int target_type, void* item)
-	{
-		if(target_type == TYPE_USER)
-		{
-			User* user = (User*)item;
-			BlockedMessage* m;
-			user->GetExt("amsgblock", m);
-			if(m)
-			{
-				delete m;
-				user->Shrink("amsgblock");
-			}
-		}
 	}
 };
 

@@ -37,8 +37,6 @@ class SaslAuthenticator : public classbase
 	SaslAuthenticator(User *user_, std::string method, InspIRCd *instance, Module *ctor)
 		: ServerInstance(instance), user(user_), state(SASL_INIT), state_announced(false)
 	{
-		this->user->Extend("sasl_authenticator", this);
-
 		parameterlist params;
 		params.push_back("*");
 		params.push_back("SASL");
@@ -147,18 +145,15 @@ class SaslAuthenticator : public classbase
 
 		this->state_announced = true;
 	}
-
-	~SaslAuthenticator()
-	{
-		this->user->Shrink("sasl_authenticator");
-		this->AnnounceState();
-	}
 };
 
 class CommandAuthenticate : public Command
 {
  public:
-	CommandAuthenticate (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "AUTHENTICATE", 0, 1, true)
+	SimpleExtItem<SaslAuthenticator>& authExt;
+	GenericCap& cap;
+	CommandAuthenticate (InspIRCd* Instance, Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, GenericCap& Cap)
+		: Command(Instance, Creator, "AUTHENTICATE", 0, 1, true), authExt(ext), cap(Cap)
 	{
 	}
 
@@ -167,14 +162,17 @@ class CommandAuthenticate : public Command
 		/* Only allow AUTHENTICATE on unregistered clients */
 		if (user->registered != REG_ALL)
 		{
-			if (!user->GetExt("sasl"))
+			if (!cap.ext.get(user))
 				return CMD_FAILURE;
 
-			SaslAuthenticator *sasl;
-			if (!(user->GetExt("sasl_authenticator", sasl)))
-				sasl = new SaslAuthenticator(user, parameters[0], ServerInstance, creator);
+			SaslAuthenticator *sasl = authExt.get(user);
+			if (!sasl)
+				authExt.set(user, new SaslAuthenticator(user, parameters[0], ServerInstance, creator));
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
-				delete sasl;
+			{
+				sasl->AnnounceState();
+				authExt.unset(user);
+			}
 		}
 		return CMD_FAILURE;
 	}
@@ -183,7 +181,9 @@ class CommandAuthenticate : public Command
 class CommandSASL : public Command
 {
  public:
-	CommandSASL(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "SASL", 0, 2)
+	SimpleExtItem<SaslAuthenticator>& authExt;
+	CommandSASL(InspIRCd* Instance, Module* Creator, SimpleExtItem<SaslAuthenticator>& ext)
+		: Command(Instance, Creator, "SASL", 0, 2), authExt(ext)
 	{
 		this->disabled = true; // should not be called by users
 	}
@@ -197,15 +197,15 @@ class CommandSASL : public Command
 			return CMD_FAILURE;
 		}
 
-		SaslAuthenticator *sasl;
-		if (!target->GetExt("sasl_authenticator", sasl))
+		SaslAuthenticator *sasl = authExt.get(target);
+		if (!sasl)
 			return CMD_FAILURE;
 
 		SaslState state = sasl->ProcessInboundMessage(parameters);
 		if (state == SASL_DONE)
 		{
-			delete sasl;
-			target->Shrink("sasl");
+			sasl->AnnounceState();
+			authExt.unset(target);
 		}
 		return CMD_SUCCESS;
 	}
@@ -218,12 +218,13 @@ class CommandSASL : public Command
 
 class ModuleSASL : public Module
 {
+	SimpleExtItem<SaslAuthenticator> authExt;
+	GenericCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
  public:
-
 	ModuleSASL(InspIRCd* Me)
-		: Module(Me), auth(Me, this), sasl(Me, this)
+		: Module(Me), authExt("sasl_auth", this), cap(this, "sasl"), auth(Me, this, authExt, cap), sasl(Me, this, authExt)
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
@@ -235,60 +236,30 @@ class ModuleSASL : public Module
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
-	virtual ModResult OnUserRegister(User *user)
+	ModResult OnUserRegister(User *user)
 	{
-		SaslAuthenticator *sasl_;
-		if (user->GetExt("sasl_authenticator", sasl_))
+		SaslAuthenticator *sasl_ = authExt.get(user);
+		if (sasl_)
 		{
 			sasl_->Abort();
-			delete sasl_;
-			user->Shrink("sasl_authenticator");
+			authExt.unset(user);
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnCleanup(int target_type, void *item)
-	{
-		if (target_type == TYPE_USER)
-			OnUserDisconnect((User*)item);
-	}
-
-	virtual void OnUserDisconnect(User *user)
-	{
-		SaslAuthenticator *sasl_;
-		if (user->GetExt("sasl_authenticator", sasl_))
-		{
-			delete sasl_;
-			user->Shrink("sasl_authenticator");
-		}
-	}
-
-	virtual void OnPostConnect(User* user)
-	{
-		if (!IS_LOCAL(user))
-			return;
-
-		std::string* str = NULL;
-
-		if (user->GetExt("accountname", str))
-			ServerInstance->PI->SendMetaData(user, "accountname", *str);
-
-		return;
-	}
-
-	virtual ~ModuleSASL()
+	~ModuleSASL()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnEvent(Event *ev)
+	void OnEvent(Event *ev)
 	{
-		GenericCapHandler(ev, "sasl", "sasl");
+		cap.HandleEvent(ev);
 	}
 };
 

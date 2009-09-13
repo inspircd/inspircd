@@ -11,12 +11,10 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
+#include "inspircd.h"
 #include "socket.h"
 #include "inspstring.h"
 #include "socketengine.h"
-#include "inspircd.h"
 
 bool BufferedSocket::Readable()
 {

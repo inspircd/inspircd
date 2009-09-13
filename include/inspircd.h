@@ -75,6 +75,7 @@ typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
 #include "inspircd_config.h"
 #include "inspircd_version.h"
+#include "extensible.h"
 #include "numerics.h"
 #include "uid.h"
 #include "users.h"

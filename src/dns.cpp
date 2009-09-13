@@ -34,7 +34,6 @@ looks like this, walks like this or tastes like this.
 #include "inspircd_se_config.h"
 #endif
 
-#include "dns.h"
 #include "inspircd.h"
 #include "socketengine.h"
 #include "configreader.h"

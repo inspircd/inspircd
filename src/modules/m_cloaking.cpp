@@ -30,6 +30,7 @@ class CloakUser : public ModeHandler
 	bool ipalways;
 	Module* HashProvider;
 	const char *xtab[4];
+	LocalStringExt ext;
 
 	/** This function takes a domain name string and returns just the last two domain parts,
 	 * or the last domain part if only two are available. Failing that it just returns what it was given.
@@ -63,7 +64,8 @@ class CloakUser : public ModeHandler
 	}
 
 	CloakUser(InspIRCd* Instance, Module* source, Module* Hash) 
-		: ModeHandler(Instance, source, 'x', 0, 0, false, MODETYPE_USER, false), HashProvider(Hash)
+		: ModeHandler(Instance, source, 'x', 0, 0, false, MODETYPE_USER, false), HashProvider(Hash),
+		ext("cloaked_host", source)
 	{
 	}
 
@@ -95,14 +97,15 @@ class CloakUser : public ModeHandler
 				 * are connecting via localhost) -- this doesnt matter much.
 				 */
 
-				std::string* cloak;
+				std::string* cloak = ext.get(dest);
 
-				if (!dest->GetExt("cloaked_host", cloak))
+				if (!cloak)
 				{
 					/* Force creation of missing cloak */
 					creator->OnUserConnect(dest);
+					cloak = ext.get(dest);
 				}
-				if (dest->GetExt("cloaked_host", cloak))
+				if (cloak)
 				{
 					dest->ChangeDisplayedHost(cloak->c_str());
 					dest->SetMode('x',true);
@@ -281,18 +284,12 @@ class ModuleCloaking : public Module
 		}
 
 		ServerInstance->Modules->UseInterface("HashRequest");
+		Extensible::Register(&cu->ext);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserDisconnect, I_OnCleanup, I_OnCheckBan, I_OnUserConnect, I_OnSyncUser, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 		CloakExistingUsers();
-	}
-
-	void OnSyncUser(User* user, Module* proto,void* opaque)
-	{
-		std::string* cloak;
-		if (user->GetExt("cloaked_host", cloak) && proto->ProtoTranslate(NULL) == "?")
-			proto->ProtoSendMetaData(opaque, user, "cloaked_host", *cloak);
 	}
 
 	void CloakExistingUsers()
@@ -300,21 +297,22 @@ class ModuleCloaking : public Module
 		std::string* cloak;
 		for (std::vector<User*>::iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); u++)
 		{
-			if (!(*u)->GetExt("cloaked_host", cloak))
+			cloak = cu->ext.get(*u);
+			if (!cloak)
 			{
 				OnUserConnect(*u);
 			}
 		}
 	}
 
-	virtual ModResult OnCheckBan(User* user, Channel* chan)
+	ModResult OnCheckBan(User* user, Channel* chan)
 	{
 		char mask[MAXBUF];
-		std::string* tofree;
+		std::string* cloak = cu->ext.get(user);
 		/* Check if they have a cloaked host, but are not using it */
-		if (user->GetExt("cloaked_host", tofree) && *tofree != user->dhost)
+		if (cloak && *cloak != user->dhost)
 		{
-			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), tofree->c_str());
+			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), cloak->c_str());
 			for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 			{
 				if (InspIRCd::Match(mask,i->data))
@@ -334,45 +332,29 @@ class ModuleCloaking : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, &um);
 	}
 
-	virtual void OnUserDisconnect(User* user)
-	{
-		std::string* tofree;
-		if (user->GetExt("cloaked_host", tofree))
-		{
-			delete tofree;
-			user->Shrink("cloaked_host");
-		}
-	}
-
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if (target_type == TYPE_USER)
-			OnUserDisconnect((User*)item);
-	}
-
-	virtual ~ModuleCloaking()
+	~ModuleCloaking()
 	{
 		ServerInstance->Modes->DelMode(cu);
 		delete cu;
 		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
 		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		cu->DoRehash();
 	}
 
-	virtual void OnUserConnect(User* dest)
+	void OnUserConnect(User* dest)
 	{
-		std::string* tofree;
-		if (dest->GetExt("cloaked_host", tofree))
+		std::string* cloak = cu->ext.get(dest);
+		if (cloak)
 			return;
 
 		if (dest->host.find('.') != std::string::npos || dest->host.find(':') != std::string::npos)
@@ -423,7 +405,7 @@ class ModuleCloaking : public Module
 					b = cu->Cloak4(dest->GetIPString());
 			}
 
-			dest->Extend("cloaked_host", new std::string(b));
+			cu->ext.set(dest,b);
 		}
 	}
 

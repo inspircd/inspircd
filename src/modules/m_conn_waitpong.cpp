@@ -19,18 +19,18 @@ class ModuleWaitPong : public Module
 {
 	bool sendsnotice;
 	bool killonbadreply;
-	const char* extenstr;
+	LocalStringExt ext;
 
  public:
 	ModuleWaitPong(InspIRCd* Me)
-	 : Module(Me), extenstr("waitpong_pingstr")
+	 : Module(Me), ext("waitpong_pingstr", this)
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash, I_OnUserDisconnect, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 
@@ -45,43 +45,40 @@ class ModuleWaitPong : public Module
 			killonbadreply = true;
 	}
 
-
-	char* RandString(unsigned int length)
+	std::string RandString()
 	{
-		unsigned char* out = new unsigned char[length+1];
-		for(unsigned int i = 0; i < length; i++)
+		char out[11];
+		for(unsigned int i = 0; i < 10; i++)
 			out[i] = ((rand() % 26) + 65);
-		out[length] = '\0';
+		out[10] = '\0';
 
-		return (char*)out;
+		return out;
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	ModResult OnUserRegister(User* user)
 	{
-		char* pingrpl = RandString(10);
+		std::string pingrpl = RandString();
 
-		user->Write("PING :%s", pingrpl);
+		user->Write("PING :%s", pingrpl.c_str());
 
 		if(sendsnotice)
-			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick.c_str(), pingrpl, pingrpl);
+			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick.c_str(), pingrpl.c_str(), pingrpl.c_str());
 
-		user->Extend(extenstr, pingrpl);
+		ext.set(user, pingrpl);
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User* user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User* user, bool validated, const std::string &original_line)
 	{
 		if (command == "PONG")
 		{
-			char* pingrpl;
-			user->GetExt(extenstr, pingrpl);
+			std::string* pingrpl = ext.get(user);
 
 			if (pingrpl)
 			{
-				if (!parameters.empty() && (strcmp(pingrpl, parameters[0].c_str()) == 0))
+				if (!parameters.empty() && *pingrpl == parameters[0])
 				{
-					delete[] pingrpl;
-					user->Shrink(extenstr);
+					ext.unset(user);
 					return MOD_RES_DENY;
 				}
 				else
@@ -95,47 +92,18 @@ class ModuleWaitPong : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckReady(User* user)
+	ModResult OnCheckReady(User* user)
 	{
-		char* pingrpl;
-		return user->GetExt(extenstr, pingrpl) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserDisconnect(User* user)
-	{
-		char* pingrpl;
-		user->GetExt(extenstr, pingrpl);
-
-		if (pingrpl)
-		{
-			delete[] pingrpl;
-			user->Shrink(extenstr);
-		}
-	}
-
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if (target_type == TYPE_USER)
-		{
-			User* user = (User*)item;
-			char* pingrpl;
-			user->GetExt(extenstr, pingrpl);
-
-			if (pingrpl)
-			{
-				delete[] pingrpl;
-				user->Shrink(extenstr);
-			}
-		}
-	}
-
-	virtual ~ModuleWaitPong()
+	~ModuleWaitPong()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Require pong prior to registration", VF_VENDOR);
 	}
 
 };

@@ -23,8 +23,7 @@
  * Because gnutls and openssl represent key information in
  * wildly different ways, this class allows it to be accessed
  * in a unified manner. These classes are attached to ssl-
- * connected local users using Extensible::Extend() and the
- * key 'ssl_cert'.
+ * connected local users using SSLCertExt
  */
 class ssl_cert
 {
@@ -184,11 +183,22 @@ class BufferedSocketNameRequest : public ISHRequest
 	}
 };
 
-class BufferedSocketFingerprintRequest : public ISHRequest
+struct BufferedSocketCertificateRequest : public Request
 {
- public:
-	/** Initialize request as a fingerprint message */
-	BufferedSocketFingerprintRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "GET_FP", is)
+	Extensible* const item;
+	ssl_cert* cert;
+	BufferedSocketCertificateRequest(Extensible* is, Module* Me, Module* Target)
+		: Request(Me, Target, "GET_CERT"), item(is), cert(NULL)
+	{
+	}
+};
+
+struct BufferedSocketFingerprintSubmission : public Request
+{
+	Extensible* const item;
+	ssl_cert* const cert;
+	BufferedSocketFingerprintSubmission(Extensible* is, Module* Me, Module* Target, ssl_cert* Cert)
+		: Request(Me, Target, "SET_CERT"), item(is), cert(Cert)
 	{
 	}
 };

@@ -98,10 +98,11 @@ class ModuleSSLGnuTLS : public Module
 
 	CommandStartTLS starttls;
 
+	GenericCap capHandler;
  public:
 
 	ModuleSSLGnuTLS(InspIRCd* Me)
-		: Module(Me), starttls(Me, this)
+		: Module(Me), starttls(Me, this), capHandler(this, "tls")
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
@@ -266,13 +267,6 @@ class ModuleSSLGnuTLS : public Module
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
 				user->DelIOHook();
 			}
-			if (user->GetExt("ssl_cert"))
-			{
-				ssl_cert* tofree;
-				user->GetExt("ssl_cert", tofree);
-				delete tofree;
-				user->Shrink("ssl_cert");
-			}
 		}
 	}
 
@@ -339,25 +333,16 @@ class ModuleSSLGnuTLS : public Module
 				{
 					if (static_cast<Extensible*>(ServerInstance->SE->GetRef(ISR->Sock->GetFd())) == static_cast<Extensible*>(ISR->Sock))
 					{
-						VerifyCertificate(session, ISR->Sock);
 						return "OK";
 					}
 				}
 			}
 		}
-		else if (strcmp("GET_FP", request->GetId()) == 0)
+		else if (strcmp("GET_CERT", request->GetId()) == 0)
 		{
-			if (ISR->Sock->GetFd() > -1)
-			{
-				issl_session* session = &sessions[ISR->Sock->GetFd()];
-				if (session->sess)
-				{
-					Extensible* ext = ISR->Sock;
-					ssl_cert* certinfo;
-					if (ext->GetExt("ssl_cert",certinfo))
-						return certinfo->GetFingerprint().c_str();
-				}
-			}
+			Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
+			if (sslinfo)
+				return sslinfo->OnRequest(request);
 		}
 		return NULL;
 	}
@@ -413,16 +398,6 @@ class ModuleSSLGnuTLS : public Module
 			return;
 
 		CloseSession(&sessions[fd]);
-
-		EventHandler* user = ServerInstance->SE->GetRef(fd);
-
-		if ((user) && (user->GetExt("ssl_cert")))
-		{
-			ssl_cert* tofree;
-			user->GetExt("ssl_cert", tofree);
-			delete tofree;
-			user->Shrink("ssl_cert");
-		}
 	}
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
@@ -606,16 +581,12 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else
 		{
-			// Handshake complete.
-			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			EventHandler *extendme = ServerInstance->SE->GetRef(fd);
-			if (extendme)
-			{
-				extendme->Extend("ssl");
-			}
-
 			// Change the seesion state
 			session->status = ISSL_HANDSHAKEN;
+
+			EventHandler* user = ServerInstance->SE->GetRef(fd);
+
+			VerifyCertificate(session,user);
 
 			// Finish writing, if any left
 			MakePollWrite(fd);
@@ -630,7 +601,6 @@ class ModuleSSLGnuTLS : public Module
 		// protocol module has propagated the NICK message.
 		if (user->GetIOHook() == this && (IS_LOCAL(user)))
 		{
-			ssl_cert* certdata = VerifyCertificate(&sessions[user->GetFd()],user);
 			if (sessions[user->GetFd()].sess)
 			{
 				std::string cipher = gnutls_kx_get_name(gnutls_kx_get(sessions[user->GetFd()].sess));
@@ -638,10 +608,6 @@ class ModuleSSLGnuTLS : public Module
 				cipher.append(gnutls_mac_get_name(gnutls_mac_get(sessions[user->GetFd()].sess)));
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
 			}
-
-			ServerInstance->PI->SendMetaData(user, "ssl", "ON");
-			if (certdata)
-				ServerInstance->PI->SendMetaData(user, "ssl_cert", certdata->GetMetaLine().c_str());
 		}
 	}
 
@@ -676,10 +642,14 @@ class ModuleSSLGnuTLS : public Module
 		session->status = ISSL_NONE;
 	}
 
-	ssl_cert* VerifyCertificate(issl_session* session, Extensible* user)
+	void VerifyCertificate(issl_session* session, Extensible* user)
 	{
 		if (!session->sess || !user)
-			return NULL;
+			return;
+
+		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
+		if (!sslinfo)
+			return;
 
 		unsigned int status;
 		const gnutls_datum_t* cert_list;
@@ -692,8 +662,6 @@ class ModuleSSLGnuTLS : public Module
 		size_t name_size = sizeof(name);
 		ssl_cert* certinfo = new ssl_cert;
 
-		user->Extend("ssl_cert",certinfo);
-
 		/* This verification function uses the trusted CAs in the credentials
 		 * structure. So you must have installed one or more CA certificates.
 		 */
@@ -702,7 +670,7 @@ class ModuleSSLGnuTLS : public Module
 		if (ret < 0)
 		{
 			certinfo->error = std::string(gnutls_strerror(ret));
-			return certinfo;
+			goto info_done;
 		}
 
 		certinfo->invalid = (status & GNUTLS_CERT_INVALID);
@@ -717,14 +685,14 @@ class ModuleSSLGnuTLS : public Module
 		if (gnutls_certificate_type_get(session->sess) != GNUTLS_CRT_X509)
 		{
 			certinfo->error = "No X509 keys sent";
-			return certinfo;
+			goto info_done;
 		}
 
 		ret = gnutls_x509_crt_init(&cert);
 		if (ret < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
-			return certinfo;
+			goto info_done;
 		}
 
 		cert_list_size = 0;
@@ -732,7 +700,7 @@ class ModuleSSLGnuTLS : public Module
 		if (cert_list == NULL)
 		{
 			certinfo->error = "No certificate was found";
-			return certinfo;
+			goto info_done_dealloc;
 		}
 
 		/* This is not a real world example, since we only check the first
@@ -743,7 +711,7 @@ class ModuleSSLGnuTLS : public Module
 		if (ret < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
-			return certinfo;
+			goto info_done_dealloc;
 		}
 
 		gnutls_x509_crt_get_dn(cert, name, &name_size);
@@ -768,20 +736,15 @@ class ModuleSSLGnuTLS : public Module
 			certinfo->error = "Not activated, or expired certificate";
 		}
 
+info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
-
-		return certinfo;
+info_done:
+		BufferedSocketFingerprintSubmission(user, this, sslinfo, certinfo).Send();
 	}
 
 	void OnEvent(Event* ev)
 	{
-		GenericCapHandler(ev, "tls", "tls");
-	}
-
-	void Prioritize()
-	{
-		Module* server = ServerInstance->Modules->Find("m_spanningtree.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_AFTER, &server);
+		capHandler.HandleEvent(ev);
 	}
 };
 

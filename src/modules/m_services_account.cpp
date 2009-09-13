@@ -104,9 +104,11 @@ class ModuleServicesAccount : public Module
 	AUser_R m3;
 	Channel_r m4;
 	User_r m5;
+	StringExtItem accountname;
  public:
 	ModuleServicesAccount(InspIRCd* Me) : Module(Me),
-		m1(Me, this), m2(Me, this), m3(Me, this), m4(Me, this), m5(Me, this)
+		m1(Me, this), m2(Me, this), m3(Me, this), m4(Me, this), m5(Me, this),
+		accountname("accountname", this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&m1) || !ServerInstance->Modes->AddMode(&m2) ||
@@ -129,8 +131,7 @@ class ModuleServicesAccount : public Module
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	virtual void OnWhois(User* source, User* dest)
 	{
-		std::string *account;
-		dest->GetExt("accountname", account);
+		std::string *account = accountname.get(dest);
 
 		if (account)
 		{
@@ -161,9 +162,8 @@ class ModuleServicesAccount : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		std::string *account;
-		bool is_registered = user->GetExt("accountname", account);
-		is_registered = is_registered && !account->empty();
+		std::string *account = accountname.get(user);
+		bool is_registered = account && !account->empty();
 
 		if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
 		{
@@ -208,8 +208,8 @@ class ModuleServicesAccount : public Module
 
 	virtual ModResult OnCheckBan(User* user, Channel* chan)
 	{
-		std::string* account;
-		if (!user->GetExt("accountname", account))
+		std::string *account = accountname.get(user);
+		if (!account)
 			return MOD_RES_PASSTHRU;
 		return chan->GetExtBanStatus(*account, 'R');
 	}
@@ -224,9 +224,8 @@ class ModuleServicesAccount : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		std::string *account;
-		bool is_registered = user->GetExt("accountname", account);
-		is_registered = is_registered && !account->empty();
+		std::string *account = accountname.get(user);
+		bool is_registered = account && !account->empty();
 
 		if (chan)
 		{
@@ -249,55 +248,6 @@ class ModuleServicesAccount : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	// Whenever the linking module wants to send out data, but doesnt know what the data
-	// represents (e.g. it is metadata, added to a User or Channel by a module) then
-	// this method is called. We should use the ProtoSendMetaData function after we've
-	// corrected decided how the data should look, to send the metadata on its way if
-	// it is ours.
-	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
-	{
-		// check if this user has an swhois field to send
-		std::string* account;
-		user->GetExt("accountname", account);
-		if (account)
-		{
-			// remove any accidental leading/trailing spaces
-			trim(*account);
-
-			// call this function in the linking module, let it format the data how it
-			// sees fit, and send it on its way. We dont need or want to know how.
-			proto->ProtoSendMetaData(opaque,user,"accountname",*account);
-		}
-	}
-
-	// when a user quits, tidy up their metadata
-	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
-	{
-		std::string* account;
-		user->GetExt("accountname", account);
-		if (account)
-		{
-			user->Shrink("accountname");
-			delete account;
-		}
-	}
-
-	// if the module is unloaded, tidy up all our dangling metadata
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if (target_type == TYPE_USER)
-		{
-			User* user = (User*)item;
-			std::string* account;
-			user->GetExt("accountname", account);
-			if (account)
-			{
-				user->Shrink("accountname");
-				delete account;
-			}
-		}
-	}
-
 	// Whenever the linking module receives metadata from another server and doesnt know what
 	// to do with it (of course, hence the 'meta') it calls this method, and it is up to each
 	// module in turn to figure out if this metadata key belongs to them, and what they want
@@ -311,19 +261,10 @@ class ModuleServicesAccount : public Module
 		// check if its our metadata key, and its associated with a user
 		if (dest && (extname == "accountname"))
 		{
-			std::string* account;
-			if (dest->GetExt("accountname", account)) {
-				// remove old account so that we can set new (or leave unset)
-				dest->Shrink("accountname");
-				delete account;
-			}
-
 			if (!extdata.empty())
 			{
-				account = new std::string(extdata);
-				// remove any accidental leading/trailing spaces
+				std::string *account = accountname.get(dest);
 				trim(*account);
-				dest->Extend("accountname", account);
 
 				if (IS_LOCAL(dest))
 					dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",

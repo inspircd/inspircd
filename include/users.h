@@ -274,6 +274,9 @@ class CoreExport User : public EventHandler
 	 */
 	InspIRCd* ServerInstance;
 
+	static LocalIntExt NICKForced;
+	static LocalStringExt OperQuit;
+
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
 	 * The pointer is guarenteed to *always* be valid. :)
 	 */
@@ -976,8 +979,5 @@ class CoreExport UserResolver : public Resolver
 	 */
 	void OnError(ResolverError e, const std::string &errormessage);
 };
-
-/* Configuration callbacks */
-//class ServerConfig;
 
 #endif

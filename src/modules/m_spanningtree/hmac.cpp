@@ -128,17 +128,22 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	this->auth_fingerprint = !link.Fingerprint.empty();
 	this->auth_challenge = !ourchallenge.empty() && !theirchallenge.empty();
 
-	const char* fp = NULL;
+	std::string fp;
 	if (GetHook())
-		fp = BufferedSocketFingerprintRequest(this, Utils->Creator, GetHook()).Send();
-
-	if (fp)
-		ServerInstance->Logs->Log("m_spanningtree", DEFAULT, std::string("Server SSL fingerprint ") + fp);
+	{
+		BufferedSocketCertificateRequest req(this, Utils->Creator, GetHook());
+		req.Send();
+		if (req.cert)
+		{
+			fp = req.cert->GetFingerprint();
+			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, std::string("Server SSL fingerprint ") + fp);
+		}
+	}
 
 	if (auth_fingerprint)
 	{
 		/* Require fingerprint to exist and match */
-		if (!fp || link.Fingerprint != std::string(fp))
+		if (link.Fingerprint != fp)
 			return false;
 	}
 

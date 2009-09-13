@@ -280,11 +280,11 @@ class IdentRequestSocket : public EventHandler
 
 class ModuleIdent : public Module
 {
- private:
 	int RequestTimeout;
 	ConfigReader *Conf;
+	SimpleExtItem<IdentRequestSocket> ext;
  public:
-	ModuleIdent(InspIRCd *Me) : Module(Me)
+	ModuleIdent(InspIRCd *Me) : Module(Me), ext("ident_socket", this)
 	{
 		Conf = new ConfigReader(ServerInstance);
 		OnRehash(NULL);
@@ -338,7 +338,7 @@ class ModuleIdent : public Module
 		try
 		{
 			IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user);
-			user->Extend("ident_socket", isock);
+			ext.set(user, isock);
 		}
 		catch (ModuleException &e)
 		{
@@ -355,8 +355,8 @@ class ModuleIdent : public Module
 	virtual ModResult OnCheckReady(User *user)
 	{
 		/* Does user have an ident socket attached at all? */
-		IdentRequestSocket *isock = NULL;
-		if (!user->GetExt("ident_socket", isock))
+		IdentRequestSocket *isock = ext.get(user);
+		if (!isock)
 		{
 			ServerInstance->Logs->Log("m_ident",DEBUG, "No ident socket :(");
 			return MOD_RES_PASSTHRU;
@@ -413,12 +413,11 @@ class ModuleIdent : public Module
 	virtual void OnUserDisconnect(User *user)
 	{
 		/* User disconnect (generic socket detatch event) */
-		IdentRequestSocket *isock = NULL;
-		if (user->GetExt("ident_socket", isock))
+		IdentRequestSocket *isock = ext.get(user);
+		if (isock)
 		{
 			isock->Close();
-			delete isock;
-			user->Shrink("ident_socket");
+			ext.unset(user);
 		}
 	}
 };

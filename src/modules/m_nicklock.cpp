@@ -19,9 +19,10 @@
  */
 class CommandNicklock : public Command
 {
-
  public:
-	CommandNicklock (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"NICKLOCK", "o", 2)
+	LocalIntExt& locked;
+	CommandNicklock (Module* Creator, LocalIntExt& ext) : Command(Creator->ServerInstance, Creator,"NICKLOCK", "o", 2),
+		locked(ext)
 	{
 		syntax = "<oldnick> <newnick>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
@@ -58,11 +59,7 @@ class CommandNicklock : public Command
 		/* If we made it this far, extend the user */
 		if (target && IS_LOCAL(target))
 		{
-			// This has to be done *here*, because this metadata must be stored netwide.
-			target->Extend("nick_locked", "ON");
-
-			/* Only send out nick from local server */
-			target->Extend("nick_locked");
+			locked.set(target, 1);
 
 			std::string oldnick = target->nick;
 			if (target->ForceNickChange(parameters[1].c_str()))
@@ -91,7 +88,9 @@ class CommandNicklock : public Command
 class CommandNickunlock : public Command
 {
  public:
-	CommandNickunlock (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"NICKUNLOCK", "o", 1)
+	LocalIntExt& locked;
+	CommandNickunlock (Module* Creator, LocalIntExt& ext) : Command(Creator->ServerInstance, Creator,"NICKUNLOCK", "o", 1),
+		locked(ext)
 	{
 		syntax = "<locked-nick>";
 		TRANSLATE2(TR_NICK, TR_END);
@@ -119,7 +118,7 @@ class CommandNickunlock : public Command
 
 		if (target && IS_LOCAL(target))
 		{
-			if (target->Shrink("nick_locked"))
+			if (locked.set(target, 0))
 			{
 				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 				user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
@@ -146,29 +145,30 @@ class CommandNickunlock : public Command
 
 class ModuleNickLock : public Module
 {
+	LocalIntExt locked;
 	CommandNicklock cmd1;
 	CommandNickunlock cmd2;
  public:
 	ModuleNickLock(InspIRCd* Me)
-		: Module(Me), cmd1(Me, this), cmd2(Me, this)
+		: Module(Me), locked("nick_locked", this), cmd1(this, locked), cmd2(this, locked)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserQuit, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Extensible::Register(&locked);
+		ServerInstance->Modules->Attach(I_OnUserPreNick, this);
 	}
 
-	virtual ~ModuleNickLock()
+	~ModuleNickLock()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
 
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
+	ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -176,10 +176,10 @@ class ModuleNickLock : public Module
 		if (isdigit(newnick[0])) /* Allow a switch to a UID */
 			return MOD_RES_PASSTHRU;
 
-		if (user->GetExt("NICKForced")) /* Allow forced nick changes */
+		if (User::NICKForced.get(user)) /* Allow forced nick changes */
 			return MOD_RES_PASSTHRU;
 
-		if (user->GetExt("nick_locked"))
+		if (locked.get(user))
 		{
 			user->WriteNumeric(447, "%s :You cannot change your nickname (your nick is locked)",user->nick.c_str());
 			return MOD_RES_DENY;
@@ -187,24 +187,10 @@ class ModuleNickLock : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
-	{
-		user->Shrink("nick_locked");
-	}
-
 	void Prioritize()
 	{
 		Module *nflood = ServerInstance->Modules->Find("m_nickflood.so");
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_BEFORE, &nflood);
-	}
-
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if(target_type == TYPE_USER)
-		{
-			User* user = (User*)item;
-			user->Shrink("nick_locked");
-		}
 	}
 };
 

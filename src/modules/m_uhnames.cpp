@@ -18,37 +18,30 @@
 
 class ModuleUHNames : public Module
 {
-	CUList nl;
  public:
+	GenericCap cap;
 
-	ModuleUHNames(InspIRCd* Me)
-		: Module(Me)
+	ModuleUHNames(InspIRCd* Me) : Module(Me), cap(this, "userhost-in-names")
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnSyncUser, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
+		Implementation eventlist[] = { I_OnEvent, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
-	virtual ~ModuleUHNames()
+	~ModuleUHNames()
 	{
 	}
 
-	void OnSyncUser(User* user, Module* proto,void* opaque)
-	{
-		if (proto->ProtoTranslate(NULL) == "?" && user->GetExt("UHNAMES"))
-			proto->ProtoSendMetaData(opaque, user, "UHNAMES", "Enabled");
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		output.append(" UHNAMES");
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string c = command.c_str();
 		/* We don't actually create a proper command handler class for PROTOCTL,
@@ -60,16 +53,16 @@ class ModuleUHNames : public Module
 		{
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"UHNAMES")))
 			{
-				user->Extend("UHNAMES");
+				cap.ext.set(user, 1);
 				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
+	void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
 	{
-		if (!issuer->GetExt("UHNAMES"))
+		if (!cap.ext.get(issuer))
 			return;
 
 		if (nick.empty())
@@ -78,9 +71,9 @@ class ModuleUHNames : public Module
 		nick = user->GetFullHost();
 	}
 
-	virtual void OnEvent(Event* ev)
+	void OnEvent(Event* ev)
 	{
-		GenericCapHandler(ev, "UHNAMES", "userhost-in-names");
+		cap.HandleEvent(ev);
 	}
 };
 

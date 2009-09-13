@@ -15,7 +15,7 @@
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
-inline int strtoint(const std::string &str)
+static inline int strtoint(const std::string &str)
 {
 	std::istringstream ss(str);
 	int result;
@@ -30,7 +30,9 @@ typedef std::map<User*, time_t> delaylist;
 class KickRejoin : public ModeHandler
 {
  public:
-	KickRejoin(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'J', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	SimpleExtItem<delaylist> ext;
+	KickRejoin(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'J', 1, 0, false, MODETYPE_CHANNEL, false),
+		ext("norejoinusers", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
@@ -44,14 +46,7 @@ class KickRejoin : public ModeHandler
 	{
 		if (!adding)
 		{
-			// Taking the mode off, we need to clean up.
-			delaylist* dl;
-
-			if (channel->GetExt("norejoinusers", dl))
-			{
-				delete dl;
-				channel->Shrink("norejoinusers");
-			}
+			ext.unset(channel);
 
 			if (!channel->IsModeSet('J'))
 			{
@@ -105,7 +100,6 @@ class KickRejoin : public ModeHandler
 
 class ModuleKickNoRejoin : public Module
 {
-
 	KickRejoin kr;
 
 public:
@@ -115,16 +109,17 @@ public:
 	{
 		if (!ServerInstance->Modes->AddMode(&kr))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnUserPreJoin, I_OnUserKick };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Extensible::Register(&kr.ext);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{
-			delaylist* dl;
-			if (chan->GetExt("norejoinusers", dl))
+			delaylist* dl = kr.ext.get(chan);
+			if (dl)
 			{
 				std::vector<User*> itemstoremove;
 
@@ -149,56 +144,34 @@ public:
 					dl->erase(itemstoremove[i]);
 
 				if (!dl->size())
-				{
-					// Now it's empty..
-					delete dl;
-					chan->Shrink("norejoinusers");
-				}
+					kr.ext.unset(chan);
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
+	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 	{
 		if (chan->IsModeSet('J') && (source != user))
 		{
-			delaylist* dl;
-			if (!chan->GetExt("norejoinusers", dl))
+			delaylist* dl = kr.ext.get(chan);
+			if (dl)
 			{
 				dl = new delaylist;
-				chan->Extend("norejoinusers", dl);
+				kr.ext.set(chan, dl);
 			}
 			(*dl)[user] = ServerInstance->Time() + strtoint(chan->GetModeParameter('J'));
 		}
 	}
 
-	virtual void OnChannelDelete(Channel* chan)
-	{
-		delaylist* dl;
-
-		if (chan->GetExt("norejoinusers", dl))
-		{
-			delete dl;
-			chan->Shrink("norejoinusers");
-		}
-	}
-
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if(target_type == TYPE_CHANNEL)
-			OnChannelDelete((Channel*)item);
-	}
-
-
-	virtual ~ModuleKickNoRejoin()
+	~ModuleKickNoRejoin()
 	{
 		ServerInstance->Modes->DelMode(&kr);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Channel mode J, kick-no-rejoin", VF_COMMON | VF_VENDOR);
 	}
 };
 

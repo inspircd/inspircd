@@ -20,7 +20,9 @@
 class CommandTitle : public Command
 {
  public:
-	CommandTitle (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"TITLE",0,2)
+	StringExtItem ctitle;
+	CommandTitle (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"TITLE",0,2),
+		ctitle("ctitle", Creator)
 	{
 		syntax = "<user> <password>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
@@ -60,17 +62,9 @@ class CommandTitle : public Command
 
 			if (!strcmp(name.c_str(),parameters[0].c_str()) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
 			{
-				std::string* text;
-				if (user->GetExt("ctitle", text))
-				{
-					user->Shrink("ctitle");
-					delete text;
-				}
+				ctitle.set(user, title);
 
-				text = new std::string(title);
-				user->Extend("ctitle", text);
-
-				ServerInstance->PI->SendMetaData(user, "ctitle", *text);
+				ServerInstance->PI->SendMetaData(user, "ctitle", title);
 
 				if (!vhost.empty())
 					user->ChangeDisplayedHost(vhost.c_str());
@@ -95,10 +89,9 @@ class ModuleCustomTitle : public Module
 	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
-		Implementation eventlist[] = { I_OnDecodeMetaData, I_OnWhoisLine, I_OnSyncUser, I_OnUserQuit, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Extensible::Register(&cmd.ctitle);
+		ServerInstance->Modules->Attach(I_OnWhoisLine, this);
 	}
-
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
 	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
@@ -107,89 +100,23 @@ class ModuleCustomTitle : public Module
 		if (numeric == 312)
 		{
 			/* Insert our numeric before 312 */
-			std::string* ctitle;
-			if (dest->GetExt("ctitle", ctitle))
+			const std::string* ctitle = cmd.ctitle.get(dest);
+			if (ctitle)
 			{
 				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), ctitle->c_str());
 			}
 		}
-		/* Dont block anything */
+		/* Don't block anything */
 		return MOD_RES_PASSTHRU;
 	}
 
-	// Whenever the linking module wants to send out data, but doesnt know what the data
-	// represents (e.g. it is metadata, added to a User or Channel by a module) then
-	// this method is called. We should use the ProtoSendMetaData function after we've
-	// corrected decided how the data should look, to send the metadata on its way if
-	// it is ours.
-	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
-	{
-		// check if this user has an ctitle field to send
-		std::string* ctitle;
-		if (user->GetExt("ctitle", ctitle))
-			proto->ProtoSendMetaData(opaque,user,"ctitle",*ctitle);
-	}
-
-	// when a user quits, tidy up their metadata
-	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
-	{
-		std::string* ctitle;
-		if (user->GetExt("ctitle", ctitle))
-		{
-			user->Shrink("ctitle");
-			delete ctitle;
-		}
-	}
-
-	// if the module is unloaded, tidy up all our dangling metadata
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if (target_type == TYPE_USER)
-		{
-			User* user = (User*)item;
-			std::string* ctitle;
-			if (user->GetExt("ctitle", ctitle))
-			{
-				user->Shrink("ctitle");
-				delete ctitle;
-			}
-		}
-	}
-
-	// Whenever the linking module receives metadata from another server and doesnt know what
-	// to do with it (of course, hence the 'meta') it calls this method, and it is up to each
-	// module in turn to figure out if this metadata key belongs to them, and what they want
-	// to do with it.
-	// In our case we're only sending a single string around, so we just construct a std::string.
-	// Some modules will probably get much more complex and format more detailed structs and classes
-	// in a textual way for sending over the link.
-	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
-	{
-		User* dest = dynamic_cast<User*>(target);
-		// check if its our metadata key, and its associated with a user
-		if (dest && (extname == "ctitle"))
-		{
-			std::string* text;
-			if (dest->GetExt("ctitle", text))
-			{
-				dest->Shrink("ctitle");
-				delete text;
-			}
-			if (!extdata.empty())
-			{
-				text = new std::string(extdata);
-				dest->Extend("ctitle", text);
-			}
-		}
-	}
-
-	virtual ~ModuleCustomTitle()
+	~ModuleCustomTitle()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Custom Title for users", VF_COMMON | VF_VENDOR);
 	}
 };
 

@@ -20,7 +20,6 @@
 class CommandCheck : public Command
 {
  public:
-	std::set<std::string> meta_seen;
 	CommandCheck (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"CHECK", "o", 1)
 	{
 		syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
@@ -34,17 +33,20 @@ class CommandCheck : public Command
 		return std::string(timebuf);
 	}
 
-	void dumpExtra(User* user, std::string checkstr, Extensible* ext)
+	void dumpExt(User* user, std::string checkstr, Extensible* ext)
 	{
-		std::deque<std::string> extlist;
-		ext->GetExtList(extlist);
 		std::stringstream dumpkeys;
-		for(std::deque<std::string>::iterator i = extlist.begin(); i != extlist.end(); i++)
+		for(ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
 		{
-			if (meta_seen.find(*i) == meta_seen.end())
-				dumpkeys << " " << *i;
+			ExtensionItem* item = Extensible::GetItem(i->first);
+			std::string value;
+			if (item)
+				value = item->serialize(creator, ext, i->second);
+			if (value.empty())
+				dumpkeys << " " << i->first;
+			else
+				ServerInstance->DumpText(user, checkstr + " meta:" + i->first + " " + value);
 		}
-		meta_seen.clear();
 		if (!dumpkeys.str().empty())
 			ServerInstance->DumpText(user,checkstr + " metadata", dumpkeys);
 	}
@@ -118,8 +120,7 @@ class CommandCheck : public Command
 
 			ServerInstance->DumpText(user,checkstr + " onchans", dump);
 
-			FOREACH_MOD_I(ServerInstance,I_OnSyncUser,OnSyncUser(targuser,creator,(void*)user));
-			dumpExtra(user, checkstr, targuser);
+			dumpExt(user, checkstr, targuser);
 		}
 		else if (targchan)
 		{
@@ -152,8 +153,7 @@ class CommandCheck : public Command
 				ServerInstance->DumpText(user, checkstr + " member " + tmpbuf);
 			}
 
-			FOREACH_MOD_I(ServerInstance,I_OnSyncChannel,OnSyncChannel(targchan,creator,(void*)user));
-			dumpExtra(user, checkstr, targchan);
+			dumpExt(user, checkstr, targchan);
 		}
 		else
 		{
@@ -203,24 +203,16 @@ class ModuleCheck : public Module
 		ServerInstance->AddCommand(&mycommand);
 	}
 
-	virtual ~ModuleCheck()
+	~ModuleCheck()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR|VF_OPTCOMMON, API_VERSION);
+		return Version("CHECK command, view user/channel details", VF_VENDOR|VF_OPTCOMMON);
 	}
 
-	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string& name, const std::string& value)
-	{
-		User* user = static_cast<User*>(opaque);
-		ServerInstance->DumpText(user, std::string(":") + ServerInstance->Config->ServerName + " 304 " + std::string(user->nick)
-			+ " :CHECK meta:" + name + " " + value);
-		mycommand.meta_seen.insert(name);
-	}
-
-	virtual std::string ProtoTranslate(Extensible* item)
+	std::string ProtoTranslate(Extensible* item)
 	{
 		User* u = dynamic_cast<User*>(item);
 		Channel* c = dynamic_cast<Channel*>(item);

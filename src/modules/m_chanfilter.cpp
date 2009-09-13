@@ -76,11 +76,6 @@ class ModuleChanFilter : public Module
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 
-	virtual void OnChannelDelete(Channel* chan)
-	{
-		cf.DoChannelDelete(chan);
-	}
-
 	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
@@ -93,8 +88,7 @@ class ModuleChanFilter : public Module
 		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetStatus(user) == STATUS_OP))
 			return MOD_RES_PASSTHRU;
 
-		modelist* list;
-		chan->GetExt(cf.GetInfoKey(), list);
+		modelist* list = cf.extItem.get(chan);
 
 		if (list)
 		{

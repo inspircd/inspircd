@@ -17,6 +17,7 @@
 #include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
+#include "main.h"
 
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
@@ -46,7 +47,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 	/* Send everything else (channel modes, xlines etc) */
 	this->SendChannelModes(s);
 	this->SendXLines(s);
-	FOREACH_MOD_I(this->ServerInstance,I_OnSyncNetwork,OnSyncNetwork((Module*)Utils->Creator,(void*)this));
+	FOREACH_MOD_I(this->ServerInstance,I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
 	this->WriteLine(endburst);
 	this->ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
 }
@@ -218,7 +219,18 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 			snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", sn, c->second->name.c_str(), (unsigned long)c->second->topicset, c->second->setby.c_str(), c->second->topic.c_str());
 			this->WriteLine(data);
 		}
-		FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannel,OnSyncChannel(c->second,(Module*)Utils->Creator,(void*)this));
+
+		for(ExtensibleStore::const_iterator i = c->second->GetExtList().begin(); i != c->second->GetExtList().end(); i++)
+		{
+			ExtensionItem* item = Extensible::GetItem(i->first);
+			std::string value;
+			if (item)
+				value = item->serialize(Utils->Creator, c->second, i->second);
+			if (!value.empty())
+				Utils->Creator->ProtoSendMetaData(this, c->second, i->first, value);
+		}
+
+		FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannel,OnSyncChannel(c->second,Utils->Creator,this));
 	}
 }
 
@@ -259,7 +271,17 @@ void TreeSocket::SendUsers(TreeServer* Current)
 				}
 			}
 
-			FOREACH_MOD_I(this->ServerInstance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
+			for(ExtensibleStore::const_iterator i = u->second->GetExtList().begin(); i != u->second->GetExtList().end(); i++)
+			{
+				ExtensionItem* item = Extensible::GetItem(i->first);
+				std::string value;
+				if (item)
+					value = item->serialize(Utils->Creator, u->second, i->second);
+				if (!value.empty())
+					Utils->Creator->ProtoSendMetaData(this, u->second, i->first, value);
+			}
+
+			FOREACH_MOD_I(this->ServerInstance,I_OnSyncUser,OnSyncUser(u->second,Utils->Creator,this));
 		}
 	}
 }

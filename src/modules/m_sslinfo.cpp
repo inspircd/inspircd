@@ -16,12 +16,63 @@
 
 /* $ModDesc: Provides SSL metadata, including /WHOIS information and /SSLINFO command */
 
+class SSLCertExt : public ExtensionItem {
+ public:
+	SSLCertExt(Module* parent) : ExtensionItem("ssl_cert", parent) {}
+	ssl_cert* get(const Extensible* item)
+	{
+		return static_cast<ssl_cert*>(get_raw(item));
+	}
+	void set(Extensible* item, ssl_cert* value)
+	{
+		ssl_cert* old = static_cast<ssl_cert*>(set_raw(item, value));
+		delete old;
+	}
+
+	std::string serialize(Module* requestor, const Extensible* container, void* item)
+	{
+		return static_cast<ssl_cert*>(item)->GetMetaLine();
+	}
+
+	void unserialize(Module* requestor, Extensible* container, const std::string& value)
+	{
+		ssl_cert* cert = new ssl_cert;
+		set(container, cert);
+
+		std::stringstream s(value);
+		std::string v;
+		getline(s,v,' ');
+
+		cert->invalid = (v.find('v') != std::string::npos);
+		cert->trusted = (v.find('T') != std::string::npos);
+		cert->revoked = (v.find('R') != std::string::npos);
+		cert->unknownsigner = (v.find('s') != std::string::npos);
+		if (v.find('E') != std::string::npos)
+		{
+			getline(s,cert->error,'\n');
+		}
+		else
+		{
+			getline(s,cert->fingerprint,' ');
+			getline(s,cert->dn,' ');
+			getline(s,cert->issuer,'\n');
+		}
+	}
+
+	void free(void* item)
+	{
+		delete static_cast<ssl_cert*>(item);
+	}
+};
+
 /** Handle /SSLINFO
  */
 class CommandSSLInfo : public Command
 {
  public:
-	CommandSSLInfo(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "SSLINFO", 0, 1)
+	SSLCertExt CertExt;
+
+	CommandSSLInfo(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "SSLINFO", 0, 1), CertExt(Creator)
 	{
 		this->syntax = "<nick>";
 	}
@@ -29,11 +80,11 @@ class CommandSSLInfo : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
-		ssl_cert* cert;
 
 		if (target)
 		{
-			if (target->GetExt("ssl_cert", cert))
+			ssl_cert* cert = CertExt.get(target);
+			if (cert)
 			{
 				if (cert->GetError().length())
 				{
@@ -63,16 +114,18 @@ class CommandSSLInfo : public Command
 class ModuleSSLInfo : public Module
 {
 	CommandSSLInfo cmd;
+
  public:
 	ModuleSSLInfo(InspIRCd* Me)
 		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
 
+		Extensible::Register(&cmd.CertExt);
+
 		Implementation eventlist[] = { I_OnSyncUser, I_OnDecodeMetaData, I_OnWhois, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
-
 
 	virtual ~ModuleSSLInfo()
 	{
@@ -80,73 +133,14 @@ class ModuleSSLInfo : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
-	}
-
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if (target_type != TYPE_USER)
-			return;
-		User* user = static_cast<User*>(item);
-		user->Shrink("ssl_cert");
+		return Version("SSL Certificate Utilities", VF_VENDOR);
 	}
 
 	virtual void OnWhois(User* source, User* dest)
 	{
-		if(dest->GetExt("ssl"))
+		if (cmd.CertExt.get(dest))
 		{
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
-		}
-	}
-
-	virtual void OnSyncUser(User* user, Module* proto, void* opaque)
-	{
-		if (user->GetExt("ssl"))
-			proto->ProtoSendMetaData(opaque, user, "ssl", "ON");
-		
-		ssl_cert* cert;
-		if (user->GetExt("ssl_cert", cert))
-			proto->ProtoSendMetaData(opaque, user, "ssl_cert", cert->GetMetaLine().c_str());
-	}
-
-	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
-	{
-		User* dest = dynamic_cast<User*>(target);
-		// check if its our metadata key, and its associated with a user
-		if (dest && (extname == "ssl"))
-		{
-			// if they dont already have an ssl flag, accept the remote server's
-			if (!dest->GetExt(extname))
-			{
-				dest->Extend(extname);
-			}
-		}
-		else if (dest && (extname == "ssl_cert"))
-		{
-			if (dest->GetExt(extname))
-				return;
-
-			ssl_cert* cert = new ssl_cert;
-			dest->Extend(extname, cert);
-
-			std::stringstream s(extdata);
-			std::string v;
-			getline(s,v,' ');
-
-			cert->invalid = (v.find('v') != std::string::npos);
-			cert->trusted = (v.find('T') != std::string::npos);
-			cert->revoked = (v.find('R') != std::string::npos);
-			cert->unknownsigner = (v.find('s') != std::string::npos);
-			if (v.find('E') != std::string::npos)
-			{
-				getline(s,cert->error,'\n');
-			}
-			else
-			{
-				getline(s,cert->fingerprint,' ');
-				getline(s,cert->dn,' ');
-				getline(s,cert->issuer,'\n');
-			}
 		}
 	}
 
@@ -180,12 +174,10 @@ class ModuleSSLInfo : public Module
 			std::string HashType;
 			std::string FingerPrint;
 			bool SSLOnly;
-			ssl_cert* cert = NULL;
+			ssl_cert* cert = cmd.CertExt.get(user);
 
 			snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
 			snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
-
-			user->GetExt("ssl_cert",cert);
 
 			for (int i = 0; i < cf.Enumerate("oper"); i++)
 			{
@@ -209,7 +201,7 @@ class ModuleSSLInfo : public Module
 				if (Password.length() && ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str()))
 					continue;
 
-				if (SSLOnly && !user->GetExt("ssl"))
+				if (SSLOnly && !cert)
 				{
 					user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick.c_str());
 					return MOD_RES_DENY;
@@ -232,7 +224,20 @@ class ModuleSSLInfo : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-
+	const char* OnRequest(Request* request)
+	{
+		if (strcmp("GET_CERT", request->GetId()) == 0)
+		{
+			BufferedSocketCertificateRequest* req = static_cast<BufferedSocketCertificateRequest*>(request);
+			req->cert = cmd.CertExt.get(req->item);
+		}
+		else if (strcmp("SET_CERT", request->GetId()) == 0)
+		{
+			BufferedSocketFingerprintSubmission* req = static_cast<BufferedSocketFingerprintSubmission*>(request);
+			cmd.CertExt.set(req->item, req->cert);
+		}
+		return NULL;
+	}
 };
 
 MODULE_INIT(ModuleSSLInfo)

@@ -37,19 +37,23 @@ class ModuleSafeList : public Module
 	size_t ServerNameSize;
 	int global_listing;
 	int LimitList;
+	SimpleExtItem<ListData> listData;
+	LocalIntExt listTime;
  public:
-	ModuleSafeList(InspIRCd* Me) : Module(Me)
+	ModuleSafeList(InspIRCd* Me) : Module(Me), listData("safelist_data", this), listTime("safelist_last", this)
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnBufferFlushed, I_OnPreCommand, I_OnCleanup, I_OnUserQuit, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Extensible::Register(&listData);
+		Extensible::Register(&listTime);
+		Implementation eventlist[] = { I_OnBufferFlushed, I_OnPreCommand, I_On005Numeric, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	virtual ~ModuleSafeList()
+	~ModuleSafeList()
 	{
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ConfigReader MyConf(ServerInstance);
 		ThrottleSecs = MyConf.ReadInteger("safelist", "throttle", "60", 0, true);
@@ -58,7 +62,7 @@ class ModuleSafeList : public Module
 		global_listing = 0;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
@@ -68,7 +72,7 @@ class ModuleSafeList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -99,8 +103,7 @@ class ModuleSafeList : public Module
 		}
 
 		/* First, let's check if the user is currently /list'ing */
-		ListData *ld;
-		user->GetExt("safelist_cache", ld);
+		ListData *ld = listData.get(user);
 
 		if (ld)
 		{
@@ -125,32 +128,21 @@ class ModuleSafeList : public Module
 			}
 		}
 
-		time_t* last_list_time;
-		user->GetExt("safelist_last", last_list_time);
-		if (last_list_time)
+		time_t last_list_time = listTime.get(user);
+		if (last_list_time && ServerInstance->Time() < last_list_time + ThrottleSecs)
 		{
-			if (ServerInstance->Time() < (*last_list_time)+ThrottleSecs)
-			{
-				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick.c_str());
-				user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
-				user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
-				return MOD_RES_DENY;
-			}
-
-			delete last_list_time;
-			user->Shrink("safelist_last");
+			user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick.c_str());
+			user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
+			user->WriteNumeric(323, "%s :End of channel list.",user->nick.c_str());
+			return MOD_RES_DENY;
 		}
-
 
 		/*
 		 * start at channel 0! ;)
 		 */
 		ld = new ListData(0,ServerInstance->Time(), (pcnt && (parameters[0][0] != '<' && parameters[0][0] != '>')) ? parameters[0] : "*", minusers, maxusers);
-		user->Extend("safelist_cache", ld);
-
-		time_t* llt = new time_t;
-		*llt = ServerInstance->Time();
-		user->Extend("safelist_last", llt);
+		listData.set(user, ld);
+		listTime.set(user, ServerInstance->Time());
 
 		user->WriteNumeric(321, "%s Channel :Users Name",user->nick.c_str());
 
@@ -159,11 +151,11 @@ class ModuleSafeList : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual void OnBufferFlushed(User* user)
+	void OnBufferFlushed(User* user)
 	{
 		char buffer[MAXBUF];
-		ListData* ld;
-		if (user->GetExt("safelist_cache", ld))
+		ListData* ld = listData.get(user);
+		if (ld)
 		{
 			Channel* chan = NULL;
 			unsigned long amount_sent = 0;
@@ -228,44 +220,15 @@ class ModuleSafeList : public Module
 			while ((chan != NULL) && (amount_sent < (user->MyClass->GetSendqMax() / 4)));
 			if (ld->list_ended)
 			{
-				user->Shrink("safelist_cache");
-				delete ld;
+				listData.unset(user);
 				global_listing--;
 			}
 		}
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if(target_type == TYPE_USER)
-		{
-			User* u = (User*)item;
-			ListData* ld;
-			u->GetExt("safelist_cache", ld);
-			if (ld)
-			{
-				u->Shrink("safelist_cache");
-				delete ld;
-				global_listing--;
-			}
-			time_t* last_list_time;
-			u->GetExt("safelist_last", last_list_time);
-			if (last_list_time)
-			{
-				delete last_list_time;
-				u->Shrink("safelist_last");
-			}
-		}
-	}
-
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		output.append(" SAFELIST");
-	}
-
-	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
-	{
-		this->OnCleanup(TYPE_USER,user);
 	}
 
 };

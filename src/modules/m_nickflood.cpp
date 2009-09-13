@@ -90,12 +90,14 @@ class nickfloodsettings : public classbase
 class NickFlood : public ModeHandler
 {
  public:
-	NickFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'F', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	SimpleExtItem<nickfloodsettings> ext;
+	NickFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'F', 1, 0, false, MODETYPE_CHANNEL, false),
+		ext("nickflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
-		nickfloodsettings* x;
-		if (channel->GetExt("nickflood",x))
+		nickfloodsettings* x = ext.get(channel);
+		if (x)
 			return std::make_pair(true, ConvToStr(x->nicks)+":"+ConvToStr(x->secs));
 		else
 			return std::make_pair(false, parameter);
@@ -103,8 +105,7 @@ class NickFlood : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		nickfloodsettings* dummy;
-
+		nickfloodsettings *f = ext.get(channel);
 		if (adding)
 		{
 			char ndata[MAXBUF];
@@ -124,7 +125,6 @@ class NickFlood : public ModeHandler
 				else data++;
 			}
 			if (secs)
-
 			{
 				/* Set up the flood parameters for this channel */
 				int nnicks = atoi(nicks);
@@ -137,11 +137,11 @@ class NickFlood : public ModeHandler
 				}
 				else
 				{
-					if (!channel->GetExt("nickflood", dummy))
+					if (!f)
 					{
 						parameter = ConvToStr(nnicks) + ":" +ConvToStr(nsecs);
-						nickfloodsettings *f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
-						channel->Extend("nickflood", f);
+						f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
+						ext.set(channel, f);
 						channel->SetModeParam('F', parameter);
 						return MODEACTION_ALLOW;
 					}
@@ -159,12 +159,8 @@ class NickFlood : public ModeHandler
 							// new mode param, replace old with new
 							if ((nsecs > 0) && (nnicks > 0))
 							{
-								nickfloodsettings* f;
-								channel->GetExt("nickflood", f);
-								delete f;
 								f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
-								channel->Shrink("nickflood");
-								channel->Extend("nickflood", f);
+								ext.set(channel, f);
 								channel->SetModeParam('F', parameter);
 								return MODEACTION_ALLOW;
 							}
@@ -184,12 +180,9 @@ class NickFlood : public ModeHandler
 		}
 		else
 		{
-			if (channel->GetExt("nickflood", dummy))
+			if (f)
 			{
-				nickfloodsettings *f;
-				channel->GetExt("nickflood", f);
-				delete f;
-				channel->Shrink("nickflood");
+				ext.unset(channel);
 				channel->SetModeParam('F', "");
 				return MODEACTION_ALLOW;
 			}
@@ -200,20 +193,21 @@ class NickFlood : public ModeHandler
 
 class ModuleNickFlood : public Module
 {
-	NickFlood jf;
+	NickFlood nf;
 
  public:
 
 	ModuleNickFlood(InspIRCd* Me)
-		: Module(Me), jf(Me, this)
+		: Module(Me), nf(Me, this)
 	{
-		if (!ServerInstance->Modes->AddMode(&jf))
+		if (!ServerInstance->Modes->AddMode(&nf))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreNick, I_OnUserPostNick };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Extensible::Register(&nf.ext);
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserPostNick };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
+	ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (isdigit(newnick[0])) /* allow switches to UID */
 			return MOD_RES_PASSTHRU;
@@ -222,8 +216,8 @@ class ModuleNickFlood : public Module
 		{
 			Channel *channel = i->first;
 
-			nickfloodsettings *f;
-			if (channel->GetExt("nickflood", f))
+			nickfloodsettings *f = nf.ext.get(channel);
+			if (f)
 			{
 				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetStatus(user) == STATUS_OP)
 					continue;
@@ -250,7 +244,7 @@ class ModuleNickFlood : public Module
 	/*
 	 * XXX: HACK: We do the increment on the *POST* event here (instead of all together) because we have no way of knowing whether other modules would block a nickchange.
 	 */
-	virtual void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
@@ -259,8 +253,8 @@ class ModuleNickFlood : public Module
 		{
 			Channel *channel = i->first;
 
-			nickfloodsettings *f;
-			if (channel->GetExt("nickflood", f))
+			nickfloodsettings *f = nf.ext.get(channel);
+			if (f)
 			{
 				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetStatus(user) == STATUS_OP)
 					return;
@@ -275,25 +269,14 @@ class ModuleNickFlood : public Module
 		return;
 	}
 
-	void OnChannelDelete(Channel* chan)
+	~ModuleNickFlood()
 	{
-		nickfloodsettings *f;
-		if (chan->GetExt("nickflood",f))
-		{
-			delete f;
-			chan->Shrink("nickflood");
-		}
+		ServerInstance->Modes->DelMode(&nf);
 	}
 
-
-	virtual ~ModuleNickFlood()
+	Version GetVersion()
 	{
-		ServerInstance->Modes->DelMode(&jf);
-	}
-
-	virtual Version GetVersion()
-	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Channel mode F - nick flood protection", VF_COMMON | VF_VENDOR);
 	}
 };
 

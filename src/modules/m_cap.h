@@ -27,42 +27,53 @@ class CapData : public classbase
 	Module* creator;
 };
 
-void GenericCapHandler(Event* ev, const std::string &extname, const std::string &cap)
+class GenericCap
 {
-	if (ev->GetEventID() == "cap_req")
+ public:
+	LocalIntExt ext;
+	const std::string cap;
+	GenericCap(Module* parent, const std::string &Cap) : ext("cap_" + cap, parent), cap(Cap)
 	{
-		CapData *data = (CapData *) ev->GetData();
+		Extensible::Register(&ext);
+	}
 
-		std::vector<std::string>::iterator it;
-		if ((it = std::find(data->wanted.begin(), data->wanted.end(), cap)) != data->wanted.end())
+	void HandleEvent(Event* ev)
+	{
+		if (ev->GetEventID() == "cap_req")
 		{
-			// we can handle this, so ACK it, and remove it from the wanted list
-			data->ack.push_back(*it);
-			data->wanted.erase(it);
-			data->user->Extend(extname);
+			CapData *data = (CapData *) ev->GetData();
+
+			std::vector<std::string>::iterator it;
+			if ((it = std::find(data->wanted.begin(), data->wanted.end(), cap)) != data->wanted.end())
+			{
+				// we can handle this, so ACK it, and remove it from the wanted list
+				data->ack.push_back(*it);
+				data->wanted.erase(it);
+				ext.set(data->user, 1);
+			}
+		}
+
+		if (ev->GetEventID() == "cap_ls")
+		{
+			CapData *data = (CapData *) ev->GetData();
+			data->wanted.push_back(cap);
+		}
+
+		if (ev->GetEventID() == "cap_list")
+		{
+			CapData *data = (CapData *) ev->GetData();
+
+			if (ext.get(data->user))
+				data->wanted.push_back(cap);
+		}
+
+		if (ev->GetEventID() == "cap_clear")
+		{
+			CapData *data = (CapData *) ev->GetData();
+			data->ack.push_back("-" + cap);
+			ext.set(data->user, 0);
 		}
 	}
-
-	if (ev->GetEventID() == "cap_ls")
-	{
-		CapData *data = (CapData *) ev->GetData();
-		data->wanted.push_back(cap);
-	}
-
-	if (ev->GetEventID() == "cap_list")
-	{
-		CapData *data = (CapData *) ev->GetData();
-
-		if (data->user->GetExt(extname))
-			data->wanted.push_back(cap);
-	}
-
-	if (ev->GetEventID() == "cap_clear")
-	{
-		CapData *data = (CapData *) ev->GetData();
-		data->ack.push_back("-" + cap);
-		data->user->Shrink(extname);
-	}
-}
+};
 
 #endif

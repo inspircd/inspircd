@@ -34,7 +34,7 @@ class ModuleRegOnlyCreate : public Module
 		if (IS_OPER(user))
 			return MOD_RES_PASSTHRU;
 
-		if ((!user->IsModeSet('r')) && (!user->GetExt("accountname")))
+		if (user->GetExtList().find("accountname") == user->GetExtList().end() && !user->IsModeSet('r'))
 		{
 			// XXX. there may be a better numeric for this..
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have a registered nickname to create a new channel", user->nick.c_str(), cname);

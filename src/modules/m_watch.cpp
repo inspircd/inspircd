@@ -138,6 +138,7 @@ class CommandWatch : public Command
 {
 	unsigned int& MAX_WATCH;
  public:
+	SimpleExtItem<watchlist> ext;
 	CmdResult remove_watch(User* user, const char* nick)
 	{
 		// removing an item from the list
@@ -147,8 +148,8 @@ class CommandWatch : public Command
 			return CMD_FAILURE;
 		}
 
-		watchlist* wl;
-		if (user->GetExt("watchlist", wl))
+		watchlist* wl = ext.get(user);
+		if (wl)
 		{
 			/* Yup, is on my list */
 			watchlist::iterator n = wl->find(nick);
@@ -168,8 +169,7 @@ class CommandWatch : public Command
 
 			if (wl->empty())
 			{
-				user->Shrink("watchlist");
-				delete wl;
+				ext.unset(user);
 			}
 
 			watchentries::iterator x = whos_watching_me->find(nick);
@@ -198,11 +198,11 @@ class CommandWatch : public Command
 			return CMD_FAILURE;
 		}
 
-		watchlist* wl;
-		if (!user->GetExt("watchlist", wl))
+		watchlist* wl = ext.get(user);
+		if (!wl)
 		{
 			wl = new watchlist();
-			user->Extend("watchlist", wl);
+			ext.set(user, wl);
 		}
 
 		if (wl->size() == MAX_WATCH)
@@ -248,7 +248,8 @@ class CommandWatch : public Command
 		return CMD_SUCCESS;
 	}
 
-	CommandWatch (InspIRCd* Instance, Module* parent, unsigned int &maxwatch) : Command(Instance,parent,"WATCH",0,0), MAX_WATCH(maxwatch)
+	CommandWatch (InspIRCd* Instance, Module* parent, unsigned int &maxwatch)
+		: Command(Instance,parent,"WATCH",0,0), MAX_WATCH(maxwatch), ext("watchlist", parent)
 	{
 		syntax = "[C|L|S]|[+|-<nick>]";
 		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
@@ -258,8 +259,8 @@ class CommandWatch : public Command
 	{
 		if (parameters.empty())
 		{
-			watchlist* wl;
-			if (user->GetExt("watchlist", wl))
+			watchlist* wl = ext.get(user);
+			if (wl)
 			{
 				for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 				{
@@ -277,8 +278,8 @@ class CommandWatch : public Command
 				if (!strcasecmp(nick,"C"))
 				{
 					// watch clear
-					watchlist* wl;
-					if (user->GetExt("watchlist", wl))
+					watchlist* wl = ext.get(user);
+					if (wl)
 					{
 						for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
 						{
@@ -297,14 +298,13 @@ class CommandWatch : public Command
 							}
 						}
 
-						delete wl;
-						user->Shrink("watchlist");
+						ext.unset(user);
 					}
 				}
 				else if (!strcasecmp(nick,"L"))
 				{
-					watchlist* wl;
-					if (user->GetExt("watchlist", wl))
+					watchlist* wl = ext.get(user);
+					if (wl)
 					{
 						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 						{
@@ -325,12 +325,12 @@ class CommandWatch : public Command
 				}
 				else if (!strcasecmp(nick,"S"))
 				{
-					watchlist* wl;
+					watchlist* wl = ext.get(user);
 					int you_have = 0;
 					int youre_on = 0;
 					std::string list;
 
-					if (user->GetExt("watchlist", wl))
+					if (wl)
 					{
 						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 							list.append(q->first.c_str()).append(" ");
@@ -375,6 +375,7 @@ class Modulewatch : public Module
 		whos_watching_me = new watchentries();
 		ServerInstance->AddCommand(&cmdw);
 		ServerInstance->AddCommand(&sw);
+		Extensible::Register(&cmdw.ext);
 		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnCleanup, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
@@ -424,16 +425,16 @@ class Modulewatch : public Module
 			{
 				(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick.c_str() ,user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) ServerInstance->Time());
 
-				watchlist* wl;
-				if ((*n)->GetExt("watchlist", wl))
+				watchlist* wl = cmdw.ext.get(*n);
+				if (wl)
 					/* We were on somebody's notify list, set ourselves offline */
 					(*wl)[user->nick.c_str()] = "";
 			}
 		}
 
 		/* Now im quitting, if i have a notify list, im no longer watching anyone */
-		watchlist* wl;
-		if (user->GetExt("watchlist", wl))
+		watchlist* wl = cmdw.ext.get(user);
+		if (wl)
 		{
 			/* Iterate every user on my watch list, and take me out of the whos_watching_me map for each one we're watching */
 			for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
@@ -452,10 +453,6 @@ class Modulewatch : public Module
 							whos_watching_me->erase(i2);
 				}
 			}
-
-			/* User's quitting, we're done with this. */
-			delete wl;
-			user->Shrink("watchlist");
 		}
 	}
 
@@ -470,21 +467,6 @@ class Modulewatch : public Module
 		delete old_watch;
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		if (target_type == TYPE_USER)
-		{
-			watchlist* wl;
-			User* user = (User*)item;
-
-			if (user->GetExt("watchlist", wl))
-			{
-				user->Shrink("watchlist");
-				delete wl;
-			}
-		}
-	}
-
 	virtual void OnPostConnect(User* user)
 	{
 		watchentries::iterator x = whos_watching_me->find(user->nick.c_str());
@@ -494,8 +476,8 @@ class Modulewatch : public Module
 			{
 				(*n)->WriteNumeric(600, "%s %s %s %s %lu :arrived online", (*n)->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) user->age);
 
-				watchlist* wl;
-				if ((*n)->GetExt("watchlist", wl))
+				watchlist* wl = cmdw.ext.get(*n);
+				if (wl)
 					/* We were on somebody's notify list, set ourselves online */
 					(*wl)[user->nick.c_str()] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
 			}
@@ -511,8 +493,8 @@ class Modulewatch : public Module
 		{
 			for (std::deque<User*>::iterator n = new_offline->second.begin(); n != new_offline->second.end(); n++)
 			{
-				watchlist* wl;
-				if ((*n)->GetExt("watchlist", wl))
+				watchlist* wl = cmdw.ext.get(*n);
+				if (wl)
 				{
 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick.c_str(), oldnick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) user->age);
 					(*wl)[oldnick.c_str()] = "";
@@ -524,8 +506,8 @@ class Modulewatch : public Module
 		{
 			for (std::deque<User*>::iterator n = new_online->second.begin(); n != new_online->second.end(); n++)
 			{
-				watchlist* wl;
-				if ((*n)->GetExt("watchlist", wl))
+				watchlist* wl = cmdw.ext.get(*n);
+				if (wl)
 				{
 					(*wl)[user->nick.c_str()] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
 					(*n)->WriteNumeric(600, "%s %s %s :arrived online", (*n)->nick.c_str(), user->nick.c_str(), (*wl)[user->nick.c_str()].c_str());

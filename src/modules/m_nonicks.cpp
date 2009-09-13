@@ -79,7 +79,7 @@ class ModuleNoNickChange : public Module
 			return MOD_RES_PASSTHRU;
 
 		// Allow forced nick changes.
-		if (user->GetExt("NICKForced"))
+		if (User::NICKForced.get(user))
 			return MOD_RES_PASSTHRU;
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
