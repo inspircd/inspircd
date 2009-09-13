@@ -24,8 +24,6 @@ class ModeChannelHalfOp : public ModeHandler
  public:
 	ModeChannelHalfOp(InspIRCd* Instance);
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	std::string AddHalfOp(User *user,const char *dest,Channel *chan,int status);
-	std::string DelHalfOp(User *user,const char *dest,Channel *chan,int status);
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 	unsigned int GetPrefixRank();
 	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);

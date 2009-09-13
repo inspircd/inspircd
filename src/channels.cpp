@@ -527,10 +527,8 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		ModResult res;
 		if (ServerInstance->ULine(src->server))
 			res = MOD_RES_ALLOW;
-		if (res == MOD_RES_PASSTHRU)
+		else
 			FIRST_MOD_RESULT(ServerInstance, OnUserPreKick, res, (src,memb,reason));
-		if (res == MOD_RES_PASSTHRU)
-			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, res, (src,user,this,AC_KICK));
 
 		if (res == MOD_RES_DENY)
 			return this->GetUserCounter();
@@ -980,24 +978,27 @@ unsigned int Channel::GetPrefixValue(User* user)
 
 void Channel::SetPrefix(User* user, char prefix, unsigned int prefix_value, bool adding)
 {
+	ModeHandler* delta_mh = ServerInstance->Modes->FindMode(prefix, MODETYPE_CHANNEL);
+	if (!delta_mh)
+		return;
 	UserMembIter m = userlist.find(user);
-	if (m != userlist.end())
+	if (m == userlist.end())
+		return;
+	for(unsigned int i=0; i < m->second->modes.length(); i++)
 	{
-		for(unsigned int i=0; i < m->second->modes.length(); i++)
+		char mchar = m->second->modes[i];
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
+		if (mh && mh->GetPrefixRank() <= delta_mh->GetPrefixRank())
 		{
-			char mchar = m->second->modes[i];
-			ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
-			if (mh && mh->GetPrefixRank() <= prefix_value)
-			{
-				m->second->modes =
-					m->second->modes.substr(0,i-1) +
-					(adding ? std::string(1, prefix) : "") +
-					m->second->modes.substr(mchar == prefix ? i+1 : i);
-				return;
-			}
+			m->second->modes =
+				m->second->modes.substr(0,i) +
+				(adding ? std::string(1, prefix) : "") +
+				m->second->modes.substr(mchar == prefix ? i+1 : i);
+			return;
 		}
-		m->second->modes += std::string(1, prefix);
 	}
+	if (adding)
+		m->second->modes += std::string(1, prefix);
 }
 
 void Channel::RemoveAllPrefixes(User* user)

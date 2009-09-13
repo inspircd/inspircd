@@ -129,7 +129,7 @@ ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList
 ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { }
-ModResult	Module::OnAccessCheck(User*, User*, Channel*, int) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
 void		Module::On005Numeric(std::string&) { }
 ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnLoadModule(Module*, const std::string&) { }

@@ -419,13 +419,8 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 	}
 	else
 	{
-		/* Overall access control hook for mode change */
-		int hook = targetchannel ? AC_GENERAL_MODE : AC_GENERAL_UMODE;
-
-		LastParse = mode_sequence;
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, MOD_RESULT, (user, targetuser, targetchannel, hook));
-		LastParse.clear();
+		FIRST_MOD_RESULT(ServerInstance, OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return;
 		SkipAccessChecks = (MOD_RESULT == MOD_RES_ALLOW);

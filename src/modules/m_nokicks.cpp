@@ -31,43 +31,40 @@ class ModuleNoKicks : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&nk))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnAccessCheck, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreKick, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		ServerInstance->AddExtBanChar('Q');
 	}
 
-	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
-		if (access_type == AC_KICK)
+		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet('Q')))
 		{
-			if (!channel->GetExtBanStatus(source, 'Q').check(!channel->IsModeSet('Q')))
+			if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 			{
-				if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
-				{
-					// ulines can still kick with +Q in place
-					return MOD_RES_PASSTHRU;
-				}
-				else
-				{
-					// nobody else can (not even opers with override, and founders)
-					source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), channel->name.c_str(), dest->nick.c_str());
-					return MOD_RES_DENY;
-				}
+				// ulines can still kick with +Q in place
+				return MOD_RES_PASSTHRU;
+			}
+			else
+			{
+				// nobody else can (not even opers with override, and founders)
+				source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), memb->chan->name.c_str(), memb->user->nick.c_str());
+				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleNoKicks()
+	~ModuleNoKicks()
 	{
 		ServerInstance->Modes->DelMode(&nk);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}

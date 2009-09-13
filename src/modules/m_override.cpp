@@ -23,9 +23,6 @@ class ModuleOverride : public Module
 	override_t overrides;
 	bool RequireKey;
 	bool NoisyOverride;
-	bool OverriddenMode;
-	bool OverOther;
-	int OverOps, OverDeops, OverVoices, OverDevoices, OverHalfops, OverDehalfops;
 
  public:
 
@@ -39,13 +36,11 @@ class ModuleOverride : public Module
 		{
 			throw ModuleException("m_override: Unable to publish feature 'Override'");
 		}
-		OverriddenMode = OverOther = false;
-		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
-		Implementation eventlist[] = { I_OnRehash, I_OnAccessCheck, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPostCommand, I_OnPreTopicChange, I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 8);
+		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPreTopicChange, I_OnRequest };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		ConfigReader Conf(ServerInstance);
@@ -64,43 +59,12 @@ class ModuleOverride : public Module
 		}
 	}
 
-
-	virtual void OnPostCommand(const std::string &command, const std::vector<std::string> &parameters, User *user, CmdResult result, const std::string &original_line)
-	{
-		if (OverriddenMode)
-		{
-			if ((irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS) && !ServerInstance->Modes->GetLastParse().empty())
-			{
-				std::string msg = std::string(user->nick)+" overriding modes: "+ServerInstance->Modes->GetLastParse()+" [Detail: ";
-				if (OverOps)
-					msg += ConvToStr(OverOps)+" op"+(OverOps != 1 ? "s" : "")+", ";
-				if (OverDeops)
-					msg += ConvToStr(OverDeops)+" deop"+(OverDeops != 1 ? "s" : "")+", ";
-				if (OverVoices)
-					msg += ConvToStr(OverVoices)+" voice"+(OverVoices != 1 ? "s" : "")+", ";
-				if (OverDevoices)
-					msg += ConvToStr(OverDevoices)+" devoice"+(OverDevoices != 1 ? "s" : "")+", ";
-				if (OverHalfops)
-					msg += ConvToStr(OverHalfops)+" halfop"+(OverHalfops != 1 ? "s" : "")+", ";
-				if (OverDehalfops)
-					msg += ConvToStr(OverDehalfops)+" dehalfop"+(OverDehalfops != 1 ? "s" : "")+", ";
-				if (OverOther)
-					msg += "others, ";
-				msg.replace(msg.length()-2, 2, 1, ']');
-				ServerInstance->SNO->WriteGlobalSno('G',msg);
-			}
-
-			OverriddenMode = OverOther = false;
-			OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
-		}
-	}
-
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		output.append(" OVERRIDE");
 	}
 
-	virtual bool CanOverride(User* source, const char* token)
+	bool CanOverride(User* source, const char* token)
 	{
 		// checks to see if the oper's type has <type:override>
 		override_t::iterator j = overrides.find(source->oper);
@@ -116,7 +80,7 @@ class ModuleOverride : public Module
 	}
 
 
-	virtual ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic)
+	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic)
 	{
 		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, "TOPIC"))
 		{
@@ -146,89 +110,29 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
 	{
 		if (!IS_OPER(source))
 			return MOD_RES_PASSTHRU;
 		if (!source || !channel)
 			return MOD_RES_PASSTHRU;
 
-		int mode = 0;
+		unsigned int mode = 0;
 		if (channel->HasUser(source))
 			mode = channel->GetPrefixValue(source);
-		bool over_this = false;
 
-		switch (access_type)
+		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
 		{
-			case AC_DEOP:
-				if (mode < OP_VALUE && CanOverride(source,"MODEDEOP"))
-				{
-					over_this = true;
-					OverDeops++;
-				}
-			break;
-			case AC_OP:
-				if (mode < OP_VALUE && CanOverride(source,"MODEOP"))
-				{
-					over_this = true;
-					OverOps++;
-				}
-			break;
-			case AC_VOICE:
-				if (mode < HALFOP_VALUE && CanOverride(source,"MODEVOICE"))
-				{
-					over_this = true;
-					OverVoices++;
-				}
-			break;
-			case AC_DEVOICE:
-				if (mode < HALFOP_VALUE && CanOverride(source,"MODEDEVOICE"))
-				{
-					over_this = true;
-					OverDevoices++;
-				}
-			break;
-			case AC_HALFOP:
-				if (mode < OP_VALUE && CanOverride(source,"MODEHALFOP"))
-				{
-					over_this = true;
-					OverHalfops++;
-				}
-			break;
-			case AC_DEHALFOP:
-				if (mode < OP_VALUE && CanOverride(source,"MODEDEHALFOP"))
-				{
-					over_this = true;
-					OverDehalfops++;
-				}
-			break;
-			case AC_GENERAL_MODE:
-			{
-				std::string modes = ServerInstance->Modes->GetLastParse();
-				bool ohv_only = (modes.find_first_not_of("+-ohv") == std::string::npos);
-
-				if (mode < HALFOP_VALUE && (ohv_only || CanOverride(source,"OTHERMODE")))
-				{
-					over_this = true;
-					if (!ohv_only)
-						OverOther = true;
-				}
-			}
-			break;
-		}
-
-		if (over_this)
-		{
-			OverriddenMode = true;
+			std::string msg = std::string(source->nick)+" overriding modes:";
+			for(unsigned int i=0; i < parameters.size(); i++)
+				msg += " " + parameters[i];
+			ServerInstance->SNO->WriteGlobalSno('G',msg);
 			return MOD_RES_ALLOW;
 		}
-		else
-		{
-			return MOD_RES_PASSTHRU;
-		}
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (IS_LOCAL(user) && IS_OPER(user))
 		{
@@ -302,7 +206,7 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual const char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		if(strcmp(OVRREQID, request->GetId()) == 0)
 		{
@@ -312,13 +216,13 @@ class ModuleOverride : public Module
 		return NULL;
 	}
 
-	virtual ~ModuleOverride()
+	~ModuleOverride()
 	{
 		ServerInstance->Modules->UnpublishFeature("Override");
 		ServerInstance->SNO->DisableSnomask('G');
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}

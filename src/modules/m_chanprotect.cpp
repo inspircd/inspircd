@@ -256,7 +256,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		}
 	}
 
-	virtual void DisplayList(User* user, Channel* channel)
+	void DisplayList(User* user, Channel* channel)
 	{
 		FounderProtectBase::DisplayList(user, channel);
 	}
@@ -296,8 +296,8 @@ class ModuleChanProtect : public Module
 			throw ModuleException("Could not add new modes!");
 		}
 
-		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnUserPreJoin, I_OnAccessCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void LoadSettings()
@@ -325,109 +325,18 @@ class ModuleChanProtect : public Module
 		DeprivOthers = Conf.ReadFlag("chanprotect","deprotectothers", "yes", 0);
 	}
 
-	virtual ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set
 
 		if (FirstInGetsFounder && !chan)
-			privs = std::string(1, QPrefix) + "@";
+			privs += std::string(1, QPrefix);
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
-	{
-		// here we perform access checks, this is the important bit that actually stops kicking/deopping
-		// etc of protected users. There are many types of access check, we're going to handle
-		// a relatively small number of them relevent to our module using a switch statement.
-		// don't allow action if:
-		// (A) Theyre founder (no matter what)
-		// (B) Theyre protected, unless you're founder or are protected and DeprivOthers is enabled
-		// always allow the action if:
-		// (A) The source is ulined
-
-		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
-			return MOD_RES_PASSTHRU;
-
-		if (!channel)
-			return MOD_RES_PASSTHRU;
-
-		// Can do anything to yourself if deprotectself is enabled.
-		if (DeprivSelf && source == dest)
-			return MOD_RES_PASSTHRU;
-
-		Membership* smemb = channel->GetUser(source);
-		Membership* dmemb = channel->GetUser(source);
-		bool candepriv_founder = (DeprivOthers && smemb && smemb->hasMode('q'));
-		bool candepriv_protect = smemb && (smemb->hasMode('q') || (DeprivOthers && smemb->hasMode('a')));
-		bool desthas_founder = dmemb->hasMode('q');
-		bool desthas_protect = dmemb->hasMode('a');
-
-		switch (access_type)
-		{
-			// a user has been deopped. Do we let them? hmmm...
-			case AC_DEOP:
-				if (desthas_founder && !candepriv_founder)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're a channel founder");
-					return MOD_RES_DENY;
-				}
-				if (desthas_protect && !candepriv_protect)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're protected (+a)");
-					return MOD_RES_DENY;
-				}
-			break;
-
-			// a user is being kicked. do we chop off the end of the army boot?
-			case AC_KICK:
-				if (desthas_founder && !candepriv_founder)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're a channel founder");
-					return MOD_RES_DENY;
-				}
-				if (desthas_protect && !candepriv_protect)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're protected (+a)");
-					return MOD_RES_DENY;
-				}
-			break;
-
-			// a user is being dehalfopped. Yes, we do disallow -h of a +ha user
-			case AC_DEHALFOP:
-				if (desthas_founder && !candepriv_founder)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're a channel founder");
-					return MOD_RES_DENY;
-				}
-				if (desthas_protect && !candepriv_protect)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're protected (+a)");
-					return MOD_RES_DENY;
-				}
-			break;
-
-			// same with devoice.
-			case AC_DEVOICE:
-				if (desthas_founder && !candepriv_founder)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're a channel founder");
-					return MOD_RES_DENY;
-				}
-				if (desthas_protect && !candepriv_protect)
-				{
-					source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're protected (+a)");
-					return MOD_RES_DENY;
-				}
-			break;
-		}
-
-		// we dont know what this access check is, or dont care. just carry on, nothing to see here.
-		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ~ModuleChanProtect()
+	~ModuleChanProtect()
 	{
 		ServerInstance->Modes->DelMode(cp);
 		ServerInstance->Modes->DelMode(cf);
@@ -435,7 +344,7 @@ class ModuleChanProtect : public Module
 		delete cf;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Founder and Protect modes (+qa)", VF_COMMON | VF_VENDOR);
 	}

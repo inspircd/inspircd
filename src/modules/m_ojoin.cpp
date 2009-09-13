@@ -259,7 +259,7 @@ class ModuleOjoin : public Module
 
 		ServerInstance->AddCommand(&mycommand);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick, I_OnUserPart, I_OnAccessCheck, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick, I_OnUserPart, I_OnUserPreKick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -294,59 +294,21 @@ class ModuleOjoin : public Module
 		op = Conf.ReadFlag("ojoin", "op", "yes", 0);
 	}
 
-	ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
-		// Here's where we preform access checks, and disallow any kicking/deopping
-		// of +Y users. 
-
-		// If there's no dest, it's not for us.
-		if (!dest || !channel)
-			return MOD_RES_PASSTHRU;
-
-		// If a ulined nickname, or a server is setting the mode, let it
-		// do whatever it wants.
 		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
 			return MOD_RES_PASSTHRU;
 
-		Membership* m = channel->GetUser(dest);
-
 		// Don't do anything if they're not +Y
-		if (!m || !m->hasMode('Y'))
+		if (!memb->hasMode('Y'))
 			return MOD_RES_PASSTHRU;
 
 		// Let them do whatever they want to themselves.
-		if (source == dest)
+		if (source == memb->user)
 			return MOD_RES_PASSTHRU;
 
-		switch (access_type)
-		{
-			// Disallow deopping of +Y users.
-			case AC_DEOP:
-				source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't deop "+dest->nick+" as they're on official network business.");
-				return MOD_RES_DENY;
-			break;
-
-			// Kicking people who are here on network business is a no no.
-			case AC_KICK:
-				source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't kick "+dest->nick+" as they're on official network business.");
-				return MOD_RES_DENY;
-			break;
-
-			// Yes, they're immune to dehalfopping too.
-			case AC_DEHALFOP:
-				source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't de-halfop "+dest->nick+" as they're on official network business.");
-				return MOD_RES_DENY;
-			break;
-
-			// same with devoice.
-			case AC_DEVOICE:
-				source->WriteNumeric(484, source->nick+" "+channel->name+" :Can't devoice "+dest->nick+" as they're on official network business.");
-				return MOD_RES_DENY;
-			break;
-		}
-
-		// Some other access check that doesn't fall into the above. Let it through.
-		return MOD_RES_PASSTHRU;
+		source->WriteNumeric(484, source->nick+" "+memb->chan->name+" :Can't kick "+memb->user->nick+" as they're on official network business.");
+		return MOD_RES_DENY;
 	}
 
 	~ModuleOjoin()

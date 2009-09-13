@@ -46,19 +46,19 @@ class ModuleSaMode : public Module
 		: Module(Me), cmd(Me, this)
 	{
 		ServerInstance->AddCommand(&cmd);
-		ServerInstance->Modules->Attach(I_OnAccessCheck, this);
+		ServerInstance->Modules->Attach(I_OnPreMode, this);
 	}
 
-	virtual ~ModuleSaMode()
+	~ModuleSaMode()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
-	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
+	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
 	{
 		if (cmd.active)
 			return MOD_RES_ALLOW;
@@ -68,7 +68,7 @@ class ModuleSaMode : public Module
 	void Prioritize()
 	{
 		Module *override = ServerInstance->Modules->Find("m_override.so");
-		ServerInstance->Modules->SetPriority(this, I_OnAccessCheck, PRIORITY_BEFORE, &override);
+		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, &override);
 	}
 };
 

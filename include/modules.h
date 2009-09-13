@@ -27,24 +27,6 @@
 
 class XLine;
 
-/** Used with OnAccessCheck() method of modules
- */
-enum AccessControlType {
-	ACR_DEFAULT,		// Do default action (act as if the module isnt even loaded)
-	ACR_DENY,		// deny the action
-	ACR_ALLOW,		// allow the action
-	AC_KICK,		// a user is being kicked
-	AC_DEOP,		// a user is being deopped
-	AC_OP,			// a user is being opped
-	AC_VOICE,		// a user is being voiced
-	AC_DEVOICE,		// a user is being devoiced
-	AC_HALFOP,		// a user is being halfopped
-	AC_DEHALFOP,		// a user is being dehalfopped
-	AC_INVITE,		// a user is being invited
-	AC_GENERAL_MODE,	// a channel mode is being changed
-	AC_GENERAL_UMODE	// a user mode is being changed
-};
-
 /** Used to define a set of behavior bits for a module
  */
 enum ModuleFlags {
@@ -419,7 +401,7 @@ enum Implementation
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
 	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine, I_OnCleanup,
-	I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
+	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnPreTopicChange,
@@ -954,32 +936,18 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void OnUserPostNick(User* user, const std::string &oldnick);
 
-	/** Called before an action which requires a channel privilage check.
-	 * This function is called before many functions which check a users status on a channel, for example
-	 * before opping a user, deopping a user, kicking a user, etc.
-	 * There are several values for access_type which indicate for what reason access is being checked.
-	 * These are:<br><br>
-	 * AC_KICK - A user is being kicked<br>
-	 * AC_DEOP - a user is being deopped<br>
-	 * AC_OP - a user is being opped<br>
-	 * AC_VOICE - a user is being voiced<br>
-	 * AC_DEVOICE - a user is being devoiced<br>
-	 * AC_HALFOP - a user is being halfopped<br>
-	 * AC_DEHALFOP - a user is being dehalfopped<br>
-	 * AC_INVITE - a user is being invited<br>
-	 * AC_GENERAL_MODE - a user channel mode is being changed<br><br>
-	 * Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes
-	 * to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow
-	 * the action. Please note that in the case of some access checks (such as AC_GENERAL_MODE) access may be
-	 * denied 'upstream' causing other checks such as AC_DEOP to not be reached. Be very careful with use of the
-	 * AC_GENERAL_MODE type, as it may inadvertently override the behaviour of other modules. When the access_type
-	 * is AC_GENERAL_MODE, the destination of the mode will be NULL (as it has not yet been determined).
-	 * @param source The source of the access check
-	 * @param dest The destination of the access check
-	 * @param channel The channel which is being checked
-	 * @param access_type See above
+	/** Called before any mode change, to allow a single access check for
+	 * a full mode change (use OnRawMode to check individual modes)
+	 *
+	 * Returning MOD_RES_ALLOW will skip prefix level checks, but can be overridden by
+	 * OnRawMode for each individual mode
+	 *
+	 * @param source the user making the mode change
+	 * @param dest the user destination of the umode change (NULL if a channel mode)
+	 * @param channel the channel destination of the mode change
+	 * @param parameters raw mode parameters; parameters[0] is the user/channel being changed
 	 */
-	virtual ModResult OnAccessCheck(User* source,User* dest,Channel* channel,int access_type);
+	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters);
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
