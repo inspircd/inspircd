@@ -24,6 +24,7 @@ class CommandSwhois : public Command
 	CommandSwhois (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SWHOIS","o",2,2), swhois("swhois", Creator)
 	{
 		syntax = "<nick> :<swhois>";
+		Extensible::Register(&swhois);
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 

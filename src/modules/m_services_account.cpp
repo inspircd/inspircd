@@ -116,6 +116,7 @@ class ModuleServicesAccount : public Module
 			!ServerInstance->Modes->AddMode(&m5))
 			throw ModuleException("Some other module has claimed our modes!");
 
+		Extensible::Register(&accountname);
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
 			I_OnSyncUser, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 
