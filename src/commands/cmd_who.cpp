@@ -28,7 +28,7 @@ static const std::string& get_first_visible_channel(User *u)
 	return star;
 }
 
-bool CommandWho::whomatch(User* user, const char* matchtext)
+bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 {
 	bool match = false;
 	bool positive = false;
@@ -111,7 +111,8 @@ bool CommandWho::whomatch(User* user, const char* matchtext)
 		if (!match)
 			match = InspIRCd::Match(user->nick, matchtext);
 
-		if (!match)
+		/* Don't allow server name matches if HideWhoisServer is enabled, unless the command user has the priv */
+		if (!match && (!*ServerInstance->Config->HideWhoisServer || cuser->HasPrivPermission("users/auspex")))
 			match = InspIRCd::Match(user->server, matchtext);
 
 		return match;
@@ -323,7 +324,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 			{
 				User* oper = *i;
 
-				if (whomatch(oper, matchtext))
+				if (whomatch(user, oper, matchtext))
 				{
 					if (!user->SharesChannelWith(oper))
 					{
@@ -339,7 +340,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		{
 			for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
 			{
-				if (whomatch(i->second, matchtext))
+				if (whomatch(user, i->second, matchtext))
 				{
 					if (!user->SharesChannelWith(i->second))
 					{
