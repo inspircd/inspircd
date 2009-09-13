@@ -1617,7 +1617,10 @@ bool ServerConfig::ParseLine(const std::string &filename, std::string &line, lon
 						{
 							if (!allowexeinc)
 							{
-								errstr << "Configuration added by <include:executable> is not allowed to have its own <include:executable> tags for security reasons." << std::endl;
+								errstr << "Executable includes are not allowed to use <include:executable>\n"
+									"This could be an attempt to execute commands from a malicious remote include.\n"
+									"If you need multiple levels of remote include, create a script to assemble the "
+									"contents locally or include files using <include:file>\n";
 								return false;
 							}
 
