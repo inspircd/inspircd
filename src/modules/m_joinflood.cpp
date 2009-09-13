@@ -221,13 +221,13 @@ class ModuleJoinFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 	{
 		/* We arent interested in JOIN events caused by a network burst */
 		if (sync)
 			return;
 
-		joinfloodsettings *f = jf.ext.get(channel);
+		joinfloodsettings *f = jf.ext.get(memb->chan);
 
 		/* But all others are OK */
 		if (f)
@@ -237,7 +237,7 @@ class ModuleJoinFlood : public Module
 			{
 				f->clear();
 				f->lock();
-				channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName, "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", channel->name.c_str(), f->joins, f->secs);
+				memb->chan->WriteChannelWithServ((char*)ServerInstance->Config->ServerName, "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", memb->chan->name.c_str(), f->joins, f->secs);
 			}
 		}
 	}

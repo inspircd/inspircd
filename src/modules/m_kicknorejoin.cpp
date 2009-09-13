@@ -150,17 +150,17 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 	{
-		if (chan->IsModeSet('J') && (source != user))
+		if (memb->chan->IsModeSet('J') && (source != memb->user))
 		{
-			delaylist* dl = kr.ext.get(chan);
+			delaylist* dl = kr.ext.get(memb->chan);
 			if (dl)
 			{
 				dl = new delaylist;
-				kr.ext.set(chan, dl);
+				kr.ext.set(memb->chan, dl);
 			}
-			(*dl)[user] = ServerInstance->Time() + strtoint(chan->GetModeParameter('J'));
+			(*dl)[memb->user] = ServerInstance->Time() + strtoint(memb->chan->GetModeParameter('J'));
 		}
 	}
 

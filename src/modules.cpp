@@ -111,9 +111,9 @@ ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::str
 void		Module::OnUserConnect(User*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
 void		Module::OnUserDisconnect(User*) { }
-void		Module::OnUserJoin(User*, Channel*, bool, bool&, bool) { }
-void		Module::OnPostJoin(User*, Channel*) { }
-void		Module::OnUserPart(User*, Channel*, std::string&, bool&) { }
+void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { }
+void		Module::OnPostJoin(Membership*) { }
+void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
 void		Module::OnPreRehash(User*, const std::string&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
@@ -139,8 +139,8 @@ ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, User *, 
 void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, User *, CmdResult, const std::string&) { }
 ModResult	Module::OnCheckReady(User*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserRegister(User*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreKick(User*, User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserKick(User*, User*, Channel*, const std::string&, bool&) { }
+ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
+void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
 ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
@@ -195,7 +195,7 @@ void		Module::OnGarbageCollect() { }
 void		Module::OnBufferFlushed(User*) { }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
-void		Module::OnNamesListItem(User*, User*, Channel*, std::string&, std::string&) { }
+void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnHookIO(EventHandler*, ListenSocketBase*) { }
 ModResult	Module::OnHostCycle(User*) { return MOD_RES_PASSTHRU; }

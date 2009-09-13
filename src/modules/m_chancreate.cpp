@@ -28,26 +28,24 @@ class ModuleChanCreate : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	virtual ~ModuleChanCreate()
+	~ModuleChanCreate()
 	{
 		ServerInstance->SNO->DisableSnomask('j');
 		ServerInstance->SNO->DisableSnomask('J');
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$",VF_VENDOR,API_VERSION);
 	}
 
 
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 	{
 		if (created)
 		{
-			if (IS_LOCAL(user))
-				ServerInstance->SNO->WriteToSnoMask('j', "Channel %s created by %s!%s@%s", channel->name.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-			else
-				ServerInstance->SNO->WriteToSnoMask('J', "Channel %s created by %s!%s@%s", channel->name.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(memb->user) ? 'j' : 'J', "Channel %s created by %s!%s@%s",
+				memb->chan->name.c_str(), memb->user->nick.c_str(), memb->user->ident.c_str(), memb->user->host.c_str());
 		}
 	}
 };

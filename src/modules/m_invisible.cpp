@@ -16,8 +16,6 @@
 
 /* $ModDesc: Allows for opered clients to join channels without being seen, similar to unreal 3.1 +I mode */
 
-static ConfigReader* conf;
-
 class InvisibleMode : public ModeHandler
 {
  public:
@@ -109,7 +107,6 @@ class ModuleInvisible : public Module
 	ModuleInvisible(InspIRCd* Me)
 		: Module(Me), qm(Me, this), ido(Me)
 	{
-		conf = new ConfigReader(ServerInstance);
 		if (!ServerInstance->Modes->AddMode(&qm))
 			throw ModuleException("Could not add new modes!");
 		if (!ServerInstance->Modes->AddModeWatcher(&ido))
@@ -119,61 +116,59 @@ class ModuleInvisible : public Module
 		ServerInstance->Users->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
 		Implementation eventlist[] = {
 			I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin, I_OnUserPart, I_OnUserQuit,
-			I_OnRehash, I_OnHostCycle, I_OnSendWhoLine
+			I_OnHostCycle, I_OnSendWhoLine, I_OnNamesListItem
 		};
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	};
 
-	virtual ~ModuleInvisible()
+	~ModuleInvisible()
 	{
 		ServerInstance->Modes->DelMode(&qm);
 		ServerInstance->Modes->DelModeWatcher(&ido);
-		delete conf;
 	};
 
 	Version GetVersion();
-	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
-	void OnRehash(User* user);
-	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts);
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
 	ModResult OnHostCycle(User* user);
 	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5);
 	void OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line);
+	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick);
 };
 
 Version ModuleInvisible::GetVersion()
 {
-	return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+	return Version("Allows opers to join channels invisibly", VF_COMMON | VF_VENDOR);
 }
 
-void ModuleInvisible::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+static void BuildExcept(Membership* memb, CUList& excepts)
 {
-	if (user->IsModeSet('Q'))
+	const UserMembList* users = memb->chan->GetUsers();
+	for(UserMembCIter i = users->begin(); i != users->end(); i++)
 	{
-		silent = true;
-		/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-		this->WriteCommonFrom(user, channel, "JOIN %s", channel->name.c_str());
-		ServerInstance->SNO->WriteToSnoMask('a', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost().c_str(), channel->name.c_str());
+		// hide from all local non-opers
+		if (IS_LOCAL(i->first) && !IS_OPER(i->first))
+			excepts.insert(i->first);
 	}
 }
 
-void ModuleInvisible::OnRehash(User* user)
+void ModuleInvisible::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 {
-	delete conf;
-	conf = new ConfigReader(ServerInstance);
+	if (memb->user->IsModeSet('Q'))
+	{
+		BuildExcept(memb, excepts);
+		ServerInstance->SNO->WriteToSnoMask('a', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)",
+			memb->user->GetFullHost().c_str(), memb->chan->name.c_str());
+	}
 }
 
-void ModuleInvisible::OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
+void ModuleInvisible::OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
 {
-	if (user->IsModeSet('Q'))
+	if (memb->user->IsModeSet('Q'))
 	{
-		silent = true;
-		/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-		this->WriteCommonFrom(user, channel, "PART %s%s%s", channel->name.c_str(),
-				partmessage.empty() ? "" : " :",
-				partmessage.empty() ? "" : partmessage.c_str());
+		BuildExcept(memb, excepts);
 	}
 }
 
@@ -224,34 +219,16 @@ ModResult ModuleInvisible::OnUserPreMessage(User* user,void* dest,int target_typ
 	return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 }
 
-/* Fix by Eric @ neowin.net, thanks :) -- Brain */
-void ModuleInvisible::WriteCommonFrom(User *user, Channel* channel, const char* text, ...)
-{
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-	char tb[MAXBUF];
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(), textbuffer);
-
-	const UserMembList *ulist = channel->GetUsers();
-
-	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
-	{
-		/* User only appears to vanish for non-opers */
-		if (IS_LOCAL(i->first) && IS_OPER(i->first))
-		{
-			i->first->Write(std::string(tb));
-		}
-	}
-}
-
 void ModuleInvisible::OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line)
 {
 	if (user->IsModeSet('Q') && !IS_OPER(source))
 		line.clear();
+}
+
+void ModuleInvisible::OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+{
+	if (memb->user->IsModeSet('Q') && !IS_OPER(issuer))
+		nick.clear();
 }
 
 MODULE_INIT(ModuleInvisible)

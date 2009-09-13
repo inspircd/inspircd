@@ -340,9 +340,8 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created)
 {
 	std::string nick = user->nick;
-	bool silent = false;
 
-	Ptr->AddUser(user);
+	Membership* memb = Ptr->AddUser(user);
 	user->chans.insert(Ptr);
 
 	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
@@ -357,10 +356,10 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		}
 	}
 
-	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, bursting, silent, created));
+	CUList except_list;
+	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(memb, bursting, created, except_list));
 
-	if (!silent)
-		Ptr->WriteChannel(user,"JOIN :%s",Ptr->name.c_str());
+	Ptr->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", Ptr->name.c_str());
 
 	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
 	std::string ms = Instance->Modes->ModeString(user, Ptr);
@@ -377,7 +376,7 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		}
 		Ptr->UserList(user);
 	}
-	FOREACH_MOD_I(Instance,I_OnPostJoin,OnPostJoin(user, Ptr));
+	FOREACH_MOD_I(Instance,I_OnPostJoin,OnPostJoin(memb));
 	return Ptr;
 }
 
@@ -462,20 +461,19 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
  */
 long Channel::PartUser(User *user, std::string &reason)
 {
-	bool silent = false;
-
 	if (!user)
 		return this->GetUserCounter();
 
-	UCListIter i = user->chans.find(this);
-	if (i != user->chans.end())
+	Membership* memb = GetUser(user);
+
+	if (memb)
 	{
-		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason, silent));
+		CUList except_list;
+		FOREACH_MOD(I_OnUserPart,OnUserPart(memb, reason, except_list));
 
-		if (!silent)
-			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
+		WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
-		user->chans.erase(i);
+		user->chans.erase(this);
 		this->RemoveAllPrefixes(user);
 	}
 
@@ -509,14 +507,13 @@ long Channel::ServerKickUser(User* user, const char* reason, const char* servern
 
 long Channel::KickUser(User *src, User *user, const char* reason)
 {
-	bool silent = false;
-
 	if (!src || !user || !reason)
 		return this->GetUserCounter();
 
+	Membership* memb = GetUser(user);
 	if (IS_LOCAL(src))
 	{
-		if (!this->HasUser(user))
+		if (!memb)
 		{
 			src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), user->nick.c_str(), this->name.c_str());
 			return this->GetUserCounter();
@@ -531,7 +528,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		if (ServerInstance->ULine(src->server))
 			res = MOD_RES_ALLOW;
 		if (res == MOD_RES_PASSTHRU)
-			FIRST_MOD_RESULT(ServerInstance, OnUserPreKick, res, (src,user,this,reason));
+			FIRST_MOD_RESULT(ServerInstance, OnUserPreKick, res, (src,memb,reason));
 		if (res == MOD_RES_PASSTHRU)
 			FIRST_MOD_RESULT(ServerInstance, OnAccessCheck, res, (src,user,this,AC_KICK));
 
@@ -550,16 +547,14 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		}
 	}
 
-	FOREACH_MOD(I_OnUserKick,OnUserKick(src, user, this, reason, silent));
-
-	UCListIter i = user->chans.find(this);
-	if (i != user->chans.end())
+	if (memb)
 	{
-		/* zap it from the channel list of the user */
-		if (!silent)
-			this->WriteChannel(src, "KICK %s %s :%s", this->name.c_str(), user->nick.c_str(), reason);
+		CUList except_list;
+		FOREACH_MOD(I_OnUserKick,OnUserKick(src, memb, reason, except_list));
 
-		user->chans.erase(i);
+		WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), user->nick.c_str(), reason);
+
+		user->chans.erase(this);
 		this->RemoveAllPrefixes(user);
 	}
 
@@ -839,7 +834,7 @@ void Channel::UserList(User *user)
 
 		if (call_modules != MOD_RES_DENY)
 		{
-			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prefixlist, nick));
+			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->second, prefixlist, nick));
 
 			/* Nick was nuked, a module wants us to skip it */
 			if (nick.empty())
@@ -931,6 +926,18 @@ const char* Channel::GetPrefixChar(User *user)
 	return pf;
 }
 
+unsigned int Membership::getRank()
+{
+	char mchar = modes.c_str()[0];
+	unsigned int rv = 0;
+	if (mchar)
+	{
+		ModeHandler* mh = chan->ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
+		if (mh)
+			rv = mh->GetPrefixRank();
+	}
+	return rv;
+}
 
 const char* Channel::GetAllPrefixChars(User* user)
 {

@@ -81,12 +81,6 @@ enum UserChannelModes {
  */
 class CoreExport Channel : public Extensible
 {
- private:
-
-	/** Pointer to creator object
-	 */
-	InspIRCd* ServerInstance;
-
 	/** Connect a Channel to a User
 	 */
 	static Channel* ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created);
@@ -100,6 +94,10 @@ class CoreExport Channel : public Extensible
 	int maxbans;
 
  public:
+	/** Pointer to creator object
+	 */
+	InspIRCd* ServerInstance;
+
 	/** Creates a channel record and initialises it with default values
 	 * @throw Nothing at present.
 	 */

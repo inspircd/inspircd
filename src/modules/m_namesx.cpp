@@ -60,7 +60,7 @@ class ModuleNamesX : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
+	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
 	{
 		if (!cap.ext.get(issuer))
 			return;
@@ -69,7 +69,7 @@ class ModuleNamesX : public Module
 		if (nick.empty())
 			return;
 
-		prefixes = channel->GetAllPrefixChars(user);
+		prefixes = memb->chan->GetAllPrefixChars(memb->user);
 	}
 
 	void OnEvent(Event *ev)

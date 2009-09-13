@@ -40,7 +40,6 @@ class ServProtectMode : public ModeHandler
 
 class ModuleServProtectMode : public Module
 {
-
 	ServProtectMode bm;
  public:
 	ModuleServProtectMode(InspIRCd* Me)
@@ -53,17 +52,17 @@ class ModuleServProtectMode : public Module
 	}
 
 
-	virtual ~ModuleServProtectMode()
+	~ModuleServProtectMode()
 	{
 		ServerInstance->Modes->DelMode(&bm);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	virtual void OnWhois(User* src, User* dst)
+	void OnWhois(User* src, User* dst)
 	{
 		if (dst->IsModeSet('k'))
 		{
@@ -71,7 +70,7 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
-	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
@@ -99,7 +98,7 @@ class ModuleServProtectMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnKill(User* src, User* dst, const std::string &reason)
+	ModResult OnKill(User* src, User* dst, const std::string &reason)
 	{
 		if (src == NULL)
 			return MOD_RES_PASSTHRU;
@@ -113,18 +112,19 @@ class ModuleServProtectMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreKick(User *src, User *dst, Channel *c, const std::string &reason)
+	ModResult OnUserPreKick(User *src, Membership* memb, const std::string &reason)
 	{
-		if (dst->IsModeSet('k'))
+		if (memb->user->IsModeSet('k'))
 		{
-			src->WriteNumeric(484, "%s %s :You are not permitted to kick services", src->nick.c_str(), c->name.c_str());
+			src->WriteNumeric(484, "%s %s :You are not permitted to kick services",
+				src->nick.c_str(), memb->chan->name.c_str());
 			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)
 	{
 		return ((src != dst) && (numeric == 319) && dst->IsModeSet('k')) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}

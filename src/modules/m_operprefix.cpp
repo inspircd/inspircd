@@ -95,17 +95,10 @@ class ModuleOperPrefixMode : public Module
 		ServerInstance->SendMode(modechange,this->ServerInstance->FakeClient);
 	}
 
-	void OnPostJoin(User *user, Channel *channel)
+	void OnPostJoin(Membership* memb)
 	{
-		if (user && IS_OPER(user))
-		{
-			if (user->IsModeSet('H'))
-			{
-				/* we respect your wish to be invisible */
-				return;
-			}
-			PushChanMode(channel, user);
-		}
+		if (IS_OPER(memb->user) && !memb->user->IsModeSet('H'))
+			PushChanMode(memb->chan, memb->user);
 	}
 
 	// XXX: is there a better way to do this?

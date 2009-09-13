@@ -28,6 +28,7 @@ struct Membership : public Extensible
 	{
 		return modes.find(m) != std::string::npos;
 	}
+	unsigned int getRank();
 };
 
 typedef std::map<User*, Membership*> UserMembList;

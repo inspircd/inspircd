@@ -880,7 +880,7 @@ std::string ModeParser::BuildPrefixes()
 		}
 	}
 
-	for(std::map<int,std::pair<char,char> >::iterator n = prefixes.begin(); n != prefixes.end(); n++)
+	for(std::map<int,std::pair<char,char> >::reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); n++)
 	{
 		mletters = mletters + n->second.first;
 		mprefixes = mprefixes + n->second.second;

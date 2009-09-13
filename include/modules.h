@@ -510,34 +510,27 @@ class CoreExport Module : public Extensible
 	/** Called when a user joins a channel.
 	 * The details of the joining user are available to you in the parameter User *user,
 	 * and the details of the channel they have joined is available in the variable Channel *channel
-	 * @param user The user who is joining
-	 * @param channel The channel being joined
-	 * @param silent Change this to true if you want to conceal the JOIN command from the other users
-	 * of the channel (useful for modules such as auditorium)
+	 * @param memb The channel membership being created
 	 * @param sync This is set to true if the JOIN is the result of a network sync and the remote user is being introduced
 	 * to a channel due to the network sync.
 	 * @param created This is true if the join created the channel
 	 */
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
+	virtual void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except_list);
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has
 	 * seen the join.
-	 * @param user The user who is joining
-	 * @param channel The channel being joined
+	 * @param memb The channel membership created
 	 */
-	virtual void OnPostJoin(User* user, Channel* channel);
+	virtual void OnPostJoin(Membership*);
 
 	/** Called when a user parts a channel.
 	 * The details of the leaving user are available to you in the parameter User *user,
 	 * and the details of the channel they have left is available in the variable Channel *channel
-	 * @param user The user who is parting
-	 * @param channel The channel being parted
+	 * @param memb The channel membership being destroyed
 	 * @param partmessage The part message, or an empty string (may be modified)
-	 * @param silent Change this to true if you want to conceal the PART command from the other users
-	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
+	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList& except_list);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -610,7 +603,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
 	 */
-	virtual ModResult OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason);
+	virtual ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason);
 
 	/** Called whenever a user is kicked.
 	 * If this method is called, the kick is already underway and cannot be prevented, so
@@ -619,10 +612,8 @@ class CoreExport Module : public Extensible
 	 * @param user The user being kicked
 	 * @param chan The channel the user is being kicked from
 	 * @param reason The kick reason
-	 * @param silent Change this to true if you want to conceal the PART command from the other users
-	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
+	virtual void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list);
 
 	/** Called whenever a user opers locally.
 	 * The User will contain the oper mode 'o' as this function is called after any modifications
@@ -1406,7 +1397,7 @@ class CoreExport Module : public Extensible
 	 * For example NAMESX, channel mode +u and +I, and UHNAMES. If the nick is set to an empty string by any
 	 * module, then this will cause the nickname not to be displayed at all.
 	 */
-	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
+	virtual void OnNamesListItem(User* issuer, Membership* item, std::string &prefixes, std::string &nick);
 
 	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
 

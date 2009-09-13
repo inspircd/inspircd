@@ -54,26 +54,26 @@ class ModuleAuditorium : public Module
 
 	}
 
-	virtual ~ModuleAuditorium()
+	~ModuleAuditorium()
 	{
 		ServerInstance->Modes->DelMode(&aum);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ConfigReader conf(ServerInstance);
 		ShowOps = conf.ReadFlag("auditorium", "showops", 0);
 		OperOverride = conf.ReadFlag("auditorium", "operoverride", 0);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	virtual void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
+	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
 	{
-		if (!channel->IsModeSet('u'))
+		if (!memb->chan->IsModeSet('u'))
 			return;
 
 		/* Some module hid this from being displayed, dont bother */
@@ -84,14 +84,14 @@ class ModuleAuditorium : public Module
 		if (OperOverride && issuer->HasPrivPermission("channels/auspex"))
 			return;
 
-		if (ShowOps && (issuer != user) && (channel->GetPrefixValue(user) < OP_VALUE))
+		if (ShowOps && (issuer != memb->user) && (memb->getRank() < OP_VALUE))
 		{
 			/* Showops is set, hide all non-ops from the user, except themselves */
 			nick.clear();
 			return;
 		}
 
-		if (!ShowOps && (issuer != user))
+		if (!ShowOps && (issuer != memb->user))
 		{
 			/* ShowOps is not set, hide everyone except the user whos requesting NAMES */
 			nick.clear();
@@ -99,64 +99,40 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void WriteOverride(User* source, Channel* channel, const std::string &text)
+	void BuildExcept(Membership* memb, CUList& excepts)
 	{
-		if (!OperOverride)
+		if (!memb->chan->IsModeSet('u'))
+			return;
+		if (ShowOps && memb->getRank() >= OP_VALUE)
 			return;
 
-		const UserMembList *ulist = channel->GetUsers();
-		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+		const UserMembList* users = memb->chan->GetUsers();
+		for(UserMembCIter i = users->begin(); i != users->end(); i++)
 		{
-			if (i->first->HasPrivPermission("channels/auspex") && source != i->first)
-				if (!ShowOps || (ShowOps && channel->GetPrefixValue(i->first) < OP_VALUE))
-					i->first->WriteFrom(source, "%s",text.c_str());
+			if (i->first == memb->user || !IS_LOCAL(i->first))
+				continue;
+			if (ShowOps && i->second->getRank() >= OP_VALUE)
+				continue;
+			if (OperOverride && i->first->HasPrivPermission("channels/auspex"))
+				continue;
+			// This is a different user in the channel, local, and not op/oper
+			// so, hide the join from them
+			excepts.insert(i->first);
 		}
 	}
-
-	virtual void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 	{
-		if (channel->IsModeSet('u'))
-		{
-			silent = true;
-			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-			user->WriteFrom(user, "JOIN %s", channel->name.c_str());
-			if (ShowOps)
-				channel->WriteAllExceptSender(user, false, channel->GetPrefixValue(user) >= OP_VALUE ? 0 : '@', "JOIN %s", channel->name.c_str());
-			WriteOverride(user, channel, "JOIN "+channel->name);
-		}
+		BuildExcept(memb, excepts);
 	}
 
-	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
 	{
-		if (channel->IsModeSet('u'))
-		{
-			silent = true;
-			/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-			user->WriteFrom(user, "PART %s%s%s", channel->name.c_str(),
-					partmessage.empty() ? "" : " :",
-					partmessage.empty() ? "" : partmessage.c_str());
-			if (ShowOps)
-			{
-				channel->WriteAllExceptSender(user, false, channel->GetPrefixValue(user) >= OP_VALUE ? 0 : '@', "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :",
-						partmessage.empty() ? "" : partmessage.c_str());
-			}
-			WriteOverride(user, channel, "PART " + channel->name + (partmessage.empty() ? "" : (" :" + partmessage)));
-		}
+		BuildExcept(memb, excepts);
 	}
 
-	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 	{
-		if (chan->IsModeSet('u'))
-		{
-			silent = true;
-			/* Send silenced event only to the user being kicked and the user doing the kick */
-			source->WriteFrom(source, "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-			if (ShowOps)
-				chan->WriteAllExceptSender(source, false, chan->GetPrefixValue(user) >= OP_VALUE ? 0 : '@', "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-			if ((!ShowOps) || (chan->GetPrefixValue(user) < OP_VALUE)) /* make sure the target gets the event */
-				user->WriteFrom(source, "KICK %s %s :%s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-			WriteOverride(source, chan, "KICK " + chan->name + " " + user->nick + " :" + reason);
-		}
+		BuildExcept(memb, excepts);
 	}
 
 	ModResult OnHostCycle(User* user)

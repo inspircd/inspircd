@@ -38,15 +38,14 @@ class ModuleDelayJoin : public Module
 	}
 	~ModuleDelayJoin();
 	Version GetVersion();
-	void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick);
-	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
+	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick);
+	void OnUserJoin(Membership*, bool, bool, CUList&);
 	void CleanUser(User* user);
 	ModResult OnHostCycle(User* user);
-	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
-	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
+	void OnUserPart(Membership*, std::string &partmessage, CUList&);
+	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&);
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
-	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5);
 };
 
 /* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
@@ -81,57 +80,47 @@ Version ModuleDelayJoin::GetVersion()
 	return Version("$Id$", VF_COMMON | VF_VENDOR);
 }
 
-void ModuleDelayJoin::OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
+void ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
 {
-	if (!channel->IsModeSet('D'))
-		return;
-
-	if (nick.empty())
-		return;
-
 	/* don't prevent the user from seeing themself */
-	if (issuer == user)
+	if (issuer == memb->user)
 		return;
 
-	Membership* memb = channel->GetUser(user);
 	/* If the user is hidden by delayed join, hide them from the NAMES list */
-	if (memb && unjoined.get(memb))
+	if (unjoined.get(memb))
 		nick.clear();
 }
 
-void ModuleDelayJoin::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+static void populate(CUList& except, Membership* memb)
 {
-	if (channel->IsModeSet('D'))
+	const UserMembList* users = memb->chan->GetUsers();
+	for(UserMembCIter i = users->begin(); i != users->end(); i++)
 	{
-		silent = true;
-		/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-		user->WriteFrom(user, "JOIN %s", channel->name.c_str());
+		if (i->first == memb->user || !IS_LOCAL(i->first))
+			continue;
+		except.insert(i->first);
+	}
+}
 
-		Membership* memb = channel->GetUser(user);
-
+void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
+{
+	if (memb->chan->IsModeSet('D'))
+	{
 		unjoined.set(memb, 1);
+		populate(except, memb);
 	}
 }
 
-void ModuleDelayJoin::OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
+void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
 {
-	Membership* memb = channel->GetUser(user);
 	if (unjoined.set(memb, 0))
-	{
-		silent = true;
-		/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-		user->WriteFrom(user, "PART %s%s%s", channel->name.c_str(), partmessage.empty() ? "" : " :", partmessage.empty() ? "" : partmessage.c_str());
-	}
+		populate(except, memb);
 }
 
-void ModuleDelayJoin::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
+void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except)
 {
-	Membership* memb = chan->GetUser(user);
 	if (unjoined.set(memb, 0))
-	{
-		silent = true;
-		user->WriteFrom(source, "KICK %s %s %s", chan->name.c_str(), user->nick.c_str(), reason.c_str());
-	}
+		populate(except, memb);
 }
 
 ModResult ModuleDelayJoin::OnHostCycle(User* user)
@@ -179,7 +168,7 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 
 	std::string n = this->ServerInstance->Modes->ModeString(user, channel);
 	if (n.length() > 0)
-		this->WriteCommonFrom(user, channel, "MODE %s +%s", channel->name.c_str(), n.c_str());
+		channel->WriteAllExceptSender(user, false, 0, "MODE %s +%s", channel->name.c_str(), n.c_str());
 }
 
 MODULE_INIT(ModuleDelayJoin)

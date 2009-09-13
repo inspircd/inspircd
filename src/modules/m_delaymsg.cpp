@@ -60,10 +60,7 @@ class ModuleDelayMsg : public Module
 	}
 	~ModuleDelayMsg();
 	Version GetVersion();
-	void OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created);
-	void OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent);
-	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
-	void OnCleanup(int target_type, void* item);
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&);
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
 };
 
@@ -103,11 +100,10 @@ Version ModuleDelayMsg::GetVersion()
 	return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 }
 
-void ModuleDelayMsg::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
-	if (channel->IsModeSet('d'))
+	if (memb->chan->IsModeSet('d'))
 	{
-		Membership* memb = channel->GetUser(user);
 		djm.jointime.set(memb, ServerInstance->Time());
 	}
 }

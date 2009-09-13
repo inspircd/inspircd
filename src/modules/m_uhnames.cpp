@@ -24,7 +24,7 @@ class ModuleUHNames : public Module
 	ModuleUHNames(InspIRCd* Me) : Module(Me), cap(this, "userhost-in-names")
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	~ModuleUHNames()
@@ -60,7 +60,7 @@ class ModuleUHNames : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnNamesListItem(User* issuer, User* user, Channel* channel, std::string &prefixes, std::string &nick)
+	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
 	{
 		if (!cap.ext.get(issuer))
 			return;
@@ -68,7 +68,7 @@ class ModuleUHNames : public Module
 		if (nick.empty())
 			return;
 
-		nick = user->GetFullHost();
+		nick = memb->user->GetFullHost();
 	}
 
 	void OnEvent(Event* ev)

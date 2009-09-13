@@ -132,16 +132,16 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason)
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
 		if (IS_OPER(source) && CanOverride(source,"KICK"))
 		{
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
-			if ((chan->GetPrefixValue(source) < chan->GetPrefixValue(user))	|| (chan->GetPrefixValue(source) <= VOICE_VALUE))
+			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to kick "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
+				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to kick "+std::string(memb->user->nick)+" on "+std::string(memb->chan->name)+" ("+reason+")");
+				return MOD_RES_ALLOW;
 			}
-			return MOD_RES_ALLOW;
 		}
 		return MOD_RES_PASSTHRU;
 	}

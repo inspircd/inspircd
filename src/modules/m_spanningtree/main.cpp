@@ -600,19 +600,19 @@ void ModuleSpanningTree::OnUserConnect(User* user)
 	Utils->TreeRoot->SetUserCount(1); // increment by 1
 }
 
-void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, bool &silent, bool created)
+void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 {
 	// Only do this for local users
-	if (IS_LOCAL(user))
+	if (IS_LOCAL(memb->user))
 	{
 		parameterlist params;
 		// set up their permissions and the channel TS with FJOIN.
 		// All users are FJOINed now, because a module may specify
 		// new joining permissions for the user.
-		params.push_back(channel->name);
-		params.push_back(ConvToStr(channel->age));
-		params.push_back(std::string("+") + channel->ChanModes(true));
-		params.push_back(ServerInstance->Modes->ModeString(user, channel, false)+","+std::string(user->uuid));
+		params.push_back(memb->chan->name);
+		params.push_back(ConvToStr(memb->chan->age));
+		params.push_back(std::string("+") + memb->chan->ChanModes(true));
+		params.push_back(memb->modes+","+std::string(memb->user->uuid));
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 	}
 }
@@ -650,15 +650,15 @@ void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
 	Utils->DoOneToMany(user->uuid,"FIDENT",params);
 }
 
-void ModuleSpanningTree::OnUserPart(User* user, Channel* channel,  std::string &partmessage, bool &silent)
+void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
 {
-	if (IS_LOCAL(user))
+	if (IS_LOCAL(memb->user))
 	{
 		parameterlist params;
-		params.push_back(channel->name);
+		params.push_back(memb->chan->name);
 		if (!partmessage.empty())
 			params.push_back(":"+partmessage);
-		Utils->DoOneToMany(user->uuid,"PART",params);
+		Utils->DoOneToMany(memb->user->uuid,"PART",params);
 	}
 }
 
@@ -710,11 +710,11 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 	}
 }
 
-void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
+void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 {
 	parameterlist params;
-	params.push_back(chan->name);
-	params.push_back(user->uuid);
+	params.push_back(memb->chan->name);
+	params.push_back(memb->user->uuid);
 	params.push_back(":"+reason);
 	if (IS_LOCAL(source))
 	{
