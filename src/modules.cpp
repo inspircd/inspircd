@@ -28,7 +28,7 @@
 
 // version is a simple class for holding a modules version number
 Version::Version(const std::string &modv, int flags, int api_ver, const std::string& rev)
-: version(modv + " " + rev), Flags(flags), API(api_ver)
+: version(modv + " - " + rev), Flags(flags), API(api_ver)
 {
 }
 
@@ -90,7 +90,7 @@ Module* Event::GetSource()
 	return this->source;
 }
 
-char* Event::Send(InspIRCd* ServerInstance)
+char* Event::Send(InspIRCd* SI)
 {
 	FOREACH_MOD(I_OnEvent,OnEvent(this));
 	return NULL;
@@ -104,7 +104,7 @@ std::string Event::GetEventID()
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
-Module::Module(InspIRCd* Me) : ServerInstance(Me) { }
+Module::Module(InspIRCd*) { }
 Module::~Module() { }
 
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }

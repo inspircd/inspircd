@@ -32,7 +32,7 @@ class callerid_data : public classbase
 	std::list<callerid_data *> wholistsme;
 
 	callerid_data() : lastnotify(0) { }
-	callerid_data(const std::string& str, InspIRCd* ServerInstance)
+	callerid_data(const std::string& str)
 	{
 		irc::commasepstream s(str);
 		std::string tok;
@@ -85,7 +85,7 @@ struct CallerIDExtInfo : public ExtensionItem
 
 	void unserialize(Module* requestor, Extensible* container, const std::string& value)
 	{
-		callerid_data* dat = new callerid_data(value, requestor->ServerInstance);
+		callerid_data* dat = new callerid_data(value);
 		set_raw(container, dat);
 	}
 

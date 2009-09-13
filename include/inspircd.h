@@ -936,6 +936,7 @@ class CoreExport InspIRCd : public classbase
 	}
 };
 
+extern InspIRCd* ServerInstance;
 ENTRYPOINT;
 
 template<class Cmd>

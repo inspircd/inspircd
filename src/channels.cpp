@@ -17,7 +17,7 @@
 #include <cstdarg>
 #include "mode.h"
 
-Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts) : ServerInstance(Instance)
+Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts)
 {
 	chan_hash::iterator findchan = ServerInstance->chanlist->find(cname);
 	if (findchan != Instance->chanlist->end())
@@ -930,7 +930,7 @@ unsigned int Membership::getRank()
 	unsigned int rv = 0;
 	if (mchar)
 	{
-		ModeHandler* mh = chan->ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
 		if (mh)
 			rv = mh->GetPrefixRank();
 	}

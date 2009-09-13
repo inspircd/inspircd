@@ -425,9 +425,6 @@ class ConfigReader;
 class CoreExport Module : public Extensible
 {
  public:
-	/** Creator/owner pointer
-	 */
-	InspIRCd* ServerInstance;
 	/** File that this module was loaded from
 	 */
 	std::string ModuleSourceFile;

@@ -255,12 +255,6 @@ class CoreExport User : public EventHandler
 	std::bitset<64> AllowedChanModes;
 
  public:
-	/** Pointer to creator.
-	 * This is required to make use of core functions
-	 * from within the User class.
-	 */
-	InspIRCd* ServerInstance;
-
 	static LocalIntExt NICKForced;
 	static LocalStringExt OperQuit;
 

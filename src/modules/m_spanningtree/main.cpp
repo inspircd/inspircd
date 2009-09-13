@@ -250,7 +250,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 
 	if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name)))
 	{
-		this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
+		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
 		return;
 	}
 
@@ -282,7 +282,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		}
 		else
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
 				ServerInstance->SocketCull[newsocket] = newsocket;
 			Utils->DoFailOver(x);
@@ -298,7 +298,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		}
 		catch (ModuleException& e)
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
+			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
 			Utils->DoFailOver(x);
 		}
 	}

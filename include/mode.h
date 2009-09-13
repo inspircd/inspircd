@@ -152,7 +152,6 @@ class CoreExport ModeHandler : public classbase
 	int levelrequired;
 
  public:
-	static InspIRCd* ServerInstance;
 	/** Module that created this mode. NULL for core modes */
 	Module* creator;
 
@@ -425,10 +424,6 @@ typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
 class CoreExport ModeParser : public classbase
 {
  private:
-	/**
-	 * Creator/owner pointer
-	 */
-	InspIRCd* ServerInstance;
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
 	 * The upper bit of the value indicates if its a usermode

@@ -98,7 +98,7 @@ class ModuleOperPrefixMode : public Module
 		modechange.push_back(channel->name);
 		modechange.push_back(modeline);
 		modechange.push_back(user->nick);
-		ServerInstance->SendMode(modechange,this->ServerInstance->FakeClient);
+		ServerInstance->SendMode(modechange,ServerInstance->FakeClient);
 	}
 
 	void OnPostJoin(Membership* memb)

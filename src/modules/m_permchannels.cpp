@@ -17,7 +17,7 @@
 
 // Not in a class due to circular dependancy hell.
 static std::string permchannelsconf;
-static bool WriteDatabase(InspIRCd *ServerInstance)
+static bool WriteDatabase()
 {
 	FILE *f;
 
@@ -100,7 +100,7 @@ class PermChannel : public ModeHandler
 				channel->SetMode('P',true);
 
 				// Save permchannels db if needed.
-				WriteDatabase(ServerInstance);
+				WriteDatabase();
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -134,7 +134,7 @@ class PermChannel : public ModeHandler
 				channel->SetMode('P',false);
 
 				// Save permchannels db if needed.
-				WriteDatabase(ServerInstance);
+				WriteDatabase();
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -253,7 +253,7 @@ public:
 	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		if (chan && chan->IsModeSet('P'))
-			WriteDatabase(ServerInstance);
+			WriteDatabase();
 
 		return MOD_RES_PASSTHRU;
 	}
@@ -261,7 +261,7 @@ public:
 	virtual void OnPostTopicChange(User*, Channel *c, const std::string&)
 	{
 		if (c->IsModeSet('P'))
-			WriteDatabase(ServerInstance);
+			WriteDatabase();
 	}
 
 	virtual Version GetVersion()

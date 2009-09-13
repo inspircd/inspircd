@@ -109,9 +109,9 @@ void User::StartDNSLookup()
 		UserResolver *res_reverse;
 
 		QueryType resolvtype = this->client_sa.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
-		res_reverse = new UserResolver(this->ServerInstance, this, sip, resolvtype, cached);
+		res_reverse = new UserResolver(ServerInstance, this, sip, resolvtype, cached);
 
-		this->ServerInstance->AddResolver(res_reverse, cached);
+		ServerInstance->AddResolver(res_reverse, cached);
 	}
 	catch (CoreException& e)
 	{
@@ -205,7 +205,7 @@ void User::DecrementModes()
 	}
 }
 
-User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
+User::User(InspIRCd* Instance, const std::string &uid)
 {
 	server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	age = ServerInstance->Time();
@@ -716,7 +716,7 @@ void User::FlushWriteBuf()
 			this->bytes_out += n_sent;
 			this->cmds_out++;
 			if (n_sent != old_sendq_length)
-				this->ServerInstance->SE->WantWrite(this);
+				ServerInstance->SE->WantWrite(this);
 		}
 	}
 
@@ -1219,7 +1219,7 @@ void User::Write(const std::string& text)
 		this->AddWriteBuf("\r\n");
 	}
 	ServerInstance->stats->statsSent += text.length() + 2;
-	this->ServerInstance->SE->WantWrite(this);
+	ServerInstance->SE->WantWrite(this);
 }
 
 /** Write()
@@ -1567,7 +1567,7 @@ void User::DoHostCycle(const std::string &quitline)
 		Channel* c = *v;
 		snprintf(buffer, MAXBUF, ":%s JOIN %s", GetFullHost().c_str(), c->name.c_str());
 		std::string joinline(buffer);
-		std::string modeline = this->ServerInstance->Modes->ModeString(this, c);
+		std::string modeline = ServerInstance->Modes->ModeString(this, c);
 		if (modeline.length() > 0)
 		{
 			snprintf(buffer, MAXBUF, ":%s MODE %s +%s", GetFullHost().c_str(), c->name.c_str(), modeline.c_str());

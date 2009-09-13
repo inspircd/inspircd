@@ -49,8 +49,6 @@
 /* +s (server notice masks) */
 #include "modes/umode_s.h"
 
-InspIRCd* ModeHandler::ServerInstance;
-
 ModeHandler::ModeHandler(Module* Creator, char modeletter, ParamSpec Params, ModeType type)
 	: mode(modeletter), parameters_taken(Params), list(false), m_type(type), m_paramtype(TR_TEXT),
 	oper(false), prefix(0), count(0), levelrequired(HALFOP_VALUE), creator(Creator)
@@ -941,9 +939,8 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	}
 }
 
-ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
+ModeParser::ModeParser(InspIRCd* Instance)
 {
-	ModeHandler::ServerInstance = Instance;
 	ModeHandler* modes[] =
 	{
 		new ModeChannelSecret(Instance),

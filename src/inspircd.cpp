@@ -43,7 +43,7 @@
 #include "caller.h"
 #include "testsuite.h"
 
-InspIRCd* SI = NULL;
+InspIRCd* ServerInstance = NULL;
 int* mysig = NULL;
 
 /** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
@@ -350,6 +350,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// Avoid erroneous frees on early exit
 	WindowsIPC = 0;
 #endif
+
+	ServerInstance = this;
 
 	Extensible::Register(&User::NICKForced);
 	Extensible::Register(&User::OperQuit);
@@ -888,9 +890,9 @@ void InspIRCd::SetSignal(int signal)
  */
 ENTRYPOINT
 {
-	SI = new InspIRCd(argc, argv);
-	mysig = &SI->s_signal;
-	SI->Run();
-	delete SI;
+	new InspIRCd(argc, argv);
+	mysig = &ServerInstance->s_signal;
+	ServerInstance->Run();
+	delete ServerInstance;
 	return 0;
 }

@@ -94,10 +94,6 @@ class CoreExport Channel : public Extensible
 	int maxbans;
 
  public:
-	/** Pointer to creator object
-	 */
-	InspIRCd* ServerInstance;
-
 	/** Creates a channel record and initialises it with default values
 	 * @throw Nothing at present.
 	 */

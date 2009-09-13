@@ -169,7 +169,7 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 	/* Display the join to everyone else (the user who joined got it earlier) */
 	channel->WriteAllExceptSender(user, false, 0, "JOIN %s", channel->name.c_str());
 
-	std::string n = this->ServerInstance->Modes->ModeString(user, channel);
+	std::string n = ServerInstance->Modes->ModeString(user, channel);
 	if (n.length() > 0)
 		channel->WriteAllExceptSender(user, false, 0, "MODE %s +%s", channel->name.c_str(), n.c_str());
 }
