@@ -123,14 +123,13 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 10);
 	}
 
-	virtual void On005Numeric(std::string &t)
+	void On005Numeric(std::string &t)
 	{
 		ServerInstance->AddExtBanChar('R');
-		ServerInstance->AddExtBanChar('M');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
-	virtual void OnWhois(User* source, User* dest)
+	void OnWhois(User* source, User* dest)
 	{
 		std::string *account = accountname.get(dest);
 
@@ -146,7 +145,7 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	virtual void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
 		if (user->IsModeSet('r') && assign(user->nick) != oldnick)
@@ -158,7 +157,7 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -182,16 +181,6 @@ class ModuleServicesAccount : public Module
 				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
 				return MOD_RES_DENY;
 			}
-
-			if (account)
-			{
-				if (c->GetExtBanStatus(*account, 'M') == MOD_RES_DENY)
-				{
-					// may not speak (text is deliberately vague, so they don't know which restriction to evade)
-					user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You may not speak in this channel");
-					return MOD_RES_DENY;
-				}
-			}
 		}
 		else if (target_type == TYPE_USER)
 		{
@@ -207,20 +196,23 @@ class ModuleServicesAccount : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckBan(User* user, Channel* chan)
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
-		std::string *account = accountname.get(user);
-		if (!account)
-			return MOD_RES_PASSTHRU;
-		return chan->GetExtBanStatus(*account, 'R');
+		if (mask[0] == 'R' && mask[1] == ':')
+		{
+			std::string *account = accountname.get(user);
+			if (account && InspIRCd::Match(*account, mask.substr(2)))
+				return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -256,7 +248,7 @@ class ModuleServicesAccount : public Module
 	// In our case we're only sending a single string around, so we just construct a std::string.
 	// Some modules will probably get much more complex and format more detailed structs and classes
 	// in a textual way for sending over the link.
-	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
+	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 	{
 		User* dest = dynamic_cast<User*>(target);
 		// check if its our metadata key, and its associated with a user
@@ -280,7 +272,7 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	virtual ~ModuleServicesAccount()
+	~ModuleServicesAccount()
 	{
 		ServerInstance->Modes->DelMode(&m1);
 		ServerInstance->Modes->DelMode(&m2);
@@ -289,7 +281,7 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modes->DelMode(&m5);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
 	}

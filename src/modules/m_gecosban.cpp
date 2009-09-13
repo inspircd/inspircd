@@ -25,21 +25,26 @@ class ModuleGecosBan : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleGecosBan()
+	~ModuleGecosBan()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON|VF_VENDOR, API_VERSION);
+		return Version("Extban 'r' - realname (gecos) ban", VF_COMMON|VF_VENDOR);
 	}
 
-	virtual ModResult OnCheckBan(User *user, Channel *c)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		return c->GetExtBanStatus(user->fullname, 'r');
+		if (mask[0] == 'r' && mask[1] == ':')
+		{
+			if (InspIRCd::Match(user->fullname, mask.substr(2)))
+				return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		ServerInstance->AddExtBanChar('r');
 	}

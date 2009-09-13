@@ -383,76 +383,64 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 bool Channel::IsBanned(User* user)
 {
 	ModResult result;
-	DO_EACH_HOOK(ServerInstance, OnCheckBan, ModResult modresult, (user, this))
-	{
-		result = result + modresult;
-	}
-	WHILE_EACH_HOOK(ServerInstance, OnCheckBan);
+	FIRST_MOD_RESULT(ServerInstance, OnCheckChannelBan, result, (user, this));
 
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
 
-	char mask[MAXBUF];
-	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
 	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 	{
-		if ((InspIRCd::Match(user->GetFullHost(),i->data, NULL)) || // host
-			(InspIRCd::Match(user->GetFullRealHost(),i->data, NULL)) || // uncloaked host
-			(InspIRCd::MatchCIDR(mask, i->data, NULL))) // ip
-		{
+		if (CheckBan(user, i->data))
 			return true;
-		}
 	}
 	return false;
 }
 
-ModResult Channel::GetExtBanStatus(const std::string &str, char type)
+bool Channel::CheckBan(User* user, const std::string& mask)
 {
 	ModResult result;
-	DO_EACH_HOOK(ServerInstance, OnCheckStringExtBan, ModResult modresult, (str, this, type))
-	{
-		result = result + modresult;
-	}
-	WHILE_EACH_HOOK(ServerInstance, OnCheckStringExtBan);
-
+	FIRST_MOD_RESULT(ServerInstance, OnCheckBan, result, (user, this, mask));
 	if (result != MOD_RES_PASSTHRU)
-		return result;
+		return (result == MOD_RES_DENY);
 
-	// nobody decided for us, check the ban list
-	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+	// extbans were handled above, if this is one it obviously didn't match
+	if (mask[1] == ':')
+		return false;
+
+	std::string::size_type at = mask.find('@');
+	if (at == std::string::npos)
+		return false;
+
+	char tomatch[MAXBUF];
+	snprintf(tomatch, MAXBUF, "%s!%s", user->nick.c_str(), user->ident.c_str());
+	std::string prefix = mask.substr(0, at);
+	if (InspIRCd::Match(tomatch, prefix, NULL))
 	{
-		if (i->data[0] != type || i->data[1] != ':')
-			continue;
-
-		std::string maskptr = i->data.substr(2);
-		ServerInstance->Logs->Log("EXTBANS", DEBUG, "Checking %s against %s, type is %c", str.c_str(), maskptr.c_str(), type);
-
-		if (InspIRCd::Match(str, maskptr, NULL))
-			return MOD_RES_DENY;
+		std::string suffix = mask.substr(at + 1);
+		if (InspIRCd::Match(user->host, suffix, NULL) ||
+			InspIRCd::Match(user->dhost, suffix, NULL) ||
+			InspIRCd::MatchCIDR(user->GetIPString(), suffix, NULL))
+			return true;
 	}
-
-	return MOD_RES_PASSTHRU;
+	return false;
 }
 
 ModResult Channel::GetExtBanStatus(User *user, char type)
 {
 	ModResult rv;
-	DO_EACH_HOOK(ServerInstance, OnCheckExtBan, ModResult modresult, (user, this, type))
-	{
-		rv = rv + modresult;
-	}
-	WHILE_EACH_HOOK(ServerInstance, OnCheckExtBan);
-
+	FIRST_MOD_RESULT(ServerInstance, OnExtBanCheck, rv, (user, this, type));
 	if (rv != MOD_RES_PASSTHRU)
 		return rv;
-
-	char mask[MAXBUF];
-	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->GetIPString());
-
-	rv = rv + this->GetExtBanStatus(mask, type);
-	rv = rv + this->GetExtBanStatus(user->GetFullHost(), type);
-	rv = rv + this->GetExtBanStatus(user->GetFullRealHost(), type);
-	return rv;
+	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+	{
+		if (i->data[0] == type && i->data[1] == ':')
+		{
+			std::string val = i->data.substr(2);
+			if (CheckBan(user, val))
+				return MOD_RES_DENY;
+		}
+	}
+	return MOD_RES_ALLOW;
 }
 
 /* Channel::PartUser

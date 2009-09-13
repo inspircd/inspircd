@@ -46,7 +46,6 @@ class OperChans : public ModeHandler
 
 class ModuleOperChans : public Module
 {
-
 	OperChans oc;
  public:
 	ModuleOperChans(InspIRCd* Me)
@@ -54,11 +53,10 @@ class ModuleOperChans : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&oc))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnCheckBan, I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(I_OnUserPreJoin, this);
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan && chan->IsModeSet('O') && !IS_OPER(user))
 		{
@@ -69,20 +67,12 @@ class ModuleOperChans : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckBan(User* user, Channel* chan)
-	{
-		if (IS_OPER(user))
-			return chan->GetExtBanStatus(user->oper, 'O');
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ~ModuleOperChans()
+	~ModuleOperChans()
 	{
 		ServerInstance->Modes->DelMode(&oc);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
 	}

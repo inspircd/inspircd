@@ -101,12 +101,15 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		BufferedSocketCertificateRequest req(user, this, user->GetIOHook());
-		req.Send();
-		if (req.cert)
-			return c->GetExtBanStatus(req.cert->GetFingerprint(), 'z');
+		if (mask[0] == 'z' && mask[1] == ':')
+		{
+			BufferedSocketCertificateRequest req(user, this, user->GetIOHook());
+			req.Send();
+			if (req.cert && InspIRCd::Match(req.cert->GetFingerprint(), mask.substr(2)))
+				return MOD_RES_DENY;
+		}
 		return MOD_RES_PASSTHRU;
 	}
 

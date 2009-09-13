@@ -47,17 +47,17 @@ public:
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
 		be.DoImplements(this);
-		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan };
-		Me->Modules->Attach(list, this, 6);
+		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
+		Me->Modules->Attach(list, this, 5);
 
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		output.append(" EXCEPTS=e");
 	}
 
-	virtual ModResult OnCheckExtBan(User *user, Channel *chan, char type)
+	ModResult OnExtBanCheck(User *user, Channel *chan, char type)
 	{
 		if (chan != NULL)
 		{
@@ -66,15 +66,12 @@ public:
 			if (!list)
 				return MOD_RES_PASSTHRU;
 
-			std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (it->mask[0] != type || it->mask[1] != ':')
 					continue;
 
-				std::string maskptr = it->mask.substr(2);
-
-				if (InspIRCd::Match(user->GetFullRealHost(), maskptr) || InspIRCd::Match(user->GetFullHost(), maskptr) || (InspIRCd::MatchCIDR(mask, maskptr)))
+				if (chan->CheckBan(user, it->mask.substr(2)))
 				{
 					// They match an entry on the list, so let them pass this.
 					return MOD_RES_ALLOW;
@@ -85,32 +82,9 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckStringExtBan(const std::string &str, Channel *chan, char type)
+	ModResult OnCheckChannelBan(User* user, Channel* chan)
 	{
-		if (chan != NULL)
-		{
-			modelist *list = be.extItem.get(chan);
-
-			if (!list)
-				return MOD_RES_PASSTHRU;
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
-			{
-				if (it->mask[0] != type || it->mask[1] != ':')
-					continue;
-
-				std::string maskptr = it->mask.substr(2);
-				if (InspIRCd::Match(str, maskptr))
-					// They match an entry on the list, so let them in.
-					return MOD_RES_ALLOW;
-			}
-		}
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ModResult OnCheckBan(User* user, Channel* chan)
-	{
-		if (chan != NULL)
+		if (chan)
 		{
 			modelist *list = be.extItem.get(chan);
 
@@ -120,10 +94,9 @@ public:
 				return MOD_RES_PASSTHRU;
 			}
 
-			std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				if (InspIRCd::Match(user->GetFullRealHost(), it->mask) || InspIRCd::Match(user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
+				if (chan->CheckBan(user, it->mask))
 				{
 					// They match an entry on the list, so let them in.
 					return MOD_RES_ALLOW;
@@ -133,32 +106,32 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
+	void OnCleanup(int target_type, void* item)
 	{
 		be.DoCleanup(target_type, item);
 	}
 
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		be.DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		be.DoRehash();
 	}
 
-	virtual const char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		return be.DoOnRequest(request);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
-	virtual ~ModuleBanException()
+	~ModuleBanException()
 	{
 		ServerInstance->Modes->DelMode(&be);
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);

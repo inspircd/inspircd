@@ -403,7 +403,7 @@ enum Implementation
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine, I_OnCleanup,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
-	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckExtBan, I_OnCheckStringExtBan,
+	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead,
@@ -1105,31 +1105,30 @@ class CoreExport Module : public Extensible
 	 */
 	virtual ModResult OnCheckLimit(User* user, Channel* chan);
 
-	/** Called whenever a user joins a channel, to determine if banlist checks should go ahead or not.
-	 * This method will always be called for each join, wether or not the user actually matches a channel ban, and
-	 * determines the outcome of an if statement around the whole section of ban checking code.
-	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
-	 * @param user The user joining the channel
-	 * @param chan The channel being joined
-	 * @return 1 to explicitly allow the join, 0 to proceed as normal. Return -1 to explicitly deny the
-	 * join to the channel.
+	/**
+	 * Checks for a user's ban from the channel
+	 * @param user The user to check
+	 * @param chan The channel to check in
+	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
+	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckBan(User* user, Channel* chan);
+	virtual ModResult OnCheckChannelBan(User* user, Channel* chan);
 
-	/* Called whenever checking whether or not a user is matched by an applicable extended bantype.
-	 * NOTE: may also trigger extra OnCheckStringExtBan events!
-	 * @param u The user to check
-	 * @param c The channel the user is on
-	 * @param type The type of extended ban to check for.
-	 * @returns 1 = exempt, 0 = no match, -1 = banned
+	/**
+	 * Checks for a user's match of a single ban
+	 * @param user The user to check for match
+	 * @param chan The channel on which the match is being checked
+	 * @param mask The mask being checked
+	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
+	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckExtBan(User *u, Channel *c, char type);
+	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask);
 
-	/** Called whenever checking whether or not a string is extbanned. NOTE: one OnCheckExtBan will also trigger a number of
-	 * OnCheckStringExtBan events for seperate host/IP comnbinations.
-	 * @returns 1 = exempt, 0 = no match, -1 = banned
+	/** Checks for a match on a given extban type
+	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
+	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckStringExtBan(const std::string &s, Channel *c, char type);
+	virtual ModResult OnExtBanCheck(User* user, Channel* chan, char type);
 
 	/** Called on all /STATS commands
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.

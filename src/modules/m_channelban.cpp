@@ -31,18 +31,37 @@ class ModuleBadChannelExtban : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Extban 'j' - channel status/join ban", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		ModResult rv;
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+		if (mask[0] == 'j' && mask[1] == ':')
 		{
-			rv = rv + c->GetExtBanStatus((*i)->name, 'j');
+			std::string rm = mask.substr(2);
+			char status = 0;
+			ModeHandler* mh = ServerInstance->Modes->FindPrefix(rm[0]);
+			if (mh)
+			{
+				rm = mask.substr(3);
+				status = mh->GetModeChar();
+			}
+			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+			{
+				if (InspIRCd::Match((**i).name, rm))
+				{
+					if (status)
+					{
+						Membership* memb = c->GetUser(user);
+						if (memb->hasMode(status))
+							return MOD_RES_DENY;
+					}
+					else
+						return MOD_RES_DENY;
+				}
+			}
 		}
-
-		return rv;
+		return MOD_RES_PASSTHRU;
 	}
 
 	void On005Numeric(std::string &output)

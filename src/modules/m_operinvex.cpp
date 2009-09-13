@@ -24,42 +24,27 @@ class ModuleOperInvex : public Module
  public:
 	ModuleOperInvex(InspIRCd* Me) : Module(Me)
 	{
-		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnCheckInvite };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleOperInvex()
+	~ModuleOperInvex()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON|VF_VENDOR, API_VERSION);
+		return Version("ExtBan 'O' - oper type ban", VF_COMMON|VF_VENDOR);
 	}
 
-	virtual ModResult OnCheckInvite(User *user, Channel *c)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		if (!IS_LOCAL(user) || !IS_OPER(user))
-			return MOD_RES_PASSTHRU;
-
-		Module* ExceptionModule = ServerInstance->Modules->Find("m_inviteexception.so");
-		if (ExceptionModule)
+		if (mask[0] == 'O' && mask[1] == ':')
 		{
-			if (ListModeRequest(this, ExceptionModule, user->oper, 'O', c).Send())
-			{
-				// Oper type is exempt
+			if (IS_OPER(user) && InspIRCd::Match(user->oper, mask.substr(2)))
 				return MOD_RES_DENY;
-			}
 		}
-
 		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ModResult OnCheckBan(User *user, Channel *c)
-	{
-		if (!IS_OPER(user))
-			return MOD_RES_PASSTHRU;
-		return c->GetExtBanStatus(user->oper, 'O');
 	}
 
 	virtual void On005Numeric(std::string &output)

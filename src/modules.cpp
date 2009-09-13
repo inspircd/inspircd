@@ -145,9 +145,9 @@ ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bo
 ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckBan(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckExtBan(User *, Channel *, char) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckStringExtBan(const std::string &s, Channel *c, char type) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckChannelBan(User*, Channel*) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnExtBanCheck(User*, Channel*, char) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserHost(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserGECOS(User*, const std::string&) { return MOD_RES_PASSTHRU; }

@@ -412,16 +412,13 @@ class CoreExport Channel : public Extensible
 	 */
 	bool IsBanned(User* user);
 
-	/** Check whether an extban of a given type matches
-	 * a given user for this channel.
-	 * @param u The user to match bans against
-	 * @param type The type of extban to check
+	/** Check a single ban for match
+	 */
+	bool CheckBan(User* user, const std::string& banmask);
+
+	/** Get the status of an "action" type extban
 	 */
 	ModResult GetExtBanStatus(User *u, char type);
-
-	/** Overloaded version to check whether a particular string is extbanned
-	 */
-	ModResult GetExtBanStatus(const std::string &str, char type);
 
 	/** Clears the cached max bans value
 	 */
