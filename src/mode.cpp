@@ -104,6 +104,11 @@ std::string ModeHandler::GetUserParameter(User* user)
 	return "";
 }
 
+ModResult ModeHandler::AccessCheck(User*, Channel*, std::string &, bool)
+{
+	return MOD_RES_PASSTHRU;
+}
+
 ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool)
 {
 	return MODEACTION_DENY;
@@ -270,21 +275,28 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	if (chan && !SkipACL && (MOD_RESULT != MOD_RES_ALLOW))
 	{
-		unsigned int neededrank = mh->GetLevelRequired();
-		/* Compare our rank on the channel against the rank of the required prefix,
-		 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
-		 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
-		 * first, so we don't need to iterate, we just look up the first instead.
-		 */
-		unsigned int ourrank = chan->GetPrefixValue(user);
-		if (ourrank < neededrank)
-		{
-			/* Bog off */
-			// TODO replace with a real search for the proper prefix
-			char needed = neededrank > HALFOP_VALUE ? '@' : '%';
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
-					user->nick.c_str(), chan->name.c_str(), needed, adding ? "" : "un", modechar);
+		MOD_RESULT = mh->AccessCheck(user, chan, parameter, adding);
+
+		if (MOD_RESULT == MOD_RES_DENY)
 			return MODEACTION_DENY;
+		if (MOD_RESULT == MOD_RES_PASSTHRU)
+		{
+			unsigned int neededrank = mh->GetLevelRequired();
+			/* Compare our rank on the channel against the rank of the required prefix,
+			 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
+			 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
+			 * first, so we don't need to iterate, we just look up the first instead.
+			 */
+			unsigned int ourrank = chan->GetPrefixValue(user);
+			if (ourrank < neededrank)
+			{
+				/* Bog off */
+				// TODO replace with a real search for the proper prefix
+				char needed = neededrank > HALFOP_VALUE ? '@' : '%';
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
+						user->nick.c_str(), chan->name.c_str(), needed, adding ? "" : "un", modechar);
+				return MODEACTION_DENY;
+			}
 		}
 	}
 

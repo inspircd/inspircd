@@ -231,6 +231,16 @@ class CoreExport ModeHandler : public classbase
 	virtual std::string GetUserParameter(User* useor);
 
 	/**
+	 * Called when a channel mode change access check for your mode occurs.
+	 * @param source Contains the user setting the mode.
+	 * @param channel contains the destination channel the modes are being set on.
+	 * @param parameter The parameter for your mode. This is modifiable.
+	 * @param adding This value is true when the mode is being set, or false when it is being unset.
+	 * @return allow, deny, or passthru to check against the required level
+	 */
+	virtual ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding);
+
+	/**
 	 * Called when a mode change for your mode occurs.
 	 * @param source Contains the user setting the mode.
 	 * @param dest For usermodes, contains the destination user the mode is being set on. For channelmodes, this is an undefined value.
@@ -312,7 +322,7 @@ class CoreExport ModeHandler : public classbase
 	 * @param channel The channel which the server wants to remove your mode from
 	 */
 	virtual void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
-	
+
 	inline unsigned int GetLevelRequired() const { return levelrequired; }
 };
 
