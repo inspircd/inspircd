@@ -12,6 +12,11 @@ sub gendep {
 	return $f2dep{$f} if exists $f2dep{$f};
 	$f2dep{$f} = '';
 	my %dep;
+	my $link = readlink $f;
+	if (defined $link) {
+		$link = "$basedir/$link" unless $link =~ m#^/#;
+		$dep{$link}++;
+	}
 	open my $in, '<', $f or die "Could not read $f";
 	while (<$in>) {
 		if (/^\s*#\s*include\s*"([^"]+)"/) {
