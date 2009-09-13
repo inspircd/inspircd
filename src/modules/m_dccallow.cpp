@@ -48,7 +48,7 @@ SimpleExtItem<dccallowlist>* ext;
 class CommandDccallow : public Command
 {
  public:
-	CommandDccallow(InspIRCd* Me, Module* parent) : Command(Me, parent, "DCCALLOW", 0, 0)
+	CommandDccallow(Module* parent) : Command(parent, "DCCALLOW", 0)
 	{
 		syntax = "{[+|-]<nick> <time>|HELP|LIST}";
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
@@ -240,7 +240,7 @@ class ModuleDCCAllow : public Module
  public:
 
 	ModuleDCCAllow(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		Conf = new ConfigReader(ServerInstance);
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);

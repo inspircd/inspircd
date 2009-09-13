@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_QUIT_H__
-#define __CMD_QUIT_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /QUIT. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandQuit : public Command
  public:
 	/** Constructor for quit.
 	 */
-	CommandQuit (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"QUIT",0,0,true) { syntax = "[<message>]"; }
+	CommandQuit ( Module* parent) : Command(parent,"QUIT",0,1) { works_before_reg = true; syntax = "[<message>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,10 +32,6 @@ class CommandQuit : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
-
 
 
 CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User *user)

@@ -13,17 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_SQUIT_H__
-#define __CMD_SQUIT_H__
-
-// include the common header files
-
-#include <string>
-#include <vector>
-#include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-
 /** Handle /SQUIT. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -34,7 +23,7 @@ class CommandSquit : public Command
  public:
 	/** Constructor for squit.
 	 */
-	CommandSquit (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"SQUIT","o",1) { syntax = "<servername> [<reason>]"; }
+	CommandSquit ( Module* parent) : Command(parent,"SQUIT",1,2) { flags_needed = 'o'; syntax = "<servername> [<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -43,8 +32,6 @@ class CommandSquit : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
 
 
 /*

@@ -408,7 +408,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config = new ServerConfig(this);
 	this->SNO = new SnomaskManager(this);
 	this->BanCache = new BanCacheManager(this);
-	this->Modules = new ModuleManager(this);
+	this->Modules = new ModuleManager();
 	this->stats = new serverstats();
 	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);

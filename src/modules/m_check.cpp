@@ -20,9 +20,9 @@
 class CommandCheck : public Command
 {
  public:
-	CommandCheck (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"CHECK", "o", 1)
+	CommandCheck(Module* parent) : Command(parent,"CHECK", 1)
 	{
-		syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
+		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
 	}
 
 	std::string timestring(time_t time)
@@ -198,7 +198,7 @@ class ModuleCheck : public Module
  private:
 	CommandCheck mycommand;
  public:
-	ModuleCheck(InspIRCd* Me) : Module(Me), mycommand(Me, this)
+	ModuleCheck(InspIRCd* Me) : Module(Me), mycommand(this)
 	{
 		ServerInstance->AddCommand(&mycommand);
 	}

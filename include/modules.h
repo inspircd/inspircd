@@ -434,7 +434,7 @@ class CoreExport Module : public Extensible
 	 * @param Me An instance of the InspIRCd class which will be saved into ServerInstance for your use
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
-	Module(InspIRCd* Me);
+	Module(InspIRCd* Me = ServerInstance);
 
 	/** Default destructor.
 	 * destroys a module class
@@ -1391,7 +1391,6 @@ class CoreExport Module : public Extensible
 class CoreExport ConfigReader : public classbase
 {
   protected:
-	InspIRCd* ServerInstance;
 	/** Error code
 	 */
 	long error;
@@ -1401,7 +1400,7 @@ class CoreExport ConfigReader : public classbase
 	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
 	 * as specified when running ./configure.
 	 */
-	ConfigReader(InspIRCd* Instance);
+	ConfigReader(InspIRCd* Instance = ServerInstance);
 	/** Default destructor.
 	 * This method destroys the ConfigReader class.
 	 */
@@ -1483,7 +1482,6 @@ class CoreExport ConfigReader : public classbase
  */
 class CoreExport FileReader : public classbase
 {
-	InspIRCd* ServerInstance;
 	/** The file contents
 	 */
 	file_cache fc;
@@ -1501,7 +1499,7 @@ class CoreExport FileReader : public classbase
 	 * This method does not load any file into memory, you must use the LoadFile method
 	 * after constructing the class this way.
 	 */
-	FileReader(InspIRCd* Instance);
+	FileReader(InspIRCd* Instance = ServerInstance);
 
 	/** Secondary constructor.
 	 * This method initialises the class with a file loaded into it ready for GetLine and
@@ -1587,10 +1585,6 @@ class CoreExport ModuleManager : public classbase
 	 */
 	int ModCount;
 
-	/** Our pointer to the main insp instance
-	 */
-	InspIRCd* Instance;
-
 	/** List of loaded modules and shared object/dll handles
 	 * keyed by module name
 	 */
@@ -1610,7 +1604,7 @@ class CoreExport ModuleManager : public classbase
 
 	/** Simple, bog-standard, boring constructor.
 	 */
-	ModuleManager(InspIRCd* Ins);
+	ModuleManager();
 
 	/** Destructor
 	 */

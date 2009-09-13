@@ -16,11 +16,12 @@
 
 WhoWasMaintainTimer * timer;
 
-CommandWhowas::CommandWhowas(InspIRCd* Instance, Module* parent) : Command(Instance,parent, "WHOWAS", 0, 1, false, 2)
+CommandWhowas::CommandWhowas( Module* parent) : Command(parent, "WHOWAS", 1)
 {
 	syntax = "<nick>{,<nick>}";
-	timer = new WhoWasMaintainTimer(Instance, 3600);
-	Instance->Timers->AddTimer(timer);
+	Penalty = 2;
+	timer = new WhoWasMaintainTimer(ServerInstance, 3600);
+	ServerInstance->Timers->AddTimer(timer);
 }
 
 CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
@@ -308,7 +309,7 @@ class ModuleWhoWas : public Module
 {
 	CommandWhowas cmd;
  public:
-	ModuleWhoWas(InspIRCd *Me) : Module(Me), cmd(Me, this)
+	ModuleWhoWas(InspIRCd *Me) : Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

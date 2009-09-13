@@ -24,9 +24,10 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h m_spanningtree/rsquit.h */
 
-CommandRSQuit::CommandRSQuit (InspIRCd* Instance, Module* Creator, SpanningTreeUtilities* Util)
-	: Command(Instance, Creator, "RSQUIT", "o", 1), Utils(Util)
+CommandRSQuit::CommandRSQuit (Module* Creator, SpanningTreeUtilities* Util)
+	: Command(Creator, "RSQUIT", 1), Utils(Util)
 {
+	flags_needed = 'o';
 	syntax = "<target-server-mask> [reason]";
 }
 

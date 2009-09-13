@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_SERVER_H__
-#define __CMD_SERVER_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /SERVER. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandServer : public Command
  public:
 	/** Constructor for server.
 	 */
-	CommandServer (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"SERVER",0,0,true) { }
+	CommandServer ( Module* parent) : Command(parent,"SERVER") { works_before_reg = true;}
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,11 +32,6 @@ class CommandServer : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
-
-
 
 CmdResult CommandServer::Handle (const std::vector<std::string>&, User *user)
 {

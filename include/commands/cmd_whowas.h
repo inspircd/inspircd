@@ -77,7 +77,7 @@ class CommandWhowas : public Command
 	std::string stats;
 
   public:
-	CommandWhowas(InspIRCd* Instance, Module* parent);
+	CommandWhowas(Module* parent);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

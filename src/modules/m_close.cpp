@@ -29,9 +29,9 @@ class CommandClose : public Command
 {
  public:
 	/* Command 'close', needs operator */
-	CommandClose (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"CLOSE", "o", 0)
+	CommandClose(Module* Creator) : Command(Creator,"CLOSE", 0)
 	{
-	}
+	flags_needed = 'o'; }
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
@@ -67,7 +67,7 @@ class ModuleClose : public Module
 	CommandClose cmd;
  public:
 	ModuleClose(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

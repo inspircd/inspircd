@@ -31,7 +31,7 @@ class CommandLinks : public Command
  public:
 	/** Constructor for links.
 	 */
-	CommandLinks (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"LINKS",0,0) { }
+	CommandLinks ( Module* parent) : Command(parent,"LINKS",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -13,25 +13,12 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_MAP_H__
-#define __CMD_MAP_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
-/** Handle /MAP. These command handlers can be reloaded by the core,
- * and handle basic RFC1459 commands. Commands within modules work
- * the same way, however, they can be fully unloaded, where these
- * may not.
- */
 class CommandMap : public Command
 {
  public:
 	/** Constructor for map.
 	 */
-	CommandMap (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"MAP",0,0,false,2) { }
+	CommandMap ( Module* parent) : Command(parent,"MAP",0,0) { Penalty=2; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,9 +27,6 @@ class CommandMap : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 /** Handle /MAP
  */

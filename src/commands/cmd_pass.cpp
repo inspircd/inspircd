@@ -13,17 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_PASS_H__
-#define __CMD_PASS_H__
-
-// include the common header files
-
-#include <string>
-#include <vector>
-#include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-
 /** Handle /PASS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -34,7 +23,7 @@ class CommandPass : public Command
  public:
 	/** Constructor for pass.
 	 */
-	CommandPass (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"PASS",0,1,true,0) { syntax = "<password>"; }
+	CommandPass ( Module* parent) : Command(parent,"PASS",1,1) { works_before_reg = true; Penalty = 0; syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -43,8 +32,6 @@ class CommandPass : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
 
 
 CmdResult CommandPass::Handle (const std::vector<std::string>& parameters, User *user)

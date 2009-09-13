@@ -31,7 +31,7 @@ class CommandWallops : public Command
  public:
 	/** Constructor for wallops.
 	 */
-	CommandWallops (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"WALLOPS","o",1,1) { syntax = "<any-text>"; }
+	CommandWallops ( Module* parent) : Command(parent,"WALLOPS",1,1) { flags_needed = 'o'; syntax = "<any-text>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

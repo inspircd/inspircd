@@ -152,9 +152,10 @@ class CommandAuthenticate : public Command
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	GenericCap& cap;
-	CommandAuthenticate (InspIRCd* Instance, Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, GenericCap& Cap)
-		: Command(Instance, Creator, "AUTHENTICATE", 0, 1, true), authExt(ext), cap(Cap)
+	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, GenericCap& Cap)
+		: Command(Creator, "AUTHENTICATE", 1), authExt(ext), cap(Cap)
 	{
+		works_before_reg = true;
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -182,8 +183,7 @@ class CommandSASL : public Command
 {
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
-	CommandSASL(InspIRCd* Instance, Module* Creator, SimpleExtItem<SaslAuthenticator>& ext)
-		: Command(Instance, Creator, "SASL", 0, 2), authExt(ext)
+	CommandSASL(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext) : Command(Creator, "SASL", 2), authExt(ext)
 	{
 		this->disabled = true; // should not be called by users
 	}
@@ -224,7 +224,7 @@ class ModuleSASL : public Module
 	CommandSASL sasl;
  public:
 	ModuleSASL(InspIRCd* Me)
-		: Module(Me), authExt("sasl_auth", this), cap(this, "sasl"), auth(Me, this, authExt, cap), sasl(Me, this, authExt)
+		: Module(Me), authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 5);

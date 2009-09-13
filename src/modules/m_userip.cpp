@@ -20,9 +20,9 @@
 class CommandUserip : public Command
 {
  public:
-	CommandUserip (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"USERIP", "o", 1)
+	CommandUserip(Module* Creator) : Command(Creator,"USERIP", 1)
 	{
-		syntax = "<nick>{,<nick>}";
+		flags_needed = 'o'; syntax = "<nick>{,<nick>}";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -58,7 +58,7 @@ class ModuleUserIP : public Module
 	CommandUserip cmd;
  public:
 	ModuleUserIP(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_On005Numeric };

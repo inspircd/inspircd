@@ -31,7 +31,7 @@ class CommandKick : public Command
  public:
 	/** Constructor for kick.
 	 */
-	CommandKick (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"KICK",0,2) { syntax = "<channel> <nick>{,<nick>} [<reason>]"; }
+	CommandKick ( Module* parent) : Command(parent,"KICK",0,2) { syntax = "<channel> <nick>{,<nick>} [<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

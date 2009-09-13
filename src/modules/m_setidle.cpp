@@ -20,9 +20,9 @@
 class CommandSetidle : public Command
 {
  public:
-	CommandSetidle (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SETIDLE", "o", 1)
+	CommandSetidle(Module* Creator) : Command(Creator,"SETIDLE", 1)
 	{
-		syntax = "<duration>";
+		flags_needed = 'o'; syntax = "<duration>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
@@ -51,7 +51,7 @@ class ModuleSetIdle : public Module
 	CommandSetidle cmd;
  public:
 	ModuleSetIdle(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

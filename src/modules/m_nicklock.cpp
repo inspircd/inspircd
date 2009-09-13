@@ -21,9 +21,10 @@ class CommandNicklock : public Command
 {
  public:
 	LocalIntExt& locked;
-	CommandNicklock (Module* Creator, LocalIntExt& ext) : Command(ServerInstance, Creator,"NICKLOCK", "o", 2),
+	CommandNicklock (Module* Creator, LocalIntExt& ext) : Command(Creator,"NICKLOCK", 2),
 		locked(ext)
 	{
+		flags_needed = 'o';
 		syntax = "<oldnick> <newnick>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -89,9 +90,10 @@ class CommandNickunlock : public Command
 {
  public:
 	LocalIntExt& locked;
-	CommandNickunlock (Module* Creator, LocalIntExt& ext) : Command(ServerInstance, Creator,"NICKUNLOCK", "o", 1),
+	CommandNickunlock (Module* Creator, LocalIntExt& ext) : Command(Creator,"NICKUNLOCK", 1),
 		locked(ext)
 	{
+		flags_needed = 'o';
 		syntax = "<locked-nick>";
 		TRANSLATE2(TR_NICK, TR_END);
 	}

@@ -20,9 +20,9 @@
 class CommandClones : public Command
 {
  public:
- 	CommandClones (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"CLONES", "o", 1)
+ 	CommandClones(Module* Creator) : Command(Creator,"CLONES", 1)
 	{
-		syntax = "<limit>";
+		flags_needed = 'o'; syntax = "<limit>";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -61,7 +61,7 @@ class ModuleClones : public Module
  private:
 	CommandClones cmd;
  public:
-	ModuleClones(InspIRCd* Me) : Module(Me), cmd(Me, this)
+	ModuleClones(InspIRCd* Me) : Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

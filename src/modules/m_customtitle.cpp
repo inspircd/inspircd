@@ -21,7 +21,7 @@ class CommandTitle : public Command
 {
  public:
 	StringExtItem ctitle;
-	CommandTitle (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"TITLE",0,2),
+	CommandTitle(Module* Creator) : Command(Creator,"TITLE", 2),
 		ctitle("ctitle", Creator)
 	{
 		syntax = "<user> <password>";
@@ -86,7 +86,7 @@ class ModuleCustomTitle : public Module
 	CommandTitle cmd;
 
  public:
-	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(Me, this)
+	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Extensible::Register(&cmd.ctitle);

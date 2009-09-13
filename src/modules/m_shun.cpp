@@ -87,9 +87,9 @@ class ShunFactory : public XLineFactory
 class CommandShun : public Command
 {
  public:
-	CommandShun(InspIRCd* Me, Module* Creator) : Command(Me, Creator, "SHUN", "o", 1, 3)
+	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)
 	{
-		this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
+		flags_needed = 'o'; this->syntax = "<nick!user@hostmask> [<shun-duration>] :<reason>";
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
@@ -187,7 +187,7 @@ class ModuleShun : public Module
 	bool affectopers;
 
  public:
-	ModuleShun(InspIRCd* Me) : Module(Me), cmd(Me, this), f(Me)
+	ModuleShun(InspIRCd* Me) : Module(Me), cmd(this), f(Me)
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->AddCommand(&cmd);

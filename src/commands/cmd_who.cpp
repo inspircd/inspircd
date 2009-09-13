@@ -37,7 +37,7 @@ class CommandWho : public Command
  public:
 	/** Constructor for who.
 	 */
-	CommandWho (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"WHO", 0, 1, false, 2) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]"; }
+	CommandWho ( Module* parent) : Command(parent,"WHO", 1) { Penalty = 2; syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]"; }
 	void SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd

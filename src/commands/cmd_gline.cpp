@@ -13,26 +13,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *      the file COPYING for details.
- *
- * ---------------------------------------------------
- */
-
-#ifndef __CMD_GLINE_H__
-#define __CMD_GLINE_H__
-
-// include the common header file
-
-#include "users.h"
-#include "channels.h"
 
 /** Handle /GLINE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
@@ -44,7 +24,7 @@ class CommandGline : public Command
  public:
 	/** Constructor for gline.
 	 */
-	CommandGline (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"GLINE","o",1,3,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
+	CommandGline (Module* parent) : Command(parent,"GLINE",1,3) { flags_needed = 'o'; Penalty = 0; syntax = "<ident@host> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -53,8 +33,6 @@ class CommandGline : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
 
 
 /** Handle /GLINE

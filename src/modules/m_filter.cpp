@@ -101,9 +101,10 @@ class CommandFilter : public Command
 {
 	FilterBase* Base;
  public:
-	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &ssource)
-		: Command(Me, reinterpret_cast<Module*>(f), "FILTER", "o", 1, 5), Base(f)
+	CommandFilter(FilterBase* f, const std::string &ssource)
+		: Command(reinterpret_cast<Module*>(f), "FILTER", 1, 5), Base(f)
 	{
+		flags_needed = 'o';
 		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
 	}
 	CmdResult Handle(const std::vector<std::string>&, User*);
@@ -241,7 +242,7 @@ bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	return true;
 }
 
-FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me), filtcommand(this, Me, source)
+FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me), filtcommand(this, source)
 {
 	Me->Modules->UseInterface("RegularExpression");
 	ServerInstance->AddCommand(&filtcommand);

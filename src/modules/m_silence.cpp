@@ -53,7 +53,7 @@ static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
 class CommandSVSSilence : public Command
 {
  public:
-	CommandSVSSilence(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SVSSILENCE", 0, 2)
+	CommandSVSSilence(Module* Creator) : Command(Creator,"SVSSILENCE", 2)
 	{
 		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
@@ -94,7 +94,7 @@ class CommandSilence : public Command
 	unsigned int& maxsilence;
  public:
 	SimpleExtItem<silencelist> ext;
-	CommandSilence (InspIRCd* Instance, Module* Creator, unsigned int &max) : Command(Instance, Creator, "SILENCE", 0, 0),
+	CommandSilence(Module* Creator, unsigned int &max) : Command(Creator, "SILENCE", 0),
 		maxsilence(max), ext("silence_list", Creator)
 	{
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
@@ -271,7 +271,7 @@ class ModuleSilence : public Module
  public:
 
 	ModuleSilence(InspIRCd* Me)
-		: Module(Me), maxsilence(32), cmdsilence(Me, this, maxsilence), cmdsvssilence(Me, this)
+		: Module(Me), maxsilence(32), cmdsilence(this, maxsilence), cmdsvssilence(this)
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmdsilence);

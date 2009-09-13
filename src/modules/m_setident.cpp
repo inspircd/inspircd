@@ -20,9 +20,9 @@
 class CommandSetident : public Command
 {
  public:
- CommandSetident (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SETIDENT", "o", 1)
+ CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)
 	{
-		syntax = "<new-ident>";
+		flags_needed = 'o'; syntax = "<new-ident>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
@@ -59,7 +59,7 @@ class ModuleSetIdent : public Module
 	CommandSetident cmd;
 
  public:
-	ModuleSetIdent(InspIRCd* Me) : Module(Me), cmd(Me, this)
+	ModuleSetIdent(InspIRCd* Me) : Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

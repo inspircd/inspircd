@@ -22,9 +22,9 @@ class CommandChghost : public Command
  private:
 	char* hostmap;
  public:
-	CommandChghost (InspIRCd* Instance, Module* Creator, char* hmap) : Command(Instance,Creator,"CHGHOST","o",2), hostmap(hmap)
+	CommandChghost(Module* Creator, char* hmap) : Command(Creator,"CHGHOST", 2), hostmap(hmap)
 	{
-		syntax = "<nick> <newhost>";
+		flags_needed = 'o'; syntax = "<nick> <newhost>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -86,8 +86,7 @@ class ModuleChgHost : public Module
 	CommandChghost cmd;
 	char hostmap[256];
  public:
-	ModuleChgHost(InspIRCd* Me)
-		: Module(Me), cmd(Me, this, hostmap)
+	ModuleChgHost(InspIRCd* Me) : cmd(this, hostmap)
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);

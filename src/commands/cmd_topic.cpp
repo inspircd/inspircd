@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_TOPIC_H__
-#define __CMD_TOPIC_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /TOPIC. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandTopic : public Command
  public:
 	/** Constructor for topic.
 	 */
-	CommandTopic (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"TOPIC",0,1,false,2) { syntax = "<channel> [<topic>]"; }
+	CommandTopic ( Module* parent) : Command(parent,"TOPIC",1, 2) { syntax = "<channel> [<topic>]"; Penalty = 2; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,10 +32,6 @@ class CommandTopic : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
-
 
 CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User *user)
 {

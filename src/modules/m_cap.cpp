@@ -36,9 +36,10 @@ class CommandCAP : public Command
 {
  public:
 	LocalIntExt reghold;
-	CommandCAP (InspIRCd* Instance, Module* mod) : Command(Instance, mod, "CAP", 0, 1, true),
+	CommandCAP (Module* mod) : Command(mod, "CAP", 1),
 		reghold("CAP_REGHOLD", mod)
 	{
+		works_before_reg = true;
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -68,7 +69,7 @@ class CommandCAP : public Command
 
 			reghold.set(user, 1);
 			Event event((char*) &Data, this->creator, "cap_req");
-			event.Send(this->ServerInstance);
+			event.Send(ServerInstance);
 
 			if (Data.ack.size() > 0)
 			{
@@ -96,7 +97,7 @@ class CommandCAP : public Command
 
 			reghold.set(user, 1);
 			Event event((char*) &Data, this->creator, subcommand == "LS" ? "cap_ls" : "cap_list");
-			event.Send(this->ServerInstance);
+			event.Send(ServerInstance);
 
 			std::string Result;
 			if (Data.wanted.size() > 0)
@@ -116,7 +117,7 @@ class CommandCAP : public Command
 
 			reghold.set(user, 1);
 			Event event((char*) &Data, this->creator, "cap_clear");
-			event.Send(this->ServerInstance);
+			event.Send(ServerInstance);
 
 			std::string Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
 			user->WriteServ("CAP * ACK :%s", Result.c_str());
@@ -135,7 +136,7 @@ class ModuleCAP : public Module
 	CommandCAP cmd;
  public:
 	ModuleCAP(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Extensible::Register(&cmd.reghold);

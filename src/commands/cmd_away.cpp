@@ -31,7 +31,7 @@ class CommandAway : public Command
  public:
 	/** Constructor for away.
 	 */
-	CommandAway (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"AWAY",0,0) { syntax = "[<message>]"; }
+	CommandAway ( Module* parent) : Command(parent,"AWAY",0,0) { syntax = "[<message>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

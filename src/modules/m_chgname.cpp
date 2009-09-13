@@ -20,9 +20,9 @@
 class CommandChgname : public Command
 {
  public:
-	CommandChgname (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"CHGNAME", "o", 2, 2)
+	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)
 	{
-		syntax = "<nick> <newname>";
+		flags_needed = 'o'; syntax = "<nick> <newname>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -72,7 +72,7 @@ class ModuleChgName : public Module
 	CommandChgname cmd;
 
 public:
-	ModuleChgName(InspIRCd* Me) : Module(Me), cmd(Me, this)
+	ModuleChgName(InspIRCd* Me) : Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

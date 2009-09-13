@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_USER_H__
-#define __CMD_USER_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /USER. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandUser : public Command
  public:
 	/** Constructor for user.
 	 */
-	CommandUser (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"USER",0,4,true,0) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
+	CommandUser ( Module* parent) : Command(parent,"USER",0,4) { works_before_reg = true; Penalty = 0; syntax = "<username> <localhost> <remotehost> <GECOS>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,9 +32,6 @@ class CommandUser : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 CmdResult CommandUser::Handle (const std::vector<std::string>& parameters, User *user)
 {

@@ -20,7 +20,7 @@ class CommandRConnect : public Command
 {
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
-        CommandRConnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
+        CommandRConnect (Module* Callback, SpanningTreeUtilities* Util);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 };
 

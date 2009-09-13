@@ -21,9 +21,9 @@ class CommandSwhois : public Command
 {
  public:
 	StringExtItem swhois;
-	CommandSwhois (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SWHOIS","o",2,2), swhois("swhois", Creator)
+	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois("swhois", Creator)
 	{
-		syntax = "<nick> :<swhois>";
+		flags_needed = 'o'; syntax = "<nick> :<swhois>";
 		Extensible::Register(&swhois);
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -75,7 +75,7 @@ class ModuleSWhois : public Module
 	CommandSwhois cmd;
 
  public:
-	ModuleSWhois(InspIRCd* Me) : Module(Me), cmd(Me, this)
+	ModuleSWhois(InspIRCd* Me) : Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostCommand };

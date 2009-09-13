@@ -72,7 +72,7 @@ class CommandSSLInfo : public Command
  public:
 	SSLCertExt CertExt;
 
-	CommandSSLInfo(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "SSLINFO", 0, 1), CertExt(Creator)
+	CommandSSLInfo(Module* Creator) : Command(Creator, "SSLINFO", 1), CertExt(Creator)
 	{
 		this->syntax = "<nick>";
 	}
@@ -117,7 +117,7 @@ class ModuleSSLInfo : public Module
 
  public:
 	ModuleSSLInfo(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 

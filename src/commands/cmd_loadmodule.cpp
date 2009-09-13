@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_LOADMODULE_H__
-#define __CMD_LOADMODULE_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /LOADMODULE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandLoadmodule : public Command
  public:
 	/** Constructor for loadmodule.
 	 */
-	CommandLoadmodule (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"LOADMODULE","o",1) { syntax = "<modulename>"; }
+	CommandLoadmodule ( Module* parent) : Command(parent,"LOADMODULE",1,1) { flags_needed='o'; syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,8 +32,6 @@ class CommandLoadmodule : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
 
 
 /** Handle /LOADMODULE

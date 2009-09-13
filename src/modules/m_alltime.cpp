@@ -18,9 +18,9 @@
 class CommandAlltime : public Command
 {
  public:
-	CommandAlltime(InspIRCd *Instance, Module* Creator) : Command(Instance, Creator, "ALLTIME", "o", 0)
+	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
 	{
-		syntax.clear();
+		flags_needed = 'o'; syntax.clear();
 		translation.push_back(TR_END);
 	}
 
@@ -50,7 +50,7 @@ class Modulealltime : public Module
 	CommandAlltime mycommand;
  public:
 	Modulealltime(InspIRCd *Me)
-		: Module(Me), mycommand(Me, this)
+		: Module(Me), mycommand(this)
 	{
 		ServerInstance->AddCommand(&mycommand);
 	}

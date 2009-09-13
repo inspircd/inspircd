@@ -73,6 +73,9 @@ typedef std::vector< KeyVal > KeyValList;
  */
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
+class InspIRCd;
+extern InspIRCd* ServerInstance;
+
 #include "inspircd_config.h"
 #include "inspircd_version.h"
 #include "extensible.h"
@@ -936,7 +939,6 @@ class CoreExport InspIRCd : public classbase
 	}
 };
 
-extern InspIRCd* ServerInstance;
 ENTRYPOINT;
 
 template<class Cmd>
@@ -944,9 +946,9 @@ class CommandModule : public Module
 {
 	Cmd cmd;
  public:
-	CommandModule(InspIRCd* me) : Module(me), cmd(me, this)
+	CommandModule(InspIRCd*) : cmd(this)
 	{
-		me->AddCommand(&cmd);
+		ServerInstance->AddCommand(&cmd);
 	}
 
 	Version GetVersion()

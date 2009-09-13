@@ -20,10 +20,9 @@
 class CommandSATopic : public Command
 {
  public:
-	CommandSATopic (InspIRCd* Instance, Module* Creator)
-		: Command(Instance,Creator,"SATOPIC", "o", 2, 2, false, 0)
+	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)
 	{
-		syntax = "<target> <topic>";
+		flags_needed = 'o'; Penalty = 0; syntax = "<target> <topic>";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -57,7 +56,7 @@ class ModuleSATopic : public Module
 	CommandSATopic cmd;
  public:
 	ModuleSATopic(InspIRCd* Me)
-	: Module(Me), cmd(Me, this)
+	: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

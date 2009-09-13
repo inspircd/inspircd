@@ -20,9 +20,9 @@
 class CommandSanick : public Command
 {
  public:
-	CommandSanick (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SANICK", "o", 2, false, 0)
+	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)
 	{
-		syntax = "<nick> <new-nick>";
+		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <new-nick>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -87,7 +87,7 @@ class ModuleSanick : public Module
 	CommandSanick cmd;
  public:
 	ModuleSanick(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

@@ -12,14 +12,7 @@
  */
 
 #include "inspircd.h"
-
-#ifndef __CMD_OPER_H__
-#define __CMD_OPER_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
+#include "hashcomp.h"
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
 
@@ -33,7 +26,7 @@ class CommandOper : public Command
  public:
 	/** Constructor for oper.
 	 */
-	CommandOper (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"OPER",0,2,false,2) { syntax = "<username> <password>"; }
+	CommandOper ( Module* parent) : Command(parent,"OPER",2,2) { syntax = "<username> <password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -42,10 +35,6 @@ class CommandOper : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
-#include "hashcomp.h"
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 {

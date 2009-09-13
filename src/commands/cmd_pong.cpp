@@ -13,15 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_PONG_H__
-#define __CMD_PONG_H__
-
-// include the common header files
-
-#include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-
 /** Handle /PONG. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -32,7 +23,7 @@ class CommandPong : public Command
  public:
 	/** Constructor for pong.
 	 */
-	CommandPong (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"PONG", 0, 1, false, 0) { syntax = "<ping-text>"; }
+	CommandPong ( Module* parent) : Command(parent,"PONG", 0, 1) { Penalty = 0; syntax = "<ping-text>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -41,9 +32,6 @@ class CommandPong : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 CmdResult CommandPong::Handle (const std::vector<std::string>&, User *user)
 {

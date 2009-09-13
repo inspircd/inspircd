@@ -27,9 +27,9 @@ class CommandJumpserver : public Command
 	std::string reason;
 	int port;
 
-	CommandJumpserver (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "JUMPSERVER", "o", 0, 4)
+	CommandJumpserver(Module* Creator) : Command(Creator, "JUMPSERVER", 0, 4)
 	{
-		syntax = "[<server> <port> <+/-an> <reason>]";
+		flags_needed = 'o'; syntax = "[<server> <port> <+/-an> <reason>]";
 		redirect_to.clear();
 		reason.clear();
 		port = 0;
@@ -135,8 +135,7 @@ class ModuleJumpServer : public Module
 {
 	CommandJumpserver js;
  public:
-	ModuleJumpServer(InspIRCd* Me)
-		: Module(Me), js(Me, this)
+	ModuleJumpServer(InspIRCd* Me) : js(this)
 	{
 		ServerInstance->AddCommand(&js);
 		Implementation eventlist[] = { I_OnUserRegister };

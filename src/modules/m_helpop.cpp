@@ -55,7 +55,7 @@ class Helpop : public ModeHandler
 class CommandHelpop : public Command
 {
  public:
-	CommandHelpop (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "HELPOP", 0, 0)
+	CommandHelpop(Module* Creator) : Command(Creator, "HELPOP", 0)
 	{
 		syntax = "<any-text>";
 	}
@@ -121,7 +121,7 @@ class ModuleHelpop : public Module
 
 	public:
 		ModuleHelpop(InspIRCd* Me)
-			: Module(Me), cmd(Me, this), ho(Me, this)
+			: Module(Me), cmd(this), ho(Me, this)
 		{
 			ReadConfig();
 			if (!ServerInstance->Modes->AddMode(&ho))

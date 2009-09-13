@@ -34,7 +34,7 @@ class CommandRules : public Command
  public:
 	/** Constructor for rules.
 	 */
-	CommandRules (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"RULES",0,0) { syntax = "[<servername>]"; }
+	CommandRules ( Module* parent) : Command(parent,"RULES",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

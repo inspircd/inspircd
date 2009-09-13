@@ -18,7 +18,7 @@ class CommandReloadmodule : public Command
  public:
 	/** Constructor for reloadmodule.
 	 */
-	CommandReloadmodule (InspIRCd* Instance, Module* parent) : Command(Instance, parent, "RELOADMODULE","o",1) { syntax = "<modulename>"; }
+	CommandReloadmodule ( Module* parent) : Command( parent, "RELOADMODULE",1) { flags_needed = 'o'; syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -30,6 +30,13 @@ class CommandReloadmodule : public Command
 
 CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameters, User *user)
 {
+	if (parameters[0] == "cmd_reloadmodule.so")
+	{
+		user->WriteNumeric(975, "%s %s :You cannot reload cmd_reloadmodule.so (unload and load it)",
+			user->nick.c_str(), parameters[0].c_str());
+		return CMD_FAILURE;
+	}
+
 	if (ServerInstance->Modules->Unload(parameters[0].c_str()))
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "RELOAD MODULE: %s unloaded %s",user->nick.c_str(), parameters[0].c_str());

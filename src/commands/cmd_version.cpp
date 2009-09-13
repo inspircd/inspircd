@@ -31,7 +31,7 @@ class CommandVersion : public Command
  public:
 	/** Constructor for version.
 	 */
-	CommandVersion (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"VERSION",0,0) { syntax = "[<servername>]"; }
+	CommandVersion ( Module* parent) : Command(parent,"VERSION",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

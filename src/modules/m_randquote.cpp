@@ -26,7 +26,7 @@ std::string suffix;
 class CommandRandquote : public Command
 {
  public:
-	CommandRandquote (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"RANDQUOTE", 0, 0)
+	CommandRandquote(Module* Creator) : Command(Creator,"RANDQUOTE", 0)
 	{
 	}
 
@@ -58,7 +58,7 @@ class ModuleRandQuote : public Module
 	ConfigReader *conf;
  public:
 	ModuleRandQuote(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 
 		conf = new ConfigReader(ServerInstance);

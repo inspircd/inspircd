@@ -13,38 +13,14 @@
 
 #include "inspircd.h"
 #include "xline.h"
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *      the file COPYING for details.
- *
- * ---------------------------------------------------
- */
 
-#ifndef __CMD_QLINE_H__
-#define __CMD_QLINE_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
-/** Handle /QLINE. These command handlers can be reloaded by the core,
- * and handle basic RFC1459 commands. Commands within modules work
- * the same way, however, they can be fully unloaded, where these
- * may not.
- */
+/** Handle /QLINE.  */
 class CommandQline : public Command
 {
  public:
 	/** Constructor for qline.
 	 */
-	CommandQline (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"QLINE","o",1,3,false,0) { syntax = "<nick> [<duration> :<reason>]"; }
+	CommandQline ( Module* parent) : Command(parent,"QLINE",1,3) { flags_needed = 'o'; Penalty = 0; syntax = "<nick> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -53,10 +29,6 @@ class CommandQline : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
-
 
 
 CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User *user)

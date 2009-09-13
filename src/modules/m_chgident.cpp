@@ -20,9 +20,9 @@
 class CommandChgident : public Command
 {
  public:
-	CommandChgident (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"CHGIDENT", "o", 2)
+	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)
 	{
-		syntax = "<nick> <newident>";
+		flags_needed = 'o'; syntax = "<nick> <newident>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -80,7 +80,7 @@ class ModuleChgIdent : public Module
 	CommandChgident cmd;
 
 public:
-	ModuleChgIdent(InspIRCd* Me) : Module(Me), cmd(Me, this)
+	ModuleChgIdent(InspIRCd* Me) : Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

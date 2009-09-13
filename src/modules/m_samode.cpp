@@ -21,9 +21,9 @@ class CommandSamode : public Command
 {
  public:
 	bool active;
-	CommandSamode (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SAMODE", "o", 2, false, 0)
+	CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2)
 	{
-		syntax = "<target> <modes> {<mode-parameters>}";
+		flags_needed = 'o'; Penalty = 0; syntax = "<target> <modes> {<mode-parameters>}";
 		active = false;
 	}
 
@@ -43,7 +43,7 @@ class ModuleSaMode : public Module
 	CommandSamode cmd;
  public:
 	ModuleSaMode(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Modules->Attach(I_OnPreMode, this);

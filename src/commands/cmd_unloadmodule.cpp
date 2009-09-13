@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_UNLOADMODULE_H__
-#define __CMD_UNLOADMODULE_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /UNLOADMODULE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandUnloadmodule : public Command
  public:
 	/** Constructor for unloadmodule.
 	 */
-	CommandUnloadmodule (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"UNLOADMODULE","o",1) { syntax = "<modulename>"; }
+	CommandUnloadmodule ( Module* parent) : Command(parent,"UNLOADMODULE",1) { flags_needed = 'o'; syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -41,13 +33,14 @@ class CommandUnloadmodule : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
-#endif
-
-
-
-
 CmdResult CommandUnloadmodule::Handle (const std::vector<std::string>& parameters, User *user)
 {
+	if (parameters[0] == "cmd_unloadmodule.so" || parameters[0] == "cmd_loadmodule.so")
+	{
+		user->WriteNumeric(972, "%s %s :You cannot unload module loading commands!", user->nick.c_str(), parameters[0].c_str());
+		return CMD_FAILURE;
+	}
+		
 	if (ServerInstance->Modules->Unload(parameters[0].c_str()))
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());

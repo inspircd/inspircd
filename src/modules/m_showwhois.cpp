@@ -20,7 +20,7 @@
 class SeeWhois : public ModeHandler
 {
  public:
-	SeeWhois(InspIRCd* Instance, Module* Creator, bool IsOpersOnly) : ModeHandler(Creator, 'W', PARAM_NONE, MODETYPE_USER)
+	SeeWhois(Module* Creator, bool IsOpersOnly) : ModeHandler(Creator, 'W', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = IsOpersOnly;
 	}
@@ -51,7 +51,7 @@ class SeeWhois : public ModeHandler
 class WhoisNoticeCmd : public Command
 {
  public:
-	WhoisNoticeCmd(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"WHOISNOTICE", 0, 1)
+	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 1)
 	{
 	}
 
@@ -81,13 +81,13 @@ class ModuleShowwhois : public Module
 
  public:
 
-	ModuleShowwhois(InspIRCd* Me) : Module(Me), cmd(Me, this)
+	ModuleShowwhois(InspIRCd* Me) : cmd(this)
 	{
 		ConfigReader conf(ServerInstance);
 		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", "yes", 0);
 		ShowWhoisFromOpers = conf.ReadFlag("showwhois", "showfromopers", "yes", 0);
 
-		sw = new SeeWhois(ServerInstance, this, OpersOnly);
+		sw = new SeeWhois(this, OpersOnly);
 		if (!ServerInstance->Modes->AddMode(sw))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->AddCommand(&cmd);

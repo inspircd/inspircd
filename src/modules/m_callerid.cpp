@@ -136,7 +136,7 @@ class CommandAccept : public Command
 public:
 	CallerIDExtInfo extInfo;
 	unsigned int maxaccepts;
-	CommandAccept(InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "ACCEPT", 0, 1),
+	CommandAccept(Module* Creator) : Command(Creator, "ACCEPT", 1),
 		extInfo(Creator)
 	{
 		syntax = "{[+|-]<nicks>}|*}";
@@ -342,7 +342,7 @@ private:
 	}
 
 public:
-	ModuleCallerID(InspIRCd* Me) : Module(Me), cmd(Me, this), myumode(Me, this)
+	ModuleCallerID(InspIRCd* Me) : Module(Me), cmd(this), myumode(Me, this)
 	{
 		OnRehash(NULL);
 

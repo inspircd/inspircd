@@ -44,7 +44,7 @@ class CommandEline : public Command
  public:
 	/** Constructor for eline.
 	 */
-	CommandEline (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"ELINE","o",1,3,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
+	CommandEline ( Module* parent) : Command(parent,"ELINE",1,3) { flags_needed = 'o'; syntax = "<ident@host> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -31,7 +31,7 @@ class CommandNames : public Command
  public:
 	/** Constructor for names.
 	 */
-	CommandNames (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
+	CommandNames ( Module* parent) : Command(parent,"NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -25,10 +25,9 @@ class CommandLockserv : public Command
 {
 	bool& locked;
 public:
-	CommandLockserv (InspIRCd* Instance, Module* Creator, bool& lock)
-		: Command(Instance, Creator, "LOCKSERV", "o", 0), locked(lock)
+	CommandLockserv(Module* Creator, bool& lock) : Command(Creator, "LOCKSERV", 0), locked(lock)
 	{
-		syntax.clear();
+		flags_needed = 'o'; syntax.clear();
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -47,10 +46,9 @@ private:
 	bool& locked;
 
 public:
-	CommandUnlockserv (InspIRCd* Instance, Module* Creator, bool &lock)
-		: Command(Instance, Creator, "UNLOCKSERV", "o", 0), locked(lock)
+	CommandUnlockserv(Module* Creator, bool &lock) : Command(Creator, "UNLOCKSERV", 0), locked(lock)
 	{
-		syntax.clear();
+		flags_needed = 'o'; syntax.clear();
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -76,7 +74,7 @@ private:
 	}
 
 public:
-	ModuleLockserv(InspIRCd* Me) : Module(Me), lockcommand(Me, this, locked), unlockcommand(Me, this, locked)
+	ModuleLockserv(InspIRCd* Me) : lockcommand(this, locked), unlockcommand(this, locked)
 	{
 		ResetLocked();
 		ServerInstance->AddCommand(&lockcommand);

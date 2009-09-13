@@ -20,7 +20,7 @@
 class CommandSetname : public Command
 {
  public:
-	CommandSetname (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"SETNAME", 0, 1, 1)
+	CommandSetname(Module* Creator) : Command(Creator,"SETNAME", 1, 1)
 	{
 		syntax = "<new-gecos>";
 		TRANSLATE2(TR_TEXT, TR_END);
@@ -56,7 +56,7 @@ class ModuleSetName : public Module
 	CommandSetname cmd;
  public:
 	ModuleSetName(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

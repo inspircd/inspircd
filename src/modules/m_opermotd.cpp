@@ -43,9 +43,9 @@ CmdResult ShowOperMOTD(User* user)
 class CommandOpermotd : public Command
 {
  public:
-	CommandOpermotd (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"OPERMOTD", "o", 0)
+	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0)
 	{
-		syntax = "[<servername>]";
+		flags_needed = 'o'; syntax = "[<servername>]";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User* user)
@@ -77,7 +77,7 @@ class ModuleOpermotd : public Module
 	}
 
 	ModuleOpermotd(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		opermotd = NULL;
 		ServerInstance->AddCommand(&cmd);

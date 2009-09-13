@@ -31,7 +31,7 @@ class CommandInfo : public Command
  public:
 	/** Constructor for info.
 	 */
-	CommandInfo (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"INFO",0,0) { syntax = "[<servermask>]"; }
+	CommandInfo ( Module* parent) : Command(parent,"INFO",0,0) { syntax = "[<servermask>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

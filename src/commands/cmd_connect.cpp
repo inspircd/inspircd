@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_CONNECT_H__
-#define __CMD_CONNECT_H__
-
-#include "users.h"
-#include "channels.h"
-#include "ctables.h"
-#include "modules.h"
-
 /** Handle /CONNECT. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandConnect : public Command
  public:
 	/** Constructor for connect.
 	 */
-	CommandConnect (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"CONNECT","o",1,false,0) { syntax = "<servername> [<remote-server>]"; }
+	CommandConnect ( Module* parent) : Command(parent,"CONNECT",1) { flags_needed = 'o'; syntax = "<servername> [<remote-server>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,9 +32,6 @@ class CommandConnect : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 /*
  * This is handled by the server linking module, if necessary. Do not remove this stub.

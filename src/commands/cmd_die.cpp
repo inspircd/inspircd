@@ -31,7 +31,7 @@ class CommandDie : public Command
  public:
 	/** Constructor for die.
 	 */
-	CommandDie (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"DIE","o",1,false,0) { syntax = "<password>"; }
+	CommandDie ( Module* parent) : Command(parent,"DIE",1) { flags_needed = 'o'; syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_PART_H__
-#define __CMD_PART_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /PART. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -31,7 +23,7 @@ class CommandPart : public Command
  public:
 	/** Constructor for part.
 	 */
-	CommandPart (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"PART", 0, 1, false, 5) { syntax = "<channel>{,<channel>} [<reason>]"; }
+	CommandPart (Module* parent) : Command(parent,"PART", 1, 2) { Penalty = 5; syntax = "<channel>{,<channel>} [<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -40,9 +32,6 @@ class CommandPart : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User *user)
 {

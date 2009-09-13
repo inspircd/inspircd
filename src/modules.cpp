@@ -200,7 +200,7 @@ void		Module::OnHookIO(EventHandler*, ListenSocketBase*) { }
 ModResult	Module::OnHostCycle(User*) { return MOD_RES_PASSTHRU; }
 void		Module::OnSendWhoLine(User*, User*, Channel*, std::string&) { }
 
-ModuleManager::ModuleManager(InspIRCd* Ins) : ModCount(0), Instance(Ins)
+ModuleManager::ModuleManager() : ModCount(0)
 {
 }
 
@@ -379,7 +379,7 @@ bool ModuleManager::Load(const char* filename)
 	if (strchr(filename,'*') || (strchr(filename,'?')))
 	{
 		int n_match = 0;
-		DIR* library = opendir(Instance->Config->ModPath.c_str());
+		DIR* library = opendir(ServerInstance->Config->ModPath.c_str());
 		if (library)
 		{
 			/* Try and locate and load all modules matching the pattern */
@@ -402,20 +402,20 @@ bool ModuleManager::Load(const char* filename)
 	}
 
 	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",Instance->Config->ModPath.c_str(),filename);
+	snprintf(modfile,MAXBUF,"%s/%s",ServerInstance->Config->ModPath.c_str(),filename);
 	std::string filename_str = filename;
 
 	if (!ServerConfig::FileExists(modfile))
 	{
 		LastModuleError = "Module file could not be found: " + filename_str;
-		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 
 	if (Modules.find(filename_str) != Modules.end())
 	{
 		LastModuleError = "Module " + filename_str + " is already loaded, cannot load a module twice!";
-		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 
@@ -427,7 +427,7 @@ bool ModuleManager::Load(const char* filename)
 		/* This will throw a CoreException if there's a problem loading
 		 * the module file or getting a pointer to the init_module symbol.
 		 */
-		newhandle = new ircd_module(Instance, modfile, "init_module");
+		newhandle = new ircd_module(ServerInstance, modfile, "init_module");
 		newmod = newhandle->CallInit();
 
 		if (newmod)
@@ -441,12 +441,12 @@ bool ModuleManager::Load(const char* filename)
 				delete newmod;
 				delete newhandle;
 				LastModuleError = "Unable to load " + filename_str + ": Incorrect module API version: " + ConvToStr(v.API) + " (our version: " + ConvToStr(API_VERSION) + ")";
-				Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+				ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 				return false;
 			}
 			else
 			{
-				Instance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (API version %d, Module version %s)%s", filename, v.API, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (API version %d, Module version %s)%s", filename, v.API, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 
 			Modules[filename_str] = std::make_pair(newhandle, newmod);
@@ -455,7 +455,7 @@ bool ModuleManager::Load(const char* filename)
 		{
 			delete newhandle;
 			LastModuleError = "Unable to load " + filename_str + ": Probably missing init_module() entrypoint, but dlsym() didn't notice a problem";
-			Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			return false;
 		}
 	}
@@ -468,7 +468,7 @@ bool ModuleManager::Load(const char* filename)
 		if (newhandle)
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": Error when loading: " + modexcept.GetReason();
-		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (FindSymbolException& modexcept)
@@ -479,7 +479,7 @@ bool ModuleManager::Load(const char* filename)
 		if (newhandle)
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": Error finding symbol: " + modexcept.GetReason();
-		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 	catch (CoreException& modexcept)
@@ -490,12 +490,12 @@ bool ModuleManager::Load(const char* filename)
 		if (newhandle)
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
-		Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 
 	this->ModCount++;
-	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(newmod, filename_str));
+	FOREACH_MOD_I(ServerInstance,I_OnLoadModule,OnLoadModule(newmod, filename_str));
 
 	/* We give every module a chance to re-prioritize when we introduce a new one,
 	 * not just the one thats loading, as the new module could affect the preference
@@ -510,10 +510,10 @@ bool ModuleManager::Load(const char* filename)
 		if (prioritizationState == PRIO_STATE_LAST)
 			break;
 		if (tries == 19)
-			Instance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename_str);
+			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename_str);
 	}
 
-	Instance->BuildISupport();
+	ServerInstance->BuildISupport();
 	return true;
 }
 
@@ -527,50 +527,50 @@ bool ModuleManager::Unload(const char* filename)
 		if (modfind->second.second->GetVersion().Flags & VF_STATIC)
 		{
 			LastModuleError = "Module " + filename_str + " not unloadable (marked static)";
-			Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			return false;
 		}
 		std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modfind->second.second);
 		if (intercount.first > 0)
 		{
 			LastModuleError = "Failed to unload module " + filename_str + ", being used by " + ConvToStr(intercount.first) + " other(s) via interface '" + intercount.second + "'";
-			Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			return false;
 		}
 
 		/* Give the module a chance to tidy out all its metadata */
-		for (chan_hash::iterator c = Instance->chanlist->begin(); c != Instance->chanlist->end(); c++)
+		for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 		{
 			modfind->second.second->OnCleanup(TYPE_CHANNEL,c->second);
 		}
-		for (user_hash::iterator u = Instance->Users->clientlist->begin(); u != Instance->Users->clientlist->end(); u++)
+		for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			modfind->second.second->OnCleanup(TYPE_USER,u->second);
 		}
 
 		/* Tidy up any dangling resolvers */
-		Instance->Res->CleanResolvers(modfind->second.second);
+		ServerInstance->Res->CleanResolvers(modfind->second.second);
 
 
-		FOREACH_MOD_I(Instance,I_OnUnloadModule,OnUnloadModule(modfind->second.second, modfind->first));
+		FOREACH_MOD_I(ServerInstance,I_OnUnloadModule,OnUnloadModule(modfind->second.second, modfind->first));
 
 		this->DetachAll(modfind->second.second);
 
-		Instance->Parser->RemoveCommands(modfind->second.second);
+		ServerInstance->Parser->RemoveCommands(modfind->second.second);
 		Extensible::UnRegister(modfind->second.second);
 
 		delete modfind->second.second;
 		delete modfind->second.first;
 		Modules.erase(modfind);
 
-		Instance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",filename);
+		ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",filename);
 		this->ModCount--;
-		Instance->BuildISupport();
+		ServerInstance->BuildISupport();
 		return true;
 	}
 
 	LastModuleError = "Module " + filename_str + " is not loaded, cannot unload it!";
-	Instance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+	ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 	return false;
 }
 
@@ -583,7 +583,7 @@ void ModuleManager::LoadAll()
 	printf("\nLoading core commands");
 	fflush(stdout);
 
-	DIR* library = opendir(Instance->Config->ModPath.c_str());
+	DIR* library = opendir(ServerInstance->Config->ModPath.c_str());
 	if (library)
 	{
 		dirent* entry = NULL;
@@ -596,9 +596,9 @@ void ModuleManager::LoadAll()
 
 				if (!Load(entry->d_name))
 				{
-					Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
+					ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
 					printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
-					Instance->Exit(EXIT_STATUS_MODULE);
+					ServerInstance->Exit(EXIT_STATUS_MODULE);
 				}
 			}
 		}
@@ -606,16 +606,16 @@ void ModuleManager::LoadAll()
 		printf("\n");
 	}
 
-	for(int count = 0; count < Instance->Config->ConfValueEnum("module"); count++)
+	for(int count = 0; count < ServerInstance->Config->ConfValueEnum("module"); count++)
 	{
-		Instance->Config->ConfValue("module", "name", count, configToken, MAXBUF);
+		ServerInstance->Config->ConfValue("module", "name", count, configToken, MAXBUF);
 		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
 
 		if (!this->Load(configToken))
 		{
-			Instance->Logs->Log("MODULE", DEFAULT, this->LastError());
+			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
 			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
-			Instance->Exit(EXIT_STATUS_MODULE);
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
 }
@@ -874,7 +874,7 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 	return retval;
 }
 
-ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
+ConfigReader::ConfigReader(InspIRCd* Instance)
 {
 	this->error = 0;
 }
@@ -954,12 +954,12 @@ int ConfigReader::EnumerateValues(const std::string &tag, int index)
 	return ServerInstance->Config->ConfVarEnum(tag, index);
 }
 
-FileReader::FileReader(InspIRCd* Instance, const std::string &filename) : ServerInstance(Instance)
+FileReader::FileReader(InspIRCd* Instance, const std::string &filename)
 {
 	LoadFile(filename);
 }
 
-FileReader::FileReader(InspIRCd* Instance) : ServerInstance(Instance)
+FileReader::FileReader(InspIRCd* Instance)
 {
 }
 

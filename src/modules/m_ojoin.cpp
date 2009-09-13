@@ -43,9 +43,9 @@ class CommandOjoin : public Command
 {
  public:
 	bool active;
-	CommandOjoin (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"OJOIN", "o", 1, false, 0)
+	CommandOjoin(Module* parent) : Command(parent,"OJOIN", 1)
 	{
-		syntax = "<channel>";
+		flags_needed = 'o'; Penalty = 0; syntax = "<channel>";
 		active = false;
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
@@ -236,7 +236,7 @@ class ModuleOjoin : public Module
  public:
 
 	ModuleOjoin(InspIRCd* Me)
-		: Module(Me), np(NULL), mycommand(Me, this)
+		: Module(Me), np(NULL), mycommand(this)
 	{
 		/* Load config stuff */
 		OnRehash(NULL);

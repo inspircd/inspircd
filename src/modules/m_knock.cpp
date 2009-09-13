@@ -20,7 +20,7 @@
 class CommandKnock : public Command
 {
  public:
-	CommandKnock (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"KNOCK", 0, 2)
+	CommandKnock(Module* Creator) : Command(Creator,"KNOCK", 2)
 	{
 		syntax = "<channel> <reason>";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
@@ -85,7 +85,7 @@ class ModuleKnock : public Module
 	CommandKnock cmd;
 	Knock kn;
  public:
-	ModuleKnock(InspIRCd* Me) : Module(Me), cmd(Me, this), kn(Me, this)
+	ModuleKnock(InspIRCd* Me) : Module(Me), cmd(this), kn(Me, this)
 	{
 		if (!ServerInstance->Modes->AddMode(&kn))
 			throw ModuleException("Could not add new modes!");

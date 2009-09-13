@@ -20,7 +20,7 @@ class CommandRSQuit : public Command
 {
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
-        CommandRSQuit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
+        CommandRSQuit (Module* Callback, SpanningTreeUtilities* Util);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
         void NoticeUser(User* user, const std::string &msg);
 };

@@ -84,17 +84,13 @@ struct RouteDescriptor
  */
 class CoreExport Command : public Extensible
 {
- protected:
-	/** Owner/Creator object
-	 */
-	InspIRCd* ServerInstance;
  public:
 	/** Command name
 	*/
 	std::string command;
 
-	/** Creator module, NULL for core commands */
-	Module* creator;
+	/** Creator module - never NULL */
+	Module* const creator;
 
 	/** User flags needed to execute the command or 0
 	 */
@@ -138,7 +134,7 @@ class CoreExport Command : public Extensible
 
 	/** How many seconds worth of penalty does this command have?
 	 */
-	const int Penalty;
+	int Penalty;
 
 	/** Create a new command.
 	 * @param Instance Pointer to creator class
@@ -151,20 +147,10 @@ class CoreExport Command : public Extensible
 	 * be allowed before the user is 'registered' (has sent USER,
 	 * NICK, optionally PASS, and been resolved).
 	 */
-	Command(InspIRCd* Instance, Module* me, const std::string &cmd, const char *flags, int minpara, bool before_reg = false, int penalty = 1) :
-		ServerInstance(Instance), command(cmd), creator(me), flags_needed(flags ? *flags : 0),
-		min_params(minpara), max_params(0), disabled(false), works_before_reg(before_reg), Penalty(penalty)
+	Command(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
+		command(cmd), creator(me), flags_needed(0), min_params(minpara), max_params(maxpara),
+		use_count(0), total_bytes(0), disabled(false), works_before_reg(false), Penalty(1)
 	{
-		use_count = 0;
-		total_bytes = 0;
-	}
-
-	Command(InspIRCd* Instance, Module* me, const std::string &cmd, const char *flags, int minpara, int maxpara, bool before_reg = false, int penalty = 1) :
-		ServerInstance(Instance), command(cmd), creator(me), flags_needed(flags ? *flags : 0),
-		min_params(minpara), max_params(maxpara), disabled(false), works_before_reg(before_reg), Penalty(penalty)
-	{
-		use_count = 0;
-		total_bytes = 0;
 	}
 
 	/** Handle the command from a user.
@@ -222,11 +208,8 @@ class CoreExport Command : public Extensible
 		return works_before_reg;
 	}
 
-	/** Standard constructor gubbins
-	 */
 	virtual ~Command()
 	{
-		syntax.clear();
 	}
 };
 

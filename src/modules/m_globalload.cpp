@@ -20,9 +20,9 @@
 class CommandGloadmodule : public Command
 {
  public:
-	CommandGloadmodule (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"GLOADMODULE", "o", 1)
+	CommandGloadmodule(Module* Creator) : Command(Creator,"GLOADMODULE", 1)
 	{
-		syntax = "<modulename> [servermask]";
+		flags_needed = 'o'; syntax = "<modulename> [servermask]";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
@@ -59,9 +59,9 @@ class CommandGloadmodule : public Command
 class CommandGunloadmodule : public Command
 {
  public:
-	CommandGunloadmodule (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"GUNLOADMODULE", "o", 1)
+	CommandGunloadmodule(Module* Creator) : Command(Creator,"GUNLOADMODULE", 1)
 	{
-		syntax = "<modulename> [servermask]";
+		flags_needed = 'o'; syntax = "<modulename> [servermask]";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -97,9 +97,9 @@ class CommandGunloadmodule : public Command
 class CommandGreloadmodule : public Command
 {
  public:
-	CommandGreloadmodule (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator, "GRELOADMODULE", "o", 1)
+	CommandGreloadmodule(Module* Creator) : Command(Creator, "GRELOADMODULE", 1)
 	{
-		syntax = "<modulename> [servermask]";
+		flags_needed = 'o'; syntax = "<modulename> [servermask]";
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
@@ -143,7 +143,7 @@ class ModuleGlobalLoad : public Module
 
  public:
 	ModuleGlobalLoad(InspIRCd* Me)
-		: Module(Me), cmd1(Me, this), cmd2(Me, this), cmd3(Me, this)
+		: Module(Me), cmd1(this), cmd2(this), cmd3(this)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

@@ -24,7 +24,7 @@ class CommandNick : public Command
  public:
 	/** Constructor for nick.
 	 */
-	CommandNick (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"NICK", 0, 1, true, 3) { syntax = "<newnick>"; }
+	CommandNick ( Module* parent) : Command(parent,"NICK", 1, 1) { works_before_reg = true; syntax = "<newnick>"; Penalty = 3; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

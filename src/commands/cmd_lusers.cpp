@@ -31,7 +31,7 @@ class CommandLusers : public Command
  public:
 	/** Constructor for lusers.
 	 */
-	CommandLusers (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"LUSERS",0,0) { }
+	CommandLusers ( Module* parent) : Command(parent,"LUSERS",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

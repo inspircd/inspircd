@@ -26,8 +26,7 @@ class CommandMkpasswd : public Command
 	hashymodules &hashers;
 	std::deque<std::string> &names;
  public:
-	CommandMkpasswd (InspIRCd* Instance, Module* Creator, hashymodules &h, std::deque<std::string> &n)
-		: Command(Instance, Creator, "MKPASSWD", 0, 2), hashers(h), names(n)
+	CommandMkpasswd(Module* Creator, hashymodules &h, std::deque<std::string> &n) : Command(Creator, "MKPASSWD", 2), hashers(h), names(n)
 	{
 		syntax = "<hashtype> <any-text>";
 	}
@@ -77,7 +76,7 @@ class ModuleOperHash : public Module
  public:
 
 	ModuleOperHash(InspIRCd* Me)
-		: Module(Me), cmd(Me, this, hashers, names)
+		: Module(Me), cmd(this, hashers, names)
 	{
 		diduseiface = false;
 

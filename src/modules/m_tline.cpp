@@ -20,9 +20,9 @@
 class CommandTline : public Command
 {
  public:
-	CommandTline (InspIRCd* Instance, Module* Creator) : Command(Instance, Creator,"TLINE", "o", 1)
+	CommandTline(Module* Creator) : Command(Creator,"TLINE", 1)
 	{
-		this->syntax = "<mask>";
+		flags_needed = 'o'; this->syntax = "<mask>";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -64,7 +64,7 @@ class ModuleTLine : public Module
 	CommandTline cmd;
  public:
 	ModuleTLine(InspIRCd* Me)
-		: Module(Me), cmd(Me, this)
+		: Module(Me), cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

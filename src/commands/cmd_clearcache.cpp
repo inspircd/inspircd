@@ -30,7 +30,7 @@ class CommandClearcache : public Command
  public:
 	/** Constructor for clearcache.
 	 */
-	CommandClearcache (InspIRCd* Instance, Module* parent) : Command(Instance,parent,"CLEARCACHE","o",0) { }
+	CommandClearcache ( Module* parent) : Command(parent,"CLEARCACHE",0) { flags_needed = 'o'; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
