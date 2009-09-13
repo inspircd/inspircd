@@ -254,9 +254,9 @@ class ModuleServicesAccount : public Module
 		// check if its our metadata key, and its associated with a user
 		if (dest && (extname == "accountname"))
 		{
-			if (!extdata.empty())
+			std::string *account = accountname.get(dest);
+			if (account && !account->empty())
 			{
-				std::string *account = accountname.get(dest);
 				trim(*account);
 
 				if (IS_LOCAL(dest))

@@ -123,20 +123,20 @@ class ModuleSSLInfo : public Module
 
 		Extensible::Register(&cmd.CertExt);
 
-		Implementation eventlist[] = { I_OnSyncUser, I_OnDecodeMetaData, I_OnWhois, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleSSLInfo()
+	~ModuleSSLInfo()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("SSL Certificate Utilities", VF_VENDOR);
 	}
 
-	virtual void OnWhois(User* source, User* dest)
+	void OnWhois(User* source, User* dest)
 	{
 		if (cmd.CertExt.get(dest))
 		{
@@ -158,7 +158,7 @@ class ModuleSSLInfo : public Module
 		return false;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string pcmd = command.c_str();
 

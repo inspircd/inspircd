@@ -28,6 +28,7 @@ bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 	else if (params.size() < 3)
 		params.push_back("");
 	TreeServer* ServerSource = Utils->FindServer(prefix);
+	ExtensionItem* item = Extensible::GetItem(params[1]);
 	if (ServerSource)
 	{
 		if (params[0] == "*")
@@ -39,6 +40,8 @@ bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 			Channel* c = this->ServerInstance->FindChan(params[0]);
 			if (c)
 			{
+				if (item)
+					item->unserialize(FORMAT_NETWORK, c, params[2]);
 				FOREACH_MOD_I(this->ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(c,params[1],params[2]));
 			}
 		}
@@ -47,6 +50,8 @@ bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 			User* u = this->ServerInstance->FindNick(params[0]);
 			if (u)
 			{
+				if (item)
+					item->unserialize(FORMAT_NETWORK, u, params[2]);
 				FOREACH_MOD_I(this->ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(u,params[1],params[2]));
 			}
 		}
