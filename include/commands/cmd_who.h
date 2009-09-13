@@ -52,7 +52,7 @@ class CommandWho : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	bool whomatch(User* user, const char* matchtext);
+	bool whomatch(User* cuser, User* user, const char* matchtext);
 };
 
 #endif
