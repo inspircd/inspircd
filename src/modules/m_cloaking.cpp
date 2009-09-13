@@ -64,7 +64,7 @@ class CloakUser : public ModeHandler
 	}
 
 	CloakUser(InspIRCd* Instance, Module* source, Module* Hash) 
-		: ModeHandler(Instance, source, 'x', 0, 0, false, MODETYPE_USER, false), HashProvider(Hash),
+		: ModeHandler(source, 'x', PARAM_NONE, MODETYPE_USER), HashProvider(Hash),
 		ext("cloaked_host", source)
 	{
 	}

@@ -18,7 +18,7 @@
 class NoCTCP : public ModeHandler
 {
  public:
-	NoCTCP(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'C', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	NoCTCP(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'C', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

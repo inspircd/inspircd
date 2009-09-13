@@ -20,7 +20,10 @@
 class SeeWhois : public ModeHandler
 {
  public:
-	SeeWhois(InspIRCd* Instance, Module* Creator, bool IsOpersOnly) : ModeHandler(Instance, Creator, 'W', 0, 0, false, MODETYPE_USER, IsOpersOnly) { }
+	SeeWhois(InspIRCd* Instance, Module* Creator, bool IsOpersOnly) : ModeHandler(Creator, 'W', PARAM_NONE, MODETYPE_USER)
+	{
+		oper = IsOpersOnly;
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

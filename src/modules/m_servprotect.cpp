@@ -20,7 +20,7 @@
 class ServProtectMode : public ModeHandler
 {
  public:
-	ServProtectMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'k', 0, 0, false, MODETYPE_USER, true) { }
+	ServProtectMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'k', PARAM_NONE, MODETYPE_USER) { oper = true; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -34,8 +34,6 @@ class ServProtectMode : public ModeHandler
 		 */
 		return MODEACTION_DENY;
 	}
-
-	bool NeedsOper() { return true; }
 };
 
 class ModuleServProtectMode : public Module

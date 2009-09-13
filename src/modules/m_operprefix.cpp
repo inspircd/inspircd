@@ -24,7 +24,13 @@
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(InspIRCd* Instance, Module* Creator, char pfx) : ModeHandler(Instance, Creator, 'y', 1, 1, true, MODETYPE_CHANNEL, false, pfx, pfx, TR_NICK) { }
+		OperPrefixMode(InspIRCd* Instance, Module* Creator, char pfx) : ModeHandler(Creator, 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+		{
+			list = true;
+			prefix = pfx;
+			levelrequired = OPERPREFIX_VALUE;
+			m_paramtype = TR_NICK;
+		}
 
 		unsigned int GetPrefixRank()
 		{

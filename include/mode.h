@@ -70,6 +70,16 @@ enum PrefixModeValue
 	OP_VALUE	=	30000
 };
 
+enum ParamSpec
+{
+	/** No parameters */
+	PARAM_NONE,
+	/** Parameter required on mode setting only */
+	PARAM_SETONLY,
+	/** Parameter always required */
+	PARAM_ALWAYS
+};
+
 /**
  * Used by ModeHandler::ModeSet() to return the state of a mode upon a channel or user.
  * The pair contains an activity flag, true if the mode is set with the given parameter,
@@ -95,21 +105,13 @@ class CoreExport ModeHandler : public classbase
 {
  protected:
 	/**
-	 * Creator/owner pointer
-	 */
-	InspIRCd* ServerInstance;
-	/**
 	 * The mode letter you're implementing.
 	 */
 	char mode;
-	/**
-	 * Number of parameters when being set
+
+	/** What kind of parameters does the mode take?
 	 */
-	int n_params_on;
-	/**
-	 * Number of parameters when being unset
-	 */
-	int n_params_off;
+	ParamSpec parameters_taken;
 	/**
 	 * Mode is a 'list' mode. The behaviour
 	 * of your mode is now set entirely within
@@ -147,9 +149,10 @@ class CoreExport ModeHandler : public classbase
 	/** The prefix char needed on channel to use this mode,
 	 * only checked for channel modes
 	 */
-	char prefixneeded;
+	int levelrequired;
 
  public:
+	static InspIRCd* ServerInstance;
 	/** Module that created this mode. NULL for core modes */
 	Module* creator;
 
@@ -169,11 +172,8 @@ class CoreExport ModeHandler : public classbase
 	 * and the rank values OP_VALUE, HALFOP_VALUE and VOICE_VALUE respectively. Any prefixes you define should have unique values proportional
 	 * to these three defaults or proportional to another mode in a module you depend on. See src/cmode_o.cpp as an example.
 	 * @param prefixrequired The prefix required to change this mode
-	 * @param translate The translation type for the argument(s) of this mode
 	 */
-	ModeHandler(InspIRCd* Instance, Module* me, char modeletter, int parameters_on, int parameters_off,
-		bool listmode, ModeType type, bool operonly, char mprefix = 0,
-		char prefixrequired = '%', TranslateType translate = TR_TEXT);
+	ModeHandler(Module* me, char modeletter, ParamSpec params, ModeType type);
 	/**
 	 * The default destructor does nothing
 	 */
@@ -187,7 +187,7 @@ class CoreExport ModeHandler : public classbase
 	 * also implement GetPrefixRank() to return an integer
 	 * value for this mode prefix.
 	 */
-	char GetPrefix();
+	inline char GetPrefix() const { return prefix; }
 	/** Get number of items with this mode set on them
 	 */
 	virtual unsigned int GetCount();
@@ -205,15 +205,15 @@ class CoreExport ModeHandler : public classbase
 	/**
 	 * Returns the mode's type
 	 */
-	ModeType GetModeType();
+	inline ModeType GetModeType() const { return m_type; }
 	/**
 	 * Returns the mode's parameter translation type
 	 */
-	TranslateType GetTranslateType();
+	inline TranslateType GetTranslateType() const { return m_paramtype; }
 	/**
 	 * Returns true if the mode can only be set/unset by an oper
 	 */
-	bool NeedsOper();
+	inline bool NeedsOper() const { return oper; }
 	/**
 	 * Returns the number of parameters for the mode. Any non-zero
 	 * value should be considered to be equivalent to one.
@@ -313,10 +313,8 @@ class CoreExport ModeHandler : public classbase
 	 * @param channel The channel which the server wants to remove your mode from
 	 */
 	virtual void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
-
-	char GetNeededPrefix();
-
-	void SetNeededPrefix(char needsprefix);
+	
+	inline unsigned int GetLevelRequired() const { return levelrequired; }
 };
 
 /** A prebuilt mode handler which handles a simple user mode, e.g. no parameters, usable by any user, with no extra
@@ -327,8 +325,8 @@ class CoreExport ModeHandler : public classbase
 class CoreExport SimpleUserModeHandler : public ModeHandler
 {
  public:
-	SimpleUserModeHandler(InspIRCd* Instance, Module* Creator, char modeletter)
-		: ModeHandler(Instance, Creator, modeletter, 0, 0, false, MODETYPE_USER, false) {}
+	SimpleUserModeHandler(Module* Creator, char modeletter)
+		: ModeHandler(Creator, modeletter, PARAM_NONE, MODETYPE_USER) {}
 	virtual ~SimpleUserModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
@@ -342,7 +340,7 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
 {
  public:
 	SimpleChannelModeHandler(InspIRCd* Instance, Module* Creator, char modeletter)
-		: ModeHandler(Instance, Creator, modeletter, 0, 0, false, MODETYPE_CHANNEL, false) {}
+		: ModeHandler(Creator, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
 	virtual ~SimpleChannelModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };

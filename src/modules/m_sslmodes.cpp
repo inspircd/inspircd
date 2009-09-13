@@ -21,7 +21,7 @@
 class SSLMode : public ModeHandler
 {
  public:
-	SSLMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'z', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	SSLMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'z', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

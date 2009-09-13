@@ -18,7 +18,10 @@
 class AuditoriumMode : public ModeHandler
 {
  public:
-	AuditoriumMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'u', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@') { }
+	AuditoriumMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'u', PARAM_NONE, MODETYPE_CHANNEL)
+	{
+		levelrequired = OP_VALUE;
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

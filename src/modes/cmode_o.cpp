@@ -19,8 +19,12 @@
 #include "modules.h"
 #include "modes/cmode_o.h"
 
-ModeChannelOp::ModeChannelOp(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'o', 1, 1, true, MODETYPE_CHANNEL, false, '@', '@', TR_NICK)
+ModeChannelOp::ModeChannelOp(InspIRCd* Instance) : ModeHandler(NULL, 'o', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
+	list = true;
+	prefix = '@';
+	levelrequired = OP_VALUE;
+	m_paramtype = TR_NICK;
 }
 
 unsigned int ModeChannelOp::GetPrefixRank()

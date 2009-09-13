@@ -19,8 +19,12 @@
 #include "modules.h"
 #include "modes/cmode_h.h"
 
-ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'h', 1, 1, true, MODETYPE_CHANNEL, false, '%', '@', TR_NICK)
+ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(NULL, 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
+	list = true;
+	prefix = '%';
+	levelrequired = OP_VALUE;
+	m_paramtype = TR_NICK;
 }
 
 unsigned int ModeChannelHalfOp::GetPrefixRank()

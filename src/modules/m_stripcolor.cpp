@@ -28,7 +28,7 @@ class ChannelStripColor : public SimpleChannelModeHandler
 class UserStripColor : public SimpleUserModeHandler
 {
  public:
-	UserStripColor(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'S') { }
+	UserStripColor(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'S') { }
 };
 
 

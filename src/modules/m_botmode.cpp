@@ -20,7 +20,7 @@
 class BotMode : public SimpleUserModeHandler
 {
  public:
-	BotMode(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'B') { }
+	BotMode(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'B') { }
 };
 
 class ModuleBotMode : public Module

@@ -17,8 +17,9 @@
 #include "users.h"
 #include "modes/umode_s.h"
 
-ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHandler(Instance, NULL, 's', 1, 0, false, MODETYPE_USER, true)
+ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHandler(NULL, 's', PARAM_SETONLY, MODETYPE_USER)
 {
+	oper = true;
 }
 
 ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)

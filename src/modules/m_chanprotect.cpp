@@ -119,8 +119,14 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 {
  public:
 	ChanFounder(InspIRCd* Instance, Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, Creator, 'q', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
-		  FounderProtectBase(Instance, 'q', "founder", 386, 387, depriv_self, depriv_others) { }
+		: ModeHandler(Creator, 'q', PARAM_ALWAYS, MODETYPE_CHANNEL),
+		  FounderProtectBase(Instance, 'q', "founder", 386, 387, depriv_self, depriv_others)
+	{
+		ModeHandler::list = true;
+		prefix = my_prefix;
+		levelrequired = FOUNDER_VALUE;
+		m_paramtype = TR_NICK;
+	}
 
 	unsigned int GetPrefixRank()
 	{
@@ -194,8 +200,14 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 {
  public:
 	ChanProtect(InspIRCd* Instance, Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
-		: ModeHandler(Instance, Creator, 'a', 1, 1, true, MODETYPE_CHANNEL, false, my_prefix, 0, TR_NICK),
-		  FounderProtectBase(Instance,'a',"protected user", 388, 389, depriv_self, depriv_others) { }
+		: ModeHandler(Creator, 'a', PARAM_ALWAYS, MODETYPE_CHANNEL),
+		  FounderProtectBase(Instance,'a',"protected user", 388, 389, depriv_self, depriv_others)
+	{
+		ModeHandler::list = true;
+		prefix = my_prefix;
+		levelrequired = PROTECT_VALUE;
+		m_paramtype = TR_NICK;
+	}
 
 	unsigned int GetPrefixRank()
 	{

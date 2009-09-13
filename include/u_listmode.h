@@ -142,10 +142,11 @@ class ListModeBase : public ModeHandler
 	 * @param ctag Configuration tag to get limits from
 	 */
 	ListModeBase(InspIRCd* Instance, Module* Creator, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
-		: ModeHandler(Instance, Creator, modechar, 1, 1, true, MODETYPE_CHANNEL, false), 
+		: ModeHandler(Creator, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL), 
 		listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
 		configtag(ctag), extItem("listbase_mode_" + std::string(1, mode) + "_list", Creator)
 	{
+		list = true;
 		this->DoRehash();
 		Extensible::Register(&extItem);
 	}

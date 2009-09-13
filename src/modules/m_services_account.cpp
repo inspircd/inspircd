@@ -22,7 +22,7 @@ class Channel_r : public ModeHandler
 {
 
  public:
-	Channel_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	Channel_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -52,7 +52,7 @@ class User_r : public ModeHandler
 {
 
  public:
-	User_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'r', 0, 0, false, MODETYPE_USER, false) { }
+	User_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -86,7 +86,7 @@ class AChannel_R : public SimpleChannelModeHandler
 class AUser_R : public SimpleUserModeHandler
 {
  public:
-	AUser_R(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'R') { }
+	AUser_R(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'R') { }
 };
 
 /** Channel mode +M - unidentified users cannot message channel

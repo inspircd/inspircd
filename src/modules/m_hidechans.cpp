@@ -20,7 +20,7 @@
 class HideChans : public ModeHandler
 {
  public:
-	HideChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'I', 0, 0, false, MODETYPE_USER, false) { }
+	HideChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'I', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

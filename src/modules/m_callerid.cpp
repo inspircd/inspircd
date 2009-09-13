@@ -127,7 +127,7 @@ struct CallerIDExtInfo : public ExtensionItem
 class User_g : public SimpleUserModeHandler
 {
 public:
-	User_g(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Instance, Creator, 'g') { }
+	User_g(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'g') { }
 };
 
 class CommandAccept : public Command

@@ -31,7 +31,7 @@ class KickRejoin : public ModeHandler
 {
  public:
 	SimpleExtItem<delaylist> ext;
-	KickRejoin(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'J', 1, 0, false, MODETYPE_CHANNEL, false),
+	KickRejoin(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'J', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("norejoinusers", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)

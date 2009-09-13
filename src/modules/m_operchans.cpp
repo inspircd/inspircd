@@ -19,7 +19,7 @@ class OperChans : public ModeHandler
 {
  public:
 	/* This is an oper-only mode */
-	OperChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'O', 0, 0, false, MODETYPE_CHANNEL, true) { }
+	OperChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'O', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

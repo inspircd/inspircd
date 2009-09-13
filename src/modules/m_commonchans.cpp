@@ -20,7 +20,7 @@
 class PrivacyMode : public ModeHandler
 {
  public:
-	PrivacyMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'c', 0, 0, false, MODETYPE_USER, false) { }
+	PrivacyMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'c', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

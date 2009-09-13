@@ -91,7 +91,7 @@ class NickFlood : public ModeHandler
 {
  public:
 	SimpleExtItem<nickfloodsettings> ext;
-	NickFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'F', 1, 0, false, MODETYPE_CHANNEL, false),
+	NickFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("nickflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)

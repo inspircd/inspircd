@@ -83,7 +83,7 @@ static bool WriteDatabase(InspIRCd *ServerInstance)
 class PermChannel : public ModeHandler
 {
  public:
-	PermChannel(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'P', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	PermChannel(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'P', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

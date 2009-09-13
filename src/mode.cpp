@@ -49,8 +49,11 @@
 /* +s (server notice masks) */
 #include "modes/umode_s.h"
 
-ModeHandler::ModeHandler(InspIRCd* Instance, Module* Creator, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix, char prefixrequired, TranslateType translate)
-	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), m_paramtype(translate), oper(operonly), prefix(mprefix), count(0), prefixneeded(prefixrequired), creator(Creator)
+InspIRCd* ModeHandler::ServerInstance;
+
+ModeHandler::ModeHandler(Module* Creator, char modeletter, ParamSpec Params, ModeType type)
+	: mode(modeletter), parameters_taken(Params), list(false), m_type(type), m_paramtype(TR_TEXT),
+	oper(false), prefix(0), count(0), levelrequired(HALFOP_VALUE), creator(Creator)
 {
 }
 
@@ -61,18 +64,6 @@ ModeHandler::~ModeHandler()
 bool ModeHandler::IsListMode()
 {
 	return list;
-}
-
-char ModeHandler::GetNeededPrefix()
-{
-	if (prefixneeded == '%' && !ServerInstance->Config->AllowHalfop)
-		return '@';
-	return prefixneeded;
-}
-
-void ModeHandler::SetNeededPrefix(char needsprefix)
-{
-	prefixneeded = needsprefix;
 }
 
 unsigned int ModeHandler::GetPrefixRank()
@@ -91,29 +82,18 @@ void ModeHandler::ChangeCount(int modifier)
 	ServerInstance->Logs->Log("MODE", DEBUG,"Change count for mode %c is now %d", mode, count);
 }
 
-ModeType ModeHandler::GetModeType()
-{
-	return m_type;
-}
-
-TranslateType ModeHandler::GetTranslateType()
-{
-	return m_paramtype;
-}
-
-bool ModeHandler::NeedsOper()
-{
-	return oper;
-}
-
-char ModeHandler::GetPrefix()
-{
-	return prefix;
-}
-
 int ModeHandler::GetNumParams(bool adding)
 {
-	return adding ? n_params_on : n_params_off;
+	switch (parameters_taken)
+	{
+		case PARAM_ALWAYS:
+			return 1;
+		case PARAM_SETONLY:
+			return adding ? 1 : 0;
+		case PARAM_NONE:
+			break;
+	}
+	return 0;
 }
 
 char ModeHandler::GetModeChar()
@@ -292,36 +272,21 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	if (chan && !SkipACL && (MOD_RESULT != MOD_RES_ALLOW))
 	{
-		char needed = mh->GetNeededPrefix();
-		ModeHandler* prefixmode = FindPrefix(needed);
-
-		/* If the mode defined by the handler is not '\0', but the handler for it
-		 * cannot be found, they probably dont have the right module loaded to implement
-		 * the prefix they want to compare the mode against, e.g. '&' for m_chanprotect.
-		 * Revert to checking against the minimum core prefix, '%'.
+		unsigned int neededrank = mh->GetLevelRequired();
+		/* Compare our rank on the channel against the rank of the required prefix,
+		 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
+		 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
+		 * first, so we don't need to iterate, we just look up the first instead.
 		 */
-		if (needed && !prefixmode)
+		unsigned int ourrank = chan->GetPrefixValue(user);
+		if (ourrank < neededrank)
 		{
-			needed = ServerInstance->Config->AllowHalfop ? '%' : '@';
-			prefixmode = FindPrefix(needed);
-		}
-
-		if (needed)
-		{
-			unsigned int neededrank = prefixmode->GetPrefixRank();
-			/* Compare our rank on the channel against the rank of the required prefix,
-			 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
-			 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
-			 * first, so we don't need to iterate, we just look up the first instead.
-			 */
-			unsigned int ourrank = chan->GetPrefixValue(user);
-			if (ourrank < neededrank)
-			{
-				/* Bog off */
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
-						user->nick.c_str(), chan->name.c_str(), needed, adding ? "" : "un", modechar);
-				return MODEACTION_DENY;
-			}
+			/* Bog off */
+			// TODO replace with a real search for the proper prefix
+			char needed = neededrank > HALFOP_VALUE ? '@' : '%';
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
+					user->nick.c_str(), chan->name.c_str(), needed, adding ? "" : "un", modechar);
+			return MODEACTION_DENY;
 		}
 	}
 
@@ -378,7 +343,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	{
 		User* user_to_prefix = ServerInstance->FindNick(parameter);
 		if (user_to_prefix)
-			chan->SetPrefix(user_to_prefix, modechar, mh->GetPrefixRank(), adding);
+			chan->SetPrefix(user_to_prefix, modechar, adding);
 	}
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
@@ -978,6 +943,7 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 
 ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	ModeHandler::ServerInstance = Instance;
 	ModeHandler* modes[] =
 	{
 		new ModeChannelSecret(Instance),

@@ -17,8 +17,9 @@
 #include "users.h"
 #include "modes/umode_o.h"
 
-ModeUserOperator::ModeUserOperator(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'o', 0, 0, false, MODETYPE_USER, true)
+ModeUserOperator::ModeUserOperator(InspIRCd* Instance) : ModeHandler(NULL, 'o', PARAM_NONE, MODETYPE_USER)
 {
+	oper = true;
 }
 
 ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)

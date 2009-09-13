@@ -105,9 +105,12 @@ class CommandOjoin : public Command
 class NetworkPrefix : public ModeHandler
 {
  public:
-	NetworkPrefix(InspIRCd* Instance, Module* parent)
-		: ModeHandler(Instance, parent, 'Y', 1, 1, true, MODETYPE_CHANNEL, false, NPrefix, 0, TR_NICK)
+	NetworkPrefix(Module* parent) : ModeHandler(parent, 'Y', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
+		list = true;
+		prefix = NPrefix;
+		levelrequired = 0xFFFFFFFF;
+		m_paramtype = TR_NICK;
 	}
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
@@ -249,7 +252,7 @@ class ModuleOjoin : public Module
 		OnRehash(NULL);
 
 		/* Initialise module variables */
-		np = new NetworkPrefix(Me, this);
+		np = new NetworkPrefix(this);
 
 		if (!ServerInstance->Modes->AddMode(np))
 		{

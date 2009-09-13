@@ -25,8 +25,9 @@
 #include "hashcomp.h"
 #include "modes/cmode_b.h"
 
-ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, NULL, 'b', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(NULL, 'b', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
+	list = true;
 }
 
 ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)

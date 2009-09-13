@@ -1,5 +1,5 @@
 /*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
+ *       | Inspire Internet Relay Chat Daemon
  *       +------------------------------------+
  *
  *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
@@ -19,8 +19,9 @@
 class InvisibleMode : public ModeHandler
 {
  public:
-	InvisibleMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'Q', 0, 0, false, MODETYPE_USER, true)
+	InvisibleMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'Q', PARAM_NONE, MODETYPE_USER)
 	{
+		oper = true;
 	}
 
 	~InvisibleMode()

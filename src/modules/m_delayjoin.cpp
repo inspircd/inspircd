@@ -19,7 +19,10 @@ class DelayJoinMode : public ModeHandler
  private:
 	CUList empty;
  public:
-	DelayJoinMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, Parent, 'D', 0, 0, false, MODETYPE_CHANNEL, false, 0, '@') {};
+	DelayJoinMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Parent, 'D', PARAM_NONE, MODETYPE_CHANNEL)
+	{
+		levelrequired = OP_VALUE;
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };

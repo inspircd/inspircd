@@ -22,7 +22,10 @@ static std::map<irc::string, std::string> helpop_map;
 class Helpop : public ModeHandler
 {
  public:
-	Helpop(InspIRCd* Instance, Module* Creator) : ModeHandler(Instance, Creator, 'h', 0, 0, false, MODETYPE_USER, true) { }
+	Helpop(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'h', PARAM_NONE, MODETYPE_USER)
+	{
+		oper = true;
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

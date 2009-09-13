@@ -22,7 +22,11 @@ class DelayMsgMode : public ModeHandler
 	CUList empty;
  public:
 	LocalIntExt jointime;
-	DelayMsgMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, Parent, 'd', 1, 0, false, MODETYPE_CHANNEL, false, 0, '@'), jointime("delaymsg", Parent) {};
+	DelayMsgMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Parent, 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
+		, jointime("delaymsg", Parent)
+	{
+		levelrequired = OP_VALUE;
+	}
 
 	ModePair ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 	{

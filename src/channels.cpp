@@ -351,7 +351,7 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		if (mh)
 		{
 			/* Set, and make sure that the mode handler knows this mode was now set */
-			Ptr->SetPrefix(user, mh->GetModeChar(), mh->GetPrefixRank(), true);
+			Ptr->SetPrefix(user, mh->GetModeChar(), true);
 			mh->OnModeChange(Instance->FakeClient, Instance->FakeClient, Ptr, nick, true);
 		}
 	}
@@ -976,7 +976,7 @@ unsigned int Channel::GetPrefixValue(User* user)
 	return bestrank;
 }
 
-void Channel::SetPrefix(User* user, char prefix, unsigned int prefix_value, bool adding)
+void Channel::SetPrefix(User* user, char prefix, bool adding)
 {
 	ModeHandler* delta_mh = ServerInstance->Modes->FindMode(prefix, MODETYPE_CHANNEL);
 	if (!delta_mh)
