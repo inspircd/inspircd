@@ -30,7 +30,7 @@ class RemoveBase : public Command
 
  public:
 	RemoveBase(Module* Creator, bool& snk, const char* cmdn)
-		: Command(Creator, cmdn, 2, 2), supportnokicks(snk)
+		: Command(Creator, cmdn, 2, 3), supportnokicks(snk)
 	{
 	}
 
