@@ -459,9 +459,16 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 
 		if (pcnt)
 		{
+			TranslateType tt = mh->GetTranslateType();
+			if (tt == TR_NICK)
+			{
+				User* u = ServerInstance->FindNick(parameter);
+				if (u)
+					parameter = u->nick;
+			}
 			output_parameters << " " << parameter;
 			LastParseParams.push_back(parameter);
-			LastParseTranslate.push_back(mh->GetTranslateType());
+			LastParseTranslate.push_back(tt);
 		}
 
 		if ( (output_mode.length() + output_parameters.str().length() > 450)
