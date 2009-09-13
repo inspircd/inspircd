@@ -914,7 +914,7 @@ const char* Channel::GetPrefixChar(User *user)
 		{
 			char mchar = m->second->modes[i];
 			ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
-			if (mh && mh->GetPrefixRank() > bestrank)
+			if (mh && mh->GetPrefixRank() > bestrank && mh->GetPrefix())
 			{
 				bestrank = mh->GetPrefixRank();
 				pf[0] = mh->GetPrefix();
@@ -960,20 +960,10 @@ const char* Channel::GetAllPrefixChars(User* user)
 
 unsigned int Channel::GetPrefixValue(User* user)
 {
-	unsigned int bestrank = 0;
-
 	UserMembIter m = userlist.find(user);
-	if (m != userlist.end())
-	{
-		for(unsigned int i=0; i < m->second->modes.length(); i++)
-		{
-			char mchar = m->second->modes[i];
-			ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
-			if (mh && mh->GetPrefixRank() > bestrank)
-				bestrank = mh->GetPrefixRank();
-		}
-	}
-	return bestrank;
+	if (m == userlist.end())
+		return 0;
+	return m->second->getRank();
 }
 
 void Channel::SetPrefix(User* user, char prefix, bool adding)
