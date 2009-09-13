@@ -67,10 +67,9 @@ public:
 				std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if(InspIRCd::Match(user->GetFullRealHost(), it->mask) || InspIRCd::Match(user->GetFullHost(), it->mask) || (InspIRCd::MatchCIDR(mask, it->mask)))
+					if (chan->CheckBan(user, it->mask))
 					{
-						// They match an entry on the list, so let them in.
-						return MOD_RES_DENY;
+						return MOD_RES_ALLOW;
 					}
 				}
 			}

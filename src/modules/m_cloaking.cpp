@@ -305,19 +305,16 @@ class ModuleCloaking : public Module
 		}
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan)
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
-		char mask[MAXBUF];
+		char cmask[MAXBUF];
 		std::string* cloak = cu->ext.get(user);
 		/* Check if they have a cloaked host, but are not using it */
 		if (cloak && *cloak != user->dhost)
 		{
-			snprintf(mask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), cloak->c_str());
-			for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
-			{
-				if (InspIRCd::Match(mask,i->data))
-					return MOD_RES_DENY;
-			}
+			snprintf(cmask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), cloak->c_str());
+			if (InspIRCd::Match(cmask,mask))
+				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
