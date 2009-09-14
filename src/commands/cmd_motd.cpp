@@ -34,7 +34,7 @@ class CommandMotd : public Command
  public:
 	/** Constructor for motd.
 	 */
-	CommandMotd ( Module* parent) : Command(parent,"MOTD",0,0) { syntax = "[<servername>]"; }
+	CommandMotd ( Module* parent) : Command(parent,"MOTD",0,1) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

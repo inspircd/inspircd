@@ -23,7 +23,7 @@ class CommandPrivmsg : public Command
  public:
 	/** Constructor for privmsg.
 	 */
-	CommandPrivmsg ( Module* parent) : Command(parent,"PRIVMSG",0,2) { syntax = "<target>{,<target>} <message>"; }
+	CommandPrivmsg ( Module* parent) : Command(parent,"PRIVMSG",2,2) { syntax = "<target>{,<target>} <message>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

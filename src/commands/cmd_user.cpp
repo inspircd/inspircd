@@ -23,7 +23,7 @@ class CommandUser : public Command
  public:
 	/** Constructor for user.
 	 */
-	CommandUser ( Module* parent) : Command(parent,"USER",0,4) { works_before_reg = true; Penalty = 0; syntax = "<username> <localhost> <remotehost> <GECOS>"; }
+	CommandUser ( Module* parent) : Command(parent,"USER",4,4) { works_before_reg = true; Penalty = 0; syntax = "<username> <localhost> <remotehost> <GECOS>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

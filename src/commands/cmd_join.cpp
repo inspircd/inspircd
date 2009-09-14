@@ -31,7 +31,7 @@ class CommandJoin : public Command
  public:
 	/** Constructor for join.
 	 */
-	CommandJoin ( Module* parent) : Command(parent,"JOIN", 0, 1) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; Penalty = 2; }
+	CommandJoin ( Module* parent) : Command(parent,"JOIN", 1, 2) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; Penalty = 2; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

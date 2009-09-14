@@ -22,7 +22,7 @@ class CommandNotice : public Command
  public:
 	/** Constructor for notice.
 	 */
-	CommandNotice ( Module* parent) : Command(parent,"NOTICE",0,2) { syntax = "<target>{,<target>} <message>"; }
+	CommandNotice ( Module* parent) : Command(parent,"NOTICE",2,2) { syntax = "<target>{,<target>} <message>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -23,7 +23,7 @@ class CommandPing : public Command
  public:
 	/** Constructor for ping.
 	 */
-	CommandPing ( Module* parent) : Command(parent,"PING", 0, 1) { Penalty = 0; syntax = "<servername> [:<servername>]"; }
+	CommandPing ( Module* parent) : Command(parent,"PING", 1, 2) { Penalty = 0; syntax = "<servername> [:<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
