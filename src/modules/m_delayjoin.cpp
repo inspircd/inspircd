@@ -128,8 +128,17 @@ void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::stri
 
 ModResult ModuleDelayJoin::OnHostCycle(User* user)
 {
-	// TODO
-	return MOD_RES_DENY;
+	for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
+	{
+		Channel* chan = *f;
+		Membership* memb = chan->GetUser(user);
+
+		if (memb && unjoined.get(memb))
+		{
+			return MOD_RES_DENY;
+		}
+	}
+	return MOD_RES_PASSTHRU;
 }
 
 void ModuleDelayJoin::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
