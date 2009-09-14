@@ -102,7 +102,7 @@ std::string TreeSocket::RandString(unsigned int ilength)
 
 	if (f >= 0)
 	{
-		if (read(f, randombuf, ilength) < ilength)
+		if (read(f, randombuf, ilength) < (int)ilength)
 			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Entropy source has gone predictable (did not return enough data)");
 		close(f);
 	}
