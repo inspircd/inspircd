@@ -144,7 +144,11 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	{
 		/* Require fingerprint to exist and match */
 		if (link.Fingerprint != fp)
+		{
+			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL fingerprint on link %s: need '%s' got '%s'", 
+				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
 			return false;
+		}
 	}
 
 	if (auth_challenge)
