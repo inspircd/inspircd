@@ -125,6 +125,7 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('A',"REMOTEANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
 	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
 	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
+	this->EnableSnomask('X',"REMOTEXLINE");			/* Remove Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */
 	this->EnableSnomask('f',"FLOOD");			/* Flooding notices */
 }

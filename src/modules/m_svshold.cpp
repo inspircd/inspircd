@@ -100,7 +100,7 @@ class CommandSvshold : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed SVSHOLD on %s.",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s removed SVSHOLD on %s",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
@@ -128,6 +128,16 @@ class CommandSvshold : public Command
 			{
 				if (ServerInstance->XLines->AddLine(r, user))
 				{
+					if (!duration)
+					{
+						ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+					}
+					else
+					{
+						time_t c_requires_crap = duration + ServerInstance->Time();
+						ServerInstance->SNO->WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
+					}
+
 					ServerInstance->XLines->ApplyLines();
 				}
 				else

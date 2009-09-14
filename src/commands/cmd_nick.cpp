@@ -111,7 +111,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 			{
 				if (user->registered == REG_ALL)
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s",
+					ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s!%s@%s: %s",
 						parameters[0].c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str(), mq->reason.c_str());
 				}
 				user->WriteNumeric(432, "%s %s :Invalid nickname: %s",user->nick.c_str(), parameters[0].c_str(), mq->reason.c_str());

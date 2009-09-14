@@ -23,7 +23,7 @@ class CommandQline : public Command
 	CommandQline ( Module* parent) : Command(parent,"QLINE",1,3) { flags_needed = 'o'; Penalty = 0; syntax = "<nick> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
-	 * @param pcnt The number of parameters passed to teh command
+	 * @param pcnt The number of parameters passed to the command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
@@ -70,7 +70,7 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "Q", user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Q-line on %s.",user->nick.c_str(),parameters[0].c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s removed Q-line on %s",user->nick.c_str(),parameters[0].c_str());
 		}
 		else
 		{

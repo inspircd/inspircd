@@ -97,7 +97,9 @@ class ModuleConnectBan : public Module
 				else
 					delete zl;
 
-				ServerInstance->SNO->WriteToSnoMask('x', "Connect flooding from IP range %s (%d)", u->GetCIDRMask(range), threshold);
+				ServerInstance->SNO->WriteGlobalSno('x',"Module m_connectban added Z:line on *@%s to expire on %s: Connect flooding", 
+					u->GetCIDRMask(range), ServerInstance->TimeString(zl->expiry).c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", u->GetCIDRMask(range), threshold);
 				connects.erase(i);
 			}
 		}

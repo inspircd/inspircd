@@ -111,7 +111,7 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(), "E", user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed E-line on %s.",user->nick.c_str(),target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s removed E-line on %s",user->nick.c_str(),target.c_str());
 		}
 		else
 		{

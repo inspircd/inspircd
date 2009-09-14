@@ -97,7 +97,7 @@ class ModuleXLineDB : public Module
 		if (!f)
 		{
 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot create new db: %s (%d)", strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
@@ -129,7 +129,7 @@ class ModuleXLineDB : public Module
 		if (write_error)
 		{
 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
@@ -137,7 +137,7 @@ class ModuleXLineDB : public Module
 		if (rename("xline.db.new", "xline.db") < 0)
 		{
 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('x', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
@@ -162,7 +162,7 @@ class ModuleXLineDB : public Module
 			{
 				/* this might be slightly more problematic. */
 				ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
-				ServerInstance->SNO->WriteToSnoMask('x', "database: cannot read db: %s (%d)", strerror(errno), errno);
+				ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
 				return false;
 			}
 		}
@@ -207,7 +207,7 @@ class ModuleXLineDB : public Module
 				{
 					fclose(f);
 					ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
-					ServerInstance->SNO->WriteToSnoMask('x', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
+					ServerInstance->SNO->WriteToSnoMask('a', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
 					return false;
 				}
 			}
@@ -218,7 +218,7 @@ class ModuleXLineDB : public Module
 
 				if (!xlf)
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "database: Unknown line type (%s).", command_p[1].c_str());
+					ServerInstance->SNO->WriteToSnoMask('a', "database: Unknown line type (%s).", command_p[1].c_str());
 					continue;
 				}
 

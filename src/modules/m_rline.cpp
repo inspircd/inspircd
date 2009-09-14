@@ -39,7 +39,7 @@ class RLine : public XLine
 
 		if (!rxengine)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x', "Cannot create regexes until engine is set to a loaded provider!");
+			ServerInstance->SNO->WriteToSnoMask('a', "Cannot create regexes until engine is set to a loaded provider!");
 			throw ModuleException("Regex engine not set or loaded!");
 		}
 
@@ -77,7 +77,7 @@ class RLine : public XLine
 
 	void DisplayExpiry()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired R-Line %s (set by %s %ld seconds ago)",
+		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired R-line %s (set by %s %ld seconds ago)",
 			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
 	}
 
@@ -142,7 +142,7 @@ class CommandRLine : public Command
 			}
 			catch (ModuleException &e)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"Could not add RLINE: %s", e.GetReason());
+				ServerInstance->SNO->WriteToSnoMask('a',"Could not add RLINE: %s", e.GetReason());
 			}
 
 			if (r)
@@ -151,12 +151,12 @@ class CommandRLine : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent R-Line for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent R-line for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-Line for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed R-line for %s to expire on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
 					}
 
 					ServerInstance->XLines->ApplyLines();
@@ -172,7 +172,7 @@ class CommandRLine : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed R-Line on %s.",user->nick.c_str(),parameters[0].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s removed R-line on %s",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
@@ -261,14 +261,14 @@ class ModuleRLine : public Module
 			{
 				if (RegexNameRequest(this, *i).Send() == newrxengine)
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
+					ServerInstance->SNO->WriteToSnoMask('a', "R-Line now using engine '%s'", RegexEngine.c_str());
 					rxengine = *i;
 				}
 			}
 		}
 		if (!rxengine)
 		{
-			ServerInstance->SNO->WriteToSnoMask('x', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", RegexEngine.c_str());
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", RegexEngine.c_str());
 		}
 	}
 
@@ -288,7 +288,7 @@ class ModuleRLine : public Module
 			std::string rxname = RegexNameRequest(this, mod).Send();
 			if (rxname == RegexEngine)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
+				ServerInstance->SNO->WriteToSnoMask('a', "R-Line now using engine '%s'", RegexEngine.c_str());
 				rxengine = mod;
 			}
 		}

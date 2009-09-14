@@ -61,7 +61,7 @@ static bool WriteDatabase()
 	if (write_error)
 	{
 		ServerInstance->Logs->Log("m_permchannels",DEFAULT, "permchannels: Cannot write to new database! %s (%d)", strerror(errno), errno);
-		ServerInstance->SNO->WriteToSnoMask('x', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}
 
@@ -69,7 +69,7 @@ static bool WriteDatabase()
 	if (rename(tempname.c_str(), permchannelsconf.c_str()) < 0)
 	{
 		ServerInstance->Logs->Log("m_permchannels",DEFAULT, "permchannels: Cannot move new to old database! %s (%d)", strerror(errno), errno);
-		ServerInstance->SNO->WriteToSnoMask('x', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}
 

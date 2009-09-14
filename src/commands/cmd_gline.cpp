@@ -97,7 +97,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(),"G",user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick.c_str(),target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s removed G-line on %s",user->nick.c_str(),target.c_str());
 		}
 		else
 		{

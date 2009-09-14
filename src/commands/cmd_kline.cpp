@@ -96,7 +96,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(),"K",user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed K-line on %s.",user->nick.c_str(),target.c_str());
+			ServerInstance->SNO->WriteToSnoMask('x',"%s removed K-line on %s",user->nick.c_str(),target.c_str());
 		}
 		else
 		{

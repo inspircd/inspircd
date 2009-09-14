@@ -42,8 +42,8 @@ bool TreeSocket::DelLine(const std::string &prefix, parameterlist &params)
 	/* NOTE: No check needed on 'user', this function safely handles NULL */
 	if (ServerInstance->XLines->DelLine(params[1].c_str(), params[0], user))
 	{
-		this->ServerInstance->SNO->WriteToSnoMask('x',"%s removed %s%s on %s.", setter.c_str(),
-				params[0].c_str(), params[0].length() == 1 ? "LINE" : "", params[1].c_str());
+		this->ServerInstance->SNO->WriteToSnoMask('X',"%s removed %s%s on %s", setter.c_str(),
+				params[0].c_str(), params[0].length() == 1 ? "-line" : "", params[1].c_str());
 		Utils->DoOneToAllButSender(prefix,"DELLINE", params, prefix);
 	}
 	return true;

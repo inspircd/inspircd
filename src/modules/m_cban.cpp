@@ -50,7 +50,6 @@ public:
 	{
 		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired CBan %s (set by %s %ld seconds ago)",
 			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
-		ServerInstance->PI->SendSNONotice("x", "Removing expired CBan " + assign(this->matchtext) + " (set by " + this->source + " " + ConvToStr(ServerInstance->Time() - this->set_time) + " seconds ago)");
 	}
 
 	const char* Displayable()
@@ -99,8 +98,7 @@ class CommandCBan : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s removed CBan on %s.",user->nick.c_str(),parameters[0].c_str());
-				ServerInstance->PI->SendSNONotice("x", user->nick + " removed CBan on " + parameters[0]);
+				ServerInstance->SNO->WriteGlobalSno('x', "%s removed CBan on %s.",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
@@ -131,14 +129,12 @@ class CommandCBan : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
-						ServerInstance->PI->SendSNONotice("x", user->nick + " added permenant CBan for " + parameters[0] + ": " + std::string(reason));
+						ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), reason);
-						ServerInstance->PI->SendSNONotice("x", user->nick + " added timed CBan for " + parameters[0] + ", expires on " + ServerInstance->TimeString(c_requires_crap) + ": " + std::string(reason));
+						ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), reason);
 					}
 
 					ServerInstance->XLines->ApplyLines();

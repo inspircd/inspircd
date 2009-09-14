@@ -107,7 +107,7 @@ class CommandShun : public Command
 		{
 			if (ServerInstance->XLines->DelLine(target.c_str(), "SHUN", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s Removed shun on %s.",user->nick.c_str(),target.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x',"%s removed SHUN on %s",user->nick.c_str(),target.c_str());
 			}
 			else
 			{
@@ -149,13 +149,13 @@ class CommandShun : public Command
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent shun for %s: %s",
+						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent SHUN for %s: %s",
 							user->nick.c_str(), target.c_str(), expr.c_str());
 					}
 					else
 					{
 						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed shun for %s, expires on %s: %s",
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
 							user->nick.c_str(), target.c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), expr.c_str());
 					}
 
