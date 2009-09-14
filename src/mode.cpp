@@ -675,7 +675,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 								{
 									user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set %s mode %c",
 											user->nick.c_str(),
-											user->oper.c_str(),
+											irc::Spacify(user->oper.c_str()),
 											type == MODETYPE_CHANNEL ? "channel" : "user",
 											modehandlers[handler_id]->GetModeChar());
 								}
