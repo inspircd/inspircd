@@ -43,16 +43,43 @@ static bool WriteDatabase()
 	}
 
 	// Now, let's write.
-	Channel *c = NULL;
-
 	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 	{
-		c = i->second;
+		Channel* chan = i->second;
+		if (!chan->IsModeSet('P'))
+			continue;
 
-		if (c->IsModeSet('P'))
+		char line[1024];
+		const char* items[] =
 		{
-			fprintf(f, "<permchannels channel=\"%s\" topic=\"%s\" modes=\"%s\">\n", c->name.c_str(), c->topic.c_str(), c->ChanModes(true));
+			"<permchannels channel=",
+			chan->name.c_str(),
+			" topic=",
+			chan->topic.c_str(),
+			" modes=",
+			chan->ChanModes(true),
+			">\n"
+		};
+
+		int lpos = 0, item = 0, ipos = 0;
+		while (lpos < 1022 && item < 7)
+		{
+			char c = items[item][ipos++];
+			if (c == 0)
+			{
+				// end of this string; hop to next string, insert a quote
+				item++;
+				ipos = 0;
+				c = '"';
+			}
+			else if (c == '\\' || c == '"')
+			{
+				line[lpos++] = '\\';
+			}
+			line[lpos++] = c;
 		}
+		line[--lpos] = 0;
+		fputs(line, f);
 	}
 
 	int write_error = 0;
