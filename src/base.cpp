@@ -122,14 +122,32 @@ bool Extensible::Register(ExtensionItem* item)
 	return Extensible::extension_types.insert(std::make_pair(item->key, item)).second;
 }
 
-void Extensible::UnRegister(Module* module)
+std::vector<ExtensionItem*> Extensible::BeginUnregister(Module* module)
 {
+	std::vector<ExtensionItem*> rv;
 	ExtensibleTypes::iterator i = extension_types.begin();
 	while (i != extension_types.end())
 	{
 		ExtensibleTypes::iterator c = i++;
 		if (c->second->owner == module)
+		{
+			rv.push_back(c->second);
 			extension_types.erase(c);
+		}
+	}
+	return rv;
+}
+
+void Extensible::doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove)
+{
+	for(std::vector<ExtensionItem*>::const_iterator i = toRemove.begin(); i != toRemove.end(); i++)
+	{
+		ExtensibleStore::iterator e = extensions.find((**i).key);
+		if (e != extensions.end())
+		{
+			(**i).free(e->second);
+			extensions.erase(e);
+		}
 	}
 }
 

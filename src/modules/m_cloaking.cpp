@@ -63,7 +63,7 @@ class CloakUser : public ModeHandler
 			return host.substr(splitdot);
 	}
 
-	CloakUser(InspIRCd* Instance, Module* source, Module* Hash) 
+	CloakUser(Module* source, Module* Hash)
 		: ModeHandler(source, 'x', PARAM_NONE, MODETYPE_USER), HashProvider(Hash),
 		ext("cloaked_host", source)
 	{
@@ -256,15 +256,14 @@ class ModuleCloaking : public Module
  	CloakUser* cu;
 
  public:
-	ModuleCloaking(InspIRCd* Me)
-		: Module(Me)
+	ModuleCloaking(InspIRCd*)
 	{
 		/* Attempt to locate the md5 service provider, bail if we can't find it */
 		Module* HashModule = ServerInstance->Modules->Find("m_md5.so");
 		if (!HashModule)
 			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
 
-		cu = new CloakUser(ServerInstance, this, HashModule);
+		cu = new CloakUser(this, HashModule);
 
 		try
 		{

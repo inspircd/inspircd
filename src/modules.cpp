@@ -538,26 +538,30 @@ bool ModuleManager::Unload(const char* filename)
 			return false;
 		}
 
+		std::vector<ExtensionItem*> items = Extensible::BeginUnregister(modfind->second.second);
 		/* Give the module a chance to tidy out all its metadata */
 		for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 		{
 			modfind->second.second->OnCleanup(TYPE_CHANNEL,c->second);
+			c->second->doUnhookExtensions(items);
+			const UserMembList* users = c->second->GetUsers();
+			for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+				mi->second->doUnhookExtensions(items);
 		}
 		for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			modfind->second.second->OnCleanup(TYPE_USER,u->second);
+			u->second->doUnhookExtensions(items);
 		}
 
 		/* Tidy up any dangling resolvers */
 		ServerInstance->Res->CleanResolvers(modfind->second.second);
-
 
 		FOREACH_MOD_I(ServerInstance,I_OnUnloadModule,OnUnloadModule(modfind->second.second, modfind->first));
 
 		this->DetachAll(modfind->second.second);
 
 		ServerInstance->Parser->RemoveCommands(modfind->second.second);
-		Extensible::UnRegister(modfind->second.second);
 
 		delete modfind->second.second;
 		delete modfind->second.first;

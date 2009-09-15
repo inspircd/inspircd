@@ -81,7 +81,8 @@ class CoreExport Extensible : public classbase
 	virtual ~Extensible();
 
 	static bool Register(ExtensionItem* item);
-	static void UnRegister(Module* module);
+	static std::vector<ExtensionItem*> BeginUnregister(Module* module);
+	void doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove);
 	
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;
