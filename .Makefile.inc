@@ -39,7 +39,7 @@ INSTMODE = 0755
   CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
   SHARED = -bundle -twolevel_namespace -undefined dynamic_lookup
-  CORE_FLAGS = -dynamic -bind_at_load -L.
+  CORELDFLAGS = -dynamic -bind_at_load -L.
 @ENDIF 
 
 @IFDEF D

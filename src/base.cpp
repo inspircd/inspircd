@@ -137,9 +137,11 @@ Extensible::~Extensible()
 {
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
-		ExtensionItem* type = extension_types[i->first];
+		ExtensionItem* type = GetItem(i->first);
 		if (type)
 			type->free(i->second);	
+		else if (ServerInstance && ServerInstance->Logs)
+			ServerInstance->Logs->Log("BASE", ERROR, "Extension type %s is not registered", i->first.c_str());
 	}
 }
 
