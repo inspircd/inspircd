@@ -154,7 +154,7 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 		}
 	}
 
-	float avg_users = totusers * 1.0 / totservers;
+	float avg_users = totusers * 1.0 / line;
 
 	ServerInstance->Logs->Log("map",DEBUG,"local");
 	for (int t = 0; t < line; t++)
@@ -166,7 +166,7 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 	}
 	ServerInstance->DumpText(user, ":%s %d %s :%d server%s and %d user%s, average %.2f users per server",
 		ServerInstance->Config->ServerName, RPL_MAPUSERS, user->nick.c_str(),
-		totservers, (totservers > 1 ? "s" : ""), totusers, (totusers > 1 ? "s" : ""), avg_users);
+		line, (line > 1 ? "s" : ""), totusers, (totusers > 1 ? "s" : ""), avg_users);
 	ServerInstance->DumpText(user, ":%s %d %s :End of /MAP", ServerInstance->Config->ServerName,
 		RPL_ENDMAP, user->nick.c_str());
 
