@@ -154,7 +154,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 		}
 	}
 
-	float avg_users = totusers * 1.0 / totservers;
+	float avg_users = totusers * 1.0 / line;
 
 	// dump the whole lot to the user.
 	if (IS_LOCAL(user))
@@ -166,7 +166,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 			names[100 * t + maxnamew] = '\0';
 			user->WriteNumeric(RPL_MAP, "%s :%s %s",user->nick.c_str(),names + 100 * t, stats + 50 * t);
 		}
-		user->WriteNumeric(RPL_MAPUSERS, "%s :%d server%s and %d user%s, average %.2f users per server",user->nick.c_str(),totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+		user->WriteNumeric(RPL_MAPUSERS, "%s :%d server%s and %d user%s, average %.2f users per server",user->nick.c_str(),line,(line > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
 		user->WriteNumeric(RPL_ENDMAP, "%s :End of /MAP",user->nick.c_str());
 	}
 	else
@@ -183,7 +183,7 @@ int ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, Us
 			ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 006 " + user->nick + " :" + name + " " + stat);
 		}
 
-		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(totservers) + " server"+(totservers > 1 ? "s" : "") + " and " + ConvToStr(totusers) + " user"+(totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
+		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 270 " + user->nick + " :" + ConvToStr(line) + " server"+(line > 1 ? "s" : "") + " and " + ConvToStr(totusers) + " user"+(totusers > 1 ? "s" : "") + ", average " + ConvToStr(avg_users) + " users per server");
 		ServerInstance->PI->PushToClient(user, std::string("::") + ServerInstance->Config->ServerName + " 007 " + user->nick + " :End of /MAP");
 	}
 	delete[] names;
