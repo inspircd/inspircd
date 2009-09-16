@@ -1,5 +1,6 @@
 VPATH = $(SOURCEPATH)/src
 CORE_TARGS != perl -e 'chdir "$$ENV{SOURCEPATH}/src"; print join " ", grep s/\.cpp/.o/, <*.cpp>, <modes/*.cpp>'
+CMD_TARGS != perl -e 'chdir "$$ENV{SOURCEPATH}/src"; print join " ", grep s/\.cpp/.so/, <commands/*.cpp>'
 MOD_TARGS != perl -e 'chdir "$$ENV{SOURCEPATH}/src"; print join " ", grep s/\.cpp/.so/, <modules/*.cpp>'
 MDIR_TARGS != perl -e 'chdir "$$ENV{SOURCEPATH}/src"; print join " ", grep s!/?$$!.so!, grep -d, <modules/m_*>'
 
@@ -7,7 +8,9 @@ CORE_TARGS += socketengines/$(SOCKETENGINE).o threadengines/threadengine_pthread
 
 DFILES != perl $(SOURCEPATH)/make/calcdep.pl -all
 
-all: inspircd modules
+all: inspircd commands modules
+
+commands: $(CMD_TARGS)
 
 modules: $(MOD_TARGS) $(MDIR_TARGS)
 
