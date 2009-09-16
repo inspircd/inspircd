@@ -338,9 +338,10 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
-	for (std::vector<User*>::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	std::vector<User*>::reverse_iterator u2 = ServerInstance->Users->local_users.rbegin();
+	while (u2 != ServerInstance->Users->local_users.rend())
 	{
-		User* u = (User*)(*u2);
+		User* u = *u2++;
 
 		// Don't ban people who are exempt.
 		if (u->exempt)

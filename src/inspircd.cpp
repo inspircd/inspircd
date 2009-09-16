@@ -105,10 +105,12 @@ void InspIRCd::Cleanup()
 	}
 
 	/* Close all client sockets, or the new process inherits them */
-	for (std::vector<User*>::const_iterator i = this->Users->local_users.begin(); i != this->Users->local_users.end(); i++)
+	std::vector<User*>::reverse_iterator i = Users->local_users.rbegin();
+	while (i != this->Users->local_users.rend())
 	{
-		this->Users->QuitUser((*i), "Server shutdown");
-		(*i)->CloseSocket();
+		User* u = *i++;
+		Users->QuitUser(u, "Server shutdown");
+		u->CloseSocket();
 	}
 
 	/* We do this more than once, so that any service providers get a
@@ -117,7 +119,7 @@ void InspIRCd::Cleanup()
 	 *
 	 * XXX there may be a better way to do this with 1.2
 	 */
-	for (int tries = 0; tries < 3; tries++)
+	for (int tries = 0; tries < 4; tries++)
 	{
 		std::vector<std::string> module_names = Modules->GetAllModuleNames(0);
 		for (std::vector<std::string>::iterator k = module_names.begin(); k != module_names.end(); ++k)

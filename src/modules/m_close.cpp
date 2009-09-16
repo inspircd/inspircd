@@ -37,12 +37,14 @@ class CommandClose : public Command
 	{
 		std::map<std::string,int> closed;
 
-		for (std::vector<User*>::iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); u++)
+		std::vector<User*>::reverse_iterator u = ServerInstance->Users->local_users.rbegin();
+		while (u != ServerInstance->Users->local_users.rend())
 		{
-			if ((*u)->registered != REG_ALL)
+			User* user = *u++;
+			if (user->registered != REG_ALL)
 			{
-				ServerInstance->Users->QuitUser(*u, "Closing all unknown connections per request");
-				std::string key = ConvToStr((*u)->GetIPString())+"."+ConvToStr((*u)->GetServerPort());
+				ServerInstance->Users->QuitUser(user, "Closing all unknown connections per request");
+				std::string key = ConvToStr(user->GetIPString())+"."+ConvToStr(user->GetServerPort());
 				closed[key]++;
 			}
 		}
