@@ -17,6 +17,8 @@
 
 static Module* rxengine = NULL;
 static Module* mymodule = NULL; /* Needed to let RLine send request! */
+static bool ZlineOnMatch = false;
+static std::vector<ZLine *> background_zlines;
 
 /* $ModDesc: RLINE: Regexp user banning. */
 
@@ -72,6 +74,9 @@ class RLine : public XLine
 
 	void Apply(User* u)
 	{
+		if (ZlineOnMatch) {
+			background_zlines.push_back(new ZLine(ServerInstance, ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString()));
+		}
 		DefaultApply(u, "R", true);
 	}
 
@@ -208,8 +213,8 @@ class ModuleRLine : public Module
 		ServerInstance->AddCommand(&r);
 		ServerInstance->XLines->RegisterFactory(&f);
 
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnLoadModule, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnLoadModule, I_OnStats, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 
 	}
 
@@ -241,7 +246,11 @@ class ModuleRLine : public Module
 	{
 		ConfigReader Conf(ServerInstance);
 
+		if (!Conf.ReadFlag("rline", "zlineonmatch", 0) && ZlineOnMatch)
+			background_zlines.clear();
+
 		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 0);
+		ZlineOnMatch = Conf.ReadFlag("rline", "zlineonmatch", 0);
 		std::string newrxengine = Conf.ReadValue("rline", "engine", 0);
 
 		if (!RegexEngine.empty())
@@ -309,6 +318,22 @@ class ModuleRLine : public Module
 			// Bang! :D
 			rl->Apply(user);
 		}
+	}
+
+	virtual void OnBackgroundTimer(time_t curtime)
+	{
+		if (!ZlineOnMatch) return;
+		for (std::vector<ZLine *>::iterator i = background_zlines.begin(); i != background_zlines.end(); i++)
+		{
+			ZLine *zl = *i;
+			if (ServerInstance->XLines->AddLine(zl,NULL))
+			{
+				ServerInstance->SNO->WriteToSnoMask('x',"Z-line added due to R-line match on *@%s%s%s: %s", 
+					zl->ipaddr.c_str(), zl->duration ? " to expire on " : "", zl->duration ? ServerInstance->TimeString(zl->expiry).c_str() : "", zl->reason.c_str());
+				ServerInstance->XLines->ApplyLines();
+			}
+		}
+		background_zlines.clear();
 	}
 
 };
