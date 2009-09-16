@@ -77,7 +77,7 @@ class RLine : public XLine
 		if (ZlineOnMatch) {
 			background_zlines.push_back(new ZLine(ServerInstance, ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString()));
 		}
-		DefaultApply(u, "R", true);
+		DefaultApply(u, "R", false);
 	}
 
 	void DisplayExpiry()
