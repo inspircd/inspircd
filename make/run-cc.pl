@@ -125,14 +125,18 @@ if ($cc eq "ar") {
 	{
 		if ($n =~ /\.cpp$/)
 		{
+			my $f = $n;
+			if (defined $ENV{SOURCEPATH}) {
+				$f =~ s#^$ENV{SOURCEPATH}/src/##;
+			}
 			if ($action eq "BUILD")
 			{
-				$name .= " " . $n;
+				$name .= " " . $f;
 			}
 			else
 			{
 				$action = "BUILD";
-				$name = $n;
+				$name = $f;
 			}
 		}
 		elsif ($action eq "BUILD") # .cpp has priority.

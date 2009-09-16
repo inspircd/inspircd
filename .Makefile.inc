@@ -55,17 +55,25 @@ CXXFLAGS += -I../include
 
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
+@GNU_ONLY SOURCEPATH = $(shell /bin/pwd)
+@BSD_ONLY SOURCEPATH != /bin/pwd
+@IFDEF O
+    BUILDPATH = $(O)
+@ELSE
+    BUILDPATH = src
+@ENDIF
+
 @IFDEF V
     RUNCC = $(CC)
     VERBOSE = -v
 @ELSE
     @GNU_ONLY MAKEFLAGS += --silent
     @BSD_ONLY MAKE += -s
-    RUNCC = ../make/run-cc.pl $(CC)
+    RUNCC = $(SOURCEPATH)/make/run-cc.pl $(CC)
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT BASE CONPATH MODPATH BINPATH
+@DO_EXPORT BASE CONPATH MODPATH BINPATH SOURCEPATH
 
 # Default target
 TARGET = all
@@ -86,8 +94,8 @@ TARGET = all
 all: $(FOOTER)
 
 target: $(HEADER)
-@GNU_ONLY 	$(MAKEENV) $(MAKE) -C src -f ../make/gnu-real.mk $(TARGET)
-@BSD_ONLY 	$(MAKEENV) $(MAKE) -C src -f ../make/bsd-real.mk $(TARGET)
+@GNU_ONLY 	$(MAKEENV) $(MAKE) -C $(BUILDPATH) -f ../make/gnu-real.mk $(TARGET)
+@BSD_ONLY 	$(MAKEENV) $(MAKE) -C $(BUILDPATH) -f ../make/bsd-real.mk $(TARGET)
 
 debug:
 	@${MAKE} D=1 all
@@ -191,6 +199,7 @@ help:
 	@echo 'Flags:'
 	@echo ' V=1       Show the full command being executed instead of "BUILD: dns.cpp"'
 	@echo ' D=1       Enable debug build, for module development or crash tracing'
+	@echo ' O=objdir  Use an alternate location for storing object files'
 	@echo ' -j <N>    Run a parallel build using N jobs'
 	@echo ''
 	@echo 'User targets:'
