@@ -51,7 +51,7 @@ sub dep_cpp {
 	my($file, $dfile) = @_;
 	gendep $file;
 	my($path,$base) = $file =~ m#^((?:.*/)?)([^/]+)\.cpp# or die "Bad file $file";
-	my $ext = $path eq 'modules/' || $path eq 'commands/' ? '.so' : '.o';
+	my $ext = $path eq 'modules/' ? '.so' : '.o';
 	my $out = "$path$base$ext";
 	$dfile = "$baseout/$path.$base.d" unless defined $dfile;
 

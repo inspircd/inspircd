@@ -145,7 +145,6 @@ install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) $(MODPATH)
-	-install -m $(INSTMODE) src/commands/*.so $(MODPATH)
 	-install -m $(INSTMODE) src/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
 	-install -m $(INSTMODE) src/inspircd $(BINPATH)
@@ -163,7 +162,7 @@ install: target@EXTRA_DIR@
 clean:
 	@echo Cleaning...
 	@rm -f src/inspircd src/modes/modeclasses.a
-	@rm -f src/*.so src/modules/*.so src/commands/*.so src/modules/*/*.so
+	@rm -f src/*.so src/modules/*.so src/modules/*/*.so
 	@rm -f src/*.o src/*/*.o src/modules/*/*.o
 	@rm -f src/.*.d src/*/.*.d src/modules/*/.*.d
 	@echo Completed.
@@ -181,7 +180,6 @@ launchd_dir:
 configureclean:
 	rm -f .config.cache
 	rm -f src/modules/Makefile
-	rm -f src/commands/Makefile
 	rm -f src/Makefile
 	-rm -f Makefile
 	rm -f BSDmakefile
@@ -211,7 +209,7 @@ help:
 	@echo ' M=m_foo   Builds a single module'
 	@echo ' T=target  Builds a user-specified target'
 	@echo '           Target can be a file path relative to src/, or one of:'
-	@echo '            inspircd  commands  modules'
+	@echo '            inspircd  modules'
 	@echo '           Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
