@@ -139,6 +139,7 @@ if (defined $opt_base_dir)
 $config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
 $config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
 $config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
+$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
 
 if (defined $opt_config_dir)
 {

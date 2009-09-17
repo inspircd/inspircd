@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Getopt::Long;
+use POSIX qw(getcwd);
 
 sub find_output($);
 sub gendep($);
@@ -22,8 +22,7 @@ sub run() {
 	mkdir 'obj';
 	mkdir 'modules';
 	symlink "$ENV{SOURCEPATH}/include", 'include';
-	$build = `pwd`;
-	chomp $build;
+	$build = getcwd();
 	open MAKE, '>real.mk' or die "Could not write real.mk: $!";
 	chdir "$ENV{SOURCEPATH}/src";
 
@@ -52,9 +51,10 @@ END
 	opendir my $moddir, 'modules';
 	for my $dir (readdir $moddir) {
 		next unless $dir =~ /^m_/ && -d "modules/$dir";
-		mkdir "$build/obj/$dir";
-		dep_dir "modules/$dir";
-		push @modlist, "modules/$dir.so";
+		if (dep_dir "modules/$dir") {
+			mkdir "$build/obj/$dir";
+			push @modlist, "modules/$dir.so";
+		}
 	}
 	
 	my $core_mk = join ' ', @core_deps;
@@ -141,7 +141,12 @@ sub dep_dir($) {
 		push @ofiles, $ofile;
 	}
 	closedir DIR;
-	my $ofiles = join ' ', @ofiles;
-	print MAKE "$dir.so: $ofiles\n\t\$(RUNCC) \$(PICLDFLAGS) -o \$\@ \$^\n";
+	if (@ofiles) {
+		my $ofiles = join ' ', @ofiles;
+		print MAKE "$dir.so: $ofiles\n\t\$(RUNCC) \$(PICLDFLAGS) -o \$\@ \$^\n";
+		return 1;
+	} else {
+		return 0;
+	}
 }
 

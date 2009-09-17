@@ -186,6 +186,7 @@ configureclean:
 	rm -f BSDmakefile
 	rm -f GNUmakefile
 	rm -f include/inspircd_config.h
+	rm -f include/inspircd_version.h
 	rm -f include/inspircd_se_config.h
 
 distclean: clean configureclean
@@ -198,7 +199,6 @@ help:
 	@echo 'Flags:'
 	@echo ' V=1       Show the full command being executed instead of "BUILD: dns.cpp"'
 	@echo ' D=1       Enable debug build, for module development or crash tracing'
-	@echo ' O=objdir  Use an alternate location for storing object files'
 	@echo ' -j <N>    Run a parallel build using N jobs'
 	@echo ''
 	@echo 'User targets:'
@@ -207,10 +207,9 @@ help:
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
 	@echo ''
-	@echo ' M=m_foo   Builds a single module'
-	@echo ' T=target  Builds a user-specified target'
-	@echo '           Target can be a file path relative to src/, or one of:'
-	@echo '            inspircd  commands  modules'
+	@echo ' M=m_foo   Builds a single module (cmd_foo also works here)'
+	@echo ' T=target  Builds a user-specified target, such as "inspircd" or "modules"'
+	@echo '           Other targets are specified by their path in the build directory'
 	@echo '           Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
