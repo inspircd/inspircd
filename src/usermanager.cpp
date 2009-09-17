@@ -171,6 +171,12 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		return;
 	}
 
+	if (IS_FAKE(user))
+	{
+		ServerInstance->Logs->Log("CULLLIST",DEBUG, "*** Warning *** - You tried to quit a fake user (%s)", user->nick.c_str());
+		return;
+	}
+
 	user->quitting = true;
 
 	ServerInstance->Logs->Log("USERS", DEBUG, "QuitUser: %s '%s'", user->nick.c_str(), quitreason.c_str());
