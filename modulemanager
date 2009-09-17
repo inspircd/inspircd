@@ -185,7 +185,7 @@ sub resolve_deps {
 			my $ver = $todo{$mod};
 			my $info = $modules{$mod}{$ver} or die "no dependency information on $mod $ver";
 			for my $dep (@{$info->{depends}}) {
-				$dep =~ /^(\S+)(?: \S+)?/ or die "Bad dependency $dep from $info->{from}";
+				$dep =~ /^(\S+)(?: (\S+))?/ or die "Bad dependency $dep from $info->{from}";
 				my($depmod, $depvers) = ($1,$2);
 				next if $todo{$depmod} && ver_in_range($todo{$depmod}, $depvers);
 				# need to install a dependency
@@ -278,15 +278,11 @@ resolve_deps(0);
 
 $| = 1; # immediate print of lines without \n
 
-# whether or not to invoke ./configure -modupdate after processing
-my $regen_modules_list = 0;
-
 print "Processing changes for $action...\n";
 for my $mod (keys %installed) {
 	next if $todo{$mod};
 	print "Uninstalling $mod $installed{$mod}\n";
 	unlink "src/modules/$mod.cpp";
-	$regen_modules_list = 1;
 }
 
 my $count = scalar keys %todo;
@@ -312,7 +308,6 @@ for my $mod (sort keys %todo) {
 	} else {
 		print " - HTTP $stat\n";
 	}
-	$regen_modules_list = 1;
 }
 
 # write database of installed versions
@@ -323,10 +318,4 @@ foreach my $key (keys %mod_versions)
 }
 close SRC;
 
-# regenerate makefiles if necessary
-if ($regen_modules_list)
-{
-	print "Done... Re-generating makefiles\n";
-	system "./configure -modupdate";
-}
 print "Finished!\n";
