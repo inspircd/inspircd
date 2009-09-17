@@ -48,7 +48,16 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	char* myname = names + 100 * line;
 	char* mystat = stats + 50 * line;
 	memset(myname, ' ', depth);
-	int w = depth + snprintf(myname + depth, 99 - depth, "%s (%s)", Current->GetName().c_str(), Current->GetID().c_str());
+	int w = depth;
+
+	if (IS_OPER(user))
+	{
+		w += snprintf(myname + depth, 99 - depth, "%s (%s)", Current->GetName().c_str(), Current->GetID().c_str());
+	}
+	else
+	{
+		w += snprintf(myname + depth, 99 - depth, "%s", Current->GetName().c_str());
+	}
 	memset(myname + w, ' ', 100 - w);
 	if (w > maxnamew)
 		maxnamew = w;
