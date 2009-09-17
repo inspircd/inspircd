@@ -652,6 +652,12 @@
 #<module name="m_delayjoin.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Delay message module: Adds the channel mode +d which disallows a user
+# from talking in the channel unless they've been joined for X seconds.
+# Settable a la: /mode +d 30
+#<module name="m_delaymsg.so>
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny Channels: Deny Channels from being used by users
 #<module name="m_denychans.so"> 
 #

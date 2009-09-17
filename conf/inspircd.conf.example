@@ -471,6 +471,13 @@
          # should be suffixed with.
          suffixpart="\""
 
+         # fixedquit: Set all users' quit messages to this value.
+         #fixedquit=""
+
+         # fixedpart: Set all users' part messages in all channels
+         # to this value.
+         #fixedpart=""
+
          # syntaxhints: If enabled, if a user fails to send the correct parameters
          # for a command, the ircd will give back some help text of what
          # the correct parameters are.
@@ -489,6 +496,11 @@
          # announcets: If set to yes, when the TimeStamp on a channel changes, all users
          # in channel will be sent a NOTICE about it.
          announcets="yes"
+
+         # allowmismatched: Setting this option to yes will allow servers to link even
+	 # if they don't have the same VF_OPTCOMMON modules loaded. Setting this to
+	 # yes may introduce some desyncs and weirdness.
+	 allowmismatched="no"
 
          # hostintopic: If enabled, channels will show the host of the topicsetter
          # in the topic. If set to no, it will only show the nick of the topicsetter.
