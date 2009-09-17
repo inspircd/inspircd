@@ -61,7 +61,7 @@ void ServerSocketListener::OnAcceptReady(int newsock)
 	}
 
 	/* we don't need a pointer to this, creating it stores it in the necessary places */
-	new TreeSocket(this->Utils, this->ServerInstance, newsock, ip, this->GetIOHook());
+	new TreeSocket(this->Utils, this->ServerInstance, newsock, ip, NULL, this->GetIOHook());
 	return;
 }
 
@@ -520,21 +520,20 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	if (PingWarnTime < 0 || PingWarnTime > PingFreq - 1)
 		PingWarnTime = 0;
 
+	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
 	ValidIPs.clear();
-	for (int j = 0; j < Conf->Enumerate("link"); j++)
+	for (int j = 0; j < Conf->Enumerate("link"); ++j)
 	{
 		Link L;
 		std::string Allow = Conf->ReadValue("link", "allowmask", j);
 		L.Name = (Conf->ReadValue("link", "name", j)).c_str();
 		L.AllowMask = Allow;
 		L.IPAddr = Conf->ReadValue("link", "ipaddr", j);
-		L.FailOver = Conf->ReadValue("link", "failover", j).c_str();
 		L.Port = Conf->ReadInteger("link", "port", j, true);
 		L.SendPass = Conf->ReadValue("link", "sendpass", j);
 		L.RecvPass = Conf->ReadValue("link", "recvpass", j);
 		L.Fingerprint = Conf->ReadValue("link", "fingerprint", j);
-		L.AutoConnect = Conf->ReadInteger("link", "autoconnect", j, true);
 		L.HiddenFromStats = Conf->ReadFlag("link", "statshidden", j);
 		L.Timeout = Conf->ReadInteger("link", "timeout", j, true);
 		L.Hook = Conf->ReadValue("link", "transport", j);
@@ -547,10 +546,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			continue;
 
 		}
-
-		// Fix: Only trip autoconnects if this wouldn't delay autoconnect..
-		if (L.NextConnectTime > ((time_t)(ServerInstance->Time() + L.AutoConnect)))
-			L.NextConnectTime = ServerInstance->Time() + L.AutoConnect;
 
 		if (L.Name.find('.') == std::string::npos)
 			throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
@@ -627,16 +622,41 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 		LinkBlocks.push_back(L);
 	}
+
+	for (int j = 0; j < Conf->Enumerate("autoconnect"); ++j)
+	{
+		Autoconnect A;
+		A.Period = Conf->ReadInteger("autoconnect", "period", j, true);
+		A.Server = Conf->ReadValue("autoconnect", "server", j);
+		A.FailOver = Conf->ReadValue("autoconnect", "failover", j).c_str();
+
+		// Fix: Only trip autoconnects if this wouldn't delay autoconnect..
+		if (A.NextConnectTime > ((time_t)(ServerInstance->Time() + A.Period)))
+			A.NextConnectTime = ServerInstance->Time() + A.Period;
+
+		if (A.Period <= 0)
+		{
+			throw CoreException("Invalid configuration for autoconnect, period not a positive integer!");
+		}
+
+		if (A.Server.empty())
+		{
+			throw CoreException("Invalid configuration for autoconnect, server cannot be empty!");
+		}
+
+		AutoconnectBlocks.push_back(A);
+	}
+
 	delete Conf;
 }
 
-void SpanningTreeUtilities::DoFailOver(Link* x)
+void SpanningTreeUtilities::DoFailOver(Autoconnect* x)
 {
-	if (x->FailOver.length())
+	if (x && x->FailOver.length())
 	{
-		if (x->FailOver == x->Name)
+		if (x->FailOver == x->Server)
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
+			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Server.c_str());
 			return;
 		}
 		Link* TryThisOne = this->FindLink(x->FailOver.c_str());
@@ -649,13 +669,13 @@ void SpanningTreeUtilities::DoFailOver(Link* x)
 			}
 			else
 			{
-				this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
-				Creator->ConnectServer(TryThisOne);
+				this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Server.c_str(), TryThisOne->Name.c_str());
+				Creator->ConnectServer(TryThisOne, NULL);
 			}
 		}
 		else
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
+			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Server.c_str());
 		}
 	}
 }

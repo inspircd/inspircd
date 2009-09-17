@@ -244,7 +244,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	}
 }
 
-void ModuleSpanningTree::ConnectServer(Link* x)
+void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 {
 	bool ipvalid = true;
 
@@ -275,7 +275,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		/* Gave a hook, but it wasnt one we know */
 		if ((!x->Hook.empty()) && (Utils->hooks.find(x->Hook.c_str()) == Utils->hooks.end()))
 			return;
-		TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port, x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Bind, x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
+		TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port, x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Bind, y, x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */
@@ -285,7 +285,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
 				ServerInstance->SocketCull[newsocket] = newsocket;
-			Utils->DoFailOver(x);
+			Utils->DoFailOver(y);
 		}
 	}
 	else
@@ -293,25 +293,26 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		try
 		{
 			bool cached;
-			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x, cached, start_type);
+			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x, cached, start_type, y);
 			ServerInstance->AddResolver(snr, cached);
 		}
 		catch (ModuleException& e)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
-			Utils->DoFailOver(x);
+			Utils->DoFailOver(y);
 		}
 	}
 }
 
 void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 {
-	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
+	for (std::vector<Autoconnect>::iterator x = Utils->AutoconnectBlocks.begin(); x < Utils->AutoconnectBlocks.end(); ++x)
 	{
-		if ((x->AutoConnect) && (curtime >= x->NextConnectTime))
+		if (curtime >= x->NextConnectTime)
 		{
-			x->NextConnectTime = curtime + x->AutoConnect;
-			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
+			x->NextConnectTime = curtime + x->Period;
+			TreeServer* CheckDupe = Utils->FindServer(x->Server.c_str());
+			Link* y = Utils->FindLink(x->Server);
 			if (x->FailOver.length())
 			{
 				TreeServer* CheckFailOver = Utils->FindServer(x->FailOver.c_str());
@@ -327,8 +328,8 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 			if (!CheckDupe)
 			{
 				// an autoconnected server is not connected. Check if its time to connect it
-				ServerInstance->SNO->WriteToSnoMask('l',"AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
-				this->ConnectServer(&(*x));
+				ServerInstance->SNO->WriteToSnoMask('l',"AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",y->Name.c_str(),x->Period);
+				this->ConnectServer(&(*y), &(*x));
 			}
 		}
 	}
@@ -336,7 +337,7 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 
 void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 {
-	std::vector<Link*> failovers;
+	std::vector<Autoconnect*> failovers;
 	for (std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); i++)
 	{
 		TreeSocket* s = i->first;
@@ -344,15 +345,13 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		if (curtime > s->age + p.second)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
+			failovers.push_back(s->myautoconnect);
 			ServerInstance->SE->DelFd(s);
 			s->Close();
-			Link* MyLink = Utils->FindLink(p.first);
-			if (MyLink)
-				failovers.push_back(MyLink);
 		}
 	}
 	/* Trigger failover for each timed out socket */
-	for (std::vector<Link*>::const_iterator n = failovers.begin(); n != failovers.end(); ++n)
+	for (std::vector<Autoconnect*>::const_iterator n = failovers.begin(); n != failovers.end(); ++n)
 	{
 		Utils->DoFailOver(*n);
 	}
@@ -411,7 +410,7 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 			if (!CheckDupe)
 			{
 				RemoteMessage(user, "*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
-				ConnectServer(&(*x));
+				ConnectServer(&(*x), NULL);
 				return MOD_RES_DENY;
 			}
 			else

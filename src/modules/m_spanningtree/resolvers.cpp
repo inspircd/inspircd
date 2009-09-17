@@ -31,7 +31,7 @@
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt) : Resolver(Instance, hostname, qt, cached, me), MyLink(x), Utils(Util), query(qt), host(hostname), mine(me)
+ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac) : Resolver(Instance, hostname, qt, cached, me), MyLink(x), Utils(Util), query(qt), host(hostname), mine(me), myautoconnect(myac)
 {
 	/* Nothing in here, folks */
 }
@@ -50,7 +50,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 			return;
 
 		TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str(),
-							MyLink.Bind, MyLink.Hook.empty() ? NULL : Utils->hooks[MyLink.Hook.c_str()]);
+							MyLink.Bind, myautoconnect, MyLink.Hook.empty() ? NULL : Utils->hooks[MyLink.Hook.c_str()]);
 		if (newsocket->GetFd() > -1)
 		{
 			/* We're all OK */
@@ -61,7 +61,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
 			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
 				ServerInstance->SocketCull[newsocket] = newsocket;
-			Utils->DoFailOver(&MyLink);
+			Utils->DoFailOver(myautoconnect);
 		}
 	}
 }
@@ -72,11 +72,11 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 	if (query == DNS_QUERY_AAAA)
 	{
 		bool cached;
-		ServernameResolver* snr = new ServernameResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A);
+		ServernameResolver* snr = new ServernameResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A, myautoconnect);
 		ServerInstance->AddResolver(snr, cached);
 		return;
 	}
 	ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink.Name.c_str(), errormessage.c_str() );
-	Utils->DoFailOver(&MyLink);
+	Utils->DoFailOver(myautoconnect);
 }
 

@@ -608,9 +608,7 @@ void TreeSocket::OnTimeout()
 	if (this->LinkState == CONNECTING)
 	{
 		this->ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
-		Link* MyLink = Utils->FindLink(myhost);
-		if (MyLink)
-			Utils->DoFailOver(MyLink);
+		Utils->DoFailOver(myautoconnect);
 	}
 }
 

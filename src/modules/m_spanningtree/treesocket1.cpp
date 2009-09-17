@@ -34,8 +34,8 @@
  * most of the action, and append a few of our own values
  * to it.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod)
-	: BufferedSocket(SI, shost, iport, maxtime, bindto), Utils(Util), Hook(HookMod)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod)
+	: BufferedSocket(SI, shost, iport, maxtime, bindto), Utils(Util), Hook(HookMod), myautoconnect(myac)
 {
 	age = SI->Time();
 	myhost = ServerName;
@@ -52,8 +52,8 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string sh
  * we must associate it with a socket without creating a new
  * connection. This constructor is used for this purpose.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Module* HookMod)
-	: BufferedSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Autoconnect* myac, Module* HookMod)
+	: BufferedSocket(SI, newfd, ip), Utils(Util), Hook(HookMod), myautoconnect(myac)
 {
 	age = SI->Time();
 	LinkState = WAIT_AUTH_1;
@@ -149,15 +149,11 @@ bool TreeSocket::OnConnected()
 
 void TreeSocket::OnError(BufferedSocketError e)
 {
-	Link* MyLink;
-
 	switch (e)
 	{
 		case I_ERR_CONNECT:
 			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Connection to \002%s\002 refused", myhost.c_str());
-			MyLink = Utils->FindLink(myhost);
-			if (MyLink)
-				Utils->DoFailOver(MyLink);
+			Utils->DoFailOver(myautoconnect);
 		break;
 		case I_ERR_SOCKET:
 			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Could not create socket (%s)", strerror(errno));

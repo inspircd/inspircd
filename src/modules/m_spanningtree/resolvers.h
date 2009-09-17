@@ -74,8 +74,9 @@ class ServernameResolver : public Resolver
 	QueryType query;
 	std::string host;
 	Module* mine;
+	Autoconnect* myautoconnect;
  public:
-        ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt);
+        ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac);
         void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
         void OnError(ResolverError e, const std::string &errormessage);
 };

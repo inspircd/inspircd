@@ -30,10 +30,7 @@ class Link : public classbase
 	std::string RecvPass;
 	std::string Fingerprint;
 	std::string AllowMask;
-	unsigned long AutoConnect;
-	time_t NextConnectTime;
 	bool HiddenFromStats;
-	std::string FailOver;
 	std::string Hook;
 	int Timeout;
 	std::string Bind;

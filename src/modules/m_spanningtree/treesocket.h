@@ -93,6 +93,7 @@ class TreeSocket : public BufferedSocket
 	int proto_version;			/* Remote protocol version */
  public:
 	HandshakeTimer* hstimer;		/* Handshake timer, needed to work around I/O hook buffering */
+	Autoconnect* myautoconnect;		/* Autoconnect used to cause this connection, if any */
 	time_t age;
 
 	/** Because most of the I/O gubbins are encapsulated within
@@ -100,13 +101,13 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod = NULL);
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod = NULL);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Module* HookMod = NULL);
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Autoconnect* myac, Module* HookMod = NULL);
 
 	/** Get link state
 	 */

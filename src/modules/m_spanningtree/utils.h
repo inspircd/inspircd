@@ -59,6 +59,21 @@ typedef std::map<TreeServer*,TreeServer*> TreeServerList;
  */
 typedef std::map<irc::string, Module*> hookmodules;
 
+/** The Autoconnect class might as well be a struct,
+ * but this is C++ and we don't believe in structs (!).
+ * It holds the entire information of one <autoconnect>
+ * tag from the main config file. We maintain a list
+ * of them, and populate the list on rehash/load.
+ */
+class Autoconnect : public classbase
+{
+ public:
+	unsigned long Period;
+	std::string Server;
+	time_t NextConnectTime;
+	std::string FailOver;
+};
+
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
@@ -122,6 +137,9 @@ class SpanningTreeUtilities : public classbase
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<Link> LinkBlocks;
+	/** Holds the data from the <autoconnect> tags in the conf
+	 */
+	std::vector<Autoconnect> AutoconnectBlocks;
 
 	/** List of module pointers which can provide I/O abstraction
 	 */
@@ -209,7 +227,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Attempt to connect to the failover link of link x
 	 */
-	void DoFailOver(Link* x);
+	void DoFailOver(Autoconnect* x);
 
 	/** Find a link tag from a server name
 	 */

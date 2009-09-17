@@ -37,6 +37,7 @@ class SpanningTreeUtilities;
 class CacheRefreshTimer;
 class TreeServer;
 class Link;
+class Autoconnect;
 
 /** This is the main class for the spanningtree module
  */
@@ -123,7 +124,7 @@ class ModuleSpanningTree : public Module
 
 	/** Connect a server locally
 	 */
-	void ConnectServer(Link* x);
+	void ConnectServer(Link* x, Autoconnect* y);
 
 	/** Check if any servers are due to be autoconnected
 	 */
