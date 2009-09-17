@@ -611,6 +611,7 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	dir_check("are the configuration files", "CONFIG_DIR");
 	dir_check("are the modules to be compiled to", "MODULE_DIR");
 	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
+	dir_check("do you want the build to take place", "BUILD_DIR");
 
 	my $chose_hiperf = 0;
 	if ($has_kqueue) {
@@ -1075,8 +1076,11 @@ EOF
 			close(FILEHANDLE);
 
 			print "Writing \e[1;32m$file\e[0m ...\n";
+
+			$config{BUILD_DIR} ||= 'build';
+
 			for my $var (qw(
-				CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR
+				CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR
 				STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE
 			)) {
 				s/\@$var\@/$config{$var}/g;

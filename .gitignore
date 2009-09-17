@@ -3,53 +3,35 @@
 *.so
 *.o
 .*.d
+*.cpp.*
 
-/GNUmakefile
-/BSDmakefile
-/.modulemanager
-/.config.cache
-/inspircd
-/inspircd.pid
-/inspircd.core
-/modules
-/org.inspircd.plist
-/*.patch
 /*.diff
 /*.orig
+/*.patch
 /*.rej
+/.config.cache
+/.modulemanager
+/BSDmakefile
+/GNUmakefile
+/bin
+/build
+/inspircd
+/inspircd.core
+/inspircd.pid
+/modules
+/org.inspircd.plist
 
-# /bin/
-/bin/inspircd
-/bin/ircd.log
-/bin/*core*
-
-# /conf/
 /conf/*.conf
 /conf/*.pem
 /conf/inspircd.conf.example
 /conf/*.pid
 
-# /include/
 /include/inspircd_config.h
 /include/inspircd_version.h
 /include/inspircd_se_config.h
 
-# /src/
 /src/inspircd
-/src/Makefile
-/src/*.cpp.*
 
-# /src/commands/
-/src/commands/Makefile
-/src/commands/*.so
-/src/commands/*.cpp.*
-
-# /src/modes/
-/src/modes/*.a
-/src/modes/*.o
-/src/modes/*.cpp.*
-
-# /src/modules/
 /src/modules/m_geoip.cpp
 /src/modules/m_ldapauth.cpp
 /src/modules/m_ldapoper.cpp
@@ -73,5 +55,3 @@
 /src/modules/m_testclient.cpp
 /src/modules/m_ziplink.cpp
 /src/modules/ssl_cert.h
-/src/modules/Makefile
-/src/modules/README

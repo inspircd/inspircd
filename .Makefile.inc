@@ -8,6 +8,7 @@
 
 CC = @CC@
 SYSTEM = @SYSTEM@
+BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
 CXXFLAGS += -pipe -fPIC -DPIC
 LDLIBS = -pthread -lstdc++
@@ -51,17 +52,12 @@ INSTMODE = 0755
 @ENDIF
 FOOTER = finishmessage
 
-CXXFLAGS += -I../include
+CXXFLAGS += -Iinclude
 
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
 @GNU_ONLY SOURCEPATH = $(shell /bin/pwd)
 @BSD_ONLY SOURCEPATH != /bin/pwd
-@IFDEF O
-    BUILDPATH = $(O)
-@ELSE
-    BUILDPATH = src
-@ENDIF
 
 @IFDEF V
     RUNCC = $(CC)
@@ -73,7 +69,7 @@ CXXFLAGS += -I../include
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT BASE CONPATH MODPATH BINPATH SOURCEPATH
+@DO_EXPORT BASE CONPATH MODPATH BINPATH SOURCEPATH BUILDPATH
 
 # Default target
 TARGET = all
@@ -94,8 +90,8 @@ TARGET = all
 all: $(FOOTER)
 
 target: $(HEADER)
-@GNU_ONLY 	$(MAKEENV) $(MAKE) -C $(BUILDPATH) -f ../make/gnu-real.mk $(TARGET)
-@BSD_ONLY 	$(MAKEENV) $(MAKE) -C $(BUILDPATH) -f ../make/bsd-real.mk $(TARGET)
+	$(MAKEENV) perl make/calcdep.pl
+	$(MAKEENV) $(MAKE) -C $(BUILDPATH) -f real.mk $(TARGET)
 
 debug:
 	@${MAKE} D=1 all
@@ -118,7 +114,7 @@ mod-header:
 	@echo 'Building single module:'
 
 mod-footer: target
-	@echo 'To install, copy src/$(TARGET) to $(MODPATH)'
+	@echo 'To install, copy $(BUILDPATH)/$(TARGET) to $(MODPATH)'
 	@echo 'Or, run "make install"'
 
 std-header:
@@ -145,10 +141,9 @@ install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) $(MODPATH)
-	-install -m $(INSTMODE) src/commands/*.so $(MODPATH)
-	-install -m $(INSTMODE) src/modules/*.so $(MODPATH)
+	-install -m $(INSTMODE) $(BUILDPATH)/modules/*.so $(MODPATH)
+	-install -m $(INSTMODE) $(BUILDPATH)/bin/inspircd $(BINPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
-	-install -m $(INSTMODE) src/inspircd $(BINPATH)
 	@$(MAKEENV) make/install-extras.pl install
 	@echo ""
 	@echo "*************************************"
@@ -163,9 +158,13 @@ install: target@EXTRA_DIR@
 clean:
 	@echo Cleaning...
 	@rm -f src/inspircd src/modes/modeclasses.a
-	@rm -f src/*.so src/modules/*.so src/commands/*.so src/modules/*/*.so
+	@rm -f src/*.so src/modules/*.so src/commands/*.so
 	@rm -f src/*.o src/*/*.o src/modules/*/*.o
 	@rm -f src/.*.d src/*/.*.d src/modules/*/.*.d
+	@rm -f $(BUILDPATH)/bin/inspircd $(BUILDPATH)/include $(BUILDPATH)/real.mk
+	@rm -rf $(BUILDPATH)/obj $(BUILDPATH)/modules
+	@-rmdir $(BUILDPATH)/bin
+	@-rmdir $(BUILDPATH)
 	@echo Completed.
 
 deinstall:
