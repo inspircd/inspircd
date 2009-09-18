@@ -1661,21 +1661,18 @@ void User::SendAll(const char* command, const char* text, ...)
 }
 
 
-std::string User::ChannelList(User* source)
+std::string User::ChannelList(User* source, bool spy)
 {
 	std::string list;
 
 	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 	{
 		Channel* c = *i;
-		/* If the target is the same as the sender, let them see all their channels.
-		 * If the channel is NOT private/secret OR the user shares a common channel
-		 * If the user is an oper, and the <options:operspywhois> option is set.
+		/* If the target is the sender, neither +p nor +s is set, or
+		 * the channel contains the user, it is not a spy channel
 		 */
-		if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!c->IsModeSet('p')) && (!c->IsModeSet('s'))) || (c->HasUser(source))))
-		{
+		if (spy != (source == this || !(c->IsModeSet('p') || c->IsModeSet('s')) || c->HasUser(source)))
 			list.append(c->GetPrefixChar(this)).append(c->name).append(" ");
-		}
 	}
 
 	return list;

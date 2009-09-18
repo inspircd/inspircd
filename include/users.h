@@ -865,12 +865,12 @@ class CoreExport User : public EventHandler
 	 */
 	void SendAll(const char* command, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Compile a channel list for this user, and send it to the user 'source'
-	 * Used internally by WHOIS
-	 * @param The user to send the channel list to if it is not too long
+	/** Compile a channel list for this user.  Used internally by WHOIS
+	 * @param source The user to prepare the channel list for
+	 * @param spy Whether to return the spy channel list rather than the normal one
 	 * @return This user's channel list
 	 */
-	std::string ChannelList(User* source);
+	std::string ChannelList(User* source, bool spy);
 
 	/** Split the channel list in cl which came from dest, and spool it to this user
 	 * Used internally by WHOIS

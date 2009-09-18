@@ -115,7 +115,12 @@ class CommandCheck : public Command
 			else
 				ServerInstance->DumpText(user, checkstr + " onip " + targuser->GetIPString());
 
-			chliststr = targuser->ChannelList(targuser);
+			for (UCListIter i = targuser->chans.begin(); i != targuser->chans.end(); i++)
+			{
+				Channel* c = *i;
+				chliststr.append(c->GetPrefixChar(targuser)).append(c->name).append(" ");
+			}
+
 			std::stringstream dump(chliststr);
 
 			ServerInstance->DumpText(user,checkstr + " onchans", dump);
