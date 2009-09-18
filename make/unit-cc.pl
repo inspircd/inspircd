@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-BEGIN { push @INC, '..'; }
+BEGIN { push @INC, $ENV{SOURCEPATH}; }
 use make::configure;
 
 my $file = shift;

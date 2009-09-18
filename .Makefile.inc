@@ -155,6 +155,9 @@ install: target@EXTRA_DIR@
 	@echo "* REMEMBER TO EDIT YOUR CONFIG FILE *"
 	@echo "*************************************"
 
+@GNU_ONLY GNUmakefile: .Makefile.inc configure .config.cache
+@GNU_ONLY 	./configure -update
+
 clean:
 	@echo Cleaning...
 	@rm -f src/inspircd src/modes/modeclasses.a
