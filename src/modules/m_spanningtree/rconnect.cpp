@@ -59,3 +59,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 	return CMD_SUCCESS;
 }
 
+RouteDescriptor CommandRConnect::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return ROUTE_UNICAST(parameters[0]);
+}

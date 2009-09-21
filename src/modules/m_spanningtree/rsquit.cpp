@@ -68,6 +68,11 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 }
 
+RouteDescriptor CommandRSQuit::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return ROUTE_UNICAST(parameters[0]);
+}
+
 // XXX use protocol interface instead of rolling our own :)
 void CommandRSQuit::NoticeUser(User* user, const std::string &msg)
 {
