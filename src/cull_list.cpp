@@ -18,12 +18,13 @@
 
 void CullList::Apply()
 {
-	for(std::set<classbase*>::iterator i = list.begin(); i != list.end(); i++)
+	std::vector<classbase*> todel(list.begin(), list.end());
+	list.clear();
+	for(std::vector<classbase*>::iterator i = todel.begin(); i != todel.end(); i++)
 	{
 		classbase* c = *i;
 		c->cull();
 		delete c;
 	}
-	list.clear();
 }
 

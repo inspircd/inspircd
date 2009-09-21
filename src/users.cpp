@@ -235,6 +235,7 @@ User::User(InspIRCd* Instance, const std::string &uid)
 
 User::~User()
 {
+	ServerInstance->Logs->Log("USERS", DEBUG, "User destructor for %s", uuid.c_str());
 	/* NULL for remote users :) */
 	if (this->MyClass)
 	{
