@@ -27,6 +27,8 @@ static const char* const forge_common_1201[] = {
 	"m_setident.so",
 };
 
+static std::string wide_newline("\r\n");
+
 void TreeSocket::CompatAddModules(std::vector<std::string>& modlist)
 {
 	if (proto_version < 1202)
@@ -81,8 +83,8 @@ void TreeSocket::WriteLine(std::string line)
 	}
 
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
-	line.append("\r\n");
 	this->WriteData(line);
+	this->WriteData(wide_newline);
 }
 
 

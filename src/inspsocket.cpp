@@ -296,6 +296,12 @@ void StreamSocket::DoWrite()
 
 void StreamSocket::WriteData(const std::string &data)
 {
+	if (fd < 0)
+	{
+		ServerInstance->Logs->Log("SOCKET", DEBUG, "Attempt to write data to dead socket: %s",
+			data.c_str());
+		return;
+	}
 	bool newWrite = sendq.empty() && !data.empty();
 
 	/* Append the data to the back of the queue ready for writing */

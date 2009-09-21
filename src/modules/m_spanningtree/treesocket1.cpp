@@ -176,6 +176,8 @@ void TreeSocket::SendError(const std::string &errormessage)
  */
 void TreeSocket::SquitServer(std::string &from, TreeServer* Current)
 {
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"SquitServer for %s from %s",
+		Current->GetName().c_str(), from.c_str());
 	/* recursively squit the servers attached to 'Current'.
 	 * We're going backwards so we don't remove users
 	 * while we still need them ;)
