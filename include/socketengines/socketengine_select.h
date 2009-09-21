@@ -24,8 +24,6 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
-class InspIRCd;
-
 /** A specialisation of the SocketEngine class, designed to use traditional select().
  */
 class SelectEngine : public SocketEngine
@@ -45,11 +43,11 @@ public:
 	/** Create a new SelectEngine
 	 * @param Instance The creator of this object
 	 */
-	SelectEngine(InspIRCd* Instance);
+	SelectEngine();
 	/** Delete a SelectEngine
 	 */
 	virtual ~SelectEngine();
-	virtual bool AddFd(EventHandler* eh);
+	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
 	virtual bool DelFd(EventHandler* eh, bool force = false);
@@ -65,7 +63,7 @@ class SocketEngineFactory
 public:
 	/** Create a new instance of SocketEngine based on SelectEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new SelectEngine(Instance); }
+	SocketEngine* Create() { return new SelectEngine; }
 };
 
 #endif

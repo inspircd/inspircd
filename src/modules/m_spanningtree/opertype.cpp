@@ -29,11 +29,11 @@ bool TreeSocket::OperType(const std::string &prefix, parameterlist &params)
 	if (params.size() != 1)
 		return true;
 	std::string opertype = params[0];
-	User* u = this->ServerInstance->FindNick(prefix);
+	User* u = ServerInstance->FindNick(prefix);
 	if (u)
 	{
 		if (!IS_OPER(u))
-			this->ServerInstance->Users->all_opers.push_back(u);
+			ServerInstance->Users->all_opers.push_back(u);
 		u->modes[UM_OPERATOR] = 1;
 		u->oper.assign(opertype, 0, 512);
 		Utils->DoOneToAllButSender(u->uuid, "OPERTYPE", params, u->server);
@@ -49,7 +49,7 @@ bool TreeSocket::OperType(const std::string &prefix, parameterlist &params)
 			 */
 			if (
 				remoteserver->bursting ||
-				this->ServerInstance->SilentULine(this->ServerInstance->FindServerNamePtr(u->server))
+				ServerInstance->SilentULine(ServerInstance->FindServerNamePtr(u->server))
 			   )
 			{
 				dosend = false;
@@ -57,7 +57,7 @@ bool TreeSocket::OperType(const std::string &prefix, parameterlist &params)
 		}
 
 		if (dosend)
-			this->ServerInstance->SNO->WriteToSnoMask('O',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server, u->nick.c_str(),u->ident.c_str(), u->host.c_str(), irc::Spacify(opertype.c_str()));
+			ServerInstance->SNO->WriteToSnoMask('O',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server, u->nick.c_str(),u->ident.c_str(), u->host.c_str(), irc::Spacify(opertype.c_str()));
 	}
 	return true;
 }

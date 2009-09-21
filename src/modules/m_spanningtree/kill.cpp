@@ -28,7 +28,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, parameterlist &params)
 	if (params.size() != 2)
 		return true;
 
-	User* who = this->ServerInstance->FindNick(params[0]);
+	User* who = ServerInstance->FindNick(params[0]);
 
 	if (who)
 	{
@@ -46,7 +46,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, parameterlist &params)
 			// this shouldn't ever be null, but it doesn't hurt to check
 			who->Write(":%s KILL %s :%s (%s)", src->GetName().c_str(), who->nick.c_str(), src->GetName().c_str(), reason.c_str());
 		}
-		this->ServerInstance->Users->QuitUser(who, reason);
+		ServerInstance->Users->QuitUser(who, reason);
 	}
 	return true;
 }

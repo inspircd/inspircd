@@ -277,7 +277,6 @@ class serverstats : public classbase
 
 class InspIRCd;
 
-DEFINE_HANDLER1(ProcessUserHandler, void, User*);
 DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
@@ -386,18 +385,12 @@ class CoreExport InspIRCd : public classbase
 
 	/**** Functors ****/
 
-	ProcessUserHandler HandleProcessUser;
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
 	FloodQuitUserHandler HandleFloodQuitUser;
 	IsChannelHandler HandleIsChannel;
 	IsSIDHandler HandleIsSID;
 	RehashHandler HandleRehash;
-
-	/** BufferedSocket classes pending deletion after being closed.
-	 * We don't delete these immediately as this may cause a segmentation fault.
-	 */
-	std::map<BufferedSocket*,BufferedSocket*> SocketCull;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -526,13 +519,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return The current time as an epoch value (time_t)
 	 */
 	time_t Time();
-
-	/** Process a user whos socket has been flagged as active
-	 * @param cu The user to process
-	 * @return There is no actual return value, however upon exit, the user 'cu' may have been
-	 * marked for deletion in the global CullList.
-	 */
-	caller1<void, User*> ProcessUser;
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error
@@ -923,11 +909,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return The return value for this function is undefined.
 	 */
 	int Run();
-
-	/** Force all BufferedSockets to be removed which are due to
-	 * be culled.
-	 */
-	void BufferedSocketCull();
 
 	/** Adds an extban char to the 005 token.
 	 */

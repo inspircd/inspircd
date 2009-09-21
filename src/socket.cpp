@@ -273,7 +273,7 @@ std::string irc::sockets::satouser(const irc::sockets::sockaddrs* sa) {
 	return std::string(buffer);
 }
 
-int irc::sockets::sa_size(irc::sockets::sockaddrs& sa)
+int irc::sockets::sa_size(const irc::sockets::sockaddrs& sa)
 {
 	if (sa.sa.sa_family == AF_INET)
 		return sizeof(sa.in4);

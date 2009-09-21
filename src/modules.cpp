@@ -159,11 +159,11 @@ void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
 ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnDelBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
-void		Module::OnRawSocketAccept(int, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
-int		Module::OnRawSocketWrite(int, const char*, int) { return 0; }
-void		Module::OnRawSocketClose(int) { }
-void		Module::OnRawSocketConnect(int) { }
-int		Module::OnRawSocketRead(int, char*, unsigned int, int&) { return 0; }
+void		Module::OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
+int		Module::OnStreamSocketWrite(StreamSocket*, std::string&) { return -1; }
+void		Module::OnStreamSocketClose(StreamSocket*) { }
+void		Module::OnStreamSocketConnect(StreamSocket*) { }
+int		Module::OnStreamSocketRead(StreamSocket*, std::string&) { return -1; }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&) { }
 void		Module::OnUserNotice(User*, void*, int, const std::string&, char, const CUList&) { }
 void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
@@ -196,7 +196,7 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnHookIO(EventHandler*, ListenSocketBase*) { }
+void		Module::OnHookIO(StreamSocket*, ListenSocketBase*) { }
 ModResult	Module::OnHostCycle(User*) { return MOD_RES_PASSTHRU; }
 void		Module::OnSendWhoLine(User*, User*, Channel*, std::string&) { }
 

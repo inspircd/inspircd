@@ -78,8 +78,8 @@ ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &r
 				ip = "*";
 
 			std::string transport("plaintext");
-			if (Utils->Bindings[i]->GetIOHook())
-				transport = BufferedSocketNameRequest(this, Utils->Bindings[i]->GetIOHook()).Send();
+			if (Utils->Bindings[i]->Hook)
+				transport = BufferedSocketNameRequest(this, Utils->Bindings[i]->Hook).Send();
 
 			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->GetPort())+
 				" (server, " + transport + ")");

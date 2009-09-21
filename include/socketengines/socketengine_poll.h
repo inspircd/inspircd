@@ -48,13 +48,12 @@ private:
 	std::map<int, unsigned int> fd_mappings;
 public:
 	/** Create a new PollEngine
-	 * @param Instance The creator of this object
 	 */
-	PollEngine(InspIRCd* Instance);
+	PollEngine();
 	/** Delete a PollEngine
 	 */
 	virtual ~PollEngine();
-	virtual bool AddFd(EventHandler* eh);
+	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
 	virtual EventHandler* GetRef(int fd);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
@@ -71,7 +70,7 @@ class SocketEngineFactory
 public:
 	/** Create a new instance of SocketEngine based on PollEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new PollEngine(Instance); }
+	SocketEngine* Create() { return new PollEngine; }
 };
 
 #endif

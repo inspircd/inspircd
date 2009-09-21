@@ -27,14 +27,14 @@ bool TreeSocket::ForceTopic(const std::string &source, parameterlist &params)
 	if (params.size() != 4)
 		return true;
 	time_t ts = atoi(params[1].c_str());
-	Channel* c = this->ServerInstance->FindChan(params[0]);
+	Channel* c = ServerInstance->FindChan(params[0]);
 	if (c)
 	{
 		if ((ts >= c->topicset) || (c->topic.empty()))
 		{
 			if (c->topic != params[3])
 			{
-				User* user = this->ServerInstance->FindNick(source);
+				User* user = ServerInstance->FindNick(source);
 				// Update topic only when it differs from current topic
 				c->topic.assign(params[3], 0, ServerInstance->Config->Limits.MaxTopic);
 				if (!user)

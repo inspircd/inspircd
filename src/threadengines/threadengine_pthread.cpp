@@ -65,8 +65,7 @@ class ThreadSignalSocket : public BufferedSocket
 {
 	SocketThread* parent;
  public:
-	ThreadSignalSocket(SocketThread* p, InspIRCd* SI, int newfd) :
-		BufferedSocket(SI, newfd, const_cast<char*>("0.0.0.0")), parent(p) {}
+	ThreadSignalSocket(SocketThread* p, int newfd) : BufferedSocket(newfd), parent(p) {}
 
 	~ThreadSignalSocket()
 	{
@@ -77,13 +76,14 @@ class ThreadSignalSocket : public BufferedSocket
 		eventfd_write(fd, 1);
 	}
 
-	virtual bool OnDataReady()
+	void OnDataReady()
 	{
-		eventfd_t data;
-		if (eventfd_read(fd, &data))
-			return false;
+		recvq.clear();
 		parent->OnNotify();
-		return true;
+	}
+
+	void OnError(BufferedSocketError)
+	{
 	}
 };
 
@@ -92,7 +92,7 @@ SocketThread::SocketThread(InspIRCd* SI)
 	int fd = eventfd(0, O_NONBLOCK);
 	if (fd < 0)
 		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
-	signal.sock = new ThreadSignalSocket(this, SI, fd);
+	signal.sock = new ThreadSignalSocket(this, fd);
 }
 #else
 
@@ -101,8 +101,8 @@ class ThreadSignalSocket : public BufferedSocket
 	SocketThread* parent;
 	int send_fd;
  public:
-	ThreadSignalSocket(SocketThread* p, InspIRCd* SI, int recvfd, int sendfd) :
-		BufferedSocket(SI, recvfd, const_cast<char*>("0.0.0.0")), parent(p), send_fd(sendfd)  {}
+	ThreadSignalSocket(SocketThread* p, int recvfd, int sendfd) :
+		BufferedSocket(recvfd), parent(p), send_fd(sendfd)  {}
 
 	~ThreadSignalSocket()
 	{
@@ -115,13 +115,14 @@ class ThreadSignalSocket : public BufferedSocket
 		write(send_fd, &dummy, 1);
 	}
 
-	virtual bool OnDataReady()
+	void OnDataReady()
 	{
-		char data;
-		if (read(this->fd, &data, 1) <= 0)
-			return false;
+		recvq.clear();
 		parent->OnNotify();
-		return true;
+	}
+
+	void OnError(BufferedSocketError)
+	{
 	}
 };
 
@@ -130,7 +131,7 @@ SocketThread::SocketThread(InspIRCd* SI)
 	int fds[2];
 	if (pipe(fds))
 		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
-	signal.sock = new ThreadSignalSocket(this, SI, fds[0], fds[1]);
+	signal.sock = new ThreadSignalSocket(this, fds[0], fds[1]);
 }
 #endif
 

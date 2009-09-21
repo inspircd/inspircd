@@ -99,7 +99,7 @@ namespace irc
 		CoreExport int OpenTCPSocket(const char* addr, int socktype = SOCK_STREAM);
 
 		/** Return the size of the structure for syscall passing */
-		CoreExport int sa_size(irc::sockets::sockaddrs& sa);
+		CoreExport int sa_size(const irc::sockets::sockaddrs& sa);
 
 		/** Convert an address-port pair into a binary sockaddr
 		 * @param addr The IP address, IPv4 or IPv6

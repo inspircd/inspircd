@@ -46,7 +46,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 	{
 		try
 		{
-			New->GetIOHook()->OnRawSocketAccept(socket, client, server);
+			New->GetIOHook()->OnStreamSocketAccept(New, client, server);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -201,24 +201,18 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 	FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(user));
 
-	user->UpdateNickHash(user->uuid.c_str());
-
-	user_hash::iterator iter = this->clientlist->find(user->uuid);
-
 	if (user->registered != REG_ALL)
 		if (ServerInstance->Users->unregistered_count)
 			ServerInstance->Users->unregistered_count--;
 
 	if (IS_LOCAL(user))
 	{
-		if (!user->sendq.empty())
-			user->FlushWriteBuf();
-
+		user->DoWrite();
 		if (user->GetIOHook())
 		{
 			try
 			{
-				user->GetIOHook()->OnRawSocketClose(user->GetFd());
+				user->GetIOHook()->OnStreamSocketClose(user);
 			}
 			catch (CoreException& modexcept)
 			{
@@ -227,7 +221,9 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		}
 
 		ServerInstance->SE->DelFd(user);
-		user->CloseSocket();
+		user->Close();
+		// user->Close() will set fd to -1; this breaks IS_LOCAL. Fix
+		user->SetFd(INT_MAX);
 	}
 
 	/*
@@ -255,19 +251,12 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		user->AddToWhoWas();
 	}
 
+	user_hash::iterator iter = this->clientlist->find(user->nick);
+
 	if (iter != this->clientlist->end())
 		this->clientlist->erase(iter);
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "iter == clientlist->end, can't remove them from hash... problematic..");
-
-	if (IS_LOCAL(user))
-	{
-		std::vector<User*>::iterator x = find(local_users.begin(),local_users.end(),user);
-		if (x != local_users.end())
-			local_users.erase(x);
-		else
-			ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
-	}
 }
 
 

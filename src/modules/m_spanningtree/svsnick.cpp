@@ -32,7 +32,7 @@ bool TreeSocket::SVSNick(const std::string &prefix, parameterlist &params)
 	if (params.size() < 3)
 		return true;
 
-	User* u = this->ServerInstance->FindNick(params[0]);
+	User* u = ServerInstance->FindNick(params[0]);
 
 	if (u)
 	{
@@ -48,7 +48,7 @@ bool TreeSocket::SVSNick(const std::string &prefix, parameterlist &params)
 				/* buh. UID them */
 				if (!u->ForceNickChange(u->uuid.c_str()))
 				{
-					this->ServerInstance->Users->QuitUser(u, "Nickname collision");
+					ServerInstance->Users->QuitUser(u, "Nickname collision");
 					return true;
 				}
 			}

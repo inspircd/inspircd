@@ -71,7 +71,6 @@ class TreeSocket : public BufferedSocket
 {
 	SpanningTreeUtilities* Utils;		/* Utility class */
 	std::string myhost;			/* Canonical hostname */
-	std::string in_buffer;			/* Input buffer */
 	ServerState LinkState;			/* Link state */
 	std::string InboundServerName;		/* Server name sent to us by other side */
 	std::string InboundDescription;		/* Server description (GECOS) sent to us by the other side */
@@ -80,10 +79,10 @@ class TreeSocket : public BufferedSocket
 	int num_lost_servers;			/* Servers lost in split */
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
+	std::string IP;
 	std::string ModuleList;			/* Required module list of other server from CAPAB */
 	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
 	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
-	Module* Hook;				/* I/O hooking module that we're attached to for this socket */
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	std::string OutboundPass;		/* Outbound password */
@@ -101,13 +100,13 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod = NULL);
+	TreeSocket(SpanningTreeUtilities* Util, std::string host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod = NULL);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Autoconnect* myac, Module* HookMod = NULL);
+	TreeSocket(SpanningTreeUtilities* Util, int newfd, char* ip, Autoconnect* myac, Module* HookMod = NULL);
 
 	/** Get link state
 	 */
@@ -137,10 +136,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	void CleanNegotiationInfo();
 
-	/** Return the module which we are hooking to for I/O encapsulation
-	 */
-	Module* GetHook();
-
 	/** Destructor
 	 */
 	~TreeSocket();
@@ -160,7 +155,7 @@ class TreeSocket : public BufferedSocket
 	 * to server docs on the inspircd.org site, the other side
 	 * will then send back its own server string.
 	 */
-	virtual bool OnConnected();
+	virtual void OnConnected();
 
 	/** Handle socket error event
 	 */
@@ -170,10 +165,6 @@ class TreeSocket : public BufferedSocket
 	 * that it was sent.
 	 */
 	void SendError(const std::string &errormessage);
-
-	/** Handle socket disconnect event
-	 */
-	virtual int OnDisconnect();
 
 	/** Recursively send the server tree with distances as hops.
 	 * This is used during network burst to inform the other server
@@ -258,14 +249,9 @@ class TreeSocket : public BufferedSocket
 	void DoBurst(TreeServer* s);
 
 	/** This function is called when we receive data from a remote
-	 * server. We buffer the data in a std::string (it doesnt stay
-	 * there for long), reading using BufferedSocket::Read() which can
-	 * read up to 16 kilobytes in one operation.
-	 *
-	 * IF THIS FUNCTION RETURNS FALSE, THE CORE CLOSES AND DELETES
-	 * THE SOCKET OBJECT FOR US.
+	 * server.
 	 */
-	virtual bool OnDataReady();
+	void OnDataReady();
 
 	/** Send one or more complete lines down the socket
 	 */
@@ -404,10 +390,9 @@ class TreeSocket : public BufferedSocket
 	/** Handle socket timeout from connect()
 	 */
 	virtual void OnTimeout();
-
-	/** Handle socket close event
+	/** Handle server quit on close
 	 */
-	virtual void OnClose();
+	virtual void Close();
 };
 
 /* Used to validate the value lengths of multiple parameters for a command */

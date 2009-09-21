@@ -15,6 +15,7 @@
 #define __USERS_H__
 
 #include "socket.h"
+#include "inspsocket.h"
 #include "dns.h"
 #include "mode.h"
 
@@ -210,7 +211,7 @@ class User;
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
  * user's nickname and hostname.
  */
-class CoreExport User : public EventHandler
+class CoreExport User : public StreamSocket
 {
  private:
 	/** A list of channels the user has a pending invite to.
@@ -405,17 +406,6 @@ class CoreExport User : public EventHandler
 	 */
 	std::string password;
 
-	/** User's receive queue.
-	 * Lines from the IRCd awaiting processing are stored here.
-	 * Upgraded april 2005, old system a bit hairy.
-	 */
-	std::string recvq;
-
-	/** User's send queue.
-	 * Lines waiting to be sent are stored here until their buffer is flushed.
-	 */
-	std::string sendq;
-
 	/** Whether or not to send an snotice about this user's quitting
 	 */
 	bool quietquit;
@@ -596,58 +586,12 @@ class CoreExport User : public EventHandler
 	 */
 	bool HasModePermission(unsigned char mode, ModeType type);
 
-	/** Calls read() to read some data for this user using their fd.
-	 * @param buffer The buffer to read into
-	 * @param size The size of data to read
-	 * @return The number of bytes read, or -1 if an error occured.
-	 */
-	int ReadData(void* buffer, size_t size);
-
-	/** This method adds data to the read buffer of the user.
-	 * The buffer can grow to any size within limits of the available memory,
-	 * managed by the size of a std::string, however if any individual line in
-	 * the buffer grows over 600 bytes in length (which is 88 chars over the
-	 * RFC-specified limit per line) then the method will return false and the
-	 * text will not be inserted.
-	 * @param a The string to add to the users read buffer
-	 * @return True if the string was successfully added to the read buffer
-	 */
-	bool AddBuffer(const std::string &a);
-
-	/** This method returns true if the buffer contains at least one carriage return
-	 * character (e.g. one complete line may be read)
-	 * @return True if there is at least one complete line in the users buffer
-	 */
-	bool BufferIsReady();
-
-	/** This function clears the entire buffer by setting it to an empty string.
-	 */
-	void ClearBuffer();
-
-	/** This method returns the first available string at the tail end of the buffer
-	 * and advances the tail end of the buffer past the string. This means it is
-	 * a one way operation in a similar way to strtok(), and multiple calls return
-	 * multiple lines if they are available. The results of this function if there
-	 * are no lines to be read are unknown, always use BufferIsReady() to check if
-	 * it is ok to read the buffer before calling GetBuffer().
-	 * @return The string at the tail end of this users buffer
-	 */
-	std::string GetBuffer();
-
 	/** Adds to the user's write buffer.
 	 * You may add any amount of text up to this users sendq value, if you exceed the
 	 * sendq value, the user will be removed, and further buffer adds will be dropped.
 	 * @param data The data to add to the write buffer
 	 */
 	void AddWriteBuf(const std::string &data);
-
-	/** Flushes as much of the user's buffer to the file descriptor as possible.
-	 * This function may not always flush the entire buffer, rather instead as much of it
-	 * as it possibly can. If the send() call fails to send the entire buffer, the buffer
-	 * position is advanced forwards and the rest of the data sent at the next call to
-	 * this method.
-	 */
-	void FlushWriteBuf();
 
 	/** Returns the list of channels this user has been invited to but has not yet joined.
 	 * @return A list of channels the user is invited to
@@ -671,12 +615,6 @@ class CoreExport User : public EventHandler
 	 * @return the usermask in the format user@ip
 	 */
 	const std::string& MakeHostIP();
-
-	/** Shuts down and closes the user's socket
-	 * This will not cause the user to be deleted. Use InspIRCd::QuitUser for this,
-	 * which will call CloseSocket() for you.
-	 */
-	void CloseSocket();
 
 	/** Add the user to WHOWAS system
 	 */
@@ -911,16 +849,13 @@ class CoreExport User : public EventHandler
 	 */
 	void DecreasePenalty(int decrease);
 
-	/** Handle socket event.
-	 * From EventHandler class.
-	 * @param et Event type
-	 * @param errornum Error number for EVENT_ERROR events
-	 */
-	void HandleEvent(EventType et, int errornum = 0);
+	void OnDataReady();
+	void OnError(BufferedSocketError error);
 
 	/** Default destructor
 	 */
 	virtual ~User();
+	virtual void cull();
 };
 
 /** Derived from Resolver, and performs user forward/reverse lookups.

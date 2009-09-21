@@ -19,7 +19,7 @@
 	#include <sys/sysctl.h>
 #endif
 
-PollEngine::PollEngine(InspIRCd* Instance) : SocketEngine(Instance)
+PollEngine::PollEngine()
 {
 	// Poll requires no special setup (which is nice).
 	CurrentSetSize = 0;
@@ -39,7 +39,7 @@ PollEngine::~PollEngine()
 	delete[] events;
 }
 
-bool PollEngine::AddFd(EventHandler* eh)
+bool PollEngine::AddFd(EventHandler* eh, bool writeFirst)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -65,13 +65,13 @@ bool PollEngine::AddFd(EventHandler* eh)
 	fd_mappings[fd] = index;
 	ref[index] = eh;
 	events[index].fd = fd;
-	if (eh->Readable())
+	if (writeFirst)
 	{
-		events[index].events = POLLIN;
+		events[index].events = POLLOUT;
 	}
 	else
 	{
-		events[index].events = POLLOUT;
+		events[index].events = POLLIN;
 	}
 
 	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);

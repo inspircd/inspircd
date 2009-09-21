@@ -34,8 +34,8 @@ bool TreeSocket::ServicePart(const std::string &prefix, parameterlist &params)
 	if (params.size() == 3)
 		reason = params[2];
 
-	User* u = this->ServerInstance->FindNick(params[0]);
-	Channel* c = this->ServerInstance->FindChan(params[1]);
+	User* u = ServerInstance->FindNick(params[0]);
+	Channel* c = ServerInstance->FindChan(params[1]);
 
 	if (u)
 	{

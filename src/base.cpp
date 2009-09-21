@@ -26,6 +26,14 @@ classbase::classbase()
 {
 }
 
+void classbase::cull()
+{
+}
+
+classbase::~classbase()
+{
+}
+
 void BoolSet::Set(int number)
 {
 	this->bits |= bitfields[number];

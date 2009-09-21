@@ -216,12 +216,8 @@ User::User(InspIRCd* Instance, const std::string &uid)
 	fd = -1;
 	server_sa.sa.sa_family = AF_UNSPEC;
 	client_sa.sa.sa_family = AF_UNSPEC;
-	recvq.clear();
-	sendq.clear();
 	MyClass = NULL;
 	AllowedPrivs = AllowedOperCommands = NULL;
-	chans.clear();
-	invites.clear();
 
 	if (uid.empty())
 		uuid.assign(Instance->GetUID(), 0, UUID_LENGTH - 1);
@@ -309,15 +305,6 @@ const std::string& User::MakeHostIP()
 	return this->cached_hostip;
 }
 
-void User::CloseSocket()
-{
-	if (this->fd > -1)
-	{
-		ServerInstance->SE->Shutdown(this, 2);
-		ServerInstance->SE->Close(this);
-	}
-}
-
 const std::string User::GetFullHost()
 {
 	if (!this->cached_fullhost.empty())
@@ -351,21 +338,6 @@ char* User::MakeWildHost()
 	*t = 0;
 	return nresult;
 }
-
-int User::ReadData(void* buffer, size_t size)
-{
-	if (IS_LOCAL(this))
-	{
-#ifndef WIN32
-		return read(this->fd, buffer, size);
-#else
-		return recv(this->fd, (char*)buffer, size, 0);
-#endif
-	}
-	else
-		return 0;
-}
-
 
 const std::string User::GetFullRealHost()
 {
@@ -540,123 +512,60 @@ bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 	return false;
 }
 
-bool User::AddBuffer(const std::string &a)
+void User::OnDataReady()
 {
-	std::string::size_type start = 0;
-	std::string::size_type i = a.find('\r');
+	if (quitting)
+		return;
 
-	/*
-	 * The old implementation here took a copy, and rfind() on \r, removing as it found them, before
-	 * copying a second time onto the recvq. That's ok, but involves three copies minimum (recv() to buffer,
-	 * buffer to here, here to recvq) - The new method now copies twice (recv() to buffer, buffer to recvq).
-	 *
-	 * We use find() instead of rfind() for clarity, however unlike the old code, our scanning of the string is
-	 * contiguous: as we specify a startpoint, we never see characters we have scanned previously, making this
-	 * marginally faster in cases with a number of \r hidden early on in the buffer.
-	 *
-	 * How it works:
-	 * Start at first pos of string, find first \r, append everything in the chunk (excluding \r) to recvq. Set
-	 * i ahead of the \r, search for next \r, add next chunk to buffer... repeat.
-	 *		-- w00t (7 may, 2008)
-	 */
-	if (i == std::string::npos)
-	{
-		// no \r that we need to dance around, just add to buffer
-		recvq.append(a);
-	}
-	else
-	{
-		// While we can find the end of a chunk to add
-		while (i != std::string::npos)
-		{
-			// Append the chunk that we have
-			recvq.append(a, start, (i - start));
-
-			// Start looking for the next one
-			start = i + 1;
-			i = a.find('\r', start);
-		}
-
-		if (start != a.length())
-		{
-			/*
-			 * This is here to catch a corner case when we get something like:
-			 * NICK w0
-			 * 0t\r\nU
-			 * SER ...
-			 * in successive calls to us.
-			 *
-			 * Without this conditional, the 'U' on the second case will be dropped,
-			 * which is most *certainly* not the behaviour we want!
-			 *		-- w00t
-			 */
-			recvq.append(a, start, (a.length() - start));
-		}
-	}
-
-	if (this->MyClass && !this->HasPrivPermission("users/flood/increased-buffers") && recvq.length() > this->MyClass->GetRecvqMax())
+	if (MyClass && !HasPrivPermission("users/flood/increased-buffers") && recvq.length() > MyClass->GetRecvqMax())
 	{
 		ServerInstance->Users->QuitUser(this, "RecvQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)recvq.length(),this->MyClass->GetRecvqMax());
-		return false;
+		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
+			nick.c_str(), (unsigned long)recvq.length(), MyClass->GetRecvqMax());
 	}
 
-	return true;
-}
-
-bool User::BufferIsReady()
-{
-	return (recvq.find('\n') != std::string::npos);
-}
-
-void User::ClearBuffer()
-{
-	recvq.clear();
-}
-
-std::string User::GetBuffer()
-{
-	try
+	while (this->Penalty < 10)
 	{
-		if (recvq.empty())
-			return "";
-
-		/* Strip any leading \r or \n off the string.
-		 * Usually there are only one or two of these,
-		 * so its is computationally cheap to do.
-		 */
-		std::string::iterator t = recvq.begin();
-		while (t != recvq.end() && (*t == '\r' || *t == '\n'))
+		std::string line;
+		line.reserve(MAXBUF);
+		std::string::size_type qpos = 0;
+		while (qpos < recvq.length())
 		{
-			recvq.erase(t);
-			t = recvq.begin();
-		}
-
-		for (std::string::iterator x = recvq.begin(); x != recvq.end(); x++)
-		{
-			/* Find the first complete line, return it as the
-			 * result, and leave the recvq as whats left
-			 */
-			if (*x == '\n')
+			char c = recvq[qpos++];
+			switch (c)
 			{
-				std::string ret = std::string(recvq.begin(), x);
-				recvq.erase(recvq.begin(), x + 1);
-				return ret;
+			case '\0':
+				c = ' ';
+				break;
+			case '\r':
+				continue;
+			case '\n':
+				goto eol_found;
 			}
+			if (line.length() < MAXBUF - 2)
+				line.push_back(c);
 		}
-		return "";
-	}
+		// if we got here, the recvq ran out before we found a newline
+		return;
+eol_found:
+		// just found a newline. Terminate the string, and pull it out of recvq
+		recvq = recvq.substr(qpos);
 
-	catch (...)
-	{
-		ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::GetBuffer()");
-		return "";
+		// TODO should this be moved to when it was inserted in recvq?
+		ServerInstance->stats->statsRecv += qpos;
+		this->bytes_in += qpos;
+		this->cmds_in++;
+
+		ServerInstance->Parser->ProcessBuffer(line, this);
 	}
 }
 
 void User::AddWriteBuf(const std::string &data)
 {
-	if (!this->quitting && this->MyClass && !this->HasPrivPermission("users/flood/increased-buffers") && sendq.length() + data.length() > this->MyClass->GetSendqMax())
+	// Don't bother sending text to remote users!
+	if (IS_REMOTE(this))
+		return;
+	if (!quitting && MyClass && getSendQSize() + data.length() > MyClass->GetSendqMax() && !HasPrivPermission("users/flood/increased-buffers"))
 	{
 		/*
 		 * Fix by brain - Set the error text BEFORE calling, because
@@ -664,66 +573,36 @@ void User::AddWriteBuf(const std::string &data)
 		 * to repeatedly add the text to the sendq!
 		 */
 		ServerInstance->Users->QuitUser(this, "SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)sendq.length() + data.length(),this->MyClass->GetSendqMax());
+		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ of %lu exceeds connect class maximum of %lu",
+			nick.c_str(), (unsigned long)getSendQSize() + data.length(), MyClass->GetSendqMax());
 		return;
 	}
 
 	// We still want to append data to the sendq of a quitting user,
 	// e.g. their ERROR message that says 'closing link'
 
-	if (data.length() > MAXBUF - 2) /* MAXBUF has a value of 514, to account for line terminators */
-		sendq.append(data.substr(0,MAXBUF - 4)).append("\r\n"); /* MAXBUF-4 = 510 */
-	else
-		sendq.append(data);
+	WriteData(data);
 }
 
-// send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
-void User::FlushWriteBuf()
+void User::OnError(BufferedSocketError)
 {
-	if (this->fd == FD_MAGIC_NUMBER)
-	{
-		sendq.clear();
-		return;
-	}
+	ServerInstance->Users->QuitUser(this, getError());
+}
 
-	if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
+void User::cull()
+{
+	if (!quitting)
+		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
+	if (IS_LOCAL(this))
 	{
-		int old_sendq_length = sendq.length();
-		int n_sent = ServerInstance->SE->Send(this, this->sendq.data(), this->sendq.length(), 0);
+		if (fd != INT_MAX)
+			Close();
 
-		if (n_sent == -1)
-		{
-			if (errno == EAGAIN)
-			{
-				/* The socket buffer is full. This isnt fatal,
-				 * try again later.
-				 */
-				ServerInstance->SE->WantWrite(this);
-			}
-			else
-			{
-				/* Fatal error, set write error and bail */
-				ServerInstance->Users->QuitUser(this, errno ? strerror(errno) : "Write error");
-				return;
-			}
-		}
+		std::vector<User*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
+		if (x != ServerInstance->Users->local_users.end())
+			ServerInstance->Users->local_users.erase(x);
 		else
-		{
-			/* advance the queue */
-			if (n_sent)
-				this->sendq = this->sendq.substr(n_sent);
-			/* update the user's stats counters */
-			this->bytes_out += n_sent;
-			this->cmds_out++;
-			if (n_sent != old_sendq_length)
-				ServerInstance->SE->WantWrite(this);
-		}
-	}
-
-	/* note: NOT else if! */
-	if (this->sendq.empty())
-	{
-		FOREACH_MOD(I_OnBufferFlushed,OnBufferFlushed(this));
+			ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
 	}
 }
 
@@ -1191,35 +1070,29 @@ bool User::SetClientIP(const char* sip)
 	return irc::sockets::aptosa(sip, 0, &client_sa);
 }
 
+static std::string wide_newline("\r\n");
+
 void User::Write(const std::string& text)
 {
 	if (!ServerInstance->SE->BoundsCheckFd(this))
 		return;
 
+	if (text.length() > MAXBUF - 2)
+	{
+		// this should happen rarely or never. Crop the string at 512 and try again.
+		std::string try_again = text.substr(0, MAXBUF - 2);
+		Write(try_again);
+		return;
+	}
+
 	ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
 
-	if (this->GetIOHook())
-	{
-		/* XXX: The lack of buffering here is NOT a bug, modules implementing this interface have to
-		 * implement their own buffering mechanisms
-		 */
-		try
-		{
-			this->GetIOHook()->OnRawSocketWrite(this->fd, text.data(), text.length());
-			this->GetIOHook()->OnRawSocketWrite(this->fd, "\r\n", 2);
-		}
-		catch (CoreException& modexcept)
-		{
-			ServerInstance->Logs->Log("USEROUTPUT", DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-		}
-	}
-	else
-	{
-		this->AddWriteBuf(text);
-		this->AddWriteBuf("\r\n");
-	}
+	this->AddWriteBuf(text);
+	this->AddWriteBuf(wide_newline);
+
 	ServerInstance->stats->statsSent += text.length() + 2;
-	ServerInstance->SE->WantWrite(this);
+	this->bytes_out += text.length() + 2;
+	this->cmds_out++;
 }
 
 /** Write()
@@ -1902,25 +1775,6 @@ void User::ShowRULES()
 		this->WriteNumeric(RPL_RULES, "%s :- %s",this->nick.c_str(),i->c_str());
 
 	this->WriteNumeric(RPL_RULESEND, "%s :End of RULES command.",this->nick.c_str());
-}
-
-void User::HandleEvent(EventType et, int errornum)
-{
-	if (this->quitting) // drop everything, user is due to be quit
-		return;
-
-	switch (et)
-	{
-		case EVENT_READ:
-			ServerInstance->ProcessUser(this);
-		break;
-		case EVENT_WRITE:
-			this->FlushWriteBuf();
-		break;
-		case EVENT_ERROR:
-			ServerInstance->Users->QuitUser(this, errornum ? strerror(errornum) : "Client closed the connection");
-		break;
-	}
 }
 
 void User::IncreasePenalty(int increase)

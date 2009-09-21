@@ -29,13 +29,13 @@ bool TreeSocket::ServiceJoin(const std::string &prefix, parameterlist &params)
 	if (params.size() < 2)
 		return true;
 
-	User* u = this->ServerInstance->FindNick(params[0]);
+	User* u = ServerInstance->FindNick(params[0]);
 
 	if (u)
 	{
 		/* only join if it's local, otherwise just pass it on! */
 		if (IS_LOCAL(u))
-			Channel::JoinUser(this->ServerInstance, u, params[1].c_str(), false, "", false, ServerInstance->Time());
+			Channel::JoinUser(ServerInstance, u, params[1].c_str(), false, "", false, ServerInstance->Time());
 		Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 	}
 	return true;

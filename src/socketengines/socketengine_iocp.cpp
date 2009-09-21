@@ -15,7 +15,7 @@
 #include "exitcodes.h"
 #include <mswsock.h>
 
-IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
+IOCPEngine::IOCPEngine()
 {
 	MAX_DESCRIPTORS = 10240;
 
@@ -47,7 +47,7 @@ IOCPEngine::~IOCPEngine()
 	delete[] ref;
 }
 
-bool IOCPEngine::AddFd(EventHandler* eh)
+bool IOCPEngine::AddFd(EventHandler* eh, bool writeFirst)
 {
 	/* Does it at least look valid? */
 	if (!eh)
@@ -92,7 +92,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	ServerInstance->Logs->Log("SOCKET",DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
 
 	/* post a write event if there is data to be written */
-	if(eh->Writeable())
+	if(writeFirst)
 		WantWrite(eh);
 
 	/* we're all good =) */

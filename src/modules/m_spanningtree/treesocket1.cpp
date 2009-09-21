@@ -34,17 +34,18 @@
  * most of the action, and append a few of our own values
  * to it.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod)
-	: BufferedSocket(SI, shost, iport, maxtime, bindto), Utils(Util), Hook(HookMod), myautoconnect(myac)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, std::string shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod)
+	: Utils(Util), IP(shost), myautoconnect(myac)
 {
-	age = SI->Time();
+	age = ServerInstance->Time();
 	myhost = ServerName;
 	capab_phase = 0;
 	proto_version = 0;
 	LinkState = CONNECTING;
+	DoConnect(shost, iport, maxtime, bindto);
 	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName, maxtime);
-	if (Hook)
-		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+	if (HookMod)
+		BufferedSocketHookRequest(this, Utils->Creator, HookMod).Send();
 	hstimer = NULL;
 }
 
@@ -52,18 +53,18 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string sh
  * we must associate it with a socket without creating a new
  * connection. This constructor is used for this purpose.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Autoconnect* myac, Module* HookMod)
-	: BufferedSocket(SI, newfd, ip), Utils(Util), Hook(HookMod), myautoconnect(myac)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, char* ip, Autoconnect* myac, Module* HookMod)
+	: BufferedSocket(newfd), Utils(Util), IP(ip), myautoconnect(myac)
 {
-	age = SI->Time();
+	age = ServerInstance->Time();
 	LinkState = WAIT_AUTH_1;
 	capab_phase = 0;
 	proto_version = 0;
 	/* If we have a transport module hooked to the parent, hook the same module to this
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
-	if (Hook)
-		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+	if (HookMod)
+		BufferedSocketHookRequest(this, Utils->Creator, HookMod).Send();
 
 	hstimer = new HandshakeTimer(ServerInstance, this, &(Utils->LinkBlocks[0]), this->Utils, 1);
 	ServerInstance->Timers->AddTimer(hstimer);
@@ -75,11 +76,6 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 ServerState TreeSocket::GetLinkState()
 {
 	return this->LinkState;
-}
-
-Module* TreeSocket::GetHook()
-{
-	return this->Hook;
 }
 
 void TreeSocket::CleanNegotiationInfo()
@@ -94,8 +90,8 @@ void TreeSocket::CleanNegotiationInfo()
 
 TreeSocket::~TreeSocket()
 {
-	if (Hook)
-		BufferedSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
+	if (GetIOHook())
+		BufferedSocketUnhookRequest(this, Utils->Creator, GetIOHook()).Send();
 	if (hstimer)
 		ServerInstance->Timers->DelTimer(hstimer);
 	Utils->timeoutlist.erase(this);
@@ -107,7 +103,7 @@ TreeSocket::~TreeSocket()
  * to server docs on the inspircd.org site, the other side
  * will then send back its own server string.
  */
-bool TreeSocket::OnConnected()
+void TreeSocket::OnConnected()
 {
 	if (this->LinkState == CONNECTING)
 	{
@@ -116,25 +112,17 @@ bool TreeSocket::OnConnected()
 		{
 			if (x->Name == this->myhost)
 			{
-				ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->GetIP().c_str()));
-				if (Hook)
-				{
-					BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
-					ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] using transport \2%s\2", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->GetIP().c_str()),
-							x->Hook.c_str());
-				}
+				ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()));
 				this->OutboundPass = x->SendPass;
-
-				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-				if (this->GetHook())
+				if (GetIOHook())
 				{
+					ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] using transport \2%s\2", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()), x->Hook.c_str());
 					hstimer = new HandshakeTimer(ServerInstance, this, &(*x), this->Utils, 1);
 					ServerInstance->Timers->AddTimer(hstimer);
 				}
 				else
 					this->SendCapabilities(1);
-
-				return true;
+				return;
 			}
 		}
 	}
@@ -144,7 +132,6 @@ bool TreeSocket::OnConnected()
 	 * and rather harmless.
 	 */
 	ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2 lost link tag(!)", myhost.c_str());
-	return true;
 }
 
 void TreeSocket::OnError(BufferedSocketError e)
@@ -174,21 +161,11 @@ void TreeSocket::OnError(BufferedSocketError e)
 	}
 }
 
-int TreeSocket::OnDisconnect()
-{
-	/* For the same reason as above, we don't
-	 * handle OnDisconnect()
-	 */
-	return true;
-}
-
 void TreeSocket::SendError(const std::string &errormessage)
 {
 	/* Display the error locally as well as sending it remotely */
-	ServerInstance->SNO->WriteToSnoMask('l', "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? this->GetIP().c_str() : this->InboundServerName.c_str()), errormessage.c_str());
-	this->WriteLine("ERROR :"+errormessage);
-	/* One last attempt to make sure the error reaches its target */
-	this->FlushWriteBuffer();
+	ServerInstance->SNO->WriteToSnoMask('l', "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? this->IP.c_str() : this->InboundServerName.c_str()), errormessage.c_str());
+	WriteLine("ERROR :"+errormessage);
 }
 
 /** This function forces this server to quit, removing this server
@@ -232,12 +209,12 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 		if (Current->GetParent() == Utils->TreeRoot)
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
+			ServerInstance->SNO->WriteToSnoMask('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
 			LocalSquit = true;
 		}
 		else
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+			ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 		}
 		num_lost_servers = 0;
 		num_lost_users = 0;
@@ -247,56 +224,41 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Current->GetParent()->DelChild(Current);
 		delete Current;
 		if (LocalSquit)
-			this->ServerInstance->SNO->WriteToSnoMask('l', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+			ServerInstance->SNO->WriteToSnoMask('l', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 		else
-			this->ServerInstance->SNO->WriteToSnoMask('L', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+			ServerInstance->SNO->WriteToSnoMask('L', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 	}
 	else
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
 }
 
 /** This function is called when we receive data from a remote
- * server. We buffer the data in a std::string (it doesnt stay
- * there for long), reading using BufferedSocket::Read() which can
- * read up to 16 kilobytes in one operation.
- *
- * IF THIS FUNCTION RETURNS FALSE, THE CORE CLOSES AND DELETES
- * THE SOCKET OBJECT FOR US.
+ * server.
  */
-bool TreeSocket::OnDataReady()
+void TreeSocket::OnDataReady()
 {
-	const char* data = this->Read();
-	/* Check that the data read is a valid pointer and it has some content */
-	if (data && *data)
-	{
-		this->in_buffer.append(data);
-		Utils->Creator->loopCall = true;
-		/* While there is at least one new line in the buffer,
-		 * do something useful (we hope!) with it.
-		 */
-		while (in_buffer.find("\n") != std::string::npos)
-		{
-			std::string ret = in_buffer.substr(0,in_buffer.find("\n")-1);
-			in_buffer = in_buffer.substr(in_buffer.find("\n")+1,in_buffer.length()-in_buffer.find("\n"));
-			/* Use rfind here not find, as theres more
-			 * chance of the \r being near the end of the
-			 * string, not the start.
-			 */
-			if (ret.find("\r") != std::string::npos)
-				ret = in_buffer.substr(0,in_buffer.find("\r")-1);
-			/* Process this one, abort if it
-			 * didnt return true.
-			 */
-			if (!this->ProcessLine(ret))
-			{
-				return false;
-			}
-		}
-		Utils->Creator->loopCall = false;
-		return true;
-	}
-	/* EAGAIN returns an empty but non-NULL string, so this
-	 * evaluates to TRUE for EAGAIN but to FALSE for EOF.
+	Utils->Creator->loopCall = true;
+	/* While there is at least one new line in the buffer,
+	 * do something useful (we hope!) with it.
 	 */
-	return (data && !*data);
+	while (recvq.find("\n") != std::string::npos)
+	{
+		std::string ret = recvq.substr(0,recvq.find("\n")-1);
+		recvq = recvq.substr(recvq.find("\n")+1,recvq.length()-recvq.find("\n"));
+		/* Use rfind here not find, as theres more
+		 * chance of the \r being near the end of the
+		 * string, not the start.
+		 */
+		if (ret.find("\r") != std::string::npos)
+			ret = recvq.substr(0,recvq.find("\r")-1);
+		/* Process this one, abort if it
+		 * didnt return true.
+		 */
+		if (!this->ProcessLine(ret))
+		{
+			SetError("ProcessLine returned false");
+			break;
+		}
+	}
+	Utils->Creator->loopCall = false;
 }

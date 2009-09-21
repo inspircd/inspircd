@@ -110,7 +110,6 @@ void InspIRCd::Cleanup()
 	{
 		User* u = *i++;
 		Users->QuitUser(u, "Server shutdown");
-		u->CloseSocket();
 	}
 
 	/* We do this more than once, so that any service providers get a
@@ -323,7 +322,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH ORDER OF DECLARATION OF THE HandleWhateverFunc classes
 	  * within class InspIRCd.
 	  */
-	 HandleProcessUser(this),
 	 HandleIsNick(this),
 	 HandleIsIdent(this),
 	 HandleFloodQuitUser(this),
@@ -336,7 +334,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
-	 ProcessUser(&HandleProcessUser),
 	 IsChannel(&HandleIsChannel),
 	 IsSID(&HandleIsSID),
 	 Rehash(&HandleRehash),
@@ -387,9 +384,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// This must be created first, so other parts of Insp can use it while starting up
 	this->Logs = new LogManager(this);
 
-	SocketEngineFactory* SEF = new SocketEngineFactory();
-	SE = SEF->Create(this);
-	delete SEF;
+	SocketEngineFactory SEF;
+	SE = SEF.Create();
 
 	this->Threads = new ThreadEngine(this);
 
@@ -832,9 +828,6 @@ int InspIRCd::Run()
 		/* if any users were quit, take them out */
 		this->GlobalCulls.Apply();
 
-		/* If any inspsockets closed, remove them */
-		this->BufferedSocketCull();
-
 		if (this->s_signal)
 		{
 			this->SignalHandler(s_signal);
@@ -843,18 +836,6 @@ int InspIRCd::Run()
 	}
 
 	return 0;
-}
-
-void InspIRCd::BufferedSocketCull()
-{
-	for (std::map<BufferedSocket*,BufferedSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
-	{
-		this->Logs->Log("MISC",DEBUG,"Cull socket");
-		SE->DelFd(x->second);
-		x->second->Close();
-		delete x->second;
-	}
-	SocketCull.clear();
 }
 
 /**********************************************************************************/

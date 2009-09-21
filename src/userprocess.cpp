@@ -36,102 +36,6 @@ void FloodQuitUserHandler::Call(User* current)
 	}
 }
 
-void ProcessUserHandler::Call(User* cu)
-{
-	int result = EAGAIN;
-
-	if (cu->GetFd() == FD_MAGIC_NUMBER)
-		return;
-
-	char* ReadBuffer = Server->GetReadBuffer();
-
-	if (cu->GetIOHook())
-	{
-		int result2 = 0;
-		int MOD_RESULT = 0;
-
-		try
-		{
-			MOD_RESULT = cu->GetIOHook()->OnRawSocketRead(cu->GetFd(), ReadBuffer, Server->Config->NetBufferSize, result2);
-		}
-		catch (CoreException& modexcept)
-		{
-			Server->Logs->Log("USERS",DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-		}
-
-		if (MOD_RESULT < 0)
-		{
-			result = -EAGAIN;
-		}
-		else
-		{
-			result = result2;
-		}
-	}
-	else
-	{
-		result = cu->ReadData(ReadBuffer, Server->Config->NetBufferSize);
-	}
-
-	if ((result) && (result != -EAGAIN))
-	{
-		User *current;
-		int currfd;
-
-		Server->stats->statsRecv += result;
-		/*
-		 * perform a check on the raw buffer as an array (not a string!) to remove
-		 * character 0 which is illegal in the RFC - replace them with spaces.
-		 */
-
-		for (int checker = 0; checker < result; checker++)
-		{
-			if (ReadBuffer[checker] == 0)
-				ReadBuffer[checker] = ' ';
-		}
-
-		if (result > 0)
-			ReadBuffer[result] = '\0';
-
-		current = cu;
-		currfd = current->GetFd();
-
-		// add the data to the users buffer
-		if (result > 0)
-		{
-			if (!current->AddBuffer(ReadBuffer))
-			{
-				// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
-				Server->FloodQuitUser(current);
-				return;
-			}
-
-			/* If user is over penalty, dont process here, just build up */
-			if (current->Penalty < 10)
-				Server->Parser->DoLines(current);
-
-			return;
-		}
-
-		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
-		{
-			Server->Users->QuitUser(cu, errno ? strerror(errno) : "EOF from client");
-			return;
-		}
-	}
-
-	// result EAGAIN means nothing read
-	else if ((result == EAGAIN) || (result == -EAGAIN))
-	{
-		/* do nothing */
-	}
-	else if (result == 0)
-	{
-		Server->Users->QuitUser(cu, "Connection closed");
-		return;
-	}
-}
-
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the user structs, e.g.
@@ -154,8 +58,12 @@ void InspIRCd::DoBackgroundUserStuff()
 		if (curr->Penalty)
 		{
 			curr->Penalty--;
-			if (curr->Penalty < 10)
-				Parser->DoLines(curr, true);
+			curr->OnDataReady();
+		}
+
+		if (curr->getSendQSize() == 0)
+		{
+			FOREACH_MOD(I_OnBufferFlushed,OnBufferFlushed(curr));
 		}
 
 		switch (curr->registered)

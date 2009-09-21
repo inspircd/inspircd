@@ -114,7 +114,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 	}
 	if (bChangeRemote)
 	{
-		User *remote = this->ServerInstance->FindUUID(remoteuid);
+		User *remote = ServerInstance->FindUUID(remoteuid);
 		/*
 		 * remote side needs to change. If this happens, we will modify
 		 * the UID or halt the propagation of the nick change command,

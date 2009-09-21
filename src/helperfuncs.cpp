@@ -125,20 +125,16 @@ void InspIRCd::SendError(const std::string &s)
 {
 	for (std::vector<User*>::const_iterator i = this->Users->local_users.begin(); i != this->Users->local_users.end(); i++)
 	{
-		if ((*i)->registered == REG_ALL)
+		User* u = *i;
+		if (u->registered == REG_ALL)
 		{
-		   	(*i)->WriteServ("NOTICE %s :%s",(*i)->nick.c_str(),s.c_str());
+		   	u->WriteServ("NOTICE %s :%s",u->nick.c_str(),s.c_str());
 	   	}
 		else
 		{
 			/* Unregistered connections receive ERROR, not a NOTICE */
-			(*i)->Write("ERROR :" + s);
+			u->Write("ERROR :" + s);
 		}
-		/* This might generate a whole load of EAGAIN, but we dont really
-		 * care about this, as if we call SendError something catastrophic
-		 * has occured anyway, and we wont receive the events for these.
-		 */
-		(*i)->FlushWriteBuf();
 	}
 }
 

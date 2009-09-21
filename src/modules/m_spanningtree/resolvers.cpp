@@ -49,7 +49,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		if ((!MyLink.Hook.empty()) && (Utils->hooks.find(MyLink.Hook.c_str()) ==  Utils->hooks.end()))
 			return;
 
-		TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str(),
+		TreeSocket* newsocket = new TreeSocket(this->Utils, result,MyLink.Port,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str(),
 							MyLink.Bind, myautoconnect, MyLink.Hook.empty() ? NULL : Utils->hooks[MyLink.Hook.c_str()]);
 		if (newsocket->GetFd() > -1)
 		{
@@ -59,8 +59,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		{
 			/* Something barfed, show the opers */
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
-			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
-				ServerInstance->SocketCull[newsocket] = newsocket;
+			ServerInstance->GlobalCulls.AddItem(newsocket);
 			Utils->DoFailOver(myautoconnect);
 		}
 	}

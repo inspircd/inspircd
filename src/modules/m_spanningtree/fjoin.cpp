@@ -59,7 +59,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
 	irc::tokenstream users((params.size() > 3) ? params[params.size() - 1] : "");   /* users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
-	Channel* chan = this->ServerInstance->FindChan(channel);		/* The channel we're sending joins to */
+	Channel* chan = ServerInstance->FindChan(channel);		/* The channel we're sending joins to */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
@@ -123,7 +123,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 			modelist.push_back(params[idx]);
 		}
 
-		this->ServerInstance->SendMode(modelist, Utils->ServerUser);
+		ServerInstance->SendMode(modelist, Utils->ServerUser);
 	}
 
 	/* Now, process every 'modes,nick' pair */
@@ -156,7 +156,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 			usr++;
 
 			/* Check the user actually exists */
-			who = this->ServerInstance->FindUUID(usr);
+			who = ServerInstance->FindUUID(usr);
 			if (who)
 			{
 				/* Check that the user's 'direction' is correct */
@@ -168,7 +168,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 
-				Channel::JoinUser(this->ServerInstance, who, channel.c_str(), true, "", route_back_again->bursting, TS);
+				Channel::JoinUser(ServerInstance, who, channel.c_str(), true, "", route_back_again->bursting, TS);
 			}
 			else
 			{

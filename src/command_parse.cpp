@@ -226,23 +226,6 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 	return CMD_INVALID;
 }
 
-void CommandParser::DoLines(User* current, bool one_only)
-{
-	while (current->BufferIsReady())
-	{
-		// use GetBuffer to copy single lines into the sanitized string
-		std::string single_line = current->GetBuffer();
-		current->bytes_in += single_line.length();
-		current->cmds_in++;
-		if (single_line.length() > MAXBUF - 2)  // MAXBUF is 514 to allow for neccessary line terminators
-			single_line.resize(MAXBUF - 2); // So to trim to 512 here, we use MAXBUF - 2
-
-		// ProcessBuffer returns false if the user has gone over penalty
-		if (!ServerInstance->Parser->ProcessBuffer(single_line, current) || one_only)
-			break;
-	}
-}
-
 bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 {
 	std::vector<std::string> command_p;
@@ -435,23 +418,12 @@ void CommandParser::RemoveCommand(Commandtable::iterator safei, Module* source)
 
 bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
 {
-	std::string::size_type a;
-
-	if (!user)
+	if (!user || buffer.empty())
 		return true;
 
-	while ((a = buffer.rfind("\n")) != std::string::npos)
-		buffer.erase(a);
-	while ((a = buffer.rfind("\r")) != std::string::npos)
-		buffer.erase(a);
-
-	if (buffer.length())
-	{
-		ServerInstance->Logs->Log("USERINPUT", DEBUG,"C[%d] I :%s %s",user->GetFd(), user->nick.c_str(), buffer.c_str());
-		return this->ProcessCommand(user,buffer);
-	}
-
-	return true;
+	ServerInstance->Logs->Log("USERINPUT", DEBUG, "C[%d] I :%s %s", 
+		user->GetFd(), user->nick.c_str(), buffer.c_str());
+	return ProcessCommand(user,buffer);
 }
 
 bool CommandParser::CreateCommand(Command *f)

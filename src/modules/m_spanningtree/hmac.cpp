@@ -129,9 +129,9 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	this->auth_challenge = !ourchallenge.empty() && !theirchallenge.empty();
 
 	std::string fp;
-	if (GetHook())
+	if (GetIOHook())
 	{
-		BufferedSocketCertificateRequest req(this, Utils->Creator, GetHook());
+		BufferedSocketCertificateRequest req(this, Utils->Creator, GetIOHook());
 		req.Send();
 		if (req.cert)
 		{

@@ -47,7 +47,10 @@ class ServerSocketListener : public ListenSocketBase
 	ServerSocketListener(InspIRCd* Instance, SpanningTreeUtilities *u, int port, char* addr) : ListenSocketBase(Instance, port, addr)
 	{
 		this->Utils = u;
+		Hook = NULL;
 	}
+
+	Module* Hook;
 
 	virtual void OnAcceptReady(int nfd);
 };

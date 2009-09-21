@@ -59,7 +59,7 @@ public:
 
 	unsigned int inbufoffset;
 	char* inbuf;			// Buffer OpenSSL reads into.
-	std::string outbuf;	// Buffer for outgoing data that OpenSSL will not take.
+	std::string outbuf;
 	int fd;
 	bool outbound;
 
@@ -95,7 +95,6 @@ class ModuleSSLOpenSSL : public Module
 	SSL_CTX* ctx;
 	SSL_CTX* clictx;
 
-	char* dummy;
 	char cipher[MAXBUF];
 
 	std::string keyfile;
@@ -137,14 +136,13 @@ class ModuleSSLOpenSSL : public Module
 
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
-		Implementation eventlist[] = { I_OnRawSocketConnect, I_OnRawSocketAccept,
-			I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup, I_On005Numeric,
-			I_OnBufferFlushed, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+		Implementation eventlist[] = {
+			I_On005Numeric, I_OnBufferFlushed, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
 			I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnHookIO(EventHandler* user, ListenSocketBase* lsb)
+	void OnHookIO(StreamSocket* user, ListenSocketBase* lsb)
 	{
 		if (!user->GetIOHook() && listenports.find(lsb) != listenports.end())
 		{
@@ -153,7 +151,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 
@@ -179,7 +177,7 @@ class ModuleSSLOpenSSL : public Module
 			sslports.erase(sslports.end() - 1);
 	}
 
-	virtual void OnModuleRehash(User* user, const std::string &param)
+	void OnModuleRehash(User* user, const std::string &param)
 	{
 		if (param != "ssl")
 			return;
@@ -266,13 +264,13 @@ class ModuleSSLOpenSSL : public Module
 		fclose(dhpfile);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		if (!sslports.empty())
 			output.append(" SSL=" + sslports);
 	}
 
-	virtual ~ModuleSSLOpenSSL()
+	~ModuleSSLOpenSSL()
 	{
 		SSL_CTX_free(ctx);
 		SSL_CTX_free(clictx);
@@ -280,7 +278,7 @@ class ModuleSSLOpenSSL : public Module
 		delete[] sessions;
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
+	void OnCleanup(int target_type, void* item)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -296,13 +294,13 @@ class ModuleSSLOpenSSL : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
 
-	virtual const char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
 		if (strcmp("IS_NAME", request->GetId()) == 0)
@@ -311,21 +309,13 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
-			const char* ret = "OK";
-			try
-			{
-				ret = ISR->Sock->AddIOHook((Module*)this) ? "OK" : NULL;
-			}
-			catch (ModuleException &e)
-			{
-				return NULL;
-			}
-
-			return ret;
+			ISR->Sock->AddIOHook(this);
+			return "OK";
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
-			return ISR->Sock->DelIOHook() ? "OK" : NULL;
+			ISR->Sock->DelIOHook();
+			return "OK";
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
@@ -353,11 +343,9 @@ class ModuleSSLOpenSSL : public Module
 	}
 
 
-	virtual void OnRawSocketAccept(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return;
+		int fd = user->GetFd();
 
 		issl_session* session = &sessions[fd];
 
@@ -377,11 +365,12 @@ class ModuleSSLOpenSSL : public Module
 			return;
 		}
 
- 		Handshake(session);
+ 		Handshake(user, session);
 	}
 
-	virtual void OnRawSocketConnect(int fd)
+	void OnStreamSocketConnect(StreamSocket* user)
 	{
+		int fd = user->GetFd();
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() -1))
 			return;
@@ -404,11 +393,12 @@ class ModuleSSLOpenSSL : public Module
 			return;
 		}
 
-		Handshake(session);
+		Handshake(user, session);
 	}
 
-	virtual void OnRawSocketClose(int fd)
+	void OnStreamSocketClose(StreamSocket* user)
 	{
+		int fd = user->GetFd();
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
 			return;
@@ -416,19 +406,19 @@ class ModuleSSLOpenSSL : public Module
 		CloseSession(&sessions[fd]);
 	}
 
-	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
+	int OnStreamSocketRead(StreamSocket* user, std::string& recvq)
 	{
+		int fd = user->GetFd();
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return 0;
+			return -1;
 
 		issl_session* session = &sessions[fd];
 
 		if (!session->sess)
 		{
-			readresult = 0;
 			CloseSession(session);
-			return 1;
+			return -1;
 		}
 
 		if (session->status == ISSL_HANDSHAKING)
@@ -436,17 +426,17 @@ class ModuleSSLOpenSSL : public Module
 			if (session->rstat == ISSL_READ || session->wstat == ISSL_READ)
 			{
 				// The handshake isn't finished and it wants to read, try to finish it.
-				if (!Handshake(session))
+				if (!Handshake(user, session))
 				{
 					// Couldn't resume handshake.
-					errno = session->status == ISSL_NONE ? EIO : EAGAIN;
-					return -1;
+					if (session->status == ISSL_NONE)
+						return -1;
+					return 0;
 				}
 			}
 			else
 			{
-				errno = EAGAIN;
-				return -1;
+				return 0;
 			}
 		}
 
@@ -456,51 +446,37 @@ class ModuleSSLOpenSSL : public Module
 		{
 			if (session->wstat == ISSL_READ)
 			{
-				if(DoWrite(session) == 0)
+				if(DoWrite(user, session) == 0)
 					return 0;
 			}
 
 			if (session->rstat == ISSL_READ)
 			{
-				int ret = DoRead(session);
+				int ret = DoRead(user, session);
 
 				if (ret > 0)
 				{
-					if (count <= session->inbufoffset)
-					{
-						memcpy(buffer, session->inbuf, count);
-						// Move the stuff left in inbuf to the beginning of it
-						memmove(session->inbuf, session->inbuf + count, (session->inbufoffset - count));
-						// Now we need to set session->inbufoffset to the amount of data still waiting to be handed to insp.
-						session->inbufoffset -= count;
-						// Insp uses readresult as the count of how much data there is in buffer, so:
-						readresult = count;
-					}
-					else
-					{
-						// There's not as much in the inbuf as there is space in the buffer, so just copy the whole thing.
-						memcpy(buffer, session->inbuf, session->inbufoffset);
-
-						readresult = session->inbufoffset;
-						// Zero the offset, as there's nothing there..
-						session->inbufoffset = 0;
-					}
+					recvq.append(session->inbuf, session->inbufoffset);
+					session->inbufoffset = 0;
 					return 1;
 				}
-				return ret;
+				else if (errno == EAGAIN || errno == EINTR)
+					return 0;
+				else
+					return -1;
 			}
 		}
 
-		return -1;
+		return 0;
 	}
 
-	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
+	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer)
 	{
+		int fd = user->GetFd();
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return 0;
+			return -1;
 
-		errno = EAGAIN;
 		issl_session* session = &sessions[fd];
 
 		if (!session->sess)
@@ -509,40 +485,53 @@ class ModuleSSLOpenSSL : public Module
 			return -1;
 		}
 
-		session->outbuf.append(buffer, count);
-		MakePollWrite(session);
-
 		if (session->status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
 			if (session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
 			{
-				if (!Handshake(session))
+				if (!Handshake(user, session))
 				{
 					// Couldn't resume handshake.
-					errno = session->status == ISSL_NONE ? EIO : EAGAIN;
-					return -1;
+					if (session->status == ISSL_NONE)
+						return -1;
+					return 0;
 				}
 			}
+		}
+
+		int rv = 0;
+
+		// don't pull items into the output buffer until they are
+		// unlikely to block; this allows sendq exceeded to continue
+		// to work for SSL users.
+		// TODO better signaling for I/O requests so this isn't needed
+		if (session->outbuf.empty())
+		{
+			session->outbuf = buffer;
+			rv = 1;
 		}
 
 		if (session->status == ISSL_OPEN)
 		{
 			if (session->rstat == ISSL_WRITE)
 			{
-				DoRead(session);
+				DoRead(user, session);
 			}
 
 			if (session->wstat == ISSL_WRITE)
 			{
-				return DoWrite(session);
+				DoWrite(user, session);
 			}
 		}
 
-		return 1;
+		if (rv == 0 || !session->outbuf.empty())
+			ServerInstance->SE->WantWrite(user);
+
+		return rv;
 	}
 
-	int DoWrite(issl_session* session)
+	int DoWrite(StreamSocket* user, issl_session* session)
 	{
 		if (!session->outbuf.size())
 			return -1;
@@ -561,6 +550,7 @@ class ModuleSSLOpenSSL : public Module
 			if (err == SSL_ERROR_WANT_WRITE)
 			{
 				session->wstat = ISSL_WRITE;
+				ServerInstance->SE->WantWrite(user);
 				return -1;
 			}
 			else if (err == SSL_ERROR_WANT_READ)
@@ -581,7 +571,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 	}
 
-	int DoRead(issl_session* session)
+	int DoRead(StreamSocket* user, issl_session* session)
 	{
 		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
@@ -606,7 +596,7 @@ class ModuleSSLOpenSSL : public Module
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				session->rstat = ISSL_WRITE;
-				MakePollWrite(session);
+				ServerInstance->SE->WantWrite(user);
 				return -1;
 			}
 			else
@@ -627,7 +617,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 	}
 
-	bool Handshake(issl_session* session)
+	bool Handshake(EventHandler* user, issl_session* session)
 	{
 		int ret;
 
@@ -650,7 +640,7 @@ class ModuleSSLOpenSSL : public Module
 			{
 				session->wstat = ISSL_WRITE;
 				session->status = ISSL_HANDSHAKING;
-				MakePollWrite(session);
+				ServerInstance->SE->WantWrite(user);
 				return true;
 			}
 			else
@@ -669,7 +659,7 @@ class ModuleSSLOpenSSL : public Module
 
 			session->status = ISSL_OPEN;
 
-			MakePollWrite(session);
+			ServerInstance->SE->WantWrite(user);
 
 			return true;
 		}
@@ -682,34 +672,14 @@ class ModuleSSLOpenSSL : public Module
 		return true;
 	}
 
-	virtual void OnPostConnect(User* user)
-	{
-		// This occurs AFTER OnUserConnect so we can be sure the
-		// protocol module has propagated the NICK message.
-		if ((user->GetIOHook() == this) && (IS_LOCAL(user)))
-		{
-			if (sessions[user->GetFd()].sess)
-				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), SSL_get_cipher(sessions[user->GetFd()].sess));
-		}
-	}
-
-	void MakePollWrite(issl_session* session)
-	{
-		//OnRawSocketWrite(session->fd, NULL, 0);
-		EventHandler* eh = ServerInstance->SE->GetRef(session->fd);
-		if (eh)
-		{
-			ServerInstance->SE->WantWrite(eh);
-		}
-	}
-
-	virtual void OnBufferFlushed(User* user)
+	void OnBufferFlushed(User* user)
 	{
 		if (user->GetIOHook() == this)
 		{
+			std::string dummy;
 			issl_session* session = &sessions[user->GetFd()];
 			if (session && session->outbuf.size())
-				OnRawSocketWrite(user->GetFd(), NULL, 0);
+				OnStreamSocketWrite(user, dummy);
 		}
 	}
 

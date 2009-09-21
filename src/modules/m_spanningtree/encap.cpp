@@ -29,7 +29,7 @@ bool TreeSocket::Encap(const std::string &prefix, parameterlist &params)
 	{
 		if (InspIRCd::Match(ServerInstance->Config->GetSID(), params[0]))
 		{
-			User* who = this->ServerInstance->FindUUID(prefix);
+			User* who = ServerInstance->FindUUID(prefix);
 			if (!who)
 				who = Utils->ServerUser;
 

@@ -82,7 +82,7 @@ void TreeSocket::WriteLine(std::string line)
 
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
 	line.append("\r\n");
-	this->Write(line);
+	this->WriteData(line);
 }
 
 

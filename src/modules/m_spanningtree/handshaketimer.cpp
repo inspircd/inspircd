@@ -37,15 +37,15 @@ HandshakeTimer::~HandshakeTimer()
 
 void HandshakeTimer::Tick(time_t TIME)
 {
-	if (!sock->GetHook())
+	if (!sock->GetIOHook())
 	{
 		CancelRepeat();
 		sock->SendCapabilities(1);
 	}
-	else if (BufferedSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
+	else if (BufferedSocketHSCompleteRequest(sock, Utils->Creator, sock->GetIOHook()).Send())
 	{
 		CancelRepeat();
-		BufferedSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
+		BufferedSocketAttachCertRequest(sock, Utils->Creator, sock->GetIOHook()).Send();
 		sock->SendCapabilities(1);
 	}
 	// otherwise, try again later

@@ -43,35 +43,7 @@
 
 EventHandler::EventHandler()
 {
-	this->IOHook = NULL;
-}
-
-bool EventHandler::AddIOHook(Module *IOHooker)
-{
-	if (this->IOHook)
-		return false;
-
-	this->IOHook = IOHooker;
-	return true;
-}
-
-bool EventHandler::DelIOHook()
-{
-	if (!this->IOHook)
-		return false;
-
-	this->IOHook = NULL;
-	return true;
-}
-
-Module *EventHandler::GetIOHook()
-{
-	return this->IOHook;
-}
-
-int EventHandler::GetFd()
-{
-	return this->fd;
+	fd = -1;
 }
 
 void EventHandler::SetFd(int FD)
@@ -79,21 +51,7 @@ void EventHandler::SetFd(int FD)
 	this->fd = FD;
 }
 
-bool EventHandler::Readable()
-{
-	return true;
-}
-
-bool EventHandler::Writeable()
-{
-	return false;
-}
-
-void SocketEngine::WantWrite(EventHandler* eh)
-{
-}
-
-SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
+SocketEngine::SocketEngine()
 {
 	TotalEvents = WriteEvents = ReadEvents = ErrorEvents = 0;
 	lastempty = ServerInstance->Time();
@@ -102,11 +60,6 @@ SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
 
 SocketEngine::~SocketEngine()
 {
-}
-
-bool SocketEngine::AddFd(EventHandler* eh)
-{
-	return true;
 }
 
 bool SocketEngine::HasFd(int fd)
@@ -123,11 +76,6 @@ EventHandler* SocketEngine::GetRef(int fd)
 	return ref[fd];
 }
 
-bool SocketEngine::DelFd(EventHandler* eh, bool force)
-{
-	return true;
-}
-
 int SocketEngine::GetMaxFds()
 {
 	return 0;
@@ -141,11 +89,6 @@ int SocketEngine::GetRemainingFds()
 int SocketEngine::DispatchEvents()
 {
 	return 0;
-}
-
-std::string SocketEngine::GetName()
-{
-	return "misconfigured";
 }
 
 bool SocketEngine::BoundsCheckFd(EventHandler* eh)

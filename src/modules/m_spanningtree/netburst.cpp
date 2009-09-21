@@ -30,16 +30,16 @@
 void TreeSocket::DoBurst(TreeServer* s)
 {
 	std::string name = s->GetName();
-	std::string burst = ":" + this->ServerInstance->Config->GetSID() + " BURST " +ConvToStr(ServerInstance->Time());
-	std::string endburst = ":" + this->ServerInstance->Config->GetSID() + " ENDBURST";
-	this->ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
+	std::string burst = ":" + ServerInstance->Config->GetSID() + " BURST " +ConvToStr(ServerInstance->Time());
+	std::string endburst = ":" + ServerInstance->Config->GetSID() + " ENDBURST";
+	ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
 		name.c_str(),
 		this->auth_fingerprint ? "SSL Fingerprint and " : "",
 		this->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
 	this->WriteLine(burst);
 	/* send our version string */
-	this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" VERSION :"+this->ServerInstance->GetVersionString());
+	this->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" VERSION :"+ServerInstance->GetVersionString());
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot,s,1);
 	/* Send users and their oper status */
@@ -47,9 +47,9 @@ void TreeSocket::DoBurst(TreeServer* s)
 	/* Send everything else (channel modes, xlines etc) */
 	this->SendChannelModes(s);
 	this->SendXLines(s);
-	FOREACH_MOD_I(this->ServerInstance,I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
+	FOREACH_MOD_I(ServerInstance,I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
 	this->WriteLine(endburst);
-	this->ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
+	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
 }
 
 /** Recursively send the server tree with distances as hops.
@@ -91,7 +91,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 
 	size_t curlen, headlen;
 	curlen = headlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s :",
-		this->ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
+		ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
 	int numusers = 0;
 	char* ptr = list + curlen;
 	bool looped_once = false;
@@ -103,7 +103,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 	{
 		size_t ptrlen = 0;
-		std::string modestr = this->ServerInstance->Modes->ModeString(i->first, c, false);
+		std::string modestr = ServerInstance->Modes->ModeString(i->first, c, false);
 
 		if ((curlen + modestr.length() + i->first->uuid.length() + 4) > 480)
 		{
@@ -150,7 +150,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		if ((params.length() >= ServerInstance->Config->Limits.MaxModes) || (currsize > 350))
 		{
 			/* Wrap at MAXMODES */
-			buffer.append(":").append(this->ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
+			buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
 			modes.clear();
 			params.clear();
 			linesize = 1;
@@ -159,7 +159,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 
 	/* Only send these if there are any */
 	if (!modes.empty())
-		buffer.append(":").append(this->ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
+		buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
 
 	this->WriteLine(buffer);
 }
@@ -168,7 +168,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 void TreeSocket::SendXLines(TreeServer* Current)
 {
 	char data[MAXBUF];
-	std::string n = this->ServerInstance->Config->GetSID();
+	std::string n = ServerInstance->Config->GetSID();
 	const char* sn = n.c_str();
 
 	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
@@ -209,9 +209,9 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 {
 	char data[MAXBUF];
 	std::deque<std::string> list;
-	std::string n = this->ServerInstance->Config->GetSID();
+	std::string n = ServerInstance->Config->GetSID();
 	const char* sn = n.c_str();
-	for (chan_hash::iterator c = this->ServerInstance->chanlist->begin(); c != this->ServerInstance->chanlist->end(); c++)
+	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 	{
 		SendFJoins(Current, c->second);
 		if (!c->second->topic.empty())
@@ -230,7 +230,7 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 				Utils->Creator->ProtoSendMetaData(this, c->second, i->first, value);
 		}
 
-		FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannel,OnSyncChannel(c->second,Utils->Creator,this));
+		FOREACH_MOD_I(ServerInstance,I_OnSyncChannel,OnSyncChannel(c->second,Utils->Creator,this));
 	}
 }
 
@@ -239,7 +239,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 {
 	char data[MAXBUF];
 	std::string dataline;
-	for (user_hash::iterator u = this->ServerInstance->Users->clientlist->begin(); u != this->ServerInstance->Users->clientlist->end(); u++)
+	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 	{
 		if (u->second->registered == REG_ALL)
 		{
@@ -281,7 +281,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 					Utils->Creator->ProtoSendMetaData(this, u->second, i->first, value);
 			}
 
-			FOREACH_MOD_I(this->ServerInstance,I_OnSyncUser,OnSyncUser(u->second,Utils->Creator,this));
+			FOREACH_MOD_I(ServerInstance,I_OnSyncUser,OnSyncUser(u->second,Utils->Creator,this));
 		}
 	}
 }

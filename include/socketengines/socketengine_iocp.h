@@ -121,7 +121,7 @@ public:
 	/** Creates an IOCP Socket Engine
 	 * @param Instance The creator of this object
 	 */
-	IOCPEngine(InspIRCd* Instance);
+	IOCPEngine();
 
 	/** Deletes an IOCP socket engine and all the attached sockets
 	 */
@@ -131,7 +131,7 @@ public:
 	 * @param eh EventHandler to add
 	 * @return True if success, false if no room
 	 */
-	bool AddFd(EventHandler* eh);
+	bool AddFd(EventHandler* eh, bool writeFirst = false);
 
 	/** Gets the maximum number of file descriptors that this engine can handle.
 	 * @return The number of file descriptors
@@ -234,7 +234,7 @@ class SocketEngineFactory
 public:
 	/** Create a new instance of SocketEngine based on IOCPEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new IOCPEngine(Instance); }
+	SocketEngine* Create() { return new IOCPEngine; }
 };
 
 #endif

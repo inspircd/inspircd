@@ -26,7 +26,7 @@ bool TreeSocket::Modules(const std::string &prefix, parameterlist &params)
 	if (params.empty())
 		return true;
 
-	if (!InspIRCd::Match(this->ServerInstance->Config->ServerName, params[0]))
+	if (!InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 	{
 		/* Pass it on, not for us */
 		Utils->DoOneToOne(prefix, "MODULES", params, params[0]);
@@ -38,7 +38,7 @@ bool TreeSocket::Modules(const std::string &prefix, parameterlist &params)
 	par.push_back(prefix);
 	par.push_back("");
 
-	User* source = this->ServerInstance->FindNick(prefix);
+	User* source = ServerInstance->FindNick(prefix);
 	if (!source)
 		return true;
 

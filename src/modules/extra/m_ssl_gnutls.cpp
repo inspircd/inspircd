@@ -56,7 +56,6 @@ public:
 
 	gnutls_session_t sess;
 	issl_status status;
-	std::string outbuf;
 };
 
 class CommandStartTLS : public Command
@@ -83,7 +82,7 @@ class CommandStartTLS : public Command
 			{
 				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
 				user->AddIOHook(creator);
-				creator->OnRawSocketAccept(user->GetFd(), NULL, NULL);
+				creator->OnStreamSocketAccept(user, NULL, NULL);
 			}
 			else
 				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());
@@ -133,16 +132,14 @@ class ModuleSSLGnuTLS : public Module
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
-		Implementation eventlist[] = { I_On005Numeric, I_OnRawSocketConnect, I_OnRawSocketAccept,
-			I_OnRawSocketClose, I_OnRawSocketRead, I_OnRawSocketWrite, I_OnCleanup,
-			I_OnBufferFlushed, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+		Implementation eventlist[] = { I_On005Numeric, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
 			I_OnEvent, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->AddCommand(&starttls);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ConfigReader Conf(ServerInstance);
 
@@ -168,7 +165,7 @@ class ModuleSSLGnuTLS : public Module
 			sslports.erase(sslports.end() - 1);
 	}
 
-	virtual void OnModuleRehash(User* user, const std::string &param)
+	void OnModuleRehash(User* user, const std::string &param)
 	{
 		if(param != "ssl")
 			return;
@@ -278,7 +275,7 @@ class ModuleSSLGnuTLS : public Module
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
 	}
 
-	virtual ~ModuleSSLGnuTLS()
+	~ModuleSSLGnuTLS()
 	{
 		gnutls_x509_crt_deinit(x509_cert);
 		gnutls_x509_privkey_deinit(x509_key);
@@ -289,7 +286,7 @@ class ModuleSSLGnuTLS : public Module
 		delete[] sessions;
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
+	void OnCleanup(int target_type, void* item)
 	{
 		if(target_type == TYPE_USER)
 		{
@@ -305,20 +302,20 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("$Id$", VF_VENDOR, API_VERSION);
 	}
 
 
-	virtual void On005Numeric(std::string &output)
+	void On005Numeric(std::string &output)
 	{
 		if (!sslports.empty())
 			output.append(" SSL=" + sslports);
 		output.append(" STARTTLS");
 	}
 
-	virtual void OnHookIO(EventHandler* user, ListenSocketBase* lsb)
+	void OnHookIO(StreamSocket* user, ListenSocketBase* lsb)
 	{
 		if (!user->GetIOHook() && listenports.find(lsb) != listenports.end())
 		{
@@ -327,7 +324,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	virtual const char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = static_cast<ISHRequest*>(request);
 		if (strcmp("IS_NAME", request->GetId()) == 0)
@@ -336,20 +333,13 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
-			const char* ret = "OK";
-			try
-			{
-				ret = ISR->Sock->AddIOHook(this) ? "OK" : NULL;
-			}
-			catch (ModuleException &e)
-			{
-				return NULL;
-			}
-			return ret;
+			ISR->Sock->AddIOHook(this);
+			return "OK";
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
-			return ISR->Sock->DelIOHook() ? "OK" : NULL;
+			ISR->Sock->DelIOHook();
+			return "OK";
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
@@ -383,12 +373,9 @@ class ModuleSSLGnuTLS : public Module
 	}
 
 
-	virtual void OnRawSocketAccept(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return;
-
+		int fd = user->GetFd();
 		issl_session* session = &sessions[fd];
 
 		/* For STARTTLS: Don't try and init a session on a socket that already has a session */
@@ -405,77 +392,67 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
 
-		Handshake(session, fd);
+		Handshake(session, user);
 	}
 
-	virtual void OnRawSocketConnect(int fd)
+	void OnStreamSocketConnect(StreamSocket* user)
 	{
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return;
-
-		issl_session* session = &sessions[fd];
+		issl_session* session = &sessions[user->GetFd()];
 
 		gnutls_init(&session->sess, GNUTLS_CLIENT);
 
 		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
-		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(fd)); // Give gnutls the fd for the socket.
+		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(user->GetFd()));
 
-		Handshake(session, fd);
+		Handshake(session, user);
 	}
 
-	virtual void OnRawSocketClose(int fd)
+	void OnStreamSocketClose(StreamSocket* user)
 	{
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds()))
-			return;
-
-		CloseSession(&sessions[fd]);
+		CloseSession(&sessions[user->GetFd()]);
 	}
 
-	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
+	int OnStreamSocketRead(StreamSocket* user, std::string& recvq)
 	{
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return 0;
-
-		issl_session* session = &sessions[fd];
+		issl_session* session = &sessions[user->GetFd()];
 
 		if (!session->sess)
 		{
-			readresult = 0;
 			CloseSession(session);
-			return 1;
+			user->SetError("No SSL session");
+			return -1;
 		}
 
 		if (session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.
 
-			if(!Handshake(session, fd))
+			if(!Handshake(session, user))
 			{
-				errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
-				// Couldn't resume handshake.
+				if (session->status != ISSL_CLOSING)
+					return 0;
+				user->SetError("Handshake Failed");
 				return -1;
 			}
 		}
 		else if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
-			errno = EAGAIN;
-			MakePollWrite(fd);
-			return -1;
+			MakePollWrite(user);
+			return 0;
 		}
 
 		// If we resumed the handshake then session->status will be ISSL_HANDSHAKEN.
 
 		if (session->status == ISSL_HANDSHAKEN)
 		{
-			unsigned int len = 0;
-			while (len < count)
+			char* buffer = ServerInstance->GetReadBuffer();
+			size_t bufsiz = ServerInstance->Config->NetBufferSize;
+			size_t len = 0;
+			while (len < bufsiz)
 			{
-				int ret = gnutls_record_recv(session->sess, buffer + len, count - len);
+				int ret = gnutls_record_recv(session->sess, buffer + len, bufsiz - len);
 				if (ret > 0)
 				{
 					len += ret;
@@ -484,60 +461,49 @@ class ModuleSSLGnuTLS : public Module
 				{
 					break;
 				}
+				else if (ret == 0)
+				{
+					user->SetError("SSL Connection closed");
+					CloseSession(session);
+					return -1;
+				}
 				else
 				{
-					if (ret != 0)
-						ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
-							"m_ssl_gnutls.so: Error while reading on fd %d: %s",
-							fd, gnutls_strerror(ret));
-
-					// if ret == 0, client closed connection.
-					readresult = 0;
+					user->SetError(gnutls_strerror(ret));
 					CloseSession(session);
-					return 1;
+					return -1;
 				}
 			}
-			readresult = len;
 			if (len)
 			{
+				recvq.append(buffer, len);
 				return 1;
-			}
-			else
-			{
-				errno = EAGAIN;
-				return -1;
 			}
 		}
 		else if (session->status == ISSL_CLOSING)
-			readresult = 0;
+			return -1;
 
-		return 1;
+		return 0;
 	}
 
-	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
+	int OnStreamSocketWrite(StreamSocket* user, std::string& sendq)
 	{
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return 0;
-
-		issl_session* session = &sessions[fd];
-		const char* sendbuffer = buffer;
+		issl_session* session = &sessions[user->GetFd()];
 
 		if (!session->sess)
 		{
 			CloseSession(session);
-			return 1;
+			user->SetError("No SSL session");
+			return -1;
 		}
-
-		session->outbuf.append(sendbuffer, count);
-		sendbuffer = session->outbuf.c_str();
-		count = session->outbuf.size();
 
 		if (session->status == ISSL_HANDSHAKING_WRITE || session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.
-			Handshake(session, fd);
-			errno = session->status == ISSL_CLOSING ? EIO : EAGAIN;
+			Handshake(session, user);
+			if (session->status != ISSL_CLOSING)
+				return 0;
+			user->SetError("Handshake Failed");
 			return -1;
 		}
 
@@ -545,42 +511,41 @@ class ModuleSSLGnuTLS : public Module
 
 		if (session->status == ISSL_HANDSHAKEN)
 		{
-			ret = gnutls_record_send(session->sess, sendbuffer, count);
+			ret = gnutls_record_send(session->sess, sendq.data(), sendq.length());
 
-			if (ret == 0)
+			if (ret == (int)sendq.length())
+			{
+				return 1;
+			}
+			else if (ret > 0)
+			{
+				sendq = sendq.substr(ret);
+				MakePollWrite(user);
+				return 0;
+			}
+			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+			{
+				MakePollWrite(user);
+				return 0;
+			}
+			else if (ret == 0)
 			{
 				CloseSession(session);
+				user->SetError("SSL Connection closed");
+				return -1;
 			}
-			else if (ret < 0)
+			else // (ret < 0)
 			{
-				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
-				{
-					ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
-							"m_ssl_gnutls.so: Error while writing to fd %d: %s",
-							fd, gnutls_strerror(ret));
-					CloseSession(session);
-				}
-				else
-				{
-					errno = EAGAIN;
-				}
-			}
-			else
-			{
-				session->outbuf = session->outbuf.substr(ret);
+				user->SetError(gnutls_strerror(ret));
+				CloseSession(session);
+				return -1;
 			}
 		}
 
-		if (!session->outbuf.empty())
-			MakePollWrite(fd);
-
-		/* Who's smart idea was it to return 1 when we havent written anything?
-		 * This fucks the buffer up in BufferedSocket :p
-		 */
-		return ret < 1 ? 0 : ret;
+		return 0;
 	}
 
-	bool Handshake(issl_session* session, int fd)
+	bool Handshake(issl_session* session, EventHandler* user)
 	{
 		int ret = gnutls_handshake(session->sess);
 
@@ -599,15 +564,11 @@ class ModuleSSLGnuTLS : public Module
 				{
 					// gnutls_handshake() wants to write() again.
 					session->status = ISSL_HANDSHAKING_WRITE;
-					MakePollWrite(fd);
+					MakePollWrite(user);
 				}
 			}
 			else
 			{
-				// Handshake failed.
-				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT,
-						"m_ssl_gnutls.so: Handshake failed on fd %d: %s",
-						fd, gnutls_strerror(ret));
 				CloseSession(session);
 				session->status = ISSL_CLOSING;
 			}
@@ -619,18 +580,16 @@ class ModuleSSLGnuTLS : public Module
 			// Change the seesion state
 			session->status = ISSL_HANDSHAKEN;
 
-			EventHandler* user = ServerInstance->SE->GetRef(fd);
-
 			VerifyCertificate(session,user);
 
 			// Finish writing, if any left
-			MakePollWrite(fd);
+			MakePollWrite(user);
 
 			return true;
 		}
 	}
 
-	virtual void OnPostConnect(User* user)
+	void OnPostConnect(User* user)
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
 		// protocol module has propagated the NICK message.
@@ -646,22 +605,9 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	void MakePollWrite(int fd)
+	void MakePollWrite(EventHandler* eh)
 	{
-		//OnRawSocketWrite(fd, NULL, 0);
-		EventHandler* eh = ServerInstance->SE->GetRef(fd);
-		if (eh)
-			ServerInstance->SE->WantWrite(eh);
-	}
-
-	virtual void OnBufferFlushed(User* user)
-	{
-		if (user->GetIOHook() == this)
-		{
-			issl_session* session = &sessions[user->GetFd()];
-			if (session && session->outbuf.size())
-				OnRawSocketWrite(user->GetFd(), NULL, 0);
-		}
+		ServerInstance->SE->WantWrite(eh);
 	}
 
 	void CloseSession(issl_session* session)
@@ -672,7 +618,6 @@ class ModuleSSLGnuTLS : public Module
 			gnutls_deinit(session->sess);
 		}
 
-		session->outbuf.clear();
 		session->sess = NULL;
 		session->status = ISSL_NONE;
 	}

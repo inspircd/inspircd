@@ -19,7 +19,7 @@
 #include "socketengines/socketengine_kqueue.h"
 #include <sys/sysctl.h>
 
-KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
+KQueueEngine::KQueueEngine()
 {
 	MAX_DESCRIPTORS = 0;
 	this->RecoverFromFork();
@@ -54,7 +54,7 @@ KQueueEngine::~KQueueEngine()
 	delete[] ke_list;
 }
 
-bool KQueueEngine::AddFd(EventHandler* eh)
+bool KQueueEngine::AddFd(EventHandler* eh, bool writeFirst)
 {
 	int fd = eh->GetFd();
 
@@ -79,7 +79,7 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 		return false;
 	}
 
-	if (!eh->Readable()) {
+	if (writeFirst) {
 		// ...and sometimes want to write
 		WantWrite(eh);
 	}

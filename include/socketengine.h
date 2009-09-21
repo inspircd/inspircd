@@ -69,32 +69,11 @@ class CoreExport EventHandler : public Extensible
 	 * other forms of IPC.
 	 */
 	int fd;
-
-	/** Pointer to the module which has hooked the given EventHandler for IO events.
-	 */
-	Module *IOHook;
  public:
-
-	/** Return the current hooker of IO events for this socket, or NULL.
-	 * @return Hooker module, if set, or NULL.
-	 */
-	Module *GetIOHook();
-
-	/** Set a module as hooking IO events on this socket.
-	 * @param IOHooker The module hooking IO
-	 * @return True if the hook could be added, false otherwise.
-	 */
-	bool AddIOHook(Module *IOHooker);
-
-	/** Remove IO hooking from a module
-	 * @return True if hooking was successfully removed, false otherwise.
-	 */
-	bool DelIOHook();
-
 	/** Get the current file descriptor
 	 * @return The file descriptor of this handler
 	 */
-	int GetFd();
+	inline int GetFd() const { return fd; }
 
 	/** Set a new file desciptor
 	 * @param FD The new file descriptor. Do not
@@ -112,44 +91,10 @@ class CoreExport EventHandler : public Extensible
 	 */
 	virtual ~EventHandler() {}
 
-	/** Override this function to indicate readability.
-	 * @return This should return true if the function
-	 * wishes to receive EVENT_READ events. Do not change
-	 * what this function returns while the event handler
-	 * is still added to a SocketEngine instance!
-	 * If this function is unimplemented, the base class
-	 * will return true.
-	 *
-	 * NOTE: You cannot set both Readable() and
-	 * Writeable() to true. If you wish to receive
-	 * a write event for your object, you must call
-	 * SocketEngine::WantWrite() instead. This will
-	 * trigger your objects next EVENT_WRITE type event.
-	 */
-	virtual bool Readable();
-
-	/** Override this function to indicate writeability.
-	 * @return This should return true if the function
-	 * wishes to receive EVENT_WRITE events. Do not change
-	 * what this function returns while the event handler
-	 * is still added to a SocketEngine instance!
-	 * If this function is unimplemented, the base class
-	 * will return false.
-	 *
-	 * NOTE: You cannot set both Readable() and
-	 * Writeable() to true. If you wish to receive
-	 * a write event for your object, you must call
-	 * SocketEngine::WantWrite() instead. This will
-	 * trigger your objects next EVENT_WRITE type event.
-	 */
-	virtual bool Writeable();
-
 	/** Process an I/O event.
 	 * You MUST implement this function in your derived
 	 * class, and it will be called whenever read or write
-	 * events are received, depending on what your functions
-	 * Readable() and Writeable() returns and wether you
-	 * previously made a call to SocketEngine::WantWrite().
+	 * events are received.
 	 * @param et either one of EVENT_READ for read events,
 	 * and EVENT_WRITE for write events.
 	 */
@@ -177,9 +122,6 @@ class CoreExport EventHandler : public Extensible
 class CoreExport SocketEngine
 {
 protected:
-	/** Owner/Creator
-	 */
-	InspIRCd* ServerInstance;
 	/** Handle to socket engine, where needed.
 	 */
 	int EngineHandle;
@@ -211,9 +153,8 @@ public:
 	 * failure (for example, you try and enable
 	 * epoll on a 2.4 linux kernel) then this
 	 * function may bail back to the shell.
-	 * @param Instance The creator/owner of this object
 	 */
-	SocketEngine(InspIRCd* Instance);
+	SocketEngine();
 
 	/** Destructor.
 	 * The destructor transparently tidies up
@@ -221,15 +162,14 @@ public:
 	 */
 	virtual ~SocketEngine();
 
-	/** Add an EventHandler object to the engine.
-	 * Use AddFd to add a file descriptor to the
-	 * engine and have the socket engine monitor
-	 * it. You must provide an object derived from
-	 * EventHandler which implements HandleEvent()
-	 * and optionally Readable() and Writeable().
+	/** Add an EventHandler object to the engine.  Use AddFd to add a file
+	 * descriptor to the engine and have the socket engine monitor it. You
+	 * must provide an object derived from EventHandler which implements
+	 * HandleEvent().
 	 * @param eh An event handling object to add
+	 * @param writeFirst Wait for a write event instead of a read
 	 */
-	virtual bool AddFd(EventHandler* eh);
+	virtual bool AddFd(EventHandler* eh, bool writeFirst = false) = 0;
 
 	/** If you call this function and pass it an
 	 * event handler, that event handler will
@@ -242,7 +182,7 @@ public:
 	 * @param eh An event handler which wants to
 	 * receive the next writeability event.
 	 */
-	virtual void WantWrite(EventHandler* eh);
+	virtual void WantWrite(EventHandler* eh) = 0;
 
 	/** Returns the maximum number of file descriptors
 	 * you may store in the socket engine at any one time.
@@ -273,7 +213,7 @@ public:
 	 * @param force *DANGEROUS* See method description!
 	 * @return True if the event handler was removed
 	 */
-	virtual bool DelFd(EventHandler* eh, bool force = false);
+	virtual bool DelFd(EventHandler* eh, bool force = false) = 0;
 
 	/** Returns true if a file descriptor exists in
 	 * the socket engine's list.
@@ -305,7 +245,7 @@ public:
 	 * in /VERSION responses.
 	 * @return The socket engine name
 	 */
-	virtual std::string GetName();
+	virtual std::string GetName() = 0;
 
 	/** Returns true if the file descriptors in the
 	 * given event handler are within sensible ranges

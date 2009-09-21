@@ -28,13 +28,13 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
 		return true;
-	User* u = this->ServerInstance->FindNick(prefix);
+	User* u = ServerInstance->FindNick(prefix);
 	if (u)
 	{
 		// an incoming request
 		if (params.size() == 1)
 		{
-			User* x = this->ServerInstance->FindNick(params[0]);
+			User* x = ServerInstance->FindNick(params[0]);
 			if ((x) && (IS_LOCAL(x)))
 			{
 				char signon[MAXBUF];
@@ -58,7 +58,7 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 		else if (params.size() == 3)
 		{
 			std::string who_did_the_whois = params[0];
-			User* who_to_send_to = this->ServerInstance->FindNick(who_did_the_whois);
+			User* who_to_send_to = ServerInstance->FindNick(who_did_the_whois);
 			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 			{
 				// an incoming reply to a whois we sent out

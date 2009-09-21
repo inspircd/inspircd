@@ -24,7 +24,7 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 6)
 	{
-		this->ServerInstance->SNO->WriteToSnoMask('d',"%s sent me a malformed ADDLINE of type %s.",prefix.c_str(),params[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('d',"%s sent me a malformed ADDLINE of type %s.",prefix.c_str(),params[0].c_str());
 		return true;
 	}
 
@@ -43,7 +43,7 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 
 	if (!xlf)
 	{
-		this->ServerInstance->SNO->WriteToSnoMask('d',"%s sent me an unknown ADDLINE type (%s).",setter.c_str(),params[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('d',"%s sent me an unknown ADDLINE type (%s).",setter.c_str(),params[0].c_str());
 		return true;
 	}
 
@@ -54,7 +54,7 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 	}
 	catch (ModuleException &e)
 	{
-		this->ServerInstance->SNO->WriteToSnoMask('d',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason());
+		ServerInstance->SNO->WriteToSnoMask('d',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason());
 		return true;
 	}
 	xl->SetCreateTime(atoi(params[3].c_str()));
@@ -62,12 +62,12 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 	{
 		if (xl->duration)
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('X',"%s added %s%s on %s to expire on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
+			ServerInstance->SNO->WriteToSnoMask('X',"%s added %s%s on %s to expire on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
 					params[1].c_str(),ServerInstance->TimeString(xl->expiry).c_str(),params[5].c_str());
 		}
 		else
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('X',"%s added permanent %s%s on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
+			ServerInstance->SNO->WriteToSnoMask('X',"%s added permanent %s%s on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
 					params[1].c_str(),params[5].c_str());
 		}
 		params[5] = ":" + params[5];

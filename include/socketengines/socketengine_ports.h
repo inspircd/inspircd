@@ -26,8 +26,6 @@
 #include "socketengine.h"
 #include <port.h>
 
-class InspIRCd;
-
 /** A specialisation of the SocketEngine class, designed to use solaris 10 I/O completion ports
  */
 class PortsEngine : public SocketEngine
@@ -40,11 +38,11 @@ public:
 	/** Create a new PortsEngine
 	 * @param Instance The creator of this object
 	 */
-	PortsEngine(InspIRCd* Instance);
+	PortsEngine();
 	/** Delete a PortsEngine
 	 */
 	virtual ~PortsEngine();
-	virtual bool AddFd(EventHandler* eh);
+	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
 	virtual bool DelFd(EventHandler* eh, bool force = false);
@@ -60,7 +58,7 @@ class SocketEngineFactory
 public:
 	/** Create a new instance of SocketEngine based on PortsEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new PortsEngine(Instance); }
+	SocketEngine* Create() { return new PortsEngine; }
 };
 
 #endif

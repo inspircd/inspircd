@@ -64,9 +64,9 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	}
 
 	/* check for collision */
-	user_hash::iterator iter = this->ServerInstance->Users->clientlist->find(params[2]);
+	user_hash::iterator iter = ServerInstance->Users->clientlist->find(params[2]);
 
-	if (iter != this->ServerInstance->Users->clientlist->end())
+	if (iter != ServerInstance->Users->clientlist->end())
 	{
 		/*
 		 * Nick collision.
@@ -87,19 +87,19 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	User* _new = NULL;
 	try
 	{
-		_new = new User(this->ServerInstance, params[0]);
+		_new = new User(ServerInstance, params[0]);
 	}
 	catch (...)
 	{
 		this->SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
 		return false;
 	}
-	(*(this->ServerInstance->Users->clientlist))[params[2]] = _new;
+	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
 	_new->nick.assign(params[2], 0, MAXBUF);
 	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
-	_new->server = this->ServerInstance->FindServerNamePtr(remoteserver->GetName().c_str());
+	_new->server = ServerInstance->FindServerNamePtr(remoteserver->GetName().c_str());
 	_new->ident.assign(params[5], 0, MAXBUF);
 	_new->fullname.assign(params[params.size() - 1], 0, MAXBUF);
 	_new->registered = REG_ALL;
@@ -164,11 +164,11 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 
 	bool dosend = true;
 
-	if ((this->Utils->quiet_bursts && remoteserver->bursting) || this->ServerInstance->SilentULine(_new->server))
+	if ((this->Utils->quiet_bursts && remoteserver->bursting) || ServerInstance->SilentULine(_new->server))
 		dosend = false;
 
 	if (dosend)
-		this->ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
 
 	params[params.size() - 1] = ":" + params[params.size() - 1];
 	Utils->DoOneToAllButSender(source, "UID", params, source);

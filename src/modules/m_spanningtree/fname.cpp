@@ -25,7 +25,7 @@ bool TreeSocket::ChangeName(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
 		return true;
-	User* u = this->ServerInstance->FindNick(prefix);
+	User* u = ServerInstance->FindNick(prefix);
 	if (u)
 	{
 		u->ChangeName(params[0].c_str());

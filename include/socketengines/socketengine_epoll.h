@@ -23,8 +23,6 @@
 #include <sys/epoll.h>
 #define EP_DELAY 5
 
-class InspIRCd;
-
 /** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
  */
 class EPollEngine : public SocketEngine
@@ -35,13 +33,12 @@ private:
 	struct epoll_event* events;
 public:
 	/** Create a new EPollEngine
-	 * @param Instance The creator of this object
 	 */
-	EPollEngine(InspIRCd* Instance);
+	EPollEngine();
 	/** Delete an EPollEngine
 	 */
 	virtual ~EPollEngine();
-	virtual bool AddFd(EventHandler* eh);
+	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
 	virtual bool DelFd(EventHandler* eh, bool force = false);
@@ -57,7 +54,7 @@ class SocketEngineFactory
 public:
 	/** Create a new instance of SocketEngine based on EpollEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new EPollEngine(Instance); }
+	SocketEngine* Create() { return new EPollEngine; }
 };
 
 #endif

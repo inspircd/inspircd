@@ -24,8 +24,6 @@
 #include <sys/time.h>
 #include "socketengine.h"
 
-class InspIRCd;
-
 /** A specialisation of the SocketEngine class, designed to use FreeBSD kqueue().
  */
 class KQueueEngine : public SocketEngine
@@ -39,13 +37,12 @@ private:
 	struct timespec ts;
 public:
 	/** Create a new KQueueEngine
-	 * @param Instance The creator of this object
 	 */
-	KQueueEngine(InspIRCd* Instance);
+	KQueueEngine();
 	/** Delete a KQueueEngine
 	 */
 	virtual ~KQueueEngine();
-	virtual bool AddFd(EventHandler* eh);
+	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
 	virtual bool DelFd(EventHandler* eh, bool force = false);
@@ -62,7 +59,7 @@ class SocketEngineFactory
  public:
 	/** Create a new instance of SocketEngine based on KQueueEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new KQueueEngine(Instance); }
+	SocketEngine* Create() { return new KQueueEngine; }
 };
 
 #endif

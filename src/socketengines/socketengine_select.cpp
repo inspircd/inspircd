@@ -18,7 +18,7 @@
 #include "socketengines/socketengine_select.h"
 
 
-SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
+SelectEngine::SelectEngine()
 {
 	MAX_DESCRIPTORS = FD_SETSIZE;
 	EngineHandle = 0;
@@ -34,7 +34,7 @@ SelectEngine::~SelectEngine()
 	delete[] ref;
 }
 
-bool SelectEngine::AddFd(EventHandler* eh)
+bool SelectEngine::AddFd(EventHandler* eh, bool writeFirst)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -49,6 +49,8 @@ bool SelectEngine::AddFd(EventHandler* eh)
 	fds.insert(fd);
 	ref[fd] = eh;
 	CurrentSetSize++;
+
+	writeable[eh->GetFd()] = writeFirst;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	return true;
@@ -101,16 +103,11 @@ int SelectEngine::DispatchEvents()
 	/* Populate the select FD set (this is why select sucks compared to epoll, kqueue, IOCP) */
 	for (std::set<int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
-		if (ref[*a]->Readable())
-			/* Read notifications */
-			FD_SET (*a, &rfdset);
-		else
-			/* Write notifications */
-			FD_SET (*a, &wfdset);
-
 		/* Explicitly one-time writeable */
 		if (writeable[*a])
 			FD_SET (*a, &wfdset);
+		else
+			FD_SET (*a, &rfdset);
 
 		/* All sockets must receive error notifications regardless */
 		FD_SET (*a, &errfdset);

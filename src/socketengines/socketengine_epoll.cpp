@@ -16,7 +16,7 @@
 #include "socketengines/socketengine_epoll.h"
 #include <ulimit.h>
 
-EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
+EPollEngine::EPollEngine()
 {
 	MAX_DESCRIPTORS = 0;
 	// This is not a maximum, just a hint at the eventual number of sockets that may be polled.
@@ -45,7 +45,7 @@ EPollEngine::~EPollEngine()
 	delete[] events;
 }
 
-bool EPollEngine::AddFd(EventHandler* eh)
+bool EPollEngine::AddFd(EventHandler* eh, bool writeFirst)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -68,7 +68,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(ev));
-	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
+	ev.events = writeFirst ? EPOLLOUT : EPOLLIN;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
@@ -107,7 +107,6 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(ev));
-	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 

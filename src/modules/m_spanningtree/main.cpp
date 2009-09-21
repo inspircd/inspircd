@@ -275,7 +275,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		/* Gave a hook, but it wasnt one we know */
 		if ((!x->Hook.empty()) && (Utils->hooks.find(x->Hook.c_str()) == Utils->hooks.end()))
 			return;
-		TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port, x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Bind, y, x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
+		TreeSocket* newsocket = new TreeSocket(Utils, x->IPAddr,x->Port, x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Bind, y, x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */
@@ -283,8 +283,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		else
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
-			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
-				ServerInstance->SocketCull[newsocket] = newsocket;
+			ServerInstance->GlobalCulls.AddItem(newsocket);
 			Utils->DoFailOver(y);
 		}
 	}

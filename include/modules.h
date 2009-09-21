@@ -406,10 +406,9 @@ enum Implementation
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
-	I_OnDelBan, I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead,
-	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
+	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
-	I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
+	I_OnWhoisLine, I_OnBuildExemptList, I_OnGarbageCollect, I_OnBufferFlushed,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
 	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
@@ -1242,9 +1241,9 @@ class CoreExport Module : public Extensible
 	 * @param user The item to possibly install the I/O hook on
 	 * @param via The port that <user> connected on
 	 */
-	virtual void OnHookIO(EventHandler* user, ListenSocketBase* via);
+	virtual void OnHookIO(StreamSocket*, ListenSocketBase* via);
 
-	/** Called immediately after any  connection is accepted. This is intended for raw socket
+	/** Called immediately after any connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
 	 * no information relating to a user record as the connection has not been assigned yet.
 	 * There are no return values from this call as all modules get an opportunity if required to
@@ -1254,48 +1253,38 @@ class CoreExport Module : public Extensible
 	 * @param server The server IP address and port
 	 * @param localport The local port number the user connected to
 	 */
-	virtual void OnRawSocketAccept(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	virtual void OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
-	/** Called immediately before any write() operation on a user's socket in the core. Because
-	 * this event is a low level event no user information is associated with it. It is intended
-	 * for use by modules which may wrap connections within another API such as SSL for example.
-	 * return a non-zero result if you have handled the write operation, in which case the core
-	 * will not call write().
-	 * @param fd The file descriptor of the socket
-	 * @param buffer A char* buffer being written
-	 * @param Number of characters to write
-	 * @return Number of characters actually written or 0 if you didn't handle the operation
+	/**
+	 * Called when a hooked stream has data to write, or when the socket
+	 * engine returns it as writable
+	 * @param socket The socket in question
+	 * @param sendq Data to send to the socket
+	 * @return 1 if the sendq has been completely emptied, 0 if there is
+	 *  still data to send, and -1 if there was an error
 	 */
-	virtual int OnRawSocketWrite(int fd, const char* buffer, int count);
+	virtual int OnStreamSocketWrite(StreamSocket*, std::string& sendq);
 
 	/** Called immediately before any socket is closed. When this event is called, shutdown()
 	 * has not yet been called on the socket.
 	 * @param fd The file descriptor of the socket prior to close()
 	 */
-	virtual void OnRawSocketClose(int fd);
+	virtual void OnStreamSocketClose(StreamSocket*);
 
 	/** Called immediately upon connection of an outbound BufferedSocket which has been hooked
 	 * by a module.
 	 * @param fd The file descriptor of the socket immediately after connect()
 	 */
-	virtual void OnRawSocketConnect(int fd);
+	virtual void OnStreamSocketConnect(StreamSocket*);
 
-	/** Called immediately before any read() operation on a client socket in the core.
-	 * This occurs AFTER the select() or poll() so there is always data waiting to be read
-	 * when this event occurs.
-	 * Your event should return 1 if it has handled the reading itself, which prevents the core
-	 * just using read(). You should place any data read into buffer, up to but NOT GREATER THAN
-	 * the value of count. The value of readresult must be identical to an actual result that might
-	 * be returned from the read() system call, for example, number of bytes read upon success,
-	 * 0 upon EOF or closed socket, and -1 for error. If your function returns a nonzero value,
-	 * you MUST set readresult.
-	 * @param fd The file descriptor of the socket
-	 * @param buffer A char* buffer being read to
-	 * @param count The size of the buffer
-	 * @param readresult The amount of characters read, or 0
-	 * @return nonzero if the event was handled, in which case readresult must be valid on exit
+	/**
+	 * Called when the stream socket has data to read
+	 * @param socket The socket that is ready
+	 * @param recvq The receive queue that new data should be appended to
+	 * @return 1 if new data has been read, 0 if no new data is ready (but the
+	 *  socket is still connected), -1 if there was an error or close
 	 */
-	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult);
+	virtual int OnStreamSocketRead(StreamSocket*, std::string& recvq);
 
 	/** Called whenever a user sets away or returns from being away.
 	 * The away message is available as a parameter, but should not be modified.

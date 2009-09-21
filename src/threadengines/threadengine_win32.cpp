@@ -55,20 +55,15 @@ class ThreadSignalSocket : public BufferedSocket
 {
 	SocketThread* parent;
  public:
-	ThreadSignalSocket(SocketThread* t, InspIRCd* SI, int newfd, const char* ip)
-		: BufferedSocket(SI, newfd, ip), parent(t)
+	ThreadSignalSocket(SocketThread* t, int newfd)
+		: BufferedSocket(newfd), parent(t)
 	{
 	}
 
-	virtual bool OnDataReady()
+	void OnDataReady()
 	{
-		char data = 0;
-		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
-		{
-			parent->OnNotify();
-			return true;
-		}
-		return false;
+		recvq.clear();
+		parent->OnNotify();
 	}
 };
 
@@ -92,7 +87,7 @@ SocketThread::SocketThread(InspIRCd* SI)
 	int nfd = accept(listenFD);
 	if (nfd < 0)
 		throw CoreException("Could not create ITC pipe");
-	new ThreadSignalSocket(parent, ServerInstance, nfd, "127.0.0.1");
+	new ThreadSignalSocket(parent, nfd);
 	closesocket(listenFD);
 
 	SI->SE->Blocking(connFD);

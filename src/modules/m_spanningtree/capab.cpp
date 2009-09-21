@@ -23,7 +23,7 @@
 
 std::string TreeSocket::MyModules(int filter)
 {
-	std::vector<std::string> modlist = this->ServerInstance->Modules->GetAllModuleNames(filter);
+	std::vector<std::string> modlist = ServerInstance->Modules->GetAllModuleNames(filter);
 
 	if (filter == VF_COMMON && proto_version != ProtocolVersion)
 		CompatAddModules(modlist);
@@ -236,13 +236,13 @@ bool TreeSocket::Capab(const parameterlist &params)
 			}
 		}
 
-		if(this->CapKeys.find("PREFIX") != this->CapKeys.end() && this->CapKeys.find("PREFIX")->second != this->ServerInstance->Modes->BuildPrefixes())
+		if(this->CapKeys.find("PREFIX") != this->CapKeys.end() && this->CapKeys.find("PREFIX")->second != ServerInstance->Modes->BuildPrefixes())
 			reason = "One or more of the prefixes on the remote server are invalid on this server.";
 
-		if(this->CapKeys.find("CHANMODES") != this->CapKeys.end() && this->CapKeys.find("CHANMODES")->second != this->ServerInstance->Modes->GiveModeList(MASK_CHANNEL))
+		if(this->CapKeys.find("CHANMODES") != this->CapKeys.end() && this->CapKeys.find("CHANMODES")->second != ServerInstance->Modes->GiveModeList(MASK_CHANNEL))
 			reason = "One or more of the channel modes on the remote server are invalid on this server.";
 
-		if(this->CapKeys.find("USERMODES") != this->CapKeys.end() && this->CapKeys.find("USERMODES")->second != this->ServerInstance->Modes->GiveModeList(MASK_USER))
+		if(this->CapKeys.find("USERMODES") != this->CapKeys.end() && this->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MASK_USER))
 			reason = "One or more of the user modes on the remote server are invalid on this server.";
 
 
@@ -255,8 +255,8 @@ bool TreeSocket::Capab(const parameterlist &params)
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 "+
-						ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
+				this->WriteLine(std::string("SERVER ")+ServerInstance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 "+
+						ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
 			}
 		}
 		else
@@ -265,7 +265,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 			if (this->LinkState == CONNECTING)
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+OutboundPass+" 0 "+ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
+				this->WriteLine(std::string("SERVER ")+ServerInstance->Config->ServerName+" "+OutboundPass+" 0 "+ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
 			}
 		}
 

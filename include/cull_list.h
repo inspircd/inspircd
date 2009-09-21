@@ -19,17 +19,14 @@
  * avoid problems with references to deleted pointers if an object were deleted
  * during execution.
  */
-class CoreExport CullList : public classbase
+class CoreExport CullList
 {
- private:
-	std::vector<classbase*> list;
+	std::set<classbase*> list;
 
  public:
-	CullList() {}
-
 	/** Adds an item to the cull list
 	 */
-	void AddItem(classbase* item) { list.push_back(item); }
+	void AddItem(classbase* item) { list.insert(item); }
 
 	/** Applies the cull list (deletes the contents)
 	 */

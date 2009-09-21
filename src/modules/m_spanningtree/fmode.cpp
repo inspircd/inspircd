@@ -34,7 +34,7 @@ bool TreeSocket::ForceMode(const std::string &source, parameterlist &params)
 	std::string sourceserv;
 
 	/* Are we dealing with an FMODE from a user, or from a server? */
-	User* who = this->ServerInstance->FindNick(source);
+	User* who = ServerInstance->FindNick(source);
 	if (who)
 	{
 		/* FMODE from a user, set sourceserv to the users server name */
@@ -66,7 +66,7 @@ bool TreeSocket::ForceMode(const std::string &source, parameterlist &params)
 
 	}
 	/* Extract the TS value of the object, either User or Channel */
-	User* dst = this->ServerInstance->FindNick(params[0]);
+	User* dst = ServerInstance->FindNick(params[0]);
 	Channel* chan = NULL;
 	time_t ourTS = 0;
 
@@ -76,7 +76,7 @@ bool TreeSocket::ForceMode(const std::string &source, parameterlist &params)
 	}
 	else
 	{
-		chan = this->ServerInstance->FindChan(params[0]);
+		chan = ServerInstance->FindChan(params[0]);
 		if (chan)
 		{
 			ourTS = chan->age;

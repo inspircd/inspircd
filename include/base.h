@@ -28,7 +28,9 @@ class CoreExport classbase
  public:
 	classbase();
 
-	virtual ~classbase() { }
+	// Called just prior to destruction via cull list
+	virtual void cull();
+	virtual ~classbase();
 };
 
 /** BoolSet is a utility class designed to hold eight bools in a bitmask.

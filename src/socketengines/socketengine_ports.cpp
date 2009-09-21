@@ -17,7 +17,7 @@
 #include "socketengines/socketengine_ports.h"
 #include <ulimit.h>
 
-PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
+PortsEngine::PortsEngine()
 {
 	MAX_DESCRIPTORS = 0;
 	EngineHandle = port_create();
@@ -44,7 +44,7 @@ PortsEngine::~PortsEngine()
 	delete[] events;
 }
 
-bool PortsEngine::AddFd(EventHandler* eh)
+bool PortsEngine::AddFd(EventHandler* eh, bool writeFirst)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -57,7 +57,7 @@ bool PortsEngine::AddFd(EventHandler* eh)
 		return false;
 
 	ref[fd] = eh;
-	port_associate(EngineHandle, PORT_SOURCE_FD, fd, eh->Readable() ? POLLRDNORM : POLLWRNORM, eh);
+	port_associate(EngineHandle, PORT_SOURCE_FD, fd, writeFirst ? POLLWRNORM : POLLRDNORM, eh);
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	CurrentSetSize++;

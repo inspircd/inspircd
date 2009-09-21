@@ -49,19 +49,18 @@ void ServerSocketListener::OnAcceptReady(int newsock)
 
 		if (!found)
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", ip);
+			ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", ip);
 			ServerInstance->SE->Close(newsock);
 			return;
 		}
 	}
 
-	if (this->GetIOHook())
-	{
-		this->GetIOHook()->OnRawSocketAccept(newsock, &client, &server);
-	}
+	/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
+	TreeSocket* ts = new TreeSocket(Utils, newsock, ip, NULL, Hook);
 
-	/* we don't need a pointer to this, creating it stores it in the necessary places */
-	new TreeSocket(this->Utils, this->ServerInstance, newsock, ip, NULL, this->GetIOHook());
+	if (Hook)
+		Hook->OnStreamSocketAccept(ts, &client, &server);
+
 	return;
 }
 
@@ -73,7 +72,7 @@ void ServerSocketListener::OnAcceptReady(int newsock)
  */
 TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
-	if (this->ServerInstance->IsSID(ServerName))
+	if (ServerInstance->IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
 	server_hash::iterator iter = serverlist.find(ServerName.c_str());
@@ -150,12 +149,10 @@ bool SpanningTreeUtilities::IsServer(const std::string &ServerName)
 
 SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* C) : ServerInstance(Instance), Creator(C)
 {
-	Bindings.clear();
-
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
 
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
-	this->ServerUser = new FakeUser(ServerInstance, TreeRoot->GetID());
+	ServerUser = new FakeUser(ServerInstance, TreeRoot->GetID());
 
 	this->ReadConfiguration(true);
 }
@@ -182,7 +179,6 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	ServerUser->uuid = TreeRoot->GetID();
 	delete TreeRoot;
 	delete ServerUser;
-	ServerInstance->BufferedSocketCull();
 }
 
 void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)
@@ -465,7 +461,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		{
 			delete Bindings[i];
 		}
-		ServerInstance->BufferedSocketCull();
 		Bindings.clear();
 
 		for (int j = 0; j < Conf->Enumerate("bind"); j++)
@@ -498,7 +493,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					}
 
 					if (!transport.empty())
-						listener->AddIOHook(hooks[transport.c_str()]);
+						listener->Hook = hooks[transport.c_str()];
 
 					Bindings.push_back(listener);
 				}
@@ -656,7 +651,7 @@ void SpanningTreeUtilities::DoFailOver(Autoconnect* x)
 	{
 		if (x->FailOver == x->Server)
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Server.c_str());
+			ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Server.c_str());
 			return;
 		}
 		Link* TryThisOne = this->FindLink(x->FailOver.c_str());
@@ -669,13 +664,13 @@ void SpanningTreeUtilities::DoFailOver(Autoconnect* x)
 			}
 			else
 			{
-				this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Server.c_str(), TryThisOne->Name.c_str());
+				ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Server.c_str(), TryThisOne->Name.c_str());
 				Creator->ConnectServer(TryThisOne, NULL);
 			}
 		}
 		else
 		{
-			this->ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Server.c_str());
+			ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Server.c_str());
 		}
 	}
 }

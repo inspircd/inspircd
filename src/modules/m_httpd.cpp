@@ -37,6 +37,7 @@ class HttpServerSocket : public BufferedSocket
 {
 	FileReader* index;
 	HttpState InternalState;
+	std::string ip;
 
 	HTTPHeaders headers;
 	std::string reqbuffer;
@@ -48,7 +49,8 @@ class HttpServerSocket : public BufferedSocket
 
  public:
 
-	HttpServerSocket(InspIRCd* SI, int newfd, const char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0)
+	HttpServerSocket(int newfd, const char* IP, FileReader* ind)
+		: BufferedSocket(newfd), index(ind), ip(IP), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 	}
@@ -62,7 +64,7 @@ class HttpServerSocket : public BufferedSocket
 	{
 	}
 
-	virtual void OnClose()
+	virtual void OnError(BufferedSocketError)
 	{
 	}
 
@@ -164,15 +166,15 @@ class HttpServerSocket : public BufferedSocket
 		                   "<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>";
 
 		SendHeaders(data.length(), response, empty);
-		this->Write(data);
+		WriteData(data);
 	}
 
 	void SendHeaders(unsigned long size, int response, HTTPHeaders &rheaders)
 	{
 
-		this->Write(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
+		WriteData(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
 
-		time_t local = this->ServerInstance->Time();
+		time_t local = ServerInstance->Time();
 		struct tm *timeinfo = gmtime(&local);
 		char *date = asctime(timeinfo);
 		date[strlen(date) - 1] = '\0';
@@ -191,40 +193,32 @@ class HttpServerSocket : public BufferedSocket
 		 */
 		rheaders.SetHeader("Connection", "Close");
 
-		this->Write(rheaders.GetFormattedHeaders());
-		this->Write("\r\n");
+		WriteData(rheaders.GetFormattedHeaders());
+		WriteData("\r\n");
 	}
 
-	virtual bool OnDataReady()
+	void OnDataReady()
 	{
-		const char* data = this->Read();
-
-		/* Check that the data read is a valid pointer and it has some content */
-		if (!data || !*data)
-			return false;
-
 		if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 		{
-			postdata.append(data);
+			postdata.append(recvq);
 			if (postdata.length() >= postsize)
 				ServeData();
 		}
 		else
 		{
-			reqbuffer.append(data);
+			reqbuffer.append(recvq);
 
 			if (reqbuffer.length() >= 8192)
 			{
 				ServerInstance->Logs->Log("m_httpd",DEBUG, "m_httpd dropped connection due to an oversized request buffer");
 				reqbuffer.clear();
-				return false;
+				SetError("Buffer");
 			}
 
 			if (InternalState == HTTP_SERVE_WAIT_REQUEST)
 				CheckRequestBuffer();
 		}
-
-		return true;
 	}
 
 	void CheckRequestBuffer()
@@ -314,18 +308,18 @@ class HttpServerSocket : public BufferedSocket
 		{
 			HTTPHeaders empty;
 			SendHeaders(index->ContentSize(), 200, empty);
-			this->Write(index->Contents());
+			WriteData(index->Contents());
 		}
 		else
 		{
 			claimed = false;
-			HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
+			HTTPRequest httpr(request_type,uri,&headers,this,ip,postdata);
 			Event acl((char*)&httpr, (Module*)HttpModule, "httpd_acl");
-			acl.Send(this->ServerInstance);
+			acl.Send(ServerInstance);
 			if (!claimed)
 			{
 				Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-				e.Send(this->ServerInstance);
+				e.Send(ServerInstance);
 				if (!claimed)
 				{
 					SendHTTPError(404);
@@ -337,7 +331,7 @@ class HttpServerSocket : public BufferedSocket
 	void Page(std::stringstream* n, int response, HTTPHeaders *hheaders)
 	{
 		SendHeaders(n->str().length(), response, *hheaders);
-		this->Write(n->str());
+		WriteData(n->str());
 	}
 };
 
@@ -358,7 +352,7 @@ class HttpListener : public ListenSocketBase
 		int port;
 		std::string incomingip;
 		irc::sockets::satoap(&client, incomingip, port);
-		new HttpServerSocket(ServerInstance, nfd, incomingip.c_str(), index);
+		new HttpServerSocket(nfd, incomingip.c_str(), index);
 	}
 };
 
@@ -426,7 +420,6 @@ class ModuleHttpServer : public Module
 			httpsocks[i]->Close();
 			delete httpsocks[i]->GetIndex();
 		}
-		ServerInstance->BufferedSocketCull();
 	}
 
 	virtual Version GetVersion()
