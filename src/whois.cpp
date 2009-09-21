@@ -24,30 +24,14 @@ void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned lon
 	std::string cl = dest->ChannelList(user, false);
 
 	if (cl.length())
-	{
-		if (cl.length() > 400)
-		{
-			user->SplitChanList(dest,cl);
-		}
-		else
-		{
-			this->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), cl.c_str());
-		}
-	}
+		user->SplitChanList(dest,cl);
 	if (IS_OPER(user) && ServerInstance->Config->OperSpyWhois)
 	{
 		std::string scl = dest->ChannelList(user, true);
 		if (scl.length())
 		{
 			this->SendWhoisLine(user, dest, 336, "%s %s :is on private/secret channels:",user->nick.c_str(), dest->nick.c_str());
-			if (scl.length() > 400)
-			{
-				user->SplitChanList(dest,scl);
-			}
-			else
-			{
-				this->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), scl.c_str());
-			}
+			user->SplitChanList(dest,scl);
 		}
 	}
 	if (user != dest && *this->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
