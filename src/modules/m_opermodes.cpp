@@ -46,7 +46,7 @@ class ModuleModesOnOper : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Sets (and unsets) modes on opers when they oper up", VF_VENDOR, API_VERSION);
 	}
 
 	virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)

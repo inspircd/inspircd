@@ -255,7 +255,7 @@ class ModuleSASL : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$",VF_VENDOR,API_VERSION);
+		return Version("Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE.",VF_VENDOR,API_VERSION);
 	}
 
 	void OnEvent(Event *ev)

@@ -339,7 +339,7 @@ class ModuleCloaking : public Module
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
-		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
 	void OnRehash(User* user)

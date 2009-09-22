@@ -28,7 +28,7 @@
 
 // version is a simple class for holding a modules version number
 Version::Version(const std::string &modv, int flags, int api_ver, const std::string& rev)
-: version(modv + " - " + rev), Flags(flags), API(api_ver)
+: description(modv), version(rev), Flags(flags), API(api_ver)
 {
 }
 
@@ -119,7 +119,6 @@ void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
 ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, void*, int, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
-Version		Module::GetVersion() { return Version("Misconfigured", VF_VENDOR, -1); }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }

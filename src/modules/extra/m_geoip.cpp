@@ -44,7 +44,7 @@ class ModuleGeoIP : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides a way to restrict users by country using GeoIP lookup", VF_VENDOR, API_VERSION);
 	}
 
 	virtual void OnRehash(User* user)

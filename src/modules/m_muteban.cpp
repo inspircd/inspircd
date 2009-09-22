@@ -31,7 +31,7 @@ class ModuleQuietBan : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Implements extban +b m: - mute bans",VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
 	virtual ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)

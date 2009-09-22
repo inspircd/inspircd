@@ -97,7 +97,7 @@ class ModuleChanLog : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR,API_VERSION);
+		return Version("Logs snomask output to channel(s).", VF_VENDOR,API_VERSION);
 	}
 };
 

@@ -229,7 +229,7 @@ class ModuleDNSBL : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides handling of DNS blacklists", VF_VENDOR, API_VERSION);
 	}
 
 

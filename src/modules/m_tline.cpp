@@ -76,7 +76,7 @@ class ModuleTLine : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR,API_VERSION);
+		return Version("Provides /tline command used to test who a mask matches", VF_VENDOR,API_VERSION);
 	}
 };
 

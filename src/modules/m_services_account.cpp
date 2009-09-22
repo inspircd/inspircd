@@ -283,7 +283,7 @@ class ModuleServicesAccount : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Povides support for ircu-style services accounts, including chmode +R, etc.",VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 };
 

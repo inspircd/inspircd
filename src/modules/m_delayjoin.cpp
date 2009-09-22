@@ -80,7 +80,7 @@ ModuleDelayJoin::~ModuleDelayJoin()
 
 Version ModuleDelayJoin::GetVersion()
 {
-	return Version("$Id$", VF_COMMON | VF_VENDOR);
+	return Version("Allows for delay-join channels (+D) where users dont appear to join until they speak", VF_COMMON | VF_VENDOR);
 }
 
 void ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)

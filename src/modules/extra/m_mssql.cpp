@@ -837,7 +837,7 @@ class ModuleMsSQL : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+		return Version("MsSQL provider", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
 	}
 
 };

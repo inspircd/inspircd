@@ -50,7 +50,7 @@ class ModuleRegOnlyCreate : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Prevents users who's nicks are not registered from creating new channels", VF_VENDOR, API_VERSION);
 	}
 };
 

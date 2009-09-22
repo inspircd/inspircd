@@ -63,7 +63,7 @@ class ModuleRestrictMsg : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$",VF_VENDOR,API_VERSION);
+		return Version("Forbids users from messaging each other. Users may still message opers and opers may message other opers.",VF_VENDOR,API_VERSION);
 	}
 };
 

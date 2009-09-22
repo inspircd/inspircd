@@ -477,7 +477,7 @@ void FilterBase::OnLoadModule(Module* mod, const std::string& name)
 
 Version FilterBase::GetVersion()
 {
-	return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
+	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON, API_VERSION);
 }
 
 

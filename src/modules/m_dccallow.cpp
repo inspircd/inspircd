@@ -471,7 +471,7 @@ class ModuleDCCAllow : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Povides support for the /DCCALLOW command", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

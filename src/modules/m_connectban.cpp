@@ -38,7 +38,7 @@ class ModuleConnectBan : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR,API_VERSION);
+		return Version("Throttles the connections of any users who try connect flood", VF_VENDOR,API_VERSION);
 	}
 
 	virtual void OnRehash(User* user)

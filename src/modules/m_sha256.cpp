@@ -302,7 +302,7 @@ class ModuleSHA256 : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
+		return Version("Allows for SHA-256 encrypted oper passwords", VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
 	}
 };
 

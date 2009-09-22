@@ -368,7 +368,7 @@ class ModuleSilence : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for the /SILENCE command", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

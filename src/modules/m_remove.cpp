@@ -214,7 +214,7 @@ class ModuleRemove : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

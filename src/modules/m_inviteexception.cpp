@@ -101,7 +101,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
+		return Version("Provides support for the +I channel mode", VF_VENDOR | VF_COMMON, API_VERSION);
 	}
 
 	~ModuleInviteException()

@@ -128,7 +128,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for the +e channel mode", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
 	~ModuleBanException()

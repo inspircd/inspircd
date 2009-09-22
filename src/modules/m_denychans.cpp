@@ -82,7 +82,7 @@ class ModuleDenyChannels : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR,API_VERSION);
+		return Version("Implements config tags which allow blocking of joins to channels", VF_VENDOR,API_VERSION);
 	}
 
 

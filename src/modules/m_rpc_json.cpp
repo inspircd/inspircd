@@ -56,7 +56,7 @@ class ModuleRpcJson : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_SERVICEPROVIDER | VF_VENDOR, API_VERSION);
+		return Version("Encode and decode JSON-RPC requests for modules", VF_SERVICEPROVIDER | VF_VENDOR, API_VERSION);
 	}
 
 

@@ -223,7 +223,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+		return Version("Provides some utilities to SQL client modules, such as mapping queries to users and channels", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
 	}
 
 };

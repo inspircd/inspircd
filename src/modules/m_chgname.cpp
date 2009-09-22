@@ -83,7 +83,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for the CHGNAME command", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

@@ -156,7 +156,7 @@ class ModuleGlobalLoad : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

@@ -109,7 +109,7 @@ class ModuleSajoin : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for unreal-style SAJOIN command", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

@@ -57,7 +57,7 @@ class ModuleServProtectMode : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for Austhex style +k / UnrealIRCD +S services mode", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
 	void OnWhois(User* src, User* dst)

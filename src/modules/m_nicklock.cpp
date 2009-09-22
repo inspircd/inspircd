@@ -166,7 +166,7 @@ class ModuleNickLock : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
 

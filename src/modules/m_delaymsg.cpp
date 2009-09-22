@@ -101,7 +101,7 @@ ModuleDelayMsg::~ModuleDelayMsg()
 
 Version ModuleDelayMsg::GetVersion()
 {
-	return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+	return Version("Provides channelmode +d <int>, to deny messages to a channel until <int> seconds.", VF_COMMON | VF_VENDOR, API_VERSION);
 }
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)

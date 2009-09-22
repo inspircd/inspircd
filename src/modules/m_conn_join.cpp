@@ -72,7 +72,7 @@ class ModuleConnJoin : public Module
 
 		virtual Version GetVersion()
 		{
-			return Version("$Id$", VF_VENDOR,API_VERSION);
+			return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR,API_VERSION);
 		}
 
 		virtual void OnPostConnect(User* user)

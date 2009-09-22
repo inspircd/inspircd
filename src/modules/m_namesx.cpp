@@ -33,7 +33,7 @@ class ModuleNamesX : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$",VF_VENDOR);
+		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);
 	}
 
 	void On005Numeric(std::string &output)

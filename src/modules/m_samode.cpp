@@ -55,7 +55,7 @@ class ModuleSaMode : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides more advanced UnrealIRCd SAMODE command", VF_VENDOR, API_VERSION);
 	}
 
 	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)

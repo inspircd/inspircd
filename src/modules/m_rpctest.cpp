@@ -34,7 +34,7 @@ class ModuleRPCTest : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("A test of the RPC API", VF_VENDOR, API_VERSION);
 	}
 
 

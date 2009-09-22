@@ -747,7 +747,7 @@ class ModuleSQLite3 : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+		return Version("sqlite3 provider", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
 	}
 
 };

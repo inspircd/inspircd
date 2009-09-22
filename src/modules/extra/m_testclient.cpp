@@ -30,7 +30,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides SSL support for clients", VF_VENDOR, API_VERSION);
 	}
 
 	virtual void OnBackgroundTimer(time_t)

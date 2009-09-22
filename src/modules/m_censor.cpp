@@ -130,7 +130,7 @@ class ModuleCensor : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Provides user and channel +G mode",VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
 };

@@ -45,7 +45,7 @@ class ModuleSpy : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides the ability to see the complete names list of channels an oper is not a member of", VF_VENDOR, API_VERSION);
 	}
 };
 

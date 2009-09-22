@@ -325,7 +325,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR, API_VERSION);
 	}
 
 };

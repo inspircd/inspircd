@@ -163,7 +163,7 @@ class ModuleDeaf : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Provides support for ircu style usermode +d (deaf to channel messages and channel notices)", VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
 };

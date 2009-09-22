@@ -103,7 +103,7 @@ class ModuleShowwhois : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Allows opers to set +W to see when a user uses WHOIS on them",VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
 	virtual void OnWhois(User* source, User* dest)

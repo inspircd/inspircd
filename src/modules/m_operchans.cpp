@@ -74,7 +74,7 @@ class ModuleOperChans : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
+		return Version("Provides support for oper-only chans via the +O channel mode", VF_VENDOR | VF_COMMON, API_VERSION);
 	}
 };
 

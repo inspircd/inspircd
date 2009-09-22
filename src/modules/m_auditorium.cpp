@@ -71,7 +71,7 @@ class ModuleAuditorium : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
 	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)

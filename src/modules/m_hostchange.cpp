@@ -89,7 +89,7 @@ class ModuleHostChange : public Module
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides masking of user hostnames in a different way to m_cloaking", VF_VENDOR, API_VERSION);
 	}
 
 	virtual void OnUserConnect(User* user)

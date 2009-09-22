@@ -30,6 +30,7 @@ class XLine;
 /** Used to define a set of behavior bits for a module
  */
 enum ModuleFlags {
+	VF_NONE = 0,		// module is not special at all
 	VF_STATIC = 1,		// module is static, cannot be /unloadmodule'd
 	VF_VENDOR = 2,		// module is a vendor module (came in the original tarball, not 3rd party)
 	VF_SERVICEPROVIDER = 4,	// module provides a service to other modules (can be a dependency)
@@ -257,6 +258,9 @@ do { \
 class CoreExport Version : public classbase
 {
  public:
+	/** Module description
+	 */
+	const std::string description;
 	/** Version information.
 	 */
 	const std::string version;
@@ -267,7 +271,7 @@ class CoreExport Version : public classbase
 
 	/** Initialize version class
 	 */
-	Version(const std::string &customver, int flags,
+	Version(const std::string &desc, int flags,
 		int api_ver = API_VERSION, const std::string& src_rev = VERSION " r" REVISION);
 };
 
@@ -448,7 +452,7 @@ class CoreExport Module : public Extensible
 	 * The method should return a Version object with its version information assigned via
 	 * Version::Version
 	 */
-	virtual Version GetVersion();
+	virtual Version GetVersion() = 0;
 
 	/** Called when a user connects.
 	 * The details of the connecting user are available to you in the parameter User *user

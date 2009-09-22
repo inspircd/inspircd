@@ -51,17 +51,17 @@ bool TreeSocket::Modules(const std::string &prefix, parameterlist &params)
 
 		if (IS_OPER(source))
 		{
-                        std::string flags("Svsc");
+			std::string flags("SvscC");
 			int pos = 0;
-			for (int mult = 1; mult <= VF_SERVICEPROVIDER; mult *= 2, ++pos)
+			for (int mult = 1; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
-			snprintf(strbuf, MAXBUF, "::%s 702 %s :0x%08lx %s %s :%s", ServerInstance->Config->ServerName, source->nick.c_str(),(unsigned long)m, module_names[i].c_str(), flags.c_str(), V.version.c_str());
+			snprintf(strbuf, MAXBUF, "::%s 702 %s :0x%08lx %s %s :%s - %s", ServerInstance->Config->ServerName, source->nick.c_str(),(unsigned long)m, module_names[i].c_str(), flags.c_str(), V.description.c_str(), V.version.c_str());
 		}
 		else
 		{
-			snprintf(strbuf, MAXBUF, "::%s 702 %s :%s", ServerInstance->Config->ServerName, source->nick.c_str(), module_names[i].c_str());
+			snprintf(strbuf, MAXBUF, "::%s 702 %s :%s %s", ServerInstance->Config->ServerName, source->nick.c_str(), module_names[i].c_str(), V.description.c_str());
 		}
 		par[1] = strbuf;
 		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", par, source->server);

@@ -98,7 +98,7 @@ class ModuleUninvite : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR | VF_COMMON, API_VERSION);
+		return Version("Provides the UNINVITE command which lets users un-invite other users from channels (!)", VF_VENDOR | VF_COMMON, API_VERSION);
 	}
 };
 

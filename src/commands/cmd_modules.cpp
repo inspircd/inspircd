@@ -57,17 +57,17 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 
 		if (user->HasPrivPermission("servers/auspex"))
 		{
-			std::string flags("Svsc");
+			std::string flags("SvscC");
 			int pos = 0;
-			for (int mult = 1; mult <= VF_SERVICEPROVIDER; mult *= 2, ++pos)
+			for (int mult = 1; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
-			user->WriteNumeric(702, "%s :0x%08lx %s %s :%s", user->nick.c_str(), (unsigned long)m, module_names[i].c_str(), flags.c_str(), V.version.c_str());
+			user->WriteNumeric(702, "%s :0x%08lx %s %s :%s - %s", user->nick.c_str(),(unsigned long)m, module_names[i].c_str(), flags.c_str(), V.description.c_str(), V.version.c_str());
 		}
 		else
 		{
-			user->WriteNumeric(702, "%s :%s",user->nick.c_str(), module_names[i].c_str());
+			user->WriteNumeric(702, "%s :%s %s", user->nick.c_str(), module_names[i].c_str(), V.description.c_str());
 		}
 	}
 	user->WriteNumeric(703, "%s :End of MODULES list",user->nick.c_str());

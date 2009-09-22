@@ -284,7 +284,7 @@ class ModuleHTTPAccessList : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd.so dependent modules", VF_VENDOR, API_VERSION);
 	}
 };
 

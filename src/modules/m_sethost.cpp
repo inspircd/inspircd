@@ -95,7 +95,7 @@ class ModuleSetHost : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides support for the SETHOST command", VF_VENDOR, API_VERSION);
 	}
 
 };

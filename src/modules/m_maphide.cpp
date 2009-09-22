@@ -50,7 +50,7 @@ class ModuleMapHide : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Hide /MAP and /LINKS in the same form as ircu (mostly useless)", VF_VENDOR, API_VERSION);
 	}
 };
 

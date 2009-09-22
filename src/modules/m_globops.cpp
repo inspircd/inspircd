@@ -66,7 +66,7 @@ class ModuleGlobops : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for GLOBOPS and user mode +g", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
 };

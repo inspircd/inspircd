@@ -64,7 +64,7 @@ class ModuleSafeList : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$",VF_VENDOR,API_VERSION);
+		return Version("A module overriding /list, and making it safe - stop those sendq problems.",VF_VENDOR,API_VERSION);
 	}
 
 

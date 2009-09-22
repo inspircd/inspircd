@@ -67,7 +67,7 @@ class ModuleAllowInvite : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$",VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version("Provides support for channel mode +A, allowing /invite freely on a channel (and extban A to allow specific users it)",VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 };
 

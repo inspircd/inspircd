@@ -528,7 +528,7 @@ class Modulewatch : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for the /WATCH command", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

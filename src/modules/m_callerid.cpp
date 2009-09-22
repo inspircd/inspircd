@@ -363,7 +363,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Implementation of callerid (umode +g & /accept, ala hybrid etc)", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 
 	virtual void On005Numeric(std::string& output)

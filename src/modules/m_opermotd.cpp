@@ -93,7 +93,7 @@ class ModuleOpermotd : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR, API_VERSION);
 	}
 
 

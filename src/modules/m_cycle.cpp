@@ -92,7 +92,7 @@ class ModuleCycle : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides support for unreal-style CYCLE command.", VF_VENDOR, API_VERSION);
 	}
 
 };

@@ -203,7 +203,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Allow/Deny connections based upon an arbitary SQL table", VF_VENDOR, API_VERSION);
 	}
 
 };

@@ -125,7 +125,7 @@ class ModuleSSLModes : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for unreal-style channel mode +z", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

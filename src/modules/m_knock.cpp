@@ -101,7 +101,7 @@ class ModuleKnock : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for /KNOCK and mode +K", VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

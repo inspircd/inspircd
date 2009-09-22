@@ -84,7 +84,7 @@ class ModuleZLib : public Module
 
 	Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Provides zlib link support for servers", VF_VENDOR, API_VERSION);
 	}
 
 

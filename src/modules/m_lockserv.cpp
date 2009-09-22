@@ -110,7 +110,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("$Id$", VF_VENDOR, API_VERSION);
+		return Version("Allows locking of the server to stop all incoming connections till unlocked again", VF_VENDOR, API_VERSION);
 	}
 };
 
