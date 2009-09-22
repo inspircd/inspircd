@@ -155,7 +155,8 @@ install: target@EXTRA_DIR@
 	@echo "* REMEMBER TO EDIT YOUR CONFIG FILE *"
 	@echo "*************************************"
 
-@GNU_ONLY GNUmakefile: .Makefile.inc configure .config.cache
+@GNU_ONLY RCS_FILES = $(wildcard .git/index .svn/entries)
+@GNU_ONLY GNUmakefile: .Makefile.inc configure .config.cache $(RCS_FILES)
 @GNU_ONLY 	./configure -update
 
 clean:
