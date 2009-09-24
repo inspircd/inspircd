@@ -328,6 +328,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 HandleIsChannel(this),
 	 HandleIsSID(this),
 	 HandleRehash(this),
+	 ConfigFileName("inspircd.conf"),
 
 	 /* Functor pointer initialisation. Must match the order of the list above
 	  *
@@ -428,7 +429,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	srand(this->TIME);
 
 	*this->LogFileName = 0;
-	strlcpy(this->ConfigFileName, CONFIG_FILE, MAXBUF);
 
 	struct option longopts[] =
 	{
@@ -454,7 +454,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 			break;
 			case 'c':
 				/* Config filename was set */
-				strlcpy(ConfigFileName, optarg, MAXBUF);
+				ConfigFileName = optarg;
 			break;
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */
@@ -508,7 +508,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		Exit(EXIT_STATUS_LOG);
 	}
 
-	if (!ServerConfig::FileExists(this->ConfigFileName))
+	if (!ServerConfig::FileExists(ConfigFileName.c_str()))
 	{
 #ifdef WIN32
 		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
@@ -517,13 +517,13 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ServerConfig::FileExists(txtconf.c_str()))
 		{
-			strlcat(this->ConfigFileName, ".txt", MAXBUF);
+			ConfigFileName = txtconf;
 		}
 		else
 #endif
 		{
-			printf("ERROR: Cannot open config file: %s\nExiting...\n", this->ConfigFileName);
-			this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", this->ConfigFileName);
+			printf("ERROR: Cannot open config file: %s\nExiting...\n", ConfigFileName.c_str());
+			this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
 			Exit(EXIT_STATUS_CONFIG);
 		}
 	}

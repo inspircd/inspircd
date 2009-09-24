@@ -25,7 +25,7 @@ my $version	=	"@VERSION@";
 our($pid,$pidfile);
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
 my $arg = shift(@ARGV);
-my $conf = $confpath . "inspircd.conf";
+my $conf;
 for my $a (@ARGV)
 {
 	if ($a =~ m/^--config=(.*)$/)
@@ -34,6 +34,11 @@ for my $a (@ARGV)
 		last;
 	}
 }
+if (!defined $conf) {
+	$conf = $confpath . "inspircd.conf";
+	push @ARGV, '--config='.$conf;
+}
+
 getpidfile($conf);
 
 # System for naming script command subs:

@@ -928,7 +928,6 @@ sub writefiles {
 #define CoreExport /**/
 #define DllExport /**/
 
-#define CONFIG_FILE "$config{CONFIG_DIR}/inspircd.conf"
 #define MOD_PATH "$config{MODULE_DIR}"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
 #define ENTRYPOINT int main(int argc, char** argv)

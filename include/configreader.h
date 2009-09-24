@@ -698,7 +698,7 @@ class CoreExport ServerConfig : public classbase
 	 * @param name Directory to tidy
 	 * @return The cleaned filename
 	 */
-	static char* CleanFilename(char* name);
+	static const char* CleanFilename(const char* name);
 
 	/** Check if a file exists.
 	 * @param file The full path to a file

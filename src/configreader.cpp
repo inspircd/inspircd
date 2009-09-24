@@ -1969,9 +1969,9 @@ bool ServerConfig::FileExists(const char* file)
 	}
 }
 
-char* ServerConfig::CleanFilename(char* name)
+const char* ServerConfig::CleanFilename(const char* name)
 {
-	char* p = name + strlen(name);
+	const char* p = name + strlen(name);
 	while ((p != name) && (*p != '/') && (*p != '\\')) p--;
 	return (p != name ? ++p : p);
 }
