@@ -82,13 +82,6 @@ class ModuleSecureList : public Module
 	{
 		output.append(" SECURELIST");
 	}
-
-	void Prioritize()
-	{
-		Module* safelist = ServerInstance->Modules->Find("m_safelist.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, &safelist);
-	}
-
 };
 
 MODULE_INIT(ModuleSecureList)

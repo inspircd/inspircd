@@ -39,7 +39,7 @@ private:
 	pcre* regex;
 
 public:
-	PCRERegex(const std::string& rx, ) : Regex(rx, Me)
+	PCRERegex(const std::string& rx) : Regex(rx)
 	{
 		const char* error;
 		int erroffset;
@@ -96,7 +96,7 @@ public:
 		{
 			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
 			std::string rx = rfr->GetRegex();
-			rfr->result = new PCRERegex(rx, ServerInstance);
+			rfr->result = new PCRERegex(rx);
 			return "OK";
 		}
 		return NULL;

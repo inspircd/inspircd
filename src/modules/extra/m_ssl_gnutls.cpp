@@ -261,7 +261,7 @@ class ModuleSSLGnuTLS : public Module
 		if((ret = gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
 
-		FileReader reader(ServerInstance);
+		FileReader reader;
 
 		reader.LoadFile(certfile);
 		std::string cert_string = reader.Contents();

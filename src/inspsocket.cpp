@@ -437,7 +437,10 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 	{
 		case EVENT_ERROR:
 		{
-			SetError(strerror(errornum));
+			if (errornum == 0)
+				SetError("Connection closed");
+			else
+				SetError(strerror(errornum));
 			switch (errornum)
 			{
 				case ETIMEDOUT:

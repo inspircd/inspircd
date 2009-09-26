@@ -32,7 +32,7 @@ SelectEngine::~SelectEngine()
 	delete[] ref;
 }
 
-bool SelectEngine::AddFd(EventHandler* eh, int)
+bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -128,13 +128,13 @@ int SelectEngine::DispatchEvents()
 				if (FD_ISSET (i, &rfdset))
 				{
 					ReadEvents++;
-					SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+					SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
 					ev->HandleEvent(EVENT_READ);
 				}
 				if (FD_ISSET (i, &wfdset))
 				{
 					WriteEvents++;
-					SetEventMask(eh, eh->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
+					SetEventMask(ev, ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
 					ev->HandleEvent(EVENT_WRITE);
 				}
 			}

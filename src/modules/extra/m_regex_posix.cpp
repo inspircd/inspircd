@@ -34,7 +34,7 @@ private:
 	regex_t regbuf;
 
 public:
-	POSIXRegex(const std::string& rx, bool extended) : Regex(rx, Me)
+	POSIXRegex(const std::string& rx, bool extended) : Regex(rx)
 	{
 		int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
 		int errcode;
@@ -109,7 +109,7 @@ public:
 		{
 			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
 			std::string rx = rfr->GetRegex();
-			rfr->result = new POSIXRegex(rx, ServerInstance, extended);
+			rfr->result = new POSIXRegex(rx, extended);
 			return "OK";
 		}
 		return NULL;

@@ -36,7 +36,7 @@ private:
 	regex_t regbuf;
 
 public:
-	TRERegex(const std::string& rx, ) : Regex(rx, Me)
+	TRERegex(const std::string& rx) : Regex(rx)
 	{
 		int flags = REG_EXTENDED | REG_NOSUB;
 		int errcode;
@@ -102,7 +102,7 @@ public:
 		{
 			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
 			std::string rx = rfr->GetRegex();
-			rfr->result = new TRERegex(rx, ServerInstance);
+			rfr->result = new TRERegex(rx);
 			return "OK";
 		}
 		return NULL;
