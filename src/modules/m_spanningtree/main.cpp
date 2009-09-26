@@ -957,7 +957,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 
 Version ModuleSpanningTree::GetVersion()
 {
-	return Version("$Id$", VF_VENDOR, API_VERSION);
+	return Version("Allows servers to be linked", VF_VENDOR);
 }
 
 /* It is IMPORTANT that m_spanningtree is the last module in the chain
