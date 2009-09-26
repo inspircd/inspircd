@@ -71,8 +71,10 @@ enum EventMask
 	FD_WANT_NO_WRITE = 0x10,
 	/** Give a write event at all times when writes will not block.
 	 *
-	 * You probably don't need to use this state; try your write first, and
-	 * then use FD_WANT_FAST_WRITE.
+	 * You probably shouldn't use this state; if it's likely that the write
+	 * will not block, try it first, then use FD_WANT_FAST_WRITE if it
+	 * fails. If it's likely to block (or you are using polling-style reads)
+	 * then use FD_WANT_SINGLE_WRITE.
 	 */
 	FD_WANT_POLL_WRITE = 0x20,
 	/** Give a write event when writes don't block any more
@@ -95,19 +97,23 @@ enum EventMask
 	 * FD_WANT_FAST_WRITE when writing data to a mostly-unblocked socket.
 	 */
 	FD_WANT_EDGE_WRITE = 0x80,
+	/** Request a one-shot poll-style write notification. The socket will
+	 * return to the FD_WANT_NO_WRITE state before HandleEvent is called.
+	 */
+	FD_WANT_SINGLE_WRITE = 0x100,
 
 	/** Mask for all write events */
-	FD_WANT_WRITE_MASK = 0xF0,
+	FD_WANT_WRITE_MASK = 0x1F0,
 
 	/** Add a trial read. During the next DispatchEvents invocation, this
 	 * will call HandleEvent with EVENT_READ unless reads are known to be
-	 * blocking. Useful for edge-triggered reads; does nothing if
-	 * FD_READ_WILL_BLOCK has been set on this EventHandler.
+	 * blocking.
 	 */
-	FD_ADD_TRIAL_READ  = 0x100,
+	FD_ADD_TRIAL_READ  = 0x1000,
 	/** Assert that reads are known to block. This cancels FD_ADD_TRIAL_READ.
+	 * Reset by SE before running EVENT_READ
 	 */
-	FD_READ_WILL_BLOCK = 0x200,
+	FD_READ_WILL_BLOCK = 0x2000,
 
 	/** Add a trial write. During the next DispatchEvents invocation, this
 	 * will call HandleEvent with EVENT_WRITE unless writes are known to be
@@ -117,15 +123,14 @@ enum EventMask
 	 * send() syscall, or to ensure that writes are blocking when attempting
 	 * to use FD_WANT_FAST_WRITE.
 	 */
-	FD_ADD_TRIAL_WRITE = 0x1000,
+	FD_ADD_TRIAL_WRITE = 0x4000,
 	/** Assert that writes are known to block. This cancels FD_ADD_TRIAL_WRITE.
+	 * Reset by SE before running EVENT_WRITE
 	 */
-	FD_WRITE_WILL_BLOCK = 0x2000, 
+	FD_WRITE_WILL_BLOCK = 0x8000, 
 
-	/** Mask for trial read/write items */
-	FD_TRIAL_NOTE_MASK = 0x1100,
-	/** Mask for read/write blocking notifications */
-	FD_BLOCK_NOTE_MASK = 0x2200
+	/** Mask for trial read/trial write */
+	FD_TRIAL_NOTE_MASK = 0x5000
 };
 
 class InspIRCd;

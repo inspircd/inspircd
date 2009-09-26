@@ -450,7 +450,7 @@ class ModuleSSLOpenSSL : public Module
 				}
 				else if (err == SSL_ERROR_WANT_WRITE)
 				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_POLL_WRITE);
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 					return 0;
 				}
 				else
@@ -501,7 +501,7 @@ class ModuleSSLOpenSSL : public Module
 			else if (ret > 0)
 			{
 				buffer = buffer.substr(ret);
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
 			else if (ret == 0)
@@ -515,7 +515,7 @@ class ModuleSSLOpenSSL : public Module
 
 				if (err == SSL_ERROR_WANT_WRITE)
 				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 					return 0;
 				}
 				else if (err == SSL_ERROR_WANT_READ)
@@ -554,7 +554,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_POLL_WRITE);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				session->status = ISSL_HANDSHAKING;
 				return true;
 			}

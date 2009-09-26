@@ -60,7 +60,7 @@ static int mask_to_events(int event_mask)
 	int rv = 0;
 	if (event_mask & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
 		rv |= POLLRDNORM;
-	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
 		rv |= POLLWRNORM;
 	return rv;
 }
@@ -132,7 +132,7 @@ int PortsEngine::DispatchEvents()
 				{
 					int mask = eh->GetEventMask();
 					if (events[i].portev_events & POLLWRNORM)
-						mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE);
+						mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE);
 					if (events[i].portev_events & POLLRDNORM)
 						mask &= ~FD_READ_WILL_BLOCK;
 					// reinsert port for next time around, pretending to be one-shot for writes

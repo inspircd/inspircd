@@ -540,12 +540,12 @@ class ModuleSSLGnuTLS : public Module
 			else if (ret > 0)
 			{
 				sendq = sendq.substr(ret);
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
 			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
 			else if (ret == 0)
@@ -585,7 +585,7 @@ class ModuleSSLGnuTLS : public Module
 				{
 					// gnutls_handshake() wants to write() again.
 					session->status = ISSL_HANDSHAKING_WRITE;
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_POLL_WRITE);
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				}
 			}
 			else

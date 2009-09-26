@@ -76,7 +76,7 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE)) {
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) {
 		// ...and sometimes want to write
 		WantWrite(eh);
 	}
@@ -148,7 +148,7 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 						  eh->GetFd(), strerror(errno));
 		}
 	}
-	if ((new_mask & FD_WANT_EDGE_WRITE) && !(old_mask & FD_WANT_EDGE_WRITE))
+	if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)))
 	{
 		// new one-shot write
 		struct kevent ke;
@@ -184,11 +184,11 @@ int KQueueEngine::DispatchEvents()
 		if (ke_list[j].filter == EVFILT_WRITE)
 		{
 			WriteEvents++;
-			/* When mask is FD_WANT_FAST_WRITE, we set a one-shot
-			 * write, so we need to clear that bit to detect when it
-			 * set again.
+			/* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
+			 * we set a one-shot write, so we need to clear that bit
+			 * to detect when it set again.
 			 */
-			const int bits_to_clr = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
+			const int bits_to_clr = FD_WANT_SINGLE_WRITE | FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
 			eh->HandleEvent(EVENT_WRITE);
 		}

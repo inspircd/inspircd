@@ -89,7 +89,7 @@ int SelectEngine::DispatchEvents()
 		int state = eh->GetEventMask();
 		if (state & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
 			FD_SET (i, &rfdset);
-		if (state & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+		if (state & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
 			FD_SET (i, &wfdset);
 		FD_SET (i, &errfdset);
 	}
@@ -134,7 +134,7 @@ int SelectEngine::DispatchEvents()
 				if (FD_ISSET (i, &wfdset))
 				{
 					WriteEvents++;
-					SetEventMask(eh, eh->GetEventMask() & ~FD_WRITE_WILL_BLOCK);
+					SetEventMask(eh, eh->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
 					ev->HandleEvent(EVENT_WRITE);
 				}
 			}

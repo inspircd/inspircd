@@ -58,12 +58,12 @@ EPollEngine::~EPollEngine()
 static int mask_to_epoll(int event_mask)
 {
 	int rv = 0;
-	if (event_mask & (FD_WANT_POLL_READ | FD_WANT_POLL_WRITE))
+	if (event_mask & (FD_WANT_POLL_READ | FD_WANT_POLL_WRITE | FD_WANT_SINGLE_WRITE))
 	{
 		// we need to use standard polling on this FD
 		if (event_mask & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
 			rv |= EPOLLIN;
-		if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+		if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
 			rv |= EPOLLOUT;
 	}
 	else
@@ -182,16 +182,28 @@ int EPollEngine::DispatchEvents()
 			eh->HandleEvent(EVENT_ERROR, errcode);
 			continue;
 		}
+		int mask = eh->GetEventMask();
+		if (events[j].events & EPOLLIN)
+			mask &= ~FD_READ_WILL_BLOCK;
+		if (events[j].events & EPOLLOUT)
+		{
+			mask &= ~FD_WRITE_WILL_BLOCK;
+			if (mask & FD_WANT_SINGLE_WRITE)
+			{
+				int nm = mask & ~FD_WANT_SINGLE_WRITE;
+				OnSetEvent(eh, mask, nm);
+				mask = nm;
+			}
+		}
+		SetEventMask(eh, mask);
 		if (events[j].events & EPOLLIN)
 		{
 			ReadEvents++;
-			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			eh->HandleEvent(EVENT_READ);
 		}
 		if (events[j].events & EPOLLOUT)
 		{
 			WriteEvents++;
-			SetEventMask(eh, eh->GetEventMask() & ~FD_WRITE_WILL_BLOCK);
 			eh->HandleEvent(EVENT_WRITE);
 		}
 	}

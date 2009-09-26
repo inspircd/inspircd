@@ -91,7 +91,7 @@ bool IOCPEngine::AddFd(EventHandler* eh, int event_mask)
 	ServerInstance->Logs->Log("SOCKET",DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
 
 	/* post a write event if there is data to be written */
-	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
 		WantWrite(eh);
 
 	/* we're all good =) */
@@ -183,7 +183,7 @@ void IOCPEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		return;
 
 	/* Post event - write begin */
-	if((new_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE)) && !eh->GetExt("windows_writeevent", m_writeEvent))
+	if((new_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !eh->GetExt("windows_writeevent", m_writeEvent))
 	{
 		ULONG_PTR completion_key = (ULONG_PTR)*fake_fd;
 		Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_WRITE_READY, 0);

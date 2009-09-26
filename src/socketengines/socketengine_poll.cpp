@@ -63,7 +63,7 @@ static int mask_to_poll(int event_mask)
 	int rv = 0;
 	if (event_mask & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
 		rv |= POLLIN;
-	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
 		rv |= POLLOUT;
 	return rv;
 }
@@ -208,7 +208,10 @@ int PollEngine::DispatchEvents()
 			
 			if (events[index].revents & POLLOUT)
 			{
-				SetEventMask(eh, eh->GetEventMask() & ~FD_WRITE_WILL_BLOCK);
+				int mask = eh->GetEventMask();
+				mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE);
+				SetEventMask(eh, mask);
+				events[index].events = mask_to_poll(mask);
 				eh->HandleEvent(EVENT_WRITE);
 			}
 		}

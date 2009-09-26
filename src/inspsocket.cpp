@@ -97,7 +97,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 	this->state = I_CONNECTING;
 
-	if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
+	if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE))
 		return I_ERR_NOMOREFDS;
 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout, ServerInstance->Time());
@@ -414,6 +414,8 @@ void BufferedSocket::DoWrite()
 		this->OnConnected();
 		if (GetIOHook())
 			GetIOHook()->OnStreamSocketConnect(this);
+		else
+			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 	}
 	this->StreamSocket::DoWrite();
 }
