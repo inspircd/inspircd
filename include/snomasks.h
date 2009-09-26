@@ -16,9 +16,6 @@
 
 class Snomask : public Extensible
 {
- private:
-	InspIRCd *ServerInstance;
-
  public:
 	char MySnomask;
 	std::string Description;
@@ -28,7 +25,7 @@ class Snomask : public Extensible
 
 	/** Create a new Snomask
 	 */
-	Snomask(InspIRCd* Instance, char snomask, const std::string &description) : ServerInstance(Instance), MySnomask(snomask), Description(description), LastMessage(""), Count(0)
+	Snomask(char snomask, const std::string &description) : MySnomask(snomask), Description(description), LastMessage(""), Count(0)
 	{
 	}
 
@@ -52,10 +49,6 @@ typedef std::map<char, Snomask *> SnoList;
 class CoreExport SnomaskManager
 {
  private:
-	/** Creator/owner
-	 */
-	InspIRCd* ServerInstance;
-
 	/** Currently active snomask list
 	 */
 	SnoList SnoMasks;
@@ -66,7 +59,7 @@ class CoreExport SnomaskManager
  public:
 	/** Create a new SnomaskManager
 	 */
-	SnomaskManager(InspIRCd* Instance);
+	SnomaskManager();
 
 	/** Delete SnomaskManager
 	 */

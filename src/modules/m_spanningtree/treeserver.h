@@ -30,7 +30,6 @@
  */
 class TreeServer : public classbase
 {
-	InspIRCd* ServerInstance;		/* Creator */
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
@@ -61,13 +60,13 @@ class TreeServer : public classbase
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id);
+	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id);
 
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide);
+	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide);
 
 	int QuitUsers(const std::string &reason);
 

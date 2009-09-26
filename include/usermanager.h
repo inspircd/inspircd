@@ -22,16 +22,10 @@ typedef std::map<irc::string, unsigned int> clonemap;
 class CoreExport UserManager : public Extensible
 {
  private:
-	InspIRCd *ServerInstance;
-
 	/** Map of local ip addresses for clone counting
 	 */
 	clonemap local_clones;
  public:
-	UserManager(InspIRCd *Instance) : ServerInstance(Instance)
-	{
-	}
-
 	~UserManager()
 	{
 		for (user_hash::iterator i = clientlist->begin();i != clientlist->end();i++)
@@ -80,7 +74,7 @@ class CoreExport UserManager : public Extensible
 	 * @param server The server IP address and port used by the user
 	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
-	void AddUser(InspIRCd* Instance, int socket, ClientListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	void AddUser(int socket, ClientListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Disconnect a user gracefully
 	 * @param user The user to remove

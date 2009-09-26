@@ -63,8 +63,8 @@ class ModuleTLine : public Module
 {
 	CommandTline cmd;
  public:
-	ModuleTLine(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleTLine()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

@@ -23,8 +23,8 @@ class CBan : public XLine
 public:
 	irc::string matchtext;
 
-	CBan(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string ch)
-		: XLine(Instance, s_time, d, src, re, "CBAN")
+	CBan(time_t s_time, long d, std::string src, std::string re, std::string ch)
+		: XLine(s_time, d, src, re, "CBAN")
 	{
 		this->matchtext = ch.c_str();
 	}
@@ -63,13 +63,13 @@ public:
 class CBanFactory : public XLineFactory
 {
  public:
-	CBanFactory(InspIRCd* Instance) : XLineFactory(Instance, "CBAN") { }
+	CBanFactory() : XLineFactory("CBAN") { }
 
 	/** Generate a shun
  	*/
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
-		return new CBan(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+		return new CBan(set_time, duration, source, reason, xline_specific_mask);
 	}
 
 	bool AutoApplyToUserList(XLine *x)
@@ -116,7 +116,7 @@ class CommandCBan : public Command
 
 			try
 			{
-				r = new CBan(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
+				r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -162,7 +162,7 @@ class ModuleCBan : public Module
 	CBanFactory f;
 
  public:
-	ModuleCBan(InspIRCd* Me) : Module(Me), mycommand(this), f(Me)
+	ModuleCBan() : mycommand(this)
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 

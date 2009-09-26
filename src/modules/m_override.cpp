@@ -26,9 +26,8 @@ class ModuleOverride : public Module
 
  public:
 
-	ModuleOverride(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleOverride()
+			{
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('G', "GODMODE");
@@ -43,7 +42,7 @@ class ModuleOverride : public Module
 	void OnRehash(User* user)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		// re-read our config options on a rehash
 		NoisyOverride = Conf.ReadFlag("override", "noisy", 0);

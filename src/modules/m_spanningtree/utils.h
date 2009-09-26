@@ -44,7 +44,7 @@ class ServerSocketListener : public ListenSocketBase
 	SpanningTreeUtilities *Utils;
 
  public:
-	ServerSocketListener(InspIRCd* Instance, SpanningTreeUtilities *u, int port, char* addr) : ListenSocketBase(Instance, port, addr)
+	ServerSocketListener(SpanningTreeUtilities *u, int port, char* addr) : ListenSocketBase(port, addr)
 	{
 		this->Utils = u;
 		Hook = NULL;
@@ -82,10 +82,6 @@ class Autoconnect : public classbase
  */
 class SpanningTreeUtilities : public classbase
 {
- private:
-	/** Creator server
-	 */
-	InspIRCd* ServerInstance;
  public:
 	/** Creator module
 	 */
@@ -166,7 +162,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Initialise utility class
 	 */
-	SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* Creator);
+	SpanningTreeUtilities(ModuleSpanningTree* Creator);
 
 	/** Destroy class and free listeners etc
 	 */

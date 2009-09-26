@@ -21,7 +21,7 @@
 irc::sockets::sockaddrs ListenSocketBase::client;
 irc::sockets::sockaddrs ListenSocketBase::server;
 
-ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::string &addr) : ServerInstance(Instance), desc("plaintext")
+ListenSocketBase::ListenSocketBase(int port, const std::string &addr) : desc("plaintext")
 {
 	irc::sockets::sockaddrs bind_to;
 
@@ -44,20 +44,20 @@ ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::stri
 
 	if (this->fd > -1)
 	{
-		int rv = Instance->SE->Bind(this->fd, &bind_to.sa, sizeof(bind_to));
+		int rv = ServerInstance->SE->Bind(this->fd, &bind_to.sa, sizeof(bind_to));
 		if (rv >= 0)
-			rv = Instance->SE->Listen(this->fd, Instance->Config->MaxConn);
+			rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
 
 		if (rv < 0)
 		{
-			Instance->SE->Shutdown(this, 2);
-			Instance->SE->Close(this);
+			ServerInstance->SE->Shutdown(this, 2);
+			ServerInstance->SE->Close(this);
 			this->fd = -1;
 		}
 		else
 		{
-			Instance->SE->NonBlocking(this->fd);
-			Instance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+			ServerInstance->SE->NonBlocking(this->fd);
+			ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 		}
 	}
 }
@@ -169,5 +169,5 @@ void ListenSocketBase::HandleEvent(EventType e, int err)
 
 void ClientListenSocket::OnAcceptReady(int nfd)
 {
-	ServerInstance->Users->AddUser(ServerInstance, nfd, this, &client, &server);
+	ServerInstance->Users->AddUser(nfd, this, &client, &server);
 }

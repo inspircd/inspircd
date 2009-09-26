@@ -48,8 +48,8 @@ void LogManager::SetupNoFork()
 {
 	if (!noforkstream)
 	{
-		FileWriter* fw = new FileWriter(ServerInstance, stdout);
-		noforkstream = new FileLogStream(ServerInstance, ServerInstance->Config->forcedebug ? DEBUG : DEFAULT, fw);
+		FileWriter* fw = new FileWriter(stdout);
+		noforkstream = new FileLogStream(ServerInstance->Config->forcedebug ? DEBUG : DEFAULT, fw);
 	}
 	else
 	{
@@ -70,7 +70,7 @@ void LogManager::OpenFileLogs()
 	{
 		return;
 	}
-	ConfigReader* Conf = new ConfigReader(ServerInstance);
+	ConfigReader* Conf = new ConfigReader;
 	std::map<std::string, FileWriter*> logmap;
 	std::map<std::string, FileWriter*>::iterator i;
 	for (int index = 0; index < Conf->Enumerate("log"); ++index)
@@ -109,14 +109,14 @@ void LogManager::OpenFileLogs()
 		if ((i = logmap.find(target)) == logmap.end())
 		{
 			FILE* f = fopen(target.c_str(), "a");
-			fw = new FileWriter(ServerInstance, f);
+			fw = new FileWriter(f);
 			logmap.insert(std::make_pair(target, fw));
 		}
 		else
 		{
 			fw = i->second;
 		}
-		FileLogStream* fls = new FileLogStream(ServerInstance, loglevel, fw);
+		FileLogStream* fls = new FileLogStream(loglevel, fw);
 		AddLogTypes(type, fls, true);
 	}
 }
@@ -330,8 +330,8 @@ void LogManager::Log(const std::string &type, int loglevel, const std::string &m
 }
 
 
-FileWriter::FileWriter(InspIRCd* Instance, FILE* logfile)
-: ServerInstance(Instance), log(logfile), writeops(0)
+FileWriter::FileWriter(FILE* logfile)
+: log(logfile), writeops(0)
 {
 }
 

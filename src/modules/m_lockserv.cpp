@@ -74,7 +74,7 @@ private:
 	}
 
 public:
-	ModuleLockserv(InspIRCd* Me) : lockcommand(this, locked), unlockcommand(this, locked)
+	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked)
 	{
 		ResetLocked();
 		ServerInstance->AddCommand(&lockcommand);

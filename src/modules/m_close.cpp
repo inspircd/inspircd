@@ -68,8 +68,8 @@ class ModuleClose : public Module
 {
 	CommandClose cmd;
  public:
-	ModuleClose(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleClose()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

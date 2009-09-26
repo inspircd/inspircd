@@ -38,7 +38,7 @@ class CoreExport FileLogStream : public LogStream
  private:
 	FileWriter *f;
  public:
-	FileLogStream(InspIRCd *Instance, int loglevel, FileWriter *fw);
+	FileLogStream(int loglevel, FileWriter *fw);
 
 	virtual ~FileLogStream();
 

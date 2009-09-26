@@ -14,8 +14,8 @@
 /* $Core */
 
 #include "inspircd.h"
-UserResolver::UserResolver(InspIRCd* Instance, User* user, std::string to_resolve, QueryType qt, bool &cache) :
-	Resolver(Instance, to_resolve, qt, cache), bound_user(user)
+UserResolver::UserResolver(User* user, std::string to_resolve, QueryType qt, bool &cache) :
+	Resolver(to_resolve, qt, cache), bound_user(user)
 {
 	this->fwd = (qt == DNS_QUERY_A || qt == DNS_QUERY_AAAA);
 	this->bound_fd = user->GetFd();
@@ -37,14 +37,14 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				if (this->bound_user->client_sa.sa.sa_family == AF_INET6)
 				{
 					/* IPV6 forward lookup */
-					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_AAAA, lcached);
+					res_forward = new UserResolver(bound_user, result, DNS_QUERY_AAAA, lcached);
 				}
 				else
 				{
 					/* IPV4 lookup */
-					res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, lcached);
+					res_forward = new UserResolver(bound_user, result, DNS_QUERY_A, lcached);
 				}
-				this->ServerInstance->AddResolver(res_forward, lcached);
+				ServerInstance->AddResolver(res_forward, lcached);
 			}
 		}
 		catch (CoreException& e)

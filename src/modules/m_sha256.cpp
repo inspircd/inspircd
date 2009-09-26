@@ -258,7 +258,7 @@ class ModuleSHA256 : public Module
 
  public:
 
-	ModuleSHA256(InspIRCd* Me) : Module(Me), key(NULL), chars(NULL)
+	ModuleSHA256() : key(NULL), chars(NULL)
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
 		Implementation eventlist[] = { I_OnRequest };

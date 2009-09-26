@@ -28,7 +28,7 @@ class floodsettings : public classbase
 	time_t reset;
 	std::map<User*,int> counters;
 
-	floodsettings(InspIRCd *Instance, bool a, int b, int c) : ServerInstance(Instance), ban(a), secs(b), lines(c)
+	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
 		reset = ServerInstance->Time() + secs;
 	};
@@ -77,7 +77,7 @@ class MsgFlood : public ModeHandler
 {
  public:
 	SimpleExtItem<floodsettings> ext;
-	MsgFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
+	MsgFlood(Module* Creator) : ModeHandler(Creator, 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("messageflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
@@ -137,7 +137,7 @@ class MsgFlood : public ModeHandler
 					if (!f)
 					{
 						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
-						f = new floodsettings(ServerInstance,ban,nsecs,nlines);
+						f = new floodsettings(ban,nsecs,nlines);
 						ext.set(channel, f);
 						channel->SetModeParam('f', parameter);
 						return MODEACTION_ALLOW;
@@ -155,7 +155,7 @@ class MsgFlood : public ModeHandler
 						{
 							if ((((nlines != f->lines) || (nsecs != f->secs) || (ban != f->ban))) && (((nsecs > 0) && (nlines > 0))))
 							{
-								floodsettings *fs = new floodsettings(ServerInstance,ban,nsecs,nlines);
+								floodsettings *fs = new floodsettings(ban,nsecs,nlines);
 								ext.set(channel, fs);
 								channel->SetModeParam('f', parameter);
 								return MODEACTION_ALLOW;
@@ -195,8 +195,8 @@ class ModuleMsgFlood : public Module
 
  public:
 
-	ModuleMsgFlood(InspIRCd* Me)
-		: Module(Me), mf(Me, this)
+	ModuleMsgFlood()
+		: mf(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&mf))
 			throw ModuleException("Could not add new modes!");
@@ -207,7 +207,7 @@ class ModuleMsgFlood : public Module
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
-		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetPrefixValue(user) == OP_VALUE))
+		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT('f') && dest->GetPrefixValue(user) == OP_VALUE))
 		{
 			return MOD_RES_PASSTHRU;
 		}

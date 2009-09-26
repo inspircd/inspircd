@@ -70,7 +70,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 		}
 
 		long duration = ServerInstance->Duration(parameters[1].c_str());
-		GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
+		GLine* gl = new GLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(gl, user))
 		{
 			if (!duration)

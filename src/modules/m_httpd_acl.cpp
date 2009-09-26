@@ -47,7 +47,7 @@ class ModuleHTTPAccessList : public Module
 	void ReadConfig()
 	{
 		acl_list.clear();
-		ConfigReader c(ServerInstance);
+		ConfigReader c;
 		int n_items = c.Enumerate("httpdacl");
 		for (int i = 0; i < n_items; ++i)
 		{
@@ -88,8 +88,7 @@ class ModuleHTTPAccessList : public Module
 		}
 	}
 
-	ModuleHTTPAccessList(InspIRCd* Me) : Module(Me)
-	{
+	ModuleHTTPAccessList() 	{
 		ReadConfig();
 		Implementation eventlist[] = { I_OnEvent, I_OnRequest };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

@@ -20,5 +20,5 @@ class InspIRCd;
 class ModeChannelNoExternal : public SimpleChannelModeHandler
 {
  public:
-	ModeChannelNoExternal(InspIRCd* Instance);
+	ModeChannelNoExternal();
 };

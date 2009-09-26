@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_m.h"
 
-ModeChannelModerated::ModeChannelModerated(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, NULL, 'm')
+ModeChannelModerated::ModeChannelModerated() : SimpleChannelModeHandler(NULL, 'm')
 {
 }
 

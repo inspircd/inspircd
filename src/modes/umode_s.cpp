@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/umode_s.h"
 
-ModeUserServerNoticeMask::ModeUserServerNoticeMask(InspIRCd* Instance) : ModeHandler(NULL, 's', PARAM_SETONLY, MODETYPE_USER)
+ModeUserServerNoticeMask::ModeUserServerNoticeMask() : ModeHandler(NULL, 's', PARAM_SETONLY, MODETYPE_USER)
 {
 	oper = true;
 }

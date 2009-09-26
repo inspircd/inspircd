@@ -20,9 +20,8 @@ private:
 
 
 public:
-	ModuleTestClient(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleTestClient()
+			{
 		Implementation eventlist[] = { I_OnRequest, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

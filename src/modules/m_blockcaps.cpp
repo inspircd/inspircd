@@ -21,7 +21,7 @@
 class BlockCaps : public SimpleChannelModeHandler
 {
  public:
-	BlockCaps(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'B') { }
+	BlockCaps(Module* Creator) : SimpleChannelModeHandler(Creator, 'B') { }
 };
 
 class ModuleBlockCAPS : public Module
@@ -32,7 +32,7 @@ class ModuleBlockCAPS : public Module
 	char capsmap[256];
 public:
 
-	ModuleBlockCAPS(InspIRCd* Me) : Module(Me), bc(Me, this)
+	ModuleBlockCAPS() : bc(this)
 	{
 		OnRehash(NULL);
 		if (!ServerInstance->Modes->AddMode(&bc))
@@ -60,7 +60,7 @@ public:
 
 			Channel* c = (Channel*)dest;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'B') && c->GetPrefixValue(user) == OP_VALUE)
+			if (CHANOPS_EXEMPT('B') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}
@@ -101,7 +101,7 @@ public:
 
 	void ReadConf()
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		percent = Conf.ReadInteger("blockcaps", "percent", "100", 0, true);
 		minlen = Conf.ReadInteger("blockcaps", "minlen", "1", 0, true);
 		std::string hmap = Conf.ReadValue("blockcaps", "capsmap", 0);

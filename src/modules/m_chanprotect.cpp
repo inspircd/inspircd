@@ -67,7 +67,7 @@ class FounderProtectBase
 		const UserMembList* cl = channel->GetUsers();
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
-		irc::modestacker modestack(ServerInstance, false);
+		irc::modestacker modestack(false);
 		std::deque<std::string> stackresult;
 
 		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
@@ -266,8 +266,8 @@ class ModuleChanProtect : public Module
 
  public:
 
-	ModuleChanProtect(InspIRCd* Me)
-		: Module(Me), FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true), cp(NULL), cf(NULL)
+	ModuleChanProtect()
+		: FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true), cp(NULL), cf(NULL)
 	{
 		/* Load config stuff */
 		LoadSettings();
@@ -291,7 +291,7 @@ class ModuleChanProtect : public Module
 
 	void LoadSettings()
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		FirstInGetsFounder = Conf.ReadFlag("chanprotect", "noservices", 0);
 

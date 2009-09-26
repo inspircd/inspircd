@@ -40,7 +40,7 @@ class ModuleSafeList : public Module
 	SimpleExtItem<ListData> listData;
 	LocalIntExt listTime;
  public:
-	ModuleSafeList(InspIRCd* Me) : Module(Me), listData("safelist_data", this), listTime("safelist_last", this)
+	ModuleSafeList() : listData("safelist_data", this), listTime("safelist_last", this)
 	{
 		OnRehash(NULL);
 		Extensible::Register(&listData);
@@ -55,7 +55,7 @@ class ModuleSafeList : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader MyConf(ServerInstance);
+		ConfigReader MyConf;
 		ThrottleSecs = MyConf.ReadInteger("safelist", "throttle", "60", 0, true);
 		LimitList = MyConf.ReadInteger("safelist", "maxlisters", "50", 0, true);
 		ServerNameSize = strlen(ServerInstance->Config->ServerName) + 4;

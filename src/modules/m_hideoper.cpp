@@ -20,7 +20,7 @@
 class HideOper : public ModeHandler
 {
  public:
-	HideOper(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'H', PARAM_NONE, MODETYPE_USER)
+	HideOper(Module* Creator) : ModeHandler(Creator, 'H', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = true;
 	}
@@ -52,8 +52,8 @@ class ModuleHideOper : public Module
 {
 	HideOper hm;
  public:
-	ModuleHideOper(InspIRCd* Me)
-		: Module(Me), hm(Me, this)
+	ModuleHideOper()
+		: hm(this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&hm))

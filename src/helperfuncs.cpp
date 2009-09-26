@@ -21,7 +21,7 @@ std::string InspIRCd::GetServerDescription(const char* servername)
 {
 	std::string description;
 
-	FOREACH_MOD_I(this,I_OnGetServerDescription,OnGetServerDescription(servername,description));
+	FOREACH_MOD(I_OnGetServerDescription,OnGetServerDescription(servername,description));
 
 	if (!description.empty())
 	{
@@ -318,8 +318,8 @@ bool InspIRCd::OpenLog(char**, int)
 		return false;
 	}
 
-	FileWriter* fw = new FileWriter(this, Config->log_file);
-	FileLogStream *f = new FileLogStream(this, (Config->forcedebug ? DEBUG : DEFAULT), fw);
+	FileWriter* fw = new FileWriter(Config->log_file);
+	FileLogStream *f = new FileLogStream((Config->forcedebug ? DEBUG : DEFAULT), fw);
 
 	this->Logs->AddLogType("*", f, true);
 
@@ -341,9 +341,9 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::str
 	std::string copy_text = text;
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(this, OnWhoisLine, MOD_RESULT, (user, dest, numeric, copy_text));
+	FIRST_MOD_RESULT(OnWhoisLine, MOD_RESULT, (user, dest, numeric, copy_text));
 
-	if (!MOD_RESULT)
+	if (MOD_RESULT != MOD_RES_DENY)
 		user->WriteServ("%d %s", numeric, copy_text.c_str());
 }
 

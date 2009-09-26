@@ -56,9 +56,8 @@ class ModuleZLib : public Module
 	unsigned int net_buffer_size;
  public:
 
-	ModuleZLib(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleZLib()
+			{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
 		sessions = new izip_session[ServerInstance->SE->GetMaxFds()];

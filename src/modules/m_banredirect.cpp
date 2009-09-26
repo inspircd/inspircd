@@ -39,7 +39,7 @@ class BanRedirect : public ModeWatcher
 {
  public:
 	SimpleExtItem<BanRedirectList> extItem;
-	BanRedirect(InspIRCd* Instance, Module* parent) : ModeWatcher(Instance, 'b', MODETYPE_CHANNEL),
+	BanRedirect(Module* parent) : ModeWatcher('b', MODETYPE_CHANNEL),
 		extItem("banredirect", parent)
 	{
 	}
@@ -202,8 +202,8 @@ class ModuleBanRedirect : public Module
 	Module* ExceptionModule;
 
  public:
-	ModuleBanRedirect(InspIRCd* Me)
-	: Module(Me), re(Me, this)
+	ModuleBanRedirect()
+	: re(this)
 	{
 		nofollow = false;
 
@@ -214,7 +214,7 @@ class ModuleBanRedirect : public Module
 
 		Extensible::Register(&re.extItem);
 		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete, I_OnCleanup };
-		Me->Modules->Attach(list, this, 4);
+		ServerInstance->Modules->Attach(list, this, 4);
 	}
 
 	virtual void OnChannelDelete(Channel* chan)
@@ -231,7 +231,7 @@ class ModuleBanRedirect : public Module
 
 			if(redirects)
 			{
-				irc::modestacker modestack(ServerInstance, false);
+				irc::modestacker modestack(false);
 				StringDeque stackresult;
 				std::vector<std::string> mode_junk;
 				mode_junk.push_back(chan->name);
@@ -315,7 +315,7 @@ class ModuleBanRedirect : public Module
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
 							user->WriteNumeric(470, "%s %s %s :You are banned from this channel, so you are automatically transfered to the redirected channel.", user->nick.c_str(), chan->name.c_str(), redir->targetchan.c_str());
 							nofollow = true;
-							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
+							Channel::JoinUser(user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
 							nofollow = false;
 							return MOD_RES_ALLOW;
 						}

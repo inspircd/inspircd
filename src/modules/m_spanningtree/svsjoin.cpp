@@ -35,7 +35,7 @@ bool TreeSocket::ServiceJoin(const std::string &prefix, parameterlist &params)
 	{
 		/* only join if it's local, otherwise just pass it on! */
 		if (IS_LOCAL(u))
-			Channel::JoinUser(ServerInstance, u, params[1].c_str(), false, "", false, ServerInstance->Time());
+			Channel::JoinUser(u, params[1].c_str(), false, "", false, ServerInstance->Time());
 		Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 	}
 	return true;

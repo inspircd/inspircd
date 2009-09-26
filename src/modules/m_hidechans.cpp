@@ -20,7 +20,7 @@
 class HideChans : public ModeHandler
 {
  public:
-	HideChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'I', PARAM_NONE, MODETYPE_USER) { }
+	HideChans(Module* Creator) : ModeHandler(Creator, 'I', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -50,7 +50,7 @@ class ModuleHideChans : public Module
 	bool AffectsOpers;
 	HideChans hm;
  public:
-	ModuleHideChans(InspIRCd* Me) : Module(Me), hm(Me, this)
+	ModuleHideChans() : hm(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&hm))
 			throw ModuleException("Could not add new modes!");
@@ -71,7 +71,7 @@ class ModuleHideChans : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		AffectsOpers = conf.ReadFlag("hidechans", "affectsopers", 0);
 	}
 

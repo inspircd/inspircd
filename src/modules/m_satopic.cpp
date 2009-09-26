@@ -55,8 +55,8 @@ class ModuleSATopic : public Module
 {
 	CommandSATopic cmd;
  public:
-	ModuleSATopic(InspIRCd* Me)
-	: Module(Me), cmd(this)
+	ModuleSATopic()
+	: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

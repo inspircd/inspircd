@@ -50,8 +50,8 @@ class ModuleSetIdle : public Module
 {
 	CommandSetidle cmd;
  public:
-	ModuleSetIdle(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSetIdle()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

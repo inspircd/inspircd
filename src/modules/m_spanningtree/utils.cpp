@@ -147,12 +147,12 @@ bool SpanningTreeUtilities::IsServer(const std::string &ServerName)
 	return (FindServer(ServerName) != NULL);
 }
 
-SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* C) : ServerInstance(Instance), Creator(C)
+SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 {
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
 
-	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
-	ServerUser = new FakeUser(ServerInstance, TreeRoot->GetID());
+	this->TreeRoot = new TreeServer(this, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
+	ServerUser = new FakeUser(TreeRoot->GetID());
 
 	this->ReadConfiguration(true);
 }
@@ -418,7 +418,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			try
 			{
 				bool cached;
-				SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L->IPAddr, *L, cached, start_type);
+				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, *L, cached, start_type);
 				ServerInstance->AddResolver(sr, cached);
 			}
 			catch (...)
@@ -430,7 +430,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 {
-	ConfigReader* Conf = new ConfigReader(ServerInstance);
+	ConfigReader* Conf = new ConfigReader;
 
 	/* We don't need to worry about these being *unloaded* on the fly, only loaded,
 	 * because we 'use' the interface locking the module in memory.
@@ -485,7 +485,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 						break;
 					}
 
-					ServerSocketListener *listener = new ServerSocketListener(ServerInstance, this, portno, (char *)IP.c_str());
+					ServerSocketListener *listener = new ServerSocketListener(this, portno, (char *)IP.c_str());
 					if (listener->GetFd() == -1)
 					{
 						delete listener;
@@ -577,7 +577,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 				try
 				{
 					bool cached;
-					SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached, start_type);
+					SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L.IPAddr, L, cached, start_type);
 					ServerInstance->AddResolver(sr, cached);
 				}
 				catch (...)

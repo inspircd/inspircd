@@ -220,7 +220,6 @@ void * ::operator new(size_t iSize);
 void ::operator delete(void * ptr);
 
 /* IPC Handlers */
-class InspIRCd;
 class ValueItem;
 class ServerConfig;
 
@@ -230,11 +229,11 @@ CoreExport std::string FindNameServerWin();
 /* Clear a windows console */
 CoreExport void ClearConsole();
 
-CoreExport DWORD WindowsForkStart(InspIRCd* Instance);
+CoreExport DWORD WindowsForkStart();
 
-CoreExport void WindowsForkKillOwner(InspIRCd* Instance);
+CoreExport void WindowsForkKillOwner();
 
-CoreExport void ChangeWindowsSpecificPointers(InspIRCd* Instance);
+CoreExport void ChangeWindowsSpecificPointers();
 
 CoreExport bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
 

@@ -23,8 +23,6 @@
  */
 class CoreExport BanCacheHit : public classbase
 {
- private:
-	InspIRCd *ServerInstance;
  public:
 	/** Type of cached ban
 	 */
@@ -39,9 +37,8 @@ class CoreExport BanCacheHit : public classbase
 	 */
 	time_t Expiry;
 
-	BanCacheHit(InspIRCd *Instance, const std::string &ip, const std::string &type, const std::string &reason)
+	BanCacheHit(const std::string &ip, const std::string &type, const std::string &reason)
 	{
-		ServerInstance = Instance;
 		this->Type = type;
 		this->Reason = reason;
 		this->IP = ip;
@@ -49,9 +46,8 @@ class CoreExport BanCacheHit : public classbase
 	}
 
 	// overridden to allow custom time
-	BanCacheHit(InspIRCd *Instance, const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
+	BanCacheHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
 	{
-		ServerInstance = Instance;
 		this->Type = type;
 		this->Reason = reason;
 		this->IP = ip;
@@ -74,7 +70,6 @@ class CoreExport BanCacheManager : public classbase
 {
  private:
 	BanCacheHash* BanHash;
-	InspIRCd* ServerInstance;
  public:
 
 	/** Creates and adds a Ban Cache item.
@@ -95,9 +90,8 @@ class CoreExport BanCacheManager : public classbase
 	 */
 	unsigned int RemoveEntries(const std::string &type, bool positive);
 
-	BanCacheManager(InspIRCd *Instance)
+	BanCacheManager()
 	{
-		this->ServerInstance = Instance;
 		this->BanHash = new BanCacheHash();
 	}
 	~BanCacheManager()

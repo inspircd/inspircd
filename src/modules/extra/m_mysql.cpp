@@ -89,7 +89,6 @@ class ModuleSQL : public Module
  public:
 
 	 ConfigReader *Conf;
-	 InspIRCd* PublicServerInstance;
 	 int currid;
 	 bool rehashing;
 	 DispatcherThread* Dispatcher;
@@ -97,7 +96,7 @@ class ModuleSQL : public Module
 	 Mutex LoggingMutex;
 	 Mutex ConnMutex;
 
-	 ModuleSQL(InspIRCd* Me);
+	 ModuleSQL();
 	 ~ModuleSQL();
 	 unsigned long NewID();
 	 const char* OnRequest(Request* request);
@@ -593,7 +592,7 @@ void ClearAllConnections()
 	}
 }
 
-void ConnectDatabases(InspIRCd* ServerInstance, ModuleSQL* Parent)
+void ConnectDatabases(ModuleSQL* Parent)
 {
 	for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 	{
@@ -612,7 +611,7 @@ void ConnectDatabases(InspIRCd* ServerInstance, ModuleSQL* Parent)
 	}
 }
 
-void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Parent)
+void LoadDatabases(ConfigReader* conf, ModuleSQL* Parent)
 {
 	Parent->ConnMutex.Lock();
 	ClearOldConnections(conf);
@@ -639,7 +638,7 @@ void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance, ModuleSQL* Pare
 			ThisSQL->setInitialQuery(initquery);
 		}
 	}
-	ConnectDatabases(ServerInstance, Parent);
+	ConnectDatabases(Parent);
 	Parent->ConnMutex.Unlock();
 }
 
@@ -673,23 +672,22 @@ class DispatcherThread : public SocketThread
 {
  private:
 	ModuleSQL* Parent;
-	InspIRCd* ServerInstance;
  public:
-	DispatcherThread(InspIRCd* Instance, ModuleSQL* CreatorModule) : SocketThread(Instance), Parent(CreatorModule), ServerInstance(Instance) { }
+	DispatcherThread(ModuleSQL* CreatorModule) : SocketThread(Instance), Parent(CreatorModule),{ }
 	~DispatcherThread() { }
 	virtual void Run();
 	virtual void OnNotify();
 };
 
-ModuleSQL::ModuleSQL(InspIRCd* Me) : Module(Me), rehashing(false)
+ModuleSQL::ModuleSQL() : rehashing(false)
 {
 	ServerInstance->Modules->UseInterface("SQLutils");
 
-	Conf = new ConfigReader(ServerInstance);
+	Conf = new ConfigReader;
 	PublicServerInstance = ServerInstance;
 	currid = 0;
 
-	Dispatcher = new DispatcherThread(ServerInstance, this);
+	Dispatcher = new DispatcherThread(this);
 	ServerInstance->Threads->Start(Dispatcher);
 
 	if (!ServerInstance->Modules->PublishFeature("SQL", this))

@@ -21,9 +21,8 @@ class ModuleRestrictMsg : public Module
 
  public:
 
-	ModuleRestrictMsg(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleRestrictMsg()
+			{
 
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

@@ -19,7 +19,7 @@
 #include <dlfcn.h>
 #endif
 
-DLLManager::DLLManager(InspIRCd*, const char *fname)
+DLLManager::DLLManager(const char *fname)
 {
 	err = NULL;
 

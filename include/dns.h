@@ -185,10 +185,6 @@ class CoreExport Resolver : public Extensible
 {
  protected:
 	/**
-	 * Pointer to creator
-	 */
-	InspIRCd* ServerInstance;
-	/**
 	 * Pointer to creator module (if any, or NULL)
 	 */
 	Module* Creator;
@@ -255,7 +251,7 @@ class CoreExport Resolver : public Extensible
 	 * whilst lookups are in progress, they can be safely removed and your module will not
 	 * crash the server.
 	 */
-	Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, bool &cached, Module* creator = NULL);
+	Resolver(const std::string &source, QueryType qt, bool &cached, Module* creator = NULL);
 
 	/**
 	 * The default destructor does nothing.
@@ -311,11 +307,6 @@ class CoreExport Resolver : public Extensible
 class CoreExport DNS : public EventHandler
 {
  private:
-
-	/**
-	 * Creator/Owner object
-	 */
-	InspIRCd* ServerInstance;
 
 	/**
 	 * The maximum value of a dns request id,
@@ -447,7 +438,7 @@ class CoreExport DNS : public EventHandler
 	 * The constructor initialises the dns socket,
 	 * and clears the request lists.
 	 */
-	DNS(InspIRCd* Instance);
+	DNS();
 
 	/**
 	 * Re-initialize the DNS subsystem.

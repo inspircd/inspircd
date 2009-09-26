@@ -96,9 +96,8 @@ class DNSRequest
 	DNS*            dnsobj;		/* DNS caller (where we get our FD from) */
 	unsigned long	ttl;		/* Time to live */
 	std::string     orig;		/* Original requested name/ip */
-	InspIRCd*	ServerInstance;
 
-	DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original);
+	DNSRequest(DNS* dns, int id, const std::string &original);
 	~DNSRequest();
 	DNSInfo ResultIsReady(DNSHeader &h, int length);
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
@@ -107,11 +106,10 @@ class DNSRequest
 class CacheTimer : public Timer
 {
  private:
-	InspIRCd* ServerInstance;
 	DNS* dns;
  public:
-	CacheTimer(InspIRCd* Instance, DNS* thisdns)
-		: Timer(3600, Instance->Time(), true), ServerInstance(Instance), dns(thisdns) { }
+	CacheTimer(DNS* thisdns)
+		: Timer(3600, ServerInstance->Time(), true), dns(thisdns) { }
 
 	virtual void Tick(time_t)
 	{
@@ -121,11 +119,10 @@ class CacheTimer : public Timer
 
 class RequestTimeout : public Timer
 {
-	InspIRCd* ServerInstance;
 	DNSRequest* watch;
 	int watchid;
  public:
-	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : Timer(n, SI->Time()), ServerInstance(SI), watch(watching), watchid(id)
+	RequestTimeout(unsigned long n, DNSRequest* watching, int id) : Timer(n, ServerInstance->Time()), watch(watching), watchid(id)
 	{
 	}
 	~RequestTimeout()
@@ -152,13 +149,13 @@ class RequestTimeout : public Timer
 };
 
 /* Allocate the processing buffer */
-DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, int rid, const std::string &original) : dnsobj(dns), ServerInstance(Instance)
+DNSRequest::DNSRequest(DNS* dns, int rid, const std::string &original) : dnsobj(dns)
 {
 	res = new unsigned char[512];
 	*res = 0;
 	orig = original;
-	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, rid);
-	Instance->Timers->AddTimer(RT); /* The timer manager frees this */
+	RequestTimeout* RT = new RequestTimeout(ServerInstance->Config->dns_timeout ? ServerInstance->Config->dns_timeout : 5, this, rid);
+	ServerInstance->Timers->AddTimer(RT); /* The timer manager frees this */
 }
 
 /* Deallocate the processing buffer */
@@ -259,7 +256,7 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id, const char* original)
 	while (requests[id])
 		id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
-	DNSRequest* req = new DNSRequest(ServerInstance, this, id, original);
+	DNSRequest* req = new DNSRequest(this, id, original);
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
@@ -386,7 +383,7 @@ void DNS::Rehash()
 }
 
 /** Initialise the DNS UDP socket so that we can send requests */
-DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
+DNS::DNS()
 {
 	ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::DNS");
 	/* Clear the Resolver class table */
@@ -412,7 +409,7 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	 */
 	this->Rehash();
 
-	this->PruneTimer = new CacheTimer(ServerInstance, this);
+	this->PruneTimer = new CacheTimer(this);
 
 	ServerInstance->Timers->AddTimer(this->PruneTimer);
 }
@@ -904,7 +901,7 @@ void Resolver::TriggerCachedResult()
 }
 
 /** High level abstraction of dns used by application at large */
-Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, bool &cached, Module* creator) : ServerInstance(Instance), Creator(creator), input(source), querytype(qt)
+Resolver::Resolver(const std::string &source, QueryType qt, bool &cached, Module* creator) : Creator(creator), input(source), querytype(qt)
 {
 	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Resolver::Resolver");
 	cached = false;

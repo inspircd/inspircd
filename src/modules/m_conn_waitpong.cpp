@@ -22,8 +22,8 @@ class ModuleWaitPong : public Module
 	LocalStringExt ext;
 
  public:
-	ModuleWaitPong(InspIRCd* Me)
-	 : Module(Me), ext("waitpong_pingstr", this)
+	ModuleWaitPong()
+	 : ext("waitpong_pingstr", this)
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash };
@@ -32,7 +32,7 @@ class ModuleWaitPong : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		sendsnotice = Conf.ReadFlag("waitpong", "sendsnotice", 0);
 

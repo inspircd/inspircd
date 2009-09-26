@@ -20,10 +20,9 @@ class Regex : public classbase
 {
 protected:
 	std::string regex_string; // The raw uncompiled regex string.
-	InspIRCd* ServerInstance;
 
 	// Constructor may as well be protected, as this class is abstract.
-	Regex(const std::string& rx, InspIRCd* Me) : regex_string(rx), ServerInstance(Me)
+	Regex(const std::string& rx) : regex_string(rx)
 	{
 	}
 

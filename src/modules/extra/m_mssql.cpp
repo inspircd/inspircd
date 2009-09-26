@@ -51,11 +51,9 @@ class QueryThread : public SocketThread
 {
   private:
 	ModuleMsSQL* Parent;
-	InspIRCd* ServerInstance;
   public:
-	QueryThread(InspIRCd* si, ModuleMsSQL* mod)
-	: SocketThread(si), Parent(mod), ServerInstance(si)
-	{
+	QueryThread(ModuleMsSQL* mod)
+	: SocketThread(si), Parent(mod),	{
 	}
 	~QueryThread() { }
 	virtual void Run();
@@ -232,7 +230,6 @@ class SQLConn : public classbase
 {
  private:
 	ResultQueue results;
-	InspIRCd* ServerInstance;
 	Module* mod;
 	SQLhost host;
 	TDSLOGIN* login;
@@ -242,8 +239,8 @@ class SQLConn : public classbase
  public:
 	QueryQueue queue;
 
-	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
-	: ServerInstance(SI), mod(m), host(hi), login(NULL), sock(NULL), context(NULL)
+	SQLConn(Module* m, const SQLhost& hi)
+	: mod(m), host(hi), login(NULL), sock(NULL), context(NULL)
 	{
 		if (OpenDB())
 		{
@@ -643,8 +640,8 @@ class ModuleMsSQL : public Module
 	QueryThread* queryDispatcher;
 
  public:
-	ModuleMsSQL(InspIRCd* Me)
-	: Module(Me), currid(0)
+	ModuleMsSQL()
+	: currid(0)
 	{
 		LoggingMutex = new Mutex();
 		ResultsMutex = new Mutex();
@@ -658,7 +655,7 @@ class ModuleMsSQL : public Module
 
 		ReadConf();
 
-		queryDispatcher = new QueryThread(ServerInstance, this);
+		queryDispatcher = new QueryThread(this);
 		ServerInstance->Threads->Start(queryDispatcher);
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
@@ -709,7 +706,7 @@ class ModuleMsSQL : public Module
 
 	bool HostInConf(const SQLhost &h)
 	{
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -729,7 +726,7 @@ class ModuleMsSQL : public Module
 	{
 		ClearOldConnections();
 
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -760,7 +757,7 @@ class ModuleMsSQL : public Module
 
 		SQLConn* newconn;
 
-		newconn = new SQLConn(ServerInstance, this, hi);
+		newconn = new SQLConn(this, hi);
 
 		connections.insert(std::make_pair(hi.id, newconn));
 	}

@@ -20,6 +20,6 @@ class InspIRCd;
 class ModeUserInvisible : public SimpleUserModeHandler
 {
  public:
-	ModeUserInvisible(InspIRCd* Instance);
+	ModeUserInvisible();
 	unsigned int GetCount();
 };

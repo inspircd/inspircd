@@ -151,8 +151,8 @@ class ModuleNickLock : public Module
 	CommandNicklock cmd1;
 	CommandNickunlock cmd2;
  public:
-	ModuleNickLock(InspIRCd* Me)
-		: Module(Me), locked("nick_locked", this), cmd1(this, locked), cmd2(this, locked)
+	ModuleNickLock()
+		: locked("nick_locked", this), cmd1(this, locked), cmd2(this, locked)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

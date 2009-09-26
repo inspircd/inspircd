@@ -31,16 +31,16 @@
 
 /* $ModDep: m_spanningtree/cachetimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h m_spanningtree/protocolinterface.h */
 
-ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
-	: Module(Me), max_local(0), max_global(0)
+ModuleSpanningTree::ModuleSpanningTree()
+	: max_local(0), max_global(0)
 {
 	ServerInstance->Modules->UseInterface("BufferedSocketHook");
-	Utils = new SpanningTreeUtilities(ServerInstance, this);
+	Utils = new SpanningTreeUtilities(this);
 	command_rconnect = new CommandRConnect(this, Utils);
 	ServerInstance->AddCommand(command_rconnect);
 	command_rsquit = new CommandRSQuit(this, Utils);
 	ServerInstance->AddCommand(command_rsquit);
-	RefreshTimer = new CacheRefreshTimer(ServerInstance, Utils);
+	RefreshTimer = new CacheRefreshTimer(Utils);
 	ServerInstance->Timers->AddTimer(RefreshTimer);
 
 	Implementation eventlist[] =
@@ -55,7 +55,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 	delete ServerInstance->PI;
-	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
+	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils);
 	loopCall = false;
 
 	// update our local user count
@@ -292,7 +292,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		try
 		{
 			bool cached;
-			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x, cached, start_type, y);
+			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, x->IPAddr, *x, cached, start_type, y);
 			ServerInstance->AddResolver(snr, cached);
 		}
 		catch (ModuleException& e)
@@ -942,7 +942,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 ModuleSpanningTree::~ModuleSpanningTree()
 {
 	delete ServerInstance->PI;
-	ServerInstance->PI = new ProtocolInterface(ServerInstance);
+	ServerInstance->PI = new ProtocolInterface;
 
 	/* This will also free the listeners */
 	delete Utils;

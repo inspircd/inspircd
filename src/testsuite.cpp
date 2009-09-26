@@ -41,7 +41,7 @@ class TestSuiteThread : public Thread
 	}
 };
 
-TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
+TestSuite::TestSuite()
 {
 	cout << "\n\n*** STARTING TESTSUITE ***\n";
 
@@ -74,12 +74,12 @@ TestSuite::TestSuite(InspIRCd* Instance) : ServerInstance(Instance)
 			case '2':
 				cout << "Enter module filename to load: ";
 				cin >> modname;
-				cout << (Instance->Modules->Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				cout << (ServerInstance->Modules->Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '3':
 				cout << "Enter module filename to unload: ";
 				cin >> modname;
-				cout << (Instance->Modules->Unload(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				cout << (ServerInstance->Modules->Unload(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '4':
 				cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
@@ -271,7 +271,7 @@ bool TestSuite::DoThreadTests()
 	cout << "Creating new ThreadEngine class...\n";
 	try
 	{
-		te = new ThreadEngine(ServerInstance);
+		te = new ThreadEngine;
 	}
 	catch (...)
 	{

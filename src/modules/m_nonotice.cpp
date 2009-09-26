@@ -18,7 +18,7 @@
 class NoNotice : public SimpleChannelModeHandler
 {
  public:
-	NoNotice(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'T') { }
+	NoNotice(Module* Creator) : SimpleChannelModeHandler(Creator, 'T') { }
 };
 
 class ModuleNoNotice : public Module
@@ -26,8 +26,8 @@ class ModuleNoNotice : public Module
 	NoNotice nt;
  public:
 
-	ModuleNoNotice(InspIRCd* Me)
-		: Module(Me), nt(Me, this)
+	ModuleNoNotice()
+		: nt(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&nt))
 			throw ModuleException("Could not add new modes!");
@@ -52,7 +52,7 @@ class ModuleNoNotice : public Module
 					// ulines are exempt.
 					return MOD_RES_PASSTHRU;
 				}
-				else if (CHANOPS_EXEMPT(ServerInstance, 'T') && c->GetPrefixValue(user) == OP_VALUE)
+				else if (CHANOPS_EXEMPT('T') && c->GetPrefixValue(user) == OP_VALUE)
 				{
 					// channel ops are exempt if set in conf.
 					return MOD_RES_PASSTHRU;

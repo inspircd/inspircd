@@ -24,8 +24,7 @@ class ModuleChanLog : public Module
 	std::multimap<char, std::string> logstreams;
 
  public:
-	ModuleChanLog(InspIRCd* Me) : Module(Me)
-	{
+	ModuleChanLog() 	{
 		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 
@@ -38,7 +37,7 @@ class ModuleChanLog : public Module
 
 	virtual void OnRehash(User *user)
 	{
-		ConfigReader MyConf(ServerInstance);
+		ConfigReader MyConf;
 		std::string snomasks;
 		std::string channel;
 
@@ -128,7 +127,7 @@ class ChannelLogStream : public LogStream
 	std::string channel;
 
  public:
-	ChannelLogStream(InspIRCd *Instance, int loglevel, const std::string &chan) : LogStream(Instance, loglevel), channel(chan)
+	ChannelLogStream(int loglevel, const std::string &chan) : LogStream(loglevel), channel(chan)
 	{
 	}
 

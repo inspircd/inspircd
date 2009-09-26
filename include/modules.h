@@ -158,39 +158,15 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 } while (0);
 
 /**
- * This #define allows us to call a method in all
- * loaded modules in a readable simple way and pass
- * an instance pointer to the macro. e.g.:
- * 'FOREACH_MOD_I(Instance, OnConnect, OnConnect(user));'
- */
-#define FOREACH_MOD_I(z,y,x) do { \
-	EventHandlerIter safei; \
-	for (EventHandlerIter _i = z->Modules->EventHandlers[y].begin(); _i != z->Modules->EventHandlers[y].end(); ) \
-	{ \
-		safei = _i; \
-		++safei; \
-		try \
-		{ \
-			(*_i)->x ; \
-		} \
-		catch (CoreException& modexcept) \
-		{ \
-			z->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
-		} \
-		_i = safei; \
-	} \
-} while (0);
-
-/**
  * Custom module result handling loop. This is a paired macro, and should only
  * be used with while_each_hook.
  *
  * See src/channels.cpp for an example of use.
  */
-#define DO_EACH_HOOK(z,n,v,args) \
+#define DO_EACH_HOOK(n,v,args) \
 do { \
-	EventHandlerIter iter_ ## n = z->Modules->EventHandlers[I_ ## n].begin(); \
-	while (iter_ ## n != z->Modules->EventHandlers[I_ ## n].end()) \
+	EventHandlerIter iter_ ## n = ServerInstance->Modules->EventHandlers[I_ ## n].begin(); \
+	while (iter_ ## n != ServerInstance->Modules->EventHandlers[I_ ## n].end()) \
 	{ \
 		Module* mod_ ## n = *iter_ ## n; \
 		iter_ ## n ++; \
@@ -198,11 +174,11 @@ do { \
 		{ \
 			v = (mod_ ## n)->n args;
 
-#define WHILE_EACH_HOOK(z,n) \
+#define WHILE_EACH_HOOK(n) \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
-			z->Logs->Log("MODULE",DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
+			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
 			(void) mod_ ## n; /* catch mismatched pairs */ \
 		} \
 	} \
@@ -213,16 +189,16 @@ do { \
  * Runs the given hook until some module returns a useful result.
  *
  * Example: ModResult result;
- * FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, result, (user, newnick))
+ * FIRST_MOD_RESULT(OnUserPreNick, result, (user, newnick))
  */
-#define FIRST_MOD_RESULT(z,n,v,args) do { \
+#define FIRST_MOD_RESULT(n,v,args) do { \
 	v = MOD_RES_PASSTHRU; \
-	DO_EACH_HOOK(z,n,v,args) \
+	DO_EACH_HOOK(n,v,args) \
 	{ \
 		if (v != MOD_RES_PASSTHRU) \
 			break; \
 	} \
-	WHILE_EACH_HOOK(z,n); \
+	WHILE_EACH_HOOK(n); \
 } while (0)
 
 /** Represents a non-local user.
@@ -387,7 +363,7 @@ class CoreExport Event : public ModuleMessage
 	 * The return result of an Event::Send() will always be NULL as
 	 * no replies are expected.
 	 */
-	char* Send(InspIRCd* ServerInstance);
+	char* Send();
 };
 
 /** Priority types which can be returned from Module::Prioritize()
@@ -437,7 +413,7 @@ class CoreExport Module : public Extensible
 	 * @param Me An instance of the InspIRCd class which will be saved into ServerInstance for your use
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
-	Module(InspIRCd* Me = ServerInstance);
+	Module();
 
 	/** Default destructor.
 	 * destroys a module class
@@ -1392,7 +1368,7 @@ class CoreExport ConfigReader : public classbase
 	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
 	 * as specified when running ./configure.
 	 */
-	ConfigReader(InspIRCd* Instance = ServerInstance);
+	ConfigReader();
 	/** Default destructor.
 	 * This method destroys the ConfigReader class.
 	 */
@@ -1491,14 +1467,14 @@ class CoreExport FileReader : public classbase
 	 * This method does not load any file into memory, you must use the LoadFile method
 	 * after constructing the class this way.
 	 */
-	FileReader(InspIRCd* Instance = ServerInstance);
+	FileReader();
 
 	/** Secondary constructor.
 	 * This method initialises the class with a file loaded into it ready for GetLine and
 	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	 * returns 0.
 	 */
-	FileReader(InspIRCd* Instance, const std::string &filename);
+	FileReader(const std::string &filename);
 
 	/** Default destructor.
 	 * This deletes the memory allocated to the file.
@@ -1827,9 +1803,9 @@ class CoreExport ModuleManager : public classbase
 #ifdef WINDOWS
 
 #define MODULE_INIT(y) \
-	extern "C" DllExport Module * init_module(InspIRCd* Me) \
+	extern "C" DllExport Module * init_module() \
 	{ \
-		return new y(Me); \
+		return new y; \
 	} \
 	BOOLEAN WINAPI DllMain(HINSTANCE hDllHandle, DWORD nReason, LPVOID Reserved) \
 	{ \
@@ -1845,9 +1821,9 @@ class CoreExport ModuleManager : public classbase
 #else
 
 #define MODULE_INIT(y) \
-	extern "C" DllExport Module * init_module(InspIRCd* Me) \
+	extern "C" DllExport Module * init_module() \
 	{ \
-		return new y(Me); \
+		return new y; \
 	}
 #endif
 

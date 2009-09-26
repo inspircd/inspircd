@@ -28,12 +28,11 @@ class ModuleHttpStats : public Module
 
 	void ReadConfig()
 	{
-		ConfigReader c(ServerInstance);
+		ConfigReader c;
 		this->stylesheet = c.ReadValue("httpstats", "stylesheet", 0);
 	}
 
-	ModuleHttpStats(InspIRCd* Me) : Module(Me)
-	{
+	ModuleHttpStats() 	{
 		ReadConfig();
 		this->changed = true;
 		Implementation eventlist[] = { I_OnEvent, I_OnRequest };

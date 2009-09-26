@@ -84,7 +84,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 */
 		oldnick.assign(user->nick, 0, IS_LOCAL(user) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, MOD_RESULT, (user,parameters[0]));
+		FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user,parameters[0]));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 		if (user->registered == REG_ALL)
@@ -165,7 +165,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, MOD_RESULT, (user, parameters[0]));
+	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, parameters[0]));
 	if (MOD_RESULT == MOD_RES_DENY)
 		// if a module returns true, the nick change is silently forbidden.
 		return CMD_FAILURE;
@@ -191,7 +191,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		if (user->registered == REG_NICKUSER)
 		{
 			/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-			FIRST_MOD_RESULT(ServerInstance, OnUserRegister, MOD_RESULT, (user));
+			FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 

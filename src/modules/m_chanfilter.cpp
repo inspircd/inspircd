@@ -25,7 +25,7 @@
 class ChanFilter : public ListModeBase
 {
  public:
-	ChanFilter(InspIRCd* Instance, Module* Creator) : ListModeBase(Instance, Creator, 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
+	ChanFilter(Module* Creator) : ListModeBase(Creator, 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
 
 	virtual bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
@@ -62,8 +62,8 @@ class ModuleChanFilter : public Module
 
  public:
 
-	ModuleChanFilter(InspIRCd* Me)
-		: Module(Me), cf(Me, this)
+	ModuleChanFilter()
+		: cf(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&cf))
 			throw ModuleException("Could not add new modes!");
@@ -78,14 +78,14 @@ class ModuleChanFilter : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		hidemask = Conf.ReadFlag("chanfilter", "hidemask", 0);
 		cf.DoRehash();
 	}
 
 	virtual ModResult ProcessMessages(User* user,Channel* chan,std::string &text)
 	{
-		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetPrefixValue(user) == OP_VALUE))
+		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT('g') && chan->GetPrefixValue(user) == OP_VALUE))
 			return MOD_RES_PASSTHRU;
 
 		modelist* list = cf.extItem.get(chan);

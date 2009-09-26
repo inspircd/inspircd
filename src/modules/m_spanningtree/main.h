@@ -60,7 +60,7 @@ class ModuleSpanningTree : public Module
 
 	/** Constructor
 	 */
-	ModuleSpanningTree(InspIRCd* Me);
+	ModuleSpanningTree();
 
 	/** Shows /LINKS
 	 */

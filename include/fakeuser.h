@@ -19,7 +19,7 @@
 class CoreExport FakeUser : public User
 {
  public:
-	FakeUser(InspIRCd* Instance, const std::string &uid) : User(Instance, uid)
+	FakeUser(const std::string &uid) : User(uid)
 	{
 		SetFd(FD_FAKEUSER_NUMBER);
 	}

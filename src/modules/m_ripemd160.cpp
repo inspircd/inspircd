@@ -407,7 +407,7 @@ class ModuleRIPEMD160 : public Module
 	byte *RMD(byte *message, dword length, unsigned int* key)
 	{
 		ServerInstance->Logs->Log("m_ripemd160", DEBUG, "RMD: '%s' length=%u", (const char*)message, length);
-		dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(, E))   */
+		dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(E))   */
 		static byte   hashcode[RMDsize/8]; /* for final hash-value         */
 		dword         X[16];               /* current 16-word chunk        */
 		unsigned int  i;                   /* counter                      */
@@ -442,7 +442,7 @@ class ModuleRIPEMD160 : public Module
 
  public:
 
-	ModuleRIPEMD160(InspIRCd* Me) : Module(Me), currkey(NULL), chars("0123456789abcdef")
+	ModuleRIPEMD160() : currkey(NULL), chars("0123456789abcdef")
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
 		Implementation eventlist[] = { I_OnRequest };

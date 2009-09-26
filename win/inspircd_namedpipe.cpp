@@ -6,7 +6,7 @@
 #include <psapi.h>
 
 
-IPCThread::IPCThread(InspIRCd* Instance) : Thread(), ServerInstance(Instance)
+IPCThread::IPCThread()
 {
 	if (!initwmi())
 		ServerInstance->Logs->Log("IPC", DEBUG, "Could not initialise WMI. CPU percantage reports will not be available.");
@@ -127,7 +127,7 @@ void IPCThread::SetResult(int newresult)
 }
 
 
-IPC::IPC(InspIRCd* Srv) : ServerInstance(Srv)
+IPC::IPC()
 {
 	/* The IPC pipe is threaded */
 	thread = new IPCThread(Srv);

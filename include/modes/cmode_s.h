@@ -20,5 +20,5 @@ class InspIRCd;
 class ModeChannelSecret : public SimpleChannelModeHandler
 {
  public:
-	ModeChannelSecret(InspIRCd* Instance);
+	ModeChannelSecret();
 };

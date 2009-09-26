@@ -293,13 +293,12 @@ class BanCacheManager;
  */
 class CoreExport ConfigReaderThread : public Thread
 {
-	InspIRCd* ServerInstance;
 	ServerConfig* Config;
 	bool done;
  public:
 	std::string TheUserUID;
-	ConfigReaderThread(InspIRCd* Instance, const std::string &useruid)
-		: Thread(), ServerInstance(Instance), done(false), TheUserUID(useruid)
+	ConfigReaderThread(const std::string &useruid)
+		: Thread(), done(false), TheUserUID(useruid)
 	{
 	}
 
@@ -927,7 +926,7 @@ class CommandModule : public Module
 {
 	Cmd cmd;
  public:
-	CommandModule(InspIRCd*) : cmd(this)
+	CommandModule() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

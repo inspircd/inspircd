@@ -20,7 +20,7 @@
 class User_d : public ModeHandler
 {
  public:
-	User_d(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'd', PARAM_NONE, MODETYPE_USER) { }
+	User_d(Module* Creator) : ModeHandler(Creator, 'd', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -53,8 +53,8 @@ class ModuleDeaf : public Module
 	std::string deaf_bypasschars_uline;
 
  public:
-	ModuleDeaf(InspIRCd* Me)
-		: Module(Me), m1(Me, this)
+	ModuleDeaf()
+		: m1(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&m1))
 			throw ModuleException("Could not add new modes!");
@@ -67,7 +67,7 @@ class ModuleDeaf : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader* conf = new ConfigReader(ServerInstance);
+		ConfigReader* conf = new ConfigReader;
 		deaf_bypasschars = conf->ReadValue("deaf", "bypasschars", 0);
 		deaf_bypasschars_uline = conf->ReadValue("deaf", "bypasscharsuline", 0);
 

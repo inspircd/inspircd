@@ -128,7 +128,7 @@ struct CallerIDExtInfo : public ExtensionItem
 class User_g : public SimpleUserModeHandler
 {
 public:
-	User_g(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'g') { }
+	User_g(Module* Creator) : SimpleUserModeHandler(Creator, 'g') { }
 };
 
 class CommandAccept : public Command
@@ -342,7 +342,7 @@ private:
 	}
 
 public:
-	ModuleCallerID(InspIRCd* Me) : Module(Me), cmd(this), myumode(Me, this)
+	ModuleCallerID() : cmd(this), myumode(this)
 	{
 		OnRehash(NULL);
 
@@ -429,7 +429,7 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		cmd.maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
 		operoverride = Conf.ReadFlag("callerid", "operoverride", "0", 0);
 		tracknick = Conf.ReadFlag("callerid", "tracknick", "0", 0);

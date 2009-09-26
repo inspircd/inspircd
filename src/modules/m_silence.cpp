@@ -270,8 +270,8 @@ class ModuleSilence : public Module
 	CommandSVSSilence cmdsvssilence;
  public:
 
-	ModuleSilence(InspIRCd* Me)
-		: Module(Me), maxsilence(32), cmdsilence(this, maxsilence), cmdsvssilence(this)
+	ModuleSilence()
+		: maxsilence(32), cmdsilence(this, maxsilence), cmdsvssilence(this)
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmdsilence);
@@ -283,7 +283,7 @@ class ModuleSilence : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);
 		if (!maxsilence)
 			maxsilence = 32;

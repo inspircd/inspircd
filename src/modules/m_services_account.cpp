@@ -22,7 +22,7 @@ class Channel_r : public ModeHandler
 {
 
  public:
-	Channel_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
+	Channel_r(Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -52,7 +52,7 @@ class User_r : public ModeHandler
 {
 
  public:
-	User_r(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_USER) { }
+	User_r(Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -78,7 +78,7 @@ class User_r : public ModeHandler
 class AChannel_R : public SimpleChannelModeHandler
 {
  public:
-	AChannel_R(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'R') { }
+	AChannel_R(Module* Creator) : SimpleChannelModeHandler(Creator, 'R') { }
 };
 
 /** User mode +R - unidentified users cannot message
@@ -86,7 +86,7 @@ class AChannel_R : public SimpleChannelModeHandler
 class AUser_R : public SimpleUserModeHandler
 {
  public:
-	AUser_R(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'R') { }
+	AUser_R(Module* Creator) : SimpleUserModeHandler(Creator, 'R') { }
 };
 
 /** Channel mode +M - unidentified users cannot message channel
@@ -94,7 +94,7 @@ class AUser_R : public SimpleUserModeHandler
 class AChannel_M : public SimpleChannelModeHandler
 {
  public:
-	AChannel_M(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'M') { }
+	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, 'M') { }
 };
 
 class ModuleServicesAccount : public Module
@@ -106,8 +106,7 @@ class ModuleServicesAccount : public Module
 	User_r m5;
 	StringExtItem accountname;
  public:
-	ModuleServicesAccount(InspIRCd* Me) : Module(Me),
-		m1(Me, this), m2(Me, this), m3(Me, this), m4(Me, this), m5(Me, this),
+	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
 		accountname("accountname", this)
 	{
 
@@ -267,7 +266,7 @@ class ModuleServicesAccount : public Module
 				ac.user = dest;
 				ac.account = *account;
 				Event n((char*)&ac, this, "account_login");
-				n.Send(ServerInstance);
+				n.Send();
 			}
 		}
 	}

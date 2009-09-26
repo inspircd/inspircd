@@ -21,8 +21,8 @@ class Shun : public XLine
 public:
 	std::string matchtext;
 
-	Shun(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string shunmask)
-		: XLine(Instance, s_time, d, src, re, "SHUN")
+	Shun(time_t s_time, long d, std::string src, std::string re, std::string shunmask)
+		: XLine(s_time, d, src, re, "SHUN")
 	{
 		this->matchtext = shunmask;
 	}
@@ -72,13 +72,13 @@ public:
 class ShunFactory : public XLineFactory
 {
  public:
-	ShunFactory(InspIRCd* Instance) : XLineFactory(Instance, "SHUN") { }
+	ShunFactory() : XLineFactory("SHUN") { }
 
 	/** Generate a shun
  	*/
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
-		return new Shun(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+		return new Shun(set_time, duration, source, reason, xline_specific_mask);
 	}
 };
 
@@ -136,7 +136,7 @@ class CommandShun : public Command
 
 			try
 			{
-				r = new Shun(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
+				r = new Shun(ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
 			}
 			catch (...)
 			{
@@ -187,7 +187,7 @@ class ModuleShun : public Module
 	bool affectopers;
 
  public:
-	ModuleShun(InspIRCd* Me) : Module(Me), cmd(this), f(Me)
+	ModuleShun() : cmd(this)
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->AddCommand(&cmd);
@@ -214,7 +214,7 @@ class ModuleShun : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader MyConf(ServerInstance);
+		ConfigReader MyConf;
 		std::string cmds = MyConf.ReadValue("shun", "enabledcommands", 0);
 
 		if (cmds.empty())

@@ -34,8 +34,8 @@ class SaslAuthenticator : public classbase
 	bool state_announced;
 
  public:
-	SaslAuthenticator(User *user_, std::string method, InspIRCd *instance, Module *ctor)
-		: ServerInstance(instance), user(user_), state(SASL_INIT), state_announced(false)
+	SaslAuthenticator(User *user_, std::string method, Module *ctor)
+		: user(user_), state(SASL_INIT), state_announced(false)
 	{
 		parameterlist params;
 		params.push_back("*");
@@ -168,7 +168,7 @@ class CommandAuthenticate : public Command
 
 			SaslAuthenticator *sasl = authExt.get(user);
 			if (!sasl)
-				authExt.set(user, new SaslAuthenticator(user, parameters[0], ServerInstance, creator));
+				authExt.set(user, new SaslAuthenticator(user, parameters[0], creator));
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
 			{
 				sasl->AnnounceState();
@@ -223,8 +223,8 @@ class ModuleSASL : public Module
 	CommandAuthenticate auth;
 	CommandSASL sasl;
  public:
-	ModuleSASL(InspIRCd* Me)
-		: Module(Me), authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
+	ModuleSASL()
+		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect, I_OnCleanup };
 		ServerInstance->Modules->Attach(eventlist, this, 5);

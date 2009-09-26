@@ -20,7 +20,7 @@
 class BlockColor : public SimpleChannelModeHandler
 {
  public:
-	BlockColor(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'c') { }
+	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, 'c') { }
 };
 
 class ModuleBlockColour : public Module
@@ -29,7 +29,7 @@ class ModuleBlockColour : public Module
 	BlockColor bc;
  public:
 
-	ModuleBlockColour(InspIRCd* Me) : Module(Me), bc(Me, this)
+	ModuleBlockColour() : bc(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&bc))
 			throw ModuleException("Could not add new modes!");
@@ -48,7 +48,7 @@ class ModuleBlockColour : public Module
 		{
 			Channel* c = (Channel*)dest;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'c') && c->GetPrefixValue(user) == OP_VALUE)
+			if (CHANOPS_EXEMPT('c') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}

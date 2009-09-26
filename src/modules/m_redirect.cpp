@@ -20,7 +20,7 @@
 class Redirect : public ModeHandler
 {
  public:
-	Redirect(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
+	Redirect(Module* Creator) : ModeHandler(Creator, 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
@@ -89,8 +89,8 @@ class ModuleRedirect : public Module
 
  public:
 
-	ModuleRedirect(InspIRCd* Me)
-		: Module(Me), re(Me, this)
+	ModuleRedirect()
+		: re(this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&re))
@@ -120,7 +120,7 @@ class ModuleRedirect : public Module
 					}
 
 					user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname, channel.c_str());
-					Channel::JoinUser(ServerInstance, user, channel.c_str(), false, "", false, ServerInstance->Time());
+					Channel::JoinUser(user, channel.c_str(), false, "", false, ServerInstance->Time());
 					return MOD_RES_DENY;
 				}
 			}

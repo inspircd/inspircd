@@ -20,7 +20,7 @@ class InspIRCd;
 class ModeUserOperator : public ModeHandler
 {
  public:
-	ModeUserOperator(InspIRCd* Instance);
+	ModeUserOperator();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	unsigned int GetCount();
 };

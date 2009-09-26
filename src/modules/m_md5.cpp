@@ -264,8 +264,8 @@ class ModuleMD5 : public Module
 
  public:
 
-	ModuleMD5(InspIRCd* Me)
-		: Module(Me), key(NULL), chars(NULL)
+	ModuleMD5()
+		: key(NULL), chars(NULL)
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
 		Implementation eventlist[] = { I_OnRequest };

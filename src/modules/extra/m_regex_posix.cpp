@@ -34,7 +34,7 @@ private:
 	regex_t regbuf;
 
 public:
-	POSIXRegex(const std::string& rx, InspIRCd* Me, bool extended) : Regex(rx, Me)
+	POSIXRegex(const std::string& rx, bool extended) : Regex(rx, Me)
 	{
 		int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
 		int errcode;
@@ -76,11 +76,10 @@ class ModuleRegexPOSIX : public Module
 private:
 	bool extended;
 public:
-	ModuleRegexPOSIX(InspIRCd* Me) : Module(Me)
-	{
-		Me->Modules->PublishInterface("RegularExpression", this);
+	ModuleRegexPOSIX() 	{
+		ServerInstance->Modules->PublishInterface("RegularExpression", this);
 		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
-		Me->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 		OnRehash(NULL);
 	}
 
@@ -96,7 +95,7 @@ public:
 
 	virtual void OnRehash(User* u)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		extended = Conf.ReadFlag("posix", "extended", 0);
 	}
 

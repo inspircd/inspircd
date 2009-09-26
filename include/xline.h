@@ -29,9 +29,6 @@ class CoreExport XLine : public classbase
 {
  protected:
 
-	/** Creator */
-	InspIRCd* ServerInstance;
-
 	/** Default 'apply' action. Quits the user.
 	 * @param u User to apply the line against
 	 * @param line The line typed, used for display purposes in the quit message
@@ -48,8 +45,8 @@ class CoreExport XLine : public classbase
 	 * @param re The reason of the xline
 	 * @param t The line type, should be set by the derived class constructor
 	 */
-	XLine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, const std::string &t)
-		: ServerInstance(Instance), set_time(s_time), duration(d), source(src), reason(re), type(t)
+	XLine(time_t s_time, long d, std::string src, std::string re, const std::string &t)
+		: set_time(s_time), duration(d), source(src), reason(re), type(t)
 	{
 		expiry = set_time + duration;
 	}
@@ -156,8 +153,8 @@ class CoreExport KLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	KLine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
-		: XLine(Instance, s_time, d, src, re, "K"), identmask(ident), hostmask(host)
+	KLine(time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
+		: XLine(s_time, d, src, re, "K"), identmask(ident), hostmask(host)
 	{
 		matchtext = this->identmask;
 		matchtext.append("@").append(this->hostmask);
@@ -204,8 +201,8 @@ class CoreExport GLine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	GLine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
-		: XLine(Instance, s_time, d, src, re, "G"), identmask(ident), hostmask(host)
+	GLine(time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
+		: XLine(s_time, d, src, re, "G"), identmask(ident), hostmask(host)
 	{
 		matchtext = this->identmask;
 		matchtext.append("@").append(this->hostmask);
@@ -250,8 +247,8 @@ class CoreExport ELine : public XLine
 	 * @param ident Ident to match
 	 * @param host Host to match
 	 */
-	ELine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
-		: XLine(Instance, s_time, d, src, re, "E"), identmask(ident), hostmask(host)
+	ELine(time_t s_time, long d, std::string src, std::string re, std::string ident, std::string host)
+		: XLine(s_time, d, src, re, "E"), identmask(ident), hostmask(host)
 	{
 		matchtext = this->identmask;
 		matchtext.append("@").append(this->hostmask);
@@ -295,8 +292,8 @@ class CoreExport ZLine : public XLine
 	 * @param re The reason of the xline
 	 * @param ip IP to match
 	 */
-	ZLine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string ip)
-		: XLine(Instance, s_time, d, src, re, "Z"), ipaddr(ip)
+	ZLine(time_t s_time, long d, std::string src, std::string re, std::string ip)
+		: XLine(s_time, d, src, re, "Z"), ipaddr(ip)
 	{
 	}
 
@@ -333,8 +330,8 @@ class CoreExport QLine : public XLine
 	 * @param re The reason of the xline
 	 * @param nickname Nickname to match
 	 */
-	QLine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string nickname)
-		: XLine(Instance, s_time, d, src, re, "Q"), nick(nickname)
+	QLine(time_t s_time, long d, std::string src, std::string re, std::string nickname)
+		: XLine(s_time, d, src, re, "Q"), nick(nickname)
 	{
 	}
 
@@ -373,7 +370,6 @@ class CoreExport XLineFactory : public classbase
 {
  protected:
 
-	InspIRCd* ServerInstance;
 	std::string type;
 
  public:
@@ -382,7 +378,7 @@ class CoreExport XLineFactory : public classbase
 	 * @param Instance creator
 	 * @param t Type of XLine this factory generates
 	 */
-	XLineFactory(InspIRCd* Instance, const std::string &t) : ServerInstance(Instance), type(t) { }
+	XLineFactory(const std::string &t) : type(t) { }
 
 	/** Return the type of XLine this factory generates
 	 * @return The type of XLine this factory generates
@@ -409,7 +405,6 @@ class CoreExport XLineFactory : public classbase
 /* Required forward declarations
  */
 class ServerConfig;
-class InspIRCd;
 
 class GLineFactory;
 class ELineFactory;
@@ -444,10 +439,6 @@ typedef XLineLookup::iterator LookupIter;
 class CoreExport XLineManager : public classbase
 {
  protected:
-	/** The owner/creator of this class
-	 */
-	InspIRCd* ServerInstance;
-
 	/** Used to hold XLines which have not yet been applied.
 	 */
 	std::vector<XLine *> pending_lines;
@@ -478,7 +469,7 @@ class CoreExport XLineManager : public classbase
 	/** Constructor
 	 * @param Instance A pointer to the creator object
 	 */
-	XLineManager(InspIRCd* Instance);
+	XLineManager();
 
 	/** Destructor
 	 */
@@ -591,14 +582,14 @@ class CoreExport XLineManager : public classbase
 class CoreExport GLineFactory : public XLineFactory
 {
  public:
-	GLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "G") { }
+	GLineFactory() : XLineFactory("G") { }
 
 	/** Generate a GLine
 	 */
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
 		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
-		return new GLine(ServerInstance, set_time, duration, source, reason, ih.first, ih.second);
+		return new GLine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };
 
@@ -607,14 +598,14 @@ class CoreExport GLineFactory : public XLineFactory
 class CoreExport ELineFactory : public XLineFactory
 {
  public:
-	ELineFactory(InspIRCd* Instance) : XLineFactory(Instance, "E") { }
+	ELineFactory() : XLineFactory("E") { }
 
 	/** Generate an ELine
 	 */
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
 		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
-		return new ELine(ServerInstance, set_time, duration, source, reason, ih.first, ih.second);
+		return new ELine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };
 
@@ -623,14 +614,14 @@ class CoreExport ELineFactory : public XLineFactory
 class CoreExport KLineFactory : public XLineFactory
 {
  public:
-        KLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "K") { }
+        KLineFactory() : XLineFactory("K") { }
 
 	/** Generate a KLine
 	 */
         XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
         {
                 IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
-                return new KLine(ServerInstance, set_time, duration, source, reason, ih.first, ih.second);
+                return new KLine(set_time, duration, source, reason, ih.first, ih.second);
         }
 };
 
@@ -639,13 +630,13 @@ class CoreExport KLineFactory : public XLineFactory
 class CoreExport QLineFactory : public XLineFactory
 {
  public:
-        QLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "Q") { }
+        QLineFactory() : XLineFactory("Q") { }
 
 	/** Generate a QLine
 	 */
         XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
         {
-                return new QLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+                return new QLine(set_time, duration, source, reason, xline_specific_mask);
         }
 };
 
@@ -654,13 +645,13 @@ class CoreExport QLineFactory : public XLineFactory
 class CoreExport ZLineFactory : public XLineFactory
 {
  public:
-        ZLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "Z") { }
+        ZLineFactory() : XLineFactory("Z") { }
 
 	/** Generate a ZLine
 	 */
         XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
         {
-                return new ZLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+                return new ZLine(set_time, duration, source, reason, xline_specific_mask);
         }
 };
 

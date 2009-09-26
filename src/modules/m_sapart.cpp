@@ -97,8 +97,8 @@ class ModuleSapart : public Module
 {
 	CommandSapart cmd;
  public:
-	ModuleSapart(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSapart()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

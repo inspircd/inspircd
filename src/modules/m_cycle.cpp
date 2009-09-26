@@ -61,7 +61,7 @@ class CommandCycle : public Command
 				if (!channel->PartUser(user, reason))
 					delete channel;
 
-				Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
+				Channel::JoinUser(user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
 			}
 
 			return CMD_SUCCESS;
@@ -80,8 +80,8 @@ class ModuleCycle : public Module
 {
 	CommandCycle cmd;
  public:
-	ModuleCycle(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleCycle()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

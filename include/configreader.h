@@ -19,7 +19,7 @@
 /** Determines if a channel op is exempt from given mode m,
  * in config of server instance s.
  */
-#define CHANOPS_EXEMPT(s, m) (s->Config->ExemptChanOps[(unsigned char)m])
+#define CHANOPS_EXEMPT(m) (ServerInstance->Config->ExemptChanOps[(unsigned char)m])
 
 #include <sstream>
 #include <string>
@@ -122,10 +122,6 @@ class ServerLimits
 class CoreExport ServerConfig : public classbase
 {
   private:
-	/** Creator/owner pointer
-	 */
-	InspIRCd* ServerInstance;
-
 	/** This variable holds the names of all
 	 * files included from the main one. This
 	 * is used to make sure that no files are
@@ -171,10 +167,6 @@ class CoreExport ServerConfig : public classbase
 
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
-
-	/** Returns the creator InspIRCd pointer
-	 */
-	InspIRCd* GetInstance();
 
 	/** Not used any more as it is named, can probably be removed or renamed.
 	 */
@@ -582,7 +574,7 @@ class CoreExport ServerConfig : public classbase
 
 	/** Construct a new ServerConfig
 	 */
-	ServerConfig(InspIRCd* Instance);
+	ServerConfig();
 
 	/** Get server ID as string with required leading zeroes
 	 */

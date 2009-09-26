@@ -55,8 +55,8 @@ class ModuleSetName : public Module
 {
 	CommandSetname cmd;
  public:
-	ModuleSetName(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSetName()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

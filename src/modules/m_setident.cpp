@@ -59,7 +59,7 @@ class ModuleSetIdent : public Module
 	CommandSetident cmd;
 
  public:
-	ModuleSetIdent(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleSetIdent() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

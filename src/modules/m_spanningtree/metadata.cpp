@@ -33,7 +33,7 @@ bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 	{
 		if (params[0] == "*")
 		{
-			FOREACH_MOD_I(ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(NULL,params[1],params[2]));
+			FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(NULL,params[1],params[2]));
 		}
 		else if (*(params[0].c_str()) == '#')
 		{
@@ -42,7 +42,7 @@ bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 			{
 				if (item)
 					item->unserialize(FORMAT_NETWORK, c, params[2]);
-				FOREACH_MOD_I(ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(c,params[1],params[2]));
+				FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(c,params[1],params[2]));
 			}
 		}
 		else if (*(params[0].c_str()) != '#')
@@ -52,7 +52,7 @@ bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 			{
 				if (item)
 					item->unserialize(FORMAT_NETWORK, u, params[2]);
-				FOREACH_MOD_I(ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(u,params[1],params[2]));
+				FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(u,params[1],params[2]));
 			}
 		}
 	}

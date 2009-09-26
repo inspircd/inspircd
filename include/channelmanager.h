@@ -20,12 +20,10 @@
  */
 class CoreExport ChannelManager
 {
- private:
-	InspIRCd *ServerInstance;
  public:
 	/** Constructor
 	 */
-	ChannelManager(InspIRCd *Instance) : ServerInstance(Instance)
+	ChannelManager()
 	{
 	}
 };

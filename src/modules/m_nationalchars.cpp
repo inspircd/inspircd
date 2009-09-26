@@ -24,9 +24,8 @@
 
 class lwbNickHandler : public HandlerBase2<bool, const char*, size_t>
 {
-	InspIRCd* Server;
  public:
-	lwbNickHandler(InspIRCd* Srv) : Server(Srv) { }
+	lwbNickHandler() { }
 	virtual ~lwbNickHandler() { }
 	virtual bool Call(const char*, size_t);
 };
@@ -214,29 +213,21 @@ bool lwbNickHandler::Call(const char* n, size_t max)
 class ModuleNationalChars : public Module
 {
  private:
-
-	InspIRCd* ServerInstance;
-	lwbNickHandler* myhandler;
+	lwbNickHandler myhandler;
 	std::string charset, casemapping;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	caller2<bool, const char*, size_t> * rememberer;
+	caller2<bool, const char*, size_t> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 
  public:
-	ModuleNationalChars(InspIRCd* Me) : Module(Me)
+	ModuleNationalChars() : rememberer(ServerInstance->IsNick)
 	{
-		rememberer = (caller2<bool, const char*, size_t> *) malloc(sizeof(caller2<bool, const char*, size_t>));
-
 		lowermap_rememberer = national_case_insensitive_map;
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
 
-		ServerInstance = Me;
-
-		*rememberer = ServerInstance->IsNick;
-		myhandler = new lwbNickHandler(ServerInstance);
-		ServerInstance->IsNick = myhandler;
+		ServerInstance->IsNick = &myhandler;
 
 		Implementation eventlist[] = { I_OnRehash, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -252,7 +243,7 @@ class ModuleNationalChars : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader* conf = new ConfigReader(ServerInstance);
+		ConfigReader* conf = new ConfigReader;
 		charset = conf->ReadValue("nationalchars", "file", 0);
 		casemapping = conf->ReadValue("nationalchars", "casemapping", charset, 0, false);
 		charset.insert(0, "../locales/");
@@ -279,9 +270,7 @@ class ModuleNationalChars : public Module
 
 	virtual ~ModuleNationalChars()
 	{
-		delete myhandler;
-		ServerInstance->IsNick = *rememberer;
-		free(rememberer);
+		ServerInstance->IsNick = rememberer;
 		national_case_insensitive_map = lowermap_rememberer;
 		CheckForceQuit("National characters module unloaded");
 	}

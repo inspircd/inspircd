@@ -17,7 +17,7 @@
 #include <stdarg.h>
 #include "snomasks.h"
 
-SnomaskManager::SnomaskManager(InspIRCd* Instance) : ServerInstance(Instance)
+SnomaskManager::SnomaskManager()
 {
 	SnoMasks.clear();
 	this->SetupDefaults();
@@ -44,7 +44,7 @@ bool SnomaskManager::EnableSnomask(char letter, const std::string &type)
 {
 	if (SnoMasks.find(letter) == SnoMasks.end())
 	{
-		Snomask *s = new Snomask(ServerInstance, letter, type);
+		Snomask *s = new Snomask(letter, type);
 		SnoMasks[letter] = s;
 		return true;
 	}
@@ -144,7 +144,7 @@ void Snomask::SendMessage(const std::string &message)
 		char mysnomask = MySnomask;
 		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", desc.c_str(), message.c_str());
 
-		FIRST_MOD_RESULT(ServerInstance, OnSendSnotice, MOD_RESULT, (mysnomask, desc, message));
+		FIRST_MOD_RESULT(OnSendSnotice, MOD_RESULT, (mysnomask, desc, message));
 
 		LastBlocked = (MOD_RESULT == MOD_RES_DENY);
 

@@ -54,7 +54,7 @@ class ModuleDeVoice : public Module
 {
 	CommandDevoice cmd;
  public:
-	ModuleDeVoice(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleDeVoice() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

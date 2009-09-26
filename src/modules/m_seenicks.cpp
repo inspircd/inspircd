@@ -18,9 +18,8 @@
 class ModuleSeeNicks : public Module
 {
  public:
-	ModuleSeeNicks(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleSeeNicks()
+			{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
 		ServerInstance->SNO->EnableSnomask('N',"REMOTENICK");
 		Implementation eventlist[] = { I_OnUserPostNick };

@@ -51,7 +51,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(ServerInstance, OnUserPreNotice, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, exempt_list));
+		FIRST_MOD_RESULT(OnUserPreNotice, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, exempt_list));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 		const char* text = temp.c_str();
@@ -97,7 +97,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			ModResult MOD_RESULT;
 
 			std::string temp = parameters[1];
-			FIRST_MOD_RESULT(ServerInstance, OnUserPreNotice, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status, exempt_list));
+			FIRST_MOD_RESULT(OnUserPreNotice, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status, exempt_list));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
@@ -173,7 +173,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(ServerInstance, OnUserPreNotice, MOD_RESULT, (user,dest,TYPE_USER,temp,0,exempt_list));
+		FIRST_MOD_RESULT(OnUserPreNotice, MOD_RESULT, (user,dest,TYPE_USER,temp,0,exempt_list));
 		if (MOD_RESULT == MOD_RES_DENY) {
 			return CMD_FAILURE;
 		}

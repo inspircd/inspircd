@@ -20,7 +20,7 @@
 class GlobRegex : public Regex
 {
 public:
-	GlobRegex(const std::string& rx, InspIRCd* Me) : Regex(rx, Me)
+	GlobRegex(const std::string& rx) : Regex(rx)
 	{
 	}
 
@@ -37,11 +37,10 @@ public:
 class ModuleRegexGlob : public Module
 {
 public:
-	ModuleRegexGlob(InspIRCd* Me) : Module(Me)
-	{
-		Me->Modules->PublishInterface("RegularExpression", this);
+	ModuleRegexGlob() 	{
+		ServerInstance->Modules->PublishInterface("RegularExpression", this);
 		Implementation eventlist[] = { I_OnRequest };
-		Me->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual Version GetVersion()
@@ -64,7 +63,7 @@ public:
 		{
 			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
 			std::string rx = rfr->GetRegex();
-			rfr->result = (Regex*)new GlobRegex(rx, ServerInstance);
+			rfr->result = new GlobRegex(rx);
 			return "OK";
 		}
 		return NULL;

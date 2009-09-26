@@ -36,9 +36,8 @@ class ModuleHostChange : public Module
 	std::string MySeparator;
 
  public:
-	ModuleHostChange(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleHostChange()
+			{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -62,7 +61,7 @@ class ModuleHostChange : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		MySuffix = Conf.ReadValue("host","suffix",0);
 		MyPrefix = Conf.ReadValue("host","prefix","",0);
 		MySeparator = Conf.ReadValue("host","separator",".",0);

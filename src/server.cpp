@@ -50,13 +50,13 @@ void InspIRCd::Exit(int status)
 
 void RehashHandler::Call(const std::string &reason)
 {
-	Server->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(Server->ConfigFileName.c_str()), reason.c_str());
-	Server->RehashUsersAndChans();
-	FOREACH_MOD_I(Server, I_OnGarbageCollect, OnGarbageCollect());
-	if (!Server->ConfigThread)
+	ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), reason.c_str());
+	ServerInstance->RehashUsersAndChans();
+	FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+	if (!ServerInstance->ConfigThread)
 	{
-		Server->ConfigThread = new ConfigReaderThread(Server, "");
-		Server->Threads->Start(Server->ConfigThread);
+		ServerInstance->ConfigThread = new ConfigReaderThread("");
+		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
 	}
 }
 
@@ -87,7 +87,7 @@ void InspIRCd::BuildISupport()
 	v << " CASEMAPPING=rfc1459 STATUSMSG=@" << (this->Config->AllowHalfop ? "%" : "") << "+ CHARSET=ascii TOPICLEN=" << Config->Limits.MaxTopic - 1 << " KICKLEN=" << Config->Limits.MaxKick - 1 << " MAXTARGETS=" << Config->MaxTargets - 1;
 	v << " AWAYLEN=" << Config->Limits.MaxAway - 1 << " CHANMODES=" << this->Modes->GiveModeList(MASK_CHANNEL) << " FNC NETWORK=" << Config->Network << " MAXPARA=32 ELIST=MU";
 	Config->data005 = v.str();
-	FOREACH_MOD_I(this,I_On005Numeric,On005Numeric(Config->data005));
+	FOREACH_MOD(I_On005Numeric,On005Numeric(Config->data005));
 	Config->Update005();
 }
 

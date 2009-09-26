@@ -93,7 +93,7 @@ class ReconnectTimer : public Timer
  private:
 	Module* mod;
  public:
-	ReconnectTimer(InspIRCd* SI, Module* m)
+	ReconnectTimer(Module* m)
 	: Timer(5, SI->Time(), false), mod(m)
 	{
 	}
@@ -301,7 +301,6 @@ public:
 class SQLConn : public EventHandler
 {
  private:
-	InspIRCd*		ServerInstance;
 	SQLhost			confhost;	/* The <database> entry */
 	Module*			us;			/* Pointer to the SQL provider itself */
 	PGconn* 		sql;		/* PgSQL database connection handle */
@@ -311,8 +310,8 @@ class SQLConn : public EventHandler
 	time_t			idle;		/* Time we last heard from the database */
 
  public:
-	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
-	: EventHandler(), ServerInstance(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
+	SQLConn(Module* self, const SQLhost& hi)
+	: EventHandler(), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
 	{
 		idle = this->ServerInstance->Time();
 		if(!DoConnect())
@@ -763,8 +762,8 @@ class ModulePgSQL : public Module
 	ReconnectTimer* retimer;
 
  public:
-	ModulePgSQL(InspIRCd* Me)
-	: Module(Me), currid(0)
+	ModulePgSQL()
+	: currid(0)
 	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 
@@ -813,7 +812,7 @@ class ModulePgSQL : public Module
 
 	bool HostInConf(const SQLhost &h)
 	{
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -834,7 +833,7 @@ class ModulePgSQL : public Module
 	{
 		ClearOldConnections();
 
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -889,7 +888,7 @@ class ModulePgSQL : public Module
 
 		SQLConn* newconn;
 
-		newconn = new SQLConn(ServerInstance, this, hi);
+		newconn = new SQLConn(this, hi);
 
 		connections.insert(std::make_pair(hi.id, newconn));
 	}
@@ -905,7 +904,7 @@ class ModulePgSQL : public Module
 				break;
 			}
 		}
-		retimer = new ReconnectTimer(ServerInstance, this);
+		retimer = new ReconnectTimer(this);
 		ServerInstance->Timers->AddTimer(retimer);
 	}
 

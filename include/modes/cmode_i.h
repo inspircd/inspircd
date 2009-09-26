@@ -20,6 +20,6 @@ class InspIRCd;
 class ModeChannelInviteOnly : public SimpleChannelModeHandler
 {
  public:
-	ModeChannelInviteOnly(InspIRCd* Instance);
+	ModeChannelInviteOnly();
 };
 

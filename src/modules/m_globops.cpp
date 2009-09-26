@@ -51,8 +51,8 @@ class ModuleGlobops : public Module
 {
 	CommandGlobops cmd;
  public:
-	ModuleGlobops(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleGlobops()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");

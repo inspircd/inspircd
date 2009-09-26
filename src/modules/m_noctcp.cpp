@@ -18,7 +18,7 @@
 class NoCTCP : public ModeHandler
 {
  public:
-	NoCTCP(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'C', PARAM_NONE, MODETYPE_CHANNEL) { }
+	NoCTCP(Module* Creator) : ModeHandler(Creator, 'C', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -50,8 +50,8 @@ class ModuleNoCTCP : public Module
 
  public:
 
-	ModuleNoCTCP(InspIRCd* Me)
-		: Module(Me), nc(Me, this)
+	ModuleNoCTCP()
+		: nc(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&nc))
 			throw ModuleException("Could not add new modes!");
@@ -80,7 +80,7 @@ class ModuleNoCTCP : public Module
 		{
 			Channel* c = (Channel*)dest;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'C') && c->GetPrefixValue(user) == OP_VALUE)
+			if (CHANOPS_EXEMPT('C') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}

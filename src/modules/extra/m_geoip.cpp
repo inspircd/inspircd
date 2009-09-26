@@ -29,8 +29,7 @@ class ModuleGeoIP : public Module
 
 
  public:
-	ModuleGeoIP(InspIRCd *Me) : Module(Me)
-	{
+	ModuleGeoIP() 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -51,7 +50,7 @@ class ModuleGeoIP : public Module
 	{
 		GeoBans.clear();
 
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 
 		banunknown = conf.ReadFlag("geoip", "banunknown", 0);
 

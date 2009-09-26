@@ -19,8 +19,6 @@
  */
 class nickfloodsettings : public classbase
 {
- private:
-	InspIRCd* ServerInstance;
  public:
 	int secs;
 	int nicks;
@@ -29,9 +27,9 @@ class nickfloodsettings : public classbase
 	int counter;
 	bool locked;
 
-	nickfloodsettings(InspIRCd *Instance, int b, int c) : ServerInstance(Instance), secs(b), nicks(c)
+	nickfloodsettings(int b, int c) : secs(b), nicks(c)
 	{
-		reset = Instance->Time() + secs;
+		reset = ServerInstance->Time() + secs;
 		counter = 0;
 		locked = false;
 	};
@@ -91,7 +89,7 @@ class NickFlood : public ModeHandler
 {
  public:
 	SimpleExtItem<nickfloodsettings> ext;
-	NickFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
+	NickFlood(Module* Creator) : ModeHandler(Creator, 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("nickflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
@@ -140,7 +138,7 @@ class NickFlood : public ModeHandler
 					if (!f)
 					{
 						parameter = ConvToStr(nnicks) + ":" +ConvToStr(nsecs);
-						f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
+						f = new nickfloodsettings(nsecs, nnicks);
 						ext.set(channel, f);
 						channel->SetModeParam('F', parameter);
 						return MODEACTION_ALLOW;
@@ -159,7 +157,7 @@ class NickFlood : public ModeHandler
 							// new mode param, replace old with new
 							if ((nsecs > 0) && (nnicks > 0))
 							{
-								f = new nickfloodsettings(ServerInstance, nsecs, nnicks);
+								f = new nickfloodsettings(nsecs, nnicks);
 								ext.set(channel, f);
 								channel->SetModeParam('F', parameter);
 								return MODEACTION_ALLOW;
@@ -197,8 +195,8 @@ class ModuleNickFlood : public Module
 
  public:
 
-	ModuleNickFlood(InspIRCd* Me)
-		: Module(Me), nf(Me, this)
+	ModuleNickFlood()
+		: nf(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&nf))
 			throw ModuleException("Could not add new modes!");
@@ -219,7 +217,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetPrefixValue(user) == OP_VALUE)
+				if (CHANOPS_EXEMPT('F') && channel->GetPrefixValue(user) == OP_VALUE)
 					continue;
 
 				if (f->islocked())
@@ -256,7 +254,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				if (CHANOPS_EXEMPT(ServerInstance, 'F') && channel->GetPrefixValue(user) == OP_VALUE)
+				if (CHANOPS_EXEMPT('F') && channel->GetPrefixValue(user) == OP_VALUE)
 					return;
 				
 				/* moved this here to avoid incrementing the counter for nick

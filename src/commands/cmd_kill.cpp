@@ -60,7 +60,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			 * Moved this event inside the IS_LOCAL check also, we don't want half the network killing a user
 			 * and the other half not. This would be a bad thing. ;p -- w00t
 			 */
-			FIRST_MOD_RESULT(ServerInstance, OnKill, MOD_RESULT, (user, u, parameters[1]));
+			FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, u, parameters[1]));
 
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;

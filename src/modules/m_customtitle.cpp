@@ -50,7 +50,7 @@ class CommandTitle : public Command
 		snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(), user->host.c_str());
 		snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(), user->GetIPString());
 
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		for (int i=0; i<Conf.Enumerate("title"); i++)
 		{
 			std::string name = Conf.ReadValue("title", "name", "", i);
@@ -86,7 +86,7 @@ class ModuleCustomTitle : public Module
 	CommandTitle cmd;
 
  public:
-	ModuleCustomTitle(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleCustomTitle() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Extensible::Register(&cmd.ctitle);

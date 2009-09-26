@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_win32.h"
 
-ThreadEngine::ThreadEngine(InspIRCd* Instance)
+ThreadEngine::ThreadEngine()
 {
 }
 
@@ -67,7 +67,7 @@ class ThreadSignalSocket : public BufferedSocket
 	}
 };
 
-SocketThread::SocketThread(InspIRCd* SI)
+SocketThread::SocketThread()
 {
 	int listenFD = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenFD == -1)

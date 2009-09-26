@@ -19,9 +19,8 @@ class ModuleChanCreate : public Module
 {
  private:
  public:
-	ModuleChanCreate(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleChanCreate()
+			{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
 		ServerInstance->SNO->EnableSnomask('J', "REMOTECHANCREATE");
 		Implementation eventlist[] = { I_OnUserJoin };

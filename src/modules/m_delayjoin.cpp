@@ -19,7 +19,7 @@ class DelayJoinMode : public ModeHandler
  private:
 	CUList empty;
  public:
-	DelayJoinMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Parent, 'D', PARAM_NONE, MODETYPE_CHANNEL)
+	DelayJoinMode(Module* Parent) : ModeHandler(Parent, 'D', PARAM_NONE, MODETYPE_CHANNEL)
 	{
 		levelrequired = OP_VALUE;
 	}
@@ -32,7 +32,7 @@ class ModuleDelayJoin : public Module
 	DelayJoinMode djm;
  public:
 	LocalIntExt unjoined;
-	ModuleDelayJoin(InspIRCd* Me) : Module(Me), djm(Me, this), unjoined("delayjoin", this)
+	ModuleDelayJoin() : djm(this), unjoined("delayjoin", this)
 	{
 		if (!ServerInstance->Modes->AddMode(&djm))
 			throw ModuleException("Could not add new modes!");

@@ -20,5 +20,5 @@ class InspIRCd;
 class ModeChannelPrivate : public SimpleChannelModeHandler
 {
  public:
-	ModeChannelPrivate(InspIRCd* Instance);
+	ModeChannelPrivate();
 };

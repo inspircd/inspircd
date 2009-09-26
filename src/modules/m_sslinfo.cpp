@@ -116,8 +116,8 @@ class ModuleSSLInfo : public Module
 	CommandSSLInfo cmd;
 
  public:
-	ModuleSSLInfo(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSSLInfo()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 
@@ -164,7 +164,7 @@ class ModuleSSLInfo : public Module
 
 		if ((pcmd == "OPER") && (validated))
 		{
-			ConfigReader cf(ServerInstance);
+			ConfigReader cf;
 			char TheHost[MAXBUF];
 			char TheIP[MAXBUF];
 			std::string LoginName;

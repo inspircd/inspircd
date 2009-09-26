@@ -19,8 +19,6 @@
  */
 class joinfloodsettings : public classbase
 {
- private:
-	InspIRCd* ServerInstance;
  public:
 	int secs;
 	int joins;
@@ -29,7 +27,7 @@ class joinfloodsettings : public classbase
 	int counter;
 	bool locked;
 
-	joinfloodsettings(InspIRCd *Instance, int b, int c) : ServerInstance(Instance), secs(b), joins(c)
+	joinfloodsettings(int b, int c) : secs(b), joins(c)
 	{
 		reset = ServerInstance->Time() + secs;
 		counter = 0;
@@ -87,7 +85,7 @@ class JoinFlood : public ModeHandler
 {
  public:
 	SimpleExtItem<joinfloodsettings> ext;
-	JoinFlood(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'j', PARAM_SETONLY, MODETYPE_CHANNEL),
+	JoinFlood(Module* Creator) : ModeHandler(Creator, 'j', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("joinflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
@@ -137,7 +135,7 @@ class JoinFlood : public ModeHandler
 					if (!f)
 					{
 						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
-						f = new joinfloodsettings(ServerInstance, nsecs, njoins);
+						f = new joinfloodsettings(nsecs, njoins);
 						ext.set(channel, f);
 						channel->SetModeParam('j', parameter);
 						return MODEACTION_ALLOW;
@@ -156,7 +154,7 @@ class JoinFlood : public ModeHandler
 							// new mode param, replace old with new
 							if ((nsecs > 0) && (njoins > 0))
 							{
-								f = new joinfloodsettings(ServerInstance, nsecs, njoins);
+								f = new joinfloodsettings(nsecs, njoins);
 								ext.set(channel, f);
 								channel->SetModeParam('j', parameter);
 								return MODEACTION_ALLOW;
@@ -196,8 +194,8 @@ class ModuleJoinFlood : public Module
 
  public:
 
-	ModuleJoinFlood(InspIRCd* Me)
-		: Module(Me), jf(Me, this)
+	ModuleJoinFlood()
+		: jf(this)
 	{
 
 		if (!ServerInstance->Modes->AddMode(&jf))

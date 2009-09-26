@@ -70,7 +70,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 		}
 
 		long duration = ServerInstance->Duration(parameters[1].c_str());
-		KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
+		KLine* kl = new KLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(kl,user))
 		{
 			if (!duration)

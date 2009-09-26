@@ -27,7 +27,7 @@ class CommandVhost : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		ConfigReader *Conf = new ConfigReader(ServerInstance);
+		ConfigReader *Conf = new ConfigReader;
 
 		for (int index = 0; index < Conf->Enumerate("vhost"); index++)
 		{
@@ -60,7 +60,7 @@ class ModuleVHost : public Module
 	CommandVhost cmd;
 
  public:
-	ModuleVHost(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleVHost() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

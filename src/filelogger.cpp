@@ -19,8 +19,8 @@
 #include "inspircd_se_config.h"
 #include "filelogger.h"
 
-FileLogStream::FileLogStream(InspIRCd *Instance, int loglevel, FileWriter *fw)
-	: LogStream(Instance, loglevel), f(fw)
+FileLogStream::FileLogStream(int loglevel, FileWriter *fw)
+	: LogStream(loglevel), f(fw)
 {
 	ServerInstance->Logs->AddLoggerRef(f);
 }

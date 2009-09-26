@@ -86,8 +86,8 @@ class ModuleSanick : public Module
 {
 	CommandSanick cmd;
  public:
-	ModuleSanick(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSanick()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

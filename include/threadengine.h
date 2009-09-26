@@ -134,7 +134,7 @@ class CoreExport SocketThread : public Thread
 	 */
 	void NotifyParent();
  public:
-	SocketThread(InspIRCd* SI);
+	SocketThread();
 	virtual ~SocketThread();
 	/** Lock queue.
 	 */

@@ -17,10 +17,10 @@
 #include <cstdarg>
 #include "mode.h"
 
-Channel::Channel(InspIRCd* Instance, const std::string &cname, time_t ts)
+Channel::Channel(const std::string &cname, time_t ts)
 {
 	chan_hash::iterator findchan = ServerInstance->chanlist->find(cname);
-	if (findchan != Instance->chanlist->end())
+	if (findchan != ServerInstance->chanlist->end())
 		throw CoreException("Cannot create duplicate channel " + cname);
 
 	(*(ServerInstance->chanlist))[cname.c_str()] = this;
@@ -70,7 +70,7 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 			ModResult res;
 			/* 0: check status, 1: don't, -1: disallow change silently */
 
-			FIRST_MOD_RESULT(ServerInstance, OnPreTopicChange, res, (u,this,ntopic));
+			FIRST_MOD_RESULT(OnPreTopicChange, res, (u,this,ntopic));
 
 			if (res == MOD_RES_DENY)
 				return CMD_FAILURE;
@@ -184,7 +184,7 @@ void Channel::SetDefaultModes()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record
  */
-Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS)
+Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS)
 {
 	// Fix: unregistered users could be joined using /SAJOIN
 	if (!user || !cn || user->registered != REG_ALL)
@@ -207,7 +207,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		{
 			if (user->HasPrivPermission("channels/high-join-limit"))
 			{
-				if (user->chans.size() >= Instance->Config->OperMaxChans)
+				if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
 				{
 					user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 					return NULL;
@@ -224,8 +224,8 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		}
 	}
 
-	strlcpy(cname, cn, Instance->Config->Limits.ChanMax);
-	Ptr = Instance->FindChan(cname);
+	strlcpy(cname, cn, ServerInstance->Config->Limits.ChanMax);
+	Ptr = ServerInstance->FindChan(cname);
 	bool created_by_local = false;
 
 	if (!Ptr)
@@ -236,7 +236,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		if (!IS_LOCAL(user))
 		{
 			if (!TS)
-				Instance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn);
+				ServerInstance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn);
 		}
 		else
 		{
@@ -247,12 +247,12 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(Instance, OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key ? key : ""));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return NULL;
 		}
 
-		Ptr = new Channel(Instance, cname, TS);
+		Ptr = new Channel(cname, TS);
 	}
 	else
 	{
@@ -267,7 +267,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(Instance, OnUserPreJoin, MOD_RESULT, (user, Ptr, cname, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cname, privs, key ? key : ""));
 			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				return NULL;
@@ -276,11 +276,11 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
 				bool invited = user->IsInvited(Ptr->name.c_str());
-				bool can_bypass = Instance->Config->InvBypassModes && invited;
+				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
 
 				if (!ckey.empty())
 				{
-					FIRST_MOD_RESULT(Instance, OnCheckKey, MOD_RESULT, (user, Ptr, key ? key : ""));
+					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, Ptr, key ? key : ""));
 					if (!MOD_RESULT.check((key && ckey == key) || can_bypass))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
@@ -291,7 +291,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 
 				if (Ptr->IsModeSet('i'))
 				{
-					FIRST_MOD_RESULT(Instance, OnCheckInvite, MOD_RESULT, (user, Ptr));
+					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, Ptr));
 					if (!MOD_RESULT.check(invited))
 					{
 						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
@@ -302,7 +302,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 				std::string limit = Ptr->GetModeParameter('l');
 				if (!limit.empty())
 				{
-					FIRST_MOD_RESULT(Instance, OnCheckLimit, MOD_RESULT, (user, Ptr));
+					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, Ptr));
 					if (!MOD_RESULT.check((Ptr->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
 					{
 						user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
@@ -334,10 +334,10 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		Ptr->SetDefaultModes();
 	}
 
-	return Channel::ForceChan(Instance, Ptr, user, privs, bursting, created_by_local);
+	return Channel::ForceChan(Ptr, user, privs, bursting, created_by_local);
 }
 
-Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created)
+Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created)
 {
 	std::string nick = user->nick;
 
@@ -347,22 +347,22 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
 	{
 		const char status = *x;
-		ModeHandler* mh = Instance->Modes->FindMode(status, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(status, MODETYPE_CHANNEL);
 		if (mh)
 		{
 			/* Set, and make sure that the mode handler knows this mode was now set */
 			Ptr->SetPrefix(user, mh->GetModeChar(), true);
-			mh->OnModeChange(Instance->FakeClient, Instance->FakeClient, Ptr, nick, true);
+			mh->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, Ptr, nick, true);
 		}
 	}
 
 	CUList except_list;
-	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(memb, bursting, created, except_list));
+	FOREACH_MOD(I_OnUserJoin,OnUserJoin(memb, bursting, created, except_list));
 
 	Ptr->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", Ptr->name.c_str());
 
 	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
-	std::string ms = Instance->Modes->ModeString(user, Ptr);
+	std::string ms = ServerInstance->Modes->ModeString(user, Ptr);
 	if ((Ptr->GetUserCounter() > 1) && (ms.length()))
 		Ptr->WriteAllExceptSender(user, true, 0, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
 
@@ -376,14 +376,14 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 		}
 		Ptr->UserList(user);
 	}
-	FOREACH_MOD_I(Instance,I_OnPostJoin,OnPostJoin(memb));
+	FOREACH_MOD(I_OnPostJoin,OnPostJoin(memb));
 	return Ptr;
 }
 
 bool Channel::IsBanned(User* user)
 {
 	ModResult result;
-	FIRST_MOD_RESULT(ServerInstance, OnCheckChannelBan, result, (user, this));
+	FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, this));
 
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
@@ -399,7 +399,7 @@ bool Channel::IsBanned(User* user)
 bool Channel::CheckBan(User* user, const std::string& mask)
 {
 	ModResult result;
-	FIRST_MOD_RESULT(ServerInstance, OnCheckBan, result, (user, this, mask));
+	FIRST_MOD_RESULT(OnCheckBan, result, (user, this, mask));
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
 
@@ -428,7 +428,7 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 ModResult Channel::GetExtBanStatus(User *user, char type)
 {
 	ModResult rv;
-	FIRST_MOD_RESULT(ServerInstance, OnExtBanCheck, rv, (user, this, type));
+	FIRST_MOD_RESULT(OnExtBanCheck, rv, (user, this, type));
 	if (rv != MOD_RES_PASSTHRU)
 		return rv;
 	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
@@ -472,7 +472,7 @@ long Channel::PartUser(User *user, std::string &reason)
 		if (iter != ServerInstance->chanlist->end())
 		{
 			ModResult res;
-			FIRST_MOD_RESULT(ServerInstance, OnChannelPreDelete, res, (this));
+			FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
 			if (res == MOD_RES_DENY)
 				return 1; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
@@ -516,7 +516,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		if (ServerInstance->ULine(src->server))
 			res = MOD_RES_ALLOW;
 		else
-			FIRST_MOD_RESULT(ServerInstance, OnUserPreKick, res, (src,memb,reason));
+			FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
 
 		if (res == MOD_RES_DENY)
 			return this->GetUserCounter();
@@ -553,7 +553,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		if (iter != ServerInstance->chanlist->end())
 		{
 			ModResult res;
-			FIRST_MOD_RESULT(ServerInstance, OnChannelPreDelete, res, (this));
+			FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
 			if (res == MOD_RES_DENY)
 				return 1; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
@@ -783,7 +783,7 @@ void Channel::UserList(User *user)
 	if (!IS_LOCAL(user))
 		return;
 
-	FIRST_MOD_RESULT(ServerInstance, OnUserList, call_modules, (user, this));
+	FIRST_MOD_RESULT(OnUserList, call_modules, (user, this));
 
 	if (call_modules != MOD_RES_ALLOW)
 	{

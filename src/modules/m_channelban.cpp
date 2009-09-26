@@ -19,8 +19,7 @@ class ModuleBadChannelExtban : public Module
 {
  private:
  public:
-	ModuleBadChannelExtban(InspIRCd* Me) : Module(Me)
-	{
+	ModuleBadChannelExtban() 	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

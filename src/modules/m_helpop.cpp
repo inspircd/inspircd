@@ -22,7 +22,7 @@ static std::map<irc::string, std::string> helpop_map;
 class Helpop : public ModeHandler
 {
  public:
-	Helpop(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'h', PARAM_NONE, MODETYPE_USER)
+	Helpop(Module* Creator) : ModeHandler(Creator, 'h', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = true;
 	}
@@ -120,8 +120,8 @@ class ModuleHelpop : public Module
 		Helpop ho;
 
 	public:
-		ModuleHelpop(InspIRCd* Me)
-			: Module(Me), cmd(this), ho(Me, this)
+		ModuleHelpop()
+			: cmd(this), ho(this)
 		{
 			ReadConfig();
 			if (!ServerInstance->Modes->AddMode(&ho))
@@ -133,7 +133,7 @@ class ModuleHelpop : public Module
 
 		virtual void ReadConfig()
 		{
-			ConfigReader MyConf(ServerInstance);
+			ConfigReader MyConf;
 
 			helpop_map.clear();
 

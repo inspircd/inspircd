@@ -52,7 +52,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 
 	if ((parameters.size()) && (!parameters[0].empty()))
 	{
-		FIRST_MOD_RESULT(ServerInstance, OnSetAway, MOD_RESULT, (user, parameters[0]));
+		FIRST_MOD_RESULT(OnSetAway, MOD_RESULT, (user, parameters[0]));
 
 		if (MOD_RESULT == MOD_RES_DENY && IS_LOCAL(user))
 			return CMD_FAILURE;
@@ -64,7 +64,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 	}
 	else
 	{
-		FIRST_MOD_RESULT(ServerInstance, OnSetAway, MOD_RESULT, (user, ""));
+		FIRST_MOD_RESULT(OnSetAway, MOD_RESULT, (user, ""));
 
 		if (MOD_RESULT == MOD_RES_DENY && IS_LOCAL(user))
 			return CMD_FAILURE;

@@ -16,10 +16,10 @@
 
 /** Get the time as a string
  */
-inline std::string stringtime(InspIRCd* Instance)
+inline std::string stringtime()
 {
 	std::ostringstream TIME;
-	TIME << Instance->Time();
+	TIME << ServerInstance->Time();
 	return TIME.str();
 }
 
@@ -141,7 +141,7 @@ class ListModeBase : public ModeHandler
 	 * @param autotidy Automatically tidy list entries on add
 	 * @param ctag Configuration tag to get limits from
 	 */
-	ListModeBase(InspIRCd* Instance, Module* Creator, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
+	ListModeBase(Module* Creator, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
 		: ModeHandler(Creator, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL), 
 		listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
 		configtag(ctag), extItem("listbase_mode_" + std::string(1, mode) + "_list", Creator)
@@ -200,7 +200,7 @@ class ListModeBase : public ModeHandler
 		modelist* el = extItem.get(channel);
 		if (el)
 		{
-			irc::modestacker modestack(ServerInstance, false);
+			irc::modestacker modestack(false);
 
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
@@ -235,7 +235,7 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DoRehash()
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		chanlimits.clear();
 
@@ -327,7 +327,7 @@ class ListModeBase : public ModeHandler
 							ListItem e;
 							e.mask = parameter;
 							e.nick = source->nick;
-							e.time = stringtime(ServerInstance);
+							e.time = stringtime();
 
 							el->push_back(e);
 							return MODEACTION_ALLOW;
@@ -392,7 +392,7 @@ class ListModeBase : public ModeHandler
 	virtual void DoSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		modelist* mlist = extItem.get(chan);
-		irc::modestacker modestack(ServerInstance, true);
+		irc::modestacker modestack(true);
 		std::vector<std::string> stackresult;
 		std::vector<TranslateType> types;
 		types.push_back(TR_TEXT);

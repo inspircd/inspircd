@@ -40,16 +40,16 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 		{
 			if (messagetype == "PRIVMSG")
 			{
-				FOREACH_MOD_I(ServerInstance, I_OnUserMessage, OnUserMessage(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
+				FOREACH_MOD(I_OnUserMessage, OnUserMessage(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
 			}
 			else
 			{
-				FOREACH_MOD_I(ServerInstance, I_OnUserNotice, OnUserNotice(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
+				FOREACH_MOD(I_OnUserNotice, OnUserNotice(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
 			}
 			TreeServer* s = Utils->FindServer(prefix);
 			if (s)
 			{
-				FOREACH_MOD_I(ServerInstance, I_OnText, OnText(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
+				FOREACH_MOD(I_OnText, OnText(Utils->ServerUser, channel, TYPE_CHANNEL, text, status, except_list));
 				channel->WriteChannelWithServ(s->GetName().c_str(), "%s %s :%s", messagetype.c_str(), channel->name.c_str(), text.c_str());
 			}
 		}
@@ -61,16 +61,16 @@ bool TreeSocket::ServerMessage(const std::string &messagetype, const std::string
 			{
 				if (messagetype == "PRIVMSG")
 				{
-					FOREACH_MOD_I(ServerInstance, I_OnUserMessage, OnUserMessage(Utils->ServerUser, user, TYPE_USER, text, 0, except_list));
+					FOREACH_MOD(I_OnUserMessage, OnUserMessage(Utils->ServerUser, user, TYPE_USER, text, 0, except_list));
 				}
 				else
 				{
-					FOREACH_MOD_I(ServerInstance, I_OnUserNotice, OnUserNotice(Utils->ServerUser, user, TYPE_USER, text, 0, except_list));
+					FOREACH_MOD(I_OnUserNotice, OnUserNotice(Utils->ServerUser, user, TYPE_USER, text, 0, except_list));
 				}
 				TreeServer* s = Utils->FindServer(prefix);
 				if (s)
 				{
-					FOREACH_MOD_I(ServerInstance, I_OnText, OnText(Utils->ServerUser, user, TYPE_USER, text, status, except_list));
+					FOREACH_MOD(I_OnText, OnText(Utils->ServerUser, user, TYPE_USER, text, status, except_list));
 					user->Write(":%s %s %s :%s", s->GetName().c_str(), messagetype.c_str(), user->nick.c_str(), text.c_str());
 				}
 

@@ -19,8 +19,7 @@ class ModuleQuietBan : public Module
 {
  private:
  public:
-	ModuleQuietBan(InspIRCd* Me) : Module(Me)
-	{
+	ModuleQuietBan() 	{
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}

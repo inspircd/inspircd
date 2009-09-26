@@ -19,8 +19,7 @@ class ModuleGecosBan : public Module
 {
  private:
  public:
-	ModuleGecosBan(InspIRCd* Me) : Module(Me)
-	{
+	ModuleGecosBan() 	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

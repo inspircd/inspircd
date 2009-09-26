@@ -187,7 +187,7 @@ class ModuleRemove : public Module
 
 
  public:
-	ModuleRemove(InspIRCd*) : cmd1(this, supportnokicks), cmd2(this, supportnokicks)
+	ModuleRemove() : cmd1(this, supportnokicks), cmd2(this, supportnokicks)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);
@@ -204,7 +204,7 @@ class ModuleRemove : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);
 	}
 

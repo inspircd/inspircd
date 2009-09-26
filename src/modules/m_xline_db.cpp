@@ -22,8 +22,7 @@ class ModuleXLineDB : public Module
 	bool reading_db;			// If this is true, addlines are as a result of db reading, so don't bother flushing the db to disk.
 						// DO REMEMBER TO SET IT, otherwise it's annoying :P
  public:
-	ModuleXLineDB(InspIRCd* Me) : Module(Me)
-	{
+	ModuleXLineDB() 	{
 		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 

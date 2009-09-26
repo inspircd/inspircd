@@ -53,7 +53,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 	if (params.size() < 3)
 		return true;
 
-	irc::modestacker modestack(ServerInstance, true);			/* Modes to apply from the users in the user list */
+	irc::modestacker modestack(true);			/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
@@ -77,7 +77,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 
 	if (created)
 	{
-		chan = new Channel(ServerInstance, channel, TS);
+		chan = new Channel(channel, TS);
 		ServerInstance->SNO->WriteToSnoMask('d', "Creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
 	}
 	else
@@ -168,7 +168,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 
-				Channel::JoinUser(ServerInstance, who, channel.c_str(), true, "", route_back_again->bursting, TS);
+				Channel::JoinUser(who, channel.c_str(), true, "", route_back_again->bursting, TS);
 			}
 			else
 			{
@@ -203,7 +203,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, parameterlist &params)
 
 	if (c)
 	{
-		irc::modestacker stack(ServerInstance, false);
+		irc::modestacker stack(false);
 		parameterlist stackresult;
 		stackresult.push_back(c->name);
 

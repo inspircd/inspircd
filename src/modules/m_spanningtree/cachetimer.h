@@ -18,7 +18,6 @@
 
 class ModuleSpanningTree;
 class SpanningTreeUtilities;
-class InspIRCd;
 
 /** Create a timer which recurs every second, we inherit from Timer.
  * Timer is only one-shot however, so at the end of each Tick() we simply
@@ -27,10 +26,9 @@ class InspIRCd;
 class CacheRefreshTimer : public Timer
 {
  private:
-	InspIRCd *Instance;
 	SpanningTreeUtilities *Utils;
  public:
-	CacheRefreshTimer(InspIRCd *Instance, SpanningTreeUtilities* Util);
+	CacheRefreshTimer(SpanningTreeUtilities* Util);
 	virtual void Tick(time_t TIME);
 };
 

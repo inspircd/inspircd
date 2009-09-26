@@ -81,9 +81,9 @@ class ModuleShowwhois : public Module
 
  public:
 
-	ModuleShowwhois(InspIRCd* Me) : cmd(this)
+	ModuleShowwhois() : cmd(this)
 	{
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", "yes", 0);
 		ShowWhoisFromOpers = conf.ReadFlag("showwhois", "showfromopers", "yes", 0);
 

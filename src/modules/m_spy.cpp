@@ -18,8 +18,7 @@
 class ModuleSpy : public Module
 {
  public:
-	ModuleSpy(InspIRCd* Me) : Module(Me)
-	{
+	ModuleSpy() 	{
 		ServerInstance->Modules->Attach(I_OnUserList, this);
 	}
 

@@ -21,8 +21,7 @@ class ModuleSecureList : public Module
 	std::vector<std::string> allowlist;
 	time_t WaitTime;
  public:
-	ModuleSecureList(InspIRCd* Me) : Module(Me)
-	{
+	ModuleSecureList() 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -39,7 +38,7 @@ class ModuleSecureList : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader* MyConf = new ConfigReader(ServerInstance);
+		ConfigReader* MyConf = new ConfigReader;
 		allowlist.clear();
 
 		for (int i = 0; i < MyConf->Enumerate("securehost"); i++)

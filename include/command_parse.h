@@ -26,10 +26,6 @@ typedef std::map<std::string, void*> SharedObjectList;
 class CoreExport CommandParser : public classbase
 {
  private:
-	/** The creator of this class
-	 */
-	InspIRCd* ServerInstance;
-
 	/** Parameter buffer
 	 */
 	std::vector<std::string> para;
@@ -61,7 +57,7 @@ class CoreExport CommandParser : public classbase
 	/** Default constructor.
 	 * @param Instance The creator of this class
 	 */
-	CommandParser(InspIRCd* Instance);
+	CommandParser();
 
 	/** Calls the handler for a given command.
 	 * @param commandname The command to find. This should be in uppercase.

@@ -4,19 +4,16 @@
 #include "threadengine.h"
 #include <windows.h>
 
-class InspIRCd;
-
 class IPCThread : public Thread
 {
 	BOOL Connected;
 	DWORD BytesRead;
 	BOOL Success;
 	HANDLE Pipe;
-	InspIRCd* ServerInstance;
 	char status[MAXBUF];
 	int result;
  public:
-	IPCThread(InspIRCd* Instance);
+	IPCThread();
 	virtual ~IPCThread();
 	virtual void Run();
 	const char GetStatus();
@@ -28,10 +25,9 @@ class IPCThread : public Thread
 class IPC
 {
  private:
-	InspIRCd* ServerInstance;
 	IPCThread* thread;
  public:
-	IPC(InspIRCd* Srv);
+	IPC();
 	void Check();
 	~IPC();
 };

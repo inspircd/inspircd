@@ -22,7 +22,7 @@ class ModeChannelOp : public ModeHandler
 {
  private:
  public:
-	ModeChannelOp(InspIRCd* Instance);
+	ModeChannelOp();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 	unsigned int GetPrefixRank();

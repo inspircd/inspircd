@@ -18,9 +18,8 @@
 class ModuleAntiBottler : public Module
 {
  public:
-	ModuleAntiBottler(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleAntiBottler()
+			{
 
 		Implementation eventlist[] = { I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

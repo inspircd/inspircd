@@ -49,7 +49,7 @@ class CommandSajoin : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				Channel::JoinUser(ServerInstance, dest, parameters[1].c_str(), true, "", false, ServerInstance->Time());
+				Channel::JoinUser(dest, parameters[1].c_str(), true, "", false, ServerInstance->Time());
 				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propagate */
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (n)
@@ -97,8 +97,8 @@ class ModuleSajoin : public Module
 {
 	CommandSajoin cmd;
  public:
-	ModuleSajoin(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSajoin()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

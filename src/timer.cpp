@@ -16,7 +16,7 @@
 #include "inspircd.h"
 #include "timer.h"
 
-TimerManager::TimerManager(InspIRCd* Instance) : ServerInstance(Instance)
+TimerManager::TimerManager()
 {
 }
 

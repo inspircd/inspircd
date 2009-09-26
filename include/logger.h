@@ -29,10 +29,6 @@
 class CoreExport FileWriter : public EventHandler
 {
  protected:
-	/** The creator/owner of this object
-	 */
-	InspIRCd* ServerInstance;
-
 	/** The log file (fd is inside this somewhere,
 	 * we get it out with fileno())
 	 */
@@ -45,7 +41,7 @@ class CoreExport FileWriter : public EventHandler
  public:
 	/** The constructor takes an already opened logfile.
 	 */
-	FileWriter(InspIRCd* Instance, FILE* logfile);
+	FileWriter(FILE* logfile);
 
 	/** Handle pending write events.
 	 * This will flush any waiting data to disk.
@@ -96,10 +92,9 @@ class CoreExport FileWriter : public EventHandler
 class CoreExport LogStream : public classbase
 {
  protected:
-	InspIRCd *ServerInstance;
 	int loglvl;
  public:
-	LogStream(InspIRCd *Instance, int loglevel) : ServerInstance(Instance), loglvl(loglevel)
+	LogStream(int loglevel) : loglvl(loglevel)
 	{
 	}
 
@@ -133,8 +128,6 @@ class CoreExport LogManager : public classbase
 	 */
 	LogStream* noforkstream;
 
-	InspIRCd *ServerInstance;
-
 	/** Map of active log types and what LogStreams will receive them.
 	 */
 	std::map<std::string, std::vector<LogStream *> > LogStreams;
@@ -154,10 +147,9 @@ class CoreExport LogManager : public classbase
 
  public:
 
-	LogManager(InspIRCd *Instance)
+	LogManager()
 	{
 		noforkstream = NULL;
-		ServerInstance = Instance;
 		Logging = false;
 	}
 

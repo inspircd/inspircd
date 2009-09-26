@@ -31,7 +31,7 @@ class KickRejoin : public ModeHandler
 {
  public:
 	SimpleExtItem<delaylist> ext;
-	KickRejoin(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'J', PARAM_SETONLY, MODETYPE_CHANNEL),
+	KickRejoin(Module* Creator) : ModeHandler(Creator, 'J', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("norejoinusers", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
@@ -104,8 +104,8 @@ class ModuleKickNoRejoin : public Module
 
 public:
 
-	ModuleKickNoRejoin(InspIRCd* Me)
-		: Module(Me), kr(Me, this)
+	ModuleKickNoRejoin()
+		: kr(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&kr))
 			throw ModuleException("Could not add new modes!");

@@ -20,12 +20,11 @@ class ModuleAbbreviation : public Module
 
  public:
 
-	ModuleAbbreviation(InspIRCd* Me)
-		: Module(Me)
-	{
-		Me->Modules->Attach(I_OnPreCommand, this);
+	ModuleAbbreviation()
+			{
+		ServerInstance->Modules->Attach(I_OnPreCommand, this);
 		/* Must do this first */
-		Me->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
+		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
 	virtual Version GetVersion()

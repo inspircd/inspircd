@@ -36,7 +36,7 @@ private:
 	regex_t regbuf;
 
 public:
-	TRERegex(const std::string& rx, InspIRCd* Me) : Regex(rx, Me)
+	TRERegex(const std::string& rx, ) : Regex(rx, Me)
 	{
 		int flags = REG_EXTENDED | REG_NOSUB;
 		int errcode;
@@ -76,11 +76,10 @@ public:
 class ModuleRegexTRE : public Module
 {
 public:
-	ModuleRegexTRE(InspIRCd* Me) : Module(Me)
-	{
-		Me->Modules->PublishInterface("RegularExpression", this);
+	ModuleRegexTRE() 	{
+		ServerInstance->Modules->PublishInterface("RegularExpression", this);
 		Implementation eventlist[] = { I_OnRequest };
-		Me->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual Version GetVersion()

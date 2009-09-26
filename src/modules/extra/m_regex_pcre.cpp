@@ -39,14 +39,14 @@ private:
 	pcre* regex;
 
 public:
-	PCRERegex(const std::string& rx, InspIRCd* Me) : Regex(rx, Me)
+	PCRERegex(const std::string& rx, ) : Regex(rx, Me)
 	{
 		const char* error;
 		int erroffset;
 		regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
 		if (!regex)
 		{
-			Me->Logs->Log("REGEX", DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
+			ServerInstance->Logs->Log("REGEX", DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
 			throw PCREException(rx, error, erroffset);
 		}
 	}
@@ -70,11 +70,10 @@ public:
 class ModuleRegexPCRE : public Module
 {
 public:
-	ModuleRegexPCRE(InspIRCd* Me) : Module(Me)
-	{
-		Me->Modules->PublishInterface("RegularExpression", this);
+	ModuleRegexPCRE() 	{
+		ServerInstance->Modules->PublishInterface("RegularExpression", this);
 		Implementation eventlist[] = { I_OnRequest };
-		Me->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual Version GetVersion()

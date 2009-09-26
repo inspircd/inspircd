@@ -20,6 +20,6 @@ class InspIRCd;
 class ModeChannelTopicOps : public ModeHandler
 {
  public:
-	ModeChannelTopicOps(InspIRCd* Instance);
+	ModeChannelTopicOps();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };

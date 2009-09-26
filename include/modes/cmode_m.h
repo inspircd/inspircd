@@ -20,5 +20,5 @@ class InspIRCd;
 class ModeChannelModerated : public SimpleChannelModeHandler
 {
  public:
-	ModeChannelModerated(InspIRCd* Instance);
+	ModeChannelModerated();
 };

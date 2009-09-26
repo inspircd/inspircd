@@ -57,11 +57,11 @@ class ModuleRandQuote : public Module
 	CommandRandquote cmd;
 	ConfigReader *conf;
  public:
-	ModuleRandQuote(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleRandQuote()
+		: cmd(this)
 	{
 
-		conf = new ConfigReader(ServerInstance);
+		conf = new ConfigReader;
 		// Sort the Randomizer thingie..
 		srand(ServerInstance->Time());
 
@@ -74,7 +74,7 @@ class ModuleRandQuote : public Module
 			throw ModuleException("m_randquote: Quotefile not specified - Please check your config.");
 		}
 
-		quotes = new FileReader(ServerInstance, q_file);
+		quotes = new FileReader(q_file);
 		if(!quotes->Exists())
 		{
 			throw ModuleException("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");

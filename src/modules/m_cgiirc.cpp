@@ -106,8 +106,8 @@ class CGIResolver : public Resolver
 	User* them;
 	bool notify;
  public:
-	CGIResolver(Module* me, InspIRCd* Instance, bool NotifyOpers, const std::string &source, bool forward, User* u, int userfd, const std::string &type, bool &cached)
-		: Resolver(Instance, source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, User* u, int userfd, const std::string &type, bool &cached)
+		: Resolver(source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
@@ -146,7 +146,7 @@ class ModuleCgiIRC : public Module
 	CommandWebirc cmd;
 	bool NotifyOpers;
 public:
-	ModuleCgiIRC(InspIRCd* Me) : Module(Me), cmd(this, NotifyOpers)
+	ModuleCgiIRC() : cmd(this, NotifyOpers)
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
@@ -167,7 +167,7 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		cmd.Hosts.clear();
 
 		NotifyOpers = Conf.ReadFlag("cgiirc", "opernotice", 0);	// If we send an oper notice when a CGI:IRC has their host changed.
@@ -307,7 +307,7 @@ public:
 				{
 
 					bool cached;
-					CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
+					CGIResolver* r = new CGIResolver(this, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
 					ServerInstance->AddResolver(r, cached);
 				}
 				catch (...)
@@ -358,7 +358,7 @@ public:
 		{
 
 			bool cached;
-			CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, newipstr, false, user, user->GetFd(), "IDENT", cached);
+			CGIResolver* r = new CGIResolver(this, NotifyOpers, newipstr, false, user, user->GetFd(), "IDENT", cached);
 			ServerInstance->AddResolver(r, cached);
 		}
 		catch (...)

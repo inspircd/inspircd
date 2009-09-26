@@ -19,7 +19,7 @@
 class InvisibleMode : public ModeHandler
 {
  public:
-	InvisibleMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'Q', PARAM_NONE, MODETYPE_USER)
+	InvisibleMode(Module* Creator) : ModeHandler(Creator, 'Q', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = true;
 	}
@@ -80,7 +80,7 @@ class InvisibleMode : public ModeHandler
 class InvisibleDeOper : public ModeWatcher
 {
  public:
-	InvisibleDeOper(InspIRCd* Instance) : ModeWatcher(Instance, 'o', MODETYPE_USER)
+	InvisibleDeOper() : ModeWatcher('o', MODETYPE_USER)
 	{
 	}
 
@@ -105,8 +105,7 @@ class ModuleInvisible : public Module
 	InvisibleMode qm;
 	InvisibleDeOper ido;
  public:
-	ModuleInvisible(InspIRCd* Me)
-		: Module(Me), qm(Me, this), ido(Me)
+	ModuleInvisible() : qm(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&qm))
 			throw ModuleException("Could not add new modes!");

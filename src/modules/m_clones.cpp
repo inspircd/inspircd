@@ -61,7 +61,7 @@ class ModuleClones : public Module
  private:
 	CommandClones cmd;
  public:
-	ModuleClones(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleClones() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

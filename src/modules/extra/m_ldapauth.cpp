@@ -46,9 +46,8 @@ class ModuleLDAPAuth : public Module
 	LDAP *conn;
 
 public:
-	ModuleLDAPAuth(InspIRCd* Me)
-	: Module(Me)
-	{
+	ModuleLDAPAuth()
+		{
 		conn = NULL;
 		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
@@ -63,7 +62,7 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		base 			= Conf.ReadValue("ldapauth", "baserdn", 0);
 		attribute		= Conf.ReadValue("ldapauth", "attribute", 0);

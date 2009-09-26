@@ -20,6 +20,6 @@ class InspIRCd;
 class ModeUserWallops : public SimpleUserModeHandler
 {
  public:
-	ModeUserWallops(InspIRCd* Instance);
+	ModeUserWallops();
 	unsigned int GetCount();
 };

@@ -169,7 +169,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 				Link* lnk = Utils->FindLink(InboundServerName);
 
-				Node = new TreeServer(this->Utils, ServerInstance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
+				Node = new TreeServer(this->Utils, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 
 				Utils->TreeRoot->AddChild(Node);
 				parameterlist sparams;

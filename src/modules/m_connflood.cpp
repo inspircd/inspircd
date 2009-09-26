@@ -28,8 +28,7 @@ private:
 
 
 public:
-	ModuleConnFlood(InspIRCd* Me) : Module(Me)
-	{
+	ModuleConnFlood() 	{
 
 		InitConf();
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
@@ -48,7 +47,7 @@ public:
 	void InitConf()
 	{
 		/* read configuration variables */
-		conf = new ConfigReader(ServerInstance);
+		conf = new ConfigReader;
 		/* throttle configuration */
 		seconds = conf->ReadInteger("connflood", "seconds", 0, true);
 		maxconns = conf->ReadInteger("connflood", "maxconns", 0, true);

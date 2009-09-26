@@ -65,7 +65,7 @@ class ModuleAlias : public Module
 
 	virtual void ReadAliases()
 	{
-		ConfigReader MyConf(ServerInstance);
+		ConfigReader MyConf;
 
 		AllowBots = MyConf.ReadFlag("fantasy", "allowbots", "no", 0);
 
@@ -93,13 +93,12 @@ class ModuleAlias : public Module
 
  public:
 
-	ModuleAlias(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleAlias()
+			{
 		ReadAliases();
-		Me->Modules->Attach(I_OnPreCommand, this);
-		Me->Modules->Attach(I_OnRehash, this);
-		Me->Modules->Attach(I_OnUserMessage, this);
+		ServerInstance->Modules->Attach(I_OnPreCommand, this);
+		ServerInstance->Modules->Attach(I_OnRehash, this);
+		ServerInstance->Modules->Attach(I_OnUserMessage, this);
 
 	}
 

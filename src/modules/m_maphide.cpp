@@ -19,9 +19,8 @@ class ModuleMapHide : public Module
 {
 	std::string url;
  public:
-	ModuleMapHide(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleMapHide()
+			{
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
 		ServerInstance->Modules->Attach(I_OnRehash, this);
 		OnRehash(NULL);
@@ -29,7 +28,7 @@ class ModuleMapHide : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader MyConf(ServerInstance);
+		ConfigReader MyConf;
 		url = MyConf.ReadValue("security", "maphide", 0);
 	}
 

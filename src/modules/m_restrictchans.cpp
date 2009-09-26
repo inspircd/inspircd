@@ -23,7 +23,7 @@ class ModuleRestrictChans : public Module
 
 	void ReadConfig()
 	{
-		ConfigReader* MyConf = new ConfigReader(ServerInstance);
+		ConfigReader* MyConf = new ConfigReader;
 		allowchans.clear();
 		for (int i = 0; i < MyConf->Enumerate("allowchannel"); i++)
 		{
@@ -36,9 +36,8 @@ class ModuleRestrictChans : public Module
 	}
 
  public:
-	ModuleRestrictChans(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleRestrictChans()
+			{
 
 		ReadConfig();
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };

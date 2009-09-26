@@ -110,7 +110,7 @@ static bool WriteDatabase()
 class PermChannel : public ModeHandler
 {
  public:
-	PermChannel(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'P', PARAM_NONE, MODETYPE_CHANNEL) { }
+	PermChannel(Module* Creator) : ModeHandler(Creator, 'P', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -175,7 +175,7 @@ class ModulePermanentChannels : public Module
 	PermChannel p;
 public:
 
-	ModulePermanentChannels(InspIRCd* Me) : Module(Me), p(Me, this)
+	ModulePermanentChannels() : p(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&p))
 			throw ModuleException("Could not add new modes!");
@@ -215,7 +215,7 @@ public:
 		 * Process config-defined list of permanent channels.
 		 * -- w00t
 		 */
-		ConfigReader MyConf(ServerInstance);
+		ConfigReader MyConf;
 
 		permchannelsconf = MyConf.ReadValue("permchanneldb", "filename", "", 0, false);
 
@@ -235,7 +235,7 @@ public:
 
 			if (!c)
 			{
-				c = new Channel(ServerInstance, channel, ServerInstance->Time());
+				c = new Channel(channel, ServerInstance->Time());
 				if (!topic.empty())
 				{
 					c->SetTopic(NULL, topic, true);

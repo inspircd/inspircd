@@ -66,7 +66,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, char* ip, Autocon
 	if (HookMod)
 		BufferedSocketHookRequest(this, Utils->Creator, HookMod).Send();
 
-	hstimer = new HandshakeTimer(ServerInstance, this, &(Utils->LinkBlocks[0]), this->Utils, 1);
+	hstimer = new HandshakeTimer(this, &(Utils->LinkBlocks[0]), this->Utils, 1);
 	ServerInstance->Timers->AddTimer(hstimer);
 
 	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
@@ -117,7 +117,7 @@ void TreeSocket::OnConnected()
 				if (GetIOHook())
 				{
 					ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] using transport \2%s\2", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()), x->Hook.c_str());
-					hstimer = new HandshakeTimer(ServerInstance, this, &(*x), this->Utils, 1);
+					hstimer = new HandshakeTimer(this, &(*x), this->Utils, 1);
 					ServerInstance->Timers->AddTimer(hstimer);
 				}
 				else
@@ -203,7 +203,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 	if ((Current) && (Current != Utils->TreeRoot))
 	{
 		Event rmode((char*)Current->GetName().c_str(), (Module*)Utils->Creator, "lost_server");
-		rmode.Send(ServerInstance);
+		rmode.Send();
 
 		parameterlist params;
 		params.push_back(Current->GetName());

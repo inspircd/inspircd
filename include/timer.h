@@ -14,8 +14,6 @@
 #ifndef INSPIRCD_TIMER_H
 #define INSPIRCD_TIMER_H
 
-//class InspIRCd;
-
 /** Timer class for one-second resolution timers
  * Timer provides a facility which allows module
  * developers to create one-shot timers. The timer
@@ -118,13 +116,10 @@ class CoreExport TimerManager
 	 */
 	std::vector<Timer *> Timers;
 
-	/** Creating server instance
-	 */
-	InspIRCd* ServerInstance;
  public:
 	/** Constructor
 	 */
-	TimerManager(InspIRCd* Instance);
+	TimerManager();
 	~TimerManager();
 
 	/** Tick all pending Timers

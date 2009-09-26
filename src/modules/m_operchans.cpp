@@ -19,7 +19,7 @@ class OperChans : public ModeHandler
 {
  public:
 	/* This is an oper-only mode */
-	OperChans(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'O', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
+	OperChans(Module* Creator) : ModeHandler(Creator, 'O', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -48,8 +48,8 @@ class ModuleOperChans : public Module
 {
 	OperChans oc;
  public:
-	ModuleOperChans(InspIRCd* Me)
-		: Module(Me), oc(Me, this)
+	ModuleOperChans()
+		: oc(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&oc))
 			throw ModuleException("Could not add new modes!");

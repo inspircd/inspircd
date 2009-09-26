@@ -87,7 +87,7 @@ class ModuleUninvite : public Module
 
  public:
 
-	ModuleUninvite(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleUninvite() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

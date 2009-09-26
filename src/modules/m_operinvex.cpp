@@ -22,8 +22,7 @@ class ModuleOperInvex : public Module
 {
  private:
  public:
-	ModuleOperInvex(InspIRCd* Me) : Module(Me)
-	{
+	ModuleOperInvex() 	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

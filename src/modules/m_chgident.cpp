@@ -80,7 +80,7 @@ class ModuleChgIdent : public Module
 	CommandChgident cmd;
 
 public:
-	ModuleChgIdent(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleChgIdent() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

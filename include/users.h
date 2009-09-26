@@ -470,7 +470,7 @@ class CoreExport User : public StreamSocket
 	 * @param Instance Creator instance
 	 * @param uid User UUID, or empty to allocate one automatically
 	 */
-	User(InspIRCd* Instance, const std::string &uid = "");
+	User(const std::string &uid = "");
 
 	/** Check if the user matches a G or K line, and disconnect them if they do.
 	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
@@ -880,7 +880,7 @@ class CoreExport UserResolver : public Resolver
 	 * @param qt The query type
 	 * @param cache Modified by the constructor if the result was cached
 	 */
-	UserResolver(InspIRCd* Instance, User* user, std::string to_resolve, QueryType qt, bool &cache);
+	UserResolver(User* user, std::string to_resolve, QueryType qt, bool &cache);
 
 	/** Called on successful lookup
 	 * @param result Result string

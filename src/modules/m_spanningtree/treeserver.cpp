@@ -25,10 +25,10 @@
  * represents our own server. Therefore, it has no route, no parent, and
  * no socket associated with it. Its version string is our own local version.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id)
-						: ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id)
+						: ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
 {
-	age = Instance->Time();
+	age = ServerInstance->Time();
 	bursting = false;
 	Parent = NULL;
 	VersionString.clear();
@@ -46,10 +46,10 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
  * This constructor initializes the server's Route and Parent, and sets up
  * its ping counters so that it will be pinged one minute from now.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
+	: Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
-	age = Instance->Time();
+	age = ServerInstance->Time();
 	bursting = true;
 	VersionString.clear();
 	ServerUserCount = ServerOperCount = 0;
@@ -62,7 +62,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	gettimeofday(&t, NULL);
 	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 	this->StartBurst = ts;
-	Instance->Logs->Log("m_spanningtree",DEBUG, "Started bursting at time %lu", ts);
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Started bursting at time %lu", ts);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -148,7 +148,7 @@ void TreeServer::FinishBurst()
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
 	Event rmode((char*)ServerName.c_str(),  (Module*)Utils->Creator, "new_server");
-	rmode.Send(ServerInstance);
+	rmode.Send();
 }
 
 void TreeServer::SetID(const std::string &id)

@@ -21,7 +21,7 @@ class ModuleUHNames : public Module
  public:
 	GenericCap cap;
 
-	ModuleUHNames(InspIRCd* Me) : Module(Me), cap(this, "userhost-in-names")
+	ModuleUHNames() : cap(this, "userhost-in-names")
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 4);

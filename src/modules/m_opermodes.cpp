@@ -23,11 +23,10 @@ class ModuleModesOnOper : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleModesOnOper(InspIRCd* Me)
-		: Module(Me)
-	{
+	ModuleModesOnOper()
+			{
 
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -36,7 +35,7 @@ class ModuleModesOnOper : public Module
 	virtual void OnRehash(User* user)
 	{
 		delete Conf;
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 	}
 
 	virtual ~ModuleModesOnOper()

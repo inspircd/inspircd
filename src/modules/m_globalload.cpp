@@ -142,8 +142,8 @@ class ModuleGlobalLoad : public Module
 	CommandGreloadmodule cmd3;
 
  public:
-	ModuleGlobalLoad(InspIRCd* Me)
-		: Module(Me), cmd1(this), cmd2(this), cmd3(this)
+	ModuleGlobalLoad()
+		: cmd1(this), cmd2(this), cmd3(this)
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

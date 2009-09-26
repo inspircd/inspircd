@@ -101,7 +101,7 @@ class CommandFilter : public Command
 {
 	FilterBase* Base;
  public:
-	CommandFilter(FilterBase* f, const std::string &ssource)
+	CommandFilter(FilterBase* f)
 		: Command(reinterpret_cast<Module*>(f), "FILTER", 1, 5), Base(f)
 	{
 		flags_needed = 'o';
@@ -127,7 +127,7 @@ class FilterBase : public Module
 protected:
 	std::vector<std::string> exemptfromfilter; // List of channel names excluded from filtering.
  public:
-	FilterBase(InspIRCd* Me, const std::string &source);
+	FilterBase();
 	virtual ~FilterBase();
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags) = 0;
@@ -242,9 +242,9 @@ bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	return true;
 }
 
-FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me), filtcommand(this, source)
+FilterBase::FilterBase() : filtcommand(this)
 {
-	Me->Modules->UseInterface("RegularExpression");
+	ServerInstance->Modules->UseInterface("RegularExpression");
 	ServerInstance->AddCommand(&filtcommand);
 	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnLoadModule };
 	ServerInstance->Modules->Attach(eventlist, this, 8);
@@ -310,7 +310,7 @@ ModResult FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std
 		}
 		if (f->action == "gline")
 		{
-			GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
+			GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
 			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -399,7 +399,7 @@ ModResult FilterBase::OnPreCommand(std::string &command, std::vector<std::string
 				if (f->action == "gline")
 				{
 					/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
-					GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
+					GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
 						ServerInstance->XLines->ApplyLines();
@@ -417,7 +417,7 @@ ModResult FilterBase::OnPreCommand(std::string &command, std::vector<std::string
 
 void FilterBase::OnRehash(User* user)
 {
-	ConfigReader MyConf(ServerInstance);
+	ConfigReader MyConf;
 	std::vector<std::string>().swap(exemptfromfilter);
 	for (int index = 0; index < MyConf.Enumerate("exemptfromfilter"); ++index)
 	{
@@ -467,7 +467,7 @@ void FilterBase::OnLoadModule(Module* mod, const std::string& name)
 			/* Force a rehash to make sure that any filters that couldnt be applied from the conf
 			 * on startup or on load are applied right now.
 			 */
-			ConfigReader Config(ServerInstance);
+			ConfigReader Config;
 			ServerInstance->SNO->WriteGlobalSno('a', "Found and activated regex module '%s' for m_filter.so.", RegexEngine.c_str());
 			ReadFilters(Config);
 		}
@@ -562,8 +562,7 @@ class ModuleFilter : public FilterBase
 	ImplFilter fr;
 
  public:
-	ModuleFilter(InspIRCd* Me)
-	: FilterBase(Me, "m_filter.so")
+	ModuleFilter()
 	{
 		OnRehash(NULL);
 	}
@@ -644,7 +643,7 @@ class ModuleFilter : public FilterBase
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader MyConf(ServerInstance);
+		ConfigReader MyConf;
 		FilterBase::OnRehash(user);
 		ReadFilters(MyConf);
 	}

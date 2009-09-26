@@ -51,7 +51,7 @@ class ResultNotifier : public BufferedSocket
 	ModuleSQLite3* mod;
 
  public:
-	ResultNotifier(ModuleSQLite3* m, InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
+	ResultNotifier(ModuleSQLite3* m, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
 	{
 	}
 
@@ -77,7 +77,7 @@ class SQLiteListener : public ListenSocketBase
 	FileReader* index;
 
  public:
-	SQLiteListener(ModuleSQLite3* P, InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr), Parent(P)
+	SQLiteListener(ModuleSQLite3* P, int port, const std::string &addr) : ListenSocketBase(port, addr), Parent(P)
 	{
 		uslen = sizeof(sock_us);
 		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
@@ -274,14 +274,13 @@ class SQLConn : public classbase
 {
  private:
 	ResultQueue results;
-	InspIRCd* ServerInstance;
 	Module* mod;
 	SQLhost host;
 	sqlite3* conn;
 
  public:
-	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
-	: ServerInstance(SI), mod(m), host(hi)
+	SQLConn(Module* m, const SQLhost& hi)
+	: mod(m), host(hi)
 	{
 		if (OpenDB() != SQLITE_OK)
 		{
@@ -543,8 +542,8 @@ class ModuleSQLite3 : public Module
 	unsigned long currid;
 
  public:
-	ModuleSQLite3(InspIRCd* Me)
-	: Module(Me), currid(0)
+	ModuleSQLite3()
+	: currid(0)
 	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 
@@ -632,7 +631,7 @@ class ModuleSQLite3 : public Module
 
 	bool HostInConf(const SQLhost &h)
 	{
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -652,7 +651,7 @@ class ModuleSQLite3 : public Module
 	{
 		ClearOldConnections();
 
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -681,7 +680,7 @@ class ModuleSQLite3 : public Module
 
 		SQLConn* newconn;
 
-		newconn = new SQLConn(ServerInstance, this, hi);
+		newconn = new SQLConn(this, hi);
 
 		connections.insert(std::make_pair(hi.id, newconn));
 	}

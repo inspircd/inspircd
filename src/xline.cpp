@@ -181,7 +181,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 		}
 	}
 
-	/*ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
+	/*ELine* item = new ELine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
 	XLineFactory* xlf = GetFactory(line->type);
 	if (!xlf)
 		return false;
@@ -389,13 +389,13 @@ void XLineManager::InvokeStats(const std::string &type, int numeric, User* user,
 }
 
 
-XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
+XLineManager::XLineManager()
 {
-	GFact = new GLineFactory(Instance);
-	EFact = new ELineFactory(Instance);
-	KFact = new KLineFactory(Instance);
-	QFact = new QLineFactory(Instance);
-	ZFact = new ZLineFactory(Instance);
+	GFact = new GLineFactory;
+	EFact = new ELineFactory;
+	KFact = new KLineFactory;
+	QFact = new QLineFactory;
+	ZFact = new ZLineFactory;
 
 	RegisterFactory(GFact);
 	RegisterFactory(EFact);

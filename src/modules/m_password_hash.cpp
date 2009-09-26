@@ -75,8 +75,8 @@ class ModuleOperHash : public Module
 	bool diduseiface; /* If we've called UseInterface yet. */
  public:
 
-	ModuleOperHash(InspIRCd* Me)
-		: Module(Me), cmd(this, hashers, names)
+	ModuleOperHash()
+		: cmd(this, hashers, names)
 	{
 		diduseiface = false;
 

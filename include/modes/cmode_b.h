@@ -23,7 +23,7 @@ class ModeChannelBan : public ModeHandler
  private:
 	BanItem b;
  public:
-	ModeChannelBan(InspIRCd* Instance);
+	ModeChannelBan();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	std::string& AddBan(User *user,std::string& dest,Channel *chan,int status);
 	std::string& DelBan(User *user,std::string& dest,Channel *chan,int status);

@@ -19,7 +19,7 @@
 #include "modules.h"
 #include "modes/cmode_h.h"
 
-ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(NULL, 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelHalfOp::ModeChannelHalfOp() : ModeHandler(NULL, 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
 	list = true;
 	prefix = '%';

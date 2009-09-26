@@ -317,20 +317,9 @@ void InspIRCd::WritePID(const std::string &filename)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv) :
-	 /* Functor initialisation. Note that the ordering here is very important.
-	  *
-	  * THIS MUST MATCH ORDER OF DECLARATION OF THE HandleWhateverFunc classes
-	  * within class InspIRCd.
-	  */
-	 HandleIsNick(this),
-	 HandleIsIdent(this),
-	 HandleFloodQuitUser(this),
-	 HandleIsChannel(this),
-	 HandleIsSID(this),
-	 HandleRehash(this),
 	 ConfigFileName("inspircd.conf"),
 
-	 /* Functor pointer initialisation. Must match the order of the list above
+	 /* Functor pointer initialisation.
 	  *
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
@@ -383,20 +372,20 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->TIME = time(NULL);
 
 	// This must be created first, so other parts of Insp can use it while starting up
-	this->Logs = new LogManager(this);
+	this->Logs = new LogManager;
 
 	SocketEngineFactory SEF;
 	SE = SEF.Create();
 
-	this->Threads = new ThreadEngine(this);
+	this->Threads = new ThreadEngine;
 
 	/* Default implementation does nothing */
-	this->PI = new ProtocolInterface(this);
+	this->PI = new ProtocolInterface;
 
 	this->s_signal = 0;
 
 	// Create base manager classes early, so nothing breaks
-	this->Users = new UserManager(this);
+	this->Users = new UserManager;
 
 	this->Users->unregistered_count = 0;
 
@@ -404,14 +393,14 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Users->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
-	this->Config = new ServerConfig(this);
-	this->SNO = new SnomaskManager(this);
-	this->BanCache = new BanCacheManager(this);
+	this->Config = new ServerConfig;
+	this->SNO = new SnomaskManager;
+	this->BanCache = new BanCacheManager;
 	this->Modules = new ModuleManager();
 	this->stats = new serverstats();
-	this->Timers = new TimerManager(this);
-	this->Parser = new CommandParser(this);
-	this->XLines = new XLineManager(this);
+	this->Timers = new TimerManager;
+	this->Parser = new CommandParser;
+	this->XLines = new XLineManager;
 
 	this->Config->argv = argv;
 	this->Config->argc = argc;
@@ -484,7 +473,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// Handle forking
 	if(!do_nofork)
 	{
-		DWORD ExitCode = WindowsForkStart(this);
+		DWORD ExitCode = WindowsForkStart();
 		if(ExitCode)
 			exit(ExitCode);
 	}
@@ -492,7 +481,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// Set up winsock
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(2,0), &wsadata);
-	ChangeWindowsSpecificPointers(this);
+	ChangeWindowsSpecificPointers();
 #endif
 	Config->MyExecutable = argv[0];
 
@@ -535,7 +524,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	printf_c("\t\033[1;32mpeavey, aquanight, psychon, dz, danieldg\033[0m\n\n");
 	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
 
-	this->Modes = new ModeParser(this);
+	this->Modes = new ModeParser;
 
 	if (!do_root)
 		this->CheckRoot();
@@ -573,7 +562,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
 
-	this->Res = new DNS(this);
+	this->Res = new DNS;
 
 	this->AddServerName(Config->ServerName);
 
@@ -600,7 +589,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	}
 
 	/* set up fake client again this time with the correct uid */
-	this->FakeClient = new FakeUser(this, "!");
+	this->FakeClient = new FakeUser("!");
 	this->FakeClient->SetFakeServer(Config->ServerName);
 
 	// Get XLine to do it's thing.
@@ -660,10 +649,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 #else
-	WindowsIPC = new IPC(this);
+	WindowsIPC = new IPC;
 	if(!Config->nofork)
 	{
-		WindowsForkKillOwner(this);
+		WindowsForkKillOwner();
 		FreeConsole();
 	}
 	/* Set win32 service as running, if we are running as a service */
@@ -739,7 +728,7 @@ int InspIRCd::Run()
 	/* See if we're supposed to be running the test suite rather than entering the mainloop */
 	if (Config->TestSuite)
 	{
-		TestSuite* ts = new TestSuite(this);
+		TestSuite* ts = new TestSuite;
 		delete ts;
 		Exit(0);
 	}
@@ -793,7 +782,7 @@ int InspIRCd::Run()
 			if ((TIME % 3600) == 0)
 			{
 				this->RehashUsersAndChans();
-				FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
+				FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 			}
 
 			Timers->TickTimers(TIME);
@@ -801,7 +790,7 @@ int InspIRCd::Run()
 
 			if ((TIME % 5) == 0)
 			{
-				FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+				FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 				SNO->FlushSnotices();
 			}
 #ifndef WIN32
@@ -852,7 +841,7 @@ int InspIRCd::Run()
 bool InspIRCd::AllModulesReportReady(User* user)
 {
 	ModResult res;
-	FIRST_MOD_RESULT(this, OnCheckReady, res, (user));
+	FIRST_MOD_RESULT(OnCheckReady, res, (user));
 	return (res == MOD_RES_PASSTHRU);
 }
 

@@ -19,10 +19,9 @@ class ModuleOperLevels : public Module
 	private:
 		ConfigReader* conf;
 	public:
-		ModuleOperLevels(InspIRCd* Me)
-			: Module(Me)
-		{
-			conf = new ConfigReader(ServerInstance);
+		ModuleOperLevels()
+					{
+			conf = new ConfigReader;
 			Implementation eventlist[] = { I_OnRehash, I_OnKill };
 			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
@@ -36,7 +35,7 @@ class ModuleOperLevels : public Module
 		virtual void OnRehash(User* user)
 		{
 			delete conf;
-			conf = new ConfigReader(ServerInstance);
+			conf = new ConfigReader;
 		}
 
 		virtual Version GetVersion()

@@ -19,9 +19,8 @@ static bool allowedmap[256];
 
 class NewIsChannelHandler : public HandlerBase2<bool, const char*, size_t>
 {
-	InspIRCd* Server;
  public:
-	NewIsChannelHandler(InspIRCd* Srv) : Server(Srv) { }
+	NewIsChannelHandler() { }
 	virtual ~NewIsChannelHandler() { }
 	virtual bool Call(const char*, size_t);
 };
@@ -44,19 +43,14 @@ bool NewIsChannelHandler::Call(const char* chname, size_t max)
 class ModuleChannelNames : public Module
 {
  private:
-	InspIRCd* ServerInstance;
-	NewIsChannelHandler* myhandler;
-	caller2<bool, const char*, size_t> * rememberer;
+	NewIsChannelHandler myhandler;
+	caller2<bool, const char*, size_t> rememberer;
 	bool badchan;
 
  public:
-	ModuleChannelNames(InspIRCd* Me) : Module(Me)
+	ModuleChannelNames() : rememberer(ServerInstance->IsChannel)
 	{
-		rememberer = (caller2<bool, const char*, size_t> *) malloc(sizeof(caller2<bool, const char*, size_t>));
-		ServerInstance = Me;
-		*rememberer = ServerInstance->IsChannel;
-		myhandler = new NewIsChannelHandler(ServerInstance);
-		ServerInstance->IsChannel = myhandler;
+		ServerInstance->IsChannel = &myhandler;
 		badchan = false;
 		Implementation eventlist[] = { I_OnRehash, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -95,7 +89,7 @@ class ModuleChannelNames : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		std::string denyToken = Conf.ReadValue("channames", "denyrange", 0);
 		std::string allowToken = Conf.ReadValue("channames", "allowrange", 0);
 		memset(allowedmap, 1, sizeof(allowedmap));
@@ -130,9 +124,7 @@ class ModuleChannelNames : public Module
 
 	virtual ~ModuleChannelNames()
 	{
-		delete myhandler;
-		ServerInstance->IsChannel = *rememberer;
-		free(rememberer);
+		ServerInstance->IsChannel = rememberer;
 		ValidateChans();
 	}
 

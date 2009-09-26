@@ -16,7 +16,6 @@
 
 #include "hashcomp.h"
 
-class InspIRCd;
 class User;
 
 typedef std::vector<std::string> parameterlist;
@@ -36,10 +35,8 @@ typedef std::list<ProtoServer> ProtoServerList;
 
 class ProtocolInterface : public Extensible
 {
- protected:
-	InspIRCd* ServerInstance;
  public:
-	ProtocolInterface(InspIRCd* Instance) : ServerInstance(Instance) { }
+	ProtocolInterface() { }
 	virtual ~ProtocolInterface() { }
 
 	/** Send an ENCAP message to one or more linked servers.

@@ -34,8 +34,8 @@ class RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string regexs)
-		: XLine(Instance, s_time, d, src, re, "R")
+	RLine(time_t s_time, long d, std::string src, std::string re, std::string regexs)
+		: XLine(s_time, d, src, re, "R")
 	{
 		matchtext = regexs;
 
@@ -75,7 +75,7 @@ class RLine : public XLine
 	void Apply(User* u)
 	{
 		if (ZlineOnMatch) {
-			background_zlines.push_back(new ZLine(ServerInstance, ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString()));
+			background_zlines.push_back(new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString()));
 		}
 		DefaultApply(u, "R", false);
 	}
@@ -102,7 +102,7 @@ class RLine : public XLine
 class RLineFactory : public XLineFactory
 {
  public:
-	RLineFactory(InspIRCd* Instance) : XLineFactory(Instance, "R")
+	RLineFactory() : XLineFactory("R")
 	{
 	}
 
@@ -110,7 +110,7 @@ class RLineFactory : public XLineFactory
 	 */
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
-		return new RLine(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+		return new RLine(set_time, duration, source, reason, xline_specific_mask);
 	}
 
 	~RLineFactory()
@@ -143,7 +143,7 @@ class CommandRLine : public Command
 
 			try
 			{
-				r = new RLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+				r = new RLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (ModuleException &e)
 			{
@@ -203,12 +203,12 @@ class ModuleRLine : public Module
 	std::string RegexEngine;
 
  public:
-	ModuleRLine(InspIRCd* Me) : Module(Me), r(this), f(Me)
+	ModuleRLine() : r(this)
 	{
 		mymodule = this;
 		OnRehash(NULL);
 
-		Me->Modules->UseInterface("RegularExpression");
+		ServerInstance->Modules->UseInterface("RegularExpression");
 
 		ServerInstance->AddCommand(&r);
 		ServerInstance->XLines->RegisterFactory(&f);
@@ -244,7 +244,7 @@ class ModuleRLine : public Module
 
 	virtual void OnRehash(User *user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		if (!Conf.ReadFlag("rline", "zlineonmatch", 0) && ZlineOnMatch)
 			background_zlines.clear();

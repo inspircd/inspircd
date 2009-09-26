@@ -49,8 +49,8 @@ class Modulealltime : public Module
 {
 	CommandAlltime mycommand;
  public:
-	Modulealltime(InspIRCd *Me)
-		: Module(Me), mycommand(this)
+	Modulealltime()
+		: mycommand(this)
 	{
 		ServerInstance->AddCommand(&mycommand);
 	}

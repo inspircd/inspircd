@@ -60,7 +60,7 @@ class CommandOjoin : public Command
 		}
 
 		active = true;
-		Channel* channel = Channel::JoinUser(ServerInstance, user, parameters[0].c_str(), false, "", false);
+		Channel* channel = Channel::JoinUser(user, parameters[0].c_str(), false, "", false);
 		active = false;
 
 		if (channel)
@@ -133,7 +133,7 @@ class NetworkPrefix : public ModeHandler
 		const UserMembList* cl = channel->GetUsers();
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
-		irc::modestacker modestack(ServerInstance, false);
+		irc::modestacker modestack(false);
 		std::deque<std::string> stackresult;
 
 		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
@@ -235,8 +235,8 @@ class ModuleOjoin : public Module
 
  public:
 
-	ModuleOjoin(InspIRCd* Me)
-		: Module(Me), np(NULL), mycommand(this)
+	ModuleOjoin()
+		: np(NULL), mycommand(this)
 	{
 		/* Load config stuff */
 		OnRehash(NULL);
@@ -271,7 +271,7 @@ class ModuleOjoin : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		if (!np)
 		{

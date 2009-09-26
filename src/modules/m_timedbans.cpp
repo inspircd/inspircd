@@ -118,8 +118,8 @@ class ModuleTimedBans : public Module
 {
 	CommandTban cmd;
  public:
-	ModuleTimedBans(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleTimedBans()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		TimedBanList.clear();

@@ -316,7 +316,7 @@ CoreExport const char* irc::Spacify(const char* n)
 }
 
 
-irc::modestacker::modestacker(InspIRCd* Instance, bool add) : ServerInstance(Instance), adding(add)
+irc::modestacker::modestacker(bool add) : adding(add)
 {
 	sequence.clear();
 	sequence.push_back("");

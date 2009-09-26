@@ -33,8 +33,8 @@ class SecurityIPResolver : public Resolver
 	std::string host;
 	QueryType query;
  public:
-	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt)
-		: Resolver(Instance, hostname, qt, cached, me), MyLink(x), Utils(U), mine(me), host(hostname), query(qt)
+	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, const std::string &hostname, Link x, bool &cached, QueryType qt)
+		: Resolver(hostname, qt, cached, me), MyLink(x), Utils(U), mine(me), host(hostname), query(qt)
 	{
 	}
 
@@ -48,7 +48,7 @@ class SecurityIPResolver : public Resolver
 		if (query == DNS_QUERY_AAAA)
 		{
 			bool cached;
-			SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A);
+			SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, host, MyLink, cached, DNS_QUERY_A);
 			ServerInstance->AddResolver(res, cached);
 			return;
 		}
@@ -76,7 +76,7 @@ class ServernameResolver : public Resolver
 	Module* mine;
 	Autoconnect* myautoconnect;
  public:
-        ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac);
+        ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac);
         void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
         void OnError(ResolverError e, const std::string &errormessage);
 };

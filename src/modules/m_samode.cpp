@@ -42,8 +42,8 @@ class ModuleSaMode : public Module
 {
 	CommandSamode cmd;
  public:
-	ModuleSaMode(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSaMode()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Modules->Attach(I_OnPreMode, this);

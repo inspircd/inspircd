@@ -239,10 +239,10 @@ class ModuleDCCAllow : public Module
 	CommandDccallow cmd;
  public:
 
-	ModuleDCCAllow(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleDCCAllow()
+		: cmd(this)
 	{
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
 		Extensible::Register(ext);
 		ServerInstance->AddCommand(&cmd);
@@ -255,7 +255,7 @@ class ModuleDCCAllow : public Module
 	virtual void OnRehash(User* user)
 	{
 		delete Conf;
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 		ReadFileConf();
 	}
 

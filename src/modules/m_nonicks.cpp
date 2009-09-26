@@ -18,7 +18,7 @@
 class NoNicks : public ModeHandler
 {
  public:
-	NoNicks(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'N', PARAM_NONE, MODETYPE_CHANNEL) { }
+	NoNicks(Module* Creator) : ModeHandler(Creator, 'N', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -47,7 +47,7 @@ class ModuleNoNickChange : public Module
 {
 	NoNicks nn;
  public:
-	ModuleNoNickChange(InspIRCd* Me) : Module(Me), nn(Me, this)
+	ModuleNoNickChange() : nn(this)
 	{
 		ServerInstance->Modes->AddMode(&nn);
 		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric };
@@ -86,7 +86,7 @@ class ModuleNoNickChange : public Module
 		{
 			Channel* curr = *i;
 
-			if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetPrefixValue(user) == OP_VALUE)
+			if (CHANOPS_EXEMPT('N') && curr->GetPrefixValue(user) == OP_VALUE)
 				continue;
 
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))

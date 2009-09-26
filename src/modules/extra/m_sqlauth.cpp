@@ -32,9 +32,8 @@ class ModuleSQLAuth : public Module
 	bool verbose;
 
 public:
-	ModuleSQLAuth(InspIRCd* Me)
-	: Module(Me)
-	{
+	ModuleSQLAuth()
+		{
 		ServerInstance->Modules->UseInterface("SQLutils");
 		ServerInstance->Modules->UseInterface("SQL");
 
@@ -60,7 +59,7 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);			/* Database ID, given to the SQL service provider */
 		freeformquery	= Conf.ReadValue("sqlauth", "query", 0);	/* Field name where username can be found */

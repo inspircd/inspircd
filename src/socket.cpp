@@ -148,7 +148,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 				}
 				if (!skip)
 				{
-					ClientListenSocket *ll = new ClientListenSocket(this, portno, Addr);
+					ClientListenSocket *ll = new ClientListenSocket(portno, Addr);
 					if (ll->GetFd() > -1)
 					{
 						bound++;

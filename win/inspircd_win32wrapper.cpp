@@ -413,12 +413,12 @@ void ClearConsole()
 /* Many inspircd classes contain function pointers/functors which can be changed to point at platform specific implementations
  * of code. This function repoints these pointers and functors so that calls are windows specific.
  */
-void ChangeWindowsSpecificPointers(InspIRCd* Instance)
+void ChangeWindowsSpecificPointers()
 {
 	Instance->Logs->Log("win32",DEBUG,"Changing to windows specific pointer and functor set");
 }
 
-DWORD WindowsForkStart(InspIRCd* Instance)
+DWORD WindowsForkStart()
 {
         /* Windows implementation of fork() :P */
 	if (owner_processid)
@@ -498,7 +498,7 @@ DWORD WindowsForkStart(InspIRCd* Instance)
         return ExitCode;
 }
 
-void WindowsForkKillOwner(InspIRCd * Instance)
+void WindowsForkKillOwner()
 {
         HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, owner_processid);
         if(!hProcess || !owner_processid)

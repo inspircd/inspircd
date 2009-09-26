@@ -23,10 +23,9 @@ class ModuleDenyChannels : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleDenyChannels(InspIRCd* Me) : Module(Me)
-	{
+	ModuleDenyChannels() 	{
 
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -34,7 +33,7 @@ class ModuleDenyChannels : public Module
 	virtual void OnRehash(User* user)
 	{
 		delete Conf;
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 		/* check for redirect validity and loops/chains */
 		for (int i =0; i < Conf->Enumerate("badchan"); i++)
 		{
@@ -116,7 +115,7 @@ class ModuleDenyChannels : public Module
 						if ((!newchan) || (!(newchan->IsModeSet('L'))))
 						{
 							user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname,cname,redirect.c_str(), reason.c_str());
-							Channel::JoinUser(ServerInstance,user,redirect.c_str(),false,"",false,ServerInstance->Time());
+							Channel::JoinUser(user,redirect.c_str(),false,"",false,ServerInstance->Time());
 							return MOD_RES_DENY;
 						}
 					}

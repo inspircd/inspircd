@@ -71,7 +71,7 @@ CmdResult CommandUser::Handle (const std::vector<std::string>& parameters, User 
 		ModResult MOD_RESULT;
 
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-		FIRST_MOD_RESULT(ServerInstance, OnUserRegister, MOD_RESULT, (user));
+		FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 

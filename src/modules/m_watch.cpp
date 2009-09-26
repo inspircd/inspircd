@@ -367,8 +367,8 @@ class Modulewatch : public Module
 	CommandSVSWatch sw;
 
  public:
-	Modulewatch(InspIRCd* Me)
-		: Module(Me), maxwatch(32), cmdw(this, maxwatch), sw(this) 
+	Modulewatch()
+		: maxwatch(32), cmdw(this, maxwatch), sw(this) 
 	{
 		OnRehash(NULL);
 		whos_watching_me = new watchentries();
@@ -381,7 +381,7 @@ class Modulewatch : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		maxwatch = Conf.ReadInteger("watch", "maxentries", 0, true);
 		if (!maxwatch)
 			maxwatch = 32;

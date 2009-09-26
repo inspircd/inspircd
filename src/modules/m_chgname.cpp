@@ -72,7 +72,7 @@ class ModuleChgName : public Module
 	CommandChgname cmd;
 
 public:
-	ModuleChgName(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleChgName() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

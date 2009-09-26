@@ -135,7 +135,7 @@ class ModuleJumpServer : public Module
 {
 	CommandJumpserver js;
  public:
-	ModuleJumpServer(InspIRCd* Me) : js(this)
+	ModuleJumpServer() : js(this)
 	{
 		ServerInstance->AddCommand(&js);
 		Implementation eventlist[] = { I_OnUserRegister };

@@ -51,7 +51,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 
 		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(ServerInstance, OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
@@ -108,7 +108,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			ModResult MOD_RESULT;
 
 			std::string temp = parameters[1];
-			FIRST_MOD_RESULT(ServerInstance, OnUserPreMessage, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status,except_list));
+			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status,except_list));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
@@ -192,7 +192,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		ModResult MOD_RESULT;
 
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(ServerInstance, OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 

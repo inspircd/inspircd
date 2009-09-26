@@ -77,7 +77,7 @@ class CommandKnock : public Command
 class Knock : public SimpleChannelModeHandler
 {
  public:
-	Knock(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'K') { }
+	Knock(Module* Creator) : SimpleChannelModeHandler(Creator, 'K') { }
 };
 
 class ModuleKnock : public Module
@@ -85,7 +85,7 @@ class ModuleKnock : public Module
 	CommandKnock cmd;
 	Knock kn;
  public:
-	ModuleKnock(InspIRCd* Me) : Module(Me), cmd(this), kn(Me, this)
+	ModuleKnock() : cmd(this), kn(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&kn))
 			throw ModuleException("Could not add new modes!");

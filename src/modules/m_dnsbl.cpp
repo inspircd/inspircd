@@ -51,8 +51,8 @@ class DNSBLResolver : public Resolver
 
  public:
 
-	DNSBLResolver(Module *me, InspIRCd *Instance, const std::string &hostname, User* u, int userfd, DNSBLConfEntry *conf, bool &cached)
-		: Resolver(Instance, hostname, DNS_QUERY_A, cached, me)
+	DNSBLResolver(Module *me, const std::string &hostname, User* u, int userfd, DNSBLConfEntry *conf, bool &cached)
+		: Resolver(hostname, DNS_QUERY_A, cached, me)
 	{
 		theirfd = userfd;
 		them = u;
@@ -125,7 +125,7 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_KLINE:
 						{
-							KLine* kl = new KLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+							KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(kl,NULL))
 							{
@@ -139,7 +139,7 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_GLINE:
 						{
-							GLine* gl = new GLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+							GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(gl,NULL))
 							{
@@ -153,7 +153,7 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_ZLINE:
 						{
-							ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+							ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
 									them->GetIPString());
 							if (ServerInstance->XLines->AddLine(zl,NULL))
 							{
@@ -215,8 +215,7 @@ class ModuleDNSBL : public Module
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
  public:
-	ModuleDNSBL(InspIRCd *Me) : Module(Me)
-	{
+	ModuleDNSBL() 	{
 		ReadConf();
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
@@ -246,7 +245,7 @@ class ModuleDNSBL : public Module
 	 */
 	virtual void ReadConf()
 	{
-		ConfigReader *MyConf = new ConfigReader(ServerInstance);
+		ConfigReader *MyConf = new ConfigReader;
 		ClearEntries();
 
 		for (int i=0; i< MyConf->Enumerate("dnsbl"); i++)
@@ -358,7 +357,7 @@ class ModuleDNSBL : public Module
 
 				/* now we'd need to fire off lookups for `hostname'. */
 				bool cached;
-				DNSBLResolver *r = new DNSBLResolver(this, ServerInstance, hostname, user, user->GetFd(), *i, cached);
+				DNSBLResolver *r = new DNSBLResolver(this, hostname, user, user->GetFd(), *i, cached);
 				ServerInstance->AddResolver(r, cached);
 			}
 		}

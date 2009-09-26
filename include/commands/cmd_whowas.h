@@ -126,11 +126,9 @@ class WhoWasGroup : public classbase
 
 class WhoWasMaintainTimer : public Timer
 {
-  private:
-	InspIRCd* ServerInstance;
   public:
-	WhoWasMaintainTimer(InspIRCd* Instance, long interval)
-	: Timer(interval, Instance->Time(), true), ServerInstance(Instance)
+	WhoWasMaintainTimer(long interval)
+	: Timer(interval, ServerInstance->Time(), true)
 	{
 	}
 	virtual void Tick(time_t TIME);

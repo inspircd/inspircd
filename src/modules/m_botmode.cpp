@@ -20,15 +20,15 @@
 class BotMode : public SimpleUserModeHandler
 {
  public:
-	BotMode(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'B') { }
+	BotMode(Module* Creator) : SimpleUserModeHandler(Creator, 'B') { }
 };
 
 class ModuleBotMode : public Module
 {
 	BotMode bm;
  public:
-	ModuleBotMode(InspIRCd* Me)
-		: Module(Me), bm(Me, this)
+	ModuleBotMode()
+		: bm(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&bm))
 			throw ModuleException("Could not add new modes!");

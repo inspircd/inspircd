@@ -100,7 +100,7 @@ class ModuleSSLOpenSSL : public Module
 
  public:
 
-	ModuleSSLOpenSSL(InspIRCd* Me)
+	ModuleSSLOpenSSL()
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
@@ -144,7 +144,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		listenports.clear();
 		sslports.clear();
@@ -175,7 +175,7 @@ class ModuleSSLOpenSSL : public Module
 
 		OnRehash(user);
 
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		std::string confdir(ServerInstance->ConfigFileName);
 		// +1 so we the path ends with a /

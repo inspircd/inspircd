@@ -66,7 +66,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 
 		long duration = ServerInstance->Duration(parameters[1].c_str());
 
-		ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
+		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{
 			if (!duration)

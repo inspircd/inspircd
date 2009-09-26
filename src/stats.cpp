@@ -30,7 +30,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 	}
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(this, OnStats, MOD_RESULT, (statschar, user, results));
+	FIRST_MOD_RESULT(OnStats, MOD_RESULT, (statschar, user, results));
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");

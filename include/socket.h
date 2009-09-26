@@ -133,9 +133,6 @@ namespace irc
 class CoreExport ListenSocketBase : public EventHandler
 {
  protected:
-	/** The creator/owner of this object
-	 */
-	InspIRCd* ServerInstance;
 	/** Socket description (shown in stats p) */
 	std::string desc;
 
@@ -160,7 +157,7 @@ class CoreExport ListenSocketBase : public EventHandler
  public:
 	/** Create a new listening socket
 	 */
-	ListenSocketBase(InspIRCd* Instance, int port, const std::string &addr);
+	ListenSocketBase(int port, const std::string &addr);
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
@@ -200,7 +197,7 @@ class CoreExport ClientListenSocket : public ListenSocketBase
 {
 	virtual void OnAcceptReady(int fd);
  public:
-	ClientListenSocket(InspIRCd* Instance, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr) { }
+	ClientListenSocket(int port, const std::string &addr) : ListenSocketBase(port, addr) { }
 };
 
 #endif

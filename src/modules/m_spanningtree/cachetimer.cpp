@@ -25,7 +25,7 @@
 
 /* $ModDep: m_spanningtree/cachetimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-CacheRefreshTimer::CacheRefreshTimer(InspIRCd *Inst, SpanningTreeUtilities *Util) : Timer(3600, Inst->Time(), true), Instance(Inst), Utils(Util)
+CacheRefreshTimer::CacheRefreshTimer(SpanningTreeUtilities *Util) : Timer(3600, ServerInstance->Time(), true), Utils(Util)
 {
 }
 

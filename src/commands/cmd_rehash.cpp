@@ -85,7 +85,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 
 
-		ServerInstance->ConfigThread = new ConfigReaderThread(ServerInstance, user->uuid);
+		ServerInstance->ConfigThread = new ConfigReaderThread(user->uuid);
 		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
 
 		return CMD_SUCCESS;

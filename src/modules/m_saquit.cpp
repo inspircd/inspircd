@@ -66,8 +66,8 @@ class ModuleSaquit : public Module
 {
 	CommandSaquit cmd;
  public:
-	ModuleSaquit(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSaquit()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

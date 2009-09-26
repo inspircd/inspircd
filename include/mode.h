@@ -348,7 +348,7 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
 class CoreExport SimpleChannelModeHandler : public ModeHandler
 {
  public:
-	SimpleChannelModeHandler(InspIRCd* Instance, Module* Creator, char modeletter)
+	SimpleChannelModeHandler(Module* Creator, char modeletter)
 		: ModeHandler(Creator, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
 	virtual ~SimpleChannelModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
@@ -364,10 +364,6 @@ class CoreExport ModeWatcher : public classbase
 {
  protected:
 	/**
-	 * Creator/owner pointer
-	 */
-	InspIRCd* ServerInstance;
-	/**
 	 * The mode letter this class is watching
 	 */
 	char mode;
@@ -380,7 +376,7 @@ class CoreExport ModeWatcher : public classbase
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */
-	ModeWatcher(InspIRCd* Instance, char modeletter, ModeType type);
+	ModeWatcher(char modeletter, ModeType type);
 	/**
 	 * The default destructor does nothing.
 	 */
@@ -474,7 +470,7 @@ class CoreExport ModeParser : public classbase
 
 	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().
 	 */
-	ModeParser(InspIRCd* Instance);
+	ModeParser();
 	~ModeParser();
 
 	/** Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.

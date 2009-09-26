@@ -24,7 +24,7 @@
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(InspIRCd* Instance, Module* Creator, char pfx) : ModeHandler(Creator, 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+		OperPrefixMode(Module* Creator, char pfx) : ModeHandler(Creator, 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
 		{
 			list = true;
 			prefix = pfx;
@@ -78,12 +78,11 @@ class ModuleOperPrefixMode : public Module
  private:
 	OperPrefixMode* opm;
  public:
-	ModuleOperPrefixMode(InspIRCd* Me) : Module(Me)
-	{
-		ConfigReader Conf(ServerInstance);
+	ModuleOperPrefixMode() 	{
+		ConfigReader Conf;
 		std::string pfx = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
 
-		opm = new OperPrefixMode(ServerInstance, this, pfx[0]);
+		opm = new OperPrefixMode(this, pfx[0]);
 		if ((!ServerInstance->Modes->AddMode(opm)))
 			throw ModuleException("Could not add a new mode!");
 

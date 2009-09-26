@@ -20,7 +20,7 @@
 class ChannelStripColor : public SimpleChannelModeHandler
 {
  public:
-	ChannelStripColor(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'S') { }
+	ChannelStripColor(Module* Creator) : SimpleChannelModeHandler(Creator, 'S') { }
 };
 
 /** Handles user mode +S
@@ -28,7 +28,7 @@ class ChannelStripColor : public SimpleChannelModeHandler
 class UserStripColor : public SimpleUserModeHandler
 {
  public:
-	UserStripColor(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'S') { }
+	UserStripColor(Module* Creator) : SimpleUserModeHandler(Creator, 'S') { }
 };
 
 
@@ -39,7 +39,7 @@ class ModuleStripColor : public Module
 	UserStripColor usc;
 
  public:
-	ModuleStripColor(InspIRCd* Me) : Module(Me), csc(Me, this), usc(Me, this)
+	ModuleStripColor() : csc(this), usc(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&usc) || !ServerInstance->Modes->AddMode(&csc))
 			throw ModuleException("Could not add new modes!");
@@ -115,7 +115,7 @@ class ModuleStripColor : public Module
 
 			// check if we allow ops to bypass filtering, if we do, check if they're opped accordingly.
 			// note: short circut logic here, don't wreck it. -- w00t
-			if (CHANOPS_EXEMPT(ServerInstance, 'S') && t->GetPrefixValue(user) == OP_VALUE)
+			if (CHANOPS_EXEMPT('S') && t->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}

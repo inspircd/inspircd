@@ -20,17 +20,17 @@
 
 void FloodQuitUserHandler::Call(User* current)
 {
-	Server->Logs->Log("USERS",DEFAULT,"Excess flood from: %s@%s", current->ident.c_str(), current->host.c_str());
-	Server->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
+	ServerInstance->Logs->Log("USERS",DEFAULT,"Excess flood from: %s@%s", current->ident.c_str(), current->host.c_str());
+	ServerInstance->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
 			current->registered == REG_ALL ? current->nick.c_str() : "",
 			current->registered == REG_ALL ? "!" : "", current->ident.c_str(), current->host.c_str());
-	Server->Users->QuitUser(current, "Excess flood");
+	ServerInstance->Users->QuitUser(current, "Excess flood");
 
 	if (current->registered != REG_ALL)
 	{
-		ZLine* zl = new ZLine(Server, Server->Time(), 0, Server->Config->ServerName, "Flood from unregistered connection", current->GetIPString());
-		if (Server->XLines->AddLine(zl,NULL))
-			Server->XLines->ApplyLines();
+		ZLine* zl = new ZLine(ServerInstance->Time(), 0, ServerInstance->Config->ServerName, "Flood from unregistered connection", current->GetIPString());
+		if (ServerInstance->XLines->AddLine(zl,NULL))
+			ServerInstance->XLines->ApplyLines();
 		else
 			delete zl;
 	}

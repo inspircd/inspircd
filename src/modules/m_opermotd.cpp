@@ -63,7 +63,7 @@ class ModuleOpermotd : public Module
 
 	void LoadOperMOTD()
 	{
-		ConfigReader* conf = new ConfigReader(ServerInstance);
+		ConfigReader* conf = new ConfigReader;
 		std::string filename;
 		filename = conf->ReadValue("opermotd","file",0);
 		if (opermotd)
@@ -71,17 +71,17 @@ class ModuleOpermotd : public Module
 			delete opermotd;
 			opermotd = NULL;
 		}
-		opermotd = new FileReader(ServerInstance, filename);
+		opermotd = new FileReader(filename);
 		onoper = conf->ReadFlag("opermotd","onoper","yes",0);
 		delete conf;
 	}
 
-	ModuleOpermotd(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleOpermotd()
+		: cmd(this)
 	{
 		opermotd = NULL;
 		ServerInstance->AddCommand(&cmd);
-		opermotd = new FileReader(ServerInstance);
+		opermotd = new FileReader;
 		LoadOperMOTD();
 		Implementation eventlist[] = { I_OnRehash, I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

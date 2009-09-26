@@ -27,11 +27,10 @@ class CoreExport DLLManager
 
  public:
 	/** This constructor loads the module using dlopen()
-	 * @param ServerInstance The creator class of this object
 	 * @param fname The filename to load. This should be within
 	 * the modules dir.
 	 */
-	DLLManager(InspIRCd* ServerInstance, const char *fname);
+	DLLManager(const char *fname);
 	virtual ~DLLManager();
 
 	/** Get a symbol using dynamic linking.
@@ -102,15 +101,11 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 	 * The init_module function is the only exported extern "C" declaration
 	 * in any module file. In a cmd_*.cpp file the equivilant is init_command
 	 */
-	typedef ReturnType * (initfunctype) (InspIRCd*);
+	typedef ReturnType * (initfunctype) ();
 
 	/** Pointer to the init function.
 	 */
 	initfunctype* init_func;
-
-	/** Instance pointer to be passed to init_*() when it is called.
-	 */
-	InspIRCd* ServerInstance;
 
  public:
 	/** Default constructor.
@@ -119,8 +114,8 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 	 * class. It is then down to the core to call the ModuleFactory::CreateModule() method and
 	 * receive a Module* which it can insert into its module lists.
 	 */
-	DLLFactory(InspIRCd* Instance, const char *fname, const char *func_name)
-	: DLLManager(Instance, fname), init_func(NULL), ServerInstance(Instance)
+	DLLFactory(const char *fname, const char *func_name)
+	: DLLManager(fname), init_func(NULL)
 	{
 		const char* error = LastError();
 
@@ -144,7 +139,7 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 	{
 		if(init_func)
 		{
-			return init_func(ServerInstance);
+			return init_func();
 		}
 		else
 		{

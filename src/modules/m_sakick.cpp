@@ -97,8 +97,8 @@ class ModuleSakick : public Module
 {
 	CommandSakick cmd;
  public:
-	ModuleSakick(InspIRCd* Me)
-		: Module(Me), cmd(this)
+	ModuleSakick()
+		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

@@ -20,7 +20,7 @@ CommandWhowas::CommandWhowas( Module* parent) : Command(parent, "WHOWAS", 1)
 {
 	syntax = "<nick>{,<nick>}";
 	Penalty = 2;
-	timer = new WhoWasMaintainTimer(ServerInstance, 3600);
+	timer = new WhoWasMaintainTimer(3600);
 	ServerInstance->Timers->AddTimer(timer);
 }
 
@@ -309,7 +309,7 @@ class ModuleWhoWas : public Module
 {
 	CommandWhowas cmd;
  public:
-	ModuleWhoWas(InspIRCd *Me) : Module(Me), cmd(this)
+	ModuleWhoWas() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

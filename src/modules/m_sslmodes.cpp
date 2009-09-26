@@ -21,7 +21,7 @@
 class SSLMode : public ModeHandler
 {
  public:
-	SSLMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'z', PARAM_NONE, MODETYPE_CHANNEL) { }
+	SSLMode(Module* Creator) : ModeHandler(Creator, 'z', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -70,8 +70,8 @@ class ModuleSSLModes : public Module
 	SSLMode sslm;
 
  public:
-	ModuleSSLModes(InspIRCd* Me)
-		: Module(Me), sslm(Me, this)
+	ModuleSSLModes()
+		: sslm(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&sslm))
 			throw ModuleException("Could not add new modes!");

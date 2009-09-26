@@ -22,7 +22,7 @@ class DelayMsgMode : public ModeHandler
 	CUList empty;
  public:
 	LocalIntExt jointime;
-	DelayMsgMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Parent, 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
+	DelayMsgMode(Module* Parent) : ModeHandler(Parent, 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
 		, jointime("delaymsg", Parent)
 	{
 		levelrequired = OP_VALUE;
@@ -54,7 +54,7 @@ class ModuleDelayMsg : public Module
  private:
 	DelayMsgMode djm;
  public:
-	ModuleDelayMsg(InspIRCd* Me) : Module(Me), djm(Me, this)
+	ModuleDelayMsg() : djm(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&djm))
 			throw ModuleException("Could not add new modes!");

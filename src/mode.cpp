@@ -188,7 +188,7 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 	return MODEACTION_DENY;
 }
 
-ModeWatcher::ModeWatcher(InspIRCd* Instance, char modeletter, ModeType type) : ServerInstance(Instance), mode(modeletter), m_type(type)
+ModeWatcher::ModeWatcher(char modeletter, ModeType type) : mode(modeletter), m_type(type)
 {
 }
 
@@ -268,7 +268,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	int pcnt = mh->GetNumParams(adding);
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(ServerInstance, OnRawMode, MOD_RESULT, (user, chan, modechar, parameter, adding, pcnt));
+	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, modechar, parameter, adding, pcnt));
 
 	if (IS_LOCAL(user) && (MOD_RESULT == MOD_RES_DENY))
 		return MODEACTION_DENY;
@@ -395,7 +395,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 	else
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
+		FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return;
 		SkipAccessChecks = (MOD_RESULT == MOD_RES_ALLOW);
@@ -545,7 +545,7 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 			return;
 
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnRawMode, MOD_RESULT, (user, chan, mletter, "", true, 0));
+		FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mletter, "", true, 0));
 		if (MOD_RESULT == MOD_RES_DENY)
 			continue;
 
@@ -958,29 +958,29 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	}
 }
 
-ModeParser::ModeParser(InspIRCd* Instance)
+ModeParser::ModeParser()
 {
 	ModeHandler* modes[] =
 	{
-		new ModeChannelSecret(Instance),
-		new ModeChannelPrivate(Instance),
-		new ModeChannelModerated(Instance),
-		new ModeChannelTopicOps(Instance),
+		new ModeChannelSecret,
+		new ModeChannelPrivate,
+		new ModeChannelModerated,
+		new ModeChannelTopicOps,
 
-		new ModeChannelNoExternal(Instance),
-		new ModeChannelInviteOnly(Instance),
-		new ModeChannelKey(Instance),
-		new ModeChannelLimit(Instance),
+		new ModeChannelNoExternal,
+		new ModeChannelInviteOnly,
+		new ModeChannelKey,
+		new ModeChannelLimit,
 
-		new ModeChannelBan(Instance),
-		new ModeChannelOp(Instance),
-		new ModeChannelHalfOp(Instance),
-		new ModeChannelVoice(Instance),
+		new ModeChannelBan,
+		new ModeChannelOp,
+		new ModeChannelHalfOp,
+		new ModeChannelVoice,
 
-		new ModeUserWallops(Instance),
-		new ModeUserInvisible(Instance),
-		new ModeUserOperator(Instance),
-		new ModeUserServerNoticeMask(Instance),
+		new ModeUserWallops,
+		new ModeUserInvisible,
+		new ModeUserOperator,
+		new ModeUserServerNoticeMask,
 #define BUILTIN_MODE_COUNT 16
 	};
 

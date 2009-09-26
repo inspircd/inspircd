@@ -87,7 +87,7 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	User* _new = NULL;
 	try
 	{
-		_new = new User(ServerInstance, params[0]);
+		_new = new User(params[0]);
 	}
 	catch (...)
 	{
@@ -173,7 +173,7 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	params[params.size() - 1] = ":" + params[params.size() - 1];
 	Utils->DoOneToAllButSender(source, "UID", params, source);
 
-	FOREACH_MOD_I(ServerInstance,I_OnPostConnect,OnPostConnect(_new));
+	FOREACH_MOD(I_OnPostConnect,OnPostConnect(_new));
 
 	return true;
 }

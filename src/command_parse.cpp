@@ -29,7 +29,7 @@
 int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 {
 	ModResult res;
-	FIRST_MOD_RESULT(this, OnPassCompare, res, (ex, data, input, hashtype));
+	FIRST_MOD_RESULT(OnPassCompare, res, (ex, data, input, hashtype));
 
 	/* Module matched */
 	if (res == MOD_RES_ALLOW)
@@ -262,7 +262,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	if (cm == cmdlist.end())
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
+		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return true;
 
@@ -325,7 +325,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	 * truncate to max_params if necessary. -- w00t
 	 */
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
+	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
 	if (MOD_RESULT == MOD_RES_DENY)
 		return true;
 
@@ -382,7 +382,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		cm->second->total_bytes += cmd.length();
 
 		/* module calls too */
-		FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, command_p, user, true, cmd));
+		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true, cmd));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return do_more;
 
@@ -437,7 +437,7 @@ bool CommandParser::CreateCommand(Command *f)
 	return false;
 }
 
-CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
+CommandParser::CommandParser() 
 {
 	para.resize(128);
 }

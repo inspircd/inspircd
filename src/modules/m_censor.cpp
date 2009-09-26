@@ -26,7 +26,7 @@ typedef std::map<irc::string,irc::string> censor_t;
 class CensorUser : public SimpleUserModeHandler
 {
  public:
-	CensorUser(InspIRCd* Instance, Module* Creator) : SimpleUserModeHandler(Creator, 'G') { }
+	CensorUser(Module* Creator) : SimpleUserModeHandler(Creator, 'G') { }
 };
 
 /** Handles channel mode +G
@@ -34,7 +34,7 @@ class CensorUser : public SimpleUserModeHandler
 class CensorChannel : public SimpleChannelModeHandler
 {
  public:
-	CensorChannel(InspIRCd* Instance, Module* Creator) : SimpleChannelModeHandler(Instance, Creator, 'G') { }
+	CensorChannel(Module* Creator) : SimpleChannelModeHandler(Creator, 'G') { }
 };
 
 class ModuleCensor : public Module
@@ -44,8 +44,8 @@ class ModuleCensor : public Module
 	CensorChannel cc;
 
  public:
-	ModuleCensor(InspIRCd* Me)
-		: Module(Me), cu(Me, this), cc(Me, this)
+	ModuleCensor()
+		: cu(this), cc(this)
 	{
 		/* Read the configuration file on startup.
 		 */
@@ -77,7 +77,7 @@ class ModuleCensor : public Module
 		{
 			active = ((Channel*)dest)->IsModeSet('G');
 			Channel* c = (Channel*)dest;
-			if (CHANOPS_EXEMPT(ServerInstance, 'G') && c->GetPrefixValue(user) == OP_VALUE)
+			if (CHANOPS_EXEMPT('G') && c->GetPrefixValue(user) == OP_VALUE)
 			{
 				return MOD_RES_PASSTHRU;
 			}
@@ -115,7 +115,7 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		ConfigReader* MyConf = new ConfigReader(ServerInstance);
+		ConfigReader* MyConf = new ConfigReader;
 		censors.clear();
 
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)

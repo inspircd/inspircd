@@ -203,7 +203,7 @@ class ModuleCheck : public Module
  private:
 	CommandCheck mycommand;
  public:
-	ModuleCheck(InspIRCd* Me) : Module(Me), mycommand(this)
+	ModuleCheck() : mycommand(this)
 	{
 		ServerInstance->AddCommand(&mycommand);
 	}

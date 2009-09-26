@@ -18,7 +18,7 @@
 class AuditoriumMode : public ModeHandler
 {
  public:
-	AuditoriumMode(InspIRCd* Instance, Module* Creator) : ModeHandler(Creator, 'u', PARAM_NONE, MODETYPE_CHANNEL)
+	AuditoriumMode(Module* Creator) : ModeHandler(Creator, 'u', PARAM_NONE, MODETYPE_CHANNEL)
 	{
 		levelrequired = OP_VALUE;
 	}
@@ -44,8 +44,8 @@ class ModuleAuditorium : public Module
 	bool ShowOps;
 	bool OperOverride;
  public:
-	ModuleAuditorium(InspIRCd* Me)
-		: Module(Me), aum(Me, this)
+	ModuleAuditorium()
+		: aum(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&aum))
 			throw ModuleException("Could not add new modes!");
@@ -53,7 +53,7 @@ class ModuleAuditorium : public Module
 		OnRehash(NULL);
 
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnRehash, I_OnHostCycle };
-		Me->Modules->Attach(eventlist, this, 7);
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 
 	}
 
@@ -64,7 +64,7 @@ class ModuleAuditorium : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader conf(ServerInstance);
+		ConfigReader conf;
 		ShowOps = conf.ReadFlag("auditorium", "showops", 0);
 		OperOverride = conf.ReadFlag("auditorium", "operoverride", 0);
 	}

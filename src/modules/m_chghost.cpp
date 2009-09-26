@@ -86,7 +86,7 @@ class ModuleChgHost : public Module
 	CommandChghost cmd;
 	char hostmap[256];
  public:
-	ModuleChgHost(InspIRCd* Me) : cmd(this, hostmap)
+	ModuleChgHost() : cmd(this, hostmap)
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
@@ -97,7 +97,7 @@ class ModuleChgHost : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);
 
 		if (hmap.empty())

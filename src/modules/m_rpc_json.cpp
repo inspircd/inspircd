@@ -42,7 +42,7 @@ class ModuleRpcJson : public Module
  private:
 
  public:
-	ModuleRpcJson(InspIRCd *Me) : Module(Me)
+	ModuleRpcJson()
 	{
 		ServerInstance->Modules->PublishInterface("RPC", this);
 		Implementation eventlist[] = { I_OnEvent };
@@ -89,7 +89,7 @@ class ModuleRpcJson : public Module
 
 					RPCRequest modreq("json", method->GetString(), params);
 					Event mev((char*) &modreq, this, "RPCMethod");
-					mev.Send(ServerInstance);
+					mev.Send();
 
 					if (!modreq.claimed)
 						throw JsonException("Unrecognized method");

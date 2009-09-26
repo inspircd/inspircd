@@ -31,7 +31,7 @@
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac) : Resolver(Instance, hostname, qt, cached, me), MyLink(x), Utils(Util), query(qt), host(hostname), mine(me), myautoconnect(myac)
+ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac) : Resolver(hostname, qt, cached, me), MyLink(x), Utils(Util), query(qt), host(hostname), mine(me), myautoconnect(myac)
 {
 	/* Nothing in here, folks */
 }
@@ -71,7 +71,7 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 	if (query == DNS_QUERY_AAAA)
 	{
 		bool cached;
-		ServernameResolver* snr = new ServernameResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A, myautoconnect);
+		ServernameResolver* snr = new ServernameResolver(mine, Utils, host, MyLink, cached, DNS_QUERY_A, myautoconnect);
 		ServerInstance->AddResolver(snr, cached);
 		return;
 	}

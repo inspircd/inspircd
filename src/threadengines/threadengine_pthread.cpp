@@ -17,7 +17,7 @@
 #include <signal.h>
 #include <fcntl.h>
 
-ThreadEngine::ThreadEngine(InspIRCd* Instance)
+ThreadEngine::ThreadEngine()
 {
 }
 
@@ -87,7 +87,7 @@ class ThreadSignalSocket : public BufferedSocket
 	}
 };
 
-SocketThread::SocketThread(InspIRCd* SI)
+SocketThread::SocketThread()
 {
 	int fd = eventfd(0, O_NONBLOCK);
 	if (fd < 0)
@@ -126,7 +126,7 @@ class ThreadSignalSocket : public BufferedSocket
 	}
 };
 
-SocketThread::SocketThread(InspIRCd* SI)
+SocketThread::SocketThread()
 {
 	int fds[2];
 	if (pipe(fds))

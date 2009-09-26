@@ -197,7 +197,7 @@ class CloakUser : public ModeHandler
 
 	void DoRehash()
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		bool lowercase;
 
 		/* These are *not* using the need_positive parameter of ReadInteger -
@@ -256,7 +256,7 @@ class ModuleCloaking : public Module
  	CloakUser* cu;
 
  public:
-	ModuleCloaking(InspIRCd*)
+	ModuleCloaking()
 	{
 		/* Attempt to locate the md5 service provider, bail if we can't find it */
 		Module* HashModule = ServerInstance->Modules->Find("m_md5.so");

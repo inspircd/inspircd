@@ -42,9 +42,8 @@ class ModuleConnJoin : public Module
 		}
 
 	public:
-		ModuleConnJoin(InspIRCd* Me)
-			: Module(Me)
-		{
+		ModuleConnJoin()
+					{
 			OnRehash(NULL);
 			Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
 			ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -58,7 +57,7 @@ class ModuleConnJoin : public Module
 
 		virtual void OnRehash(User* user)
 		{
-			ConfigReader* conf = new ConfigReader(ServerInstance);
+			ConfigReader* conf = new ConfigReader;
 			JoinChan = conf->ReadValue("autojoin", "channel", 0);
 			Joinchans.clear();
 			if (!JoinChan.empty())
@@ -82,7 +81,7 @@ class ModuleConnJoin : public Module
 
 			for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
-					Channel::JoinUser(ServerInstance, user, it->c_str(), false, "", false, ServerInstance->Time());
+					Channel::JoinUser(user, it->c_str(), false, "", false, ServerInstance->Time());
 		}
 
 };

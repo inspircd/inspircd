@@ -109,7 +109,7 @@ void User::StartDNSLookup()
 		UserResolver *res_reverse;
 
 		QueryType resolvtype = this->client_sa.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
-		res_reverse = new UserResolver(ServerInstance, this, sip, resolvtype, cached);
+		res_reverse = new UserResolver(this, sip, resolvtype, cached);
 
 		ServerInstance->AddResolver(res_reverse, cached);
 	}
@@ -205,9 +205,9 @@ void User::DecrementModes()
 	}
 }
 
-User::User(InspIRCd* Instance, const std::string &uid)
+User::User(const std::string &uid)
 {
-	server = Instance->FindServerNamePtr(Instance->Config->ServerName);
+	server = ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
 	age = ServerInstance->Time();
 	Penalty = 0;
 	lastping = signon = idle_lastmsg = nping = registered = 0;
@@ -220,15 +220,15 @@ User::User(InspIRCd* Instance, const std::string &uid)
 	AllowedPrivs = AllowedOperCommands = NULL;
 
 	if (uid.empty())
-		uuid.assign(Instance->GetUID(), 0, UUID_LENGTH - 1);
+		uuid.assign(ServerInstance->GetUID(), 0, UUID_LENGTH - 1);
 	else
 		uuid.assign(uid, 0, UUID_LENGTH - 1);
 
 	ServerInstance->Logs->Log("USERS", DEBUG,"New UUID for user: %s (%s)", uuid.c_str(), uid.empty() ? "allocated new" : "used remote");
 
-	user_hash::iterator finduuid = Instance->Users->uuidlist->find(uuid);
-	if (finduuid == Instance->Users->uuidlist->end())
-		(*Instance->Users->uuidlist)[uuid] = this;
+	user_hash::iterator finduuid = ServerInstance->Users->uuidlist->find(uuid);
+	if (finduuid == ServerInstance->Users->uuidlist->end())
+		(*ServerInstance->Users->uuidlist)[uuid] = this;
 	else
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
@@ -853,7 +853,7 @@ void User::FullConnect()
 	ModResult MOD_RESULT;
 	std::string command("LUSERS");
 	std::vector<std::string> parameters;
-	FIRST_MOD_RESULT(ServerInstance, OnPreCommand, MOD_RESULT, (command, parameters, this, true, "LUSERS"));
+	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, "LUSERS"));
 	if (!MOD_RESULT)
 		ServerInstance->CallCommandHandler(command, parameters, this);
 
@@ -910,7 +910,7 @@ bool User::ForceNickChange(const char* newnick)
 	this->InvalidateCache();
 
 	NICKForced.set(this, 1);
-	FIRST_MOD_RESULT(ServerInstance, OnUserPreNick, MOD_RESULT, (this, newnick));
+	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
 	NICKForced.set(this, 0);
 
 	if (MOD_RESULT == MOD_RES_DENY)
@@ -1148,7 +1148,7 @@ void User::WriteNumeric(unsigned int numeric, const std::string &text)
 	char textbuffer[MAXBUF];
 	ModResult MOD_RESULT;
 
-	FIRST_MOD_RESULT(ServerInstance, OnNumeric, MOD_RESULT, (this, numeric, text));
+	FIRST_MOD_RESULT(OnNumeric, MOD_RESULT, (this, numeric, text));
 
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
@@ -1409,7 +1409,7 @@ bool User::ChangeName(const char* gecos)
 	if (IS_LOCAL(this))
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnChangeLocalUserGECOS, MOD_RESULT, (this,gecos));
+		FIRST_MOD_RESULT(OnChangeLocalUserGECOS, MOD_RESULT, (this,gecos));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
@@ -1424,7 +1424,7 @@ void User::DoHostCycle(const std::string &quitline)
 	char buffer[MAXBUF];
 
 	ModResult result = MOD_RES_PASSTHRU;
-	FIRST_MOD_RESULT(ServerInstance, OnHostCycle, result, (this));
+	FIRST_MOD_RESULT(OnHostCycle, result, (this));
 
 	if (result == MOD_RES_DENY)
 		return;
@@ -1475,7 +1475,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	if (IS_LOCAL(this))
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(ServerInstance, OnChangeLocalUserHost, MOD_RESULT, (this,shost));
+		FIRST_MOD_RESULT(OnChangeLocalUserHost, MOD_RESULT, (this,shost));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 	}
@@ -1734,7 +1734,7 @@ void User::PurgeEmptyChannels()
 		if (i2 != ServerInstance->chanlist->end())
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(ServerInstance, OnChannelPreDelete, MOD_RESULT, (i2->second));
+			FIRST_MOD_RESULT(OnChannelPreDelete, MOD_RESULT, (i2->second));
 			if (MOD_RESULT == MOD_RES_DENY)
 				continue; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));

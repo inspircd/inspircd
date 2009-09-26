@@ -18,7 +18,7 @@
 #include "bancache.h"
 
 /* add a client connection to the sockets list */
-void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+void UserManager::AddUser(int socket, ClientListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
@@ -26,12 +26,12 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 	User* New = NULL;
 	try
 	{
-		New = new User(Instance);
+		New = new User();
 	}
 	catch (...)
 	{
-		Instance->Logs->Log("USERS", DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
-		Instance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
+		ServerInstance->Logs->Log("USERS", DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
+		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
 
@@ -40,7 +40,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 	memcpy(&New->server_sa, server, sizeof(irc::sockets::sockaddrs));
 
 	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD_I(Instance, I_OnHookIO, OnHookIO(New, via));
+	FOREACH_MOD(I_OnHookIO, OnHookIO(New, via));
 
 	if (New->GetIOHook())
 	{
@@ -54,7 +54,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 		}
 	}
 
-	Instance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
+	ServerInstance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
 
 	this->unregistered_count++;
 
@@ -63,19 +63,19 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 	/* The users default nick is their UUID */
 	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
 
-	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
+	New->server = ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
 	New->ident.assign("unknown");
 
 	New->registered = REG_NONE;
-	New->signon = Instance->Time() + Instance->Config->dns_timeout;
+	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
 	New->lastping = 1;
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
 	New->dhost.assign(New->GetIPString(), 0, 64);
 	New->host.assign(New->GetIPString(), 0, 64);
 
-	Instance->Users->AddLocalClone(New);
-	Instance->Users->AddGlobalClone(New);
+	ServerInstance->Users->AddLocalClone(New);
+	ServerInstance->Users->AddGlobalClone(New);
 
 	/*
 	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
@@ -97,9 +97,9 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 
 	this->local_users.push_back(New);
 
-	if ((this->local_users.size() > Instance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)Instance->SE->GetMaxFds()))
+	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)ServerInstance->SE->GetMaxFds()))
 	{
-		Instance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
+		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
 		this->QuitUser(New,"No more connections allowed");
 		return;
 	}
@@ -109,29 +109,29 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 	 * besides that, if we get a positive bancache hit, we still won't fuck
 	 * them over if they are exempt. -- w00t
 	 */
-	New->exempt = (Instance->XLines->MatchesLine("E",New) != NULL);
+	New->exempt = (ServerInstance->XLines->MatchesLine("E",New) != NULL);
 
-	if (BanCacheHit *b = Instance->BanCache->GetHit(New->GetIPString()))
+	if (BanCacheHit *b = ServerInstance->BanCache->GetHit(New->GetIPString()))
 	{
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			Instance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
-			if (*Instance->Config->MoronBanner)
-				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), Instance->Config->MoronBanner);
+			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
+			if (*ServerInstance->Config->MoronBanner)
+				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), ServerInstance->Config->MoronBanner);
 			this->QuitUser(New, b->Reason);
 			return;
 		}
 		else
 		{
-			Instance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Negative hit for ") + New->GetIPString());
+			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Negative hit for ") + New->GetIPString());
 		}
 	}
 	else
 	{
 		if (!New->exempt)
 		{
-			XLine* r = Instance->XLines->MatchesLine("Z",New);
+			XLine* r = ServerInstance->XLines->MatchesLine("Z",New);
 
 			if (r)
 			{
@@ -141,9 +141,9 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 		}
 	}
 
-	if (!Instance->SE->AddFd(New, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
+	if (!ServerInstance->SE->AddFd(New, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
-		Instance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
+		ServerInstance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
 	}
 
@@ -152,7 +152,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 	 */
 	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
 
-	if (Instance->Config->NoUserDns)
+	if (ServerInstance->Config->NoUserDns)
 	{
 		New->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", New->nick.c_str());
 		New->dns_done = true;
@@ -194,12 +194,12 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 	if (user->registered == REG_ALL)
 	{
-		FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(user, reason, oper_reason));
+		FOREACH_MOD(I_OnUserQuit,OnUserQuit(user, reason, oper_reason));
 		user->PurgeEmptyChannels();
 		user->WriteCommonQuit(reason, oper_reason);
 	}
 
-	FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(user));
+	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
 	if (user->registered != REG_ALL)
 		if (ServerInstance->Users->unregistered_count)
@@ -517,7 +517,7 @@ void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
 /* return how many users have a given mode e.g. 'a' */
 int UserManager::ModeCount(const char mode)
 {
-	ModeHandler* mh = this->ServerInstance->Modes->FindMode(mode, MODETYPE_USER);
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_USER);
 
 	if (mh)
 		return mh->GetCount();

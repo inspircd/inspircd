@@ -45,7 +45,7 @@ class ModuleBlockAmsg : public Module
 	SimpleExtItem<BlockedMessage> blockamsg;
 
  public:
-	ModuleBlockAmsg(InspIRCd* Me) : Module(Me), blockamsg("blockamsg", this)
+	ModuleBlockAmsg() : blockamsg("blockamsg", this)
 	{
 		this->OnRehash(NULL);
 		Extensible::Register(&blockamsg);
@@ -65,7 +65,7 @@ class ModuleBlockAmsg : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		ForgetDelay = Conf.ReadInteger("blockamsg", "delay", 0, false);
 

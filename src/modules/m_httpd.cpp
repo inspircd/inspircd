@@ -315,11 +315,11 @@ class HttpServerSocket : public BufferedSocket
 			claimed = false;
 			HTTPRequest httpr(request_type,uri,&headers,this,ip,postdata);
 			Event acl((char*)&httpr, (Module*)HttpModule, "httpd_acl");
-			acl.Send(ServerInstance);
+			acl.Send();
 			if (!claimed)
 			{
 				Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-				e.Send(ServerInstance);
+				e.Send();
 				if (!claimed)
 				{
 					SendHTTPError(404);
@@ -342,7 +342,7 @@ class HttpListener : public ListenSocketBase
 	FileReader* index;
 
  public:
-	HttpListener(InspIRCd* Instance, FileReader *idx, int port, const std::string &addr) : ListenSocketBase(Instance, port, addr)
+	HttpListener(FileReader *idx, int port, const std::string &addr) : ListenSocketBase(port, addr)
 	{
 		this->index = idx;
 	}
@@ -370,7 +370,7 @@ class ModuleHttpServer : public Module
 		std::string indexfile;
 		FileReader* index;
 		HttpListener *http;
-		ConfigReader c(ServerInstance);
+		ConfigReader c;
 
 		httpsocks.clear(); // XXX this will BREAK if this module is made rehashable
 		httplisteners.clear();
@@ -381,16 +381,15 @@ class ModuleHttpServer : public Module
 			bindip = c.ReadValue("http", "ip", i);
 			port = c.ReadInteger("http", "port", i, true);
 			indexfile = c.ReadValue("http", "index", i);
-			index = new FileReader(ServerInstance, indexfile);
+			index = new FileReader(indexfile);
 			if (!index->Exists())
 				throw ModuleException("Can't read index file: "+indexfile);
-			http = new HttpListener(ServerInstance, index, port, (char *)bindip.c_str()); // XXX this cast SUCKS.
+			http = new HttpListener(index, port, (char *)bindip.c_str()); // XXX this cast SUCKS.
 			httplisteners.push_back(http);
 		}
 	}
 
-	ModuleHttpServer(InspIRCd* Me) : Module(Me)
-	{
+	ModuleHttpServer() 	{
 		ReadConfig();
 		HttpModule = this;
 		Implementation eventlist[] = { I_OnRequest };

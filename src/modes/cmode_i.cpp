@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_i.h"
 
-ModeChannelInviteOnly::ModeChannelInviteOnly(InspIRCd* Instance) : SimpleChannelModeHandler(Instance, NULL, 'i')
+ModeChannelInviteOnly::ModeChannelInviteOnly() : SimpleChannelModeHandler(NULL, 'i')
 {
 }
 

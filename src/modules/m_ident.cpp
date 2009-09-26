@@ -75,13 +75,12 @@ class IdentRequestSocket : public EventHandler
 {
  private:
 	User *user;			/* User we are attached to */
-	InspIRCd* ServerInstance;	/* Server instance */
 	bool done;			/* True if lookup is finished */
 	std::string result;		/* Holds the ident string if done */
  public:
 	time_t age;
 
-	IdentRequestSocket(InspIRCd *Server, User* u) : user(u), ServerInstance(Server), result(u->ident)
+	IdentRequestSocket(User* u) : user(u), result(u->ident)
 	{
 		age = ServerInstance->Time();
 		socklen_t size = 0;
@@ -280,9 +279,9 @@ class ModuleIdent : public Module
 	ConfigReader *Conf;
 	SimpleExtItem<IdentRequestSocket> ext;
  public:
-	ModuleIdent(InspIRCd *Me) : Module(Me), ext("ident_socket", this)
+	ModuleIdent() : ext("ident_socket", this)
 	{
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnCleanup, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
@@ -301,7 +300,7 @@ class ModuleIdent : public Module
 	virtual void OnRehash(User *user)
 	{
 		delete Conf;
-		Conf = new ConfigReader(ServerInstance);
+		Conf = new ConfigReader;
 
 		RequestTimeout = Conf->ReadInteger("ident", "timeout", 0, true);
 		if (!RequestTimeout)
@@ -333,7 +332,7 @@ class ModuleIdent : public Module
 
 		try
 		{
-			IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user);
+			IdentRequestSocket *isock = new IdentRequestSocket(user);
 			ext.set(user, isock);
 		}
 		catch (ModuleException &e)

@@ -90,7 +90,7 @@ Module* Event::GetSource()
 	return this->source;
 }
 
-char* Event::Send(InspIRCd* SI)
+char* Event::Send()
 {
 	FOREACH_MOD(I_OnEvent,OnEvent(this));
 	return NULL;
@@ -104,7 +104,7 @@ std::string Event::GetEventID()
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
-Module::Module(InspIRCd*) { }
+Module::Module() { }
 Module::~Module() { }
 
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
@@ -426,7 +426,7 @@ bool ModuleManager::Load(const char* filename)
 		/* This will throw a CoreException if there's a problem loading
 		 * the module file or getting a pointer to the init_module symbol.
 		 */
-		newhandle = new ircd_module(ServerInstance, modfile, "init_module");
+		newhandle = new ircd_module(modfile, "init_module");
 		newmod = newhandle->CallInit();
 
 		if (newmod)
@@ -494,7 +494,7 @@ bool ModuleManager::Load(const char* filename)
 	}
 
 	this->ModCount++;
-	FOREACH_MOD_I(ServerInstance,I_OnLoadModule,OnLoadModule(newmod, filename_str));
+	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod, filename_str));
 
 	/* We give every module a chance to re-prioritize when we introduce a new one,
 	 * not just the one thats loading, as the new module could affect the preference
@@ -556,7 +556,7 @@ bool ModuleManager::Unload(const char* filename)
 		/* Tidy up any dangling resolvers */
 		ServerInstance->Res->CleanResolvers(modfind->second.second);
 
-		FOREACH_MOD_I(ServerInstance,I_OnUnloadModule,OnUnloadModule(modfind->second.second, modfind->first));
+		FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modfind->second.second, modfind->first));
 
 		this->DetachAll(modfind->second.second);
 
@@ -877,7 +877,7 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 	return retval;
 }
 
-ConfigReader::ConfigReader(InspIRCd* Instance)
+ConfigReader::ConfigReader()
 {
 	this->error = 0;
 }
@@ -957,12 +957,12 @@ int ConfigReader::EnumerateValues(const std::string &tag, int index)
 	return ServerInstance->Config->ConfVarEnum(tag, index);
 }
 
-FileReader::FileReader(InspIRCd* Instance, const std::string &filename)
+FileReader::FileReader(const std::string &filename)
 {
 	LoadFile(filename);
 }
 
-FileReader::FileReader(InspIRCd* Instance)
+FileReader::FileReader()
 {
 }
 

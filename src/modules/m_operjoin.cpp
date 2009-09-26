@@ -43,8 +43,7 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin(InspIRCd* Me) : Module(Me)
-		{
+		ModuleOperjoin() 		{
 			OnRehash(NULL);
 		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
@@ -53,7 +52,7 @@ class ModuleOperjoin : public Module
 
 		virtual void OnRehash(User* user)
 		{
-			ConfigReader* conf = new ConfigReader(ServerInstance);
+			ConfigReader* conf = new ConfigReader;
 
 			operChan = conf->ReadValue("operjoin", "channel", 0);
 			override = conf->ReadFlag("operjoin", "override", "0", 0);
@@ -92,7 +91,7 @@ class ModuleOperjoin : public Module
 
 			for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
-					Channel::JoinUser(ServerInstance, user, it->c_str(), override, "", false, ServerInstance->Time());
+					Channel::JoinUser(user, it->c_str(), override, "", false, ServerInstance->Time());
 
 			std::map<std::string, std::vector<std::string> >::iterator i = operTypeChans.find(user->oper);
 
@@ -103,7 +102,7 @@ class ModuleOperjoin : public Module
 				{
 					if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
 					{
-						Channel::JoinUser(ServerInstance, user, it->c_str(), override, "", false, ServerInstance->Time());
+						Channel::JoinUser(user, it->c_str(), override, "", false, ServerInstance->Time());
 					}
 				}
 			}

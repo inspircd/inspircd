@@ -70,7 +70,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 	  		return CMD_FAILURE;
 		}
 
-		FIRST_MOD_RESULT(ServerInstance, OnUserPreInvite, MOD_RESULT, (user,u,c,timeout));
+		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user,u,c,timeout));
 
 		if (MOD_RESULT == MOD_RES_DENY)
 		{

@@ -20,8 +20,7 @@ class ModuleOperLog : public Module
  private:
 
  public:
-	ModuleOperLog(InspIRCd* Me) : Module(Me)
-	{
+	ModuleOperLog() 	{
 
 		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

@@ -25,8 +25,7 @@ class ModuleConnectBan : public Module
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
  public:
-	ModuleConnectBan(InspIRCd* Me) : Module(Me)
-	{
+	ModuleConnectBan() 	{
 		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 		OnRehash(NULL);
@@ -43,7 +42,7 @@ class ModuleConnectBan : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 		std::string duration;
 
 		ipv4_cidr = Conf.ReadInteger("connectban", "ipv4cidr", 0, true);
@@ -91,7 +90,7 @@ class ModuleConnectBan : public Module
 			if (i->second >= threshold)
 			{
 				// Create zline for set duration.
-				ZLine* zl = new ZLine(ServerInstance, ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Connect flooding", u->GetCIDRMask(range));
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Connect flooding", u->GetCIDRMask(range));
 				if (ServerInstance->XLines->AddLine(zl,NULL))
 					ServerInstance->XLines->ApplyLines();
 				else

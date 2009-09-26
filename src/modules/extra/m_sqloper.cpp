@@ -32,9 +32,8 @@ class ModuleSQLOper : public Module
 	parameterlist names;
 
 public:
-	ModuleSQLOper(InspIRCd* Me)
-	: Module(Me)
-	{
+	ModuleSQLOper()
+		{
 		ServerInstance->Modules->UseInterface("SQLutils");
 		ServerInstance->Modules->UseInterface("SQL");
 		ServerInstance->Modules->UseInterface("HashRequest");
@@ -114,7 +113,7 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
 		hashtype = assign(Conf.ReadValue("sqloper", "hash", 0));
@@ -298,7 +297,7 @@ public:
 
 	bool OperUser(User* user, const std::string &pattern, const std::string &type)
 	{
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		for (int j = 0; j < Conf.Enumerate("type"); j++)
 		{

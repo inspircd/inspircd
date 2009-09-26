@@ -25,7 +25,7 @@
 #include "hashcomp.h"
 #include "modes/cmode_b.h"
 
-ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(NULL, 'b', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelBan::ModeChannelBan() : ModeHandler(NULL, 'b', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
 	list = true;
 }
@@ -117,7 +117,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	}
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(ServerInstance, OnAddBan, MOD_RESULT, (user,chan,dest));
+	FIRST_MOD_RESULT(OnAddBan, MOD_RESULT, (user,chan,dest));
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		dest = "";
@@ -170,7 +170,7 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 		if (!strcasecmp(i->data.c_str(), dest.c_str()))
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(ServerInstance, OnDelBan, MOD_RESULT, (user, chan, dest));
+			FIRST_MOD_RESULT(OnDelBan, MOD_RESULT, (user, chan, dest));
 			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				dest = "";

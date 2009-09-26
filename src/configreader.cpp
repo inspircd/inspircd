@@ -32,7 +32,7 @@
 #include "commands/cmd_whowas.h"
 #include "modes/cmode_h.h"
 
-ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
+ServerConfig::ServerConfig()
 {
 	*sid = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = *FixedQuit = *HideKillsServer = '\0';
@@ -45,7 +45,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
-	SoftLimit = Instance->SE->GetMaxFds();
+	SoftLimit = ServerInstance->SE->GetMaxFds();
 	MaxConn = SOMAXCONN;
 	MaxWhoResults = 0;
 	debugging = 0;
@@ -199,7 +199,7 @@ static bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, Val
 {
 	if ((data.GetInteger() < 1) || (data.GetInteger() > 31))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <security:maxtargets> value is greater than 31 or less than 1, set to 20.");
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <security:maxtargets> value is greater than 31 or less than 1, set to 20.");
 		data.Set(20);
 	}
 	return true;
@@ -207,10 +207,10 @@ static bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, Val
 
 static bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	if ((data.GetInteger() < 1) || (data.GetInteger() > conf->GetInstance()->SE->GetMaxFds()))
+	if ((data.GetInteger() < 1) || (data.GetInteger() > ServerInstance->SE->GetMaxFds()))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <performance:softlimit> value is greater than %d or less than 0, set to %d.",conf->GetInstance()->SE->GetMaxFds(),conf->GetInstance()->SE->GetMaxFds());
-		data.Set(conf->GetInstance()->SE->GetMaxFds());
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <performance:softlimit> value is greater than %d or less than 0, set to %d.",ServerInstance->SE->GetMaxFds(),ServerInstance->SE->GetMaxFds());
+		data.Set(ServerInstance->SE->GetMaxFds());
 	}
 	return true;
 }
@@ -218,7 +218,7 @@ static bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, Valu
 static bool ValidateMaxConn(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (data.GetInteger() > SOMAXCONN)
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <performance:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <performance:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	return true;
 }
 
@@ -275,7 +275,7 @@ static bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, Valu
 	{
 		std::string nameserver;
 		// attempt to look up their nameserver from /etc/resolv.conf
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		std::ifstream resolv("/etc/resolv.conf");
 		bool found_server = false;
 
@@ -288,19 +288,19 @@ static bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, Valu
 					resolv >> nameserver;
 					data.Set(nameserver.c_str());
 					found_server = true;
-					conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+					ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
 				}
 			}
 
 			if (!found_server)
 			{
-				conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+				ServerInstance->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
 				data.Set("127.0.0.1");
 			}
 		}
 		else
 		{
-			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
+			ServerInstance->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
 			data.Set("127.0.0.1");
 		}
 	}
@@ -310,11 +310,11 @@ static bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, Valu
 
 static bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server name");
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"Validating server name");
 	/* If we already have a servername, and they changed it, we should throw an exception. */
 	if (!strchr(data.GetString(), '.'))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s.'",
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s.'",
 			data.GetString(),data.GetString());
 		std::string moo = data.GetValue();
 		data.Set(moo.append("."));
@@ -328,7 +328,7 @@ static bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, 
 	// 65534 not 65535 because of null terminator
 	if ((!data.GetInteger()) || (data.GetInteger() > 65534) || (data.GetInteger() < 1024))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
 		data.Set(10240);
 	}
 	return true;
@@ -338,7 +338,7 @@ static bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueIt
 {
 	if ((data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<performance:maxwho> size out of range, setting to default of 128.");
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"<performance:maxwho> size out of range, setting to default of 128.");
 		data.Set(128);
 	}
 	return true;
@@ -346,14 +346,14 @@ static bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueIt
 
 static bool ValidateHalfOp(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	ModeHandler* mh = conf->GetInstance()->Modes->FindMode('h', MODETYPE_CHANNEL);
+	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
 	if (data.GetBool() && !mh) {
-		conf->GetInstance()->Logs->Log("CONFIG", DEFAULT, "Enabling halfop mode.");
-		mh = new ModeChannelHalfOp(conf->GetInstance());
-		conf->GetInstance()->Modes->AddMode(mh);
+		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Enabling halfop mode.");
+		mh = new ModeChannelHalfOp;
+		ServerInstance->Modes->AddMode(mh);
 	} else if (!data.GetBool() && mh) {
-		conf->GetInstance()->Logs->Log("CONFIG", DEFAULT, "Disabling halfop mode.");
-		conf->GetInstance()->Modes->DelMode(mh);
+		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Disabling halfop mode.");
+		ServerInstance->Modes->DelMode(mh);
 		delete mh;
 	}
 	return true;
@@ -412,11 +412,11 @@ static bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueIt
 
 static bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server id");
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"Validating server id");
 
 	const char *sid = data.GetString();
 
-	if (*sid && !conf->GetInstance()->IsSID(sid))
+	if (*sid && !ServerInstance->IsSID(sid))
 	{
 		throw CoreException(std::string(sid) + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
@@ -428,7 +428,7 @@ static bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem 
 
 static bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
+	conf->WhoWasMaxKeep = ServerInstance->Duration(data.GetString());
 
 	if (conf->WhoWasGroupSize < 0)
 		conf->WhoWasGroupSize = 0;
@@ -439,10 +439,10 @@ static bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueIt
 	if (conf->WhoWasMaxKeep < 3600)
 	{
 		conf->WhoWasMaxKeep = 3600;
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
 	}
 
-	Module* whowas = conf->GetInstance()->Modules->Find("cmd_whowas.so");
+	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
 	if (whowas)
 	{
 		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
@@ -476,8 +476,8 @@ static bool DoZLine(ServerConfig* conf, const char* tag, const char** entries, V
 	const char* reason = values[0].GetString();
 	const char* ipmask = values[1].GetString();
 
-	ZLine* zl = new ZLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ipmask);
-	if (!conf->GetInstance()->XLines->AddLine(zl, NULL))
+	ZLine* zl = new ZLine(ServerInstance->Time(), 0, "<Config>", reason, ipmask);
+	if (!ServerInstance->XLines->AddLine(zl, NULL))
 		delete zl;
 
 	return true;
@@ -488,8 +488,8 @@ static bool DoQLine(ServerConfig* conf, const char* tag, const char** entries, V
 	const char* reason = values[0].GetString();
 	const char* nick = values[1].GetString();
 
-	QLine* ql = new QLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, nick);
-	if (!conf->GetInstance()->XLines->AddLine(ql, NULL))
+	QLine* ql = new QLine(ServerInstance->Time(), 0, "<Config>", reason, nick);
+	if (!ServerInstance->XLines->AddLine(ql, NULL))
 		delete ql;
 
 	return true;
@@ -500,11 +500,11 @@ static bool DoKLine(ServerConfig* conf, const char* tag, const char** entries, V
 	const char* reason = values[0].GetString();
 	const char* host = values[1].GetString();
 
-	XLineManager* xlm = conf->GetInstance()->XLines;
+	XLineManager* xlm = ServerInstance->XLines;
 
 	IdentHostPair ih = xlm->IdentSplit(host);
 
-	KLine* kl = new KLine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
+	KLine* kl = new KLine(ServerInstance->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
 	if (!xlm->AddLine(kl, NULL))
 		delete kl;
 	return true;
@@ -515,11 +515,11 @@ static bool DoELine(ServerConfig* conf, const char* tag, const char** entries, V
 	const char* reason = values[0].GetString();
 	const char* host = values[1].GetString();
 
-	XLineManager* xlm = conf->GetInstance()->XLines;
+	XLineManager* xlm = ServerInstance->XLines;
 
 	IdentHostPair ih = xlm->IdentSplit(host);
 
-	ELine* el = new ELine(conf->GetInstance(), conf->GetInstance()->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
+	ELine* el = new ELine(ServerInstance->Time(), 0, "<Config>", reason, ih.first.c_str(), ih.second.c_str());
 	if (!xlm->AddLine(el, NULL))
 		delete el;
 	return true;
@@ -2012,11 +2012,6 @@ std::string ServerConfig::GetFullProgDir()
 	return "/";
 }
 
-InspIRCd* ServerConfig::GetInstance()
-{
-	return ServerInstance;
-}
-
 std::string ServerConfig::GetSID()
 {
 	return sid;
@@ -2068,7 +2063,7 @@ bool ValueItem::GetBool()
 
 void ConfigReaderThread::Run()
 {
-	Config = new ServerConfig(ServerInstance);
+	Config = new ServerConfig;
 	Config->Read();
 	done = true;
 }
@@ -2097,7 +2092,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->ResetMaxBans();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
 		User* user = TheUserUID.empty() ? ServerInstance->FindNick(TheUserUID) : NULL;
-		FOREACH_MOD_I(ServerInstance, I_OnRehash, OnRehash(user));
+		FOREACH_MOD(I_OnRehash, OnRehash(user));
 		ServerInstance->BuildISupport();
 
 		delete old;

@@ -75,7 +75,7 @@ class ModuleSWhois : public Module
 	CommandSwhois cmd;
 
  public:
-	ModuleSWhois(InspIRCd* Me) : Module(Me), cmd(this)
+	ModuleSWhois() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostCommand };
@@ -104,7 +104,7 @@ class ModuleSWhois : public Module
 	{
 		if ((command != "OPER") || (result != CMD_SUCCESS))
 			return;
-		ConfigReader Conf(ServerInstance);
+		ConfigReader Conf;
 
 		std::string swhois;
 

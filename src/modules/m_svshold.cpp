@@ -23,8 +23,8 @@ class SVSHold : public XLine
 public:
 	irc::string nickname;
 
-	SVSHold(InspIRCd* Instance, time_t s_time, long d, std::string src, std::string re, std::string nick)
-		: XLine(Instance, s_time, d, src, re, "SVSHOLD")
+	SVSHold(time_t s_time, long d, std::string src, std::string re, std::string nick)
+		: XLine(s_time, d, src, re, "SVSHOLD")
 	{
 		this->nickname = nick.c_str();
 	}
@@ -64,13 +64,13 @@ public:
 class SVSHoldFactory : public XLineFactory
 {
  public:
-	SVSHoldFactory(InspIRCd* Instance) : XLineFactory(Instance, "SVSHOLD") { }
+	SVSHoldFactory() : XLineFactory("SVSHOLD") { }
 
 	/** Generate a shun
  	*/
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
-		return new SVSHold(ServerInstance, set_time, duration, source, reason, xline_specific_mask);
+		return new SVSHold(set_time, duration, source, reason, xline_specific_mask);
 	}
 };
 
@@ -117,7 +117,7 @@ class CommandSvshold : public Command
 
 			try
 			{
-				r = new SVSHold(ServerInstance, ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+				r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (...)
 			{
@@ -163,7 +163,7 @@ class ModuleSVSHold : public Module
 
 
  public:
-	ModuleSVSHold(InspIRCd* Me) : Module(Me), cmd(this), s(Me)
+	ModuleSVSHold() : cmd(this)
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->AddCommand(&cmd);

@@ -18,7 +18,6 @@
 #include "inspircd_config.h"
 #include "base.h"
 
-class InspIRCd;
 class Thread;
 
 /** The ThreadEngine class has the responsibility of initialising
@@ -38,7 +37,7 @@ class CoreExport ThreadEngine
 	/** Constructor.
 	 * @param Instance Creator object
 	 */
-	ThreadEngine(InspIRCd* Instance);
+	ThreadEngine();
 
 	/** Destructor
 	 */
