@@ -216,7 +216,7 @@ do { \
 /** Is a remote user */
 #define IS_REMOTE(x) (x->GetFd() < 0)
 /** Is a fake user */
-#define IS_FAKE(x) (x->GetFd() == FD_FAKEUSER_NUMBER)
+#define IS_SERVER(x) (x->GetFd() == FD_FAKEUSER_NUMBER)
 /** Is a module created user */
 #define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
 /** Is an oper */

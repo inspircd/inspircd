@@ -41,7 +41,7 @@ class DelayMsgMode : public ModeHandler
 		}
 	}
 
-	bool CheckTimeStamp(std::string &their_param, const std::string &our_param, Channel*)
+	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
 	{
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 	}

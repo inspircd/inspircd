@@ -135,7 +135,7 @@ class PermChannel : public ModeHandler
 		{
 			if (channel->IsModeSet('P'))
 			{
-				if (channel->GetUserCounter() == 0 && !IS_FAKE(source))
+				if (channel->GetUserCounter() == 0 && !IS_SERVER(source))
 				{
 					/*
 					 * ugh, ugh, UGH!

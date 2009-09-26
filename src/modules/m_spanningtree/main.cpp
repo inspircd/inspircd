@@ -718,7 +718,7 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 	{
 		Utils->DoOneToMany(source->uuid,"KICK",params);
 	}
-	else if (IS_FAKE(source) && source != Utils->ServerUser)
+	else if (IS_SERVER(source) && source != Utils->ServerUser)
 	{
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"KICK",params);
 	}

@@ -39,7 +39,7 @@ class OperPrefixMode : public ModeHandler
 
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 		{
-			if (IS_FAKE(source) || (source && ServerInstance->ULine(source->server)))
+			if (IS_SERVER(source) || (source && ServerInstance->ULine(source->server)))
 				return MODEACTION_ALLOW;
 			else
 			{
@@ -110,7 +110,7 @@ class ModuleOperPrefixMode : public Module
 	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
 		/* force event propagation to its ModeHandler */
-		if (!IS_FAKE(user) && chan && (mode == 'y'))
+		if (!IS_SERVER(user) && chan && (mode == 'y'))
 			return MOD_RES_ALLOW;
 		return MOD_RES_PASSTHRU;
 	}

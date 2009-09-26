@@ -286,7 +286,7 @@ class CoreExport ModeHandler : public classbase
 	 * @param channel The channel we are checking against
 	 * @return True if the other side wins the merge, false if we win the merge for this mode.
 	 */
-	virtual bool CheckTimeStamp(std::string &their_param, const std::string &our_param, Channel* channel);
+	virtual bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
 
 	/**
 	 * When a remote server needs to bounce a set of modes, it will call this method for every mode

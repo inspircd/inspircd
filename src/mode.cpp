@@ -138,7 +138,7 @@ void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
 }
 
-bool ModeHandler::CheckTimeStamp(std::string& theirs, const std::string& ours, Channel*)
+bool ModeHandler::ResolveModeConflict(std::string& theirs, const std::string& ours, Channel*)
 {
 	return (theirs < ours);
 }
@@ -450,7 +450,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			if (merge && targetchannel && targetchannel->IsModeSet(modechar) && !mh->IsListMode())
 			{
 				std::string ours = targetchannel->GetModeParameter(modechar);
-				if (!mh->CheckTimeStamp(parameter, ours, targetchannel))
+				if (!mh->ResolveModeConflict(parameter, ours, targetchannel))
 					/* we won the mode merge, don't apply this mode */
 					continue;
 			}
