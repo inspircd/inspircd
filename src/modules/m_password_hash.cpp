@@ -29,6 +29,7 @@ class CommandMkpasswd : public Command
 	CommandMkpasswd(Module* Creator, hashymodules &h, std::deque<std::string> &n) : Command(Creator, "MKPASSWD", 2), hashers(h), names(n)
 	{
 		syntax = "<hashtype> <any-text>";
+		Penalty = 5;
 	}
 
 	void MakeHash(User* user, const char* algo, const char* stuff)
@@ -57,9 +58,6 @@ class CommandMkpasswd : public Command
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		MakeHash(user, parameters[0].c_str(), parameters[1].c_str());
-		// this hashing could take some time, increasing server load.
-		// Slow down the user if they are trying to flood mkpasswd requests
-		user->IncreasePenalty(5);
 
 		return CMD_SUCCESS;
 	}

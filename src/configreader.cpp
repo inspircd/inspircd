@@ -338,8 +338,8 @@ static bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueIt
 {
 	if ((data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
-		ServerInstance->Logs->Log("CONFIG",DEFAULT,"<performance:maxwho> size out of range, setting to default of 128.");
-		data.Set(128);
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"<performance:maxwho> size out of range, setting to default of 1024.");
+		data.Set(1024);
 	}
 	return true;
 }
@@ -688,7 +688,19 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			if (ConfValue("connect", "pingfreq", i, tmpv, false))
 				me->pingtime = atol(tmpv.c_str());
 			if (ConfValue("connect", "sendq", i, tmpv, false))
-				me->sendqmax = atol(tmpv.c_str());
+			{
+				// attempt to guess a good hard/soft sendq from a single value
+				long value = atol(tmpv.c_str());
+				if (value > 16384)
+					me->softsendqmax = value / 16;
+				else
+					me->softsendqmax = value;
+				me->hardsendqmax = value * 8;
+			}
+			if (ConfValue("connect", "softsendq", i, tmpv, false))
+				me->softsendqmax = atol(tmpv.c_str());
+			if (ConfValue("connect", "hardsendq", i, tmpv, false))
+				me->hardsendqmax = atol(tmpv.c_str());
 			if (ConfValue("connect", "recvq", i, tmpv, false))
 				me->recvqmax = atol(tmpv.c_str());
 			if (ConfValue("connect", "localmax", i, tmpv, false))
@@ -770,7 +782,7 @@ static const InitialConfig Values[] = {
 	{"options",	"suffixpart",	"",			new ValueContainerChar (&ServerConfig::SuffixPart),		DT_CHARPTR,  NULL},
 	{"options",	"fixedpart",	"",			new ValueContainerChar (&ServerConfig::FixedPart),		DT_CHARPTR,  NULL},
 	{"performance",	"netbuffersize","10240",		new ValueContainerInt  (&ServerConfig::NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
-	{"performance",	"maxwho",	"128",			new ValueContainerInt  (&ServerConfig::MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
+	{"performance",	"maxwho",	"1024",			new ValueContainerInt  (&ServerConfig::MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
 	{"options",	"allowhalfop",	"0",			new ValueContainerBool (&ServerConfig::AllowHalfop),		DT_BOOLEAN,  ValidateHalfOp},
 	{"dns",		"server",	"",			new ValueContainerChar (&ServerConfig::DNSServer),		DT_IPADDRESS,ValidateDnsServer},
 	{"dns",		"timeout",	"5",			new ValueContainerInt  (&ServerConfig::dns_timeout),		DT_INTEGER,  NULL},

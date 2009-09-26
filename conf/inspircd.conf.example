@@ -241,16 +241,6 @@
          # send /nick, /user or /pass)
          timeout="10"
 
-         # pingfreq: How often (in seconds) the server tries to ping connecting clients.
-         pingfreq="120"
-
-         # sendq: Amount of data (in bytes) that the server is allowed to send to the user
-         # before they are dropped.
-         sendq="262144"
-
-         # recvq: Amount of data (in bytes) allowed in a clients queue before they are dropped.
-         recvq="8192"
-
          # localmax: Maximum local connections per IP (or CIDR mask, see below).
          localmax="3"
 
@@ -295,11 +285,17 @@
          # pingfreq: How often (in seconds) the server tries to ping connecting clients.
          pingfreq="120"
 
-         # sendq: Amount of data that the server is allowed to send to the user
-         # before they are dropped.
-         sendq="262144"
+         # hardsendq: maximum amount of data allowed in a client's send queue
+         # before they are dropped. Keep this value higher than the length of
+         # your network's /LIST or /WHO output, or you will have lots of
+         # disconnects from sendq overruns!
+         hardsendq="1048576"
 
-         # recvq: amount of data allowed in a clients queue before they are dropped.
+         # softsendq: amount of data in a client's send queue before the server
+         # begins delaying their commands
+         softsendq="8192"
+
+         # recvq: amount of data allowed in a client's queue before they are dropped.
          recvq="8192"
 
          # localmax: Maximum local connections per IP.
@@ -544,8 +540,7 @@
              netbuffersize="10240"
 
              # maxwho: Maximum number of results to show in a /who query.
-             # It is not recommended to set this above 1024.
-             maxwho="128"
+             maxwho="4096"
 
              # somaxconn: The maximum number of connections that may be waiting
              # in the accept queue. This is *NOT* the total maximum number of

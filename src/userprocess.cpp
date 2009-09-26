@@ -61,11 +61,6 @@ void InspIRCd::DoBackgroundUserStuff()
 			curr->OnDataReady();
 		}
 
-		if (curr->getSendQSize() == 0)
-		{
-			FOREACH_MOD(I_OnBufferFlushed,OnBufferFlushed(curr));
-		}
-
 		switch (curr->registered)
 		{
 			case REG_ALL:

@@ -518,14 +518,17 @@ void User::OnDataReady()
 	if (quitting)
 		return;
 
-	if (MyClass && !HasPrivPermission("users/flood/increased-buffers") && recvq.length() > MyClass->GetRecvqMax())
+	if (MyClass && recvq.length() > MyClass->GetRecvqMax() && !HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users->QuitUser(this, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
 			nick.c_str(), (unsigned long)recvq.length(), MyClass->GetRecvqMax());
 	}
+	unsigned long sendqmax = ULONG_MAX;
+	if (MyClass && !HasPrivPermission("users/flood/increased-buffers"))
+		sendqmax = MyClass->GetSendqSoftMax();
 
-	while (this->Penalty < 10)
+	while (Penalty < 10 && getSendQSize() < sendqmax)
 	{
 		std::string line;
 		line.reserve(MAXBUF);
@@ -559,6 +562,9 @@ eol_found:
 
 		ServerInstance->Parser->ProcessBuffer(line, this);
 	}
+	// Add pseudo-penalty so that we continue processing after sendq recedes
+	if (Penalty == 0 && getSendQSize() >= sendqmax)
+		Penalty++;
 }
 
 void User::AddWriteBuf(const std::string &data)
@@ -566,7 +572,7 @@ void User::AddWriteBuf(const std::string &data)
 	// Don't bother sending text to remote users!
 	if (IS_REMOTE(this))
 		return;
-	if (!quitting && MyClass && getSendQSize() + data.length() > MyClass->GetSendqMax() && !HasPrivPermission("users/flood/increased-buffers"))
+	if (!quitting && MyClass && getSendQSize() + data.length() > MyClass->GetSendqHardMax() && !HasPrivPermission("users/flood/increased-buffers"))
 	{
 		/*
 		 * Fix by brain - Set the error text BEFORE calling, because
@@ -575,7 +581,7 @@ void User::AddWriteBuf(const std::string &data)
 		 */
 		ServerInstance->Users->QuitUser(this, "SendQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ of %lu exceeds connect class maximum of %lu",
-			nick.c_str(), (unsigned long)getSendQSize() + data.length(), MyClass->GetSendqMax());
+			nick.c_str(), (unsigned long)getSendQSize() + data.length(), MyClass->GetSendqHardMax());
 		return;
 	}
 
@@ -1809,12 +1815,21 @@ const std::string FakeUser::GetFullRealHost()
 }
 
 ConnectClass::ConnectClass(char t, const std::string& mask)
-	: type(t), name("unnamed"), registration_timeout(0), host(mask), pingtime(0), pass(""), hash(""), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0), RefCount(1)
+	: type(t), name("unnamed"), registration_timeout(0), host(mask),
+	pingtime(0), pass(""), hash(""), softsendqmax(0), hardsendqmax(0),
+	recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0),
+	RefCount(1)
 {
 }
 
 ConnectClass::ConnectClass(char t, const std::string& mask, const ConnectClass& parent)
-	: type(t), name("unnamed"), registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash), sendqmax(parent.sendqmax), recvqmax(parent.recvqmax), maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxchans(parent.maxchans), port(parent.port), limit(parent.limit), RefCount(1)
+	: type(t), name("unnamed"),
+	registration_timeout(parent.registration_timeout), host(mask),
+	pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash),
+	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax),
+	recvqmax(parent.recvqmax), maxlocal(parent.maxlocal),
+	maxglobal(parent.maxglobal), maxchans(parent.maxchans),
+	port(parent.port), limit(parent.limit), RefCount(1)
 {
 }
 
@@ -1826,7 +1841,8 @@ void ConnectClass::Update(const ConnectClass* src)
 	pingtime = src->pingtime;
 	pass = src->pass;
 	hash = src->hash;
-	sendqmax = src->sendqmax;
+	softsendqmax = src->softsendqmax;
+	hardsendqmax = src->hardsendqmax;
 	recvqmax = src->recvqmax;
 	maxlocal = src->maxlocal;
 	maxglobal = src->maxglobal;

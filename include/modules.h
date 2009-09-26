@@ -388,7 +388,7 @@ enum Implementation
 	I_OnPostTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
-	I_OnWhoisLine, I_OnBuildExemptList, I_OnGarbageCollect, I_OnBufferFlushed,
+	I_OnWhoisLine, I_OnBuildExemptList, I_OnGarbageCollect,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
 	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
@@ -1304,15 +1304,6 @@ class CoreExport Module : public Extensible
 	 * method is called when it is time to do that.
 	 */
 	virtual void OnGarbageCollect();
-
-	/** Called whenever a user's write buffer has been completely sent.
-	 * This is called when the user's write buffer is completely empty, and
-	 * there are no more pending bytes to be written and no pending write events
-	 * in the socket engine's queue. This may be used to refill the buffer with
-	 * data which is being spooled in a controlled manner, e.g. LIST lines.
-	 * @param user The user who's buffer is now empty.
-	 */
-	virtual void OnBufferFlushed(User* user);
 
 	/** Add test suite hooks here. These are used for testing functionality of a module
 	 * via the --testsuite debugging parameter.

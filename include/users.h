@@ -93,8 +93,14 @@ struct CoreExport ConnectClass : public classbase
 	std::string hash;
 
 	/** Maximum size of sendq for users in this class (bytes)
+	 * Users cannot send commands if they go over this limit
 	 */
-	unsigned long sendqmax;
+	unsigned long softsendqmax;
+
+	/** Maximum size of sendq for users in this class (bytes)
+	 * Users are killed if they go over this limit
+	 */
+	unsigned long hardsendqmax;
 
 	/** Maximum size of recvq for users in this class (bytes)
 	 */
@@ -157,11 +163,19 @@ struct CoreExport ConnectClass : public classbase
 		return (pingtime ? pingtime : 120);
 	}
 
-	/** Returns the maximum sendq value
+	/** Returns the maximum sendq value (soft limit)
+	 * Note that this is in addition to internal OS buffers
 	 */
-	unsigned long GetSendqMax()
+	unsigned long GetSendqSoftMax()
 	{
-		return (sendqmax ? sendqmax : 262114);
+		return (softsendqmax ? softsendqmax : 4096);
+	}
+
+	/** Returns the maximum sendq value (hard limit)
+	 */
+	unsigned long GetSendqHardMax()
+	{
+		return (hardsendqmax ? hardsendqmax : 0x100000);
 	}
 
 	/** Returns the maximum recvq value

@@ -79,7 +79,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 			for (ClassVector::iterator i = this->Config->Classes.begin(); i != this->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
-				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqMax())+" :"+
+				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqHardMax())+" :"+
 						ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;
 			}
