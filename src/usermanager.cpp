@@ -141,7 +141,7 @@ void UserManager::AddUser(InspIRCd* Instance, int socket, ClientListenSocket* vi
 		}
 	}
 
-	if (!Instance->SE->AddFd(New))
+	if (!Instance->SE->AddFd(New, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
 		Instance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");

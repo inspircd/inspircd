@@ -87,7 +87,7 @@ class ModuleHttpStats : public Module
 				data << "<usercount>" << ServerInstance->Users->clientlist->size() << "</usercount>";
 				data << "<channelcount>" << ServerInstance->chanlist->size() << "</channelcount>";
 				data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
-				data << "<socketcount>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << "</socketcount><socketmax>" << ServerInstance->SE->GetMaxFds() << "</socketmax><socketengine>" << ServerInstance->SE->GetName() << "</socketengine>";
+				data << "<socketcount>" << (ServerInstance->SE->GetUsedFds()) << "</socketcount><socketmax>" << ServerInstance->SE->GetMaxFds() << "</socketmax><socketengine>" << ServerInstance->SE->GetName() << "</socketengine>";
 
 				time_t current_time = 0;
 				current_time = ServerInstance->Time();

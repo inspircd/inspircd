@@ -54,14 +54,11 @@ KQueueEngine::~KQueueEngine()
 	delete[] ke_list;
 }
 
-bool KQueueEngine::AddFd(EventHandler* eh, bool writeFirst)
+bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
-		return false;
-
-	if (GetRemainingFds() <= 1)
 		return false;
 
 	if (ref[fd])
@@ -79,12 +76,13 @@ bool KQueueEngine::AddFd(EventHandler* eh, bool writeFirst)
 		return false;
 	}
 
-	if (writeFirst) {
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE)) {
 		// ...and sometimes want to write
 		WantWrite(eh);
 	}
 
 	ref[fd] = eh;
+	SocketEngine::SetEventMask(eh, event_mask);
 	CurrentSetSize++;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
@@ -126,38 +124,41 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 	return true;
 }
 
-void KQueueEngine::WantWrite(EventHandler* eh)
+void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
-	struct kevent ke;
-	// EV_ONESHOT since we only ever want one write event
-	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-	if (i < 0) {
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
-					  eh->GetFd(), strerror(errno));
-	}
-}
-
-int KQueueEngine::GetMaxFds()
-{
-	if (!MAX_DESCRIPTORS)
+	if ((new_mask & FD_WANT_POLL_WRITE) && !(old_mask & FD_WANT_POLL_WRITE))
 	{
-		int mib[2], maxfiles;
-		size_t len;
-
-		mib[0] = CTL_KERN;
-		mib[1] = KERN_MAXFILES;
-		len = sizeof(maxfiles);
-		sysctl(mib, 2, &maxfiles, &len, NULL, 0);
-		MAX_DESCRIPTORS = maxfiles;
-		return maxfiles;
+		// new poll-style write
+		struct kevent ke;
+		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+		if (i < 0) {
+			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
+						  eh->GetFd(), strerror(errno));
+		}
 	}
-	return MAX_DESCRIPTORS;
-}
-
-int KQueueEngine::GetRemainingFds()
-{
-	return GetMaxFds() - CurrentSetSize;
+	else if ((old_mask & FD_WANT_POLL_WRITE) && !(new_mask & FD_WANT_POLL_WRITE))
+	{
+		// removing poll-style write
+		struct kevent ke;
+		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+		if (i < 0) {
+			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
+						  eh->GetFd(), strerror(errno));
+		}
+	}
+	if ((new_mask & FD_WANT_EDGE_WRITE) && !(old_mask & FD_WANT_EDGE_WRITE))
+	{
+		// new one-shot write
+		struct kevent ke;
+		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+		if (i < 0) {
+			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
+						  eh->GetFd(), strerror(errno));
+		}
+	}
 }
 
 int KQueueEngine::DispatchEvents()
@@ -171,34 +172,31 @@ int KQueueEngine::DispatchEvents()
 
 	for (int j = 0; j < i; j++)
 	{
+		EventHandler* eh = ref[ke_list[j].ident];
+		if (!eh)
+			continue;
 		if (ke_list[j].flags & EV_EOF)
 		{
-			/* We love you kqueue, oh yes we do *sings*!
-			 * kqueue gives us the error number directly in the EOF state!
-			 * Unlike smelly epoll and select, where we have to getsockopt
-			 * to get the error, this saves us time and cpu cycles. Go BSD!
-			 */
 			ErrorEvents++;
-			if (ref[ke_list[j].ident])
-				ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
+			eh->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
 			continue;
 		}
 		if (ke_list[j].filter == EVFILT_WRITE)
 		{
-			/* We only ever add write events with EV_ONESHOT, which
-			 * means they are automatically removed once such a
-			 * event fires, so nothing to do here.
-			 */
-
 			WriteEvents++;
-			if (ref[ke_list[j].ident])
-				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
+			/* When mask is FD_WANT_FAST_WRITE, we set a one-shot
+			 * write, so we need to clear that bit to detect when it
+			 * set again.
+			 */
+			const int bits_to_clr = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
+			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
+			eh->HandleEvent(EVENT_WRITE);
 		}
 		if (ke_list[j].filter == EVFILT_READ)
 		{
 			ReadEvents++;
-			if (ref[ke_list[j].ident])
-				ref[ke_list[j].ident]->HandleEvent(EVENT_READ);
+			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+			eh->HandleEvent(EVENT_READ);
 		}
 	}
 

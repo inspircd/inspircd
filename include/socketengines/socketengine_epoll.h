@@ -31,6 +31,7 @@ private:
 	/** These are used by epoll() to hold socket events
 	 */
 	struct epoll_event* events;
+	int EngineHandle;
 public:
 	/** Create a new EPollEngine
 	 */
@@ -38,13 +39,11 @@ public:
 	/** Delete an EPollEngine
 	 */
 	virtual ~EPollEngine();
-	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
-	virtual int GetMaxFds();
-	virtual int GetRemainingFds();
+	virtual bool AddFd(EventHandler* eh, int event_mask);
+	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual bool DelFd(EventHandler* eh, bool force = false);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
-	virtual void WantWrite(EventHandler* eh);
 };
 
 /** Creates a SocketEngine

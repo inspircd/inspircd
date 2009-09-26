@@ -19,7 +19,18 @@
 
 PortsEngine::PortsEngine()
 {
-	MAX_DESCRIPTORS = 0;
+	int max = ulimit(4, 0);
+	if (max > 0)
+	{
+		MAX_DESCRIPTORS = max;
+		return max;
+	}
+	else
+	{
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+	}
 	EngineHandle = port_create();
 
 	if (EngineHandle == -1)
@@ -44,29 +55,38 @@ PortsEngine::~PortsEngine()
 	delete[] events;
 }
 
-bool PortsEngine::AddFd(EventHandler* eh, bool writeFirst)
+static int mask_to_events(int event_mask)
+{
+	int rv = 0;
+	if (event_mask & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
+		rv |= POLLRDNORM;
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+		rv |= POLLWRNORM;
+	return rv;
+}
+
+bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
-		return false;
-
-	if (GetRemainingFds() <= 1)
 		return false;
 
 	if (ref[fd])
 		return false;
 
 	ref[fd] = eh;
-	port_associate(EngineHandle, PORT_SOURCE_FD, fd, writeFirst ? POLLWRNORM : POLLRDNORM, eh);
+	SocketEngine::SetEventMask(eh, event_mask);
+	port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(event_mask), eh);
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	CurrentSetSize++;
 	return true;
 }
 
-void PortsEngine::WantWrite(EventHandler* eh)
+void PortsEngine::WantWrite(EventHandler* eh, int old_mask, int new_mask)
 {
-	port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), POLLRDNORM | POLLWRNORM, eh);
+	if (mask_to_events(new_mask) != mask_to_events(old_mask))
+		port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), mask_to_events(new_mask), eh);
 }
 
 bool PortsEngine::DelFd(EventHandler* eh, bool force)
@@ -82,31 +102,6 @@ bool PortsEngine::DelFd(EventHandler* eh, bool force)
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	return true;
-}
-
-int PortsEngine::GetMaxFds()
-{
-	if (MAX_DESCRIPTORS)
-		return MAX_DESCRIPTORS;
-
-	int max = ulimit(4, 0);
-	if (max > 0)
-	{
-		MAX_DESCRIPTORS = max;
-		return max;
-	}
-	else
-	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		printf("ERROR: Can't determine maximum number of open sockets!\n");
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
-	}
-#include <ulimit.h>
-}
-
-int PortsEngine::GetRemainingFds()
-{
-	return GetMaxFds() - CurrentSetSize;
 }
 
 int PortsEngine::DispatchEvents()
@@ -132,15 +127,27 @@ int PortsEngine::DispatchEvents()
 			case PORT_SOURCE_FD:
 			{
 				int fd = this->events[i].portev_object;
-				if (ref[fd])
+				EventHandler* eh = ref[fd];
+				if (eh)
 				{
-					// reinsert port for next time around
-					port_associate(EngineHandle, PORT_SOURCE_FD, fd, POLLRDNORM, ref[fd]);
-					if ((this->events[i].portev_events & POLLRDNORM))
+					int mask = eh->GetEventMask();
+					if (events[i].portev_events & POLLWRNORM)
+						mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE);
+					if (events[i].portev_events & POLLRDNORM)
+						mask &= ~FD_READ_WILL_BLOCK;
+					// reinsert port for next time around, pretending to be one-shot for writes
+					SetEventMask(ev, mask);
+					port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
+					if (events[i].portev_events & POLLRDNORM)
+					{
 						ReadEvents++;
-					else
+						eh->HandleEvent(EVENT_READ);
+					}
+					if (events[i].portev_events & POLLWRNORM)
+					{
 						WriteEvents++;
-					ref[fd]->HandleEvent((this->events[i].portev_events & POLLRDNORM) ? EVENT_READ : EVENT_WRITE);
+						eh->HandleEvent(EVENT_WRITE);
+					}
 				}
 			}
 			default:

@@ -21,10 +21,8 @@
 SelectEngine::SelectEngine()
 {
 	MAX_DESCRIPTORS = FD_SETSIZE;
-	EngineHandle = 0;
 	CurrentSetSize = 0;
 
-	writeable.assign(GetMaxFds(), false);
 	ref = new EventHandler* [GetMaxFds()];
 	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
@@ -34,31 +32,21 @@ SelectEngine::~SelectEngine()
 	delete[] ref;
 }
 
-bool SelectEngine::AddFd(EventHandler* eh, bool writeFirst)
+bool SelectEngine::AddFd(EventHandler* eh, int)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (GetRemainingFds() <= 1)
-		return false;
-
 	if (ref[fd])
 		return false;
 
-	fds.insert(fd);
 	ref[fd] = eh;
+	SocketEngine::SetEventMask(eh, event_mask);
 	CurrentSetSize++;
-
-	writeable[eh->GetFd()] = writeFirst;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
 	return true;
-}
-
-void SelectEngine::WantWrite(EventHandler* eh)
-{
-	writeable[eh->GetFd()] = true;
 }
 
 bool SelectEngine::DelFd(EventHandler* eh, bool force)
@@ -68,10 +56,6 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	std::set<int>::iterator t = fds.find(fd);
-	if (t != fds.end())
-		fds.erase(t);
-
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
@@ -79,14 +63,9 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 	return true;
 }
 
-int SelectEngine::GetMaxFds()
+void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
-	return FD_SETSIZE;
-}
-
-int SelectEngine::GetRemainingFds()
-{
-	return GetMaxFds() - CurrentSetSize;
+	// deal with it later
 }
 
 int SelectEngine::DispatchEvents()
@@ -96,24 +75,26 @@ int SelectEngine::DispatchEvents()
 	socklen_t codesize = sizeof(int);
 	int errcode = 0;
 
+	fd_set wfdset, rfdset, errfdset;
 	FD_ZERO(&wfdset);
 	FD_ZERO(&rfdset);
 	FD_ZERO(&errfdset);
 
-	/* Populate the select FD set (this is why select sucks compared to epoll, kqueue, IOCP) */
-	for (std::set<int>::iterator a = fds.begin(); a != fds.end(); a++)
+	/* Populate the select FD sets (this is why select sucks compared to epoll, kqueue, IOCP) */
+	for (int i = 0; i < FD_SETSIZE; i++)
 	{
-		/* Explicitly one-time writeable */
-		if (writeable[*a])
-			FD_SET (*a, &wfdset);
-		else
-			FD_SET (*a, &rfdset);
-
-		/* All sockets must receive error notifications regardless */
-		FD_SET (*a, &errfdset);
+		EventHandler* eh = ref[i];
+		if (!eh)
+			continue;
+		int state = eh->GetEventMask();
+		if (state & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
+			FD_SET (i, &rfdset);
+		if (state & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+			FD_SET (i, &wfdset);
+		FD_SET (i, &errfdset);
 	}
 
-	/* One second waits */
+	/* One second wait */
 	tval.tv_sec = 1;
 	tval.tv_usec = 0;
 
@@ -123,16 +104,15 @@ int SelectEngine::DispatchEvents()
 	if (sresult < 1)
 		return 0;
 
-	std::vector<int> copy(fds.begin(), fds.end());
-	for (std::vector<int>::iterator a = copy.begin(); a != copy.end(); a++)
+	for (int i = 0; i < FD_SETSIZE; i++)
 	{
-		EventHandler* ev = ref[*a];
+		EventHandler* ev = ref[i];
 		if (ev)
 		{
-			if (FD_ISSET (ev->GetFd(), &errfdset))
+			if (FD_ISSET (i, &errfdset))
 			{
 				ErrorEvents++;
-				if (getsockopt(ev->GetFd(), SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
+				if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
 					errcode = errno;
 
 				ev->HandleEvent(EVENT_ERROR, errcode);
@@ -145,16 +125,17 @@ int SelectEngine::DispatchEvents()
 				 * If an error event occurs above it is not worth processing the
 				 * read and write states even if set.
 				 */
-				if (FD_ISSET (ev->GetFd(), &wfdset))
+				if (FD_ISSET (i, &rfdset))
+				{
+					ReadEvents++;
+					SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+					ev->HandleEvent(EVENT_READ);
+				}
+				if (FD_ISSET (i, &wfdset))
 				{
 					WriteEvents++;
-					writeable[ev->GetFd()] = false;
+					SetEventMask(eh, eh->GetEventMask() & ~FD_WRITE_WILL_BLOCK);
 					ev->HandleEvent(EVENT_WRITE);
-				}
-				if (FD_ISSET (ev->GetFd(), &rfdset))
-				{
-						ReadEvents++;
-						ev->HandleEvent(EVENT_READ);
 				}
 			}
 		}

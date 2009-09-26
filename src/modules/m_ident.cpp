@@ -127,21 +127,17 @@ class IdentRequestSocket : public EventHandler
 		}
 
 		/* Add fd to socket engine */
-		if (!ServerInstance->SE->AddFd(this))
+		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
 		{
 			this->Close();
 			throw ModuleException("out of fds");
 		}
-
-		/* Important: We set WantWrite immediately after connect()
-		 * because a successful connection will trigger a writability event
-		 */
-		ServerInstance->SE->WantWrite(this);
 	}
 
 	virtual void OnConnected()
 	{
 		ServerInstance->Logs->Log("m_ident",DEBUG,"OnConnected()");
+		ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		char req[32];
 

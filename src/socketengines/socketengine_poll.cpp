@@ -21,9 +21,28 @@
 
 PollEngine::PollEngine()
 {
-	// Poll requires no special setup (which is nice).
 	CurrentSetSize = 0;
-	MAX_DESCRIPTORS = 0;
+#ifndef __FreeBSD__
+	int max = ulimit(4, 0);
+	if (max > 0)
+	{
+		MAX_DESCRIPTORS = max;
+	}
+	else
+	{
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
+		printf("ERROR: Can't determine maximum number of open sockets: %s\n", strerror(errno));
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+	}
+#else
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_MAXFILES;
+	len = sizeof(MAX_DESCRIPTORS);
+	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
+#endif
 
 	ref = new EventHandler* [GetMaxFds()];
 	events = new struct pollfd[GetMaxFds()];
@@ -39,18 +58,22 @@ PollEngine::~PollEngine()
 	delete[] events;
 }
 
-bool PollEngine::AddFd(EventHandler* eh, bool writeFirst)
+static int mask_to_poll(int event_mask)
+{
+	int rv = 0;
+	if (event_mask & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
+		rv |= POLLIN;
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
+		rv |= POLLOUT;
+	return rv;
+}
+
+bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
 		ServerInstance->Logs->Log("SOCKET",DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
-		return false;
-	}
-
-	if (GetRemainingFds() <= 1)
-	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"No remaining FDs cannot add fd: %d", fd);
 		return false;
 	}
 
@@ -65,16 +88,10 @@ bool PollEngine::AddFd(EventHandler* eh, bool writeFirst)
 	fd_mappings[fd] = index;
 	ref[index] = eh;
 	events[index].fd = fd;
-	if (writeFirst)
-	{
-		events[index].events = POLLOUT;
-	}
-	else
-	{
-		events[index].events = POLLIN;
-	}
+	events[index].events = mask_to_poll(event_mask);
 
 	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);
+	SocketEngine::SetEventMask(eh, event_mask);
 	CurrentSetSize++;
 	return true;
 }
@@ -87,16 +104,16 @@ EventHandler* PollEngine::GetRef(int fd)
 	return ref[it->second];
 }
 
-void PollEngine::WantWrite(EventHandler* eh)
+void PollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	std::map<int, unsigned int>::iterator it = fd_mappings.find(eh->GetFd());
 	if (it == fd_mappings.end())
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"WantWrite() on unknown fd: %d", eh->GetFd());
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"SetEvents() on unknown fd: %d", eh->GetFd());
 		return;
 	}
 
-	events[it->second].events = POLLIN | POLLOUT;
+	events[it->second].events = mask_to_poll(new_mask);
 }
 
 bool PollEngine::DelFd(EventHandler* eh, bool force)
@@ -147,48 +164,6 @@ bool PollEngine::DelFd(EventHandler* eh, bool force)
 	return true;
 }
 
-int PollEngine::GetMaxFds()
-{
-#ifndef __FreeBSD__
-	if (MAX_DESCRIPTORS)
-		return MAX_DESCRIPTORS;
-
-	int max = ulimit(4, 0);
-	if (max > 0)
-	{
-		MAX_DESCRIPTORS = max;
-		return max;
-	}
-	else
-	{
-		MAX_DESCRIPTORS = 0;
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
-		printf("ERROR: Can't determine maximum number of open sockets: %s\n", strerror(errno));
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
-	}
-	return 0;
-#else
-	if (!MAX_DESCRIPTORS)
-	{
-		int mib[2], maxfiles;
-		size_t len;
-
-		mib[0] = CTL_KERN;
-		mib[1] = KERN_MAXFILES;
-		len = sizeof(maxfiles);
-		sysctl(mib, 2, &maxfiles, &len, NULL, 0);
-		MAX_DESCRIPTORS = maxfiles;
-		return maxfiles;
-	}
-	return MAX_DESCRIPTORS;
-#endif
-}
-
-int PollEngine::GetRemainingFds()
-{
-	return MAX_DESCRIPTORS - CurrentSetSize;
-}
-
 int PollEngine::DispatchEvents()
 {
 	int i = poll(events, CurrentSetSize, 1000);
@@ -203,11 +178,13 @@ int PollEngine::DispatchEvents()
 		{
 			if (events[index].revents)
 				processed++;
+			EventHandler* eh = ref[index];
+			if (!eh)
+				continue;
 
 			if (events[index].revents & POLLHUP)
 			{
-				if (ref[index])
-					ref[index]->HandleEvent(EVENT_ERROR, 0);
+				eh->HandleEvent(EVENT_ERROR, 0);
 				continue;
 			}
 
@@ -219,25 +196,20 @@ int PollEngine::DispatchEvents()
 				// Get error number
 				if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 					errcode = errno;
-				if (ref[index])
-					ref[index]->HandleEvent(EVENT_ERROR, errcode);
+				eh->HandleEvent(EVENT_ERROR, errcode);
 				continue;
-			}
-
-			if (events[index].revents & POLLOUT)
-			{
-				// Switch to wanting read again
-				// event handlers have to request to write again if they need it
-				events[index].events = POLLIN;
-
-				if (ref[index])
-					ref[index]->HandleEvent(EVENT_WRITE);
 			}
 
 			if (events[index].revents & POLLIN)
 			{
-				if (ref[index])
-					ref[index]->HandleEvent(EVENT_READ);
+				SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+				eh->HandleEvent(EVENT_READ);
+			}
+			
+			if (events[index].revents & POLLOUT)
+			{
+				SetEventMask(eh, eh->GetEventMask() & ~FD_WRITE_WILL_BLOCK);
+				eh->HandleEvent(EVENT_WRITE);
 			}
 		}
 	}

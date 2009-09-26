@@ -62,40 +62,74 @@ SocketEngine::~SocketEngine()
 {
 }
 
+void SocketEngine::SetEventMask(EventHandler* eh, int mask)
+{
+	eh->event_mask = mask;
+}
+
+void SocketEngine::ChangeEventMask(EventHandler* eh, int change)
+{
+	int old_m = eh->event_mask;
+	int new_m = old_m;
+
+	// if we are changing read/write type, remove the previously set bit
+	if (change & FD_WANT_READ_MASK)
+		new_m &= ~FD_WANT_READ_MASK;
+	if (change & FD_WANT_WRITE_MASK)
+		new_m &= ~FD_WANT_WRITE_MASK;
+	
+	// if adding a trial read/write, insert it into the set
+	if (change & FD_TRIAL_NOTE_MASK && !(old_m & FD_TRIAL_NOTE_MASK))
+		trials.insert(eh->GetFd());
+
+	new_m |= change;
+	if (new_m == old_m)
+		return;
+
+	eh->event_mask = new_m;
+	OnSetEvent(eh, old_m, new_m);
+}
+
+void SocketEngine::DispatchTrialWrites()
+{
+	std::vector<int> working_list;
+	working_list.reserve(trials.size());
+	working_list.assign(trials.begin(), trials.end());
+	trials.clear();
+	for(unsigned int i=0; i < working_list.size(); i++)
+	{
+		int fd = working_list[i];
+		EventHandler* eh = GetRef(fd);
+		if (!eh)
+			continue;
+		int mask = eh->event_mask;
+		eh->event_mask &= ~(FD_ADD_TRIAL_READ | FD_ADD_TRIAL_WRITE);
+		if ((mask & (FD_ADD_TRIAL_READ | FD_READ_WILL_BLOCK)) == FD_ADD_TRIAL_READ)
+			eh->HandleEvent(EVENT_READ, 0);
+		if ((mask & (FD_ADD_TRIAL_WRITE | FD_WRITE_WILL_BLOCK)) == FD_ADD_TRIAL_WRITE)
+			eh->HandleEvent(EVENT_WRITE, 0);
+	}
+}
+
 bool SocketEngine::HasFd(int fd)
 {
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds()))
 		return false;
 	return ref[fd];
 }
 
 EventHandler* SocketEngine::GetRef(int fd)
 {
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	if ((fd < 0) || (fd > GetMaxFds()))
 		return 0;
 	return ref[fd];
-}
-
-int SocketEngine::GetMaxFds()
-{
-	return 0;
-}
-
-int SocketEngine::GetRemainingFds()
-{
-	return 0;
-}
-
-int SocketEngine::DispatchEvents()
-{
-	return 0;
 }
 
 bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 {
 	if (!eh)
 		return false;
-	if ((eh->GetFd() < 0) || (eh->GetFd() > MAX_DESCRIPTORS))
+	if ((eh->GetFd() < 0) || (eh->GetFd() > GetMaxFds()))
 		return false;
 	return true;
 }

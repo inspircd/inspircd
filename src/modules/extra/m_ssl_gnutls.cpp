@@ -439,7 +439,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
-			MakePollWrite(user);
+			ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_POLL_WRITE);
 			return 0;
 		}
 
@@ -515,17 +515,18 @@ class ModuleSSLGnuTLS : public Module
 
 			if (ret == (int)sendq.length())
 			{
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_WRITE);
 				return 1;
 			}
 			else if (ret > 0)
 			{
 				sendq = sendq.substr(ret);
-				MakePollWrite(user);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
 				return 0;
 			}
 			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
-				MakePollWrite(user);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
 				return 0;
 			}
 			else if (ret == 0)
@@ -559,12 +560,13 @@ class ModuleSSLGnuTLS : public Module
 				{
 					// gnutls_handshake() wants to read() again.
 					session->status = ISSL_HANDSHAKING_READ;
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				}
 				else
 				{
 					// gnutls_handshake() wants to write() again.
 					session->status = ISSL_HANDSHAKING_WRITE;
-					MakePollWrite(user);
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_POLL_WRITE);
 				}
 			}
 			else
@@ -583,7 +585,7 @@ class ModuleSSLGnuTLS : public Module
 			VerifyCertificate(session,user);
 
 			// Finish writing, if any left
-			MakePollWrite(user);
+			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
 			return true;
 		}
@@ -603,11 +605,6 @@ class ModuleSSLGnuTLS : public Module
 				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
 			}
 		}
-	}
-
-	void MakePollWrite(EventHandler* eh)
-	{
-		ServerInstance->SE->WantWrite(eh);
 	}
 
 	void CloseSession(issl_session* session)

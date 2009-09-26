@@ -823,6 +823,7 @@ int InspIRCd::Run()
 		 * This will cause any read or write events to be
 		 * dispatched to their handlers.
 		 */
+		this->SE->DispatchTrialWrites();
 		this->SE->DispatchEvents();
 
 		/* if any users were quit, take them out */

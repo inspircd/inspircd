@@ -57,7 +57,7 @@ ListenSocketBase::ListenSocketBase(InspIRCd* Instance, int port, const std::stri
 		else
 		{
 			Instance->SE->NonBlocking(this->fd);
-			Instance->SE->AddFd(this);
+			Instance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 		}
 	}
 }

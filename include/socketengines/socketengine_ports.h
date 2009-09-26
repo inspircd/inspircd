@@ -42,9 +42,8 @@ public:
 	/** Delete a PortsEngine
 	 */
 	virtual ~PortsEngine();
-	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
-	virtual int GetMaxFds();
-	virtual int GetRemainingFds();
+	virtual bool AddFd(EventHandler* eh, int event_mask);
+	void OnSetEvent(EventHandler* eh, int old_event, int new_event);
 	virtual bool DelFd(EventHandler* eh, bool force = false);
 	virtual int DispatchEvents();
 	virtual std::string GetName();

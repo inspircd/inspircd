@@ -28,32 +28,18 @@
  */
 class SelectEngine : public SocketEngine
 {
-private:
-	/** Because select() does not track an fd list for us between calls, we have one of our own
-	 */
-	std::set<int> fds;
-	/** List of writeable ones (WantWrite())
-	 */
-	std::vector<bool> writeable;
-	/** The read set and write set, populated before each call to select().
-	 */
-	fd_set wfdset, rfdset, errfdset;
-
 public:
 	/** Create a new SelectEngine
-	 * @param Instance The creator of this object
 	 */
 	SelectEngine();
 	/** Delete a SelectEngine
 	 */
 	virtual ~SelectEngine();
-	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
-	virtual int GetMaxFds();
-	virtual int GetRemainingFds();
+	virtual bool AddFd(EventHandler* eh, int event_mask);
 	virtual bool DelFd(EventHandler* eh, bool force = false);
+	void OnSetEvent(EventHandler* eh, int, int);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
-	virtual void WantWrite(EventHandler* eh);
 };
 
 /** Creates a SocketEngine

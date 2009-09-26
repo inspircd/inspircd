@@ -369,7 +369,7 @@ void DNS::Rehash()
 			/* Hook the descriptor into the socket engine */
 			if (ServerInstance && ServerInstance->SE)
 			{
-				if (!ServerInstance->SE->AddFd(this))
+				if (!ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 				{
 					ServerInstance->Logs->Log("RESOLVER",DEFAULT,"Internal error starting DNS - hostnames will NOT resolve.");
 					ServerInstance->SE->Shutdown(this, 2);

@@ -131,7 +131,7 @@ public:
 	 * @param eh EventHandler to add
 	 * @return True if success, false if no room
 	 */
-	bool AddFd(EventHandler* eh, bool writeFirst = false);
+	bool AddFd(EventHandler* eh, int event_mask);
 
 	/** Gets the maximum number of file descriptors that this engine can handle.
 	 * @return The number of file descriptors
@@ -166,10 +166,7 @@ public:
 	 */
 	std::string GetName();
 
-	/** Queues a Write event on the specified event handler.
-	 * @param eh EventHandler that needs data sent on
-	 */
-	void WantWrite(EventHandler* eh);
+	void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 
 	/** Posts a completion event on the specified socket.
 	 * @param eh EventHandler for message

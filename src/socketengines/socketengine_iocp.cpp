@@ -33,7 +33,6 @@ IOCPEngine::IOCPEngine()
 
 	/* Null variables out. */
 	CurrentSetSize = 0;
-	EngineHandle = 0;
 	MAX_DESCRIPTORS = 10240;
 	ref = new EventHandler* [10240];
 	memset(ref, 0, sizeof(EventHandler*) * MAX_DESCRIPTORS);
@@ -47,7 +46,7 @@ IOCPEngine::~IOCPEngine()
 	delete[] ref;
 }
 
-bool IOCPEngine::AddFd(EventHandler* eh, bool writeFirst)
+bool IOCPEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	/* Does it at least look valid? */
 	if (!eh)
@@ -92,7 +91,7 @@ bool IOCPEngine::AddFd(EventHandler* eh, bool writeFirst)
 	ServerInstance->Logs->Log("SOCKET",DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
 
 	/* post a write event if there is data to be written */
-	if(writeFirst)
+	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE))
 		WantWrite(eh);
 
 	/* we're all good =) */
@@ -107,6 +106,7 @@ bool IOCPEngine::AddFd(EventHandler* eh, bool writeFirst)
 	}
 
 	++CurrentSetSize;
+	SocketEngine::SetEventMask(eh, event_mask);
 	ref[*fake_fd] = eh;
 
 	return true;
@@ -171,7 +171,7 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 	return true;
 }
 
-void IOCPEngine::WantWrite(EventHandler* eh)
+void IOCPEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	if (!eh)
 		return;
@@ -183,7 +183,7 @@ void IOCPEngine::WantWrite(EventHandler* eh)
 		return;
 
 	/* Post event - write begin */
-	if(!eh->GetExt("windows_writeevent", m_writeEvent))
+	if((new_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE)) && !eh->GetExt("windows_writeevent", m_writeEvent))
 	{
 		ULONG_PTR completion_key = (ULONG_PTR)*fake_fd;
 		Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_WRITE_READY, 0);
@@ -315,6 +315,7 @@ int IOCPEngine::DispatchEvents()
 			{
 				WriteEvents++;
 				eh->Shrink("windows_writeevent");
+				SetEventMask(eh, eh->GetEventMask() & ~FD_WRITE_WILL_BLOCK);
 				eh->HandleEvent(EVENT_WRITE, 0);
 			}
 			break;
@@ -322,6 +323,7 @@ int IOCPEngine::DispatchEvents()
 			case SOCKET_IO_EVENT_READ_READY:
 			{
 				ReadEvents++;
+				SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
 				if(ov->m_params)
 				{
 					// if we had params, it means we are a udp socket with a udp_overlap pointer in this long.

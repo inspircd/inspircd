@@ -53,14 +53,12 @@ public:
 	/** Delete a PollEngine
 	 */
 	virtual ~PollEngine();
-	virtual bool AddFd(EventHandler* eh, bool writeFirst = false);
+	virtual bool AddFd(EventHandler* eh, int event_mask);
+	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual EventHandler* GetRef(int fd);
-	virtual int GetMaxFds();
-	virtual int GetRemainingFds();
 	virtual bool DelFd(EventHandler* eh, bool force = false);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
-	virtual void WantWrite(EventHandler* eh);
 };
 
 /** Creates a SocketEngine

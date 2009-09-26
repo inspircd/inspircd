@@ -36,7 +36,6 @@
 
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
-enum issl_io_status { ISSL_WRITE, ISSL_READ };
 
 static bool SelfSigned = false;
 
@@ -54,20 +53,15 @@ class issl_session : public classbase
 public:
 	SSL* sess;
 	issl_status status;
-	issl_io_status rstat;
-	issl_io_status wstat;
 
-	unsigned int inbufoffset;
-	char* inbuf;			// Buffer OpenSSL reads into.
-	std::string outbuf;
 	int fd;
 	bool outbound;
+	bool data_to_write;
 
 	issl_session()
 	{
 		outbound = false;
-		rstat = ISSL_READ;
-		wstat = ISSL_WRITE;
+		data_to_write = false;
 	}
 };
 
@@ -106,10 +100,7 @@ class ModuleSSLOpenSSL : public Module
 
  public:
 
-	InspIRCd* PublicInstance;
-
 	ModuleSSLOpenSSL(InspIRCd* Me)
-	: Module(Me), PublicInstance(Me)
 	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
@@ -137,7 +128,7 @@ class ModuleSSLOpenSSL : public Module
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
 		Implementation eventlist[] = {
-			I_On005Numeric, I_OnBufferFlushed, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+			I_On005Numeric, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
 			I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
@@ -350,8 +341,6 @@ class ModuleSSLOpenSSL : public Module
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
-		session->inbuf = new char[inbufsize];
-		session->inbufoffset = 0;
 		session->sess = SSL_new(ctx);
 		session->status = ISSL_NONE;
 		session->outbound = false;
@@ -378,8 +367,6 @@ class ModuleSSLOpenSSL : public Module
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
-		session->inbuf = new char[inbufsize];
-		session->inbufoffset = 0;
 		session->sess = SSL_new(clictx);
 		session->status = ISSL_NONE;
 		session->outbound = true;
@@ -423,19 +410,12 @@ class ModuleSSLOpenSSL : public Module
 
 		if (session->status == ISSL_HANDSHAKING)
 		{
-			if (session->rstat == ISSL_READ || session->wstat == ISSL_READ)
+			// The handshake isn't finished and it wants to read, try to finish it.
+			if (!Handshake(user, session))
 			{
-				// The handshake isn't finished and it wants to read, try to finish it.
-				if (!Handshake(user, session))
-				{
-					// Couldn't resume handshake.
-					if (session->status == ISSL_NONE)
-						return -1;
-					return 0;
-				}
-			}
-			else
-			{
+				// Couldn't resume handshake.
+				if (session->status == ISSL_NONE)
+					return -1;
 				return 0;
 			}
 		}
@@ -444,26 +424,40 @@ class ModuleSSLOpenSSL : public Module
 
 		if (session->status == ISSL_OPEN)
 		{
-			if (session->wstat == ISSL_READ)
+			char* buffer = ServerInstance->GetReadBuffer();
+			size_t bufsiz = ServerInstance->Config->NetBufferSize;
+			int ret = SSL_read(session->sess, buffer, bufsiz);
+			
+			if (ret > 0)
 			{
-				if(DoWrite(user, session) == 0)
-					return 0;
+				recvq.append(buffer, ret);
+				return 1;
 			}
-
-			if (session->rstat == ISSL_READ)
+			else if (ret == 0)
 			{
-				int ret = DoRead(user, session);
+				// Client closed connection.
+				CloseSession(session);
+				return -1;
+			}
+			else if (ret < 0)
+			{
+				int err = SSL_get_error(session->sess, ret);
 
-				if (ret > 0)
+				if (err == SSL_ERROR_WANT_READ)
 				{
-					recvq.append(session->inbuf, session->inbufoffset);
-					session->inbufoffset = 0;
-					return 1;
-				}
-				else if (errno == EAGAIN || errno == EINTR)
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ);
 					return 0;
+				}
+				else if (err == SSL_ERROR_WANT_WRITE)
+				{
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_POLL_WRITE);
+					return 0;
+				}
 				else
+				{
+					CloseSession(session);
 					return -1;
+				}
 			}
 		}
 
@@ -473,9 +467,6 @@ class ModuleSSLOpenSSL : public Module
 	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer)
 	{
 		int fd = user->GetFd();
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return -1;
 
 		issl_session* session = &sessions[fd];
 
@@ -485,136 +476,61 @@ class ModuleSSLOpenSSL : public Module
 			return -1;
 		}
 
+		session->data_to_write = true;
+
 		if (session->status == ISSL_HANDSHAKING)
 		{
-			// The handshake isn't finished, try to finish it.
-			if (session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
+			if (!Handshake(user, session))
 			{
-				if (!Handshake(user, session))
-				{
-					// Couldn't resume handshake.
-					if (session->status == ISSL_NONE)
-						return -1;
-					return 0;
-				}
+				// Couldn't resume handshake.
+				if (session->status == ISSL_NONE)
+					return -1;
+				return 0;
 			}
-		}
-
-		int rv = 0;
-
-		// don't pull items into the output buffer until they are
-		// unlikely to block; this allows sendq exceeded to continue
-		// to work for SSL users.
-		// TODO better signaling for I/O requests so this isn't needed
-		if (session->outbuf.empty())
-		{
-			session->outbuf = buffer;
-			rv = 1;
 		}
 
 		if (session->status == ISSL_OPEN)
 		{
-			if (session->rstat == ISSL_WRITE)
+			int ret = SSL_write(session->sess, buffer.data(), buffer.size());
+			if (ret == (int)buffer.length())
 			{
-				DoRead(user, session);
+				session->data_to_write = false;
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				return 1;
 			}
-
-			if (session->wstat == ISSL_WRITE)
+			else if (ret > 0)
 			{
-				DoWrite(user, session);
-			}
-		}
-
-		if (rv == 0 || !session->outbuf.empty())
-			ServerInstance->SE->WantWrite(user);
-
-		return rv;
-	}
-
-	int DoWrite(StreamSocket* user, issl_session* session)
-	{
-		if (!session->outbuf.size())
-			return -1;
-
-		int ret = SSL_write(session->sess, session->outbuf.data(), session->outbuf.size());
-
-		if (ret == 0)
-		{
-			CloseSession(session);
-			return 0;
-		}
-		else if (ret < 0)
-		{
-			int err = SSL_get_error(session->sess, ret);
-
-			if (err == SSL_ERROR_WANT_WRITE)
-			{
-				session->wstat = ISSL_WRITE;
-				ServerInstance->SE->WantWrite(user);
-				return -1;
-			}
-			else if (err == SSL_ERROR_WANT_READ)
-			{
-				session->wstat = ISSL_READ;
-				return -1;
-			}
-			else
-			{
-				CloseSession(session);
+				buffer = buffer.substr(ret);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
 				return 0;
 			}
-		}
-		else
-		{
-			session->outbuf = session->outbuf.substr(ret);
-			return ret;
-		}
-	}
-
-	int DoRead(StreamSocket* user, issl_session* session)
-	{
-		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
-		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-
-		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
-
-		if (ret == 0)
-		{
-			// Client closed connection.
-			CloseSession(session);
-			return 0;
-		}
-		else if (ret < 0)
-		{
-			int err = SSL_get_error(session->sess, ret);
-
-			if (err == SSL_ERROR_WANT_READ)
-			{
-				session->rstat = ISSL_READ;
-				return -1;
-			}
-			else if (err == SSL_ERROR_WANT_WRITE)
-			{
-				session->rstat = ISSL_WRITE;
-				ServerInstance->SE->WantWrite(user);
-				return -1;
-			}
-			else
+			else if (ret == 0)
 			{
 				CloseSession(session);
-				return 0;
+				return -1;
+			}
+			else if (ret < 0)
+			{
+				int err = SSL_get_error(session->sess, ret);
+
+				if (err == SSL_ERROR_WANT_WRITE)
+				{
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_WRITE);
+					return 0;
+				}
+				else if (err == SSL_ERROR_WANT_READ)
+				{
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+					return 0;
+				}
+				else
+				{
+					CloseSession(session);
+					return -1;
+				}
 			}
 		}
-		else
-		{
-			// Read successfully 'ret' bytes into inbuf + inbufoffset
-			// There are 'ret' + 'inbufoffset' bytes of data in 'inbuf'
-			// 'buffer' is 'count' long
-
-			session->inbufoffset += ret;
-
-			return ret;
-		}
+		return 0;
 	}
 
 	bool Handshake(EventHandler* user, issl_session* session)
@@ -632,15 +548,14 @@ class ModuleSSLOpenSSL : public Module
 
 			if (err == SSL_ERROR_WANT_READ)
 			{
-				session->rstat = ISSL_READ;
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				session->status = ISSL_HANDSHAKING;
 				return true;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
-				session->wstat = ISSL_WRITE;
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_POLL_WRITE);
 				session->status = ISSL_HANDSHAKING;
-				ServerInstance->SE->WantWrite(user);
 				return true;
 			}
 			else
@@ -653,13 +568,11 @@ class ModuleSSLOpenSSL : public Module
 		else if (ret > 0)
 		{
 			// Handshake complete.
-			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			EventHandler *u = ServerInstance->SE->GetRef(session->fd);
-			VerifyCertificate(session, u);
+			VerifyCertificate(session, user);
 
 			session->status = ISSL_OPEN;
 
-			ServerInstance->SE->WantWrite(user);
+			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
 			return true;
 		}
@@ -672,17 +585,6 @@ class ModuleSSLOpenSSL : public Module
 		return true;
 	}
 
-	void OnBufferFlushed(User* user)
-	{
-		if (user->GetIOHook() == this)
-		{
-			std::string dummy;
-			issl_session* session = &sessions[user->GetFd()];
-			if (session && session->outbuf.size())
-				OnStreamSocketWrite(user, dummy);
-		}
-	}
-
 	void CloseSession(issl_session* session)
 	{
 		if (session->sess)
@@ -691,13 +593,6 @@ class ModuleSSLOpenSSL : public Module
 			SSL_free(session->sess);
 		}
 
-		if (session->inbuf)
-		{
-			delete[] session->inbuf;
-		}
-
-		session->outbuf.clear();
-		session->inbuf = NULL;
 		session->sess = NULL;
 		session->status = ISSL_NONE;
 		errno = EIO;
@@ -771,8 +666,7 @@ class ModuleSSLOpenSSL : public Module
 
 static int error_callback(const char *str, size_t len, void *u)
 {
-	ModuleSSLOpenSSL* mssl = (ModuleSSLOpenSSL*)u;
-	mssl->PublicInstance->Logs->Log("m_ssl_openssl",DEFAULT, "SSL error: " + std::string(str, len - 1));
+	ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "SSL error: " + std::string(str, len - 1));
 
 	//
 	// XXX: Remove this line, it causes valgrind warnings...

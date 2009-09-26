@@ -37,6 +37,97 @@ enum EventType
 	EVENT_ERROR	=	2
 };
 
+/**
+ * Event mask for SocketEngine events
+ */
+enum EventMask
+{
+	/** Do not test this socket for readability
+	 */
+	FD_WANT_NO_READ = 0x1,
+	/** Give a read event at all times when reads will not block.
+	 */
+	FD_WANT_POLL_READ = 0x2,
+	/** Give a read event when there is new data to read.
+	 *
+	 * An event MUST be sent if there is new data to be read, and the most
+	 * recent read/recv() on this FD returned EAGAIN. An event MAY be sent
+	 * at any time there is data to be read on the socket.
+	 */
+	FD_WANT_FAST_READ = 0x4,
+	/** Give an optional read event when reads begin to unblock
+	 *
+	 * This state is useful if you want to leave data in the OS receive
+	 * queue but not get continuous event notifications about it, because
+	 * it may not require a system call to transition from FD_WANT_FAST_READ
+	 */
+	FD_WANT_EDGE_READ = 0x8,
+	
+	/** Mask for all read events */
+	FD_WANT_READ_MASK = 0x0F,
+
+	/** Do not test this socket for writeability
+	 */
+	FD_WANT_NO_WRITE = 0x10,
+	/** Give a write event at all times when writes will not block.
+	 *
+	 * You probably don't need to use this state; try your write first, and
+	 * then use FD_WANT_FAST_WRITE.
+	 */
+	FD_WANT_POLL_WRITE = 0x20,
+	/** Give a write event when writes don't block any more
+	 *
+	 * An event MUST be sent if writes will not block, and the most recent
+	 * write/send() on this FD returned EAGAIN, or connect() returned
+	 * EINPROGRESS. An event MAY be sent at any time that writes will not
+	 * block.
+	 *
+	 * Before calling HandleEvent, a socket engine MAY change the state of
+	 * the FD back to FD_WANT_EDGE_WRITE if it is simpler (for example, if a
+	 * one-shot notification was registered). If further writes are needed,
+	 * it is the responsibility of the event handler to change the state to
+	 * one that will generate the required notifications
+	 */
+	FD_WANT_FAST_WRITE = 0x40,
+	/** Give an optional write event on edge-triggered write unblock.
+	 *
+	 * This state is useful to avoid system calls when moving to/from
+	 * FD_WANT_FAST_WRITE when writing data to a mostly-unblocked socket.
+	 */
+	FD_WANT_EDGE_WRITE = 0x80,
+
+	/** Mask for all write events */
+	FD_WANT_WRITE_MASK = 0xF0,
+
+	/** Add a trial read. During the next DispatchEvents invocation, this
+	 * will call HandleEvent with EVENT_READ unless reads are known to be
+	 * blocking. Useful for edge-triggered reads; does nothing if
+	 * FD_READ_WILL_BLOCK has been set on this EventHandler.
+	 */
+	FD_ADD_TRIAL_READ  = 0x100,
+	/** Assert that reads are known to block. This cancels FD_ADD_TRIAL_READ.
+	 */
+	FD_READ_WILL_BLOCK = 0x200,
+
+	/** Add a trial write. During the next DispatchEvents invocation, this
+	 * will call HandleEvent with EVENT_WRITE unless writes are known to be
+	 * blocking.
+	 * 
+	 * This could be used to group several writes together into a single
+	 * send() syscall, or to ensure that writes are blocking when attempting
+	 * to use FD_WANT_FAST_WRITE.
+	 */
+	FD_ADD_TRIAL_WRITE = 0x1000,
+	/** Assert that writes are known to block. This cancels FD_ADD_TRIAL_WRITE.
+	 */
+	FD_WRITE_WILL_BLOCK = 0x2000, 
+
+	/** Mask for trial read/write items */
+	FD_TRIAL_NOTE_MASK = 0x1100,
+	/** Mask for read/write blocking notifications */
+	FD_BLOCK_NOTE_MASK = 0x2200
+};
+
 class InspIRCd;
 class Module;
 
@@ -60,13 +151,15 @@ class Module;
  */
 class CoreExport EventHandler : public Extensible
 {
+ private:
+	/** Private state maintained by socket engine */
+	int event_mask;
  protected:
 	/** File descriptor.
-	 * All events which can be handled
-	 * must have a file descriptor.
-	 * This allows you to add events for
-	 * sockets, fifo's, pipes, and various
-	 * other forms of IPC.
+	 * All events which can be handled must have a file descriptor.  This
+	 * allows you to add events for sockets, fifo's, pipes, and various
+	 * other forms of IPC.  Do not change this while the object is
+	 * registered with the SocketEngine
 	 */
 	int fd;
  public:
@@ -75,10 +168,11 @@ class CoreExport EventHandler : public Extensible
 	 */
 	inline int GetFd() const { return fd; }
 
+	inline int GetEventMask() const { return event_mask; }
+
 	/** Set a new file desciptor
-	 * @param FD The new file descriptor. Do not
-	 * call this method without first deleting the
-	 * object from the SocketEngine if you have
+	 * @param FD The new file descriptor. Do not call this method without
+	 * first deleting the object from the SocketEngine if you have
 	 * added it to a SocketEngine instance.
 	 */
 	void SetFd(int FD);
@@ -99,6 +193,8 @@ class CoreExport EventHandler : public Extensible
 	 * and EVENT_WRITE for write events.
 	 */
 	virtual void HandleEvent(EventType et, int errornum = 0) = 0;
+
+	friend class SocketEngine;
 };
 
 /** Provides basic file-descriptor-based I/O support.
@@ -121,16 +217,16 @@ class CoreExport EventHandler : public Extensible
  */
 class CoreExport SocketEngine
 {
-protected:
-	/** Handle to socket engine, where needed.
-	 */
-	int EngineHandle;
+ protected:
 	/** Current number of descriptors in the engine
 	 */
 	int CurrentSetSize;
 	/** Reference table, contains all current handlers
 	 */
 	EventHandler** ref;
+	/** List of handlers that want a trial read/write
+	 */
+	std::set<int> trials;
 
 	int MAX_DESCRIPTORS;
 
@@ -139,6 +235,9 @@ protected:
 	time_t lastempty;
 
 	void UpdateStats(size_t len_in, size_t len_out);
+
+	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask) = 0;
+	void SetEventMask(EventHandler* eh, int value);
 public:
 
 	double TotalEvents;
@@ -167,9 +266,9 @@ public:
 	 * must provide an object derived from EventHandler which implements
 	 * HandleEvent().
 	 * @param eh An event handling object to add
-	 * @param writeFirst Wait for a write event instead of a read
+	 * @param event_mask The initial event mask for the object
 	 */
-	virtual bool AddFd(EventHandler* eh, bool writeFirst = false) = 0;
+	virtual bool AddFd(EventHandler* eh, int event_mask) = 0;
 
 	/** If you call this function and pass it an
 	 * event handler, that event handler will
@@ -179,22 +278,20 @@ public:
 	 * an eventhandler in the writeable state,
 	 * as this will consume large amounts of
 	 * CPU time.
-	 * @param eh An event handler which wants to
-	 * receive the next writeability event.
+	 * @param eh The event handler to change
+	 * @param event_mask The changes to make to the wait state
 	 */
-	virtual void WantWrite(EventHandler* eh) = 0;
+	void ChangeEventMask(EventHandler* eh, int event_mask);
 
-	/** Returns the maximum number of file descriptors
-	 * you may store in the socket engine at any one time.
+	/** Returns the highest file descriptor you may store in the socket engine
 	 * @return The maximum fd value
 	 */
-	virtual int GetMaxFds();
+	inline int GetMaxFds() const { return MAX_DESCRIPTORS; }
 
-	/** Returns the number of file descriptor slots
-	 * which are available for storing fds.
-	 * @return The number of remaining fd's
+	/** Returns the number of file descriptors being queried
+	 * @return The set size
 	 */
-	virtual int GetRemainingFds();
+	inline int GetUsedFds() const { return CurrentSetSize; }
 
 	/** Delete an event handler from the engine.
 	 * This function call deletes an EventHandler
@@ -229,27 +326,29 @@ public:
 	 */
 	virtual EventHandler* GetRef(int fd);
 
-	/** Waits for events and dispatches them to handlers.
-	 * Please note that this doesnt wait long, only
-	 * a couple of milliseconds. It returns the number of
-	 * events which occured during this call.
-	 * This method will dispatch events to their handlers
-	 * by calling their EventHandler::HandleEvent()
-	 * methods with the neccessary EventType value.
+	/** Waits for events and dispatches them to handlers.  Please note that
+	 * this doesn't wait long, only a couple of milliseconds. It returns the
+	 * number of events which occurred during this call.  This method will
+	 * dispatch events to their handlers by calling their
+	 * EventHandler::HandleEvent() methods with the necessary EventType
+	 * value.
 	 * @return The number of events which have occured.
 	 */
-	virtual int DispatchEvents();
+	virtual int DispatchEvents() = 0;
 
-	/** Returns the socket engines name.
-	 * This returns the name of the engine for use
-	 * in /VERSION responses.
+	/** Dispatch trial reads and writes. This causes the actual socket I/O
+	 * to happen when writes have been pre-buffered.
+	 */
+	virtual void DispatchTrialWrites();
+
+	/** Returns the socket engines name.  This returns the name of the
+	 * engine for use in /VERSION responses.
 	 * @return The socket engine name
 	 */
 	virtual std::string GetName() = 0;
 
-	/** Returns true if the file descriptors in the
-	 * given event handler are within sensible ranges
-	 * which can be handled by the socket engine.
+	/** Returns true if the file descriptors in the given event handler are
+	 * within sensible ranges which can be handled by the socket engine.
 	 */
 	virtual bool BoundsCheckFd(EventHandler* eh);
 
