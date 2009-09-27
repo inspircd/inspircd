@@ -575,13 +575,12 @@ void User::AddWriteBuf(const std::string &data)
 	if (!quitting && MyClass && getSendQSize() + data.length() > MyClass->GetSendqHardMax() && !HasPrivPermission("users/flood/increased-buffers"))
 	{
 		/*
-		 * Fix by brain - Set the error text BEFORE calling, because
-		 * if we dont it'll recursively  call here over and over again trying
-		 * to repeatedly add the text to the sendq!
+		 * Quit the user FIRST, because otherwise we could recurse
+		 * here and hit the same limit.
 		 */
 		ServerInstance->Users->QuitUser(this, "SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ of %lu exceeds connect class maximum of %lu",
-			nick.c_str(), (unsigned long)getSendQSize() + data.length(), MyClass->GetSendqHardMax());
+		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds connect class maximum of %lu",
+			nick.c_str(), MyClass->GetSendqHardMax());
 		return;
 	}
 

@@ -1685,6 +1685,12 @@
 #<module name="m_swhois.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Test module: enable this to create a command useful in testing
+# flood control. To avoid accidental use on live networks, the server
+# name must contain ".test" to load the module
+#<module name="m_testnet.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Timed bans module: Adds timed channel bans and the /TBAN command
 #<module name="m_timedbans.so">
 

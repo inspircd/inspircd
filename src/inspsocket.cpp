@@ -215,6 +215,11 @@ void StreamSocket::DoWrite()
 {
 	if (sendq.empty())
 		return;
+	if (!error.empty() || fd < 0 || fd == INT_MAX)
+	{
+		ServerInstance->Logs->Log("SOCKET", DEBUG, "DoWrite on errored or closed socket");
+		return;
+	}
 
 	if (IOHook)
 	{
@@ -272,11 +277,13 @@ void StreamSocket::DoWrite()
 	}
 	else
 	{
-		bool again = true;
-		while (again)
+		// don't even try if we are known to be blocking
+		if (GetEventMask() & FD_WRITE_WILL_BLOCK)
+			return;
+		// start out optimistic - we won't need to write any more
+		int eventChange = FD_WANT_EDGE_WRITE;
+		while (sendq_len && eventChange == FD_WANT_EDGE_WRITE)
 		{
-			again = false;
-
 			// Prepare a writev() call to write all buffers efficiently
 			int bufcount = sendq.size();
 		
@@ -284,14 +291,15 @@ void StreamSocket::DoWrite()
 			if (bufcount > IOV_MAX)
 			{
 				bufcount = IOV_MAX;
-				again = true;
 			}
 
+			int rv_max = 0;
 			iovec* iovecs = new iovec[bufcount];
 			for(int i=0; i < bufcount; i++)
 			{
 				iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
 				iovecs[i].iov_len = sendq[i].length();
+				rv_max += sendq[i].length();
 			}
 			int rv = writev(fd, iovecs, bufcount);
 			delete[] iovecs;
@@ -310,7 +318,7 @@ void StreamSocket::DoWrite()
 				while (rv > 0 && !sendq.empty())
 				{
 					std::string& front = sendq.front();
-					if (front.length() < (size_t)rv)
+					if (front.length() <= (size_t)rv)
 					{
 						// this string got fully written out
 						rv -= front.length();
@@ -323,6 +331,11 @@ void StreamSocket::DoWrite()
 						rv = 0;
 					}
 				}
+				if (rv < rv_max)
+				{
+					// it's going to block now
+					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
+				}
 			}
 			else if (rv == 0)
 			{
@@ -330,11 +343,11 @@ void StreamSocket::DoWrite()
 			}
 			else if (errno == EAGAIN)
 			{
-				again = false;
+				eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 			}
 			else if (errno == EINTR)
 			{
-				again = true;
+				// restart interrupted syscall
 			}
 			else
 			{
@@ -346,15 +359,9 @@ void StreamSocket::DoWrite()
 			// error - kill all events
 			ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 		}
-		else if (sendq_len)
-		{
-			// writes have blocked, we can use FAST_WRITE to find when they unblock
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
-		}
 		else
 		{
-			// writes are done, we can use EDGE_WRITE to stop asking for write
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_EDGE_WRITE);
+			ServerInstance->SE->ChangeEventMask(this, eventChange);
 		}
 	}
 }
