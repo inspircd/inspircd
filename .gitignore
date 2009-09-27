@@ -1,14 +1,6 @@
 *~
 *.swp
-*.so
-*.o
-.*.d
-*.cpp.*
 
-/*.diff
-/*.orig
-/*.patch
-/*.rej
 /.config.cache
 /.modulemanager
 /BSDmakefile
@@ -16,21 +8,16 @@
 /bin
 /build
 /inspircd
-/inspircd.core
-/inspircd.pid
 /modules
 /org.inspircd.plist
 
 /conf/*.conf
 /conf/*.pem
-/conf/inspircd.conf.example
 /conf/*.pid
 
 /include/inspircd_config.h
 /include/inspircd_version.h
 /include/inspircd_se_config.h
-
-/src/inspircd
 
 /src/modules/m_geoip.cpp
 /src/modules/m_ldapauth.cpp
@@ -46,12 +33,7 @@
 /src/modules/m_sqllog.cpp
 /src/modules/m_sqloper.cpp
 /src/modules/m_sqlutils.cpp
-/src/modules/m_sqlutils.h
-/src/modules/m_sqlv2.h
 /src/modules/m_ssl_gnutls.cpp
 /src/modules/m_ssl_openssl.cpp
-/src/modules/m_ssl_oper_cert.cpp
-/src/modules/m_sslinfo.cpp
 /src/modules/m_testclient.cpp
 /src/modules/m_ziplink.cpp
-/src/modules/ssl_cert.h

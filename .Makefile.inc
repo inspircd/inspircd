@@ -41,6 +41,8 @@ INSTMODE = 0755
   LDLIBS += -ldl
   SHARED = -bundle -twolevel_namespace -undefined dynamic_lookup
   CORELDFLAGS = -dynamic -bind_at_load -L.
+@ELSIFEQ $(SYSTEM) interix
+  CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
 @ENDIF 
 
 @IFDEF D
@@ -65,7 +67,7 @@ CXXFLAGS += -Iinclude
 @ELSE
     @GNU_ONLY MAKEFLAGS += --silent
     @BSD_ONLY MAKE += -s
-    RUNCC = $(SOURCEPATH)/make/run-cc.pl $(CC)
+    RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
