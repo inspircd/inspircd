@@ -42,18 +42,29 @@ END
 	}
 	
 	my @modlist;
-	for my $file (<commands/*.cpp>, <modules/*.cpp>) {
+	for my $file (<commands/*.cpp>) {
 		my $out = find_output $file;
 		dep_cpp $file, $out;
 		push @modlist, $out;
 	}
 
 	opendir my $moddir, 'modules';
-	for my $dir (readdir $moddir) {
-		next unless $dir =~ /^m_/ && -d "modules/$dir";
-		if (dep_dir "modules/$dir") {
-			mkdir "$build/obj/$dir";
-			push @modlist, "modules/$dir.so";
+	for my $file (readdir $moddir) {
+		next if $file =~ /^\./;
+		if (-e "modules/extra/$file" && !-l "modules/$file") {
+			# Incorrect symlink?
+			print "Replacing symlink for $file found in modules/extra\n";
+			rename "modules/$file", "modules/$file~";
+			symlink "extra/$file", "modules/$file";
+		}
+		if ($file =~ /^m_/ && -d "modules/$file" && dep_dir "modules/$file") {
+			mkdir "$build/obj/$file";
+			push @modlist, "modules/$file.so";
+		}
+		if ($file =~ /^m_.*\.cpp$/) {
+			my $out = find_output "modules/$file";
+			dep_cpp "modules/$file", $out;
+			push @modlist, $out;
 		}
 	}
 	
