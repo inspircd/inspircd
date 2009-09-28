@@ -4,6 +4,8 @@ use warnings;
 BEGIN { push @INC, $ENV{SOURCEPATH}; }
 use make::configure;
 
+chdir $ENV{BUILDPATH};
+
 my $out = shift;
 my $verbose;
 

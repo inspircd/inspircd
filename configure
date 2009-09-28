@@ -1077,7 +1077,7 @@ EOF
 
 			print "Writing \e[1;32m$file\e[0m ...\n";
 
-			$config{BUILD_DIR} ||= 'build';
+			$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
 
 			for my $var (qw(
 				CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR
