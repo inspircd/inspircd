@@ -18,10 +18,12 @@ sub run() {
 	my $build = $ENV{BUILDPATH};
 	mkdir $build;
 	chdir $build or die "Could not open build directory: $!";
-	mkdir 'bin';
-	mkdir 'obj';
-	mkdir 'modules';
 	symlink "$ENV{SOURCEPATH}/include", 'include';
+	mkdir $_ for qw/bin modules obj/;
+# BSD make has a horribly annoying bug resulting in an extra chdir of the make process
+# Create symlinks to work around it
+	symlink "../$_", "obj/$_" for qw/bin modules obj/;
+
 	$build = getcwd();
 	open MAKE, '>real.mk' or die "Could not write real.mk: $!";
 	chdir "$ENV{SOURCEPATH}/src";
@@ -73,7 +75,7 @@ END
 	print MAKE <<END;
 
 bin/inspircd: $core_mk
-	cd \$(BUILDPATH); \$(RUNCC) -o \$\@ \$(CORELDFLAGS) \$(LDLIBS) \$^ \$>
+	\$(RUNCC) -o \$\@ \$(CORELDFLAGS) \$(LDLIBS) \$^ \$>
 
 inspircd: bin/inspircd
 modules: $mods
@@ -154,7 +156,7 @@ sub dep_dir($) {
 	closedir DIR;
 	if (@ofiles) {
 		my $ofiles = join ' ', @ofiles;
-		print MAKE "$dir.so: $ofiles\n\tcd \$(BUILDPATH); \$(RUNCC) \$(PICLDFLAGS) -o \$\@ \$^ \$>\n";
+		print MAKE "$dir.so: $ofiles\n\t\$(RUNCC) \$(PICLDFLAGS) -o \$\@ \$^ \$>\n";
 		return 1;
 	} else {
 		return 0;
