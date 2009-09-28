@@ -76,13 +76,9 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	if (event_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) {
-		// ...and sometimes want to write
-		WantWrite(eh);
-	}
-
 	ref[fd] = eh;
 	SocketEngine::SetEventMask(eh, event_mask);
+	OnSetEvent(eh, 0, event_mask);
 	CurrentSetSize++;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);

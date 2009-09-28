@@ -73,7 +73,7 @@ END
 	print MAKE <<END;
 
 bin/inspircd: $core_mk
-	\$(RUNCC) -o \$\@ \$(CORELDFLAGS) \$(LDLIBS) \$^
+	cd \$(BUILDPATH); \$(RUNCC) -o \$\@ \$(CORELDFLAGS) \$(LDLIBS) \$^ \$>
 
 inspircd: bin/inspircd
 modules: $mods
@@ -154,7 +154,7 @@ sub dep_dir($) {
 	closedir DIR;
 	if (@ofiles) {
 		my $ofiles = join ' ', @ofiles;
-		print MAKE "$dir.so: $ofiles\n\t\$(RUNCC) \$(PICLDFLAGS) -o \$\@ \$^\n";
+		print MAKE "$dir.so: $ofiles\n\tcd \$(BUILDPATH); \$(RUNCC) \$(PICLDFLAGS) -o \$\@ \$^ \$>\n";
 		return 1;
 	} else {
 		return 0;

@@ -48,7 +48,6 @@ public:
 	virtual bool DelFd(EventHandler* eh, bool force = false);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
-	virtual void WantWrite(EventHandler* eh);
 	virtual void RecoverFromFork();
 };
 
