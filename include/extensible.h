@@ -21,6 +21,7 @@ class CoreExport ExtensionItem
 	const std::string key;
 	Module* const owner;
 	ExtensionItem(const std::string& key, Module* owner);
+	virtual ~ExtensionItem();
 	/** Serialize this item into a string
 	 *
 	 * @param format The format to serialize to
@@ -83,7 +84,7 @@ class CoreExport Extensible : public classbase
 	static bool Register(ExtensionItem* item);
 	static std::vector<ExtensionItem*> BeginUnregister(Module* module);
 	void doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove);
-	
+
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;
 };
@@ -93,6 +94,7 @@ class CoreExport LocalExtItem : public ExtensionItem
 {
  public:
 	LocalExtItem(const std::string& key, Module* owner);
+	virtual ~LocalExtItem();
 	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item);
 	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	virtual void free(void* item) = 0;
@@ -103,6 +105,10 @@ class CoreExport SimpleExtItem : public LocalExtItem
 {
  public:
 	SimpleExtItem(const std::string& Key, Module* parent) : LocalExtItem(Key, parent)
+	{
+	}
+
+	virtual ~SimpleExtItem()
 	{
 	}
 
@@ -151,6 +157,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 {
  public:
 	LocalStringExt(const std::string& key, Module* owner);
+	virtual ~LocalStringExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
 };
 
@@ -158,6 +165,7 @@ class CoreExport LocalIntExt : public LocalExtItem
 {
  public:
 	LocalIntExt(const std::string& key, Module* owner);
+	virtual ~LocalIntExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
 	intptr_t get(const Extensible* container);
 	intptr_t set(Extensible* container, intptr_t value);
@@ -168,6 +176,7 @@ class CoreExport StringExtItem : public ExtensionItem
 {
  public:
 	StringExtItem(const std::string& key, Module* owner);
+	virtual ~StringExtItem();
 	std::string* get(const Extensible* container);
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);

@@ -4,16 +4,16 @@ use warnings;
 BEGIN { push @INC, $ENV{SOURCEPATH}; }
 use make::configure;
 
-my $file = shift;
+my $out = shift;
 my $verbose;
 
-if ($file =~ /^-/) {
-	$_ = $file;
-	$file = shift;
+if ($out =~ /^-/) {
+	$_ = $out;
+	$out = shift;
 	$verbose = /v/;
 }
 
-my $out = shift;
+my $file = shift;
 
 my $cflags = $ENV{CXXFLAGS};
 $cflags =~ s/ -pedantic// if nopedantic($file);

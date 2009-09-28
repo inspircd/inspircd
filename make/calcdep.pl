@@ -138,7 +138,7 @@ sub dep_cpp($$) {
 	gendep $file;
 
 	print MAKE "$out: $file $f2dep{$file}\n";
-	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl \$(VERBOSE) \$< \$\@\n";
+	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl \$(VERBOSE) \$\@ \$< \$>\n";
 }
 
 sub dep_dir($) {

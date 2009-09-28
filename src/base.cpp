@@ -91,6 +91,10 @@ ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : key(Key), ow
 {
 }
 
+ExtensionItem::~ExtensionItem()
+{
+}
+
 void* ExtensionItem::get_raw(const Extensible* container)
 {
 	ExtensibleStore::const_iterator i = container->extensions.find(key);
@@ -175,6 +179,10 @@ LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(
 {
 }
 
+LocalExtItem::~LocalExtItem()
+{
+}
+
 std::string LocalExtItem::serialize(SerializeFormat format, const Extensible* container, void* item)
 {
 	return "";
@@ -187,6 +195,10 @@ void LocalExtItem::unserialize(SerializeFormat format, Extensible* container, co
 LocalStringExt::LocalStringExt(const std::string& Key, Module* Owner)
 	: SimpleExtItem<std::string>(Key, Owner) { }
 
+LocalStringExt::~LocalStringExt()
+{
+}
+
 std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item)
 {
 	if (item && format == FORMAT_USER)
@@ -195,6 +207,10 @@ std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* 
 }
 
 LocalIntExt::LocalIntExt(const std::string& Key, Module* mod) : LocalExtItem(Key, mod)
+{
+}
+
+LocalIntExt::~LocalIntExt()
 {
 }
 
@@ -223,6 +239,10 @@ void LocalIntExt::free(void*)
 }
 
 StringExtItem::StringExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)
+{
+}
+
+StringExtItem::~StringExtItem()
 {
 }
 
