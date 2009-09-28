@@ -29,6 +29,7 @@
 class KQueueEngine : public SocketEngine
 {
 private:
+	int EngineHandle;
 	/** These are used by kqueue() to hold socket events
 	 */
 	struct kevent* ke_list;
