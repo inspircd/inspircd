@@ -21,6 +21,7 @@
 
 class ModuleSQLAuth : public Module
 {
+	LocalIntExt sqlAuthed;
 	Module* SQLutils;
 	Module* SQLprovider;
 
@@ -32,8 +33,8 @@ class ModuleSQLAuth : public Module
 	bool verbose;
 
 public:
-	ModuleSQLAuth()
-		{
+	ModuleSQLAuth() : sqlAuthed("sqlauth", this)
+	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 		ServerInstance->Modules->UseInterface("SQL");
 
@@ -57,7 +58,7 @@ public:
 	}
 
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ConfigReader Conf;
 
@@ -68,11 +69,11 @@ public:
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	ModResult OnUserRegister(User* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
-			user->Extend("sqlauthed");
+			sqlAuthed.set(user, 1);
 			return MOD_RES_PASSTHRU;
 		}
 
@@ -160,19 +161,17 @@ public:
 					if(res->Rows())
 					{
 						/* We got a row in the result, this is enough really */
-						user->Extend("sqlauthed");
+						sqlAuthed.set(user, 1);
 					}
 					else if (verbose)
 					{
 						/* No rows in result, this means there was no record matching the user */
 						ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-						user->Extend("sqlauth_failed");
 					}
 				}
 				else if (verbose)
 				{
 					ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), res->error.Str());
-					user->Extend("sqlauth_failed");
 				}
 			}
 			else
@@ -180,7 +179,7 @@ public:
 				return NULL;
 			}
 
-			if (!user->GetExt("sqlauthed"))
+			if (!sqlAuthed.get(user))
 			{
 				ServerInstance->Users->QuitUser(user, killreason);
 			}
@@ -189,18 +188,12 @@ public:
 		return NULL;
 	}
 
-	virtual void OnUserDisconnect(User* user)
+	ModResult OnCheckReady(User* user)
 	{
-		user->Shrink("sqlauthed");
-		user->Shrink("sqlauth_failed");
+		return sqlAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
-	virtual ModResult OnCheckReady(User* user)
-	{
-		return user->GetExt("sqlauthed") ? MOD_RES_PASSTHRU : MOD_RES_DENY;
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Allow/Deny connections based upon an arbitary SQL table", VF_VENDOR, API_VERSION);
 	}

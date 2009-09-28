@@ -15,7 +15,6 @@
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
 #include "m_hash.h"
-#include "commands/cmd_oper.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 /* $ModDep: m_sqlv2.h m_sqlutils.h m_hash.h */
@@ -24,6 +23,8 @@ typedef std::map<irc::string, Module*> hashymodules;
 
 class ModuleSQLOper : public Module
 {
+	LocalStringExt saved_user;
+	LocalStringExt saved_pass;
 	Module* SQLutils;
 	std::string databaseid;
 	irc::string hashtype;
@@ -32,8 +33,8 @@ class ModuleSQLOper : public Module
 	parameterlist names;
 
 public:
-	ModuleSQLOper()
-		{
+	ModuleSQLOper() : saved_user("sqloper_user", this), saved_pass("sqloper_pass", this)
+	{
 		ServerInstance->Modules->UseInterface("SQLutils");
 		ServerInstance->Modules->UseInterface("SQL");
 		ServerInstance->Modules->UseInterface("HashRequest");
@@ -68,8 +69,8 @@ public:
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
 
-		Implementation eventlist[] = { I_OnRequest, I_OnRehash, I_OnPreCommand, I_OnLoadModule };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnLoadModule };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
@@ -170,8 +171,8 @@ public:
 			 	 */
 				AssociateUser(this, SQLutils, req.id, user).Send();
 
-				user->Extend("oper_user", strdup(username.c_str()));
-				user->Extend("oper_pass", strdup(password.c_str()));
+				saved_user.set(user, username);
+				saved_pass.set(user, password);
 
 				return true;
 			}
@@ -187,7 +188,7 @@ public:
 		}
 	}
 
-	virtual const char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		if (strcmp(SQLRESID, request->GetId()) == 0)
 		{
@@ -196,14 +197,10 @@ public:
 			User* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
 
-			char* tried_user = NULL;
-			char* tried_pass = NULL;
-
-			user->GetExt("oper_user", tried_user);
-			user->GetExt("oper_pass", tried_pass);
-
 			if (user)
 			{
+				std::string* tried_user = saved_user.get(user);
+				std::string* tried_pass = saved_pass.get(user);
 				if (res->error.Id() == SQL_NO_ERROR)
 				{
 					if (res->Rows())
@@ -226,15 +223,15 @@ public:
 							if (OperUser(user, row["hostname"].d, row["type"].d))
 							{
 								/* If/when one of the rows matches, stop checking and return */
+								saved_user.unset(user);
+								saved_pass.unset(user);
 								return SQLSUCCESS;
 							}
 							if (tried_user && tried_pass)
 							{
-								LoginFail(user, tried_user, tried_pass);
-								free(tried_user);
-								free(tried_pass);
-								user->Shrink("oper_user");
-								user->Shrink("oper_pass");
+								LoginFail(user, *tried_user, *tried_pass);
+								saved_user.unset(user);
+								saved_pass.unset(user);
 							}
 						}
 					}
@@ -246,11 +243,9 @@ public:
 						 */
 						if (tried_user && tried_pass)
 						{
-							LoginFail(user, tried_user, tried_pass);
-							free(tried_user);
-							free(tried_pass);
-							user->Shrink("oper_user");
-							user->Shrink("oper_pass");
+							LoginFail(user, *tried_user, *tried_pass);
+							saved_user.unset(user);
+							saved_pass.unset(user);
 						}
 					}
 				}
@@ -262,11 +257,9 @@ public:
 					 */
 					if (tried_user && tried_pass)
 					{
-						LoginFail(user, tried_user, tried_pass);
-						free(tried_user);
-						free(tried_pass);
-						user->Shrink("oper_user");
-						user->Shrink("oper_pass");
+						LoginFail(user, *tried_user, *tried_pass);
+						saved_user.unset(user);
+						saved_pass.unset(user);
 					}
 
 				}
@@ -322,7 +315,7 @@ public:
 		return false;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR, API_VERSION);
 	}

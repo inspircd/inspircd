@@ -28,22 +28,23 @@ class ModuleSQLutils : public Module
 private:
 	IdUserMap iduser;
 	IdChanMap idchan;
+	SimpleExtItem<AssocIdList> idExt;
 
 public:
-	ModuleSQLutils()
-		{
+	ModuleSQLutils() : idExt("sqlutils_list", this)
+	{
 		ServerInstance->Modules->PublishInterface("SQLutils", this);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUnloadModule, I_OnRequest, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	virtual ~ModuleSQLutils()
+	~ModuleSQLutils()
 	{
 		ServerInstance->Modules->UnpublishInterface("SQLutils", this);
 	}
 
 
-	virtual const char* OnRequest(Request* request)
+	const char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLUTILAU, request->GetId()) == 0)
 		{
@@ -98,15 +99,15 @@ public:
 		return SQLUTILSUCCESS;
 	}
 
-	virtual void OnUserDisconnect(User* user)
+	void OnUserDisconnect(User* user)
 	{
 		/* A user is disconnecting, first we need to check if they have a list of queries associated with them.
 		 * Then, if they do, we need to erase each of them from our IdUserMap (iduser) so when the module that
 		 * associated them asks to look them up then it gets a NULL result and knows to discard the query.
 		 */
-		AssocIdList* il;
+		AssocIdList* il = idExt.get(user);
 
-		if(user->GetExt("sqlutils_queryids", il))
+		if(il)
 		{
 			for(AssocIdList::iterator listiter = il->begin(); listiter != il->end(); listiter++)
 			{
@@ -129,20 +130,19 @@ public:
 				}
 			}
 
-			user->Shrink("sqlutils_queryids");
-			delete il;
+			idExt.unset(user);
 		}
 	}
 
 	void AttachList(Extensible* obj, unsigned long id)
 	{
-		AssocIdList* il;
+		AssocIdList* il = idExt.get(obj);
 
-		if(!obj->GetExt("sqlutils_queryids", il))
+		if (!il)
 		{
 			/* Doesn't already exist, create a new list and attach it. */
 			il = new AssocIdList;
-			obj->Extend("sqlutils_queryids", il);
+			idExt.set(obj, il);
 		}
 
 		/* Now either way we have a valid list in il, attached. */
@@ -151,9 +151,9 @@ public:
 
 	void RemoveFromList(Extensible* obj, unsigned long id)
 	{
-		AssocIdList* il;
+		AssocIdList* il = idExt.get(obj);
 
-		if(obj->GetExt("sqlutils_queryids", il))
+		if (il)
 		{
 			/* Only do anything if the list exists... (which it ought to) */
 			il->remove(id);
@@ -161,8 +161,7 @@ public:
 			if(il->empty())
 			{
 				/* If we just emptied it.. */
-				delete il;
-				obj->Shrink("sqlutils_queryids");
+				idExt.unset(obj);
 			}
 		}
 	}
@@ -185,15 +184,15 @@ public:
 		}
 	}
 
-	virtual void OnChannelDelete(Channel* chan)
+	void OnChannelDelete(Channel* chan)
 	{
 		/* A channel is being destroyed, first we need to check if it has a list of queries associated with it.
 		 * Then, if it does, we need to erase each of them from our IdChanMap (idchan) so when the module that
 		 * associated them asks to look them up then it gets a NULL result and knows to discard the query.
 		 */
-		AssocIdList* il;
+		AssocIdList* il = idExt.get(chan);
 
-		if(chan->GetExt("sqlutils_queryids", il))
+		if (il)
 		{
 			for(AssocIdList::iterator listiter = il->begin(); listiter != il->end(); listiter++)
 			{
@@ -215,12 +214,11 @@ public:
 				}
 			}
 
-			chan->Shrink("sqlutils_queryids");
-			delete il;
+			idExt.unset(chan);
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides some utilities to SQL client modules, such as mapping queries to users and channels", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
 	}

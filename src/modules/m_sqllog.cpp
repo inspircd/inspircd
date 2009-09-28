@@ -43,7 +43,6 @@ public:
 
 	QueryInfo(const std::string &n, const std::string &s, const std::string &h, unsigned long i, int cat)
 	{
-		ServerInstance = Instance;
 		qs = FIND_SOURCE;
 		nick = n;
 		source = s;

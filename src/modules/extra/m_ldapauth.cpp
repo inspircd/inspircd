@@ -33,6 +33,7 @@
 
 class ModuleLDAPAuth : public Module
 {
+	LocalIntExt ldapAuthed;
 	std::string base;
 	std::string attribute;
 	std::string ldapserver;
@@ -46,21 +47,21 @@ class ModuleLDAPAuth : public Module
 	LDAP *conn;
 
 public:
-	ModuleLDAPAuth()
-		{
+	ModuleLDAPAuth() : ldapAuthed("ldapauth", this)
+	{
 		conn = NULL;
-		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRehash, I_OnUserRegister };
+		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 		OnRehash(NULL);
 	}
 
-	virtual ~ModuleLDAPAuth()
+	~ModuleLDAPAuth()
 	{
 		if (conn)
 			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
 		ConfigReader Conf;
 
@@ -110,11 +111,11 @@ public:
 		return true;
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	ModResult OnUserRegister(User* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
-			user->Extend("ldapauthed");
+			ldapAuthed.set(user,1);
 			return MOD_RES_PASSTHRU;
 		}
 
@@ -188,7 +189,6 @@ public:
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (No password provided)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-			user->Extend("ldapauth_failed");
 			return false;
 		}
 		cred.bv_val = (char*)user->password.data();
@@ -196,7 +196,7 @@ public:
 		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
 		{
 			ldap_msgfree(msg);
-			user->Extend("ldapauthed");
+			ldapAuthed.set(user,1);
 			return true;
 		}
 		else
@@ -204,24 +204,16 @@ public:
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (%s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
-			user->Extend("ldapauth_failed");
 			return false;
 		}
 	}
 
-
-	virtual void OnUserDisconnect(User* user)
+	ModResult OnCheckReady(User* user)
 	{
-		user->Shrink("ldapauthed");
-		user->Shrink("ldapauth_failed");
+		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
-	virtual ModResult OnCheckReady(User* user)
-	{
-		return user->GetExt("ldapauthed") ? MOD_RES_PASSTHRU : MOD_RES_DENY;
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR, API_VERSION);
 	}
