@@ -440,7 +440,7 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 				return MOD_RES_DENY;
 		}
 	}
-	return MOD_RES_ALLOW;
+	return MOD_RES_PASSTHRU;
 }
 
 /* Channel::PartUser
