@@ -51,7 +51,7 @@ END
 	}
 
 	opendir my $moddir, 'modules';
-	for my $file (readdir $moddir) {
+	for my $file (sort readdir $moddir) {
 		next if $file =~ /^\./;
 		if (-e "modules/extra/$file" && !-l "modules/$file") {
 			# Incorrect symlink?
