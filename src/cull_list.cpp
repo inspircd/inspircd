@@ -70,6 +70,7 @@ void CullList::Apply()
 		 */
 		if (u->registered == REG_ALL)
 		{
+			u->PurgeEmptyChannels();
 			if (IS_LOCAL(u))
 			{
 				if (!u->quietquit)
