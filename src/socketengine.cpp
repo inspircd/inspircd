@@ -11,35 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
-/*********        DEFAULTS       **********/
-
-/* $ExtraSources: socketengines/socketengine_select.cpp */
-/* $ExtraObjects: socketengine_select.o */
-
-/* $If: USE_POLL */
-/* $ExtraSources: socketengines/socketengine_poll.cpp */
-/* $ExtraObjects: socketengine_poll.o */
-/* $EndIf */
-
-/* $If: USE_KQUEUE */
-/* $ExtraSources: socketengines/socketengine_kqueue.cpp */
-/* $ExtraObjects: socketengine_kqueue.o */
-/* $EndIf */
-
-/* $If: USE_EPOLL */
-/* $ExtraSources: socketengines/socketengine_epoll.cpp */
-/* $ExtraObjects: socketengine_epoll.o */
-/* $EndIf */
-
-/* $If: USE_PORTS */
-/* $ExtraSources: socketengines/socketengine_ports.cpp */
-/* $ExtraObjects: socketengine_ports.o */
-/* $EndIf */
-
 #include "inspircd.h"
-#include "socketengine.h"
 
 EventHandler::EventHandler()
 {

@@ -16,7 +16,6 @@
 #include "inspircd.h"
 #include <fstream>
 #include "socketengine.h"
-#include "inspircd_se_config.h"
 #include "filelogger.h"
 
 FileLogStream::FileLogStream(int loglevel, FileWriter *fw)

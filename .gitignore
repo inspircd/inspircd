@@ -17,7 +17,6 @@
 
 /include/inspircd_config.h
 /include/inspircd_version.h
-/include/inspircd_se_config.h
 
 /src/modules/m_geoip.cpp
 /src/modules/m_ldapauth.cpp

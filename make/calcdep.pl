@@ -37,9 +37,10 @@ all: bin/inspircd modules
 
 END
 	my @core_deps;
-	for my $file (<*.cpp>, <modes/*.cpp>, "socketengines/$ENV{SOCKETENGINE}.cpp", "threadengines/threadengine_pthread.cpp") {
+	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out;
+		next if $file =~ m#^socketengines/# && $file ne "socketengines/$ENV{SOCKETENGINE}.cpp";
 		push @core_deps, $out;
 	}
 	

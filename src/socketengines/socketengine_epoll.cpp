@@ -11,10 +11,38 @@
  * ---------------------------------------------------
  */
 
+#include <vector>
+#include <string>
+#include <map>
 #include "inspircd.h"
 #include "exitcodes.h"
-#include "socketengines/socketengine_epoll.h"
+#include "socketengine.h"
+#include <sys/epoll.h>
 #include <ulimit.h>
+#define EP_DELAY 5
+
+/** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
+ */
+class EPollEngine : public SocketEngine
+{
+private:
+	/** These are used by epoll() to hold socket events
+	 */
+	struct epoll_event* events;
+	int EngineHandle;
+public:
+	/** Create a new EPollEngine
+	 */
+	EPollEngine();
+	/** Delete an EPollEngine
+	 */
+	virtual ~EPollEngine();
+	virtual bool AddFd(EventHandler* eh, int event_mask);
+	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
+	virtual bool DelFd(EventHandler* eh, bool force = false);
+	virtual int DispatchEvents();
+	virtual std::string GetName();
+};
 
 EPollEngine::EPollEngine()
 {
@@ -216,3 +244,7 @@ std::string EPollEngine::GetName()
 	return "epoll";
 }
 
+SocketEngine* CreateSocketEngine()
+{
+	return new EPollEngine;
+}

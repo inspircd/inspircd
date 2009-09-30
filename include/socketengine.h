@@ -473,5 +473,7 @@ public:
 	void GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total);
 };
 
+SocketEngine* CreateSocketEngine();
+
 #endif
 

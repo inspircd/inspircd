@@ -36,7 +36,6 @@
 #include "xline.h"
 #include "bancache.h"
 #include "socketengine.h"
-#include "inspircd_se_config.h"
 #include "socket.h"
 #include "command_parse.h"
 #include "exitcodes.h"
@@ -374,8 +373,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// This must be created first, so other parts of Insp can use it while starting up
 	this->Logs = new LogManager;
 
-	SocketEngineFactory SEF;
-	SE = SEF.Create();
+	SE = CreateSocketEngine();
 
 	this->Threads = new ThreadEngine;
 

@@ -31,7 +31,6 @@ looks like this, walks like this or tastes like this.
 #include <arpa/inet.h>
 #else
 #include "inspircd_win32wrapper.h"
-#include "inspircd_se_config.h"
 #endif
 
 #include "inspircd.h"

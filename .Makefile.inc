@@ -163,14 +163,14 @@ install: target@EXTRA_DIR@
 
 clean:
 	@echo Cleaning...
-	@rm -f src/inspircd src/modes/modeclasses.a
-	@rm -f src/*.so src/modules/*.so src/commands/*.so
-	@rm -f src/*.o src/*/*.o src/modules/*/*.o
-	@rm -f src/.*.d src/*/.*.d src/modules/*/.*.d
-	@rm -f $(BUILDPATH)/bin/inspircd $(BUILDPATH)/include $(BUILDPATH)/real.mk
-	@rm -rf $(BUILDPATH)/obj $(BUILDPATH)/modules
-	@-rmdir $(BUILDPATH)/bin
-	@-rmdir $(BUILDPATH)
+	@-rm -f src/inspircd src/modes/modeclasses.a include/inspircd_se_config.h
+	@-rm -f src/*.so src/modules/*.so src/commands/*.so
+	@-rm -f src/*.o src/*/*.o src/modules/*/*.o
+	@-rm -f src/.*.d src/*/.*.d src/modules/*/.*.d
+	@-rm -f $(BUILDPATH)/bin/inspircd $(BUILDPATH)/include $(BUILDPATH)/real.mk
+	@-rm -rf $(BUILDPATH)/obj $(BUILDPATH)/modules
+	@-rmdir $(BUILDPATH)/bin 2>/dev/null
+	@-rmdir $(BUILDPATH) 2>/dev/null
 	@echo Completed.
 
 deinstall:
@@ -193,7 +193,6 @@ configureclean:
 	rm -f GNUmakefile
 	rm -f include/inspircd_config.h
 	rm -f include/inspircd_version.h
-	rm -f include/inspircd_se_config.h
 
 distclean: clean configureclean
 
