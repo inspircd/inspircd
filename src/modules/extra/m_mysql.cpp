@@ -671,9 +671,9 @@ class ModuleSQL;
 class DispatcherThread : public SocketThread
 {
  private:
-	ModuleSQL* Parent;
+	ModuleSQL* const Parent;
  public:
-	DispatcherThread(ModuleSQL* CreatorModule) : SocketThread(Instance), Parent(CreatorModule),{ }
+	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
 	~DispatcherThread() { }
 	virtual void Run();
 	virtual void OnNotify();
@@ -684,7 +684,6 @@ ModuleSQL::ModuleSQL() : rehashing(false)
 	ServerInstance->Modules->UseInterface("SQLutils");
 
 	Conf = new ConfigReader;
-	PublicServerInstance = ServerInstance;
 	currid = 0;
 
 	Dispatcher = new DispatcherThread(this);
@@ -769,7 +768,7 @@ Version ModuleSQL::GetVersion()
 
 void DispatcherThread::Run()
 {
-	LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
+	LoadDatabases(Parent->Conf, Parent);
 
 	SQLConnection* conn = NULL;
 
@@ -779,7 +778,7 @@ void DispatcherThread::Run()
 		if (Parent->rehashing)
 		{
 			Parent->rehashing = false;
-			LoadDatabases(Parent->Conf, Parent->PublicServerInstance, Parent);
+			LoadDatabases(Parent->Conf, Parent);
 		}
 
 		conn = NULL;

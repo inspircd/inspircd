@@ -561,8 +561,8 @@ bool ModuleManager::Unload(const char* filename)
 
 		ServerInstance->Parser->RemoveCommands(modfind->second.second);
 
-		delete modfind->second.second;
-		delete modfind->second.first;
+		ServerInstance->GlobalCulls.AddItem(modfind->second.second);
+		ServerInstance->GlobalCulls.AddItem(modfind->second.first);
 		Modules.erase(modfind);
 
 		ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",filename);

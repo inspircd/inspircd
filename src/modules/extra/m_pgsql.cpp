@@ -91,10 +91,9 @@ std::string SQLhost::GetDSN()
 class ReconnectTimer : public Timer
 {
  private:
-	Module* mod;
+	Module* const mod;
  public:
-	ReconnectTimer(Module* m)
-	: Timer(5, SI->Time(), false), mod(m)
+	ReconnectTimer(Module* m) : Timer(5, ServerInstance->Time(), false), mod(m)
 	{
 	}
 	virtual void Tick(time_t TIME);
@@ -313,7 +312,7 @@ class SQLConn : public EventHandler
 	SQLConn(Module* self, const SQLhost& hi)
 	: EventHandler(), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
 	{
-		idle = this->ServerInstance->Time();
+		idle = ServerInstance->Time();
 		if(!DoConnect())
 		{
 			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
@@ -366,7 +365,7 @@ class SQLConn : public EventHandler
 		if(this->fd <= -1)
 			return false;
 
-		if (!this->ServerInstance->SE->AddFd(this))
+		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
 		{
 			ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
@@ -381,15 +380,17 @@ class SQLConn : public EventHandler
 		switch(PQconnectPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				ServerInstance->SE->WantWrite(this);
+				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
 				status = CWRITE;
 				return true;
 			case PGRES_POLLING_READING:
+				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
 				return false;
 			case PGRES_POLLING_OK:
+				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				return DoConnectedPoll();
 			default:
@@ -411,7 +412,7 @@ class SQLConn : public EventHandler
 			/* We just read stuff from the server, that counts as it being alive
 			 * so update the idle-since time :p
 			 */
-			idle = this->ServerInstance->Time();
+			idle = ServerInstance->Time();
 
 			if (PQisBusy(sql))
 			{
@@ -495,15 +496,17 @@ class SQLConn : public EventHandler
 		switch(PQresetPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				ServerInstance->SE->WantWrite(this);
+				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
 				status = CWRITE;
 				return DoPoll();
 			case PGRES_POLLING_READING:
+				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
 				return false;
 			case PGRES_POLLING_OK:
+				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				return DoConnectedPoll();
 			default:
@@ -732,11 +735,11 @@ class SQLConn : public EventHandler
 
 	void Close()
 	{
-		if (!this->ServerInstance->SE->DelFd(this))
+		if (!ServerInstance->SE->DelFd(this))
 		{
 			if (sql && PQstatus(sql) == CONNECTION_BAD)
 			{
-				this->ServerInstance->SE->DelFd(this, true);
+				ServerInstance->SE->DelFd(this, true);
 			}
 			else
 			{

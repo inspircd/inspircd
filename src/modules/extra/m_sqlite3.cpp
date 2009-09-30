@@ -51,20 +51,17 @@ class ResultNotifier : public BufferedSocket
 	ModuleSQLite3* mod;
 
  public:
-	ResultNotifier(ModuleSQLite3* m, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
+	ResultNotifier(ModuleSQLite3* m, int newfd) : BufferedSocket(newfd), mod(m)
 	{
 	}
 
-	virtual bool OnDataReady()
+	void OnDataReady()
 	{
-		char data = 0;
-		if (ServerInstance->SE->Recv(this, &data, 1, 0) > 0)
-		{
-			Dispatch();
-			return true;
-		}
-		return false;
+		recvq.clear();
+		Dispatch();
 	}
+
+	void OnError(BufferedSocketError) {}
 
 	void Dispatch();
 };
@@ -72,7 +69,7 @@ class ResultNotifier : public BufferedSocket
 class SQLiteListener : public ListenSocketBase
 {
 	ModuleSQLite3* Parent;
-	irc::sockets::insp_sockaddr sock_us;
+	irc::sockets::sockaddrs sock_us;
 	socklen_t uslen;
 	FileReader* index;
 
@@ -86,19 +83,17 @@ class SQLiteListener : public ListenSocketBase
 		}
 	}
 
-	virtual void OnAcceptReady(const std::string &ipconnectedto, int nfd, const std::string &incomingip)
+	void OnAcceptReady(int nfd)
 	{
-		new ResultNotifier(this->Parent, this->ServerInstance, nfd, (char *)ipconnectedto.c_str()); // XXX unsafe casts suck
+		new ResultNotifier(Parent, nfd);
 	}
 
-	/* Using getsockname and ntohs, we can determine which port number we were allocated */
 	int GetPort()
 	{
-#ifdef IPV6
-		return ntohs(sock_us.sin6_port);
-#else
-		return ntohs(sock_us.sin_port);
-#endif
+		int port = 0;
+		std::string addr;
+		irc::sockets::satoap(&sock_us, addr, port);
+		return port;
 	}
 };
 
@@ -502,27 +497,16 @@ class SQLConn : public classbase
 	{
 		if (QueueFD < 0)
 		{
-			if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
+			if ((QueueFD = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 			{
 				/* crap, we're out of sockets... */
 				return;
 			}
 
-			irc::sockets::insp_sockaddr addr;
+			irc::sockets::sockaddrs addr;
+			irc::sockets::aptosa("127.0.0.1", listener->GetPort(), &addr);
 
-#ifdef IPV6
-			irc::sockets::insp_aton("::1", &addr.sin6_addr);
-			addr.sin6_family = AF_FAMILY;
-			addr.sin6_port = htons(listener->GetPort());
-#else
-			irc::sockets::insp_inaddr ia;
-			irc::sockets::insp_aton("127.0.0.1", &ia);
-			addr.sin_family = AF_FAMILY;
-			addr.sin_addr = ia;
-			addr.sin_port = htons(listener->GetPort());
-#endif
-
-			if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
+			if (connect(QueueFD, &addr.sa, sa_size(addr)) == -1)
 			{
 				/* wtf, we cant connect to it, but we just created it! */
 				return;
@@ -553,11 +537,7 @@ class ModuleSQLite3 : public Module
 		}
 
 		/* Create a socket on a random port. Let the tcp stack allocate us an available port */
-#ifdef IPV6
-		listener = new SQLiteListener(this, ServerInstance, 0, "::1");
-#else
-		listener = new SQLiteListener(this, ServerInstance, 0, "127.0.0.1");
-#endif
+		listener = new SQLiteListener(this, 0, "127.0.0.1");
 
 		if (listener->GetFd() == -1)
 		{
@@ -582,7 +562,6 @@ class ModuleSQLite3 : public Module
 		ClearAllConnections();
 
 		ServerInstance->SE->DelFd(listener);
-		ServerInstance->BufferedSocketCull();
 
 		if (QueueFD >= 0)
 		{
@@ -594,8 +573,9 @@ class ModuleSQLite3 : public Module
 		{
 			ServerInstance->SE->DelFd(notifier);
 			notifier->Close();
-			ServerInstance->BufferedSocketCull();
 		}
+
+		ServerInstance->GlobalCulls.Apply();
 
 		ServerInstance->Modules->UnpublishInterface("SQL", this);
 		ServerInstance->Modules->UnpublishFeature("SQL");
