@@ -11,20 +11,27 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
-#include "cull_list.h"
+#include <typeinfo>
 
 void CullList::Apply()
 {
-	std::vector<classbase*> todel(list.begin(), list.end());
-	list.clear();
-	for(std::vector<classbase*>::iterator i = todel.begin(); i != todel.end(); i++)
+	std::set<classbase*> gone;
+	for(unsigned int i=0; i < list.size(); i++)
 	{
-		classbase* c = *i;
-		c->cull();
-		delete c;
+		classbase* c = list[i];
+		if (gone.insert(c).second)
+		{
+			ServerInstance->Logs->Log("CULLLIST", DEBUG, "Deleting %s @%p", typeid(*c).name(),
+				(void*)c);
+			c->cull();
+			delete c;
+		}
+		else
+		{
+			ServerInstance->Logs->Log("CULLLIST",DEBUG, "WARNING: Object @%p culled twice!",
+				(void*)c);
+		}
 	}
 }
 

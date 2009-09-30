@@ -21,12 +21,12 @@
  */
 class CoreExport CullList
 {
-	std::set<classbase*> list;
+	std::vector<classbase*> list;
 
  public:
 	/** Adds an item to the cull list
 	 */
-	void AddItem(classbase* item) { list.insert(item); }
+	void AddItem(classbase* item) { list.push_back(item); }
 
 	/** Applies the cull list (deletes the contents)
 	 */
