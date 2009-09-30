@@ -147,7 +147,7 @@ sub dep_dir($) {
 	my($dir) = @_;
 	my @ofiles;
 	opendir DIR, $dir;
-	for my $file (readdir DIR) {
+	for my $file (sort readdir DIR) {
 		next unless $file =~ /(.*)\.cpp$/;
 		my $ofile = find_output "$dir/$file";
 		dep_cpp "$dir/$file", $ofile;

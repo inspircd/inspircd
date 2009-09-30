@@ -939,6 +939,11 @@ void ModuleSpanningTree::OnEvent(Event* event)
 	}
 }
 
+void ModuleSpanningTree::cull()
+{
+	Utils->cull();
+}
+
 ModuleSpanningTree::~ModuleSpanningTree()
 {
 	delete ServerInstance->PI;

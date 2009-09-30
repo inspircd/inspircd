@@ -195,7 +195,6 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	if (user->registered == REG_ALL)
 	{
 		FOREACH_MOD(I_OnUserQuit,OnUserQuit(user, reason, oper_reason));
-		user->PurgeEmptyChannels();
 		user->WriteCommonQuit(reason, oper_reason);
 	}
 

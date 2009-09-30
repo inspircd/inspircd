@@ -235,35 +235,8 @@ User::User(const std::string &uid)
 
 User::~User()
 {
-	ServerInstance->Logs->Log("USERS", DEBUG, "User destructor for %s", uuid.c_str());
-	/* NULL for remote users :) */
-	if (this->MyClass)
-	{
-		this->MyClass->RefCount--;
-		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %lu", this->MyClass->RefCount);
-		if (MyClass->RefCount == 0)
-			delete MyClass;
-	}
-
-	if (this->AllowedOperCommands)
-	{
-		delete AllowedOperCommands;
-		AllowedOperCommands = NULL;
-	}
-
-	if (this->AllowedPrivs)
-	{
-		delete AllowedPrivs;
-		AllowedPrivs = NULL;
-	}
-
-	this->InvalidateCache();
-	this->DecrementModes();
-
-	if (client_sa.sa.sa_family != AF_UNSPEC)
-		ServerInstance->Users->RemoveCloneCounts(this);
-
-	ServerInstance->Users->uuidlist->erase(uuid);
+	if (uuid.length())
+		ServerInstance->Logs->Log("USERS", ERROR, "User destructor for %s called without cull", uuid.c_str());
 }
 
 const std::string& User::MakeHost()
@@ -599,6 +572,12 @@ void User::cull()
 {
 	if (!quitting)
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
+	if (uuid.empty())
+	{
+		ServerInstance->Logs->Log("USERS", DEBUG, "User culled twice? UUID empty");
+		return;
+	}
+	PurgeEmptyChannels();
 	if (IS_LOCAL(this))
 	{
 		if (fd != INT_MAX)
@@ -610,6 +589,35 @@ void User::cull()
 		else
 			ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
 	}
+
+	if (this->MyClass)
+	{
+		this->MyClass->RefCount--;
+		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %lu", this->MyClass->RefCount);
+		if (MyClass->RefCount == 0)
+			delete MyClass;
+	}
+
+	if (this->AllowedOperCommands)
+	{
+		delete AllowedOperCommands;
+		AllowedOperCommands = NULL;
+	}
+
+	if (this->AllowedPrivs)
+	{
+		delete AllowedPrivs;
+		AllowedPrivs = NULL;
+	}
+
+	this->InvalidateCache();
+	this->DecrementModes();
+
+	if (client_sa.sa.sa_family != AF_UNSPEC)
+		ServerInstance->Users->RemoveCloneCounts(this);
+
+	ServerInstance->Users->uuidlist->erase(uuid);
+	uuid.clear();
 }
 
 void User::Oper(const std::string &opertype, const std::string &opername)

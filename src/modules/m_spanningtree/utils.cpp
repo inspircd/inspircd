@@ -157,11 +157,11 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 	this->ReadConfiguration(true);
 }
 
-SpanningTreeUtilities::~SpanningTreeUtilities()
+void SpanningTreeUtilities::cull()
 {
 	for (unsigned int i = 0; i < Bindings.size(); i++)
 	{
-		delete Bindings[i];
+		Bindings[i]->cull();
 	}
 
 	while (TreeRoot->ChildCount())
@@ -170,13 +170,21 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 		if (child_server)
 		{
 			TreeSocket* sock = child_server->GetSocket();
-			ServerInstance->SE->DelFd(sock);
 			sock->Close();
 		}
 	}
-	
-	// This avoids a collision on reload
+
 	ServerUser->uuid = TreeRoot->GetID();
+	ServerUser->cull();
+}
+
+SpanningTreeUtilities::~SpanningTreeUtilities()
+{
+	for (unsigned int i = 0; i < Bindings.size(); i++)
+	{
+		delete Bindings[i];
+	}
+
 	delete TreeRoot;
 	delete ServerUser;
 }

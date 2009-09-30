@@ -164,6 +164,10 @@ class SpanningTreeUtilities : public classbase
 	 */
 	SpanningTreeUtilities(ModuleSpanningTree* Creator);
 
+	/** Prepare for class destruction
+	 */
+	void cull();
+
 	/** Destroy class and free listeners etc
 	 */
 	~SpanningTreeUtilities();
