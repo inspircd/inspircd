@@ -62,7 +62,7 @@ class UserResolver;
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
-struct CoreExport ConnectClass : public classbase
+struct CoreExport ConnectClass : public refcountbase
 {
 	/** Type of line, either CC_ALLOW or CC_DENY
 	 */
@@ -126,12 +126,6 @@ struct CoreExport ConnectClass : public classbase
 	 * (0 = no limit = default)
 	 */
 	unsigned long limit;
-
-	/** Reference counter.
-	 * This will be 1 if no users are connected, as long as it is a valid connect block
-	 * When it reaches 0, the object should be deleted
-	 */
-	unsigned long RefCount;
 
 	/** Create a new connect class with no settings.
 	 */
@@ -206,7 +200,7 @@ typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
-typedef std::vector<ConnectClass*> ClassVector;
+typedef std::vector<reference<ConnectClass> > ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */
@@ -274,9 +268,8 @@ class CoreExport User : public StreamSocket
 	static LocalStringExt OperQuit;
 
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
-	 * The pointer is guarenteed to *always* be valid. :)
 	 */
-	ConnectClass *MyClass;
+	reference<ConnectClass> MyClass;
 
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
@@ -869,7 +862,7 @@ class CoreExport User : public StreamSocket
 	/** Default destructor
 	 */
 	virtual ~User();
-	virtual void cull();
+	virtual bool cull();
 };
 
 /** Derived from Resolver, and performs user forward/reverse lookups.

@@ -24,8 +24,8 @@ void CullList::Apply()
 		{
 			ServerInstance->Logs->Log("CULLLIST", DEBUG, "Deleting %s @%p", typeid(*c).name(),
 				(void*)c);
-			c->cull();
-			delete c;
+			if (c->cull())
+				delete c;
 		}
 		else
 		{

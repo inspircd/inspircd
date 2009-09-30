@@ -26,65 +26,26 @@ classbase::classbase()
 {
 }
 
-void classbase::cull()
+bool classbase::cull()
 {
+	return true;
 }
 
 classbase::~classbase()
 {
 }
 
-void BoolSet::Set(int number)
+refcountbase::refcountbase() : refcount(0)
 {
-	this->bits |= bitfields[number];
 }
 
-void BoolSet::Unset(int number)
+bool refcountbase::cull()
 {
-	this->bits &= inverted_bitfields[number];
+	return (refcount == 0);
 }
 
-void BoolSet::Invert(int number)
+refcountbase::~refcountbase()
 {
-	this->bits ^= bitfields[number];
-}
-
-bool BoolSet::Get(int number)
-{
-	return ((this->bits | bitfields[number]) > 0);
-}
-
-bool BoolSet::operator==(BoolSet other)
-{
-	return (this->bits == other.bits);
-}
-
-BoolSet BoolSet::operator|(BoolSet other)
-{
-	BoolSet x(this->bits | other.bits);
-	return x;
-}
-
-BoolSet BoolSet::operator&(BoolSet other)
-{
-	BoolSet x(this->bits & other.bits);
-	return x;
-}
-
-BoolSet::BoolSet()
-{
-	this->bits = 0;
-}
-
-BoolSet::BoolSet(char bitmask)
-{
-	this->bits = bitmask;
-}
-
-bool BoolSet::operator=(BoolSet other)
-{
-	this->bits = other.bits;
-	return true;
 }
 
 ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : key(Key), owner(mod)

@@ -146,7 +146,7 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	virtual void Close();
 	/** This ensures that close is called prior to destructor */
-	virtual void cull();
+	virtual bool cull();
 };
 /**
  * BufferedSocket is an extendable socket class which modules

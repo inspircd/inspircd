@@ -28,71 +28,69 @@ class CoreExport classbase
  public:
 	classbase();
 
-	// Called just prior to destruction via cull list
-	virtual void cull();
+	/**
+	 * Called just prior to destruction via cull list.
+	 *
+	 * @return true to allow the delete, or false to halt the delete
+	 */
+	virtual bool cull();
 	virtual ~classbase();
 };
 
-/** BoolSet is a utility class designed to hold eight bools in a bitmask.
- * Use BoolSet::Set and BoolSet::Get to set and get bools in the bitmask,
- * and Unset and Invert for special operations upon them.
+/** The base class for inspircd classes that support reference counting.
+ * Any objects that do not have a well-defined lifetime should inherit from
+ * this
  */
-class CoreExport BoolSet : public classbase
+class CoreExport refcountbase : public classbase
 {
-	/** Actual bit values */
-	char bits;
-
+	unsigned int refcount;
  public:
+	refcountbase();
+	virtual bool cull();
+	virtual ~refcountbase();
+	inline unsigned int GetReferenceCount() const { return refcount; }
+	friend class reference_base;
+};
 
-	/** The default constructor initializes the BoolSet to all values unset.
-	 */
-	BoolSet();
+class CoreExport reference_base
+{
+ protected:
+	static inline unsigned int inc(refcountbase* v) { return ++(v->refcount); }
+	static inline unsigned int dec(refcountbase* v) { return --(v->refcount); }
+};
 
-	/** This constructor copies the default bitmask from a char
-	 */
-	BoolSet(char bitmask);
+template <typename T>
+class CoreExport reference : public reference_base
+{
+	T* value;
+ public:
+	reference() : value(0) { }
+	reference(T* v) : value(v) { if (value) inc(value); }
+	reference(const reference& v) : value(v.value) { if (value) inc(value); }
+	reference<T>& operator=(const reference<T>& other)
+	{
+		if (other.value)
+			inc(other.value);
+		this->reference::~reference();
+		value = other.value;
+		return *this;
+	}
 
-	/** The Set method sets one bool in the set.
-	 *
-	 * @param number The number of the item to set. This must be between 0 and 7.
-	 */
-	void Set(int number);
-
-	/** The Get method returns the value of one bool in the set
-	 *
-	 * @param number The number of the item to retrieve. This must be between 0 and 7.
-	 *
-	 * @return True if the item is set, false if it is unset.
-	 */
-	bool Get(int number);
-
-	/** The Unset method unsets one value in the set
-	 *
-	 * @param number The number of the item to set. This must be between 0 and 7.
-	 */
-	void Unset(int number);
-
-	/** The Unset method inverts (flips) one value in the set
-	 *
-	 * @param number The number of the item to invert. This must be between 0 and 7.
-	 */
-	void Invert(int number);
-
-	/** Compare two BoolSets
-	 */
-	bool operator==(BoolSet other);
-
-	/** OR two BoolSets together
-	 */
-	BoolSet operator|(BoolSet other);
-
-	/** AND two BoolSets together
-	 */
-	BoolSet operator&(BoolSet other);
-
-	/** Assign one BoolSet to another
-	 */
-	bool operator=(BoolSet other);
+	~reference()
+	{
+		if (value)
+		{
+			int rc = dec(value);
+			if (rc == 0 && value->cull())
+				delete value;
+		}
+	}
+	inline const T* operator->() const { return value; }
+	inline const T& operator*() const { return *value; }
+	inline T* operator->() { return value; }
+	inline T& operator*() { return *value; }
+	operator bool() const { return value; }
+	operator T*() const { return value; }
 };
 
 /** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.

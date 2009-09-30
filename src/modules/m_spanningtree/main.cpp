@@ -939,9 +939,9 @@ void ModuleSpanningTree::OnEvent(Event* event)
 	}
 }
 
-void ModuleSpanningTree::cull()
+bool ModuleSpanningTree::cull()
 {
-	Utils->cull();
+	return Utils->cull();
 }
 
 ModuleSpanningTree::~ModuleSpanningTree()

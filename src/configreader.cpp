@@ -727,11 +727,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			Classes[i] = me;
 		}
 	}
-
-	for(ClassMap::iterator toRemove = oldBlocksByMask.begin(); toRemove != oldBlocksByMask.end(); toRemove++)
-	{
-		removed_classes.push_back(toRemove->second);
-	}
 }
 
 
@@ -1143,9 +1138,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
-	FailedPortList pl;
-	ServerInstance->BindPorts(pl);
-
 	/*
 	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
 	 */
@@ -1153,18 +1145,23 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	{
 		memcpy(this->ServerName, old->ServerName, sizeof(this->ServerName));
 		memcpy(this->sid, old->sid, sizeof(this->sid));
-	}
+		this->argv = old->argv;
+		this->argc = old->argc;
 
-	if (pl.size())
-	{
-		errstr << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
-
-		int j = 1;
-		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+		// Same for ports... they're bound later on first run.
+		FailedPortList pl;
+		ServerInstance->BindPorts(pl);
+		if (pl.size())
 		{
-			char buf[MAXBUF];
-			snprintf(buf, MAXBUF, "%d.   Address: %s   Reason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
-			errstr << buf;
+			errstr << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
+
+			int j = 1;
+			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+			{
+				char buf[MAXBUF];
+				snprintf(buf, MAXBUF, "%d.   Address: %s   Reason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
+				errstr << buf;
+			}
 		}
 	}
 
@@ -1212,12 +1209,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		return;
 
 	ApplyModules(user);
-	for (std::vector<ConnectClass*>::iterator i = removed_classes.begin(); i != removed_classes.end(); i++)
-	{
-		ConnectClass* c = *i;
-		if (0 == --c->RefCount)
-			delete c;
-	}
 }
 
 void ServerConfig::ApplyModules(User* user)

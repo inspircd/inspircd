@@ -157,7 +157,7 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 	this->ReadConfiguration(true);
 }
 
-void SpanningTreeUtilities::cull()
+bool SpanningTreeUtilities::cull()
 {
 	for (unsigned int i = 0; i < Bindings.size(); i++)
 	{
@@ -175,7 +175,9 @@ void SpanningTreeUtilities::cull()
 	}
 
 	ServerUser->uuid = TreeRoot->GetID();
-	ServerUser->cull();
+	if (ServerUser->cull())
+		delete ServerUser;
+	return true;
 }
 
 SpanningTreeUtilities::~SpanningTreeUtilities()
@@ -186,7 +188,6 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	}
 
 	delete TreeRoot;
-	delete ServerUser;
 }
 
 void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)

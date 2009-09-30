@@ -568,14 +568,14 @@ void User::OnError(BufferedSocketError)
 	ServerInstance->Users->QuitUser(this, getError());
 }
 
-void User::cull()
+bool User::cull()
 {
 	if (!quitting)
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
 	if (uuid.empty())
 	{
 		ServerInstance->Logs->Log("USERS", DEBUG, "User culled twice? UUID empty");
-		return;
+		return true;
 	}
 	PurgeEmptyChannels();
 	if (IS_LOCAL(this))
@@ -588,14 +588,6 @@ void User::cull()
 			ServerInstance->Users->local_users.erase(x);
 		else
 			ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
-	}
-
-	if (this->MyClass)
-	{
-		this->MyClass->RefCount--;
-		ServerInstance->Logs->Log("USERS", DEBUG, "User destructor -- connect refcount now: %lu", this->MyClass->RefCount);
-		if (MyClass->RefCount == 0)
-			delete MyClass;
 	}
 
 	if (this->AllowedOperCommands)
@@ -618,6 +610,7 @@ void User::cull()
 
 	ServerInstance->Users->uuidlist->erase(uuid);
 	uuid.clear();
+	return true;
 }
 
 void User::Oper(const std::string &opertype, const std::string &opername)
@@ -1658,7 +1651,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			 * deny change if change will take class over the limit check it HERE, not after we found a matching class,
 			 * because we should attempt to find another class if this one doesn't match us. -- w00t
 			 */
-			if (c->limit && (c->RefCount >= c->limit))
+			if (c->limit && (c->GetReferenceCount() >= c->limit))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
 				continue;
@@ -1688,20 +1681,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	 */
 	if (found)
 	{
-		/* only fiddle with refcounts if they are already in a class .. */
-		if (this->MyClass)
-		{
-			if (found == this->MyClass) // no point changing this shit :P
-				return this->MyClass;
-			this->MyClass->RefCount--;
-			ServerInstance->Logs->Log("USERS", DEBUG, "Untying user from connect class -- refcount: %lu", this->MyClass->RefCount);
-			if (MyClass->RefCount == 0)
-				delete MyClass;
-		}
-
-		this->MyClass = found;
-		this->MyClass->RefCount++;
-		ServerInstance->Logs->Log("USERS", DEBUG, "User tied to new class -- connect refcount now: %lu", this->MyClass->RefCount);
+		MyClass = found;
 	}
 
 	return this->MyClass;
@@ -1824,8 +1804,7 @@ const std::string FakeUser::GetFullRealHost()
 ConnectClass::ConnectClass(char t, const std::string& mask)
 	: type(t), name("unnamed"), registration_timeout(0), host(mask),
 	pingtime(0), pass(""), hash(""), softsendqmax(0), hardsendqmax(0),
-	recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0),
-	RefCount(1)
+	recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0)
 {
 }
 
@@ -1836,7 +1815,7 @@ ConnectClass::ConnectClass(char t, const std::string& mask, const ConnectClass& 
 	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax),
 	recvqmax(parent.recvqmax), maxlocal(parent.maxlocal),
 	maxglobal(parent.maxglobal), maxchans(parent.maxchans),
-	port(parent.port), limit(parent.limit), RefCount(1)
+	port(parent.port), limit(parent.limit)
 {
 }
 

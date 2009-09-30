@@ -191,7 +191,7 @@ class ModuleSpanningTree : public Module
 	void OnEvent(Event* event);
 	void OnLoadModule(Module* mod,const std::string &name);
 	void OnUnloadModule(Module* mod,const std::string &name);
-	void cull();
+	bool cull();
 	~ModuleSpanningTree();
 	Version GetVersion();
 	void Prioritize();

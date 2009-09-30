@@ -139,9 +139,10 @@ void StreamSocket::Close()
 	errno = save;
 }
 
-void StreamSocket::cull()
+bool StreamSocket::cull()
 {
 	Close();
+	return true;
 }
 
 bool StreamSocket::GetNextLine(std::string& line, char delim)

@@ -166,7 +166,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Prepare for class destruction
 	 */
-	void cull();
+	bool cull();
 
 	/** Destroy class and free listeners etc
 	 */
