@@ -33,5 +33,6 @@ void CullList::Apply()
 				(void*)c);
 		}
 	}
+	list.clear();
 }
 
