@@ -606,7 +606,7 @@ void TreeSocket::OnTimeout()
 	if (this->LinkState == CONNECTING)
 	{
 		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
-		Utils->DoFailOver(myautoconnect);
+		Utils->Creator->ConnectServer(myautoconnect);
 	}
 }
 

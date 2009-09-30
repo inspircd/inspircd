@@ -27,13 +27,13 @@
 class SecurityIPResolver : public Resolver
 {
  private:
-	Link MyLink;
+	reference<Link> MyLink;
 	SpanningTreeUtilities* Utils;
 	Module* mine;
 	std::string host;
 	QueryType query;
  public:
-	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, const std::string &hostname, Link x, bool &cached, QueryType qt)
+	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, const std::string &hostname, Link* x, bool &cached, QueryType qt)
 		: Resolver(hostname, qt, cached, me), MyLink(x), Utils(U), mine(me), host(hostname), query(qt)
 	{
 	}
@@ -52,7 +52,8 @@ class SecurityIPResolver : public Resolver
 			ServerInstance->AddResolver(res, cached);
 			return;
 		}
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
+		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Could not resolve IP associated with Link '%s': %s",
+			MyLink->Name.c_str(),errormessage.c_str());
 	}
 };
 
@@ -65,18 +66,14 @@ class SecurityIPResolver : public Resolver
 class ServernameResolver : public Resolver
 {
  private:
-        /** A copy of the Link tag info for what we're connecting to.
-         * We take a copy, rather than using a pointer, just in case the
-         * admin takes the tag away and rehashes while the domain is resolving.
-         */
-        Link MyLink;
-        SpanningTreeUtilities* Utils;
+	SpanningTreeUtilities* Utils;
 	QueryType query;
 	std::string host;
 	Module* mine;
-	Autoconnect* myautoconnect;
+	reference<Link> MyLink;
+	reference<Autoconnect> myautoconnect;
  public:
-        ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac);
+        ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac);
         void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
         void OnError(ResolverError e, const std::string &errormessage);
 };

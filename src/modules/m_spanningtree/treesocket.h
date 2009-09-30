@@ -92,7 +92,7 @@ class TreeSocket : public BufferedSocket
 	int proto_version;			/* Remote protocol version */
  public:
 	HandshakeTimer* hstimer;		/* Handshake timer, needed to work around I/O hook buffering */
-	Autoconnect* myautoconnect;		/* Autoconnect used to cause this connection, if any */
+	reference<Autoconnect> myautoconnect;		/* Autoconnect used to cause this connection, if any */
 	time_t age;
 
 	/** Because most of the I/O gubbins are encapsulated within

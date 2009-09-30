@@ -25,7 +25,7 @@ class HandshakeTimer : public Timer
 {
  private:
 	TreeSocket* sock;
-	Link* lnk;
+	reference<Link> lnk;
 	SpanningTreeUtilities* Utils;
 	int thefd;
  public:

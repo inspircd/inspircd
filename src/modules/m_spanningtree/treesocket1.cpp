@@ -66,7 +66,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, char* ip, Autocon
 	if (HookMod)
 		BufferedSocketHookRequest(this, Utils->Creator, HookMod).Send();
 
-	hstimer = new HandshakeTimer(this, &(Utils->LinkBlocks[0]), this->Utils, 1);
+	hstimer = new HandshakeTimer(this, Utils->LinkBlocks[0], this->Utils, 1);
 	ServerInstance->Timers->AddTimer(hstimer);
 
 	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
@@ -108,8 +108,9 @@ void TreeSocket::OnConnected()
 	if (this->LinkState == CONNECTING)
 	{
 		/* we do not need to change state here. */
-		for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
+		for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); ++i)
 		{
+			Link* x = *i;
 			if (x->Name == this->myhost)
 			{
 				ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()));
@@ -140,7 +141,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 	{
 		case I_ERR_CONNECT:
 			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Connection to \002%s\002 refused", myhost.c_str());
-			Utils->DoFailOver(myautoconnect);
+			Utils->Creator->ConnectServer(myautoconnect);
 		break;
 		case I_ERR_SOCKET:
 			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Could not create socket (%s)", strerror(errno));

@@ -20,6 +20,7 @@
 class TreeServer;
 class TreeSocket;
 class Link;
+class Autoconnect;
 class ModuleSpanningTree;
 class SpanningTreeUtilities;
 
@@ -61,21 +62,6 @@ typedef std::map<TreeServer*,TreeServer*> TreeServerList;
  * that we can use to hook our server to server connections.
  */
 typedef std::map<irc::string, Module*> hookmodules;
-
-/** The Autoconnect class might as well be a struct,
- * but this is C++ and we don't believe in structs (!).
- * It holds the entire information of one <autoconnect>
- * tag from the main config file. We maintain a list
- * of them, and populate the list on rehash/load.
- */
-class Autoconnect : public classbase
-{
- public:
-	unsigned long Period;
-	std::string Server;
-	time_t NextConnectTime;
-	std::string FailOver;
-};
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
@@ -135,10 +121,10 @@ class SpanningTreeUtilities : public classbase
 	std::map<TreeSocket*, std::pair<std::string, int> > timeoutlist;
 	/** Holds the data from the <link> tags in the conf
 	 */
-	std::vector<Link> LinkBlocks;
+	std::vector<reference<Link> > LinkBlocks;
 	/** Holds the data from the <autoconnect> tags in the conf
 	 */
-	std::vector<Autoconnect> AutoconnectBlocks;
+	std::vector<reference<Autoconnect> > AutoconnectBlocks;
 
 	/** List of module pointers which can provide I/O abstraction
 	 */
@@ -227,10 +213,6 @@ class SpanningTreeUtilities : public classbase
 	/** Returns true if this is a server name we recognise
 	 */
 	bool IsServer(const std::string &ServerName);
-
-	/** Attempt to connect to the failover link of link x
-	 */
-	void DoFailOver(Autoconnect* x);
 
 	/** Find a link tag from a server name
 	 */

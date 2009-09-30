@@ -244,6 +244,25 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	}
 }
 
+void ModuleSpanningTree::ConnectServer(Autoconnect* y)
+{
+	y->position++;
+	while (y->position < (int)y->servers.size())
+	{
+		Link* x = Utils->FindLink(y->servers[y->position]);
+		if (x)
+		{
+			ServerInstance->SNO->WriteToSnoMask('l', "AUTOCONNECT: Auto-connecting server \002%s\002", x->Name.c_str());
+			ConnectServer(x, y);
+			return;
+		}
+		y->position++;
+	}
+	// Autoconnect chain has been fully iterated; start at the beginning on the
+	// next AutoConnectServers run
+	y->position = -1;
+}
+
 void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 {
 	bool ipvalid = true;
@@ -284,7 +303,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 			ServerInstance->GlobalCulls.AddItem(newsocket);
-			Utils->DoFailOver(y);
+			ConnectServer(y);
 		}
 	}
 	else
@@ -292,45 +311,41 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		try
 		{
 			bool cached;
-			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, x->IPAddr, *x, cached, start_type, y);
+			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, x->IPAddr, x, cached, start_type, y);
 			ServerInstance->AddResolver(snr, cached);
 		}
 		catch (ModuleException& e)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
-			Utils->DoFailOver(y);
+			ConnectServer(y);
 		}
 	}
 }
 
 void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 {
-	for (std::vector<Autoconnect>::iterator x = Utils->AutoconnectBlocks.begin(); x < Utils->AutoconnectBlocks.end(); ++x)
+	for (std::vector<reference<Autoconnect> >::iterator i = Utils->AutoconnectBlocks.begin(); i < Utils->AutoconnectBlocks.end(); ++i)
 	{
+		Autoconnect* x = *i;
 		if (curtime >= x->NextConnectTime)
 		{
 			x->NextConnectTime = curtime + x->Period;
-			TreeServer* CheckDupe = Utils->FindServer(x->Server.c_str());
-			Link* y = Utils->FindLink(x->Server);
-			if (x->FailOver.length())
+			for(unsigned int j=0; j < x->servers.size(); j++)
 			{
-				TreeServer* CheckFailOver = Utils->FindServer(x->FailOver.c_str());
-				if (CheckFailOver)
+				if (Utils->FindServer(x->servers[j]))
 				{
-					/* The failover for this server is currently a member of the network.
-					 * The failover probably succeeded, where the main link did not.
-					 * Don't try the main link until the failover is gone again.
-					 */
-					continue;
+					// found something in this block. Should the server fail,
+					// we want to start at the start of the list, not in the
+					// middle where we left off
+					x->position = -1;
+					goto dupe_found; // next autoconnect block
 				}
 			}
-			if (!CheckDupe)
-			{
-				// an autoconnected server is not connected. Check if its time to connect it
-				ServerInstance->SNO->WriteToSnoMask('l',"AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",y->Name.c_str(),x->Period);
-				this->ConnectServer(&(*y), &(*x));
-			}
+			// only start a new chain if we aren't running
+			if (x->position == -1)
+				ConnectServer(x);
 		}
+dupe_found:;
 	}
 }
 
@@ -344,15 +359,14 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		if (curtime > s->age + p.second)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
-			failovers.push_back(s->myautoconnect);
-			ServerInstance->SE->DelFd(s);
+			if (s->myautoconnect)
+				failovers.push_back(s->myautoconnect);
 			s->Close();
 		}
 	}
-	/* Trigger failover for each timed out socket */
-	for (std::vector<Autoconnect*>::const_iterator n = failovers.begin(); n != failovers.end(); ++n)
+	for(unsigned int i=0; i < failovers.size(); i++)
 	{
-		Utils->DoFailOver(*n);
+		ConnectServer(failovers[i]);
 	}
 }
 
@@ -395,8 +409,9 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 
 ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& parameters, User* user)
 {
-	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
+	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
 	{
+		Link* x = *i;
 		if (InspIRCd::Match(x->Name.c_str(),parameters[0]))
 		{
 			if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name)))
@@ -409,7 +424,7 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 			if (!CheckDupe)
 			{
 				RemoteMessage(user, "*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
-				ConnectServer(&(*x), NULL);
+				ConnectServer(x);
 				return MOD_RES_DENY;
 			}
 			else

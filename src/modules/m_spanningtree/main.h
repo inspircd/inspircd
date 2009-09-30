@@ -124,7 +124,11 @@ class ModuleSpanningTree : public Module
 
 	/** Connect a server locally
 	 */
-	void ConnectServer(Link* x, Autoconnect* y);
+	void ConnectServer(Link* x, Autoconnect* y = NULL);
+
+	/** Connect the next autoconnect server
+	 */
+	void ConnectServer(Autoconnect* y);
 
 	/** Check if any servers are due to be autoconnected
 	 */

@@ -31,7 +31,8 @@
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link x, bool &cached, QueryType qt, Autoconnect* myac) : Resolver(hostname, qt, cached, me), MyLink(x), Utils(Util), query(qt), host(hostname), mine(me), myautoconnect(myac)
+ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac)
+	: Resolver(hostname, qt, cached, me), Utils(Util), query(qt), host(hostname), mine(me), MyLink(x), myautoconnect(myac)
 {
 	/* Nothing in here, folks */
 }
@@ -42,15 +43,15 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 	 * Passing a hostname directly to BufferedSocket causes it to
 	 * just bail and set its FD to -1.
 	 */
-	TreeServer* CheckDupe = Utils->FindServer(MyLink.Name.c_str());
+	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name.c_str());
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
 
-		if ((!MyLink.Hook.empty()) && (Utils->hooks.find(MyLink.Hook.c_str()) ==  Utils->hooks.end()))
+		if ((!MyLink->Hook.empty()) && (Utils->hooks.find(MyLink->Hook.c_str()) ==  Utils->hooks.end()))
 			return;
 
-		TreeSocket* newsocket = new TreeSocket(this->Utils, result,MyLink.Port,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str(),
-							MyLink.Bind, myautoconnect, MyLink.Hook.empty() ? NULL : Utils->hooks[MyLink.Hook.c_str()]);
+		TreeSocket* newsocket = new TreeSocket(this->Utils, result,MyLink->Port,MyLink->Timeout ? MyLink->Timeout : 10,MyLink->Name.c_str(),
+							MyLink->Bind, myautoconnect, MyLink->Hook.empty() ? NULL : Utils->hooks[MyLink->Hook.c_str()]);
 		if (newsocket->GetFd() > -1)
 		{
 			/* We're all OK */
@@ -58,9 +59,9 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		else
 		{
 			/* Something barfed, show the opers */
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
+			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",MyLink->Name.c_str(),strerror(errno));
 			ServerInstance->GlobalCulls.AddItem(newsocket);
-			Utils->DoFailOver(myautoconnect);
+			Utils->Creator->ConnectServer(myautoconnect);
 		}
 	}
 }
@@ -75,7 +76,7 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 		ServerInstance->AddResolver(snr, cached);
 		return;
 	}
-	ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink.Name.c_str(), errormessage.c_str() );
-	Utils->DoFailOver(myautoconnect);
+	ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink->Name.c_str(), errormessage.c_str() );
+	Utils->Creator->ConnectServer(myautoconnect);
 }
 

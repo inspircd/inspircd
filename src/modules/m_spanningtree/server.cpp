@@ -120,8 +120,9 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		return false;
 	}
 
-	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
+	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
 	{
+		Link* x = *i;
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 
@@ -215,8 +216,9 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 		return false;
 	}
 
-	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
+	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
 	{
+		Link* x = *i;
 		if (x->Name != servername && x->Name != "*") // open link allowance
 			continue;
 

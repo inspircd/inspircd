@@ -383,8 +383,9 @@ bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::str
 void SpanningTreeUtilities::RefreshIPCache()
 {
 	ValidIPs.clear();
-	for (std::vector<Link>::iterator L = LinkBlocks.begin(); L != LinkBlocks.end(); L++)
+	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
 	{
+		Link* L = *i;
 		if (L->IPAddr.empty() || L->RecvPass.empty() || L->SendPass.empty() || L->Name.empty() || !L->Port)
 		{
 			if (L->Name.empty())
@@ -427,7 +428,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			try
 			{
 				bool cached;
-				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, *L, cached, start_type);
+				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, start_type);
 				ServerInstance->AddResolver(sr, cached);
 			}
 			catch (...)
@@ -529,55 +530,55 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	ValidIPs.clear();
 	for (int j = 0; j < Conf->Enumerate("link"); ++j)
 	{
-		Link L;
+		reference<Link> L = new Link;
 		std::string Allow = Conf->ReadValue("link", "allowmask", j);
-		L.Name = (Conf->ReadValue("link", "name", j)).c_str();
-		L.AllowMask = Allow;
-		L.IPAddr = Conf->ReadValue("link", "ipaddr", j);
-		L.Port = Conf->ReadInteger("link", "port", j, true);
-		L.SendPass = Conf->ReadValue("link", "sendpass", j);
-		L.RecvPass = Conf->ReadValue("link", "recvpass", j);
-		L.Fingerprint = Conf->ReadValue("link", "fingerprint", j);
-		L.HiddenFromStats = Conf->ReadFlag("link", "statshidden", j);
-		L.Timeout = Conf->ReadInteger("link", "timeout", j, true);
-		L.Hook = Conf->ReadValue("link", "transport", j);
-		L.Bind = Conf->ReadValue("link", "bind", j);
-		L.Hidden = Conf->ReadFlag("link", "hidden", j);
+		L->Name = (Conf->ReadValue("link", "name", j)).c_str();
+		L->AllowMask = Allow;
+		L->IPAddr = Conf->ReadValue("link", "ipaddr", j);
+		L->Port = Conf->ReadInteger("link", "port", j, true);
+		L->SendPass = Conf->ReadValue("link", "sendpass", j);
+		L->RecvPass = Conf->ReadValue("link", "recvpass", j);
+		L->Fingerprint = Conf->ReadValue("link", "fingerprint", j);
+		L->HiddenFromStats = Conf->ReadFlag("link", "statshidden", j);
+		L->Timeout = Conf->ReadInteger("link", "timeout", j, true);
+		L->Hook = Conf->ReadValue("link", "transport", j);
+		L->Bind = Conf->ReadValue("link", "bind", j);
+		L->Hidden = Conf->ReadFlag("link", "hidden", j);
 
-		if ((!L.Hook.empty()) && (hooks.find(L.Hook.c_str()) ==  hooks.end()))
+		if ((!L->Hook.empty()) && (hooks.find(L->Hook.c_str()) ==  hooks.end()))
 		{
-			throw CoreException("Can't find transport type '"+L.Hook+"' for link '"+assign(L.Name)+"' - maybe you forgot to load it BEFORE m_spanningtree in your config file? Skipping <link> tag completely.");
+			throw CoreException("Can't find transport type '"+L->Hook+"' for link '"+assign(L->Name)+"' - maybe you forgot to load it BEFORE m_spanningtree in your config file? Skipping <link> tag completely.");
 			continue;
 
 		}
 
-		if (L.Name.find('.') == std::string::npos)
-			throw CoreException("The link name '"+assign(L.Name)+"' is invalid and must contain at least one '.' character");
+		if (L->Name.find('.') == std::string::npos)
+			throw CoreException("The link name '"+assign(L->Name)+"' is invalid and must contain at least one '.' character");
 
-		if (L.Name.length() > 64)
-			throw CoreException("The link name '"+assign(L.Name)+"' is longer than 64 characters!");
+		if (L->Name.length() > 64)
+			throw CoreException("The link name '"+assign(L->Name)+"' is longer than 64 characters!");
 
-		if ((!L.IPAddr.empty()) && (!L.RecvPass.empty()) && (!L.SendPass.empty()) && (!L.Name.empty()) && (L.Port))
+		if ((!L->IPAddr.empty()) && (!L->RecvPass.empty()) && (!L->SendPass.empty()) && (!L->Name.empty()) && (L->Port))
 		{
 			if (Allow.length())
 				ValidIPs.push_back(Allow);
 
-			ValidIPs.push_back(L.IPAddr);
+			ValidIPs.push_back(L->IPAddr);
 
 			/* Needs resolving */
 			bool ipvalid = true;
 			QueryType start_type = DNS_QUERY_A;
 			start_type = DNS_QUERY_AAAA;
-			if (strchr(L.IPAddr.c_str(),':'))
+			if (strchr(L->IPAddr.c_str(),':'))
 			{
 				in6_addr n;
-				if (inet_pton(AF_INET6, L.IPAddr.c_str(), &n) < 1)
+				if (inet_pton(AF_INET6, L->IPAddr.c_str(), &n) < 1)
 					ipvalid = false;
 			}
 			else
 			{
 				in_addr n;
-				if (inet_aton(L.IPAddr.c_str(),&n) < 1)
+				if (inet_aton(L->IPAddr.c_str(),&n) < 1)
 					ipvalid = false;
 			}
 
@@ -586,7 +587,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 				try
 				{
 					bool cached;
-					SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L.IPAddr, L, cached, start_type);
+					SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, start_type);
 					ServerInstance->AddResolver(sr, cached);
 				}
 				catch (...)
@@ -596,31 +597,31 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		}
 		else
 		{
-			if (L.IPAddr.empty())
+			if (L->IPAddr.empty())
 			{
-				L.IPAddr = "*";
+				L->IPAddr = "*";
 				ValidIPs.push_back("*");
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
+				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L->Name) + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 			}
 
-			if (L.RecvPass.empty())
+			if (L->RecvPass.empty())
 			{
-				throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', recvpass not defined!");
+				throw CoreException("Invalid configuration for server '"+assign(L->Name)+"', recvpass not defined!");
 			}
 
-			if (L.SendPass.empty())
+			if (L->SendPass.empty())
 			{
-				throw CoreException("Invalid configuration for server '"+assign(L.Name)+"', sendpass not defined!");
+				throw CoreException("Invalid configuration for server '"+assign(L->Name)+"', sendpass not defined!");
 			}
 
-			if (L.Name.empty())
+			if (L->Name.empty())
 			{
-				throw CoreException("Invalid configuration, link tag without a name! IP address: "+L.IPAddr);
+				throw CoreException("Invalid configuration, link tag without a name! IP address: "+L->IPAddr);
 			}
 
-			if (!L.Port)
+			if (!L->Port)
 			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L.Name) + " has no port defined, you will not be able to /connect it.");
+				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L->Name) + " has no port defined, you will not be able to /connect it.");
 			}
 		}
 
@@ -629,21 +630,27 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 	for (int j = 0; j < Conf->Enumerate("autoconnect"); ++j)
 	{
-		Autoconnect A;
-		A.Period = Conf->ReadInteger("autoconnect", "period", j, true);
-		A.Server = Conf->ReadValue("autoconnect", "server", j);
-		A.FailOver = Conf->ReadValue("autoconnect", "failover", j).c_str();
+		reference<Autoconnect> A = new Autoconnect;
+		A->Period = Conf->ReadInteger("autoconnect", "period", j, true);
+		A->position = -1;
+		std::string servers = Conf->ReadValue("autoconnect", "server", j);
+		irc::spacesepstream ss(servers);
+		std::string server;
+		while (ss.GetToken(server))
+		{
+			A->servers.push_back(server);
+		}
 
 		// Fix: Only trip autoconnects if this wouldn't delay autoconnect..
-		if (A.NextConnectTime > ((time_t)(ServerInstance->Time() + A.Period)))
-			A.NextConnectTime = ServerInstance->Time() + A.Period;
+		if (A->NextConnectTime > ((time_t)(ServerInstance->Time() + A->Period)))
+			A->NextConnectTime = ServerInstance->Time() + A->Period;
 
-		if (A.Period <= 0)
+		if (A->Period <= 0)
 		{
 			throw CoreException("Invalid configuration for autoconnect, period not a positive integer!");
 		}
 
-		if (A.Server.empty())
+		if (A->servers.empty())
 		{
 			throw CoreException("Invalid configuration for autoconnect, server cannot be empty!");
 		}
@@ -654,43 +661,14 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	delete Conf;
 }
 
-void SpanningTreeUtilities::DoFailOver(Autoconnect* x)
-{
-	if (x && x->FailOver.length())
-	{
-		if (x->FailOver == x->Server)
-		{
-			ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Server.c_str());
-			return;
-		}
-		Link* TryThisOne = this->FindLink(x->FailOver.c_str());
-		if (TryThisOne)
-		{
-			TreeServer* CheckDupe = this->FindServer(x->FailOver.c_str());
-			if (CheckDupe)
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Skipping existing failover: %s", x->FailOver.c_str());
-			}
-			else
-			{
-				ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Server.c_str(), TryThisOne->Name.c_str());
-				Creator->ConnectServer(TryThisOne, NULL);
-			}
-		}
-		else
-		{
-			ServerInstance->SNO->WriteToSnoMask('l', "FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Server.c_str());
-		}
-	}
-}
-
 Link* SpanningTreeUtilities::FindLink(const std::string& name)
 {
-	for (std::vector<Link>::iterator x = LinkBlocks.begin(); x != LinkBlocks.end(); x++)
+	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
 	{
+		Link* x = *i;
 		if (InspIRCd::Match(x->Name.c_str(), name.c_str()))
 		{
-			return &(*x);
+			return x;
 		}
 	}
 	return NULL;

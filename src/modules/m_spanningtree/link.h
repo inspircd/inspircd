@@ -14,13 +14,7 @@
 #ifndef __LINK_H__
 #define __LINK_H__
 
-/** The Link class might as well be a struct,
- * but this is C++ and we don't believe in structs (!).
- * It holds the entire information of one <link>
- * tag from the main config file. We maintain a list
- * of them, and populate the list on rehash/load.
- */
-class Link : public classbase
+class Link : public refcountbase
 {
  public:
 	irc::string Name;
@@ -36,5 +30,16 @@ class Link : public classbase
 	std::string Bind;
 	bool Hidden;
 };
+
+class Autoconnect : public refcountbase
+{
+ public:
+	std::vector<std::string> servers;
+	unsigned long Period;
+	time_t NextConnectTime;
+	/** Negative == inactive */
+	int position;
+};
+
 
 #endif
