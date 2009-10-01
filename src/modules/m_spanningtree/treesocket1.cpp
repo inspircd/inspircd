@@ -167,6 +167,7 @@ void TreeSocket::SendError(const std::string &errormessage)
 	/* Display the error locally as well as sending it remotely */
 	ServerInstance->SNO->WriteToSnoMask('l', "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? this->IP.c_str() : this->InboundServerName.c_str()), errormessage.c_str());
 	WriteLine("ERROR :"+errormessage);
+	SetError(errormessage);
 }
 
 /** This function forces this server to quit, removing this server
@@ -254,14 +255,7 @@ void TreeSocket::OnDataReady()
 		 */
 		if (ret.find("\r") != std::string::npos)
 			ret = recvq.substr(0,recvq.find("\r")-1);
-		/* Process this one, abort if it
-		 * didnt return true.
-		 */
-		if (!this->ProcessLine(ret))
-		{
-			SetError("ProcessLine returned false");
-			break;
-		}
+		ProcessLine(ret);
 	}
 	Utils->Creator->loopCall = false;
 }

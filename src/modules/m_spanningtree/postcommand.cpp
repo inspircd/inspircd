@@ -27,8 +27,12 @@
 
 void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line)
 {
-	if (result != CMD_SUCCESS)
-		return;
+	if (result == CMD_SUCCESS)
+		Utils->RouteCommand(NULL, command, parameters, user);
+}
+
+void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &command, const parameterlist& parameters, User *user)
+{
 	if (!ServerInstance->IsValidModuleCommand(command, parameters.size(), user))
 		return;
 
@@ -52,7 +56,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 	}
 	else if (routing.type == ROUTE_TYPE_OPT_UCAST)
 	{
-		TreeServer* sdest = Utils->FindServer(routing.serverdest);
+		TreeServer* sdest = FindServer(routing.serverdest);
 		if (!sdest)
 		{
 			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Trying to route ENCAP to nonexistant server %s",
@@ -68,7 +72,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 		Module* srcmodule = thiscmd->creator;
 		Version ver = srcmodule->GetVersion();
 
-		if (!(ver.Flags & VF_COMMON))
+		if (!(ver.Flags & (VF_COMMON | VF_CORE)))
 		{
 			ServerInstance->Logs->Log("m_spanningtree",ERROR,"Routed command %s from non-VF_COMMON module %s",
 				command.c_str(), srcmodule->ModuleSourceFile.c_str());
@@ -81,8 +85,66 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 
 	params.push_back(output_text);
 
-	if (routing.type == ROUTE_TYPE_BROADCAST || routing.type == ROUTE_TYPE_OPT_BCAST)
-		Utils->DoOneToMany(user->uuid, sent_cmd, params);
-	else
-		Utils->DoOneToOne(user->uuid, sent_cmd, params, routing.serverdest);
+	if (routing.type == ROUTE_TYPE_MESSAGE)
+	{
+		char pfx = 0;
+		std::string dest = routing.serverdest;
+		if (ServerInstance->Modes->FindPrefix(dest[0]))
+		{
+			pfx = dest[0];
+			dest = dest.substr(1);
+		}
+		if (dest[0] == '#')
+		{
+			Channel* c = ServerInstance->FindChan(dest);
+			if (!c)
+				return;
+			TreeServerList list;
+			// TODO OnBuildExemptList hook was here
+			GetListOfServersForChannel(c,list,pfx, CUList());
+			std::string data = ":" + user->uuid + " " + sent_cmd;
+			for (unsigned int x = 0; x < params.size(); x++)
+				data += " " + params[x];
+			for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
+			{
+				TreeSocket* Sock = i->second->GetSocket();
+				if (origin && origin->GetSocket() == Sock)
+					continue;
+				if (Sock)
+					Sock->WriteLine(data);
+			}
+		}
+		else if (dest[0] == '$')
+		{
+			if (origin)
+				DoOneToAllButSender(user->uuid, sent_cmd, params, origin->GetName());
+			else
+				DoOneToMany(user->uuid, sent_cmd, params);
+		}
+		else
+		{
+			// user target?
+			User* d = ServerInstance->FindNick(dest);
+			if (!d)
+				return;
+			TreeServer* tsd = BestRouteTo(d->server);
+			if (tsd == origin)
+				// huh? no routing stuff around in a circle, please.
+				return;
+			DoOneToOne(user->uuid, sent_cmd, params, d->server);
+		}
+	}
+	else if (routing.type == ROUTE_TYPE_BROADCAST || routing.type == ROUTE_TYPE_OPT_BCAST)
+	{
+		if (origin)
+			DoOneToAllButSender(user->uuid, sent_cmd, params, origin->GetName());
+		else
+			DoOneToMany(user->uuid, sent_cmd, params);
+	}
+	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
+	{
+		if (origin && routing.serverdest == origin->GetName())
+			return;
+		DoOneToOne(user->uuid, sent_cmd, params, routing.serverdest);
+	}
 }

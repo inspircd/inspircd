@@ -933,7 +933,7 @@ class CommandModule : public Module
 
 	Version GetVersion()
 	{
-		return Version(cmd.command, VF_VENDOR);
+		return Version(cmd.command, VF_VENDOR|VF_CORE);
 	}
 };
 

@@ -246,6 +246,8 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 
 void ModuleSpanningTree::ConnectServer(Autoconnect* y)
 {
+	if (!y)
+		return;
 	y->position++;
 	while (y->position < (int)y->servers.size())
 	{

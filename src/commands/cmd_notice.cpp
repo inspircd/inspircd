@@ -30,6 +30,15 @@ class CommandNotice : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (IS_LOCAL(user))
+			// This is handled by the OnUserNotice hook to split the LoopCall pieces
+			return ROUTE_LOCALONLY;
+		else
+			return ROUTE_MESSAGE(parameters[0]);
+	}
 };
 
 

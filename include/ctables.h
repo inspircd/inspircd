@@ -46,6 +46,7 @@ enum RouteType
 	ROUTE_TYPE_LOCALONLY,
 	ROUTE_TYPE_BROADCAST,
 	ROUTE_TYPE_UNICAST,
+	ROUTE_TYPE_MESSAGE,
 	ROUTE_TYPE_OPT_BCAST,
 	ROUTE_TYPE_OPT_UCAST
 };
@@ -74,6 +75,8 @@ struct RouteDescriptor
 #define ROUTE_BROADCAST (RouteDescriptor(ROUTE_TYPE_BROADCAST, ""))
 /** Route this command to a single server (do nothing if own server name specified) */
 #define ROUTE_UNICAST(x) (RouteDescriptor(ROUTE_TYPE_UNICAST, x))
+/** Route this command as a message with the given target (any of user, #channel, @#channel, $servermask) */
+#define ROUTE_MESSAGE(x) (RouteDescriptor(ROUTE_TYPE_MESSAGE, x))
 /** Route this command to all servers wrapped via ENCAP, so ignored if not understood */
 #define ROUTE_OPT_BCAST (RouteDescriptor(ROUTE_TYPE_OPT_BCAST, ""))
 /** Route this command to a single server wrapped via ENCAP, so ignored if not understood */

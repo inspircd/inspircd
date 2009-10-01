@@ -375,13 +375,15 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool Inbound_Server(parameterlist &params);
 
-	/** Handle netsplit
+	/** Handle IRC line split
 	 */
-	void Split(const std::string &line, parameterlist &n);
+	void Split(const std::string &line, std::string& prefix, std::string& command, parameterlist &params);
 
 	/** Process complete line from buffer
 	 */
-	bool ProcessLine(std::string &line);
+	void ProcessLine(std::string &line);
+
+	void ProcessConnectedLine(std::string& prefix, std::string& command, parameterlist& params);
 
 	/** Get this server's name
 	 */

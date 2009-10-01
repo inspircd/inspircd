@@ -35,7 +35,8 @@ enum ModuleFlags {
 	VF_VENDOR = 2,		// module is a vendor module (came in the original tarball, not 3rd party)
 	VF_SERVICEPROVIDER = 4,	// module provides a service to other modules (can be a dependency)
 	VF_COMMON = 8,		// module needs to be common on all servers in a network to link
-	VF_OPTCOMMON = 16	// module should be common on all servers for unsurprising behavior
+	VF_OPTCOMMON = 16,	// module should be common on all servers for unsurprising behavior
+	VF_CORE = 32		// module is a core command, can be assumed loaded on all servers
 };
 
 /** Used with SendToMode()

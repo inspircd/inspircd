@@ -221,63 +221,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 
 bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, parameterlist &params)
 {
-	char pfx = 0;
 	TreeServer* omitroute = this->BestRouteTo(omit);
-	if ((command == "NOTICE") || (command == "PRIVMSG"))
-	{
-		if (params.size() >= 2)
-		{
-			/* Prefixes */
-			if (ServerInstance->Modes->FindPrefix(params[0][0]))
-			{
-				pfx = params[0][0];
-				params[0] = params[0].substr(1, params[0].length()-1);
-			}
-			if ((*(params[0].c_str()) != '#') && (*(params[0].c_str()) != '$'))
-			{
-				// special routing for private messages/notices
-				User* d = ServerInstance->FindNick(params[0]);
-				if (d)
-				{
-					parameterlist par;
-					par.push_back(params[0]);
-					par.push_back(":"+params[1]);
-					this->DoOneToOne(prefix,command.c_str(),par,d->server);
-					return true;
-				}
-			}
-			else if (*(params[0].c_str()) == '$')
-			{
-				parameterlist par;
-				par.push_back(params[0]);
-				par.push_back(":"+params[1]);
-				this->DoOneToAllButSender(prefix,command.c_str(),par,omitroute->GetName());
-				return true;
-			}
-			else
-			{
-				Channel* c = ServerInstance->FindChan(params[0]);
-				User* u = ServerInstance->FindNick(prefix);
-				if (c)
-				{
-					CUList elist;
-					TreeServerList list;
-					FOREACH_MOD(I_OnBuildExemptList, OnBuildExemptList((command == "PRIVMSG" ? MSG_PRIVMSG : MSG_NOTICE), c, u, pfx, elist, params[1]));
-					GetListOfServersForChannel(c,list,pfx,elist);
-
-					for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-					{
-						TreeSocket* Sock = i->second->GetSocket();
-						if ((Sock) && (i->second->GetName() != omit) && (omitroute != i->second))
-						{
-							Sock->WriteLine(data);
-						}
-					}
-					return true;
-				}
-			}
-		}
-	}
 	unsigned int items =this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{

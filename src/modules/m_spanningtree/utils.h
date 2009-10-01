@@ -158,6 +158,8 @@ class SpanningTreeUtilities : public classbase
 	 */
 	~SpanningTreeUtilities();
 
+	void RouteCommand(TreeServer*, const std::string&, const parameterlist&, User*);
+
 	/** Send a message from this server to one other local or remote
 	 */
 	bool DoOneToOne(const std::string &prefix, const std::string &command, parameterlist &params, std::string target);
