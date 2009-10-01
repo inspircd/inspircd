@@ -354,21 +354,26 @@ dupe_found:;
 void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 {
 	std::vector<Autoconnect*> failovers;
-	for (std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); i++)
+	std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin();
+	while (i != Utils->timeoutlist.end())
 	{
 		TreeSocket* s = i->first;
 		std::pair<std::string, int> p = i->second;
+		std::map<TreeSocket*, std::pair<std::string, int> >::iterator me = i;
+		i++;
 		if (curtime > s->age + p.second)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
 			if (s->myautoconnect)
 				failovers.push_back(s->myautoconnect);
+			Utils->timeoutlist.erase(me);
 			s->Close();
 		}
 	}
-	for(unsigned int i=0; i < failovers.size(); i++)
+	for(unsigned int j=0; j < failovers.size(); j++)
 	{
-		ConnectServer(failovers[i]);
+		if (failovers[j]->position >= 0)
+			ConnectServer(failovers[j]);
 	}
 }
 
