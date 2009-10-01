@@ -632,6 +632,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	{
 		reference<Autoconnect> A = new Autoconnect;
 		A->Period = Conf->ReadInteger("autoconnect", "period", j, true);
+		A->NextConnectTime = ServerInstance->Time() + A->Period;
 		A->position = -1;
 		std::string servers = Conf->ReadValue("autoconnect", "server", j);
 		irc::spacesepstream ss(servers);
@@ -640,10 +641,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		{
 			A->servers.push_back(server);
 		}
-
-		// Fix: Only trip autoconnects if this wouldn't delay autoconnect..
-		if (A->NextConnectTime > ((time_t)(ServerInstance->Time() + A->Period)))
-			A->NextConnectTime = ServerInstance->Time() + A->Period;
 
 		if (A->Period <= 0)
 		{

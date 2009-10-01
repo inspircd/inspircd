@@ -1298,19 +1298,18 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),oper_text.c_str());
 	std::string out1 = tb1;
 	std::string out2 = tb2;
+	already_sent[this->fd] = uniq_id;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
 		const UserMembList* ulist = (*v)->GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			if (this != i->first)
+			User* u = i->first;
+			if (IS_LOCAL(u) && !u->quitting && (already_sent[u->fd] != uniq_id))
 			{
-				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
-				{
-					already_sent[i->first->fd] = uniq_id;
-					i->first->Write(IS_OPER(i->first) ? out2 : out1);
-				}
+				already_sent[u->fd] = uniq_id;
+				u->Write(IS_OPER(u) ? out2 : out1);
 			}
 		}
 	}
