@@ -146,7 +146,7 @@ class ModuleSWhois : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides the SWHOIS command which allows setting of arbitary WHOIS lines", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides the SWHOIS command which allows setting of arbitary WHOIS lines", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

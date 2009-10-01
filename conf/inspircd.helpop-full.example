@@ -995,7 +995,7 @@ Note that all /STATS use is broadcast to online IRC operators.">
               nonicks module).
  O:opertype   Prevents IRCops of the specified opertype from joining
               the channel, mostly useful as an invite exception (IRCop
-              only, requires operinvex module).
+              only, requires operchans module).
  Q:n!u@h      Blocks kicks by matching users (requires nokicks
               module).
  R:account    Prevents users logged into a matching account from

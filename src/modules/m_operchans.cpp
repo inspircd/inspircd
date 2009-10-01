@@ -48,12 +48,12 @@ class ModuleOperChans : public Module
 {
 	OperChans oc;
  public:
-	ModuleOperChans()
-		: oc(this)
+	ModuleOperChans() : oc(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&oc))
 			throw ModuleException("Could not add new modes!");
-		ServerInstance->Modules->Attach(I_OnUserPreJoin, this);
+		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
@@ -67,6 +67,21 @@ class ModuleOperChans : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	{
+		if (mask[0] == 'O' && mask[1] == ':')
+		{
+			if (IS_OPER(user) && InspIRCd::Match(user->oper, mask.substr(2)))
+				return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	void On005Numeric(std::string &output)
+	{
+		ServerInstance->AddExtBanChar('O');
+	}
+
 	~ModuleOperChans()
 	{
 		ServerInstance->Modes->DelMode(&oc);
@@ -74,7 +89,7 @@ class ModuleOperChans : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for oper-only chans via the +O channel mode", VF_VENDOR | VF_COMMON, API_VERSION);
+		return Version("Provides support for oper-only chans via the +O channel mode and 'O' extban", VF_VENDOR | VF_COMMON, API_VERSION);
 	}
 };
 

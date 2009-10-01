@@ -25,6 +25,7 @@ static const char* const forge_common_1201[] = {
 	"m_sapart.so",
 	"m_saquit.so",
 	"m_setident.so",
+	"m_swhois.so",
 };
 
 static std::string wide_newline("\r\n");
@@ -40,6 +41,9 @@ void TreeSocket::CompatAddModules(std::vector<std::string>& modlist)
 			if (ServerInstance->Modules->Find(forge_common_1201[i]))
 				modlist.push_back(forge_common_1201[i]);
 		}
+		// module was merged
+		if (ServerInstance->Modules->Find("m_operchans.so"))
+			modlist.push_back("m_operinvex.so");
 	}
 }
 

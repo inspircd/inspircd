@@ -1103,19 +1103,13 @@
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper channels mode: Adds the +O channel mode
-# This module is oper-only.
-#<module name="m_operchans.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper invex/extban module: Adds +beI type O, to ban, exempt, and invex
-# given oper type masks.
+# Oper channels mode: Adds the +O channel mode and +beI type O:<mask>
+# to ban, exempt, and invex given oper type masks.
 # e.g, /mode #channel +iI O:* is equivilant to chmode +O, but you
 # may also, e.g. /mode #channel +iI O:AdminTypeOnly to only allow admins.
 # +be work in a similar fashion.
-# This module is oper-only.
 #
-#<module name="m_operinvex.so">
+#<module name="m_operchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper Join module: Auto-joins opers to a channel upon oper-up
