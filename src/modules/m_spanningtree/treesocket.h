@@ -260,14 +260,11 @@ class TreeSocket : public BufferedSocket
 	/** Handle ERROR command */
 	bool Error(parameterlist &params);
 
-	/** remote MOTD. leet, huh? */
+	/** remote MOTD. */
 	bool Motd(const std::string &prefix, parameterlist &params);
 
-	/** remote ADMIN. leet, huh? */
+	/** remote ADMIN. */
 	bool Admin(const std::string &prefix, parameterlist &params);
-
-	/** Remote MODULES */
-	bool Modules(const std::string &prefix, parameterlist &params);
 
 	bool Stats(const std::string &prefix, parameterlist &params);
 
@@ -286,10 +283,6 @@ class TreeSocket : public BufferedSocket
 
 	/** SAVE to resolve nick collisions without killing */
 	bool ForceNick(const std::string &prefix, parameterlist &params);
-
-	/** PRIVMSG or NOTICE with server origin ONLY
-	 */
-	bool ServerMessage(const std::string &messagetype, const std::string &prefix, parameterlist &params, const std::string &sourceserv);
 
 	/** ENCAP command
 	 */

@@ -82,10 +82,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 		this->HandleVersion(parameters,user);
 		return MOD_RES_DENY;
 	}
-	else if ((command == "MODULES") && (parameters.size() > 0))
-	{
-		return this->HandleModules(parameters,user);
-	}
 	return MOD_RES_PASSTHRU;
 }
 
