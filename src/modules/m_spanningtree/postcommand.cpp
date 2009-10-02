@@ -46,7 +46,15 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 
 	if (routing.type == ROUTE_TYPE_LOCALONLY)
 	{
-		return;
+		Module* srcmodule = thiscmd->creator;
+		Version ver = srcmodule->GetVersion();
+
+		if ((ver.Flags & VF_CORE) && !IS_LOCAL(user))
+			routing = ROUTE_BROADCAST;
+		else
+			return;
+		if (user == ServerUser)
+			return;
 	}
 	else if (routing.type == ROUTE_TYPE_OPT_BCAST)
 	{

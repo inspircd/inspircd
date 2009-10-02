@@ -58,10 +58,10 @@ struct RouteDescriptor
 {
 	/** Routing type from the enum above
 	 */
-	const RouteType type;
+	RouteType type;
 	/** For unicast, the destination server's name
 	 */
-	const std::string serverdest;
+	std::string serverdest;
 
 	/** Create a RouteDescriptor
 	 */
