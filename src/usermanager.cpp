@@ -244,7 +244,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			if ((!ServerInstance->SilentULine(user->server)) && (!user->quietquit))
 			{
 				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",
-					user->server, user->nick.c_str(), user->ident.c_str(), user->host.c_str(), oper_reason.c_str());
+					user->server.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str(), oper_reason.c_str());
 			}
 		}
 		user->AddToWhoWas();

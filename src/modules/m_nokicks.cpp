@@ -44,7 +44,7 @@ class ModuleNoKicks : public Module
 	{
 		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet('Q')))
 		{
-			if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
+			if ((ServerInstance->ULine(source->nick.c_str())) || ServerInstance->ULine(source->server))
 			{
 				// ulines can still kick with +Q in place
 				return MOD_RES_PASSTHRU;

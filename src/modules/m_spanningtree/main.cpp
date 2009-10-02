@@ -368,6 +368,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 				failovers.push_back(s->myautoconnect);
 			Utils->timeoutlist.erase(me);
 			s->Close();
+			ServerInstance->GlobalCulls.AddItem(s);
 		}
 	}
 	for(unsigned int j=0; j < failovers.size(); j++)
@@ -963,7 +964,10 @@ void ModuleSpanningTree::OnEvent(Event* event)
 
 bool ModuleSpanningTree::cull()
 {
-	return Utils->cull();
+	Utils->cull();
+	ServerInstance->Timers->DelTimer(RefreshTimer);
+	ServerInstance->Modules->DoneWithInterface("BufferedSocketHook");
+	return this->Module::cull();
 }
 
 ModuleSpanningTree::~ModuleSpanningTree()
@@ -976,10 +980,6 @@ ModuleSpanningTree::~ModuleSpanningTree()
 
 	delete command_rconnect;
 	delete command_rsquit;
-
-	ServerInstance->Timers->DelTimer(RefreshTimer);
-
-	ServerInstance->Modules->DoneWithInterface("BufferedSocketHook");
 }
 
 Version ModuleSpanningTree::GetVersion()

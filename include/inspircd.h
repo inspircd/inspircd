@@ -557,7 +557,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param servername The servername to find the description of
 	 * @return The description of this server, or of the local server
 	 */
-	std::string GetServerDescription(const char* servername);
+	std::string GetServerDescription(const std::string& servername);
 
 	/** Find a user in the nick hash.
 	 * If the user cant be found in the nick hash check the uuid hash
@@ -810,12 +810,12 @@ class CoreExport InspIRCd : public classbase
 	 * @param server The server to check for uline status
 	 * @return True if the server is a uline OR the string is empty
 	 */
-	bool ULine(const char* server);
+	bool ULine(const std::string& server);
 
 	/** Returns true if the uline is 'silent' (doesnt generate
 	 * remote connect notices etc).
 	 */
-	bool SilentULine(const char* server);
+	bool SilentULine(const std::string& server);
 
 	/** Returns the subversion revision ID of this ircd
 	 * @return The revision ID or an empty string

@@ -168,7 +168,7 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 		dosend = false;
 
 	if (dosend)
-		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server, _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server.c_str(), _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
 
 	params[params.size() - 1] = ":" + params[params.size() - 1];
 	Utils->DoOneToAllButSender(source, "UID", params, source);

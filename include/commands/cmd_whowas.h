@@ -108,7 +108,7 @@ class WhoWasGroup : public classbase
 	std::string ident;
 	/** Server name
 	 */
-	const char* server;
+	std::string server;
 	/** Fullname (GECOS)
 	 */
 	std::string gecos;

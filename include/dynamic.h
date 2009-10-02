@@ -89,25 +89,21 @@ class CoreExport FindSymbolException : public CoreException
 	virtual ~FindSymbolException() throw() {};
 };
 
+class Module;
 /** This is the highest-level class of the DLLFactory system used to load InspIRCd modules and commands.
  * All the dirty mucking around with dl*() is done by DLLManager, all this does it put a pretty shell on
  * it and make it nice to use to load modules and core commands. This class is quite specialised for these
  * two uses and it may not be useful more generally -- use DLLManager directly for that.
  */
-template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
+class CoreExport DLLFactory : public DLLManager
 {
- protected:
-	/** This typedef represents the init_* function within each module or command.
-	 * The init_module function is the only exported extern "C" declaration
-	 * in any module file. In a cmd_*.cpp file the equivilant is init_command
-	 */
-	typedef ReturnType * (initfunctype) ();
+ public:
+	typedef Module* (initfunctype)();
 
 	/** Pointer to the init function.
 	 */
-	initfunctype* init_func;
+	initfunctype* const init_func;
 
- public:
 	/** Default constructor.
 	 * This constructor passes its paramerers down through DLLFactoryBase and then DLLManager
 	 * to load the module, then calls the factory function to retrieve a pointer to a ModuleFactory
@@ -129,21 +125,6 @@ template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
 		else
 		{
 			throw LoadModuleException(error);
-		}
-	}
-
-	/** Calls the 'init_module' C exported function within a module, which
-	 * returns a pointer to a Module derived object.
-	 */
-	ReturnType* CallInit()
-	{
-		if(init_func)
-		{
-			return init_func();
-		}
-		else
-		{
-			return NULL;
 		}
 	}
 

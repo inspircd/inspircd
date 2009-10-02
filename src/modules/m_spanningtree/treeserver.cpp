@@ -164,7 +164,7 @@ int TreeServer::QuitUsers(const std::string &reason)
 	std::vector<User*> time_to_die;
 	for (user_hash::iterator n = ServerInstance->Users->clientlist->begin(); n != ServerInstance->Users->clientlist->end(); n++)
 	{
-		if (!strcmp(n->second->server, this->ServerName.c_str()))
+		if (n->second->server == ServerName)
 		{
 			time_to_die.push_back(n->second);
 		}

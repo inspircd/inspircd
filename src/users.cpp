@@ -1298,7 +1298,6 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),oper_text.c_str());
 	std::string out1 = tb1;
 	std::string out2 = tb2;
-	already_sent[this->fd] = uniq_id;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{

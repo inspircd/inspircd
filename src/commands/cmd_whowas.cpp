@@ -68,7 +68,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 				if (*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
 					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer, b);
 				else
-					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), u->server, b);
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), u->server.c_str(), b);
 			}
 		}
 		else

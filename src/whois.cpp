@@ -40,7 +40,7 @@ void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned lon
 	}
 	else
 	{
-		this->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->server, this->GetServerDescription(dest->server).c_str());
+		this->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->server.c_str(), this->GetServerDescription(dest->server).c_str());
 	}
 
 	if (IS_AWAY(dest))

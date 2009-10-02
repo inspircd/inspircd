@@ -408,6 +408,9 @@ class CoreExport Module : public Extensible
 	/** File that this module was loaded from
 	 */
 	std::string ModuleSourceFile;
+	/** Reference to the dlopen() value
+	 */
+	DLLFactory* ModuleDLLFactory;
 
 	/** Default constructor.
 	 * Creates a module class.
@@ -415,6 +418,11 @@ class CoreExport Module : public Extensible
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
 	Module();
+
+	/** Clean up prior to destruction
+	 * If you override, you must call this AFTER your module's cleanup
+	 */
+	virtual bool cull();
 
 	/** Default destructor.
 	 * destroys a module class
@@ -1507,14 +1515,6 @@ class CoreExport FileReader : public classbase
 	int FileSize();
 };
 
-/** A DLLFactory (designed to load shared objects) containing a
- * handle to a module's init_module() function. Unfortunately,
- * due to the design of shared object systems we must keep this
- * hanging around, as if we remove this handle, we remove the
- * shared object file from memory (!)
- */
-typedef DLLFactory<Module> ircd_module;
-
 /** A list of modules
  */
 typedef std::vector<Module*> IntModuleList;
@@ -1548,7 +1548,7 @@ class CoreExport ModuleManager : public classbase
 	/** List of loaded modules and shared object/dll handles
 	 * keyed by module name
 	 */
-	std::map<std::string, std::pair<ircd_module*, Module*> > Modules;
+	std::map<std::string, Module*> Modules;
 
 	enum {
 		PRIO_STATE_FIRST,

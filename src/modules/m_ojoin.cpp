@@ -212,7 +212,6 @@ class NetworkPrefix : public ModeHandler
 			((source == theuser) && (!adding)) ||
 			(ServerInstance->ULine(source->nick.c_str())) ||
 			(ServerInstance->ULine(source->server)) ||
-			(!*source->server) ||
 			(!IS_LOCAL(source))
 			)
 		{
@@ -289,7 +288,7 @@ class ModuleOjoin : public Module
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
-		if ((ServerInstance->ULine(source->nick.c_str())) || (ServerInstance->ULine(source->server)) || (!*source->server))
+		if ((ServerInstance->ULine(source->nick.c_str())) || ServerInstance->ULine(source->server))
 			return MOD_RES_PASSTHRU;
 
 		// Don't do anything if they're not +Y

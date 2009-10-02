@@ -1004,7 +1004,7 @@ ModeParser::~ModeParser()
 	for(int i=0; i < 256; i++)
 	{
 		ModeHandler* mh = modehandlers[i];
-		if (mh)
+		if (mh && mh->creator == NULL)
 		{
 			count++;
 			delete mh;

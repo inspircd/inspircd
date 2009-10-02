@@ -111,11 +111,15 @@ void InspIRCd::Cleanup()
 		Users->QuitUser(u, "Server shutdown");
 	}
 
+	/* Cleanup Server Names */
+	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
+		delete (*itr);
+
 	/* We do this more than once, so that any service providers get a
 	 * chance to be unhooked by the modules using them, but then get
 	 * a chance to be removed themsleves.
 	 *
-	 * XXX there may be a better way to do this with 1.2
+	 * XXX there may be a better way to do this
 	 */
 	for (int tries = 0; tries < 4; tries++)
 	{
@@ -125,11 +129,8 @@ void InspIRCd::Cleanup()
 			/* Unload all modules, so they get a chance to clean up their listeners */
 			this->Modules->Unload(k->c_str());
 		}
+		GlobalCulls.Apply();
 	}
-
-	/* Cleanup Server Names */
-	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
-		delete (*itr);
 
 	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
 	/* Must be deleted before modes as it decrements modelines */

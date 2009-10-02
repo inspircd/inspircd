@@ -70,7 +70,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, char* ip, Autocon
 	ServerInstance->Timers->AddTimer(hstimer);
 
 	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
-	Utils->timeoutlist[this] = std::pair<std::string, int>("<unknown>", 30);
+	Utils->timeoutlist[this] = std::pair<std::string, int>("<from " + std::string(ip) + ">", 30);
 }
 
 ServerState TreeSocket::GetLinkState()
@@ -88,13 +88,18 @@ void TreeSocket::CleanNegotiationInfo()
 	OutboundPass.clear();
 }
 
-TreeSocket::~TreeSocket()
+bool TreeSocket::cull()
 {
 	if (GetIOHook())
 		BufferedSocketUnhookRequest(this, Utils->Creator, GetIOHook()).Send();
+	Utils->timeoutlist.erase(this);
+	return this->BufferedSocket::cull();
+}
+
+TreeSocket::~TreeSocket()
+{
 	if (hstimer)
 		ServerInstance->Timers->DelTimer(hstimer);
-	Utils->timeoutlist.erase(this);
 }
 
 /** When an outbound connection finishes connecting, we receive

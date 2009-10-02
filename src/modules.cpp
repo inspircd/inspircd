@@ -105,6 +105,11 @@ std::string Event::GetEventID()
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
 Module::Module() { }
+bool Module::cull()
+{
+	ServerInstance->GlobalCulls.AddItem(ModuleDLLFactory);
+	return true;
+}
 Module::~Module() { }
 
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
@@ -418,19 +423,21 @@ bool ModuleManager::Load(const char* filename)
 	}
 
 	Module* newmod = NULL;
-	ircd_module* newhandle = NULL;
+	DLLFactory* newhandle = NULL;
 
 	try
 	{
 		/* This will throw a CoreException if there's a problem loading
 		 * the module file or getting a pointer to the init_module symbol.
 		 */
-		newhandle = new ircd_module(modfile, "init_module");
-		newmod = newhandle->CallInit();
+		newhandle = new DLLFactory(modfile, "init_module");
+		if (newhandle->init_func)
+			newmod = newhandle->init_func();
 
 		if (newmod)
 		{
 			newmod->ModuleSourceFile = filename_str;
+			newmod->ModuleDLLFactory = newhandle;
 			Version v = newmod->GetVersion();
 
 			if (v.API != API_VERSION)
@@ -447,7 +454,7 @@ bool ModuleManager::Load(const char* filename)
 				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (API version %d, Module version %s)%s", filename, v.API, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 
-			Modules[filename_str] = std::make_pair(newhandle, newmod);
+			Modules[filename_str] = newmod;
 		}
 		else
 		{
@@ -502,8 +509,8 @@ bool ModuleManager::Load(const char* filename)
 	for(int tries = 0; tries < 20; tries++)
 	{
 		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
-		for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator n = Modules.begin(); n != Modules.end(); ++n)
-			n->second.second->Prioritize();
+		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
+			n->second->Prioritize();
 
 		if (prioritizationState == PRIO_STATE_LAST)
 			break;
@@ -518,17 +525,17 @@ bool ModuleManager::Load(const char* filename)
 bool ModuleManager::Unload(const char* filename)
 {
 	std::string filename_str(filename);
-	std::map<std::string, std::pair<ircd_module*, Module*> >::iterator modfind = Modules.find(filename);
+	std::map<std::string, Module*>::iterator modfind = Modules.find(filename);
 
 	if (modfind != Modules.end())
 	{
-		if (modfind->second.second->GetVersion().Flags & VF_STATIC)
+		if (modfind->second->GetVersion().Flags & VF_STATIC)
 		{
 			LastModuleError = "Module " + filename_str + " not unloadable (marked static)";
 			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			return false;
 		}
-		std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modfind->second.second);
+		std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modfind->second);
 		if (intercount.first > 0)
 		{
 			LastModuleError = "Failed to unload module " + filename_str + ", being used by " + ConvToStr(intercount.first) + " other(s) via interface '" + intercount.second + "'";
@@ -536,11 +543,11 @@ bool ModuleManager::Unload(const char* filename)
 			return false;
 		}
 
-		std::vector<ExtensionItem*> items = Extensible::BeginUnregister(modfind->second.second);
+		std::vector<ExtensionItem*> items = Extensible::BeginUnregister(modfind->second);
 		/* Give the module a chance to tidy out all its metadata */
 		for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 		{
-			modfind->second.second->OnCleanup(TYPE_CHANNEL,c->second);
+			modfind->second->OnCleanup(TYPE_CHANNEL,c->second);
 			c->second->doUnhookExtensions(items);
 			const UserMembList* users = c->second->GetUsers();
 			for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
@@ -548,21 +555,20 @@ bool ModuleManager::Unload(const char* filename)
 		}
 		for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
-			modfind->second.second->OnCleanup(TYPE_USER,u->second);
+			modfind->second->OnCleanup(TYPE_USER,u->second);
 			u->second->doUnhookExtensions(items);
 		}
 
 		/* Tidy up any dangling resolvers */
-		ServerInstance->Res->CleanResolvers(modfind->second.second);
+		ServerInstance->Res->CleanResolvers(modfind->second);
 
-		FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modfind->second.second, modfind->first));
+		FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modfind->second, modfind->first));
 
-		this->DetachAll(modfind->second.second);
+		this->DetachAll(modfind->second);
 
-		ServerInstance->Parser->RemoveCommands(modfind->second.second);
+		ServerInstance->Parser->RemoveCommands(modfind->second);
 
-		ServerInstance->GlobalCulls.AddItem(modfind->second.second);
-		ServerInstance->GlobalCulls.AddItem(modfind->second.first);
+		ServerInstance->GlobalCulls.AddItem(modfind->second);
 		Modules.erase(modfind);
 
 		ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",filename);
@@ -746,9 +752,9 @@ const std::string& ModuleManager::GetModuleName(Module* m)
 {
 	static std::string nothing;
 
-	for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator n = Modules.begin(); n != Modules.end(); ++n)
+	for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
 	{
-		if (n->second.second == m)
+		if (n->second == m)
 			return n->first;
 	}
 
@@ -859,19 +865,19 @@ bool InspIRCd::AddResolver(Resolver* r, bool cached)
 
 Module* ModuleManager::Find(const std::string &name)
 {
-	std::map<std::string, std::pair<ircd_module*, Module*> >::iterator modfind = Modules.find(name);
+	std::map<std::string, Module*>::iterator modfind = Modules.find(name);
 
 	if (modfind == Modules.end())
 		return NULL;
 	else
-		return modfind->second.second;
+		return modfind->second;
 }
 
 const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 {
 	std::vector<std::string> retval;
-	for (std::map<std::string, std::pair<ircd_module*, Module*> >::iterator x = Modules.begin(); x != Modules.end(); ++x)
-		if (!filter || (x->second.second->GetVersion().Flags & filter))
+	for (std::map<std::string, Module*>::iterator x = Modules.begin(); x != Modules.end(); ++x)
+		if (!filter || (x->second->GetVersion().Flags & filter))
 			retval.push_back(x->first);
 	return retval;
 }

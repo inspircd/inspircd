@@ -171,6 +171,7 @@ bool SpanningTreeUtilities::cull()
 		{
 			TreeSocket* sock = child_server->GetSocket();
 			sock->Close();
+			ServerInstance->GlobalCulls.AddItem(sock);
 		}
 	}
 

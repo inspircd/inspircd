@@ -17,6 +17,8 @@
 void CullList::Apply()
 {
 	std::set<classbase*> gone;
+	std::vector<classbase*> queue;
+	queue.reserve(list.size() + 32);
 	for(unsigned int i=0; i < list.size(); i++)
 	{
 		classbase* c = list[i];
@@ -25,7 +27,7 @@ void CullList::Apply()
 			ServerInstance->Logs->Log("CULLLIST", DEBUG, "Deleting %s @%p", typeid(*c).name(),
 				(void*)c);
 			if (c->cull())
-				delete c;
+				queue.push_back(c);
 		}
 		else
 		{
@@ -34,5 +36,15 @@ void CullList::Apply()
 		}
 	}
 	list.clear();
+	for(unsigned int i=0; i < queue.size(); i++)
+	{
+		classbase* c = queue[i];
+		delete c;
+	}
+	if (list.size())
+	{
+		ServerInstance->Logs->Log("CULLLIST",DEBUG, "WARNING: Objects added to cull list in a destructor");
+		Apply();
+	}
 }
 

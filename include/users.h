@@ -382,7 +382,7 @@ class CoreExport User : public StreamSocket
 
 	/** The server the user is connected to.
 	 */
-	const char* server;
+	std::string server;
 
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.

@@ -33,7 +33,7 @@ public:
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		locked = true;
-		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick.c_str(), user->server);
+		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick.c_str(), user->server.c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily close for new connections", user->nick.c_str());
 		/* Dont send to the network */
 		return CMD_SUCCESS;
@@ -54,7 +54,7 @@ public:
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		locked = false;
-		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick.c_str(), user->server);
+		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick.c_str(), user->server.c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow for new connections", user->nick.c_str());
 		/* Dont send to the network */
 		return CMD_SUCCESS;

@@ -17,7 +17,7 @@
 #include "xline.h"
 #include "exitcodes.h"
 
-std::string InspIRCd::GetServerDescription(const char* servername)
+std::string InspIRCd::GetServerDescription(const std::string& servername)
 {
 	std::string description;
 
@@ -401,22 +401,21 @@ long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
-bool InspIRCd::ULine(const char* sserver)
+bool InspIRCd::ULine(const std::string& sserver)
 {
-	if (!sserver)
-		return false;
-	if (!*sserver)
+	if (sserver.empty())
 		return true;
 
-	return (Config->ulines.find(sserver) != Config->ulines.end());
+	return (Config->ulines.find(sserver.c_str()) != Config->ulines.end());
 }
 
-bool InspIRCd::SilentULine(const char* sserver)
+bool InspIRCd::SilentULine(const std::string& sserver)
 {
-	std::map<irc::string,bool>::iterator n = Config->ulines.find(sserver);
+	std::map<irc::string,bool>::iterator n = Config->ulines.find(sserver.c_str());
 	if (n != Config->ulines.end())
 		return n->second;
-	else return false;
+	else
+		return false;
 }
 
 std::string InspIRCd::TimeString(time_t curtime)
