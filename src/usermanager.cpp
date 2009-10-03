@@ -63,7 +63,7 @@ void UserManager::AddUser(int socket, ClientListenSocket* via, irc::sockets::soc
 	/* The users default nick is their UUID */
 	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
 
-	New->server = ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
+	New->server = ServerInstance->Config->ServerName;
 	New->ident.assign("unknown");
 
 	New->registered = REG_NONE;
@@ -117,8 +117,8 @@ void UserManager::AddUser(int socket, ClientListenSocket* via, irc::sockets::soc
 		{
 			/* user banned */
 			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
-			if (*ServerInstance->Config->MoronBanner)
-				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), ServerInstance->Config->MoronBanner);
+			if (!ServerInstance->Config->MoronBanner.empty())
+				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), ServerInstance->Config->MoronBanner.c_str());
 			this->QuitUser(New, b->Reason);
 			return;
 		}
@@ -421,7 +421,7 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s", ServerInstance->Config->ServerName, textbuffer);
+	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
 
 	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
@@ -442,7 +442,7 @@ void UserManager::ServerPrivmsgAll(const char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s", ServerInstance->Config->ServerName, textbuffer);
+	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
 
 	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{

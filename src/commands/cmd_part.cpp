@@ -39,12 +39,12 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 
 	if (IS_LOCAL(user))
 	{
-		if (*ServerInstance->Config->FixedPart)
+		if (!ServerInstance->Config->FixedPart.empty())
 			reason = ServerInstance->Config->FixedPart;
 		else
 		{
 			if (parameters.size() > 1)
-				reason = ServerInstance->Config->PrefixPart + std::string(parameters[1]) + ServerInstance->Config->SuffixPart;
+				reason = ServerInstance->Config->PrefixPart + parameters[1] + ServerInstance->Config->SuffixPart;
 			else
 				reason = "";
 		}

@@ -230,7 +230,7 @@ class ModuleNickFlood : public Module
 				{
 					f->clear();
 					f->lock();
-					channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName, "NOTICE %s :No nick changes are allowed for 60 seconds because there have been more than %d nick changes in %d seconds.", channel->name.c_str(), f->nicks, f->secs);
+					channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(), "NOTICE %s :No nick changes are allowed for 60 seconds because there have been more than %d nick changes in %d seconds.", channel->name.c_str(), f->nicks, f->secs);
 					return MOD_RES_DENY;
 				}
 			}

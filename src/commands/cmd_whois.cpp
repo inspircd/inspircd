@@ -66,7 +66,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 		 * For remote users (/w remoteuser remoteuser), spanningtree will handle calling do_whois, so we can ignore this case.
 		 * Thanks to djGrrr for not being impatient while I have a crap day coding. :p -- w00t
 		 */
-		if (IS_LOCAL(dest) && (!*ServerInstance->Config->HideWhoisServer || parameters.size() > 1))
+		if (IS_LOCAL(dest) && (ServerInstance->Config->HideWhoisServer.empty() || parameters.size() > 1))
 		{
 			idle = abs((long)((dest->idle_lastmsg)-ServerInstance->Time()));
 			signon = dest->signon;

@@ -35,7 +35,7 @@ class CommandPing : public Command
 
 CmdResult CommandPing::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	user->WriteServ("PONG %s :%s", ServerInstance->Config->ServerName, parameters[0].c_str());
+	user->WriteServ("PONG %s :%s", ServerInstance->Config->ServerName.c_str(), parameters[0].c_str());
 	return CMD_SUCCESS;
 }
 

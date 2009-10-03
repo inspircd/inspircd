@@ -125,7 +125,7 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_KLINE:
 						{
-							KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+							KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(kl,NULL))
 							{
@@ -139,7 +139,7 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_GLINE:
 						{
-							GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+							GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(gl,NULL))
 							{
@@ -153,7 +153,7 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_ZLINE:
 						{
-							ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(),
+							ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
 									them->GetIPString());
 							if (ServerInstance->XLines->AddLine(zl,NULL))
 							{
@@ -378,12 +378,12 @@ class ModuleDNSBL : public Module
 			total_hits += (*i)->stats_hits;
 			total_misses += (*i)->stats_misses;
 
-			results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
+			results.push_back(std::string(ServerInstance->Config->ServerName.c_str()) + " 304 " + user->nick + " :DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
 					ConvToStr((*i)->stats_hits) + " hits and " + ConvToStr((*i)->stats_misses) + " misses");
 		}
 
-		results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
-		results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
+		results.push_back(std::string(ServerInstance->Config->ServerName.c_str()) + " 304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
+		results.push_back(std::string(ServerInstance->Config->ServerName.c_str()) + " 304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
 
 		return MOD_RES_PASSTHRU;
 	}

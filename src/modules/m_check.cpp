@@ -53,7 +53,7 @@ class CommandCheck : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
+		if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName.c_str())
 			return CMD_SUCCESS;
 
 		User *targuser;

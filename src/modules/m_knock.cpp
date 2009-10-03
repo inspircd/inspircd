@@ -61,7 +61,7 @@ class CommandKnock : public Command
 		}
 		line = line + parameters[parameters.size()-1];
 
-		c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName,  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name.c_str(), user->nick.c_str(), c->name.c_str(), line.c_str());
+		c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(),  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name.c_str(), user->nick.c_str(), c->name.c_str(), line.c_str());
 		user->WriteServ("NOTICE %s :KNOCKing on %s", user->nick.c_str(), c->name.c_str());
 		return CMD_SUCCESS;
 	}

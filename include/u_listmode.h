@@ -180,7 +180,7 @@ class ListModeBase : public ModeHandler
 		{
 			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 			{
-				user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (it->nick.length() ? it->nick.c_str() : ServerInstance->Config->ServerName), it->time.c_str());
+				user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (it->nick.length() ? it->nick.c_str() : ServerInstance->Config->ServerName.c_str()), it->time.c_str());
 			}
 		}
 		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());

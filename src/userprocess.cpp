@@ -78,7 +78,7 @@ void InspIRCd::DoBackgroundUserStuff()
 						continue;
 					}
 
-					curr->Write("PING :%s",this->Config->ServerName);
+					curr->Write("PING :%s",this->Config->ServerName.c_str());
 					curr->lastping = 0;
 					curr->nping = TIME  +curr->MyClass->GetPingTime();
 				}

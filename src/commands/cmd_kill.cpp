@@ -65,10 +65,10 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
-			if (*ServerInstance->Config->HideKillsServer)
+			if (!ServerInstance->Config->HideKillsServer.empty())
 			{
 				// hidekills is on, use it
-				snprintf(killreason, ServerInstance->Config->Limits.MaxQuit, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer, parameters[1].c_str());
+				snprintf(killreason, ServerInstance->Config->Limits.MaxQuit, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer.c_str(), parameters[1].c_str());
 			}
 			else
 			{
@@ -100,17 +100,17 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			 * snotices, C will get a local kill snotice. this isn't accurate, and needs fixing at some stage. -- w00t
 			 */
 			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick.c_str(), u->nick.c_str(), u->ident.c_str(), u->host.c_str(), parameters[1].c_str());
-			ServerInstance->Logs->Log("KILL",DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName, user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
+			ServerInstance->Logs->Log("KILL",DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
 			/* Bug #419, make sure this message can only occur once even in the case of multiple KILL messages crossing the network, and change to show
 			 * hidekillsserver as source if possible
 			 */
 			if (!u->quitting)
 			{
-				u->Write(":%s KILL %s :%s!%s!%s (%s)", *ServerInstance->Config->HideKillsServer ? ServerInstance->Config->HideKillsServer : user->GetFullHost().c_str(),
+				u->Write(":%s KILL %s :%s!%s!%s (%s)", ServerInstance->Config->HideKillsServer.empty() ? user->GetFullHost().c_str() : ServerInstance->Config->HideKillsServer.c_str(),
 						u->nick.c_str(),
-						ServerInstance->Config->ServerName,
+						ServerInstance->Config->ServerName.c_str(),
 						user->dhost.c_str(),
-						*ServerInstance->Config->HideKillsServer ? ServerInstance->Config->HideKillsServer : user->nick.c_str(),
+						ServerInstance->Config->HideKillsServer.empty() ? user->nick.c_str() : ServerInstance->Config->HideKillsServer.c_str(),
 						parameters[1].c_str());
 			}
 		}

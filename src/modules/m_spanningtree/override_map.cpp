@@ -170,13 +170,13 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 	{
 		// terminate the string at maxnamew characters
 		names[100 * t + maxnamew] = '\0';
-		ServerInstance->DumpText(user, ":%s %d %s :%s %s", ServerInstance->Config->ServerName,
+		ServerInstance->DumpText(user, ":%s %d %s :%s %s", ServerInstance->Config->ServerName.c_str(),
 			RPL_MAP, user->nick.c_str(), names + 100 * t, stats + 50 * t);
 	}
 	ServerInstance->DumpText(user, ":%s %d %s :%d server%s and %d user%s, average %.2f users per server",
-		ServerInstance->Config->ServerName, RPL_MAPUSERS, user->nick.c_str(),
+		ServerInstance->Config->ServerName.c_str(), RPL_MAPUSERS, user->nick.c_str(),
 		line, (line > 1 ? "s" : ""), totusers, (totusers > 1 ? "s" : ""), avg_users);
-	ServerInstance->DumpText(user, ":%s %d %s :End of /MAP", ServerInstance->Config->ServerName,
+	ServerInstance->DumpText(user, ":%s %d %s :End of /MAP", ServerInstance->Config->ServerName.c_str(),
 		RPL_ENDMAP, user->nick.c_str());
 
 	delete[] names;

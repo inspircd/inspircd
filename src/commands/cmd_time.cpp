@@ -57,7 +57,7 @@ CmdResult CommandTime::Handle (const std::vector<std::string>&, User *user)
 	snprintf(tms,26,"%s",asctime(timeinfo));
 	tms[24] = 0;
 
-	user->WriteNumeric(RPL_TIME, "%s %s :%s",user->nick.c_str(),ServerInstance->Config->ServerName,tms);
+	user->WriteNumeric(RPL_TIME, "%s %s :%s",user->nick.c_str(),ServerInstance->Config->ServerName.c_str(),tms);
 
 	return CMD_SUCCESS;
 }

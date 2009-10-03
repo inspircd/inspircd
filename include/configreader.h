@@ -206,98 +206,98 @@ class CoreExport ServerConfig : public classbase
 
 	/** Both for set(g|u)id.
 	 */
-	char SetUser[MAXBUF];
-	char SetGroup[MAXBUF];
+	std::string SetUser;
+	std::string SetGroup;
 
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
 	 */
-	char ServerName[MAXBUF];
+	std::string ServerName;
 
 	/** Notice to give to users when they are Xlined
 	 */
-	char MoronBanner[MAXBUF];
+	std::string MoronBanner;
 
 	/* Holds the network name the local server
 	 * belongs to. This is an arbitary field defined
 	 * by the administrator.
 	 */
-	char Network[MAXBUF];
+	std::string Network;
 
 	/** Holds the description of the local server
 	 * as defined by the administrator.
 	 */
-	char ServerDesc[MAXBUF];
+	std::string ServerDesc;
 
 	/** Holds the admin's name, for output in
 	 * the /ADMIN command.
 	 */
-	char AdminName[MAXBUF];
+	std::string AdminName;
 
 	/** Holds the email address of the admin,
 	 * for output in the /ADMIN command.
 	 */
-	char AdminEmail[MAXBUF];
+	std::string AdminEmail;
 
 	/** Holds the admin's nickname, for output
 	 * in the /ADMIN command
 	 */
-	char AdminNick[MAXBUF];
+	std::string AdminNick;
 
 	/** The admin-configured /DIE password
 	 */
-	char diepass[MAXBUF];
+	std::string diepass;
 
 	/** The admin-configured /RESTART password
 	 */
-	char restartpass[MAXBUF];
+	std::string restartpass;
 
 	/** The hash method for *BOTH* the die and restart passwords.
 	 */
-	char powerhash[MAXBUF];
+	std::string powerhash;
 
 	/** The pathname and filename of the message of the
 	 * day file, as defined by the administrator.
 	 */
-	char motd[MAXBUF];
+	std::string motd;
 
 	/** The pathname and filename of the rules file,
 	 * as defined by the administrator.
 	 */
-	char rules[MAXBUF];
+	std::string rules;
 
 	/** The quit prefix in use, or an empty string
 	 */
-	char PrefixQuit[MAXBUF];
+	std::string PrefixQuit;
 
 	/** The quit suffix in use, or an empty string
 	 */
-	char SuffixQuit[MAXBUF];
+	std::string SuffixQuit;
 
 	/** The fixed quit message in use, or an empty string
 	 */
-	char FixedQuit[MAXBUF];
+	std::string FixedQuit;
 
 	/** The part prefix in use, or an empty string
 	 */
-	char PrefixPart[MAXBUF];
+	std::string PrefixPart;
 
 	/** The part suffix in use, or an empty string
 	 */
-	char SuffixPart[MAXBUF];
+	std::string SuffixPart;
 
 	/** The fixed part message in use, or an empty string
 	 */
-	char FixedPart[MAXBUF];
+	std::string FixedPart;
 
 	/** The last string found within a <die> tag, or
 	 * an empty string.
 	 */
-	char DieValue[MAXBUF];
+	std::string DieValue;
 
 	/** The DNS server to use for DNS queries
 	 */
-	char DNSServer[MAXBUF];
+	std::string DNSServer;
 
 	/** Pretend disabled commands don't exist.
 	 */
@@ -307,7 +307,7 @@ class CoreExport ServerConfig : public classbase
 	 * of commands which are disabled by the
 	 * administrator of the server for non-opers.
 	 */
-	char DisabledCommands[MAXBUF];
+	std::string DisabledCommands;
 
 	/** This variable identifies which usermodes have been diabled.
 	 */
@@ -451,11 +451,11 @@ class CoreExport ServerConfig : public classbase
 
 	/** Set to a non-empty string to obfuscate the server name of users in WHOIS
 	 */
-	char HideWhoisServer[MAXBUF];
+	std::string HideWhoisServer;
 
 	/** Set to a non empty string to obfuscate nicknames prepended to a KILL.
 	 */
-	char HideKillsServer[MAXBUF];
+	std::string HideKillsServer;
 
 	/** The MOTD file, cached in a file_cache type.
 	 */
@@ -487,7 +487,7 @@ class CoreExport ServerConfig : public classbase
 	/** STATS characters in this list are available
 	 * only to operators.
 	 */
-	char UserStats[MAXBUF];
+	std::string UserStats;
 
 	/** The path and filename of the ircd.log file
 	 */
@@ -495,11 +495,11 @@ class CoreExport ServerConfig : public classbase
 
 	/** Default channel modes
 	 */
-	char DefaultModes[MAXBUF];
+	std::string DefaultModes;
 
 	/** Custom version string, which if defined can replace the system info in VERSION.
 	 */
-	char CustomVersion[MAXBUF];
+	std::string CustomVersion;
 
 	/** List of u-lined servers
 	 */
@@ -565,7 +565,7 @@ class CoreExport ServerConfig : public classbase
 	 * makes code simpler. 0AA, 1BB etc with letters are reserved
 	 * for services use.
 	 */
-	char sid[MAXBUF];
+	std::string sid;
 
 	/** True if we have been told to run the testsuite from the commandline,
 	 * rather than entering the mainloop.
@@ -679,7 +679,7 @@ class CoreExport ServerConfig : public classbase
 	 */
 	int ConfVarEnum(const std::string &tag, int index);
 
-	bool ApplyDisabledCommands(const char* data);
+	bool ApplyDisabledCommands(const std::string& data);
 
 	/** Returns the fully qualified path to the inspircd directory
 	 * @return The full program directory
@@ -795,9 +795,6 @@ template<typename T> class ValueContainer : public ValueContainerBase
 	void Set(ServerConfig* conf, const ValueItem& item);
 };
 
-template<> void ValueContainer<char[MAXBUF]>::Set(ServerConfig* conf, ValueItem const& item);
-
-
 class ValueContainerLimit : public ValueContainerBase
 {
 	size_t ServerLimits::* const vptr;
@@ -822,11 +819,6 @@ typedef ValueContainer<bool> ValueContainerBool;
  * an unsigned int
  */
 typedef ValueContainer<unsigned int> ValueContainerUInt;
-
-/** A specialization of ValueContainer to hold a pointer to
- * a char array.
- */
-typedef ValueContainer<char[MAXBUF]> ValueContainerChar;
 
 /** A specialization of ValueContainer to hold a pointer to
  * a char array.

@@ -292,7 +292,7 @@ class ModuleSQLLog : public Module
 
 	virtual void OnLoadModule(Module* mod, const std::string &name)
 	{
-		AddLogEntry(LT_LOADMODULE,name,ServerInstance->Config->ServerName, ServerInstance->Config->ServerName);
+		AddLogEntry(LT_LOADMODULE,name,ServerInstance->Config->ServerName.c_str(), ServerInstance->Config->ServerName.c_str());
 	}
 
 	virtual Version GetVersion()

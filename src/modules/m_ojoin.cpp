@@ -70,7 +70,7 @@ class CommandOjoin : public Command
 			if (notice)
 			{
 				channel = ServerInstance->FindChan(parameters[0]);
-				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s joined on official network business.",
+				channel->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s joined on official network business.",
 					parameters[0].c_str(), user->nick.c_str());
 				ServerInstance->PI->SendChannelNotice(channel, 0, std::string(user->nick) + " joined on official network business.");
 			}

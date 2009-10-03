@@ -65,8 +65,8 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 					user->WriteNumeric(379, "%s %s :was connecting from *@%s",
 						user->nick.c_str(), parameters[0].c_str(), u->host.c_str());
 
-				if (*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
-					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer, b);
+				if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer.c_str(), b);
 				else
 					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), u->server.c_str(), b);
 			}

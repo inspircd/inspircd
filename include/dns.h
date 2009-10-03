@@ -320,14 +320,6 @@ class CoreExport DNS : public EventHandler
 	int currid;
 
 	/**
-	 * We have to turn off a few checks on received packets
-	 * when people are using 4in6 (e.g. ::ffff:xxxx). This is
-	 * a temporary kludge, Please let me know if you know how
-	 * to fix it.
-	 */
-	bool ip6munge;
-
-	/**
 	 * Currently cached items
 	 */
 	dnscache* cache;
@@ -344,20 +336,7 @@ class CoreExport DNS : public EventHandler
 
  public:
 
-	/**
-	 * Server address being used currently
-	 */
-	int socketfamily;
-
-	/**
-	 * IPV6 server address
-	 */
-	in6_addr myserver6;
-
-	/**
-	 * IPV4 server address
-	 */
-	in_addr myserver4;
+	irc::sockets::sockaddrs myserver;
 
 	/**
 	 * Currently active Resolver classes

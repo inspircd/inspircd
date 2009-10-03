@@ -27,10 +27,6 @@
 	#endif
 #endif
 
-/** Server name cache
- */
-typedef std::vector<std::string*> servernamelist;
-
 /** A cached text file stored line by line.
  */
 typedef std::deque<std::string> file_cache;

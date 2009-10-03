@@ -207,7 +207,7 @@ void User::DecrementModes()
 
 User::User(const std::string &uid)
 {
-	server = ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
+	server = ServerInstance->Config->ServerName;
 	age = ServerInstance->Time();
 	Penalty = 0;
 	lastping = signon = idle_lastmsg = nping = registered = 0;
@@ -839,11 +839,11 @@ void User::FullConnect()
 	if (this->CheckLines())
 		return;
 
-	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
-	this->WriteNumeric(RPL_WELCOME, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network, this->nick.c_str(), this->ident.c_str(), this->host.c_str());
-	this->WriteNumeric(RPL_YOURHOSTIS, "%s :Your host is %s, running version InspIRCd-2.0",this->nick.c_str(),ServerInstance->Config->ServerName);
+	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network.c_str());
+	this->WriteNumeric(RPL_WELCOME, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network.c_str(), this->nick.c_str(), this->ident.c_str(), this->host.c_str());
+	this->WriteNumeric(RPL_YOURHOSTIS, "%s :Your host is %s, running version InspIRCd-2.0",this->nick.c_str(),ServerInstance->Config->ServerName.c_str());
 	this->WriteNumeric(RPL_SERVERCREATED, "%s :This server was created %s %s", this->nick.c_str(), __TIME__, __DATE__);
-	this->WriteNumeric(RPL_SERVERVERSION, "%s %s InspIRCd-2.0 %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
+	this->WriteNumeric(RPL_SERVERVERSION, "%s %s InspIRCd-2.0 %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName.c_str(), ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
 	this->WriteNumeric(RPL_YOURUUID, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());
@@ -1118,7 +1118,7 @@ void User::Write(const char *text, ...)
 
 void User::WriteServ(const std::string& text)
 {
-	this->Write(":%s %s",ServerInstance->Config->ServerName,text.c_str());
+	this->Write(":%s %s",ServerInstance->Config->ServerName.c_str(),text.c_str());
 }
 
 /** WriteServ()
@@ -1159,7 +1159,7 @@ void User::WriteNumeric(unsigned int numeric, const std::string &text)
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
 
-	snprintf(textbuffer,MAXBUF,":%s %03u %s",ServerInstance->Config->ServerName, numeric, text.c_str());
+	snprintf(textbuffer,MAXBUF,":%s %03u %s",ServerInstance->Config->ServerName.c_str(), numeric, text.c_str());
 	this->Write(std::string(textbuffer));
 }
 
@@ -1564,7 +1564,7 @@ void User::SplitChanList(User* dest, const std::string &cl)
 
 	prefix << this->nick << " " << dest->nick << " :";
 	line = prefix.str();
-	int namelen = strlen(ServerInstance->Config->ServerName) + 6;
+	int namelen = ServerInstance->Config->ServerName.length() + 6;
 
 	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
 	{
@@ -1745,7 +1745,7 @@ void User::ShowMOTD()
 		this->WriteNumeric(ERR_NOMOTD, "%s :Message of the day file is missing.",this->nick.c_str());
 		return;
 	}
-	this->WriteNumeric(RPL_MOTDSTART, "%s :%s message of the day", this->nick.c_str(), ServerInstance->Config->ServerName);
+	this->WriteNumeric(RPL_MOTDSTART, "%s :%s message of the day", this->nick.c_str(), ServerInstance->Config->ServerName.c_str());
 
 	for (file_cache::iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); i++)
 		this->WriteNumeric(RPL_MOTD, "%s :- %s",this->nick.c_str(),i->c_str());
@@ -1761,7 +1761,7 @@ void User::ShowRULES()
 		return;
 	}
 
-	this->WriteNumeric(RPL_RULESTART, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName);
+	this->WriteNumeric(RPL_RULESTART, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName.c_str());
 
 	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
 		this->WriteNumeric(RPL_RULES, "%s :- %s",this->nick.c_str(),i->c_str());
@@ -1782,19 +1782,19 @@ void User::DecreasePenalty(int decrease)
 void FakeUser::SetFakeServer(std::string name)
 {
 	this->nick = name;
-	this->server = nick.c_str();
+	this->server = name;
 }
 
 const std::string FakeUser::GetFullHost()
 {
-	if (*ServerInstance->Config->HideWhoisServer)
+	if (ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;
 	return nick;
 }
 
 const std::string FakeUser::GetFullRealHost()
 {
-	if (*ServerInstance->Config->HideWhoisServer)
+	if (!ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;
 	return nick;
 }

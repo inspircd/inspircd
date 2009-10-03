@@ -68,13 +68,13 @@ void InspIRCd::RehashServer()
 std::string InspIRCd::GetVersionString()
 {
 	char versiondata[MAXBUF];
-	if (*Config->CustomVersion)
+	if (!Config->CustomVersion.empty())
 	{
-		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s",Config->ServerName,Config->CustomVersion);
+		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s",Config->ServerName.c_str(),Config->CustomVersion.c_str());
 	}
 	else
 	{
-		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s (%s) [FLAGS=%s,%s,%s]",Config->ServerName,SYSTEM,VERSION,REVISION,SE->GetName().c_str(),Config->sid);
+		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s (%s) [FLAGS=%s,%s,%s]",Config->ServerName.c_str(),SYSTEM,VERSION,REVISION,SE->GetName().c_str(),Config->sid.c_str());
 	}
 	return versiondata;
 }
@@ -94,38 +94,6 @@ void InspIRCd::BuildISupport()
 std::string InspIRCd::GetRevision()
 {
 	return REVISION;
-}
-
-void InspIRCd::AddServerName(const std::string &servername)
-{
-	servernamelist::iterator itr = servernames.begin();
-	for(; itr != servernames.end(); ++itr)
-		if(**itr == servername)
-			return;
-
-	std::string * ns = new std::string(servername);
-	servernames.push_back(ns);
-}
-
-const char* InspIRCd::FindServerNamePtr(const std::string &servername)
-{
-	servernamelist::iterator itr = servernames.begin();
-	for(; itr != servernames.end(); ++itr)
-		if(**itr == servername)
-			return (*itr)->c_str();
-
-	servernames.push_back(new std::string(servername));
-	itr = --servernames.end();
-	return (*itr)->c_str();
-}
-
-bool InspIRCd::FindServerName(const std::string &servername)
-{
-	servernamelist::iterator itr = servernames.begin();
-	for(; itr != servernames.end(); ++itr)
-		if(**itr == servername)
-			return true;
-	return false;
 }
 
 void InspIRCd::IncrementUID(int pos)

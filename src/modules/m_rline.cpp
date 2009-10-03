@@ -75,7 +75,7 @@ class RLine : public XLine
 	void Apply(User* u)
 	{
 		if (ZlineOnMatch) {
-			background_zlines.push_back(new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString()));
+			background_zlines.push_back(new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName.c_str(), reason.c_str(), u->GetIPString()));
 		}
 		DefaultApply(u, "R", false);
 	}

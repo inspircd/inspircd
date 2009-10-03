@@ -158,7 +158,8 @@ const UserMembList* Channel::GetUsers()
 
 void Channel::SetDefaultModes()
 {
-	ServerInstance->Logs->Log("CHANNELS", DEBUG, "SetDefaultModes %s", ServerInstance->Config->DefaultModes);
+	ServerInstance->Logs->Log("CHANNELS", DEBUG, "SetDefaultModes %s",
+		ServerInstance->Config->DefaultModes.c_str());
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
 	std::string modeseq;
 	std::string parameter;
@@ -484,12 +485,13 @@ long Channel::PartUser(User *user, std::string &reason)
 	return this->GetUserCounter();
 }
 
-long Channel::ServerKickUser(User* user, const char* reason, const char* servername)
+long Channel::ServerKickUser(User* user, const char* reason, const std::string& servername)
 {
-	if (servername == NULL || *ServerInstance->Config->HideWhoisServer)
-		servername = ServerInstance->Config->ServerName;
+	if (servername.empty() || !ServerInstance->Config->HideWhoisServer.empty())
+		ServerInstance->FakeClient->server = ServerInstance->Config->ServerName;
+	else
+		ServerInstance->FakeClient->server = servername;
 
-	ServerInstance->FakeClient->server = servername;
 	return this->KickUser(ServerInstance->FakeClient, user, reason);
 }
 
@@ -597,7 +599,7 @@ void Channel::WriteChannel(User* user, const std::string &text)
 	}
 }
 
-void Channel::WriteChannelWithServ(const char* ServName, const char* text, ...)
+void Channel::WriteChannelWithServ(const std::string& ServName, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -612,11 +614,11 @@ void Channel::WriteChannelWithServ(const char* ServName, const char* text, ...)
 	this->WriteChannelWithServ(ServName, std::string(textbuffer));
 }
 
-void Channel::WriteChannelWithServ(const char* ServName, const std::string &text)
+void Channel::WriteChannelWithServ(const std::string& ServName, const std::string &text)
 {
 	char tb[MAXBUF];
 
-	snprintf(tb,MAXBUF,":%s %s", ServName ? ServName : ServerInstance->Config->ServerName, text.c_str());
+	snprintf(tb,MAXBUF,":%s %s", ServName.empty() ? ServerInstance->Config->ServerName.c_str() : ServName.c_str(), text.c_str());
 	std::string out = tb;
 
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
@@ -664,7 +666,7 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 {
 	char tb[MAXBUF];
 
-	snprintf(tb,MAXBUF,":%s %s", serversource ? ServerInstance->Config->ServerName : user->GetFullHost().c_str(), text.c_str());
+	snprintf(tb,MAXBUF,":%s %s", serversource ? ServerInstance->Config->ServerName.c_str() : user->GetFullHost().c_str(), text.c_str());
 	std::string out = tb;
 
 	this->RawWriteAllExcept(user, serversource, status, except_list, std::string(tb));

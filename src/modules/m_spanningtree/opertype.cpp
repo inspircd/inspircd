@@ -47,10 +47,7 @@ bool TreeSocket::OperType(const std::string &prefix, parameterlist &params)
 			 * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
 			 * then do nothing. -- w00t
 			 */
-			if (
-				remoteserver->bursting ||
-				ServerInstance->SilentULine(ServerInstance->FindServerNamePtr(u->server))
-			   )
+			if (remoteserver->bursting || ServerInstance->SilentULine(u->server))
 			{
 				dosend = false;
 			}

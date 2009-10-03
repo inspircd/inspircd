@@ -42,7 +42,7 @@ class ModuleAntiBear : public Module
 		{
 			if (!strncmp(parameters[1].c_str(), "\1TIME Mon May 01 18:54:20 2006", 30))
 			{
-				ZLine* zl = new ZLine(ServerInstance->Time(), 86400, ServerInstance->Config->ServerName,
+				ZLine* zl = new ZLine(ServerInstance->Time(), 86400, ServerInstance->Config->ServerName.c_str(),
 						"Unless you're stuck in a time warp, you appear to be a bear bot!", user->GetIPString());
 				if (ServerInstance->XLines->AddLine(zl,NULL))
 				{

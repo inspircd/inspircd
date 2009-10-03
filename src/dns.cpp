@@ -216,26 +216,16 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 
 	DNS::EmptyHeader(payload,header,length);
 
-	if (this->dnsobj->socketfamily == AF_INET6)
+	if (this->dnsobj->myserver.sa.sa_family == AF_INET6)
 	{
-		sockaddr_in6 addr;
-		memset(&addr,0,sizeof(addr));
-		memcpy(&addr.sin6_addr,&dnsobj->myserver6,sizeof(addr.sin6_addr));
-		addr.sin6_family = AF_INET6;
-		addr.sin6_port = htons(DNS::QUERY_PORT);
-		if (ServerInstance->SE->SendTo(dnsobj, payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
-			return -1;
+		dnsobj->myserver.in6.sin6_port = htons(DNS::QUERY_PORT);
 	}
 	else
 	{
-		sockaddr_in addr;
-		memset(&addr,0,sizeof(addr));
-		memcpy(&addr.sin_addr.s_addr,&dnsobj->myserver4,sizeof(addr.sin_addr));
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(DNS::QUERY_PORT);
-		if (ServerInstance->SE->SendTo(dnsobj, (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
-			return -1;
+		dnsobj->myserver.in4.sin_port = htons(DNS::QUERY_PORT);
 	}
+	if (ServerInstance->SE->SendTo(dnsobj, payload, length + 12, 0, &(dnsobj->myserver.sa), sa_size(dnsobj->myserver)) != length+12)
+		return -1;
 
 	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Sent OK");
 	return 0;
@@ -302,7 +292,6 @@ int DNS::PruneCache()
 
 void DNS::Rehash()
 {
-	ip6munge = false;
 	int portpass = 0;
 
 	if (this->GetFd() > -1)
@@ -322,25 +311,7 @@ void DNS::Rehash()
 		this->cache = new dnscache();
 	}
 
-	if ((strstr(ServerInstance->Config->DNSServer,"::ffff:") == (char*)&ServerInstance->Config->DNSServer) ||  (strstr(ServerInstance->Config->DNSServer,"::FFFF:") == (char*)&ServerInstance->Config->DNSServer))
-	{
-		ServerInstance->Logs->Log("RESOLVER",DEFAULT,"WARNING: Using IPv4 addresses over IPv6 forces some DNS checks to be disabled.");
-		ServerInstance->Logs->Log("RESOLVER",DEFAULT,"         This should not cause a problem, however it is recommended you migrate");
-		ServerInstance->Logs->Log("RESOLVER",DEFAULT,"         to a true IPv6 environment.");
-		this->ip6munge = true;
-	}
-
-	this->socketfamily = AF_INET;
-	if (strchr(ServerInstance->Config->DNSServer,':'))
-	{
-		this->socketfamily = AF_INET6;
-		inet_pton(AF_INET6, ServerInstance->Config->DNSServer, &this->myserver6);
-	}
-	else
-	{
-		inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
-		portpass = -1;
-	}
+	irc::sockets::aptosa(ServerInstance->Config->DNSServer, 0, &myserver);
 
 	/* Initialize mastersocket */
 	int s = irc::sockets::OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
@@ -573,9 +544,8 @@ DNSResult DNS::GetResult()
 	DNSRequest *req;
 	unsigned char buffer[sizeof(DNSHeader)];
 	irc::sockets::sockaddrs from;
-	socklen_t x = this->socketfamily == AF_INET ? sizeof(sockaddr_in) : sizeof(sockaddr_in6);
-	const char* ipaddr_from;
-	unsigned short int port_from = 0;
+	memset(&from, 0, sizeof(from));
+	socklen_t x = sizeof(from);
 
 	int length = ServerInstance->SE->RecvFrom(this, (char*)buffer, sizeof(DNSHeader), 0, &from.sa, &x);
 
@@ -591,31 +561,16 @@ DNSResult DNS::GetResult()
 	 * is not 53.
 	 * A user could in theory still spoof dns packets anyway
 	 * but this is less trivial than just sending garbage
-	 * to the client, which is possible without this check.
+	 * to the server, which is possible without this check.
 	 *
 	 * -- Thanks jilles for pointing this one out.
 	 */
-	char nbuf[MAXBUF];
-	if (this->socketfamily == AF_INET6)
-	{
-		ipaddr_from = inet_ntop(AF_INET6, &from.in6.sin6_addr, nbuf, sizeof(nbuf));
-		port_from = ntohs(from.in6.sin6_port);
-	}
-	else
-	{
-		ipaddr_from = inet_ntoa(from.in4.sin_addr);
-		port_from = ntohs(from.in4.sin_port);
-	}
+	irc::sockets::sockaddrs expect_src;
+	irc::sockets::aptosa(ServerInstance->Config->DNSServer, DNS::QUERY_PORT, &expect_src);
 
-	/* We cant perform this security check if you're using 4in6.
-	 * Tough luck to you, choose one or't other!
-	 */
-	if (!ip6munge)
+	if (memcmp(&from, &expect_src, sizeof(irc::sockets::sockaddrs)))
 	{
-		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, ServerInstance->Config->DNSServer)))
-		{
-			return DNSResult(-1,"",0,"");
-		}
+		return DNSResult(-1,"",0,"");
 	}
 
 	/* Put the read header info into a header class */

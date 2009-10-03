@@ -48,7 +48,7 @@ class CommandLinks : public Command
  */
 CmdResult CommandLinks::Handle (const std::vector<std::string>&, User *user)
 {
-	user->WriteNumeric(364, "%s %s %s :0 %s",user->nick.c_str(),ServerInstance->Config->ServerName,ServerInstance->Config->ServerName,ServerInstance->Config->ServerDesc);
+	user->WriteNumeric(364, "%s %s %s :0 %s",user->nick.c_str(),ServerInstance->Config->ServerName.c_str(),ServerInstance->Config->ServerName.c_str(),ServerInstance->Config->ServerDesc.c_str());
 	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick.c_str());
 	return CMD_SUCCESS;
 }

@@ -241,7 +241,7 @@ class CoreExport Channel : public Extensible
 	 * @return The number of users left on the channel. If this is zero
 	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long ServerKickUser(User* user, const char* reason, const char* servername = NULL);
+	long ServerKickUser(User* user, const char* reason, const std::string& servername = "");
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
@@ -281,13 +281,13 @@ class CoreExport Channel : public Extensible
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
 	 */
-	void WriteChannelWithServ(const char* ServName, const char* text, ...) CUSTOM_PRINTF(3, 4);
+	void WriteChannelWithServ(const std::string& ServName, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Write to a channel, from a server, using std::string for text
 	 * @param ServName Server name to prefix the line with
 	 * @param text A std::string containing the output line without prefix
 	 */
-	void WriteChannelWithServ(const char* ServName, const std::string &text);
+	void WriteChannelWithServ(const std::string& ServName, const std::string &text);
 
 	/** Write to all users on a channel except a specific user, using va_args for text.
 	 * Internally, this calls WriteAllExcept().

@@ -41,7 +41,7 @@ CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User 
 
 	if (IS_LOCAL(user))
 	{
-		if (*ServerInstance->Config->FixedQuit)
+		if (!ServerInstance->Config->FixedQuit.empty())
 			quitmsg = ServerInstance->Config->FixedQuit;
 		else
 			quitmsg = parameters.size() ?

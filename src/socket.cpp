@@ -72,13 +72,12 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 }
 
 // Open a TCP Socket
-int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
+int irc::sockets::OpenTCPSocket(const std::string& addr, int socktype)
 {
 	int sockfd;
 	int on = 1;
-	addr = addr;
 	struct linger linger = { 0, 0 };
-	if (!*addr)
+	if (addr.empty())
 	{
 #ifdef IPV6
 		sockfd = socket (PF_INET6, socktype, 0);
@@ -86,7 +85,7 @@ int irc::sockets::OpenTCPSocket(const char* addr, int socktype)
 #endif
 			sockfd = socket (PF_INET, socktype, 0);
 	}
-	else if (strchr(addr,':'))
+	else if (addr.find(':') != std::string::npos)
 		sockfd = socket (PF_INET6, socktype, 0);
 	else
 		sockfd = socket (PF_INET, socktype, 0);
@@ -186,10 +185,10 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 	return bound;
 }
 
-bool irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa)
+bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::sockaddrs* sa)
 {
 	memset(sa, 0, sizeof(*sa));
-	if (!addr || !*addr)
+	if (addr.empty())
 	{
 #ifdef IPV6
 		sa->in6.sin6_family = AF_INET6;
@@ -200,13 +199,13 @@ bool irc::sockets::aptosa(const char* addr, int port, irc::sockets::sockaddrs* s
 #endif
 		return true;
 	}
-	else if (inet_pton(AF_INET, addr, &sa->in4.sin_addr) > 0)
+	else if (inet_pton(AF_INET, addr.c_str(), &sa->in4.sin_addr) > 0)
 	{
 		sa->in4.sin_family = AF_INET;
 		sa->in4.sin_port = htons(port);
 		return true;
 	}
-	else if (inet_pton(AF_INET6, addr, &sa->in6.sin6_addr) > 0)
+	else if (inet_pton(AF_INET6, addr.c_str(), &sa->in6.sin6_addr) > 0)
 	{
 		sa->in6.sin6_family = AF_INET6;
 		sa->in6.sin6_port = htons(port);

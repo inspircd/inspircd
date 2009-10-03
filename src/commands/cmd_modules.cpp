@@ -58,16 +58,16 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
-			ServerInstance->DumpText(user, ":%s 702 %s :%p %s %s :%s - %s", ServerInstance->Config->ServerName,
+			ServerInstance->DumpText(user, ":%s 702 %s :%p %s %s :%s - %s", ServerInstance->Config->ServerName.c_str(),
 				user->nick.c_str(), (void*)m, module_names[i].c_str(), flags.c_str(), V.description.c_str(), V.version.c_str());
 		}
 		else
 		{
-			ServerInstance->DumpText(user, ":%s 702 %s :%s %s", ServerInstance->Config->ServerName,
+			ServerInstance->DumpText(user, ":%s 702 %s :%s %s", ServerInstance->Config->ServerName.c_str(),
 				user->nick.c_str(), module_names[i].c_str(), V.description.c_str());
 		}
 	}
-	ServerInstance->DumpText(user, ":%s 703 %s :End of MODULES list", ServerInstance->Config->ServerName, user->nick.c_str());
+	ServerInstance->DumpText(user, ":%s 703 %s :End of MODULES list", ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
 
 	return CMD_SUCCESS;
 }

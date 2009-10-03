@@ -70,7 +70,7 @@ class CommandUninvite : public Command
 		u->RemoveInvite(xname);
 		user->WriteNumeric(494, "%s %s %s :Uninvited", user->nick.c_str(), c->name.c_str(), u->nick.c_str());
 		u->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
-		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
+		c->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :*** %s uninvited %s.", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 
 		return CMD_SUCCESS;
 	}

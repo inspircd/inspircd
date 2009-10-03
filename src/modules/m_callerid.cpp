@@ -391,7 +391,7 @@ public:
 			{
 				user->WriteNumeric(717, "%s %s :has been informed that you messaged them.", user->nick.c_str(), dest->nick.c_str());
 				ServerInstance->DumpText(dest, ":%s 718 %s %s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
-					ServerInstance->Config->ServerName, dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
+					ServerInstance->Config->ServerName.c_str(), dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
 				dat->lastnotify = now;
 			}
 			return MOD_RES_DENY;

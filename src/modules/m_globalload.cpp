@@ -30,7 +30,7 @@ class CommandGloadmodule : public Command
 	{
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
-		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
 			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
@@ -68,7 +68,7 @@ class CommandGunloadmodule : public Command
 	{
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
-		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
 			if (ServerInstance->Modules->Unload(parameters[0].c_str()))
 			{
@@ -106,7 +106,7 @@ class CommandGreloadmodule : public Command
 	{
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
-		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
 			bool ok = true;
 			if (!ServerInstance->Modules->Unload(parameters[0].c_str()))

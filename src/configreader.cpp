@@ -34,10 +34,6 @@
 
 ServerConfig::ServerConfig()
 {
-	*sid = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
-	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = *FixedQuit = *HideKillsServer = '\0';
-	*DefaultModes = *CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
-	*UserStats = *DisabledCommands = *SuffixQuit = '\0';
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
 	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
@@ -222,7 +218,7 @@ static bool ValidateMaxConn(ServerConfig* conf, const char*, const char*, ValueI
 	return true;
 }
 
-bool ServerConfig::ApplyDisabledCommands(const char* data)
+bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 {
 	std::stringstream dcmds(data);
 	std::string thiscmd;
@@ -421,7 +417,7 @@ static bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem 
 		throw CoreException(std::string(sid) + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
 
-	strlcpy(conf->sid, sid, 5);
+	conf->sid = sid;
 
 	return true;
 }
@@ -756,45 +752,45 @@ static const Deprecated ChangedConfig[] = {
 static const InitialConfig Values[] = {
 	{"performance",	"softlimit",	"0",			new ValueContainerUInt (&ServerConfig::SoftLimit),		DT_INTEGER,  ValidateSoftLimit},
 	{"performance",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&ServerConfig::MaxConn),		DT_INTEGER,  ValidateMaxConn},
-	{"options",	"moronbanner",	"You're banned!",	new ValueContainerChar (&ServerConfig::MoronBanner),		DT_CHARPTR,  NULL},
-	{"server",	"name",		"",			new ValueContainerChar (&ServerConfig::ServerName),		DT_HOSTNAME, ValidateServerName},
-	{"server",	"description",	"Configure Me",		new ValueContainerChar (&ServerConfig::ServerDesc),		DT_CHARPTR,  NULL},
-	{"server",	"network",	"Network",		new ValueContainerChar (&ServerConfig::Network),			DT_NOSPACES, NULL},
-	{"server",	"id",		"",			new ValueContainerChar (&ServerConfig::sid),			DT_CHARPTR,  ValidateSID},
-	{"admin",	"name",		"",			new ValueContainerChar (&ServerConfig::AdminName),		DT_CHARPTR,  NULL},
-	{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (&ServerConfig::AdminEmail),		DT_CHARPTR,  NULL},
-	{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (&ServerConfig::AdminNick),		DT_CHARPTR,  NULL},
-	{"files",	"motd",		"",			new ValueContainerChar (&ServerConfig::motd),			DT_CHARPTR,  ValidateMotd},
-	{"files",	"rules",	"",			new ValueContainerChar (&ServerConfig::rules),			DT_CHARPTR,  ValidateRules},
-	{"power",	"diepass",	"",			new ValueContainerChar (&ServerConfig::diepass),			DT_CHARPTR,  ValidateNotEmpty},
+	{"options",	"moronbanner",	"You're banned!",	new ValueContainerString (&ServerConfig::MoronBanner),		DT_CHARPTR,  NULL},
+	{"server",	"name",		"",			new ValueContainerString (&ServerConfig::ServerName),		DT_HOSTNAME, ValidateServerName},
+	{"server",	"description",	"Configure Me",		new ValueContainerString (&ServerConfig::ServerDesc),		DT_CHARPTR,  NULL},
+	{"server",	"network",	"Network",		new ValueContainerString (&ServerConfig::Network),			DT_NOSPACES, NULL},
+	{"server",	"id",		"",			new ValueContainerString (&ServerConfig::sid),			DT_CHARPTR,  ValidateSID},
+	{"admin",	"name",		"",			new ValueContainerString (&ServerConfig::AdminName),		DT_CHARPTR,  NULL},
+	{"admin",	"email",	"Mis@configu.red",	new ValueContainerString (&ServerConfig::AdminEmail),		DT_CHARPTR,  NULL},
+	{"admin",	"nick",		"Misconfigured",	new ValueContainerString (&ServerConfig::AdminNick),		DT_CHARPTR,  NULL},
+	{"files",	"motd",		"",			new ValueContainerString (&ServerConfig::motd),			DT_CHARPTR,  ValidateMotd},
+	{"files",	"rules",	"",			new ValueContainerString (&ServerConfig::rules),			DT_CHARPTR,  ValidateRules},
+	{"power",	"diepass",	"",			new ValueContainerString (&ServerConfig::diepass),			DT_CHARPTR,  ValidateNotEmpty},
 	{"power",	"pause",	"",			new ValueContainerInt  (&ServerConfig::DieDelay),		DT_INTEGER,  NULL},
-	{"power",	"hash",		"",			new ValueContainerChar (&ServerConfig::powerhash),		DT_CHARPTR,  NULL},
-	{"power",	"restartpass",	"",			new ValueContainerChar (&ServerConfig::restartpass),		DT_CHARPTR,  ValidateNotEmpty},
-	{"options",	"prefixquit",	"",			new ValueContainerChar (&ServerConfig::PrefixQuit),		DT_CHARPTR,  NULL},
-	{"options",	"suffixquit",	"",			new ValueContainerChar (&ServerConfig::SuffixQuit),		DT_CHARPTR,  NULL},
-	{"options",	"fixedquit",	"",			new ValueContainerChar (&ServerConfig::FixedQuit),		DT_CHARPTR,  NULL},
-	{"options",	"prefixpart",	"",			new ValueContainerChar (&ServerConfig::PrefixPart),		DT_CHARPTR,  NULL},
-	{"options",	"suffixpart",	"",			new ValueContainerChar (&ServerConfig::SuffixPart),		DT_CHARPTR,  NULL},
-	{"options",	"fixedpart",	"",			new ValueContainerChar (&ServerConfig::FixedPart),		DT_CHARPTR,  NULL},
+	{"power",	"hash",		"",			new ValueContainerString (&ServerConfig::powerhash),		DT_CHARPTR,  NULL},
+	{"power",	"restartpass",	"",			new ValueContainerString (&ServerConfig::restartpass),		DT_CHARPTR,  ValidateNotEmpty},
+	{"options",	"prefixquit",	"",			new ValueContainerString (&ServerConfig::PrefixQuit),		DT_CHARPTR,  NULL},
+	{"options",	"suffixquit",	"",			new ValueContainerString (&ServerConfig::SuffixQuit),		DT_CHARPTR,  NULL},
+	{"options",	"fixedquit",	"",			new ValueContainerString (&ServerConfig::FixedQuit),		DT_CHARPTR,  NULL},
+	{"options",	"prefixpart",	"",			new ValueContainerString (&ServerConfig::PrefixPart),		DT_CHARPTR,  NULL},
+	{"options",	"suffixpart",	"",			new ValueContainerString (&ServerConfig::SuffixPart),		DT_CHARPTR,  NULL},
+	{"options",	"fixedpart",	"",			new ValueContainerString (&ServerConfig::FixedPart),		DT_CHARPTR,  NULL},
 	{"performance",	"netbuffersize","10240",		new ValueContainerInt  (&ServerConfig::NetBufferSize),		DT_INTEGER,  ValidateNetBufferSize},
 	{"performance",	"maxwho",	"1024",			new ValueContainerInt  (&ServerConfig::MaxWhoResults),		DT_INTEGER,  ValidateMaxWho},
 	{"options",	"allowhalfop",	"0",			new ValueContainerBool (&ServerConfig::AllowHalfop),		DT_BOOLEAN,  ValidateHalfOp},
-	{"dns",		"server",	"",			new ValueContainerChar (&ServerConfig::DNSServer),		DT_IPADDRESS,ValidateDnsServer},
+	{"dns",		"server",	"",			new ValueContainerString (&ServerConfig::DNSServer),		DT_IPADDRESS,ValidateDnsServer},
 	{"dns",		"timeout",	"5",			new ValueContainerInt  (&ServerConfig::dns_timeout),		DT_INTEGER,  NULL},
 	{"options",	"moduledir",	MOD_PATH,		new ValueContainerString (&ServerConfig::ModPath),			DT_CHARPTR,  NULL},
-	{"disabled",	"commands",	"",			new ValueContainerChar (&ServerConfig::DisabledCommands),	DT_CHARPTR,  NULL},
+	{"disabled",	"commands",	"",			new ValueContainerString (&ServerConfig::DisabledCommands),	DT_CHARPTR,  NULL},
 	{"disabled",	"usermodes",	"",			NULL, DT_NOTHING,  ValidateDisabledUModes},
 	{"disabled",	"chanmodes",	"",			NULL, DT_NOTHING,  ValidateDisabledCModes},
 	{"disabled",	"fakenonexistant",	"0",		new ValueContainerBool (&ServerConfig::DisabledDontExist),		DT_BOOLEAN,  NULL},
 
-	{"security",		"runasuser",	"",		new ValueContainerChar(&ServerConfig::SetUser),				DT_CHARPTR, NULL},
-	{"security",		"runasgroup",	"",		new ValueContainerChar(&ServerConfig::SetGroup),				DT_CHARPTR, NULL},
-	{"security",	"userstats",	"",			new ValueContainerChar (&ServerConfig::UserStats),		DT_CHARPTR,  NULL},
-	{"security",	"customversion","",			new ValueContainerChar (&ServerConfig::CustomVersion),		DT_CHARPTR,  NULL},
+	{"security",		"runasuser",	"",		new ValueContainerString(&ServerConfig::SetUser),				DT_CHARPTR, NULL},
+	{"security",		"runasgroup",	"",		new ValueContainerString(&ServerConfig::SetGroup),				DT_CHARPTR, NULL},
+	{"security",	"userstats",	"",			new ValueContainerString (&ServerConfig::UserStats),		DT_CHARPTR,  NULL},
+	{"security",	"customversion","",			new ValueContainerString (&ServerConfig::CustomVersion),		DT_CHARPTR,  NULL},
 	{"security",	"hidesplits",	"0",			new ValueContainerBool (&ServerConfig::HideSplits),		DT_BOOLEAN,  NULL},
 	{"security",	"hidebans",	"0",			new ValueContainerBool (&ServerConfig::HideBans),		DT_BOOLEAN,  NULL},
-	{"security",	"hidewhois",	"",			new ValueContainerChar (&ServerConfig::HideWhoisServer),		DT_NOSPACES, NULL},
-	{"security",	"hidekills",	"",			new ValueContainerChar (&ServerConfig::HideKillsServer),		DT_NOSPACES,  NULL},
+	{"security",	"hidewhois",	"",			new ValueContainerString (&ServerConfig::HideWhoisServer),		DT_NOSPACES, NULL},
+	{"security",	"hidekills",	"",			new ValueContainerString (&ServerConfig::HideKillsServer),		DT_NOSPACES,  NULL},
 	{"security",	"operspywhois",	"0",			new ValueContainerBool (&ServerConfig::OperSpyWhois),		DT_BOOLEAN,  NULL},
 	{"security",	"restrictbannedusers",	"1",		new ValueContainerBool (&ServerConfig::RestrictBannedUsers),		DT_BOOLEAN,  NULL},
 	{"security",	"genericoper",	"0",			new ValueContainerBool (&ServerConfig::GenericOper),		DT_BOOLEAN,  NULL},
@@ -807,12 +803,12 @@ static const InitialConfig Values[] = {
 	{"security",	"hidemodes",	"",			NULL, DT_NOTHING,  ValidateModeLists},
 	{"options",	"exemptchanops","",			NULL, DT_NOTHING,  ValidateExemptChanOps},
 	{"security",	"maxtargets",	"20",			new ValueContainerUInt (&ServerConfig::MaxTargets),		DT_INTEGER,  ValidateMaxTargets},
-	{"options",	"defaultmodes", "nt",			new ValueContainerChar (&ServerConfig::DefaultModes),		DT_CHARPTR,  NULL},
+	{"options",	"defaultmodes", "nt",			new ValueContainerString (&ServerConfig::DefaultModes),		DT_CHARPTR,  NULL},
 	{"pid",		"file",		"",			new ValueContainerString (&ServerConfig::PID),			DT_CHARPTR,  NULL},
 	{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&ServerConfig::WhoWasGroupSize),	DT_INTEGER,  NULL},
 	{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&ServerConfig::WhoWasMaxGroups),	DT_INTEGER,  NULL},
 	{"whowas",	"maxkeep",	"3600",			NULL, DT_NOTHING,  ValidateWhoWas},
-	{"die",		"value",	"",			new ValueContainerChar (&ServerConfig::DieValue),		DT_CHARPTR,  NULL},
+	{"die",		"value",	"",			new ValueContainerString (&ServerConfig::DieValue),		DT_CHARPTR,  NULL},
 	{"channels",	"users",	"20",			new ValueContainerUInt (&ServerConfig::MaxChans),		DT_INTEGER,  NULL},
 	{"channels",	"opers",	"60",			new ValueContainerUInt (&ServerConfig::OperMaxChans),		DT_INTEGER,  NULL},
 	{"cidr",	"ipv4clone",	"32",			new ValueContainerInt (&ServerConfig::c_ipv4_range),		DT_INTEGER,  NULL},
@@ -964,40 +960,37 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			{
 				case DT_NOSPACES:
 				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					ValueContainerString* vcc = (ValueContainerString*)Values[Index].val;
 					ValidateNoSpaces(vi.GetString(), Values[Index].tag, Values[Index].value);
-					vcc->Set(this, vi);
+					vcc->Set(this, vi.GetValue());
 				}
 				break;
 				case DT_HOSTNAME:
 				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					ValueContainerString* vcc = (ValueContainerString*)Values[Index].val;
 					ValidateHostname(vi.GetString(), Values[Index].tag, Values[Index].value);
-					vcc->Set(this, vi);
+					vcc->Set(this, vi.GetValue());
 				}
 				break;
 				case DT_IPADDRESS:
 				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					ValueContainerString* vcc = (ValueContainerString*)Values[Index].val;
 					ValidateIP(vi.GetString(), Values[Index].tag, Values[Index].value, allow_wild);
-					vcc->Set(this, vi);
+					vcc->Set(this, vi.GetValue());
 				}
 				break;
 				case DT_CHANNEL:
 				{
-					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					ValueContainerString* vcc = (ValueContainerString*)Values[Index].val;
 					if (*(vi.GetString()) && !ServerInstance->IsChannel(vi.GetString(), MAXBUF))
 					{
 						throw CoreException("The value of <"+std::string(Values[Index].tag)+":"+Values[Index].value+"> is not a valid channel name");
 					}
-					vcc->Set(this, vi);
+					vcc->Set(this, vi.GetValue());
 				}
 				break;
 				case DT_CHARPTR:
 				{
-					ValueContainerChar* vcc = dynamic_cast<ValueContainerChar*>(Values[Index].val);
-					if (vcc)
-						vcc->Set(this, vi);
 					ValueContainerString* vcs = dynamic_cast<ValueContainerString*>(Values[Index].val);
 					if (vcs)
 						vcs->Set(this, vi.GetValue());
@@ -1143,8 +1136,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	 */
 	if (old)
 	{
-		memcpy(this->ServerName, old->ServerName, sizeof(this->ServerName));
-		memcpy(this->sid, old->sid, sizeof(this->sid));
+		this->ServerName = old->ServerName;
+		this->sid = old->sid;
 		this->argv = old->argv;
 		this->argc = old->argc;
 

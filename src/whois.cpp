@@ -34,9 +34,9 @@ void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned lon
 			user->SplitChanList(dest,scl);
 		}
 	}
-	if (user != dest && *this->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex"))
+	if (user != dest && !this->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 	{
-		this->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), this->Config->HideWhoisServer, this->Config->Network);
+		this->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), this->Config->HideWhoisServer.c_str(), this->Config->Network.c_str());
 	}
 	else
 	{
@@ -53,7 +53,7 @@ void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned lon
 		if (this->Config->GenericOper)
 			this->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());
 		else
-			this->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper[0]) ? "an" : "a"),irc::Spacify(dest->oper.c_str()), this->Config->Network);
+			this->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper[0]) ? "an" : "a"),irc::Spacify(dest->oper.c_str()), this->Config->Network.c_str());
 	}
 
 	if (user == dest || user->HasPrivPermission("users/auspex"))

@@ -91,7 +91,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		return;
 
 	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(),Current->GetName().c_str(),
-			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName : Parent.c_str(),
+			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
 			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
 			Current->GetDesc().c_str());
 }
@@ -829,7 +829,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 
 	char data[MAXBUF];
 	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(),
-	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason.c_str());
+	ServerInstance->Config->ServerName.c_str(), (unsigned long)x->set_time, (unsigned long)x->duration, x->reason.c_str());
 	parameterlist params;
 	params.push_back(data);
 

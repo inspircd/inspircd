@@ -47,11 +47,11 @@ class CommandAdmin : public Command
  */
 CmdResult CommandAdmin::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	user->WriteNumeric(RPL_ADMINME, "%s :Administrative info for %s",user->nick.c_str(),ServerInstance->Config->ServerName);
-	if (*ServerInstance->Config->AdminName)
-		user->WriteNumeric(RPL_ADMINLOC1, "%s :Name     - %s",user->nick.c_str(),ServerInstance->Config->AdminName);
-	user->WriteNumeric(RPL_ADMINLOC2, "%s :Nickname - %s",user->nick.c_str(),ServerInstance->Config->AdminNick);
-	user->WriteNumeric(RPL_ADMINEMAIL, "%s :E-Mail   - %s",user->nick.c_str(),ServerInstance->Config->AdminEmail);
+	user->WriteNumeric(RPL_ADMINME, "%s :Administrative info for %s",user->nick.c_str(),ServerInstance->Config->ServerName.c_str());
+	if (!ServerInstance->Config->AdminName.empty())
+		user->WriteNumeric(RPL_ADMINLOC1, "%s :Name     - %s",user->nick.c_str(),ServerInstance->Config->AdminName.c_str());
+	user->WriteNumeric(RPL_ADMINLOC2, "%s :Nickname - %s",user->nick.c_str(),ServerInstance->Config->AdminNick.c_str());
+	user->WriteNumeric(RPL_ADMINEMAIL, "%s :E-Mail   - %s",user->nick.c_str(),ServerInstance->Config->AdminEmail.c_str());
 	return CMD_SUCCESS;
 }
 

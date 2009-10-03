@@ -46,7 +46,7 @@ INSTMODE = 0755
 @ENDIF 
 
 @IFDEF D
-    CXXFLAGS += -g3
+    CXXFLAGS += -g3 -Werror
     HEADER = debug-header
 @ELSE
     CXXFLAGS += -g1

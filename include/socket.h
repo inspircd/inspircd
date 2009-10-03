@@ -96,7 +96,7 @@ namespace irc
 		 * or a negative value upon failure (negative values are invalid file
 		 * descriptors)
 		 */
-		CoreExport int OpenTCPSocket(const char* addr, int socktype = SOCK_STREAM);
+		CoreExport int OpenTCPSocket(const std::string& addr, int socktype = SOCK_STREAM);
 
 		/** Return the size of the structure for syscall passing */
 		CoreExport int sa_size(const irc::sockets::sockaddrs& sa);
@@ -107,7 +107,7 @@ namespace irc
 		 * @param sa The structure to place the result in. Will be zeroed prior to conversion
 		 * @return true if the conversion was successful, false if not.
 		 */
-		CoreExport bool aptosa(const char* addr, int port, irc::sockets::sockaddrs* sa);
+		CoreExport bool aptosa(const std::string& addr, int port, irc::sockets::sockaddrs* sa);
 		/** Convert a binary sockaddr to an address-port pair
 		 * @param sa The structure to convert
 		 * @param addr the IP address

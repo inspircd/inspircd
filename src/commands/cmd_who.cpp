@@ -148,7 +148,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 			match = InspIRCd::Match(user->nick, matchtext);
 
 		/* Don't allow server name matches if HideWhoisServer is enabled, unless the command user has the priv */
-		if (!match && (!*ServerInstance->Config->HideWhoisServer || cuser->HasPrivPermission("users/auspex")))
+		if (!match && (ServerInstance->Config->HideWhoisServer.empty() || cuser->HasPrivPermission("users/auspex")))
 			match = InspIRCd::Match(user->server, matchtext);
 
 		return match;
@@ -183,7 +183,7 @@ void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch
 	Channel* chlast = ServerInstance->FindChan(lcn);
 
 	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +
-				((*ServerInstance->Config->HideWhoisServer && !user->HasPrivPermission("servers/auspex")) ? ServerInstance->Config->HideWhoisServer : u->server) +
+				((!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex")) ? ServerInstance->Config->HideWhoisServer : u->server) +
 				" " + u->nick + " ";
 
 	/* away? */
@@ -255,9 +255,6 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		}
 	}
 
-	if (ServerInstance->FindServerName(matchtext))
-		usingwildcards = true;
-
 	if (parameters.size() > 1)
 	{
 		/* Fix for bug #444, WHO flags count as a wildcard */
@@ -300,11 +297,11 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 					opt_away = true;
 					break;
 				case 'l':
-					if (user->HasPrivPermission("users/auspex") || !*ServerInstance->Config->HideWhoisServer)
+					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideWhoisServer.empty())
 						opt_local = true;
 					break;
 				case 'f':
-					if (user->HasPrivPermission("users/auspex") || !*ServerInstance->Config->HideWhoisServer)
+					if (user->HasPrivPermission("users/auspex") || ServerInstance->Config->HideWhoisServer.empty())
 						opt_far = true;
 					break;
 				case 't':

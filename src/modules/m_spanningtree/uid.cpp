@@ -99,7 +99,7 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	_new->nick.assign(params[2], 0, MAXBUF);
 	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
-	_new->server = ServerInstance->FindServerNamePtr(remoteserver->GetName().c_str());
+	_new->server = remoteserver->GetName();
 	_new->ident.assign(params[5], 0, MAXBUF);
 	_new->fullname.assign(params[params.size() - 1], 0, MAXBUF);
 	_new->registered = REG_ALL;

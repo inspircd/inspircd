@@ -310,7 +310,7 @@ ModResult FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std
 		}
 		if (f->action == "gline")
 		{
-			GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
+			GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
 			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -399,7 +399,7 @@ ModResult FilterBase::OnPreCommand(std::string &command, std::vector<std::string
 				if (f->action == "gline")
 				{
 					/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
-					GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), "*", user->GetIPString());
+					GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
 						ServerInstance->XLines->ApplyLines();

@@ -421,10 +421,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void BuildISupport();
 
-	/** List of server names we've seen.
-	 */
-	servernamelist servernames;
-
 	/** Time this ircd was booted
 	 */
 	time_t startup_time;
@@ -531,24 +527,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return True if the port was bound successfully
 	 */
 	bool BindSocket(int sockfd, int port, const char* addr, bool dolisten = true);
-
-	/** Adds a server name to the list of servers we've seen
-	 * @param The servername to add
-	 */
-	void AddServerName(const std::string &servername);
-
-	/** Finds a cached char* pointer of a server name,
-	 * This is used to optimize User by storing only the pointer to the name
-	 * @param The servername to find
-	 * @return A pointer to this name, gauranteed to never become invalid
-	 */
-	const char* FindServerNamePtr(const std::string &servername);
-
-	/** Returns true if we've seen the given server name before
-	 * @param The servername to find
-	 * @return True if we've seen this server name before
-	 */
-	bool FindServerName(const std::string &servername);
 
 	/** Gets the GECOS (description) field of the given server.
 	 * If the servername is not that of the local server, the name

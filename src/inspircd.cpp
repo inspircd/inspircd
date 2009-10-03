@@ -111,10 +111,6 @@ void InspIRCd::Cleanup()
 		Users->QuitUser(u, "Server shutdown");
 	}
 
-	/* Cleanup Server Names */
-	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
-		delete (*itr);
-
 	/* We do this more than once, so that any service providers get a
 	 * chance to be unhooked by the modules using them, but then get
 	 * a chance to be removed themsleves.
@@ -563,28 +559,23 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->Res = new DNS;
 
-	this->AddServerName(Config->ServerName);
-
 	/*
 	 * Initialise SID/UID.
  	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
 	 *   -- w00t
  	 */
-	if (!*Config->sid)
+	if (Config->sid.empty())
 	{
 		// Generate one
 		size_t sid = 0;
 
-		for (const char* x = Config->ServerName; *x; ++x)
+		for (const char* x = Config->ServerName.c_str(); *x; ++x)
 			sid = 5 * sid + *x;
-		for (const char* y = Config->ServerDesc; *y; ++y)
+		for (const char* y = Config->ServerDesc.c_str(); *y; ++y)
 			sid = 5 * sid + *y;
 		sid = sid % 999;
 
-		Config->sid[0] = (char)(sid / 100 + 48);
-		Config->sid[1] = (char)(((sid / 10) % 10) + 48);
-		Config->sid[2] = (char)(sid % 10 + 48);
-		Config->sid[3] = '\0';
+		Config->sid = ConvToStr(sid);
 	}
 
 	/* set up fake client again this time with the correct uid */
@@ -618,7 +609,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 
-	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
+	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n",
+		Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef WINDOWS
 	if (!Config->nofork)
@@ -658,10 +650,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	SetServiceRunning();
 #endif
 
-	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName,Config->GetSID().c_str(), SE->GetMaxFds());
+	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef WIN32
-	if (*(this->Config->SetGroup))
+	if (!Config->SetGroup.empty())
 	{
 		int ret;
 
@@ -678,7 +670,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		struct group *g;
 
 		errno = 0;
-		g = getgrnam(this->Config->SetGroup);
+		g = getgrnam(this->Config->SetGroup.c_str());
 
 		if (!g)
 		{
@@ -695,13 +687,13 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 
-	if (*(this->Config->SetUser))
+	if (!Config->SetUser.empty())
 	{
 		// setuid
 		struct passwd *u;
 
 		errno = 0;
-		u = getpwnam(this->Config->SetUser);
+		u = getpwnam(this->Config->SetUser.c_str());
 
 		if (!u)
 		{

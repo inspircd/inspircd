@@ -19,7 +19,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 {
 	std::string sn(this->Config->ServerName);
 
-	if (!user->HasPrivPermission("servers/auspex") && !strchr(this->Config->UserStats, statschar))
+	if (!user->HasPrivPermission("servers/auspex") && Config->UserStats.find(statschar) == std::string::npos)
 	{
 		this->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
