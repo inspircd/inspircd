@@ -444,10 +444,6 @@ class CoreExport User : public StreamSocket
 	 * @return The port number of this user.
 	 */
 	int GetServerPort();
-	/**
-	 * @return The server IP address
-	 */
-	std::string GetServerIP();
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string

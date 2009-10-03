@@ -216,14 +216,6 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 
 	DNS::EmptyHeader(payload,header,length);
 
-	if (this->dnsobj->myserver.sa.sa_family == AF_INET6)
-	{
-		dnsobj->myserver.in6.sin6_port = htons(DNS::QUERY_PORT);
-	}
-	else
-	{
-		dnsobj->myserver.in4.sin_port = htons(DNS::QUERY_PORT);
-	}
 	if (ServerInstance->SE->SendTo(dnsobj, payload, length + 12, 0, &(dnsobj->myserver.sa), sa_size(dnsobj->myserver)) != length+12)
 		return -1;
 
@@ -311,7 +303,7 @@ void DNS::Rehash()
 		this->cache = new dnscache();
 	}
 
-	irc::sockets::aptosa(ServerInstance->Config->DNSServer, 0, &myserver);
+	irc::sockets::aptosa(ServerInstance->Config->DNSServer, DNS::QUERY_PORT, &myserver);
 
 	/* Initialize mastersocket */
 	int s = irc::sockets::OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
@@ -565,10 +557,7 @@ DNSResult DNS::GetResult()
 	 *
 	 * -- Thanks jilles for pointing this one out.
 	 */
-	irc::sockets::sockaddrs expect_src;
-	irc::sockets::aptosa(ServerInstance->Config->DNSServer, DNS::QUERY_PORT, &expect_src);
-
-	if (memcmp(&from, &expect_src, sizeof(irc::sockets::sockaddrs)))
+	if (memcmp(&from, &myserver, sizeof(irc::sockets::sockaddrs)))
 	{
 		return DNSResult(-1,"",0,"");
 	}

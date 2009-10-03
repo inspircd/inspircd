@@ -26,7 +26,7 @@ ListenSocketBase::ListenSocketBase(int port, const std::string &addr) : desc("pl
 	irc::sockets::sockaddrs bind_to;
 
 	// canonicalize address if it is defined
-	if (!irc::sockets::aptosa(addr.c_str(), port, &bind_to))
+	if (!irc::sockets::aptosa(addr, port, &bind_to))
 	{
 		// malformed address
 		bind_addr = addr;
@@ -39,7 +39,7 @@ ListenSocketBase::ListenSocketBase(int port, const std::string &addr) : desc("pl
 		irc::sockets::satoap(&bind_to, bind_addr, bind_port);
 		bind_desc = irc::sockets::satouser(&bind_to);
 
-		this->fd = irc::sockets::OpenTCPSocket(bind_addr.c_str());
+		this->fd = irc::sockets::OpenTCPSocket(bind_addr);
 	}
 
 	if (this->fd > -1)

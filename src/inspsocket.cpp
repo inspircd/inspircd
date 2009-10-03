@@ -46,7 +46,7 @@ void BufferedSocket::DoConnect(const std::string &ipaddr, int aport, unsigned lo
 BufferedSocketError BufferedSocket::BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
 {
 	irc::sockets::sockaddrs addr, bind;
-	if (!irc::sockets::aptosa(ipaddr.c_str(), aport, &addr))
+	if (!irc::sockets::aptosa(ipaddr, aport, &addr))
 	{
 		ServerInstance->Logs->Log("SOCKET", DEBUG, "BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 		return I_ERR_CONNECT;
@@ -55,7 +55,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const std::string &ipaddr, int 
 	bind.sa.sa_family = 0;
 	if (!connectbindip.empty())
 	{
-		if (!irc::sockets::aptosa(connectbindip.c_str(), 0, &bind))
+		if (!irc::sockets::aptosa(connectbindip, 0, &bind))
 		{
 			return I_ERR_BIND;
 		}

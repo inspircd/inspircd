@@ -1049,14 +1049,6 @@ const char* User::GetCIDRMask(int range)
 	return ""; // unused, but oh well
 }
 
-std::string User::GetServerIP()
-{
-	int port;
-	std::string ip;
-	irc::sockets::satoap(&server_sa, ip, port);
-	return ip;
-}
-
 const char* User::GetIPString()
 {
 	int port;

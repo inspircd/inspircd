@@ -2102,9 +2102,3 @@ void ConfigReaderThread::Finish()
 		delete this->Config;
 	}
 }
-
-template<>
-void ValueContainer<char[MAXBUF]>::Set(ServerConfig* conf, ValueItem const& item)
-{
-	strlcpy(conf->*vptr, item.GetString(), MAXBUF);
-}

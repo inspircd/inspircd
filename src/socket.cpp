@@ -27,10 +27,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	sockaddrs servaddr;
 	int ret;
 
-	if (*addr == '*' || *addr == '\0')
-		addr = NULL;
-
-	if (port == -1 && !addr)
+	if ((*addr == '*' || *addr == '\0') && port == -1)
 	{
 		/* Port -1: Means UDP IPV4 port binding - Special case
 		 * used by DNS engine.
