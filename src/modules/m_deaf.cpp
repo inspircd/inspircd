@@ -60,8 +60,8 @@ class ModuleDeaf : public Module
 			throw ModuleException("Could not add new modes!");
 
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnBuildExemptList };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 
@@ -96,11 +96,6 @@ class ModuleDeaf : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	virtual void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
-	{
-		BuildDeafList(message_type, chan, sender, status, text, exempt_list);
 	}
 
 	virtual void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)

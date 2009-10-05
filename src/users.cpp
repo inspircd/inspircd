@@ -1199,78 +1199,80 @@ void User::WriteTo(User *dest, const std::string &data)
 	dest->WriteFrom(this, data);
 }
 
-
 void User::WriteCommon(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 
-	if (this->registered != REG_ALL)
+	if (this->registered != REG_ALL || !IS_LOCAL(this) || quitting)
 		return;
+
+	int len = snprintf(textbuffer,MAXBUF,":%s ",this->GetFullHost().c_str());
 
 	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	vsnprintf(textbuffer + len, MAXBUF - len, text, argsPtr);
 	va_end(argsPtr);
 
-	this->WriteCommon(std::string(textbuffer));
+	this->WriteCommonRaw(std::string(textbuffer), true);
 }
-
-void User::WriteCommon(const std::string &text)
-{
-	bool sent_to_at_least_one = false;
-	char tb[MAXBUF];
-
-	if (this->registered != REG_ALL)
-		return;
-
-	uniq_id++;
-
-	if (!already_sent)
-		InitializeAlreadySent(ServerInstance->SE);
-
-	/* We dont want to be doing this n times, just once */
-	snprintf(tb,MAXBUF,":%s %s",this->GetFullHost().c_str(),text.c_str());
-	std::string out = tb;
-
-	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
-	{
-		const UserMembList* ulist = (*v)->GetUsers();
-		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
-		{
-			if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
-			{
-				already_sent[i->first->fd] = uniq_id;
-				i->first->Write(out);
-				sent_to_at_least_one = true;
-			}
-		}
-	}
-
-	/*
-	 * if the user was not in any channels, no users will receive the text. Make sure the user
-	 * receives their OWN message for WriteCommon
-	 */
-	if (!sent_to_at_least_one)
-	{
-		this->Write(std::string(tb));
-	}
-}
-
-
-/* write a formatted string to all users who share at least one common
- * channel, NOT including the source user e.g. for use in QUIT
- */
 
 void User::WriteCommonExcept(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 
+	if (this->registered != REG_ALL || !IS_LOCAL(this) || quitting)
+		return;
+
+	int len = snprintf(textbuffer,MAXBUF,":%s ",this->GetFullHost().c_str());
+
 	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	vsnprintf(textbuffer + len, MAXBUF - len, text, argsPtr);
 	va_end(argsPtr);
 
-	this->WriteCommonExcept(std::string(textbuffer));
+	this->WriteCommonRaw(std::string(textbuffer), false);
+}
+
+void User::WriteCommonRaw(const std::string &line, bool include_self)
+{
+	if (this->registered != REG_ALL || !IS_LOCAL(this) || quitting)
+		return;
+
+	if (!already_sent)
+		InitializeAlreadySent(ServerInstance->SE);
+	uniq_id++;
+
+	UserChanList include_c(chans);
+	std::map<User*,bool> exceptions;
+
+	exceptions[this] = include_self;
+
+	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
+
+	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
+	{
+		User* u = i->first;
+		if (IS_LOCAL(u) && !u->quitting)
+		{
+			already_sent[u->fd] = uniq_id;
+			if (i->second)
+				u->Write(line);
+		}
+	}
+	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
+	{
+		Channel* c = *v;
+		const UserMembList* ulist = c->GetUsers();
+		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
+		{
+			User* u = i->first;
+			if (IS_LOCAL(u) && !u->quitting && already_sent[u->fd] != uniq_id)
+			{
+				already_sent[u->fd] = uniq_id;
+				u->Write(line);
+			}
+		}
+	}
 }
 
 void User::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
@@ -1291,7 +1293,22 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	std::string out1 = tb1;
 	std::string out2 = tb2;
 
-	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
+	UserChanList include_c(chans);
+	std::map<User*,bool> exceptions;
+
+	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
+
+	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
+	{
+		User* u = i->first;
+		if (IS_LOCAL(u) && !u->quitting)
+		{
+			already_sent[u->fd] = uniq_id;
+			if (i->second)
+				u->Write(IS_OPER(u) ? out2 : out1);
+		}
+	}
+	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
 	{
 		const UserMembList* ulist = (*v)->GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
@@ -1304,40 +1321,6 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 			}
 		}
 	}
-}
-
-void User::WriteCommonExcept(const std::string &text)
-{
-	char tb1[MAXBUF];
-	std::string out1;
-
-	if (this->registered != REG_ALL)
-		return;
-
-	uniq_id++;
-
-	if (!already_sent)
-		InitializeAlreadySent(ServerInstance->SE);
-
-	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost().c_str(),text.c_str());
-	out1 = tb1;
-
-	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
-	{
-		const UserMembList* ulist = (*v)->GetUsers();
-		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
-		{
-			if (this != i->first)
-			{
-				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
-				{
-					already_sent[i->first->fd] = uniq_id;
-					i->first->Write(out1);
-				}
-			}
-		}
-	}
-
 }
 
 void User::WriteWallOps(const std::string &text)
@@ -1419,12 +1402,7 @@ void User::DoHostCycle(const std::string &quitline)
 {
 	char buffer[MAXBUF];
 
-	ModResult result = MOD_RES_PASSTHRU;
-	FIRST_MOD_RESULT(OnHostCycle, result, (this));
-
-	if (result == MOD_RES_DENY)
-		return;
-	if (result == MOD_RES_PASSTHRU && !ServerInstance->Config->CycleHosts)
+	if (!ServerInstance->Config->CycleHosts)
 		return;
 
 	uniq_id++;
@@ -1432,7 +1410,22 @@ void User::DoHostCycle(const std::string &quitline)
 	if (!already_sent)
 		InitializeAlreadySent(ServerInstance->SE);
 
-	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
+	UserChanList include_c(chans);
+	std::map<User*,bool> exceptions;
+
+	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
+
+	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
+	{
+		User* u = i->first;
+		if (IS_LOCAL(u) && !u->quitting)
+		{
+			already_sent[u->fd] = uniq_id;
+			if (i->second)
+				u->Write(quitline);
+		}
+	}
+	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
 	{
 		Channel* c = *v;
 		snprintf(buffer, MAXBUF, ":%s JOIN %s", GetFullHost().c_str(), c->name.c_str());

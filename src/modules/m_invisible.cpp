@@ -115,8 +115,8 @@ class ModuleInvisible : public Module
 		/* Yeah i know people can take this out. I'm not about to obfuscate code just to be a pain in the ass. */
 		ServerInstance->Users->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
 		Implementation eventlist[] = {
-			I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin, I_OnUserPart, I_OnUserQuit,
-			I_OnHostCycle, I_OnSendWhoLine, I_OnNamesListItem
+			I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin,
+			I_OnBuildNeighborList, I_OnSendWhoLine, I_OnNamesListItem
 		};
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	};
@@ -127,9 +127,7 @@ class ModuleInvisible : public Module
 
 	Version GetVersion();
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts);
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts);
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
-	ModResult OnHostCycle(User* user);
+	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exceptions);
 	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	void OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line);
@@ -162,39 +160,12 @@ void ModuleInvisible::OnUserJoin(Membership* memb, bool sync, bool created, CULi
 	}
 }
 
-void ModuleInvisible::OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
+void ModuleInvisible::OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exceptions)
 {
-	if (memb->user->IsModeSet('Q'))
+	if (source->IsModeSet('Q'))
 	{
-		BuildExcept(memb, excepts);
+		include.clear();
 	}
-}
-
-void ModuleInvisible::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
-{
-	if (user->IsModeSet('Q'))
-	{
-		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
-		std::vector<std::string> to_leave;
-		if (parthandler)
-		{
-			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-					to_leave.push_back((*f)->name);
-			/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
-			for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
-			{
-				std::vector<std::string> parameters;
-				parameters.push_back(*n);
-				/* This triggers our OnUserPart, above, making the PART silent */
-				parthandler->Handle(parameters, user);
-			}
-		}
-	}
-}
-
-ModResult ModuleInvisible::OnHostCycle(User* user)
-{
-	return user->IsModeSet('Q') ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 }
 
 /* No privmsg response when hiding - submitted by Eric at neowin */

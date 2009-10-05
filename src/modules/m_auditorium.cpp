@@ -52,8 +52,8 @@ class ModuleAuditorium : public Module
 
 		OnRehash(NULL);
 
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnRehash, I_OnHostCycle };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 
 	}
 
@@ -137,34 +137,14 @@ class ModuleAuditorium : public Module
 		BuildExcept(memb, excepts);
 	}
 
-	ModResult OnHostCycle(User* user)
+	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
 	{
-		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-			if ((*f)->IsModeSet('u'))
-				return MOD_RES_DENY;
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
-	{
-		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
-		std::vector<std::string> to_leave;
-		if (parthandler)
+		UCListIter i = include.begin();
+		while (i != include.end())
 		{
-			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-			{
-				if ((*f)->IsModeSet('u'))
-					to_leave.push_back((*f)->name);
-			}
-			/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
-			for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
-			{
-				std::vector<std::string> parameters;
-				parameters.push_back(*n);
-				/* This triggers our OnUserPart, above, making the PART silent */
-				parthandler->Handle(parameters, user);
-			}
+			Channel* c = *i++;
+			if (c->IsModeSet('u'))
+				include.erase(c);
 		}
 	}
 };

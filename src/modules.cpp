@@ -193,14 +193,13 @@ void		Module::OnChannelDelete(Channel*) { }
 ModResult	Module::OnSetAway(User*, const std::string &) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserList(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnBuildExemptList(MessageType, Channel*, User*, char, CUList&, const std::string&) { }
+void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { }
 void		Module::OnGarbageCollect() { }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnHookIO(StreamSocket*, ListenSocketBase*) { }
-ModResult	Module::OnHostCycle(User*) { return MOD_RES_PASSTHRU; }
 void		Module::OnSendWhoLine(User*, User*, Channel*, std::string&) { }
 
 ModuleManager::ModuleManager() : ModCount(0)

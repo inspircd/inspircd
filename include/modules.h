@@ -389,9 +389,9 @@ enum Implementation
 	I_OnPostTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
-	I_OnWhoisLine, I_OnBuildExemptList, I_OnGarbageCollect,
+	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
-	I_OnHostCycle, I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
+	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
 };
 
@@ -681,16 +681,16 @@ class CoreExport Module : public Extensible
 	 */
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 
-	/** Called whenever the server wants to build the exemption list for a channel, but is not directly doing a PRIVMSG or NOTICE.
-	 * For example, the spanningtree protocol will call this event when passing a privmsg on (but not processing it directly).
-	 * @param message_type The message type, either MSG_PRIVMSG or MSG_NOTICE
-	 * @param chan The channel to build the exempt list of
-	 * @param sender The original sender of the PRIVMSG or NOTICE
-	 * @param status The status char to be used for the channel list
-	 * @param exempt_list The exempt list to be populated
-	 * @param text The original message text causing the exempt list to be built
+	/** Called when sending a message to all "neighbors" of a given user -
+	 * that is, all users that share a common channel. This is used in
+	 * commands such as NICK, QUIT, etc.
+	 * @param source The source of the message
+	 * @param include_c Channels to scan for users to include
+	 * @param exceptions Map of user->bool that overrides the inclusion decision
+	 *
+	 * Set exceptions[user] = true to include, exceptions[user] = false to exclude
 	 */
-	virtual void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text);
+	virtual void OnBuildNeighborList(User* source, UserChanList &include_c, std::map<User*,bool> &exceptions);
 
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should
@@ -1326,12 +1326,6 @@ class CoreExport Module : public Extensible
 	virtual void OnNamesListItem(User* issuer, Membership* item, std::string &prefixes, std::string &nick);
 
 	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
-
-	/** Called for every time the user's host or ident changes, to indicate wether or not the 'Changing host'
-	 * message should be sent, if enabled. Certain modules such as auditorium may opt to hide this message
-	 * even if it is enabled.
-	 */
-	virtual ModResult OnHostCycle(User* user);
 
 	/** Called whenever a result from /WHO is about to be returned
 	 * @param source The user running the /WHO query

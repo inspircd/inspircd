@@ -36,18 +36,17 @@ class ModuleDelayJoin : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&djm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnUserQuit, I_OnNamesListItem, I_OnText, I_OnHostCycle };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 	~ModuleDelayJoin();
 	Version GetVersion();
 	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick);
 	void OnUserJoin(Membership*, bool, bool, CUList&);
 	void CleanUser(User* user);
-	ModResult OnHostCycle(User* user);
 	void OnUserPart(Membership*, std::string &partmessage, CUList&);
 	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&);
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
+	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception);
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
 };
 
@@ -125,37 +124,15 @@ void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::stri
 		populate(except, memb);
 }
 
-ModResult ModuleDelayJoin::OnHostCycle(User* user)
+void ModuleDelayJoin::OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
 {
-	for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
+	UCListIter i = include.begin();
+	while (i != include.end())
 	{
-		Channel* chan = *f;
-		Membership* memb = chan->GetUser(user);
-
+		Channel* c = *i++;
+		Membership* memb = c->GetUser(source);
 		if (memb && unjoined.get(memb))
-		{
-			return MOD_RES_DENY;
-		}
-	}
-	return MOD_RES_PASSTHRU;
-}
-
-void ModuleDelayJoin::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
-{
-	Command* parthandler = ServerInstance->Parser->GetHandler("PART");
-	if (!parthandler)
-		return;
-	for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
-	{
-		Channel* chan = *f;
-		Membership* memb = chan->GetUser(user);
-		if (memb && unjoined.get(memb))
-		{
-			std::vector<std::string> parameters;
-			parameters.push_back(chan->name);
-			/* Send a fake PART from the channel, which will be silent */
-			parthandler->Handle(parameters, user);
-		}
+			include.erase(c);
 	}
 }
 

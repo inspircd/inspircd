@@ -715,7 +715,7 @@ class CoreExport User : public StreamSocket
 	/** Write to all users that can see this user (including this user in the list), appending CR/LF
 	 * @param text A std::string to send to the users
 	 */
-	void WriteCommon(const std::string &text);
+	void WriteCommonRaw(const std::string &line, bool include_self = true);
 
 	/** Write to all users that can see this user (including this user in the list), appending CR/LF
 	 * @param text The format string for text to send to the users
@@ -728,11 +728,6 @@ class CoreExport User : public StreamSocket
 	 * @param ... POD-type format arguments
 	 */
 	void WriteCommonExcept(const char* text, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
-	 * @param text A std::string to send to the users
-	 */
-	void WriteCommonExcept(const std::string &text);
 
 	/** Write a quit message to all common users, as in User::WriteCommonExcept but with a specific
 	 * quit message for opers only.
