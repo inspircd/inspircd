@@ -1779,7 +1779,7 @@ void FakeUser::SetFakeServer(std::string name)
 
 const std::string FakeUser::GetFullHost()
 {
-	if (ServerInstance->Config->HideWhoisServer.empty())
+	if (!ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;
 	return nick;
 }
