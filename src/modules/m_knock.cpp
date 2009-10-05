@@ -96,7 +96,6 @@ class ModuleKnock : public Module
 
 	virtual ~ModuleKnock()
 	{
-		ServerInstance->Modes->DelMode(&kn);
 	}
 
 	virtual Version GetVersion()

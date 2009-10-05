@@ -82,7 +82,6 @@ class ModuleBlockColour : public Module
 
 	virtual ~ModuleBlockColour()
 	{
-		ServerInstance->Modes->DelMode(&bc);
 	}
 
 	virtual Version GetVersion()

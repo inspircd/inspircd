@@ -65,7 +65,6 @@ class ModuleHideOper : public Module
 
 	virtual ~ModuleHideOper()
 	{
-		ServerInstance->Modes->DelMode(&hm);
 	}
 
 	virtual Version GetVersion()

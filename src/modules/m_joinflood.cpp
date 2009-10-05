@@ -242,7 +242,6 @@ class ModuleJoinFlood : public Module
 
 	~ModuleJoinFlood()
 	{
-		ServerInstance->Modes->DelMode(&jf);
 	}
 
 	Version GetVersion()

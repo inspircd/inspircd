@@ -97,7 +97,6 @@ class ModuleShowwhois : public Module
 
 	~ModuleShowwhois()
 	{
-		ServerInstance->Modes->DelMode(sw);
 		delete sw;
 	}
 

@@ -39,7 +39,7 @@ class BanRedirect : public ModeWatcher
 {
  public:
 	SimpleExtItem<BanRedirectList> extItem;
-	BanRedirect(Module* parent) : ModeWatcher('b', MODETYPE_CHANNEL),
+	BanRedirect(Module* parent) : ModeWatcher(parent, 'b', MODETYPE_CHANNEL),
 		extItem("banredirect", parent)
 	{
 	}
@@ -328,7 +328,6 @@ class ModuleBanRedirect : public Module
 
 	virtual ~ModuleBanRedirect()
 	{
-		ServerInstance->Modes->DelModeWatcher(&re);
 	}
 
 	virtual Version GetVersion()

@@ -358,7 +358,6 @@ public:
 
 	virtual ~ModuleCallerID()
 	{
-		ServerInstance->Modes->DelMode(&myumode);
 	}
 
 	virtual Version GetVersion()

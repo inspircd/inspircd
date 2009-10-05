@@ -144,7 +144,6 @@ class ModuleChanFilter : public Module
 
 	virtual ~ModuleChanFilter()
 	{
-		ServerInstance->Modes->DelMode(&cf);
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };

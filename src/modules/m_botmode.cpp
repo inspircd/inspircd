@@ -39,7 +39,6 @@ class ModuleBotMode : public Module
 
 	virtual ~ModuleBotMode()
 	{
-		ServerInstance->Modes->DelMode(&bm);
 	}
 
 	virtual Version GetVersion()

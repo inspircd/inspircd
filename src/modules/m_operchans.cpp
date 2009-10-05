@@ -84,7 +84,6 @@ class ModuleOperChans : public Module
 
 	~ModuleOperChans()
 	{
-		ServerInstance->Modes->DelMode(&oc);
 	}
 
 	Version GetVersion()

@@ -96,7 +96,6 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 
 ModuleDelayMsg::~ModuleDelayMsg()
 {
-	ServerInstance->Modes->DelMode(&djm);
 }
 
 Version ModuleDelayMsg::GetVersion()

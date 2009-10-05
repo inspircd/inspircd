@@ -61,7 +61,6 @@ class ModuleNoCTCP : public Module
 
 	virtual ~ModuleNoCTCP()
 	{
-		ServerInstance->Modes->DelMode(&nc);
 	}
 
 	virtual Version GetVersion()

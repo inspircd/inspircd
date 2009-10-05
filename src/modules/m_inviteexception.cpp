@@ -104,7 +104,6 @@ public:
 
 	~ModuleInviteException()
 	{
-		ServerInstance->Modes->DelMode(&ie);
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };

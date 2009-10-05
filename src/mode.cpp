@@ -50,8 +50,8 @@
 #include "modes/umode_s.h"
 
 ModeHandler::ModeHandler(Module* Creator, char modeletter, ParamSpec Params, ModeType type)
-	: mode(modeletter), parameters_taken(Params), list(false), m_type(type), m_paramtype(TR_TEXT),
-	oper(false), prefix(0), count(0), levelrequired(HALFOP_VALUE), creator(Creator)
+	: m_paramtype(TR_TEXT), parameters_taken(Params), mode(modeletter), prefix(0), oper(false),
+	list(false), m_type(type), count(0), levelrequired(HALFOP_VALUE), creator(Creator)
 {
 }
 
@@ -188,7 +188,8 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 	return MODEACTION_DENY;
 }
 
-ModeWatcher::ModeWatcher(char modeletter, ModeType type) : mode(modeletter), m_type(type)
+ModeWatcher::ModeWatcher(Module* Creator, char modeletter, ModeType type)
+	: mode(modeletter), m_type(type), creator(Creator)
 {
 }
 
@@ -681,6 +682,22 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	modehandlers[pos] = NULL;
 
 	return true;
+}
+
+void ModeParser::RemoveModes(Module* mod)
+{
+	for(int i=0; i < 256; i++)
+	{
+		ModeHandler* mh = modehandlers[i];
+		if (mh && mh->creator == mod)
+			DelMode(mh);
+		for(unsigned int j=0; j < modewatchers[i].size(); j++)
+		{
+			ModeWatcher* mw = modewatchers[i][j];
+			if (mw && mw->creator == mod)
+				DelModeWatcher(mw);
+		}
+	}
 }
 
 ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)

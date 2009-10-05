@@ -61,7 +61,6 @@ class ModuleHideChans : public Module
 
 	virtual ~ModuleHideChans()
 	{
-		ServerInstance->Modes->DelMode(&hm);
 	}
 
 	virtual Version GetVersion()

@@ -62,7 +62,6 @@ class ModuleAllowInvite : public Module
 
 	virtual ~ModuleAllowInvite()
 	{
-		ServerInstance->Modes->DelMode(&ni);
 	}
 
 	virtual Version GetVersion()

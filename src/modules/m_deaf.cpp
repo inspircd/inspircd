@@ -158,7 +158,6 @@ class ModuleDeaf : public Module
 
 	virtual ~ModuleDeaf()
 	{
-		ServerInstance->Modes->DelMode(&m1);
 	}
 
 	virtual Version GetVersion()

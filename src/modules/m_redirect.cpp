@@ -130,7 +130,6 @@ class ModuleRedirect : public Module
 
 	virtual ~ModuleRedirect()
 	{
-		ServerInstance->Modes->DelMode(&re);
 	}
 
 	virtual Version GetVersion()

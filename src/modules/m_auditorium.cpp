@@ -59,7 +59,6 @@ class ModuleAuditorium : public Module
 
 	~ModuleAuditorium()
 	{
-		ServerInstance->Modes->DelMode(&aum);
 	}
 
 	void OnRehash(User* user)

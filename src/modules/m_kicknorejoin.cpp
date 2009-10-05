@@ -166,7 +166,6 @@ public:
 
 	~ModuleKickNoRejoin()
 	{
-		ServerInstance->Modes->DelMode(&kr);
 	}
 
 	Version GetVersion()

@@ -273,11 +273,6 @@ class ModuleServicesAccount : public Module
 
 	~ModuleServicesAccount()
 	{
-		ServerInstance->Modes->DelMode(&m1);
-		ServerInstance->Modes->DelMode(&m2);
-		ServerInstance->Modes->DelMode(&m3);
-		ServerInstance->Modes->DelMode(&m4);
-		ServerInstance->Modes->DelMode(&m5);
 	}
 
 	Version GetVersion()

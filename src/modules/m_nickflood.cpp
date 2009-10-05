@@ -269,7 +269,6 @@ class ModuleNickFlood : public Module
 
 	~ModuleNickFlood()
 	{
-		ServerInstance->Modes->DelMode(&nf);
 	}
 
 	Version GetVersion()

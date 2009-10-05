@@ -49,8 +49,6 @@ class ModuleStripColor : public Module
 
 	virtual ~ModuleStripColor()
 	{
-		ServerInstance->Modes->DelMode(&usc);
-		ServerInstance->Modes->DelMode(&csc);
 	}
 
 	virtual void On005Numeric(std::string &output)

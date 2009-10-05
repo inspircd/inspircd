@@ -567,6 +567,7 @@ bool ModuleManager::Unload(const char* filename)
 		this->DetachAll(modfind->second);
 
 		ServerInstance->Parser->RemoveCommands(modfind->second);
+		ServerInstance->Modes->RemoveModes(modfind->second);
 
 		ServerInstance->GlobalCulls.AddItem(modfind->second);
 		Modules.erase(modfind);

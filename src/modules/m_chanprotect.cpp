@@ -327,8 +327,6 @@ class ModuleChanProtect : public Module
 
 	~ModuleChanProtect()
 	{
-		ServerInstance->Modes->DelMode(cp);
-		ServerInstance->Modes->DelMode(cf);
 		delete cp;
 		delete cf;
 	}

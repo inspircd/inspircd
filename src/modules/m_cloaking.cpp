@@ -330,7 +330,6 @@ class ModuleCloaking : public Module
 
 	~ModuleCloaking()
 	{
-		ServerInstance->Modes->DelMode(cu);
 		delete cu;
 		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}

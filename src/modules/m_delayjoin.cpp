@@ -75,7 +75,6 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 
 ModuleDelayJoin::~ModuleDelayJoin()
 {
-	ServerInstance->Modes->DelMode(&djm);
 }
 
 Version ModuleDelayJoin::GetVersion()

@@ -52,7 +52,6 @@ class ModuleServProtectMode : public Module
 
 	~ModuleServProtectMode()
 	{
-		ServerInstance->Modes->DelMode(&bm);
 	}
 
 	Version GetVersion()

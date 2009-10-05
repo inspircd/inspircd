@@ -128,7 +128,6 @@ class ModuleOperPrefixMode : public Module
 
 	~ModuleOperPrefixMode()
 	{
-		ServerInstance->Modes->DelMode(opm);
 		delete opm;
 	}
 

@@ -80,7 +80,7 @@ class InvisibleMode : public ModeHandler
 class InvisibleDeOper : public ModeWatcher
 {
  public:
-	InvisibleDeOper() : ModeWatcher('o', MODETYPE_USER)
+	InvisibleDeOper(Module* parent) : ModeWatcher(parent, 'o', MODETYPE_USER)
 	{
 	}
 
@@ -105,7 +105,7 @@ class ModuleInvisible : public Module
 	InvisibleMode qm;
 	InvisibleDeOper ido;
  public:
-	ModuleInvisible() : qm(this)
+	ModuleInvisible() : qm(this), ido(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&qm))
 			throw ModuleException("Could not add new modes!");
@@ -123,8 +123,6 @@ class ModuleInvisible : public Module
 
 	~ModuleInvisible()
 	{
-		ServerInstance->Modes->DelMode(&qm);
-		ServerInstance->Modes->DelModeWatcher(&ido);
 	};
 
 	Version GetVersion();

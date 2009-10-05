@@ -61,7 +61,6 @@ class ModuleNoKicks : public Module
 
 	~ModuleNoKicks()
 	{
-		ServerInstance->Modes->DelMode(&nk);
 	}
 
 	Version GetVersion()

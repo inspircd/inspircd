@@ -305,7 +305,6 @@ class ModuleOjoin : public Module
 
 	~ModuleOjoin()
 	{
-		ServerInstance->Modes->DelMode(np);
 		delete np;
 	}
 

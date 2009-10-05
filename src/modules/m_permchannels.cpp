@@ -187,7 +187,6 @@ public:
 
 	virtual ~ModulePermanentChannels()
 	{
-		ServerInstance->Modes->DelMode(&p);
 		/*
 		 * DelMode can't remove the +P mode on empty channels, or it will break
 		 * merging modes with remote servers. Remove the empty channels now as

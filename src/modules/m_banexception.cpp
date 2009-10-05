@@ -133,7 +133,6 @@ public:
 
 	~ModuleBanException()
 	{
-		ServerInstance->Modes->DelMode(&be);
 		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };

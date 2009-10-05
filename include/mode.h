@@ -105,13 +105,29 @@ class CoreExport ModeHandler : public classbase
 {
  protected:
 	/**
-	 * The mode letter you're implementing.
+	 * The mode parameter translation type
 	 */
-	char mode;
+	TranslateType m_paramtype;
 
 	/** What kind of parameters does the mode take?
 	 */
 	ParamSpec parameters_taken;
+
+	/**
+	 * The mode letter you're implementing.
+	 */
+	char mode;
+
+	/** Mode prefix, or 0
+	 */
+	char prefix;
+
+	/**
+	 * True if the mode requires oper status
+	 * to set.
+	 */
+	bool oper;
+
 	/**
 	 * Mode is a 'list' mode. The behaviour
 	 * of your mode is now set entirely within
@@ -123,24 +139,12 @@ class CoreExport ModeHandler : public classbase
 	 * (e.g. banlists, etc)
 	 */
 	bool list;
+
 	/**
 	 * The mode type, either MODETYPE_USER or
 	 * MODETYPE_CHANNEL.
 	 */
 	ModeType m_type;
-	/**
-	 * The mode parameter translation type
-	 */
-	TranslateType m_paramtype;
-	/**
-	 * True if the mode requires oper status
-	 * to set.
-	 */
-	bool oper;
-
-	/** Mode prefix, or 0
-	 */
-	char prefix;
 
 	/** Number of items with this mode set on them
 	 */
@@ -153,7 +157,7 @@ class CoreExport ModeHandler : public classbase
 
  public:
 	/** Module that created this mode. NULL for core modes */
-	Module* creator;
+	Module* const creator;
 
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
@@ -373,10 +377,11 @@ class CoreExport ModeWatcher : public classbase
 	ModeType m_type;
 
  public:
+	Module* const creator;
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */
-	ModeWatcher(char modeletter, ModeType type);
+	ModeWatcher(Module* creator, char modeletter, ModeType type);
 	/**
 	 * The default destructor does nothing.
 	 */
@@ -512,6 +517,10 @@ class CoreExport ModeParser : public classbase
 	 * @return True if the mode was successfully removed.
 	 */
 	bool DelMode(ModeHandler* mh);
+
+	/** Delete all modes and mode watchers associated with a given module
+	 */
+	void RemoveModes(Module* mod);
 	/** Add a mode watcher.
 	 * A mode watcher is triggered before and after a mode handler is
 	 * triggered. See the documentation of class ModeWatcher for more

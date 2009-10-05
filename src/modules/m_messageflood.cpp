@@ -264,7 +264,6 @@ class ModuleMsgFlood : public Module
 
 	~ModuleMsgFlood()
 	{
-		ServerInstance->Modes->DelMode(&mf);
 	}
 
 	Version GetVersion()

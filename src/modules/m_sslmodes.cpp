@@ -115,7 +115,6 @@ class ModuleSSLModes : public Module
 
 	~ModuleSSLModes()
 	{
-		ServerInstance->Modes->DelMode(&sslm);
 	}
 
 	void On005Numeric(std::string &output)

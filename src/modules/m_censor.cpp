@@ -59,8 +59,6 @@ class ModuleCensor : public Module
 
 	virtual ~ModuleCensor()
 	{
-		ServerInstance->Modes->DelMode(&cu);
-		ServerInstance->Modes->DelMode(&cc);
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
