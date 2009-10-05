@@ -339,6 +339,12 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		return MODEACTION_DENY;
 	}
 
+	if (mh->GetTranslateType() == TR_NICK && !ServerInstance->FindNick(parameter))
+	{
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameter.c_str());
+		return MODEACTION_DENY;
+	}
+
 	/* Call the handler for the mode */
 	ModeAction ma = mh->OnModeChange(user, targetuser, chan, parameter, adding);
 
