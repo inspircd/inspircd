@@ -981,58 +981,67 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	}
 }
 
+struct builtin_modes
+{
+	ModeChannelSecret s;
+	ModeChannelPrivate p;
+	ModeChannelModerated m;
+	ModeChannelTopicOps t;
+
+	ModeChannelNoExternal n;
+	ModeChannelInviteOnly i;
+	ModeChannelKey k;
+	ModeChannelLimit l;
+
+	ModeChannelBan b;
+	ModeChannelOp o;
+	// halfop is added by configreader
+	ModeChannelVoice v;
+
+	ModeUserWallops uw;
+	ModeUserInvisible ui;
+	ModeUserOperator uo;
+	ModeUserServerNoticeMask us;
+
+	void init(ModeParser* modes)
+	{
+		modes->AddMode(&s);
+		modes->AddMode(&p);
+		modes->AddMode(&m);
+		modes->AddMode(&t);
+		modes->AddMode(&n);
+		modes->AddMode(&i);
+		modes->AddMode(&k);
+		modes->AddMode(&l);
+		modes->AddMode(&b);
+		modes->AddMode(&o);
+		modes->AddMode(&v);
+		modes->AddMode(&uw);
+		modes->AddMode(&ui);
+		modes->AddMode(&uo);
+		modes->AddMode(&us);
+	}
+};
+
+static builtin_modes static_modes;
+
 ModeParser::ModeParser()
 {
-	ModeHandler* modes[] =
-	{
-		new ModeChannelSecret,
-		new ModeChannelPrivate,
-		new ModeChannelModerated,
-		new ModeChannelTopicOps,
-
-		new ModeChannelNoExternal,
-		new ModeChannelInviteOnly,
-		new ModeChannelKey,
-		new ModeChannelLimit,
-
-		new ModeChannelBan,
-		new ModeChannelOp,
-		new ModeChannelHalfOp,
-		new ModeChannelVoice,
-
-		new ModeUserWallops,
-		new ModeUserInvisible,
-		new ModeUserOperator,
-		new ModeUserServerNoticeMask,
-#define BUILTIN_MODE_COUNT 16
-	};
-
 	/* Clear mode handler list */
 	memset(modehandlers, 0, sizeof(modehandlers));
 
 	/* Last parse string */
 	LastParse.clear();
 
-	/* Initialise the RFC mode letters */
-	for (int index = 0; index < BUILTIN_MODE_COUNT; index++)
-		this->AddMode(modes[index]);
-
 	seq = 0;
 	memset(&sent, 0, sizeof(sent));
+
+	static_modes.init(this);
 }
 
 ModeParser::~ModeParser()
 {
-	int count = 0;
-	for(int i=0; i < 256; i++)
-	{
-		ModeHandler* mh = modehandlers[i];
-		if (mh && mh->creator == NULL)
-		{
-			count++;
-			delete mh;
-		}
-	}
-	if (count != BUILTIN_MODE_COUNT)
-		throw CoreException("Mode handler found non-core modes remaining at deallocation");
+	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
+	if (mh)
+		delete mh;
 }
