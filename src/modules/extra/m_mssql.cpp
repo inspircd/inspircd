@@ -50,11 +50,9 @@ Mutex* LoggingMutex;
 class QueryThread : public SocketThread
 {
   private:
-	ModuleMsSQL* Parent;
+	ModuleMsSQL* const Parent;
   public:
-	QueryThread(ModuleMsSQL* mod)
-	: SocketThread(si), Parent(mod),	{
-	}
+	QueryThread(ModuleMsSQL* mod) : Parent(mod) { }
 	~QueryThread() { }
 	virtual void Run();
 	virtual void OnNotify();
@@ -508,7 +506,7 @@ class SQLConn : public classbase
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
 		LoggingMutex->Lock();
-		sc->ServerInstance->Logs->Log("m_mssql", DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
+		ServerInstance->Logs->Log("m_mssql", DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		LoggingMutex->Unlock();
 		return 0;
 	}
@@ -517,7 +515,7 @@ class SQLConn : public classbase
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
 		LoggingMutex->Lock();
-		sc->ServerInstance->Logs->Log("m_mssql", DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
+		ServerInstance->Logs->Log("m_mssql", DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		LoggingMutex->Unlock();
 		return 0;
 	}
