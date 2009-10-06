@@ -118,7 +118,7 @@ class ModuleInvisible : public Module
 			I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin,
 			I_OnBuildNeighborList, I_OnSendWhoLine, I_OnNamesListItem
 		};
-		ServerInstance->Modules->Attach(eventlist, this, 8);
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	};
 
 	~ModuleInvisible()
