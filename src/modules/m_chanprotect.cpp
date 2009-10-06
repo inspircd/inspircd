@@ -12,12 +12,22 @@
  */
 
 #include "inspircd.h"
-#include "m_override.h"
 
 /* $ModDesc: Provides channel modes +a and +q */
 
 #define PROTECT_VALUE 40000
 #define FOUNDER_VALUE 50000
+
+struct ChanProtectSettings
+{
+	bool DeprivSelf;
+	bool DeprivOthers;
+	bool FirstInGetsFounder;
+	bool booting;
+	ChanProtectSettings() : booting(true) {}
+};
+
+static ChanProtectSettings settings;
 
 /** Handles basic operation of +qa channel modes
  */
@@ -28,12 +38,9 @@ class FounderProtectBase
 	const char mode;
 	const int list;
 	const int end;
- protected:
-	bool& remove_own_privs;
-	bool& remove_other_privs;
  public:
-	FounderProtectBase(char Mode, const std::string &mtype, int l, int e, bool &remove_own, bool &remove_others) :
-		type(mtype), mode(Mode), list(l), end(e), remove_own_privs(remove_own), remove_other_privs(remove_others)
+	FounderProtectBase(char Mode, const std::string &mtype, int l, int e) :
+		type(mtype), mode(Mode), list(l), end(e)
 	{
 	}
 
@@ -108,7 +115,7 @@ class FounderProtectBase
 	bool CanRemoveOthers(User* u1, Channel* c)
 	{
 		Membership* m1 = c->GetUser(u1);
-		return (remove_other_privs && m1 && m1->hasMode(mode));
+		return (settings.DeprivOthers && m1 && m1->hasMode(mode));
 	}
 };
 
@@ -117,14 +124,18 @@ class FounderProtectBase
 class ChanFounder : public ModeHandler, public FounderProtectBase
 {
  public:
-	ChanFounder(Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
+	ChanFounder(Module* Creator)
 		: ModeHandler(Creator, 'q', PARAM_ALWAYS, MODETYPE_CHANNEL),
-		  FounderProtectBase('q', "founder", 386, 387, depriv_self, depriv_others)
+		  FounderProtectBase('q', "founder", 386, 387)
 	{
 		ModeHandler::list = true;
-		prefix = my_prefix;
 		levelrequired = FOUNDER_VALUE;
 		m_paramtype = TR_NICK;
+	}
+
+	void setPrefix(int pfx)
+	{
+		prefix = pfx;
 	}
 
 	unsigned int GetPrefixRank()
@@ -150,7 +161,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 	{
 		User* theuser = ServerInstance->FindNick(parameter);
 		// remove own privs?
-		if (source == theuser && !adding && FounderProtectBase::remove_own_privs)
+		if (source == theuser && !adding && settings.DeprivSelf)
 			return MOD_RES_ALLOW;
 
 		if (!adding && FounderProtectBase::CanRemoveOthers(source, channel))
@@ -184,15 +195,20 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 class ChanProtect : public ModeHandler, public FounderProtectBase
 {
  public:
-	ChanProtect(Module* Creator, char my_prefix, bool &depriv_self, bool &depriv_others)
+	ChanProtect(Module* Creator)
 		: ModeHandler(Creator, 'a', PARAM_ALWAYS, MODETYPE_CHANNEL),
-		  FounderProtectBase('a',"protected user", 388, 389, depriv_self, depriv_others)
+		  FounderProtectBase('a',"protected user", 388, 389)
 	{
 		ModeHandler::list = true;
-		prefix = my_prefix;
 		levelrequired = PROTECT_VALUE;
 		m_paramtype = TR_NICK;
 	}
+
+	void setPrefix(int pfx)
+	{
+		prefix = pfx;
+	}
+
 
 	unsigned int GetPrefixRank()
 	{
@@ -221,7 +237,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 			return MOD_RES_ALLOW;
 
 		// removing own privs?
-		if (source == theuser && !adding && FounderProtectBase::remove_own_privs)
+		if (source == theuser && !adding && settings.DeprivSelf)
 			return MOD_RES_ALLOW;
 
 		if (!adding && FounderProtectBase::CanRemoveOthers(source, channel))
@@ -254,64 +270,52 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 class ModuleChanProtect : public Module
 {
-
-	bool FirstInGetsFounder;
-	char QPrefix;
-	char APrefix;
-	bool DeprivSelf;
-	bool DeprivOthers;
-	bool booting;
-	ChanProtect* cp;
-	ChanFounder* cf;
-
+	ChanProtect cp;
+	ChanFounder cf;
  public:
-
-	ModuleChanProtect()
-		: FirstInGetsFounder(false), QPrefix(0), APrefix(0), DeprivSelf(false), DeprivOthers(false), booting(true), cp(NULL), cf(NULL)
+	ModuleChanProtect() : cp(this), cf(this)
 	{
 		/* Load config stuff */
 		LoadSettings();
-		booting = false;
+		settings.booting = false;
 
-		/* Initialise module variables */
-
-		cp = new ChanProtect(this, APrefix, DeprivSelf, DeprivOthers);
-		cf = new ChanFounder(this, QPrefix, DeprivSelf, DeprivOthers);
-
-		if (!ServerInstance->Modes->AddMode(cp) || !ServerInstance->Modes->AddMode(cf))
+		if (!ServerInstance->Modes->AddMode(&cp) || !ServerInstance->Modes->AddMode(&cf))
 		{
-			delete cp;
-			delete cf;
 			throw ModuleException("Could not add new modes!");
 		}
 
-		Implementation eventlist[] = { I_OnUserKick, I_OnUserPart, I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserPreJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void LoadSettings()
 	{
 		ConfigReader Conf;
 
-		FirstInGetsFounder = Conf.ReadFlag("chanprotect", "noservices", 0);
+		settings.FirstInGetsFounder = Conf.ReadFlag("chanprotect", "noservices", 0);
 
 		std::string qpre = Conf.ReadValue("chanprotect", "qprefix", 0);
-		QPrefix = qpre.empty() ? 0 : qpre[0];
+		char QPrefix = qpre.empty() ? 0 : qpre[0];
 
 		std::string apre = Conf.ReadValue("chanprotect", "aprefix", 0);
-		APrefix = apre.empty() ? 0 : apre[0];
+		char APrefix = apre.empty() ? 0 : apre[0];
 
 		if ((APrefix && QPrefix) && APrefix == QPrefix)
 			throw ModuleException("What the smeg, why are both your +q and +a prefixes the same character?");
 
-		if (cp && ServerInstance->Modes->FindPrefix(APrefix) == cp)
+		if (ServerInstance->Modes->FindPrefix(APrefix) && ServerInstance->Modes->FindPrefix(APrefix) != &cp)
 			throw ModuleException("Looks like the +a prefix you picked for m_chanprotect is already in use. Pick another.");
 
-		if (cf && ServerInstance->Modes->FindPrefix(QPrefix) == cf)
+		if (ServerInstance->Modes->FindPrefix(QPrefix) && ServerInstance->Modes->FindPrefix(QPrefix) != &cf)
 			throw ModuleException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
 
-		DeprivSelf = Conf.ReadFlag("chanprotect","deprotectself", "yes", 0);
-		DeprivOthers = Conf.ReadFlag("chanprotect","deprotectothers", "yes", 0);
+		if (settings.booting)
+		{
+			cp.setPrefix(APrefix);
+			cf.setPrefix(QPrefix);
+		}
+		settings.DeprivSelf = Conf.ReadFlag("chanprotect","deprotectself", "yes", 0);
+		settings.DeprivOthers = Conf.ReadFlag("chanprotect","deprotectothers", "yes", 0);
 	}
 
 	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
@@ -319,16 +323,10 @@ class ModuleChanProtect : public Module
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set
 
-		if (FirstInGetsFounder && !chan)
+		if (settings.FirstInGetsFounder && !chan)
 			privs += 'q';
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	~ModuleChanProtect()
-	{
-		delete cp;
-		delete cf;
 	}
 
 	Version GetVersion()
