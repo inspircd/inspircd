@@ -104,8 +104,8 @@ struct ModResult {
 	}
 };
 
-/** If you change the module API, change this value. */
-#define API_VERSION 13000
+/** If you change the module API in any way, increment this value. */
+#define API_VERSION 131
 
 class ServerConfig;
 
@@ -226,13 +226,14 @@ do { \
 #define IS_AWAY(x) (!x->awaymsg.empty())
 
 /** Holds a module's Version information.
- *  The four members (set by the constructor only) indicate details as to the version number
- *  of a module. A class of type Version is returned by the GetVersion method of the Module class.
- *  The flags and API values represent the module flags and API version of the module.
- *  The API version of a module must match the API version of the core exactly for the module to
- *  load successfully.
+ * The members (set by the constructor only) indicate details as to the version number
+ * of a module. A class of type Version is returned by the GetVersion method of the Module class.
+ *
+ * The core provides only one implementation of the template, causing a run-time linking
+ * error when attempting to load a module compiled against a different API_VERSION.
  */
-class CoreExport Version : public classbase
+template<int api>
+class CoreExport VersionBase : public classbase
 {
  public:
 	/** Module description
@@ -242,15 +243,16 @@ class CoreExport Version : public classbase
 	 */
 	const std::string version;
 
-	/** Flags and API version
+	/** Flags
 	 */
-	const int Flags, API;
+	const int Flags;
 
 	/** Initialize version class
 	 */
-	Version(const std::string &desc, int flags,
-		int api_ver = API_VERSION, const std::string& src_rev = VERSION " r" REVISION);
+	VersionBase(const std::string &desc, int flags = VF_NONE, int dummy = 0, const std::string& src_rev = VERSION " r" REVISION);
 };
+
+typedef VersionBase<API_VERSION> Version;
 
 /** The ModuleMessage class is the base class of Request and Event
  * This class is used to represent a basic data structure which is passed

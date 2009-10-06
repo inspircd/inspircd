@@ -27,9 +27,12 @@
 
 
 // version is a simple class for holding a modules version number
-Version::Version(const std::string &modv, int flags, int api_ver, const std::string& rev)
-: description(modv), version(rev), Flags(flags), API(api_ver)
+template<>
+VersionBase<API_VERSION>::VersionBase(const std::string &modv, int flags, int api_ver, const std::string& rev)
+: description(modv), version(rev), Flags(flags)
 {
+	if (api_ver != API_VERSION)
+		abort();
 }
 
 Request::Request(char* anydata, Module* src, Module* dst)
@@ -439,19 +442,7 @@ bool ModuleManager::Load(const char* filename)
 			newmod->ModuleDLLFactory = newhandle;
 			Version v = newmod->GetVersion();
 
-			if (v.API != API_VERSION)
-			{
-				DetachAll(newmod);
-				delete newmod;
-				delete newhandle;
-				LastModuleError = "Unable to load " + filename_str + ": Incorrect module API version: " + ConvToStr(v.API) + " (our version: " + ConvToStr(API_VERSION) + ")";
-				ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-				return false;
-			}
-			else
-			{
-				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (API version %d, Module version %s)%s", filename, v.API, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
-			}
+			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s", filename, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 
 			Modules[filename_str] = newmod;
 		}
@@ -463,7 +454,9 @@ bool ModuleManager::Load(const char* filename)
 			return false;
 		}
 	}
-	/** XXX: Is there anything we can do about this mess? -- Brain */
+	/** XXX: Is there anything we can do about this mess? -- Brain
+	 * Yeah, don't use exceptions without RAII. -- Daniel
+	 */
 	catch (LoadModuleException& modexcept)
 	{
 		DetachAll(newmod);
