@@ -28,11 +28,9 @@
 
 // version is a simple class for holding a modules version number
 template<>
-VersionBase<API_VERSION>::VersionBase(const std::string &modv, int flags, int api_ver, const std::string& rev)
+VersionBase<API_VERSION>::VersionBase(const std::string &modv, int flags, int, const std::string& rev)
 : description(modv), version(rev), Flags(flags)
 {
-	if (api_ver != API_VERSION)
-		abort();
 }
 
 Request::Request(char* anydata, Module* src, Module* dst)
