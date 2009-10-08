@@ -67,8 +67,10 @@ public:
 class RegexNameRequest : public Request
 {
 public:
+	std::string result;
 	RegexNameRequest(Module* Me, Module* Target) : Request(Me, Target, "REGEX-NAME")
 	{
+		Send(); 
 	}
 };
 

@@ -72,7 +72,7 @@ class ModuleNamesX : public Module
 		prefixes = memb->chan->GetAllPrefixChars(memb->user);
 	}
 
-	void OnEvent(Event *ev)
+	void OnEvent(Event& ev)
 	{
 		cap.HandleEvent(ev);
 	}

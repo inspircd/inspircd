@@ -149,6 +149,8 @@ typedef		uint32_t		dword;
    }
 
 
+const char* const chars = "0123456789abcdef";
+
 class ModuleRIPEMD160 : public Module
 {
 
@@ -437,16 +439,11 @@ class ModuleRIPEMD160 : public Module
 		return (byte *)hashcode;
 	}
 
-	unsigned int* currkey;
-	const char* chars;
-
  public:
 
-	ModuleRIPEMD160() : currkey(NULL), chars("0123456789abcdef")
+	ModuleRIPEMD160()
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
-		Implementation eventlist[] = { I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleRIPEMD160()
@@ -454,42 +451,26 @@ class ModuleRIPEMD160 : public Module
 		ServerInstance->Modules->UnpublishInterface("HashRequest", this);
 	}
 
-
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		HashRequest* SHA = (HashRequest*)request;
-		if (strcmp("KEY", request->GetId()) == 0)
+		if (strcmp("HASH", request.id) == 0)
 		{
-			this->currkey = (unsigned int*)SHA->GetKeyData();
-		}
-		else if (strcmp("HEX", request->GetId()) == 0)
-		{
-			this->chars = SHA->GetOutputs();
-		}
-		else if (strcmp("SUM", request->GetId()) == 0)
-		{
-			static char output[MAXBUF];
-			unsigned char* data = (unsigned char*)RMD((byte *)SHA->GetHashData().data(),SHA->GetHashData().length(), currkey);
+			char res[41];
+			HashRequest& req = static_cast<HashRequest&>(request);
+			unsigned char* data = (unsigned char*)RMD((byte*)req.data.data(), req.data.length(), NULL);
 			int j = 0;
 			for (int i = 0; i < RMDsize / 8; i++)
 			{
-				output[j++] = chars[data[i] / 16];
-				output[j++] = chars[data[i] % 16];
-				ServerInstance->Logs->Log("m_ripemd160", DEBUG, "Hash: %02x", data[i]);
+				res[j++] = chars[data[i] / 16];
+				res[j++] = chars[data[i] % 16];
 			}
-			output[j] = '\0';
-			return output;
+			res[j] = '\0';
+			req.result = res;
 		}
-		else if (strcmp("NAME", request->GetId()) == 0)
+		else if (strcmp("NAME", request.id) == 0)
 		{
-			return "ripemd160";
+			static_cast<HashNameRequest&>(request).response = "ripemd160";
 		}
-		else if (strcmp("RESET", request->GetId()) == 0)
-		{
-			this->chars = "0123456789abcdef";
-			this->currkey = NULL;
-		}
-		return NULL;
 	}
 
 	virtual Version GetVersion()

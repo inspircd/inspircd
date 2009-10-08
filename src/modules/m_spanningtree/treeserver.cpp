@@ -14,7 +14,8 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
+#include "main.h"
+#include "../spanningtree.h"
 
 #include "utils.h"
 #include "treeserver.h"
@@ -147,8 +148,7 @@ void TreeServer::FinishBurst()
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	Event rmode((char*)ServerName.c_str(),  (Module*)Utils->Creator, "new_server");
-	rmode.Send();
+	AddServerEvent(Utils->Creator, ServerName.c_str());
 }
 
 void TreeServer::SetID(const std::string &id)

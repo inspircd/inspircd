@@ -403,8 +403,8 @@ class SQLConn : public EventHandler
 		if(!qinprog && queue.totalsize())
 		{
 			/* There's no query currently in progress, and there's queries in the queue. */
-			SQLrequest& query = queue.front();
-			DoQuery(query);
+			SQLrequest* query = queue.front();
+			DoQuery(*query);
 		}
 
 		if(PQconsumeInput(sql))
@@ -421,10 +421,10 @@ class SQLConn : public EventHandler
 			else if (qinprog)
 			{
 				/* Grab the request we're processing */
-				SQLrequest& query = queue.front();
+				SQLrequest* query = queue.front();
 
 				/* Get a pointer to the module we're about to return the result to */
-				Module* to = query.GetSource();
+				Module* to = query->source;
 
 				/* Fetch the result.. */
 				PGresult* result = PQgetResult(sql);
@@ -444,10 +444,10 @@ class SQLConn : public EventHandler
 				if(to)
 				{
 					/* ..and the result */
-					PgSQLresult reply(us, to, query.id, result);
+					PgSQLresult reply(us, to, query->id, result);
 
 					/* Fix by brain, make sure the original query gets sent back in the reply */
-					reply.query = query.query.q;
+					reply.query = query->query.q;
 
 					switch(PQresultStatus(result))
 					{
@@ -709,13 +709,13 @@ class SQLConn : public EventHandler
 
 	SQLerror Query(const SQLrequest &req)
 	{
-		queue.push(req);
+		queue.push(new SQLrequest(req));
 
 		if(!qinprog && queue.totalsize())
 		{
 			/* There's no query currently in progress, and there's queries in the queue. */
-			SQLrequest& query = queue.front();
-			return DoQuery(query);
+			SQLrequest* query = queue.front();
+			return DoQuery(*query);
 		}
 		else
 		{
@@ -782,8 +782,8 @@ class ModulePgSQL : public Module
 		ReadConf();
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
-		Implementation eventlist[] = { I_OnUnloadModule, I_OnRequest, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUnloadModule, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModulePgSQL()
@@ -911,27 +911,23 @@ class ModulePgSQL : public Module
 		ServerInstance->Timers->AddTimer(retimer);
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if(strcmp(SQLREQID, request->GetId()) == 0)
+		if(strcmp(SQLREQID, request.id) == 0)
 		{
-			SQLrequest* req = (SQLrequest*)request;
+			SQLrequest* req = (SQLrequest*)&request;
 			ConnMap::iterator iter;
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
 				/* Execute query */
 				req->id = NewID();
 				req->error = iter->second->Query(*req);
-
-				return (req->error.Id() == SQL_NO_ERROR) ? sqlsuccess : NULL;
 			}
 			else
 			{
 				req->error.Id(SQL_BAD_DBID);
-				return NULL;
 			}
 		}
-		return NULL;
 	}
 
 	virtual void OnUnloadModule(Module* mod, const std::string&	name)

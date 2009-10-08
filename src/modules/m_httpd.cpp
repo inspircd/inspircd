@@ -313,13 +313,12 @@ class HttpServerSocket : public BufferedSocket
 		else
 		{
 			claimed = false;
-			HTTPRequest httpr(request_type,uri,&headers,this,ip,postdata);
-			Event acl((char*)&httpr, (Module*)HttpModule, "httpd_acl");
+			HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
 			acl.Send();
 			if (!claimed)
 			{
-				Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-				e.Send();
+				HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
+				url.Send();
 				if (!claimed)
 				{
 					SendHTTPError(404);
@@ -384,7 +383,7 @@ class ModuleHttpServer : public Module
 			index = new FileReader(indexfile);
 			if (!index->Exists())
 				throw ModuleException("Can't read index file: "+indexfile);
-			http = new HttpListener(index, port, (char *)bindip.c_str()); // XXX this cast SUCKS.
+			http = new HttpListener(index, port, bindip);
 			httplisteners.push_back(http);
 		}
 	}
@@ -392,17 +391,15 @@ class ModuleHttpServer : public Module
 	ModuleHttpServer() 	{
 		ReadConfig();
 		HttpModule = this;
-		Implementation eventlist[] = { I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
+		if (strcmp(request.id, "HTTP-DOC") != 0)
+			return;
+		HTTPDocumentResponse& resp = static_cast<HTTPDocumentResponse&>(request);
 		claimed = true;
-		HTTPDocument* doc = (HTTPDocument*)request->GetData();
-		HttpServerSocket* sock = (HttpServerSocket*)doc->sock;
-		sock->Page(doc->GetDocument(), doc->GetResponseCode(), &doc->headers);
-		return NULL;
+		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 
 

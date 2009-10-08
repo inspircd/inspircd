@@ -13,12 +13,10 @@
 
 #include "inspircd.h"
 #include <zlib.h>
-#include "transport.h"
 #include <iostream>
 
 /* $ModDesc: Provides zlib link support for servers */
 /* $LinkerFlags: -lz */
-/* $ModDep: transport.h */
 
 /*
  * ZLIB_BEST_COMPRESSION (9) is used for all sending of data with
@@ -57,7 +55,7 @@ class ModuleZLib : public Module
  public:
 
 	ModuleZLib()
-			{
+	{
 		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
 		sessions = new izip_session[ServerInstance->SE->GetMaxFds()];
@@ -66,8 +64,8 @@ class ModuleZLib : public Module
 
 		total_out_compressed = total_in_compressed = 0;
 		total_out_uncompressed = total_in_uncompressed = 0;
-		Implementation eventlist[] = { I_OnStats, I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 
 		// Allocate a buffer which is used for reading and writing data
 		net_buffer_size = ServerInstance->Config->NetBufferSize;
@@ -83,44 +81,7 @@ class ModuleZLib : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides zlib link support for servers", VF_VENDOR, API_VERSION);
-	}
-
-
-	/* Handle BufferedSocketHook API requests */
-	const char* OnRequest(Request* request)
-	{
-		ISHRequest* ISR = (ISHRequest*)request;
-		if (strcmp("IS_NAME", request->GetId()) == 0)
-		{
-			/* Return name */
-			return "zip";
-		}
-		else if (strcmp("IS_HOOK", request->GetId()) == 0)
-		{
-			ISR->Sock->AddIOHook(this);
-			return "OK";
-		}
-		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
-		{
-			ISR->Sock->DelIOHook();
-			return "OK";
-		}
-		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
-		{
-			/* Check for completion of handshake
-			 * (actually, this module doesnt handshake)
-			 */
-			return "OK";
-		}
-		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
-		{
-			/* Attach certificate data to the inspsocket
-			 * (this module doesnt do that, either)
-			 */
-			return NULL;
-		}
-		return NULL;
+		return Version("Provides zlib link support for servers", VF_VENDOR);
 	}
 
 	/* Handle stats z (misc stats) */

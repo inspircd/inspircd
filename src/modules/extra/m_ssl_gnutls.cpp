@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
-#include "transport.h"
+#include "ssl.h"
 #include "m_cap.h"
 
 #ifdef WINDOWS
@@ -160,7 +160,7 @@ class ModuleSSLGnuTLS : public Module
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
-		Implementation eventlist[] = { I_On005Numeric, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
 			I_OnEvent, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
@@ -352,52 +352,11 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		ISHRequest* ISR = static_cast<ISHRequest*>(request);
-		if (strcmp("IS_NAME", request->GetId()) == 0)
-		{
-			return "gnutls";
-		}
-		else if (strcmp("IS_HOOK", request->GetId()) == 0)
-		{
-			ISR->Sock->AddIOHook(this);
-			return "OK";
-		}
-		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
-		{
-			ISR->Sock->DelIOHook();
-			return "OK";
-		}
-		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
-		{
-			if (ISR->Sock->GetFd() < 0)
-				return "OK";
-
-			issl_session* session = &sessions[ISR->Sock->GetFd()];
-			return (session->status == ISSL_HANDSHAKING_READ || session->status == ISSL_HANDSHAKING_WRITE) ? NULL : "OK";
-		}
-		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
-		{
-			if (ISR->Sock->GetFd() > -1)
-			{
-				issl_session* session = &sessions[ISR->Sock->GetFd()];
-				if (session->sess)
-				{
-					if (static_cast<Extensible*>(ServerInstance->SE->GetRef(ISR->Sock->GetFd())) == static_cast<Extensible*>(ISR->Sock))
-					{
-						return "OK";
-					}
-				}
-			}
-		}
-		else if (strcmp("GET_CERT", request->GetId()) == 0)
-		{
-			Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
-			if (sslinfo)
-				return sslinfo->OnRequest(request);
-		}
-		return NULL;
+		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
+		if (sslinfo)
+			sslinfo->OnRequest(request);
 	}
 
 
@@ -735,10 +694,10 @@ class ModuleSSLGnuTLS : public Module
 info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
 info_done:
-		BufferedSocketFingerprintSubmission(user, this, sslinfo, certinfo).Send();
+		SSLCertSubmission(user, this, sslinfo, certinfo);
 	}
 
-	void OnEvent(Event* ev)
+	void OnEvent(Event& ev)
 	{
 		capHandler.HandleEvent(ev);
 	}

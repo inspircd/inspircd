@@ -46,8 +46,8 @@ public:
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
 		ie.DoImplements(this);
-		Implementation eventlist[] = { I_OnRequest, I_On005Numeric, I_OnCheckInvite };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void On005Numeric(std::string &output)
@@ -75,11 +75,6 @@ public:
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	const char* OnRequest(Request* request)
-	{
-		return ie.DoOnRequest(request);
 	}
 
 	void OnCleanup(int target_type, void* item)

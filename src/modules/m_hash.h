@@ -19,176 +19,70 @@
 #define SHA256_DIGEST_SIZE (256 / 8)
 #define SHA256_BLOCK_SIZE  (512 / 8)
 
-/** HashRequest is the base class used to send Hash requests to hashing.so.
- * You should not instantiate classes of type HashRequest directly, instead
- * you should instantiate classes of type HashResetRequest, HashSumRequest,
- * HashKeyRequest and HashHexRequest, shown below.
- */
-class HashRequest : public Request
-{
-	/** The keys (IV) to use */
-	unsigned int* keys;
-	/** The output characters (hex sequence) to use */
-	const char* outputs;
-	/** The string to hash */
-	std::string tohash;
- public:
-	/** Initialize HashRequest as an Hash_RESET message */
-	HashRequest(const char* req, Module* Me, Module* Target) : Request(Me, Target, req)
-	{
-	}
-
-	/** Initialize HashRequest as an Hash_SUM message */
-	HashRequest(Module* Me, Module* Target, const std::string &hashable) : Request(Me, Target, "SUM"), keys(NULL), outputs(NULL), tohash(hashable)
-	{
-	}
-
-	/** Initialize HashRequest as an Hash_KEY message */
-	HashRequest(Module* Me, Module* Target, unsigned int* k) : Request(Me, Target, "KEY"), keys(k), outputs(NULL), tohash("")
-	{
-	}
-
-	/** Initialize HashRequest as an Hash_HEX message */
-	HashRequest(Module* Me, Module* Target, const char* out) : Request(Me, Target, "HEX"), keys(NULL), outputs(out), tohash("")
-	{
-	}
-
-	/** Get data to be hashed */
-	std::string& GetHashData()
-	{
-		return tohash;
-	}
-
-	/** Get keys (IVs) to be used */
-	unsigned int* GetKeyData()
-	{
-		return keys;
-	}
-
-	/** Get output characters (hex sequence) to be used */
-	const char* GetOutputs()
-	{
-		return outputs;
-	}
-};
-
-/** Send this class to the hashing module to query for its name.
+/** Query a hash algorithm's name
  *
  * Example:
  * \code
- * cout << "Using hash algorithm: " << HashNameRequest(this, HashModule).Send();
+ * cout << "Using hash algorithm: " << HashNameRequest(this, HashModule).response;
  * \endcode
  */
-class HashNameRequest : public HashRequest
+struct HashNameRequest : public Request
 {
- public:
-	/** Initialize HashNameRequest for sending.
-	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing module
-	 */
-	HashNameRequest(Module* Me, Module* Target) : HashRequest("NAME", Me, Target)
+	std::string response;
+	HashNameRequest(Module* Me, Module* Target) : Request(Me, Target, "NAME")
 	{
-	}
-};
-
-/** Send this class to the hashing module to reset the Hash module to a known state.
- * This will reset the IV to the defaults specified by the Hash spec,
- * and reset the hex sequence to "0123456789abcdef". It should be sent before
- * ANY other Request types.
- *
- * Example:
- * \code
- * // Reset the Hash module.
- * HashResetRequest(this, HashModule).Send();
- * \endcode
- */
-class HashResetRequest : public HashRequest
-{
- public:
-	/** Initialize HashResetRequest for sending.
-	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing module
-	 */
-	HashResetRequest(Module* Me, Module* Target) : HashRequest("RESET", Me, Target)
-	{
+		Send();
 	}
 };
 
 /** Send this class to the hashing module to HashSUM a std::string.
- * You should make sure you know the state of the module before you send this
- * class, e.g. by first sending an HashResetRequest class. The hash will be
- * returned when you call Send().
  *
  * Example:
  * \code
- * // ALWAYS ALWAYS reset first, or set your own IV and hex chars.
- * HashResetRequest(this, HashModule).Send();
  * // Get the Hash sum of the string 'doodads'.
- * std::string result = HashSumRequest(this, HashModule, "doodads").Send();
+ * std::string result = HashRequest(this, HashModule, "doodads").result;
  * \endcode
  */
-class HashSumRequest : public HashRequest
+struct HashRequest : public Request
 {
- public:
+	const std::string data;
+	std::string result;
 	/** Initialize HashSumRequest for sending.
 	 * @param Me A pointer to the sending module
 	 * @param Target A pointer to the hashing module
 	 * @param data The data to be hashed
 	 */
-	HashSumRequest(Module* Me, Module* Target, const std::string &sdata) : HashRequest(Me, Target, sdata)
+	HashRequest(Module* Me, Module* Target, const std::string &sdata)
+		: Request(Me, Target, "HASH"), data(sdata)
 	{
+		Send();
 	}
 };
 
-/** Send this class to hashing module to change the IVs (keys) to use for hashing.
- * You should make sure you know the state of the module before you send this
- * class, e.g. by first sending an HashResetRequest class. The default values for
- * the IV's are those specified in the Hash specification. Only in very special
- * circumstances should you need to change the IV's (see for example m_cloaking.cpp)
+/** Allows the IVs for the hash to be specified. As the choice of initial IV is
+ * important for the security of a hash, this should not be used except to
+ * maintain backwards compatability. This also allows you to change the hex
+ * sequence from its default of "0123456789abcdef", which does not improve the
+ * strength of the output, but helps confuse those attempting to implement it.
+ *
+ * Only m_md5 implements this request; only m_cloaking should use it.
  *
  * Example:
  * \code
  * unsigned int iv[] = { 0xFFFFFFFF, 0x00000000, 0xAAAAAAAA, 0xCCCCCCCC };
- * HashKeyRequest(this, HashModule, iv);
+ * std::string result = HashRequestIV(this, HashModule, iv, "0123456789abcdef", "data").result;
  * \endcode
  */
-class HashKeyRequest : public HashRequest
+struct HashRequestIV : public Request
 {
- public:
-	/** Initialize HashKeyRequest for sending.
-	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing module
-	 * @param data The new IV's. This should be an array of exactly four 32 bit values.
-	 * On 64-bit architectures, the upper 32 bits of the values will be discarded.
-	 */
-	HashKeyRequest(Module* Me, Module* Target, unsigned int* sdata) : HashRequest(Me, Target, sdata)
+	unsigned int* iv;
+	const char* map;
+	std::string result;
+	const std::string data;
+	HashRequestIV(Module* Me, Module* Target, unsigned int* IV, const char* HexMap, const std::string &sdata)
+		: Request(Me, Target, "HASH-IV"), iv(IV), map(HexMap), data(sdata)
 	{
-	}
-};
-
-/** Send this class to the hashing module to change the hex sequence to use for generating the returned value.
- * You should make sure you know the state of the module before you send this
- * class, e.g. by first sending an HashResetRequest class. The default value for
- * the hex sequence is "0123456789abcdef". Only in very special circumstances should
- * you need to change the hex sequence (see for example m_cloaking.cpp).
- *
- * Example:
- * \code
- * static const char tab[] = "fedcba9876543210";
- * HashHexRequest(this, HashModule, tab);
- * \endcode
- */
-class HashHexRequest : public HashRequest
-{
- public:
-	/** Initialize HashHexRequest for sending.
-	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing module
-	 * @param data The hex sequence to use. This should contain exactly 16 ASCII characters,
-	 * terminated by a NULL char.
-	 */
-	HashHexRequest(Module* Me, Module* Target, const char* sdata) : HashRequest(Me, Target, sdata)
-	{
+		Send();
 	}
 };
 

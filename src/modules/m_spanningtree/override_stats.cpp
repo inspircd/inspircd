@@ -16,7 +16,6 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 
 #include "main.h"
 #include "utils.h"
@@ -77,11 +76,9 @@ ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &r
 			if (ip.empty())
 				ip = "*";
 
-			std::string transport("plaintext");
-			if (Utils->Bindings[i]->Hook)
-				transport = BufferedSocketNameRequest(this, Utils->Bindings[i]->Hook).Send();
+			std::string transport(Utils->Bindings[i]->Hook);
 
-			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->GetPort())+
+			results.push_back(ServerInstance->Config->ServerName + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->GetPort())+
 				" (server, " + transport + ")");
 		}
 	}

@@ -16,7 +16,6 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 
 #include "cachetimer.h"
 #include "resolvers.h"
@@ -49,7 +48,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeLocalUserHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
-		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats, I_OnEvent,
+		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
 		I_OnSetAway, I_OnPostCommand, I_OnUserConnect
 	};
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -294,9 +293,8 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	if (ipvalid)
 	{
 		/* Gave a hook, but it wasnt one we know */
-		if ((!x->Hook.empty()) && (Utils->hooks.find(x->Hook.c_str()) == Utils->hooks.end()))
-			return;
-		TreeSocket* newsocket = new TreeSocket(Utils, x->IPAddr,x->Port, x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Bind, y, x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
+		TreeSocket* newsocket = new TreeSocket(Utils, x->IPAddr, x->Port, x->Timeout ? x->Timeout : 10,
+			x->Name.c_str(), x->Bind, y, x->Hook);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */
@@ -313,7 +311,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		try
 		{
 			bool cached;
-			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, x->IPAddr, x, cached, start_type, y);
+			ServernameResolver* snr = new ServernameResolver(Utils, x->IPAddr, x, cached, start_type, y);
 			ServerInstance->AddResolver(snr, cached);
 		}
 		catch (ModuleException& e)
@@ -951,15 +949,6 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
 	else if (!target)
 		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
-}
-
-void ModuleSpanningTree::OnEvent(Event* event)
-{
-	if ((event->GetEventID() == "send_encap") || (event->GetEventID() == "send_metadata") || (event->GetEventID() == "send_topic") || (event->GetEventID() == "send_mode") || (event->GetEventID() == "send_mode_explicit") || (event->GetEventID() == "send_opers")
-		|| (event->GetEventID() == "send_modeset") || (event->GetEventID() == "send_snoset") || (event->GetEventID() == "send_push"))
-	{
-		ServerInstance->Logs->Log("m_spanningtree", DEBUG, "WARNING: Deprecated use of old 1.1 style m_spanningtree event ignored, type '"+event->GetEventID()+"'!");
-	}
 }
 
 bool ModuleSpanningTree::cull()

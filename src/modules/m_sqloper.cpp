@@ -55,7 +55,7 @@ public:
 				/* Make a request to it for its name, its implementing
 				 * HashRequest so we know its safe to do this
 				 */
-				std::string name = HashNameRequest(this, *m).Send();
+				std::string name = HashNameRequest(this, *m).response;
 				/* Build a map of them */
 				hashers[name.c_str()] = *m;
 				names.push_back(name);
@@ -92,7 +92,7 @@ public:
 		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
 		{
 			ServerInstance->Logs->Log("m_sqloper",DEBUG, "Post-load registering hasher: %s", name.c_str());
-			std::string sname = HashNameRequest(this, mod).Send();
+			std::string sname = HashNameRequest(this, mod).response;
 			hashers[sname.c_str()] = mod;
 			names.push_back(sname);
 			if (!diduseiface)
@@ -149,10 +149,8 @@ public:
 			if (x == hashers.end())
 				return false;
 
-			/* Reset hash module first back to MD5 standard state */
-			HashResetRequest(this, x->second).Send();
 			/* Make an MD5 hash of the password for using in the query */
-			std::string md5_pass_hash = HashSumRequest(this, x->second, password.c_str()).Send();
+			std::string md5_pass_hash = HashRequest(this, x->second, password).result;
 
 			/* We generate our own sum here because some database providers (e.g. SQLite) dont have a builtin md5/sha256 function,
 			 * also hashing it in the module and only passing a remote query containing a hash is more secure.
@@ -160,26 +158,19 @@ public:
 			SQLrequest req = SQLrequest(this, target, databaseid,
 					SQLquery("SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'") % username % md5_pass_hash);
 
-			if (req.Send())
-			{
-				/* When we get the query response from the service provider we will be given an ID to play with,
-				 * just an ID number which is unique to this query. We need a way of associating that ID with a User
-				 * so we insert it into a map mapping the IDs to users.
-				 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
-				 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
-				 * us to discard the query.
-			 	 */
-				AssociateUser(this, SQLutils, req.id, user).Send();
+			/* When we get the query response from the service provider we will be given an ID to play with,
+			 * just an ID number which is unique to this query. We need a way of associating that ID with a User
+			 * so we insert it into a map mapping the IDs to users.
+			 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
+			 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
+			 * us to discard the query.
+			 */
+			AssociateUser(this, SQLutils, req.id, user).Send();
 
-				saved_user.set(user, username);
-				saved_pass.set(user, password);
+			saved_user.set(user, username);
+			saved_pass.set(user, password);
 
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return true;
 		}
 		else
 		{
@@ -188,11 +179,11 @@ public:
 		}
 	}
 
-	const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if (strcmp(SQLRESID, request->GetId()) == 0)
+		if (strcmp(SQLRESID, request.id) == 0)
 		{
-			SQLresult* res = static_cast<SQLresult*>(request);
+			SQLresult* res = static_cast<SQLresult*>(&request);
 
 			User* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
@@ -225,7 +216,6 @@ public:
 								/* If/when one of the rows matches, stop checking and return */
 								saved_user.unset(user);
 								saved_pass.unset(user);
-								return SQLSUCCESS;
 							}
 							if (tried_user && tried_pass)
 							{
@@ -264,11 +254,7 @@ public:
 
 				}
 			}
-
-			return SQLSUCCESS;
 		}
-
-		return NULL;
 	}
 
 	void LoginFail(User* user, const std::string &username, const std::string &pass)

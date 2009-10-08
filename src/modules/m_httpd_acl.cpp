@@ -90,21 +90,20 @@ class ModuleHTTPAccessList : public Module
 
 	ModuleHTTPAccessList() 	{
 		ReadConfig();
-		Implementation eventlist[] = { I_OnEvent, I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void BlockAccess(HTTPRequest* http, Event* event, int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")
+	void BlockAccess(HTTPRequest* http, int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")
 	{
 		ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "BlockAccess (%d)", returnval);
 
 		std::stringstream data("Access to this resource is denied by an access control list. Please contact your IRC administrator.");
-		HTTPDocument response(http->sock, &data, returnval);
+		HTTPDocumentResponse response(this, *http, &data, returnval);
 		response.headers.SetHeader("X-Powered-By", "m_httpd_acl.so");
 		if (!extraheaderkey.empty())
 			response.headers.SetHeader(extraheaderkey, extraheaderval);
-		Request req((char*)&response, (Module*)this, event->GetSource());
-		req.Send();
+		response.Send();
 	}
 
 	bool IsBase64(unsigned char c)
@@ -162,12 +161,12 @@ class ModuleHTTPAccessList : public Module
 		return retval;
 	}
 
-	void OnEvent(Event* event)
+	void OnEvent(Event& event)
 	{
-		if (event->GetEventID() == "httpd_acl")
+		if (event.id == "httpd_acl")
 		{
 			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd acl event");
-			HTTPRequest* http = (HTTPRequest*)event->GetData();
+			HTTPRequest* http = (HTTPRequest*)&event;
 
 			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
 			{
@@ -185,7 +184,7 @@ class ModuleHTTPAccessList : public Module
 							{
 								ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
 										http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
-								BlockAccess(http, event, 403);
+								BlockAccess(http, 403);
 								return;
 							}
 						}
@@ -207,7 +206,7 @@ class ModuleHTTPAccessList : public Module
 						{
 							ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
 									http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str());
-							BlockAccess(http, event, 403);
+							BlockAccess(http, 403);
 							return;
 						}
 					}
@@ -248,20 +247,20 @@ class ModuleHTTPAccessList : public Module
 									}
 									else
 										/* Invalid password */
-										BlockAccess(http, event, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
+										BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
 								}
 								else
 									/* Malformed user:pass pair */
-									BlockAccess(http, event, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
+									BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
 							}
 							else
 								/* Unsupported authentication type */
-								BlockAccess(http, event, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
+								BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
 						}
 						else
 						{
 							/* No password given at all, access denied */
-							BlockAccess(http, event, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
+							BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
 						}
 					}
 
@@ -270,11 +269,6 @@ class ModuleHTTPAccessList : public Module
 				}
 			}
 		}
-	}
-
-	const char* OnRequest(Request* request)
-	{
-		return NULL;
 	}
 
 	virtual ~ModuleHTTPAccessList()

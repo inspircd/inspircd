@@ -47,8 +47,8 @@ public:
 			throw ModuleException("Can't find an SQL provider module. Please load one before attempting to load m_sqlauth.");
 
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRequest, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRehash, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	virtual ~ModuleSQLAuth()
@@ -109,47 +109,37 @@ public:
 
 		if (HashMod)
 		{
-			HashResetRequest(this, HashMod).Send();
-			SearchAndReplace(thisquery, std::string("$md5pass"), std::string(HashSumRequest(this, HashMod, user->password).Send()));
+			SearchAndReplace(thisquery, std::string("$md5pass"), HashRequest(this, HashMod, user->password).result);
 		}
 
 		HashMod = ServerInstance->Modules->Find("m_sha256.so");
 
 		if (HashMod)
 		{
-			HashResetRequest(this, HashMod).Send();
-			SearchAndReplace(thisquery, std::string("$sha256pass"), std::string(HashSumRequest(this, HashMod, user->password).Send()));
+			SearchAndReplace(thisquery, std::string("$sha256pass"), HashRequest(this, HashMod, user->password).result);
 		}
 
 		/* Build the query */
 		SQLrequest req = SQLrequest(this, SQLprovider, databaseid, SQLquery(thisquery));
 
-		if(req.Send())
-		{
-			/* When we get the query response from the service provider we will be given an ID to play with,
-			 * just an ID number which is unique to this query. We need a way of associating that ID with a User
-			 * so we insert it into a map mapping the IDs to users.
-			 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
-			 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
-			 * us to discard the query.
-		 	 */
-			AssociateUser(this, SQLutils, req.id, user).Send();
+		req.Send();
+		/* When we get the query response from the service provider we will be given an ID to play with,
+		 * just an ID number which is unique to this query. We need a way of associating that ID with a User
+		 * so we insert it into a map mapping the IDs to users.
+		 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
+		 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
+		 * us to discard the query.
+		 */
+		AssociateUser(this, SQLutils, req.id, user).Send();
 
-			return true;
-		}
-		else
-		{
-			if (verbose)
-				ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), req.error.Str());
-			return false;
-		}
+		return true;
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if(strcmp(SQLRESID, request->GetId()) == 0)
+		if(strcmp(SQLRESID, request.id) == 0)
 		{
-			SQLresult* res = static_cast<SQLresult*>(request);
+			SQLresult* res = static_cast<SQLresult*>(&request);
 
 			User* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
@@ -176,16 +166,14 @@ public:
 			}
 			else
 			{
-				return NULL;
+				return;
 			}
 
 			if (!sqlAuthed.get(user))
 			{
 				ServerInstance->Users->QuitUser(user, killreason);
 			}
-			return SQLSUCCESS;
 		}
-		return NULL;
 	}
 
 	ModResult OnCheckReady(User* user)

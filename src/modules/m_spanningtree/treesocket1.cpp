@@ -14,27 +14,23 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 #include "../m_hash.h"
 #include "socketengine.h"
 
 #include "main.h"
+#include "../spanningtree.h"
 #include "utils.h"
 #include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
 #include "resolvers.h"
-#include "handshaketimer.h"
-
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h m_spanningtree/handshaketimer.h */
-
 
 /** Because most of the I/O gubbins are encapsulated within
  * BufferedSocket, we just call the superclass constructor for
  * most of the action, and append a few of our own values
  * to it.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, std::string shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, const std::string& shost, int iport, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, const std::string& hook)
 	: Utils(Util), IP(shost), myautoconnect(myac)
 {
 	age = ServerInstance->Time();
@@ -44,33 +40,31 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, std::string shost, int iport
 	LinkState = CONNECTING;
 	DoConnect(shost, iport, maxtime, bindto);
 	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName, maxtime);
-	if (HookMod)
-		BufferedSocketHookRequest(this, Utils->Creator, HookMod).Send();
-	hstimer = NULL;
+	// TODO AddIOHook using the given hook
+	SendCapabilities(1);
 }
 
 /** When a listening socket gives us a new file descriptor,
  * we must associate it with a socket without creating a new
  * connection. This constructor is used for this purpose.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, char* ip, Autoconnect* myac, Module* HookMod)
-	: BufferedSocket(newfd), Utils(Util), IP(ip), myautoconnect(myac)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocketBase* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	: BufferedSocket(newfd), Utils(Util)
 {
+	int dummy;
+	irc::sockets::satoap(client, IP, dummy);
 	age = ServerInstance->Time();
 	LinkState = WAIT_AUTH_1;
 	capab_phase = 0;
 	proto_version = 0;
-	/* If we have a transport module hooked to the parent, hook the same module to this
-	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
-	 */
-	if (HookMod)
-		BufferedSocketHookRequest(this, Utils->Creator, HookMod).Send();
 
-	hstimer = new HandshakeTimer(this, Utils->LinkBlocks[0], this->Utils, 1);
-	ServerInstance->Timers->AddTimer(hstimer);
+	FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
+	if (GetIOHook())
+		GetIOHook()->OnStreamSocketAccept(this, client, server);
+	SendCapabilities(1);
 
 	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
-	Utils->timeoutlist[this] = std::pair<std::string, int>("<from " + std::string(ip) + ">", 30);
+	Utils->timeoutlist[this] = std::pair<std::string, int>("<from " + IP + ">", 30);
 }
 
 ServerState TreeSocket::GetLinkState()
@@ -90,16 +84,12 @@ void TreeSocket::CleanNegotiationInfo()
 
 bool TreeSocket::cull()
 {
-	if (GetIOHook())
-		BufferedSocketUnhookRequest(this, Utils->Creator, GetIOHook()).Send();
 	Utils->timeoutlist.erase(this);
 	return this->BufferedSocket::cull();
 }
 
 TreeSocket::~TreeSocket()
 {
-	if (hstimer)
-		ServerInstance->Timers->DelTimer(hstimer);
 }
 
 /** When an outbound connection finishes connecting, we receive
@@ -120,14 +110,7 @@ void TreeSocket::OnConnected()
 			{
 				ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()));
 				this->OutboundPass = x->SendPass;
-				if (GetIOHook())
-				{
-					ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] using transport \2%s\2", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()), x->Hook.c_str());
-					hstimer = new HandshakeTimer(this, &(*x), this->Utils, 1);
-					ServerInstance->Timers->AddTimer(hstimer);
-				}
-				else
-					this->SendCapabilities(1);
+				this->SendCapabilities(1);
 				return;
 			}
 		}
@@ -209,8 +192,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 
 	if ((Current) && (Current != Utils->TreeRoot))
 	{
-		Event rmode((char*)Current->GetName().c_str(), (Module*)Utils->Creator, "lost_server");
-		rmode.Send();
+		DelServerEvent(Utils->Creator, Current->GetName());
 
 		parameterlist params;
 		params.push_back(Current->GetName());

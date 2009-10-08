@@ -72,8 +72,6 @@ class ModuleRegexPCRE : public Module
 public:
 	ModuleRegexPCRE() 	{
 		ServerInstance->Modules->PublishInterface("RegularExpression", this);
-		Implementation eventlist[] = { I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual Version GetVersion()
@@ -86,20 +84,18 @@ public:
 		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if (strcmp("REGEX-NAME", request->GetId()) == 0)
+		if (strcmp("REGEX-NAME", request.id) == 0)
 		{
-			return "pcre";
+			static_cast<RegexNameRequest&>(request).result = "pcre";
 		}
-		else if (strcmp("REGEX", request->GetId()) == 0)
+		else if (strcmp("REGEX", request.id) == 0)
 		{
-			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
-			std::string rx = rfr->GetRegex();
-			rfr->result = new PCRERegex(rx);
-			return "OK";
+			RegexFactoryRequest& rfr = (RegexFactoryRequest&)request;
+			std::string rx = rfr.GetRegex();
+			rfr.result = new PCRERegex(rx);
 		}
-		return NULL;
 	}
 };
 

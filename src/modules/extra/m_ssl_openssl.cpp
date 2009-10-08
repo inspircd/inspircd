@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "transport.h"
+#include "ssl.h"
 
 #ifdef WINDOWS
 #pragma comment(lib, "libeay32MTd")
@@ -128,7 +128,7 @@ class ModuleSSLOpenSSL : public Module
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
 		Implementation eventlist[] = {
-			I_On005Numeric, I_OnRequest, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+			I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
 			I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
@@ -291,46 +291,11 @@ class ModuleSSLOpenSSL : public Module
 	}
 
 
-	const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		ISHRequest* ISR = (ISHRequest*)request;
-		if (strcmp("IS_NAME", request->GetId()) == 0)
-		{
-			return "openssl";
-		}
-		else if (strcmp("IS_HOOK", request->GetId()) == 0)
-		{
-			ISR->Sock->AddIOHook(this);
-			return "OK";
-		}
-		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
-		{
-			ISR->Sock->DelIOHook();
-			return "OK";
-		}
-		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
-		{
-			if (ISR->Sock->GetFd() < 0)
-				return "OK";
-
-			issl_session* session = &sessions[ISR->Sock->GetFd()];
-			return (session->status == ISSL_HANDSHAKING) ? NULL : "OK";
-		}
-		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
-		{
-			issl_session* session = &sessions[ISR->Sock->GetFd()];
-			if (session->sess)
-			{
-				return "OK";
-			}
-		}
-		else if (strcmp("GET_CERT", request->GetId()) == 0)
-		{
-			Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
-			if (sslinfo)
-				return sslinfo->OnRequest(request);
-		}
-		return NULL;
+		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
+		if (sslinfo)
+			sslinfo->OnRequest(request);
 	}
 
 
@@ -618,7 +583,7 @@ class ModuleSSLOpenSSL : public Module
 		if (!cert)
 		{
 			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
-			BufferedSocketFingerprintSubmission(user, this, sslinfo, certinfo).Send();
+			SSLCertSubmission(user, this, sslinfo, certinfo);
 			return;
 		}
 
@@ -653,7 +618,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		X509_free(cert);
-		BufferedSocketFingerprintSubmission(user, this, sslinfo, certinfo).Send();
+		SSLCertSubmission(user, this, sslinfo, certinfo);
 	}
 
 	void Prioritize()

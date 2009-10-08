@@ -56,40 +56,33 @@ public:
 
 	void Go(SQLresult* res)
 	{
-		SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery(""));
 		switch (qs)
 		{
 			case FIND_SOURCE:
 				if (res->Rows() && sourceid == -1 && !insert)
 				{
 					sourceid = atoi(res->GetValue(0,0).d.c_str());
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % nick);
-					if(req.Send())
-					{
-						insert = false;
-						qs = FIND_NICK;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % nick);
+					req.Send();
+					insert = false;
+					qs = FIND_NICK;
+					active_queries[req.id] = this;
 				}
 				else if (res->Rows() && sourceid == -1 && insert)
 				{
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % source);
-					if(req.Send())
-					{
-						insert = false;
-						qs = FIND_SOURCE;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % source);
+					req.Send();
+					insert = false;
+					qs = FIND_SOURCE;
+					active_queries[req.id] = this;
 				}
 				else
 				{
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_actors (actor) VALUES('?')") % source);
-					if(req.Send())
-					{
-						insert = true;
-						qs = FIND_SOURCE;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_actors (actor) VALUES('?')") % source);
+					req.Send();
+					insert = true;
+					qs = FIND_SOURCE;
+					active_queries[req.id] = this;
 				}
 			break;
 
@@ -97,33 +90,27 @@ public:
 				if (res->Rows() && nickid == -1 && !insert)
 				{
 					nickid = atoi(res->GetValue(0,0).d.c_str());
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'") % hostname);
-					if(req.Send())
-					{
-						insert = false;
-						qs = FIND_HOST;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'") % hostname);
+					req.Send();
+					insert = false;
+					qs = FIND_HOST;
+					active_queries[req.id] = this;
 				}
 				else if (res->Rows() && nickid == -1 && insert)
 				{
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % nick);
-					if(req.Send())
-					{
-						insert = false;
-						qs = FIND_NICK;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % nick);
+					req.Send();
+					insert = false;
+					qs = FIND_NICK;
+					active_queries[req.id] = this;
 				}
 				else
 				{
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_actors (actor) VALUES('?')") % nick);
-					if(req.Send())
-					{
-						insert = true;
-						qs = FIND_NICK;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_actors (actor) VALUES('?')") % nick);
+					req.Send();
+					insert = true;
+					qs = FIND_NICK;
+					active_queries[req.id] = this;
 				}
 			break;
 
@@ -131,44 +118,32 @@ public:
 				if (res->Rows() && hostid == -1 && !insert)
 				{
 					hostid = atoi(res->GetValue(0,0).d.c_str());
-					req = SQLrequest(MyMod, SQLModule, dbid,
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid,
 							SQLquery("INSERT INTO ircd_log (category_id,nick,host,source,dtime) VALUES('?','?','?','?','?')") % category % nickid % hostid % sourceid % date);
-					if(req.Send())
-					{
-						insert = true;
-						qs = DONE;
-						active_queries[req.id] = this;
-					}
+					req.Send();
+					insert = true;
+					qs = DONE;
+					active_queries[req.id] = this;
 				}
 				else if (res->Rows() && hostid == -1 && insert)
 				{
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'") % hostname);
-					if(req.Send())
-					{
-						insert = false;
-						qs = FIND_HOST;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'") % hostname);
+					req.Send();
+					insert = false;
+					qs = FIND_HOST;
+					active_queries[req.id] = this;
 				}
 				else
 				{
-					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_hosts (hostname) VALUES('?')") % hostname);
-					if(req.Send())
-					{
-						insert = true;
-						qs = FIND_HOST;
-						active_queries[req.id] = this;
-					}
+					SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_hosts (hostname) VALUES('?')") % hostname);
+					req.Send();
+					insert = true;
+					qs = FIND_HOST;
+					active_queries[req.id] = this;
 				}
 			break;
 
 			case DONE:
-				std::map<unsigned long,QueryInfo*>::iterator x = active_queries.find(req.id);
-				if (x != active_queries.end())
-				{
-					delete x->second;
-					active_queries.erase(x);
-				}
 			break;
 		}
 	}
@@ -196,8 +171,8 @@ class ModuleSQLLog : public Module
 		active_queries.clear();
 
 		Implementation eventlist[] = { I_OnRehash, I_OnOper, I_OnGlobalOper, I_OnKill,
-			I_OnPreCommand, I_OnUserConnect, I_OnUserQuit, I_OnLoadModule, I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 9);
+			I_OnPreCommand, I_OnUserConnect, I_OnUserQuit, I_OnLoadModule };
+		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
 	virtual ~ModuleSQLLog()
@@ -218,14 +193,13 @@ class ModuleSQLLog : public Module
 		ReadConfig();
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if(strcmp(SQLRESID, request->GetId()) == 0)
+		if(strcmp(SQLRESID, request.id) == 0)
 		{
-			SQLresult* res;
+			SQLresult* res = static_cast<SQLresult*>(&request);
 			std::map<unsigned long, QueryInfo*>::iterator n;
 
-			res = static_cast<SQLresult*>(request);
 			n = active_queries.find(res->id);
 
 			if (n != active_queries.end())
@@ -233,11 +207,7 @@ class ModuleSQLLog : public Module
 				n->second->Go(res);
 				active_queries.erase(n);
 			}
-
-			return SQLSUCCESS;
 		}
-
-		return NULL;
 	}
 
 	void AddLogEntry(int category, const std::string &nick, const std::string &host, const std::string &source)
@@ -247,12 +217,10 @@ class ModuleSQLLog : public Module
 			return;
 
 		SQLrequest req = SQLrequest(this, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % source);
-		if(req.Send())
-		{
-			QueryInfo* i = new QueryInfo(nick, source, host, req.id, category);
-			i->qs = FIND_SOURCE;
-			active_queries[req.id] = i;
-		}
+		req.Send();
+		QueryInfo* i = new QueryInfo(nick, source, host, req.id, category);
+		i->qs = FIND_SOURCE;
+		active_queries[req.id] = i;
 	}
 
 	virtual void OnOper(User* user, const std::string &opertype)

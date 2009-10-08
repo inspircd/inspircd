@@ -78,8 +78,8 @@ private:
 public:
 	ModuleRegexPOSIX() 	{
 		ServerInstance->Modules->PublishInterface("RegularExpression", this);
-		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 		OnRehash(NULL);
 	}
 
@@ -99,20 +99,18 @@ public:
 		extended = Conf.ReadFlag("posix", "extended", 0);
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if (strcmp("REGEX-NAME", request->GetId()) == 0)
+		if (strcmp("REGEX-NAME", request.id) == 0)
 		{
-			return "posix";
+			static_cast<RegexNameRequest&>(request).result = "posix";
 		}
-		else if (strcmp("REGEX", request->GetId()) == 0)
+		else if (strcmp("REGEX", request.id) == 0)
 		{
-			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
-			std::string rx = rfr->GetRegex();
-			rfr->result = new POSIXRegex(rx, extended);
-			return "OK";
+			RegexFactoryRequest& rfr = (RegexFactoryRequest&)request;
+			std::string rx = rfr.GetRegex();
+			rfr.result = new POSIXRegex(rx, extended);
 		}
-		return NULL;
 	}
 };
 

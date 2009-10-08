@@ -71,7 +71,7 @@ class ModuleUHNames : public Module
 		nick = memb->user->GetFullHost();
 	}
 
-	void OnEvent(Event* ev)
+	void OnEvent(Event& ev)
 	{
 		cap.HandleEvent(ev);
 	}

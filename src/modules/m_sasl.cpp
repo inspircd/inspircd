@@ -226,8 +226,8 @@ class ModuleSASL : public Module
 	ModuleSASL()
 		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 
 		ServerInstance->AddCommand(&auth);
 		ServerInstance->AddCommand(&sasl);
@@ -258,7 +258,7 @@ class ModuleSASL : public Module
 		return Version("Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE.",VF_VENDOR,API_VERSION);
 	}
 
-	void OnEvent(Event *ev)
+	void OnEvent(Event &ev)
 	{
 		cap.HandleEvent(ev);
 	}

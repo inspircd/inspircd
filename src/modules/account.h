@@ -17,11 +17,15 @@
 #include <map>
 #include <string>
 
-class AccountData : public classbase
+class AccountEvent : public Event
 {
  public:
-	User* user;
-	std::string account;
+	User* const user;
+	const std::string account;
+	AccountEvent(Module* me, User* u, const std::string& name)
+		: Event(me, "account_login"), user(u), account(name)
+	{
+	}
 };
 
 #endif

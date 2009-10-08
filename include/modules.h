@@ -105,7 +105,7 @@ struct ModResult {
 };
 
 /** If you change the module API in any way, increment this value. */
-#define API_VERSION 131
+#define API_VERSION 132
 
 class ServerConfig;
 
@@ -254,77 +254,38 @@ class CoreExport VersionBase : public classbase
 
 typedef VersionBase<API_VERSION> Version;
 
-/** The ModuleMessage class is the base class of Request and Event
- * This class is used to represent a basic data structure which is passed
- * between modules for safe inter-module communications.
- */
-class CoreExport ModuleMessage : public Extensible
-{
- public:
-	/** Destructor
-	 */
-	virtual ~ModuleMessage() {};
-};
-
 /** The Request class is a unicast message directed at a given module.
  * When this class is properly instantiated it may be sent to a module
  * using the Send() method, which will call the given module's OnRequest
  * method with this class as its parameter.
  */
-class CoreExport Request : public ModuleMessage
+class CoreExport Request : public classbase
 {
- protected:
-	/** This member holds a pointer to arbitary data set by the emitter of the message
-	 */
-	char* data;
+ public:
 	/** This should be a null-terminated string identifying the type of request,
 	 * all modules should define this and use it to determine the nature of the
 	 * request before they attempt to cast the Request in any way.
 	 */
-	const char* id;
+	const char* const id;
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
-	Module* source;
+	Module* const source;
 	/** The single destination of the Request
 	 */
-	Module* dest;
- public:
-	/** Create a new Request
-	 * This is for the 'old' way of casting whatever the data is
-	 * to char* and hoping you get the right thing at the other end.
-	 * This is slowly being depreciated in favor of the 'new' way.
-	 */
-	Request(char* anydata, Module* src, Module* dst);
+	Module* const dest;
+
 	/** Create a new Request
 	 * This is for the 'new' way of defining a subclass
 	 * of Request and defining it in a common header,
 	 * passing an object of your Request subclass through
 	 * as a Request* and using the ID string to determine
-	 * what to cast it back to and the other end. This is
-	 * much safer as there are no casts not confirmed by
-	 * the ID string, and all casts are child->parent and
-	 * can be checked at runtime with dynamic_cast<>()
+	 * what to cast it back to and the other end.
 	 */
 	Request(Module* src, Module* dst, const char* idstr);
-	/** Fetch the Request data
-	 */
-	char* GetData();
-	/** Fetch the ID string
-	 */
-	const char* GetId();
-	/** Fetch the request source
-	 */
-	Module* GetSource();
-	/** Fetch the request destination (should be 'this' in the receiving module)
-	 */
-	Module* GetDest();
 	/** Send the Request.
-	 * Upon returning the result will be arbitary data returned by the module you
-	 * sent the request to. It is up to your module to know what this data is and
-	 * how to deal with it.
 	 */
-	const char* Send();
+	void Send();
 };
 
 
@@ -333,40 +294,27 @@ class CoreExport Request : public ModuleMessage
  * using the Send() method, which will trigger the OnEvent method in
  * all modules passing the object as its parameter.
  */
-class CoreExport Event : public ModuleMessage
+class CoreExport Event : public classbase
 {
- protected:
-	/** This member holds a pointer to arbitary data set by the emitter of the message
-	 */
-	char* data;
+ public:
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
-	Module* source;
+	Module* const source;
 	/** The event identifier.
 	 * This is arbitary text which should be used to distinguish
 	 * one type of event from another.
 	 */
-	std::string id;
- public:
+	const std::string id;
+
 	/** Create a new Event
 	 */
-	Event(char* anydata, Module* src, const std::string &eventid);
-	/** Get the Event data
-	 */
-	char* GetData();
-	/** Get the event Source
-	 */
-	Module* GetSource();
-	/** Get the event ID.
-	 * Use this to determine the event type for safe casting of the data
-	 */
-	std::string GetEventID();
+	Event(Module* src, const std::string &eventid);
 	/** Send the Event.
 	 * The return result of an Event::Send() will always be NULL as
 	 * no replies are expected.
 	 */
-	char* Send();
+	void Send();
 };
 
 /** Priority types which can be returned from Module::Prioritize()
@@ -383,12 +331,12 @@ enum Implementation
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
 	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops,
-	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine, I_OnCleanup,
+	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnEvent, I_OnRequest, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
+	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect,
@@ -1165,22 +1113,17 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
 
-	/** Called whenever an Event class is sent to all module by another module.
-	 * Please see the documentation of Event::Send() for further information. The Event sent can
-	 * always be assumed to be non-NULL, you should *always* check the value of Event::GetEventID()
-	 * before doing anything to the event data, and you should *not* change the event data in any way!
+	/** Called whenever an Event class is sent to all modules by another module.
+	 * You should *always* check the value of Event::id to determine the event type.
 	 * @param event The Event class being received
 	 */
-	virtual void OnEvent(Event* event);
+	virtual void OnEvent(Event& event);
 
 	/** Called whenever a Request class is sent to your module by another module.
-	 * Please see the documentation of Request::Send() for further information. The Request sent
-	 * can always be assumed to be non-NULL, you should not change the request object or its data.
-	 * Your method may return arbitary data in the char* result which the requesting module
-	 * may be able to use for pre-determined purposes (e.g. the results of an SQL query, etc).
+	 * The value of Request::id should be used to determine the type of request.
 	 * @param request The Request class being received
 	 */
-	virtual const char* OnRequest(Request* request);
+	virtual void OnRequest(Request& request);
 
 	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
 	 * The password field (from the config file) is in 'password' and is to be compared against

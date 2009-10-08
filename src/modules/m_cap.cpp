@@ -48,7 +48,7 @@ class CommandCAP : public Command
 
 		if (subcommand == "REQ")
 		{
-			CapData Data;
+			CapEvent Data(creator, "cap_req");
 
 			Data.type = subcommand;
 			Data.user = user;
@@ -68,8 +68,7 @@ class CommandCAP : public Command
 			}
 
 			reghold.set(user, 1);
-			Event event((char*) &Data, this->creator, "cap_req");
-			event.Send();
+			Data.Send();
 
 			if (Data.ack.size() > 0)
 			{
@@ -89,15 +88,14 @@ class CommandCAP : public Command
 		}
 		else if ((subcommand == "LS") || (subcommand == "LIST"))
 		{
-			CapData Data;
+			CapEvent Data(creator, subcommand == "LS" ? "cap_ls" : "cap_list");
 
 			Data.type = subcommand;
 			Data.user = user;
 			Data.creator = this->creator;
 
 			reghold.set(user, 1);
-			Event event((char*) &Data, this->creator, subcommand == "LS" ? "cap_ls" : "cap_list");
-			event.Send();
+			Data.Send();
 
 			std::string Result;
 			if (Data.wanted.size() > 0)
@@ -109,15 +107,14 @@ class CommandCAP : public Command
 		}
 		else if (subcommand == "CLEAR")
 		{
-			CapData Data;
+			CapEvent Data(creator, "cap_clear");
 
 			Data.type = subcommand;
 			Data.user = user;
 			Data.creator = this->creator;
 
 			reghold.set(user, 1);
-			Event event((char*) &Data, this->creator, "cap_clear");
-			event.Send();
+			Data.Send();
 
 			std::string Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
 			user->WriteServ("CAP * ACK :%s", Result.c_str());

@@ -14,7 +14,6 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 
 #include "cachetimer.h"
 #include "main.h"

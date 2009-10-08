@@ -132,6 +132,8 @@ uint32_t sha256_k[64] =
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
+const char* const hxc("0123456789abcdef");
+
 class ModuleSHA256 : public Module
 {
 	void SHA256Init(SHA256Context *ctx, const unsigned int* ikey)
@@ -236,33 +238,28 @@ class ModuleSHA256 : public Module
 			UNPACK32(ctx->h[i], &digest[i << 2]);
 	}
 
-	void SHA256(const char *src, char *dest, int len, const char* hxc, const unsigned int* ikey = NULL)
+	void SHA256(const char *src, char *dest, unsigned int len)
 	{
 		// Generate the hash
 		unsigned char bytehash[SHA256_DIGEST_SIZE];
 		SHA256Context ctx;
-		SHA256Init(&ctx, ikey);
-		SHA256Update(&ctx, (unsigned char *)src, (unsigned int)len);
+		SHA256Init(&ctx, NULL);
+		SHA256Update(&ctx, (unsigned char *)src, len);
 		SHA256Final(&ctx, bytehash);
 		// Convert it to hex
-		for (int i = 0, j = 0; i < SHA256_DIGEST_SIZE; i++)
+		int j=0;
+		for (int i = 0; i < SHA256_DIGEST_SIZE; i++)
 		{
 			dest[j++] = hxc[bytehash[i] / 16];
 			dest[j++] = hxc[bytehash[i] % 16];
-			dest[j] = '\0';
 		}
+		dest[j] = '\0';
 	}
 
-	unsigned int* key;
-	char* chars;
-
  public:
-
-	ModuleSHA256() : key(NULL), chars(NULL)
+	ModuleSHA256()
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
-		Implementation eventlist[] = { I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleSHA256()
@@ -271,36 +268,22 @@ class ModuleSHA256 : public Module
 	}
 
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		HashRequest* SHA = (HashRequest*)request;
-		if (strcmp("KEY", request->GetId()) == 0)
+		if (strcmp("HASH", request.id) == 0)
 		{
-			this->key = (unsigned int*)SHA->GetKeyData();
+			char res[65];
+			HashRequest& req = static_cast<HashRequest&>(request);
+			SHA256(req.data.data(), res, req.data.length());
+			req.result = res;
 		}
-		else if (strcmp("HEX", request->GetId()) == 0)
+		else if (strcmp("NAME", request.id) == 0)
 		{
-			this->chars = (char*)SHA->GetOutputs();
+			static_cast<HashNameRequest&>(request).response = "sha256";
 		}
-		else if (strcmp("SUM", request->GetId()) == 0)
-		{
-			static char data[MAXBUF];
-			SHA256((const char*)SHA->GetHashData().data(), data, SHA->GetHashData().length(), chars ? chars : "0123456789abcdef", key);
-			return data;
-		}
-		else if (strcmp("NAME", request->GetId()) == 0)
-		{
-			return "sha256";
-		}
-		else if (strcmp("RESET", request->GetId()) == 0)
-		{
-			this->chars = NULL;
-			this->key = NULL;
-		}
-		return NULL;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Allows for SHA-256 encrypted oper passwords", VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
 	}

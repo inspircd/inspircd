@@ -17,7 +17,6 @@
 #include "socket.h"
 #include "inspircd.h"
 #include "xline.h"
-#include "../transport.h"
 
 #include "utils.h"
 #include "link.h"
@@ -69,13 +68,12 @@ class ServernameResolver : public Resolver
 	SpanningTreeUtilities* Utils;
 	QueryType query;
 	std::string host;
-	Module* mine;
 	reference<Link> MyLink;
 	reference<Autoconnect> myautoconnect;
  public:
-        ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac);
-        void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
-        void OnError(ResolverError e, const std::string &errormessage);
+	ServernameResolver(SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac);
+	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
+	void OnError(ResolverError e, const std::string &errormessage);
 };
 
 #endif

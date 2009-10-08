@@ -14,7 +14,6 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 
 #include "resolvers.h"
 #include "main.h"
@@ -31,10 +30,9 @@
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac)
-	: Resolver(hostname, qt, cached, me), Utils(Util), query(qt), host(hostname), mine(me), MyLink(x), myautoconnect(myac)
+ServernameResolver::ServernameResolver(SpanningTreeUtilities* Util, const std::string &hostname, Link* x, bool &cached, QueryType qt, Autoconnect* myac)
+	: Resolver(hostname, qt, cached, Util->Creator), Utils(Util), query(qt), host(hostname), MyLink(x), myautoconnect(myac)
 {
-	/* Nothing in here, folks */
 }
 
 void ServernameResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
@@ -46,12 +44,8 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name.c_str());
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
-
-		if ((!MyLink->Hook.empty()) && (Utils->hooks.find(MyLink->Hook.c_str()) ==  Utils->hooks.end()))
-			return;
-
-		TreeSocket* newsocket = new TreeSocket(this->Utils, result,MyLink->Port,MyLink->Timeout ? MyLink->Timeout : 10,MyLink->Name.c_str(),
-							MyLink->Bind, myautoconnect, MyLink->Hook.empty() ? NULL : Utils->hooks[MyLink->Hook.c_str()]);
+		TreeSocket* newsocket = new TreeSocket(Utils, result, MyLink->Port, MyLink->Timeout ? MyLink->Timeout : 10,
+			MyLink->Name.c_str(), MyLink->Bind, myautoconnect, MyLink->Hook);
 		if (newsocket->GetFd() > -1)
 		{
 			/* We're all OK */
@@ -72,7 +66,7 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 	if (query == DNS_QUERY_AAAA)
 	{
 		bool cached;
-		ServernameResolver* snr = new ServernameResolver(mine, Utils, host, MyLink, cached, DNS_QUERY_A, myautoconnect);
+		ServernameResolver* snr = new ServernameResolver(Utils, host, MyLink, cached, DNS_QUERY_A, myautoconnect);
 		ServerInstance->AddResolver(snr, cached);
 		return;
 	}

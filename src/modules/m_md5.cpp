@@ -259,17 +259,11 @@ class ModuleMD5 : public Module
 		*dest++ = 0;
 	}
 
-	unsigned int *key;
-	char* chars;
-
  public:
 
 	ModuleMD5()
-		: key(NULL), chars(NULL)
 	{
 		ServerInstance->Modules->PublishInterface("HashRequest", this);
-		Implementation eventlist[] = { I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleMD5()
@@ -278,37 +272,29 @@ class ModuleMD5 : public Module
 	}
 
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		HashRequest* MD5 = (HashRequest*)request;
-
-		if (strcmp("KEY", request->GetId()) == 0)
+		if (strcmp("HASH", request.id) == 0)
 		{
-			this->key = (unsigned int*)MD5->GetKeyData();
+			char res[33];
+			HashRequest& req = static_cast<HashRequest&>(request);
+			GenHash(req.data.data(), res, "0123456789abcdef", NULL, req.data.length());
+			req.result = res;
 		}
-		else if (strcmp("HEX", request->GetId()) == 0)
+		else if (strcmp("HASH-IV", request.id) == 0)
 		{
-			this->chars = (char*)MD5->GetOutputs();
+			char res[33];
+			HashRequestIV& req = static_cast<HashRequestIV&>(request);
+			GenHash(req.data.data(), res, req.map, req.iv, req.data.length());
+			req.result = res;
 		}
-		else if (strcmp("SUM", request->GetId()) == 0)
+		else if (strcmp("NAME", request.id) == 0)
 		{
-			static char data[MAXBUF];
-			GenHash(MD5->GetHashData().data(), data, chars ? chars : "0123456789abcdef", key, MD5->GetHashData().length());
-			return data;
+			static_cast<HashNameRequest&>(request).response = "md5";
 		}
-		else if (strcmp("NAME", request->GetId()) == 0)
-		{
-			return "md5";
-		}
-		else if (strcmp("RESET", request->GetId()) == 0)
-		{
-			this->chars = NULL;
-			this->key = NULL;
-		}
-		return NULL;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Allows for MD5 encrypted oper passwords",VF_VENDOR|VF_SERVICEPROVIDER,API_VERSION);
 	}

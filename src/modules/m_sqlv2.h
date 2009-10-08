@@ -214,6 +214,8 @@ public:
 	 * Priority queries may 'queue jump' in the request queue.
 	 */
 	bool pri;
+	/** True if this query has been cancelled; send no response */
+	bool cancel;
 	/** The query ID, assigned by the SQL api.
 	 * After your request is processed, this will
 	 * be initialized for you by the API to a valid request ID,
@@ -245,13 +247,6 @@ public:
 	void Priority(bool p = true)
 	{
 		pri = p;
-	}
-
-	/** Set the source of a request. You should not need to use this method.
-	 */
-	void SetSource(Module* mod)
-	{
-		source = mod;
 	}
 };
 
@@ -497,7 +492,7 @@ bool operator!= (const SQLhost& l, const SQLhost& r)
 class QueryQueue : public classbase
 {
 private:
-	typedef std::deque<SQLrequest> ReqDeque;
+	typedef std::deque<SQLrequest*> ReqDeque;
 
 	ReqDeque priority;      /* The priority queue */
 	ReqDeque normal;	/* The 'normal' queue */
@@ -509,9 +504,9 @@ public:
 	{
 	}
 
-	void push(const SQLrequest &q)
+	void push(SQLrequest *q)
 	{
-		if(q.pri)
+		if(q->pri)
 			priority.push_back(q);
 		else
 			normal.push_back(q);
@@ -534,7 +529,7 @@ public:
 		/* Silently do nothing if there was no element to pop() */
 	}
 
-	SQLrequest& front()
+	SQLrequest* front()
 	{
 		switch(which)
 		{
@@ -554,14 +549,8 @@ public:
 					which = NOR;
 					return normal.front();
 				}
-
-				/* This will probably result in a segfault,
-				 * but the caller should have checked totalsize()
-				 * first so..meh - moron :p
-				 */
-
-				return priority.front();
 		}
+		return NULL;
 	}
 
 	std::pair<int, int> size()
@@ -583,14 +572,16 @@ public:
 private:
 	void DoPurgeModule(Module* mod, ReqDeque& q)
 	{
-		for(ReqDeque::iterator iter = q.begin(); iter != q.end(); iter++)
+		ReqDeque::iterator iter = q.begin();
+		while (iter != q.end())
 		{
-			if(iter->GetSource() == mod)
+			if((**iter).source == mod)
 			{
-				if(iter->id == front().id)
+				if (*iter == front())
 				{
 					/* It's the currently active query.. :x */
-					iter->SetSource(NULL);
+					(**iter).cancel = true;
+					iter++;
 				}
 				else
 				{
@@ -598,6 +589,8 @@ private:
 					iter = q.erase(iter);
 				}
 			}
+			else
+				iter++;
 		}
 	}
 };

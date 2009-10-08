@@ -133,7 +133,6 @@ class CloakUser : public ModeHandler
 	{
 		unsigned int iv[] = { key1, key2, key3, key4 };
 		irc::sepstream seps(ip, '.');
-		std::string ra[4];;
 		std::string octet[4];
 		int i[4];
 
@@ -148,17 +147,19 @@ class CloakUser : public ModeHandler
 		octet[1] = octet[0] + "." + octet[1];
 
 		/* Reset the Hash module and send it our IV */
-		HashResetRequest(creator, HashProvider).Send();
-		HashKeyRequest(creator, HashProvider, iv).Send();
+
+		std::string rv;
 
 		/* Send the Hash module a different hex table for each octet group's Hash sum */
 		for (int k = 0; k < 4; k++)
 		{
-			HashHexRequest(creator, HashProvider, xtab[(iv[k]+i[k]) % 4]).Send();
-			ra[k] = std::string(HashSumRequest(creator, HashProvider, octet[k]).Send()).substr(0,6);
+			HashRequestIV hash(creator, HashProvider, iv, xtab[(iv[k]+i[k]) % 4], octet[k]);
+			rv.append(hash.result.substr(0,6));
+			if (k < 3)
+				rv.append(".");
 		}
 		/* Stick them all together */
-		return std::string().append(ra[0]).append(".").append(ra[1]).append(".").append(ra[2]).append(".").append(ra[3]);
+		return rv;
 	}
 
 	std::string Cloak6(const char* ip)
@@ -169,27 +170,22 @@ class CloakUser : public ModeHandler
 		int rounds = 0;
 
 		/* Reset the Hash module and send it our IV */
-		HashResetRequest(creator, HashProvider).Send();
-		HashKeyRequest(creator, HashProvider, iv).Send();
 
 		for (const char* input = ip; *input; input++)
 		{
 			item += *input;
 			if (item.length() > 7)
 			{
-				/* Send the Hash module a different hex table for each octet group's Hash sum */
-				HashHexRequest(creator, HashProvider, xtab[(key1+rounds) % 4]).Send();
-				hashies.push_back(std::string(HashSumRequest(creator, HashProvider, item).Send()).substr(0,8));
+				HashRequestIV hash(creator, HashProvider, iv, xtab[(key1+rounds) % 4], item);
+				hashies.push_back(hash.result.substr(0,8));
 				item.clear();
 			}
 			rounds++;
 		}
 		if (!item.empty())
 		{
-			/* Send the Hash module a different hex table for each octet group's Hash sum */
-			HashHexRequest(creator, HashProvider, xtab[(key1+rounds) % 4]).Send();
-			hashies.push_back(std::string(HashSumRequest(creator, HashProvider, item).Send()).substr(0,8));
-			item.clear();
+			HashRequestIV hash(creator, HashProvider, iv, xtab[(key1+rounds) % 4], item);
+			hashies.push_back(hash.result.substr(0,8));
 		}
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
@@ -370,12 +366,10 @@ class ModuleCloaking : public Module
 			if (!cu->ipalways)
 			{
 				/** Reset the Hash module, and send it our IV and hex table */
-				HashResetRequest(this, cu->HashProvider).Send();
-				HashKeyRequest(this, cu->HashProvider, iv).Send();
-				HashHexRequest(this, cu->HashProvider, cu->xtab[(dest->host[0]) % 4]);
+				HashRequestIV hash(this, cu->HashProvider, iv, cu->xtab[(dest->host[0]) % 4], dest->host);
 
 				/* Generate a cloak using specialized Hash */
-				std::string hostcloak = cu->prefix + "-" + std::string(HashSumRequest(this, cu->HashProvider, dest->host.c_str()).Send()).substr(0,8) + a;
+				std::string hostcloak = cu->prefix + "-" + hash.result.substr(0,8) + a;
 
 				/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 				 * according to the DNS RFC) then tough titty, they get cloaked as an IP.

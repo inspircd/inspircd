@@ -12,7 +12,6 @@
  */
 
 /* $ModDesc: Allows for hashed oper passwords */
-/* $ModDep: m_hash.h */
 
 #include "inspircd.h"
 #include "m_hash.h"
@@ -38,10 +37,10 @@ class CommandMkpasswd : public Command
 		hashymodules::iterator x = hashers.find(algo);
 		if (x != hashers.end())
 		{
-			/* Yup, reset it first (Always ALWAYS do this) */
-			HashResetRequest(creator, x->second).Send();
+			HashRequest hash(creator, x->second, stuff);
 			/* Now attempt to generate a hash */
-			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick.c_str(), algo, stuff, HashSumRequest(creator, x->second, stuff).Send() );
+			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
+				user->nick.c_str(), algo, stuff, hash.result.c_str());
 		}
 		else if (names.empty())
 		{
@@ -94,7 +93,7 @@ class ModuleOperHash : public Module
 				/* Make a request to it for its name, its implementing
 				 * HashRequest so we know its safe to do this
 				 */
-				std::string name = HashNameRequest(this, *m).Send();
+				std::string name = HashNameRequest(this, *m).response;
 				/* Build a map of them */
 				hashers[name.c_str()] = *m;
 				names.push_back(name);
@@ -120,7 +119,7 @@ class ModuleOperHash : public Module
 		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
 		{
 			ServerInstance->Logs->Log("m_password-hash",DEBUG, "Post-load registering hasher: %s", name.c_str());
-			std::string sname = HashNameRequest(this, mod).Send();
+			std::string sname = HashNameRequest(this, mod).response;
 			hashers[sname.c_str()] = mod;
 			names.push_back(sname);
 			if (!diduseiface)
@@ -139,10 +138,8 @@ class ModuleOperHash : public Module
 		/* Is this a valid hash name? (case insensitive) */
 		if (x != hashers.end())
 		{
-			/* Reset the hashing module */
-			HashResetRequest(this, x->second).Send();
 			/* Compare the hash in the config to the generated hash */
-			if (!strcasecmp(data.c_str(), HashSumRequest(this, x->second, input.c_str()).Send()))
+			if (!strcasecmp(data.c_str(), HashRequest(this, x->second, input).result.c_str()))
 				return MOD_RES_ALLOW;
 			/* No match, and must be hashed, forbid */
 			else

@@ -35,8 +35,8 @@ class ModuleHttpStats : public Module
 	ModuleHttpStats() 	{
 		ReadConfig();
 		this->changed = true;
-		Implementation eventlist[] = { I_OnEvent, I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	std::string Sanitize(const std::string &str)
@@ -67,14 +67,14 @@ class ModuleHttpStats : public Module
 		return ret;
 	}
 
-	void OnEvent(Event* event)
+	void OnEvent(Event& event)
 	{
 		std::stringstream data("");
 
-		if (event->GetEventID() == "httpd_url")
+		if (event.id == "httpd_url")
 		{
 			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd event");
-			HTTPRequest* http = (HTTPRequest*)event->GetData();
+			HTTPRequest* http = (HTTPRequest*)&event;
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
 			{
@@ -172,20 +172,13 @@ class ModuleHttpStats : public Module
 				data << "</inspircdstats>";
 
 				/* Send the document back to m_httpd */
-				HTTPDocument response(http->sock, &data, 200);
+				HTTPDocumentResponse response(this, *http, &data, 200);
 				response.headers.SetHeader("X-Powered-By", "m_httpd_stats.so");
 				response.headers.SetHeader("Content-Type", "text/xml");
-				Request req((char*)&response, (Module*)this, event->GetSource());
-				req.Send();
+				response.Send();
 			}
 		}
 	}
-
-	const char* OnRequest(Request* request)
-	{
-		return NULL;
-	}
-
 
 	virtual ~ModuleHttpStats()
 	{

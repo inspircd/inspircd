@@ -14,7 +14,6 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 #include "socketengine.h"
 
 #include "main.h"
@@ -23,9 +22,6 @@
 #include "link.h"
 #include "treesocket.h"
 #include "resolvers.h"
-#include "handshaketimer.h"
-
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/handshaketimer.h */
 
 /* Handle ERROR command */
 bool TreeSocket::Error(parameterlist &params)

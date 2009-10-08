@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 
-class CapData : public classbase
+class CapEvent : public Event
 {
  public:
 	irc::string type;
@@ -25,6 +25,7 @@ class CapData : public classbase
 	std::vector<std::string> ack;
 	User* user;
 	Module* creator;
+	CapEvent(Module* sender, const std::string& t) : Event(sender, t) {}
 };
 
 class GenericCap
@@ -37,12 +38,11 @@ class GenericCap
 		Extensible::Register(&ext);
 	}
 
-	void HandleEvent(Event* ev)
+	void HandleEvent(Event& ev)
 	{
-		if (ev->GetEventID() == "cap_req")
+		CapEvent *data = static_cast<CapEvent*>(&ev);
+		if (ev.id == "cap_req")
 		{
-			CapData *data = (CapData *) ev->GetData();
-
 			std::vector<std::string>::iterator it;
 			if ((it = std::find(data->wanted.begin(), data->wanted.end(), cap)) != data->wanted.end())
 			{
@@ -53,23 +53,19 @@ class GenericCap
 			}
 		}
 
-		if (ev->GetEventID() == "cap_ls")
+		if (ev.id == "cap_ls")
 		{
-			CapData *data = (CapData *) ev->GetData();
 			data->wanted.push_back(cap);
 		}
 
-		if (ev->GetEventID() == "cap_list")
+		if (ev.id == "cap_list")
 		{
-			CapData *data = (CapData *) ev->GetData();
-
 			if (ext.get(data->user))
 				data->wanted.push_back(cap);
 		}
 
-		if (ev->GetEventID() == "cap_clear")
+		if (ev.id == "cap_clear")
 		{
-			CapData *data = (CapData *) ev->GetData();
 			data->ack.push_back("-" + cap);
 			ext.set(data->user, 0);
 		}

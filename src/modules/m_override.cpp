@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "m_override.h"
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
@@ -31,12 +30,8 @@ class ModuleOverride : public Module
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('G', "GODMODE");
-		if (!ServerInstance->Modules->PublishFeature("Override", this))
-		{
-			throw ModuleException("m_override: Unable to publish feature 'Override'");
-		}
-		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPreTopicChange, I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPreTopicChange };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 	void OnRehash(User* user)
@@ -205,19 +200,8 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	const char* OnRequest(Request* request)
-	{
-		if(strcmp(OVRREQID, request->GetId()) == 0)
-		{
-			OVRrequest* req = static_cast<OVRrequest*>(request);
-			return this->CanOverride(req->requser,req->reqtoken.c_str()) ? "yes":"";
-		}
-		return NULL;
-	}
-
 	~ModuleOverride()
 	{
-		ServerInstance->Modules->UnpublishFeature("Override");
 		ServerInstance->SNO->DisableSnomask('G');
 	}
 

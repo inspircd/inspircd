@@ -33,75 +33,23 @@ VersionBase<API_VERSION>::VersionBase(const std::string &modv, int flags, int, c
 {
 }
 
-Request::Request(char* anydata, Module* src, Module* dst)
-: data(anydata), source(src), dest(dst)
-{
-	/* Ensure that because this module doesnt support ID strings, it doesnt break modules that do
-	 * by passing them uninitialized pointers (could happen)
-	 */
-	id = '\0';
-}
-
 Request::Request(Module* src, Module* dst, const char* idstr)
 : id(idstr), source(src), dest(dst)
 {
 }
 
-char* Request::GetData()
+void Request::Send()
 {
-	return this->data;
+	if (dest)
+		dest->OnRequest(*this);
 }
 
-const char* Request::GetId()
+Event::Event(Module* src, const std::string &eventid) : source(src), id(eventid) { }
+
+void Event::Send()
 {
-	return this->id;
+	FOREACH_MOD(I_OnEvent,OnEvent(*this));
 }
-
-Module* Request::GetSource()
-{
-	return this->source;
-}
-
-Module* Request::GetDest()
-{
-	return this->dest;
-}
-
-const char* Request::Send()
-{
-	if (this->dest)
-	{
-		return dest->OnRequest(this);
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-Event::Event(char* anydata, Module* src, const std::string &eventid) : data(anydata), source(src), id(eventid) { }
-
-char* Event::GetData()
-{
-	return this->data;
-}
-
-Module* Event::GetSource()
-{
-	return this->source;
-}
-
-char* Event::Send()
-{
-	FOREACH_MOD(I_OnEvent,OnEvent(this));
-	return NULL;
-}
-
-std::string Event::GetEventID()
-{
-	return this->id;
-}
-
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
@@ -157,8 +105,8 @@ ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; 
 ModResult	Module::OnChangeLocalUserHost(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserGECOS(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnEvent(Event*) { return; }
-const char*		Module::OnRequest(Request*) { return NULL; }
+void		Module::OnEvent(Event&) { }
+void		Module::OnRequest(Request&) { }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
 void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }

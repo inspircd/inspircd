@@ -21,15 +21,15 @@ private:
 
 public:
 	ModuleTestClient()
-			{
-		Implementation eventlist[] = { I_OnRequest, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+	{
+		Implementation eventlist[] = { I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides SSL support for clients", VF_VENDOR, API_VERSION);
+		return Version("SQL test module", VF_VENDOR);
 	}
 
 	virtual void OnBackgroundTimer(time_t)
@@ -41,24 +41,25 @@ public:
 			SQLrequest foo = SQLrequest(this, target, "foo",
 					SQLquery("UPDATE rawr SET foo = '?' WHERE bar = 42") % ServerInstance->Time());
 
-			if(foo.Send())
+			foo.Send();
+			if (foo.cancel)
 			{
-				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Sent query, got given ID %lu", foo.id);
+				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "SQLrequest failed: %s", foo.error.Str());
 			}
 			else
 			{
-				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "SQLrequest failed: %s", foo.error.Str());
+				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Sent query, got given ID %lu", foo.id);
 			}
 		}
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if(strcmp(SQLRESID, request->GetId()) == 0)
+		if(strcmp(SQLRESID, request.id) == 0)
 		{
-			ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got SQL result (%s)", request->GetId());
+			ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got SQL result (%s)", request.id);
 
-			SQLresult* res = (SQLresult*)request;
+			SQLresult* res = (SQLresult*)&request;
 
 			if (res->error.Id() == SQL_NO_ERROR)
 			{
@@ -84,15 +85,10 @@ public:
 			else
 			{
 				ServerInstance->Logs->Log("m_testclient.so", DEBUG, "SQLrequest failed: %s", res->error.Str());
-
 			}
-
-			return SQLSUCCESS;
 		}
 
-		ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got unsupported API version string: %s", request->GetId());
-
-		return NULL;
+		ServerInstance->Logs->Log("m_testclient.so", DEBUG, "Got unsupported API version string: %s", request.id);
 	}
 
 	virtual ~ModuleTestClient()

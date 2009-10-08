@@ -47,8 +47,8 @@ public:
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
 		be.DoImplements(this);
-		Implementation list[] = { I_OnRehash, I_OnRequest, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
-		ServerInstance->Modules->Attach(list, this, 5);
+		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
+		ServerInstance->Modules->Attach(list, this, 4);
 
 	}
 
@@ -119,11 +119,6 @@ public:
 	void OnRehash(User* user)
 	{
 		be.DoRehash();
-	}
-
-	const char* OnRequest(Request* request)
-	{
-		return be.DoOnRequest(request);
 	}
 
 	Version GetVersion()

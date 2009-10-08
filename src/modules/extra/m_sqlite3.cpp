@@ -399,7 +399,7 @@ class SQLConn : public classbase
 		*queryend = 0;
 		req.query.q = query;
 
-		SQLite3Result* res = new SQLite3Result(mod, req.GetSource(), req.id);
+		SQLite3Result* res = new SQLite3Result(mod, req.source, req.id);
 		res->dbid = host.id;
 		res->query = req.query.q;
 		paramlist params;
@@ -467,7 +467,7 @@ class SQLConn : public classbase
 		while (results.size())
 		{
 			SQLite3Result* res = results[0];
-			if (res->GetDest())
+			if (res->dest)
 			{
 				res->Send();
 			}
@@ -552,8 +552,8 @@ class ModuleSQLite3 : public Module
 		ReadConf();
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
-		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleSQLite3()
@@ -695,25 +695,22 @@ class ModuleSQLite3 : public Module
 		ReadConf();
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if(strcmp(SQLREQID, request->GetId()) == 0)
+		if(strcmp(SQLREQID, request.id) == 0)
 		{
-			SQLrequest* req = (SQLrequest*)request;
+			SQLrequest* req = (SQLrequest*)&request;
 			ConnMap::iterator iter;
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
 				req->id = NewID();
 				req->error = iter->second->Query(*req);
-				return SQLSUCCESS;
 			}
 			else
 			{
 				req->error.Id(SQL_BAD_DBID);
-				return NULL;
 			}
 		}
-		return NULL;
 	}
 
 	unsigned long NewID()

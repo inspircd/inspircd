@@ -12,7 +12,7 @@
  */
 
 #include "inspircd.h"
-#include "transport.h"
+#include "ssl.h"
 
 /* $ModDesc: Provides SSL metadata, including /WHOIS information and /SSLINFO command */
 
@@ -125,15 +125,17 @@ class ModuleSSLInfo : public Module
 
 		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->PublishInterface("SSLCertInfo", this);
 	}
 
 	~ModuleSSLInfo()
 	{
+		ServerInstance->Modules->UnpublishInterface("SSLCertInfo", this);
 	}
 
 	Version GetVersion()
 	{
-		return Version("SSL Certificate Utilities", VF_VENDOR);
+		return Version("SSL Certificate Utilities", VF_VENDOR | VF_SERVICEPROVIDER);
 	}
 
 	void OnWhois(User* source, User* dest)
@@ -224,19 +226,18 @@ class ModuleSSLInfo : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if (strcmp("GET_CERT", request->GetId()) == 0)
+		if (strcmp("GET_CERT", request.id) == 0)
 		{
-			BufferedSocketCertificateRequest* req = static_cast<BufferedSocketCertificateRequest*>(request);
-			req->cert = cmd.CertExt.get(req->item);
+			SSLCertificateRequest& req = static_cast<SSLCertificateRequest&>(request);
+			req.cert = cmd.CertExt.get(req.item);
 		}
-		else if (strcmp("SET_CERT", request->GetId()) == 0)
+		else if (strcmp("SET_CERT", request.id) == 0)
 		{
-			BufferedSocketFingerprintSubmission* req = static_cast<BufferedSocketFingerprintSubmission*>(request);
-			cmd.CertExt.set(req->item, req->cert);
+			SSLCertSubmission& req = static_cast<SSLCertSubmission&>(request);
+			cmd.CertExt.set(req.item, req.cert);
 		}
-		return NULL;
 	}
 };
 

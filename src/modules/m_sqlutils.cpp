@@ -34,8 +34,8 @@ public:
 	ModuleSQLutils() : idExt("sqlutils_list", this)
 	{
 		ServerInstance->Modules->PublishInterface("SQLutils", this);
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnUnloadModule, I_OnRequest, I_OnUserDisconnect };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnUnloadModule, I_OnUserDisconnect };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	~ModuleSQLutils()
@@ -44,27 +44,27 @@ public:
 	}
 
 
-	const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if(strcmp(SQLUTILAU, request->GetId()) == 0)
+		if(strcmp(SQLUTILAU, request.id) == 0)
 		{
-			AssociateUser* req = (AssociateUser*)request;
+			AssociateUser* req = (AssociateUser*)&request;
 
 			iduser.insert(std::make_pair(req->id, req->user));
 
 			AttachList(req->user, req->id);
 		}
-		else if(strcmp(SQLUTILAC, request->GetId()) == 0)
+		else if(strcmp(SQLUTILAC, request.id) == 0)
 		{
-			AssociateChan* req = (AssociateChan*)request;
+			AssociateChan* req = (AssociateChan*)&request;
 
 			idchan.insert(std::make_pair(req->id, req->chan));
 
 			AttachList(req->chan, req->id);
 		}
-		else if(strcmp(SQLUTILUA, request->GetId()) == 0)
+		else if(strcmp(SQLUTILUA, request.id) == 0)
 		{
-			UnAssociate* req = (UnAssociate*)request;
+			UnAssociate* req = (UnAssociate*)&request;
 
 			/* Unassociate a given query ID with all users and channels
 			 * it is associated with.
@@ -73,9 +73,9 @@ public:
 			DoUnAssociate(iduser, req->id);
 			DoUnAssociate(idchan, req->id);
 		}
-		else if(strcmp(SQLUTILGU, request->GetId()) == 0)
+		else if(strcmp(SQLUTILGU, request.id) == 0)
 		{
-			GetAssocUser* req = (GetAssocUser*)request;
+			GetAssocUser* req = (GetAssocUser*)&request;
 
 			IdUserMap::iterator iter = iduser.find(req->id);
 
@@ -84,9 +84,9 @@ public:
 				req->user = iter->second;
 			}
 		}
-		else if(strcmp(SQLUTILGC, request->GetId()) == 0)
+		else if(strcmp(SQLUTILGC, request.id) == 0)
 		{
-			GetAssocChan* req = (GetAssocChan*)request;
+			GetAssocChan* req = (GetAssocChan*)&request;
 
 			IdChanMap::iterator iter = idchan.find(req->id);
 
@@ -95,8 +95,6 @@ public:
 				req->chan = iter->second;
 			}
 		}
-
-		return SQLUTILSUCCESS;
 	}
 
 	void OnUserDisconnect(User* user)

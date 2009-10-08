@@ -69,8 +69,8 @@ class ModuleChanFilter : public Module
 			throw ModuleException("Could not add new modes!");
 
 		cf.DoImplements(this);
-		Implementation eventlist[] = { I_OnCleanup, I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 
 		OnRehash(NULL);
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
@@ -120,11 +120,6 @@ class ModuleChanFilter : public Module
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		cf.DoCleanup(target_type, item);
-	}
-
-	virtual const char* OnRequest(Request* request)
-	{
-		return cf.DoOnRequest(request);
 	}
 
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)

@@ -14,7 +14,6 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 #include "socketengine.h"
 
 #include "main.h"
@@ -251,11 +250,6 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 
 
 		ServerInstance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->IP)+"] ("+description+")");
-		if (this->GetIOHook())
-		{
-			std::string name = BufferedSocketNameRequest(Utils->Creator, this->GetIOHook()).Send();
-			ServerInstance->SNO->WriteToSnoMask('l',"Connection from \2"+sname+"\2["+(x->HiddenFromStats ? "<hidden>" : this->IP)+"] using transport \2"+name+"\2");
-		}
 
 		// this is good. Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.

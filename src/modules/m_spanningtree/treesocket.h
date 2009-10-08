@@ -17,10 +17,8 @@
 #include "socket.h"
 #include "inspircd.h"
 #include "xline.h"
-#include "../transport.h"
 
 #include "utils.h"
-#include "handshaketimer.h"
 
 /*
  * The server list in InspIRCd is maintained as two structures
@@ -91,7 +89,6 @@ class TreeSocket : public BufferedSocket
 	bool auth_challenge;			/* Did we auth using challenge/response */
 	int proto_version;			/* Remote protocol version */
  public:
-	HandshakeTimer* hstimer;		/* Handshake timer, needed to work around I/O hook buffering */
 	reference<Autoconnect> myautoconnect;		/* Autoconnect used to cause this connection, if any */
 	time_t age;
 
@@ -100,13 +97,13 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, std::string host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, Module* HookMod = NULL);
+	TreeSocket(SpanningTreeUtilities* Util, const std::string& host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, const std::string& Hook);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, int newfd, char* ip, Autoconnect* myac, Module* HookMod = NULL);
+	TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocketBase* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Get link state
 	 */

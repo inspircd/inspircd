@@ -45,23 +45,17 @@ class ServerSocketListener : public ListenSocketBase
 	SpanningTreeUtilities *Utils;
 
  public:
-	ServerSocketListener(SpanningTreeUtilities *u, int port, char* addr) : ListenSocketBase(port, addr)
+	ServerSocketListener(SpanningTreeUtilities *u, int port, const std::string& addr, const std::string& hook)
+		: ListenSocketBase(port, addr), Utils(u), Hook(hook)
 	{
-		this->Utils = u;
-		Hook = NULL;
 	}
 
-	Module* Hook;
+	std::string Hook;
 
 	virtual void OnAcceptReady(int nfd);
 };
 
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;
-
-/** A group of modules that implement BufferedSocketHook
- * that we can use to hook our server to server connections.
- */
-typedef std::map<irc::string, Module*> hookmodules;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
@@ -125,14 +119,6 @@ class SpanningTreeUtilities : public classbase
 	/** Holds the data from the <autoconnect> tags in the conf
 	 */
 	std::vector<reference<Autoconnect> > AutoconnectBlocks;
-
-	/** List of module pointers which can provide I/O abstraction
-	 */
-	hookmodules hooks;
-
-	/** List of module names which can provide I/O abstraction
-	 */
-	std::vector<std::string> hooknames;
 
 	/** True (default) if we are to use challenge-response HMAC
 	 * to authenticate passwords.

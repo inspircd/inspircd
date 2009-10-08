@@ -443,7 +443,7 @@ void FilterBase::OnRehash(User* user)
 	{
 		for (modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
 		{
-			if (RegexNameRequest(this, *i).Send() == newrxengine)
+			if (RegexNameRequest(this, *i).result == newrxengine)
 			{
 				ServerInstance->SNO->WriteGlobalSno('a', "Filter now using engine '%s'", RegexEngine.c_str());
 				rxengine = *i;
@@ -460,7 +460,7 @@ void FilterBase::OnLoadModule(Module* mod, const std::string& name)
 {
 	if (ServerInstance->Modules->ModuleHasInterface(mod, "RegularExpression"))
 	{
-		std::string rxname = RegexNameRequest(this, mod).Send();
+		std::string rxname = RegexNameRequest(this, mod).result;
 		if (rxname == RegexEngine)
 		{
 			rxengine = mod;

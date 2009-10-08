@@ -14,8 +14,8 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 #include "../m_hash.h"
+#include "../ssl.h"
 #include "socketengine.h"
 
 #include "main.h"
@@ -24,7 +24,6 @@
 #include "link.h"
 #include "treesocket.h"
 #include "resolvers.h"
-#include "handshaketimer.h"
 
 /* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h */
 
@@ -78,12 +77,10 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 		}
 
 		hmac2 += challenge;
-		HashResetRequest(Utils->Creator, sha256).Send();
-		hmac2 = HashSumRequest(Utils->Creator, sha256, hmac2).Send();
-
-		HashResetRequest(Utils->Creator, sha256).Send();
+		hmac2 = HashRequest(Utils->Creator, sha256, hmac2).result;
+		
 		std::string hmac = hmac1 + hmac2;
-		hmac = HashSumRequest(Utils->Creator, sha256, hmac).Send();
+		hmac = HashRequest(Utils->Creator, sha256, hmac).result;
 
 		return "HMAC-SHA256:"+ hmac;
 	}
@@ -131,8 +128,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	std::string fp;
 	if (GetIOHook())
 	{
-		BufferedSocketCertificateRequest req(this, Utils->Creator, GetIOHook());
-		req.Send();
+		SSLCertificateRequest req(this, Utils->Creator);
 		if (req.cert)
 		{
 			fp = req.cert->GetFingerprint();

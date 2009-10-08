@@ -14,7 +14,6 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../transport.h"
 #include "socketengine.h"
 
 #include "main.h"
@@ -33,14 +32,13 @@ void ServerSocketListener::OnAcceptReady(int newsock)
 	int port;
 	std::string incomingip;
 	irc::sockets::satoap(&client, incomingip, port);
-	char *ip = const_cast<char*>(incomingip.c_str());
 
-	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), ip) != Utils->ValidIPs.end());
+	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), incomingip) != Utils->ValidIPs.end());
 	if (!found)
 	{
 		for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
 		{
-			if (*i == "*" || irc::sockets::MatchCIDR(ip, *i))
+			if (*i == "*" || irc::sockets::MatchCIDR(incomingip, *i))
 			{
 				found = true;
 				break;
@@ -49,19 +47,15 @@ void ServerSocketListener::OnAcceptReady(int newsock)
 
 		if (!found)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", ip);
+			ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", incomingip.c_str());
 			ServerInstance->SE->Close(newsock);
 			return;
 		}
 	}
 
 	/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
-	TreeSocket* ts = new TreeSocket(Utils, newsock, ip, NULL, Hook);
 
-	if (Hook)
-		Hook->OnStreamSocketAccept(ts, &client, &server);
-
-	return;
+	new TreeSocket(Utils, newsock, this, &client, &server);
 }
 
 /** Yay for fast searches!
@@ -387,29 +381,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 {
 	ConfigReader* Conf = new ConfigReader;
 
-	/* We don't need to worry about these being *unloaded* on the fly, only loaded,
-	 * because we 'use' the interface locking the module in memory.
-	 */
-	hooks.clear();
-	hooknames.clear();
-	modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
-
-	/* Did we find any modules? */
-	if (ml)
-	{
-		/* Yes, enumerate them all to find out the hook name */
-		for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
-		{
-			/* Make a request to it for its name, its implementing
-			 * BufferedSocketHook so we know its safe to do this
-			 */
-			std::string name = BufferedSocketNameRequest((Module*)Creator, *m).Send();
-			/* Build a map of them */
-			hooks[name.c_str()] = *m;
-			hooknames.push_back(name);
-		}
-	}
-
 	if (rebind)
 	{
 		for (unsigned int i = 0; i < Bindings.size(); i++)
@@ -423,7 +394,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			std::string Type = Conf->ReadValue("bind","type",j);
 			std::string IP = Conf->ReadValue("bind","address",j);
 			std::string Port = Conf->ReadValue("bind","port",j);
-			std::string transport = Conf->ReadValue("bind","transport",j);
+			std::string ssl = Conf->ReadValue("bind","ssl",j);
 			if (Type == "servers")
 			{
 				irc::portparser portrange(Port, false);
@@ -434,21 +405,12 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 				while ((portno = portrange.GetToken()))
 				{
-					if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
-					{
-						throw CoreException("Can't find transport type '"+transport+"' for port "+IP+":"+Port+" - maybe you forgot to load it BEFORE m_spanningtree in your config file?");
-						break;
-					}
-
-					ServerSocketListener *listener = new ServerSocketListener(this, portno, (char *)IP.c_str());
+					ServerSocketListener *listener = new ServerSocketListener(this, portno, IP, ssl);
 					if (listener->GetFd() == -1)
 					{
 						delete listener;
 						continue;
 					}
-
-					if (!transport.empty())
-						listener->Hook = hooks[transport.c_str()];
 
 					Bindings.push_back(listener);
 				}
@@ -489,13 +451,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L->Hook = Conf->ReadValue("link", "transport", j);
 		L->Bind = Conf->ReadValue("link", "bind", j);
 		L->Hidden = Conf->ReadFlag("link", "hidden", j);
-
-		if ((!L->Hook.empty()) && (hooks.find(L->Hook.c_str()) ==  hooks.end()))
-		{
-			throw CoreException("Can't find transport type '"+L->Hook+"' for link '"+assign(L->Name)+"' - maybe you forgot to load it BEFORE m_spanningtree in your config file? Skipping <link> tag completely.");
-			continue;
-
-		}
 
 		if (L->Name.find('.') == std::string::npos)
 			throw CoreException("The link name '"+assign(L->Name)+"' is invalid and must contain at least one '.' character");

@@ -213,8 +213,8 @@ class ModuleBanRedirect : public Module
 		OnRehash(NULL);
 
 		Extensible::Register(&re.extItem);
-		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete, I_OnCleanup };
-		ServerInstance->Modules->Attach(list, this, 4);
+		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete };
+		ServerInstance->Modules->Attach(list, this, 3);
 	}
 
 	virtual void OnChannelDelete(Channel* chan)
@@ -283,12 +283,12 @@ class ModuleBanRedirect : public Module
 				 * Maybe we should have a GetFullIPHost() or something to match GetFullHost() and GetFullRealHost?
 				 */
 
-				if (ExceptionModule)
+				ModResult result;
+				FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, chan));
+				if (result == MOD_RES_ALLOW)
 				{
-					ListModeRequest n(this, ExceptionModule, user, chan);
-					/* Users with ban exceptions are allowed to join without being redirected */
-					if (n.Send())
-						return MOD_RES_PASSTHRU;
+					// they have a ban exception
+					return MOD_RES_PASSTHRU;
 				}
 
 				std::string ipmask(user->nick);

@@ -117,7 +117,7 @@ class ModuleServicesAccount : public Module
 
 		Extensible::Register(&accountname);
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
-			I_OnSyncUser, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
+			I_OnSyncUser, I_OnUserQuit, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 
 		ServerInstance->Modules->Attach(eventlist, this, 10);
 	}
@@ -262,11 +262,7 @@ class ModuleServicesAccount : public Module
 					dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
 						dest->nick.c_str(), dest->GetFullHost().c_str(), account->c_str(), account->c_str());
 
-				AccountData ac;
-				ac.user = dest;
-				ac.account = *account;
-				Event n((char*)&ac, this, "account_login");
-				n.Send();
+				AccountEvent(this, dest, *account).Send();
 			}
 		}
 	}

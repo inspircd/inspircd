@@ -15,7 +15,6 @@
 #include "inspircd.h"
 
 /* $ModDesc: Regex module using plain wildcard matching. */
-/* $ModDep: m_regex.h */
 
 class GlobRegex : public Regex
 {
@@ -39,13 +38,11 @@ class ModuleRegexGlob : public Module
 public:
 	ModuleRegexGlob() 	{
 		ServerInstance->Modules->PublishInterface("RegularExpression", this);
-		Implementation eventlist[] = { I_OnRequest };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual Version GetVersion()
 	{
-		return Version("Regex module using plain wildcard matching.", VF_COMMON | VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+		return Version("Regex module using plain wildcard matching.", VF_OPTCOMMON | VF_VENDOR | VF_SERVICEPROVIDER);
 	}
 
 	virtual ~ModuleRegexGlob()
@@ -53,20 +50,18 @@ public:
 		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if (strcmp("REGEX-NAME", request->GetId()) == 0)
+		if (strcmp("REGEX-NAME", request.id) == 0)
 		{
-			return "glob";
+			static_cast<RegexNameRequest&>(request).result = "glob";
 		}
-		else if (strcmp("REGEX", request->GetId()) == 0)
+		else if (strcmp("REGEX", request.id) == 0)
 		{
-			RegexFactoryRequest* rfr = (RegexFactoryRequest*)request;
-			std::string rx = rfr->GetRegex();
-			rfr->result = new GlobRegex(rx);
-			return "OK";
+			RegexFactoryRequest& rfr = (RegexFactoryRequest&)request;
+			std::string rx = rfr.GetRegex();
+			rfr.result = new GlobRegex(rx);
 		}
-		return NULL;
 	}
 };
 

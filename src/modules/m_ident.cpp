@@ -283,8 +283,8 @@ class ModuleIdent : public Module
 	{
 		Conf = new ConfigReader;
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnCleanup, I_OnUserDisconnect };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserDisconnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	~ModuleIdent()

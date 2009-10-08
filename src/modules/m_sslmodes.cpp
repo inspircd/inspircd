@@ -12,7 +12,7 @@
  */
 
 #include "inspircd.h"
-#include "transport.h"
+#include "ssl.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +z */
 
@@ -34,7 +34,7 @@ class SSLMode : public ModeHandler
 					const UserMembList* userlist = channel->GetUsers();
 					for(UserMembCIter i = userlist->begin(); i != userlist->end(); i++)
 					{
-						BufferedSocketCertificateRequest req(i->first, creator, i->first->GetIOHook());
+						SSLCertificateRequest req(i->first, creator);
 						req.Send();
 						if(!req.cert && !ServerInstance->ULine(i->first->server))
 						{
@@ -83,7 +83,7 @@ class ModuleSSLModes : public Module
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
-			BufferedSocketCertificateRequest req(user, this, user->GetIOHook());
+			SSLCertificateRequest req(user, this);
 			req.Send();
 			if (req.cert)
 			{
@@ -105,7 +105,7 @@ class ModuleSSLModes : public Module
 	{
 		if (mask[0] == 'z' && mask[1] == ':')
 		{
-			BufferedSocketCertificateRequest req(user, this, user->GetIOHook());
+			SSLCertificateRequest req(user, this);
 			req.Send();
 			if (req.cert && InspIRCd::Match(req.cert->GetFingerprint(), mask.substr(2)))
 				return MOD_RES_DENY;

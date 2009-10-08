@@ -20,8 +20,7 @@
 #include "bancache.h"
 #include "commands/cmd_whowas.h"
 
-/* XXX: Used for speeding up WriteCommon operations */
-unsigned long uniq_id = 1;
+static unsigned long uniq_id = 1;
 
 static unsigned long* already_sent = NULL;
 

@@ -94,11 +94,11 @@ class HTTPHeaders : public classbase
 	}
 };
 
+class HttpServerSocket;
+
 /** This class represents a HTTP request.
- * It will be sent to all modules as the data section of
- * an Event.
  */
-class HTTPRequest : public classbase
+class HTTPRequest : public Event
 {
  protected:
 	std::string type;
@@ -114,7 +114,7 @@ class HTTPRequest : public classbase
 	/** A socket pointer, which you must return in your HTTPDocument class
 	 * if you reply to this request.
 	 */
-	void* sock;
+	HttpServerSocket* sock;
 
 	/** Initialize HTTPRequest.
 	 * This constructor is called by m_httpd.so to initialize the class.
@@ -125,8 +125,9 @@ class HTTPRequest : public classbase
 	 * @param ip The IP address making the web request.
 	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
-	HTTPRequest(const std::string &request_type, const std::string &uri, HTTPHeaders* hdr, void* opaque, const std::string &ip, const std::string &pdata)
-		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(opaque)
+	HTTPRequest(Module* me, const std::string &eventid, const std::string &request_type, const std::string &uri,
+		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
+		: Event(me, eventid), type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(socket)
 	{
 	}
 
@@ -171,20 +172,13 @@ class HTTPRequest : public classbase
  * When you initialize this class you may initialize it with all components required to
  * form a valid HTTP response, including document data, headers, and a response code.
  */
-class HTTPDocument : public classbase
+class HTTPDocumentResponse : public Request
 {
- protected:
-
+ public:
 	std::stringstream* document;
 	int responsecode;
-
- public:
-
 	HTTPHeaders headers;
-
-	/** The socket pointer from an earlier HTTPRequest
-	 */
-	void* sock;
+	HTTPRequest& src;
 
 	/** Initialize a HTTPRequest ready for sending to m_httpd.so.
 	 * @param opaque The socket pointer you obtained from the HTTPRequest at an earlier time
@@ -193,32 +187,9 @@ class HTTPDocument : public classbase
 	 * based upon the response code.
 	 * @param extra Any extra headers to include with the defaults, seperated by carriage return and linefeed.
 	 */
-	HTTPDocument(void* opaque, std::stringstream* doc, int response) : document(doc), responsecode(response), sock(opaque)
+	HTTPDocumentResponse(Module* me, HTTPRequest& req, std::stringstream* doc, int response)
+		: Request(me, req.source, "HTTP-DOC"), document(doc), responsecode(response), src(req)
 	{
-	}
-
-	/** Get the document text.
-	 * @return The document text
-	 */
-	std::stringstream* GetDocument()
-	{
-		return this->document;
-	}
-
-	/** Get the document size.
-	 * @return the size of the document text in bytes
-	 */
-	unsigned long GetDocumentSize()
-	{
-		return this->document->str().length();
-	}
-
-	/** Get the response code.
-	 * @return The response code
-	 */
-	int GetResponseCode()
-	{
-		return this->responsecode;
 	}
 };
 

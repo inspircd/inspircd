@@ -155,8 +155,8 @@ public:
 		Extensible::Register(&cmd.webirc_hostname);
 		Extensible::Register(&cmd.webirc_ip);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCleanup, I_OnSyncUser, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnSyncUser, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
 

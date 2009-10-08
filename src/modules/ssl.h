@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __TRANSPORT_H__
-#define __TRANSPORT_H__
+#ifndef __SSL_H__
+#define __SSL_H__
 
 #include <map>
 #include <string>
@@ -118,88 +118,32 @@ class ssl_cert
 	}
 };
 
-/** Used to represent a request to a transport provider module
- */
-class ISHRequest : public Request
-{
- public:
-	BufferedSocket* Sock;
-
-	ISHRequest(Module* Me, Module* Target, const char* rtype, BufferedSocket* sock) : Request(Me, Target, rtype), Sock(sock)
-	{
-	}
-};
-
-/** Used to represent a request to attach a cert to an BufferedSocket
- */
-class BufferedSocketAttachCertRequest : public ISHRequest
-{
- public:
-	/** Initialize the request as an attach cert message */
-	BufferedSocketAttachCertRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_ATTACH", is)
-	{
-	}
-};
-
-/** Used to check if a handshake is complete on an BufferedSocket yet
- */
-class BufferedSocketHSCompleteRequest : public ISHRequest
-{
- public:
-	/** Initialize the request as a 'handshake complete?' message */
-	BufferedSocketHSCompleteRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HSDONE", is)
-	{
-	}
-};
-
-/** Used to hook a transport provider to an BufferedSocket
- */
-class BufferedSocketHookRequest : public ISHRequest
-{
- public:
-	/** Initialize request as a hook message */
-	BufferedSocketHookRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HOOK", is)
-	{
-	}
-};
-
-/** Used to unhook a transport provider from an BufferedSocket
- */
-class BufferedSocketUnhookRequest : public ISHRequest
-{
- public:
-	/** Initialize request as an unhook message */
-	BufferedSocketUnhookRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_UNHOOK", is)
-	{
-	}
-};
-
-class BufferedSocketNameRequest : public ISHRequest
-{
- public:
-	/** Initialize request as a get name message */
-	BufferedSocketNameRequest(Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_NAME", NULL)
-	{
-	}
-};
-
-struct BufferedSocketCertificateRequest : public Request
+struct SSLCertificateRequest : public Request
 {
 	Extensible* const item;
 	ssl_cert* cert;
-	BufferedSocketCertificateRequest(Extensible* is, Module* Me, Module* Target)
-		: Request(Me, Target, "GET_CERT"), item(is), cert(NULL)
+	SSLCertificateRequest(StreamSocket* ss, Module* Me)
+		: Request(Me, ss->GetIOHook(), "GET_CERT"), item(ss), cert(NULL)
 	{
+		Send();
+	}
+
+	std::string GetFingerprint()
+	{
+		if (cert)
+			return cert->GetFingerprint();
+		return "";
 	}
 };
 
-struct BufferedSocketFingerprintSubmission : public Request
+struct SSLCertSubmission : public Request
 {
 	Extensible* const item;
 	ssl_cert* const cert;
-	BufferedSocketFingerprintSubmission(Extensible* is, Module* Me, Module* Target, ssl_cert* Cert)
+	SSLCertSubmission(Extensible* is, Module* Me, Module* Target, ssl_cert* Cert)
 		: Request(Me, Target, "SET_CERT"), item(is), cert(Cert)
 	{
+		Send();
 	}
 };
 

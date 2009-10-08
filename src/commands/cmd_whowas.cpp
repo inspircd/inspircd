@@ -314,16 +314,16 @@ class ModuleWhoWas : public Module
 		ServerInstance->AddCommand(&cmd);
 	}
 
-	const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		WhowasRequest* req = static_cast<WhowasRequest*>(request);
-		switch (req->type)
+		WhowasRequest& req = static_cast<WhowasRequest&>(request);
+		switch (req.type)
 		{
 			case WhowasRequest::WHOWAS_ADD:
-				cmd.AddToWhoWas(req->user);
+				cmd.AddToWhoWas(req.user);
 				break;
 			case WhowasRequest::WHOWAS_STATS:
-				req->value = cmd.GetStats();
+				req.value = cmd.GetStats();
 				break;
 			case WhowasRequest::WHOWAS_PRUNE:
 				cmd.PruneWhoWas(ServerInstance->Time());
@@ -332,7 +332,6 @@ class ModuleWhoWas : public Module
 				cmd.MaintainWhoWas(ServerInstance->Time());
 				break;
 		}
-		return NULL;
 	}
 
 	Version GetVersion()

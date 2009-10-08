@@ -188,7 +188,6 @@ class ModuleSpanningTree : public Module
 	ModResult OnSetAway(User* user, const std::string &awaymsg);
 	void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
 	void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
-	void OnEvent(Event* event);
 	void OnLoadModule(Module* mod,const std::string &name);
 	void OnUnloadModule(Module* mod,const std::string &name);
 	bool cull();
