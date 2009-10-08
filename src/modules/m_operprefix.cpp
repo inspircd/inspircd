@@ -24,7 +24,7 @@
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(Module* Creator, char pfx) : ModeHandler(Creator, 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+		OperPrefixMode(Module* Creator, char pfx) : ModeHandler(Creator, "operprefix", 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
 		{
 			list = true;
 			prefix = pfx;

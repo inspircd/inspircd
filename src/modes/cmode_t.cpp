@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_t.h"
 
-ModeChannelTopicOps::ModeChannelTopicOps() : ModeHandler(NULL, 't', PARAM_NONE, MODETYPE_CHANNEL)
+ModeChannelTopicOps::ModeChannelTopicOps() : ModeHandler(NULL, "topic", 't', PARAM_NONE, MODETYPE_CHANNEL)
 {
 }
 

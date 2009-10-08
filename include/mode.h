@@ -116,7 +116,7 @@ class CoreExport ModeHandler : public classbase
 	/**
 	 * The mode letter you're implementing.
 	 */
-	char mode;
+	const char mode;
 
 	/** Mode prefix, or 0
 	 */
@@ -158,28 +158,20 @@ class CoreExport ModeHandler : public classbase
  public:
 	/** Module that created this mode. NULL for core modes */
 	Module* const creator;
+	/** Long-form name
+	 */
+	const std::string name;
 
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
 	 * The constructor of any class you derive from ModeHandler should
 	 * probably call this constructor with the parameters set correctly.
+	 * @param name A one-word name for the mode
 	 * @param modeletter The mode letter you wish to handle
-	 * @param parameters_on The number of parameters your mode takes when being set. Note that any nonzero value is treated as 1.
-	 * @param parameters_off The number of parameters your mode takes when being unset. Note that any nonzero value is treated as 1.
-	 * @param listmode Set to true if your mode is a listmode, e.g. it will respond to MODE #channel +modechar with a list of items
-	 * @param ModeType Set this to MODETYPE_USER for a usermode, or MODETYPE_CHANNEL for a channelmode.
-	 * @param operonly Set this to true if only opers should be allowed to set or unset the mode.
-	 * @param mprefix For listmodes where parameters are NICKNAMES which are on the channel (for example, +ohv), you may define a prefix.
-	 * When you define a prefix, it can be returned in NAMES, WHO etc if it has the highest value (as returned by GetPrefixRank())
-	 * In the core, the only modes to implement prefixes are +ovh (ops, voice, halfop) which define the prefix characters @, % and +
-	 * and the rank values OP_VALUE, HALFOP_VALUE and VOICE_VALUE respectively. Any prefixes you define should have unique values proportional
-	 * to these three defaults or proportional to another mode in a module you depend on. See src/cmode_o.cpp as an example.
-	 * @param prefixrequired The prefix required to change this mode
+	 * @param params Parameters taken by the mode
+	 * @param type Type of the mode (MODETYPE_USER or MODETYPE_CHANNEL)
 	 */
-	ModeHandler(Module* me, char modeletter, ParamSpec params, ModeType type);
-	/**
-	 * The default destructor does nothing
-	 */
+	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type);
 	virtual ~ModeHandler();
 	/**
 	 * Returns true if the mode is a list mode
@@ -338,8 +330,8 @@ class CoreExport ModeHandler : public classbase
 class CoreExport SimpleUserModeHandler : public ModeHandler
 {
  public:
-	SimpleUserModeHandler(Module* Creator, char modeletter)
-		: ModeHandler(Creator, modeletter, PARAM_NONE, MODETYPE_USER) {}
+	SimpleUserModeHandler(Module* Creator, const std::string& Name, char modeletter)
+		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER) {}
 	virtual ~SimpleUserModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
@@ -352,8 +344,8 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
 class CoreExport SimpleChannelModeHandler : public ModeHandler
 {
  public:
-	SimpleChannelModeHandler(Module* Creator, char modeletter)
-		: ModeHandler(Creator, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
+	SimpleChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
+		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
 	virtual ~SimpleChannelModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };

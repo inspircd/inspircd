@@ -18,7 +18,7 @@
 class NoNotice : public SimpleChannelModeHandler
 {
  public:
-	NoNotice(Module* Creator) : SimpleChannelModeHandler(Creator, 'T') { }
+	NoNotice(Module* Creator) : SimpleChannelModeHandler(Creator, "nonotice", 'T') { }
 };
 
 class ModuleNoNotice : public Module

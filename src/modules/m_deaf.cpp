@@ -20,7 +20,7 @@
 class User_d : public ModeHandler
 {
  public:
-	User_d(Module* Creator) : ModeHandler(Creator, 'd', PARAM_NONE, MODETYPE_USER) { }
+	User_d(Module* Creator) : ModeHandler(Creator, "deaf", 'd', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

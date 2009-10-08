@@ -20,7 +20,7 @@
 class HideChans : public ModeHandler
 {
  public:
-	HideChans(Module* Creator) : ModeHandler(Creator, 'I', PARAM_NONE, MODETYPE_USER) { }
+	HideChans(Module* Creator) : ModeHandler(Creator, "hidechans", 'I', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

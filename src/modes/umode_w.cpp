@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/umode_w.h"
 
-ModeUserWallops::ModeUserWallops() : SimpleUserModeHandler(NULL, 'w')
+ModeUserWallops::ModeUserWallops() : SimpleUserModeHandler(NULL, "wallops", 'w')
 {
 }
 

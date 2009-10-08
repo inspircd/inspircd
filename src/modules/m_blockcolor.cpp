@@ -20,7 +20,7 @@
 class BlockColor : public SimpleChannelModeHandler
 {
  public:
-	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, 'c') { }
+	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcolor", 'c') { }
 };
 
 class ModuleBlockColour : public Module

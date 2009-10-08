@@ -89,7 +89,7 @@ class NickFlood : public ModeHandler
 {
  public:
 	SimpleExtItem<nickfloodsettings> ext;
-	NickFlood(Module* Creator) : ModeHandler(Creator, 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
+	NickFlood(Module* Creator) : ModeHandler(Creator, "nickflood", 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("nickflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)

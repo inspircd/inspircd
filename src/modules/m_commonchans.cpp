@@ -20,7 +20,7 @@
 class PrivacyMode : public ModeHandler
 {
  public:
-	PrivacyMode(Module* Creator) : ModeHandler(Creator, 'c', PARAM_NONE, MODETYPE_USER) { }
+	PrivacyMode(Module* Creator) : ModeHandler(Creator, "deaf_commonchan", 'c', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

@@ -95,7 +95,7 @@ class CommandOjoin : public Command
 class NetworkPrefix : public ModeHandler
 {
  public:
-	NetworkPrefix(Module* parent) : ModeHandler(parent, 'Y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	NetworkPrefix(Module* parent) : ModeHandler(parent, "official-join", 'Y', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		list = true;
 		prefix = NPrefix;

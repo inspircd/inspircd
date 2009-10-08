@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/umode_i.h"
 
-ModeUserInvisible::ModeUserInvisible() : SimpleUserModeHandler(NULL, 'i')
+ModeUserInvisible::ModeUserInvisible() : SimpleUserModeHandler(NULL, "invisible", 'i')
 {
 }
 

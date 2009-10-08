@@ -21,7 +21,7 @@
 class SSLMode : public ModeHandler
 {
  public:
-	SSLMode(Module* Creator) : ModeHandler(Creator, 'z', PARAM_NONE, MODETYPE_CHANNEL) { }
+	SSLMode(Module* Creator) : ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

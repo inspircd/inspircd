@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_s.h"
 
-ModeChannelSecret::ModeChannelSecret() : SimpleChannelModeHandler(NULL, 's')
+ModeChannelSecret::ModeChannelSecret() : SimpleChannelModeHandler(NULL, "secret", 's')
 {
 }
 

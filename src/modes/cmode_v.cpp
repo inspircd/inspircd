@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "modes/cmode_v.h"
 
-ModeChannelVoice::ModeChannelVoice() : ModeHandler(NULL, 'v', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelVoice::ModeChannelVoice() : ModeHandler(NULL, "voice", 'v', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
 	list = true;
 	prefix = '+';

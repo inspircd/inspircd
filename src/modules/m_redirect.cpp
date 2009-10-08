@@ -20,7 +20,7 @@
 class Redirect : public ModeHandler
 {
  public:
-	Redirect(Module* Creator) : ModeHandler(Creator, 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
+	Redirect(Module* Creator) : ModeHandler(Creator, "redirect", 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{

@@ -18,7 +18,7 @@
 class AllowInvite : public SimpleChannelModeHandler
 {
  public:
-	AllowInvite(Module* Creator) : SimpleChannelModeHandler(Creator, 'A') { }
+	AllowInvite(Module* Creator) : SimpleChannelModeHandler(Creator, "allowinvite", 'A') { }
 };
 
 class ModuleAllowInvite : public Module

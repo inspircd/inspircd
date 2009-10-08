@@ -20,7 +20,7 @@
 class HideOper : public ModeHandler
 {
  public:
-	HideOper(Module* Creator) : ModeHandler(Creator, 'H', PARAM_NONE, MODETYPE_USER)
+	HideOper(Module* Creator) : ModeHandler(Creator, "hideoper", 'H', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = true;
 	}

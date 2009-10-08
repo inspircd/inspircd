@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_k.h"
 
-ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, 'k', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, "key", 'k', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
 }
 

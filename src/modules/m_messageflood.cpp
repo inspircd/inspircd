@@ -77,7 +77,7 @@ class MsgFlood : public ModeHandler
 {
  public:
 	SimpleExtItem<floodsettings> ext;
-	MsgFlood(Module* Creator) : ModeHandler(Creator, 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
+	MsgFlood(Module* Creator) : ModeHandler(Creator, "flood", 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("messageflood", Creator) { }
 
 	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)

@@ -64,7 +64,7 @@ class CloakUser : public ModeHandler
 	}
 
 	CloakUser(Module* source, Module* Hash)
-		: ModeHandler(source, 'x', PARAM_NONE, MODETYPE_USER), HashProvider(Hash),
+		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER), HashProvider(Hash),
 		ext("cloaked_host", source)
 	{
 	}

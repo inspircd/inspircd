@@ -19,7 +19,7 @@
 #include "modules.h"
 #include "modes/cmode_o.h"
 
-ModeChannelOp::ModeChannelOp() : ModeHandler(NULL, 'o', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelOp::ModeChannelOp() : ModeHandler(NULL, "op", 'o', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
 	list = true;
 	prefix = '@';

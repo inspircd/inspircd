@@ -22,7 +22,7 @@ static std::map<irc::string, std::string> helpop_map;
 class Helpop : public ModeHandler
 {
  public:
-	Helpop(Module* Creator) : ModeHandler(Creator, 'h', PARAM_NONE, MODETYPE_USER)
+	Helpop(Module* Creator) : ModeHandler(Creator, "helpop", 'h', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = true;
 	}

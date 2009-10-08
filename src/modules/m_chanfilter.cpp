@@ -25,7 +25,7 @@
 class ChanFilter : public ListModeBase
 {
  public:
-	ChanFilter(Module* Creator) : ListModeBase(Creator, 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
+	ChanFilter(Module* Creator) : ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
 
 	virtual bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{

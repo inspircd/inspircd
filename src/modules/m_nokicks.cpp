@@ -18,7 +18,7 @@
 class NoKicks : public SimpleChannelModeHandler
 {
  public:
-	NoKicks(Module* Creator) : SimpleChannelModeHandler(Creator, 'Q') { }
+	NoKicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nokick", 'Q') { }
 };
 
 class ModuleNoKicks : public Module

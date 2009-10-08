@@ -77,7 +77,7 @@ class CommandKnock : public Command
 class Knock : public SimpleChannelModeHandler
 {
  public:
-	Knock(Module* Creator) : SimpleChannelModeHandler(Creator, 'K') { }
+	Knock(Module* Creator) : SimpleChannelModeHandler(Creator, "noknock", 'K') { }
 };
 
 class ModuleKnock : public Module

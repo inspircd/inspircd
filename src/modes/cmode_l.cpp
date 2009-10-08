@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_l.h"
 
-ModeChannelLimit::ModeChannelLimit() : ModeHandler(NULL, 'l', PARAM_SETONLY, MODETYPE_CHANNEL)
+ModeChannelLimit::ModeChannelLimit() : ModeHandler(NULL, "limit", 'l', PARAM_SETONLY, MODETYPE_CHANNEL)
 {
 }
 

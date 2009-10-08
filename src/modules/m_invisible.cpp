@@ -19,7 +19,7 @@
 class InvisibleMode : public ModeHandler
 {
  public:
-	InvisibleMode(Module* Creator) : ModeHandler(Creator, 'Q', PARAM_NONE, MODETYPE_USER)
+	InvisibleMode(Module* Creator) : ModeHandler(Creator, "invis-oper", 'Q', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = true;
 	}

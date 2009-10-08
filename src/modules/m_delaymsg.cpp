@@ -22,7 +22,7 @@ class DelayMsgMode : public ModeHandler
 	CUList empty;
  public:
 	LocalIntExt jointime;
-	DelayMsgMode(Module* Parent) : ModeHandler(Parent, 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
+	DelayMsgMode(Module* Parent) : ModeHandler(Parent, "delaymsg", 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
 		, jointime("delaymsg", Parent)
 	{
 		levelrequired = OP_VALUE;

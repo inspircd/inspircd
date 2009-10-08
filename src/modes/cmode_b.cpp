@@ -25,7 +25,7 @@
 #include "hashcomp.h"
 #include "modes/cmode_b.h"
 
-ModeChannelBan::ModeChannelBan() : ModeHandler(NULL, 'b', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelBan::ModeChannelBan() : ModeHandler(NULL, "ban", 'b', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
 	list = true;
 }

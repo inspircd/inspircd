@@ -20,7 +20,7 @@
 class ServProtectMode : public ModeHandler
 {
  public:
-	ServProtectMode(Module* Creator) : ModeHandler(Creator, 'k', PARAM_NONE, MODETYPE_USER) { oper = true; }
+	ServProtectMode(Module* Creator) : ModeHandler(Creator, "servprotect", 'k', PARAM_NONE, MODETYPE_USER) { oper = true; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

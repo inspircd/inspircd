@@ -20,7 +20,7 @@
 class SeeWhois : public ModeHandler
 {
  public:
-	SeeWhois(Module* Creator, bool IsOpersOnly) : ModeHandler(Creator, 'W', PARAM_NONE, MODETYPE_USER)
+	SeeWhois(Module* Creator, bool IsOpersOnly) : ModeHandler(Creator, "showwhois", 'W', PARAM_NONE, MODETYPE_USER)
 	{
 		oper = IsOpersOnly;
 	}

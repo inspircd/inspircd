@@ -110,7 +110,7 @@ static bool WriteDatabase()
 class PermChannel : public ModeHandler
 {
  public:
-	PermChannel(Module* Creator) : ModeHandler(Creator, 'P', PARAM_NONE, MODETYPE_CHANNEL) { }
+	PermChannel(Module* Creator) : ModeHandler(Creator, "permanent", 'P', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

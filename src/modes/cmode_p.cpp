@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_p.h"
 
-ModeChannelPrivate::ModeChannelPrivate() : SimpleChannelModeHandler(NULL, 'p')
+ModeChannelPrivate::ModeChannelPrivate() : SimpleChannelModeHandler(NULL, "private", 'p')
 {
 }
 

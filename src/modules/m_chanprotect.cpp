@@ -125,7 +125,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 {
  public:
 	ChanFounder(Module* Creator)
-		: ModeHandler(Creator, 'q', PARAM_ALWAYS, MODETYPE_CHANNEL),
+		: ModeHandler(Creator, "founder", 'q', PARAM_ALWAYS, MODETYPE_CHANNEL),
 		  FounderProtectBase('q', "founder", 386, 387)
 	{
 		ModeHandler::list = true;
@@ -196,7 +196,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 {
  public:
 	ChanProtect(Module* Creator)
-		: ModeHandler(Creator, 'a', PARAM_ALWAYS, MODETYPE_CHANNEL),
+		: ModeHandler(Creator, "protected", 'a', PARAM_ALWAYS, MODETYPE_CHANNEL),
 		  FounderProtectBase('a',"protected user", 388, 389)
 	{
 		ModeHandler::list = true;

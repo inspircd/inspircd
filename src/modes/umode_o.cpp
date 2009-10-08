@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/umode_o.h"
 
-ModeUserOperator::ModeUserOperator() : ModeHandler(NULL, 'o', PARAM_NONE, MODETYPE_USER)
+ModeUserOperator::ModeUserOperator() : ModeHandler(NULL, "oper", 'o', PARAM_NONE, MODETYPE_USER)
 {
 	oper = true;
 }

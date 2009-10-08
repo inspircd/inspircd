@@ -88,10 +88,10 @@ class ListModeBase : public ModeHandler
 	 * @param autotidy Automatically tidy list entries on add
 	 * @param ctag Configuration tag to get limits from
 	 */
-	ListModeBase(Module* Creator, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
-		: ModeHandler(Creator, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL), 
+	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
+		: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL), 
 		listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
-		configtag(ctag), extItem("listbase_mode_" + std::string(1, mode) + "_list", Creator)
+		configtag(ctag), extItem("listbase_mode_" + name + "_list", Creator)
 	{
 		list = true;
 		this->DoRehash();

@@ -49,9 +49,9 @@
 /* +s (server notice masks) */
 #include "modes/umode_s.h"
 
-ModeHandler::ModeHandler(Module* Creator, char modeletter, ParamSpec Params, ModeType type)
+ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type)
 	: m_paramtype(TR_TEXT), parameters_taken(Params), mode(modeletter), prefix(0), oper(false),
-	list(false), m_type(type), count(0), levelrequired(HALFOP_VALUE), creator(Creator)
+	list(false), m_type(type), count(0), levelrequired(HALFOP_VALUE), creator(Creator), name(Name)
 {
 }
 

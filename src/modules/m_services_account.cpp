@@ -22,7 +22,7 @@ class Channel_r : public ModeHandler
 {
 
  public:
-	Channel_r(Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
+	Channel_r(Module* Creator) : ModeHandler(Creator, "registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -52,7 +52,7 @@ class User_r : public ModeHandler
 {
 
  public:
-	User_r(Module* Creator) : ModeHandler(Creator, 'r', PARAM_NONE, MODETYPE_USER) { }
+	User_r(Module* Creator) : ModeHandler(Creator, "registered", 'r', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -78,7 +78,7 @@ class User_r : public ModeHandler
 class AChannel_R : public SimpleChannelModeHandler
 {
  public:
-	AChannel_R(Module* Creator) : SimpleChannelModeHandler(Creator, 'R') { }
+	AChannel_R(Module* Creator) : SimpleChannelModeHandler(Creator, "reginvite", 'R') { }
 };
 
 /** User mode +R - unidentified users cannot message
@@ -86,7 +86,7 @@ class AChannel_R : public SimpleChannelModeHandler
 class AUser_R : public SimpleUserModeHandler
 {
  public:
-	AUser_R(Module* Creator) : SimpleUserModeHandler(Creator, 'R') { }
+	AUser_R(Module* Creator) : SimpleUserModeHandler(Creator, "regdeaf", 'R') { }
 };
 
 /** Channel mode +M - unidentified users cannot message channel
@@ -94,7 +94,7 @@ class AUser_R : public SimpleUserModeHandler
 class AChannel_M : public SimpleChannelModeHandler
 {
  public:
-	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, 'M') { }
+	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, "regmoderated", 'M') { }
 };
 
 class ModuleServicesAccount : public Module

@@ -20,7 +20,7 @@
 class BotMode : public SimpleUserModeHandler
 {
  public:
-	BotMode(Module* Creator) : SimpleUserModeHandler(Creator, 'B') { }
+	BotMode(Module* Creator) : SimpleUserModeHandler(Creator, "bot", 'B') { }
 };
 
 class ModuleBotMode : public Module

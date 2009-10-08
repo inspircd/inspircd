@@ -21,7 +21,7 @@
 class BlockCaps : public SimpleChannelModeHandler
 {
  public:
-	BlockCaps(Module* Creator) : SimpleChannelModeHandler(Creator, 'B') { }
+	BlockCaps(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcaps", 'B') { }
 };
 
 class ModuleBlockCAPS : public Module

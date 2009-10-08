@@ -19,7 +19,7 @@ class DelayJoinMode : public ModeHandler
  private:
 	CUList empty;
  public:
-	DelayJoinMode(Module* Parent) : ModeHandler(Parent, 'D', PARAM_NONE, MODETYPE_CHANNEL)
+	DelayJoinMode(Module* Parent) : ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 	{
 		levelrequired = OP_VALUE;
 	}

@@ -19,7 +19,7 @@ class OperChans : public ModeHandler
 {
  public:
 	/* This is an oper-only mode */
-	OperChans(Module* Creator) : ModeHandler(Creator, 'O', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
+	OperChans(Module* Creator) : ModeHandler(Creator, "operonly", 'O', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

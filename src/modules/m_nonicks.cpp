@@ -18,7 +18,7 @@
 class NoNicks : public ModeHandler
 {
  public:
-	NoNicks(Module* Creator) : ModeHandler(Creator, 'N', PARAM_NONE, MODETYPE_CHANNEL) { }
+	NoNicks(Module* Creator) : ModeHandler(Creator, "nonick", 'N', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
