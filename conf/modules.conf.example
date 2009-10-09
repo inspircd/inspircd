@@ -1761,8 +1761,8 @@
 #
 #<module name="m_ziplink.so">
 #
-# To use this module, you must enable it as a transport type in your
-# <link> tags or <bind> tags using the transport name 'zip'.
+# To use this module, you must enable it as a ssl type in your
+# <link> tags or <bind> tags using the ssl name 'ziplinks'.
 # See the documentation of <link> and <bind>, respectively.
 #
 

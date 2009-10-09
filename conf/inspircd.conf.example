@@ -159,7 +159,7 @@
 # or m_ssl_gnutls for gnutls.
 
 <bind address="" port="7000,7001" type="servers">
-<bind address="1.2.3.4" port="7005" type="servers" transport="openssl">
+<bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
 
 
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-

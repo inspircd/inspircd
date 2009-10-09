@@ -49,14 +49,19 @@
       # failover (see above).
       timeout="300"
 
-      # transport: If defined, this states extra modules that can be
+      # fingerprint: If defined, this option will force servers to be
+      # authenticated using SSL Fingerprints. For more information,
+      # see http://wiki.inspircd.org/SSL
+      #fingerprint=""
+
+      # ssl: If defined, this states extra modules that can be
       # used in the connection. Options are: "openssl" and "gnutls"
       # for encryption (they are compatible with each other) and
-      # "zip" for compression. You must use the same (or a compa-
-      # tible) transport on both sides of the link.
+      # "ziplinks" for compression. You must use the same (or a
+      # compatible) transport on both sides of the link.
       # You will need to load the m_ssl_openssl.so module for openssl,
-      # m_ssl_gnutls.so for gnutls or m_ziplinks.so for zip.
-      transport="gnutls"
+      # m_ssl_gnutls.so for gnutls or m_ziplinks.so for ziplinks.
+      ssl="gnutls"
 
       # bind: Local IP address to bind to.
       bind="1.2.3.4"
@@ -83,7 +88,7 @@
       autoconnect="300"
       failover="hub.other.net"
       timeout="300"
-      transport="gnutls"
+      ssl="gnutls"
       bind="1.2.3.4"
       statshidden="no"
       hidden="no"
