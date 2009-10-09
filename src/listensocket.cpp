@@ -21,7 +21,8 @@
 irc::sockets::sockaddrs ListenSocketBase::client;
 irc::sockets::sockaddrs ListenSocketBase::server;
 
-ListenSocketBase::ListenSocketBase(int port, const std::string &addr) : desc("plaintext")
+ListenSocketBase::ListenSocketBase(int port, const std::string &addr, const std::string &Type, const std::string &Hook)
+	: type(Type), hook(Hook), bind_port(port)
 {
 	irc::sockets::sockaddrs bind_to;
 
@@ -30,13 +31,12 @@ ListenSocketBase::ListenSocketBase(int port, const std::string &addr) : desc("pl
 	{
 		// malformed address
 		bind_addr = addr;
-		bind_port = port;
 		bind_desc = addr + ":" + ConvToStr(port);
 		this->fd = -1;
 	}
 	else
 	{
-		irc::sockets::satoap(&bind_to, bind_addr, bind_port);
+		irc::sockets::satoap(&bind_to, bind_addr, port);
 		bind_desc = irc::sockets::satouser(&bind_to);
 
 		this->fd = irc::sockets::OpenTCPSocket(bind_addr);

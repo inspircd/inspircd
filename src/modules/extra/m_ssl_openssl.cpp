@@ -81,8 +81,6 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 
 class ModuleSSLOpenSSL : public Module
 {
-	std::set<ListenSocketBase*> listenports;
-
 	int inbufsize;
 	issl_session* sessions;
 
@@ -135,7 +133,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnHookIO(StreamSocket* user, ListenSocketBase* lsb)
 	{
-		if (!user->GetIOHook() && listenports.find(lsb) != listenports.end())
+		if (!user->GetIOHook() && lsb->hook == "openssl")
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);
@@ -146,21 +144,17 @@ class ModuleSSLOpenSSL : public Module
 	{
 		ConfigReader Conf;
 
-		listenports.clear();
 		sslports.clear();
 
 		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 		{
 			ListenSocketBase* port = ServerInstance->ports[i];
-			std::string desc = port->GetDescription();
-			if (desc != "openssl")
+			if (port->hook != "openssl")
 				continue;
 
-			listenports.insert(port);
 			std::string portid = port->GetBindDesc();
-
 			ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
-			if (port->GetIP() != "127.0.0.1")
+			if (port->type == "clients" && port->GetIP() != "127.0.0.1")
 				sslports.append(portid).append(";");
 		}
 

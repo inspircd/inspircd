@@ -122,8 +122,6 @@ class CommandStartTLS : public Command
 
 class ModuleSSLGnuTLS : public Module
 {
-	std::set<ListenSocketBase*> listenports;
-
 	issl_session* sessions;
 
 	gnutls_certificate_credentials x509_cred;
@@ -171,21 +169,18 @@ class ModuleSSLGnuTLS : public Module
 	{
 		ConfigReader Conf;
 
-		listenports.clear();
 		sslports.clear();
 
 		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 		{
 			ListenSocketBase* port = ServerInstance->ports[i];
-			std::string desc = port->GetDescription();
-			if (desc != "gnutls")
+			if (port->hook != "gnutls")
 				continue;
 
-			listenports.insert(port);
-			std::string portid = port->GetBindDesc();
-
+			const std::string& portid = port->GetBindDesc();
 			ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %s", portid.c_str());
-			if (port->GetIP() != "127.0.0.1")
+
+			if (port->type == "clients" && port->GetIP() != "127.0.0.1")
 				sslports.append(portid).append(";");
 		}
 
@@ -345,7 +340,7 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnHookIO(StreamSocket* user, ListenSocketBase* lsb)
 	{
-		if (!user->GetIOHook() && listenports.find(lsb) != listenports.end())
+		if (!user->GetIOHook() && lsb->hook == "gnutls")
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);

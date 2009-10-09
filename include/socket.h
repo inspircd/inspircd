@@ -124,8 +124,6 @@ namespace irc
 	}
 }
 
-
-
 /** This class handles incoming connections on client ports.
  * It will create a new User for every valid connection
  * and assign it a file descriptor.
@@ -133,13 +131,8 @@ namespace irc
 class CoreExport ListenSocketBase : public EventHandler
 {
  protected:
-	/** Socket description (shown in stats p) */
-	std::string desc;
-
 	/** Raw address socket is bound to */
 	std::string bind_addr;
-	/** Port socket is bound to */
-	int bind_port;
 	/** Human-readable address/port socket is bound to */
 	std::string bind_desc;
 
@@ -155,27 +148,21 @@ class CoreExport ListenSocketBase : public EventHandler
 	static irc::sockets::sockaddrs server;
 
  public:
+	/** Socket type (client/server) */
+	const std::string type;
+	/** Socket hook (plain/gnutls/openssl/zip) */
+	const std::string hook;
+	/** Port socket is bound to */
+	const int bind_port;
 	/** Create a new listening socket
 	 */
-	ListenSocketBase(int port, const std::string &addr);
+	ListenSocketBase(int port, const std::string &addr, const std::string &type, const std::string &hook);
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
 	/** Close the socket
 	 */
 	~ListenSocketBase();
-	/** Set descriptive text
-	 */
-	void SetDescription(const std::string &description)
-	{
-		desc = description;
-	}
-	/** Get description for socket
-	 */
-	const std::string& GetDescription() { return desc; }
-	/** Get port number for socket
-	 */
-	int GetPort() const { return bind_port; }
 
 	/** Get IP address socket is bound to
 	 */
@@ -197,7 +184,8 @@ class CoreExport ClientListenSocket : public ListenSocketBase
 {
 	virtual void OnAcceptReady(int fd);
  public:
-	ClientListenSocket(int port, const std::string &addr) : ListenSocketBase(port, addr) { }
+	ClientListenSocket(int port, const std::string &addr, const std::string &Type, const std::string &Hook)
+		: ListenSocketBase(port, addr, Type, Hook) { }
 };
 
 #endif

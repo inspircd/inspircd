@@ -45,12 +45,10 @@ class ServerSocketListener : public ListenSocketBase
 	SpanningTreeUtilities *Utils;
 
  public:
-	ServerSocketListener(SpanningTreeUtilities *u, int port, const std::string& addr, const std::string& hook)
-		: ListenSocketBase(port, addr), Utils(u), Hook(hook)
+	ServerSocketListener(SpanningTreeUtilities *u, int port, const std::string& addr, const std::string& Hook)
+		: ListenSocketBase(port, addr, "servers", Hook), Utils(u)
 	{
 	}
-
-	std::string Hook;
 
 	virtual void OnAcceptReady(int nfd);
 };
@@ -85,9 +83,6 @@ class SpanningTreeUtilities : public classbase
 	 */
 	bool quiet_bursts;
 
-	/** Socket bindings for listening sockets
-	 */
-	std::vector<ServerSocketListener *> Bindings;
 	/* Number of seconds that a server can go without ping
 	 * before opers are warned of high latency.
 	 */

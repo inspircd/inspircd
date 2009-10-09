@@ -65,23 +65,6 @@ ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &r
 		}
 		return MOD_RES_DENY;
 	}
-
-	if (statschar == 'p')
-	{
-		/* show all server ports, after showing client ports. -- w00t */
-
-		for (unsigned int i = 0; i < Utils->Bindings.size(); i++)
-		{
-			std::string ip = Utils->Bindings[i]->GetIP();
-			if (ip.empty())
-				ip = "*";
-
-			std::string transport(Utils->Bindings[i]->Hook);
-
-			results.push_back(ServerInstance->Config->ServerName + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->GetPort())+
-				" (server, " + transport + ")");
-		}
-	}
 	return MOD_RES_PASSTHRU;
 }
 

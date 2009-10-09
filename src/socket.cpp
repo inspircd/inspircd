@@ -144,16 +144,16 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 				}
 				if (!skip)
 				{
-					ClientListenSocket *ll = new ClientListenSocket(portno, Addr);
+					ClientListenSocket *ll = new ClientListenSocket(portno, Addr, "clients", *Desc ? Desc : "plaintext");
 					if (ll->GetFd() > -1)
 					{
 						bound++;
-						ll->SetDescription(*Desc ? Desc : "plaintext");
 						ports.push_back(ll);
 					}
 					else
 					{
 						failed_ports.push_back(std::make_pair(bind_readable, strerror(errno)));
+						delete ll;
 					}
 				}
 			}

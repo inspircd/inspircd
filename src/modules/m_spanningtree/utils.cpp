@@ -153,9 +153,10 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 
 bool SpanningTreeUtilities::cull()
 {
-	for (unsigned int i = 0; i < Bindings.size(); i++)
+	for (unsigned int i = 0; i < ServerInstance->ports.size(); i++)
 	{
-		Bindings[i]->cull();
+		if (ServerInstance->ports[i]->type == "servers")
+			ServerInstance->ports[i]->cull();
 	}
 
 	while (TreeRoot->ChildCount())
@@ -177,9 +178,10 @@ bool SpanningTreeUtilities::cull()
 
 SpanningTreeUtilities::~SpanningTreeUtilities()
 {
-	for (unsigned int i = 0; i < Bindings.size(); i++)
+	for (unsigned int i = 0; i < ServerInstance->ports.size(); i++)
 	{
-		delete Bindings[i];
+		if (ServerInstance->ports[i]->type == "servers")
+			delete ServerInstance->ports[i];
 	}
 
 	delete TreeRoot;
@@ -383,12 +385,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 	if (rebind)
 	{
-		for (unsigned int i = 0; i < Bindings.size(); i++)
-		{
-			delete Bindings[i];
-		}
-		Bindings.clear();
-
 		for (int j = 0; j < Conf->Enumerate("bind"); j++)
 		{
 			std::string Type = Conf->ReadValue("bind","type",j);
@@ -412,7 +408,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 						continue;
 					}
 
-					Bindings.push_back(listener);
+					ServerInstance->ports.push_back(listener);
 				}
 			}
 		}
@@ -448,7 +444,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L->Fingerprint = Conf->ReadValue("link", "fingerprint", j);
 		L->HiddenFromStats = Conf->ReadFlag("link", "statshidden", j);
 		L->Timeout = Conf->ReadInteger("link", "timeout", j, true);
-		L->Hook = Conf->ReadValue("link", "transport", j);
+		L->Hook = Conf->ReadValue("link", "ssl", j);
 		L->Bind = Conf->ReadValue("link", "bind", j);
 		L->Hidden = Conf->ReadFlag("link", "hidden", j);
 

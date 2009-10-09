@@ -50,8 +50,8 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 				if (ip.empty())
 					ip.assign("*");
 
-				results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(this->ports[i]->GetPort())+" (client, " +
-						this->ports[i]->GetDescription() + ")");
+				results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ports[i]->bind_port)+
+					" (" + ports[i]->type + ", " + ports[i]->hook + ")");
 			}
 		}
 		break;

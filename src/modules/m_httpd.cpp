@@ -341,7 +341,8 @@ class HttpListener : public ListenSocketBase
 	FileReader* index;
 
  public:
-	HttpListener(FileReader *idx, int port, const std::string &addr) : ListenSocketBase(port, addr)
+	HttpListener(FileReader *idx, int port, const std::string &addr)
+		: ListenSocketBase(port, addr, "httpd", "plaintext")
 	{
 		this->index = idx;
 	}

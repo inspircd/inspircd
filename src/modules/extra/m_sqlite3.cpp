@@ -74,7 +74,7 @@ class SQLiteListener : public ListenSocketBase
 	FileReader* index;
 
  public:
-	SQLiteListener(ModuleSQLite3* P, int port, const std::string &addr) : ListenSocketBase(port, addr), Parent(P)
+	SQLiteListener(ModuleSQLite3* P, int port, const std::string &addr) : ListenSocketBase(port, addr, "ITC", "none"), Parent(P)
 	{
 		uslen = sizeof(sock_us);
 		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
