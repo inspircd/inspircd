@@ -243,25 +243,41 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	}
 }
 
-void ModuleSpanningTree::ConnectServer(Autoconnect* y)
+void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 {
-	if (!y)
+	if (!a)
 		return;
-	y->position++;
-	while (y->position < (int)y->servers.size())
+	for(unsigned int j=0; j < a->servers.size(); j++)
 	{
-		Link* x = Utils->FindLink(y->servers[y->position]);
+		if (Utils->FindServer(a->servers[j]))
+		{
+			// found something in this block. Should the server fail,
+			// we want to start at the start of the list, not in the
+			// middle where we left off
+			a->position = -1;
+			return;
+		}
+	}
+	if (on_timer && a->position >= 0)
+		return;
+	if (!on_timer && a->position < 0)
+		return;
+
+	a->position++;
+	while (a->position < (int)a->servers.size())
+	{
+		Link* x = Utils->FindLink(a->servers[a->position]);
 		if (x)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "AUTOCONNECT: Auto-connecting server \002%s\002", x->Name.c_str());
-			ConnectServer(x, y);
+			ConnectServer(x, a);
 			return;
 		}
-		y->position++;
+		a->position++;
 	}
 	// Autoconnect chain has been fully iterated; start at the beginning on the
 	// next AutoConnectServers run
-	y->position = -1;
+	a->position = -1;
 }
 
 void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
@@ -303,7 +319,6 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 			ServerInstance->GlobalCulls.AddItem(newsocket);
-			ConnectServer(y);
 		}
 	}
 	else
@@ -317,7 +332,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		catch (ModuleException& e)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
-			ConnectServer(y);
+			ConnectServer(y, false);
 		}
 	}
 }
@@ -330,28 +345,13 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 		if (curtime >= x->NextConnectTime)
 		{
 			x->NextConnectTime = curtime + x->Period;
-			for(unsigned int j=0; j < x->servers.size(); j++)
-			{
-				if (Utils->FindServer(x->servers[j]))
-				{
-					// found something in this block. Should the server fail,
-					// we want to start at the start of the list, not in the
-					// middle where we left off
-					x->position = -1;
-					goto dupe_found; // next autoconnect block
-				}
-			}
-			// only start a new chain if we aren't running
-			if (x->position == -1)
-				ConnectServer(x);
+			ConnectServer(x, true);
 		}
-dupe_found:;
 	}
 }
 
 void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 {
-	std::vector<Autoconnect*> failovers;
 	std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin();
 	while (i != Utils->timeoutlist.end())
 	{
@@ -362,17 +362,10 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		if (curtime > s->age + p.second)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
-			if (s->myautoconnect)
-				failovers.push_back(s->myautoconnect);
 			Utils->timeoutlist.erase(me);
 			s->Close();
 			ServerInstance->GlobalCulls.AddItem(s);
 		}
-	}
-	for(unsigned int j=0; j < failovers.size(); j++)
-	{
-		if (failovers[j]->position >= 0)
-			ConnectServer(failovers[j]);
 	}
 }
 

@@ -161,6 +161,11 @@ void TreeSocket::ProcessLine(std::string &line)
 				this->LinkState = CONNECTED;
 
 				Utils->timeoutlist.erase(this);
+				if (myautoconnect)
+				{
+					myautoconnect->position = -1;
+					myautoconnect = NULL;
+				}
 
 				Link* lnk = Utils->FindLink(InboundServerName);
 
@@ -534,7 +539,6 @@ void TreeSocket::OnTimeout()
 	if (this->LinkState == CONNECTING)
 	{
 		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
-		Utils->Creator->ConnectServer(myautoconnect);
 	}
 }
 

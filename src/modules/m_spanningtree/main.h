@@ -124,7 +124,7 @@ class ModuleSpanningTree : public Module
 
 	/** Connect the next autoconnect server
 	 */
-	void ConnectServer(Autoconnect* y);
+	void ConnectServer(Autoconnect* y, bool on_timer);
 
 	/** Check if any servers are due to be autoconnected
 	 */

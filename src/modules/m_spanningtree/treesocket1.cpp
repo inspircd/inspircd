@@ -106,6 +106,8 @@ void TreeSocket::CleanNegotiationInfo()
 bool TreeSocket::cull()
 {
 	Utils->timeoutlist.erase(this);
+	if (myautoconnect)
+		Utils->Creator->ConnectServer(myautoconnect, false);
 	return this->BufferedSocket::cull();
 }
 
@@ -150,7 +152,6 @@ void TreeSocket::OnError(BufferedSocketError e)
 	{
 		case I_ERR_CONNECT:
 			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Connection to \002%s\002 refused", myhost.c_str());
-			Utils->Creator->ConnectServer(myautoconnect);
 		break;
 		case I_ERR_SOCKET:
 			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Could not create socket (%s)", strerror(errno));

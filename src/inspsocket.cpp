@@ -441,6 +441,8 @@ BufferedSocket::~BufferedSocket()
 
 void StreamSocket::HandleEvent(EventType et, int errornum)
 {
+	if (!error.empty())
+		return;
 	BufferedSocketError errcode = I_ERR_OTHER;
 	switch (et)
 	{

@@ -55,7 +55,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 			/* Something barfed, show the opers */
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",MyLink->Name.c_str(),strerror(errno));
 			ServerInstance->GlobalCulls.AddItem(newsocket);
-			Utils->Creator->ConnectServer(myautoconnect);
+			Utils->Creator->ConnectServer(myautoconnect, false);
 		}
 	}
 }
@@ -71,6 +71,6 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 		return;
 	}
 	ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink->Name.c_str(), errormessage.c_str() );
-	Utils->Creator->ConnectServer(myautoconnect);
+	Utils->Creator->ConnectServer(myautoconnect, false);
 }
 
