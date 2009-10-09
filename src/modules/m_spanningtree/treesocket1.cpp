@@ -48,7 +48,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, const std::string& shost, in
 				std::string name = (**i).ModuleSourceFile;
 				int a = name.rfind('_');
 				int b = name.rfind('.');
-				name = name.substr(a, b-a-1);
+				name = name.substr(a+1, b-a-1);
 				if (name == hook)
 				{
 					AddIOHook(*i);
