@@ -53,7 +53,8 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		else
 		{
 			/* Something barfed, show the opers */
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",MyLink->Name.c_str(), newsocket->error.c_str());
+			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
+				MyLink->Name.c_str(), newsocket->getError().c_str());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
