@@ -132,6 +132,9 @@ CoreExport const char * insp_inet_ntop(int af, const void * src, char * dst, soc
 #define inet_pton insp_inet_pton
 #define inet_ntop insp_inet_ntop
 
+/* slightly different format on setsockopt */
+CoreExport int insp_setsockopt(int sockfd, int level, int optname, void *optval, int optlen);
+
 /* Safe printf functions aren't defined in VC2003 */
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
