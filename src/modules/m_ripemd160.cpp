@@ -149,8 +149,6 @@ typedef		uint32_t		dword;
    }
 
 
-const char* const chars = "0123456789abcdef";
-
 class ModuleRIPEMD160 : public Module
 {
 
@@ -455,17 +453,9 @@ class ModuleRIPEMD160 : public Module
 	{
 		if (strcmp("HASH", request.id) == 0)
 		{
-			char res[41];
 			HashRequest& req = static_cast<HashRequest&>(request);
-			unsigned char* data = (unsigned char*)RMD((byte*)req.data.data(), req.data.length(), NULL);
-			int j = 0;
-			for (int i = 0; i < RMDsize / 8; i++)
-			{
-				res[j++] = chars[data[i] / 16];
-				res[j++] = chars[data[i] % 16];
-			}
-			res[j] = '\0';
-			req.result = res;
+			char* data = (char*)RMD((byte*)req.data.data(), req.data.length(), NULL);
+			req.binresult.assign(data, RMDsize / 8);
 		}
 		else if (strcmp("NAME", request.id) == 0)
 		{

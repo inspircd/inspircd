@@ -40,7 +40,7 @@ class CommandMkpasswd : public Command
 			HashRequest hash(creator, x->second, stuff);
 			/* Now attempt to generate a hash */
 			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
-				user->nick.c_str(), algo, stuff, hash.result.c_str());
+				user->nick.c_str(), algo, stuff, hash.hex().c_str());
 		}
 		else if (names.empty())
 		{
@@ -139,7 +139,7 @@ class ModuleOperHash : public Module
 		if (x != hashers.end())
 		{
 			/* Compare the hash in the config to the generated hash */
-			if (!strcasecmp(data.c_str(), HashRequest(this, x->second, input).result.c_str()))
+			if (!strcasecmp(data.c_str(), HashRequest(this, x->second, input).hex().c_str()))
 				return MOD_RES_ALLOW;
 			/* No match, and must be hashed, forbid */
 			else

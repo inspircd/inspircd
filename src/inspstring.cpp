@@ -136,3 +136,19 @@ CoreExport bool charremove(char* mp, char remove)
 
 	return shift_down;
 }
+
+static const char hextable[] = "0123456789abcdef";
+
+std::string BinToHex(const std::string& data)
+{
+	int l = data.length();
+	std::string rv;
+	rv.reserve(l * 2);
+	for(int i=0; i < l; i++)
+	{
+		unsigned char c = data[i];
+		rv.append(1, hextable[c >> 4]);
+		rv.append(1, hextable[c & 0xF]);
+	}
+	return rv;
+}

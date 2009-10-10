@@ -46,7 +46,7 @@ struct HashNameRequest : public Request
 struct HashRequest : public Request
 {
 	const std::string data;
-	std::string result;
+	std::string binresult;
 	/** Initialize HashSumRequest for sending.
 	 * @param Me A pointer to the sending module
 	 * @param Target A pointer to the hashing module
@@ -56,6 +56,10 @@ struct HashRequest : public Request
 		: Request(Me, Target, "HASH"), data(sdata)
 	{
 		Send();
+	}
+	inline std::string hex()
+	{
+		return BinToHex(binresult);
 	}
 };
 

@@ -109,14 +109,14 @@ public:
 
 		if (HashMod)
 		{
-			SearchAndReplace(thisquery, std::string("$md5pass"), HashRequest(this, HashMod, user->password).result);
+			SearchAndReplace(thisquery, std::string("$md5pass"), HashRequest(this, HashMod, user->password).hex());
 		}
 
 		HashMod = ServerInstance->Modules->Find("m_sha256.so");
 
 		if (HashMod)
 		{
-			SearchAndReplace(thisquery, std::string("$sha256pass"), HashRequest(this, HashMod, user->password).result);
+			SearchAndReplace(thisquery, std::string("$sha256pass"), HashRequest(this, HashMod, user->password).hex());
 		}
 
 		/* Build the query */

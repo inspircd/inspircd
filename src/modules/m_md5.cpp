@@ -276,10 +276,10 @@ class ModuleMD5 : public Module
 	{
 		if (strcmp("HASH", request.id) == 0)
 		{
-			char res[33];
+			char res[16];
 			HashRequest& req = static_cast<HashRequest&>(request);
-			GenHash(req.data.data(), res, "0123456789abcdef", NULL, req.data.length());
-			req.result = res;
+			MyMD5(res, (void*)req.data.data(), req.data.length(), NULL);
+			req.binresult.assign(res, 16);
 		}
 		else if (strcmp("HASH-IV", request.id) == 0)
 		{

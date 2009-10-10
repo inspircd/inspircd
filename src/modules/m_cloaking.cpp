@@ -15,65 +15,40 @@
 #include "m_hash.h"
 
 /* $ModDesc: Provides masking of user hostnames */
-/* $ModDep: m_hash.h */
+
+enum CloakMode
+{
+	/** 1.2-compatible host-based cloak */
+	MODE_COMPAT_HOST,
+	/** 1.2-compatible IP-only cloak */
+	MODE_COMPAT_IPONLY,
+	/** 2.0 cloak of "half" of the hostname plus the full IP hash */
+	MODE_HALF_CLOAK,
+	/** 2.0 cloak of IP hash, split at 2 common CIDR range points */
+	MODE_OPAQUE
+};
+
+// lowercase-only encoding similar to base64, used for hash output
+static const char base32[] = "0123456789abcdefghijklmnopqrstuv";
 
 /** Handles user mode +x
  */
 class CloakUser : public ModeHandler
 {
  public:
-	std::string prefix;
-	unsigned int key1;
-	unsigned int key2;
-	unsigned int key3;
-	unsigned int key4;
-	bool ipalways;
-	Module* HashProvider;
-	const char *xtab[4];
 	LocalStringExt ext;
 
-	/** This function takes a domain name string and returns just the last two domain parts,
-	 * or the last domain part if only two are available. Failing that it just returns what it was given.
-	 *
-	 * For example, if it is passed "svn.inspircd.org" it will return ".inspircd.org".
-	 * If it is passed "brainbox.winbot.co.uk" it will return ".co.uk",
-	 * and if it is passed "localhost.localdomain" it will return ".localdomain".
-	 *
-	 * This is used to ensure a significant part of the host is always cloaked (see Bug #216)
-	 */
-	std::string LastTwoDomainParts(const std::string &host)
-	{
-		int dots = 0;
-		std::string::size_type splitdot = host.length();
-
-		for (std::string::size_type x = host.length() - 1; x; --x)
-		{
-			if (host[x] == '.')
-			{
-				splitdot = x;
-				dots++;
-			}
-			if (dots >= 3)
-				break;
-		}
-
-		if (splitdot == host.length())
-			return host;
-		else
-			return host.substr(splitdot);
-	}
-
-	CloakUser(Module* source, Module* Hash)
-		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER), HashProvider(Hash),
+	CloakUser(Module* source)
+		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER),
 		ext("cloaked_host", source)
 	{
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		/* For remote clients, we dont take any action, we just allow it.
+		/* For remote clients, we don't take any action, we just allow it.
 		 * The local server where they are will set their cloak instead.
-		 * This is fine, as we will recieve it later.
+		 * This is fine, as we will receive it later.
 		 */
 		if (!IS_LOCAL(dest))
 		{
@@ -129,9 +104,76 @@ class CloakUser : public ModeHandler
 		return MODEACTION_DENY;
 	}
 
-	std::string Cloak4(const char* ip)
+};
+
+
+class ModuleCloaking : public Module
+{
+ private:
+	CloakUser cu;
+	CloakMode mode;
+	std::string prefix;
+	std::string key;
+	unsigned int compatkey[4];
+	const char* xtab[4];
+	Module* HashProvider;
+
+ public:
+	ModuleCloaking() : cu(this)
 	{
-		unsigned int iv[] = { key1, key2, key3, key4 };
+		/* Attempt to locate the md5 service provider, bail if we can't find it */
+		HashProvider = ServerInstance->Modules->Find("m_md5.so");
+		if (!HashProvider)
+			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
+
+		OnRehash(NULL);
+
+		/* Register it with the core */
+		if (!ServerInstance->Modes->AddMode(&cu))
+			throw ModuleException("Could not add new modes!");
+
+		ServerInstance->Modules->UseInterface("HashRequest");
+		Extensible::Register(&cu.ext);
+
+		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
+
+		CloakExistingUsers();
+	}
+
+	/** This function takes a domain name string and returns just the last two domain parts,
+	 * or the last domain part if only two are available. Failing that it just returns what it was given.
+	 *
+	 * For example, if it is passed "svn.inspircd.org" it will return ".inspircd.org".
+	 * If it is passed "brainbox.winbot.co.uk" it will return ".co.uk",
+	 * and if it is passed "localhost.localdomain" it will return ".localdomain".
+	 *
+	 * This is used to ensure a significant part of the host is always cloaked (see Bug #216)
+	 */
+	std::string LastTwoDomainParts(const std::string &host)
+	{
+		int dots = 0;
+		std::string::size_type splitdot = host.length();
+
+		for (std::string::size_type x = host.length() - 1; x; --x)
+		{
+			if (host[x] == '.')
+			{
+				splitdot = x;
+				dots++;
+			}
+			if (dots >= 3)
+				break;
+		}
+
+		if (splitdot == host.length())
+			return host;
+		else
+			return host.substr(splitdot);
+	}
+
+	std::string CompatCloak4(const char* ip)
+	{
 		irc::sepstream seps(ip, '.');
 		std::string octet[4];
 		int i[4];
@@ -153,7 +195,7 @@ class CloakUser : public ModeHandler
 		/* Send the Hash module a different hex table for each octet group's Hash sum */
 		for (int k = 0; k < 4; k++)
 		{
-			HashRequestIV hash(creator, HashProvider, iv, xtab[(iv[k]+i[k]) % 4], octet[k]);
+			HashRequestIV hash(this, HashProvider, compatkey, xtab[(compatkey[k]+i[k]) % 4], octet[k]);
 			rv.append(hash.result.substr(0,6));
 			if (k < 3)
 				rv.append(".");
@@ -162,9 +204,8 @@ class CloakUser : public ModeHandler
 		return rv;
 	}
 
-	std::string Cloak6(const char* ip)
+	std::string CompatCloak6(const char* ip)
 	{
-		unsigned int iv[] = { key1, key2, key3, key4 };
 		std::vector<std::string> hashies;
 		std::string item;
 		int rounds = 0;
@@ -176,7 +217,7 @@ class CloakUser : public ModeHandler
 			item += *input;
 			if (item.length() > 7)
 			{
-				HashRequestIV hash(creator, HashProvider, iv, xtab[(key1+rounds) % 4], item);
+				HashRequestIV hash(this, HashProvider, compatkey, xtab[(compatkey[1]+rounds) % 4], item);
 				hashies.push_back(hash.result.substr(0,8));
 				item.clear();
 			}
@@ -184,111 +225,81 @@ class CloakUser : public ModeHandler
 		}
 		if (!item.empty())
 		{
-			HashRequestIV hash(creator, HashProvider, iv, xtab[(key1+rounds) % 4], item);
+			HashRequestIV hash(this, HashProvider, compatkey, xtab[(compatkey[1]+rounds) % 4], item);
 			hashies.push_back(hash.result.substr(0,8));
 		}
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
 	}
 
-	void DoRehash()
+	std::string ReversePartialIP(const irc::sockets::sockaddrs& ip)
 	{
-		ConfigReader Conf;
-		bool lowercase;
-
-		/* These are *not* using the need_positive parameter of ReadInteger -
-		 * that will limit the valid values to only the positive values in a
-		 * signed int. Instead, accept any value that fits into an int and
-		 * cast it to an unsigned int. That will, a bit oddly, give us the full
-		 * spectrum of an unsigned integer. - Special
-		 *
-		 * We must limit the keys or else we get different results on
-		 * amd64/x86 boxes. - psychon */
-		const unsigned int limit = 0x80000000;
-		key1 = key2 = key3 = key4 = 0;
-		key1 = (unsigned int) Conf.ReadInteger("cloak","key1",0,false);
-		key2 = (unsigned int) Conf.ReadInteger("cloak","key2",0,false);
-		key3 = (unsigned int) Conf.ReadInteger("cloak","key3",0,false);
-		key4 = (unsigned int) Conf.ReadInteger("cloak","key4",0,false);
-		prefix = Conf.ReadValue("cloak","prefix",0);
-		ipalways = Conf.ReadFlag("cloak", "ipalways", 0);
-		lowercase = Conf.ReadFlag("cloak", "lowercase", 0);
-
-		if (!lowercase)
+		char rv[50];
+		if (ip.sa.sa_family == AF_INET6)
 		{
-			xtab[0] = "F92E45D871BCA630";
-			xtab[1] = "A1B9D80C72E653F4";
-			xtab[2] = "1ABC078934DEF562";
-			xtab[3] = "ABCDEF5678901234";
+			snprintf(rv, 50, "%02x%02x.%02x%02x.%02x%02x.IP",
+				ip.in6.sin6_addr.s6_addr[4], ip.in6.sin6_addr.s6_addr[5],
+				ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
+				ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1]);
 		}
 		else
 		{
-			xtab[0] = "f92e45d871bca630";
-			xtab[1] = "a1b9d80c72e653f4";
-			xtab[2] = "1abc078934def562";
-			xtab[3] = "abcdef5678901234";
+			const char* ip4 = (const char*)&ip.in4.sin_addr;
+			snprintf(rv, 50, "%d.%d.IP", ip4[1], ip4[0]);
 		}
-
-		if (prefix.empty())
-			prefix = ServerInstance->Config->Network;
-
-		if (!key1 || !key2 || !key3 || !key4 || key1 >= limit || key2 >= limit || key3 >= limit || key4 >= limit)
-		{
-			std::string detail;
-			if (!key1 || key1 >= limit)
-				detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
-			else if (!key2 || key2 >= limit)
-				detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
-			else if (!key3 || key3 >= limit)
-				detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
-			else if (!key4 || key4 >= limit)
-				detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
-
-			throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
-		}
+		return rv;
 	}
-};
 
-
-class ModuleCloaking : public Module
-{
- private:
- 	CloakUser* cu;
-
- public:
-	ModuleCloaking()
+	std::string SegmentIP(const irc::sockets::sockaddrs& ip)
 	{
-		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		Module* HashModule = ServerInstance->Modules->Find("m_md5.so");
-		if (!HashModule)
-			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
-
-		cu = new CloakUser(this, HashModule);
-
-		try
+		std::string bindata;
+		int hop1, hop2;
+		if (ip.sa.sa_family == AF_INET6)
 		{
-			OnRehash(NULL);
+			bindata = std::string((const char*)ip.in6.sin6_addr.s6_addr, 16);
+			hop1 = 8;
+			hop2 = 6;
 		}
-		catch (ModuleException &e)
+		else
 		{
-			delete cu;
-			throw e;
+			bindata = std::string((const char*)&ip.in4.sin_addr, 4);
+			hop1 = 3;
+			hop2 = 2;
 		}
 
-		/* Register it with the core */
-		if (!ServerInstance->Modes->AddMode(cu))
+		std::string rv;
+		rv.reserve(prefix.length() + 30);
+		rv.append(prefix);
+		rv.append(SegmentCloak(bindata, 2));
+		rv.append(1, '.');
+		bindata.erase(hop1);
+		rv.append(SegmentCloak(bindata, 3));
+		rv.append(1, '.');
+		bindata.erase(hop2);
+		rv.append(SegmentCloak(bindata, 4));
+		rv.append(".IP");
+		return rv;
+	}
+
+	std::string SegmentCloak(const std::string& item, char id)
+	{
+		std::string input;
+		input.reserve(key.length() + 3 + item.length());
+		input.append(1, id);
+		input.append(key);
+		input.append(1, 0); // null does not terminate a C++ string
+		input.append(item);
+
+		HashRequest hash(this, HashProvider, input);
+		std::string rv = hash.binresult.substr(0,6);
+		for(int i=0; i < 6; i++)
 		{
-			delete cu;
-			throw ModuleException("Could not add new modes!");
+			// this discards 3 bits per byte. We have an
+			// overabundance of bits in the hash output, doesn't
+			// matter which ones we are discarding.
+			rv[i] = base32[rv[i] & 0x1F];
 		}
-
-		ServerInstance->Modules->UseInterface("HashRequest");
-		Extensible::Register(&cu->ext);
-
-		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
-
-		CloakExistingUsers();
+		return rv;
 	}
 
 	void CloakExistingUsers()
@@ -296,7 +307,7 @@ class ModuleCloaking : public Module
 		std::string* cloak;
 		for (std::vector<User*>::iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); u++)
 		{
-			cloak = cu->ext.get(*u);
+			cloak = cu.ext.get(*u);
 			if (!cloak)
 			{
 				OnUserConnect(*u);
@@ -307,7 +318,7 @@ class ModuleCloaking : public Module
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
 		char cmask[MAXBUF];
-		std::string* cloak = cu->ext.get(user);
+		std::string* cloak = cu.ext.get(user);
 		/* Check if they have a cloaked host, but are not using it */
 		if (cloak && *cloak != user->dhost)
 		{
@@ -318,19 +329,14 @@ class ModuleCloaking : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
- 	void Prioritize()
+	void Prioritize()
 	{
 		/* Needs to be after m_banexception etc. */
 		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIORITY_LAST);
-
-		/* but before m_conn_umodes, so host is generated ready to apply */
-		Module *um = ServerInstance->Modules->Find("m_conn_umodes.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, &um);
 	}
 
 	~ModuleCloaking()
 	{
-		delete cu;
 		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
@@ -343,63 +349,136 @@ class ModuleCloaking : public Module
 
 	void OnRehash(User* user)
 	{
-		cu->DoRehash();
+		ConfigReader Conf;
+		prefix = Conf.ReadValue("cloak","prefix",0);
+
+		std::string modestr = Conf.ReadValue("cloak", "mode", 0);
+		if (modestr == "compat-host")
+			mode = MODE_COMPAT_HOST;
+		else if (modestr == "compat-ip")
+			mode = MODE_COMPAT_IPONLY;
+		else if (modestr == "half")
+			mode = MODE_HALF_CLOAK;
+		else if (modestr == "full")
+			mode = MODE_OPAQUE;
+		else
+			throw ModuleException("Bad value for <cloak:mode>; must be one of compat-host, compat-ip, half, full");
+
+		if (mode == MODE_COMPAT_HOST || mode == MODE_COMPAT_IPONLY)
+		{
+			bool lowercase = Conf.ReadFlag("cloak", "lowercase", 0);
+
+			/* These are *not* using the need_positive parameter of ReadInteger -
+			 * that will limit the valid values to only the positive values in a
+			 * signed int. Instead, accept any value that fits into an int and
+			 * cast it to an unsigned int. That will, a bit oddly, give us the full
+			 * spectrum of an unsigned integer. - Special
+			 *
+			 * We must limit the keys or else we get different results on
+			 * amd64/x86 boxes. - psychon */
+			const unsigned int limit = 0x80000000;
+			compatkey[1] = (unsigned int) Conf.ReadInteger("cloak","key1",0,false);
+			compatkey[2] = (unsigned int) Conf.ReadInteger("cloak","key2",0,false);
+			compatkey[3] = (unsigned int) Conf.ReadInteger("cloak","key3",0,false);
+			compatkey[4] = (unsigned int) Conf.ReadInteger("cloak","key4",0,false);
+
+			if (!lowercase)
+			{
+				xtab[0] = "F92E45D871BCA630";
+				xtab[1] = "A1B9D80C72E653F4";
+				xtab[2] = "1ABC078934DEF562";
+				xtab[3] = "ABCDEF5678901234";
+			}
+			else
+			{
+				xtab[0] = "f92e45d871bca630";
+				xtab[1] = "a1b9d80c72e653f4";
+				xtab[2] = "1abc078934def562";
+				xtab[3] = "abcdef5678901234";
+			}
+
+			if (prefix.empty())
+				prefix = ServerInstance->Config->Network;
+
+			if (!compatkey[1] || !compatkey[2] || !compatkey[3] || !compatkey[4] ||
+				compatkey[1] >= limit || compatkey[2] >= limit || compatkey[3] >= limit || compatkey[4] >= limit)
+			{
+				std::string detail;
+				if (!compatkey[1] || compatkey[1] >= limit)
+					detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
+				else if (!compatkey[2] || compatkey[2] >= limit)
+					detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
+				else if (!compatkey[3] || compatkey[3] >= limit)
+					detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
+				else if (!compatkey[4] || compatkey[4] >= limit)
+					detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
+
+				throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
+			}
+		}
+		else
+		{
+			key = Conf.ReadFlag("cloak", "key", 0);
+			if (key.empty() || key == "secret")
+				throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
+		}
 	}
 
 	void OnUserConnect(User* dest)
 	{
-		std::string* cloak = cu->ext.get(dest);
+		std::string* cloak = cu.ext.get(dest);
 		if (cloak)
 			return;
 
-		if (dest->host.find('.') != std::string::npos || dest->host.find(':') != std::string::npos)
+		if (dest->host.find('.') == std::string::npos && dest->host.find(':') == std::string::npos)
+			return;
+
+		std::string ipstr = dest->GetIPString();
+		std::string chost;
+
+		switch (mode)
 		{
-			unsigned int iv[] = { cu->key1, cu->key2, cu->key3, cu->key4 };
-			std::string a = cu->LastTwoDomainParts(dest->host);
-			std::string b;
-
-			/* InspIRCd users have two hostnames; A displayed
-			 * hostname which can be modified by modules (e.g.
-			 * to create vhosts, implement chghost, etc) and a
-			 * 'real' hostname which you shouldnt write to.
-			 */
-
-			/* 2008/08/18: add <cloak:ipalways> which always cloaks
-			 * the IP, for anonymity. --nenolod
-			 */
-			if (!cu->ipalways)
+			case MODE_COMPAT_HOST:
 			{
-				/** Reset the Hash module, and send it our IV and hex table */
-				HashRequestIV hash(this, cu->HashProvider, iv, cu->xtab[(dest->host[0]) % 4], dest->host);
+				if (ipstr != dest->host)
+				{
+					std::string tail = LastTwoDomainParts(dest->host);
 
-				/* Generate a cloak using specialized Hash */
-				std::string hostcloak = cu->prefix + "-" + hash.result.substr(0,8) + a;
+					/** Reset the Hash module, and send it our IV and hex table */
+					HashRequestIV hash(this, HashProvider, compatkey, xtab[(dest->host[0]) % 4], dest->host);
 
-				/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
-				 * according to the DNS RFC) then tough titty, they get cloaked as an IP.
-				 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
-				 * vhost.
-				 */
-				std::string testaddr;
-				int testport;
-				if (!irc::sockets::satoap(&dest->client_sa, testaddr, testport) && (hostcloak.length() <= 64))
-					/* not a valid address, must have been a host, so cloak as a host */
-					b = hostcloak;
-				else if (dest->client_sa.sa.sa_family == AF_INET6)
-					b = cu->Cloak6(dest->GetIPString());
-				else
-					b = cu->Cloak4(dest->GetIPString());
+					/* Generate a cloak using specialized Hash */
+					chost = prefix + "-" + hash.result.substr(0,8) + tail;
+
+					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
+					 * according to the DNS RFC) then they get cloaked as an IP.
+					 */
+					if (chost.length() <= 64)
+						break;
+				}
+				// fall through to IP cloak
 			}
-			else
-			{
+			case MODE_COMPAT_IPONLY:
 				if (dest->client_sa.sa.sa_family == AF_INET6)
-					b = cu->Cloak6(dest->GetIPString());
+					chost = CompatCloak6(ipstr.c_str());
 				else
-					b = cu->Cloak4(dest->GetIPString());
+					chost = CompatCloak4(ipstr.c_str());
+				break;
+			case MODE_HALF_CLOAK:
+			{
+				std::string tail;
+				if (ipstr != dest->host)
+					tail = LastTwoDomainParts(dest->host);
+				if (tail.empty() || tail.length() > 50)
+					tail = ReversePartialIP(dest->client_sa);
+				chost = prefix + SegmentCloak(dest->host, 1) + "." + tail;
+				break;
 			}
-
-			cu->ext.set(dest,b);
+			case MODE_OPAQUE:
+			default:
+				chost = SegmentIP(dest->client_sa);
 		}
+		cu.ext.set(dest,chost);
 	}
 
 };

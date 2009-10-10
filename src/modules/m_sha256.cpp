@@ -132,8 +132,6 @@ uint32_t sha256_k[64] =
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-const char* const hxc("0123456789abcdef");
-
 class ModuleSHA256 : public Module
 {
 	void SHA256Init(SHA256Context *ctx, const unsigned int* ikey)
@@ -238,22 +236,12 @@ class ModuleSHA256 : public Module
 			UNPACK32(ctx->h[i], &digest[i << 2]);
 	}
 
-	void SHA256(const char *src, char *dest, unsigned int len)
+	void SHA256(const char *src, unsigned char *dest, unsigned int len)
 	{
-		// Generate the hash
-		unsigned char bytehash[SHA256_DIGEST_SIZE];
 		SHA256Context ctx;
 		SHA256Init(&ctx, NULL);
 		SHA256Update(&ctx, (unsigned char *)src, len);
-		SHA256Final(&ctx, bytehash);
-		// Convert it to hex
-		int j=0;
-		for (int i = 0; i < SHA256_DIGEST_SIZE; i++)
-		{
-			dest[j++] = hxc[bytehash[i] / 16];
-			dest[j++] = hxc[bytehash[i] % 16];
-		}
-		dest[j] = '\0';
+		SHA256Final(&ctx, dest);
 	}
 
  public:
@@ -272,10 +260,10 @@ class ModuleSHA256 : public Module
 	{
 		if (strcmp("HASH", request.id) == 0)
 		{
-			char res[65];
+			unsigned char bytes[SHA256_DIGEST_SIZE];
 			HashRequest& req = static_cast<HashRequest&>(request);
-			SHA256(req.data.data(), res, req.data.length());
-			req.result = res;
+			SHA256(req.data.data(), bytes, req.data.length());
+			req.binresult.assign((char*)bytes, SHA256_DIGEST_SIZE);
 		}
 		else if (strcmp("NAME", request.id) == 0)
 		{

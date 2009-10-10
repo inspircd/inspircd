@@ -150,7 +150,7 @@ public:
 				return false;
 
 			/* Make an MD5 hash of the password for using in the query */
-			std::string md5_pass_hash = HashRequest(this, x->second, password).result;
+			std::string md5_pass_hash = HashRequest(this, x->second, password).hex();
 
 			/* We generate our own sum here because some database providers (e.g. SQLite) dont have a builtin md5/sha256 function,
 			 * also hashing it in the module and only passing a remote query containing a hash is more secure.

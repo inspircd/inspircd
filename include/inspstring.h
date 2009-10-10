@@ -39,5 +39,8 @@ CoreExport int charlcat(char* x,char y,int z);
  */
 CoreExport bool charremove(char* mp, char remove);
 
+/** Binary to hexadecimal conversion */
+std::string BinToHex(const std::string& data);
+
 #endif
 

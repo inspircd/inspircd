@@ -77,10 +77,10 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 		}
 
 		hmac2 += challenge;
-		hmac2 = HashRequest(Utils->Creator, sha256, hmac2).result;
+		hmac2 = HashRequest(Utils->Creator, sha256, hmac2).hex();
 		
 		std::string hmac = hmac1 + hmac2;
-		hmac = HashRequest(Utils->Creator, sha256, hmac).result;
+		hmac = HashRequest(Utils->Creator, sha256, hmac).hex();
 
 		return "HMAC-SHA256:"+ hmac;
 	}
