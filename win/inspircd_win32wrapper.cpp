@@ -147,6 +147,30 @@ const char * dlerror()
 	return errormessage;
 }
 
+ssize_t writev(int fd, const struct iovec* iov, int iovcnt)
+{
+    ssize_t ret;
+    size_t tot = 0;
+    int i;
+    char *buf, *p;
+
+    for(i = 0; i < iovcnt; ++i)
+        tot += iov[i].iov_len;
+    buf = (char*)malloc(tot);
+    if (tot != 0 && buf == NULL) {
+        errno = ENOMEM;
+        return -1;
+    }
+    p = buf;
+    for (i = 0; i < iovcnt; ++i) {
+        memcpy (p, iov[i].iov_base, iov[i].iov_len);
+        p += iov[i].iov_len;
+    }
+    ret = send((SOCKET)fd, buf, tot, 0);
+    free (buf);
+    return ret;
+}
+
 #define TRED FOREGROUND_RED | FOREGROUND_INTENSITY
 #define TGREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
 #define TYELLOW FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
@@ -415,7 +439,7 @@ void ClearConsole()
  */
 void ChangeWindowsSpecificPointers()
 {
-	Instance->Logs->Log("win32",DEBUG,"Changing to windows specific pointer and functor set");
+	ServerInstance->Logs->Log("win32",DEBUG,"Changing to windows specific pointer and functor set");
 }
 
 DWORD WindowsForkStart()
@@ -504,14 +528,14 @@ void WindowsForkKillOwner()
         if(!hProcess || !owner_processid)
         {
                 printf("Could not open process id %u: %s.\n", owner_processid, dlerror());
-                Instance->Exit(14);
+                ServerInstance->Exit(14);
         }
 
         // die die die
         if(!TerminateProcess(hProcess, 0))
         {
                 printf("Could not TerminateProcess(): %s\n", dlerror());
-                Instance->Exit(14);
+                ServerInstance->Exit(14);
         }
 
         CloseHandle(hProcess);
@@ -522,7 +546,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 	if (!*(data.GetString()))
 	{
 		std::string nameserver;
-		conf->GetInstance()->Logs->Log("win32",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
+		ServerInstance->Logs->Log("win32",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
 		nameserver = FindNameServerWin();
 		/* Windows stacks multiple nameservers in one registry key, seperated by commas.
 		 * Spotted by Cataclysm.
@@ -535,7 +559,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 		if (nameserver.find(' ') != std::string::npos)
 			nameserver = nameserver.substr(0, nameserver.find(' '));
 		data.Set(nameserver.c_str());
-		conf->GetInstance()->Logs->Log("win32",DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
+		ServerInstance->Logs->Log("win32",DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 	}
 	return true;
 }

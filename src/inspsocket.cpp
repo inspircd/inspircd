@@ -15,7 +15,9 @@
 #include "socket.h"
 #include "inspstring.h"
 #include "socketengine.h"
+#ifndef WINDOWS
 #include <sys/uio.h>
+#endif
 
 BufferedSocket::BufferedSocket()
 {

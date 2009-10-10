@@ -100,6 +100,7 @@ typedef unsigned __int32 uint32_t;
 #include <process.h>
 #include <stdio.h>
 #include <algorithm>
+#include <io.h>
 
 #ifdef ENABLE_CRASHDUMPS
 #include <DbgHelp.h>
@@ -214,6 +215,7 @@ typedef unsigned long long uint64_t;
 typedef signed char int8_t;
 typedef signed long int32_t;
 typedef signed long long int64_t;
+typedef signed long ssize_t;
 
 /* Shared memory allocation functions */
 void * ::operator new(size_t iSize);
@@ -225,6 +227,15 @@ class ServerConfig;
 
 /* Look up the nameserver in use from the registry on windows */
 CoreExport std::string FindNameServerWin();
+
+/* no uio.h on win, but win has alternatives in io.h rest is wrapped here */
+#define IOV_MAX 1024
+struct iovec
+{
+	size_t  iov_len;
+	void*   iov_base;
+};
+CoreExport ssize_t writev(int fd, const struct iovec* iov, int iovcnt);
 
 /* Clear a windows console */
 CoreExport void ClearConsole();
