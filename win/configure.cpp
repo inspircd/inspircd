@@ -17,6 +17,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
+#include <process.h>
 #include <string>
 #include <time.h>
 #include "inspircd_win32wrapper.h"
@@ -144,6 +145,42 @@ int get_svn_revision(char * buffer, size_t len)
 	return rev;
 }
 
+void get_machine_info(char * buffer, size_t len)
+{
+	char buf[500];
+	char buf2[500];
+
+	DWORD dwSize = sizeof(buf);
+	if (!GetComputerNameEx((COMPUTER_NAME_FORMAT)ComputerNameDnsFullyQualified, buf, &dwSize))
+		sprintf(buf, "%s", "unknown");
+
+	FILE * f = fopen("ver.txt.tmp", "r");
+	if (f)
+	{
+		while (fgets(buf2, 500, f)) { }
+		fclose(f);
+		//unlink("ver.txt.tmp");
+	}
+	else
+		sprintf(buf2, "%s", "unknown");
+
+	sprintf(buffer, "%s ", buf);
+	//strip newlines
+	char* b = buffer + strlen(buf)+1;
+	char *b2 = buf2;
+	while (*b2)
+	{
+		if (*b2 != 10 && *b2 != 13)
+		{
+			*b = *b2;
+			b++;
+		}
+		*b2++;
+	}
+	*b = 0;
+	printf_c("\nLAL:%s:LAL\n", buffer);
+}
+
 int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPSTR lpCmdLine, IN int nShowCmd )
 {
 	if (!strcmp(lpCmdLine, "/rebase"))
@@ -151,6 +188,7 @@ int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPS
 		Rebase();
 		return 0;
 	}
+
 	FILE * j = fopen("inspircd_config.h", "r");
 	if (j)
 	{
@@ -160,6 +198,9 @@ int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPS
 			exit(0);
 		}
 	}
+
+	// call before we hook console handles
+	system("ver > ver.txt.tmp");
 
 	AllocConsole();
 
@@ -202,6 +243,8 @@ void Run()
 	char openssl_lib_path[MAX_PATH];
 	int revision = get_svn_revision(revision_text, MAX_PATH);
 	char version[514];
+	char machine_text[MAX_PATH];
+	get_machine_info(machine_text, MAX_PATH);
 
 	// grab version
 	FILE * fI = fopen("..\\src\\version.sh", "r");
@@ -331,17 +374,6 @@ void Run()
 	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path);
 	fprintf(f, "#define SOMAXCONN_S \"128\"\n");
 	fprintf(f, "#define LIBRARYDIR \"%s\"\n", library_dir);
-	fprintf(f, "#define VERSION \"%s\"\n", version);
-	fprintf(f, "#define REVISION \"%s\"\n", revision_text);
-
-	OSVERSIONINFO vi;
-	vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&vi);
-#ifdef WIN64
-	fprintf(f, "#define SYSTEM \"Windows_x64 %u.%u.%u %s\"\n", vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, vi.szCSDVersion);
-#else
-	fprintf(f, "#define SYSTEM \"Windows_x32 %u.%u.%u %s\"\n", vi.dwMajorVersion, vi.dwMinorVersion, vi.dwBuildNumber, vi.szCSDVersion);
-#endif
 	fprintf(f, "#define MAXBUF 514\n");
 
 	fprintf(f, "\n#include \"inspircd_win32wrapper.h\"");
@@ -359,6 +391,14 @@ void Run()
 	fprintf(f, "#define __CONFIGURATION_SOCKETENGINE__\n\n");
 	fprintf(f, "#include \"socketengines/socketengine_%s.h\"\n\n", use_iocp ? "iocp" : "select");
 	fprintf(f, "#endif\n\n");
+	fclose(f);
+
+	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
+	printf("Writing inspircd_version.h...");
+	f = fopen("inspircd_version.h", "w");
+	fprintf(f, "#define VERSION \"%s\"\n", version);
+	fprintf(f, "#define REVISION \"%d\"\n", revision);
+	fprintf(f, "#define SYSTEM \"%s\"\n", machine_text);
 	fclose(f);
 
 	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
