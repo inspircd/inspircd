@@ -237,7 +237,7 @@ class ModuleCloaking : public Module
 		char rv[50];
 		if (ip.sa.sa_family == AF_INET6)
 		{
-			snprintf(rv, 50, "%02x%02x.%02x%02x.%02x%02x.IP",
+			snprintf(rv, 50, ".%02x%02x.%02x%02x.%02x%02x.IP",
 				ip.in6.sin6_addr.s6_addr[4], ip.in6.sin6_addr.s6_addr[5],
 				ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
 				ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1]);
@@ -245,7 +245,7 @@ class ModuleCloaking : public Module
 		else
 		{
 			const char* ip4 = (const char*)&ip.in4.sin_addr;
-			snprintf(rv, 50, "%d.%d.IP", ip4[1], ip4[0]);
+			snprintf(rv, 50, ".%d.%d.IP", ip4[1], ip4[0]);
 		}
 		return rv;
 	}
@@ -471,7 +471,7 @@ class ModuleCloaking : public Module
 					tail = LastTwoDomainParts(dest->host);
 				if (tail.empty() || tail.length() > 50)
 					tail = ReversePartialIP(dest->client_sa);
-				chost = prefix + SegmentCloak(dest->host, 1) + "." + tail;
+				chost = prefix + SegmentCloak(dest->host, 1) + tail;
 				break;
 			}
 			case MODE_OPAQUE:
