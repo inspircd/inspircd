@@ -178,7 +178,6 @@ void get_machine_info(char * buffer, size_t len)
 		*b2++;
 	}
 	*b = 0;
-	printf_c("\nLAL:%s:LAL\n", buffer);
 }
 
 int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPSTR lpCmdLine, IN int nShowCmd )
