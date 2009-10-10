@@ -200,7 +200,11 @@ class CloakUser : public ModeHandler
 		 * that will limit the valid values to only the positive values in a
 		 * signed int. Instead, accept any value that fits into an int and
 		 * cast it to an unsigned int. That will, a bit oddly, give us the full
-		 * spectrum of an unsigned integer. - Special */
+		 * spectrum of an unsigned integer. - Special
+		 *
+		 * We must limit the keys or else we get different results on
+		 * amd64/x86 boxes. - psychon */
+		const unsigned int limit = 0x80000000;
 		key1 = key2 = key3 = key4 = 0;
 		key1 = (unsigned int) Conf.ReadInteger("cloak","key1",0,false);
 		key2 = (unsigned int) Conf.ReadInteger("cloak","key2",0,false);
@@ -228,16 +232,16 @@ class CloakUser : public ModeHandler
 		if (prefix.empty())
 			prefix = ServerInstance->Config->Network;
 
-		if (!key1 || !key2 || !key3 || !key4)
+		if (!key1 || !key2 || !key3 || !key4 || key1 >= limit || key2 >= limit || key3 >= limit || key4 >= limit)
 		{
 			std::string detail;
-			if (!key1)
+			if (!key1 || key1 >= limit)
 				detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
-			else if (!key2)
+			else if (!key2 || key2 >= limit)
 				detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
-			else if (!key3)
+			else if (!key3 || key3 >= limit)
 				detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
-			else if (!key4)
+			else if (!key4 || key4 >= limit)
 				detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
 
 			throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
