@@ -130,8 +130,8 @@ void IPCThread::SetResult(int newresult)
 IPC::IPC()
 {
 	/* The IPC pipe is threaded */
-	thread = new IPCThread(Srv);
-	Srv->Threads->Start(thread);
+	thread = new IPCThread();
+	ServerInstance->Threads->Start(thread);
 }
 
 void IPC::Check()
