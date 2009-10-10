@@ -91,11 +91,6 @@ int insp_inet_pton(int af, const char *src, void *dst)
 	return rv;
 }
 
-int insp_setsockopt(int sockfd, int level, int optname, void *optval, int optlen)
-{
-	return setsockopt(sockfd, level, optname, (char*)optval, optlen);
-}
-
 void setcolor(int color_code)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_code);
