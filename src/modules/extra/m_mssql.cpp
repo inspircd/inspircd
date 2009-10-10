@@ -275,7 +275,7 @@ class SQLConn : public classbase
 		CloseDB();
 	}
 
-	SQLerror Query(SQLrequest &req)
+	SQLerror Query(SQLrequest* req)
 	{
 		if (!sock)
 			return SQLerror(SQL_BAD_CONN, "Socket was NULL, check if SQL server is running.");
@@ -292,17 +292,17 @@ class SQLConn : public classbase
 		/* The length of the longest parameter */
 		maxparamlen = 0;
 
-		for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
+		for(ParamL::iterator i = req->query.p.begin(); i != req->query.p.end(); i++)
 		{
 			if (i->size() > maxparamlen)
 				maxparamlen = i->size();
 		}
 
 		/* How many params are there in the query? */
-		paramcount = count(req.query.q.c_str(), '?');
+		paramcount = count(req->query.q.c_str(), '?');
 
 		/* This stores copy of params to be inserted with using numbered params 1;3B*/
-		ParamL paramscopy(req.query.p);
+		ParamL paramscopy(req->query.p);
 
 		/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
 		 * sizeofquery + (maxtotalparamlength*2) + 1
@@ -310,12 +310,12 @@ class SQLConn : public classbase
 		 * The +1 is for null-terminating the string
 		 */
 
-		query = new char[req.query.q.length() + (maxparamlen*paramcount*2) + 1];
+		query = new char[req->query.q.length() + (maxparamlen*paramcount*2) + 1];
 		queryend = query;
 
-		for(unsigned long i = 0; i < req.query.q.length(); i++)
+		for(unsigned long i = 0; i < req->query.q.length(); i++)
 		{
-			if(req.query.q[i] == '?')
+			if(req->query.q[i] == '?')
 			{
 				/* We found a place to substitute..what fun.
 				 * use mssql calls to escape and write the
@@ -338,11 +338,11 @@ class SQLConn : public classbase
 				/* Let's check if it's a numbered param. And also calculate it's number.
 				 */
 
-				while ((i < req.query.q.length() - 1) && (req.query.q[i+1] >= '0') && (req.query.q[i+1] <= '9'))
+				while ((i < req->query.q.length() - 1) && (req->query.q[i+1] >= '0') && (req->query.q[i+1] <= '9'))
 				{
 					numbered = true;
 					++i;
-					paramnum = paramnum * 10 + req.query.q[i] - '0';
+					paramnum = paramnum * 10 + req->query.q[i] - '0';
 				}
 
 				if (paramnum > paramscopy.size() - 1)
@@ -378,13 +378,13 @@ class SQLConn : public classbase
 					}
 					delete[] escaped;
 				}
-				else if (req.query.p.size())
+				else if (req->query.p.size())
 				{
 					/* Custom escaping for this one. converting ' to '' should make SQL Server happy. Ugly but fast :]
 					 */
-					char* escaped = new char[(req.query.p.front().length() * 2) + 1];
+					char* escaped = new char[(req->query.p.front().length() * 2) + 1];
 					char* escend = escaped;
-					for (std::string::iterator p = req.query.p.front().begin(); p < req.query.p.front().end(); p++)
+					for (std::string::iterator p = req->query.p.front().begin(); p < req->query.p.front().end(); p++)
 					{
 						if (*p == '\'')
 						{
@@ -403,31 +403,31 @@ class SQLConn : public classbase
 						queryend++;
 					}
 					delete[] escaped;
-					req.query.p.pop_front();
+					req->query.p.pop_front();
 				}
 				else
 					break;
 			}
 			else
 			{
-				*queryend = req.query.q[i];
+				*queryend = req->query.q[i];
 				queryend++;
 			}
 		}
 		*queryend = 0;
-		req.query.q = query;
+		req->query.q = query;
 
-		MsSQLResult* res = new MsSQLResult((Module*)mod, req.GetSource(), req.id);
+		MsSQLResult* res = new MsSQLResult((Module*)mod, req->source, req->id);
 		res->dbid = host.id;
-		res->query = req.query.q;
+		res->query = req->query.q;
 
-		char* msquery = strdup(req.query.q.data());
+		char* msquery = strdup(req->query.q.data());
 		LoggingMutex->Lock();
 		ServerInstance->Logs->Log("m_mssql",DEBUG,"doing Query: %s",msquery);
 		LoggingMutex->Unlock();
 		if (tds_submit_query(sock, msquery) != TDS_SUCCEED)
 		{
-			std::string error("failed to execute: "+std::string(req.query.q.data()));
+			std::string error("failed to execute: "+std::string(req->query.q.data()));
 			delete[] query;
 			delete res;
 			free(msquery);
@@ -595,7 +595,7 @@ class SQLConn : public classbase
 		{
 			MsSQLResult* res = results[0];
 			ResultsMutex->Lock();
-			if (res->GetDest())
+			if (res->dest)
 			{
 				res->Send();
 			}
@@ -624,8 +624,8 @@ class SQLConn : public classbase
 
 	void DoLeadingQuery()
 	{
-		SQLrequest& req = queue.front();
-		req.error = Query(req);
+		SQLrequest* req = queue.front();
+		req->error = Query(req);
 	}
 
 };
@@ -657,8 +657,8 @@ class ModuleMsSQL : public Module
 		ServerInstance->Threads->Start(queryDispatcher);
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
-		Implementation eventlist[] = { I_OnRequest, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleMsSQL()
@@ -792,34 +792,27 @@ class ModuleMsSQL : public Module
 		queryDispatcher->UnlockQueueWakeup();
 	}
 
-	virtual const char* OnRequest(Request* request)
+	void OnRequest(Request& request)
 	{
-		if(strcmp(SQLREQID, request->GetId()) == 0)
+		if(strcmp(SQLREQID, request.id) == 0)
 		{
-			SQLrequest* req = (SQLrequest*)request;
+			SQLrequest* req = (SQLrequest*)&request;
 
 			queryDispatcher->LockQueue();
 
 			ConnMap::iterator iter;
 
-			const char* returnval = NULL;
-
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
 				req->id = NewID();
-				iter->second->queue.push(*req);
-				returnval= SQLSUCCESS;
+				iter->second->queue.push(new SQLrequest(*req));
 			}
 			else
 			{
 				req->error.Id(SQL_BAD_DBID);
 			}
-
 			queryDispatcher->UnlockQueueWakeup();
-
-			return returnval;
 		}
-		return NULL;
 	}
 
 	unsigned long NewID()
