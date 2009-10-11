@@ -65,6 +65,10 @@ class ThreadSignalSocket : public BufferedSocket
 		recvq.clear();
 		parent->OnNotify();
 	}
+
+	void OnError(BufferedSocketError)
+	{
+	}
 };
 
 SocketThread::SocketThread()
@@ -84,10 +88,10 @@ SocketThread::SocketThread()
 	socklen_t sz = sizeof(addr);
 	getsockname(listenFD, reinterpret_cast<struct sockaddr*>(&addr), &sz);
 	connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sz);
-	int nfd = accept(listenFD);
+	int nfd = accept(listenFD, reinterpret_cast<struct sockaddr*>(&addr), (int*)sz);
 	if (nfd < 0)
 		throw CoreException("Could not create ITC pipe");
-	new ThreadSignalSocket(parent, nfd);
+	new ThreadSignalSocket(this, nfd);
 	closesocket(listenFD);
 
 	ServerInstance->SE->Blocking(connFD);
