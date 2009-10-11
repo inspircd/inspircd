@@ -320,7 +320,7 @@ void Run()
 		fprintf(fp, "echo NOTE: this batch file should be invoked from the Visual Studio Command Prompt (vsvars32.bat)\n");
 		fprintf(fp, "set OPENSSL_INC_PATH=\"%s\"\n", openssl_inc_path);
 		fprintf(fp, "set OPENSSL_LIB_PATH=\"%s\"\n", openssl_lib_path);
-		fprintf(fp, "set COMPILE=cl /nologo -Dssize_t=long /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /Gm /MD /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W2 /Wp64 /Zi /TP /I %%OPENSSL_INC_PATH%% m_ssl_openssl.cpp ..\\..\\win\\inspircd_memory_functions.cpp %%OPENSSL_INC_PATH%%\\openssl\\applink.c /link /LIBPATH:%%OPENSSL_LIB_PATH%% ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.so\" /PDB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.lib\"\n");
+		fprintf(fp, "set COMPILE=cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /Gm /MD /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W2 /Wp64 /Zi /TP /I %%OPENSSL_INC_PATH%% m_ssl_openssl.cpp ..\\..\\win\\inspircd_memory_functions.cpp %%OPENSSL_INC_PATH%%\\openssl\\applink.c /link /LIBPATH:%%OPENSSL_LIB_PATH%% ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.so\" /PDB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.lib\"\n");
 		fprintf(fp, "cd ..\\src\\modules\n");
 		fprintf(fp, "copy extra\\m_ssl_openssl.cpp .\n");
 		fprintf(fp, "echo \t%%COMPILE%%\n");
@@ -635,13 +635,13 @@ void WriteCompileModules()
 	#endif
 #else
 	#ifdef _DEBUG
-		fprintf(f, "  cl /nologo -Dssize_t=long /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /Gm /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\modules\\$*.lib\"\n\n");
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /Gm /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\modules\\$*.lib\"\n\n");
 		CreateDirectory("..\\src\\modules\\debug", NULL);
 		CreateDirectory("..\\src\\modules\\debug\\lib", NULL);
 		CreateDirectory("..\\src\\modules\\debug\\modules", NULL);
 		CreateDirectory("..\\src\\modules\\debug\\bin", NULL);
 	#else
-		fprintf(f, "  cl /nologo -Dssize_t=long /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /Gm /GL /MD /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\$*.lib\"\n\n");
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /Gm /GL /MD /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\$*.lib\"\n\n");
 		CreateDirectory("..\\src\\modules\\release", NULL);
 		CreateDirectory("..\\src\\modules\\release\\lib", NULL);
 		CreateDirectory("..\\src\\modules\\release\\modules", NULL);
