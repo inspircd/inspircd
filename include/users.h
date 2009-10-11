@@ -196,19 +196,19 @@ struct CoreExport ConnectClass : public refcountbase
 
 /** Holds a complete list of all channels to which a user has been invited and has not yet joined, and the time at which they'll expire.
  */
-typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
+CoreExport typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
-typedef std::vector<reference<ConnectClass> > ClassVector;
+CoreExport typedef std::vector<reference<ConnectClass> > ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */
-typedef std::set<Channel*> UserChanList;
+CoreExport typedef std::set<Channel*> UserChanList;
 
 /** Shorthand for an iterator into a UserChanList
  */
-typedef UserChanList::iterator UCListIter;
+CoreExport typedef UserChanList::iterator UCListIter;
 
 /* Required forward declaration
  */
