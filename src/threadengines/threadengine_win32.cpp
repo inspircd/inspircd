@@ -76,9 +76,9 @@ SocketThread::SocketThread()
 	if (connFD == -1)
 		throw CoreException("Could not create ITC pipe");
 
-	if (!SI->BindSocket(listenFD, 0, "127.0.0.1", true))
+	if (!ServerInstance->BindSocket(listenFD, 0, "127.0.0.1", true))
 		throw CoreException("Could not create ITC pipe");
-	SI->SE->NonBlocking(connFD);
+	ServerInstance->SE->NonBlocking(connFD);
 
 	struct sockaddr_in addr;
 	socklen_t sz = sizeof(addr);
@@ -90,7 +90,7 @@ SocketThread::SocketThread()
 	new ThreadSignalSocket(parent, nfd);
 	closesocket(listenFD);
 
-	SI->SE->Blocking(connFD);
+	ServerInstance->SE->Blocking(connFD);
 	this->signal.connFD = connFD;
 }
 
