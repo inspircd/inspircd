@@ -244,7 +244,7 @@ class ModuleCloaking : public Module
 		}
 		else
 		{
-			const char* ip4 = (const char*)&ip.in4.sin_addr;
+			const unsigned char* ip4 = (const unsigned char*)&ip.in4.sin_addr;
 			snprintf(rv, 50, ".%d.%d.IP", ip4[1], ip4[0]);
 		}
 		return rv;
