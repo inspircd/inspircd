@@ -101,6 +101,7 @@ typedef unsigned __int32 uint32_t;
 #include <stdio.h>
 #include <algorithm>
 #include <io.h>
+#include <psapi.h>
 
 #ifdef ENABLE_CRASHDUMPS
 #include <DbgHelp.h>
