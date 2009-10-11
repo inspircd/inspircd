@@ -159,7 +159,7 @@ void get_machine_info(char * buffer, size_t len)
 	{
 		while (fgets(buf2, 500, f)) { }
 		fclose(f);
-		//unlink("ver.txt.tmp");
+		unlink("ver.txt.tmp");
 	}
 	else
 		sprintf(buf2, "%s", "unknown");
