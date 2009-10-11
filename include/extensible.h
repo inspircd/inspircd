@@ -90,7 +90,7 @@ class CoreExport Extensible : public classbase
 };
 
 /** Base class for items that are NOT synchronized between servers */
-class CoreExport LocalExtItem : public ExtensionItem
+class LocalExtItem : public ExtensionItem
 {
  public:
 	LocalExtItem(const std::string& key, Module* owner);
@@ -101,7 +101,7 @@ class CoreExport LocalExtItem : public ExtensionItem
 };
 
 template<typename T>
-class CoreExport SimpleExtItem : public LocalExtItem
+class SimpleExtItem : public LocalExtItem
 {
  public:
 	SimpleExtItem(const std::string& Key, Module* parent) : LocalExtItem(Key, parent)
@@ -153,7 +153,7 @@ class CoreExport SimpleExtItem : public LocalExtItem
 	}
 };
 
-class CoreExport LocalStringExt : public SimpleExtItem<std::string>
+class LocalStringExt : public SimpleExtItem<std::string>
 {
  public:
 	LocalStringExt(const std::string& key, Module* owner);
@@ -161,7 +161,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
 };
 
-class CoreExport LocalIntExt : public LocalExtItem
+class LocalIntExt : public LocalExtItem
 {
  public:
 	LocalIntExt(const std::string& key, Module* owner);
@@ -172,7 +172,7 @@ class CoreExport LocalIntExt : public LocalExtItem
 	void free(void* item);
 };
 
-class CoreExport StringExtItem : public ExtensionItem
+class StringExtItem : public ExtensionItem
 {
  public:
 	StringExtItem(const std::string& key, Module* owner);

@@ -18,9 +18,9 @@
 
 class User;
 
-CoreExport typedef std::vector<std::string> parameterlist;
+typedef std::vector<std::string> parameterlist;
 
-class CoreExport ProtoServer
+class ProtoServer
 {
  public:
 	std::string servername;
@@ -31,9 +31,9 @@ class CoreExport ProtoServer
 	unsigned int latencyms;
 };
 
-CoreExport typedef std::list<ProtoServer> ProtoServerList;
+typedef std::list<ProtoServer> ProtoServerList;
 
-class CoreExport ProtocolInterface : public Extensible
+class ProtocolInterface : public Extensible
 {
  public:
 	ProtocolInterface() { }
