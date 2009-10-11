@@ -627,6 +627,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\fakeuser.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\filelogger.h"
 				>
 			</File>
@@ -680,6 +684,10 @@
 			</File>
 			<File
 				RelativePath="..\include\numerics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\protocol.h"
 				>
 			</File>
 			<File
