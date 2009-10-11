@@ -31,10 +31,10 @@ struct CoreExport Membership : public Extensible
 	unsigned int getRank();
 };
 
-typedef std::map<User*, Membership*> UserMembList;
-typedef UserMembList::iterator UserMembIter;
-typedef UserMembList::const_iterator UserMembCIter;
+CoreExport typedef std::map<User*, Membership*> UserMembList;
+CoreExport typedef UserMembList::iterator UserMembIter;
+CoreExport typedef UserMembList::const_iterator UserMembCIter;
 
-typedef std::set<User*> CUList;
+CoreExport typedef std::set<User*> CUList;
 
 #endif

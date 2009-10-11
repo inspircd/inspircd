@@ -48,7 +48,7 @@ class CoreExport ExtensionItem
 };
 
 /** A private data store for an Extensible class */
-typedef std::map<std::string,void*> ExtensibleStore;
+CoreExport typedef std::map<std::string,void*> ExtensibleStore;
 
 /** class Extensible is the parent class of many classes such as User and Channel.
  * class Extensible implements a system which allows modules to 'extend' the class by attaching data within
