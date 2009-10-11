@@ -489,6 +489,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\stats.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\testsuite.cpp"
 				>
 			</File>
@@ -522,6 +526,10 @@
 			</File>
 			<File
 				RelativePath="..\src\version.sh"
+				>
+			</File>
+			<File
+				RelativePath="..\src\whois.cpp"
 				>
 			</File>
 			<File
@@ -652,6 +660,10 @@
 			</File>
 			<File
 				RelativePath="..\include\logger.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\membership.h"
 				>
 			</File>
 			<File
