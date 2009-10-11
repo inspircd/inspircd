@@ -126,7 +126,7 @@ int SelectEngine::DispatchEvents()
 	FD_ZERO(&errfdset);
 
 	/* Populate the select FD sets (this is why select sucks compared to epoll, kqueue, IOCP) */
-	for (int i = 0; i < FD_SETSIZE; i++)
+	for (unsigned int i = 0; i < FD_SETSIZE; i++)
 	{
 		EventHandler* eh = ref[i];
 		if (!eh)
