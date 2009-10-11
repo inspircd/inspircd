@@ -17,7 +17,7 @@
 class User;
 class Channel;
 
-struct Membership : public Extensible
+struct CoreExport Membership : public Extensible
 {
 	User* const user;
 	Channel* const chan;
