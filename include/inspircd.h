@@ -74,7 +74,7 @@ typedef std::vector< KeyVal > KeyValList;
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
 class InspIRCd;
-extern InspIRCd* ServerInstance;
+CoreExport extern InspIRCd* ServerInstance;
 
 #include "inspircd_config.h"
 #include "inspircd_version.h"
