@@ -320,13 +320,14 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
+	 NICKForced("NICKForced", NULL),
+	 OperQuit("OperQuit", NULL),
 	 IsChannel(&HandleIsChannel),
 	 IsSID(&HandleIsSID),
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
 	 FloodQuitUser(&HandleFloodQuitUser)
-
 {
 #ifdef WIN32
 	// Strict, frequent checking of memory on debug builds
@@ -338,8 +339,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	ServerInstance = this;
 
-	Extensible::Register(&User::NICKForced);
-	Extensible::Register(&User::OperQuit);
+	Extensible::Register(&NICKForced);
+	Extensible::Register(&OperQuit);
 
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,

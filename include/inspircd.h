@@ -508,6 +508,14 @@ class CoreExport InspIRCd : public classbase
 	 */
 	ProtocolInterface* PI;
 
+	/** Holds extensible for user nickforced
+	 */
+	LocalIntExt NICKForced;
+
+	/** Holds extensible for user operquit
+	 */
+	LocalStringExt OperQuit;
+
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
 	 * it is much faster than calling time() directly.

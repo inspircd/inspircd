@@ -24,9 +24,6 @@ static unsigned long uniq_id = 1;
 
 static unsigned long* already_sent = NULL;
 
-LocalIntExt User::NICKForced("NICKForced", NULL);
-LocalStringExt User::OperQuit("OperQuit", NULL);
-
 void InitializeAlreadySent(SocketEngine* SE)
 {
 	already_sent = new unsigned long[SE->GetMaxFds()];
@@ -914,9 +911,9 @@ bool User::ForceNickChange(const char* newnick)
 
 	this->InvalidateCache();
 
-	NICKForced.set(this, 1);
+	ServerInstance->NICKForced.set(this, 1);
 	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
-	NICKForced.set(this, 0);
+	ServerInstance->NICKForced.set(this, 0);
 
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
@@ -930,9 +927,9 @@ bool User::ForceNickChange(const char* newnick)
 	{
 		std::vector<std::string> parameters;
 		parameters.push_back(newnick);
-		NICKForced.set(this, 1);
+		ServerInstance->NICKForced.set(this, 1);
 		bool result = (ServerInstance->Parser->CallHandler("NICK", parameters, this) == CMD_SUCCESS);
-		NICKForced.set(this, 0);
+		ServerInstance->NICKForced.set(this, 0);
 		return result;
 	}
 

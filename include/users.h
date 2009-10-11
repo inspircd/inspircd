@@ -264,9 +264,6 @@ class CoreExport User : public StreamSocket
 	std::bitset<64> AllowedChanModes;
 
  public:
-	static LocalIntExt NICKForced;
-	static LocalStringExt OperQuit;
-
 	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
 	 */
 	reference<ConnectClass> MyClass;
