@@ -11,22 +11,13 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd_config.h"
+#ifndef CONFIG_USE_IOCP
+
 #include "inspircd.h"
 #ifndef WINDOWS
 #include <sys/select.h>
 #endif // WINDOWS
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *            the file COPYING for details.
- *
- * ---------------------------------------------------
- */
 
 #ifndef __SOCKETENGINE_SELECT__
 #define __SOCKETENGINE_SELECT__
@@ -37,7 +28,6 @@
 #ifndef WINDOWS
 #include <sys/select.h>
 #endif // WINDOWS
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "socketengine.h"
 
@@ -198,3 +188,4 @@ SocketEngine* CreateSocketEngine()
 {
 	return new SelectEngine;
 }
+#endif

@@ -11,29 +11,18 @@
  * ---------------------------------------------------
  */
 
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *	    the file COPYING for details.
- *
- * ---------------------------------------------------
- */
+#include "inspircd_config.h"
+#ifdef CONFIG_USE_IOCP
 
 #ifndef __SOCKETENGINE_IOCP__
 #define __SOCKETENGINE_IOCP__
 
-#define READ_BUFFER_SIZE 600
-#define USING_IOCP 1
-
-#include "inspircd_config.h"
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 #include "socketengine.h"
+
+#define READ_BUFFER_SIZE 600
+#define USING_IOCP 1
 
 /** Socket overlapped event types
  */
@@ -761,3 +750,4 @@ SocketEngine* CreateSocketEngine()
 {
 	return new IOCPEngine;
 }
+#endif
