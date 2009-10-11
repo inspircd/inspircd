@@ -101,88 +101,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="..\bin\debug_x64\modules"
-			IntermediateDirectory="x64Debug_spanningtree"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\win;..\src\modules\m_spanningtree;.;..\src\modules"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DLL_BUILD;WIN64"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib inspircd.lib cmd_whois.lib cmd_stats.lib"
-				OutputFile="$(OutDir)/m_spanningtree.so"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\bin\debug_x64\bin;..\bin\debug_x64\lib"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/m_spanningtree.pdb"
-				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)/m_spanningtree.lib"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\bin\release\modules"
 			IntermediateDirectory="Release"
@@ -266,6 +184,88 @@
 				Name="VCPostBuildEventTool"
 				Description="Re-basing shared objects..."
 				CommandLine="@cd $(InputDir)&#x0D;&#x0A;@&quot;$(InputDir)\rebase.bat&quot;&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="..\bin\debug_x64\modules"
+			IntermediateDirectory="x64Debug_spanningtree"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\include;..\win;..\src\modules\m_spanningtree;.;..\src\modules"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DLL_BUILD;WIN64"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib inspircd.lib cmd_whois.lib cmd_stats.lib"
+				OutputFile="$(OutDir)/m_spanningtree.so"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\bin\debug_x64\bin;..\bin\debug_x64\lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/m_spanningtree.pdb"
+				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)/m_spanningtree.lib"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
@@ -368,11 +368,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\away.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\cachetimer.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\capab.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\compat.cpp"
 				>
 			</File>
 			<File
@@ -385,6 +393,10 @@
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\fhost.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\fident.cpp"
 				>
 			</File>
 			<File
@@ -404,10 +416,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\modules\m_spanningtree\handshaketimer.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\modules\m_spanningtree\hmac.cpp"
 				>
 			</File>
@@ -422,18 +430,6 @@
 			<File
 				RelativePath="..\src\modules\m_spanningtree\metadata.cpp"
 				>
-			</File>
-			<File
-				RelativePath="..\src\modules\m_spanningtree\modules.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\modules_spanningtree.obj"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\motd.cpp"
@@ -461,10 +457,6 @@
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\override_map.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\modules\m_spanningtree\override_modules.cpp"
 				>
 			</File>
 			<File
@@ -504,15 +496,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\modules\m_spanningtree\privmsg.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\modules\m_spanningtree\protocolinterface.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\modules\m_spanningtree\protocolinterface.h"
 				>
 			</File>
 			<File
@@ -532,16 +516,12 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\save.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\server.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\servers_spanningtree.obj"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\stats.cpp"
@@ -602,15 +582,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\modules\m_spanningtree\handshaketimer.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\modules\m_spanningtree\link.h"
 				>
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\main.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\protocolinterface.h"
 				>
 			</File>
 			<File
