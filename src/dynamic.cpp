@@ -21,11 +21,10 @@
 
 DLLManager::DLLManager(const char *fname)
 {
-	err = NULL;
-
 	if (!strstr(fname,".so"))
 	{
 		err = "This doesn't look like a module file to me...";
+		h = NULL;
 		return;
 	}
 
@@ -33,7 +32,6 @@ DLLManager::DLLManager(const char *fname)
 	if (!h)
 	{
 		err = dlerror();
-		return;
 	}
 }
 
@@ -44,24 +42,23 @@ DLLManager::~DLLManager()
 		dlclose(h);
 }
 
+union init_t {
+	void* vptr;
+	Module* (*fptr)();
+};
 
-
-bool DLLManager::GetSymbol(void** v, const char* sym_name)
+Module* DLLManager::callInit()
 {
-	/*
-	 * try extract a symbol from the library
-	 * get any error message is there is any
-	 */
+	if (!h)
+		return NULL;
 
-	if (h)
+	init_t initfn;
+	initfn.vptr = dlsym(h, "init_module");
+	if (!initfn.vptr)
 	{
-		dlerror(); // clear value
-		*v = dlsym(h, sym_name);
 		err = dlerror();
-		if (!*v || err)
-			return false;
+		return NULL;
 	}
 
-	/* succeeded :) */
-	return true;
+	return (*initfn.fptr)();
 }

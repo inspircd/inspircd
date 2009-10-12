@@ -56,7 +56,7 @@ void Event::Send()
 Module::Module() { }
 bool Module::cull()
 {
-	ServerInstance->GlobalCulls.AddItem(ModuleDLLFactory);
+	ServerInstance->GlobalCulls.AddItem(ModuleDLLManager);
 	return true;
 }
 Module::~Module() { }
@@ -372,67 +372,36 @@ bool ModuleManager::Load(const char* filename)
 	}
 
 	Module* newmod = NULL;
-	DLLFactory* newhandle = NULL;
+	DLLManager* newhandle = new DLLManager(modfile);
 
 	try
 	{
-		/* This will throw a CoreException if there's a problem loading
-		 * the module file or getting a pointer to the init_module symbol.
-		 */
-		newhandle = new DLLFactory(modfile, "init_module");
-		if (newhandle->init_func)
-			newmod = newhandle->init_func();
+		newmod = newhandle->callInit();
 
 		if (newmod)
 		{
 			newmod->ModuleSourceFile = filename_str;
-			newmod->ModuleDLLFactory = newhandle;
+			newmod->ModuleDLLManager = newhandle;
 			Version v = newmod->GetVersion();
 
-			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s", filename, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
+				filename, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 
 			Modules[filename_str] = newmod;
 		}
 		else
 		{
-			delete newhandle;
-			LastModuleError = "Unable to load " + filename_str + ": Probably missing init_module() entrypoint, but dlsym() didn't notice a problem";
+			LastModuleError = "Unable to load " + filename_str + ": " + newhandle->LastError();
 			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			delete newhandle;
 			return false;
 		}
 	}
-	/** XXX: Is there anything we can do about this mess? -- Brain
-	 * Yeah, don't use exceptions without RAII. -- Daniel
-	 */
-	catch (LoadModuleException& modexcept)
-	{
-		DetachAll(newmod);
-		if (newmod)
-			delete newmod;
-		if (newhandle)
-			delete newhandle;
-		LastModuleError = "Unable to load " + filename_str + ": Error when loading: " + modexcept.GetReason();
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-		return false;
-	}
-	catch (FindSymbolException& modexcept)
-	{
-		DetachAll(newmod);
-		if (newmod)
-			delete newmod;
-		if (newhandle)
-			delete newhandle;
-		LastModuleError = "Unable to load " + filename_str + ": Error finding symbol: " + modexcept.GetReason();
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-		return false;
-	}
 	catch (CoreException& modexcept)
 	{
-		DetachAll(newmod);
-		if (newmod)
-			delete newmod;
-		if (newhandle)
-			delete newhandle;
+		// failure in module constructor
+		delete newmod;
+		delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;

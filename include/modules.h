@@ -360,7 +360,7 @@ class CoreExport Module : public Extensible
 	std::string ModuleSourceFile;
 	/** Reference to the dlopen() value
 	 */
-	DLLFactory* ModuleDLLFactory;
+	DLLManager* ModuleDLLManager;
 
 	/** Default constructor.
 	 * Creates a module class.
