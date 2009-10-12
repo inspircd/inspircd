@@ -412,7 +412,7 @@ static bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem 
 
 	const std::string& sid = data.GetValue();
 
-	if (!ServerInstance->IsSID(sid))
+	if (!sid.empty() && !ServerInstance->IsSID(sid))
 	{
 		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}

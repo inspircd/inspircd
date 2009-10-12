@@ -568,7 +568,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	if (Config->sid.empty())
 	{
 		// Generate one
-		int sid = 0;
+		unsigned int sid = 0;
 		char sidstr[4];
 
 		for (const char* x = Config->ServerName.c_str(); *x; ++x)
