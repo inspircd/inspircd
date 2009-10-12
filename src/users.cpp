@@ -1200,7 +1200,7 @@ void User::WriteCommon(const char* text, ...)
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 
-	if (this->registered != REG_ALL || !IS_LOCAL(this) || quitting)
+	if (this->registered != REG_ALL || quitting)
 		return;
 
 	int len = snprintf(textbuffer,MAXBUF,":%s ",this->GetFullHost().c_str());
@@ -1217,7 +1217,7 @@ void User::WriteCommonExcept(const char* text, ...)
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 
-	if (this->registered != REG_ALL || !IS_LOCAL(this) || quitting)
+	if (this->registered != REG_ALL || quitting)
 		return;
 
 	int len = snprintf(textbuffer,MAXBUF,":%s ",this->GetFullHost().c_str());
@@ -1231,7 +1231,7 @@ void User::WriteCommonExcept(const char* text, ...)
 
 void User::WriteCommonRaw(const std::string &line, bool include_self)
 {
-	if (this->registered != REG_ALL || !IS_LOCAL(this) || quitting)
+	if (this->registered != REG_ALL || quitting)
 		return;
 
 	if (!already_sent)
