@@ -758,6 +758,74 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="modes"
+				>
+				<File
+					RelativePath="..\include\modes\cmode_b.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_h.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_i.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_k.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_l.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_m.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_n.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_o.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_p.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_s.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_t.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\cmode_v.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\umode_i.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\umode_o.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\umode_s.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\modes\umode_w.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="modes"
