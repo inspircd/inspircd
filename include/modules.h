@@ -104,7 +104,9 @@ struct ModResult {
 	}
 };
 
-/** If you change the module API in any way, increment this value. */
+/** If you change the module API in any way, increment this value.
+ * This MUST be a pure integer, with no parenthesis
+ */
 #define API_VERSION 133
 
 class ServerConfig;
@@ -1733,6 +1735,16 @@ class CoreExport ModuleManager : public classbase
 	const std::vector<std::string> GetAllModuleNames(int filter);
 };
 
+/** Do not mess with these functions unless you know the C preprocessor
+ * well enough to explain why they are needed. The order is important.
+ */
+#define MODULE_INIT_STR MODULE_INIT_STR_FN_2(MODULE_INIT_SYM)
+#define MODULE_INIT_STR_FN_2(x) MODULE_INIT_STR_FN_1(x)
+#define MODULE_INIT_STR_FN_1(x) #x
+#define MODULE_INIT_SYM MODULE_INIT_SYM_FN_2(API_VERSION)
+#define MODULE_INIT_SYM_FN_2(x) MODULE_INIT_SYM_FN_1(x)
+#define MODULE_INIT_SYM_FN_1(x) inspircd_module_ ## x
+
 /** This definition is used as shorthand for the various classes
  * and functions needed to make a module loadable by the OS.
  * It defines the class factory and external init_module function.
@@ -1740,7 +1752,7 @@ class CoreExport ModuleManager : public classbase
 #ifdef WINDOWS
 
 #define MODULE_INIT(y) \
-	extern "C" DllExport Module * init_module() \
+	extern "C" DllExport Module * MODULE_INIT_SYM() \
 	{ \
 		return new y; \
 	} \
@@ -1758,7 +1770,7 @@ class CoreExport ModuleManager : public classbase
 #else
 
 #define MODULE_INIT(y) \
-	extern "C" DllExport Module * init_module() \
+	extern "C" DllExport Module * MODULE_INIT_SYM() \
 	{ \
 		return new y; \
 	}

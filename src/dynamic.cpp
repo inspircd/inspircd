@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "dynamic.h"
 #ifndef WIN32
@@ -53,7 +51,7 @@ Module* DLLManager::callInit()
 		return NULL;
 
 	init_t initfn;
-	initfn.vptr = dlsym(h, "init_module");
+	initfn.vptr = dlsym(h, MODULE_INIT_STR);
 	if (!initfn.vptr)
 	{
 		err = dlerror();
