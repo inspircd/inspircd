@@ -60,7 +60,7 @@ class CoreExport reference_base
 };
 
 template <typename T>
-class CoreExport reference : public reference_base
+class reference : public reference_base
 {
 	T* value;
  public:
