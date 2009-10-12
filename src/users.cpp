@@ -1401,8 +1401,8 @@ void User::DoHostCycle(const std::string &quitline)
 	if (!ServerInstance->Config->CycleHosts)
 		return;
 
-	int silent_id = ++uniq_id;
-	int seen_id = ++uniq_id;
+	unsigned int silent_id = ++uniq_id;
+	unsigned int seen_id = ++uniq_id;
 
 	if (!already_sent)
 		InitializeAlreadySent(ServerInstance->SE);
