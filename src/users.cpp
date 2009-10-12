@@ -1401,7 +1401,8 @@ void User::DoHostCycle(const std::string &quitline)
 	if (!ServerInstance->Config->CycleHosts)
 		return;
 
-	uniq_id++;
+	int silent_id = ++uniq_id;
+	int seen_id = ++uniq_id;
 
 	if (!already_sent)
 		InitializeAlreadySent(ServerInstance->SE);
@@ -1416,9 +1417,15 @@ void User::DoHostCycle(const std::string &quitline)
 		User* u = i->first;
 		if (IS_LOCAL(u) && !u->quitting)
 		{
-			already_sent[u->fd] = uniq_id;
 			if (i->second)
+			{
+				already_sent[u->fd] = seen_id;
 				u->Write(quitline);
+			}
+			else
+			{
+				already_sent[u->fd] = silent_id;
+			}
 		}
 	}
 	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
@@ -1439,11 +1446,13 @@ void User::DoHostCycle(const std::string &quitline)
 			User* u = i->first;
 			if (u == this || !IS_LOCAL(u))
 				continue;
+			if (already_sent[u->fd] == silent_id)
+				continue;
 
-			if (already_sent[i->first->fd] != uniq_id)
+			if (already_sent[u->fd] != seen_id)
 			{
 				u->Write(quitline);
-				already_sent[i->first->fd] = uniq_id;
+				already_sent[i->first->fd] = seen_id;
 			}
 			u->Write(joinline);
 			if (modeline.length() > 0)

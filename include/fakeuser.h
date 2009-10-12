@@ -16,7 +16,7 @@
 
 #include "users.h"
 
-class FakeUser : public User
+class CoreExport FakeUser : public User
 {
  public:
 	FakeUser(const std::string &uid) : User(uid)
