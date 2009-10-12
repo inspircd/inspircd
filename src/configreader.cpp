@@ -410,11 +410,11 @@ static bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem 
 {
 	ServerInstance->Logs->Log("CONFIG",DEFAULT,"Validating server id");
 
-	const char *sid = data.GetString();
+	const std::string& sid = data.GetValue();
 
-	if (*sid && !ServerInstance->IsSID(sid))
+	if (!ServerInstance->IsSID(sid))
 	{
-		throw CoreException(std::string(sid) + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
+		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
 
 	conf->sid = sid;

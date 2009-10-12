@@ -568,15 +568,16 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	if (Config->sid.empty())
 	{
 		// Generate one
-		size_t sid = 0;
+		int sid = 0;
+		char sidstr[4];
 
 		for (const char* x = Config->ServerName.c_str(); *x; ++x)
 			sid = 5 * sid + *x;
 		for (const char* y = Config->ServerDesc.c_str(); *y; ++y)
 			sid = 5 * sid + *y;
-		sid = sid % 999;
+		sprintf(sidstr, "%03d", sid % 1000);
 
-		Config->sid = ConvToStr(sid);
+		Config->sid = sidstr;
 	}
 
 	/* set up fake client again this time with the correct uid */
