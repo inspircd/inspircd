@@ -361,6 +361,11 @@ void StreamSocket::DoWrite()
 			else if (rv > 0)
 			{
 				// Partial write. Clean out strings from the sendq
+				if (rv < rv_max)
+				{
+					// it's going to block now
+					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
+				}
 				sendq_len -= rv;
 				while (rv > 0 && !sendq.empty())
 				{
@@ -377,11 +382,6 @@ void StreamSocket::DoWrite()
 						front = front.substr(rv);
 						rv = 0;
 					}
-				}
-				if (rv < rv_max)
-				{
-					// it's going to block now
-					eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 				}
 			}
 			else if (rv == 0)
