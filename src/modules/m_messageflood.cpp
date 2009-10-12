@@ -208,7 +208,7 @@ class ModuleMsgFlood : public Module
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
 		ModResult res;
-		FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (dest->GetUser(user),dest,"flood"));
+		FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,dest,"flood"));
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 

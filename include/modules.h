@@ -105,7 +105,7 @@ struct ModResult {
 };
 
 /** If you change the module API in any way, increment this value. */
-#define API_VERSION 132
+#define API_VERSION 133
 
 class ServerConfig;
 
@@ -1284,7 +1284,7 @@ class CoreExport Module : public Extensible
 	 * @return MOD_RES_DENY to apply the restriction, MOD_RES_ALLOW to bypass
 	 * the restriction, or MOD_RES_PASSTHRU to check restriction status normally
 	 */
-	virtual ModResult OnChannelRestrictionApply(Membership* memb, Channel* chan, const char* restriction);
+	virtual ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction);
 };
 
 

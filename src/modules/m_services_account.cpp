@@ -174,7 +174,7 @@ class ModuleServicesAccount : public Module
 		{
 			Channel* c = (Channel*)dest;
 			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"regmoderated"));
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"regmoderated"));
 
 			if (c->IsModeSet('M') && !is_registered && res != MOD_RES_ALLOW)
 			{

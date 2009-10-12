@@ -218,7 +218,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (channel->GetUser(user),channel,"nickflood"));
+				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,channel,"nickflood"));
 				if (res == MOD_RES_ALLOW)
 					continue;
 
@@ -257,7 +257,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (channel->GetUser(user),channel,"nickflood"));
+				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,channel,"nickflood"));
 				if (res == MOD_RES_ALLOW)
 					return;
 				

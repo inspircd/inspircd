@@ -89,8 +89,8 @@ class CoreExport reference : public reference_base
 	inline const T& operator*() const { return *value; }
 	inline T* operator->() { return value; }
 	inline T& operator*() { return *value; }
-	operator bool() const { return value; }
-	operator T*() const { return value; }
+	inline operator bool() const { return value; }
+	inline operator T*() const { return value; }
 };
 
 /** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.

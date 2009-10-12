@@ -86,7 +86,7 @@ class ModuleNoNickChange : public Module
 			Channel* curr = *i;
 
 			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (curr->GetUser(user),curr,"nonick"));
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,curr,"nonick"));
 
 			if (res == MOD_RES_ALLOW)
 				continue;

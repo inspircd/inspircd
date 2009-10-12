@@ -86,7 +86,7 @@ class ModuleChanFilter : public Module
 	virtual ModResult ProcessMessages(User* user,Channel* chan,std::string &text)
 	{
 		ModResult res;
-		FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (chan->GetUser(user),chan,"filter"));
+		FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,chan,"filter"));
 
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;

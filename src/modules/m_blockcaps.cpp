@@ -60,7 +60,7 @@ public:
 
 			Channel* c = (Channel*)dest;
 			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"blockcaps"));
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"blockcaps"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

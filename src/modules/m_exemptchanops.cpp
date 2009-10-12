@@ -99,12 +99,12 @@ class ModuleExemptChanOps : public Module
 		ec.DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual ModResult OnChannelRestrictionApply(Membership* memb, Channel* chan, const char* restriction)
+	virtual ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction)
 	{
 		irc::spacesepstream allowstream(alwaysexempt), denystream(neverexempt);
 		std::string current;
 
-		if (memb->getRank() != OP_VALUE)
+		if (chan->GetPrefixValue(user) != OP_VALUE)
 			return MOD_RES_PASSTHRU; // They're not opped, so we don't exempt them
 		while(denystream.GetToken(current))
 			if (!strcasecmp(restriction, current.c_str())) return MOD_RES_PASSTHRU; // This mode is set to never allow exemptions in the config

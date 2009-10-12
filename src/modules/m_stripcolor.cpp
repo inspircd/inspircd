@@ -111,7 +111,7 @@ class ModuleStripColor : public Module
 		{
 			Channel* t = (Channel*)dest;
 			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (t->GetUser(user),t,"stripcolor"));
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,t,"stripcolor"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

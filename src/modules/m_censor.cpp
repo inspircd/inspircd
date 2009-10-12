@@ -76,7 +76,7 @@ class ModuleCensor : public Module
 			active = ((Channel*)dest)->IsModeSet('G');
 			Channel* c = (Channel*)dest;
 			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"censor"));
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"censor"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

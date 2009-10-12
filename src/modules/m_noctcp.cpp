@@ -79,7 +79,7 @@ class ModuleNoCTCP : public Module
 		{
 			Channel* c = (Channel*)dest;
 			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"noctcp"));
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"noctcp"));
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
