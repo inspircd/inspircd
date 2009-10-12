@@ -173,8 +173,10 @@ class ModuleServicesAccount : public Module
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
+			ModResult res;
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"regmoderated"));
 
-			if (c->IsModeSet('M') && !is_registered)
+			if (c->IsModeSet('M') && !is_registered && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
 				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");

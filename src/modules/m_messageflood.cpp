@@ -207,10 +207,10 @@ class ModuleMsgFlood : public Module
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
-		if (!IS_LOCAL(user) || (CHANOPS_EXEMPT('f') && dest->GetPrefixValue(user) == OP_VALUE))
-		{
+		ModResult res;
+		FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (dest->GetUser(user),dest,"flood"));
+		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
-		}
 
 		floodsettings *f = mf.ext.get(dest);
 		if (f)

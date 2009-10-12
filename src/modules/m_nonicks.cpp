@@ -85,7 +85,10 @@ class ModuleNoNickChange : public Module
 		{
 			Channel* curr = *i;
 
-			if (CHANOPS_EXEMPT('N') && curr->GetPrefixValue(user) == OP_VALUE)
+			ModResult res;
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (curr->GetUser(user),curr,"nonick"));
+
+			if (res == MOD_RES_ALLOW)
 				continue;
 
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))

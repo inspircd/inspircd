@@ -75,10 +75,11 @@ class ModuleCensor : public Module
 		{
 			active = ((Channel*)dest)->IsModeSet('G');
 			Channel* c = (Channel*)dest;
-			if (CHANOPS_EXEMPT('G') && c->GetPrefixValue(user) == OP_VALUE)
-			{
+			ModResult res;
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"censor"));
+
+			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
-			}
 		}
 
 		if (!active)

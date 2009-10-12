@@ -42,6 +42,7 @@ class ModuleNoNotice : public Module
 
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
+		ModResult res;
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
@@ -52,11 +53,9 @@ class ModuleNoNotice : public Module
 					// ulines are exempt.
 					return MOD_RES_PASSTHRU;
 				}
-				else if (CHANOPS_EXEMPT('T') && c->GetPrefixValue(user) == OP_VALUE)
-				{
-					// channel ops are exempt if set in conf.
+				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"nonotice"));
+				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
-				}
 				else
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Can't send NOTICE to channel (+T set)",user->nick.c_str(), c->name.c_str());

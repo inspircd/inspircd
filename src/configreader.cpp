@@ -382,14 +382,6 @@ static bool ValidateModeLists(ServerConfig* conf, const char*, const char*, Valu
 	return true;
 }
 
-static bool ValidateExemptChanOps(ServerConfig* conf, const char*, const char*, ValueItem &data)
-{
-	memset(conf->ExemptChanOps, 0, sizeof(conf->ExemptChanOps));
-	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
-		conf->ExemptChanOps[*x] = true;
-	return true;
-}
-
 static bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	const std::string& v = data.GetValue();
@@ -801,7 +793,6 @@ static const InitialConfig Values[] = {
 	{"security",	"announceinvites", "1",			NULL, DT_NOTHING,  ValidateInvite},
 	{"options",	"hostintopic",	"1",			new ValueContainerBool (&ServerConfig::FullHostInTopic),	DT_BOOLEAN,  NULL},
 	{"security",	"hidemodes",	"",			NULL, DT_NOTHING,  ValidateModeLists},
-	{"options",	"exemptchanops","",			NULL, DT_NOTHING,  ValidateExemptChanOps},
 	{"security",	"maxtargets",	"20",			new ValueContainerUInt (&ServerConfig::MaxTargets),		DT_INTEGER,  ValidateMaxTargets},
 	{"options",	"defaultmodes", "nt",			new ValueContainerString (&ServerConfig::DefaultModes),		DT_CHARPTR,  NULL},
 	{"pid",		"file",		"",			new ValueContainerString (&ServerConfig::PID),			DT_CHARPTR,  NULL},

@@ -14,13 +14,6 @@
 #ifndef INSPIRCD_CONFIGREADER
 #define INSPIRCD_CONFIGREADER
 
-/* handy defines */
-
-/** Determines if a channel op is exempt from given mode m,
- * in config of server instance s.
- */
-#define CHANOPS_EXEMPT(m) (ServerInstance->Config->ExemptChanOps[(unsigned char)m])
-
 #include <sstream>
 #include <string>
 #include <vector>
@@ -384,11 +377,6 @@ class CoreExport ServerConfig : public classbase
 	 * users.
 	 */
 	bool HideModeLists[256];
-
-	/** If this is set to true, then channel operators
-	 * are exempt from this channel mode. Used for +Sc etc.
-	 */
-	bool ExemptChanOps[256];
 
 	/** The number of seconds the DNS subsystem
 	 * will wait before timing out any request.

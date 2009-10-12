@@ -110,13 +110,11 @@ class ModuleStripColor : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* t = (Channel*)dest;
+			ModResult res;
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (t->GetUser(user),t,"stripcolor"));
 
-			// check if we allow ops to bypass filtering, if we do, check if they're opped accordingly.
-			// note: short circut logic here, don't wreck it. -- w00t
-			if (CHANOPS_EXEMPT('S') && t->GetPrefixValue(user) == OP_VALUE)
-			{
+			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
-			}
 
 			active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet('S'));
 		}

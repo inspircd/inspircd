@@ -150,6 +150,7 @@ void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { 
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnHookIO(StreamSocket*, ListenSocketBase*) { }
 void		Module::OnSendWhoLine(User*, User*, Channel*, std::string&) { }
+ModResult	Module::OnChannelRestrictionApply(Membership*, Channel*, const char*) { return MOD_RES_PASSTHRU; }
 
 ModuleManager::ModuleManager() : ModCount(0)
 {

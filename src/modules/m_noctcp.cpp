@@ -78,11 +78,11 @@ class ModuleNoCTCP : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
+			ModResult res;
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"noctcp"));
 
-			if (CHANOPS_EXEMPT('C') && c->GetPrefixValue(user) == OP_VALUE)
-			{
+			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
-			}
 
 			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet('C')))
 			{

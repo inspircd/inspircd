@@ -16,7 +16,7 @@
 /* $ModDesc: Provides support to block all-CAPS channel messages and notices */
 
 
-/** Handles the +P channel mode
+/** Handles the +B channel mode
  */
 class BlockCaps : public SimpleChannelModeHandler
 {
@@ -59,11 +59,11 @@ public:
 				return MOD_RES_PASSTHRU;
 
 			Channel* c = (Channel*)dest;
+			ModResult res;
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"blockcaps"));
 
-			if (CHANOPS_EXEMPT('B') && c->GetPrefixValue(user) == OP_VALUE)
-			{
+			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
-			}
 
 			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet('B')))
 			{

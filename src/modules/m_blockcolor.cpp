@@ -47,11 +47,11 @@ class ModuleBlockColour : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
+			ModResult res;
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (c->GetUser(user),c,"blockcolor"));
 
-			if (CHANOPS_EXEMPT('c') && c->GetPrefixValue(user) == OP_VALUE)
-			{
+			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
-			}
 
 			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet('c')))
 			{

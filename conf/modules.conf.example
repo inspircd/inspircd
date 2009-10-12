@@ -697,6 +697,21 @@
 # http://wiki.inspircd.org/Modules/dnsbl                              #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Exempt Channel Operators Module: Provides support for allowing      #
+# channel operators to be exempt from some channel modes.  Supported  #
+# modes are blockcaps, noctcp, blockcolor, nickflood, flood, censor,  #
+# filter, regmoderated, nonick, nonotice, and stripcolor.             #
+#<module name="m_exemptchanops.so">                                   #
+#                                                                     #
+#-#-#-#-#-#-#-#-#-#-  EXEMPTCHANOPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
+#  alwaysexempt      - Modes channel operators are always exempt from,
+#                      regardless of channel setting.
+#  neverexempt       - Modes channel operators are never exempt from,
+#                      regardless of channel setting.
+#<exemptchanops alwaysexempt="nickflood censor flood filter" neverexempt="regmoderated">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Filter module: Provides message filtering, similar to SPAMFILTER.
 #<module name="m_filter.so">
 #                                                                     #
