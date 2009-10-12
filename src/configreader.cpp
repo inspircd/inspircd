@@ -1230,19 +1230,19 @@ void ServerConfig::ApplyModules(User* user)
 			continue;
 		if (ServerInstance->Modules->Unload(removing->c_str()))
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
 			if (user)
 				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
 			else
-				ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully unloaded.", removing->c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", removing->c_str());
 		}
 		else
 		{
 			if (user)
 				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
 			else
-				 ServerInstance->SNO->WriteToSnoMask('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				 ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 
@@ -1250,25 +1250,25 @@ void ServerConfig::ApplyModules(User* user)
 	{
 		if (ServerInstance->Modules->Load(adding->c_str()))
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
 			if (user)
 				user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
 			else
-				ServerInstance->SNO->WriteToSnoMask('a', "Module %s successfully loaded.", adding->c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully loaded.", adding->c_str());
 		}
 		else
 		{
 			if (user)
 				user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 			else
-				ServerInstance->SNO->WriteToSnoMask('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 
 	if (user)
 		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
 	else
-		ServerInstance->SNO->WriteToSnoMask('a', "*** Successfully rehashed server.");
+		ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
 }
 
 bool ServerConfig::LoadConf(FILE* &conf, const char* filename, bool allowexeinc)
