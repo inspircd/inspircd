@@ -15,8 +15,12 @@
 #include "socket.h"
 #include "inspstring.h"
 #include "socketengine.h"
-#ifndef WINDOWS
+
+#ifndef DISABLE_WRITEV
 #include <sys/uio.h>
+#ifndef IOV_MAX
+#define IOV_MAX 1024
+#endif
 #endif
 
 BufferedSocket::BufferedSocket()
@@ -225,52 +229,90 @@ void StreamSocket::DoWrite()
 		return;
 	}
 
+#ifndef DISABLE_WRITEV
 	if (IOHook)
+#endif
 	{
 		int rv = -1;
 		try
 		{
-			if (sendq.size() > 1 && sendq[0].length() < 1024)
-			{
-				// Avoid multiple repeated SSL encryption invocations
-				// This adds a single copy of the queue, but avoids
-				// much more overhead in terms of system calls invoked
-				// by the IOHook.
-				//
-				// The length limit of 1024 is to prevent merging strings
-				// more than once when writes begin to block.
-				std::string tmp;
-				tmp.reserve(sendq_len);
-				for(unsigned int i=0; i < sendq.size(); i++)
-					tmp.append(sendq[i]);
-				sendq.clear();
-				sendq.push_back(tmp);
-			}
 			while (!sendq.empty())
 			{
+				if (sendq.size() > 1 && sendq[0].length() < 1024)
+				{
+					// Avoid multiple repeated SSL encryption invocations
+					// This adds a single copy of the queue, but avoids
+					// much more overhead in terms of system calls invoked
+					// by the IOHook.
+					//
+					// The length limit of 1024 is to prevent merging strings
+					// more than once when writes begin to block.
+					std::string tmp;
+					tmp.reserve(sendq_len);
+					for(unsigned int i=0; i < sendq.size(); i++)
+						tmp.append(sendq[i]);
+					sendq.clear();
+					sendq.push_back(tmp);
+				}
 				std::string& front = sendq.front();
 				int itemlen = front.length();
-				rv = IOHook->OnStreamSocketWrite(this, front);
-				if (rv > 0)
+				if (IOHook)
 				{
-					// consumed the entire string, and is ready for more
-					sendq_len -= itemlen;
-					sendq.pop_front();
-				}
-				else if (rv == 0)
-				{
-					// socket has blocked. Stop trying to send data.
-					// IOHook has requested unblock notification from the socketengine
+					rv = IOHook->OnStreamSocketWrite(this, front);
+					if (rv > 0)
+					{
+						// consumed the entire string, and is ready for more
+						sendq_len -= itemlen;
+						sendq.pop_front();
+					}
+					else if (rv == 0)
+					{
+						// socket has blocked. Stop trying to send data.
+						// IOHook has requested unblock notification from the socketengine
 
-					// Since it is possible that a partial write took place, adjust sendq_len
-					sendq_len = sendq_len - itemlen + front.length();
-					return;
+						// Since it is possible that a partial write took place, adjust sendq_len
+						sendq_len = sendq_len - itemlen + front.length();
+						return;
+					}
+					else
+					{
+						SetError("Write Error"); // will not overwrite a better error message
+						return;
+					}
 				}
+#ifdef DISABLE_WRITEV
 				else
 				{
-					SetError("Write Error"); // will not overwrite a better error message
-					return;
+					rv = ServerInstance->SE->Send(this, front.data(), itemlen, 0);
+					if (rv == 0)
+					{
+						SetError("Connection closed");
+						return;
+					}
+					else if (rv < 0)
+					{
+						if (errno == EAGAIN || errno == EINTR)
+							ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
+						else
+							SetError(strerror(errno));
+						return;
+					}
+					else if (rv < itemlen)
+					{
+						ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
+						front = front.substr(itemlen - rv);
+						sendq_len -= rv;
+						return;
+					}
+					else
+					{
+						sendq_len -= itemlen;
+						sendq.pop_front();
+						if (sendq.empty())
+							ServerInstance->SE->ChangeEventMask(this, FD_WANT_EDGE_WRITE);
+					}
 				}
+#endif
 			}
 		}
 		catch (CoreException& modexcept)
@@ -279,6 +321,7 @@ void StreamSocket::DoWrite()
 				modexcept.GetSource(), modexcept.GetReason());
 		}
 	}
+#ifndef DISABLE_WRITEV
 	else
 	{
 		// don't even try if we are known to be blocking
@@ -368,6 +411,7 @@ void StreamSocket::DoWrite()
 			ServerInstance->SE->ChangeEventMask(this, eventChange);
 		}
 	}
+#endif
 }
 
 void StreamSocket::WriteData(const std::string &data)

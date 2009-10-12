@@ -229,14 +229,7 @@ class ServerConfig;
 /* Look up the nameserver in use from the registry on windows */
 CoreExport std::string FindNameServerWin();
 
-/* no uio.h on win, but win has alternatives in io.h rest is wrapped here */
-#define IOV_MAX 1024
-struct iovec
-{
-	size_t  iov_len;
-	void*   iov_base;
-};
-CoreExport ssize_t writev(int fd, const struct iovec* iov, int iovcnt);
+#define DISABLE_WRITEV
 
 /* Clear a windows console */
 CoreExport void ClearConsole();

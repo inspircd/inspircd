@@ -147,30 +147,6 @@ const char * dlerror()
 	return errormessage;
 }
 
-ssize_t writev(int fd, const struct iovec* iov, int iovcnt)
-{
-    ssize_t ret;
-    size_t tot = 0;
-    int i;
-    char *buf, *p;
-
-    for(i = 0; i < iovcnt; ++i)
-        tot += iov[i].iov_len;
-    buf = (char*)malloc(tot);
-    if (tot != 0 && buf == NULL) {
-        errno = ENOMEM;
-        return -1;
-    }
-    p = buf;
-    for (i = 0; i < iovcnt; ++i) {
-        memcpy (p, iov[i].iov_base, iov[i].iov_len);
-        p += iov[i].iov_len;
-    }
-    ret = send((SOCKET)fd, buf, tot, 0);
-    free (buf);
-    return ret;
-}
-
 #define TRED FOREGROUND_RED | FOREGROUND_INTENSITY
 #define TGREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
 #define TYELLOW FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
