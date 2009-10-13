@@ -57,6 +57,7 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 
 ModeHandler::~ModeHandler()
 {
+	ServerInstance->Modes->DelMode(this);
 }
 
 bool ModeHandler::IsListMode()
@@ -688,22 +689,6 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	modehandlers[pos] = NULL;
 
 	return true;
-}
-
-void ModeParser::RemoveModes(Module* mod)
-{
-	for(int i=0; i < 256; i++)
-	{
-		ModeHandler* mh = modehandlers[i];
-		if (mh && mh->creator == mod)
-			DelMode(mh);
-		for(unsigned int j=0; j < modewatchers[i].size(); j++)
-		{
-			ModeWatcher* mw = modewatchers[i][j];
-			if (mw && mw->creator == mod)
-				DelModeWatcher(mw);
-		}
-	}
 }
 
 ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)

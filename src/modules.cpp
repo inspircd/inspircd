@@ -474,9 +474,6 @@ bool ModuleManager::Unload(const char* filename)
 
 		this->DetachAll(modfind->second);
 
-		ServerInstance->Parser->RemoveCommands(modfind->second);
-		ServerInstance->Modes->RemoveModes(modfind->second);
-
 		ServerInstance->GlobalCulls.AddItem(modfind->second);
 		Modules.erase(modfind);
 
@@ -495,7 +492,7 @@ bool ModuleManager::Unload(const char* filename)
 void ModuleManager::LoadAll()
 {
 	char configToken[MAXBUF];
-	ModCount = -1;
+	ModCount = 0;
 
 	printf("\nLoading core commands");
 	fflush(stdout);
@@ -670,24 +667,6 @@ const std::string& ModuleManager::GetModuleName(Module* m)
 	return nothing;
 }
 
-/* This is ugly, yes, but hash_map's arent designed to be
- * addressed in this manner, and this is a bit of a kludge.
- * Luckily its a specialist function and rarely used by
- * many modules (in fact, it was specially created to make
- * m_safelist possible, initially).
- */
-
-Channel* InspIRCd::GetChannelIndex(long index)
-{
-	int target = 0;
-	for (chan_hash::iterator n = this->chanlist->begin(); n != this->chanlist->end(); n++, target++)
-	{
-		if (index == target)
-			return n->second;
-	}
-	return NULL;
-}
-
 CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user)
 {
 	return this->Parser->CallHandler(commandname, parameters, user);
@@ -700,10 +679,9 @@ bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, Us
 
 void InspIRCd::AddCommand(Command *f)
 {
-	if (!this->Parser->CreateCommand(f))
+	if (!this->Parser->AddCommand(f))
 	{
-		ModuleException err("Command "+std::string(f->command)+" already exists.");
-		throw (err);
+		throw ModuleException("Command "+std::string(f->command)+" already exists.");
 	}
 }
 

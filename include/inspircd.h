@@ -727,12 +727,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void RehashServer();
 
-	/** Return the channel whos index number matches that provided
-	 * @param The index number of the channel to fetch
-	 * @return A channel record, or NUll if index < 0 or index >= InspIRCd::ChannelCount()
-	 */
-	Channel* GetChannelIndex(long index);
-
 	/** Dump text to a user target, splitting it appropriately to fit
 	 * @param User the user to dump the text to
 	 * @param LinePrefix text to prefix each complete line with

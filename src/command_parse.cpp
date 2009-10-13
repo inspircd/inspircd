@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "xline.h"
 #include "socketengine.h"
@@ -396,24 +394,16 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	}
 }
 
-void CommandParser::RemoveCommands(Module* source)
+void CommandParser::RemoveCommand(Command* x)
 {
-	Commandtable::iterator i,safei;
-	for (i = cmdlist.begin(); i != cmdlist.end();)
-	{
-		safei = i;
-		i++;
-		RemoveCommand(safei, source);
-	}
+	Commandtable::iterator n = cmdlist.find(x->command);
+	if (n != cmdlist.end() && n->second == x)
+		cmdlist.erase(n);
 }
 
-void CommandParser::RemoveCommand(Commandtable::iterator safei, Module* source)
+Command::~Command()
 {
-	Command* x = safei->second;
-	if (x->creator == source)
-	{
-		cmdlist.erase(safei);
-	}
+	ServerInstance->Parser->RemoveCommand(this);
 }
 
 bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
@@ -426,7 +416,7 @@ bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
 	return ProcessCommand(user,buffer);
 }
 
-bool CommandParser::CreateCommand(Command *f)
+bool CommandParser::AddCommand(Command *f)
 {
 	/* create the command and push it onto the table */
 	if (cmdlist.find(f->command) == cmdlist.end())

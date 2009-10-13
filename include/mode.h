@@ -510,9 +510,6 @@ class CoreExport ModeParser : public classbase
 	 */
 	bool DelMode(ModeHandler* mh);
 
-	/** Delete all modes and mode watchers associated with a given module
-	 */
-	void RemoveModes(Module* mod);
 	/** Add a mode watcher.
 	 * A mode watcher is triggered before and after a mode handler is
 	 * triggered. See the documentation of class ModeWatcher for more

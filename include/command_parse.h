@@ -43,10 +43,6 @@ class CoreExport CommandParser : public classbase
 	 */
 	bool ProcessCommand(User *user, std::string &cmd);
 
-	/** Removes a command if the sources match. Used as a helper for
-	 *  safe hash_map delete while iter in RemoveCommands(const char* source).
-	 */
-	void RemoveCommand(nspace::hash_map<std::string,Command*>::iterator safei, Module* source);
 
 
  public:
@@ -145,16 +141,15 @@ class CoreExport CommandParser : public classbase
 	 */
 	void DoLines(User* current, bool one_only = false);
 
-	/** Remove all commands relating to module 'source'.
-	 * @param source A module which has introduced new commands
-	 */
-	void RemoveCommands(Module* source);
-
 	/** Add a new command to the commands hash
 	 * @param f The new Command to add to the list
 	 * @return True if the command was added
 	 */
-	bool CreateCommand(Command *f);
+	bool AddCommand(Command *f);
+
+	/** Removes a command.
+	 */
+	void RemoveCommand(Command* x);
 
 	/** Translate nicknames in a string into UIDs, based on the TranslationType given.
 	 * @param to The translation type to use for the process.

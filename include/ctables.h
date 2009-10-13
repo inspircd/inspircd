@@ -90,7 +90,7 @@ class CoreExport Command : public Extensible
  public:
 	/** Command name
 	*/
-	std::string command;
+	const std::string command;
 
 	/** Creator module - never NULL */
 	Module* const creator;
@@ -211,9 +211,7 @@ class CoreExport Command : public Extensible
 		return works_before_reg;
 	}
 
-	virtual ~Command()
-	{
-	}
+	virtual ~Command();
 };
 
 /** A hash of commands used by the core
