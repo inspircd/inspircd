@@ -401,15 +401,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->argv = argv;
 	this->Config->argc = argc;
 
-	if (chdir(Config->GetFullProgDir().c_str()))
-	{
-		printf("Unable to change to my directory: %s\nAborted.", strerror(errno));
-		exit(0);
-	}
-
-	this->Config->opertypes.clear();
-	this->Config->operclass.clear();
-
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 	srand(this->TIME);
 

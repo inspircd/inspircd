@@ -18,6 +18,7 @@ use Fcntl;
 my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@/";
 my $binpath	=	"@BINARY_DIR@";
+my $runpath	=	"@BINARY_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"@EXECUTABLE@";
 my $version	=	"@VERSION@";
@@ -131,10 +132,11 @@ sub cmd_start(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 	# If we are still alive here.. Try starting the IRCd..
+	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
 
-	exec { "$binpath/$executable" } "$binpath/$executable", @_;
+	exec "$binpath/$executable", @_;
 	die "Failed to start IRCd: $!\n";
 }
 
@@ -143,6 +145,7 @@ sub dev_debug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
+	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
 
@@ -159,6 +162,7 @@ sub dev_screendebug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
+	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 
 	#Check we have gdb
@@ -177,6 +181,7 @@ sub dev_valdebug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
+	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
 
@@ -197,6 +202,7 @@ sub dev_valdebug_unattended(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
+	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
 
@@ -233,6 +239,7 @@ sub dev_screenvaldebug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
+	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
 

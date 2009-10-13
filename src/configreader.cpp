@@ -1673,7 +1673,7 @@ bool ServerConfig::DoInclude(const std::string &file, bool allowexeinc)
 
 	if ((newfile[0] != '/') && (!StartsWithWindowsDriveLetter(newfile)))
 	{
-		pos = confpath.rfind("/")
+		pos = confpath.rfind("/");
 		if(pos != std::string::npos)
 		{
 			/* Leaves us with just the path */
