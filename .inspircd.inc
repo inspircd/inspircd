@@ -303,7 +303,7 @@ sub getpidfile
 	# Are We using a relative path?
 	if ($file !~ /^\//) {
 		# Convert it to a full path.
-		$file = $runpath . $file;
+		$file = $runpath .'/'. $file;
 	}
 
 	# Have we checked this file before?
@@ -311,7 +311,7 @@ sub getpidfile
 	$filesparsed{$file} = 1;
 
 	# Open the File..
-	open INFILE, '<', $file or die "Unable to open file $file included in configuration\n";
+	open INFILE, '<', $file or return;
 	# Grab entire file contents..
 	my(@lines) = <INFILE>;
 	# Close the file
@@ -331,13 +331,10 @@ sub getpidfile
 			{
 				return;
 			}
-			else
+			elsif (-f "$runpath/$pidfile")
 			{
-				if (-f $runpath . $pidfile)
-				{
-					$pidfile = $runpath . $pidfile;
-					return;
-				}
+				$pidfile = "$runpath/$pidfile";
+				return;
 			}
 			return;
 		}
@@ -352,18 +349,6 @@ sub getpidfile
 			# Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
 			getpidfile($1);
 			# Was a PID found?
-			if (-f $pidfile)
-			{
-				return;
-			}
-			else
-			{
-				if (-f $runpath . $pidfile)
-				{
-					$pidfile = $runpath . $pidfile;
-					return;
-				}
-			}
 			if ($pidfile ne "") {
 				# Yes, Return.
 				return;
