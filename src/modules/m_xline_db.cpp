@@ -92,7 +92,7 @@ class ModuleXLineDB : public Module
 		 *		-- w00t
 		 */
 		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Opening temporary database");
-		f = fopen("xline.db.new", "w");
+		f = fopen("data/xline.db.new", "w");
 		if (!f)
 		{
 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
@@ -133,7 +133,7 @@ class ModuleXLineDB : public Module
 		}
 
 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
-		if (rename("xline.db.new", "xline.db") < 0)
+		if (rename("data/xline.db.new", "data/xline.db") < 0)
 		{
 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
@@ -149,7 +149,7 @@ class ModuleXLineDB : public Module
 		char linebuf[MAXBUF];
 		unsigned int lineno = 0;
 
-		f = fopen("xline.db", "r");
+		f = fopen("data/xline.db", "r");
 		if (!f)
 		{
 			if (errno == ENOENT)

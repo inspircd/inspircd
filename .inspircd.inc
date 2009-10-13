@@ -18,7 +18,7 @@ use Fcntl;
 my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@/";
 my $binpath	=	"@BINARY_DIR@";
-my $runpath	=	"@BINARY_DIR@";
+my $runpath	=	"@BASE_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"@EXECUTABLE@";
 my $version	=	"@VERSION@";
@@ -372,7 +372,7 @@ sub getpidfile
 	}
 
 	# End of includes / No includes found. Using default.
-	$pidfile = $confpath . "inspircd.pid";
+	$pidfile = $runpath . "/data/inspircd.pid";
 }
 
 sub getstatus {

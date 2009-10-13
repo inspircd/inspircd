@@ -1661,32 +1661,12 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 
 bool ServerConfig::DoInclude(const std::string &file, bool allowexeinc)
 {
-	std::string confpath;
-	std::string newfile;
-	std::string::size_type pos;
-
-	confpath = ServerInstance->ConfigFileName;
-	newfile = file;
-
-	std::replace(newfile.begin(),newfile.end(),'\\','/');
-	std::replace(confpath.begin(),confpath.end(),'\\','/');
-
-	if ((newfile[0] != '/') && (!StartsWithWindowsDriveLetter(newfile)))
-	{
-		pos = confpath.rfind("/");
-		if(pos != std::string::npos)
-		{
-			/* Leaves us with just the path */
-			newfile = confpath.substr(0, pos) + std::string("/") + newfile;
-		}
-	}
-
-	FILE* conf = fopen(newfile.c_str(), "r");
+	FILE* conf = fopen(file.c_str(), "r");
 	bool ret = false;
 
 	if (conf)
 	{
-		ret = LoadConf(conf, newfile, allowexeinc);
+		ret = LoadConf(conf, file, allowexeinc);
 		fclose(conf);
 	}
 	else
@@ -1889,29 +1869,9 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 
 	F.clear();
 
-	if ((*fname != '/') && (*fname != '\\') && (!StartsWithWindowsDriveLetter(fname)))
-	{
-		std::string::size_type pos;
-		std::string confpath = ServerInstance->ConfigFileName;
-		std::string newfile = fname;
-
-		if (((pos = confpath.rfind("/"))) != std::string::npos)
-			newfile = confpath.substr(0, pos) + std::string("/") + fname;
-		else if (((pos = confpath.rfind("\\"))) != std::string::npos)
-			newfile = confpath.substr(0, pos) + std::string("\\") + fname;
-
-		ServerInstance->Logs->Log("config", DEBUG, "Filename: %s", newfile.c_str());
-
-		if (!FileExists(newfile.c_str()))
-			return false;
-		file =  fopen(newfile.c_str(), "r");
-	}
-	else
-	{
-		if (!FileExists(fname))
-			return false;
-		file =  fopen(fname, "r");
-	}
+	if (!FileExists(fname))
+		return false;
+	file = fopen(fname, "r");
 
 	if (file)
 	{
@@ -1942,8 +1902,8 @@ bool ServerConfig::FileExists(const char* file)
 	if ((sb.st_mode & S_IFDIR) > 0)
 		return false;
 
-	FILE *input;
-	if ((input = fopen (file, "r")) == NULL)
+	FILE *input = fopen(file, "r");
+	if (input == NULL)
 		return false;
 	else
 	{
@@ -1959,41 +1919,6 @@ const char* ServerConfig::CleanFilename(const char* name)
 	return (p != name ? ++p : p);
 }
 
-
-std::string ServerConfig::GetFullProgDir()
-{
-	char buffer[PATH_MAX];
-#ifdef WINDOWS
-	/* Windows has specific api calls to get the exe path that never fail.
-	 * For once, windows has something of use, compared to the POSIX code
-	 * for this, this is positively neato.
-	 */
-	if (GetModuleFileName(NULL, buffer, MAX_PATH))
-	{
-		std::string fullpath = buffer;
-		std::string::size_type n = fullpath.rfind("\\inspircd.exe");
-		return std::string(fullpath, 0, n);
-	}
-#else
-	// Get the current working directory
-	if (getcwd(buffer, PATH_MAX))
-	{
-		std::string remainder = this->argv[0];
-
-		/* Does argv[0] start with /? its a full path, use it */
-		if (remainder[0] == '/')
-		{
-			std::string::size_type n = remainder.rfind("/inspircd");
-			return std::string(remainder, 0, n);
-		}
-
-		std::string fullpath = std::string(buffer) + "/" + remainder;
-		std::string::size_type n = fullpath.rfind("/inspircd");
-		return std::string(fullpath, 0, n);
-	}
-#endif
-	return "/";
-}
 
 std::string ServerConfig::GetSID()
 {

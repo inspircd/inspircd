@@ -140,6 +140,8 @@ finishmessage: target
 
 install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BASE)
+	@-install -d -m $(INSTMODE) $(BASE)/data
+	@-install -d -m $(INSTMODE) $(BASE)/logs
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) $(MODPATH)

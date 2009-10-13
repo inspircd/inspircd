@@ -286,18 +286,9 @@ bool InspIRCd::DaemonSeed()
 
 void InspIRCd::WritePID(const std::string &filename)
 {
-	std::string fname = (filename.empty() ? "inspircd.pid" : filename);
-	std::replace(fname.begin(), fname.end(), '\\', '/');
-	if ((fname[0] != '/') && (!Config->StartsWithWindowsDriveLetter(filename)))
-	{
-		std::string::size_type pos;
-		std::string confpath = this->ConfigFileName;
-		if ((pos = confpath.rfind("/")) != std::string::npos)
-		{
-			/* Leaves us with just the path */
-			fname = confpath.substr(0, pos) + std::string("/") + fname;
-		}
-	}
+	std::string fname(filename);
+	if (fname.empty())
+		fname = "data/inspircd.pid";
 	std::ofstream outfile(fname.c_str());
 	if (outfile.is_open())
 	{
@@ -470,7 +461,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	WSAStartup(MAKEWORD(2,0), &wsadata);
 	ChangeWindowsSpecificPointers();
 #endif
-	Config->MyExecutable = argv[0];
 
 	/* Set the finished argument values */
 	Config->nofork = do_nofork;

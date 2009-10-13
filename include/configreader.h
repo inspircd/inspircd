@@ -318,11 +318,6 @@ class CoreExport ServerConfig : public classbase
 	 */
 	std::string ModPath;
 
-	/** The full pathname to the executable, as
-	 * given in argv[0] when the program starts.
-	 */
-	std::string MyExecutable;
-
 	/** The file handle of the logfile. If this
 	 * value is NULL, the log file is not open,
 	 * probably due to a permissions error on
@@ -668,11 +663,6 @@ class CoreExport ServerConfig : public classbase
 	int ConfVarEnum(const std::string &tag, int index);
 
 	bool ApplyDisabledCommands(const std::string& data);
-
-	/** Returns the fully qualified path to the inspircd directory
-	 * @return The full program directory
-	 */
-	std::string GetFullProgDir();
 
 	/** Clean a filename, stripping the directories (and drives) from string.
 	 * @param name Directory to tidy

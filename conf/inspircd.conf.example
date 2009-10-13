@@ -344,22 +344,22 @@
 
 # This file has all the information about oper classes, types and o:lines.
 # You *MUST* edit it.
-<include file="opers.conf.example">
+<include file="conf/opers.conf.example">
 
 # This file has all the information about server links and ulined servers.
 # You *MUST* edit it if you intend to link servers.
-<include file="links.conf.example">
+<include file="conf/links.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
 <files
-       # motd: Path to your motd file. Path is relative to the conf directory.
-       motd="inspircd.motd.example"
+       # motd: Path to your motd file. Path is relative to the run directory.
+       motd="conf/inspircd.motd.example"
 
-       # rules: Path to your rules file. Path is relative to the conf directory.
+       # rules: Path to your rules file. Path is relative to the run directory.
        # This is optional and is displayed when a user does /rules on the network.
-       rules="inspircd.rules.example">
+       rules="conf/inspircd.rules.example">
 
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -835,7 +835,7 @@
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
 # The default does nothing -- we include it for simplicity for you.   #
-<include file="modules.conf.example">
+<include file="conf/modules.conf.example">
 
 
 #########################################################################

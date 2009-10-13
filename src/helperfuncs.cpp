@@ -281,20 +281,6 @@ bool InspIRCd::OpenLog(char**, int)
 	{
 		this->Logs->SetupNoFork();
 	}
-	Config->MyDir = Config->GetFullProgDir();
-
-	/* Attempt to find home directory, portable to windows */
-	const char* home = getenv("HOME");
-	if (!home)
-	{
-		/* No $HOME, log to %USERPROFILE% */
-		home = getenv("USERPROFILE");
-		if (!home)
-		{
-			/* Nothing could be found at all, log to current dir */
-			Config->logpath = "./startup.log";
-		}
-	}
 
 	if (!Config->writelog) return true; // Skip opening default log if -nolog
 
@@ -302,7 +288,7 @@ bool InspIRCd::OpenLog(char**, int)
 	{
 		if (Config->logpath.empty())
 		{
-			Config->logpath = "./startup.log";
+			Config->logpath = "logs/startup.log";
 		}
 
 		if (!Config->log_file)

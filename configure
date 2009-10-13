@@ -46,8 +46,7 @@ our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_p
     $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue,
     $opt_noipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port);
 
-our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
-    $opt_library_dir);
+our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir);
 
 sub list_extras ();
 
@@ -77,7 +76,6 @@ GetOptions (
 	'config-dir=s' => \$opt_config_dir,
 	'module-dir=s' => \$opt_module_dir,
 	'binary-dir=s' => \$opt_binary_dir,
-	'library-dir=s' => \$opt_library_dir,
 	'disable-debuginfo' => sub { $opt_disable_debug = 1 },
 	'help'	=> sub { showhelp(); },
 	'update' => sub { update(); },
@@ -101,7 +99,6 @@ if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
 }
 
 our $non_interactive = (
-	(defined $opt_library_dir) ||
 	(defined $opt_base_dir) ||
 	(defined $opt_config_dir) ||
 	(defined $opt_module_dir) ||
@@ -127,9 +124,9 @@ chomp(our $topdir = getcwd());
 our $this = resolve_directory($topdir);						# PWD, Regardless.
 our @modlist = ();							  		# Declare for Module List..
 our %config = ();						   			# Initiate Configuration Hash..
-$config{ME}		 = resolve_directory($topdir);				# Present Working Directory
+$config{ME} = resolve_directory($topdir);				# Present Working Directory
 
-$config{BASE_DIR}	   = $config{ME};
+$config{BASE_DIR} = $config{ME}."/run";
 
 if (defined $opt_base_dir)
 {
