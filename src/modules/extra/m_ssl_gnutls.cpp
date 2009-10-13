@@ -197,10 +197,6 @@ class ModuleSSLGnuTLS : public Module
 
 		ConfigReader Conf;
 
-		std::string confdir(ServerInstance->ConfigFileName);
-		// +1 so we the path ends with a /
-		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
-
 		cafile = Conf.ReadValue("gnutls", "cafile", 0);
 		crlfile	= Conf.ReadValue("gnutls", "crlfile", 0);
 		certfile = Conf.ReadValue("gnutls", "certfile", 0);
@@ -209,32 +205,19 @@ class ModuleSSLGnuTLS : public Module
 
 		// Set all the default values needed.
 		if (cafile.empty())
-			cafile = "ca.pem";
+			cafile = "conf/ca.pem";
 
 		if (crlfile.empty())
-			crlfile = "crl.pem";
+			crlfile = "conf/crl.pem";
 
 		if (certfile.empty())
-			certfile = "cert.pem";
+			certfile = "conf/cert.pem";
 
 		if (keyfile.empty())
-			keyfile = "key.pem";
+			keyfile = "conf/key.pem";
 
 		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
 			dh_bits = 1024;
-
-		// Prepend relative paths with the path to the config directory.
-		if ((cafile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(cafile)))
-			cafile = confdir + cafile;
-
-		if ((crlfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(crlfile)))
-			crlfile = confdir + crlfile;
-
-		if ((certfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(certfile)))
-			certfile = confdir + certfile;
-
-		if ((keyfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(keyfile)))
-			keyfile = confdir + keyfile;
 
 		int ret;
 

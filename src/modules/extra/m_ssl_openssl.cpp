@@ -171,10 +171,6 @@ class ModuleSSLOpenSSL : public Module
 
 		ConfigReader Conf;
 
-		std::string confdir(ServerInstance->ConfigFileName);
-		// +1 so we the path ends with a /
-		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
-
 		cafile	 = Conf.ReadValue("openssl", "cafile", 0);
 		certfile = Conf.ReadValue("openssl", "certfile", 0);
 		keyfile	 = Conf.ReadValue("openssl", "keyfile", 0);
@@ -182,29 +178,16 @@ class ModuleSSLOpenSSL : public Module
 
 		// Set all the default values needed.
 		if (cafile.empty())
-			cafile = "ca.pem";
+			cafile = "conf/ca.pem";
 
 		if (certfile.empty())
-			certfile = "cert.pem";
+			certfile = "conf/cert.pem";
 
 		if (keyfile.empty())
-			keyfile = "key.pem";
+			keyfile = "conf/key.pem";
 
 		if (dhfile.empty())
-			dhfile = "dhparams.pem";
-
-		// Prepend relative paths with the path to the config directory.
-		if ((cafile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(cafile)))
-			cafile = confdir + cafile;
-
-		if ((certfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(certfile)))
-			certfile = confdir + certfile;
-
-		if ((keyfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(keyfile)))
-			keyfile = confdir + keyfile;
-
-		if ((dhfile[0] != '/') && (!ServerInstance->Config->StartsWithWindowsDriveLetter(dhfile)))
-			dhfile = confdir + dhfile;
+			dhfile = "conf/dhparams.pem";
 
 		/* Load our keys and certificates
 		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
