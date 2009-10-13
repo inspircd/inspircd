@@ -303,7 +303,7 @@ sub getpidfile
 	# Are We using a relative path?
 	if ($file !~ /^\//) {
 		# Convert it to a full path.
-		$file = $confpath . $file;
+		$file = $runpath . $file;
 	}
 
 	# Have we checked this file before?
@@ -311,7 +311,7 @@ sub getpidfile
 	$filesparsed{$file} = 1;
 
 	# Open the File..
-	open INFILE, "< $file" or die "Unable to open file $file included in configuration\n";
+	open INFILE, '<', $file or die "Unable to open file $file included in configuration\n";
 	# Grab entire file contents..
 	my(@lines) = <INFILE>;
 	# Close the file
@@ -333,9 +333,9 @@ sub getpidfile
 			}
 			else
 			{
-				if (-f $confpath . $pidfile)
+				if (-f $runpath . $pidfile)
 				{
-					$pidfile = $confpath . $pidfile;
+					$pidfile = $runpath . $pidfile;
 					return;
 				}
 			}
@@ -358,9 +358,9 @@ sub getpidfile
 			}
 			else
 			{
-				if (-f $confpath . $pidfile)
+				if (-f $runpath . $pidfile)
 				{
-					$pidfile = $confpath . $pidfile;
+					$pidfile = $runpath . $pidfile;
 					return;
 				}
 			}
@@ -442,7 +442,7 @@ sub validateconf
 	# Are We using a relative path?
 	if ($file !~ /^\//) {
 		# Convert it to a full path..
-		$file = $confpath . $file;
+		$file = $runpath . $file;
 	}
 
 	# Have we checked this file before?
