@@ -1673,15 +1673,11 @@ bool ServerConfig::DoInclude(const std::string &file, bool allowexeinc)
 
 	if ((newfile[0] != '/') && (!StartsWithWindowsDriveLetter(newfile)))
 	{
-		if((pos = confpath.rfind("/")) != std::string::npos)
+		pos = confpath.rfind("/")
+		if(pos != std::string::npos)
 		{
 			/* Leaves us with just the path */
 			newfile = confpath.substr(0, pos) + std::string("/") + newfile;
-		}
-		else
-		{
-			errstr << "Couldn't get config path from: " << ServerInstance->ConfigFileName << std::endl;
-			return false;
 		}
 	}
 
