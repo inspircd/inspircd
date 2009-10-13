@@ -24,13 +24,14 @@ class CommandChghost : public Command
  public:
 	CommandChghost(Module* Creator, char* hmap) : Command(Creator,"CHGHOST", 2), hostmap(hmap)
 	{
-		flags_needed = 'o'; syntax = "<nick> <newhost>";
+		flags_needed = 'o';
+		syntax = "<nick> <newhost>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		const char * x = parameters[1].c_str();
+		const char* x = parameters[1].c_str();
 
 		for (; *x; x++)
 		{
@@ -39,11 +40,6 @@ class CommandChghost : public Command
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** CHGHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
-		}
-		if (parameters[1].empty())
-		{
-			user->WriteServ("NOTICE %s :*** CHGHOST: Host must be specified", user->nick.c_str());
-			return CMD_FAILURE;
 		}
 
 		if ((parameters[1].c_str() - x) > 63)

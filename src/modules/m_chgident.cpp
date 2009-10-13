@@ -22,7 +22,8 @@ class CommandChgident : public Command
  public:
 	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)
 	{
-		flags_needed = 'o'; syntax = "<nick> <newident>";
+		flags_needed = 'o';
+		syntax = "<nick> <newident>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -33,12 +34,6 @@ class CommandChgident : public Command
 		if (!dest)
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
-			return CMD_FAILURE;
-		}
-
-		if (parameters[1].empty())
-		{
-			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 

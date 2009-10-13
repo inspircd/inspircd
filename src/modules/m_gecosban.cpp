@@ -17,9 +17,9 @@
 
 class ModuleGecosBan : public Module
 {
- private:
  public:
-	ModuleGecosBan() 	{
+	ModuleGecosBan()
+	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -49,6 +49,4 @@ class ModuleGecosBan : public Module
 	}
 };
 
-
 MODULE_INIT(ModuleGecosBan)
-

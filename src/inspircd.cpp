@@ -273,12 +273,10 @@ bool InspIRCd::DaemonSeed()
 		this->Logs->Log("STARTUP",DEFAULT,"Failed to getrlimit()!");
 		return false;
 	}
-	else
-	{
-		rl.rlim_cur = rl.rlim_max;
-		if (setrlimit(RLIMIT_CORE, &rl) == -1)
+	rl.rlim_cur = rl.rlim_max;
+
+	if (setrlimit(RLIMIT_CORE, &rl) == -1)
 			this->Logs->Log("STARTUP",DEFAULT,"setrlimit() failed, cannot increase coredump size.");
-	}
 
 	return true;
 #endif

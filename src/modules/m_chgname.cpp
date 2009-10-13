@@ -22,7 +22,8 @@ class CommandChgname : public Command
  public:
 	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)
 	{
-		flags_needed = 'o'; syntax = "<nick> <newname>";
+		flags_needed = 'o';
+		syntax = "<nick> <newname>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -33,12 +34,6 @@ class CommandChgname : public Command
 		if (!dest)
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
-			return CMD_FAILURE;
-		}
-
-		if (parameters[1].empty())
-		{
-			user->WriteServ("NOTICE %s :*** GECOS must be specified", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
