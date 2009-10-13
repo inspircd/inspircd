@@ -476,7 +476,7 @@ class ModuleCloaking : public Module
 			}
 			case MODE_OPAQUE:
 			default:
-				chost = SegmentIP(dest->client_sa);
+				chost = prefix + SegmentIP(dest->client_sa);
 		}
 		cu.ext.set(dest,chost);
 	}

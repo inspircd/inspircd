@@ -474,34 +474,37 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you specify the m_cloaking.so module as above, you    #
-# must define cloak keys, and optionally a cloak prefix as shown      #
-# below. When using cloaking, the cloak keys are MANDITORY and must   #
-# be included. However, if prefix is not included, it will default    #
-# to your networks name from the <server> tag. You can also include   #
-# the following optional values:                                      #
+# If you specify the m_cloaking.so module as above, you must define   #
+# cloak keys, and optionally a cloak prefix as shown below. The cloak #
+# keys must be shared across the network for correct cloaking.        #
 #                                                                     #
-#   ipalways         - Always cloak the IP address, not the hostname, #
-#                      which doesn't reveal the user's ISP, but       #
-#                      results in hosts that are harder to read and   #
-#                      ban.                                           #
+# There are four methods of cloaking:                                 #
 #                                                                     #
-#   lowercase        - Display the cloaked hostnames in lowercase     #
-#                      characters instead of uppercase                #
+#   half           Cloak only the "unique" portion of a host; show    #
+#                  the last 2 parts of the domain, /16 subnet of IPv4 #
+#                  or /48 subnet of the IPv6 address.                 #
 #                                                                     #
-# <cloak key1="0x2AF39F40"                                            #
-#        key2="0x78E10B32"                                            #
-#        key3="0x4F2D2E82"                                            #
-#        key4="0x043A4C81"                                            #
-#        prefix="mynet"                                               #
-#        ipalways="false"                                             #
-#        lowercase="false">                                           #
+#   full           Cloak the users completely, using three slices for #
+#                  common CIDR bans (IPv4: /16, /24; IPv6: /48, /64)  #
 #                                                                     #
-# Please note that the key values will accept any number, and should  #
-# be large numbers. Using small numbers such as "7" or "1924" will    #
-# seriously weaken the security of your cloak. It is recommended you  #
-# use hexdecimal numbers prefixed by "0x", as shown in this example,  #
-# with each key eight hex digits long.                                #
+# These methods use a single key that can be any length of text.      #
+# An optional prefix may be specified to mark cloaked hosts.          #
+#                                                                     #
+# The following methods are maintained for backwards compatibility;   #
+# they are slightly less secure, and always hide unresolved IPs       #
+#                                                                     #
+#   compat-host    InspIRCd 1.2-compatible host-based cloaking        #
+#   compat-ip      InspIRCd 1.2-compatible ip-always cloaking         #
+#                                                                     #
+# You must specify key1, key2, key3, key4 for the compat cloaking     #
+# modes; the values must be less than 0x80000000 and should be picked #
+# at random. Prefix is mandatory, will default to network name if not #
+# specified, and will always have a "-" appended.                     #
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#
+#<cloak mode="half"
+#       key="secret"
+#       prefix="net-">
 
 #-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Close module: Allows an oper to close all unregistered connections.
@@ -1238,9 +1241,7 @@
 # whenever +P is set, unset, or the topic/modes on a +P channel is changed.
 # If you want to do this, set the filename below, and uncomment the include.
 #
-# The conf file generated has a path relative to the inspircd binary, hence '../conf/'.
-#
-#<permchanneldb filename="../conf/permchannels.conf">
+#<permchanneldb filename="conf/permchannels.conf">
 #<include file="permchannels.conf">
 #
 # You may also create channels on startup by using the <permchannels> block.
