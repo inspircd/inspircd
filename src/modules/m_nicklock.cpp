@@ -156,7 +156,7 @@ class ModuleNickLock : public Module
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);
-		Extensible::Register(&locked);
+		ServerInstance->Extensions.Register(&locked);
 		ServerInstance->Modules->Attach(I_OnUserPreNick, this);
 	}
 

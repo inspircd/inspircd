@@ -212,7 +212,7 @@ class ModuleBanRedirect : public Module
 
 		OnRehash(NULL);
 
-		Extensible::Register(&re.extItem);
+		ServerInstance->Extensions.Register(&re.extItem);
 		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete };
 		ServerInstance->Modules->Attach(list, this, 3);
 	}

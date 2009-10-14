@@ -95,7 +95,7 @@ class ListModeBase : public ModeHandler
 	{
 		list = true;
 		this->DoRehash();
-		Extensible::Register(&extItem);
+		ServerInstance->Extensions.Register(&extItem);
 	}
 
 	/** See mode.h

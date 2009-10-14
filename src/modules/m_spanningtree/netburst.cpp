@@ -222,12 +222,10 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 
 		for(ExtensibleStore::const_iterator i = c->second->GetExtList().begin(); i != c->second->GetExtList().end(); i++)
 		{
-			ExtensionItem* item = Extensible::GetItem(i->first);
-			std::string value;
-			if (item)
-				value = item->serialize(FORMAT_NETWORK, c->second, i->second);
+			ExtensionItem* item = i->first;
+			std::string value = item->serialize(FORMAT_NETWORK, c->second, i->second);
 			if (!value.empty())
-				Utils->Creator->ProtoSendMetaData(this, c->second, i->first, value);
+				Utils->Creator->ProtoSendMetaData(this, c->second, item->key, value);
 		}
 
 		FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,Utils->Creator,this));
@@ -273,12 +271,10 @@ void TreeSocket::SendUsers(TreeServer* Current)
 
 			for(ExtensibleStore::const_iterator i = u->second->GetExtList().begin(); i != u->second->GetExtList().end(); i++)
 			{
-				ExtensionItem* item = Extensible::GetItem(i->first);
-				std::string value;
-				if (item)
-					value = item->serialize(FORMAT_NETWORK, u->second, i->second);
+				ExtensionItem* item = i->first;
+				std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
 				if (!value.empty())
-					Utils->Creator->ProtoSendMetaData(this, u->second, i->first, value);
+					Utils->Creator->ProtoSendMetaData(this, u->second, item->key, value);
 			}
 
 			FOREACH_MOD(I_OnSyncUser,OnSyncUser(u->second,Utils->Creator,this));

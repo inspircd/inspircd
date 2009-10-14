@@ -104,7 +104,7 @@ class ModuleServicesAccount : public Module
 	AUser_R m3;
 	Channel_r m4;
 	User_r m5;
-	StringExtItem accountname;
+	AccountExtItem accountname;
  public:
 	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
 		accountname("accountname", this)
@@ -115,7 +115,7 @@ class ModuleServicesAccount : public Module
 			!ServerInstance->Modes->AddMode(&m5))
 			throw ModuleException("Some other module has claimed our modes!");
 
-		Extensible::Register(&accountname);
+		ServerInstance->Extensions.Register(&accountname);
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
 			I_OnSyncUser, I_OnUserQuit, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 

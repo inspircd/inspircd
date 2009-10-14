@@ -150,10 +150,10 @@ public:
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
-		Extensible::Register(&cmd.realhost);
-		Extensible::Register(&cmd.realip);
-		Extensible::Register(&cmd.webirc_hostname);
-		Extensible::Register(&cmd.webirc_ip);
+		ServerInstance->Extensions.Register(&cmd.realhost);
+		ServerInstance->Extensions.Register(&cmd.realip);
+		ServerInstance->Extensions.Register(&cmd.webirc_hostname);
+		ServerInstance->Extensions.Register(&cmd.webirc_ip);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnSyncUser, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 6);

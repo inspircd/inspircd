@@ -19,7 +19,7 @@
 class SSLCertExt : public ExtensionItem {
  public:
 	SSLCertExt(Module* parent) : ExtensionItem("ssl_cert", parent) {}
-	ssl_cert* get(const Extensible* item)
+	ssl_cert* get(const Extensible* item) const
 	{
 		return static_cast<ssl_cert*>(get_raw(item));
 	}
@@ -29,7 +29,7 @@ class SSLCertExt : public ExtensionItem {
 		delete old;
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item)
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
 		return static_cast<ssl_cert*>(item)->GetMetaLine();
 	}
@@ -121,7 +121,7 @@ class ModuleSSLInfo : public Module
 	{
 		ServerInstance->AddCommand(&cmd);
 
-		Extensible::Register(&cmd.CertExt);
+		ServerInstance->Extensions.Register(&cmd.CertExt);
 
 		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

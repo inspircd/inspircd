@@ -105,7 +105,13 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 		 * -- w00t
 		 */
 		if (opt_metadata)
-			match = user->GetExtList().find(matchtext) != user->GetExtList().end();
+		{
+			match = false;
+			const Extensible::ExtensibleStore& list = user->GetExtList();
+			for(Extensible::ExtensibleStore::const_iterator i = list.begin(); i != list.end(); ++i)
+				if (InspIRCd::Match(i->first->key, matchtext))
+					match = true;
+		}
 		else if (opt_realname)
 			match = InspIRCd::Match(user->fullname, matchtext);
 		else if (opt_showrealhost)

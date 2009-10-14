@@ -244,7 +244,7 @@ class ModuleDCCAllow : public Module
 	{
 		Conf = new ConfigReader;
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
-		Extensible::Register(ext);
+		ServerInstance->Extensions.Register(ext);
 		ServerInstance->AddCommand(&cmd);
 		ReadFileConf();
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick, I_OnRehash };

@@ -48,7 +48,7 @@ class ModuleBlockAmsg : public Module
 	ModuleBlockAmsg() : blockamsg("blockamsg", this)
 	{
 		this->OnRehash(NULL);
-		Extensible::Register(&blockamsg);
+		ServerInstance->Extensions.Register(&blockamsg);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

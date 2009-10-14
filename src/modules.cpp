@@ -451,7 +451,8 @@ bool ModuleManager::Unload(const char* filename)
 			return false;
 		}
 
-		std::vector<ExtensionItem*> items = Extensible::BeginUnregister(modfind->second);
+		std::vector<ExtensionItem*> items;
+		ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 		/* Give the module a chance to tidy out all its metadata */
 		for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 		{

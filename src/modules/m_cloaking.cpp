@@ -133,7 +133,7 @@ class ModuleCloaking : public Module
 			throw ModuleException("Could not add new modes!");
 
 		ServerInstance->Modules->UseInterface("HashRequest");
-		Extensible::Register(&cu.ext);
+		ServerInstance->Extensions.Register(&cu.ext);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 3);

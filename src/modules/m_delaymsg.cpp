@@ -58,7 +58,7 @@ class ModuleDelayMsg : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&djm))
 			throw ModuleException("Could not add new modes!");
-		Extensible::Register(&djm.jointime);
+		ServerInstance->Extensions.Register(&djm.jointime);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

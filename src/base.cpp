@@ -18,10 +18,6 @@
 #include <time.h>
 #include "inspircd.h"
 
-const int bitfields[]           =       {1,2,4,8,16,32,64,128};
-const int inverted_bitfields[]  =       {~1,~2,~4,~8,~16,~32,~64,~128};
-std::map<std::string, ExtensionItem*> Extensible::extension_types;
-
 classbase::classbase()
 {
 }
@@ -56,9 +52,10 @@ ExtensionItem::~ExtensionItem()
 {
 }
 
-void* ExtensionItem::get_raw(const Extensible* container)
+void* ExtensionItem::get_raw(const Extensible* container) const
 {
-	ExtensibleStore::const_iterator i = container->extensions.find(key);
+	Extensible::ExtensibleStore::const_iterator i =
+		container->extensions.find(const_cast<ExtensionItem*>(this));
 	if (i == container->extensions.end())
 		return NULL;
 	return i->second;
@@ -66,8 +63,8 @@ void* ExtensionItem::get_raw(const Extensible* container)
 
 void* ExtensionItem::set_raw(Extensible* container, void* value)
 {
-	std::pair<ExtensibleStore::iterator,bool> rv = 
-		container->extensions.insert(std::make_pair(key, value));
+	std::pair<Extensible::ExtensibleStore::iterator,bool> rv =
+		container->extensions.insert(std::make_pair(this, value));
 	if (rv.second)
 	{
 		return NULL;
@@ -82,7 +79,7 @@ void* ExtensionItem::set_raw(Extensible* container, void* value)
 
 void* ExtensionItem::unset_raw(Extensible* container)
 {
-	ExtensibleStore::iterator i = container->extensions.find(key);
+	Extensible::ExtensibleStore::iterator i = container->extensions.find(this);
 	if (i == container->extensions.end())
 		return NULL;
 	void* rv = i->second;
@@ -90,35 +87,43 @@ void* ExtensionItem::unset_raw(Extensible* container)
 	return rv;
 }
 
-bool Extensible::Register(ExtensionItem* item)
+void ExtensionManager::Register(ExtensionItem* item)
 {
-	return Extensible::extension_types.insert(std::make_pair(item->key, item)).second;
+	types.insert(std::make_pair(item->key, item));
 }
 
-std::vector<ExtensionItem*> Extensible::BeginUnregister(Module* module)
+void ExtensionManager::BeginUnregister(Module* module, std::vector<ExtensionItem*>& list)
 {
-	std::vector<ExtensionItem*> rv;
-	ExtensibleTypes::iterator i = extension_types.begin();
-	while (i != extension_types.end())
+	std::map<std::string, ExtensionItem*>::iterator i = types.begin();
+	while (i != types.end())
 	{
-		ExtensibleTypes::iterator c = i++;
-		if (c->second->owner == module)
+		std::map<std::string, ExtensionItem*>::iterator me = i++;
+		ExtensionItem* item = me->second;
+		if (item->owner == module)
 		{
-			rv.push_back(c->second);
-			extension_types.erase(c);
+			list.push_back(item);
+			types.erase(me);
 		}
 	}
-	return rv;
+}
+
+ExtensionItem* ExtensionManager::GetItem(const std::string& name)
+{
+	std::map<std::string, ExtensionItem*>::iterator i = types.find(name);
+	if (i == types.end())
+		return NULL;
+	return i->second;
 }
 
 void Extensible::doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove)
 {
-	for(std::vector<ExtensionItem*>::const_iterator i = toRemove.begin(); i != toRemove.end(); i++)
+	for(std::vector<ExtensionItem*>::const_iterator i = toRemove.begin(); i != toRemove.end(); ++i)
 	{
-		ExtensibleStore::iterator e = extensions.find((**i).key);
+		ExtensionItem* item = *i;
+		ExtensibleStore::iterator e = extensions.find(item);
 		if (e != extensions.end())
 		{
-			(**i).free(e->second);
+			item->free(e->second);
 			extensions.erase(e);
 		}
 	}
@@ -128,11 +133,7 @@ Extensible::~Extensible()
 {
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
-		ExtensionItem* type = GetItem(i->first);
-		if (type)
-			type->free(i->second);	
-		else if (ServerInstance && ServerInstance->Logs)
-			ServerInstance->Logs->Log("BASE", ERROR, "Extension type %s is not registered", i->first.c_str());
+		i->first->free(i->second);	
 	}
 }
 
@@ -144,7 +145,7 @@ LocalExtItem::~LocalExtItem()
 {
 }
 
-std::string LocalExtItem::serialize(SerializeFormat format, const Extensible* container, void* item)
+std::string LocalExtItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
 	return "";
 }
@@ -160,7 +161,7 @@ LocalStringExt::~LocalStringExt()
 {
 }
 
-std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item)
+std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
 	if (item && format == FORMAT_USER)
 		return *static_cast<std::string*>(item);
@@ -175,14 +176,14 @@ LocalIntExt::~LocalIntExt()
 {
 }
 
-std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* container, void* item)
+std::string LocalIntExt::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
 	if (format != FORMAT_USER)
 		return "";
 	return ConvToStr(reinterpret_cast<intptr_t>(item));
 }
 
-intptr_t LocalIntExt::get(const Extensible* container)
+intptr_t LocalIntExt::get(const Extensible* container) const
 {
 	return reinterpret_cast<intptr_t>(get_raw(container));
 }
@@ -207,12 +208,12 @@ StringExtItem::~StringExtItem()
 {
 }
 
-std::string* StringExtItem::get(const Extensible* container)
+std::string* StringExtItem::get(const Extensible* container) const
 {
 	return static_cast<std::string*>(get_raw(container));
 }
 
-std::string StringExtItem::serialize(SerializeFormat format, const Extensible* container, void* item)
+std::string StringExtItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
 {
 	return item ? *static_cast<std::string*>(item) : "";
 }

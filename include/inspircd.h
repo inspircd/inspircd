@@ -429,6 +429,8 @@ class CoreExport InspIRCd : public classbase
 	 */
 	std::string ConfigFileName;
 
+	ExtensionManager Extensions;
+
 	/** Mode handler, handles mode setting and removal
 	 */
 	ModeParser* Modes;

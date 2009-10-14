@@ -328,8 +328,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	ServerInstance = this;
 
-	Extensible::Register(&NICKForced);
-	Extensible::Register(&OperQuit);
+	Extensions.Register(&NICKForced);
+	Extensions.Register(&OperQuit);
 
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,

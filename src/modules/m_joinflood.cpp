@@ -200,7 +200,7 @@ class ModuleJoinFlood : public Module
 
 		if (!ServerInstance->Modes->AddMode(&jf))
 			throw ModuleException("Could not add new modes!");
-		Extensible::Register(&jf.ext);
+		ServerInstance->Extensions.Register(&jf.ext);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUserPreJoin, I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}

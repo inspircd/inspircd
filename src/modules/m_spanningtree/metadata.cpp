@@ -18,9 +18,6 @@
 #include "treeserver.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-
 bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 2)
@@ -28,7 +25,7 @@ bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
 	else if (params.size() < 3)
 		params.push_back("");
 	TreeServer* ServerSource = Utils->FindServer(prefix);
-	ExtensionItem* item = Extensible::GetItem(params[1]);
+	ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
 	if (ServerSource)
 	{
 		if (params[0] == "*")

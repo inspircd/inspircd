@@ -38,14 +38,12 @@ class CommandCheck : public Command
 		std::stringstream dumpkeys;
 		for(ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
 		{
-			ExtensionItem* item = Extensible::GetItem(i->first);
-			std::string value;
-			if (item)
-				value = item->serialize(FORMAT_USER, ext, i->second);
+			ExtensionItem* item = i->first;
+			std::string value = item->serialize(FORMAT_USER, ext, i->second);
 			if (value.empty())
 				dumpkeys << " " << i->first;
 			else
-				ServerInstance->DumpText(user, checkstr + " meta:" + i->first + " " + value);
+				ServerInstance->DumpText(user, checkstr + " meta:" + item->key + " " + value);
 		}
 		if (!dumpkeys.str().empty())
 			ServerInstance->DumpText(user,checkstr + " metadata", dumpkeys);

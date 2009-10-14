@@ -35,7 +35,7 @@ class GenericCap
 	const std::string cap;
 	GenericCap(Module* parent, const std::string &Cap) : ext("cap_" + Cap, parent), cap(Cap)
 	{
-		Extensible::Register(&ext);
+		ServerInstance->Extensions.Register(&ext);
 	}
 
 	void HandleEvent(Event& ev)

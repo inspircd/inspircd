@@ -374,7 +374,7 @@ class Modulewatch : public Module
 		whos_watching_me = new watchentries();
 		ServerInstance->AddCommand(&cmdw);
 		ServerInstance->AddCommand(&sw);
-		Extensible::Register(&cmdw.ext);
+		ServerInstance->Extensions.Register(&cmdw.ext);
 		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}

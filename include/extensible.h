@@ -28,7 +28,7 @@ class CoreExport ExtensionItem
 	 * @param container The object containing this item
 	 * @param item The item itself
 	 */
-	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) = 0;
+	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const = 0;
 	/** Convert the string form back into an item
 	 * @param format The format to serialize from (not FORMAT_USER)
 	 * @param container The object that this item applies to
@@ -40,15 +40,12 @@ class CoreExport ExtensionItem
 
  protected:
 	/** Get the item from the internal map */
-	void* get_raw(const Extensible* container);
+	void* get_raw(const Extensible* container) const;
 	/** Set the item in the internal map; returns old value */
 	void* set_raw(Extensible* container, void* value);
 	/** Remove the item from the internal map; returns old value */
 	void* unset_raw(Extensible* container);
 };
-
-/** A private data store for an Extensible class */
-CoreExport typedef std::map<std::string,void*> ExtensibleStore;
 
 /** class Extensible is the parent class of many classes such as User and Channel.
  * class Extensible implements a system which allows modules to 'extend' the class by attaching data within
@@ -59,34 +56,33 @@ CoreExport typedef std::map<std::string,void*> ExtensibleStore;
  */
 class CoreExport Extensible : public classbase
 {
+ public:
+	typedef std::map<ExtensionItem*,void*> ExtensibleStore;
+
+	// Friend access for the protected getter/setter
+	friend class ExtensionItem;
+ private:
 	/** Private data store.
 	 * Holds all extensible metadata for the class.
 	 */
 	ExtensibleStore extensions;
-	typedef std::map<std::string, ExtensionItem*> ExtensibleTypes;
-	static ExtensibleTypes extension_types;
  public:
 	/**
 	 * Get the extension items for iteraton (i.e. for metadata sync during netburst)
 	 */
 	inline const ExtensibleStore& GetExtList() const { return extensions; }
-	static inline const ExtensibleTypes& GetTypeList() { return extension_types; }
-	static inline ExtensionItem* GetItem(const std::string& name)
-	{
-		ExtensibleTypes::iterator i = extension_types.find(name);
-		if (i == extension_types.end())
-			return NULL;
-		return i->second;
-	}
 
 	virtual ~Extensible();
-
-	static bool Register(ExtensionItem* item);
-	static std::vector<ExtensionItem*> BeginUnregister(Module* module);
 	void doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove);
+};
 
-	// Friend access for the protected getter/setter
-	friend class ExtensionItem;
+class CoreExport ExtensionManager
+{
+	std::map<std::string, ExtensionItem*> types;
+ public:
+	void Register(ExtensionItem* item);
+	void BeginUnregister(Module* module, std::vector<ExtensionItem*>& list);
+	ExtensionItem* GetItem(const std::string& name);
 };
 
 /** Base class for items that are NOT synchronized between servers */
@@ -95,7 +91,7 @@ class CoreExport LocalExtItem : public ExtensionItem
  public:
 	LocalExtItem(const std::string& key, Module* owner);
 	virtual ~LocalExtItem();
-	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item);
+	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	virtual void free(void* item) = 0;
 };
@@ -112,12 +108,12 @@ class SimpleExtItem : public LocalExtItem
 	{
 	}
 
-	inline T* get(const Extensible* container)
+	inline T* get(const Extensible* container) const
 	{
 		return static_cast<T*>(get_raw(container));
 	}
 
-	inline T* getNew(Extensible* container)
+	inline T* getNew(Extensible* container) const
 	{
 		T* ptr = get(container);
 		if (!ptr)
@@ -158,7 +154,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
  public:
 	LocalStringExt(const std::string& key, Module* owner);
 	virtual ~LocalStringExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 };
 
 class CoreExport LocalIntExt : public LocalExtItem
@@ -166,8 +162,8 @@ class CoreExport LocalIntExt : public LocalExtItem
  public:
 	LocalIntExt(const std::string& key, Module* owner);
 	virtual ~LocalIntExt();
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
-	intptr_t get(const Extensible* container);
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
+	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
 	void free(void* item);
 };
@@ -177,8 +173,8 @@ class CoreExport StringExtItem : public ExtensionItem
  public:
 	StringExtItem(const std::string& key, Module* owner);
 	virtual ~StringExtItem();
-	std::string* get(const Extensible* container);
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item);
+	std::string* get(const Extensible* container) const;
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
 	void set(Extensible* container, const std::string& value);
 	void unset(Extensible* container);

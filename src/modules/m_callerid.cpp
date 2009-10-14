@@ -78,7 +78,7 @@ struct CallerIDExtInfo : public ExtensionItem
 	{
 	}
 
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item)
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
 		callerid_data* dat = static_cast<callerid_data*>(item);
 		return dat->ToString(format);
@@ -350,7 +350,7 @@ public:
 			throw ModuleException("Could not add usermode +g");
 
 		ServerInstance->AddCommand(&cmd);
-		Extensible::Register(&cmd.extInfo);
+		ServerInstance->Extensions.Register(&cmd.extInfo);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 6);

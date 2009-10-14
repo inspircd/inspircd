@@ -136,7 +136,7 @@ class ModuleCAP : public Module
 		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
-		Extensible::Register(&cmd.reghold);
+		ServerInstance->Extensions.Register(&cmd.reghold);
 
 		Implementation eventlist[] = { I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

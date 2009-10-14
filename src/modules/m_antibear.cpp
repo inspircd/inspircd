@@ -22,7 +22,7 @@ class ModuleAntiBear : public Module
  public:
 	ModuleAntiBear() : bearExt("antibear_timewait", this)
 	{
-		Extensible::Register(&bearExt);
+		ServerInstance->Extensions.Register(&bearExt);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

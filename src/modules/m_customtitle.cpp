@@ -89,7 +89,7 @@ class ModuleCustomTitle : public Module
 	ModuleCustomTitle() : cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
-		Extensible::Register(&cmd.ctitle);
+		ServerInstance->Extensions.Register(&cmd.ctitle);
 		ServerInstance->Modules->Attach(I_OnWhoisLine, this);
 	}
 

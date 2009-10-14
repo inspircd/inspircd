@@ -200,7 +200,7 @@ class ModuleNickFlood : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&nf))
 			throw ModuleException("Could not add new modes!");
-		Extensible::Register(&nf.ext);
+		ServerInstance->Extensions.Register(&nf.ext);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserPostNick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
