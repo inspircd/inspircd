@@ -78,6 +78,8 @@ CoreExport extern InspIRCd* ServerInstance;
 
 #include "inspircd_config.h"
 #include "inspircd_version.h"
+#include "caller.h"
+#include "cull_list.h"
 #include "extensible.h"
 #include "numerics.h"
 #include "uid.h"
@@ -94,7 +96,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "mode.h"
 #include "socketengine.h"
 #include "snomasks.h"
-#include "cull_list.h"
 #include "filelogger.h"
 #include "caller.h"
 #include "modules.h"
@@ -381,6 +382,8 @@ class CoreExport InspIRCd : public classbase
 	/** Global cull list, will be processed on next iteration
 	 */
 	CullList GlobalCulls;
+	/** Actions that must happen outside of the current call stack */
+	ActionList AtomicActions;
 
 	/**** Functors ****/
 

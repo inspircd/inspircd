@@ -145,7 +145,7 @@ protected:
 	virtual ModResult OnStats(char symbol, User* user, string_list &results) = 0;
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
-	void OnLoadModule(Module* mod, const std::string& name);
+	void OnLoadModule(Module* mod);
 	virtual void ReadFilters(ConfigReader &MyConf) = 0;
 };
 
@@ -456,7 +456,7 @@ void FilterBase::OnRehash(User* user)
 	}
 }
 
-void FilterBase::OnLoadModule(Module* mod, const std::string& name)
+void FilterBase::OnLoadModule(Module* mod)
 {
 	if (ServerInstance->Modules->ModuleHasInterface(mod, "RegularExpression"))
 	{

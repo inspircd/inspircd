@@ -79,7 +79,11 @@ TestSuite::TestSuite()
 			case '3':
 				cout << "Enter module filename to unload: ";
 				cin >> modname;
-				cout << (ServerInstance->Modules->Unload(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				{
+					Module* m = ServerInstance->Modules->Find(modname);
+					cout << (ServerInstance->Modules->Unload(m) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+					ServerInstance->AtomicActions.Run();
+				}
 				break;
 			case '4':
 				cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");

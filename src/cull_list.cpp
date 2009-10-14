@@ -48,3 +48,11 @@ void CullList::Apply()
 	}
 }
 
+void ActionList::Run()
+{
+	for(unsigned int i=0; i < list.size(); i++)
+	{
+		list[i]->Call();
+	}
+	list.clear();
+}

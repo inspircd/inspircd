@@ -114,11 +114,10 @@ class ModuleOperHash : public Module
 	}
 
 
-	virtual void OnLoadModule(Module* mod, const std::string& name)
+	virtual void OnLoadModule(Module* mod)
 	{
 		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
 		{
-			ServerInstance->Logs->Log("m_password-hash",DEBUG, "Post-load registering hasher: %s", name.c_str());
 			std::string sname = HashNameRequest(this, mod).response;
 			hashers[sname.c_str()] = mod;
 			names.push_back(sname);

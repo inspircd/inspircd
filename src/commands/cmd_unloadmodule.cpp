@@ -41,14 +41,16 @@ CmdResult CommandUnloadmodule::Handle (const std::vector<std::string>& parameter
 		return CMD_FAILURE;
 	}
 		
-	if (ServerInstance->Modules->Unload(parameters[0].c_str()))
+	Module* m = ServerInstance->Modules->Find(parameters[0]);
+	if (m && ServerInstance->Modules->Unload(m))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick.c_str(), parameters[0].c_str());
 	}
 	else
 	{
-		user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+		user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(),
+			m ? ServerInstance->Modules->LastError().c_str() : "No such module");
 		return CMD_FAILURE;
 	}
 

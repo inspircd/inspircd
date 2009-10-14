@@ -26,7 +26,7 @@ DLLManager::DLLManager(const char *fname)
 		return;
 	}
 
-	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL|RTLD_NODELETE);
+	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
 	if (!h)
 	{
 		err = dlerror();

@@ -111,22 +111,8 @@ void InspIRCd::Cleanup()
 		Users->QuitUser(u, "Server shutdown");
 	}
 
-	/* We do this more than once, so that any service providers get a
-	 * chance to be unhooked by the modules using them, but then get
-	 * a chance to be removed themsleves.
-	 *
-	 * XXX there may be a better way to do this
-	 */
-	for (int tries = 0; tries < 4; tries++)
-	{
-		std::vector<std::string> module_names = Modules->GetAllModuleNames(0);
-		for (std::vector<std::string>::iterator k = module_names.begin(); k != module_names.end(); ++k)
-		{
-			/* Unload all modules, so they get a chance to clean up their listeners */
-			this->Modules->Unload(k->c_str());
-		}
-		GlobalCulls.Apply();
-	}
+	GlobalCulls.Apply();
+	Modules->UnloadAll();
 
 	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
 	/* Must be deleted before modes as it decrements modelines */
@@ -788,7 +774,8 @@ int InspIRCd::Run()
 		this->SE->DispatchEvents();
 
 		/* if any users were quit, take them out */
-		this->GlobalCulls.Apply();
+		GlobalCulls.Apply();
+		AtomicActions.Run();
 
 		if (this->s_signal)
 		{

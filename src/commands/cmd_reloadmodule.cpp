@@ -28,6 +28,24 @@ class CommandReloadmodule : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
+class ReloadModuleWorker : public HandlerBase1<void, bool>
+{
+ public:
+	const std::string name;
+	const std::string uid;
+	ReloadModuleWorker(const std::string& uuid, const std::string& modn)
+		: name(modn), uid(uuid) {}
+	void Call(bool result)
+	{
+		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded",
+			name.c_str(), result ? "" : "un");
+		User* user = ServerInstance->FindNick(uid);
+		if (user)
+			user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
+				user->nick.c_str(), name.c_str(), result ? "" : "un");
+	}
+};
+
 CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	if (parameters[0] == "cmd_reloadmodule.so")
@@ -37,20 +55,17 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 		return CMD_FAILURE;
 	}
 
-	if (ServerInstance->Modules->Unload(parameters[0].c_str()))
+	Module* m = ServerInstance->Modules->Find(parameters[0]);
+	if (m)
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s unloaded %s",user->nick.c_str(), parameters[0].c_str());
-		if (ServerInstance->Modules->Load(parameters[0].c_str()))
-		{
-			ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s reloaded %s",user->nick.c_str(), parameters[0].c_str());
-			user->WriteNumeric(975, "%s %s :Module successfully reloaded.",user->nick.c_str(), parameters[0].c_str());
-			return CMD_SUCCESS;
-		}
+		ServerInstance->Modules->Reload(m, new ReloadModuleWorker(parameters[0], user->uuid));
+		return CMD_SUCCESS;
 	}
-
-	ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s unsuccessfully reloaded %s",user->nick.c_str(), parameters[0].c_str());
-	user->WriteNumeric(975, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
-	return CMD_FAILURE;
+	else
+	{
+		user->WriteNumeric(975, "%s %s :Could not find module by that name", user->nick.c_str(), parameters[0].c_str());
+		return CMD_FAILURE;
+	}
 }
 
 COMMAND_INIT(CommandReloadmodule)

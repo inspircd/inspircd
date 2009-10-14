@@ -1219,7 +1219,8 @@ void ServerConfig::ApplyModules(User* user)
 		// Don't remove cmd_*.so, just remove m_*.so
 		if (removing->c_str()[0] == 'c')
 			continue;
-		if (ServerInstance->Modules->Unload(removing->c_str()))
+		Module* m = ServerInstance->Modules->Find(*removing);
+		if (m && ServerInstance->Modules->Unload(m))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
 

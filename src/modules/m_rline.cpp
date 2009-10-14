@@ -290,7 +290,7 @@ class ModuleRLine : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual void OnLoadModule(Module* mod, const std::string& name)
+	virtual void OnLoadModule(Module* mod)
 	{
 		if (ServerInstance->Modules->ModuleHasInterface(mod, "RegularExpression"))
 		{

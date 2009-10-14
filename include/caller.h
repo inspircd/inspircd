@@ -47,63 +47,63 @@
  * this until you do, as if you get this wrong, this can generate some pretty long
  * winded and confusing error messages at compile time.
  */
-template <typename ReturnType> class CoreExport HandlerBase0
+template <typename ReturnType> class CoreExport HandlerBase0 : public classbase
 {
  public:
 	virtual ReturnType Call() = 0;
 	virtual ~HandlerBase0() { }
 };
 
-template <typename ReturnType, typename Param1> class CoreExport HandlerBase1
+template <typename ReturnType, typename Param1> class CoreExport HandlerBase1 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1) = 0;
 	virtual ~HandlerBase1() { }
 };
 
-template <typename ReturnType, typename Param1, typename Param2> class CoreExport HandlerBase2
+template <typename ReturnType, typename Param1, typename Param2> class CoreExport HandlerBase2 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1, Param2) = 0;
 	virtual ~HandlerBase2() { }
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3> class CoreExport HandlerBase3
+template <typename ReturnType, typename Param1, typename Param2, typename Param3> class CoreExport HandlerBase3 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1, Param2, Param3) = 0;
 	virtual ~HandlerBase3() { }
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4> class CoreExport HandlerBase4
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4> class CoreExport HandlerBase4 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1, Param2, Param3, Param4) = 0;
 	virtual ~HandlerBase4() { }
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5> class CoreExport HandlerBase5
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5> class CoreExport HandlerBase5 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1, Param2, Param3, Param4, Param5) = 0;
 	virtual ~HandlerBase5() { }
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6> class CoreExport HandlerBase6
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6> class CoreExport HandlerBase6 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1, Param2, Param3, Param4, Param5, Param6) = 0;
 	virtual ~HandlerBase6() { }
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7> class CoreExport HandlerBase7
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7> class CoreExport HandlerBase7 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1, Param2, Param3, Param4, Param5, Param6, Param7) = 0;
 	virtual ~HandlerBase7() { }
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7, typename Param8> class CoreExport HandlerBase8
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7, typename Param8> class CoreExport HandlerBase8 : public classbase
 {
  public:
 	virtual ReturnType Call(Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8) = 0;
@@ -120,12 +120,6 @@ template <typename HandlerType> class CoreExport caller
 	{ }
 
 	virtual ~caller() { }
-
-	caller& operator=(HandlerType* newtarget)
-	{
-		target = newtarget;
-		return *this;
-	}
 };
 
 template <typename ReturnType> class CoreExport caller0 : public caller< HandlerBase0<ReturnType> >

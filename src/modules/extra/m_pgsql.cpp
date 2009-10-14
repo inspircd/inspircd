@@ -930,7 +930,7 @@ class ModulePgSQL : public Module
 		}
 	}
 
-	virtual void OnUnloadModule(Module* mod, const std::string&	name)
+	virtual void OnUnloadModule(Module* mod)
 	{
 		/* When a module unloads we have to check all the pending queries for all our connections
 		 * and set the Module* specifying where the query came from to NULL. If the query has already

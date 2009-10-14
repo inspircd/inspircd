@@ -772,17 +772,17 @@ void ModuleSpanningTree::OnRehash(User* user)
 	Utils->ReadConfiguration(true);
 }
 
-void ModuleSpanningTree::OnLoadModule(Module* mod, const std::string &name)
+void ModuleSpanningTree::OnLoadModule(Module* mod)
 {
-	this->RedoConfig(mod, name);
+	this->RedoConfig(mod);
 }
 
-void ModuleSpanningTree::OnUnloadModule(Module* mod, const std::string &name)
+void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
-	this->RedoConfig(mod, name);
+	this->RedoConfig(mod);
 }
 
-void ModuleSpanningTree::RedoConfig(Module* mod, const std::string &name)
+void ModuleSpanningTree::RedoConfig(Module* mod)
 {
 	/* If m_sha256.so is loaded (we use this for HMAC) or any module implementing a BufferedSocket interface is loaded,
 	 * then we need to re-read our config again taking this into account.
@@ -794,7 +794,7 @@ void ModuleSpanningTree::RedoConfig(Module* mod, const std::string &name)
 	if (ml && std::find(ml->begin(), ml->end(), mod) != ml->end())
 		IsBufferSocketModule = true;
 
-	if (name == "m_sha256.so" || IsBufferSocketModule)
+	if (mod->ModuleSourceFile == "m_sha256.so" || IsBufferSocketModule)
 	{
 		Utils->ReadConfiguration(true);
 	}

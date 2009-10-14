@@ -55,8 +55,8 @@ class CoreExport refcountbase : public classbase
 class CoreExport reference_base
 {
  protected:
-	static inline unsigned int inc(refcountbase* v) { return ++(v->refcount); }
-	static inline unsigned int dec(refcountbase* v) { return --(v->refcount); }
+	template<typename T> static inline unsigned int inc(T* v) { return ++(v->refcount); }
+	template<typename T> static inline unsigned int dec(T* v) { return --(v->refcount); }
 };
 
 template <typename T>

@@ -22,7 +22,8 @@ class CommandGloadmodule : public Command
  public:
 	CommandGloadmodule(Module* Creator) : Command(Creator,"GLOADMODULE", 1)
 	{
-		flags_needed = 'o'; syntax = "<modulename> [servermask]";
+		flags_needed = 'o';
+		syntax = "<modulename> [servermask]";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
@@ -61,7 +62,8 @@ class CommandGunloadmodule : public Command
  public:
 	CommandGunloadmodule(Module* Creator) : Command(Creator,"GUNLOADMODULE", 1)
 	{
-		flags_needed = 'o'; syntax = "<modulename> [servermask]";
+		flags_needed = 'o';
+		syntax = "<modulename> [servermask]";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -70,10 +72,12 @@ class CommandGunloadmodule : public Command
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
-			if (ServerInstance->Modules->Unload(parameters[0].c_str()))
+			Module* m = ServerInstance->Modules->Find(parameters[0]);
+			if (m && ServerInstance->Modules->Unload(m))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick.c_str(), parameters[0].c_str());
+				ServerInstance->DumpText(user, ":%s 973 %s %s :Module successfully unloaded.",
+					ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
 			}
 			else
 			{
@@ -108,20 +112,8 @@ class CommandGreloadmodule : public Command
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
-			bool ok = true;
-			if (!ServerInstance->Modules->Unload(parameters[0].c_str()))
-			{
-				ok = false;
-				user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
-			}
-			if (!ServerInstance->Modules->Load(parameters[0].c_str()))
-			{
-				ok = false;
-				user->WriteNumeric(974, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
-			}
-			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-			if (ok)
-				user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());
+			Module* m = ServerInstance->Modules->Find(parameters[0]);
+			ServerInstance->Modules->Reload(m, NULL);
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
@@ -150,13 +142,13 @@ class ModuleGlobalLoad : public Module
 		ServerInstance->AddCommand(&cmd3);
 	}
 
-	virtual ~ModuleGlobalLoad()
+	~ModuleGlobalLoad()
 	{
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR);
 	}
 };
 

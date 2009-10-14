@@ -107,7 +107,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 133
+#define API_VERSION 134
 
 class ServerConfig;
 
@@ -917,9 +917,8 @@ class CoreExport Module : public Extensible
 	 * absolutely neccessary (e.g. a module that extends the features of another
 	 * module).
 	 * @param mod A pointer to the new module
-	 * @param name The new module's filename
 	 */
-	virtual void OnLoadModule(Module* mod,const std::string &name);
+	virtual void OnLoadModule(Module* mod);
 
 	/** Called whenever a module is unloaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -933,7 +932,7 @@ class CoreExport Module : public Extensible
 	 * @param mod Pointer to the module being unloaded (still valid)
 	 * @param name The filename of the module being unloaded
 	 */
-	virtual void OnUnloadModule(Module* mod,const std::string &name);
+	virtual void OnUnloadModule(Module* mod);
 
 	/** Called once every five seconds for background processing.
 	 * This timer can be used to control timed features. Its period is not accurate
@@ -1502,6 +1501,9 @@ class CoreExport ModuleManager : public classbase
 		PRIO_STATE_AGAIN,
 		PRIO_STATE_LAST
 	} prioritizationState;
+
+	/** Internal unload module hook */
+	bool CanUnload(Module*);
  public:
 
 	/** Event handler hooks.
@@ -1590,15 +1592,24 @@ class CoreExport ModuleManager : public classbase
 	 */
 	bool Load(const char* filename);
 
-	/** Unload a given module file
-	 * @param filename The file to unload
-	 * @return True if the module was unloaded
+	/** Unload a given module file. Note that the module will not be
+	 * completely gone until the cull list has finished processing.
+	 *
+	 * @return true on success; if false, LastError will give a reason
 	 */
-	bool Unload(const char* filename);
+	bool Unload(Module* module);
+
+	/** Run an asynchronous reload of the given module. When the reload is
+	 * complete, the callback will be run with true if the reload succeeded
+	 * and false if it did not.
+	 */
+	void Reload(Module* module, HandlerBase1<void, bool>* callback);
 
 	/** Called by the InspIRCd constructor to load all modules from the config file.
 	 */
 	void LoadAll();
+	void UnloadAll();
+	void DoSafeUnload(Module*);
 
 	/** Get the total number of currently loaded modules
 	 * @return The number of loaded modules

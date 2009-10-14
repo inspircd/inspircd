@@ -87,11 +87,10 @@ public:
 		return false;
 	}
 
-	virtual void OnLoadModule(Module* mod, const std::string& name)
+	virtual void OnLoadModule(Module* mod)
 	{
 		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
 		{
-			ServerInstance->Logs->Log("m_sqloper",DEBUG, "Post-load registering hasher: %s", name.c_str());
 			std::string sname = HashNameRequest(this, mod).response;
 			hashers[sname.c_str()] = mod;
 			names.push_back(sname);
@@ -303,7 +302,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR, API_VERSION);
+		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
 	}
 
 };

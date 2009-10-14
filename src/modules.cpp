@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "xline.h"
 #include "socket.h"
@@ -56,7 +54,6 @@ void Event::Send()
 Module::Module() { }
 bool Module::cull()
 {
-	ServerInstance->GlobalCulls.AddItem(ModuleDLLManager);
 	return true;
 }
 Module::~Module() { }
@@ -85,8 +82,8 @@ void		Module::OnUserPostNick(User*, const std::string&) { }
 ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
 void		Module::On005Numeric(std::string&) { }
 ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnLoadModule(Module*, const std::string&) { }
-void		Module::OnUnloadModule(Module*, const std::string&) { }
+void		Module::OnLoadModule(Module*) { }
+void		Module::OnUnloadModule(Module*) { }
 void		Module::OnBackgroundTimer(time_t) { }
 ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, User *, bool, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, User *, CmdResult, const std::string&) { }
@@ -408,7 +405,7 @@ bool ModuleManager::Load(const char* filename)
 	}
 
 	this->ModCount++;
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod, filename_str));
+	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod));
 
 	/* We give every module a chance to re-prioritize when we introduce a new one,
 	 * not just the one thats loading, as the new module could affect the preference
@@ -430,63 +427,117 @@ bool ModuleManager::Load(const char* filename)
 	return true;
 }
 
-bool ModuleManager::Unload(const char* filename)
+bool ModuleManager::CanUnload(Module* mod)
 {
-	std::string filename_str(filename);
-	std::map<std::string, Module*>::iterator modfind = Modules.find(filename);
+	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
-	if (modfind != Modules.end())
+	if (modfind == Modules.end() || modfind->second != mod)
 	{
-		if (modfind->second->GetVersion().Flags & VF_STATIC)
-		{
-			LastModuleError = "Module " + filename_str + " not unloadable (marked static)";
-			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-			return false;
-		}
-		std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modfind->second);
-		if (intercount.first > 0)
-		{
-			LastModuleError = "Failed to unload module " + filename_str + ", being used by " + ConvToStr(intercount.first) + " other(s) via interface '" + intercount.second + "'";
-			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-			return false;
-		}
+		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		return false;
+	}
+	if (mod->GetVersion().Flags & VF_STATIC)
+	{
+		LastModuleError = "Module " + mod->ModuleSourceFile + " not unloadable (marked static)";
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		return false;
+	}
+	std::pair<int,std::string> intercount = GetInterfaceInstanceCount(mod);
+	if (intercount.first > 0)
+	{
+		LastModuleError = "Failed to unload module " + mod->ModuleSourceFile + ", being used by " + ConvToStr(intercount.first) + " other(s) via interface '" + intercount.second + "'";
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		return false;
+	}
+	return true;
+}
 
-		std::vector<ExtensionItem*> items;
-		ServerInstance->Extensions.BeginUnregister(modfind->second, items);
-		/* Give the module a chance to tidy out all its metadata */
-		for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
-		{
-			modfind->second->OnCleanup(TYPE_CHANNEL,c->second);
-			c->second->doUnhookExtensions(items);
-			const UserMembList* users = c->second->GetUsers();
-			for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
-				mi->second->doUnhookExtensions(items);
-		}
-		for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
-		{
-			modfind->second->OnCleanup(TYPE_USER,u->second);
-			u->second->doUnhookExtensions(items);
-		}
+void ModuleManager::DoSafeUnload(Module* mod)
+{
+	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
-		/* Tidy up any dangling resolvers */
-		ServerInstance->Res->CleanResolvers(modfind->second);
-
-		FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modfind->second, modfind->first));
-
-		this->DetachAll(modfind->second);
-
-		ServerInstance->GlobalCulls.AddItem(modfind->second);
-		Modules.erase(modfind);
-
-		ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",filename);
-		this->ModCount--;
-		ServerInstance->BuildISupport();
-		return true;
+	std::vector<ExtensionItem*> items;
+	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
+	/* Give the module a chance to tidy out all its metadata */
+	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
+	{
+		mod->OnCleanup(TYPE_CHANNEL,c->second);
+		c->second->doUnhookExtensions(items);
+		const UserMembList* users = c->second->GetUsers();
+		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+			mi->second->doUnhookExtensions(items);
+	}
+	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
+	{
+		mod->OnCleanup(TYPE_USER,u->second);
+		u->second->doUnhookExtensions(items);
 	}
 
-	LastModuleError = "Module " + filename_str + " is not loaded, cannot unload it!";
-	ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-	return false;
+	/* Tidy up any dangling resolvers */
+	ServerInstance->Res->CleanResolvers(mod);
+
+	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
+
+	DetachAll(mod);
+
+	Modules.erase(modfind);
+	ServerInstance->GlobalCulls.AddItem(mod);
+
+	ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
+	this->ModCount--;
+	ServerInstance->BuildISupport();
+}
+
+namespace {
+	struct UnloadAction : public HandlerBase0<void>
+	{
+		Module* const mod;
+		UnloadAction(Module* m) : mod(m) {}
+		void Call()
+		{
+			DLLManager* dll = mod->ModuleDLLManager;
+			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->GlobalCulls.Apply();
+			delete dll;
+			ServerInstance->GlobalCulls.AddItem(this);
+		}
+	};
+
+	struct ReloadAction : public HandlerBase0<void>
+	{
+		Module* const mod;
+		HandlerBase1<void, bool>* const callback;
+		ReloadAction(Module* m, HandlerBase1<void, bool>* c)
+			: mod(m), callback(c) {}
+		void Call()
+		{
+			DLLManager* dll = mod->ModuleDLLManager;
+			std::string name = mod->ModuleSourceFile;
+			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->GlobalCulls.Apply();
+			delete dll;
+			bool rv = ServerInstance->Modules->Load(name.c_str());
+			callback->Call(rv);
+			ServerInstance->GlobalCulls.AddItem(this);
+		}
+	};
+}
+
+bool ModuleManager::Unload(Module* mod)
+{
+	if (!CanUnload(mod))
+		return false;
+	ServerInstance->AtomicActions.AddAction(new UnloadAction(mod));
+	return true;
+}
+
+void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
+{
+	if (CanUnload(mod))
+		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
+	else
+		callback->Call(false);
 }
 
 /* We must load the modules AFTER initializing the socket engine, now */
@@ -532,6 +583,29 @@ void ModuleManager::LoadAll()
 			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
+	}
+}
+
+void ModuleManager::UnloadAll()
+{
+	/* We do this more than once, so that any service providers get a
+	 * chance to be unhooked by the modules using them, but then get
+	 * a chance to be removed themsleves.
+	 *
+	 * Note: this deliberately does NOT delete the DLLManager objects
+	 */
+	for (int tries = 0; tries < 4; tries++)
+	{
+		std::map<std::string, Module*>::iterator i = Modules.begin();
+		while (i != Modules.end())
+		{
+			std::map<std::string, Module*>::iterator me = i++;
+			if (CanUnload(me->second))
+			{
+				ServerInstance->GlobalCulls.AddItem(me->second);
+			}
+		}
+		ServerInstance->GlobalCulls.Apply();
 	}
 }
 

@@ -258,9 +258,9 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_DISCONNECT,user->nick,user->host,user->server);
 	}
 
-	virtual void OnLoadModule(Module* mod, const std::string &name)
+	virtual void OnLoadModule(Module* mod)
 	{
-		AddLogEntry(LT_LOADMODULE,name,ServerInstance->Config->ServerName.c_str(), ServerInstance->Config->ServerName.c_str());
+		AddLogEntry(LT_LOADMODULE,mod->ModuleSourceFile,ServerInstance->Config->ServerName.c_str(), ServerInstance->Config->ServerName.c_str());
 	}
 
 	virtual Version GetVersion()
