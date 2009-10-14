@@ -15,21 +15,11 @@
 #ifndef CONFIG_USE_IOCP
 
 #include "inspircd.h"
-#ifndef WINDOWS
-#include <sys/select.h>
-#endif // WINDOWS
-
-#ifndef __SOCKETENGINE_SELECT__
-#define __SOCKETENGINE_SELECT__
-
-#include <vector>
-#include <string>
-#include <map>
-#ifndef WINDOWS
-#include <sys/select.h>
-#endif // WINDOWS
-#include "inspircd.h"
 #include "socketengine.h"
+
+#ifndef WINDOWS
+#include <sys/select.h>
+#endif // WINDOWS
 
 /** A specialisation of the SocketEngine class, designed to use traditional select().
  */
@@ -48,10 +38,6 @@ public:
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 };
-
-#endif
-
-
 
 SelectEngine::SelectEngine()
 {
