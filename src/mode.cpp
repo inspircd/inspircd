@@ -392,28 +392,23 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		return;
 	}
 
-	std::string mode_sequence = parameters[1];
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
 
 	bool SkipAccessChecks = false;
 
-	if (!IS_LOCAL(user) || ServerInstance->ULine(user->server))
-	{
+	if (!IS_LOCAL(user) || ServerInstance->ULine(user->server) || MOD_RESULT == MOD_RES_ALLOW)
 		SkipAccessChecks = true;
-	}
-	else
-	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
-		if (MOD_RESULT == MOD_RES_DENY)
-			return;
-		SkipAccessChecks = (MOD_RESULT == MOD_RES_ALLOW);
-	}
+	else if (MOD_RESULT == MOD_RES_DENY)
+		return;
 
 	if (targetuser && !SkipAccessChecks && user != targetuser)
 	{
 		user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", user->nick.c_str());
 		return;
 	}
+
+	std::string mode_sequence = parameters[1];
 
 	std::string output_mode;
 	std::ostringstream output_parameters;
