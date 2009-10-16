@@ -816,6 +816,11 @@ static const InitialConfig Values[] = {
 	{"options",	"invitebypassmodes",	"1",			new ValueContainerBool (&ServerConfig::InvBypassModes),		DT_BOOLEAN,  NULL},
 };
 
+InitialConfig::~InitialConfig()
+{
+	delete val;
+}
+
 /* These tags can occur multiple times, and therefore they have special code to read them
  * which is different to the code for reading the singular tags listed above.
  */

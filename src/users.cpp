@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include <stdarg.h>
 #include "socketengine.h"
@@ -20,15 +18,37 @@
 #include "bancache.h"
 #include "commands/cmd_whowas.h"
 
-static unsigned long uniq_id = 1;
-
-static unsigned long* already_sent = NULL;
-
-void InitializeAlreadySent(SocketEngine* SE)
+typedef unsigned int uniq_id_t;
+class sent
 {
-	already_sent = new unsigned long[SE->GetMaxFds()];
-	memset(already_sent, 0, SE->GetMaxFds() * sizeof(unsigned long));
-}
+	uniq_id_t uniq_id;
+	uniq_id_t* array;
+	void init()
+	{
+		if (!array)
+			array = new uniq_id_t[ServerInstance->SE->GetMaxFds()];
+		memset(array, 0, ServerInstance->SE->GetMaxFds() * sizeof(uniq_id_t));
+		uniq_id++;
+	}
+ public:
+	sent() : uniq_id(static_cast<uniq_id_t>(-1)), array(NULL) {}
+	inline uniq_id_t operator++()
+	{
+		if (++uniq_id == 0)
+			init();
+		return uniq_id;
+	}
+	inline uniq_id_t& operator[](int i)
+	{
+		return array[i];
+	}
+	~sent()
+	{
+		delete array;
+	}
+};
+
+static sent already_sent;
 
 std::string User::ProcessNoticeMasks(const char *sm)
 {
@@ -1234,9 +1254,7 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 	if (this->registered != REG_ALL || quitting)
 		return;
 
-	if (!already_sent)
-		InitializeAlreadySent(ServerInstance->SE);
-	uniq_id++;
+	uniq_id_t uniq_id = ++already_sent;
 
 	UserChanList include_c(chans);
 	std::map<User*,bool> exceptions;
@@ -1279,10 +1297,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	if (this->registered != REG_ALL)
 		return;
 
-	uniq_id++;
-
-	if (!already_sent)
-		InitializeAlreadySent(ServerInstance->SE);
+	uniq_id_t uniq_id = ++already_sent;
 
 	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),normal_text.c_str());
 	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),oper_text.c_str());
@@ -1401,11 +1416,8 @@ void User::DoHostCycle(const std::string &quitline)
 	if (!ServerInstance->Config->CycleHosts)
 		return;
 
-	unsigned int silent_id = ++uniq_id;
-	unsigned int seen_id = ++uniq_id;
-
-	if (!already_sent)
-		InitializeAlreadySent(ServerInstance->SE);
+	uniq_id_t silent_id = ++already_sent;
+	uniq_id_t seen_id = ++already_sent;
 
 	UserChanList include_c(chans);
 	std::map<User*,bool> exceptions;

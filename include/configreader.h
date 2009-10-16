@@ -838,6 +838,7 @@ struct InitialConfig
 	int datatype;
 	/** Validation function */
 	Validator validation_function;
+	~InitialConfig();
 };
 
 /** Represents a deprecated configuration tag.
