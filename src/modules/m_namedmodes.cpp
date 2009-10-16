@@ -27,6 +27,11 @@ class ModuleNamedModes : public Module
 		return Version("Provides the ability to manipulate modes via long names.",VF_VENDOR);
 	}
 
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
+	}
+
 	void On005Numeric(std::string& line)
 	{
 		std::string::size_type pos = line.find(" CHANMODES=");

@@ -44,7 +44,6 @@ public:
 	{
 		if (!ServerInstance->Modes->AddMode(&be))
 			throw ModuleException("Could not add new modes!");
-		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
 		be.DoImplements(this);
 		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
@@ -123,12 +122,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Provides support for the +e channel mode", VF_COMMON | VF_VENDOR, API_VERSION);
-	}
-
-	~ModuleBanException()
-	{
-		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
+		return Version("Provides support for the +e channel mode", VF_COMMON | VF_VENDOR);
 	}
 };
 

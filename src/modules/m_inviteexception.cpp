@@ -43,7 +43,6 @@ public:
 	{
 		if (!ServerInstance->Modes->AddMode(&ie))
 			throw ModuleException("Could not add new modes!");
-		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 
 		ie.DoImplements(this);
 		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite };
@@ -62,7 +61,6 @@ public:
 			modelist* list = ie.extItem.get(chan);
 			if (list)
 			{
-				std::string mask = std::string(user->nick) + "!" + user->ident + "@" + user->GetIPString();
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
 					if (chan->CheckBan(user, it->mask))
@@ -71,7 +69,6 @@ public:
 					}
 				}
 			}
-			// or if there wasn't a list, there can't be anyone on it, so we don't need to do anything.
 		}
 
 		return MOD_RES_PASSTHRU;
@@ -94,12 +91,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Provides support for the +I channel mode", VF_VENDOR | VF_COMMON, API_VERSION);
-	}
-
-	~ModuleInviteException()
-	{
-		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
+		return Version("Provides support for the +I channel mode", VF_VENDOR | VF_COMMON);
 	}
 };
 

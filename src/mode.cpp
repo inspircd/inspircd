@@ -57,7 +57,8 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 
 ModeHandler::~ModeHandler()
 {
-	ServerInstance->Modes->DelMode(this);
+	if (ServerInstance)
+		ServerInstance->Modes->DelMode(this);
 }
 
 bool ModeHandler::IsListMode()
