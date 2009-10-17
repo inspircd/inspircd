@@ -69,7 +69,7 @@ class ModuleHttpStats : public Module
 	void DumpMeta(std::stringstream& data, Extensible* ext)
 	{
 		data << "<metadata>";
-		for(ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
+		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
 		{
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);

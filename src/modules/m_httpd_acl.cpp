@@ -16,9 +16,8 @@
 #include "protocol.h"
 
 /* $ModDesc: Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd.so dependent modules */
-/* $ModDep: httpd.h */
 
-class HTTPACL : public Extensible
+class HTTPACL
 {
  public:
 	std::string path;

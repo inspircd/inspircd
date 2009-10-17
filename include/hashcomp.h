@@ -204,7 +204,7 @@ namespace irc
 	 * std::string, or a const char* const* array, using overloaded
 	 * constructors.
 	 */
-	class CoreExport stringjoiner : public classbase
+	class CoreExport stringjoiner
 	{
 	 private:
 
@@ -248,7 +248,7 @@ namespace irc
 	 * It can then reproduce this list, clamped to a maximum of MAXMODES
 	 * values per line.
 	 */
-	class CoreExport modestacker : public classbase
+	class CoreExport modestacker
 	{
 	 private:
 		/** The mode sequence and its parameters
@@ -335,7 +335,7 @@ namespace irc
 	 * list will be ":item". This is to allow for parsing 'source' fields
 	 * from data.
 	 */
-	class CoreExport tokenstream : public classbase
+	class CoreExport tokenstream
 	{
 	 private:
 
@@ -394,7 +394,7 @@ namespace irc
 	 * the next token, until none remain, at which point the method returns
 	 * an empty string.
 	 */
-	class CoreExport sepstream : public classbase
+	class CoreExport sepstream
 	{
 	 private:
 		/** Original string.
@@ -467,7 +467,7 @@ namespace irc
 	 * start or end < 0) then GetToken() will return the first element
 	 * of the pair of numbers.
 	 */
-	class CoreExport portparser : public classbase
+	class CoreExport portparser
 	{
 	 private:
 

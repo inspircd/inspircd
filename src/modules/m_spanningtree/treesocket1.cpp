@@ -103,7 +103,7 @@ void TreeSocket::CleanNegotiationInfo()
 	OutboundPass.clear();
 }
 
-bool TreeSocket::cull()
+CullResult TreeSocket::cull()
 {
 	Utils->timeoutlist.erase(this);
 	if (myautoconnect)

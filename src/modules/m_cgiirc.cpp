@@ -26,7 +26,7 @@ enum CGItype { INVALID, PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
 /** Holds a CGI site's details
  */
-class CGIhost : public classbase
+class CGIhost
 {
 public:
 	std::string hostmask;

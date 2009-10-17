@@ -17,7 +17,7 @@
 
 /** Holds a timed ban
  */
-class TimedBan : public classbase
+class TimedBan
 {
  public:
 	std::string channel;

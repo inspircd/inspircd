@@ -40,7 +40,7 @@ class Module;
 /**
  * Result status, used internally
  */
-class CoreExport DNSResult : public classbase
+class CoreExport DNSResult
 {
  public:
 	/** Result ID
@@ -72,7 +72,7 @@ typedef std::pair<unsigned char*, std::string> DNSInfo;
 
 /** Cached item stored in the query cache.
  */
-class CoreExport CachedQuery : public classbase
+class CoreExport CachedQuery
 {
  public:
 	/** The cached result data, an IP or hostname
@@ -181,7 +181,7 @@ enum ForceProtocol
  * can occur by calling virtual methods, one is a success situation, and the other
  * an error situation.
  */
-class CoreExport Resolver : public Extensible
+class CoreExport Resolver
 {
  protected:
 	/**

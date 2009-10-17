@@ -944,7 +944,7 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 }
 
-bool ModuleSpanningTree::cull()
+CullResult ModuleSpanningTree::cull()
 {
 	Utils->cull();
 	ServerInstance->Timers->DelTimer(RefreshTimer);

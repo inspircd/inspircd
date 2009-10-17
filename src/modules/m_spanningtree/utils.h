@@ -133,7 +133,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Prepare for class destruction
 	 */
-	bool cull();
+	CullResult cull();
 
 	/** Destroy class and free listeners etc
 	 */

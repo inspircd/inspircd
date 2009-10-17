@@ -61,7 +61,7 @@ public:
  * The error string varies from database software to database software
  * and should be used to display informational error messages to users.
  */
-class SQLerror : public classbase
+class SQLerror
 {
 	/** The error id
 	 */
@@ -149,7 +149,7 @@ public:
  *
  * SQLrequest foo = SQLrequest(this, target, "databaseid", (SQLquery("SELECT.. ?"), parameter, parameter));
  */
-class SQLquery : public classbase
+class SQLquery
 {
 public:
 	/** The query 'format string'
@@ -241,6 +241,11 @@ public:
 	: Request(s, d, SQLREQID), query(q), dbid(databaseid), pri(false), id(0)
 	{
 	}
+
+	// Copy constructor - XXX probably shouldn't be needed
+	SQLrequest(const SQLrequest& o)
+		: Request(o.source, o.dest, SQLREQID), query(o.query), dbid(o.dbid), pri(o.pri), cancel(o.cancel),
+		id(o.id), error(o.error) {}
 
 	/** Set the priority of a request.
 	 */
@@ -489,7 +494,7 @@ bool operator!= (const SQLhost& l, const SQLhost& r)
  * until pop() is called.
  */
 
-class QueryQueue : public classbase
+class QueryQueue
 {
 private:
 	typedef std::deque<SQLrequest*> ReqDeque;

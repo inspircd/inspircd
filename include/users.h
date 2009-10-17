@@ -848,7 +848,7 @@ class CoreExport User : public StreamSocket
 	/** Default destructor
 	 */
 	virtual ~User();
-	virtual bool cull();
+	virtual CullResult cull();
 };
 
 /** Derived from Resolver, and performs user forward/reverse lookups.

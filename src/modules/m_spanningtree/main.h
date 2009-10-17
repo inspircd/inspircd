@@ -190,7 +190,7 @@ class ModuleSpanningTree : public Module
 	void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
 	void OnLoadModule(Module* mod);
 	void OnUnloadModule(Module* mod);
-	bool cull();
+	CullResult cull();
 	~ModuleSpanningTree();
 	Version GetVersion();
 	void Prioritize();

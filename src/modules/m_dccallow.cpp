@@ -17,14 +17,14 @@
 
 static ConfigReader *Conf;
 
-class BannedFileList : public classbase
+class BannedFileList
 {
  public:
 	std::string filemask;
 	std::string action;
 };
 
-class DCCAllow : public classbase
+class DCCAllow
 {
  public:
 	std::string nickname;

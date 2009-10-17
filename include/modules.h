@@ -230,7 +230,7 @@ do { \
  * error when attempting to load a module compiled against a different API_VERSION.
  */
 template<int api>
-class CoreExport VersionBase : public classbase
+class CoreExport VersionBase
 {
  public:
 	/** Module description
@@ -349,7 +349,7 @@ class ConfigReader;
  *  its methods will be called when irc server events occur. class inherited from module must be
  *  instantiated by the ModuleFactory class (see relevent section) for the module to be initialised.
  */
-class CoreExport Module : public Extensible
+class CoreExport Module : public classbase
 {
  public:
 	/** File that this module was loaded from
@@ -369,7 +369,7 @@ class CoreExport Module : public Extensible
 	/** Clean up prior to destruction
 	 * If you override, you must call this AFTER your module's cleanup
 	 */
-	virtual bool cull();
+	virtual CullResult cull();
 
 	/** Default destructor.
 	 * destroys a module class

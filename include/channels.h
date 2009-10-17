@@ -36,7 +36,7 @@ struct ModResult;
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
-class HostItem : public classbase
+class HostItem
 {
  public:
 	/** Time the item was added

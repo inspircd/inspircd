@@ -25,7 +25,7 @@ inline std::string stringtime()
 
 /** An item in a listmode's list
  */
-class ListItem : public classbase
+class ListItem
 {
 public:
 	std::string nick;
@@ -35,7 +35,7 @@ public:
 
 /** The number of items a listmode's list may contain
  */
-class ListLimit : public classbase
+class ListLimit
 {
 public:
 	std::string mask;

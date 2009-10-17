@@ -22,22 +22,21 @@ classbase::classbase()
 {
 }
 
-bool classbase::cull()
+CullResult classbase::cull()
 {
-	return true;
+	return CullResult();
 }
 
 classbase::~classbase()
 {
 }
 
-refcountbase::refcountbase() : refcount(0)
+CullResult::CullResult()
 {
 }
 
-bool refcountbase::cull()
+refcountbase::refcountbase() : refcount(0)
 {
-	return (refcount == 0);
 }
 
 refcountbase::~refcountbase()
@@ -129,12 +128,17 @@ void Extensible::doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove)
 	}
 }
 
-Extensible::~Extensible()
+CullResult Extensible::cull()
 {
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
 		i->first->free(i->second);	
 	}
+	return classbase::cull();
+}
+
+Extensible::~Extensible()
+{
 }
 
 LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)

@@ -52,9 +52,9 @@ void Event::Send()
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
 Module::Module() { }
-bool Module::cull()
+CullResult Module::cull()
 {
-	return true;
+	return classbase::cull();
 }
 Module::~Module() { }
 

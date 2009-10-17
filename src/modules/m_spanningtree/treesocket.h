@@ -133,7 +133,7 @@ class TreeSocket : public BufferedSocket
 	 */
 	void CleanNegotiationInfo();
 
-	bool cull();
+	CullResult cull();
 	/** Destructor
 	 */
 	~TreeSocket();

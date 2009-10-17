@@ -583,14 +583,14 @@ void User::OnError(BufferedSocketError)
 	ServerInstance->Users->QuitUser(this, getError());
 }
 
-bool User::cull()
+CullResult User::cull()
 {
 	if (!quitting)
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
 	if (uuid.empty())
 	{
 		ServerInstance->Logs->Log("USERS", DEBUG, "User culled twice? UUID empty");
-		return true;
+		return Extensible::cull();
 	}
 	PurgeEmptyChannels();
 	if (IS_LOCAL(this))
@@ -625,7 +625,7 @@ bool User::cull()
 
 	ServerInstance->Users->uuidlist->erase(uuid);
 	uuid.clear();
-	return true;
+	return Extensible::cull();
 }
 
 void User::Oper(const std::string &opertype, const std::string &opername)

@@ -28,7 +28,7 @@ enum FilterFlags
 	FLAG_NOTICE = 16
 };
 
-class FilterResult : public classbase
+class FilterResult
 {
  public:
 	std::string freeform;

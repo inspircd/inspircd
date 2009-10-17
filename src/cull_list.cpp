@@ -26,8 +26,8 @@ void CullList::Apply()
 		{
 			ServerInstance->Logs->Log("CULLLIST", DEBUG, "Deleting %s @%p", typeid(*c).name(),
 				(void*)c);
-			if (c->cull())
-				queue.push_back(c);
+			c->cull();
+			queue.push_back(c);
 		}
 		else
 		{

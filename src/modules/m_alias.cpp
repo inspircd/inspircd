@@ -17,7 +17,7 @@
 
 /** An alias definition
  */
-class Alias : public classbase
+class Alias
 {
  public:
 	/** The text of the alias command */

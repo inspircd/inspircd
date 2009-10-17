@@ -53,10 +53,10 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 {
 }
 
-bool ModeHandler::cull()
+CullResult ModeHandler::cull()
 {
 	ServerInstance->Modes->DelMode(this);
-	return true;
+	return classbase::cull();
 }
 
 ModeHandler::~ModeHandler()
@@ -1027,6 +1027,9 @@ ModeParser::ModeParser()
 ModeParser::~ModeParser()
 {
 	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
-	if (mh && mh->cull())
+	if (mh)
+	{
+		mh->cull();
 		delete mh;
+	}
 }

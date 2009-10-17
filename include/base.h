@@ -18,11 +18,17 @@
 #include <deque>
 #include <string>
 
-/** The base class for all inspircd classes.
- * Wherever possible, all classes you create should inherit from this,
- * giving them the ability to be passed to various core functions
- * as 'anonymous' classes.
-*/
+/** Dummy class to help enforce culls being parent-called up to classbase */
+class CullResult
+{
+	CullResult();
+	friend class classbase;
+};
+
+/** The base class for all inspircd classes with a well-defined lifetime.
+ * Classes that inherit from this may be destroyed through GlobalCulls,
+ * and may rely on cull() being called prior to their deletion.
+ */
 class CoreExport classbase
 {
  public:
@@ -33,23 +39,39 @@ class CoreExport classbase
 	 *
 	 * @return true to allow the delete, or false to halt the delete
 	 */
-	virtual bool cull();
+	virtual CullResult cull();
 	virtual ~classbase();
+ private:
+	// uncopyable
+	classbase(const classbase&);
+	void operator=(const classbase&);
 };
 
 /** The base class for inspircd classes that support reference counting.
  * Any objects that do not have a well-defined lifetime should inherit from
- * this
+ * this, and should be assigned to a reference<type> object to establish their
+ * lifetime.
+ *
+ * Reference objects should not hold circular references back to themselves,
+ * even indirectly; this will cause a memory leak because the count will never
+ * drop to zero.
+ *
+ * Using a normal pointer for the object is recommended if you can assure that
+ * at least one reference<> will remain as long as that pointer is used; this
+ * will avoid the slight overhead of changing the reference count.
  */
-class CoreExport refcountbase : public classbase
+class CoreExport refcountbase
 {
 	unsigned int refcount;
  public:
 	refcountbase();
-	virtual bool cull();
 	virtual ~refcountbase();
 	inline unsigned int GetReferenceCount() const { return refcount; }
 	friend class reference_base;
+ private:
+	// uncopyable
+	refcountbase(const refcountbase&);
+	void operator=(const refcountbase&);
 };
 
 class CoreExport reference_base
@@ -81,7 +103,7 @@ class reference : public reference_base
 		if (value)
 		{
 			int rc = dec(value);
-			if (rc == 0 && value->cull())
+			if (rc == 0)
 				delete value;
 		}
 	}
