@@ -231,15 +231,12 @@ bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 
 #ifdef WINDOWS
 // Note: the windows validator is in win32wrapper.cpp
-void ValidateDnsServer(std::string& server);
+void FindDNS(std::string& server);
 #else
-static void ValidateDnsServer(std::string& server)
+static void FindDNS(std::string& server)
 {
 	if (!server.empty())
-	{
-		ValidIP(server, "<dns:server>");
 		return;
-	}
 
 	// attempt to look up their nameserver from /etc/resolv.conf
 	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
@@ -497,15 +494,15 @@ void ServerConfig::Fill()
 	HideWhoisServer = security->getString("hidewhois");
 	HideKillsServer = security->getString("hidekills");
 	OperSpyWhois = security->getBool("operspywhois");
-	RestrictBannedUsers = security->getBool("restrictbannedusers");
+	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
 	NoUserDns = ConfValue("performance")->getBool("nouserdns");
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHosts = options->getBool("cyclehosts");
 	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
-	MaxTargets = security->getInt("maxtargets");
-	DefaultModes = options->getString("defaultmodes");
+	MaxTargets = security->getInt("maxtargets", 20);
+	DefaultModes = options->getString("defaultmodes", "nt");
 	PID = ConfValue("pid")->getString("file");
 	WhoWasGroupSize = ConfValue("whowas")->getInt("groupsize");
 	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
@@ -515,20 +512,16 @@ void ServerConfig::Fill()
 	OperMaxChans = ConfValue("channels")->getInt("opers");
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone");
 	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone");
-	Limits.NickMax = ConfValue("limits")->getInt("maxnick");
-	Limits.ChanMax = ConfValue("limits")->getInt("maxchan");
-	Limits.MaxModes = ConfValue("limits")->getInt("maxmodes");
-	Limits.IdentMax = ConfValue("limits")->getInt("maxident");
-	Limits.MaxQuit = ConfValue("limits")->getInt("maxquit");
-	Limits.MaxTopic = ConfValue("limits")->getInt("maxtopic");
-	Limits.MaxKick = ConfValue("limits")->getInt("maxkick");
-	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos");
-	Limits.MaxAway = ConfValue("limits")->getInt("maxaway");
-	InvBypassModes = options->getBool("invitebypassmodes");
-
-	ReadFile(MOTD, ConfValue("files")->getString("motd"));
-	ReadFile(RULES, ConfValue("files")->getString("rules"));
-	ValidateDnsServer(DNSServer);
+	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);
+	Limits.ChanMax = ConfValue("limits")->getInt("maxchan", 64);
+	Limits.MaxModes = ConfValue("limits")->getInt("maxmodes", 20);
+	Limits.IdentMax = ConfValue("limits")->getInt("maxident", 11);
+	Limits.MaxQuit = ConfValue("limits")->getInt("maxquit", 255);
+	Limits.MaxTopic = ConfValue("limits")->getInt("maxtopic", 307);
+	Limits.MaxKick = ConfValue("limits")->getInt("maxkick", 255);
+	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
+	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
+	InvBypassModes = options->getBool("invitebypassmodes", true);
 
 	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
 	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
@@ -539,6 +532,7 @@ void ServerConfig::Fill()
 	range(WhoWasMaxGroups, 0, 1000000, 10240, "<whowas:maxgroups>");
 	range(WhoWasMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
 
+	ValidIP(DNSServer, "<dns:server>");
 	ValidHost(ServerName, "<server:name>");
 	if (!sid.empty() && !ServerInstance->IsSID(sid))
 		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
@@ -1385,6 +1379,10 @@ void ConfigReaderThread::Run()
 {
 	Config = new ServerConfig;
 	Config->Read();
+	Config->ReadFile(Config->MOTD, Config->ConfValue("files")->getString("motd"));
+	Config->ReadFile(Config->RULES, Config->ConfValue("files")->getString("rules"));
+	FindDNS(Config->DNSServer);
+
 	done = true;
 }
 
