@@ -37,7 +37,7 @@ typedef std::vector<std::string> file_cache;
  */
 typedef std::pair<std::string, std::string> KeyVal;
 
-struct ConfigTag : public refcountbase
+struct CoreExport ConfigTag : public refcountbase
 {
 	const std::string tag;
 	const std::string src_name;
