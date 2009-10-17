@@ -59,11 +59,13 @@ enum RegistrationState {
 /* Required forward declaration */
 class Channel;
 class UserResolver;
+class ConfigTag;
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
 struct CoreExport ConnectClass : public refcountbase
 {
+	reference<ConfigTag> config;
 	/** Type of line, either CC_ALLOW or CC_DENY
 	 */
 	char type;
@@ -129,10 +131,10 @@ struct CoreExport ConnectClass : public refcountbase
 
 	/** Create a new connect class with no settings.
 	 */
-	ConnectClass(char type, const std::string& mask);
+	ConnectClass(ConfigTag* tag, char type, const std::string& mask);
 	/** Create a new connect class with inherited settings.
 	 */
-	ConnectClass(char type, const std::string& mask, const ConnectClass& parent);
+	ConnectClass(ConfigTag* tag, char type, const std::string& mask, const ConnectClass& parent);
 	
 	/** Update the settings in this block to match the given block */
 	void Update(const ConnectClass* newSettings);

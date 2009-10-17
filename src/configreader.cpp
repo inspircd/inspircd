@@ -389,8 +389,8 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				throw CoreException("Two connect classes cannot have the same mask (" + mask + ")");
 
 			ConnectClass* me = parent ? 
-				new ConnectClass(type, mask, *parent) :
-				new ConnectClass(type, mask);
+				new ConnectClass(tag, type, mask, *parent) :
+				new ConnectClass(tag, type, mask);
 
 			if (!name.empty())
 				me->name = name;

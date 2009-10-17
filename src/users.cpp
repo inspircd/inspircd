@@ -1801,15 +1801,15 @@ const std::string FakeUser::GetFullRealHost()
 	return nick;
 }
 
-ConnectClass::ConnectClass(char t, const std::string& mask)
-	: type(t), name("unnamed"), registration_timeout(0), host(mask),
+ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
+	: config(tag), type(t), name("unnamed"), registration_timeout(0), host(mask),
 	pingtime(0), pass(""), hash(""), softsendqmax(0), hardsendqmax(0),
 	recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0)
 {
 }
 
-ConnectClass::ConnectClass(char t, const std::string& mask, const ConnectClass& parent)
-	: type(t), name("unnamed"),
+ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, const ConnectClass& parent)
+	: config(tag), type(t), name("unnamed"),
 	registration_timeout(parent.registration_timeout), host(mask),
 	pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash),
 	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax),

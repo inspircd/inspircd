@@ -276,12 +276,10 @@ class IdentRequestSocket : public EventHandler
 class ModuleIdent : public Module
 {
 	int RequestTimeout;
-	ConfigReader *Conf;
 	SimpleExtItem<IdentRequestSocket> ext;
  public:
 	ModuleIdent() : ext("ident_socket", this)
 	{
-		Conf = new ConfigReader;
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
@@ -289,7 +287,6 @@ class ModuleIdent : public Module
 
 	~ModuleIdent()
 	{
-		delete Conf;
 	}
 
 	virtual Version GetVersion()
@@ -299,28 +296,18 @@ class ModuleIdent : public Module
 
 	virtual void OnRehash(User *user)
 	{
-		delete Conf;
-		Conf = new ConfigReader;
+		ConfigReader Conf;
 
-		RequestTimeout = Conf->ReadInteger("ident", "timeout", 0, true);
+		RequestTimeout = Conf.ReadInteger("ident", "timeout", 0, true);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
 	}
 
 	virtual ModResult OnUserRegister(User *user)
 	{
-		for (int j = 0; j < Conf->Enumerate("connect"); j++)
-		{
-			std::string hostn = Conf->ReadValue("connect","allow",j);
-			/* XXX: Fixme: does not respect port, limit, etc */
-			if ((InspIRCd::MatchCIDR(user->GetIPString(),hostn, ascii_case_insensitive_map)) || (InspIRCd::Match(user->host,hostn, ascii_case_insensitive_map)))
-			{
-				bool useident = Conf->ReadFlag("connect", "useident", "yes", j);
-
-				if (!useident)
-					return MOD_RES_PASSTHRU;
-			}
-		}
+		ConfigTag* tag = user->MyClass->config;
+		if (!tag->getBool("useident", true))
+			return MOD_RES_PASSTHRU;
 
 		/* User::ident is currently the username field from USER; with m_ident loaded, that
 		 * should be preceded by a ~. The field is actually IdentMax+2 characters wide. */
