@@ -228,17 +228,16 @@ User::User(const std::string &uid)
 	Penalty = 0;
 	lastping = signon = idle_lastmsg = nping = registered = 0;
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	quietquit = quitting = exempt = haspassed = dns_done = false;
+	quietquit = quitting = exempt = dns_done = false;
 	fd = -1;
 	server_sa.sa.sa_family = AF_UNSPEC;
 	client_sa.sa.sa_family = AF_UNSPEC;
-	MyClass = NULL;
 	AllowedPrivs = AllowedOperCommands = NULL;
 
 	if (uid.empty())
-		uuid.assign(ServerInstance->GetUID(), 0, UUID_LENGTH - 1);
+		uuid = ServerInstance->GetUID();
 	else
-		uuid.assign(uid, 0, UUID_LENGTH - 1);
+		uuid = uid;
 
 	ServerInstance->Logs->Log("USERS", DEBUG,"New UUID for user: %s (%s)", uuid.c_str(), uid.empty() ? "allocated new" : "used remote");
 
@@ -846,10 +845,13 @@ void User::FullConnect()
 	/* Check the password, if one is required by the user's connect class.
 	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
 	 */
-	if (this->MyClass && !this->MyClass->GetPass().empty() && !this->haspassed)
+	if (MyClass && !MyClass->pass.empty())
 	{
-		ServerInstance->Users->QuitUser(this, "Invalid password");
-		return;
+		if (ServerInstance->PassCompare(this, MyClass->pass.c_str(), password.c_str(), MyClass->hash.c_str()))
+		{
+			ServerInstance->Users->QuitUser(this, "Invalid password");
+			return;
+		}
 	}
 
 	if (this->CheckLines())

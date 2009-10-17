@@ -291,16 +291,6 @@ class CoreExport User : public StreamSocket
 	 */
 	int cmds_out;
 
-	/** True if user has authenticated, false if otherwise
-	 */
-	bool haspassed;
-
-	/** Used by User to indicate the registration status of the connection
-	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
-	 * the connection state.
-	 */
-	char registered;
-
 	/** Time the connection was last pinged
 	 */
 	time_t lastping;
@@ -400,28 +390,43 @@ class CoreExport User : public StreamSocket
 	 */
 	std::string oper;
 
-	/** True when DNS lookups are completed.
-	 * The UserResolver classes res_forward and res_reverse will
-	 * set this value once they complete.
-	 */
-	bool dns_done;
-
 	/** Password specified by the user when they registered.
 	 * This is stored even if the <connect> block doesnt need a password, so that
 	 * modules may check it.
 	 */
 	std::string password;
 
+	/** This value contains how far into the penalty threshold the user is. Once its over
+	 * the penalty threshold then commands are held and processed on-timer.
+	 */
+	int Penalty;
+
+	/** Used by User to indicate the registration status of the connection
+	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
+	 * the connection state.
+	 */
+	unsigned int registered:3;
+
+	/** True when DNS lookups are completed.
+	 * The UserResolver classes res_forward and res_reverse will
+	 * set this value once they complete.
+	 */
+	unsigned int dns_done:1;
+
 	/** Whether or not to send an snotice about this user's quitting
 	 */
-	bool quietquit;
+	unsigned int quietquit:1;
 
 	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
 	 * This value is set by QuitUser, and is not needed seperately from that call.
 	 * Please note that setting this value alone will NOT cause the user to quit.
 	 */
-	bool quitting;
+	unsigned int quitting:1;
+
+	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
+	 */
+	unsigned int exempt:1;
 
 	/** Server address and port that this user is connected to.
 	 * If unknown, address family is AF_UNKNOWN
@@ -457,15 +462,6 @@ class CoreExport User : public StreamSocket
 	 * level so it may be used on more derived objects. -- w00t)
 	 */
 	const char *GetCIDRMask(int range);
-
-	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
-	 */
-	bool exempt;
-
-	/** This value contains how far into the penalty threshold the user is. Once its over
-	 * the penalty threshold then commands are held and processed on-timer.
-	 */
-	int Penalty;
 
 	/** Default constructor
 	 * @throw CoreException if the UID allocated to the user already exists

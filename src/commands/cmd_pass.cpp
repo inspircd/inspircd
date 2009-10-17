@@ -36,19 +36,13 @@ class CommandPass : public Command
 
 CmdResult CommandPass::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	// Check to make sure they havnt registered -- Fix by FCS
+	// Check to make sure they haven't registered -- Fix by FCS
 	if (user->registered == REG_ALL)
 	{
 		user->WriteNumeric(ERR_ALREADYREGISTERED, "%s :You may not reregister",user->nick.c_str());
 		return CMD_FAILURE;
 	}
-	ConnectClass* a = user->GetClass();
-	if (!a)
-		return CMD_FAILURE;
-
-	user->password.assign(parameters[0], 0, 63);
-	if (!ServerInstance->PassCompare(user, a->pass.c_str(), parameters[0].c_str(), a->hash.c_str()))
-		user->haspassed = true;
+	user->password = parameters[0];
 
 	return CMD_SUCCESS;
 }
