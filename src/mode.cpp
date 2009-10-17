@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "inspstring.h"
 
@@ -55,10 +53,16 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 {
 }
 
+bool ModeHandler::cull()
+{
+	ServerInstance->Modes->DelMode(this);
+	return true;
+}
+
 ModeHandler::~ModeHandler()
 {
-	if (ServerInstance)
-		ServerInstance->Modes->DelMode(this);
+	if (ServerInstance && ServerInstance->Modes->FindMode(mode, m_type) == this)
+		ServerInstance->Logs->Log("MODE", DEBUG, "ERROR: Destructor for mode %c called while not culled", mode);
 }
 
 bool ModeHandler::IsListMode()
@@ -660,7 +664,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
 	pos = (mh->GetModeChar()-65) | mask;
 
-	if (!modehandlers[pos])
+	if (modehandlers[pos] != mh)
 		return false;
 
 	/* Note: We can't stack here, as we have modes potentially being removed across many different channels.
@@ -1023,6 +1027,6 @@ ModeParser::ModeParser()
 ModeParser::~ModeParser()
 {
 	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
-	if (mh)
+	if (mh && mh->cull())
 		delete mh;
 }

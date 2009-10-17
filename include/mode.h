@@ -172,6 +172,7 @@ class CoreExport ModeHandler : public classbase
 	 * @param type Type of the mode (MODETYPE_USER or MODETYPE_CHANNEL)
 	 */
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type);
+	virtual bool cull();
 	virtual ~ModeHandler();
 	/**
 	 * Returns true if the mode is a list mode
