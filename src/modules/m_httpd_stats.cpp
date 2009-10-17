@@ -16,7 +16,6 @@
 #include "protocol.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
-/* $ModDep: httpd.h */
 
 class ModuleHttpStats : public Module
 {
@@ -67,6 +66,21 @@ class ModuleHttpStats : public Module
 		return ret;
 	}
 
+	void DumpMeta(std::stringstream& data, Extensible* ext)
+	{
+		data << "<metadata>";
+		for(ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
+		{
+			ExtensionItem* item = i->first;
+			std::string value = item->serialize(FORMAT_USER, ext, i->second);
+			if (value.empty())
+				data << "<meta name=\"" << item->key << "\"/>";
+			else
+				data << "<meta name=\"" << item->key << "\">" << Sanitize(value) << "</meta>";
+		}
+		data << "</metadata>";
+	}
+
 	void OnEvent(Event& event)
 	{
 		std::stringstream data("");
@@ -80,7 +94,10 @@ class ModuleHttpStats : public Module
 			{
 				data << "<inspircdstats>";
 
-				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>" << Sanitize(ServerInstance->Config->ServerDesc) << "</gecos></server>";
+				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>"
+					<< Sanitize(ServerInstance->Config->ServerDesc) << "</gecos><version>"
+					<< Sanitize(ServerInstance->GetVersionString()) << "</version><revision>"
+					<< Sanitize(ServerInstance->GetRevision()) << "</revision></server>";
 
 				data << "<general>";
 				data << "<usercount>" << ServerInstance->Users->clientlist->size() << "</usercount>";
@@ -95,8 +112,7 @@ class ModuleHttpStats : public Module
 				stime = gmtime(&server_uptime);
 				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
 
-
-				data << "</general>";
+				data << "<isupport>" << Sanitize(ServerInstance->Config->data005) << "</isupport></general>";
 				data << "<modulelist>";
 				std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
 
@@ -104,7 +120,7 @@ class ModuleHttpStats : public Module
 				{
 					Module* m = ServerInstance->Modules->Find(i->c_str());
 					Version v = m->GetVersion();
-					data << "<module><name>" << *i << "</name><version>" << v.version << "</version></module>";
+					data << "<module><name>" << *i << "</name><version>" << v.version << "</version><description>" << Sanitize(v.description) << "</description></module>";
 				}
 				data << "</modulelist>";
 				data << "<channellist>";
@@ -125,8 +141,13 @@ class ModuleHttpStats : public Module
 
 					for (UserMembCIter x = ulist->begin(); x != ulist->end(); ++x)
 					{
-						data << "<channelmember><uid>" << x->first->uuid << "</uid><privs>" << Sanitize(c->GetAllPrefixChars(x->first)) << "</privs></channelmember>";
+						Membership* memb = x->second;
+						data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
+							<< Sanitize(c->GetAllPrefixChars(x->first)) << "</privs><modes>"
+							<< memb->modes << "</modes></channelmember>";
 					}
+
+					DumpMeta(data, c);
 
 					data << "</channel>";
 				}
@@ -138,14 +159,20 @@ class ModuleHttpStats : public Module
 					User* u = a->second;
 
 					data << "<user>";
-					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>" << u->host << "</realhost><displayhost>" << u->dhost << "</displayhost>";
-					data << "<gecos>" << Sanitize(u->fullname) << "</gecos><server>" << u->server << "</server><away>" << Sanitize(u->awaymsg) << "</away><opertype>" << Sanitize(u->oper) << "</opertype><modes>";
-					std::string modes;
-					for (unsigned char n = 'A'; n <= 'z'; ++n)
-						if (u->IsModeSet(n))
-							modes += n;
+					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
+						<< u->host << "</realhost><displayhost>" << u->dhost << "</displayhost><gecos>"
+						<< Sanitize(u->fullname) << "</gecos><server>" << u->server << "</server>";
+					if (IS_AWAY(u))
+						data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
+					if (IS_OPER(u))
+						data << "<opertype>" << Sanitize(u->oper) << "</opertype>";
+					data << "<modes>" << u->FormatModes() << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
+					if (IS_LOCAL(u))
+						data << "<port>" << u->GetServerPort() << "</port><servaddr>" << irc::sockets::satouser(&u->server_sa) << "</servaddr>";
+					data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
 
-					data << modes << "</modes><ident>" << Sanitize(u->ident) << "</ident><port>" << u->GetServerPort() << "</port><ipaddress>" << u->GetIPString() << "</ipaddress>";
+					DumpMeta(data, u);
+
 					data << "</user>";
 				}
 

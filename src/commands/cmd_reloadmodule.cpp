@@ -58,7 +58,7 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m)
 	{
-		ServerInstance->Modules->Reload(m, new ReloadModuleWorker(parameters[0], user->uuid));
+		ServerInstance->Modules->Reload(m, new ReloadModuleWorker(user->uuid, parameters[0]));
 		return CMD_SUCCESS;
 	}
 	else
