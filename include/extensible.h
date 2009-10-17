@@ -114,17 +114,6 @@ class SimpleExtItem : public LocalExtItem
 		return static_cast<T*>(get_raw(container));
 	}
 
-	inline T* getNew(Extensible* container) const
-	{
-		T* ptr = get(container);
-		if (!ptr)
-		{
-			ptr = new T;
-			set_raw(container, ptr);
-		}
-		return ptr;
-	}
-
 	inline void set(Extensible* container, const T& value)
 	{
 		T* ptr = new T(value);
