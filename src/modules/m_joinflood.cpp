@@ -17,7 +17,7 @@
 
 /** Holds settings and state associated with channel mode +j
  */
-class joinfloodsettings : public classbase
+class joinfloodsettings
 {
  public:
 	int secs;
