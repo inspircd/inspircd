@@ -240,7 +240,7 @@ CoreExport void WindowsForkKillOwner();
 
 CoreExport void ChangeWindowsSpecificPointers();
 
-CoreExport bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
+CoreExport void FindDNS(std::string& server);
 
 CoreExport bool initwmi();
 CoreExport void donewmi();

@@ -354,7 +354,7 @@ bool GetInterface(HKEY regkey, const char *key, char* &output)
 
 std::string FindNameServerWin()
 {
-	std::string returnval = "127.0.0.1";
+	std::string returnval;
 	HKEY top, key;
 	char* dns = NULL;
 
@@ -517,27 +517,36 @@ void WindowsForkKillOwner()
         CloseHandle(hProcess);
 }
 
-bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+void FindDNS(std::string& server)
 {
-	if (!*(data.GetString()))
+	if (!server.empty())
+		return;
+
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
+	std::string nameserver = FindNameServerWin();
+
+	/* If empty use default to 127.0.0.1 */
+	if (nameserver.empty())
 	{
-		std::string nameserver;
-		ServerInstance->Logs->Log("win32",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
-		nameserver = FindNameServerWin();
-		/* Windows stacks multiple nameservers in one registry key, seperated by commas.
-		 * Spotted by Cataclysm.
-		 */
-		if (nameserver.find(',') != std::string::npos)
-			nameserver = nameserver.substr(0, nameserver.find(','));
-		/* Just to be FUCKING AKWARD, windows fister... err i mean vista...
-		 * seperates the nameservers with spaces instead.
-		 */
-		if (nameserver.find(' ') != std::string::npos)
-			nameserver = nameserver.substr(0, nameserver.find(' '));
-		data.Set(nameserver.c_str());
-		ServerInstance->Logs->Log("win32",DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+		server = "127.0.0.1";
+		return;
 	}
-	return true;
+
+	/* Windows stacks multiple nameservers in one registry key, seperated by commas.
+	 * Spotted by Cataclysm.
+	 */
+	if (nameserver.find(',') != std::string::npos)
+		nameserver = nameserver.substr(0, nameserver.find(','));
+
+	/* Just to be FUCKING AKWARD, windows fister... err i mean vista...
+	 * seperates the nameservers with spaces instead.
+	 */
+	if (nameserver.find(' ') != std::string::npos)
+		nameserver = nameserver.substr(0, nameserver.find(' '));
+
+	server = nameserver;
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 }
 
 int gettimeofday(struct timeval * tv, void * tz)
