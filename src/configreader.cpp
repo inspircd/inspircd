@@ -32,27 +32,299 @@
 #include "commands/cmd_whowas.h"
 #include "modes/cmode_h.h"
 
-static void ReqRead(ServerConfig* src, const std::string& tag, const std::string& key, std::string& dest)
+struct fpos
 {
-	ConfigTag* t = src->ConfValue(tag);
-	if (!t || !t->readString(key, dest))
-		throw CoreException("You must specify a value for <" + tag + ":" + key + ">");
+	std::string filename;
+	int line;
+	int col;
+	fpos(const std::string& name, int l = 1, int c = 1) : filename(name), line(l), col(c) {}
+	std::string str()
+	{
+		return filename + ":" + ConvToStr(line) + ":" + ConvToStr(col);
+	}
+};
+
+enum ParseFlags
+{
+	FLAG_NO_EXEC = 1,
+	FLAG_NO_INC = 2
+};
+
+struct ParseStack
+{
+	std::vector<std::string> reading;
+	ConfigDataHash& output;
+	std::stringstream& errstr;
+
+	ParseStack(ServerConfig* conf)
+		: output(conf->config_data), errstr(conf->errstr)
+	{ }
+	bool ParseFile(const std::string& name, int flags);
+	bool ParseExec(const std::string& name, int flags);
+	void DoInclude(ConfigTag* includeTag, int flags);
+};
+
+struct Parser
+{
+	ParseStack& stack;
+	const int flags;
+	FILE* const file;
+	fpos current;
+	fpos last_tag;
+	reference<ConfigTag> tag;
+	int ungot;
+
+	Parser(ParseStack& me, int myflags, FILE* conf, const std::string& name)
+		: stack(me), flags(myflags), file(conf), current(name), last_tag(name), ungot(-1)
+	{ }
+
+	int next(bool eof_ok = false)
+	{
+		if (ungot != -1)
+		{
+			int ch = ungot;
+			ungot = -1;
+			return ch;
+		}
+		int ch = fgetc(file);
+		if (ch == EOF && !eof_ok)
+		{
+			throw CoreException("Unexpected end-of-file");
+		}
+		else if (ch == '\n')
+		{
+			current.line++;
+			current.col = 0;
+		}
+		else
+		{
+			current.col++;
+		}
+		return ch;
+	}
+
+	void unget(int ch)
+	{
+		if (ungot != -1)
+			throw CoreException("INTERNAL ERROR: cannot unget twice");
+		ungot = ch;
+	}
+
+	void comment()
+	{
+		while (1)
+		{
+			int ch = next();
+			if (ch == '\n')
+				return;
+		}
+	}
+
+	void nextword(std::string& rv)
+	{
+		int ch = next();
+		while (isspace(ch))
+			ch = next();
+		while (isalnum(ch) || ch == '_')
+		{
+			rv.push_back(ch);
+			ch = next();
+		}
+		unget(ch);
+	}
+
+	bool kv()
+	{
+		std::string key;
+		nextword(key);
+		int ch = next();
+		if (ch == '>' && key.empty())
+		{
+			return false;
+		}
+		else if (ch == '#' && key.empty())
+		{
+			comment();
+			return true;
+		}
+		else if (ch != '=')
+		{
+			throw CoreException("Invalid character " + std::string(1, ch) + " in key (" + key + ")");
+		}
+
+		std::string value;
+		ch = next();
+		if (ch != '"')
+		{
+			throw CoreException("Invalid character in value of <" + tag->tag + ":" + key + ">");
+		}
+		while (1)
+		{
+			ch = next();
+			if (ch == '\\')
+			{
+				ch = next();
+				if (ch == 'n')
+					ch = '\n';
+				else if (ch == 'r')
+					ch = '\r';
+			}
+			else if (ch == '"')
+				break;
+			value.push_back(ch);
+		}
+		tag->items.push_back(KeyVal(key, value));
+		return true;
+	}
+
+	void dotag()
+	{
+		last_tag = current;
+		std::string name;
+		nextword(name);
+
+		int spc = next();
+		if (!isspace(spc))
+			throw CoreException("Invalid character in tag name");
+
+		if (name.empty())
+			throw CoreException("Empty tag name");
+
+		tag = new ConfigTag(name, current.filename, current.line);
+
+		while (kv());
+
+		if (tag->tag == "include")
+		{
+			stack.DoInclude(tag, flags);
+		}
+		else
+		{
+			stack.output.insert(std::make_pair(tag->tag, tag));
+		}
+		// this is not a leak; reference<> takes care of the delete
+		tag = NULL;
+	}
+
+	bool outer_parse()
+	{
+		try
+		{
+			while (1)
+			{
+				int ch = next(true);
+				switch (ch)
+				{
+					case EOF:
+						// this is the one place where an EOF is not an error
+						return true;
+					case '#':
+						comment();
+						break;
+					case '<':
+						dotag();
+						break;
+					case ' ':
+					case '\r':
+					case '\t':
+					case '\n':
+						break;
+					case 0xFE:
+					case 0xFF:
+						stack.errstr << "Do not save your files as UTF-16; use ASCII!\n";
+					default:
+						throw CoreException("Syntax error - start of tag expected");
+				}
+			}
+		}
+		catch (CoreException& err)
+		{
+			stack.errstr << err.GetReason() << " at " << current.str();
+			if (tag)
+				stack.errstr << " (inside tag " << tag->tag << " at line " << tag->src_line << ")\n";
+			else
+				stack.errstr << " (last tag was on line " << last_tag.line << ")\n";
+		}
+		return false;
+	}
+};
+
+void ParseStack::DoInclude(ConfigTag* tag, int flags)
+{
+	if (flags & FLAG_NO_INC)
+		throw CoreException("Invalid <include> tag in file included with noinclude=\"yes\"");
+	std::string name;
+	if (tag->readString("file", name))
+	{
+		if (tag->getBool("noinclude", false))
+			flags |= FLAG_NO_INC;
+		if (tag->getBool("noexec", false))
+			flags |= FLAG_NO_EXEC;
+		if (!ParseFile(name, flags))
+			throw CoreException("Included");
+	}
+	else if (tag->readString("executable", name))
+	{
+		if (flags & FLAG_NO_EXEC)
+			throw CoreException("Invalid <include:executable> tag in file included with noexec=\"yes\"");
+		if (tag->getBool("noinclude", false))
+			flags |= FLAG_NO_INC;
+		if (tag->getBool("noexec", true))
+			flags |= FLAG_NO_EXEC;
+		if (!ParseExec(name, flags))
+			throw CoreException("Included");
+	}
 }
 
-/** Represents a deprecated configuration tag.
- */
-struct Deprecated
+bool ParseStack::ParseFile(const std::string& name, int flags)
 {
-	/** Tag name
-	 */
-	const char* tag;
-	/** Tag value
-	 */
-	const char* value;
-	/** Reason for deprecation
-	 */
-	const char* reason;
-};
+	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading file %s", name.c_str());
+	for (unsigned int t = 0; t < reading.size(); t++)
+	{
+		if (std::string(name) == reading[t])
+		{
+			throw CoreException("File " + name + " is included recursively (looped inclusion)");
+		}
+	}
+
+	/* It's not already included, add it to the list of files we've loaded */
+
+	FILE* file = fopen(name.c_str(), "r");
+	if (!file)
+		throw CoreException("Could not read \"" + name + "\" for include");
+
+	reading.push_back(name);
+	Parser p(*this, flags, file, name);
+	bool ok = p.outer_parse();
+	reading.pop_back();
+	return ok;
+}
+
+bool ParseStack::ParseExec(const std::string& name, int flags)
+{
+	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading executable %s", name.c_str());
+	for (unsigned int t = 0; t < reading.size(); t++)
+	{
+		if (std::string(name) == reading[t])
+		{
+			throw CoreException("Executable " + name + " is included recursively (looped inclusion)");
+		}
+	}
+
+	/* It's not already included, add it to the list of files we've loaded */
+
+	FILE* file = popen(name.c_str(), "r");
+	if (!file)
+		throw CoreException("Could not open executable \"" + name + "\" for include");
+
+	reading.push_back(name);
+	Parser p(*this, flags, file, name);
+	bool ok = p.outer_parse();
+	reading.pop_back();
+	return ok;
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 ServerConfig::ServerConfig()
 {
@@ -107,6 +379,13 @@ void ServerConfig::Send005(User* user)
 		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
 }
 
+static void ReqRead(ServerConfig* src, const std::string& tag, const std::string& key, std::string& dest)
+{
+	ConfigTag* t = src->ConfValue(tag);
+	if (!t || !t->readString(key, dest))
+		throw CoreException("You must specify a value for <" + tag + ":" + key + ">");
+}
+
 template<typename T, typename V>
 static void range(T& value, V min, V max, V def, const char* msg)
 {
@@ -118,14 +397,6 @@ static void range(T& value, V min, V max, V def, const char* msg)
 	value = def;
 }
 
-bool ServerConfig::CheckOnce(const char* tag)
-{
-	if (!ConfValue(tag))
-		throw CoreException("You have not defined a <"+std::string(tag)+"> tag, this is required.");
-	if (ConfValue(tag, 1))
-		throw CoreException("You have more than one <"+std::string(tag)+"> tag, this is not permitted.");
-	return true;
-}
 
 /* NOTE: Before anyone asks why we're not using inet_pton for this, it is because inet_pton and friends do not return so much detail,
  * even in strerror(errno). They just return 'yes' or 'no' to an address without such detail as to whats WRONG with the address.
@@ -267,7 +538,7 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 			break;
 		std::string mask;
 		if (!ctag->readString(key, mask))
-			throw CoreException("<"+tag+":"+key+"> missing");
+			throw CoreException("<"+tag+":"+key+"> missing at " + ctag->getTagLocation());
 		std::string reason = ctag->getString("reason", "<Config>");
 		XLine* xl = make->Generate(ServerInstance->Time(), 0, "<Config>", reason, mask);
 		if (!ServerInstance->XLines->AddLine(xl, NULL))
@@ -284,7 +555,7 @@ void ServerConfig::CrossCheckOperClassType()
 			break;
 		std::string name = tag->getString("name");
 		if (name.empty())
-			throw CoreException("<class:name> is required for all <class> tags");
+			throw CoreException("<class:name> missing from tag at " + tag->getTagLocation());
 		operclass[name] = tag;
 	}
 	for (int i = 0;; ++i)
@@ -295,7 +566,7 @@ void ServerConfig::CrossCheckOperClassType()
 
 		std::string name = tag->getString("name");
 		if (name.empty())
-			throw CoreException("<type:name> is required for all <type> tags");
+			throw CoreException("<type:name> is missing from tag at " + tag->getTagLocation());
 		opertypes[name] = tag;
 
 		std::string classname;
@@ -379,7 +650,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			}
 			else
 			{
-				throw CoreException("Connect class must have an allow or deny mask (#" + ConvToStr(i) + ")");
+				throw CoreException("Connect class must have an allow or deny mask at " + tag->getTagLocation());
 			}
 			ClassMap::iterator dupMask = newBlocksByMask.find(typeMask);
 			if (dupMask != newBlocksByMask.end())
@@ -430,6 +701,21 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		}
 	}
 }
+
+/** Represents a deprecated configuration tag.
+ */
+struct Deprecated
+{
+	/** Tag name
+	 */
+	const char* tag;
+	/** Tag value
+	 */
+	const char* value;
+	/** Reason for deprecation
+	 */
+	const char* reason;
+};
 
 static const Deprecated ChangedConfig[] = {
 	{"options", "hidelinks",		"has been moved to <security:hidelinks> as of 1.2a3"},
@@ -535,7 +821,7 @@ void ServerConfig::Fill()
 	ValidHost(ServerName, "<server:name>");
 	if (!sid.empty() && !ServerInstance->IsSID(sid))
 		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
-	
+
 	for (int i = 0;; ++i)
 	{
 		ConfigTag* tag = ConfValue("uline", i);
@@ -543,7 +829,7 @@ void ServerConfig::Fill()
 			break;
 		std::string server;
 		if (!tag->readString("server", server))
-			throw CoreException("<uline> tag missing server");
+			throw CoreException("<uline> tag missing server at " + tag->getTagLocation());
 		ulines[assign(server)] = tag->getBool("silent");
 	}
 
@@ -554,7 +840,7 @@ void ServerConfig::Fill()
 			break;
 		std::string chan;
 		if (!tag->readString("chan", chan))
-			throw CoreException("<banlist> tag missing chan");
+			throw CoreException("<banlist> tag missing chan at " + tag->getTagLocation());
 		maxbans[chan] = tag->getInt("limit");
 	}
 
@@ -580,7 +866,7 @@ void ServerConfig::Fill()
 	memset(HideModeLists, 0, sizeof(HideModeLists));
 	for (const unsigned char* p = (const unsigned char*)ConfValue("security")->getString("hidemodes").c_str(); *p; ++p)
 		HideModeLists[*p] = true;
-	
+
 	std::string v = security->getString("announceinvites");
 
 	if (v == "ops")
@@ -592,23 +878,7 @@ void ServerConfig::Fill()
 	else
 		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_NONE;
 
-	bool AllowHalfOp = options->getBool("allowhalfop");
-	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
-	if (AllowHalfOp && !mh) {
-		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Enabling halfop mode.");
-		mh = new ModeChannelHalfOp;
-		ServerInstance->Modes->AddMode(mh);
-	} else if (!AllowHalfOp && mh) {
-		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Disabling halfop mode.");
-		ServerInstance->Modes->DelMode(mh);
-		delete mh;
-	}
-
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-	if (whowas)
-		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
 	Limits.Finalise();
-
 }
 
 /* These tags MUST occur and must ONLY occur once in the config file */
@@ -620,7 +890,16 @@ void ServerConfig::Read()
 {
 	/* Load and parse the config file, if there are any errors then explode */
 
-	valid = DoInclude(ServerInstance->ConfigFileName, true);
+	ParseStack stack(this);
+	try
+	{
+		valid = stack.ParseFile(ServerInstance->ConfigFileName, 0);
+	}
+	catch (CoreException& err)
+	{
+		valid = false;
+		errstr << err.GetReason();
+	}
 	if (valid)
 	{
 		ReadFile(MOTD, ConfValue("files")->getString("motd"));
@@ -633,10 +912,6 @@ void ServerConfig::Read()
 void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 {
 	valid = true;
-	/* std::ostringstream::clear() does not clear the string itself, only the error flags. */
-	errstr.clear();
-	errstr.str().clear();
-	include_stack.clear();
 
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
@@ -644,13 +919,25 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		/* Check we dont have more than one of singular tags, or any of them missing
 		 */
 		for (int Index = 0; Index * sizeof(*Once) < sizeof(Once); Index++)
-			CheckOnce(Once[Index]);
+		{
+			std::string tag = Once[Index];
+			if (!ConfValue(tag))
+				throw CoreException("You have not defined a <"+tag+"> tag, this is required.");
+			if (ConfValue(tag, 1))
+			{
+				errstr << "You have more than one <" << tag << "> tag.\n"
+					<< "First occurrence at " << ConfValue(tag, 0)->getTagLocation()
+					<< "; second occurrence at " << ConfValue(tag, 1)->getTagLocation() << std::endl;
+			}
+		}
 
 		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
 		{
 			std::string dummy;
 			if (ConfValue(ChangedConfig[Index].tag)->readString(ChangedConfig[Index].value, dummy, true))
-				throw CoreException(std::string("Your configuration contains a deprecated value: <") + ChangedConfig[Index].tag + ":" + ChangedConfig[Index].value + "> - " + ChangedConfig[Index].reason);
+				errstr << "Your configuration contains a deprecated value: <"
+					<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
+					<< " (at " << ConfValue(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
 		}
 
 		Fill();
@@ -662,7 +949,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	catch (CoreException &ce)
 	{
 		errstr << ce.GetReason();
-		valid = false;
 	}
 
 	// write once here, to try it out and make sure its ok
@@ -731,6 +1017,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
 		}
 
+		if (ConfValue("options")->getBool("allowhalfop"))
+			ServerInstance->Modes->AddMode(new ModeChannelHalfOp);
+
 		return;
 	}
 
@@ -739,10 +1028,30 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		return;
 
 	ApplyModules(user);
+
+	if (user)
+		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
+	ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
 }
 
 void ServerConfig::ApplyModules(User* user)
 {
+	bool AllowHalfOp = ConfValue("options")->getBool("allowhalfop");
+	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
+	if (AllowHalfOp && !mh) {
+		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Enabling halfop mode.");
+		mh = new ModeChannelHalfOp;
+		ServerInstance->Modes->AddMode(mh);
+	} else if (!AllowHalfOp && mh) {
+		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Disabling halfop mode.");
+		ServerInstance->Modes->DelMode(mh);
+		delete mh;
+	}
+
+	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
+	if (whowas)
+		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
+
 	const std::vector<std::string> v = ServerInstance->Modules->GetAllModuleNames(0);
 	std::vector<std::string> added_modules;
 	std::set<std::string> removed_modules(v.begin(), v.end());
@@ -804,402 +1113,6 @@ void ServerConfig::ApplyModules(User* user)
 				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
-
-	if (user)
-		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
-	else
-		ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
-}
-
-bool ServerConfig::LoadConf(FILE* &conf, const char* filename, bool allowexeinc)
-{
-	std::string line;
-	char ch;
-	long linenumber = 1;
-	long last_successful_parse = 1;
-	bool in_tag;
-	bool in_quote;
-	bool in_comment;
-	int character_count = 0;
-
-	in_tag = false;
-	in_quote = false;
-	in_comment = false;
-
-	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading %s", filename);
-
-	/* Check if the file open failed first */
-	if (!conf)
-	{
-		errstr << "LoadConf: Couldn't open config file: " << filename << std::endl;
-		return false;
-	}
-
-	for (unsigned int t = 0; t < include_stack.size(); t++)
-	{
-		if (std::string(filename) == include_stack[t])
-		{
-			errstr << "File " << filename << " is included recursively (looped inclusion)." << std::endl;
-			return false;
-		}
-	}
-
-	/* It's not already included, add it to the list of files we've loaded */
-	include_stack.push_back(filename);
-
-	/* Start reading characters... */
-	while ((ch = fgetc(conf)) != EOF)
-	{
-		/*
-		 * Fix for moronic windows issue spotted by Adremelech.
-		 * Some windows editors save text files as utf-16, which is
-		 * a total pain in the ass to parse. Users should save in the
-		 * right config format! If we ever see a file where the first
-		 * byte is 0xFF or 0xFE, or the second is 0xFF or 0xFE, then
-		 * this is most likely a utf-16 file. Bail out and insult user.
-		 */
-		if ((character_count++ < 2) && (ch == '\xFF' || ch == '\xFE'))
-		{
-			errstr << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
-			return false;
-		}
-
-		/*
-		 * Here we try and get individual tags on separate lines,
-		 * this would be so easy if we just made people format
-		 * their config files like that, but they don't so...
-		 * We check for a '<' and then know the line is over when
-		 * we get a '>' not inside quotes. If we find two '<' and
-		 * no '>' then die with an error.
-		 */
-
-		if ((ch == '#') && !in_quote)
-			in_comment = true;
-
-		switch (ch)
-		{
-			case '\n':
-				if (in_quote)
-					line += '\n';
-				linenumber++;
-			case '\r':
-				if (!in_quote)
-					in_comment = false;
-			case '\0':
-				continue;
-			case '\t':
-				ch = ' ';
-		}
-
-		if(in_comment)
-			continue;
-
-		/* XXX: Added by Brain, May 1st 2006 - Escaping of characters.
-		 * Note that this WILL NOT usually allow insertion of newlines,
-		 * because a newline is two characters long. Use it primarily to
-		 * insert the " symbol.
-		 *
-		 * Note that this also involves a further check when parsing the line,
-		 * which can be found below.
-		 */
-		if ((ch == '\\') && (in_quote) && (in_tag))
-		{
-			line += ch;
-			char real_character;
-			if (!feof(conf))
-			{
-				real_character = fgetc(conf);
-				if (real_character == 'n')
-					real_character = '\n';
-				line += real_character;
-				continue;
-			}
-			else
-			{
-				errstr << "End of file after a \\, what did you want to escape?: " << filename << ":" << linenumber << std::endl;
-				return false;
-			}
-		}
-
-		if (ch != '\r')
-			line += ch;
-
-		if ((ch != '<') && (!in_tag) && (!in_comment) && (ch > ' ') && (ch != 9))
-		{
-			errstr << "You have stray characters beyond the tag which starts at " << filename << ":" << last_successful_parse << std::endl;
-			return false;
-		}
-
-		if (ch == '<')
-		{
-			if (in_tag)
-			{
-				if (!in_quote)
-				{
-					errstr << "The tag at location " << filename << ":" << last_successful_parse << " was valid, but there is an error in the tag which comes after it. You are possibly missing a \" or >. Please check this." << std::endl;
-					return false;
-				}
-			}
-			else
-			{
-				if (in_quote)
-				{
-					errstr << "Parser error: Inside a quote but not within the last valid tag, which was opened at: " << filename << ":" << last_successful_parse << std::endl;
-					return false;
-				}
-				else
-				{
-					// errstr << "Opening new config tag on line " << linenumber << std::endl;
-					in_tag = true;
-				}
-			}
-		}
-		else if (ch == '"')
-		{
-			if (in_tag)
-			{
-				if (in_quote)
-				{
-					// errstr << "Closing quote in config tag on line " << linenumber << std::endl;
-					in_quote = false;
-				}
-				else
-				{
-					// errstr << "Opening quote in config tag on line " << linenumber << std::endl;
-					in_quote = true;
-				}
-			}
-			else
-			{
-				if (in_quote)
-				{
-					errstr << "The tag immediately after the one at " << filename << ":" << last_successful_parse << " has a missing closing \" symbol. Please check this." << std::endl;
-				}
-				else
-				{
-					errstr << "You have opened a quote (\") beyond the tag at " << filename << ":" << last_successful_parse << " without opening a new tag. Please check this." << std::endl;
-				}
-			}
-		}
-		else if (ch == '>')
-		{
-			if (!in_quote)
-			{
-				if (in_tag)
-				{
-					// errstr << "Closing config tag on line " << linenumber << std::endl;
-					in_tag = false;
-
-					/*
-					 * If this finds an <include> then ParseLine can simply call
-					 * LoadConf() and load the included config into the same ConfigDataHash
-					 */
-					long bl = linenumber;
-					if (!this->ParseLine(filename, line, linenumber, allowexeinc))
-						return false;
-					last_successful_parse = linenumber;
-
-					linenumber = bl;
-
-					line.clear();
-				}
-				else
-				{
-					errstr << "You forgot to close the tag which comes immediately after the one at " << filename << ":" << last_successful_parse << std::endl;
-					return false;
-				}
-			}
-		}
-	}
-
-	/* Fix for bug #392 - if we reach the end of a file and we are still in a quote or comment, most likely the user fucked up */
-	if (in_comment || in_quote)
-	{
-		errstr << "Reached end of file whilst still inside a quoted section or tag. This is most likely an error or there \
-			is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
-	}
-
-	return true;
-}
-
-
-bool ServerConfig::LoadConf(FILE* &conf, const std::string &filename, bool allowexeinc)
-{
-	return this->LoadConf(conf, filename.c_str(), allowexeinc);
-}
-
-bool ServerConfig::ParseLine(const std::string &filename, std::string &line, long &linenumber, bool allowexeinc)
-{
-	std::string tagname;
-	std::string current_key;
-	std::string current_value;
-	reference<ConfigTag> result;
-	char last_char = 0;
-	bool got_key;
-	bool in_quote;
-
-	got_key = in_quote = false;
-
-	for(std::string::iterator c = line.begin(); c != line.end(); c++)
-	{
-		if (!result)
-		{
-			/* We don't know the tag name yet. */
-
-			if (*c != ' ')
-			{
-				if (*c != '<')
-				{
-					if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_')
-						tagname += *c;
-					else
-					{
-						errstr << "Invalid character in value name of tag: '" << *c << "' in value '" << tagname << "' in filename: " << filename << ":" << linenumber << std::endl;
-						return false;
-					}
-				}
-			}
-			else
-			{
-				/* We got to a space, we should have the tagname now. */
-				if(tagname.length())
-				{
-					result = new ConfigTag(tagname);
-				}
-			}
-		}
-		else
-		{
-			/* We have the tag name */
-			if (!got_key)
-			{
-				/* We're still reading the key name */
-				if ((*c != '=') && (*c != '>'))
-				{
-					if (*c != ' ')
-					{
-						if ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <='Z') || (*c >= '0' && *c <= '9') || *c == '_')
-							current_key += *c;
-						else
-						{
-							errstr << "Invalid character in key: '" << *c << "' in key '" << current_key << "' in filename: " << filename << ":" << linenumber << std::endl;
-							return false;
-						}
-					}
-				}
-				else
-				{
-					/* We got an '=', end of the key name. */
-					got_key = true;
-				}
-			}
-			else
-			{
-				/* We have the key name, now we're looking for quotes and the value */
-
-				/* Correctly handle escaped characters here.
-				 * See the XXX'ed section above.
-				 */
-				if ((*c == '\\') && (in_quote))
-				{
-					c++;
-					if (*c == 'n')
-						current_value += '\n';
-					else
-						current_value += *c;
-					continue;
-				}
-				else if ((*c == '\\') && (!in_quote))
-				{
-					errstr << "You can't have an escape sequence outside of a quoted section: " << filename << ":" << linenumber << std::endl;
-					return false;
-				}
-				else if ((*c == '\n') && (in_quote))
-				{
-					/* Got a 'real' \n, treat it as part of the value */
-					current_value += '\n';
-					continue;
-				}
-				else if ((*c == '\r') && (in_quote))
-				{
-					/* Got a \r, drop it */
-					continue;
-				}
-
-				if (*c == '"')
-				{
-					if (!in_quote)
-					{
-						/* We're not already in a quote. */
-						in_quote = true;
-					}
-					else
-					{
-						/* Leaving the quotes, we have the current value */
-						result->items.push_back(KeyVal(current_key, current_value));
-
-						// std::cout << "<" << tagname << ":" << current_key << "> " << current_value << std::endl;
-
-						in_quote = false;
-						got_key = false;
-
-						if ((tagname == "include") && (current_key == "file"))
-						{
-							if (!this->DoInclude(current_value, allowexeinc))
-								return false;
-						}
-						else if ((tagname == "include") && (current_key == "executable"))
-						{
-							if (!allowexeinc)
-							{
-								errstr << "Executable includes are not allowed to use <include:executable>\n"
-									"This could be an attempt to execute commands from a malicious remote include.\n"
-									"If you need multiple levels of remote include, create a script to assemble the "
-									"contents locally or include files using <include:file>\n";
-								return false;
-							}
-
-							/* Pipe an executable and use its stdout as config data */
-							if (!this->DoPipe(current_value))
-								return false;
-						}
-
-						current_key.clear();
-						current_value.clear();
-					}
-				}
-				else
-				{
-					if (in_quote)
-					{
-						last_char = *c;
-						current_value += *c;
-					}
-				}
-			}
-		}
-	}
-
-	/* Finished parsing the tag, add it to the config hash */
-	config_data.insert(std::make_pair(tagname, result));
-
-	return true;
-}
-
-bool ServerConfig::DoPipe(const std::string &file)
-{
-	FILE* conf = popen(file.c_str(), "r");
-	bool ret = false;
-
-	if (conf)
-	{
-		ret = LoadConf(conf, file.c_str(), false);
-		pclose(conf);
-	}
-	else
-		errstr << "Couldn't execute: " << file << std::endl;
-
-	return ret;
 }
 
 bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
@@ -1207,33 +1120,17 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
 }
 
-bool ServerConfig::DoInclude(const std::string &file, bool allowexeinc)
-{
-	FILE* conf = fopen(file.c_str(), "r");
-	bool ret = false;
-
-	if (conf)
-	{
-		ret = LoadConf(conf, file, allowexeinc);
-		fclose(conf);
-	}
-	else
-		errstr << "Couldn't open config file: " << file << std::endl;
-
-	return ret;
-}
-
 ConfigTag* ServerConfig::ConfValue(const std::string &tag, int offset)
 {
 	ConfigDataHash::size_type pos = offset;
 	if (pos >= config_data.count(tag))
 		return NULL;
-	
+
 	ConfigDataHash::iterator iter = config_data.find(tag);
 
 	for(int i = 0; i < offset; i++)
 		iter++;
-	
+
 	return iter->second;
 }
 
@@ -1248,7 +1145,8 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = j->second;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + key + "> contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
+			ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 			for (std::string::iterator n = value.begin(); n != value.end(); n++)
 				if (*n == '\n')
 					*n = ' ';
@@ -1261,15 +1159,14 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 std::string ConfigTag::getString(const std::string& key, const std::string& def)
 {
 	std::string res = def;
-	if (this)
-		readString(key, res);
+	readString(key, res);
 	return res;
 }
 
 long ConfigTag::getInt(const std::string &key, long def)
 {
 	std::string result;
-	if(!this || !readString(key, result))
+	if(!readString(key, result))
 		return def;
 
 	const char* res_cstr = result.c_str();
@@ -1307,6 +1204,11 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 		return def;
 
 	return (result == "yes" || result == "true" || result == "1" || result == "on");
+}
+
+std::string ConfigTag::getTagLocation()
+{
+	return src_name + ":" + ConvToStr(src_line);
 }
 
 /** Read the contents of a file located by `fname' into a file_cache pointed at by `F'.
@@ -1370,7 +1272,6 @@ const char* ServerConfig::CleanFilename(const char* name)
 	while ((p != name) && (*p != '/') && (*p != '\\')) p--;
 	return (p != name ? ++p : p);
 }
-
 
 std::string ServerConfig::GetSID()
 {

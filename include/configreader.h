@@ -40,9 +40,12 @@ typedef std::pair<std::string, std::string> KeyVal;
 struct ConfigTag : public refcountbase
 {
 	const std::string tag;
+	const std::string src_name;
+	const int src_line;
 	std::vector<KeyVal> items;
 
-	ConfigTag(const std::string& Tag) : tag(Tag) {}
+	ConfigTag(const std::string& Tag, const std::string& file, int line)
+		: tag(Tag), src_name(file), src_line(line) {}
 
 	std::string getString(const std::string& key, const std::string& def = "");
 	long getInt(const std::string& key, long def = 0);
@@ -50,6 +53,8 @@ struct ConfigTag : public refcountbase
 	bool getBool(const std::string& key, bool def = false);
 
 	bool readString(const std::string& key, std::string& value, bool allow_newline = false);
+
+	std::string getTagLocation();
 };
 
 /** An entire config file, built up of KeyValLists
@@ -115,45 +120,16 @@ class ServerLimits
 class CoreExport ServerConfig : public classbase
 {
   private:
-	/** This variable holds the names of all
-	 * files included from the main one. This
-	 * is used to make sure that no files are
-	 * recursively included.
-	 */
-	std::vector<std::string> include_stack;
-
-	/** This private method processes one line of
-	 * configutation, appending errors to errorstream
-	 * and setting error if an error has occured.
-	 */
-	bool ParseLine(const std::string &filename, std::string &line, long &linenumber, bool allowexeinc);
-
-	/** Check that there is only one of each configuration item
-	 */
-	bool CheckOnce(const char* tag);
-
 	void CrossCheckOperClassType();
 	void CrossCheckConnectBlocks(ServerConfig* current);
 
  public:
-	/** Process an include executable directive
-	 */
-	bool DoPipe(const std::string &file);
-
-	/** Process an include file directive
-	 */
-	bool DoInclude(const std::string &file, bool allowexeinc);
-
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
 	std::stringstream errstr;
 
 	/** True if this configuration is valid enough to run with */
 	bool valid;
-
-	/** Set of included files. Do we use this any more?
-	 */
-	std::map<std::string, std::istream*> IncludedFiles;
 
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
