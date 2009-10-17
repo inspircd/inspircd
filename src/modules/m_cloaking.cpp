@@ -377,10 +377,10 @@ class ModuleCloaking : public Module
 			 * We must limit the keys or else we get different results on
 			 * amd64/x86 boxes. - psychon */
 			const unsigned int limit = 0x80000000;
-			compatkey[1] = (unsigned int) Conf.ReadInteger("cloak","key1",0,false);
-			compatkey[2] = (unsigned int) Conf.ReadInteger("cloak","key2",0,false);
-			compatkey[3] = (unsigned int) Conf.ReadInteger("cloak","key3",0,false);
-			compatkey[4] = (unsigned int) Conf.ReadInteger("cloak","key4",0,false);
+			compatkey[0] = (unsigned int) Conf.ReadInteger("cloak","key1",0,false);
+			compatkey[1] = (unsigned int) Conf.ReadInteger("cloak","key2",0,false);
+			compatkey[2] = (unsigned int) Conf.ReadInteger("cloak","key3",0,false);
+			compatkey[3] = (unsigned int) Conf.ReadInteger("cloak","key4",0,false);
 
 			if (!lowercase)
 			{
@@ -400,17 +400,17 @@ class ModuleCloaking : public Module
 			if (prefix.empty())
 				prefix = ServerInstance->Config->Network;
 
-			if (!compatkey[1] || !compatkey[2] || !compatkey[3] || !compatkey[4] ||
-				compatkey[1] >= limit || compatkey[2] >= limit || compatkey[3] >= limit || compatkey[4] >= limit)
+			if (!compatkey[0] || !compatkey[1] || !compatkey[2] || !compatkey[3] ||
+				compatkey[0] >= limit || compatkey[1] >= limit || compatkey[2] >= limit || compatkey[3] >= limit)
 			{
 				std::string detail;
-				if (!compatkey[1] || compatkey[1] >= limit)
+				if (!compatkey[0] || compatkey[0] >= limit)
 					detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[2] || compatkey[2] >= limit)
+				else if (!compatkey[1] || compatkey[1] >= limit)
 					detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[3] || compatkey[3] >= limit)
+				else if (!compatkey[2] || compatkey[2] >= limit)
 					detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[4] || compatkey[4] >= limit)
+				else if (!compatkey[3] || compatkey[3] >= limit)
 					detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
 
 				throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
