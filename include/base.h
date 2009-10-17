@@ -88,12 +88,13 @@ class reference : public reference_base
  public:
 	reference() : value(0) { }
 	reference(T* v) : value(v) { if (value) inc(value); }
-	reference<T>& operator=(T* v)
+	reference(const reference& v) : value(v.value) { if (value) inc(value); }
+	reference<T>& operator=(const reference<T>& other)
 	{
-		if (v)
-			inc(v);
+		if (other.value)
+			inc(other.value);
 		this->reference::~reference();
-		value = v;
+		value = other.value;
 		return *this;
 	}
 
