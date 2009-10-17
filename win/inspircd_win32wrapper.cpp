@@ -528,7 +528,7 @@ void FindDNS(std::string& server)
 	/* If empty use default to 127.0.0.1 */
 	if (nameserver.empty())
 	{
-		ServerInstance->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"No viable nameserver found in registry! Defaulting to nameserver '127.0.0.1'!");
 		server = "127.0.0.1";
 		return;
 	}
