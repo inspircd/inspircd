@@ -34,7 +34,7 @@ class ModuleSeeNicks : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for seeing local and remote nickchanges via snomasks", VF_VENDOR, API_VERSION);
+		return Version("Provides support for seeing local and remote nickchanges via snomasks", VF_VENDOR);
 	}
 
 

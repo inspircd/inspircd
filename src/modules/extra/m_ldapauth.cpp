@@ -215,7 +215,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR, API_VERSION);
+		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR);
 	}
 
 };

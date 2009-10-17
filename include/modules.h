@@ -246,7 +246,7 @@ class CoreExport VersionBase : public classbase
 
 	/** Initialize version class
 	 */
-	VersionBase(const std::string &desc, int flags = VF_NONE, int dummy = 0, const std::string& src_rev = VERSION " r" REVISION);
+	VersionBase(const std::string &desc, int flags = VF_NONE, const std::string& src_rev = VERSION " r" REVISION);
 };
 
 typedef VersionBase<API_VERSION> Version;

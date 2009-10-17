@@ -41,7 +41,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Connection throttle", VF_VENDOR,API_VERSION);
+		return Version("Connection throttle", VF_VENDOR);
 	}
 
 	void InitConf()

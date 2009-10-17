@@ -85,7 +85,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Regex Provider Module for POSIX Regular Expressions", VF_COMMON | VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+		return Version("Regex Provider Module for POSIX Regular Expressions", VF_COMMON | VF_VENDOR | VF_SERVICEPROVIDER);
 	}
 
 	virtual ~ModuleRegexPOSIX()

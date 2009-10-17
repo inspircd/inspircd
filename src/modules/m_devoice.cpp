@@ -65,7 +65,7 @@ class ModuleDeVoice : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides voiced users with the ability to devoice themselves.", VF_VENDOR, API_VERSION);
+		return Version("Provides voiced users with the ability to devoice themselves.", VF_VENDOR);
 	}
 };
 

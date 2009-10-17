@@ -98,7 +98,7 @@ class ModuleSanick : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for SANICK command", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for SANICK command", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };

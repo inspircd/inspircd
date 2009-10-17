@@ -264,7 +264,7 @@ class ModuleSSLOpenSSL : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides SSL support for clients", VF_VENDOR, API_VERSION);
+		return Version("Provides SSL support for clients", VF_VENDOR);
 	}
 
 

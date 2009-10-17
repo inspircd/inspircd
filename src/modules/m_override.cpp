@@ -207,7 +207,7 @@ class ModuleOverride : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for unreal-style oper-override",VF_VENDOR,API_VERSION);
+		return Version("Provides support for unreal-style oper-override",VF_VENDOR);
 	}
 };
 

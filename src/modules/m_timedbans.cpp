@@ -187,7 +187,7 @@ class ModuleTimedBans : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Adds timed bans", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Adds timed bans", VF_COMMON | VF_VENDOR);
 	}
 };
 

@@ -434,7 +434,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Change user's hosts connecting from known CGI:IRC hosts",VF_VENDOR,API_VERSION);
+		return Version("Change user's hosts connecting from known CGI:IRC hosts",VF_VENDOR);
 	}
 
 };

@@ -33,7 +33,7 @@ class ModuleUHNames : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides the UHNAMES facility.",VF_VENDOR,API_VERSION);
+		return Version("Provides the UHNAMES facility.",VF_VENDOR);
 	}
 
 	void On005Numeric(std::string &output)

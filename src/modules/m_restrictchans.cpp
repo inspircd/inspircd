@@ -75,7 +75,7 @@ class ModuleRestrictChans : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Only opers may create new channels if this module is loaded",VF_VENDOR,API_VERSION);
+		return Version("Only opers may create new channels if this module is loaded",VF_VENDOR);
 	}
 };
 

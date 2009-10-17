@@ -72,7 +72,7 @@ class ModuleVHost : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR,API_VERSION);
+		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR);
 	}
 
 };

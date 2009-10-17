@@ -33,7 +33,7 @@ class ModuleAntiBottler : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Changes the ident of connecting bottler clients to 'bottler'",VF_VENDOR,API_VERSION);
+		return Version("Changes the ident of connecting bottler clients to 'bottler'",VF_VENDOR);
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)

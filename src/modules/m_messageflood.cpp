@@ -268,7 +268,7 @@ class ModuleMsgFlood : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides channel mode +f (message flood protection)", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides channel mode +f (message flood protection)", VF_COMMON | VF_VENDOR);
 	}
 };
 

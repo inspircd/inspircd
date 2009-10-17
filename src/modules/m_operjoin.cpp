@@ -81,7 +81,7 @@ class ModuleOperjoin : public Module
 
 		virtual Version GetVersion()
 		{
-			return Version("Forces opers to join the specified channel(s) on oper-up", VF_VENDOR, API_VERSION);
+			return Version("Forces opers to join the specified channel(s) on oper-up", VF_VENDOR);
 		}
 
 		virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)

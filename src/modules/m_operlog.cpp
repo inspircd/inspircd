@@ -32,7 +32,7 @@ class ModuleOperLog : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR, API_VERSION);
+		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
 	}
 
 

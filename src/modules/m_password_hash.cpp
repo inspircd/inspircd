@@ -151,7 +151,7 @@ class ModuleOperHash : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Allows for hashed oper passwords",VF_VENDOR,API_VERSION);
+		return Version("Allows for hashed oper passwords",VF_VENDOR);
 	}
 };
 

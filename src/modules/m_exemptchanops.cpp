@@ -78,7 +78,7 @@ class ModuleExemptChanOps : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR|VF_COMMON,API_VERSION);
+		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR|VF_COMMON);
 	}
 
 	virtual void OnRehash(User* user)

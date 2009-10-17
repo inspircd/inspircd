@@ -756,7 +756,7 @@ void ModuleSQL::OnRehash(User* user)
 
 Version ModuleSQL::GetVersion()
 {
-	return Version("SQL Service Provider module for all other m_sql* modules", VF_VENDOR | VF_SERVICEPROVIDER, API_VERSION);
+	return Version("SQL Service Provider module for all other m_sql* modules", VF_VENDOR | VF_SERVICEPROVIDER);
 }
 
 void DispatcherThread::Run()

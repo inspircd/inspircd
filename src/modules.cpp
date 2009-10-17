@@ -24,9 +24,9 @@
 #endif
 
 
-// version is a simple class for holding a modules version number
+// Version is a simple class for holding a modules version number
 template<>
-VersionBase<API_VERSION>::VersionBase(const std::string &modv, int flags, int, const std::string& rev)
+VersionBase<API_VERSION>::VersionBase(const std::string &modv, int flags, const std::string& rev)
 : description(modv), version(rev), Flags(flags)
 {
 }

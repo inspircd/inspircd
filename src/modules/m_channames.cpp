@@ -130,7 +130,7 @@ class ModuleChannelNames : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Implements config tags which allow changing characters allowed in channel names", VF_VENDOR,API_VERSION);
+		return Version("Implements config tags which allow changing characters allowed in channel names", VF_VENDOR);
 	}
 };
 

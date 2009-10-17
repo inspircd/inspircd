@@ -32,7 +32,7 @@ class ModuleModesOnConnect : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR,API_VERSION);
+		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
 	}
 
 	virtual void OnUserConnect(User* user)

@@ -294,7 +294,7 @@ class ModuleShun : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the /shun command, which stops a user executing all commands except PING and PONG.",VF_VENDOR|VF_COMMON,API_VERSION);
+		return Version("Provides the /shun command, which stops a user executing all commands except PING and PONG.",VF_VENDOR|VF_COMMON);
 	}
 };
 

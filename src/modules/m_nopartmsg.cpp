@@ -31,7 +31,7 @@ class ModulePartMsgBan : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Implements extban +b p: - part message bans", VF_COMMON|VF_VENDOR, API_VERSION);
+		return Version("Implements extban +b p: - part message bans", VF_COMMON|VF_VENDOR);
 	}
 
 

@@ -265,7 +265,7 @@ class ModuleSQLLog : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Logs network-wide data to an SQL database", VF_VENDOR, API_VERSION);
+		return Version("Logs network-wide data to an SQL database", VF_VENDOR);
 	}
 
 };

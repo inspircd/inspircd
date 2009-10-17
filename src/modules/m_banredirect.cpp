@@ -332,7 +332,7 @@ class ModuleBanRedirect : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Allows an extended ban (+b) syntax redirecting banned users to another channel", VF_COMMON|VF_VENDOR, API_VERSION);
+		return Version("Allows an extended ban (+b) syntax redirecting banned users to another channel", VF_COMMON|VF_VENDOR);
 	}
 
 	void Prioritize()

@@ -33,7 +33,7 @@ class ModuleSecureList : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("A module overriding /list, and making it safe - stop those sendq problems.",VF_VENDOR,API_VERSION);
+		return Version("A module overriding /list, and making it safe - stop those sendq problems.",VF_VENDOR);
 	}
 
 	void OnRehash(User* user)

@@ -61,7 +61,7 @@ class Modulealltime : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Display timestamps from all servers connected to the network", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Display timestamps from all servers connected to the network", VF_COMMON | VF_VENDOR);
 	}
 
 };

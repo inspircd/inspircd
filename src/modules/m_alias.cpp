@@ -108,7 +108,7 @@ class ModuleAlias : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides aliases of commands.", VF_VENDOR,API_VERSION);
+		return Version("Provides aliases of commands.", VF_VENDOR);
 	}
 
 	std::string GetVar(std::string varname, const std::string &original_line)

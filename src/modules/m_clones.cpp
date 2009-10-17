@@ -72,7 +72,7 @@ class ModuleClones : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the /clones command to retrieve information on clones.", VF_VENDOR, API_VERSION);
+		return Version("Provides the /clones command to retrieve information on clones.", VF_VENDOR);
 	}
 
 

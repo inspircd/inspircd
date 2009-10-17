@@ -239,7 +239,7 @@ class ModuleXLineDB : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Keeps a dynamic log of all XLines created, and stores them in a seperate conf file (xline.db).", VF_VENDOR, API_VERSION);
+		return Version("Keeps a dynamic log of all XLines created, and stores them in a seperate conf file (xline.db).", VF_VENDOR);
 	}
 };
 

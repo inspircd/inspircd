@@ -291,7 +291,7 @@ class ModuleIdent : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR, API_VERSION);
+		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
 	}
 
 	virtual void OnRehash(User *user)

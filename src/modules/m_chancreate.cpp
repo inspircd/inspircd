@@ -35,7 +35,7 @@ class ModuleChanCreate : public Module
 
 	Version GetVersion()
 	{
-		return Version("Creates a snomask with notices whenever a new channel is created",VF_VENDOR,API_VERSION);
+		return Version("Creates a snomask with notices whenever a new channel is created",VF_VENDOR);
 	}
 
 

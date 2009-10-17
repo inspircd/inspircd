@@ -80,7 +80,7 @@ class ModuleClose : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides /CLOSE functionality", VF_VENDOR, API_VERSION);
+		return Version("Provides /CLOSE functionality", VF_VENDOR);
 	}
 };
 

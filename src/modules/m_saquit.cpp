@@ -78,7 +78,7 @@ class ModuleSaquit : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for an SAQUIT command, exits user with a reason", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for an SAQUIT command, exits user with a reason", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };

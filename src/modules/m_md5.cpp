@@ -296,7 +296,7 @@ class ModuleMD5 : public Module
 
 	Version GetVersion()
 	{
-		return Version("Allows for MD5 encrypted oper passwords",VF_VENDOR|VF_SERVICEPROVIDER,API_VERSION);
+		return Version("Allows for MD5 encrypted oper passwords",VF_VENDOR|VF_SERVICEPROVIDER);
 	}
 };
 

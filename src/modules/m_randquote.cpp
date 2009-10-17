@@ -97,7 +97,7 @@ class ModuleRandQuote : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides random Quotes on Connect.",VF_VENDOR,API_VERSION);
+		return Version("Provides random Quotes on Connect.",VF_VENDOR);
 	}
 
 	virtual void OnUserConnect(User* user)

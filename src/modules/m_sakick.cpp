@@ -109,7 +109,7 @@ class ModuleSakick : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides a SAKICK command", VF_OPTCOMMON|VF_VENDOR, API_VERSION);
+		return Version("Provides a SAKICK command", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 };

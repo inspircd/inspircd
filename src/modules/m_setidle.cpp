@@ -62,7 +62,7 @@ class ModuleSetIdle : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Allows opers to set their idle time", VF_VENDOR, API_VERSION);
+		return Version("Allows opers to set their idle time", VF_VENDOR);
 	}
 };
 

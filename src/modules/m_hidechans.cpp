@@ -65,7 +65,7 @@ class ModuleHideChans : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for hiding channels with user mode +I", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for hiding channels with user mode +I", VF_COMMON | VF_VENDOR);
 	}
 
 	virtual void OnRehash(User* user)

@@ -277,7 +277,7 @@ class ModuleNationalChars : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING",VF_COMMON,API_VERSION);
+		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING",VF_COMMON);
 	}
 
 	/*make an array to check against it 8bit characters a bit faster. Whether allowed or uppercase (for your needs).*/

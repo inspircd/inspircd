@@ -29,7 +29,7 @@ class ModuleAbbreviation : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords.",VF_VENDOR,API_VERSION);
+		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords.",VF_VENDOR);
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)

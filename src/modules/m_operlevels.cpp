@@ -40,7 +40,7 @@ class ModuleOperLevels : public Module
 
 		virtual Version GetVersion()
 		{
-			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level.", VF_VENDOR, API_VERSION);
+			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level.", VF_VENDOR);
 		}
 
 		virtual ModResult OnKill(User* source, User* dest, const std::string &reason)

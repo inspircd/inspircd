@@ -33,7 +33,7 @@ class ModuleAntiBear : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Sends a numeric on connect which cripples a common type of trojan/spambot",VF_VENDOR,API_VERSION);
+		return Version("Sends a numeric on connect which cripples a common type of trojan/spambot",VF_VENDOR);
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)

@@ -60,7 +60,7 @@ class ModuleBlockAmsg : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR,API_VERSION);
+		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR);
 	}
 
 	virtual void OnRehash(User* user)

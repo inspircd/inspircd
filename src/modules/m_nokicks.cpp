@@ -65,7 +65,7 @@ class ModuleNoKicks : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +Q", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for unreal-style channel mode +Q", VF_COMMON | VF_VENDOR);
 	}
 };
 

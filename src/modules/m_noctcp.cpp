@@ -65,7 +65,7 @@ class ModuleNoCTCP : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +C", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for unreal-style channel mode +C", VF_COMMON | VF_VENDOR);
 	}
 
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)

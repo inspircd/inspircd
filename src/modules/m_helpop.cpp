@@ -183,7 +183,7 @@ class ModuleHelpop : public Module
 
 		virtual Version GetVersion()
 		{
-			return Version("/helpop Command, Works like Unreal helpop", VF_COMMON | VF_VENDOR, API_VERSION);
+			return Version("/helpop Command, Works like Unreal helpop", VF_COMMON | VF_VENDOR);
 		}
 };
 

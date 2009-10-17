@@ -72,7 +72,7 @@ class ModuleNoNotice : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +T", VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for unreal-style channel mode +T", VF_COMMON | VF_VENDOR);
 	}
 };
 

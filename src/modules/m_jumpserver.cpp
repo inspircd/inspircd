@@ -161,7 +161,7 @@ class ModuleJumpServer : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for the RPL_REDIR numeric", VF_VENDOR, API_VERSION);
+		return Version("Provides support for the RPL_REDIR numeric", VF_VENDOR);
 	}
 
 };

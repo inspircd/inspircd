@@ -67,7 +67,7 @@ class ModuleSATopic : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides a SATOPIC command", VF_VENDOR, API_VERSION);
+		return Version("Provides a SATOPIC command", VF_VENDOR);
 	}
 };
 

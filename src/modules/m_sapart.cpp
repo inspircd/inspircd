@@ -109,7 +109,7 @@ class ModuleSapart : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style SAPART command", VF_OPTCOMMON | VF_VENDOR, API_VERSION);
+		return Version("Provides support for unreal-style SAPART command", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };
