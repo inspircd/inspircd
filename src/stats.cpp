@@ -88,11 +88,9 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 		case 'U':
 		{
-			char ulined[MAXBUF];
-			for (int i = 0; i < this->Config->ConfValueEnum("uline"); i++)
+			for(std::map<irc::string, bool>::iterator i = Config->ulines.begin(); i != Config->ulines.end(); ++i)
 			{
-				this->Config->ConfValue("uline","server", i, ulined, MAXBUF);
-					results.push_back(sn+" 248 "+user->nick+" U "+std::string(ulined));
+				results.push_back(sn+" 248 "+user->nick+" U "+std::string(i->first.c_str()));
 			}
 		}
 		break;
@@ -236,15 +234,13 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 		/* stats o */
 		case 'o':
-			for (int i = 0; i < this->Config->ConfValueEnum("oper"); i++)
+			for (int i = 0;; i++)
 			{
-				char LoginName[MAXBUF];
-				char HostName[MAXBUF];
-				char OperType[MAXBUF];
-				this->Config->ConfValue("oper","name", i, LoginName, MAXBUF);
-				this->Config->ConfValue("oper","host", i, HostName, MAXBUF);
-				this->Config->ConfValue("oper","type", i, OperType, MAXBUF);
-				results.push_back(sn+" 243 "+user->nick+" O "+HostName+" * "+LoginName+" "+OperType+" 0");
+				ConfigTag* tag = Config->ConfValue("oper", i);
+				if (!tag)
+					break;
+				results.push_back(sn+" 243 "+user->nick+" O "+tag->getString("host")+" * "+
+					tag->getString("name") + " " + tag->getString("type")+" 0");
 			}
 		break;
 

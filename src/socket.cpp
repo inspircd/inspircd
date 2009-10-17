@@ -105,29 +105,28 @@ int irc::sockets::OpenTCPSocket(const std::string& addr, int socktype)
 // XXX: it would be VERY nice to genericize this so all listen stuff (server/client) could use the one function. -- w00t
 int InspIRCd::BindPorts(FailedPortList &failed_ports)
 {
-	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF], Desc[MAXBUF];
 	int bound = 0;
 	std::vector<ListenSocketBase*> old_ports(ports.begin(), ports.end());
 
-	for (int count = 0; count < Config->ConfValueEnum("bind"); count++)
+	for (int count = 0;; count++)
 	{
-		Config->ConfValue("bind", "port", count, configToken, MAXBUF);
-		Config->ConfValue("bind", "address", count, Addr, MAXBUF);
-		Config->ConfValue("bind", "type", count, Type, MAXBUF);
-		Config->ConfValue("bind", "ssl", count, Desc, MAXBUF);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("bind", count);
+		if (!tag)
+			break;
+		std::string porttag = tag->getString("port");
+		std::string Addr = tag->getString("address");
+		std::string Type = tag->getString("type");
+		std::string Desc = tag->getString("ssl");
 
-		if (strncmp(Addr, "::ffff:", 7) == 0)
+		if (strncmp(Addr.c_str(), "::ffff:", 7) == 0)
 			this->Logs->Log("SOCKET",DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
-		if ((!*Type) || (!strcmp(Type,"clients")))
+		if (Type.empty() || Type == "clients")
 		{
-			irc::portparser portrange(configToken, false);
+			irc::portparser portrange(porttag, false);
 			int portno = -1;
 			while (0 != (portno = portrange.GetToken()))
 			{
-				if (*Addr == '*')
-					*Addr = 0;
-
 				irc::sockets::sockaddrs bindspec;
 				irc::sockets::aptosa(Addr, portno, &bindspec);
 				std::string bind_readable = irc::sockets::satouser(&bindspec);
@@ -144,7 +143,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 				}
 				if (!skip)
 				{
-					ClientListenSocket *ll = new ClientListenSocket(portno, Addr, "clients", *Desc ? Desc : "plaintext");
+					ClientListenSocket *ll = new ClientListenSocket(portno, Addr, "clients", Desc.empty() ? "plaintext" : Desc);
 					if (ll->GetFd() > -1)
 					{
 						bound++;

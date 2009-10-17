@@ -27,9 +27,5 @@
 	#endif
 #endif
 
-/** A cached text file stored line by line.
- */
-typedef std::deque<std::string> file_cache;
-
 #endif
 

@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 
 #include "filelogger.h"
@@ -73,15 +71,18 @@ void LogManager::OpenFileLogs()
 	ConfigReader* Conf = new ConfigReader;
 	std::map<std::string, FileWriter*> logmap;
 	std::map<std::string, FileWriter*>::iterator i;
-	for (int index = 0; index < Conf->Enumerate("log"); ++index)
+	for (int index = 0;; ++index)
 	{
-		std::string method = Conf->ReadValue("log", "method", index);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("log", index);
+		if (!tag)
+			break;
+		std::string method = tag->getString("method");
 		if (method != "file")
 		{
 			continue;
 		}
-		std::string type = Conf->ReadValue("log", "type", index);
-		std::string level = Conf->ReadValue("log", "level", index);
+		std::string type = tag->getString("type");
+		std::string level = tag->getString("level");
 		int loglevel = DEFAULT;
 		if (level == "debug" || ServerInstance->Config->forcedebug)
 		{

@@ -652,7 +652,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	 * For multi-network servers, we may not have the opertypes of the remote server, but we still want to mark the user as an oper of that type.
 	 * -- w00t
 	 */
-	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
+	TagIndex::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
 	if (iter_opertype != ServerInstance->Config->opertypes.end())
 	{
 		if (AllowedOperCommands)
@@ -670,26 +670,26 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 		this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
 		std::string myclass, mycmd, mypriv;
-		irc::spacesepstream Classes(iter_opertype->second.c_str());
+		irc::spacesepstream Classes(iter_opertype->second->getString("classes"));
 		while (Classes.GetToken(myclass))
 		{
-			operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());
+			TagIndex::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());
 			if (iter_operclass != ServerInstance->Config->operclass.end())
 			{
 				/* Process commands */
-				irc::spacesepstream CommandList(iter_operclass->second.commandlist);
+				irc::spacesepstream CommandList(iter_operclass->second->getString("commands"));
 				while (CommandList.GetToken(mycmd))
 				{
 					this->AllowedOperCommands->insert(mycmd);
 				}
 
-				irc::spacesepstream PrivList(iter_operclass->second.privs);
+				irc::spacesepstream PrivList(iter_operclass->second->getString("privs"));
 				while (PrivList.GetToken(mypriv))
 				{
 					this->AllowedPrivs->insert(mypriv);
 				}
 
-				for (unsigned char* c = (unsigned char*)iter_operclass->second.umodelist.c_str(); *c; ++c)
+				for (unsigned char* c = (unsigned char*)iter_operclass->second->getString("usermodes").c_str(); *c; ++c)
 				{
 					if (*c == '*')
 					{
@@ -701,7 +701,7 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 					}
 				}
 
-				for (unsigned char* c = (unsigned char*)iter_operclass->second.cmodelist.c_str(); *c; ++c)
+				for (unsigned char* c = (unsigned char*)iter_operclass->second->getString("chanmodes").c_str(); *c; ++c)
 				{
 					if (*c == '*')
 					{

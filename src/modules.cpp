@@ -543,7 +543,6 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 /* We must load the modules AFTER initializing the socket engine, now */
 void ModuleManager::LoadAll()
 {
-	char configToken[MAXBUF];
 	ModCount = 0;
 
 	printf("\nLoading core commands");
@@ -572,12 +571,15 @@ void ModuleManager::LoadAll()
 		printf("\n");
 	}
 
-	for(int count = 0; count < ServerInstance->Config->ConfValueEnum("module"); count++)
+	for(int count = 0;; count++)
 	{
-		ServerInstance->Config->ConfValue("module", "name", count, configToken, MAXBUF);
-		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("module", count);
+		if (!tag)
+			break;
+		std::string name = tag->getString("name");
+		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",name.c_str());
 
-		if (!this->Load(configToken))
+		if (!this->Load(name.c_str()))
 		{
 			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
 			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
@@ -603,6 +605,7 @@ void ModuleManager::UnloadAll()
 			if (CanUnload(me->second))
 			{
 				ServerInstance->GlobalCulls.AddItem(me->second);
+				Modules.erase(me);
 			}
 		}
 		ServerInstance->GlobalCulls.Apply();
@@ -858,9 +861,8 @@ ConfigReader::~ConfigReader()
 std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
 {
 	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */
-	std::string result;
-
-	if (!ServerInstance->Config->ConfValue(tag, name, default_value, index, result, allow_linefeeds))
+	std::string result = default_value;
+	if (!ServerInstance->Config->ConfValue(tag, index)->readString(name, result, allow_linefeeds))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 	}
@@ -874,7 +876,8 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
 {
-	return ServerInstance->Config->ConfValueBool(tag, name, default_value, index);
+	bool def = (default_value == "yes");
+	return ServerInstance->Config->ConfValue(tag, index)->getBool(name, def);
 }
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
@@ -885,13 +888,8 @@ bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int
 
 int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
 {
-	int result;
-
-	if(!ServerInstance->Config->ConfValueInteger(tag, name, default_value, index, result))
-	{
-		this->error = CONF_VALUE_NOT_FOUND;
-		return 0;
-	}
+	int v = atoi(default_value.c_str());
+	int result = ServerInstance->Config->ConfValue(tag, index)->getInt(name, v);
 
 	if ((need_positive) && (result < 0))
 	{
@@ -916,12 +914,11 @@ long ConfigReader::GetError()
 
 int ConfigReader::Enumerate(const std::string &tag)
 {
-	return ServerInstance->Config->ConfValueEnum(tag);
-}
-
-int ConfigReader::EnumerateValues(const std::string &tag, int index)
-{
-	return ServerInstance->Config->ConfVarEnum(tag, index);
+	ServerInstance->Logs->Log("MODULE", DEBUG, "Module is using ConfigReader::Enumerate on %s; this is slow!",
+		tag.c_str());
+	int i=0;
+	while (ServerInstance->Config->ConfValue(tag, i)) i++;
+	return i;
 }
 
 FileReader::FileReader(const std::string &filename)

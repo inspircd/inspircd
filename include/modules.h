@@ -116,14 +116,9 @@ class ServerConfig;
 class Module;
 class InspIRCd;
 
-/** Low level definition of a FileReader classes file cache area -
- * a text file seperated into lines.
- */
-typedef std::deque<std::string> file_cache;
-
 /** A set of strings.
  */
-typedef file_cache string_list;
+typedef std::vector<std::string> string_list;
 
 /** Holds a list of 'published features' for modules.
  */
@@ -1371,6 +1366,7 @@ class CoreExport ConfigReader : public classbase
 	 * A call to GetError() resets the error flag back to 0.
 	 */
 	long GetError();
+
 	/** Counts the number of times a given tag appears in the config file.
 	 * This method counts the number of times a tag appears in a config file, for use where
 	 * there are several tags of the same kind, e.g. with opers and connect types. It can be
@@ -1378,13 +1374,6 @@ class CoreExport ConfigReader : public classbase
 	 * multiple instance tag.
 	 */
 	int Enumerate(const std::string &tag);
-
-	/** Returns the number of items within a tag.
-	 * For example if the tag was &lt;test tag="blah" data="foo"&gt; then this
-	 * function would return 2. Spaces and newlines both qualify as valid seperators
-	 * between values.
-	 */
-	int EnumerateValues(const std::string &tag, int index);
 };
 
 
@@ -1398,7 +1387,7 @@ class CoreExport FileReader : public classbase
 {
 	/** The file contents
 	 */
-	file_cache fc;
+	std::vector<std::string> fc;
 
 	/** Content size in bytes
 	 */

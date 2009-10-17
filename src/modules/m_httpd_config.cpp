@@ -90,9 +90,10 @@ class ModuleHttpStats : public Module
 				for (ConfigDataHash::iterator x = ServerInstance->Config->config_data.begin(); x != ServerInstance->Config->config_data.end(); ++x)
 				{
 					data << "&lt;" << x->first << " ";
-					for (KeyValList::iterator j = x->second.begin(); j != x->second.end(); j++)
+					ConfigTag* tag = x->second;
+					for (std::vector<KeyVal>::iterator j = tag->items.begin(); j != tag->items.end(); j++)
 					{
-						data << j->first << "=&quot;" << j->second << "&quot; ";
+						data << Sanitize(j->first) << "=&quot;" << Sanitize(j->second) << "&quot; ";
 					}
 					data << "&gt;<br>";
 				}

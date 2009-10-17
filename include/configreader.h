@@ -29,34 +29,34 @@ class ServerLimits;
 class InspIRCd;
 class BufferedSocket;
 
-/** A set of oper types
+/** A cached text file stored with its contents as lines
  */
-typedef std::map<irc::string,std::string> opertype_t;
+typedef std::vector<std::string> file_cache;
 
-/** Holds an oper class.
+/** A configuration key and value pair
  */
-struct operclass_data : public classbase
+typedef std::pair<std::string, std::string> KeyVal;
+
+struct ConfigTag : public refcountbase
 {
-	/** Command list for the class
-	 */
-	std::string commandlist;
+	const std::string tag;
+	std::vector<KeyVal> items;
 
-	/** Channel mode list for the class
-	 */
-	std::string cmodelist;
+	ConfigTag(const std::string& Tag) : tag(Tag) {}
 
-	/** User mode list for the class
-	 */
-	std::string umodelist;
+	std::string getString(const std::string& key, const std::string& def = "");
+	long getInt(const std::string& key, long def = 0);
+	double getFloat(const std::string& key, double def = 0);
+	bool getBool(const std::string& key, bool def = false);
 
-	/** Priviledges given by this class
-	 */
-	std::string privs;
+	bool readString(const std::string& key, std::string& value, bool allow_newline = false);
 };
 
-/** A Set of oper classes
+/** An entire config file, built up of KeyValLists
  */
-typedef std::map<irc::string, operclass_data> operclass_t;
+typedef std::multimap<std::string, reference<ConfigTag> > ConfigDataHash;
+
+typedef std::map<std::string, reference<ConfigTag> > TagIndex;
 
 /** Defines the server's length limits on various length-limited
  * items such as topics, nicknames, channel names etc.
@@ -121,9 +121,6 @@ class CoreExport ServerConfig : public classbase
 	 * recursively included.
 	 */
 	std::vector<std::string> include_stack;
-
-	/* classes removed by this rehash */
-	std::vector<ConnectClass*> removed_classes;
 
 	/** This private method processes one line of
 	 * configutation, appending errors to errorstream
@@ -521,11 +518,11 @@ class CoreExport ServerConfig : public classbase
 
 	/** All oper type definitions from the config file
 	 */
-	opertype_t opertypes;
+	TagIndex opertypes;
 
 	/** All oper class definitions from the config file
 	 */
-	operclass_t operclass;
+	TagIndex operclass;
 
 	/** Saved argv from startup
 	 */
@@ -582,9 +579,11 @@ class CoreExport ServerConfig : public classbase
 	void Apply(ServerConfig* old, const std::string &useruid);
 	void ApplyModules(User* user);
 
+	void Fill();
+
 	/** Read a file into a file_cache object
 	 */
-	bool ReadFile(file_cache &F, const char* fname);
+	bool ReadFile(file_cache &F, const std::string& fname);
 
 	/* Returns true if the given string starts with a windows drive letter
 	 */
@@ -600,67 +599,7 @@ class CoreExport ServerConfig : public classbase
 	 */
 	bool LoadConf(FILE* &conf, const std::string &filename, bool allowexeinc);
 
-	/** Writes 'length' chars into 'result' as a string
-	 */
-	bool ConfValue(const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
-
-	/** Writes 'length' chars into 'result' as a string
-	 */
-	bool ConfValue(const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds = false);
-
-	/** Writes 'length' chars into 'result' as a string
-	 */
-	bool ConfValue(const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds = false);
-
-	/** Writes 'length' chars into 'result' as a string
-	 */
-	bool ConfValue(const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds = false);
-
-	/** Tries to convert the value to an integer and write it to 'result'
-	 */
-	bool ConfValueInteger(const char* tag, const char* var, int index, int &result);
-
-	/** Tries to convert the value to an integer and write it to 'result'
-	 */
-	bool ConfValueInteger(const char* tag, const char* var, const char* default_value, int index, int &result);
-
-	/** Tries to convert the value to an integer and write it to 'result'
-	 */
-	bool ConfValueInteger(const std::string &tag, const std::string &var, int index, int &result);
-
-	/** Tries to convert the value to an integer and write it to 'result'
-	 */
-	bool ConfValueInteger(const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result);
-
-	/** Returns true if the value exists and has a true value, false otherwise
-	 */
-	bool ConfValueBool(const char* tag, const char* var, int index);
-
-	/** Returns true if the value exists and has a true value, false otherwise
-	 */
-	bool ConfValueBool(const char* tag, const char* var, const char* default_value, int index);
-
-	/** Returns true if the value exists and has a true value, false otherwise
-	 */
-	bool ConfValueBool(const std::string &tag, const std::string &var, int index);
-
-	/** Returns true if the value exists and has a true value, false otherwise
-	 */
-	bool ConfValueBool(const std::string &tag, const std::string &var, const std::string &default_value, int index);
-
-	/** Returns the number of occurences of tag in the config file
-	 */
-	int ConfValueEnum(const char* tag);
-	/** Returns the number of occurences of tag in the config file
-	 */
-	int ConfValueEnum(const std::string &tag);
-
-	/** Returns the numbers of vars inside the index'th 'tag in the config file
-	 */
-	int ConfVarEnum(const char* tag, int index);
-	/** Returns the numbers of vars inside the index'th 'tag in the config file
-	 */
-	int ConfVarEnum(const std::string &tag, int index);
+	ConfigTag* ConfValue(const std::string& tag, int offset = 0);
 
 	bool ApplyDisabledCommands(const std::string& data);
 
@@ -681,196 +620,4 @@ class CoreExport ServerConfig : public classbase
 	bool InvBypassModes;
 
 };
-
-
-/** Types of data in the core config
- */
-enum ConfigDataType
-{
-	DT_NOTHING       = 0,		/* No data */
-	DT_INTEGER       = 1,		/* Integer */
-	DT_CHARPTR       = 2,		/* Char pointer */
-	DT_BOOLEAN       = 3,		/* Boolean */
-	DT_HOSTNAME	 = 4,		/* Hostname syntax */
-	DT_NOSPACES	 = 5,		/* No spaces */
-	DT_IPADDRESS	 = 6,		/* IP address (v4, v6) */
-	DT_CHANNEL	 = 7,		/* Channel name */
-	DT_LIMIT     = 8,       /* size_t */
-	DT_ALLOW_WILD	 = 64,		/* Allow wildcards/CIDR in DT_IPADDRESS */
-	DT_ALLOW_NEWLINE = 128		/* New line characters allowed in DT_CHARPTR */
-};
-
-/** The maximum number of values in a core configuration tag. Can be increased if needed.
- */
-#define MAX_VALUES_PER_TAG 18
-
-/** Holds a config value, either string, integer or boolean.
- * Callback functions receive one or more of these, either on
- * their own as a reference, or in a reference to a deque of them.
- * The callback function can then alter the values of the ValueItem
- * classes to validate the settings.
- */
-class ValueItem
-{
-	/** Actual data */
-	std::string v;
- public:
-	/** Initialize with an int */
-	ValueItem(int value);
-	/** Initialize with a bool */
-	ValueItem(bool value);
-	/** Initialize with a string */
-	ValueItem(const char* value) : v(value) { }
-	/** Change value to a string */
-	void Set(const std::string &val);
-	/** Change value to an int */
-	void Set(int value);
-	/** Get value as an int */
-	int GetInteger();
-	/** Get value as a string */
-	const char* GetString() const;
-	/** Get value as a string */
-	inline const std::string& GetValue() const { return v; }
-	/** Get value as a bool */
-	bool GetBool();
-};
-
-/** The base class of the container 'ValueContainer'
- * used internally by the core to hold core values.
- */
-class ValueContainerBase
-{
- public:
-	/** Constructor */
-	ValueContainerBase() { }
-	/** Destructor */
-	virtual ~ValueContainerBase() { }
-};
-
-/** ValueContainer is used to contain pointers to different
- * core values such as the server name, maximum number of
- * clients etc.
- * It is specialized to hold a data type, then pointed at
- * a value in the ServerConfig class. When the value has been
- * read and validated, the Set method is called to write the
- * value safely in a type-safe manner.
- */
-template<typename T> class ValueContainer : public ValueContainerBase
-{
-	T ServerConfig::* const vptr;
- public:
-	/** Initialize with a value of type T */
-	ValueContainer(T ServerConfig::* const offset) : vptr(offset)
-	{
-	}
-
-	/** Change value to type T of size s */
-	void Set(ServerConfig* conf, const T& value)
-	{
-		conf->*vptr = value;
-	}
-
-	void Set(ServerConfig* conf, const ValueItem& item);
-};
-
-class ValueContainerLimit : public ValueContainerBase
-{
-	size_t ServerLimits::* const vptr;
- public:
-	/** Initialize with a value of type T */
-	ValueContainerLimit(size_t ServerLimits::* const offset) : vptr(offset)
-	{
-	}
-
-	/** Change value to type T of size s */
-	void Set(ServerConfig* conf, const size_t& value)
-	{
-		conf->Limits.*vptr = value;
-	}
-};
-
-/** A specialization of ValueContainer to hold a pointer to a bool
- */
-typedef ValueContainer<bool> ValueContainerBool;
-
-/** A specialization of ValueContainer to hold a pointer to
- * an unsigned int
- */
-typedef ValueContainer<unsigned int> ValueContainerUInt;
-
-/** A specialization of ValueContainer to hold a pointer to
- * a char array.
- */
-typedef ValueContainer<std::string> ValueContainerString;
-
-/** A specialization of ValueContainer to hold a pointer to
- * an int
- */
-typedef ValueContainer<int> ValueContainerInt;
-
-/** A set of ValueItems used by multi-value validator functions
- */
-typedef std::deque<ValueItem> ValueList;
-
-/** A callback for validating a single value
- */
-typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, ValueItem&);
-/** A callback for validating multiple value entries
- */
-typedef bool (*MultiValidator)(ServerConfig* conf, const char*, const char**, ValueList&, int*);
-/** A callback indicating the end of a group of entries
- */
-typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
-
-/** Holds a core configuration item and its callbacks
- */
-struct InitialConfig
-{
-	/** Tag name */
-	const char* tag;
-	/** Value name */
-	const char* value;
-	/** Default, if not defined */
-	const char* default_value;
-	/** Value containers */
-	ValueContainerBase* val;
-	/** Data types */
-	int datatype;
-	/** Validation function */
-	Validator validation_function;
-	~InitialConfig();
-};
-
-/** Represents a deprecated configuration tag.
- */
-struct Deprecated
-{
-	/** Tag name
-	 */
-	const char* tag;
-	/** Tag value
-	 */
-	const char* value;
-	/** Reason for deprecation
-	 */
-	const char* reason;
-};
-
-/** Holds a core configuration item and its callbacks
- * where there may be more than one item
- */
-struct MultiConfig
-{
-	/** Tag name */
-	const char*	tag;
-	/** One or more items within tag */
-	const char*	items[MAX_VALUES_PER_TAG];
-	/** One or more defaults for items within tags */
-	const char* items_default[MAX_VALUES_PER_TAG];
-	/** One or more data types */
-	int		datatype[MAX_VALUES_PER_TAG];
-	/** Validation function */
-	MultiValidator	validation_function;
-};
-
 #endif
