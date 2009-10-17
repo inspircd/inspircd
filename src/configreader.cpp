@@ -481,7 +481,6 @@ void ServerConfig::Fill()
 	ModPath = options->getString("moduledir", MOD_PATH);
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
 	MaxWhoResults = ConfValue("performance")->getInt("maxwho", 1024);
-	DNSServer = ConfValue("dns")->getString("server");
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
@@ -621,10 +620,13 @@ void ServerConfig::Read()
 {
 	/* Load and parse the config file, if there are any errors then explode */
 
-	if (!this->DoInclude(ServerInstance->ConfigFileName, true))
+	valid = DoInclude(ServerInstance->ConfigFileName, true);
+	if (valid)
 	{
-		valid = false;
-		return;
+		ReadFile(MOTD, ConfValue("files")->getString("motd"));
+		ReadFile(RULES, ConfValue("files")->getString("rules"));
+		DNSServer = ConfValue("dns")->getString("server");
+		FindDNS(DNSServer);
 	}
 }
 
@@ -1379,10 +1381,6 @@ void ConfigReaderThread::Run()
 {
 	Config = new ServerConfig;
 	Config->Read();
-	Config->ReadFile(Config->MOTD, Config->ConfValue("files")->getString("motd"));
-	Config->ReadFile(Config->RULES, Config->ConfValue("files")->getString("rules"));
-	FindDNS(Config->DNSServer);
-
 	done = true;
 }
 
