@@ -125,17 +125,16 @@ Membership* Channel::AddUser(User* user)
 	return memb;
 }
 
-unsigned long Channel::DelUser(User* user)
+void Channel::DelUser(User* user)
 {
 	UserMembIter a = userlist.find(user);
 
 	if (a != userlist.end())
 	{
+		a->second->cull();
 		delete a->second;
 		userlist.erase(a);
 	}
-
-	return userlist.size();
 }
 
 bool Channel::HasUser(User* user)
@@ -448,10 +447,10 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
  * remove a channel from a users record, and return the number of users left.
  * Therefore, if this function returns 0 the caller should delete the Channel.
  */
-long Channel::PartUser(User *user, std::string &reason)
+void Channel::PartUser(User *user, std::string &reason)
 {
 	if (!user)
-		return this->GetUserCounter();
+		return;
 
 	Membership* memb = GetUser(user);
 
@@ -466,39 +465,38 @@ long Channel::PartUser(User *user, std::string &reason)
 		this->RemoveAllPrefixes(user);
 	}
 
-	if (!this->DelUser(user)) /* if there are no users left on the channel... */
+	this->DelUser(user);
+	if (userlist.empty())
 	{
+		ModResult res;
+		FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
+		if (res == MOD_RES_DENY)
+			return;
 		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			ModResult res;
-			FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
-			if (res == MOD_RES_DENY)
-				return 1; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
-		return 0;
+		ServerInstance->GlobalCulls.AddItem(this);
 	}
-
-	return this->GetUserCounter();
 }
 
-long Channel::ServerKickUser(User* user, const char* reason, const std::string& servername)
+void Channel::ServerKickUser(User* user, const char* reason, const std::string& servername)
 {
 	if (servername.empty() || !ServerInstance->Config->HideWhoisServer.empty())
 		ServerInstance->FakeClient->server = ServerInstance->Config->ServerName;
 	else
 		ServerInstance->FakeClient->server = servername;
 
-	return this->KickUser(ServerInstance->FakeClient, user, reason);
+	KickUser(ServerInstance->FakeClient, user, reason);
 }
 
-long Channel::KickUser(User *src, User *user, const char* reason)
+void Channel::KickUser(User *src, User *user, const char* reason)
 {
 	if (!src || !user || !reason)
-		return this->GetUserCounter();
+		return;
 
 	Membership* memb = GetUser(user);
 	if (IS_LOCAL(src))
@@ -506,12 +504,12 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		if (!memb)
 		{
 			src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), user->nick.c_str(), this->name.c_str());
-			return this->GetUserCounter();
+			return;
 		}
 		if ((ServerInstance->ULine(user->server)) && (!ServerInstance->ULine(src->server)))
 		{
 			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick.c_str(), this->name.c_str());
-			return this->GetUserCounter();
+			return;
 		}
 
 		ModResult res;
@@ -521,7 +519,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 			FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
 
 		if (res == MOD_RES_DENY)
-			return this->GetUserCounter();
+			return;
 
 		if (res == MOD_RES_PASSTHRU)
 		{
@@ -530,7 +528,7 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 			if ((them < HALFOP_VALUE) || (them < us))
 			{
 				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them >= HALFOP_VALUE ? "" : "half-");
-				return this->GetUserCounter();
+				return;
 			}
 		}
 	}
@@ -546,25 +544,22 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 		this->RemoveAllPrefixes(user);
 	}
 
-	if (!this->DelUser(user))
-	/* if there are no users left on the channel */
+	this->DelUser(user);
+	if (userlist.empty())
 	{
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name.c_str());
-
+		ModResult res;
+		FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
+		if (res == MOD_RES_DENY)
+			return;
+		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			ModResult res;
-			FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
-			if (res == MOD_RES_DENY)
-				return 1; // delete halted by module
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
-		return 0;
+		ServerInstance->GlobalCulls.AddItem(this);
 	}
-
-	return this->GetUserCounter();
 }
 
 void Channel::WriteChannel(User* user, const char* text, ...)

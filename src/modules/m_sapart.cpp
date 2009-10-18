@@ -49,8 +49,7 @@ class CommandSapart : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				if (!channel->PartUser(dest, reason))
-					delete channel;
+				channel->PartUser(dest, reason);
 
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (!n)

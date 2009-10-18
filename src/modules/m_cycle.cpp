@@ -57,9 +57,7 @@ class CommandCycle : public Command
 					return CMD_FAILURE;
 				}
 
-				/* XXX in the future, this may move to a static Channel method (the delete.) -- w00t */
-				if (!channel->PartUser(user, reason))
-					delete channel;
+				channel->PartUser(user, reason);
 
 				Channel::JoinUser(user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
 			}

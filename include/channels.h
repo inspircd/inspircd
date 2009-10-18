@@ -204,7 +204,7 @@ class CoreExport Channel : public Extensible
 	 * @param user The user to delete
 	 * @return number of users left on the channel after deletion of the user
 	 */
-	unsigned long DelUser(User* user);
+	void DelUser(User* user);
 
 	/** Obtain the internal reference list
 	 * The internal reference list contains a list of User*.
@@ -232,7 +232,7 @@ class CoreExport Channel : public Extensible
 	 * @return The number of users left on the channel. If this is zero
 	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long KickUser(User *src, User *user, const char* reason);
+	void KickUser(User *src, User *user, const char* reason);
 
 	/** Make the server kick user from this channel with the given reason.
 	 * @param user The user being kicked (must be on this channel)
@@ -241,7 +241,7 @@ class CoreExport Channel : public Extensible
 	 * @return The number of users left on the channel. If this is zero
 	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long ServerKickUser(User* user, const char* reason, const std::string& servername = "");
+	void ServerKickUser(User* user, const char* reason, const std::string& servername = "");
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
@@ -250,7 +250,7 @@ class CoreExport Channel : public Extensible
 	 * @return The number of users left on the channel. If this is zero
 	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long PartUser(User *user, std::string &reason);
+	void PartUser(User *user, std::string &reason);
 
 	/* Join a user to a channel. May be a channel that doesnt exist yet.
 	 * @param user The user to join to the channel.

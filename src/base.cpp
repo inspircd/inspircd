@@ -136,17 +136,27 @@ void Extensible::doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove)
 	}
 }
 
+Extensible::Extensible()
+{
+	extensions[NULL] = NULL;
+}
+
 CullResult Extensible::cull()
 {
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
-		i->first->free(i->second);	
+		if (i->first)
+			i->first->free(i->second);
 	}
+	extensions.clear();
 	return classbase::cull();
 }
 
 Extensible::~Extensible()
 {
+	if (!extensions.empty() && ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG,
+			"Extensible destructor called without cull @%p", (void*)this);
 }
 
 LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)

@@ -40,8 +40,7 @@ bool TreeSocket::ServicePart(const std::string &prefix, parameterlist &params)
 	{
 		/* only part if it's local, otherwise just pass it on! */
 		if (IS_LOCAL(u))
-			if (!c->PartUser(u, reason))
-				delete c;
+			c->PartUser(u, reason);
 		Utils->DoOneToAllButSender(prefix,"SVSPART",params,prefix);
 	}
 

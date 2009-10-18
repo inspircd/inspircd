@@ -66,9 +66,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		reason.assign(user->nick, 0, ServerInstance->Config->Limits.MaxKick);
 	}
 
-	if (!c->KickUser(user, u, reason.c_str()))
-		/* Nobody left here, delete the Channel */
-		delete c;
+	c->KickUser(user, u, reason.c_str());
 
 	return CMD_SUCCESS;
 }

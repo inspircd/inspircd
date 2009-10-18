@@ -1708,35 +1708,7 @@ void User::PurgeEmptyChannels()
 	{
 		Channel* c = *f;
 		c->RemoveAllPrefixes(this);
-		if (c->DelUser(this) == 0)
-		{
-			/* No users left in here, mark it for deletion */
-			try
-			{
-				to_delete.push_back(c);
-			}
-			catch (...)
-			{
-				ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::PurgeEmptyChannels to_delete.push_back()");
-			}
-		}
-	}
-
-	for (std::vector<Channel*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
-	{
-		Channel* thischan = *n;
-		chan_hash::iterator i2 = ServerInstance->chanlist->find(thischan->name);
-		if (i2 != ServerInstance->chanlist->end())
-		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnChannelPreDelete, MOD_RESULT, (i2->second));
-			if (MOD_RESULT == MOD_RES_DENY)
-				continue; // delete halted by module
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
-			delete i2->second;
-			ServerInstance->chanlist->erase(i2);
-			this->chans.erase(*n);
-		}
+		c->DelUser(this);
 	}
 
 	this->UnOper();

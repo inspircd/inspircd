@@ -61,9 +61,7 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 
 	if (c)
 	{
-		if (!c->PartUser(user, reason))
-			/* Arse, who stole our channel! :/ */
-			delete c;
+		c->PartUser(user, reason);
 	}
 	else
 	{

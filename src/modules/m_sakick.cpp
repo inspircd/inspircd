@@ -56,8 +56,7 @@ class CommandSakick : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				if (!channel->ServerKickUser(dest, reason, servername))
-					delete channel;
+				channel->ServerKickUser(dest, reason, servername);
 
 				Channel *n = ServerInstance->FindChan(parameters[1]);
 				if (n && n->HasUser(dest))
