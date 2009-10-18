@@ -319,13 +319,14 @@ class ModuleAlias : public Module
 			std::string var = "$";
 			var.append(ConvToStr(v));
 			var.append("-");
+			std::string repl = GetVar(var, original_line);
 			std::string::size_type x = newline.find(var);
 
 			while (x != std::string::npos)
 			{
 				newline.erase(x, var.length());
-				newline.insert(x, GetVar(var, original_line));
-				x = newline.find(var);
+				newline.insert(x, repl);
+				x = newline.find(var, x + repl.length());
 			}
 
 			var = "$";
@@ -335,8 +336,8 @@ class ModuleAlias : public Module
 			while (x != std::string::npos)
 			{
 				newline.erase(x, var.length());
-				newline.insert(x, GetVar(var, original_line));
-				x = newline.find(var);
+				newline.insert(x, repl);
+				x = newline.find(var, x + repl.length());
 			}
 		}
 
