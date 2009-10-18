@@ -402,15 +402,12 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command, command_p, user, true, cmd));
 		if (MOD_RESULT == 1)
-			return do_more;
+			return do_more && !user->quitting;
 
-		/*
-		 * WARNING: be careful, the user may be deleted soon
-		 */
 		CmdResult result = cm->second->Handle(command_p, user);
 
 		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, user, result,cmd));
-		return do_more;
+		return do_more && !user->quitting;
 	}
 }
 
