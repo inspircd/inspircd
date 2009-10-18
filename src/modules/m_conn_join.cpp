@@ -57,12 +57,11 @@ class ModuleConnJoin : public Module
 
 		virtual void OnRehash(User* user)
 		{
-			ConfigReader* conf = new ConfigReader;
-			JoinChan = conf->ReadValue("autojoin", "channel", 0);
+			ConfigReader conf;
+			JoinChan = conf.ReadValue("autojoin", "channel", 0);
 			Joinchans.clear();
 			if (!JoinChan.empty())
 				tokenize(JoinChan,Joinchans);
-			delete conf;
 		}
 
 		virtual ~ModuleConnJoin()

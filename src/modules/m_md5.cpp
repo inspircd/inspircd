@@ -39,7 +39,7 @@ typedef unsigned char byte;
 
 /** An MD5 context, used by m_opermd5
  */
-class MD5Context : public classbase
+class MD5Context
 {
  public:
 	word32 buf[4];
@@ -296,7 +296,7 @@ class ModuleMD5 : public Module
 
 	Version GetVersion()
 	{
-		return Version("Allows for MD5 encrypted oper passwords",VF_VENDOR|VF_SERVICEPROVIDER);
+		return Version("Allows for MD5 encrypted oper passwords",VF_VENDOR);
 	}
 };
 

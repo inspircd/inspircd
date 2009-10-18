@@ -27,29 +27,28 @@ class CommandVhost : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		ConfigReader *Conf = new ConfigReader;
-
-		for (int index = 0; index < Conf->Enumerate("vhost"); index++)
+		for (int index = 0;; index++)
 		{
-			std::string mask = Conf->ReadValue("vhost","host",index);
-			std::string username = Conf->ReadValue("vhost","user",index);
-			std::string pass = Conf->ReadValue("vhost","pass",index);
-			std::string hash = Conf->ReadValue("vhost","hash",index);
+			ConfigTag* tag = ServerInstance->Config->ConfValue("vhost", index);
+			if (!tag)
+				break;
+			std::string mask = tag->getString("host");
+			std::string username = tag->getString("user");
+			std::string pass = tag->getString("pass");
+			std::string hash = tag->getString("hash");
 
-			if ((!strcmp(parameters[0].c_str(),username.c_str())) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()))
+			if (parameters[0] == username && !ServerInstance->PassCompare(user, pass, parameters[1], hash))
 			{
 				if (!mask.empty())
 				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
+					user->WriteServ("NOTICE "+user->nick+" :Setting your VHost: " + mask);
 					user->ChangeDisplayedHost(mask.c_str());
-					delete Conf;
 					return CMD_SUCCESS;
 				}
 			}
 		}
 
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid username or password.");
-		delete Conf;
 		return CMD_FAILURE;
 	}
 };

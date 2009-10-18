@@ -16,26 +16,20 @@
 /* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
 class ModuleOperLevels : public Module
 {
-	private:
-		ConfigReader* conf;
 	public:
 		ModuleOperLevels()
-					{
-			conf = new ConfigReader;
+		{
 			Implementation eventlist[] = { I_OnRehash, I_OnKill };
 			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 		virtual ~ModuleOperLevels()
 		{
-			delete conf;
 		}
 
 
 		virtual void OnRehash(User* user)
 		{
-			delete conf;
-			conf = new ConfigReader;
 		}
 
 		virtual Version GetVersion()
@@ -45,29 +39,19 @@ class ModuleOperLevels : public Module
 
 		virtual ModResult OnKill(User* source, User* dest, const std::string &reason)
 		{
-			long dest_level = 0,source_level = 0;
-
 			// oper killing an oper?
 			if (IS_OPER(dest) && IS_OPER(source))
 			{
-				for (int j =0; j < conf->Enumerate("type"); j++)
-				{
-					std::string typen = conf->ReadValue("type","name",j);
-					if (typen == dest->oper)
-					{
-						dest_level = conf->ReadInteger("type","level",j,true);
-						break;
-					}
-				}
-				for (int k =0; k < conf->Enumerate("type"); k++)
-				{
-					std::string typen = conf->ReadValue("type","name",k);
-					if (typen == source->oper)
-					{
-						source_level = conf->ReadInteger("type","level",k,true);
-						break;
-					}
-				}
+				TagIndex::iterator dest_type = ServerInstance->Config->opertypes.find(dest->oper);
+				TagIndex::iterator src_type = ServerInstance->Config->opertypes.find(source->oper);
+
+				if (dest_type == ServerInstance->Config->opertypes.end())
+					return MOD_RES_PASSTHRU;
+				if (src_type == ServerInstance->Config->opertypes.end())
+					return MOD_RES_PASSTHRU;
+
+				long dest_level = dest_type->second->getInt("level");
+				long source_level = src_type->second->getInt("level");
 				if (dest_level > source_level)
 				{
 					if (IS_LOCAL(source)) ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());

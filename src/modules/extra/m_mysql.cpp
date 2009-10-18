@@ -87,8 +87,6 @@ unsigned long count(const char * const str, char a)
 class ModuleSQL : public Module
 {
  public:
-
-	 ConfigReader *Conf;
 	 int currid;
 	 bool rehashing;
 	 DispatcherThread* Dispatcher;
@@ -549,30 +547,31 @@ bool HasHost(const SQLhost &host)
 	return false;
 }
 
-bool HostInConf(ConfigReader* conf, const SQLhost &h)
+bool HostInConf(const SQLhost &h)
 {
-	for(int i = 0; i < conf->Enumerate("database"); i++)
+	ConfigReader conf;
+	for(int i = 0; i < conf.Enumerate("database"); i++)
 	{
 		SQLhost host;
-		host.id		= conf->ReadValue("database", "id", i);
-		host.host	= conf->ReadValue("database", "hostname", i);
-		host.port	= conf->ReadInteger("database", "port", i, true);
-		host.name	= conf->ReadValue("database", "name", i);
-		host.user	= conf->ReadValue("database", "username", i);
-		host.pass	= conf->ReadValue("database", "password", i);
-		host.ssl	= conf->ReadFlag("database", "ssl", i);
+		host.id		= conf.ReadValue("database", "id", i);
+		host.host	= conf.ReadValue("database", "hostname", i);
+		host.port	= conf.ReadInteger("database", "port", i, true);
+		host.name	= conf.ReadValue("database", "name", i);
+		host.user	= conf.ReadValue("database", "username", i);
+		host.pass	= conf.ReadValue("database", "password", i);
+		host.ssl	= conf.ReadFlag("database", "ssl", i);
 		if (h == host)
 			return true;
 	}
 	return false;
 }
 
-void ClearOldConnections(ConfigReader* conf)
+void ClearOldConnections()
 {
 	ConnMap::iterator i,safei;
 	for (i = Connections.begin(); i != Connections.end(); i++)
 	{
-		if (!HostInConf(conf, i->second->GetConfHost()))
+		if (!HostInConf(i->second->GetConfHost()))
 		{
 			delete i->second;
 			safei = i;
@@ -611,21 +610,22 @@ void ConnectDatabases(ModuleSQL* Parent)
 	}
 }
 
-void LoadDatabases(ConfigReader* conf, ModuleSQL* Parent)
+void LoadDatabases(ModuleSQL* Parent)
 {
+	ConfigReader conf;
 	Parent->ConnMutex.Lock();
-	ClearOldConnections(conf);
-	for (int j =0; j < conf->Enumerate("database"); j++)
+	ClearOldConnections();
+	for (int j =0; j < conf.Enumerate("database"); j++)
 	{
 		SQLhost host;
-		host.id		= conf->ReadValue("database", "id", j);
-		host.host	= conf->ReadValue("database", "hostname", j);
-		host.port	= conf->ReadInteger("database", "port", j, true);
-		host.name	= conf->ReadValue("database", "name", j);
-		host.user	= conf->ReadValue("database", "username", j);
-		host.pass	= conf->ReadValue("database", "password", j);
-		host.ssl	= conf->ReadFlag("database", "ssl", j);
-		std::string initquery = conf->ReadValue("database", "initialquery", j);
+		host.id		= conf.ReadValue("database", "id", j);
+		host.host	= conf.ReadValue("database", "hostname", j);
+		host.port	= conf.ReadInteger("database", "port", j, true);
+		host.name	= conf.ReadValue("database", "name", j);
+		host.user	= conf.ReadValue("database", "username", j);
+		host.pass	= conf.ReadValue("database", "password", j);
+		host.ssl	= conf.ReadFlag("database", "ssl", j);
+		std::string initquery = conf.ReadValue("database", "initialquery", j);
 
 		if (HasHost(host))
 			continue;
@@ -683,7 +683,6 @@ ModuleSQL::ModuleSQL() : rehashing(false)
 {
 	ServerInstance->Modules->UseInterface("SQLutils");
 
-	Conf = new ConfigReader;
 	currid = 0;
 
 	Dispatcher = new DispatcherThread(this);
@@ -706,7 +705,6 @@ ModuleSQL::~ModuleSQL()
 {
 	delete Dispatcher;
 	ClearAllConnections();
-	delete Conf;
 	ServerInstance->Modules->UnpublishInterface("SQL", this);
 	ServerInstance->Modules->UnpublishFeature("SQL");
 	ServerInstance->Modules->DoneWithInterface("SQLutils");
@@ -756,12 +754,12 @@ void ModuleSQL::OnRehash(User* user)
 
 Version ModuleSQL::GetVersion()
 {
-	return Version("SQL Service Provider module for all other m_sql* modules", VF_VENDOR | VF_SERVICEPROVIDER);
+	return Version("SQL Service Provider module for all other m_sql* modules", VF_VENDOR);
 }
 
 void DispatcherThread::Run()
 {
-	LoadDatabases(Parent->Conf, Parent);
+	LoadDatabases(Parent);
 
 	SQLConnection* conn = NULL;
 
@@ -771,7 +769,7 @@ void DispatcherThread::Run()
 		if (Parent->rehashing)
 		{
 			Parent->rehashing = false;
-			LoadDatabases(Parent->Conf, Parent);
+			LoadDatabases(Parent);
 		}
 
 		conn = NULL;

@@ -33,10 +33,9 @@ enum ModuleFlags {
 	VF_NONE = 0,		// module is not special at all
 	VF_STATIC = 1,		// module is static, cannot be /unloadmodule'd
 	VF_VENDOR = 2,		// module is a vendor module (came in the original tarball, not 3rd party)
-	VF_SERVICEPROVIDER = 4,	// module provides a service to other modules (can be a dependency)
-	VF_COMMON = 8,		// module needs to be common on all servers in a network to link
-	VF_OPTCOMMON = 16,	// module should be common on all servers for unsurprising behavior
-	VF_CORE = 32		// module is a core command, can be assumed loaded on all servers
+	VF_COMMON = 4,		// module needs to be common on all servers in a network to link
+	VF_OPTCOMMON = 8,	// module should be common on all servers for unsurprising behavior
+	VF_CORE = 16		// module is a core command, can be assumed loaded on all servers
 };
 
 /** Used with SendToMode()
@@ -74,26 +73,26 @@ struct ModResult {
 	int res;
 	ModResult() : res(0) {}
 	explicit ModResult(int r) : res(r) {}
-	bool operator==(const ModResult& r) const
+	inline bool operator==(const ModResult& r) const
 	{
 		return res == r.res;
 	}
-	bool operator!=(const ModResult& r) const
+	inline bool operator!=(const ModResult& r) const
 	{
 		return res != r.res;
 	}
-	bool operator!() const
+	inline bool operator!() const
 	{
 		return !res;
 	}
-	bool check(bool def) const
+	inline bool check(bool def) const
 	{
 		return (res == 1 || (res == 0 && def));
 	}
 	/**
 	 * Merges two results, preferring ALLOW to DENY
 	 */
-	ModResult operator+(const ModResult& r) const
+	inline ModResult operator+(const ModResult& r) const
 	{
 		if (res == r.res || r.res == 0)
 			return *this;
@@ -107,7 +106,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 134
+#define API_VERSION 135
 
 class ServerConfig;
 
@@ -314,7 +313,7 @@ class CoreExport Event : public classbase
 	void Send();
 };
 
-/** Priority types which can be returned from Module::Prioritize()
+/** Priority types which can be used by Module::Prioritize()
  */
 enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };
 
@@ -1297,7 +1296,7 @@ class CoreExport Module : public classbase
  * Constructing the class using one parameter allows you to specify a path to your own configuration
  * file, otherwise, inspircd.conf is read.
  */
-class CoreExport ConfigReader : public classbase
+class CoreExport ConfigReader : public interfacebase
 {
   protected:
 	/** Error code
@@ -1461,7 +1460,7 @@ typedef IntModuleList::iterator EventHandlerIter;
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
-class CoreExport ModuleManager : public classbase
+class CoreExport ModuleManager
 {
  private:
 	/** Holds a string describing the last module error to occur

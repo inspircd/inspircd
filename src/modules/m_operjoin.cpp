@@ -43,36 +43,35 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin() 		{
+		ModuleOperjoin()
+		{
 			OnRehash(NULL);
-		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+			Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
+			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
 
 		virtual void OnRehash(User* user)
 		{
-			ConfigReader* conf = new ConfigReader;
+			ConfigReader conf;
 
-			operChan = conf->ReadValue("operjoin", "channel", 0);
-			override = conf->ReadFlag("operjoin", "override", "0", 0);
+			operChan = conf.ReadValue("operjoin", "channel", 0);
+			override = conf.ReadFlag("operjoin", "override", "0", 0);
 			operChans.clear();
 			if (!operChan.empty())
 				tokenize(operChan,operChans);
 
 			std::map<std::string, std::vector<std::string> >().swap(operTypeChans);
 
-			int olines = conf->Enumerate("type");
+			int olines = conf.Enumerate("type");
 			for (int index = 0; index < olines; ++index)
 			{
-				std::string chanList = conf->ReadValue("type", "autojoin", index);
+				std::string chanList = conf.ReadValue("type", "autojoin", index);
 				if (!chanList.empty())
 				{
-					tokenize(chanList, operTypeChans[conf->ReadValue("type", "name", index)]);
+					tokenize(chanList, operTypeChans[conf.ReadValue("type", "name", index)]);
 				}
 			}
-
-			delete conf;
 		}
 
 		virtual ~ModuleOperjoin()

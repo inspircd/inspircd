@@ -76,7 +76,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Regex Provider Module for PCRE", VF_COMMON | VF_VENDOR | VF_SERVICEPROVIDER);
+		return Version("Regex Provider Module for PCRE", VF_COMMON | VF_VENDOR);
 	}
 
 	virtual ~ModuleRegexPCRE()

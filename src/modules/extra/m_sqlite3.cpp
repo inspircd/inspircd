@@ -723,7 +723,7 @@ class ModuleSQLite3 : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("sqlite3 provider", VF_VENDOR | VF_SERVICEPROVIDER);
+		return Version("sqlite3 provider", VF_VENDOR);
 	}
 
 };

@@ -421,7 +421,7 @@ class ModuleHttpServer : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides HTTP serving facilities to modules", VF_VENDOR | VF_SERVICEPROVIDER);
+		return Version("Provides HTTP serving facilities to modules", VF_VENDOR);
 	}
 };
 

@@ -55,19 +55,17 @@ class ModuleRandQuote : public Module
 {
  private:
 	CommandRandquote cmd;
-	ConfigReader *conf;
  public:
 	ModuleRandQuote()
 		: cmd(this)
 	{
-
-		conf = new ConfigReader;
+		ConfigReader conf;
 		// Sort the Randomizer thingie..
 		srand(ServerInstance->Time());
 
-		q_file = conf->ReadValue("randquote","file",0);
-		prefix = conf->ReadValue("randquote","prefix",0);
-		suffix = conf->ReadValue("randquote","suffix",0);
+		q_file = conf.ReadValue("randquote","file",0);
+		prefix = conf.ReadValue("randquote","prefix",0);
+		suffix = conf.ReadValue("randquote","suffix",0);
 
 		if (q_file.empty())
 		{
@@ -91,7 +89,6 @@ class ModuleRandQuote : public Module
 
 	virtual ~ModuleRandQuote()
 	{
-		delete conf;
 		delete quotes;
 	}
 

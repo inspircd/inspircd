@@ -24,9 +24,6 @@ private:
 	time_t first;
 	std::string quitmsg;
 
-	ConfigReader* conf;
-
-
 public:
 	ModuleConnFlood() 	{
 
@@ -47,15 +44,15 @@ public:
 	void InitConf()
 	{
 		/* read configuration variables */
-		conf = new ConfigReader;
+		ConfigReader conf;
 		/* throttle configuration */
-		seconds = conf->ReadInteger("connflood", "seconds", 0, true);
-		maxconns = conf->ReadInteger("connflood", "maxconns", 0, true);
-		timeout = conf->ReadInteger("connflood", "timeout", 0, true);
-		quitmsg = conf->ReadValue("connflood", "quitmsg", 0);
+		seconds = conf.ReadInteger("connflood", "seconds", 0, true);
+		maxconns = conf.ReadInteger("connflood", "maxconns", 0, true);
+		timeout = conf.ReadInteger("connflood", "timeout", 0, true);
+		quitmsg = conf.ReadValue("connflood", "quitmsg", 0);
 
 		/* seconds to wait when the server just booted */
-		boot_wait = conf->ReadInteger("connflood", "bootwait", 0, true);
+		boot_wait = conf.ReadInteger("connflood", "bootwait", 0, true);
 
 		first = ServerInstance->Time();
 	}

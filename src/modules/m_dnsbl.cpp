@@ -24,7 +24,7 @@
 /* $ModDesc: Provides handling of DNS blacklists */
 
 /* Class holding data for a single entry */
-class DNSBLConfEntry : public classbase
+class DNSBLConfEntry
 {
 	public:
 		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE, I_MARK };
@@ -245,36 +245,36 @@ class ModuleDNSBL : public Module
 	 */
 	virtual void ReadConf()
 	{
-		ConfigReader *MyConf = new ConfigReader;
+		ConfigReader MyConf;
 		ClearEntries();
 
-		for (int i=0; i< MyConf->Enumerate("dnsbl"); i++)
+		for (int i=0; i< MyConf.Enumerate("dnsbl"); i++)
 		{
 			DNSBLConfEntry *e = new DNSBLConfEntry();
 
-			e->name = MyConf->ReadValue("dnsbl", "name", i);
-			e->ident = MyConf->ReadValue("dnsbl", "ident", i);
-			e->host = MyConf->ReadValue("dnsbl", "host", i);
-			e->reason = MyConf->ReadValue("dnsbl", "reason", i);
-			e->domain = MyConf->ReadValue("dnsbl", "domain", i);
+			e->name = MyConf.ReadValue("dnsbl", "name", i);
+			e->ident = MyConf.ReadValue("dnsbl", "ident", i);
+			e->host = MyConf.ReadValue("dnsbl", "host", i);
+			e->reason = MyConf.ReadValue("dnsbl", "reason", i);
+			e->domain = MyConf.ReadValue("dnsbl", "domain", i);
 
-			if (MyConf->ReadValue("dnsbl", "type", i) == "bitmask")
+			if (MyConf.ReadValue("dnsbl", "type", i) == "bitmask")
 			{
 				e->type = DNSBLConfEntry::A_BITMASK;
-				e->bitmask = MyConf->ReadInteger("dnsbl", "bitmask", i, false);
+				e->bitmask = MyConf.ReadInteger("dnsbl", "bitmask", i, false);
 			}
 			else
 			{
 				memset(e->records, 0, sizeof(e->records));
 				e->type = DNSBLConfEntry::A_RECORD;
-				irc::portparser portrange(MyConf->ReadValue("dnsbl", "records", i), false);
+				irc::portparser portrange(MyConf.ReadValue("dnsbl", "records", i), false);
 				long item = -1;
 				while ((item = portrange.GetToken()))
 					e->records[item] = 1;
 			}
 
-			e->banaction = str2banaction(MyConf->ReadValue("dnsbl", "action", i));
-			e->duration = ServerInstance->Duration(MyConf->ReadValue("dnsbl", "duration", "60", i));
+			e->banaction = str2banaction(MyConf.ReadValue("dnsbl", "action", i));
+			e->duration = ServerInstance->Duration(MyConf.ReadValue("dnsbl", "duration", "60", i));
 
 			/* Use portparser for record replies */
 
@@ -315,8 +315,6 @@ class ModuleDNSBL : public Module
 			/* delete and drop it, error somewhere */
 			delete e;
 		}
-
-		delete MyConf;
 	}
 
 	virtual void OnRehash(User* user)

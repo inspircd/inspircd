@@ -42,7 +42,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Regex module using plain wildcard matching.", VF_OPTCOMMON | VF_VENDOR | VF_SERVICEPROVIDER);
+		return Version("Regex module using plain wildcard matching.", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 	virtual ~ModuleRegexGlob()

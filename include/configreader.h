@@ -117,7 +117,7 @@ class ServerLimits
  * and storage of the configuration data needed to run the ircd, such as
  * the servername, connect classes, /ADMIN data, MOTDs and filenames etc.
  */
-class CoreExport ServerConfig : public classbase
+class CoreExport ServerConfig
 {
   private:
 	void CrossCheckOperClassType();

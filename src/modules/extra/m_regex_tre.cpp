@@ -82,7 +82,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Regex Provider Module for TRE Regular Expressions", VF_COMMON | VF_VENDOR | VF_SERVICEPROVIDER);
+		return Version("Regex Provider Module for TRE Regular Expressions", VF_COMMON | VF_VENDOR);
 	}
 
 	virtual ~ModuleRegexTRE()

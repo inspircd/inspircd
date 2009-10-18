@@ -68,7 +68,7 @@ void LogManager::OpenFileLogs()
 	{
 		return;
 	}
-	ConfigReader* Conf = new ConfigReader;
+	ConfigReader Conf;
 	std::map<std::string, FileWriter*> logmap;
 	std::map<std::string, FileWriter*>::iterator i;
 	for (int index = 0;; ++index)
@@ -106,7 +106,7 @@ void LogManager::OpenFileLogs()
 			loglevel = NONE;
 		}
 		FileWriter* fw;
-		std::string target = Conf->ReadValue("log", "target", index);
+		std::string target = Conf.ReadValue("log", "target", index);
 		if ((i = logmap.find(target)) == logmap.end())
 		{
 			FILE* f = fopen(target.c_str(), "a");

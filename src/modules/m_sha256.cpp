@@ -62,7 +62,7 @@ typedef unsigned int uint32_t;
 
 /** An sha 256 context, used by m_opersha256
  */
-class SHA256Context : public classbase
+class SHA256Context
 {
  public:
 	unsigned int tot_len;
@@ -273,7 +273,7 @@ class ModuleSHA256 : public Module
 
 	Version GetVersion()
 	{
-		return Version("Allows for SHA-256 encrypted oper passwords", VF_VENDOR|VF_SERVICEPROVIDER);
+		return Version("Allows for SHA-256 encrypted oper passwords", VF_VENDOR);
 	}
 };
 

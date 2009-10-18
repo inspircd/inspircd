@@ -17,28 +17,24 @@
 
 class ModuleRestrictChans : public Module
 {
-
-
-	std::map<irc::string,int> allowchans;
+	std::set<irc::string> allowchans;
 
 	void ReadConfig()
 	{
-		ConfigReader* MyConf = new ConfigReader;
 		allowchans.clear();
-		for (int i = 0; i < MyConf->Enumerate("allowchannel"); i++)
+		for (int i = 0;; i++)
 		{
-			std::string txt;
-			txt = MyConf->ReadValue("allowchannel", "name", i);
-			irc::string channel = txt.c_str();
-			allowchans[channel] = 1;
+			ConfigTag* tag = ServerInstance->Config->ConfValue("allowchannel", i);
+			if (!tag)
+				return;
+			std::string txt = tag->getString("name");
+			allowchans.insert(txt.c_str());
 		}
-		delete MyConf;
 	}
 
  public:
 	ModuleRestrictChans()
-			{
-
+	{
 		ReadConfig();
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

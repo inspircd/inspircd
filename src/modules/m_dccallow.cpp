@@ -15,8 +15,6 @@
 
 /* $ModDesc: Povides support for the /DCCALLOW command */
 
-static ConfigReader *Conf;
-
 class BannedFileList
 {
  public:
@@ -140,7 +138,8 @@ class CommandDccallow : public Command
 					}
 
 					std::string mask = std::string(target->nick)+"!"+std::string(target->ident)+"@"+std::string(target->dhost);
-					std::string default_length = Conf->ReadValue("dccallow", "length", 0);
+					ConfigReader Conf;
+					std::string default_length = Conf.ReadValue("dccallow", "length", 0);
 
 					long length;
 					if (parameters.size() < 2)
@@ -242,7 +241,6 @@ class ModuleDCCAllow : public Module
 	ModuleDCCAllow()
 		: cmd(this)
 	{
-		Conf = new ConfigReader;
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
 		ServerInstance->Extensions.Register(ext);
 		ServerInstance->AddCommand(&cmd);
@@ -254,8 +252,6 @@ class ModuleDCCAllow : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		delete Conf;
-		Conf = new ConfigReader;
 		ReadFileConf();
 	}
 
@@ -325,11 +321,12 @@ class ModuleDCCAllow : public Module
 
 					irc::string type = tokens[1].c_str();
 
-					bool blockchat = Conf->ReadFlag("dccallow", "blockchat", 0);
+					ConfigReader Conf;
+					bool blockchat = Conf.ReadFlag("dccallow", "blockchat", 0);
 
 					if (type == "SEND")
 					{
-						std::string defaultaction = Conf->ReadValue("dccallow", "action", 0);
+						std::string defaultaction = Conf.ReadValue("dccallow", "action", 0);
 						std::string filename = tokens[2];
 
 						bool found = false;
@@ -449,12 +446,13 @@ class ModuleDCCAllow : public Module
 
 	void ReadFileConf()
 	{
+		ConfigReader Conf;
 		bfl.clear();
-		for (int i = 0; i < Conf->Enumerate("banfile"); i++)
+		for (int i = 0; i < Conf.Enumerate("banfile"); i++)
 		{
 			BannedFileList bf;
-			std::string fileglob = Conf->ReadValue("banfile", "pattern", i);
-			std::string action = Conf->ReadValue("banfile", "action", i);
+			std::string fileglob = Conf.ReadValue("banfile", "pattern", i);
+			std::string action = Conf.ReadValue("banfile", "action", i);
 			bf.filemask = fileglob;
 			bf.action = action;
 			bfl.push_back(bf);
@@ -464,9 +462,7 @@ class ModuleDCCAllow : public Module
 
 	virtual ~ModuleDCCAllow()
 	{
-		delete Conf;
 		delete ext;
-		Conf = NULL;
 	}
 
 	virtual Version GetVersion()

@@ -94,7 +94,7 @@ class CommandWhowas : public Command
 
 /** Used to hold WHOWAS information
  */
-class WhoWasGroup : public classbase
+class WhoWasGroup
 {
  public:
 	/** Real host
@@ -116,7 +116,7 @@ class WhoWasGroup : public classbase
 	 */
 	time_t signon;
 
-	/** Initialize this WhoQasFroup with a user
+	/** Initialize this WhoWasFroup with a user
 	 */
 	WhoWasGroup(User* user);
 	/** Destructor

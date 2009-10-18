@@ -465,7 +465,7 @@ class ModuleRIPEMD160 : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Allows for RIPEMD-160 encrypted oper passwords", VF_VENDOR|VF_SERVICEPROVIDER);
+		return Version("Allows for RIPEMD-160 encrypted oper passwords", VF_VENDOR);
 	}
 
 };

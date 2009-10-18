@@ -17,16 +17,9 @@
 
 class ModuleModesOnOper : public Module
 {
- private:
-
-
-	ConfigReader *Conf;
-
  public:
 	ModuleModesOnOper()
-			{
-
-		Conf = new ConfigReader;
+	{
 		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -34,13 +27,10 @@ class ModuleModesOnOper : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		delete Conf;
-		Conf = new ConfigReader;
 	}
 
 	virtual ~ModuleModesOnOper()
 	{
-		delete Conf;
 	}
 
 	virtual Version GetVersion()
@@ -50,36 +40,33 @@ class ModuleModesOnOper : public Module
 
 	virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
 	{
+		TagIndex::iterator typetag = ServerInstance->Config->opertypes.find(opertype);
+		if (typetag == ServerInstance->Config->opertypes.end())
+			return;
 		// whenever a user opers, go through the oper types, find their <type:modes>,
 		// and if they have one apply their modes. The mode string can contain +modes
 		// to add modes to the user or -modes to take modes from the user.
-		for (int j =0; j < Conf->Enumerate("type"); j++)
+		std::string ThisOpersModes = typetag->second->getString("modes");
+		if (!ThisOpersModes.empty())
 		{
-			std::string typen = Conf->ReadValue("type","name",j);
-			if (typen == user->oper)
+			ApplyModes(user, ThisOpersModes);
+		}
+
+		if (!opername.empty()) // if user is local ..
+		{
+			for (int i = 0;; i++)
 			{
-				std::string ThisOpersModes = Conf->ReadValue("type","modes",j);
+				ConfigTag* tag = ServerInstance->Config->ConfValue("oper", i);
+				if (!tag)
+					break;
+				if (tag->getString("name") != opername)
+					continue;
+				ThisOpersModes = tag->getString("modes");
 				if (!ThisOpersModes.empty())
 				{
 					ApplyModes(user, ThisOpersModes);
 				}
 				break;
-			}
-		}
-
-		if (!opername.empty()) // if user is local ..
-		{
-			for (int j = 0; j < Conf->Enumerate("oper"); j++)
-			{
-				if (opername == Conf->ReadValue("oper", "name", j))
-				{
-					std::string ThisOpersModes = Conf->ReadValue("oper", "modes", j);
-					if (!ThisOpersModes.empty())
-					{
-						ApplyModes(user, ThisOpersModes);
-					}
-					break;
-				}
 			}
 		}
 	}

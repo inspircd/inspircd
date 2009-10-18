@@ -243,15 +243,14 @@ class ModuleNationalChars : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader* conf = new ConfigReader;
-		charset = conf->ReadValue("nationalchars", "file", 0);
-		casemapping = conf->ReadValue("nationalchars", "casemapping", charset, 0, false);
+		ConfigReader conf;
+		charset = conf.ReadValue("nationalchars", "file", 0);
+		casemapping = conf.ReadValue("nationalchars", "casemapping", charset, 0, false);
 		charset.insert(0, "../locales/");
 		unsigned char * tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
 		loadtables(charset, tables, 8, 5);
-		forcequit = conf->ReadFlag("nationalchars", "forcequit", 0);
+		forcequit = conf.ReadFlag("nationalchars", "forcequit", 0);
 		CheckForceQuit("National character set changed");
-		delete conf;
 	}
 
 	void CheckForceQuit(const char * message)

@@ -47,6 +47,20 @@ class CoreExport classbase
 	void operator=(const classbase&);
 };
 
+/** The base class for inspircd classes that provide a wrapping interface, and
+ * should only exist while being used. Prevents heap allocation.
+ */
+class CoreExport interfacebase
+{
+ public:
+	interfacebase() {}
+ private:
+	interfacebase(const interfacebase&);
+	void operator=(const interfacebase&);
+	void* operator new(size_t);
+	void operator delete(void*);
+};
+
 /** The base class for inspircd classes that support reference counting.
  * Any objects that do not have a well-defined lifetime should inherit from
  * this, and should be assigned to a reference<type> object to establish their

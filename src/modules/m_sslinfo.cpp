@@ -135,7 +135,7 @@ class ModuleSSLInfo : public Module
 
 	Version GetVersion()
 	{
-		return Version("SSL Certificate Utilities", VF_VENDOR | VF_SERVICEPROVIDER);
+		return Version("SSL Certificate Utilities", VF_VENDOR);
 	}
 
 	void OnWhois(User* source, User* dest)

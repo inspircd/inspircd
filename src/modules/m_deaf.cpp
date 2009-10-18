@@ -67,11 +67,9 @@ class ModuleDeaf : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader* conf = new ConfigReader;
-		deaf_bypasschars = conf->ReadValue("deaf", "bypasschars", 0);
-		deaf_bypasschars_uline = conf->ReadValue("deaf", "bypasscharsuline", 0);
-
-		delete conf;
+		ConfigReader conf;
+		deaf_bypasschars = conf.ReadValue("deaf", "bypasschars", 0);
+		deaf_bypasschars_uline = conf.ReadValue("deaf", "bypasscharsuline", 0);
 	}
 
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)

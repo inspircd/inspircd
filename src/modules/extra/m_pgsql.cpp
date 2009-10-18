@@ -954,7 +954,7 @@ class ModulePgSQL : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API", VF_VENDOR|VF_SERVICEPROVIDER);
+		return Version("PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API", VF_VENDOR);
 	}
 };
 

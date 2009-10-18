@@ -63,17 +63,12 @@ class ModuleOpermotd : public Module
 
 	void LoadOperMOTD()
 	{
-		ConfigReader* conf = new ConfigReader;
+		ConfigReader conf;
 		std::string filename;
-		filename = conf->ReadValue("opermotd","file",0);
-		if (opermotd)
-		{
-			delete opermotd;
-			opermotd = NULL;
-		}
+		filename = conf.ReadValue("opermotd","file",0);
+		delete opermotd;
 		opermotd = new FileReader(filename);
-		onoper = conf->ReadFlag("opermotd","onoper","yes",0);
-		delete conf;
+		onoper = conf.ReadFlag("opermotd","onoper","yes",0);
 	}
 
 	ModuleOpermotd()

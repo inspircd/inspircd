@@ -21,7 +21,7 @@
  * entries expire every few hours, which is a reasonable expiry for any reasonable
  * sized network.
  */
-class CoreExport BanCacheHit : public classbase
+class CoreExport BanCacheHit
 {
  public:
 	/** Type of cached ban
@@ -66,7 +66,7 @@ typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash<std::string> > 
 
 /** A manager for ban cache, which allocates and deallocates and checks cached bans.
  */
-class CoreExport BanCacheManager : public classbase
+class CoreExport BanCacheManager
 {
  private:
 	BanCacheHash* BanHash;

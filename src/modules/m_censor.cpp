@@ -114,17 +114,15 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		ConfigReader* MyConf = new ConfigReader;
+		ConfigReader MyConf;
 		censors.clear();
 
-		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
+		for (int index = 0; index < MyConf.Enumerate("badword"); index++)
 		{
-			irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
-			irc::string replace = (MyConf->ReadValue("badword","replace",index)).c_str();
+			irc::string pattern = (MyConf.ReadValue("badword","text",index)).c_str();
+			irc::string replace = (MyConf.ReadValue("badword","replace",index)).c_str();
 			censors[pattern] = replace;
 		}
-
-		delete MyConf;
 	}
 
 	virtual Version GetVersion()

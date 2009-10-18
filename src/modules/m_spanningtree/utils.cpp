@@ -381,16 +381,16 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 {
-	ConfigReader* Conf = new ConfigReader;
+	ConfigReader Conf;
 
 	if (rebind)
 	{
-		for (int j = 0; j < Conf->Enumerate("bind"); j++)
+		for (int j = 0; j < Conf.Enumerate("bind"); j++)
 		{
-			std::string Type = Conf->ReadValue("bind","type",j);
-			std::string IP = Conf->ReadValue("bind","address",j);
-			std::string Port = Conf->ReadValue("bind","port",j);
-			std::string ssl = Conf->ReadValue("bind","ssl",j);
+			std::string Type = Conf.ReadValue("bind","type",j);
+			std::string IP = Conf.ReadValue("bind","address",j);
+			std::string Port = Conf.ReadValue("bind","port",j);
+			std::string ssl = Conf.ReadValue("bind","ssl",j);
 			if (Type == "servers")
 			{
 				irc::portparser portrange(Port, false);
@@ -413,14 +413,14 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			}
 		}
 	}
-	FlatLinks = Conf->ReadFlag("security","flatlinks",0);
-	HideULines = Conf->ReadFlag("security","hideulines",0);
-	AnnounceTSChange = Conf->ReadFlag("options","announcets",0);
-	AllowOptCommon = Conf->ReadFlag("options", "allowmismatch", 0);
-	ChallengeResponse = !Conf->ReadFlag("security", "disablehmac", 0);
-	quiet_bursts = Conf->ReadFlag("performance", "quietbursts", 0);
-	PingWarnTime = Conf->ReadInteger("options", "pingwarning", 0, true);
-	PingFreq = Conf->ReadInteger("options", "serverpingfreq", 0, true);
+	FlatLinks = Conf.ReadFlag("security","flatlinks",0);
+	HideULines = Conf.ReadFlag("security","hideulines",0);
+	AnnounceTSChange = Conf.ReadFlag("options","announcets",0);
+	AllowOptCommon = Conf.ReadFlag("options", "allowmismatch", 0);
+	ChallengeResponse = !Conf.ReadFlag("security", "disablehmac", 0);
+	quiet_bursts = Conf.ReadFlag("performance", "quietbursts", 0);
+	PingWarnTime = Conf.ReadInteger("options", "pingwarning", 0, true);
+	PingFreq = Conf.ReadInteger("options", "serverpingfreq", 0, true);
 
 	if (PingFreq == 0)
 		PingFreq = 60;
@@ -431,22 +431,22 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
 	ValidIPs.clear();
-	for (int j = 0; j < Conf->Enumerate("link"); ++j)
+	for (int j = 0; j < Conf.Enumerate("link"); ++j)
 	{
 		reference<Link> L = new Link;
-		std::string Allow = Conf->ReadValue("link", "allowmask", j);
-		L->Name = (Conf->ReadValue("link", "name", j)).c_str();
+		std::string Allow = Conf.ReadValue("link", "allowmask", j);
+		L->Name = (Conf.ReadValue("link", "name", j)).c_str();
 		L->AllowMask = Allow;
-		L->IPAddr = Conf->ReadValue("link", "ipaddr", j);
-		L->Port = Conf->ReadInteger("link", "port", j, true);
-		L->SendPass = Conf->ReadValue("link", "sendpass", j);
-		L->RecvPass = Conf->ReadValue("link", "recvpass", j);
-		L->Fingerprint = Conf->ReadValue("link", "fingerprint", j);
-		L->HiddenFromStats = Conf->ReadFlag("link", "statshidden", j);
-		L->Timeout = Conf->ReadInteger("link", "timeout", j, true);
-		L->Hook = Conf->ReadValue("link", "ssl", j);
-		L->Bind = Conf->ReadValue("link", "bind", j);
-		L->Hidden = Conf->ReadFlag("link", "hidden", j);
+		L->IPAddr = Conf.ReadValue("link", "ipaddr", j);
+		L->Port = Conf.ReadInteger("link", "port", j, true);
+		L->SendPass = Conf.ReadValue("link", "sendpass", j);
+		L->RecvPass = Conf.ReadValue("link", "recvpass", j);
+		L->Fingerprint = Conf.ReadValue("link", "fingerprint", j);
+		L->HiddenFromStats = Conf.ReadFlag("link", "statshidden", j);
+		L->Timeout = Conf.ReadInteger("link", "timeout", j, true);
+		L->Hook = Conf.ReadValue("link", "ssl", j);
+		L->Bind = Conf.ReadValue("link", "bind", j);
+		L->Hidden = Conf.ReadFlag("link", "hidden", j);
 
 		if (L->Name.find('.') == std::string::npos)
 			throw CoreException("The link name '"+assign(L->Name)+"' is invalid and must contain at least one '.' character");
@@ -524,13 +524,13 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		LinkBlocks.push_back(L);
 	}
 
-	for (int j = 0; j < Conf->Enumerate("autoconnect"); ++j)
+	for (int j = 0; j < Conf.Enumerate("autoconnect"); ++j)
 	{
 		reference<Autoconnect> A = new Autoconnect;
-		A->Period = Conf->ReadInteger("autoconnect", "period", j, true);
+		A->Period = Conf.ReadInteger("autoconnect", "period", j, true);
 		A->NextConnectTime = ServerInstance->Time() + A->Period;
 		A->position = -1;
-		std::string servers = Conf->ReadValue("autoconnect", "server", j);
+		std::string servers = Conf.ReadValue("autoconnect", "server", j);
 		irc::spacesepstream ss(servers);
 		std::string server;
 		while (ss.GetToken(server))
@@ -550,8 +550,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 		AutoconnectBlocks.push_back(A);
 	}
-
-	delete Conf;
 }
 
 Link* SpanningTreeUtilities::FindLink(const std::string& name)
