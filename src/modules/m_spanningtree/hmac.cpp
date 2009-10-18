@@ -132,8 +132,22 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 		if (req.cert)
 		{
 			fp = req.cert->GetFingerprint();
-			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, std::string("Server SSL fingerprint ") + fp);
 		}
+	}
+
+	if (auth_challenge)
+	{
+		std::string our_hmac = MakePass(link.RecvPass, ourchallenge);
+
+		/* Straight string compare of hashes */
+		if (our_hmac != theirs)
+			return false;
+	}
+	else
+	{
+		/* Straight string compare of plaintext */
+		if (link.RecvPass != theirs)
+			return false;
 	}
 
 	if (auth_fingerprint)
@@ -143,18 +157,13 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL fingerprint on link %s: need '%s' got '%s'", 
 				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
+			SendError("Provided invalid SSL fingerprint " + fp + " - expected " + link.Fingerprint);
 			return false;
 		}
 	}
-
-	if (auth_challenge)
+	else if (!fp.empty())
 	{
-		std::string our_hmac = MakePass(link.RecvPass, ourchallenge);
-
-		/* Straight string compare of hashes */
-		return our_hmac == theirs;
+		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is %s", link.Name.c_str(), fp.c_str());
 	}
-
-	/* Straight string compare of plaintext */
-	return link.RecvPass == theirs;
+	return true;
 }
