@@ -44,7 +44,7 @@ class HistoryMode : public ModeHandler
 			if (colon == std::string::npos)
 				return MODEACTION_DENY;
 			int len = atoi(parameter.substr(0, colon).c_str());
-			int time = atoi(parameter.substr(colon+1).c_str());
+			int time = ServerInstance->Duration(parameter.substr(colon+1));
 			if (len <= 0 || time < 0 || len > 50)
 				return MODEACTION_DENY;
 			ext.set(channel, new HistoryList(len, time));
