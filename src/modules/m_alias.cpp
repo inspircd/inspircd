@@ -307,56 +307,57 @@ class ModuleAlias : public Module
 		}
 	}
 
-	void DoCommand(std::string newline, User* user, Channel *c, const std::string &original_line)
+	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line)
 	{
+		std::string result;
+		result.reserve(MAXBUF);
+		for (unsigned int i = 0; i < newline.length(); i++)
+		{
+			char c = newline[i];
+			if (c == '$')
+			{
+				if (isdigit(newline[i+1]))
+				{
+					int len = (newline[i+2] == '-') ? 3 : 2;
+					std::string var = newline.substr(i, len);
+					result.append(GetVar(var, original_line));
+					i += len - 1;
+				}
+				else if (newline.substr(i, 5) == "$nick")
+				{
+					result.append(user->nick);
+					i += 4;
+				}
+				else if (newline.substr(i, 5) == "$host")
+				{
+					result.append(user->host);
+					i += 4;
+				}
+				else if (newline.substr(i, 5) == "$chan")
+				{
+					if (chan)
+						result.append(chan->name);
+					i += 4;
+				}
+				else if (newline.substr(i, 6) == "$ident")
+				{
+					result.append(user->ident);
+					i += 5;
+				}
+				else if (newline.substr(i, 6) == "$vhost")
+				{
+					result.append(user->dhost);
+					i += 5;
+				}
+				else
+					result.push_back(c);
+			}
+			else
+				result.push_back(c);
+		}
+
+		irc::tokenstream ss(result);
 		std::vector<std::string> pars;
-
-		for (int v = 1; v < 10; v++)
-		{
-			std::string var = "$";
-			var.append(ConvToStr(v));
-			var.append("-");
-			std::string repl = GetVar(var, original_line);
-			std::string::size_type x = newline.find(var);
-
-			while (x != std::string::npos)
-			{
-				newline.erase(x, var.length());
-				newline.insert(x, repl);
-				x = newline.find(var, x + repl.length());
-			}
-
-			var = "$";
-			var.append(ConvToStr(v));
-			x = newline.find(var);
-
-			while (x != std::string::npos)
-			{
-				newline.erase(x, var.length());
-				newline.insert(x, repl);
-				x = newline.find(var, x + repl.length());
-			}
-		}
-
-		/* Special variables */
-		SearchAndReplace(newline, std::string("$nick"), user->nick);
-		SearchAndReplace(newline, std::string("$ident"), user->ident);
-		SearchAndReplace(newline, std::string("$host"), user->host);
-		SearchAndReplace(newline, std::string("$vhost"), user->dhost);
-
-		if (c)
-		{
-			/* Channel specific variables */
-			SearchAndReplace(newline, std::string("$chan"), c->name);
-		}
-		else
-		{
-			/* We don't want these in a user alias */
-			SearchAndReplace(newline, std::string("$chan"), std::string(""));
-		}
-
-		irc::tokenstream ss(newline);
-		pars.clear();
 		std::string command, token;
 
 		ss.GetToken(command);
