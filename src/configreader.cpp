@@ -53,12 +53,17 @@ enum ParseFlags
 struct ParseStack
 {
 	std::vector<std::string> reading;
+	std::map<std::string, std::string> vars;
 	ConfigDataHash& output;
 	std::stringstream& errstr;
 
 	ParseStack(ServerConfig* conf)
 		: output(conf->config_data), errstr(conf->errstr)
-	{ }
+	{
+		vars["amp"] = "&";
+		vars["quot"] = "\"";
+		vars["newline"] = vars["nl"] = "\n";
+	}
 	bool ParseFile(const std::string& name, int flags);
 	bool ParseExec(const std::string& name, int flags);
 	void DoInclude(ConfigTag* includeTag, int flags);
@@ -161,13 +166,27 @@ struct Parser
 		while (1)
 		{
 			ch = next();
-			if (ch == '\\')
+			if (ch == '&')
 			{
-				ch = next();
-				if (ch == 'n')
-					ch = '\n';
-				else if (ch == 'r')
-					ch = '\r';
+				std::string varname;
+				while (1)
+				{
+					ch = next();
+					if (isalnum(ch))
+						varname.push_back(ch);
+					else if (ch == ';')
+						break;
+					else
+					{
+						stack.errstr << "Invalid XML entity name in value of <" + tag->tag + ":" + key + ">\n"
+							<< "To include an ampersand or quote, use &amp; or &quot;\n";
+						throw CoreException("Parse error");
+					}
+				}
+				std::map<std::string, std::string>::iterator var = stack.vars.find(varname);
+				if (var == stack.vars.end())
+					throw CoreException("Undefined XML entity reference '&" + varname + ";'");
+				value.append(var->second);
 			}
 			else if (ch == '"')
 				break;
@@ -194,13 +213,21 @@ struct Parser
 
 		while (kv());
 
-		if (tag->tag == "include")
+		if (name == "include")
 		{
 			stack.DoInclude(tag, flags);
 		}
+		else if (name == "define")
+		{
+			std::string varname = tag->getString("name");
+			std::string value = tag->getString("value");
+			if (varname.empty())
+				throw CoreException("Variable definition must include variable name");
+			stack.vars[varname] = value;
+		}
 		else
 		{
-			stack.output.insert(std::make_pair(tag->tag, tag));
+			stack.output.insert(std::make_pair(name, tag));
 		}
 		// this is not a leak; reference<> takes care of the delete
 		tag = NULL;

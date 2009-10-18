@@ -126,9 +126,7 @@
 #                    "baz qux quz" and $2 will contain "bar". You may #
 #                    also use the special variables: $nick, $ident,   #
 #                    $host and $vhost, and you may separate multiple  #
-#                    commands with \n. If you wish to use the ACTUAL  #
-#                    characters \ and n together in a line, you must  #
-#                    use the sequence "\\n".                          #
+#                    commands with a newline (&nl;).                  #
 #                                                                     #
 # requires    -      If you provide a value for 'requires' this means #
 #                    the given nickname MUST be online for the alias  #
@@ -414,7 +412,7 @@
 	qprefix="~"
 
 	# aprefix: Prefix (symbol) to use for +a users.
-	aprefix="&"
+	aprefix="&amp;"
 
 	# deprotectself: If this value is set (true, yes or 1), it will allow
 	# +a and +q users to remove the +a and +q from themselves, otherwise,

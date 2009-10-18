@@ -46,9 +46,8 @@
 # file you include will be treated as part of the configuration file  #
 # which includes it, in simple terms the inclusion is transparent.    #
 #                                                                     #
-# All paths to config files are relative to the directory of the main #
-# config file inspircd.conf, unless the filename starts with a forward#
-# slash (/) in which case it is treated as an absolute path.          #
+# All paths to config files are relative to the directory that the    #
+# process runs in.                                                    #
 #                                                                     #
 # You may also include an executable file, in which case if you do so #
 # the output of the executable on the standard output will be added   #
@@ -62,6 +61,18 @@
 #<include executable="/usr/bin/wget -q -O - http://mynet.net/inspircd.conf">
 #                                                                     #
 
+
+#-#-#-#-#-#-#-#-#-#-#-#  VARIABLE DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# You can define variables that will be substituted later in the      #
+# configuration file. This can be useful to allow settings to be      #
+# easily changed, or to parameterize a remote includes.               #
+#                                                                     #
+# Variables may be redefined and may reference other variables.       #
+# Value expansion happens at the time the tag is read.                #
+#                                                                     #
+<define name="bindip" value="1.2.2.3">
+<define name="localips" value="&bindip;/24">
 
 #-#-#-#-#-#-#-#-#-#-#-#-  SERVER DESCRIPTION  -#-#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
@@ -150,11 +161,11 @@
 
 <bind address="" port="6660-6669" type="clients">
 
-# When linking servers, the openssl and gnutls transports are largely
+# When linking servers, the openssl and gnutls transports are completely
 # link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
 # Transports can only be used on server blocks.
-# Supported Transports are: "zip", "openssl" and "gnutls".
+# Supported Transports are: "ziplinks", "openssl" and "gnutls".
 # You must load m_ziplinks module for zip, m_ssl_openssl for openssl
 # or m_ssl_gnutls for gnutls.
 
@@ -461,11 +472,11 @@
 
          # prefixpart: What (if anything) a users' part message
          # should be prefixed with.
-         prefixpart="\""
+         prefixpart="&quot;"
 
          # suffixpart: What (if anything) a users' part message
          # should be suffixed with.
-         suffixpart="\""
+         suffixpart="&quot;"
 
          # fixedquit: Set all users' quit messages to this value.
          #fixedquit=""
