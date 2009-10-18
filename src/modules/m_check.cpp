@@ -40,10 +40,10 @@ class CommandCheck : public Command
 		{
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);
-			if (value.empty())
-				dumpkeys << " " << i->first;
-			else
+			if (!value.empty())
 				ServerInstance->DumpText(user, checkstr + " meta:" + item->key + " " + value);
+			else if (!item->key.empty())
+				dumpkeys << " " << item->key;
 		}
 		if (!dumpkeys.str().empty())
 			ServerInstance->DumpText(user,checkstr + " metadata", dumpkeys);

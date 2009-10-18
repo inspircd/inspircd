@@ -136,17 +136,22 @@ void Extensible::doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove)
 	}
 }
 
+static struct DummyExtensionItem : LocalExtItem
+{
+	DummyExtensionItem() : LocalExtItem("", NULL) {}
+	void free(void*) {}
+} dummy;
+
 Extensible::Extensible()
 {
-	extensions[NULL] = NULL;
+	extensions[&dummy] = NULL;
 }
 
 CullResult Extensible::cull()
 {
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
-		if (i->first)
-			i->first->free(i->second);
+		i->first->free(i->second);
 	}
 	extensions.clear();
 	return classbase::cull();

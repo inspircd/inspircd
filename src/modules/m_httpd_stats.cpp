@@ -73,10 +73,10 @@ class ModuleHttpStats : public Module
 		{
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);
-			if (value.empty())
-				data << "<meta name=\"" << item->key << "\"/>";
-			else
+			if (!value.empty())
 				data << "<meta name=\"" << item->key << "\">" << Sanitize(value) << "</meta>";
+			else if (!item->key.empty())
+				data << "<meta name=\"" << item->key << "\"/>";
 		}
 		data << "</metadata>";
 	}
@@ -144,7 +144,9 @@ class ModuleHttpStats : public Module
 						Membership* memb = x->second;
 						data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
 							<< Sanitize(c->GetAllPrefixChars(x->first)) << "</privs><modes>"
-							<< memb->modes << "</modes></channelmember>";
+							<< memb->modes << "</modes>";
+						DumpMeta(data, memb);
+						data << "</channelmember>";
 					}
 
 					DumpMeta(data, c);
