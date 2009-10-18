@@ -30,7 +30,7 @@ class Link : public refcountbase
 	int Timeout;
 	std::string Bind;
 	bool Hidden;
-	Link(ConfigTag* Tag) : tag(tag) {}
+	Link(ConfigTag* Tag) : tag(Tag) {}
 };
 
 class Autoconnect : public refcountbase
@@ -42,7 +42,7 @@ class Autoconnect : public refcountbase
 	time_t NextConnectTime;
 	/** Negative == inactive */
 	int position;
-	Autoconnect(ConfigTag* Tag) : tag(tag) {}
+	Autoconnect(ConfigTag* Tag) : tag(Tag) {}
 };
 
 
