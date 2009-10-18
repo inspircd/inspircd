@@ -11,24 +11,32 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd_config.h"
 #include "base.h"
 #include <time.h>
 #include "inspircd.h"
+#include <typeinfo>
 
 classbase::classbase()
 {
+	if (ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::+%s @%p",
+			typeid(*this).name(), (void*)this);
 }
 
 CullResult classbase::cull()
 {
+	if (ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::-%s @%p",
+			typeid(*this).name(), (void*)this);
 	return CullResult();
 }
 
 classbase::~classbase()
 {
+	if (ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::~%s @%p",
+			typeid(*this).name(), (void*)this);
 }
 
 CullResult::CullResult()

@@ -83,11 +83,9 @@ const char* ExitCodes[] =
 
 template<typename T> static void DeleteZero(T*&n)
 {
-	if (n != NULL)
-	{
-		delete n;
-		n = NULL;
-	}
+	T* t = n;
+	n = NULL;
+	delete t;
 }
 
 void InspIRCd::Cleanup()

@@ -157,6 +157,7 @@ class CoreExport LogManager : public classbase
 	{
 		if (noforkstream)
 			delete noforkstream;
+		Logging = true;
 	}
 
 	/** Sets up the logstream for -nofork. Called by InspIRCd::OpenLog() and LogManager::OpenFileLogs().
