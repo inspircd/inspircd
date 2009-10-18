@@ -17,7 +17,7 @@
 
 /** Holds settings and state associated with channel mode +F
  */
-class nickfloodsettings : public classbase
+class nickfloodsettings
 {
  public:
 	int secs;

@@ -14,7 +14,7 @@
 #ifndef __SNOMASKS_H__
 #define __SNOMASKS_H__
 
-class Snomask : public Extensible
+class Snomask
 {
  public:
 	char MySnomask;

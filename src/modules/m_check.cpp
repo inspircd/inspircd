@@ -36,7 +36,7 @@ class CommandCheck : public Command
 	void dumpExt(User* user, std::string checkstr, Extensible* ext)
 	{
 		std::stringstream dumpkeys;
-		for(ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
+		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
 		{
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);

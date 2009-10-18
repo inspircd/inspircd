@@ -14,7 +14,7 @@
 #ifndef __TESTSUITE_H__
 #define __TESTSUITE_H__
 
-class TestSuite : public Extensible
+class TestSuite
 {
  public:
 	TestSuite();

@@ -33,7 +33,7 @@ class ProtoServer
 
 typedef std::list<ProtoServer> ProtoServerList;
 
-class ProtocolInterface : public Extensible
+class ProtocolInterface
 {
  public:
 	ProtocolInterface() { }

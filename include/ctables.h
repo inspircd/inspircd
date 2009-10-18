@@ -85,7 +85,7 @@ struct RouteDescriptor
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.
  */
-class CoreExport Command : public Extensible
+class CoreExport Command : public classbase
 {
  public:
 	/** Command name

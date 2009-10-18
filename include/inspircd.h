@@ -208,7 +208,7 @@ template<typename T, typename V, typename R> inline char* itoa(const T &in, V *r
  * It is used by the InspIRCd class, which internally
  * has an instance of it.
  */
-class serverstats : public classbase
+class serverstats
 {
   public:
 	/** Number of accepted connections
@@ -298,14 +298,12 @@ class CoreExport ConfigReaderThread : public Thread
 };
 
 /** The main class of the irc server.
- * This class contains instances of all the other classes
- * in this software, with the exception of the base class,
- * classbase. Amongst other things, it contains a ModeParser,
- * a DNS object, a CommandParser object, and a list of active
- * Module objects, and facilities for Module objects to
- * interact with the core system it implements.
+ * This class contains instances of all the other classes in this software.
+ * Amongst other things, it contains a ModeParser, a DNS object, a CommandParser
+ * object, and a list of active Module objects, and facilities for Module
+ * objects to interact with the core system it implements.
  */
-class CoreExport InspIRCd : public classbase
+class CoreExport InspIRCd
 {
  private:
 	/** Holds the current UID. Used to generate the next one.

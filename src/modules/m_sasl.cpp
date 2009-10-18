@@ -23,7 +23,7 @@ enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 /**
  * Tracks SASL authentication state like charybdis does. --nenolod
  */
-class SaslAuthenticator : public classbase
+class SaslAuthenticator
 {
  private:
 	InspIRCd *ServerInstance;

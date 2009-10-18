@@ -18,7 +18,7 @@
 
 /* $ModDesc: Implementation of callerid (umode +g & /accept, ala hybrid etc) */
 
-class callerid_data : public classbase
+class callerid_data
 {
  public:
 	time_t lastnotify;
