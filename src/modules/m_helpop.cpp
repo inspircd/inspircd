@@ -104,11 +104,7 @@ class CommandHelpop : public Command
 			user->WriteServ("292 %s : -", user->nick.c_str());
 			user->WriteServ("292 %s :*** End of HELPOP", user->nick.c_str());
 		}
-
-		/* We dont want these going out over the network, return CMD_FAILURE
-		 * to make sure the protocol module thinks theyre not worth sending.
-		 */
-		return CMD_FAILURE;
+		return CMD_SUCCESS;
 	}
 };
 
@@ -137,10 +133,14 @@ class ModuleHelpop : public Module
 
 			helpop_map.clear();
 
-			for (int i = 0; i < MyConf.Enumerate("helpop"); i++)
+			for (int i = 0;; i++)
 			{
-				irc::string key = assign(MyConf.ReadValue("helpop", "key", i));
-				std::string value = MyConf.ReadValue("helpop", "value", i, true); /* Linefeeds allowed! */
+				ConfigTag* tag = ServerInstance->Config->ConfValue("helpop", i);
+				if (!tag)
+					break;
+				irc::string key = assign(tag->getString("key"));
+				std::string value;
+				tag->readString("value", value, true); /* Linefeeds allowed */
 
 				if (key == "index")
 				{
@@ -153,12 +153,12 @@ class ModuleHelpop : public Module
 			if (helpop_map.find("start") == helpop_map.end())
 			{
 				// error!
-				throw ModuleException("m_helpop: Helpop file is missing important entries. Please check the example conf.");
+				throw ModuleException("m_helpop: Helpop file is missing important entry 'start'. Please check the example conf.");
 			}
 			else if (helpop_map.find("nohelp") == helpop_map.end())
 			{
 				// error!
-				throw ModuleException("m_helpop: Helpop file is missing important entries. Please check the example conf.");
+				throw ModuleException("m_helpop: Helpop file is missing important entry 'nohelp'. Please check the example conf.");
 			}
 
 		}
@@ -183,7 +183,7 @@ class ModuleHelpop : public Module
 
 		virtual Version GetVersion()
 		{
-			return Version("/helpop Command, Works like Unreal helpop", VF_COMMON | VF_VENDOR);
+			return Version("/helpop Command, Works like Unreal helpop", VF_VENDOR | VF_COMMON);
 		}
 };
 

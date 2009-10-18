@@ -74,7 +74,7 @@ static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void*
 
 /** Represents an SSL user's extra data
  */
-class issl_session : public classbase
+class issl_session
 {
 public:
 	issl_session()

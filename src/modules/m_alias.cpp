@@ -58,7 +58,7 @@ class ModuleAlias : public Module
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
    */
-	std::multimap<std::string, Alias> Aliases;
+	std::multimap<irc::string, Alias> Aliases;
 
 	/* whether or not +B users are allowed to use fantasy commands */
 	bool AllowBots;
@@ -73,33 +73,33 @@ class ModuleAlias : public Module
 		fprefix = fpre.empty() ? '!' : fpre[0];
 
 		Aliases.clear();
-		for (int i = 0; i < MyConf.Enumerate("alias"); i++)
+		for (int i = 0;; i++)
 		{
+			ConfigTag* tag = ServerInstance->Config->ConfValue("alias", i);
+			if (!tag)
+				break;
 			Alias a;
-			std::string txt;
-			txt = MyConf.ReadValue("alias", "text", i);
-			a.AliasedCommand = txt.c_str();
-			a.ReplaceFormat = MyConf.ReadValue("alias", "replace", i, true);
-			a.RequiredNick = MyConf.ReadValue("alias", "requires", i);
-			a.ULineOnly = MyConf.ReadFlag("alias", "uline", i);
-			a.ChannelCommand = MyConf.ReadFlag("alias", "channelcommand", "no", i);
-			a.UserCommand = MyConf.ReadFlag("alias", "usercommand", "yes", i);
-			a.OperOnly = MyConf.ReadFlag("alias", "operonly", i);
-			a.format = MyConf.ReadValue("alias", "format", i);
-			a.CaseSensitive = MyConf.ReadFlag("alias", "matchcase", i);
-			Aliases.insert(std::make_pair(txt, a));
+			a.AliasedCommand = tag->getString("text").c_str();
+			tag->readString("replace", a.ReplaceFormat, true);
+			a.RequiredNick = tag->getString("requires");
+			a.ULineOnly = tag->getBool("uline");
+			a.ChannelCommand = tag->getBool("channelcommand", "no");
+			a.UserCommand = tag->getBool("usercommand", "yes");
+			a.OperOnly = tag->getBool("operonly");
+			a.format = tag->getString("format");
+			a.CaseSensitive = tag->getBool("matchcase");
+			Aliases.insert(std::make_pair(a.AliasedCommand, a));
 		}
 	}
 
  public:
 
 	ModuleAlias()
-			{
+	{
 		ReadAliases();
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
 		ServerInstance->Modules->Attach(I_OnRehash, this);
 		ServerInstance->Modules->Attach(I_OnUserMessage, this);
-
 	}
 
 	virtual ~ModuleAlias()
@@ -138,7 +138,7 @@ class ModuleAlias : public Module
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 	{
-		std::multimap<std::string, Alias>::iterator i, upperbound;
+		std::multimap<irc::string, Alias>::iterator i, upperbound;
 
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -147,11 +147,11 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */
-		i = Aliases.find(command);
+		i = Aliases.find(command.c_str());
 		if (i == Aliases.end())
 			return MOD_RES_PASSTHRU;
 		/* Avoid iterating on to different aliases if no patterns match. */
-		upperbound = Aliases.upper_bound(command);
+		upperbound = Aliases.upper_bound(command.c_str());
 
 		irc::string c = command.c_str();
 		/* The parameters for the command in their original form, with the command stripped off */
@@ -196,11 +196,12 @@ class ModuleAlias : public Module
 		}
 
 		Channel *c = (Channel *)dest;
-		std::string fcommand;
+		std::string scommand;
 
 		// text is like "!moo cows bite me", we want "!moo" first
 		irc::spacesepstream ss(text);
-		ss.GetToken(fcommand);
+		ss.GetToken(scommand);
+		irc::string fcommand = scommand.c_str();
 
 		if (fcommand.empty())
 		{
@@ -215,15 +216,14 @@ class ModuleAlias : public Module
 
 		// nor do we give a shit about the prefix
 		fcommand.erase(fcommand.begin());
-		std::transform(fcommand.begin(), fcommand.end(), fcommand.begin(), ::toupper);
 
-		std::multimap<std::string, Alias>::iterator i = Aliases.find(fcommand);
+		std::multimap<irc::string, Alias>::iterator i = Aliases.find(fcommand);
 
 		if (i == Aliases.end())
 			return;
 
 		/* Avoid iterating on to other aliases if no patterns match */
-		std::multimap<std::string, Alias>::iterator upperbound = Aliases.upper_bound(fcommand);
+		std::multimap<irc::string, Alias>::iterator upperbound = Aliases.upper_bound(fcommand);
 
 
 		/* The parameters for the command in their original form, with the command stripped off */

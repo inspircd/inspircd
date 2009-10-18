@@ -48,7 +48,7 @@ static int error_callback(const char *str, size_t len, void *u);
 
 /** Represents an SSL user's extra data
  */
-class issl_session : public classbase
+class issl_session
 {
 public:
 	SSL* sess;

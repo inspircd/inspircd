@@ -23,8 +23,6 @@
 #include "treesocket.h"
 #include "resolvers.h"
 
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
-
 /* Create server sockets off a listener. */
 void ServerSocketListener::OnAcceptReady(int newsock)
 {
@@ -342,34 +340,19 @@ void SpanningTreeUtilities::RefreshIPCache()
 			continue;
 		}
 
-		ValidIPs.push_back(L->IPAddr);
-
 		if (L->AllowMask.length())
 			ValidIPs.push_back(L->AllowMask);
 
-		/* Needs resolving */
-		bool ipvalid = true;
-		QueryType start_type = DNS_QUERY_A;
-		start_type = DNS_QUERY_AAAA;
-		if (strchr(L->IPAddr.c_str(),':'))
-		{
-			in6_addr n;
-			if (inet_pton(AF_INET6, L->IPAddr.c_str(), &n) < 1)
-				ipvalid = false;
-		}
+		irc::sockets::sockaddrs dummy;
+		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, &dummy);
+		if (ipvalid)
+			ValidIPs.push_back(L->IPAddr);
 		else
-		{
-			in_addr n;
-			if (inet_aton(L->IPAddr.c_str(),&n) < 1)
-				ipvalid = false;
-		}
-
-		if (!ipvalid)
 		{
 			try
 			{
 				bool cached;
-				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, start_type);
+				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, DNS_QUERY_AAAA);
 				ServerInstance->AddResolver(sr, cached);
 			}
 			catch (...)
@@ -385,12 +368,15 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 	if (rebind)
 	{
-		for (int j = 0; j < Conf.Enumerate("bind"); j++)
+		for (int j = 0; ; j++)
 		{
-			std::string Type = Conf.ReadValue("bind","type",j);
-			std::string IP = Conf.ReadValue("bind","address",j);
-			std::string Port = Conf.ReadValue("bind","port",j);
-			std::string ssl = Conf.ReadValue("bind","ssl",j);
+			ConfigTag* tag = ServerInstance->Config->ConfValue("bind", j);
+			if (!tag)
+				break;
+			std::string Type = tag->getString("type");
+			std::string IP = tag->getString("address");
+			std::string Port = tag->getString("port");
+			std::string ssl = tag->getString("ssl");
 			if (Type == "servers")
 			{
 				irc::portparser portrange(Port, false);
@@ -431,22 +417,24 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
 	ValidIPs.clear();
-	for (int j = 0; j < Conf.Enumerate("link"); ++j)
+	for (int j = 0;; ++j)
 	{
-		reference<Link> L = new Link;
-		std::string Allow = Conf.ReadValue("link", "allowmask", j);
-		L->Name = (Conf.ReadValue("link", "name", j)).c_str();
-		L->AllowMask = Allow;
-		L->IPAddr = Conf.ReadValue("link", "ipaddr", j);
-		L->Port = Conf.ReadInteger("link", "port", j, true);
-		L->SendPass = Conf.ReadValue("link", "sendpass", j);
-		L->RecvPass = Conf.ReadValue("link", "recvpass", j);
-		L->Fingerprint = Conf.ReadValue("link", "fingerprint", j);
-		L->HiddenFromStats = Conf.ReadFlag("link", "statshidden", j);
-		L->Timeout = Conf.ReadInteger("link", "timeout", j, true);
-		L->Hook = Conf.ReadValue("link", "ssl", j);
-		L->Bind = Conf.ReadValue("link", "bind", j);
-		L->Hidden = Conf.ReadFlag("link", "hidden", j);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("link", j);
+		if (!tag)
+			break;
+		reference<Link> L = new Link(tag);
+		L->Name = tag->getString("name").c_str();
+		L->AllowMask = tag->getString("allowmask");
+		L->IPAddr = tag->getString("ipaddr");
+		L->Port = tag->getInt("port");
+		L->SendPass = tag->getString("sendpass");
+		L->RecvPass = tag->getString("recvpass");
+		L->Fingerprint = tag->getString("fingerprint");
+		L->HiddenFromStats = tag->getBool("statshidden");
+		L->Timeout = tag->getInt("timeout");
+		L->Hook = tag->getString("ssl");
+		L->Bind = tag->getString("bind");
+		L->Hidden = tag->getBool("hidden");
 
 		if (L->Name.find('.') == std::string::npos)
 			throw CoreException("The link name '"+assign(L->Name)+"' is invalid and must contain at least one '.' character");
@@ -456,40 +444,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 		if ((!L->IPAddr.empty()) && (!L->RecvPass.empty()) && (!L->SendPass.empty()) && (!L->Name.empty()) && (L->Port))
 		{
-			if (Allow.length())
-				ValidIPs.push_back(Allow);
-
 			ValidIPs.push_back(L->IPAddr);
-
-			/* Needs resolving */
-			bool ipvalid = true;
-			QueryType start_type = DNS_QUERY_A;
-			start_type = DNS_QUERY_AAAA;
-			if (strchr(L->IPAddr.c_str(),':'))
-			{
-				in6_addr n;
-				if (inet_pton(AF_INET6, L->IPAddr.c_str(), &n) < 1)
-					ipvalid = false;
-			}
-			else
-			{
-				in_addr n;
-				if (inet_aton(L->IPAddr.c_str(),&n) < 1)
-					ipvalid = false;
-			}
-
-			if (!ipvalid)
-			{
-				try
-				{
-					bool cached;
-					SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, start_type);
-					ServerInstance->AddResolver(sr, cached);
-				}
-				catch (...)
-				{
-				}
-			}
 		}
 		else
 		{
@@ -524,14 +479,16 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		LinkBlocks.push_back(L);
 	}
 
-	for (int j = 0; j < Conf.Enumerate("autoconnect"); ++j)
+	for (int j = 0;; ++j)
 	{
-		reference<Autoconnect> A = new Autoconnect;
-		A->Period = Conf.ReadInteger("autoconnect", "period", j, true);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("autoconnect", j);
+		if (!tag)
+			break;
+		reference<Autoconnect> A = new Autoconnect(tag);
+		A->Period = tag->getInt("period");
 		A->NextConnectTime = ServerInstance->Time() + A->Period;
 		A->position = -1;
-		std::string servers = Conf.ReadValue("autoconnect", "server", j);
-		irc::spacesepstream ss(servers);
+		irc::spacesepstream ss(tag->getString("server"));
 		std::string server;
 		while (ss.GetToken(server))
 		{
@@ -550,6 +507,8 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 		AutoconnectBlocks.push_back(A);
 	}
+
+	RefreshIPCache();
 }
 
 Link* SpanningTreeUtilities::FindLink(const std::string& name)
