@@ -106,7 +106,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 135
+#define API_VERSION 136
 
 class ServerConfig;
 
@@ -266,10 +266,10 @@ class CoreExport Request : public classbase
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
-	Module* const source;
+	ModuleRef source;
 	/** The single destination of the Request
 	 */
-	Module* const dest;
+	ModuleRef dest;
 
 	/** Create a new Request
 	 * This is for the 'new' way of defining a subclass
@@ -296,7 +296,7 @@ class CoreExport Event : public classbase
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
-	Module* const source;
+	ModuleRef source;
 	/** The event identifier.
 	 * This is arbitary text which should be used to distinguish
 	 * one type of event from another.
@@ -350,6 +350,8 @@ class ConfigReader;
  */
 class CoreExport Module : public classbase
 {
+	unsigned int refcount;
+	friend class reference_base;
  public:
 	/** File that this module was loaded from
 	 */

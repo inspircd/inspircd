@@ -187,7 +187,7 @@ class CoreExport Resolver
 	/**
 	 * Pointer to creator module (if any, or NULL)
 	 */
-	Module* Creator;
+	ModuleRef Creator;
 	/**
 	 * The input data, either a host or an IP address
 	 */

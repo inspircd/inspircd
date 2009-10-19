@@ -51,12 +51,16 @@ void Event::Send()
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
-Module::Module() { }
+Module::Module() : refcount(0) { }
 CullResult Module::cull()
 {
 	return classbase::cull();
 }
-Module::~Module() { }
+Module::~Module()
+{
+	if (refcount)
+		ServerInstance->Logs->Log("MODULE", DEFAULT, "References remain to destructed module " + ModuleSourceFile);
+}
 
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(User*) { }

@@ -179,21 +179,30 @@ class CoreExport CoreException : public std::exception
 	}
 };
 
+class Module;
+
 class CoreExport ModuleException : public CoreException
 {
  public:
-	/** Default constructor, just uses the error mesage 'Module threw an exception'.
-	 */
-	ModuleException() : CoreException("Module threw an exception", "A Module") {}
-
 	/** This constructor can be used to specify an error message before throwing.
 	 */
-	ModuleException(const std::string &message) : CoreException(message, "A Module") {}
-	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
-	 * Actually no, it does nothing. Never mind.
-	 * @throws Nothing!
-	 */
-	virtual ~ModuleException() throw() {};
+	ModuleException(const std::string &message, Module* me = NULL);
+};
+
+class CoreExport ModuleRef : public reference_base
+{
+	Module* const value;
+ public:
+	ModuleRef(Module* v);
+	~ModuleRef();
+	inline operator Module*() const { return value; }
+	inline Module* operator->() const { return value; }
+	inline Module& operator*() const { return *value; }
+ private:
+	ModuleRef(const ModuleRef&);
+	void operator=(const ModuleRef&);
+	void* operator new(size_t);
+	void operator delete(void*);
 };
 
 #endif

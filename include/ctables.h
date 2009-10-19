@@ -93,7 +93,7 @@ class CoreExport Command : public classbase
 	const std::string command;
 
 	/** Creator module - never NULL */
-	Module* const creator;
+	ModuleRef creator;
 
 	/** User flags needed to execute the command or 0
 	 */

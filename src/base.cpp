@@ -270,3 +270,18 @@ void StringExtItem::free(void* item)
 {
 	delete static_cast<std::string*>(item);
 }
+
+ModuleException::ModuleException(const std::string &message, Module* who)
+	: CoreException(message, who ? who->ModuleSourceFile : "A Module")
+{
+}
+
+ModuleRef::ModuleRef(Module* v) : value(v)
+{
+	if (value) inc(value);
+}
+
+ModuleRef::~ModuleRef()
+{
+	if (value) dec(value);
+}

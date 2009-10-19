@@ -157,7 +157,7 @@ class CoreExport ModeHandler : public classbase
 
  public:
 	/** Module that created this mode. NULL for core modes */
-	Module* const creator;
+	ModuleRef creator;
 	/** Long-form name
 	 */
 	const std::string name;
@@ -370,7 +370,7 @@ class CoreExport ModeWatcher : public classbase
 	ModeType m_type;
 
  public:
-	Module* const creator;
+	ModuleRef creator;
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */

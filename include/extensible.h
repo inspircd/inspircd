@@ -19,7 +19,7 @@ class CoreExport ExtensionItem : public refcountbase
 {
  public:
 	const std::string key;
-	Module* const owner;
+	ModuleRef owner;
 	ExtensionItem(const std::string& key, Module* owner);
 	virtual ~ExtensionItem();
 	/** Serialize this item into a string
