@@ -515,8 +515,11 @@ void User::OnDataReady()
 	unsigned long sendqmax = ULONG_MAX;
 	if (MyClass && !HasPrivPermission("users/flood/increased-buffers"))
 		sendqmax = MyClass->GetSendqSoftMax();
+	int penaltymax = MyClass->GetPenaltyThreshold();
+	if (penaltymax == 0 || HasPrivPermission("users/flood/no-fakelag"))
+		penaltymax = INT_MAX;
 
-	while (Penalty < 10 && getSendQSize() < sendqmax)
+	while (Penalty < penaltymax && getSendQSize() < sendqmax)
 	{
 		std::string line;
 		line.reserve(MAXBUF);
@@ -549,6 +552,8 @@ eol_found:
 		this->cmds_in++;
 
 		ServerInstance->Parser->ProcessBuffer(line, this);
+		if (quitting)
+			return;
 	}
 	// Add pseudo-penalty so that we continue processing after sendq recedes
 	if (Penalty == 0 && getSendQSize() >= sendqmax)
