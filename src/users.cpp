@@ -1778,7 +1778,7 @@ const std::string FakeUser::GetFullRealHost()
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag), type(t), name("unnamed"), registration_timeout(0), host(mask),
 	pingtime(0), pass(""), hash(""), softsendqmax(0), hardsendqmax(0),
-	recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0)
+	recvqmax(0), penaltythreshold(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0)
 {
 }
 
@@ -1787,7 +1787,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	registration_timeout(parent.registration_timeout), host(mask),
 	pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash),
 	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax),
-	recvqmax(parent.recvqmax), maxlocal(parent.maxlocal),
+	recvqmax(parent.recvqmax), penaltythreshold(parent.penaltythreshold), maxlocal(parent.maxlocal),
 	maxglobal(parent.maxglobal), maxchans(parent.maxchans),
 	port(parent.port), limit(parent.limit)
 {
@@ -1804,6 +1804,7 @@ void ConnectClass::Update(const ConnectClass* src)
 	softsendqmax = src->softsendqmax;
 	hardsendqmax = src->hardsendqmax;
 	recvqmax = src->recvqmax;
+	penaltythreshold = src->penaltythreshold;
 	maxlocal = src->maxlocal;
 	maxglobal = src->maxglobal;
 	limit = src->limit;

@@ -108,6 +108,10 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned long recvqmax;
 
+	/** Seconds worth of penalty before penalty system activates
+	 */
+	unsigned long penaltythreshold;
+
 	/** Local max when connecting by this connection class
 	 */
 	unsigned long maxlocal;
@@ -179,6 +183,13 @@ struct CoreExport ConnectClass : public refcountbase
 	unsigned long GetRecvqMax()
 	{
 		return (recvqmax ? recvqmax : 4096);
+	}
+
+	/** Returns the penalty threshold value
+	 */
+	unsigned long GetPenaltyThreshold()
+	{
+		return penaltythreshold;
 	}
 
 	/** Returusn the maximum number of local sessions

@@ -253,7 +253,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
 		user->IncreasePenalty(cm != cmdlist.end() ? cm->second->Penalty : 2);
-		do_more = (user->Penalty < 10);
+		do_more = (user->GetClass()->GetPenaltyThreshold() && ((unsigned long)user->Penalty < user->GetClass()->GetPenaltyThreshold()));
 	}
 
 

@@ -309,6 +309,11 @@
          # recvq: amount of data allowed in a client's queue before they are dropped.
          recvq="8192"
 
+         # threshold: This specifies the seconds worth of penalty a user is allowed to have
+         # before fake lag is applied to them.  If this value is set too low, every action will cause throttling.
+         # Set to 0 to disable.
+         threshold="10"
+
          # localmax: Maximum local connections per IP.
          localmax="3"
 
