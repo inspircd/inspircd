@@ -791,7 +791,7 @@ void ServerConfig::Fill()
 	AdminName = ConfValue("admin")->getString("name", "");
 	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
 	AdminNick = ConfValue("admin")->getString("nick", "admin");
-	ModPath = options->getString("moduledir", MOD_PATH);
+	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
 	MaxWhoResults = ConfValue("performance")->getInt("maxwho", 1024);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);

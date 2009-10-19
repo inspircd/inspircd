@@ -321,6 +321,9 @@ std::string& ModuleManager::LastError()
 
 bool ModuleManager::Load(const char* filename)
 {
+	/* Don't allow people to specify paths for modules, it doesn't work as expected */
+	if (strchr(filename, '/'))
+		return false;
 	/* Do we have a glob pattern in the filename?
 	 * The user wants to load multiple modules which
 	 * match the pattern.
