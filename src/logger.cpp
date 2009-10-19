@@ -42,6 +42,22 @@
  *
  */
 
+LogManager::LogManager()
+{
+	noforkstream = NULL;
+	Logging = false;
+}
+
+LogManager::~LogManager()
+{
+	if (noforkstream)
+	{
+		ServerInstance->Logs = this;
+		delete noforkstream;
+		ServerInstance->Logs = NULL;
+	}
+}
+
 void LogManager::SetupNoFork()
 {
 	if (!noforkstream)

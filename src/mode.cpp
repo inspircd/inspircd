@@ -55,13 +55,14 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 
 CullResult ModeHandler::cull()
 {
-	ServerInstance->Modes->DelMode(this);
+	if (ServerInstance->Modes)
+		ServerInstance->Modes->DelMode(this);
 	return classbase::cull();
 }
 
 ModeHandler::~ModeHandler()
 {
-	if (ServerInstance && ServerInstance->Modes->FindMode(mode, m_type) == this)
+	if (ServerInstance && ServerInstance->Modes && ServerInstance->Modes->FindMode(mode, m_type) == this)
 		ServerInstance->Logs->Log("MODE", DEBUG, "ERROR: Destructor for mode %c called while not culled", mode);
 }
 
@@ -1026,7 +1027,7 @@ ModeParser::ModeParser()
 
 ModeParser::~ModeParser()
 {
-	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
+	ModeHandler* mh = FindMode('h', MODETYPE_CHANNEL);
 	if (mh)
 	{
 		mh->cull();

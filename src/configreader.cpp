@@ -203,7 +203,9 @@ struct Parser
 		nextword(name);
 
 		int spc = next();
-		if (!isspace(spc))
+		if (spc == '>')
+			unget(spc);
+		else if (!isspace(spc))
 			throw CoreException("Invalid character in tag name");
 
 		if (name.empty())
@@ -303,6 +305,20 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 	}
 }
 
+/** RAII wrapper on FILE* to close files on exceptions */
+struct FileWrapper
+{
+	FILE* const f;
+	FileWrapper(FILE* file) : f(file) {}
+	operator bool() { return f; }
+	operator FILE*() { return f; }
+	~FileWrapper()
+	{
+		if (f)
+			fclose(f);
+	}
+};
+
 bool ParseStack::ParseFile(const std::string& name, int flags)
 {
 	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading file %s", name.c_str());
@@ -316,7 +332,7 @@ bool ParseStack::ParseFile(const std::string& name, int flags)
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FILE* file = fopen(name.c_str(), "r");
+	FileWrapper file(fopen(name.c_str(), "r"));
 	if (!file)
 		throw CoreException("Could not read \"" + name + "\" for include");
 
@@ -340,7 +356,7 @@ bool ParseStack::ParseExec(const std::string& name, int flags)
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FILE* file = popen(name.c_str(), "r");
+	FileWrapper file(popen(name.c_str(), "r"));
 	if (!file)
 		throw CoreException("Could not open executable \"" + name + "\" for include");
 
@@ -1245,31 +1261,23 @@ bool ServerConfig::ReadFile(file_cache &F, const std::string& fname)
 	if (fname.empty())
 		return false;
 
-	FILE* file = NULL;
 	char linebuf[MAXBUF];
 
 	F.clear();
 
-	if (!FileExists(fname.c_str()))
-		return false;
-	file = fopen(fname.c_str(), "r");
+	FileWrapper file(fopen(fname.c_str(), "r"));
 
-	if (file)
+	if (!file)
+		return false;
+	while (!feof(file))
 	{
-		while (!feof(file))
-		{
-			if (fgets(linebuf, sizeof(linebuf), file))
-				linebuf[strlen(linebuf)-1] = 0;
-			else
-				*linebuf = 0;
+		if (fgets(linebuf, sizeof(linebuf), file))
+			linebuf[strlen(linebuf)-1] = 0;
+		else
+			*linebuf = 0;
 
-			F.push_back(*linebuf ? linebuf : " ");
-		}
-
-		fclose(file);
+		F.push_back(*linebuf ? linebuf : " ");
 	}
-	else
-		return false;
 
 	return true;
 }
