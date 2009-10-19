@@ -20,8 +20,7 @@
 classbase::classbase()
 {
 	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::+%s @%p",
-			typeid(*this).name(), (void*)this);
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::+ @%p", (void*)this);
 }
 
 CullResult classbase::cull()
@@ -35,8 +34,7 @@ CullResult classbase::cull()
 classbase::~classbase()
 {
 	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::~%s @%p",
-			typeid(*this).name(), (void*)this);
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::~ @%p", (void*)this);
 }
 
 CullResult::CullResult()

@@ -476,6 +476,16 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		mod->OnCleanup(TYPE_USER,u->second);
 		u->second->doUnhookExtensions(items);
 	}
+	for(char m='A'; m < 'z'; m++)
+	{
+		ModeHandler* mh;
+		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
+		if (mh && mh->creator == mod)
+			ServerInstance->Modes->DelMode(mh);
+		mh = ServerInstance->Modes->FindMode(m, MODETYPE_CHANNEL);
+		if (mh && mh->creator == mod)
+			ServerInstance->Modes->DelMode(mh);
+	}
 
 	/* Tidy up any dangling resolvers */
 	ServerInstance->Res->CleanResolvers(mod);
@@ -607,8 +617,7 @@ void ModuleManager::UnloadAll()
 			std::map<std::string, Module*>::iterator me = i++;
 			if (CanUnload(me->second))
 			{
-				ServerInstance->GlobalCulls.AddItem(me->second);
-				Modules.erase(me);
+				DoSafeUnload(me->second);
 			}
 		}
 		ServerInstance->GlobalCulls.Apply();

@@ -63,7 +63,7 @@ CullResult ModeHandler::cull()
 ModeHandler::~ModeHandler()
 {
 	if (ServerInstance && ServerInstance->Modes && ServerInstance->Modes->FindMode(mode, m_type) == this)
-		ServerInstance->Logs->Log("MODE", DEBUG, "ERROR: Destructor for mode %c called while not culled", mode);
+		ServerInstance->Logs->Log("MODE", ERROR, "ERROR: Destructor for mode %c called while still registered", mode);
 }
 
 bool ModeHandler::IsListMode()
