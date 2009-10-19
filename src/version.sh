@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "InspIRCd-2.0.0+WillEatYourChildren"
+echo "InspIRCd-2.0a1"
