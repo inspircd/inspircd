@@ -158,3 +158,10 @@ void BanCacheManager::RehashCache()
 	delete BanHash;
 	BanHash = NewHash;
 }
+
+BanCacheManager::~BanCacheManager()
+{
+	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); ++n)
+		delete n->second;
+	delete BanHash;
+}

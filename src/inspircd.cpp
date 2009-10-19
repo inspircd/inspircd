@@ -90,16 +90,13 @@ template<typename T> static void DeleteZero(T*&n)
 
 void InspIRCd::Cleanup()
 {
-	if (Config)
+	for (unsigned int i = 0; i < ports.size(); i++)
 	{
-		for (unsigned int i = 0; i < ports.size(); i++)
-		{
-			/* This calls the constructor and closes the listening socket */
-			delete ports[i];
-		}
-
-		ports.clear();
+		/* This calls the constructor and closes the listening socket */
+		ports[i]->cull();
+		delete ports[i];
 	}
+	ports.clear();
 
 	/* Close all client sockets, or the new process inherits them */
 	std::vector<User*>::reverse_iterator i = Users->local_users.rbegin();

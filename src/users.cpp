@@ -44,7 +44,7 @@ class sent
 	}
 	~sent()
 	{
-		delete array;
+		delete[] array;
 	}
 };
 

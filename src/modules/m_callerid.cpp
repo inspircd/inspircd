@@ -93,7 +93,7 @@ struct CallerIDExtInfo : public ExtensionItem
 	callerid_data* get(User* user, bool create)
 	{
 		callerid_data* dat = static_cast<callerid_data*>(get_raw(user));
-		if (!dat)
+		if (create && !dat)
 		{
 			dat = new callerid_data;
 			set_raw(user, dat);

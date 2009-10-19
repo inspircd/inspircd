@@ -60,10 +60,6 @@ class HttpServerSocket : public BufferedSocket
 		return index;
 	}
 
-	~HttpServerSocket()
-	{
-	}
-
 	virtual void OnError(BufferedSocketError)
 	{
 	}
@@ -347,6 +343,11 @@ class HttpListener : public ListenSocketBase
 		this->index = idx;
 	}
 
+	~HttpListener()
+	{
+		delete index;
+	}
+
 	virtual void OnAcceptReady(int nfd)
 	{
 		int port;
@@ -383,7 +384,10 @@ class ModuleHttpServer : public Module
 			indexfile = c.ReadValue("http", "index", i);
 			index = new FileReader(indexfile);
 			if (!index->Exists())
+			{
+				delete index;
 				throw ModuleException("Can't read index file: "+indexfile);
+			}
 			http = new HttpListener(index, port, bindip);
 			httplisteners.push_back(http);
 		}
@@ -408,14 +412,14 @@ class ModuleHttpServer : public Module
 	{
 		for (size_t i = 0; i < httplisteners.size(); i++)
 		{
+			httplisteners[i]->cull();
 			delete httplisteners[i];
 		}
 
 		for (size_t i = 0; i < httpsocks.size(); i++)
 		{
-			ServerInstance->SE->DelFd(httpsocks[i]);
-			httpsocks[i]->Close();
-			delete httpsocks[i]->GetIndex();
+			httpsocks[i]->cull();
+			delete httpsocks[i];
 		}
 	}
 

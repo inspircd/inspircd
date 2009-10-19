@@ -185,7 +185,7 @@ public:
 		OnRehash(NULL);
 	}
 
-	virtual ~ModulePermanentChannels()
+	CullResult cull()
 	{
 		/*
 		 * DelMode can't remove the +P mode on empty channels, or it will break
@@ -200,12 +200,14 @@ public:
 			{
 				chan_hash::iterator at = iter;
 				iter++;
+				FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(c));
 				ServerInstance->chanlist->erase(at);
-				delete c;
+				ServerInstance->GlobalCulls.AddItem(c);
 			}
 			else
 				iter++;
 		}
+		return Module::cull();
 	}
 
 	virtual void OnRehash(User *user)

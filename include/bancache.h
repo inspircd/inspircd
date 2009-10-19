@@ -94,11 +94,7 @@ class CoreExport BanCacheManager
 	{
 		this->BanHash = new BanCacheHash();
 	}
-	~BanCacheManager()
-	{
-		delete BanHash;
-	}
-
+	~BanCacheManager();
 	void RehashCache();
 };
 
