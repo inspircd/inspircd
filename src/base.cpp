@@ -47,6 +47,9 @@ refcountbase::refcountbase() : refcount(0)
 
 refcountbase::~refcountbase()
 {
+	if (refcount && ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %d",
+			(void*)this, refcount);
 }
 
 ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : key(Key), owner(mod)
@@ -97,12 +100,12 @@ void ExtensionManager::Register(ExtensionItem* item)
 	types.insert(std::make_pair(item->key, item));
 }
 
-void ExtensionManager::BeginUnregister(Module* module, std::vector<ExtensionItem*>& list)
+void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
 {
-	std::map<std::string, ExtensionItem*>::iterator i = types.begin();
+	std::map<std::string, reference<ExtensionItem> >::iterator i = types.begin();
 	while (i != types.end())
 	{
-		std::map<std::string, ExtensionItem*>::iterator me = i++;
+		std::map<std::string, reference<ExtensionItem> >::iterator me = i++;
 		ExtensionItem* item = me->second;
 		if (item->owner == module)
 		{
@@ -114,15 +117,15 @@ void ExtensionManager::BeginUnregister(Module* module, std::vector<ExtensionItem
 
 ExtensionItem* ExtensionManager::GetItem(const std::string& name)
 {
-	std::map<std::string, ExtensionItem*>::iterator i = types.find(name);
+	std::map<std::string, reference<ExtensionItem> >::iterator i = types.find(name);
 	if (i == types.end())
 		return NULL;
 	return i->second;
 }
 
-void Extensible::doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove)
+void Extensible::doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove)
 {
-	for(std::vector<ExtensionItem*>::const_iterator i = toRemove.begin(); i != toRemove.end(); ++i)
+	for(std::vector<reference<ExtensionItem> >::const_iterator i = toRemove.begin(); i != toRemove.end(); ++i)
 	{
 		ExtensionItem* item = *i;
 		ExtensibleStore::iterator e = extensions.find(item);

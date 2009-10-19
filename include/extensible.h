@@ -15,7 +15,7 @@ enum SerializeFormat
 
 /** Class represnting an extension of some object
  */
-class CoreExport ExtensionItem
+class CoreExport ExtensionItem : public refcountbase
 {
  public:
 	const std::string key;
@@ -57,7 +57,7 @@ class CoreExport ExtensionItem
 class CoreExport Extensible : public classbase
 {
  public:
-	typedef std::map<ExtensionItem*,void*> ExtensibleStore;
+	typedef std::map<reference<ExtensionItem>,void*> ExtensibleStore;
 
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;
@@ -75,15 +75,15 @@ class CoreExport Extensible : public classbase
 	Extensible();
 	virtual CullResult cull();
 	virtual ~Extensible();
-	void doUnhookExtensions(const std::vector<ExtensionItem*>& toRemove);
+	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);
 };
 
 class CoreExport ExtensionManager
 {
-	std::map<std::string, ExtensionItem*> types;
+	std::map<std::string, reference<ExtensionItem> > types;
  public:
 	void Register(ExtensionItem* item);
-	void BeginUnregister(Module* module, std::vector<ExtensionItem*>& list);
+	void BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list);
 	ExtensionItem* GetItem(const std::string& name);
 };
 

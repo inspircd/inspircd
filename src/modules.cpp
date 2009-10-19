@@ -460,7 +460,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 {
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
-	std::vector<ExtensionItem*> items;
+	std::vector<reference<ExtensionItem> > items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 	/* Give the module a chance to tidy out all its metadata */
 	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)

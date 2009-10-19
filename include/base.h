@@ -76,7 +76,7 @@ class CoreExport interfacebase
  */
 class CoreExport refcountbase
 {
-	unsigned int refcount;
+	mutable unsigned int refcount;
  public:
 	refcountbase();
 	virtual ~refcountbase();
@@ -102,7 +102,7 @@ class reference : public reference_base
  public:
 	reference() : value(0) { }
 	reference(T* v) : value(v) { if (value) inc(value); }
-	reference(const reference& v) : value(v.value) { if (value) inc(value); }
+	reference(const reference<T>& v) : value(v.value) { if (value) inc(value); }
 	reference<T>& operator=(const reference<T>& other)
 	{
 		if (other.value)
@@ -121,12 +121,17 @@ class reference : public reference_base
 				delete value;
 		}
 	}
-	inline const T* operator->() const { return value; }
-	inline const T& operator*() const { return *value; }
-	inline T* operator->() { return value; }
-	inline T& operator*() { return *value; }
 	inline operator bool() const { return value; }
 	inline operator T*() const { return value; }
+	inline T* operator->() const { return value; }
+	inline T& operator*() const { return *value; }
+	inline bool operator<(const reference<T>& other) const { return value < other.value; }
+	inline bool operator>(const reference<T>& other) const { return value > other.value; }
+	inline bool operator==(const reference<T>& other) const { return value == other.value; }
+	inline bool operator!=(const reference<T>& other) const { return value != other.value; }
+ private:
+	void* operator new(size_t);
+	void operator delete(void*);
 };
 
 /** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.

@@ -52,7 +52,7 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 
 		if (user->HasPrivPermission("servers/auspex"))
 		{
-			std::string flags("SvscC");
+			std::string flags("SvcC");
 			int pos = 0;
 			for (int mult = 1; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
 				if (!(V.Flags & mult))
