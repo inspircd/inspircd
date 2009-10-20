@@ -135,6 +135,22 @@ void Channel::DelUser(User* user)
 		delete a->second;
 		userlist.erase(a);
 	}
+
+	if (userlist.empty())
+	{
+		ModResult res;
+		FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
+		if (res == MOD_RES_DENY)
+			return;
+		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
+		/* kill the record */
+		if (iter != ServerInstance->chanlist->end())
+		{
+			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
+			ServerInstance->chanlist->erase(iter);
+		}
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
 }
 
 bool Channel::HasUser(User* user)
@@ -466,21 +482,6 @@ void Channel::PartUser(User *user, std::string &reason)
 	}
 
 	this->DelUser(user);
-	if (userlist.empty())
-	{
-		ModResult res;
-		FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
-		if (res == MOD_RES_DENY)
-			return;
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		ServerInstance->GlobalCulls.AddItem(this);
-	}
 }
 
 void Channel::ServerKickUser(User* user, const char* reason, const std::string& servername)
@@ -545,21 +546,6 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 	}
 
 	this->DelUser(user);
-	if (userlist.empty())
-	{
-		ModResult res;
-		FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
-		if (res == MOD_RES_DENY)
-			return;
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		ServerInstance->GlobalCulls.AddItem(this);
-	}
 }
 
 void Channel::WriteChannel(User* user, const char* text, ...)

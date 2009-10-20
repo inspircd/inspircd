@@ -480,7 +480,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		mod->OnCleanup(TYPE_USER,u->second);
 		u->second->doUnhookExtensions(items);
 	}
-	for(char m='A'; m < 'z'; m++)
+	for(char m='A'; m <= 'z'; m++)
 	{
 		ModeHandler* mh;
 		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
