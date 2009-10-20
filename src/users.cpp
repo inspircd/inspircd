@@ -1722,13 +1722,10 @@ ConnectClass* User::GetClass()
 
 void User::PurgeEmptyChannels()
 {
-	std::vector<Channel*> to_delete;
-
 	// firstly decrement the count on each channel
 	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
 	{
 		Channel* c = *f;
-		c->RemoveAllPrefixes(this);
 		c->DelUser(this);
 	}
 

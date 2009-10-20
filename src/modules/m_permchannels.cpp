@@ -207,6 +207,7 @@ public:
 			else
 				iter++;
 		}
+		ServerInstance->Modes->DelMode(&p);
 		return Module::cull();
 	}
 
