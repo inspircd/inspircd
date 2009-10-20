@@ -82,6 +82,8 @@ class CoreExport refcountbase
 	virtual ~refcountbase();
 	inline unsigned int GetReferenceCount() const { return refcount; }
 	friend class reference_base;
+	void* operator new(size_t);
+	void operator delete(void*);
  private:
 	// uncopyable
 	refcountbase(const refcountbase&);
@@ -93,6 +95,7 @@ class CoreExport reference_base
  protected:
 	template<typename T> static inline unsigned int inc(T* v) { return ++(v->refcount); }
 	template<typename T> static inline unsigned int dec(T* v) { return --(v->refcount); }
+
 };
 
 template <typename T>
@@ -189,6 +192,8 @@ class CoreExport ModuleException : public CoreException
 	ModuleException(const std::string &message, Module* me = NULL);
 };
 
+/** Module reference, similar to reference<Module>
+ */
 class CoreExport ModuleRef : public reference_base
 {
 	Module* const value;

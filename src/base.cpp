@@ -41,14 +41,35 @@ CullResult::CullResult()
 {
 }
 
-refcountbase::refcountbase() : refcount(0)
+// This trick detects heap allocations of refcountbase objects
+static void* last_heap = NULL;
+static const unsigned int top_bit = 1 << (8*sizeof(unsigned int) - 1);
+
+void* refcountbase::operator new(size_t size)
 {
+	last_heap = ::operator new(size);
+	return last_heap;
+}
+
+void refcountbase::operator delete(void* obj)
+{
+	if (last_heap == obj)
+		last_heap = NULL;
+	::operator delete(obj);
+}
+
+refcountbase::refcountbase()
+{
+	if (this == last_heap)
+		refcount = 0;
+	else
+		refcount = top_bit;
 }
 
 refcountbase::~refcountbase()
 {
-	if (refcount && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %d",
+	if ((refcount & ~top_bit) && ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %x",
 			(void*)this, refcount);
 }
 
