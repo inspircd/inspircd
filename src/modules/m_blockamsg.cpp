@@ -25,7 +25,7 @@ enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOP
 
 /** Holds a blocked message's details
  */
-class BlockedMessage : public classbase
+class BlockedMessage
 {
 public:
 	std::string message;

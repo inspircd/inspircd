@@ -425,7 +425,7 @@ typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
  * parses client to server MODE strings for user and channel modes, and performs
  * processing for the 004 mode list numeric, amongst other things.
  */
-class CoreExport ModeParser : public classbase
+class CoreExport ModeParser
 {
  private:
 	/** Mode handlers for each mode, to access a handler subtract

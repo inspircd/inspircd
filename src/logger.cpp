@@ -352,10 +352,6 @@ FileWriter::FileWriter(FILE* logfile)
 {
 }
 
-void FileWriter::HandleEvent(EventType ev, int)
-{
-}
-
 void FileWriter::WriteLogLine(const std::string &line)
 {
 	if (log == NULL)
@@ -370,7 +366,7 @@ void FileWriter::WriteLogLine(const std::string &line)
 	}
 }
 
-void FileWriter::Close()
+FileWriter::~FileWriter()
 {
 	if (log)
 	{
@@ -378,9 +374,4 @@ void FileWriter::Close()
 		fclose(log);
 		log = NULL;
 	}
-}
-
-FileWriter::~FileWriter()
-{
-	this->Close();
 }

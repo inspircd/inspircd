@@ -26,7 +26,7 @@
  * I/O (linux seems to, as does freebsd) this will default to
  * blocking behaviour.
  */
-class CoreExport FileWriter : public EventHandler
+class CoreExport FileWriter
 {
  protected:
 	/** The log file (fd is inside this somewhere,
@@ -43,14 +43,6 @@ class CoreExport FileWriter : public EventHandler
 	 */
 	FileWriter(FILE* logfile);
 
-	/** Handle pending write events.
-	 * This will flush any waiting data to disk.
-	 * If any data remains after the fprintf call,
-	 * another write event is scheduled to write
-	 * the rest of the data when possible.
-	 */
-	virtual void HandleEvent(EventType et, int errornum = 0);
-
 	/** Write one or more preformatted log lines.
 	 * If the data cannot be written immediately,
 	 * this class will insert itself into the
@@ -59,10 +51,6 @@ class CoreExport FileWriter : public EventHandler
 	 * attempt again to write the data.
 	 */
 	void WriteLogLine(const std::string &line);
-
-	/** Close the log file and cancel any events.
-	 */
-	virtual void Close();
 
 	/** Close the log file and cancel any events.
 	 */

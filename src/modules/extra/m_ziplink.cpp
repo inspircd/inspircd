@@ -29,7 +29,7 @@ enum izip_status { IZIP_CLOSED = 0, IZIP_OPEN };
 
 /** Represents an zipped connections extra data
  */
-class izip_session : public classbase
+class izip_session
 {
  public:
 	z_stream c_stream;	/* compression stream */

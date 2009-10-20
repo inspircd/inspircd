@@ -17,7 +17,7 @@
 
 /** Holds information on a host set by m_hostchange
  */
-class Host : public classbase
+class Host
 {
  public:
 	std::string action;

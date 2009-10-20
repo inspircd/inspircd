@@ -17,10 +17,8 @@
 
 /** Holds flood settings and state for mode +f
  */
-class floodsettings : public classbase
+class floodsettings
 {
- private:
-	InspIRCd *ServerInstance;
  public:
 	bool ban;
 	int secs;
