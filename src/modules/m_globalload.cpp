@@ -76,7 +76,7 @@ class CommandGunloadmodule : public Command
 			if (m && ServerInstance->Modules->Unload(m))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				ServerInstance->DumpText(user, ":%s 973 %s %s :Module successfully unloaded.",
+				user->SendText(":%s 973 %s %s :Module successfully unloaded.",
 					ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
 			}
 			else

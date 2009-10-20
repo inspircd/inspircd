@@ -714,25 +714,6 @@ class CoreExport InspIRCd
 	 */
 	void RehashServer();
 
-	/** Dump text to a user target, splitting it appropriately to fit
-	 * @param User the user to dump the text to
-	 * @param LinePrefix text to prefix each complete line with
-	 * @param TextStream the text to send to the user
-	 */
-	void DumpText(User* user, const std::string &LinePrefix, std::stringstream &TextStream);
-
-	/** Dump text to a user target (local or remote)
-	 * @param user the user to dump the text to
-	 * @param text the full line of text
-	 */
-	void DumpText(User* user, const std::string &text);
-
-	/** Dump text to a user target (local or remote)
-	 * @param user the user to dump the text to
-	 * @param format the printf format string for the text to send
-	 */
-	void DumpText(User* user, const char* format, ...) CUSTOM_PRINTF(3, 4);
-
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against
 	 * @param user A user to send error text to

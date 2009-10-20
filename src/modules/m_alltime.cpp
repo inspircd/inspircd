@@ -32,7 +32,7 @@ class CommandAlltime : public Command
 
 		std::string msg = ":" + std::string(ServerInstance->Config->ServerName.c_str()) + " NOTICE " + user->nick + " :System time is " + fmtdate + "(" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 
-		ServerInstance->DumpText(user, msg);
+		user->SendText(msg);
 
 		/* we want this routed out! */
 		return CMD_SUCCESS;

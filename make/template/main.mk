@@ -105,7 +105,7 @@ debug-header:
 	@echo "*   This will take a *long* time.   *"
 	@echo "*  Please be aware that this build  *"
 	@echo "*  will consume a very large amount *"
-	@echo "*  of disk space (150MB+), and can  *"
+	@echo "*  of disk space (~350MB), and may  *"
 	@echo "*  run slower. Use the debug build  *"
 	@echo "*  for module development or if you *"
 	@echo "*    are experiencing problems.     *"

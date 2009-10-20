@@ -41,12 +41,12 @@ class CommandCheck : public Command
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);
 			if (!value.empty())
-				ServerInstance->DumpText(user, checkstr + " meta:" + item->key + " " + value);
+				user->SendText(checkstr + " meta:" + item->key + " " + value);
 			else if (!item->key.empty())
 				dumpkeys << " " << item->key;
 		}
 		if (!dumpkeys.str().empty())
-			ServerInstance->DumpText(user,checkstr + " metadata", dumpkeys);
+			user->SendText(checkstr + " metadata", dumpkeys);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -71,47 +71,47 @@ class CommandCheck : public Command
 		 *  :server.name 304 target :CHECK END
 		 */
 
-		ServerInstance->DumpText(user, checkstr + " START " + parameters[0]);
+		user->SendText(checkstr + " START " + parameters[0]);
 
 		if (targuser)
 		{
 			/* /check on a user */
-			ServerInstance->DumpText(user, checkstr + " nuh " + targuser->GetFullHost());
-			ServerInstance->DumpText(user, checkstr + " realnuh " + targuser->GetFullRealHost());
-			ServerInstance->DumpText(user, checkstr + " realname " + targuser->fullname);
-			ServerInstance->DumpText(user, checkstr + " modes +" + targuser->FormatModes());
-			ServerInstance->DumpText(user, checkstr + " snomasks +" + targuser->FormatNoticeMasks());
-			ServerInstance->DumpText(user, checkstr + " server " + targuser->server);
-			ServerInstance->DumpText(user, checkstr + " uid " + targuser->uuid);
-			ServerInstance->DumpText(user, checkstr + " signon " + timestring(targuser->signon));
-			ServerInstance->DumpText(user, checkstr + " nickts " + timestring(targuser->age));
+			user->SendText(checkstr + " nuh " + targuser->GetFullHost());
+			user->SendText(checkstr + " realnuh " + targuser->GetFullRealHost());
+			user->SendText(checkstr + " realname " + targuser->fullname);
+			user->SendText(checkstr + " modes +" + targuser->FormatModes());
+			user->SendText(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
+			user->SendText(checkstr + " server " + targuser->server);
+			user->SendText(checkstr + " uid " + targuser->uuid);
+			user->SendText(checkstr + " signon " + timestring(targuser->signon));
+			user->SendText(checkstr + " nickts " + timestring(targuser->age));
 			if (IS_LOCAL(targuser))
-				ServerInstance->DumpText(user, checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
+				user->SendText(checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
 
 			if (IS_AWAY(targuser))
 			{
 				/* user is away */
-				ServerInstance->DumpText(user, checkstr + " awaytime " + timestring(targuser->awaytime));
-				ServerInstance->DumpText(user, checkstr + " awaymsg " + targuser->awaymsg);
+				user->SendText(checkstr + " awaytime " + timestring(targuser->awaytime));
+				user->SendText(checkstr + " awaymsg " + targuser->awaymsg);
 			}
 
 			if (IS_OPER(targuser))
 			{
 				/* user is an oper of type ____ */
-				ServerInstance->DumpText(user, checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
+				user->SendText(checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
 			}
 
 			if (IS_LOCAL(targuser))
 			{
-				ServerInstance->DumpText(user, checkstr + " clientaddr " + irc::sockets::satouser(&targuser->client_sa));
-				ServerInstance->DumpText(user, checkstr + " serveraddr " + irc::sockets::satouser(&targuser->server_sa));
+				user->SendText(checkstr + " clientaddr " + irc::sockets::satouser(&targuser->client_sa));
+				user->SendText(checkstr + " serveraddr " + irc::sockets::satouser(&targuser->server_sa));
 
 				std::string classname = targuser->GetClass()->name;
 				if (!classname.empty())
-					ServerInstance->DumpText(user, checkstr + " connectclass " + classname);
+					user->SendText(checkstr + " connectclass " + classname);
 			}
 			else
-				ServerInstance->DumpText(user, checkstr + " onip " + targuser->GetIPString());
+				user->SendText(checkstr + " onip " + targuser->GetIPString());
 
 			for (UCListIter i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
@@ -121,25 +121,25 @@ class CommandCheck : public Command
 
 			std::stringstream dump(chliststr);
 
-			ServerInstance->DumpText(user,checkstr + " onchans", dump);
+			user->SendText(checkstr + " onchans", dump);
 
 			dumpExt(user, checkstr, targuser);
 		}
 		else if (targchan)
 		{
 			/* /check on a channel */
-			ServerInstance->DumpText(user, checkstr + " timestamp " + timestring(targchan->age));
+			user->SendText(checkstr + " timestamp " + timestring(targchan->age));
 
 			if (targchan->topic[0] != 0)
 			{
 				/* there is a topic, assume topic related information exists */
-				ServerInstance->DumpText(user, checkstr + " topic " + targchan->topic);
-				ServerInstance->DumpText(user, checkstr + " topic_setby " + targchan->setby);
-				ServerInstance->DumpText(user, checkstr + " topic_setat " + timestring(targchan->topicset));
+				user->SendText(checkstr + " topic " + targchan->topic);
+				user->SendText(checkstr + " topic_setby " + targchan->setby);
+				user->SendText(checkstr + " topic_setat " + timestring(targchan->topicset));
 			}
 
-			ServerInstance->DumpText(user, checkstr + " modes " + targchan->ChanModes(true));
-			ServerInstance->DumpText(user, checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
+			user->SendText(checkstr + " modes " + targchan->ChanModes(true));
+			user->SendText(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
 
 			/* now the ugly bit, spool current members of a channel. :| */
 
@@ -153,7 +153,7 @@ class CommandCheck : public Command
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
 				snprintf(tmpbuf, MAXBUF, "%-3lu %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
-				ServerInstance->DumpText(user, checkstr + " member " + tmpbuf);
+				user->SendText(checkstr + " member " + tmpbuf);
 			}
 
 			dumpExt(user, checkstr, targchan);
@@ -169,20 +169,20 @@ class CommandCheck : public Command
 				if (InspIRCd::Match(a->second->host, parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->dhost, parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
-					ServerInstance->DumpText(user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					user->SendText(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 				/* IP address */
 				else if (InspIRCd::MatchCIDR(a->second->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					ServerInstance->DumpText(user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					user->SendText(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 			}
 
-			ServerInstance->DumpText(user, checkstr + " matches " + ConvToStr(x));
+			user->SendText(checkstr + " matches " + ConvToStr(x));
 		}
 
-		ServerInstance->DumpText(user, checkstr + " END " + parameters[0]);
+		user->SendText(checkstr + " END " + parameters[0]);
 
 		return CMD_SUCCESS;
 	}

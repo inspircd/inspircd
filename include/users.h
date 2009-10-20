@@ -666,23 +666,26 @@ class CoreExport User : public StreamSocket
 	 */
 	void UnOper();
 
-	/** Write text to this user, appending CR/LF.
+	/** Write text to this user, appending CR/LF. Works on local users only.
 	 * @param text A std::string to send to the user
 	 */
 	void Write(const std::string &text);
 
 	/** Write text to this user, appending CR/LF.
+	 * Works on local users only.
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
 	void Write(const char *text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Write text to this user, appending CR/LF and prepending :server.name
+	 * Works on local users only.
 	 * @param text A std::string to send to the user
 	 */
 	void WriteServ(const std::string& text);
 
 	/** Write text to this user, appending CR/LF and prepending :server.name
+	 * Works on local users only.
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
@@ -742,18 +745,19 @@ class CoreExport User : public StreamSocket
 	 */
 	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
 
-	/** Write a WALLOPS message from this user to all local opers.
-	 * If this user is not opered, the function will return without doing anything.
-	 * @param text The format string to send in the WALLOPS message
-	 * @param ... Format arguments
+	/** Dump text to a user target, splitting it appropriately to fit
+	 * @param LinePrefix text to prefix each complete line with
+	 * @param TextStream the text to send to the user
 	 */
-	void WriteWallOps(const char* text, ...) CUSTOM_PRINTF(2, 3);
+	void SendText(const std::string &LinePrefix, std::stringstream &TextStream);
 
-	/** Write a WALLOPS message from this user to all local opers.
-	 * If this user is not opered, the function will return without doing anything.
-	 * @param text The text to send in the WALLOPS message
+	/** Write to the user, routing the line if the user is remote.
 	 */
-	void WriteWallOps(const std::string &text);
+	void SendText(const std::string& line);
+
+	/** Write to the user, routing the line if the user is remote.
+	 */
+	void SendText(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Return true if the user shares at least one channel with another user
 	 * @param other The other user to compare the channel list against
@@ -848,10 +852,6 @@ class CoreExport User : public StreamSocket
 	/** Increases a user's command penalty by a set amount.
 	 */
 	void IncreasePenalty(int increase);
-
-	/** Decreases a user's command penalty by a set amount.
-	 */
-	void DecreasePenalty(int decrease);
 
 	void OnDataReady();
 	void OnError(BufferedSocketError error);

@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_WALLOPS_H__
-#define __CMD_WALLOPS_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /WALLOPS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -41,14 +33,18 @@ class CommandWallops : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
-#endif
-
-
-
-
 CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	user->WriteWallOps(std::string(parameters[0]));
+	std::string wallop("WALLOPS :");
+	wallop.append(parameters[0]);
+
+	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+	{
+		User* t = *i;
+		if (t->IsModeSet('w'))
+			user->WriteTo(t,wallop);
+	}
+
 	FOREACH_MOD(I_OnWallops,OnWallops(user,parameters[0]));
 	return CMD_SUCCESS;
 }

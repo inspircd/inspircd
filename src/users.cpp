@@ -1341,32 +1341,48 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	}
 }
 
-void User::WriteWallOps(const std::string &text)
+void User::SendText(const std::string& line)
 {
-	std::string wallop("WALLOPS :");
-	wallop.append(text);
-
-	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
-	{
-		User* t = *i;
-		if (t->IsModeSet('w'))
-			this->WriteTo(t,wallop);
-	}
+	if (IS_LOCAL(this))
+		Write(line);
+	else if (!IS_SERVER(this))
+		ServerInstance->PI->PushToClient(this, line);
 }
 
-void User::WriteWallOps(const char* text, ...)
+void User::SendText(const char *text, ...)
 {
-	if (!IS_LOCAL(this))
-		return;
-
-	char textbuffer[MAXBUF];
 	va_list argsPtr;
+	char line[MAXBUF];
 
 	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	vsnprintf(line, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	this->WriteWallOps(std::string(textbuffer));
+	SendText(std::string(line));
+}
+
+void User::SendText(const std::string &LinePrefix, std::stringstream &TextStream)
+{
+	char line[MAXBUF];
+	int start_pos = LinePrefix.length();
+	int pos = start_pos;
+	memcpy(line, LinePrefix.data(), pos);
+	std::string Word;
+	while (TextStream >> Word)
+	{
+		int len = Word.length();
+		if (pos + len + 12 > MAXBUF)
+		{
+			line[pos] = '\0';
+			SendText(std::string(line));
+			pos = start_pos;
+		}
+		line[pos] = ' ';
+		memcpy(line + pos + 1, Word.data(), len);
+		pos += len + 1;
+	}
+	line[pos] = '\0';
+	SendText(std::string(line));
 }
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
@@ -1753,11 +1769,6 @@ void User::ShowRULES()
 void User::IncreasePenalty(int increase)
 {
 	this->Penalty += increase;
-}
-
-void User::DecreasePenalty(int decrease)
-{
-	this->Penalty -= decrease;
 }
 
 void FakeUser::SetFakeServer(std::string name)
