@@ -23,7 +23,7 @@
 /* $CopyInstall: conf/modules.conf.example $(CONPATH) */
 /* $CopyInstall: conf/opers.conf.example $(CONPATH) */
 /* $CopyInstall: conf/links.conf.example $(CONPATH) */
-/* $CopyInstall: .gdbargs $(BASE) */
+/* $CopyInstall: tools/gdbargs $(BASE)/.gdbargs */
 
 #include "inspircd.h"
 #include <fstream>
