@@ -317,7 +317,8 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
+				x->Name.c_str(), newsocket->getError().c_str());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}

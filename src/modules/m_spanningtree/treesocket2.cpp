@@ -28,7 +28,7 @@ bool TreeSocket::Error(parameterlist &params)
 {
 	if (params.size() < 1)
 		return false;
-	ServerInstance->SNO->WriteToSnoMask('l',"ERROR from %s: %s",(!InboundServerName.empty() ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
+	ServerInstance->SNO->WriteGlobalSno('l',"ERROR from %s: %s",(!InboundServerName.empty() ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
 	/* we will return false to cause the socket to close. */
 	return false;
 }
@@ -149,13 +149,13 @@ void TreeSocket::ProcessLine(std::string &line)
 					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
-						ServerInstance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs((long)delta));
+						ServerInstance->SNO->WriteGlobalSno('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs((long)delta));
 						SendError("Your clocks are out by "+ConvToStr(abs((long)delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return;
 					}
 					else if ((delta < -30) || (delta > 30))
 					{
-						ServerInstance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs((long)delta));
+						ServerInstance->SNO->WriteGlobalSno('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs((long)delta));
 					}
 				}
 				this->LinkState = CONNECTED;
@@ -356,7 +356,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		TreeServer *s = Utils->FindServer(prefix);
 		if (s && s->bursting)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", prefix.c_str());
+			ServerInstance->SNO->WriteGlobalSno('l',"Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", prefix.c_str());
 			s->FinishBurst();
 		}
 		this->LocalPong(prefix,params);
@@ -437,7 +437,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		if (params.size() >= 2)
 		{
-			ServerInstance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + who->nick + ": "+ params[1]);
+			ServerInstance->SNO->WriteGlobalSno(*(params[0].c_str()), "From " + who->nick + ": "+ params[1]);
 			Utils->DoOneToAllButSender(prefix, command, params, prefix);
 		}
 	}
@@ -446,7 +446,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		// Set prefix server as bursting
 		if (!IS_SERVER(who))
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "WTF: Got BURST from a non-server(?): %s", prefix.c_str());
+			ServerInstance->SNO->WriteGlobalSno('l', "WTF: Got BURST from a non-server(?): %s", prefix.c_str());
 			return;
 		}
 
@@ -455,13 +455,14 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	}
 	else if (command == "ENDBURST")
 	{
-		if (!IS_SERVER(who))
+		TreeServer* ServerSource = Utils->FindServer(prefix);
+		if (!ServerSource)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "WTF: Got ENDBURST from a non-server(?): %s", prefix.c_str());
+			ServerInstance->SNO->WriteGlobalSno('l', "WTF: Got ENDBURST from a non-server(?): %s", prefix.c_str());
 			return;
 		}
 
-		route_back_again->FinishBurst();
+		ServerSource->FinishBurst();
 		Utils->DoOneToAllButSender(prefix, command, params, prefix);
 	}
 	else if (command == "ENCAP")
@@ -538,7 +539,7 @@ void TreeSocket::OnTimeout()
 {
 	if (this->LinkState == CONNECTING)
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
+		ServerInstance->SNO->WriteGlobalSno('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
 	}
 }
 
@@ -566,10 +567,10 @@ void TreeSocket::Close()
 
 	if (!quitserver.empty())
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "Connection to '\2%s\2' failed.",quitserver.c_str());
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",quitserver.c_str());
 
 		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
-				ServerInstance->SNO->WriteToSnoMask('l', "Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
+				ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
 	}
 }

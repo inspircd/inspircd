@@ -84,8 +84,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocketBase*
 		GetIOHook()->OnStreamSocketAccept(this, client, server);
 	SendCapabilities(1);
 
-	/* Fix by Brain - inbound sockets need a timeout, too. 30 secs should be pleanty */
-	Utils->timeoutlist[this] = std::pair<std::string, int>("<from " + IP + ">", 30);
+	Utils->timeoutlist[this] = std::pair<std::string, int>("inbound from " + IP, 30);
 }
 
 ServerState TreeSocket::GetLinkState()
@@ -131,7 +130,7 @@ void TreeSocket::OnConnected()
 			Link* x = *i;
 			if (x->Name == this->myhost)
 			{
-				ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()));
+				ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()));
 				this->OutboundPass = x->SendPass;
 				this->SendCapabilities(1);
 				return;
@@ -143,41 +142,21 @@ void TreeSocket::OnConnected()
 	 * If that happens the connection hangs here until it's closed. Unlikely
 	 * and rather harmless.
 	 */
-	ServerInstance->SNO->WriteToSnoMask('l', "Connection to \2%s\2 lost link tag(!)", myhost.c_str());
+	ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2 lost link tag(!)", myhost.c_str());
 }
 
 void TreeSocket::OnError(BufferedSocketError e)
 {
-	switch (e)
-	{
-		case I_ERR_CONNECT:
-			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Connection to \002%s\002 refused", myhost.c_str());
-		break;
-		case I_ERR_SOCKET:
-			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Could not create socket (%s)", strerror(errno));
-		break;
-		case I_ERR_BIND:
-			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Error binding socket to address or port (%s)", strerror(errno));
-		break;
-		case I_ERR_WRITE:
-			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: I/O error on connection (%s)", errno ? strerror(errno) : "Connection closed unexpectedly");
-		break;
-		case I_ERR_NOMOREFDS:
-			ServerInstance->SNO->WriteToSnoMask('l', "Connection failed: Operating system is out of file descriptors!");
-		break;
-		default:
-			if ((errno) && (errno != EINPROGRESS) && (errno != EAGAIN))
-				ServerInstance->SNO->WriteToSnoMask('l', "Connection to \002%s\002 failed with OS error: %s", myhost.c_str(), strerror(errno));
-		break;
-	}
+	ServerInstance->SNO->WriteGlobalSno('l', "Connection to \002%s\002 failed with error: %s",
+		myhost.c_str(), getError().c_str());
 }
 
 void TreeSocket::SendError(const std::string &errormessage)
 {
-	/* Display the error locally as well as sending it remotely */
-	ServerInstance->SNO->WriteToSnoMask('l', "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? this->IP.c_str() : this->InboundServerName.c_str()), errormessage.c_str());
 	WriteLine("ERROR :"+errormessage);
 	SetError(errormessage);
+	/* Display the error locally as well as sending it remotely */
+	ServerInstance->SNO->WriteGlobalSno('l', "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? this->IP.c_str() : this->InboundServerName.c_str()), errormessage.c_str());
 }
 
 /** This function forces this server to quit, removing this server
@@ -222,12 +201,12 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 		if (Current->GetParent() == Utils->TreeRoot)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
+			ServerInstance->SNO->WriteGlobalSno('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
 			LocalSquit = true;
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+			ServerInstance->SNO->WriteGlobalSno('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 		}
 		num_lost_servers = 0;
 		num_lost_users = 0;
@@ -237,9 +216,9 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Current->GetParent()->DelChild(Current);
 		delete Current;
 		if (LocalSquit)
-			ServerInstance->SNO->WriteToSnoMask('l', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+			ServerInstance->SNO->WriteGlobalSno('l', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 		else
-			ServerInstance->SNO->WriteToSnoMask('L', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+			ServerInstance->SNO->WriteGlobalSno('L', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 	}
 	else
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
