@@ -74,13 +74,13 @@
 class IdentRequestSocket : public EventHandler
 {
  private:
-	User *user;			/* User we are attached to */
+	LocalUser *user;			/* User we are attached to */
 	bool done;			/* True if lookup is finished */
 	std::string result;		/* Holds the ident string if done */
  public:
 	time_t age;
 
-	IdentRequestSocket(User* u) : user(u), result(u->ident)
+	IdentRequestSocket(LocalUser* u) : user(u), result(u->ident)
 	{
 		age = ServerInstance->Time();
 		socklen_t size = 0;
@@ -319,7 +319,7 @@ class ModuleIdent : public Module
 
 		try
 		{
-			IdentRequestSocket *isock = new IdentRequestSocket(user);
+			IdentRequestSocket *isock = new IdentRequestSocket(IS_LOCAL(user));
 			ext.set(user, isock);
 		}
 		catch (ModuleException &e)

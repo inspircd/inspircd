@@ -249,7 +249,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 			results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
 			for (std::vector<LocalUser*>::iterator n = this->Users->local_users.begin(); n != this->Users->local_users.end(); n++)
 			{
-				User* i = *n;
+				LocalUser* i = *n;
 				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(this->Time() - i->age));
 			}
 		break;
@@ -259,7 +259,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 			results.push_back(sn+" 211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
 			for (std::vector<LocalUser*>::iterator n = this->Users->local_users.begin(); n != this->Users->local_users.end(); n++)
 			{
-				User* i = *n;
+				LocalUser* i = *n;
 				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(this->Time() - i->age));
 			}
 		break;

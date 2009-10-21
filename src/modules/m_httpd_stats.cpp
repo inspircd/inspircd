@@ -169,8 +169,10 @@ class ModuleHttpStats : public Module
 					if (IS_OPER(u))
 						data << "<opertype>" << Sanitize(u->oper) << "</opertype>";
 					data << "<modes>" << u->FormatModes() << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
-					if (IS_LOCAL(u))
-						data << "<port>" << u->GetServerPort() << "</port><servaddr>" << irc::sockets::satouser(&u->server_sa) << "</servaddr>";
+					LocalUser* lu = IS_LOCAL(u);
+					if (lu)
+						data << "<port>" << lu->GetServerPort() << "</port><servaddr>"
+							<< irc::sockets::satouser(&lu->server_sa) << "</servaddr>";
 					data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
 
 					DumpMeta(data, u);

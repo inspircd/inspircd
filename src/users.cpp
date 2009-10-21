@@ -116,7 +116,7 @@ std::string User::ProcessNoticeMasks(const char *sm)
 	return output;
 }
 
-void User::StartDNSLookup()
+void LocalUser::StartDNSLookup()
 {
 	try
 	{
@@ -227,13 +227,11 @@ User::User(const std::string &uid)
 	age = ServerInstance->Time();
 	Penalty = 0;
 	lastping = signon = idle_lastmsg = nping = registered = 0;
-	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	quietquit = quitting = exempt = dns_done = false;
 	fd = -1;
-	server_sa.sa.sa_family = AF_UNSPEC;
-	client_sa.sa.sa_family = AF_UNSPEC;
 	AllowedPrivs = AllowedOperCommands = NULL;
 	uuid = uid;
+	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
 
@@ -246,6 +244,8 @@ User::User(const std::string &uid)
 
 LocalUser::LocalUser() : User(ServerInstance->GetUID())
 {
+	bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	server_sa.sa.sa_family = AF_UNSPEC;
 }
 
 User::~User()
@@ -503,6 +503,10 @@ bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 
 void User::OnDataReady()
 {
+}
+
+void LocalUser::OnDataReady()
+{
 	if (quitting)
 		return;
 
@@ -560,11 +564,8 @@ eol_found:
 		Penalty++;
 }
 
-void User::AddWriteBuf(const std::string &data)
+void LocalUser::AddWriteBuf(const std::string &data)
 {
-	// Don't bother sending text to remote users!
-	if (IS_REMOTE(this))
-		return;
 	if (!quitting && MyClass && getSendQSize() + data.length() > MyClass->GetSendqHardMax() && !HasPrivPermission("users/flood/increased-buffers"))
 	{
 		/*
@@ -598,17 +599,8 @@ CullResult User::cull()
 		return Extensible::cull();
 	}
 	PurgeEmptyChannels();
-	if (IS_LOCAL(this))
-	{
-		if (fd != INT_MAX)
-			Close();
-
-		std::vector<LocalUser*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
-		if (x != ServerInstance->Users->local_users.end())
-			ServerInstance->Users->local_users.erase(x);
-		else
-			ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
-	}
+	if (IS_LOCAL(this) && fd != INT_MAX)
+		Close();
 
 	if (this->AllowedOperCommands)
 	{
@@ -625,12 +617,22 @@ CullResult User::cull()
 	this->InvalidateCache();
 	this->DecrementModes();
 
-	if (client_sa.sa.sa_family != AF_UNSPEC)
-		ServerInstance->Users->RemoveCloneCounts(this);
-
 	ServerInstance->Users->uuidlist->erase(uuid);
 	uuid.clear();
 	return Extensible::cull();
+}
+
+CullResult LocalUser::cull()
+{
+	std::vector<LocalUser*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
+	if (x != ServerInstance->Users->local_users.end())
+		ServerInstance->Users->local_users.erase(x);
+	else
+		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
+
+	if (client_sa.sa.sa_family != AF_UNSPEC)
+		ServerInstance->Users->RemoveCloneCounts(this);
+	return User::cull();
 }
 
 void User::Oper(const std::string &opertype, const std::string &opername)
@@ -964,7 +966,7 @@ bool User::ForceNickChange(const char* newnick)
 	return false;
 }
 
-int User::GetServerPort()
+int LocalUser::GetServerPort()
 {
 	switch (this->server_sa.sa.sa_family)
 	{
@@ -1096,6 +1098,14 @@ static std::string wide_newline("\r\n");
 
 void User::Write(const std::string& text)
 {
+}
+
+void User::Write(const char *text, ...)
+{
+}
+
+void LocalUser::Write(const std::string& text)
+{
 	if (!ServerInstance->SE->BoundsCheckFd(this))
 		return;
 
@@ -1119,7 +1129,7 @@ void User::Write(const std::string& text)
 
 /** Write()
  */
-void User::Write(const char *text, ...)
+void LocalUser::Write(const char *text, ...)
 {
 	va_list argsPtr;
 	char textbuffer[MAXBUF];

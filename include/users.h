@@ -286,22 +286,6 @@ class CoreExport User : public StreamSocket
 	 */
 	std::string host;
 
-	/** Stats counter for bytes inbound
-	 */
-	int bytes_in;
-
-	/** Stats counter for bytes outbound
-	 */
-	int bytes_out;
-
-	/** Stats counter for commands inbound
-	 */
-	int cmds_in;
-
-	/** Stats counter for commands outbound
-	 */
-	int cmds_out;
-
 	/** Time the connection was last pinged
 	 */
 	time_t lastping;
@@ -324,15 +308,15 @@ class CoreExport User : public StreamSocket
 	 */
 	time_t nping;
 
+	/** Client address that the user is connected from.
+	 * Do not modify this value directly, use SetClientIP() to change it
+	 * Port is not valid for remote users.
+	 */
+	irc::sockets::sockaddrs client_sa;
+
 	/** Stored reverse lookup from res_forward. Should not be used after resolution.
 	 */
 	std::string stored_host;
-
-	/** Starts a DNS lookup of the user's IP.
-	 * This will cause two UserResolver classes to be instantiated.
-	 * When complete, these objects set User::dns_done to true.
-	 */
-	void StartDNSLookup();
 
 	/** The users nickname.
 	 * An invalid nickname indicates an unregistered connection prior to the NICK command.
@@ -439,31 +423,15 @@ class CoreExport User : public StreamSocket
 	 */
 	unsigned int exempt:1;
 
-	/** Server address and port that this user is connected to.
-	 * If unknown, address family is AF_UNKNOWN
+	/** Get client IP string from sockaddr, using static internal buffer
+	 * @return The IP string
 	 */
-	irc::sockets::sockaddrs server_sa;
-	/** Client address that the user is connected from.
-	 * Port number is only valid if local.
-	 *
-	 * Do not modify this value directly, use SetClientIP() to change it
-	 */
-	irc::sockets::sockaddrs client_sa;
+	const char* GetIPString();
 
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
 	bool SetClientIP(const char* sip);
-
-	/**
-	 * @return The port number of this user.
-	 */
-	int GetServerPort();
-
-	/** Get client IP string from sockaddr, using static internal buffer
-	 * @return The IP string
-	 */
-	const char* GetIPString();
 
 	/** Get a CIDR mask from the IP of this user, using a static internal buffer.
 	 * e.g., GetCIDRMask(16) for 223.254.214.52 returns 223.254.0.0/16
@@ -595,13 +563,6 @@ class CoreExport User : public StreamSocket
 	 */
 	bool HasModePermission(unsigned char mode, ModeType type);
 
-	/** Adds to the user's write buffer.
-	 * You may add any amount of text up to this users sendq value, if you exceed the
-	 * sendq value, the user will be removed, and further buffer adds will be dropped.
-	 * @param data The data to add to the write buffer
-	 */
-	void AddWriteBuf(const std::string &data);
-
 	/** Returns the list of channels this user has been invited to but has not yet joined.
 	 * @return A list of channels the user is invited to
 	 */
@@ -664,14 +625,14 @@ class CoreExport User : public StreamSocket
 	/** Write text to this user, appending CR/LF. Works on local users only.
 	 * @param text A std::string to send to the user
 	 */
-	void Write(const std::string &text);
+	virtual void Write(const std::string &text);
 
 	/** Write text to this user, appending CR/LF.
 	 * Works on local users only.
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
-	void Write(const char *text, ...) CUSTOM_PRINTF(2, 3);
+	virtual void Write(const char *text, ...) CUSTOM_PRINTF(2, 3);
 
 	/** Write text to this user, appending CR/LF and prepending :server.name
 	 * Works on local users only.
@@ -842,9 +803,8 @@ class CoreExport User : public StreamSocket
 	 */
 	void IncreasePenalty(int increase);
 
-	void OnDataReady();
-	void OnError(BufferedSocketError error);
-
+	virtual void OnDataReady();
+	virtual void OnError(BufferedSocketError error);
 	/** Default destructor
 	 */
 	virtual ~User();
@@ -859,26 +819,42 @@ class CoreExport User : public StreamSocket
  */
 #define FD_FAKEUSER_NUMBER -7
 
-/* Useful macros */
-
-/** Is a local user */
-#define IS_LOCAL(x) (x->GetFd() > -1)
-/** Is a remote user */
-#define IS_REMOTE(x) (x->GetFd() < 0)
-/** Is a fake user */
-#define IS_SERVER(x) (x->GetFd() == FD_FAKEUSER_NUMBER)
-/** Is a module created user */
-#define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
-/** Is an oper */
-#define IS_OPER(x) (!x->oper.empty())
-/** Is away */
-#define IS_AWAY(x) (!x->awaymsg.empty())
-
 class CoreExport LocalUser : public User
 {
  public:
 	LocalUser();
-	virtual void SendText(const std::string& line);
+	CullResult cull();
+
+	/** Stats counter for bytes inbound
+	 */
+	int bytes_in;
+
+	/** Stats counter for bytes outbound
+	 */
+	int bytes_out;
+
+	/** Stats counter for commands inbound
+	 */
+	int cmds_in;
+
+	/** Stats counter for commands outbound
+	 */
+	int cmds_out;
+
+	/** Server address and port that this user is connected to.
+	 */
+	irc::sockets::sockaddrs server_sa;
+
+	/**
+	 * @return The port number of this user.
+	 */
+	int GetServerPort();
+
+	/** Starts a DNS lookup of the user's IP.
+	 * This will cause two UserResolver classes to be instantiated.
+	 * When complete, these objects set User::dns_done to true.
+	 */
+	void StartDNSLookup();
 
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.
@@ -890,6 +866,18 @@ class CoreExport LocalUser : public User
 	 * @return A reference to this user's current connect class.
 	 */
 	ConnectClass *SetClass(const std::string &explicit_name = "");
+
+	void OnDataReady();
+	void SendText(const std::string& line);
+	void Write(const std::string& text);
+	void Write(const char*, ...) CUSTOM_PRINTF(2, 3);
+
+	/** Adds to the user's write buffer.
+	 * You may add any amount of text up to this users sendq value, if you exceed the
+	 * sendq value, the user will be removed, and further buffer adds will be dropped.
+	 * @param data The data to add to the write buffer
+	 */
+	void AddWriteBuf(const std::string &data);
 };
 
 class CoreExport RemoteUser : public User
@@ -916,6 +904,27 @@ class CoreExport FakeUser : public User
 	void SetFakeServer(std::string name);
 };
 
+/* Faster than dynamic_cast */
+/** Is a local user */
+inline LocalUser* IS_LOCAL(User* u)
+{
+	return u->GetFd() > -1 ? static_cast<LocalUser*>(u) : NULL;
+}
+/** Is a remote user */
+inline RemoteUser* IS_REMOTE(User* u)
+{
+	return u->GetFd() == FD_MAGIC_NUMBER ? static_cast<RemoteUser*>(u) : NULL;
+}
+/** Is a server fakeuser */
+inline FakeUser* IS_SERVER(User* u)
+{
+	return u->GetFd() == FD_FAKEUSER_NUMBER ? static_cast<FakeUser*>(u) : NULL;
+}
+/** Is an oper */
+#define IS_OPER(x) (!x->oper.empty())
+/** Is away */
+#define IS_AWAY(x) (!x->awaymsg.empty())
+
 /** Derived from Resolver, and performs user forward/reverse lookups.
  */
 class CoreExport UserResolver : public Resolver
@@ -923,7 +932,7 @@ class CoreExport UserResolver : public Resolver
  private:
 	/** User this class is 'attached' to.
 	 */
-	User* bound_user;
+	LocalUser* bound_user;
 	/** File descriptor teh lookup is bound to
 	 */
 	int bound_fd;
@@ -938,7 +947,7 @@ class CoreExport UserResolver : public Resolver
 	 * @param qt The query type
 	 * @param cache Modified by the constructor if the result was cached
 	 */
-	UserResolver(User* user, std::string to_resolve, QueryType qt, bool &cache);
+	UserResolver(LocalUser* user, std::string to_resolve, QueryType qt, bool &cache);
 
 	/** Called on successful lookup
 	 * @param result Result string

@@ -123,7 +123,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 			irc::portparser portrange(matchtext, false);
 			long portno = -1;
 			while ((portno = portrange.GetToken()))
-				if (portno == user->GetServerPort())
+				if (IS_LOCAL(user) && portno == IS_LOCAL(user)->GetServerPort())
 				{
 					match = true;
 					break;
