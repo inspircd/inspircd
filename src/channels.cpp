@@ -218,24 +218,20 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 	 */
 	if (IS_LOCAL(user) && !override)
 	{
-		// Checking MyClass exists because we *may* get here with NULL, not 100% sure.
-		if (user->MyClass && user->MyClass->maxchans)
+		if (user->HasPrivPermission("channels/high-join-limit"))
 		{
-			if (user->HasPrivPermission("channels/high-join-limit"))
+			if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
 			{
-				if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
-				{
-					user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
-					return NULL;
-				}
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+				return NULL;
 			}
-			else
+		}
+		else
+		{
+			if (user->chans.size() >= user->GetClass()->maxchans)
 			{
-				if (user->chans.size() >= user->MyClass->maxchans)
-				{
-					user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
-					return NULL;
-				}
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+				return NULL;
 			}
 		}
 	}
@@ -291,7 +287,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 			else if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
-				bool invited = user->IsInvited(Ptr->name.c_str());
+				bool invited = IS_LOCAL(user)->IsInvited(Ptr->name.c_str());
 				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
 
 				if (!ckey.empty())
@@ -338,7 +334,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 				 */
 				if (invited)
 				{
-					user->RemoveInvite(Ptr->name.c_str());
+					IS_LOCAL(user)->RemoveInvite(Ptr->name.c_str());
 				}
 			}
 		}

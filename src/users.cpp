@@ -225,11 +225,9 @@ User::User(const std::string &uid)
 {
 	server = ServerInstance->Config->ServerName;
 	age = ServerInstance->Time();
-	Penalty = 0;
-	lastping = signon = idle_lastmsg = nping = registered = 0;
+	signon = idle_lastmsg = registered = 0;
 	quietquit = quitting = exempt = dns_done = false;
 	fd = -1;
-	AllowedPrivs = AllowedOperCommands = NULL;
 	uuid = uid;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
@@ -244,8 +242,11 @@ User::User(const std::string &uid)
 
 LocalUser::LocalUser() : User(ServerInstance->GetUID())
 {
+	AllowedPrivs = AllowedOperCommands = NULL;
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	server_sa.sa.sa_family = AF_UNSPEC;
+	Penalty = 0;
+	lastping = nping = 0;
 }
 
 User::~User()
@@ -350,7 +351,7 @@ const std::string User::GetFullRealHost()
 	return this->cached_fullrealhost;
 }
 
-bool User::IsInvited(const irc::string &channel)
+bool LocalUser::IsInvited(const irc::string &channel)
 {
 	time_t now = ServerInstance->Time();
 	InvitedList::iterator safei;
@@ -372,7 +373,7 @@ bool User::IsInvited(const irc::string &channel)
 	return false;
 }
 
-InvitedList* User::GetInviteList()
+InvitedList* LocalUser::GetInviteList()
 {
 	time_t now = ServerInstance->Time();
 	/* Weed out expired invites here. */
@@ -390,7 +391,7 @@ InvitedList* User::GetInviteList()
 	return &invites;
 }
 
-void User::InviteTo(const irc::string &channel, time_t invtimeout)
+void LocalUser::InviteTo(const irc::string &channel, time_t invtimeout)
 {
 	time_t now = ServerInstance->Time();
 	if (invtimeout != 0 && now > invtimeout) return; /* Don't add invites that are expired from the get-go. */
@@ -409,7 +410,7 @@ void User::InviteTo(const irc::string &channel, time_t invtimeout)
 	invites.push_back(std::make_pair(channel, invtimeout));
 }
 
-void User::RemoveInvite(const irc::string &channel)
+void LocalUser::RemoveInvite(const irc::string &channel)
 {
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
@@ -421,11 +422,13 @@ void User::RemoveInvite(const irc::string &channel)
 	}
 }
 
-bool User::HasModePermission(unsigned char mode, ModeType type)
+bool User::HasModePermission(unsigned char, ModeType)
 {
-	if (!IS_LOCAL(this))
-		return true;
+	return true;
+}
 
+bool LocalUser::HasModePermission(unsigned char mode, ModeType type)
+{
 	if (!IS_OPER(this))
 		return false;
 
@@ -434,19 +437,20 @@ bool User::HasModePermission(unsigned char mode, ModeType type)
 	return ((type == MODETYPE_USER ? AllowedUserModes : AllowedChanModes))[(mode - 'A')];
 
 }
-
-bool User::HasPermission(const std::string &command)
+/*
+ * users on remote servers can completely bypass all permissions based checks.
+ * This prevents desyncs when one server has different type/class tags to another.
+ * That having been said, this does open things up to the possibility of source changes
+ * allowing remote kills, etc - but if they have access to the src, they most likely have
+ * access to the conf - so it's an end to a means either way.
+ */
+bool User::HasPermission(const std::string&)
 {
-	/*
-	 * users on remote servers can completely bypass all permissions based checks.
-	 * This prevents desyncs when one server has different type/class tags to another.
-	 * That having been said, this does open things up to the possibility of source changes
-	 * allowing remote kills, etc - but if they have access to the src, they most likely have
-	 * access to the conf - so it's an end to a means either way.
-	 */
-	if (!IS_LOCAL(this))
-		return true;
+	return true;
+}
 
+bool LocalUser::HasPermission(const std::string &command)
+{
 	// are they even an oper at all?
 	if (!IS_OPER(this))
 	{
@@ -464,15 +468,13 @@ bool User::HasPermission(const std::string &command)
 	return false;
 }
 
-
 bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 {
-	if (!IS_LOCAL(this))
-	{
-		ServerInstance->Logs->Log("PRIVS", DEBUG, "Remote (yes)");
-		return true;
-	}
+	return true;
+}
 
+bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
+{
 	if (!IS_OPER(this))
 	{
 		if (noisy)
@@ -510,14 +512,14 @@ void LocalUser::OnDataReady()
 	if (quitting)
 		return;
 
-	if (MyClass && recvq.length() > MyClass->GetRecvqMax() && !HasPrivPermission("users/flood/increased-buffers"))
+	if (recvq.length() > MyClass->GetRecvqMax() && !HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users->QuitUser(this, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
 			nick.c_str(), (unsigned long)recvq.length(), MyClass->GetRecvqMax());
 	}
 	unsigned long sendqmax = ULONG_MAX;
-	if (MyClass && !HasPrivPermission("users/flood/increased-buffers"))
+	if (!HasPrivPermission("users/flood/increased-buffers"))
 		sendqmax = MyClass->GetSendqSoftMax();
 	int penaltymax = MyClass->GetPenaltyThreshold();
 	if (penaltymax == 0 || HasPrivPermission("users/flood/no-fakelag"))
@@ -566,7 +568,7 @@ eol_found:
 
 void LocalUser::AddWriteBuf(const std::string &data)
 {
-	if (!quitting && MyClass && getSendQSize() + data.length() > MyClass->GetSendqHardMax() && !HasPrivPermission("users/flood/increased-buffers"))
+	if (!quitting && getSendQSize() + data.length() > MyClass->GetSendqHardMax() && !HasPrivPermission("users/flood/increased-buffers"))
 	{
 		/*
 		 * Quit the user FIRST, because otherwise we could recurse
@@ -602,18 +604,6 @@ CullResult User::cull()
 	if (IS_LOCAL(this) && fd != INT_MAX)
 		Close();
 
-	if (this->AllowedOperCommands)
-	{
-		delete AllowedOperCommands;
-		AllowedOperCommands = NULL;
-	}
-
-	if (this->AllowedPrivs)
-	{
-		delete AllowedPrivs;
-		AllowedPrivs = NULL;
-	}
-
 	this->InvalidateCache();
 	this->DecrementModes();
 
@@ -629,6 +619,18 @@ CullResult LocalUser::cull()
 		ServerInstance->Users->local_users.erase(x);
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
+
+	if (this->AllowedOperCommands)
+	{
+		delete AllowedOperCommands;
+		AllowedOperCommands = NULL;
+	}
+
+	if (this->AllowedPrivs)
+	{
+		delete AllowedPrivs;
+		AllowedPrivs = NULL;
+	}
 
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
@@ -651,6 +653,14 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 	this->oper.assign(opertype, 0, 512);
 	ServerInstance->Users->all_opers.push_back(this);
 
+	if (IS_LOCAL(this))
+		IS_LOCAL(this)->OperInternal();
+
+	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype, opername));
+}
+
+void LocalUser::OperInternal()
+{
 	/*
 	 * This might look like it's in the wrong place.
 	 * It is *not*!
@@ -721,59 +731,63 @@ void User::Oper(const std::string &opertype, const std::string &opername)
 			}
 		}
 	}
-
-	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype, opername));
 }
 
 void User::UnOper()
 {
-	if (IS_OPER(this))
+	if (!IS_OPER(this))
+		return;
+
+	/*
+	 * unset their oper type (what IS_OPER checks).
+	 * note, order is important - this must come before modes as -o attempts
+	 * to call UnOper. -- w00t
+	 */
+	this->oper.clear();
+
+
+	/* Remove all oper only modes from the user when the deoper - Bug #466*/
+	std::string moderemove("-");
+
+	for (unsigned char letter = 'A'; letter <= 'z'; letter++)
 	{
-		/*
-		 * unset their oper type (what IS_OPER checks).
-		 * note, order is important - this must come before modes as -o attempts
-		 * to call UnOper. -- w00t
-		 */
-		this->oper.clear();
-
-
-		/* Remove all oper only modes from the user when the deoper - Bug #466*/
-		std::string moderemove("-");
-
-		for (unsigned char letter = 'A'; letter <= 'z'; letter++)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
-			if (mh && mh->NeedsOper())
-				moderemove += letter;
-		}
-
-
-		std::vector<std::string> parameters;
-		parameters.push_back(this->nick);
-		parameters.push_back(moderemove);
-
-		ServerInstance->Parser->CallHandler("MODE", parameters, this);
-
-		/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
-		ServerInstance->Users->all_opers.remove(this);
-
-		if (AllowedOperCommands)
-		{
-			delete AllowedOperCommands;
-			AllowedOperCommands = NULL;
-		}
-
-		if (AllowedPrivs)
-		{
-			delete AllowedPrivs;
-			AllowedPrivs = NULL;
-		}
-
-		AllowedUserModes.reset();
-		AllowedChanModes.reset();
-		this->modes[UM_OPERATOR] = 0;
+		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
+		if (mh && mh->NeedsOper())
+			moderemove += letter;
 	}
+
+
+	std::vector<std::string> parameters;
+	parameters.push_back(this->nick);
+	parameters.push_back(moderemove);
+
+	ServerInstance->Parser->CallHandler("MODE", parameters, this);
+
+	/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
+	ServerInstance->Users->all_opers.remove(this);
+
+	if (IS_LOCAL(this))
+		IS_LOCAL(this)->UnOperInternal();
+	this->modes[UM_OPERATOR] = 0;
 }
+
+void LocalUser::UnOperInternal()
+{
+	if (AllowedOperCommands)
+	{
+		delete AllowedOperCommands;
+		AllowedOperCommands = NULL;
+	}
+
+	if (AllowedPrivs)
+	{
+		delete AllowedPrivs;
+		AllowedPrivs = NULL;
+	}
+	AllowedUserModes.reset();
+	AllowedChanModes.reset();
+}
+
 
 /* adds or updates an entry in the whowas list */
 void User::AddToWhoWas()
@@ -790,11 +804,15 @@ void User::AddToWhoWas()
 /*
  * Check class restrictions
  */
-void User::CheckClass()
+void LocalUser::CheckClass()
 {
 	ConnectClass* a = this->MyClass;
 
-	if ((!a) || (a->type == CC_DENY))
+	if (!a)
+	{
+		ServerInstance->Users->QuitUser(this, "Access denied by configuration");
+	}
+	else if (a->type == CC_DENY)
 	{
 		ServerInstance->Users->QuitUser(this, "Unauthorised connection");
 		return;
@@ -852,7 +870,7 @@ void LocalUser::FullConnect()
 	/* Check the password, if one is required by the user's connect class.
 	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
 	 */
-	if (MyClass && !MyClass->pass.empty())
+	if (!MyClass->pass.empty())
 	{
 		if (ServerInstance->PassCompare(this, MyClass->pass.c_str(), password.c_str(), MyClass->hash.c_str()))
 		{
@@ -1641,7 +1659,7 @@ void User::SplitChanList(User* dest, const std::string &cl)
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
  */
-ConnectClass* LocalUser::SetClass(const std::string &explicit_name)
+void LocalUser::SetClass(const std::string &explicit_name)
 {
 	ConnectClass *found = NULL;
 
@@ -1719,8 +1737,6 @@ ConnectClass* LocalUser::SetClass(const std::string &explicit_name)
 	{
 		MyClass = found;
 	}
-
-	return this->MyClass;
 }
 
 /* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
@@ -1728,9 +1744,14 @@ ConnectClass* LocalUser::SetClass(const std::string &explicit_name)
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
  */
+ConnectClass* LocalUser::GetClass()
+{
+	return MyClass;
+}
+
 ConnectClass* User::GetClass()
 {
-	return this->MyClass;
+	return NULL;
 }
 
 void User::PurgeEmptyChannels()
@@ -1774,11 +1795,6 @@ void User::ShowRULES()
 		this->WriteNumeric(RPL_RULES, "%s :- %s",this->nick.c_str(),i->c_str());
 
 	this->WriteNumeric(RPL_RULESEND, "%s :End of RULES command.",this->nick.c_str());
-}
-
-void User::IncreasePenalty(int increase)
-{
-	this->Penalty += increase;
 }
 
 void FakeUser::SetFakeServer(std::string name)

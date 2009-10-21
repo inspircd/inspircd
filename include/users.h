@@ -235,12 +235,6 @@ class User;
 class CoreExport User : public StreamSocket
 {
  private:
-	/** A list of channels the user has a pending invite to.
-	 * Upon INVITE channels are added, and upon JOIN, the
-	 * channels are removed from this list.
-	 */
-	InvitedList invites;
-
 	/** Cached nick!ident@dhost value using the displayed hostname
 	 */
 	std::string cached_fullhost;
@@ -266,29 +260,12 @@ class CoreExport User : public StreamSocket
 	 * mode characters this user is making use of.
 	 */
 	void DecrementModes();
-
-	std::set<std::string> *AllowedOperCommands;
-	std::set<std::string> *AllowedPrivs;
-
-	/** Allowed user modes from oper classes. */
-	std::bitset<64> AllowedUserModes;
-
-	/** Allowed channel modes from oper classes. */
-	std::bitset<64> AllowedChanModes;
-
  public:
-	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
-	 */
-	reference<ConnectClass> MyClass;
 
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
 	 */
 	std::string host;
-
-	/** Time the connection was last pinged
-	 */
-	time_t lastping;
 
 	/** Time that the object was instantiated (used for TS calculation etc)
 	*/
@@ -304,19 +281,11 @@ class CoreExport User : public StreamSocket
 	 */
 	time_t idle_lastmsg;
 
-	/** Used by PING checking code
-	 */
-	time_t nping;
-
 	/** Client address that the user is connected from.
 	 * Do not modify this value directly, use SetClientIP() to change it
 	 * Port is not valid for remote users.
 	 */
 	irc::sockets::sockaddrs client_sa;
-
-	/** Stored reverse lookup from res_forward. Should not be used after resolution.
-	 */
-	std::string stored_host;
 
 	/** The users nickname.
 	 * An invalid nickname indicates an unregistered connection prior to the NICK command.
@@ -360,7 +329,7 @@ class CoreExport User : public StreamSocket
 	 */
 	std::bitset<64> snomasks;
 
-	/** Channels this user is on, and the permissions they have there
+	/** Channels this user is on
 	 */
 	UserChanList chans;
 
@@ -380,21 +349,10 @@ class CoreExport User : public StreamSocket
 
 	/** The oper type they logged in as, if they are an oper.
 	 * This is used to check permissions in operclasses, so that
-	 * we can say 'yay' or 'nay' to any commands they issue.
-	 * The value of this is the value of a valid 'type name=' tag.
+	 * we can say 'yea' or 'nay' to any commands they issue.
+	 * The value of this was the value of a valid 'type name=' tag
 	 */
 	std::string oper;
-
-	/** Password specified by the user when they registered.
-	 * This is stored even if the <connect> block doesnt need a password, so that
-	 * modules may check it.
-	 */
-	std::string password;
-
-	/** This value contains how far into the penalty threshold the user is. Once its over
-	 * the penalty threshold then commands are held and processed on-timer.
-	 */
-	int Penalty;
 
 	/** Used by User to indicate the registration status of the connection
 	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
@@ -422,6 +380,10 @@ class CoreExport User : public StreamSocket
 	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
 	 */
 	unsigned int exempt:1;
+
+	/** has the user responded to their previous ping?
+	 */
+	unsigned int lastping:1;
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
@@ -517,32 +479,13 @@ class CoreExport User : public StreamSocket
 	 */
 	void SetMode(unsigned char m, bool value);
 
-	/** Returns true if a user is invited to a channel.
-	 * @param channel A channel name to look up
-	 * @return True if the user is invited to the given channel
-	 */
-	virtual bool IsInvited(const irc::string &channel);
-
-	/** Adds a channel to a users invite list (invites them to a channel)
-	 * @param channel A channel name to add
-	 * @param timeout When the invite should expire (0 == never)
-	 */
-	virtual void InviteTo(const irc::string &channel, time_t timeout);
-
-	/** Removes a channel from a users invite list.
-	 * This member function is called on successfully joining an invite only channel
-	 * to which the user has previously been invited, to clear the invitation.
-	 * @param channel The channel to remove the invite to
-	 */
-	virtual void RemoveInvite(const irc::string &channel);
-
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	bool HasPermission(const std::string &command);
+	virtual bool HasPermission(const std::string &command);
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
@@ -552,7 +495,7 @@ class CoreExport User : public StreamSocket
 	 * @param noisy If set to true, the user is notified that they do not have the specified permission where applicable. If false, no notification is sent.
 	 * @return True if this user has the permission in question.
 	 */
-	bool HasPrivPermission(const std::string &privstr, bool noisy = false);
+	virtual bool HasPrivPermission(const std::string &privstr, bool noisy = false);
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -561,12 +504,7 @@ class CoreExport User : public StreamSocket
 	 * @param type ModeType (MODETYPE_CHANNEL or MODETYPE_USER).
 	 * @return True if the user can set or unset this mode.
 	 */
-	bool HasModePermission(unsigned char mode, ModeType type);
-
-	/** Returns the list of channels this user has been invited to but has not yet joined.
-	 * @return A list of channels the user is invited to
-	 */
-	InvitedList* GetInviteList();
+	virtual bool HasModePermission(unsigned char mode, ModeType type);
 
 	/** Creates a wildcard host.
 	 * Takes a buffer to use and fills the given buffer with the host in the format *!*@hostname
@@ -595,10 +533,6 @@ class CoreExport User : public StreamSocket
 	 * @param opertype The oper type to oper as
 	 */
 	void Oper(const std::string &opertype, const std::string &opername);
-
-	/** Call this method to find the matching <connect> for a user, and to check them against it.
-	 */
-	void CheckClass();
 
 	/** Change this users hash key to a new string.
 	 * You should not call this function directly. It is used by the core
@@ -786,10 +720,10 @@ class CoreExport User : public StreamSocket
 	 */
 	void PurgeEmptyChannels();
 
-	/** Get the connect class which this user belongs to.
-	 * @return A pointer to this user's connect class
+	/** Get the connect class which this user belongs to. NULL for remote users.
+	 * @return A pointer to this user's connect class.
 	 */
-	ConnectClass *GetClass();
+	virtual ConnectClass* GetClass();
 
 	/** Show the message of the day to this user
 	 */
@@ -798,10 +732,6 @@ class CoreExport User : public StreamSocket
 	/** Show the server RULES file to this user
 	 */
 	void ShowRULES();
-
-	/** Increases a user's command penalty by a set amount.
-	 */
-	void IncreasePenalty(int increase);
 
 	virtual void OnDataReady();
 	virtual void OnError(BufferedSocketError error);
@@ -821,6 +751,21 @@ class CoreExport User : public StreamSocket
 
 class CoreExport LocalUser : public User
 {
+	/** A list of channels the user has a pending invite to.
+	 * Upon INVITE channels are added, and upon JOIN, the
+	 * channels are removed from this list.
+	 */
+	InvitedList invites;
+
+	std::set<std::string> *AllowedOperCommands;
+	std::set<std::string> *AllowedPrivs;
+
+	/** Allowed user modes from oper classes. */
+	std::bitset<64> AllowedUserModes;
+
+	/** Allowed channel modes from oper classes. */
+	std::bitset<64> AllowedChanModes;
+
  public:
 	LocalUser();
 	CullResult cull();
@@ -841,6 +786,22 @@ class CoreExport LocalUser : public User
 	 */
 	int cmds_out;
 
+	/** Password specified by the user when they registered (if any).
+	 * This is stored even if the <connect> block doesnt need a password, so that
+	 * modules may check it.
+	 */
+	std::string password;
+
+	/** Contains a pointer to the connect class a user is on from
+	 */
+	reference<ConnectClass> MyClass;
+
+	ConnectClass* GetClass();
+
+	/** Call this method to find the matching <connect> for a user, and to check them against it.
+	 */
+	void CheckClass();
+
 	/** Server address and port that this user is connected to.
 	 */
 	irc::sockets::sockaddrs server_sa;
@@ -849,6 +810,19 @@ class CoreExport LocalUser : public User
 	 * @return The port number of this user.
 	 */
 	int GetServerPort();
+
+	/** Used by PING checking code
+	 */
+	time_t nping;
+
+	/** This value contains how far into the penalty threshold the user is. Once its over
+	 * the penalty threshold then commands are held and processed on-timer.
+	 */
+	int Penalty;
+
+	/** Stored reverse lookup from res_forward. Should not be used after resolution.
+	 */
+	std::string stored_host;
 
 	/** Starts a DNS lookup of the user's IP.
 	 * This will cause two UserResolver classes to be instantiated.
@@ -865,7 +839,7 @@ class CoreExport LocalUser : public User
 	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking <connect> tags from the configuration file.
 	 * @return A reference to this user's current connect class.
 	 */
-	ConnectClass *SetClass(const std::string &explicit_name = "");
+	void SetClass(const std::string &explicit_name = "");
 
 	void OnDataReady();
 	void SendText(const std::string& line);
@@ -878,6 +852,60 @@ class CoreExport LocalUser : public User
 	 * @param data The data to add to the write buffer
 	 */
 	void AddWriteBuf(const std::string &data);
+
+	/** Returns the list of channels this user has been invited to but has not yet joined.
+	 * @return A list of channels the user is invited to
+	 */
+	InvitedList* GetInviteList();
+
+	/** Returns true if a user is invited to a channel.
+	 * @param channel A channel name to look up
+	 * @return True if the user is invited to the given channel
+	 */
+	bool IsInvited(const irc::string &channel);
+
+	/** Adds a channel to a users invite list (invites them to a channel)
+	 * @param channel A channel name to add
+	 * @param timeout When the invite should expire (0 == never)
+	 */
+	void InviteTo(const irc::string &channel, time_t timeout);
+
+	/** Removes a channel from a users invite list.
+	 * This member function is called on successfully joining an invite only channel
+	 * to which the user has previously been invited, to clear the invitation.
+	 * @param channel The channel to remove the invite to
+	 */
+	void RemoveInvite(const irc::string &channel);
+
+	/** Returns true or false for if a user can execute a privilaged oper command.
+	 * This is done by looking up their oper type from User::oper, then referencing
+	 * this to their oper classes and checking the commands they can execute.
+	 * @param command A command (should be all CAPS)
+	 * @return True if this user can execute the command
+	 */
+	bool HasPermission(const std::string &command);
+
+	/** Returns true if a user has a given permission.
+	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
+	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
+	 *
+	 * @param privstr The priv to chec, e.g. "users/override/topic". These are loaded free-form from the config file.
+	 * @param noisy If set to true, the user is notified that they do not have the specified permission where applicable. If false, no notification is sent.
+	 * @return True if this user has the permission in question.
+	 */
+	bool HasPrivPermission(const std::string &privstr, bool noisy = false);
+
+	/** Returns true or false if a user can set a privileged user or channel mode.
+	 * This is done by looking up their oper type from User::oper, then referencing
+	 * this to their oper classes, and checking the modes they can set.
+	 * @param mode The mode the check
+	 * @param type ModeType (MODETYPE_CHANNEL or MODETYPE_USER).
+	 * @return True if the user can set or unset this mode.
+	 */
+	bool HasModePermission(unsigned char mode, ModeType type);
+
+	void OperInternal();
+	void UnOperInternal();
 };
 
 class CoreExport RemoteUser : public User

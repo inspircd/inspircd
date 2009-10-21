@@ -277,7 +277,7 @@ public:
 		}
 	}
 
-	bool CheckPass(User* user)
+	bool CheckPass(LocalUser* user)
 	{
 		if(IsValidHost(user->password))
 		{
@@ -324,7 +324,7 @@ public:
 		return false;
 	}
 
-	bool CheckIdent(User* user)
+	bool CheckIdent(LocalUser* user)
 	{
 		const char* ident;
 		int len = user->ident.length();

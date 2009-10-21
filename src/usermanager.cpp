@@ -81,13 +81,7 @@ void UserManager::AddUser(int socket, ClientListenSocket* via, irc::sockets::soc
 	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
 	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
 	 */
-	ConnectClass* i = New->SetClass();
-
-	if (!i)
-	{
-		this->QuitUser(New, "Access denied by configuration");
-		return;
-	}
+	New->SetClass();
 
 	/*
 	 * Check connect class settings and initialise settings into User.

@@ -127,17 +127,16 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	bool CheckCredentials(User* user)
+	bool CheckCredentials(LocalUser* user)
 	{
 		if (conn == NULL)
 			if (!Connect())
 				return false;
 
 		int res;
-		char* authpass = strdup(password.c_str());
 		// bind anonymously if no bind DN and authentication are given in the config
 		struct berval cred;
-		cred.bv_val = authpass;
+		cred.bv_val = const_cast<char*>(password.c_str());
 		cred.bv_len = password.length();
 
 		if ((res = ldap_sasl_bind_s(conn, username.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
@@ -155,13 +154,11 @@ public:
 			{
 				if (verbose)
 					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP bind failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
-				free(authpass);
 				ldap_unbind_ext(conn, NULL, NULL);
 				conn = NULL;
 				return false;
 			}
 		}
-		free(authpass);
 
 		LDAPMessage *msg, *entry;
 		std::string what = (attribute + "=" + (useusername ? user->ident : user->nick));

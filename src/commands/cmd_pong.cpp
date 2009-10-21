@@ -36,7 +36,8 @@ class CommandPong : public Command
 CmdResult CommandPong::Handle (const std::vector<std::string>&, User *user)
 {
 	// set the user as alive so they survive to next ping
-	user->lastping = 1;
+	if (IS_LOCAL(user))
+		IS_LOCAL(user)->lastping = 1;
 	return CMD_SUCCESS;
 }
 

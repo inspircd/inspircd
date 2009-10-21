@@ -249,11 +249,10 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 	/* Modify the user's penalty regardless of whether or not the command exists */
 	bool do_more = true;
-	if (!user->HasPrivPermission("users/flood/no-throttle"))
+	if (IS_LOCAL(user) && !user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		user->IncreasePenalty(cm != cmdlist.end() ? cm->second->Penalty : 2);
-		do_more = (user->GetClass()->GetPenaltyThreshold() && ((unsigned long)user->Penalty < user->GetClass()->GetPenaltyThreshold()));
+		IS_LOCAL(user)->Penalty += cm != cmdlist.end() ? cm->second->Penalty : 2;
 	}
 
 
@@ -328,8 +327,9 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		return true;
 
 	/* activity resets the ping pending timer */
-	if (user->MyClass)
-		user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
+	LocalUser* luser = IS_LOCAL(user);
+	if (luser)
+		luser->nping = ServerInstance->Time() + luser->MyClass->GetPingTime();
 
 	if (cm->second->flags_needed)
 	{

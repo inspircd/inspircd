@@ -18,23 +18,23 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class CommandPass : public Command
+class CommandPass : public SplitCommand
 {
  public:
 	/** Constructor for pass.
 	 */
-	CommandPass ( Module* parent) : Command(parent,"PASS",1,1) { works_before_reg = true; Penalty = 0; syntax = "<password>"; }
+	CommandPass (Module* parent) : SplitCommand(parent,"PASS",1,1) { works_before_reg = true; Penalty = 0; syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
 };
 
 
-CmdResult CommandPass::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandPass::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
 	// Check to make sure they haven't registered -- Fix by FCS
 	if (user->registered == REG_ALL)

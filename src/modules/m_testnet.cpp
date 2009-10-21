@@ -32,9 +32,9 @@ class CommandTest : public Command
 			for(unsigned int i=0; i < count; i++)
 				user->Write(line);
 		}
-		else if (parameters[0] == "freeze")
+		else if (parameters[0] == "freeze" && IS_LOCAL(user))
 		{
-			user->Penalty += 100;
+			IS_LOCAL(user)->Penalty += 100;
 		}
 		else if (parameters[0] == "shutdown")
 		{

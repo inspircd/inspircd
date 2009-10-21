@@ -56,28 +56,29 @@ class CommandUninvite : public Command
 
 		irc::string xname(c->name.c_str());
 
-		if (!u->IsInvited(xname))
+		if (IS_LOCAL(u))
 		{
-			user->WriteNumeric(505, "%s %s %s :Is not invited to channel %s", user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
-			return CMD_FAILURE;
+			// TODO send messages & such out to remote servers
+			LocalUser* lu = IS_LOCAL(u);
+			if (!lu->IsInvited(xname))
+			{
+				user->WriteNumeric(505, "%s %s %s :Is not invited to channel %s", user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
+				return CMD_FAILURE;
+			}
+			user->WriteNumeric(494, "%s %s %s :Uninvited", user->nick.c_str(), c->name.c_str(), u->nick.c_str());
+			lu->RemoveInvite(xname);
+			lu->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
+			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.",
+				c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 		}
-		if (!c->HasUser(user))
-		{
-			user->WriteNumeric(492, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
-			return CMD_FAILURE;
-		}
-
-		u->RemoveInvite(xname);
-		user->WriteNumeric(494, "%s %s %s :Uninvited", user->nick.c_str(), c->name.c_str(), u->nick.c_str());
-		u->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
-		c->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :*** %s uninvited %s.", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 
 		return CMD_SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		User* u = ServerInstance->FindNick(parameters[0]);
+		return u ? ROUTE_UNICAST(u->server) : ROUTE_LOCALONLY;
 	}
 };
 
@@ -98,7 +99,7 @@ class ModuleUninvite : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the UNINVITE command which lets users un-invite other users from channels (!)", VF_VENDOR | VF_COMMON);
+		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_COMMON);
 	}
 };
 

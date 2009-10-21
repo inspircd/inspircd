@@ -90,7 +90,8 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			}
 		}
 
-		u->InviteTo(c->name.c_str(), timeout);
+		if (IS_LOCAL(u))
+			IS_LOCAL(u)->InviteTo(c->name.c_str(), timeout);
 		u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
 		user->WriteNumeric(RPL_INVITING, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
 		switch (ServerInstance->Config->AnnounceInvites)
@@ -113,11 +114,11 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		}
 		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c,timeout));
 	}
-	else
+	else if (IS_LOCAL(user))
 	{
 		// pinched from ircu - invite with not enough parameters shows channels
 		// youve been invited to but haven't joined yet.
-		InvitedList* il = user->GetInviteList();
+		InvitedList* il = IS_LOCAL(user)->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
 			user->WriteNumeric(RPL_INVITELIST, "%s :%s",user->nick.c_str(),i->first.c_str());

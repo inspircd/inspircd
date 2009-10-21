@@ -85,7 +85,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	bool CheckCredentials(User* user)
+	bool CheckCredentials(LocalUser* user)
 	{
 		std::string thisquery = freeformquery;
 		std::string safepass = user->password;
