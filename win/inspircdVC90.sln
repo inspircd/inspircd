@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2009
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "inspircd", "inspircdVC90.vcproj", "{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B922B569-727E-4EB0-827A-04E133A91DE7} = {B922B569-727E-4EB0-827A-04E133A91DE7}
