@@ -124,6 +124,13 @@ class CoreExport ServerConfig
 	void CrossCheckConnectBlocks(ServerConfig* current);
 
  public:
+
+	/** Get a configuration tag
+	 * @param tag The name of the tag to get
+	 * @param offset get the Nth occurance of the tag
+	 */
+	ConfigTag* ConfValue(const std::string& tag, int offset = 0);
+
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
 	std::stringstream errstr;
@@ -133,10 +140,6 @@ class CoreExport ServerConfig
 
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
-
-	/** Not used any more as it is named, can probably be removed or renamed.
-	 */
-	int DoDownloads();
 
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
@@ -564,18 +567,6 @@ class CoreExport ServerConfig
 	/* Returns true if the given string starts with a windows drive letter
 	 */
 	bool StartsWithWindowsDriveLetter(const std::string &path);
-
-	/** Load 'filename' into 'target', with the new config parser everything is parsed into
-	 * tag/key/value at load-time rather than at read-value time.
-	 */
-	bool LoadConf(FILE* &conf, const char* filename, bool allowexeinc);
-
-	/** Load 'filename' into 'target', with the new config parser everything is parsed into
-	 * tag/key/value at load-time rather than at read-value time.
-	 */
-	bool LoadConf(FILE* &conf, const std::string &filename, bool allowexeinc);
-
-	ConfigTag* ConfValue(const std::string& tag, int offset = 0);
 
 	bool ApplyDisabledCommands(const std::string& data);
 

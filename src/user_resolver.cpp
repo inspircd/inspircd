@@ -11,11 +11,9 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 UserResolver::UserResolver(User* user, std::string to_resolve, QueryType qt, bool &cache) :
-	Resolver(to_resolve, qt, cache), bound_user(user)
+	Resolver(to_resolve, qt, cache, NULL), bound_user(user)
 {
 	this->fwd = (qt == DNS_QUERY_A || qt == DNS_QUERY_AAAA);
 	this->bound_fd = user->GetFd();

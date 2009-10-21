@@ -251,7 +251,7 @@ class CoreExport Resolver
 	 * whilst lookups are in progress, they can be safely removed and your module will not
 	 * crash the server.
 	 */
-	Resolver(const std::string &source, QueryType qt, bool &cached, Module* creator = NULL);
+	Resolver(const std::string &source, QueryType qt, bool &cached, Module* creator);
 
 	/**
 	 * The default destructor does nothing.

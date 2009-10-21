@@ -179,29 +179,7 @@ template<typename T> inline long ConvToInt(const T &in)
 {
 	std::stringstream tmp;
 	if (!(tmp << in)) return 0;
-	return atoi(tmp.str().c_str());
-}
-
-/** Template function to convert integer to char, storing result in *res and
- * also returning the pointer to res. Based on Stuart Lowe's C/C++ Pages.
- * @param T input value
- * @param V result value
- * @param R base to convert to
- */
-template<typename T, typename V, typename R> inline char* itoa(const T &in, V *res, R base)
-{
-	if (base < 2 || base > 16) { *res = 0; return res; }
-	char* out = res;
-	int quotient = in;
-	while (quotient) {
-		*out = "0123456789abcdef"[ std::abs( quotient % base ) ];
-		++out;
-		quotient /= base;
-	}
-	if ( in < 0 && base == 10) *out++ = '-';
-	std::reverse( res, out );
-	*out = 0;
-	return res;
+	return atol(tmp.str().c_str());
 }
 
 /** This class contains various STATS counters

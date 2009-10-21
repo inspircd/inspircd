@@ -11,11 +11,88 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "xline.h"
 #include "bancache.h"
+
+/** An XLineFactory specialized to generate GLine* pointers
+ */
+class GLineFactory : public XLineFactory
+{
+ public:
+	GLineFactory() : XLineFactory("G") { }
+
+	/** Generate a GLine
+	 */
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+	{
+		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		return new GLine(set_time, duration, source, reason, ih.first, ih.second);
+	}
+};
+
+/** An XLineFactory specialized to generate ELine* pointers
+ */
+class ELineFactory : public XLineFactory
+{
+ public:
+	ELineFactory() : XLineFactory("E") { }
+
+	/** Generate an ELine
+	 */
+	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+	{
+		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		return new ELine(set_time, duration, source, reason, ih.first, ih.second);
+	}
+};
+
+/** An XLineFactory specialized to generate KLine* pointers
+ */
+class KLineFactory : public XLineFactory
+{
+ public:
+        KLineFactory() : XLineFactory("K") { }
+
+	/** Generate a KLine
+	 */
+        XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+        {
+                IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+                return new KLine(set_time, duration, source, reason, ih.first, ih.second);
+        }
+};
+
+/** An XLineFactory specialized to generate QLine* pointers
+ */
+class QLineFactory : public XLineFactory
+{
+ public:
+        QLineFactory() : XLineFactory("Q") { }
+
+	/** Generate a QLine
+	 */
+        XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+        {
+                return new QLine(set_time, duration, source, reason, xline_specific_mask);
+        }
+};
+
+/** An XLineFactory specialized to generate ZLine* pointers
+ */
+class ZLineFactory : public XLineFactory
+{
+ public:
+        ZLineFactory() : XLineFactory("Z") { }
+
+	/** Generate a ZLine
+	 */
+        XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
+        {
+                return new ZLine(set_time, duration, source, reason, xline_specific_mask);
+        }
+};
+
 
 /*
  * This is now version 3 of the XLine subsystem, let's see if we can get it as nice and
@@ -391,6 +468,13 @@ void XLineManager::InvokeStats(const std::string &type, int numeric, User* user,
 
 XLineManager::XLineManager()
 {
+	GLineFactory* GFact;
+	ELineFactory* EFact;
+	KLineFactory* KFact;
+	QLineFactory* QFact;
+	ZLineFactory* ZFact;
+
+
 	GFact = new GLineFactory;
 	EFact = new ELineFactory;
 	KFact = new KLineFactory;
@@ -406,17 +490,13 @@ XLineManager::XLineManager()
 
 XLineManager::~XLineManager()
 {
-	UnregisterFactory(GFact);
-	UnregisterFactory(EFact);
-	UnregisterFactory(KFact);
-	UnregisterFactory(QFact);
-	UnregisterFactory(ZFact);
-
-	delete GFact;
-	delete EFact;
-	delete KFact;
-	delete QFact;
-	delete ZFact;
+	const char gekqz[] = "GEKQZ";
+	for(unsigned int i=0; i < sizeof(gekqz); i++)
+	{
+		XLineFactory* xlf = GetFactory(std::string(1, gekqz[i]));
+		UnregisterFactory(xlf);
+		delete xlf;
+	}
 
 	// Delete all existing XLines
 	for (XLineContainer::iterator i = lookup_lines.begin(); i != lookup_lines.end(); i++)

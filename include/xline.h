@@ -406,12 +406,6 @@ class CoreExport XLineFactory
  */
 class ServerConfig;
 
-class GLineFactory;
-class ELineFactory;
-class QLineFactory;
-class ZLineFactory;
-class KLineFactory;
-
 /** A map of xline factories
  */
 typedef std::map<std::string, XLineFactory*> XLineFactMap;
@@ -446,16 +440,6 @@ class CoreExport XLineManager
 	/** Current xline factories
 	 */
 	XLineFactMap line_factory;
-
-	/** Core xline factories for G/E/K/Q/Z lines
-	 * (These generate GLine, ELine, KLine, QLine and ZLine
-	 * respectively)
-	 */
-	GLineFactory* GFact;
-	ELineFactory* EFact;
-	KLineFactory* KFact;
-	QLineFactory* QFact;
-	ZLineFactory* ZFact;
 
 	/** Container of all lines, this is a map of maps which
 	 * allows for fast lookup for add/remove of a line, and
@@ -575,84 +559,6 @@ class CoreExport XLineManager
 	 * @param results The string_list to receive the results
 	 */
 	void InvokeStats(const std::string &type, int numeric, User* user, string_list &results);
-};
-
-/** An XLineFactory specialized to generate GLine* pointers
- */
-class CoreExport GLineFactory : public XLineFactory
-{
- public:
-	GLineFactory() : XLineFactory("G") { }
-
-	/** Generate a GLine
-	 */
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
-	{
-		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
-		return new GLine(set_time, duration, source, reason, ih.first, ih.second);
-	}
-};
-
-/** An XLineFactory specialized to generate ELine* pointers
- */
-class CoreExport ELineFactory : public XLineFactory
-{
- public:
-	ELineFactory() : XLineFactory("E") { }
-
-	/** Generate an ELine
-	 */
-	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
-	{
-		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
-		return new ELine(set_time, duration, source, reason, ih.first, ih.second);
-	}
-};
-
-/** An XLineFactory specialized to generate KLine* pointers
- */
-class CoreExport KLineFactory : public XLineFactory
-{
- public:
-        KLineFactory() : XLineFactory("K") { }
-
-	/** Generate a KLine
-	 */
-        XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
-        {
-                IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
-                return new KLine(set_time, duration, source, reason, ih.first, ih.second);
-        }
-};
-
-/** An XLineFactory specialized to generate QLine* pointers
- */
-class CoreExport QLineFactory : public XLineFactory
-{
- public:
-        QLineFactory() : XLineFactory("Q") { }
-
-	/** Generate a QLine
-	 */
-        XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
-        {
-                return new QLine(set_time, duration, source, reason, xline_specific_mask);
-        }
-};
-
-/** An XLineFactory specialized to generate ZLine* pointers
- */
-class CoreExport ZLineFactory : public XLineFactory
-{
- public:
-        ZLineFactory() : XLineFactory("Z") { }
-
-	/** Generate a ZLine
-	 */
-        XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
-        {
-                return new ZLine(set_time, duration, source, reason, xline_specific_mask);
-        }
 };
 
 #endif

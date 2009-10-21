@@ -2,10 +2,7 @@
 #                                                                     #
 # Defines which servers can link to this one, and which servers this  #
 # server may create outbound links to.                                #
-#								      #
-# If you would like more detailed options, but a slightly more        #
-# painful configuration, please see inspircd.conf.example.old	      #
-#								      #
+#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -36,32 +33,28 @@
       # Can be a CIDR (see example).
       allowmask="69.58.44.0/24"
 
-      # autoconnect: Time to wait to attempt to autoconnect
-      # to remote server (in seconds).
-      autoconnect="300"
-
-      # failover: If defined, if this link fails,
-      # what is the next link that is tried.
-      failover="hub.other.net"
-
       # timeout: If defined, this option defines how long the server
       # will wait to consider the connect attempt failed and try the
       # failover (see above).
       timeout="300"
 
-      # fingerprint: If defined, this option will force servers to be
-      # authenticated using SSL Fingerprints. For more information,
-      # see http://wiki.inspircd.org/SSL
-      #fingerprint=""
-
-      # ssl: If defined, this states extra modules that can be
-      # used in the connection. Options are: "openssl" and "gnutls"
-      # for encryption (they are compatible with each other) and
-      # "ziplinks" for compression. You must use the same (or a
-      # compatible) transport on both sides of the link.
+      # ssl: If defined, this states extra modules that will be used when
+      # making an outbound connection to the server. Options are: "openssl"
+      # and "gnutls" for encryption (they are compatible with each other) and
+      # "ziplinks" for compression. You must use the same (or a compatible)
+      # transport on both sides of the link.
+      #
       # You will need to load the m_ssl_openssl.so module for openssl,
-      # m_ssl_gnutls.so for gnutls or m_ziplinks.so for ziplinks.
+      # m_ssl_gnutls.so for gnutls or m_ziplinks.so for ziplinks. The server
+      # port that you connect to must be capable of accepting this type of
+      # connection.
       ssl="gnutls"
+
+      # fingerprint: If defined, this option will force servers to be
+      # authenticated using SSL Fingerprints. See http://wiki.inspircd.org/SSL
+      # for more information. This will require an SSL link for both inbound
+      # and outbound connections.
+      #fingerprint=""
 
       # bind: Local IP address to bind to.
       bind="1.2.3.4"
@@ -70,11 +63,11 @@
       # /stats c is invoked.
       statshidden="no"
 
-      # hidden: If this is set to yes, this server and it's "child"
+      # hidden: If this is set to yes, this server and its "child"
       # servers will not be shown when users do a /map or /links
       hidden="no"
 
-      # passwords: the passwords we send and recieve.
+      # passwords: the passwords we send and receive.
       # The remote server will have these passwords reversed.
       sendpass="outgoing!password"
       recvpass="incoming!password">
@@ -85,8 +78,6 @@
       ipaddr="penguin.box.com"
       port="7000"
       allowmask="69.58.44.0/24"
-      autoconnect="300"
-      failover="hub.other.net"
       timeout="300"
       ssl="gnutls"
       bind="1.2.3.4"
@@ -103,6 +94,18 @@
       allowmask="127.0.0.0/8"
       sendpass="penguins"
       recvpass="polarbears">
+
+# Simple autoconnect block. This enables automatic connection of a server
+# Recommended setup is to have leaves connect to the hub, and have no
+# automatic connections started by the hub.
+<autoconnect period="300" server="hub.penguin.org">
+
+# Failover autoconnect block. If you have multiple hubs, or want your network
+# to automatically link even if the hub is down, you can specify multiple
+# servers to autoconnect; they will be tried in a round robin fashion until
+# one succeeds. Period defines the time for restarting a single loop.
+<autoconnect period="120"
+	server="hub.us.penguin.org hub.eu.penguin.org leaf.eu.penguin.org">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#- ULINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
