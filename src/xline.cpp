@@ -494,7 +494,8 @@ XLineManager::~XLineManager()
 	for(unsigned int i=0; i < sizeof(gekqz); i++)
 	{
 		XLineFactory* xlf = GetFactory(std::string(1, gekqz[i]));
-		UnregisterFactory(xlf);
+		if (xlf)
+			UnregisterFactory(xlf);
 		delete xlf;
 	}
 

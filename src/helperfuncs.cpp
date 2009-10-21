@@ -276,36 +276,19 @@ bool IsSIDHandler::Call(const std::string &str)
 /* open the proper logfile */
 bool InspIRCd::OpenLog(char**, int)
 {
-	/* This function only happens at startup now */
-	if (Config->nofork)
-	{
-		this->Logs->SetupNoFork();
-	}
+	if (!Config->cmdline.writelog) return true; // Skip opening default log if -nolog
 
-	if (!Config->writelog) return true; // Skip opening default log if -nolog
+	if (Config->cmdline.startup_log.empty())
+		Config->cmdline.startup_log = "logs/startup.log";
+	FILE* startup = fopen(Config->cmdline.startup_log.c_str(), "a+");
 
-	if (!*this->LogFileName)
-	{
-		if (Config->logpath.empty())
-		{
-			Config->logpath = "logs/startup.log";
-		}
-
-		if (!Config->log_file)
-			Config->log_file = fopen(Config->logpath.c_str(),"a+");
-	}
-	else
-	{
-		Config->log_file = fopen(this->LogFileName,"a+");
-	}
-
-	if (!Config->log_file)
+	if (!startup)
 	{
 		return false;
 	}
 
-	FileWriter* fw = new FileWriter(Config->log_file);
-	FileLogStream *f = new FileLogStream((Config->forcedebug ? DEBUG : DEFAULT), fw);
+	FileWriter* fw = new FileWriter(startup);
+	FileLogStream *f = new FileLogStream((Config->cmdline.forcedebug ? DEBUG : DEFAULT), fw);
 
 	this->Logs->AddLogType("*", f, true);
 

@@ -315,10 +315,6 @@ class CoreExport InspIRCd
 	 */
 	bool AllModulesReportReady(LocalUser* user);
 
-	/** Logfile pathname specified on the commandline, or empty string
-	 */
-	char LogFileName[MAXBUF];
-
 	/** The current time, updated in the mainloop
 	 */
 	time_t TIME;

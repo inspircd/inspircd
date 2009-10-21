@@ -112,10 +112,6 @@ class CoreExport LogManager
 	 */
 	bool Logging;
 
-	/** LogStream for -nofork, logs to STDOUT when it's active.
-	 */
-	LogStream* noforkstream;
-
 	/** Map of active log types and what LogStreams will receive them.
 	 */
 	std::map<std::string, std::vector<LogStream *> > LogStreams;
@@ -137,12 +133,6 @@ class CoreExport LogManager
 
 	LogManager();
 	~LogManager();
-
-	/** Sets up the logstream for -nofork. Called by InspIRCd::OpenLog() and LogManager::OpenFileLogs().
-	 * First time called it creates the nofork stream and stores it in noforkstream. Each call thereafter just readds it to GlobalLogStreams
-	 * and updates the loglevel.
-	 */
-	void SetupNoFork();
 
 	/** Adds a FileWriter instance to LogManager, or increments the reference count of an existing instance.
 	 * Used for file-stream sharing for FileLogStreams.

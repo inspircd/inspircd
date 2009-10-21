@@ -44,47 +44,18 @@
 
 LogManager::LogManager()
 {
-	noforkstream = NULL;
 	Logging = false;
 }
 
 LogManager::~LogManager()
 {
-	if (noforkstream)
-	{
-		ServerInstance->Logs = this;
-		delete noforkstream;
-		ServerInstance->Logs = NULL;
-	}
-}
-
-void LogManager::SetupNoFork()
-{
-	if (!noforkstream)
-	{
-		FileWriter* fw = new FileWriter(stdout);
-		noforkstream = new FileLogStream(ServerInstance->Config->forcedebug ? DEBUG : DEFAULT, fw);
-	}
-	else
-	{
-		noforkstream->ChangeLevel(ServerInstance->Config->forcedebug ? DEBUG : DEFAULT);
-	}
-	AddLogType("*", noforkstream, false);
 }
 
 void LogManager::OpenFileLogs()
 {
-	/* Re-register the nofork stream if necessary. */
-	if (ServerInstance->Config->nofork)
-	{
-		SetupNoFork();
-	}
 	/* Skip rest of logfile opening if we are running -nolog. */
-	if (!ServerInstance->Config->writelog)
-	{
+	if (!ServerInstance->Config->cmdline.writelog)
 		return;
-	}
-	ConfigReader Conf;
 	std::map<std::string, FileWriter*> logmap;
 	ConfigTagList tags = ServerInstance->Config->ConfTags("log");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
@@ -98,10 +69,9 @@ void LogManager::OpenFileLogs()
 		std::string type = tag->getString("type");
 		std::string level = tag->getString("level");
 		int loglevel = DEFAULT;
-		if (level == "debug" || ServerInstance->Config->forcedebug)
+		if (level == "debug")
 		{
 			loglevel = DEBUG;
-			ServerInstance->Config->debugging = true;
 		}
 		else if (level == "verbose")
 		{

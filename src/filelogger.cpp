@@ -35,12 +35,7 @@ void FileLogStream::OnLog(int loglevel, const std::string &type, const std::stri
 	static char TIMESTR[26];
 	static time_t LAST = 0;
 
-	/* sanity check, just in case */
-	if (!ServerInstance->Config)
-		return;
-
-	/* If we were given -debug we output all messages, regardless of configured loglevel */
-	if ((loglevel < this->loglvl) && !ServerInstance->Config->forcedebug)
+	if (loglevel < this->loglvl)
 	{
 		return;
 	}

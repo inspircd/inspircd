@@ -144,15 +144,15 @@ void InspIRCd::Restart(const std::string &reason)
 	/* Figure out our filename (if theyve renamed it, we're boned) */
 	std::string me;
 
+	char** argv = Config->cmdline.argv;
+
 #ifdef WINDOWS
 	char module[MAX_PATH];
 	if (GetModuleFileName(NULL, module, MAX_PATH))
 		me = module;
 #else
-	me = Config->MyDir + "/inspircd";
+	me = argv[0];
 #endif
-
-	char** argv = Config->argv;
 
 	this->Cleanup();
 
@@ -285,7 +285,7 @@ void InspIRCd::WritePID(const std::string &filename)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv) :
-	 ConfigFileName("inspircd.conf"),
+	 ConfigFileName("conf/inspircd.conf"),
 
 	 /* Functor pointer initialisation.
 	  *
@@ -338,7 +338,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->ConfigThread = NULL;
 
 	// Initialise TIME
-	this->TIME = time(NULL);
+	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 
 	// This must be created first, so other parts of Insp can use it while starting up
 	this->Logs = new LogManager;
@@ -370,13 +370,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Parser = new CommandParser;
 	this->XLines = new XLineManager;
 
-	this->Config->argv = argv;
-	this->Config->argc = argc;
+	this->Config->cmdline.argv = argv;
+	this->Config->cmdline.argc = argc;
 
-	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 	srand(this->TIME);
-
-	*this->LogFileName = 0;
 
 	struct option longopts[] =
 	{
@@ -398,7 +395,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{
 			case 'f':
 				/* Log filename was set */
-				strlcpy(LogFileName, optarg, MAXBUF);
+				Config->cmdline.startup_log = optarg;
 			break;
 			case 'c':
 				/* Config filename was set */
@@ -444,14 +441,20 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #endif
 
 	/* Set the finished argument values */
-	Config->nofork = do_nofork;
-	Config->forcedebug = do_debug;
-	Config->writelog = !do_nolog;
-	Config->TestSuite = do_testsuite;
+	Config->cmdline.nofork = do_nofork;
+	Config->cmdline.forcedebug = do_debug;
+	Config->cmdline.writelog = !do_nolog;
+	Config->cmdline.TestSuite = do_testsuite;
 
-	if (!this->OpenLog(argv, argc))
+	if (do_debug)
 	{
-		printf("ERROR: Could not open logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
+		FileWriter* fw = new FileWriter(stdout);
+		FileLogStream* fls = new FileLogStream(DEBUG, fw);
+		Logs->AddLogTypes("*", fls, true);
+	}
+	else if (!this->OpenLog(argv, argc))
+	{
+		printf("ERROR: Could not open initial logfile %s: %s\n\n", Config->cmdline.startup_log.c_str(), strerror(errno));
 		Exit(EXIT_STATUS_LOG);
 	}
 
@@ -501,7 +504,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->SetSignals();
 
-	if (!Config->nofork)
+	if (!Config->cmdline.nofork)
 	{
 		if (!this->DaemonSeed())
 		{
@@ -577,7 +580,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef WINDOWS
-	if (!Config->nofork)
+	if (!Config->cmdline.nofork)
 	{
 		if (kill(getppid(), SIGTERM) == -1)
 		{
@@ -596,7 +599,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{
 			fclose(stdin);
 			fclose(stderr);
-			fclose(stdout);
+			if (!Config->cmdline.forcedebug)
+				fclose(stdout);
 		}
 		else
 		{
@@ -617,7 +621,9 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef WIN32
-	if (!Config->SetGroup.empty())
+	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
+	std::string SetGroup = Config->ConfValue("security")->getString("runasgroup");
+	if (!SetGroup.empty())
 	{
 		int ret;
 
@@ -634,7 +640,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		struct group *g;
 
 		errno = 0;
-		g = getgrnam(this->Config->SetGroup.c_str());
+		g = getgrnam(SetGroup.c_str());
 
 		if (!g)
 		{
@@ -651,13 +657,13 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 
-	if (!Config->SetUser.empty())
+	if (!SetUser.empty())
 	{
 		// setuid
 		struct passwd *u;
 
 		errno = 0;
-		u = getpwnam(this->Config->SetUser.c_str());
+		u = getpwnam(SetUser.c_str());
 
 		if (!u)
 		{
@@ -681,7 +687,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 int InspIRCd::Run()
 {
 	/* See if we're supposed to be running the test suite rather than entering the mainloop */
-	if (Config->TestSuite)
+	if (Config->cmdline.TestSuite)
 	{
 		TestSuite* ts = new TestSuite;
 		delete ts;

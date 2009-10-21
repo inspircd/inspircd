@@ -372,16 +372,14 @@ bool ParseStack::ParseExec(const std::string& name, int flags)
 ServerConfig::ServerConfig()
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
-	log_file = NULL;
-	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
-	CycleHosts = writelog = AllowHalfop = InvBypassModes = true;
+	NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
+	CycleHosts = AllowHalfop = InvBypassModes = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
 	SoftLimit = ServerInstance->SE->GetMaxFds();
 	MaxConn = SOMAXCONN;
 	MaxWhoResults = 0;
-	debugging = 0;
 	MaxChans = 20;
 	OperMaxChans = 30;
 	c_ipv4_range = 32;
@@ -668,14 +666,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 
 	ClassMap newBlocksByMask;
-	Classes.resize(config_data.count("type"));
+	Classes.resize(config_data.count("connect"));
 	std::map<std::string, int> names;
 
 	bool try_again = true;
 	for(int tries=0; try_again; tries++)
 	{
 		try_again = false;
-		ConfigTagList tags = ConfTags("type");
+		ConfigTagList tags = ConfTags("connect");
 		int i=0;
 		for(ConfigIter it = tags.first; it != tags.second; ++it, ++i)
 		{
@@ -843,8 +841,6 @@ void ServerConfig::Fill()
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
-	SetUser = security->getString("runasuser");
-	SetGroup = security->getString("runasgroup");
 	UserStats = security->getString("userstats");
 	CustomVersion = security->getString("customversion");
 	HideSplits = security->getBool("hidesplits");
@@ -992,12 +988,12 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		for (int Index = 0; Index * sizeof(*Once) < sizeof(Once); Index++)
 		{
 			std::string tag = Once[Index];
-			if (!ConfValue(tag))
-				throw CoreException("You have not defined a <"+tag+"> tag, this is required.");
 			ConfigTagList tags = ConfTags(tag);
+			if (tags.first == tags.second)
+				throw CoreException("You have not defined a <"+tag+"> tag, this is required.");
+			tags.first++;
 			if (tags.first != tags.second)
 			{
-				tags.first++;
 				errstr << "You have more than one <" << tag << "> tag.\n"
 					<< "First occurrence at " << ConfValue(tag)->getTagLocation()
 					<< "; second occurrence at " << tags.first->second->getTagLocation() << std::endl;
@@ -1034,8 +1030,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	{
 		this->ServerName = old->ServerName;
 		this->sid = old->sid;
-		this->argv = old->argv;
-		this->argc = old->argc;
+		this->cmdline = old->cmdline;
 
 		// Same for ports... they're bound later on first run.
 		FailedPortList pl;
