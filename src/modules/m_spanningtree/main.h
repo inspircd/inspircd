@@ -161,7 +161,7 @@ class ModuleSpanningTree : public Module
 	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
 	void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line);
 	void OnGetServerDescription(const std::string &servername,std::string &description);
-	void OnUserConnect(User* source);
+	void OnUserConnect(LocalUser* source);
 	void OnUserInvite(User* source,User* dest,Channel* channel, time_t);
 	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
 	void OnWallops(User* user, const std::string &text);
@@ -169,7 +169,7 @@ class ModuleSpanningTree : public Module
 	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 	void OnBackgroundTimer(time_t curtime);
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts);
-	ModResult OnChangeLocalUserHost(User* user, const std::string &newhost);
+	void OnChangeHost(User* user, const std::string &newhost);
 	void OnChangeName(User* user, const std::string &gecos);
 	void OnChangeIdent(User* user, const std::string &ident);
 	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts);

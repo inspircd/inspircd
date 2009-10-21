@@ -97,7 +97,7 @@ class ModuleRandQuote : public Module
 		return Version("Provides random Quotes on Connect.",VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(User* user)
+	virtual void OnUserConnect(LocalUser* user)
 	{
 		cmd.Handle(std::vector<std::string>(), user);
 	}

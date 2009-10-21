@@ -794,7 +794,7 @@ int InspIRCd::Run()
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the
  * registration timeout maximum seconds)
  */
-bool InspIRCd::AllModulesReportReady(User* user)
+bool InspIRCd::AllModulesReportReady(LocalUser* user)
 {
 	ModResult res;
 	FIRST_MOD_RESULT(OnCheckReady, res, (user));

@@ -62,7 +62,7 @@ class ModuleAntiBear : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
 		user->WriteNumeric(439, "%s :This server has anti-spambot mechanisms enabled.", user->nick.c_str());
 		user->WriteNumeric(931, "%s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick.c_str());

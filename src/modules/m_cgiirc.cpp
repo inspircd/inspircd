@@ -214,7 +214,7 @@ public:
 		}
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
 		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
 		{
@@ -253,7 +253,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserConnect(User* user)
+	virtual void OnUserConnect(LocalUser* user)
 	{
 		std::string *webirc_hostname = cmd.webirc_hostname.get(user);
 		std::string *webirc_ip = cmd.webirc_ip.get(user);

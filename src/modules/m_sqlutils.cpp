@@ -97,7 +97,7 @@ public:
 		}
 	}
 
-	void OnUserDisconnect(User* user)
+	void OnUserDisconnect(LocalUser* user)
 	{
 		/* A user is disconnecting, first we need to check if they have a list of queries associated with them.
 		 * Then, if they do, we need to erase each of them from our IdUserMap (iduser) so when the module that

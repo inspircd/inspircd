@@ -142,7 +142,7 @@ class ModuleCAP : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	ModResult OnCheckReady(User* user)
+	ModResult OnCheckReady(LocalUser* user)
 	{
 		/* Users in CAP state get held until CAP END */
 		if (cmd.reghold.get(user))

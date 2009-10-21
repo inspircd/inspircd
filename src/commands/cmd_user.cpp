@@ -18,22 +18,22 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class CommandUser : public Command
+class CommandUser : public SplitCommand
 {
  public:
 	/** Constructor for user.
 	 */
-	CommandUser ( Module* parent) : Command(parent,"USER",4,4) { works_before_reg = true; Penalty = 0; syntax = "<username> <localhost> <remotehost> <GECOS>"; }
+	CommandUser ( Module* parent) : SplitCommand(parent,"USER",4,4) { works_before_reg = true; Penalty = 0; syntax = "<username> <localhost> <remotehost> <GECOS>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
 };
 
-CmdResult CommandUser::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))

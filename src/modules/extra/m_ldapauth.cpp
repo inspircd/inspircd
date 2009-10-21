@@ -111,7 +111,7 @@ public:
 		return true;
 	}
 
-	ModResult OnUserRegister(User* user)
+	ModResult OnUserRegister(LocalUser* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
@@ -208,7 +208,7 @@ public:
 		}
 	}
 
-	ModResult OnCheckReady(User* user)
+	ModResult OnCheckReady(LocalUser* user)
 	{
 		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}

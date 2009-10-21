@@ -66,7 +66,7 @@ class ModuleConnectBan : public Module
 		banduration = ServerInstance->Duration(duration);
 	}
 
-	virtual void OnUserConnect(User *u)
+	virtual void OnUserConnect(LocalUser *u)
 	{
 		int range = 32;
 		clonemap::iterator i;

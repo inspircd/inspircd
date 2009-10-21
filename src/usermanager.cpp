@@ -198,14 +198,13 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		user->WriteCommonQuit(reason, oper_reason);
 	}
 
-	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
-
 	if (user->registered != REG_ALL)
 		if (ServerInstance->Users->unregistered_count)
 			ServerInstance->Users->unregistered_count--;
 
 	if (IS_LOCAL(user))
 	{
+		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(IS_LOCAL(user)));
 		user->DoWrite();
 		if (user->GetIOHook())
 		{

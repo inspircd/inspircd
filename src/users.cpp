@@ -1438,7 +1438,7 @@ bool User::ChangeName(const char* gecos)
 	if (IS_LOCAL(this))
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnChangeLocalUserGECOS, MOD_RESULT, (this,gecos));
+		FIRST_MOD_RESULT(OnChangeLocalUserGECOS, MOD_RESULT, (IS_LOCAL(this),gecos));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
@@ -1520,7 +1520,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	if (IS_LOCAL(this))
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnChangeLocalUserHost, MOD_RESULT, (this,shost));
+		FIRST_MOD_RESULT(OnChangeLocalUserHost, MOD_RESULT, (IS_LOCAL(this),shost));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 	}

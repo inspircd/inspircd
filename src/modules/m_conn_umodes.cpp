@@ -35,11 +35,8 @@ class ModuleModesOnConnect : public Module
 		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(User* user)
+	virtual void OnUserConnect(LocalUser* user)
 	{
-		if (!IS_LOCAL(user))
-			return;
-
 		// Backup and zero out the disabled usermodes, so that we can override them here.
 		char save[64];
 		memcpy(save, ServerInstance->Config->DisabledUModes,

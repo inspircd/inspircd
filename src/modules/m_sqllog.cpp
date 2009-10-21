@@ -248,7 +248,7 @@ class ModuleSQLLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserConnect(User* user)
+	virtual void OnUserConnect(LocalUser* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}

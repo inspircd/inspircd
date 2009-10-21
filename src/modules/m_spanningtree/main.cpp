@@ -46,7 +46,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
-		I_OnChangeLocalUserHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
+		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
 		I_OnSetAway, I_OnPostCommand, I_OnUserConnect
@@ -592,7 +592,7 @@ void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 	DoConnectTimeout(curtime);
 }
 
-void ModuleSpanningTree::OnUserConnect(User* user)
+void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 {
 	if (user->quitting)
 		return;
@@ -630,21 +630,19 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, C
 	}
 }
 
-ModResult ModuleSpanningTree::OnChangeLocalUserHost(User* user, const std::string &newhost)
+void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
 {
-	if (user->registered != REG_ALL)
-		return MOD_RES_PASSTHRU;
+	if (user->registered != REG_ALL || !IS_LOCAL(user))
+		return;
 
 	parameterlist params;
 	params.push_back(newhost);
 	Utils->DoOneToMany(user->uuid,"FHOST",params);
-	return MOD_RES_PASSTHRU;
 }
 
 void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 {
-	// only occurs for local clients
-	if (user->registered != REG_ALL)
+	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 
 	parameterlist params;

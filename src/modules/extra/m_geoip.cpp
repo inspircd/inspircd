@@ -62,23 +62,19 @@ class ModuleGeoIP : public Module
 		}
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
-		/* only do lookups on local users */
-		if (IS_LOCAL(user))
+		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
+		if (c)
 		{
-			const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
-			if (c)
-			{
-				std::map<std::string, std::string>::iterator x = GeoBans.find(c);
-				if (x != GeoBans.end())
-					ServerInstance->Users->QuitUser(user,  x->second);
-			}
-			else
-			{
-				if (banunknown)
-					ServerInstance->Users->QuitUser(user, "Could not identify your country of origin. Access denied.");
-			}
+			std::map<std::string, std::string>::iterator x = GeoBans.find(c);
+			if (x != GeoBans.end())
+				ServerInstance->Users->QuitUser(user,  x->second);
+		}
+		else
+		{
+			if (banunknown)
+				ServerInstance->Users->QuitUser(user, "Could not identify your country of origin. Access denied.");
 		}
 		return MOD_RES_PASSTHRU;
 	}

@@ -93,7 +93,7 @@ public:
 		ResetLocked();
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
 		if (locked)
 		{
@@ -103,7 +103,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckReady(User* user)
+	virtual ModResult OnCheckReady(LocalUser* user)
 	{
 		return locked ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}

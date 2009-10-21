@@ -237,7 +237,7 @@ class ModuleSASL : public Module
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
-	ModResult OnUserRegister(User *user)
+	ModResult OnUserRegister(LocalUser *user)
 	{
 		SaslAuthenticator *sasl_ = authExt.get(user);
 		if (sasl_)

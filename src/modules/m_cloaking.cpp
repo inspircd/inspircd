@@ -74,10 +74,10 @@ class CloakUser : public ModeHandler
 
 				std::string* cloak = ext.get(dest);
 
-				if (!cloak)
+				if (!cloak && IS_LOCAL(dest))
 				{
 					/* Force creation of missing cloak */
-					creator->OnUserConnect(dest);
+					creator->OnUserConnect(IS_LOCAL(dest));
 					cloak = ext.get(dest);
 				}
 				if (cloak)
@@ -424,7 +424,7 @@ class ModuleCloaking : public Module
 		}
 	}
 
-	void OnUserConnect(User* dest)
+	void OnUserConnect(LocalUser* dest)
 	{
 		std::string* cloak = cu.ext.get(dest);
 		if (cloak)

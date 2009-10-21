@@ -41,10 +41,6 @@ class InvisibleMode : public ModeHandler
 			if (m && adding)
 				m->OnUserQuit(dest, "Connection closed", "Connection closed");
 
-			/* This has to come after setting/unsetting the handler */
-			if (m && !adding)
-				m->OnPostConnect(dest);
-
 			/* User appears to vanish or appear from nowhere */
 			for (UCListIter f = dest->chans.begin(); f != dest->chans.end(); f++)
 			{

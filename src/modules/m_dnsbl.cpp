@@ -46,12 +46,12 @@ class DNSBLConfEntry
 class DNSBLResolver : public Resolver
 {
 	int theirfd;
-	User* them;
+	LocalUser* them;
 	DNSBLConfEntry *ConfEntry;
 
  public:
 
-	DNSBLResolver(Module *me, const std::string &hostname, User* u, int userfd, DNSBLConfEntry *conf, bool &cached)
+	DNSBLResolver(Module *me, const std::string &hostname, LocalUser* u, int userfd, DNSBLConfEntry *conf, bool &cached)
 		: Resolver(hostname, DNS_QUERY_A, cached, me)
 	{
 		theirfd = userfd;
@@ -322,42 +322,38 @@ class ModuleDNSBL : public Module
 		ReadConf();
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
-		/* only do lookups on local users */
-		if (IS_LOCAL(user))
+		/* following code taken from bopm, reverses an IP address. */
+		struct in_addr in;
+		unsigned char a, b, c, d;
+		char reversedipbuf[128];
+		std::string reversedip;
+		bool success;
+
+		success = inet_aton(user->GetIPString(), &in);
+
+		if (!success)
+			return MOD_RES_PASSTHRU;
+
+		d = (unsigned char) (in.s_addr >> 24) & 0xFF;
+		c = (unsigned char) (in.s_addr >> 16) & 0xFF;
+		b = (unsigned char) (in.s_addr >> 8) & 0xFF;
+		a = (unsigned char) in.s_addr & 0xFF;
+
+		snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
+		reversedip = std::string(reversedipbuf);
+
+		// For each DNSBL, we will run through this lookup
+		for (std::vector<DNSBLConfEntry *>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
 		{
-			/* following code taken from bopm, reverses an IP address. */
-			struct in_addr in;
-			unsigned char a, b, c, d;
-			char reversedipbuf[128];
-			std::string reversedip;
-			bool success;
+			// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
+			std::string hostname = reversedip + "." + (*i)->domain;
 
-			success = inet_aton(user->GetIPString(), &in);
-
-			if (!success)
-				return MOD_RES_PASSTHRU;
-
-			d = (unsigned char) (in.s_addr >> 24) & 0xFF;
-			c = (unsigned char) (in.s_addr >> 16) & 0xFF;
-			b = (unsigned char) (in.s_addr >> 8) & 0xFF;
-			a = (unsigned char) in.s_addr & 0xFF;
-
-			snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
-			reversedip = std::string(reversedipbuf);
-
-			// For each DNSBL, we will run through this lookup
-			for (std::vector<DNSBLConfEntry *>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
-			{
-				// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
-				std::string hostname = reversedip + "." + (*i)->domain;
-
-				/* now we'd need to fire off lookups for `hostname'. */
-				bool cached;
-				DNSBLResolver *r = new DNSBLResolver(this, hostname, user, user->GetFd(), *i, cached);
-				ServerInstance->AddResolver(r, cached);
-			}
+			/* now we'd need to fire off lookups for `hostname'. */
+			bool cached;
+			DNSBLResolver *r = new DNSBLResolver(this, hostname, user, user->GetFd(), *i, cached);
+			ServerInstance->AddResolver(r, cached);
 		}
 
 		/* don't do anything with this hot potato */

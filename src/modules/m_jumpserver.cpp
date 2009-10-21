@@ -146,7 +146,7 @@ class ModuleJumpServer : public Module
 	{
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
 		if (js.port && js.redirect_new_users)
 		{

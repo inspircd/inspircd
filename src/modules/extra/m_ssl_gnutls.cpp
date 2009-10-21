@@ -551,7 +551,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
 		// protocol module has propagated the NICK message.
-		if (user->GetIOHook() == this && (IS_LOCAL(user)))
+		if (user->GetIOHook() == this)
 		{
 			if (sessions[user->GetFd()].sess)
 			{

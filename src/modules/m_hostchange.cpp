@@ -91,9 +91,8 @@ class ModuleHostChange : public Module
 		return Version("Provides masking of user hostnames in a different way to m_cloaking", VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(User* iuser)
+	virtual void OnUserConnect(LocalUser* user)
 	{
-		LocalUser* user = (LocalUser*)iuser;
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
 			if (((InspIRCd::MatchCIDR(user->MakeHost(), i->first)) || (InspIRCd::MatchCIDR(user->MakeHostIP(), i->first))))

@@ -69,7 +69,7 @@ public:
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 	}
 
-	ModResult OnUserRegister(User* user)
+	ModResult OnUserRegister(LocalUser* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
@@ -176,7 +176,7 @@ public:
 		}
 	}
 
-	ModResult OnCheckReady(User* user)
+	ModResult OnCheckReady(LocalUser* user)
 	{
 		return sqlAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}

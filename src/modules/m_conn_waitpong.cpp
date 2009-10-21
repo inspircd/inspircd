@@ -55,7 +55,7 @@ class ModuleWaitPong : public Module
 		return out;
 	}
 
-	ModResult OnUserRegister(User* user)
+	ModResult OnUserRegister(LocalUser* user)
 	{
 		std::string pingrpl = RandString();
 
@@ -92,7 +92,7 @@ class ModuleWaitPong : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(User* user)
+	ModResult OnCheckReady(LocalUser* user)
 	{
 		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}

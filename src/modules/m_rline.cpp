@@ -230,7 +230,7 @@ class ModuleRLine : public Module
 		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(User* user)
+	virtual void OnUserConnect(LocalUser* user)
 	{
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);

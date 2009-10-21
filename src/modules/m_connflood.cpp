@@ -57,7 +57,7 @@ public:
 		first = ServerInstance->Time();
 	}
 
-	virtual ModResult OnUserRegister(User* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
 		time_t next = ServerInstance->Time();
 

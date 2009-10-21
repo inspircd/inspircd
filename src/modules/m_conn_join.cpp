@@ -73,11 +73,10 @@ class ModuleConnJoin : public Module
 			return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
 		}
 
-		virtual void OnPostConnect(User* user)
+		void OnPostConnect(User* user)
 		{
 			if (!IS_LOCAL(user))
 				return;
-
 			for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
 					Channel::JoinUser(user, it->c_str(), false, "", false, ServerInstance->Time());

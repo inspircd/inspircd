@@ -303,7 +303,7 @@ class ModuleIdent : public Module
 			RequestTimeout = 5;
 	}
 
-	virtual ModResult OnUserRegister(User *user)
+	virtual ModResult OnUserRegister(LocalUser *user)
 	{
 		ConfigTag* tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
@@ -334,7 +334,7 @@ class ModuleIdent : public Module
 	 * creating a Timer object and especially better than creating a
 	 * Timer per ident lookup!
 	 */
-	virtual ModResult OnCheckReady(User *user)
+	virtual ModResult OnCheckReady(LocalUser *user)
 	{
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
@@ -389,10 +389,10 @@ class ModuleIdent : public Module
 	{
 		/* Module unloading, tidy up users */
 		if (target_type == TYPE_USER)
-			OnUserDisconnect((User*)item);
+			OnUserDisconnect((LocalUser*)item);
 	}
 
-	virtual void OnUserDisconnect(User *user)
+	virtual void OnUserDisconnect(LocalUser *user)
 	{
 		/* User disconnect (generic socket detatch event) */
 		IdentRequestSocket *isock = ext.get(user);

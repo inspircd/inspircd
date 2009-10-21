@@ -106,7 +106,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 136
+#define API_VERSION 137
 
 class ServerConfig;
 
@@ -308,7 +308,7 @@ enum Implementation
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnPreTopicChange,
+	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
@@ -368,7 +368,7 @@ class CoreExport Module : public classbase
 	 * The details of the connecting user are available to you in the parameter User *user
 	 * @param user The user who is connecting
 	 */
-	virtual void OnUserConnect(User* user);
+	virtual void OnUserConnect(LocalUser* user);
 
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter User *user
@@ -386,7 +386,7 @@ class CoreExport Module : public classbase
 	 * which might assign resources to user, such as dns lookups, objects and sockets.
 	 * @param user The user who is disconnecting
 	 */
-	virtual void OnUserDisconnect(User* user);
+	virtual void OnUserDisconnect(LocalUser* user);
 
 	/** Called whenever a channel is about to be deleted
 	 * @param chan The channel being deleted
@@ -959,7 +959,7 @@ class CoreExport Module : public classbase
 	 * @param user The user to check
 	 * @return true to indicate readiness, false if otherwise
 	 */
-	virtual ModResult OnCheckReady(User* user);
+	virtual ModResult OnCheckReady(LocalUser* user);
 
 	/** Called whenever a user is about to register their connection (e.g. before the user
 	 * is sent the MOTD etc). Modules can use this method if they are performing a function
@@ -970,7 +970,7 @@ class CoreExport Module : public classbase
 	 * @param user The user registering
 	 * @return 1 to indicate user quit, 0 to continue
 	 */
-	virtual ModResult OnUserRegister(User* user);
+	virtual ModResult OnUserRegister(LocalUser* user);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +i, and
@@ -1059,7 +1059,7 @@ class CoreExport Module : public classbase
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
-	virtual ModResult OnChangeLocalUserHost(User* user, const std::string &newhost);
+	virtual ModResult OnChangeLocalUserHost(LocalUser* user, const std::string &newhost);
 
 	/** Called whenever a change of a local users GECOS (fullname field) is attempted.
 	 * return 1 to deny the name change, or 0 to allow it.
@@ -1067,7 +1067,7 @@ class CoreExport Module : public classbase
 	 * @param newhost The new GECOS
 	 * @return 1 to deny the GECOS change, 0 to allow
 	 */
-	virtual ModResult OnChangeLocalUserGECOS(User* user, const std::string &newhost);
+	virtual ModResult OnChangeLocalUserGECOS(LocalUser* user, const std::string &newhost);
 
 	/** Called before a topic is changed.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks

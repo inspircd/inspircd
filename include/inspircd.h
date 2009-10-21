@@ -313,7 +313,7 @@ class CoreExport InspIRCd
 	 * @param user The user to verify
 	 * @return True if all modules have finished checking this user
 	 */
-	bool AllModulesReportReady(User* user);
+	bool AllModulesReportReady(LocalUser* user);
 
 	/** Logfile pathname specified on the commandline, or empty string
 	 */

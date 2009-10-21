@@ -236,7 +236,7 @@ class ModuleShun : public Module
 		affectopers = MyConf.ReadFlag("shun", "affectopers", "no", 0);
 	}
 
-	virtual void OnUserConnect(User* user)
+	virtual void OnUserConnect(LocalUser* user)
 	{
 		if (!IS_LOCAL(user))
 			return;
