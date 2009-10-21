@@ -754,15 +754,6 @@ class CoreExport LocalUser : public User
 	 */
 	InvitedList invites;
 
-	std::set<std::string> *AllowedOperCommands;
-	std::set<std::string> *AllowedPrivs;
-
-	/** Allowed user modes from oper classes. */
-	std::bitset<64> AllowedUserModes;
-
-	/** Allowed channel modes from oper classes. */
-	std::bitset<64> AllowedChanModes;
-
  public:
 	LocalUser();
 	CullResult cull();
@@ -900,9 +891,6 @@ class CoreExport LocalUser : public User
 	 * @return True if the user can set or unset this mode.
 	 */
 	bool HasModePermission(unsigned char mode, ModeType type);
-
-	void OperInternal();
-	void UnOperInternal();
 };
 
 class CoreExport RemoteUser : public User

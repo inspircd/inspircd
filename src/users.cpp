@@ -242,7 +242,6 @@ User::User(const std::string &uid)
 
 LocalUser::LocalUser() : User(ServerInstance->GetUID())
 {
-	AllowedPrivs = AllowedOperCommands = NULL;
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	server_sa.sa.sa_family = AF_UNSPEC;
 	Penalty = 0;
@@ -434,7 +433,7 @@ bool LocalUser::HasModePermission(unsigned char mode, ModeType type)
 
 	if (mode < 'A' || mode > ('A' + 64)) return false;
 
-	return ((type == MODETYPE_USER ? AllowedUserModes : AllowedChanModes))[(mode - 'A')];
+	return ((type == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[(mode - 'A')];
 
 }
 /*
@@ -457,12 +456,9 @@ bool LocalUser::HasPermission(const std::string &command)
 		return false;
 	}
 
-	if (!AllowedOperCommands)
-		return false;
-
-	if (AllowedOperCommands->find(command) != AllowedOperCommands->end())
+	if (oper->AllowedOperCommands.find(command) != oper->AllowedOperCommands.end())
 		return true;
-	else if (AllowedOperCommands->find("*") != AllowedOperCommands->end())
+	else if (oper->AllowedOperCommands.find("*") != oper->AllowedOperCommands.end())
 		return true;
 
 	return false;
@@ -482,18 +478,11 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 		return false;
 	}
 
-	if (!AllowedPrivs)
-	{
-		if (noisy)
-			this->WriteServ("NOTICE %s :Privset empty(!?)", this->nick.c_str());
-		return false;
-	}
-
-	if (AllowedPrivs->find(privstr) != AllowedPrivs->end())
+	if (oper->AllowedPrivs.find(privstr) != oper->AllowedPrivs.end())
 	{
 		return true;
 	}
-	else if (AllowedPrivs->find("*") != AllowedPrivs->end())
+	else if (oper->AllowedPrivs.find("*") != oper->AllowedPrivs.end())
 	{
 		return true;
 	}
@@ -620,18 +609,6 @@ CullResult LocalUser::cull()
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
 
-	if (this->AllowedOperCommands)
-	{
-		delete AllowedOperCommands;
-		AllowedOperCommands = NULL;
-	}
-
-	if (this->AllowedPrivs)
-	{
-		delete AllowedPrivs;
-		AllowedPrivs = NULL;
-	}
-
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
 	return User::cull();
@@ -658,29 +635,22 @@ void User::Oper(OperInfo* info)
 	ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), info->NameStr());
 	ServerInstance->Users->all_opers.push_back(this);
 
+	// Expand permissions from config for faster lookup
 	if (IS_LOCAL(this))
-		IS_LOCAL(this)->OperInternal();
+		oper->init();
 
 	FOREACH_MOD(I_OnPostOper,OnPostOper(this, info->name, opername));
 }
 
-void LocalUser::OperInternal()
+void OperInfo::init()
 {
-	if (AllowedOperCommands)
-		AllowedOperCommands->clear();
-	else
-		AllowedOperCommands = new std::set<std::string>;
-
-	if (AllowedPrivs)
-		AllowedPrivs->clear();
-	else
-		AllowedPrivs = new std::set<std::string>;
-
+	AllowedOperCommands.clear();
+	AllowedPrivs.clear();
 	AllowedUserModes.reset();
 	AllowedChanModes.reset();
-	this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
+	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
-	for(std::vector<reference<ConfigTag> >::iterator iter = oper->class_blocks.begin(); iter != oper->class_blocks.end(); ++iter)
+	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
 	{
 		ConfigTag* tag = *iter;
 		std::string mycmd, mypriv;
@@ -688,13 +658,13 @@ void LocalUser::OperInternal()
 		irc::spacesepstream CommandList(tag->getString("commands"));
 		while (CommandList.GetToken(mycmd))
 		{
-			this->AllowedOperCommands->insert(mycmd);
+			AllowedOperCommands.insert(mycmd);
 		}
 
 		irc::spacesepstream PrivList(tag->getString("privs"));
 		while (PrivList.GetToken(mypriv))
 		{
-			this->AllowedPrivs->insert(mypriv);
+			AllowedPrivs.insert(mypriv);
 		}
 
 		for (unsigned char* c = (unsigned char*)tag->getString("usermodes").c_str(); *c; ++c)
@@ -756,28 +726,8 @@ void User::UnOper()
 	/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
 	ServerInstance->Users->all_opers.remove(this);
 
-	if (IS_LOCAL(this))
-		IS_LOCAL(this)->UnOperInternal();
 	this->modes[UM_OPERATOR] = 0;
 }
-
-void LocalUser::UnOperInternal()
-{
-	if (AllowedOperCommands)
-	{
-		delete AllowedOperCommands;
-		AllowedOperCommands = NULL;
-	}
-
-	if (AllowedPrivs)
-	{
-		delete AllowedPrivs;
-		AllowedPrivs = NULL;
-	}
-	AllowedUserModes.reset();
-	AllowedChanModes.reset();
-}
-
 
 /* adds or updates an entry in the whowas list */
 void User::AddToWhoWas()

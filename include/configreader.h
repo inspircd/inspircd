@@ -113,6 +113,15 @@ class ServerLimits
 class CoreExport OperInfo : public refcountbase
 {
  public:
+	std::set<std::string> AllowedOperCommands;
+	std::set<std::string> AllowedPrivs;
+
+	/** Allowed user modes from oper classes. */
+	std::bitset<64> AllowedUserModes;
+
+	/** Allowed channel modes from oper classes. */
+	std::bitset<64> AllowedChanModes;
+
 	/** <oper> block used for this oper-up. May be NULL. */
 	reference<ConfigTag> oper_block;
 	/** <type> block used for this oper-up. Valid for local users, may be NULL on remote */
@@ -124,6 +133,7 @@ class CoreExport OperInfo : public refcountbase
 
 	/** Get a configuration item, searching in the oper, type, and class blocks (in that order) */
 	std::string getConfig(const std::string& key);
+	void init();
 
 	inline const char* NameStr()
 	{
