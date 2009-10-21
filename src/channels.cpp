@@ -228,7 +228,10 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		}
 		else
 		{
-			if (user->chans.size() >= user->GetClass()->maxchans)
+			unsigned int maxchans = user->GetClass()->maxchans;
+			if (!maxchans)
+				maxchans = ServerInstance->Config->MaxChans;
+			if (user->chans.size() >= maxchans)
 			{
 				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
 				return NULL;
