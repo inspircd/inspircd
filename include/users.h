@@ -479,7 +479,7 @@ class CoreExport User : public StreamSocket
 	 * @param Instance Creator instance
 	 * @param uid User UUID, or empty to allocate one automatically
 	 */
-	User(const std::string &uid = "");
+	User(const std::string &uid);
 
 	/** Check if the user matches a G or K line, and disconnect them if they do.
 	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
@@ -753,7 +753,7 @@ class CoreExport User : public StreamSocket
 
 	/** Write to the user, routing the line if the user is remote.
 	 */
-	void SendText(const std::string& line);
+	virtual void SendText(const std::string& line) = 0;
 
 	/** Write to the user, routing the line if the user is remote.
 	 */
@@ -860,6 +860,60 @@ class CoreExport User : public StreamSocket
 	 */
 	virtual ~User();
 	virtual CullResult cull();
+};
+
+/** Represents a non-local user.
+ * (in fact, any FD less than -1 does)
+ */
+#define FD_MAGIC_NUMBER -42
+/** Represents a fake user (i.e. a server)
+ */
+#define FD_FAKEUSER_NUMBER -7
+
+/* Useful macros */
+
+/** Is a local user */
+#define IS_LOCAL(x) (x->GetFd() > -1)
+/** Is a remote user */
+#define IS_REMOTE(x) (x->GetFd() < 0)
+/** Is a fake user */
+#define IS_SERVER(x) (x->GetFd() == FD_FAKEUSER_NUMBER)
+/** Is a module created user */
+#define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
+/** Is an oper */
+#define IS_OPER(x) (!x->oper.empty())
+/** Is away */
+#define IS_AWAY(x) (!x->awaymsg.empty())
+
+class CoreExport LocalUser : public User
+{
+ public:
+	LocalUser();
+	virtual void SendText(const std::string& line);
+};
+
+class CoreExport RemoteUser : public User
+{
+ public:
+	RemoteUser(const std::string& uid) : User(uid)
+	{
+		SetFd(FD_MAGIC_NUMBER);
+	}
+	virtual void SendText(const std::string& line);
+};
+
+class CoreExport FakeUser : public User
+{
+ public:
+	FakeUser(const std::string &uid) : User(uid)
+	{
+		SetFd(FD_FAKEUSER_NUMBER);
+	}
+
+	virtual void SendText(const std::string& line);
+	virtual const std::string GetFullHost();
+	virtual const std::string GetFullRealHost();
+	void SetFakeServer(std::string name);
 };
 
 /** Derived from Resolver, and performs user forward/reverse lookups.

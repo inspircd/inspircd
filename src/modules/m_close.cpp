@@ -37,7 +37,7 @@ class CommandClose : public Command
 	{
 		std::map<std::string,int> closed;
 
-		std::vector<User*>::reverse_iterator u = ServerInstance->Users->local_users.rbegin();
+		std::vector<LocalUser*>::reverse_iterator u = ServerInstance->Users->local_users.rbegin();
 		while (u != ServerInstance->Users->local_users.rend())
 		{
 			User* user = *u++;

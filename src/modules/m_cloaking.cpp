@@ -305,7 +305,7 @@ class ModuleCloaking : public Module
 	void CloakExistingUsers()
 	{
 		std::string* cloak;
-		for (std::vector<User*>::iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); u++)
+		for (std::vector<LocalUser*>::iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); u++)
 		{
 			cloak = cu.ext.get(*u);
 			if (!cloak)

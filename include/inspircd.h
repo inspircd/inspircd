@@ -87,7 +87,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "inspstring.h"
 #include "protocol.h"
 #include "threadengine.h"
-#include "fakeuser.h"
 
 #ifndef PATH_MAX
 #warning Potentially broken system, PATH_MAX undefined

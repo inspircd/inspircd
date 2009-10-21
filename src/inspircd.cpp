@@ -99,7 +99,7 @@ void InspIRCd::Cleanup()
 	ports.clear();
 
 	/* Close all client sockets, or the new process inherits them */
-	std::vector<User*>::reverse_iterator i = Users->local_users.rbegin();
+	std::vector<LocalUser*>::reverse_iterator i = Users->local_users.rbegin();
 	while (i != this->Users->local_users.rend())
 	{
 		User* u = *i++;

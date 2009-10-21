@@ -198,29 +198,6 @@ do { \
 	WHILE_EACH_HOOK(n); \
 } while (0)
 
-/** Represents a non-local user.
- * (in fact, any FD less than -1 does)
- */
-#define FD_MAGIC_NUMBER -42
-/** Represents a fake user (i.e. a server)
- */
-#define FD_FAKEUSER_NUMBER -7
-
-/* Useful macros */
-
-/** Is a local user */
-#define IS_LOCAL(x) (x->GetFd() > -1)
-/** Is a remote user */
-#define IS_REMOTE(x) (x->GetFd() < 0)
-/** Is a fake user */
-#define IS_SERVER(x) (x->GetFd() == FD_FAKEUSER_NUMBER)
-/** Is a module created user */
-#define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
-/** Is an oper */
-#define IS_OPER(x) (!x->oper.empty())
-/** Is away */
-#define IS_AWAY(x) (!x->awaymsg.empty())
-
 /** Holds a module's Version information.
  * The members (set by the constructor only) indicate details as to the version number
  * of a module. A class of type Version is returned by the GetVersion method of the Module class.

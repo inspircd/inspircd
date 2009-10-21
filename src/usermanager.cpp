@@ -23,10 +23,10 @@ void UserManager::AddUser(int socket, ClientListenSocket* via, irc::sockets::soc
 	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
 	 */
-	User* New = NULL;
+	LocalUser* New = NULL;
 	try
 	{
-		New = new User();
+		New = new LocalUser();
 	}
 	catch (...)
 	{
@@ -423,7 +423,7 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 
 	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
 
-	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		User* t = *i;
 		t->WriteServ(std::string(formatbuffer));
@@ -444,7 +444,7 @@ void UserManager::ServerPrivmsgAll(const char* text, ...)
 
 	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
 
-	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		User* t = *i;
 		t->WriteServ(std::string(formatbuffer));
@@ -470,7 +470,7 @@ void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
 
 	if (flags == WM_AND)
 	{
-		for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+		for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 		{
 			User* t = *i;
 			bool send_to_user = true;
@@ -491,7 +491,7 @@ void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
 	}
 	else if (flags == WM_OR)
 	{
-		for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+		for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 		{
 			User* t = *i;
 			bool send_to_user = false;

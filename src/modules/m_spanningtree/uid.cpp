@@ -86,7 +86,7 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	User* _new = NULL;
 	try
 	{
-		_new = new User(params[0]);
+		_new = new RemoteUser(params[0]);
 	}
 	catch (...)
 	{

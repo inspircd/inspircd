@@ -95,7 +95,7 @@ class CommandJumpserver : public Command
 			if (redirect_all_immediately)
 			{
 				/* Redirect everyone but the oper sending the command */
-				for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+				for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 				{
 					User* t = *i;
 					if (!IS_OPER(t))

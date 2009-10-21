@@ -233,19 +233,19 @@ User::User(const std::string &uid)
 	server_sa.sa.sa_family = AF_UNSPEC;
 	client_sa.sa.sa_family = AF_UNSPEC;
 	AllowedPrivs = AllowedOperCommands = NULL;
+	uuid = uid;
 
-	if (uid.empty())
-		uuid = ServerInstance->GetUID();
-	else
-		uuid = uid;
-
-	ServerInstance->Logs->Log("USERS", DEBUG,"New UUID for user: %s (%s)", uuid.c_str(), uid.empty() ? "allocated new" : "used remote");
+	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
 
 	user_hash::iterator finduuid = ServerInstance->Users->uuidlist->find(uuid);
 	if (finduuid == ServerInstance->Users->uuidlist->end())
 		(*ServerInstance->Users->uuidlist)[uuid] = this;
 	else
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
+}
+
+LocalUser::LocalUser() : User(ServerInstance->GetUID())
+{
 }
 
 User::~User()
@@ -603,7 +603,7 @@ CullResult User::cull()
 		if (fd != INT_MAX)
 			Close();
 
-		std::vector<User*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
+		std::vector<LocalUser*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
 		if (x != ServerInstance->Users->local_users.end())
 			ServerInstance->Users->local_users.erase(x);
 		else
@@ -1341,12 +1341,18 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	}
 }
 
-void User::SendText(const std::string& line)
+void LocalUser::SendText(const std::string& line)
 {
-	if (IS_LOCAL(this))
-		Write(line);
-	else if (!IS_SERVER(this))
-		ServerInstance->PI->PushToClient(this, line);
+	Write(line);
+}
+
+void RemoteUser::SendText(const std::string& line)
+{
+	ServerInstance->PI->PushToClient(this, line);
+}
+
+void FakeUser::SendText(const std::string& line)
+{
 }
 
 void User::SendText(const char *text, ...)
@@ -1557,7 +1563,7 @@ void User::SendAll(const char* command, const char* text, ...)
 	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost().c_str(), command, textbuffer);
 	std::string fmt = formatbuffer;
 
-	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+	for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
 		(*i)->Write(fmt);
 	}
