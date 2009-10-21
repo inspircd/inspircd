@@ -303,7 +303,7 @@ enum Implementation
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
-	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops,
+	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops, I_OnAcceptConnection,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
@@ -1149,7 +1149,16 @@ class CoreExport Module : public classbase
 	 * @param user The item to possibly install the I/O hook on
 	 * @param via The port that <user> connected on
 	 */
-	virtual void OnHookIO(StreamSocket*, ListenSocketBase* via);
+	virtual void OnHookIO(StreamSocket*, ListenSocket* via);
+
+	/** Called when a port accepts a connection
+	 * Return MOD_RES_ACCEPT if you have used the file descriptor.
+	 * @param fd The file descriptor returned from accept()
+	 * @param from The local port the user connected to
+	 * @param client The client IP address and port
+	 * @param server The server IP address and port
+	 */
+	virtual ModResult OnAcceptConnection(int fd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Called immediately after any connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides

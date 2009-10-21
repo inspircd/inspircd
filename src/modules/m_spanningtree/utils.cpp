@@ -24,12 +24,15 @@
 #include "resolvers.h"
 
 /* Create server sockets off a listener. */
-void ServerSocketListener::OnAcceptReady(int newsock)
+ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
+	if (from->bind_tag->getString("type") != "servers")
+		return MOD_RES_PASSTHRU;
+
 	bool found = false;
 	int port;
 	std::string incomingip;
-	irc::sockets::satoap(&client, incomingip, port);
+	irc::sockets::satoap(client, incomingip, port);
 
 	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), incomingip) != Utils->ValidIPs.end());
 	if (!found)
@@ -46,14 +49,14 @@ void ServerSocketListener::OnAcceptReady(int newsock)
 		if (!found)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", incomingip.c_str());
-			ServerInstance->SE->Close(newsock);
-			return;
+			return MOD_RES_DENY;
 		}
 	}
 
 	/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
 
-	new TreeSocket(Utils, newsock, this, &client, &server);
+	new TreeSocket(Utils, newsock, from, client, server);
+	return MOD_RES_ALLOW;
 }
 
 /** Yay for fast searches!
@@ -146,17 +149,11 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 	this->TreeRoot = new TreeServer(this, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 	ServerUser = new FakeUser(TreeRoot->GetID());
 
-	this->ReadConfiguration(true);
+	this->ReadConfiguration();
 }
 
 CullResult SpanningTreeUtilities::cull()
 {
-	for (unsigned int i = 0; i < ServerInstance->ports.size(); i++)
-	{
-		if (ServerInstance->ports[i]->type == "servers")
-			ServerInstance->ports[i]->cull();
-	}
-
 	while (TreeRoot->ChildCount())
 	{
 		TreeServer* child_server = TreeRoot->GetChild(0);
@@ -176,12 +173,6 @@ CullResult SpanningTreeUtilities::cull()
 
 SpanningTreeUtilities::~SpanningTreeUtilities()
 {
-	for (unsigned int i = 0; i < ServerInstance->ports.size(); i++)
-	{
-		if (ServerInstance->ports[i]->type == "servers")
-			delete ServerInstance->ports[i];
-	}
-
 	delete TreeRoot;
 }
 
@@ -362,42 +353,10 @@ void SpanningTreeUtilities::RefreshIPCache()
 	}
 }
 
-void SpanningTreeUtilities::ReadConfiguration(bool rebind)
+void SpanningTreeUtilities::ReadConfiguration()
 {
 	ConfigReader Conf;
 
-	if (rebind)
-	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("bind");
-		for(ConfigIter i = tags.first; i != tags.second; ++i)
-		{
-			ConfigTag* tag = i->second;
-			std::string Type = tag->getString("type");
-			std::string IP = tag->getString("address");
-			std::string Port = tag->getString("port");
-			std::string ssl = tag->getString("ssl");
-			if (Type == "servers")
-			{
-				irc::portparser portrange(Port, false);
-				int portno = -1;
-
-				if (IP == "*")
-					IP.clear();
-
-				while ((portno = portrange.GetToken()))
-				{
-					ServerSocketListener *listener = new ServerSocketListener(this, portno, IP, ssl);
-					if (listener->GetFd() == -1)
-					{
-						delete listener;
-						continue;
-					}
-
-					ServerInstance->ports.push_back(listener);
-				}
-			}
-		}
-	}
 	FlatLinks = Conf.ReadFlag("security","flatlinks",0);
 	HideULines = Conf.ReadFlag("security","hideulines",0);
 	AnnounceTSChange = Conf.ReadFlag("options","announcets",0);

@@ -395,6 +395,7 @@ void StreamSocket::DoWrite()
 			else if (errno == EINTR)
 			{
 				// restart interrupted syscall
+				errno = 0;
 			}
 			else
 			{

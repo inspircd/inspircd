@@ -37,22 +37,6 @@ class SpanningTreeUtilities;
 	#endif
 #endif
 
-/*
- * Initialises server connections
- */
-class ServerSocketListener : public ListenSocketBase
-{
-	SpanningTreeUtilities *Utils;
-
- public:
-	ServerSocketListener(SpanningTreeUtilities *u, int port, const std::string& addr, const std::string& Hook)
-		: ListenSocketBase(port, addr, "servers", Hook), Utils(u)
-	{
-	}
-
-	virtual void OnAcceptReady(int nfd);
-};
-
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 
 /** Contains helper functions and variables for this module,
@@ -167,7 +151,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Read the spanningtree module's tags from the config file
 	 */
-	void ReadConfiguration(bool rebind);
+	void ReadConfiguration();
 
 	/** Add a server to the server list for GetListOfServersForChannel
 	 */

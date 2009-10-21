@@ -46,12 +46,14 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 		{
 			for (size_t i = 0; i < this->ports.size(); i++)
 			{
-				std::string ip = this->ports[i]->GetIP();
+				std::string ip = this->ports[i]->bind_addr;
 				if (ip.empty())
 					ip.assign("*");
+				std::string type = ports[i]->bind_tag->getString("type", "clients");
+				std::string hook = ports[i]->bind_tag->getString("ssl", "plaintext");
 
 				results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ports[i]->bind_port)+
-					" (" + ports[i]->type + ", " + ports[i]->hook + ")");
+					" (" + type + ", " + hook + ")");
 			}
 		}
 		break;

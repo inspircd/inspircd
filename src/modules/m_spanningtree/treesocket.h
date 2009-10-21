@@ -103,7 +103,7 @@ class TreeSocket : public BufferedSocket
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocketBase* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Get link state
 	 */

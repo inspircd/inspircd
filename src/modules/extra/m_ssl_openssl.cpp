@@ -131,9 +131,9 @@ class ModuleSSLOpenSSL : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnHookIO(StreamSocket* user, ListenSocketBase* lsb)
+	void OnHookIO(StreamSocket* user, ListenSocket* lsb)
 	{
-		if (!user->GetIOHook() && lsb->hook == "openssl")
+		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "openssl")
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);
@@ -148,13 +148,13 @@ class ModuleSSLOpenSSL : public Module
 
 		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 		{
-			ListenSocketBase* port = ServerInstance->ports[i];
-			if (port->hook != "openssl")
+			ListenSocket* port = ServerInstance->ports[i];
+			if (port->bind_tag->getString("ssl") != "openssl")
 				continue;
 
-			std::string portid = port->GetBindDesc();
+			std::string portid = port->bind_desc;
 			ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
-			if (port->type == "clients" && port->GetIP() != "127.0.0.1")
+			if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
 				sslports.append(portid).append(";");
 		}
 

@@ -173,14 +173,14 @@ class ModuleSSLGnuTLS : public Module
 
 		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 		{
-			ListenSocketBase* port = ServerInstance->ports[i];
-			if (port->hook != "gnutls")
+			ListenSocket* port = ServerInstance->ports[i];
+			if (port->bind_tag->getString("ssl") != "gnutls")
 				continue;
 
-			const std::string& portid = port->GetBindDesc();
+			const std::string& portid = port->bind_desc;
 			ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %s", portid.c_str());
 
-			if (port->type == "clients" && port->GetIP() != "127.0.0.1")
+			if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
 				sslports.append(portid).append(";");
 		}
 
@@ -321,9 +321,9 @@ class ModuleSSLGnuTLS : public Module
 		output.append(" STARTTLS");
 	}
 
-	void OnHookIO(StreamSocket* user, ListenSocketBase* lsb)
+	void OnHookIO(StreamSocket* user, ListenSocket* lsb)
 	{
-		if (!user->GetIOHook() && lsb->hook == "gnutls")
+		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "gnutls")
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(this);

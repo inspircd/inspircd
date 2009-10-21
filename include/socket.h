@@ -124,68 +124,32 @@ namespace irc
 	}
 }
 
+struct ConfigTag;
 /** This class handles incoming connections on client ports.
  * It will create a new User for every valid connection
  * and assign it a file descriptor.
  */
-class CoreExport ListenSocketBase : public EventHandler
+class CoreExport ListenSocket : public EventHandler
 {
- protected:
-	/** Raw address socket is bound to */
-	std::string bind_addr;
-	/** Human-readable address/port socket is bound to */
-	std::string bind_desc;
-
-	/** The client address if the most recently connected client.
-	 * Should only be used when accepting a new client.
-	 */
-	static irc::sockets::sockaddrs client;
-	/** The server address used by the most recently connected client.
-	 * This may differ from the bind address by having a nonzero address,
-	 * if the port is wildcard bound, or being IPv4 on a 6to4 IPv6 port.
-	 * The address family will always match that of "client"
-	 */
-	static irc::sockets::sockaddrs server;
-
  public:
-	/** Socket type (client/server) */
-	const std::string type;
-	/** Socket hook (plain/gnutls/openssl/zip) */
-	const std::string hook;
-	/** Port socket is bound to */
-	const int bind_port;
+	const reference<ConfigTag> bind_tag;
+	std::string bind_addr;
+	int bind_port;
+	/** Human-readable bind description */
+	std::string bind_desc;
 	/** Create a new listening socket
 	 */
-	ListenSocketBase(int port, const std::string &addr, const std::string &type, const std::string &hook);
+	ListenSocket(ConfigTag* tag, const std::string& addr, int port);
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
 	/** Close the socket
 	 */
-	~ListenSocketBase();
-
-	/** Get IP address socket is bound to
-	 */
-	const std::string &GetIP() { return bind_addr; }
-
-	const std::string &GetBindDesc() { return bind_desc; }
+	~ListenSocket();
 
 	/** Handles sockets internals crap of a connection, convenience wrapper really
 	 */
 	void AcceptInternal();
-
-	/** Called when a new connection has successfully been accepted on this listener.
-	 * @param fd The file descriptor of the new connection
-	 */
-	virtual void OnAcceptReady(int fd) = 0;
-};
-
-class CoreExport ClientListenSocket : public ListenSocketBase
-{
-	virtual void OnAcceptReady(int fd);
- public:
-	ClientListenSocket(int port, const std::string &addr, const std::string &Type, const std::string &Hook)
-		: ListenSocketBase(port, addr, Type, Hook) { }
 };
 
 #endif

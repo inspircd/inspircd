@@ -102,11 +102,10 @@ int irc::sockets::OpenTCPSocket(const std::string& addr, int socktype)
 	}
 }
 
-// XXX: it would be VERY nice to genericize this so all listen stuff (server/client) could use the one function. -- w00t
 int InspIRCd::BindPorts(FailedPortList &failed_ports)
 {
 	int bound = 0;
-	std::vector<ListenSocketBase*> old_ports(ports.begin(), ports.end());
+	std::vector<ListenSocket*> old_ports(ports.begin(), ports.end());
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("bind");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
@@ -114,52 +113,47 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		ConfigTag* tag = i->second;
 		std::string porttag = tag->getString("port");
 		std::string Addr = tag->getString("address");
-		std::string Type = tag->getString("type");
-		std::string Desc = tag->getString("ssl");
 
 		if (strncmp(Addr.c_str(), "::ffff:", 7) == 0)
 			this->Logs->Log("SOCKET",DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
-		if (Type.empty() || Type == "clients")
+		irc::portparser portrange(porttag, false);
+		int portno = -1;
+		while (0 != (portno = portrange.GetToken()))
 		{
-			irc::portparser portrange(porttag, false);
-			int portno = -1;
-			while (0 != (portno = portrange.GetToken()))
-			{
-				irc::sockets::sockaddrs bindspec;
-				irc::sockets::aptosa(Addr, portno, &bindspec);
-				std::string bind_readable = irc::sockets::satouser(&bindspec);
+			irc::sockets::sockaddrs bindspec;
+			irc::sockets::aptosa(Addr, portno, &bindspec);
+			std::string bind_readable = irc::sockets::satouser(&bindspec);
 
-				bool skip = false;
-				for (std::vector<ListenSocketBase *>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
+			bool skip = false;
+			for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
+			{
+				if ((**n).bind_desc == bind_readable)
 				{
-					if ((*n)->GetBindDesc() == bind_readable)
-					{
-						skip = true;
-						old_ports.erase(n);
-						break;
-					}
+					skip = true;
+					old_ports.erase(n);
+					break;
 				}
-				if (!skip)
+			}
+			if (!skip)
+			{
+				ListenSocket *ll = new ListenSocket(tag, Addr, portno);
+				if (ll->GetFd() > -1)
 				{
-					ClientListenSocket *ll = new ClientListenSocket(portno, Addr, "clients", Desc.empty() ? "plaintext" : Desc);
-					if (ll->GetFd() > -1)
-					{
-						bound++;
-						ports.push_back(ll);
-					}
-					else
-					{
-						failed_ports.push_back(std::make_pair(bind_readable, strerror(errno)));
-						delete ll;
-					}
+					bound++;
+					ports.push_back(ll);
+				}
+				else
+				{
+					failed_ports.push_back(std::make_pair(bind_readable, strerror(errno)));
+					delete ll;
 				}
 			}
 		}
 	}
 
-	std::vector<ListenSocketBase *>::iterator n = ports.begin();
-	for (std::vector<ListenSocketBase *>::iterator o = old_ports.begin(); o != old_ports.end(); ++o)
+	std::vector<ListenSocket*>::iterator n = ports.begin();
+	for (std::vector<ListenSocket*>::iterator o = old_ports.begin(); o != old_ports.end(); ++o)
 	{
 		while (n != ports.end() && *n != *o)
 			n++;
@@ -170,7 +164,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		}
 
 		this->Logs->Log("SOCKET",DEFAULT, "Port binding %s was removed from the config file, closing.",
-			(*n)->GetBindDesc().c_str());
+			(**n).bind_desc.c_str());
 		delete *n;
 
 		// this keeps the iterator valid, pointing to the next element

@@ -17,30 +17,21 @@
 #include "socket.h"
 #include "socketengine.h"
 
-/* Private static member data must be declared in this manner */
-irc::sockets::sockaddrs ListenSocketBase::client;
-irc::sockets::sockaddrs ListenSocketBase::server;
-
-ListenSocketBase::ListenSocketBase(int port, const std::string &addr, const std::string &Type, const std::string &Hook)
-	: type(Type), hook(Hook), bind_port(port)
+ListenSocket::ListenSocket(ConfigTag* tag, const std::string& addr, int port)
+	: bind_tag(tag)
 {
 	irc::sockets::sockaddrs bind_to;
 
 	// canonicalize address if it is defined
 	if (!irc::sockets::aptosa(addr, port, &bind_to))
 	{
-		// malformed address
-		bind_addr = addr;
-		bind_desc = addr + ":" + ConvToStr(port);
-		this->fd = -1;
+		fd = -1;
+		return;
 	}
-	else
-	{
-		irc::sockets::satoap(&bind_to, bind_addr, port);
-		bind_desc = irc::sockets::satouser(&bind_to);
+	irc::sockets::satoap(&bind_to, bind_addr, bind_port);
+	bind_desc = irc::sockets::satouser(&bind_to);
 
-		this->fd = irc::sockets::OpenTCPSocket(bind_addr);
-	}
+	fd = irc::sockets::OpenTCPSocket(bind_addr);
 
 	if (this->fd > -1)
 	{
@@ -62,7 +53,7 @@ ListenSocketBase::ListenSocketBase(int port, const std::string &addr, const std:
 	}
 }
 
-ListenSocketBase::~ListenSocketBase()
+ListenSocket::~ListenSocket()
 {
 	if (this->GetFd() > -1)
 	{
@@ -75,8 +66,11 @@ ListenSocketBase::~ListenSocketBase()
 }
 
 /* Just seperated into another func for tidiness really.. */
-void ListenSocketBase::AcceptInternal()
+void ListenSocket::AcceptInternal()
 {
+	irc::sockets::sockaddrs client;
+	irc::sockets::sockaddrs server;
+
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket");
 	int incomingSockfd;
 
@@ -148,10 +142,23 @@ void ListenSocketBase::AcceptInternal()
 
 	ServerInstance->SE->NonBlocking(incomingSockfd);
 	ServerInstance->stats->statsAccept++;
-	this->OnAcceptReady(incomingSockfd);
+
+	ModResult res;
+	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
+	if (res == MOD_RES_PASSTHRU)
+	{
+		std::string type = bind_tag->getString("type", "clients");
+		if (type == "clients")
+		{
+			ServerInstance->Users->AddUser(incomingSockfd, this, &client, &server);
+			res = MOD_RES_ALLOW;
+		}
+	}
+	if (res != MOD_RES_ALLOW)
+		ServerInstance->SE->Close(incomingSockfd);
 }
 
-void ListenSocketBase::HandleEvent(EventType e, int err)
+void ListenSocket::HandleEvent(EventType e, int err)
 {
 	switch (e)
 	{
@@ -165,9 +172,4 @@ void ListenSocketBase::HandleEvent(EventType e, int err)
 			this->AcceptInternal();
 			break;
 	}
-}
-
-void ClientListenSocket::OnAcceptReady(int nfd)
-{
-	ServerInstance->Users->AddUser(nfd, this, &client, &server);
 }

@@ -834,15 +834,9 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#-  HTTPD   CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #
-# Optional - If you choose to use the m_httpd.so module,  then you must
-# specify the port number and other details of your http server:
-#
-#<http ip="192.168.1.10" host="brainwave" port="32006"
-#      index="/home/brain/inspircd/http/index.html">
-#
-# You may have as many of these tags as you wish, each with a different
-# IP, port, host or index file. Each one will act as an independent
-# HTTP server.
+# If you choose to use the m_httpd.so module, then you will need to add
+# a <bind> tag with type "httpd", and load at least one of the other
+# m_httpd_* modules to provide pages to display.
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

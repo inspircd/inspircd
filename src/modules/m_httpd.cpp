@@ -35,7 +35,6 @@ enum HttpState
  */
 class HttpServerSocket : public BufferedSocket
 {
-	FileReader* index;
 	HttpState InternalState;
 	std::string ip;
 
@@ -49,15 +48,14 @@ class HttpServerSocket : public BufferedSocket
 
  public:
 
-	HttpServerSocket(int newfd, const char* IP, FileReader* ind)
-		: BufferedSocket(newfd), index(ind), ip(IP), postsize(0)
+	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+		: BufferedSocket(newfd), ip(IP), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
-	}
 
-	FileReader* GetIndex()
-	{
-		return index;
+		FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
+		if (GetIOHook())
+			GetIOHook()->OnStreamSocketAccept(this, client, server);
 	}
 
 	virtual void OnError(BufferedSocketError)
@@ -300,25 +298,16 @@ class HttpServerSocket : public BufferedSocket
 	{
 		InternalState = HTTP_SERVE_SEND_DATA;
 
-		if ((request_type == "GET") && (uri == "/"))
+		claimed = false;
+		HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
+		acl.Send();
+		if (!claimed)
 		{
-			HTTPHeaders empty;
-			SendHeaders(index->ContentSize(), 200, empty);
-			WriteData(index->Contents());
-		}
-		else
-		{
-			claimed = false;
-			HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
-			acl.Send();
+			HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
+			url.Send();
 			if (!claimed)
 			{
-				HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
-				url.Send();
-				if (!claimed)
-				{
-					SendHTTPError(404);
-				}
+				SendHTTPError(404);
 			}
 		}
 	}
@@ -330,71 +319,12 @@ class HttpServerSocket : public BufferedSocket
 	}
 };
 
-/** Spawn HTTP sockets from a listener
- */
-class HttpListener : public ListenSocketBase
-{
-	FileReader* index;
-
- public:
-	HttpListener(FileReader *idx, int port, const std::string &addr)
-		: ListenSocketBase(port, addr, "httpd", "plaintext")
-	{
-		this->index = idx;
-	}
-
-	~HttpListener()
-	{
-		delete index;
-	}
-
-	virtual void OnAcceptReady(int nfd)
-	{
-		int port;
-		std::string incomingip;
-		irc::sockets::satoap(&client, incomingip, port);
-		new HttpServerSocket(nfd, incomingip.c_str(), index);
-	}
-};
-
 class ModuleHttpServer : public Module
 {
 	std::vector<HttpServerSocket *> httpsocks;
-	std::vector<HttpListener *> httplisteners;
  public:
 
-	void ReadConfig()
-	{
-		int port;
-		std::string host;
-		std::string bindip;
-		std::string indexfile;
-		FileReader* index;
-		HttpListener *http;
-		ConfigReader c;
-
-		httpsocks.clear(); // XXX this will BREAK if this module is made rehashable
-		httplisteners.clear();
-
-		for (int i = 0; i < c.Enumerate("http"); i++)
-		{
-			host = c.ReadValue("http", "host", i);
-			bindip = c.ReadValue("http", "ip", i);
-			port = c.ReadInteger("http", "port", i, true);
-			indexfile = c.ReadValue("http", "index", i);
-			index = new FileReader(indexfile);
-			if (!index->Exists())
-			{
-				delete index;
-				throw ModuleException("Can't read index file: "+indexfile);
-			}
-			http = new HttpListener(index, port, bindip);
-			httplisteners.push_back(http);
-		}
-	}
-
 	ModuleHttpServer() 	{
-		ReadConfig();
 		HttpModule = this;
 	}
 
@@ -407,15 +337,20 @@ class ModuleHttpServer : public Module
 		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 
+	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	{
+		if (from->bind_tag->getString("type") != "httpd");
+			return MOD_RES_PASSTHRU;
+		int port;
+		std::string incomingip;
+		irc::sockets::satoap(client, incomingip, port);
+		new HttpServerSocket(nfd, incomingip, from, client, server);
+		return MOD_RES_ALLOW;
+	}
+
 
 	virtual ~ModuleHttpServer()
 	{
-		for (size_t i = 0; i < httplisteners.size(); i++)
-		{
-			httplisteners[i]->cull();
-			delete httplisteners[i];
-		}
-
 		for (size_t i = 0; i < httpsocks.size(); i++)
 		{
 			httpsocks[i]->cull();

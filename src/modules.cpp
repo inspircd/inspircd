@@ -149,7 +149,8 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnHookIO(StreamSocket*, ListenSocketBase*) { }
+void		Module::OnHookIO(StreamSocket*, ListenSocket*) { }
+ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return MOD_RES_PASSTHRU; }
 void		Module::OnSendWhoLine(User*, User*, Channel*, std::string&) { }
 ModResult	Module::OnChannelRestrictionApply(User*, Channel*, const char*) { return MOD_RES_PASSTHRU; }
 

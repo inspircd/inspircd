@@ -49,7 +49,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
-		I_OnSetAway, I_OnPostCommand, I_OnUserConnect
+		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
 	};
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
@@ -768,7 +768,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 void ModuleSpanningTree::OnRehash(User* user)
 {
 	// Re-read config stuff
-	Utils->ReadConfiguration(true);
+	Utils->ReadConfiguration();
 }
 
 void ModuleSpanningTree::OnLoadModule(Module* mod)
@@ -795,7 +795,7 @@ void ModuleSpanningTree::RedoConfig(Module* mod)
 
 	if (mod->ModuleSourceFile == "m_sha256.so" || IsBufferSocketModule)
 	{
-		Utils->ReadConfiguration(true);
+		Utils->ReadConfiguration();
 	}
 }
 

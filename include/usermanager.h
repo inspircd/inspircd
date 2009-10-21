@@ -74,7 +74,7 @@ class CoreExport UserManager
 	 * @param server The server IP address and port used by the user
 	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
-	void AddUser(int socket, ClientListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	void AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Disconnect a user gracefully
 	 * @param user The user to remove

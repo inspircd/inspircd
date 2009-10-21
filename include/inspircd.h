@@ -458,7 +458,7 @@ class CoreExport InspIRCd
 
 	/** List of the open ports
 	 */
-	std::vector<ListenSocketBase *> ports;
+	std::vector<ListenSocket*> ports;
 
 	/** Set to the current signal recieved
 	 */
