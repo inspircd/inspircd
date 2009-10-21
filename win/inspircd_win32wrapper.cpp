@@ -643,6 +643,7 @@ int getcpu()
 		while (pEnumerator)
 		{
 			VARIANT vtProp;
+			VariantInit(&vtProp);
 			/* Next item */
 			HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
@@ -655,9 +656,10 @@ int getcpu()
 			if (!FAILED(hr))
 			{
 				/* Matches our process ID? */
-				if (vtProp.uintVal == GetCurrentProcessId())
-				{
-					VariantClear(&vtProp);
+				UINT pid = vtProp.uintVal;
+				VariantClear(&vtProp);
+				if (pid == GetCurrentProcessId())
+				{					
 					/* Get CPU percentage for this process */
 					hr = pclsObj->Get(L"PercentProcessorTime", 0, &vtProp, 0, 0);
 					if (!FAILED(hr))
@@ -665,18 +667,19 @@ int getcpu()
 						/* Deal with wide string ickyness. Who in their right
 						 * mind puts a number in a bstrVal wide string item?!
 						 */
-						VariantClear(&vtProp);
 						cpu = 0;
 						std::wstringstream out(vtProp.bstrVal);
 						out >> cpu;
-						break;
+						VariantClear(&vtProp);
 					}
+					pclsObj->Release();
+					break;
 				}
+				pclsObj->Release();
 			}
 		}
 
 		pEnumerator->Release();
-		pclsObj->Release();
 	}
 
 	SysFreeString(Language);
