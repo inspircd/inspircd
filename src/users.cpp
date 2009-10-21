@@ -834,7 +834,7 @@ bool User::CheckLines(bool doZline)
 	return false;
 }
 
-void User::FullConnect()
+void LocalUser::FullConnect()
 {
 	ServerInstance->stats->statsConnects++;
 	this->idle_lastmsg = ServerInstance->Time();
@@ -1631,12 +1631,9 @@ void User::SplitChanList(User* dest, const std::string &cl)
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
  */
-ConnectClass* User::SetClass(const std::string &explicit_name)
+ConnectClass* LocalUser::SetClass(const std::string &explicit_name)
 {
 	ConnectClass *found = NULL;
-
-	if (!IS_LOCAL(this))
-		return NULL;
 
 	ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
 

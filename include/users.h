@@ -639,11 +639,6 @@ class CoreExport User : public StreamSocket
 	 */
 	void CheckClass();
 
-	/** Use this method to fully connect a user.
-	 * This will send the message of the day, check G/K/E lines, etc.
-	 */
-	void FullConnect();
-
 	/** Change this users hash key to a new string.
 	 * You should not call this function directly. It is used by the core
 	 * to update the users hash entry on a nickchange.
@@ -835,12 +830,6 @@ class CoreExport User : public StreamSocket
 	 */
 	ConnectClass *GetClass();
 
-	/** Set the connect class to which this user belongs to.
-	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking <connect> tags from the configuration file.
-	 * @return A reference to this user's current connect class.
-	 */
-	ConnectClass *SetClass(const std::string &explicit_name = "");
-
 	/** Show the message of the day to this user
 	 */
 	void ShowMOTD();
@@ -890,6 +879,17 @@ class CoreExport LocalUser : public User
  public:
 	LocalUser();
 	virtual void SendText(const std::string& line);
+
+	/** Use this method to fully connect a user.
+	 * This will send the message of the day, check G/K/E lines, etc.
+	 */
+	void FullConnect();
+
+	/** Set the connect class to which this user belongs to.
+	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking <connect> tags from the configuration file.
+	 * @return A reference to this user's current connect class.
+	 */
+	ConnectClass *SetClass(const std::string &explicit_name = "");
 };
 
 class CoreExport RemoteUser : public User

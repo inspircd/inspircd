@@ -108,3 +108,31 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 	}
 	return false;
 }
+
+CmdResult SplitCommand::Handle(const std::vector<std::string>& parms, User* u)
+{
+	if (IS_LOCAL(u))
+		return HandleLocal(parms, static_cast<LocalUser*>(u));
+	if (IS_MODULE_CREATED(u))
+		return HandleRemote(parms, static_cast<RemoteUser*>(u));
+	if (IS_SERVER(u))
+		return HandleServer(parms, static_cast<FakeUser*>(u));
+	ServerInstance->Logs->Log("COMMAND", ERROR, "Unknown user type in command (fd=%d)!", u->GetFd());
+	return CMD_INVALID;
+}
+
+CmdResult SplitCommand::HandleLocal(const std::vector<std::string>&, LocalUser*)
+{
+	return CMD_INVALID;
+}
+
+CmdResult SplitCommand::HandleRemote(const std::vector<std::string>&, RemoteUser*)
+{
+	return CMD_INVALID;
+}
+
+CmdResult SplitCommand::HandleServer(const std::vector<std::string>&, FakeUser*)
+{
+	return CMD_INVALID;
+}
+

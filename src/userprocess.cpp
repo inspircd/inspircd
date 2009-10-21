@@ -49,7 +49,7 @@ void InspIRCd::DoBackgroundUserStuff()
 	std::vector<LocalUser*>::reverse_iterator count2 = this->Users->local_users.rbegin();
 	while (count2 != this->Users->local_users.rend())
 	{
-		User *curr = *count2;
+		LocalUser *curr = *count2;
 		count2++;
 
 		if (curr->quitting)

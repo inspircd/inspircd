@@ -21,19 +21,19 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class CommandOper : public Command
+class CommandOper : public SplitCommand
 {
  public:
 	/** Constructor for oper.
 	 */
-	CommandOper ( Module* parent) : Command(parent,"OPER",2,2) { syntax = "<username> <password>"; }
+	CommandOper ( Module* parent) : SplitCommand(parent,"OPER",2,2) { syntax = "<username> <password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
 };
 
 bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
@@ -50,7 +50,7 @@ bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
 	return false;
 }
 
-CmdResult CommandOper::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
 	char TheHost[MAXBUF];
 	char TheIP[MAXBUF];
