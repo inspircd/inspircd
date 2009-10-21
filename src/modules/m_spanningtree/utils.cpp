@@ -368,11 +368,10 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 	if (rebind)
 	{
-		for (int j = 0; ; j++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("bind");
+		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("bind", j);
-			if (!tag)
-				break;
+			ConfigTag* tag = i->second;
 			std::string Type = tag->getString("type");
 			std::string IP = tag->getString("address");
 			std::string Port = tag->getString("port");
@@ -417,11 +416,10 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
 	ValidIPs.clear();
-	for (int j = 0;; ++j)
+	ConfigTagList tags = ServerInstance->Config->ConfTags("link");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("link", j);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		reference<Link> L = new Link(tag);
 		L->Name = tag->getString("name").c_str();
 		L->AllowMask = tag->getString("allowmask");
@@ -479,11 +477,10 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		LinkBlocks.push_back(L);
 	}
 
-	for (int j = 0;; ++j)
+	tags = ServerInstance->Config->ConfTags("autoconnect");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("autoconnect", j);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		reference<Autoconnect> A = new Autoconnect(tag);
 		A->Period = tag->getInt("period");
 		A->NextConnectTime = ServerInstance->Time() + A->Period;

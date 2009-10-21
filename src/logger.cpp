@@ -86,12 +86,10 @@ void LogManager::OpenFileLogs()
 	}
 	ConfigReader Conf;
 	std::map<std::string, FileWriter*> logmap;
-	std::map<std::string, FileWriter*>::iterator i;
-	for (int index = 0;; ++index)
+	ConfigTagList tags = ServerInstance->Config->ConfTags("log");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("log", index);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		std::string method = tag->getString("method");
 		if (method != "file")
 		{
@@ -122,8 +120,9 @@ void LogManager::OpenFileLogs()
 			loglevel = NONE;
 		}
 		FileWriter* fw;
-		std::string target = Conf.ReadValue("log", "target", index);
-		if ((i = logmap.find(target)) == logmap.end())
+		std::string target = tag->getString("target");
+		std::map<std::string, FileWriter*>::iterator fwi = logmap.find(target);
+		if (fwi == logmap.end())
 		{
 			FILE* f = fopen(target.c_str(), "a");
 			fw = new FileWriter(f);
@@ -131,7 +130,7 @@ void LogManager::OpenFileLogs()
 		}
 		else
 		{
-			fw = i->second;
+			fw = fwi->second;
 		}
 		FileLogStream* fls = new FileLogStream(loglevel, fw);
 		AddLogTypes(type, fls, true);

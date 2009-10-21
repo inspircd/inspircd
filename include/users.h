@@ -210,19 +210,19 @@ struct CoreExport ConnectClass : public refcountbase
 
 /** Holds a complete list of all channels to which a user has been invited and has not yet joined, and the time at which they'll expire.
  */
-CoreExport typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
+typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
-CoreExport typedef std::vector<reference<ConnectClass> > ClassVector;
+typedef std::vector<reference<ConnectClass> > ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */
-CoreExport typedef std::set<Channel*> UserChanList;
+typedef std::set<Channel*> UserChanList;
 
 /** Shorthand for an iterator into a UserChanList
  */
-CoreExport typedef UserChanList::iterator UCListIter;
+typedef UserChanList::iterator UCListIter;
 
 /* Required forward declaration
  */
@@ -283,7 +283,7 @@ class CoreExport User : public StreamSocket
 	time_t idle_lastmsg;
 
 	/** Client address that the user is connected from.
-	 * Do not modify this value directly, use SetClientIP() to change it
+	 * Do not modify this value directly, use SetClientIP() to change it.
 	 * Port is not valid for remote users.
 	 */
 	irc::sockets::sockaddrs client_sa;

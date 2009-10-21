@@ -49,22 +49,10 @@ class ModuleModesOnOper : public Module
 			ApplyModes(user, ThisOpersModes);
 		}
 
-		if (!opername.empty()) // if user is local ..
+		ThisOpersModes = user->oper->getConfig("modes");
+		if (!ThisOpersModes.empty())
 		{
-			for (int i = 0;; i++)
-			{
-				ConfigTag* tag = ServerInstance->Config->ConfValue("oper", i);
-				if (!tag)
-					break;
-				if (tag->getString("name") != opername)
-					continue;
-				ThisOpersModes = tag->getString("modes");
-				if (!ThisOpersModes.empty())
-				{
-					ApplyModes(user, ThisOpersModes);
-				}
-				break;
-			}
+			ApplyModes(user, ThisOpersModes);
 		}
 	}
 

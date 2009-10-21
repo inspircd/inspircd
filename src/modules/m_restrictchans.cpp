@@ -22,11 +22,10 @@ class ModuleRestrictChans : public Module
 	void ReadConfig()
 	{
 		allowchans.clear();
-		for (int i = 0;; i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("allowchannel");
+		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("allowchannel", i);
-			if (!tag)
-				return;
+			ConfigTag* tag = i->second;
 			std::string txt = tag->getString("name");
 			allowchans.insert(txt.c_str());
 		}

@@ -574,11 +574,10 @@ static void FindDNS(std::string& server)
 
 static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
 {
-	for(int i=0;; ++i)
+	ConfigTagList tags = conf->ConfTags(tag);
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* ctag = conf->ConfValue(tag, i);
-		if (!ctag)
-			break;
+		ConfigTag* ctag = i->second;
 		std::string mask;
 		if (!ctag->readString(key, mask))
 			throw CoreException("<"+tag+":"+key+"> missing at " + ctag->getTagLocation());
@@ -593,22 +592,19 @@ typedef std::map<std::string, ConfigTag*> LocalIndex;
 void ServerConfig::CrossCheckOperClassType()
 {
 	LocalIndex operclass;
-	for (int i = 0;; ++i)
+	ConfigTagList tags = ConfTags("class");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ConfValue("class", i);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<class:name> missing from tag at " + tag->getTagLocation());
 		operclass[name] = tag;
 	}
-	for (int i = 0;; ++i)
+	tags = ConfTags("type");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ConfValue("type", i);
-		if (!tag)
-			break;
-
+		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<type:name> is missing from tag at " + tag->getTagLocation());
@@ -631,11 +627,10 @@ void ServerConfig::CrossCheckOperClassType()
 		}
 	}
 
-	for (int i = 0;; ++i)
+	tags = ConfTags("oper");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ConfValue("oper", i);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 
 		std::string name = tag->getString("name");
 		if (name.empty())
@@ -673,19 +668,18 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 
 	ClassMap newBlocksByMask;
+	Classes.resize(config_data.count("type"));
 	std::map<std::string, int> names;
 
 	bool try_again = true;
 	for(int tries=0; try_again; tries++)
 	{
 		try_again = false;
-		for(unsigned int i=0;; i++)
+		ConfigTagList tags = ConfTags("type");
+		int i=0;
+		for(ConfigIter it = tags.first; it != tags.second; ++it, ++i)
 		{
-			ConfigTag* tag = ConfValue("connect", i);
-			if (!tag)
-				break;
-			if (Classes.size() <= i)
-				Classes.resize(i+1);
+			ConfigTag* tag = it->second;
 			if (Classes[i])
 				continue;
 
@@ -901,22 +895,20 @@ void ServerConfig::Fill()
 	if (!sid.empty() && !ServerInstance->IsSID(sid))
 		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 
-	for (int i = 0;; ++i)
+	ConfigTagList tags = ConfTags("uline");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ConfValue("uline", i);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		std::string server;
 		if (!tag->readString("server", server))
 			throw CoreException("<uline> tag missing server at " + tag->getTagLocation());
 		ulines[assign(server)] = tag->getBool("silent");
 	}
 
-	for(int i=0;; ++i)
+	tags = ConfTags("banlist");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ConfValue("banlist", i);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		std::string chan;
 		if (!tag->readString("chan", chan))
 			throw CoreException("<banlist> tag missing chan at " + tag->getTagLocation());
@@ -1002,11 +994,13 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			std::string tag = Once[Index];
 			if (!ConfValue(tag))
 				throw CoreException("You have not defined a <"+tag+"> tag, this is required.");
-			if (ConfValue(tag, 1))
+			ConfigTagList tags = ConfTags(tag);
+			if (tags.first != tags.second)
 			{
+				tags.first++;
 				errstr << "You have more than one <" << tag << "> tag.\n"
-					<< "First occurrence at " << ConfValue(tag, 0)->getTagLocation()
-					<< "; second occurrence at " << ConfValue(tag, 1)->getTagLocation() << std::endl;
+					<< "First occurrence at " << ConfValue(tag)->getTagLocation()
+					<< "; second occurrence at " << tags.first->second->getTagLocation() << std::endl;
 			}
 		}
 
@@ -1135,11 +1129,10 @@ void ServerConfig::ApplyModules(User* user)
 	std::vector<std::string> added_modules;
 	std::set<std::string> removed_modules(v.begin(), v.end());
 
-	for(int i=0; ; i++)
+	ConfigTagList tags = ConfTags("module");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ConfValue("module", i);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		std::string name;
 		if (tag->readString("name", name))
 		{
@@ -1199,18 +1192,17 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
 }
 
-ConfigTag* ServerConfig::ConfValue(const std::string &tag, int offset)
+ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 {
-	ConfigDataHash::size_type pos = offset;
-	if (pos >= config_data.count(tag))
-		return NULL;
-
 	ConfigDataHash::iterator iter = config_data.find(tag);
-
-	for(int i = 0; i < offset; i++)
-		iter++;
-
+	if (iter == config_data.end())
+		return NULL;
 	return iter->second;
+}
+
+ConfigTagList ServerConfig::ConfTags(const std::string& tag)
+{
+	return config_data.equal_range(tag);
 }
 
 bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf)

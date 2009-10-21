@@ -73,11 +73,10 @@ class ModuleAlias : public Module
 		fprefix = fpre.empty() ? '!' : fpre[0];
 
 		Aliases.clear();
-		for (int i = 0;; i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
+		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("alias", i);
-			if (!tag)
-				break;
+			ConfigTag* tag = i->second;
 			Alias a;
 			a.AliasedCommand = tag->getString("text").c_str();
 			tag->readString("replace", a.ReplaceFormat, true);

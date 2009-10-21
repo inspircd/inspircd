@@ -143,6 +143,8 @@ class CoreExport OperInfo : public refcountbase
 
 typedef std::map<std::string, reference<ConfigTag> > TagIndex;
 typedef std::map<std::string, reference<OperInfo> > OperIndex;
+typedef ConfigDataHash::iterator ConfigIter;
+typedef std::pair<ConfigDataHash::iterator, ConfigDataHash::iterator> ConfigTagList;
 
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
@@ -161,7 +163,9 @@ class CoreExport ServerConfig
 	 * @param tag The name of the tag to get
 	 * @param offset get the Nth occurance of the tag
 	 */
-	ConfigTag* ConfValue(const std::string& tag, int offset = 0);
+	ConfigTag* ConfValue(const std::string& tag);
+
+	ConfigTagList ConfTags(const std::string& tag);
 
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
@@ -616,4 +620,5 @@ class CoreExport ServerConfig
 	bool InvBypassModes;
 
 };
+
 #endif

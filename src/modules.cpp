@@ -588,11 +588,10 @@ void ModuleManager::LoadAll()
 		printf("\n");
 	}
 
-	for(int count = 0;; count++)
+	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("module", count);
-		if (!tag)
-			break;
+		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
 		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",name.c_str());
 
@@ -825,12 +824,23 @@ ConfigReader::~ConfigReader()
 {
 }
 
+static ConfigTag* SlowGetTag(const std::string &tag, int index)
+{
+	ConfigTagList tags = ServerInstance->Config->ConfTags(tag);
+	while (tags.first != tags.second)
+	{
+		if (!index)
+			return tags.first->second;
+		tags.first++;
+		index--;
+	}
+	return NULL;
+}
 
 std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
 {
-	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */
 	std::string result = default_value;
-	if (!ServerInstance->Config->ConfValue(tag, index)->readString(name, result, allow_linefeeds))
+	if (!SlowGetTag(tag, index)->readString(name, result, allow_linefeeds))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 	}
@@ -845,7 +855,7 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
 {
 	bool def = (default_value == "yes");
-	return ServerInstance->Config->ConfValue(tag, index)->getBool(name, def);
+	return SlowGetTag(tag, index)->getBool(name, def);
 }
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
@@ -857,7 +867,7 @@ bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int
 int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
 {
 	int v = atoi(default_value.c_str());
-	int result = ServerInstance->Config->ConfValue(tag, index)->getInt(name, v);
+	int result = SlowGetTag(tag, index)->getInt(name, v);
 
 	if ((need_positive) && (result < 0))
 	{
@@ -885,7 +895,7 @@ int ConfigReader::Enumerate(const std::string &tag)
 	ServerInstance->Logs->Log("MODULE", DEBUG, "Module is using ConfigReader::Enumerate on %s; this is slow!",
 		tag.c_str());
 	int i=0;
-	while (ServerInstance->Config->ConfValue(tag, i)) i++;
+	while (SlowGetTag(tag, i)) i++;
 	return i;
 }
 

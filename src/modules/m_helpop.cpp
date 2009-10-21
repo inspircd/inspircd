@@ -133,11 +133,10 @@ class ModuleHelpop : public Module
 
 			helpop_map.clear();
 
-			for (int i = 0;; i++)
+			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
+			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
-				ConfigTag* tag = ServerInstance->Config->ConfValue("helpop", i);
-				if (!tag)
-					break;
+				ConfigTag* tag = i->second;
 				irc::string key = assign(tag->getString("key"));
 				std::string value;
 				tag->readString("value", value, true); /* Linefeeds allowed */

@@ -234,14 +234,15 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 		/* stats o */
 		case 'o':
-			for (int i = 0;; i++)
+		{
+			ConfigTagList tags = ServerInstance->Config->ConfTags("oper");
+			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
-				ConfigTag* tag = Config->ConfValue("oper", i);
-				if (!tag)
-					break;
+				ConfigTag* tag = i->second;
 				results.push_back(sn+" 243 "+user->nick+" O "+tag->getString("host")+" * "+
 					tag->getString("name") + " " + tag->getString("type")+" 0");
 			}
+		}
 		break;
 
 		/* stats l (show user I/O stats) */

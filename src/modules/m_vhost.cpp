@@ -27,11 +27,10 @@ class CommandVhost : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		for (int index = 0;; index++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("vhost");
+		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("vhost", index);
-			if (!tag)
-				break;
+			ConfigTag* tag = i->second;
 			std::string mask = tag->getString("host");
 			std::string username = tag->getString("user");
 			std::string pass = tag->getString("pass");
