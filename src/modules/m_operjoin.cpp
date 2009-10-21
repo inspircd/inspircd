@@ -92,7 +92,7 @@ class ModuleOperjoin : public Module
 				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
 					Channel::JoinUser(user, it->c_str(), override, "", false, ServerInstance->Time());
 
-			std::map<std::string, std::vector<std::string> >::iterator i = operTypeChans.find(user->oper);
+			std::map<std::string, std::vector<std::string> >::iterator i = operTypeChans.find(user->oper->name);
 
 			if (i != operTypeChans.end())
 			{

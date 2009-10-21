@@ -40,13 +40,10 @@ class ModuleModesOnOper : public Module
 
 	virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
 	{
-		TagIndex::iterator typetag = ServerInstance->Config->opertypes.find(opertype);
-		if (typetag == ServerInstance->Config->opertypes.end())
-			return;
 		// whenever a user opers, go through the oper types, find their <type:modes>,
 		// and if they have one apply their modes. The mode string can contain +modes
 		// to add modes to the user or -modes to take modes from the user.
-		std::string ThisOpersModes = typetag->second->getString("modes");
+		std::string ThisOpersModes = user->oper->getConfig("modes");
 		if (!ThisOpersModes.empty())
 		{
 			ApplyModes(user, ThisOpersModes);

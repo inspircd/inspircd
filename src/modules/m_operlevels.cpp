@@ -42,16 +42,8 @@ class ModuleOperLevels : public Module
 			// oper killing an oper?
 			if (IS_OPER(dest) && IS_OPER(source))
 			{
-				TagIndex::iterator dest_type = ServerInstance->Config->opertypes.find(dest->oper);
-				TagIndex::iterator src_type = ServerInstance->Config->opertypes.find(source->oper);
-
-				if (dest_type == ServerInstance->Config->opertypes.end())
-					return MOD_RES_PASSTHRU;
-				if (src_type == ServerInstance->Config->opertypes.end())
-					return MOD_RES_PASSTHRU;
-
-				long dest_level = dest_type->second->getInt("level");
-				long source_level = src_type->second->getInt("level");
+				long dest_level = atol(dest->oper->getConfig("level").c_str());
+				long source_level = atol(source->oper->getConfig("level").c_str());
 				if (dest_level > source_level)
 				{
 					if (IS_LOCAL(source)) ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());

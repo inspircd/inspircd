@@ -259,7 +259,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 				this->WriteLine(data);
 				if (IS_OPER(u->second))
 				{
-					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid.c_str(), u->second->oper.c_str());
+					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid.c_str(), u->second->oper->name.c_str());
 					this->WriteLine(data);
 				}
 				if (IS_AWAY(u->second))

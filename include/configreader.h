@@ -61,8 +61,6 @@ struct CoreExport ConfigTag : public refcountbase
  */
 typedef std::multimap<std::string, reference<ConfigTag> > ConfigDataHash;
 
-typedef std::map<std::string, reference<ConfigTag> > TagIndex;
-
 /** Defines the server's length limits on various length-limited
  * items such as topics, nicknames, channel names etc.
  */
@@ -111,6 +109,30 @@ class ServerLimits
 		MaxAway++;
 	}
 };
+
+class CoreExport OperInfo : public refcountbase
+{
+ public:
+	/** <oper> block used for this oper-up. May be NULL. */
+	reference<ConfigTag> oper_block;
+	/** <type> block used for this oper-up. Valid for local users, may be NULL on remote */
+	reference<ConfigTag> type_block;
+	/** <class> blocks referenced from the <type> block. These define individual permissions */
+	std::vector<reference<ConfigTag> > class_blocks;
+	/** Name of the oper type; i.e. the one shown in WHOIS */
+	std::string name;
+
+	/** Get a configuration item, searching in the oper, type, and class blocks (in that order) */
+	std::string getConfig(const std::string& key);
+
+	inline const char* NameStr()
+	{
+		return irc::Spacify(name.c_str());
+	}
+};
+
+typedef std::map<std::string, reference<ConfigTag> > TagIndex;
+typedef std::map<std::string, reference<OperInfo> > OperIndex;
 
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
@@ -495,13 +517,10 @@ class CoreExport ServerConfig
 	 */
 	bool FullHostInTopic;
 
-	/** All oper type definitions from the config file
+	/** Oper block and type index.
+	 * For anonymous oper blocks (type only), prefix with a space.
 	 */
-	TagIndex opertypes;
-
-	/** All oper class definitions from the config file
-	 */
-	TagIndex operclass;
+	OperIndex oper_blocks;
 
 	/** Saved argv from startup
 	 */

@@ -106,32 +106,7 @@ class ModuleSWhois : public Module
 			return;
 		ConfigReader Conf;
 
-		std::string swhois;
-
-		for (int i = 0; i < Conf.Enumerate("oper"); i++)
-		{
-			std::string name = Conf.ReadValue("oper", "name", i);
-
-			if (name == params[0])
-			{
-				swhois = Conf.ReadValue("oper", "swhois", i);
-				break;
-			}
-		}
-
-		if (!swhois.length())
-		{
-			for (int i = 0; i < Conf.Enumerate("type"); i++)
-			{
-				std::string type = Conf.ReadValue("type", "name", i);
-
-				if (type == user->oper)
-				{
-					swhois = Conf.ReadValue("type", "swhois", i);
-					break;
-				}
-			}
-		}
+		std::string swhois = user->oper->getConfig("swhois");
 
 		if (!swhois.length())
 			return;

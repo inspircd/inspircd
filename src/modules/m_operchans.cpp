@@ -71,7 +71,7 @@ class ModuleOperChans : public Module
 	{
 		if (mask[0] == 'O' && mask[1] == ':')
 		{
-			if (IS_OPER(user) && InspIRCd::Match(user->oper, mask.substr(2)))
+			if (IS_OPER(user) && InspIRCd::Match(user->oper->name, mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

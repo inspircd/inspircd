@@ -499,7 +499,7 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 	}
 
 	if (noisy)
-		this->WriteServ("NOTICE %s :Oper type %s does not have access to priv %s", this->nick.c_str(), this->oper.c_str(), privstr.c_str());
+		this->WriteServ("NOTICE %s :Oper type %s does not have access to priv %s", this->nick.c_str(), oper->NameStr(), privstr.c_str());
 	return false;
 }
 
@@ -637,97 +637,87 @@ CullResult LocalUser::cull()
 	return User::cull();
 }
 
-void User::Oper(const std::string &opertype, const std::string &opername)
+void User::Oper(OperInfo* info)
 {
 	if (this->IsModeSet('o'))
 		this->UnOper();
 
 	this->modes[UM_OPERATOR] = 1;
+	this->oper = info;
 	this->WriteServ("MODE %s :+o", this->nick.c_str());
-	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
+	FOREACH_MOD(I_OnOper, OnOper(this, info->name));
 
-	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), irc::Spacify(opertype.c_str()), opername.c_str());
-	this->WriteNumeric(381, "%s :You are now %s %s", this->nick.c_str(), strchr("aeiouAEIOU", *opertype.c_str()) ? "an" : "a", irc::Spacify(opertype.c_str()));
+	std::string opername;
+	if (info->oper_block)
+		opername = info->oper_block->getString("name");
 
-	ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), opertype.c_str());
-	this->oper.assign(opertype, 0, 512);
+	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
+		nick.c_str(), ident.c_str(), host.c_str(), info->NameStr(), opername.c_str());
+	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", info->name[0]) ? "an" : "a", info->NameStr());
+
+	ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), info->NameStr());
 	ServerInstance->Users->all_opers.push_back(this);
 
 	if (IS_LOCAL(this))
 		IS_LOCAL(this)->OperInternal();
 
-	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype, opername));
+	FOREACH_MOD(I_OnPostOper,OnPostOper(this, info->name, opername));
 }
 
 void LocalUser::OperInternal()
 {
-	/*
-	 * This might look like it's in the wrong place.
-	 * It is *not*!
-	 *
-	 * For multi-network servers, we may not have the opertypes of the remote server, but we still want to mark the user as an oper of that type.
-	 * -- w00t
-	 */
-	TagIndex::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper.c_str());
-	if (iter_opertype != ServerInstance->Config->opertypes.end())
+	if (AllowedOperCommands)
+		AllowedOperCommands->clear();
+	else
+		AllowedOperCommands = new std::set<std::string>;
+
+	if (AllowedPrivs)
+		AllowedPrivs->clear();
+	else
+		AllowedPrivs = new std::set<std::string>;
+
+	AllowedUserModes.reset();
+	AllowedChanModes.reset();
+	this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
+
+	for(std::vector<reference<ConfigTag> >::iterator iter = oper->class_blocks.begin(); iter != oper->class_blocks.end(); ++iter)
 	{
-		if (AllowedOperCommands)
-			AllowedOperCommands->clear();
-		else
-			AllowedOperCommands = new std::set<std::string>;
-
-		if (AllowedPrivs)
-			AllowedPrivs->clear();
-		else
-			AllowedPrivs = new std::set<std::string>;
-
-		AllowedUserModes.reset();
-		AllowedChanModes.reset();
-		this->AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
-
-		std::string myclass, mycmd, mypriv;
-		irc::spacesepstream Classes(iter_opertype->second->getString("classes"));
-		while (Classes.GetToken(myclass))
+		ConfigTag* tag = *iter;
+		std::string mycmd, mypriv;
+		/* Process commands */
+		irc::spacesepstream CommandList(tag->getString("commands"));
+		while (CommandList.GetToken(mycmd))
 		{
-			TagIndex::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass.c_str());
-			if (iter_operclass != ServerInstance->Config->operclass.end())
+			this->AllowedOperCommands->insert(mycmd);
+		}
+
+		irc::spacesepstream PrivList(tag->getString("privs"));
+		while (PrivList.GetToken(mypriv))
+		{
+			this->AllowedPrivs->insert(mypriv);
+		}
+
+		for (unsigned char* c = (unsigned char*)tag->getString("usermodes").c_str(); *c; ++c)
+		{
+			if (*c == '*')
 			{
-				/* Process commands */
-				irc::spacesepstream CommandList(iter_operclass->second->getString("commands"));
-				while (CommandList.GetToken(mycmd))
-				{
-					this->AllowedOperCommands->insert(mycmd);
-				}
+				this->AllowedUserModes.set();
+			}
+			else
+			{
+				this->AllowedUserModes[*c - 'A'] = true;
+			}
+		}
 
-				irc::spacesepstream PrivList(iter_operclass->second->getString("privs"));
-				while (PrivList.GetToken(mypriv))
-				{
-					this->AllowedPrivs->insert(mypriv);
-				}
-
-				for (unsigned char* c = (unsigned char*)iter_operclass->second->getString("usermodes").c_str(); *c; ++c)
-				{
-					if (*c == '*')
-					{
-						this->AllowedUserModes.set();
-					}
-					else
-					{
-						this->AllowedUserModes[*c - 'A'] = true;
-					}
-				}
-
-				for (unsigned char* c = (unsigned char*)iter_operclass->second->getString("chanmodes").c_str(); *c; ++c)
-				{
-					if (*c == '*')
-					{
-						this->AllowedChanModes.set();
-					}
-					else
-					{
-						this->AllowedChanModes[*c - 'A'] = true;
-					}
-				}
+		for (unsigned char* c = (unsigned char*)tag->getString("chanmodes").c_str(); *c; ++c)
+		{
+			if (*c == '*')
+			{
+				this->AllowedChanModes.set();
+			}
+			else
+			{
+				this->AllowedChanModes[*c - 'A'] = true;
 			}
 		}
 	}
@@ -743,7 +733,7 @@ void User::UnOper()
 	 * note, order is important - this must come before modes as -o attempts
 	 * to call UnOper. -- w00t
 	 */
-	this->oper.clear();
+	oper = NULL;
 
 
 	/* Remove all oper only modes from the user when the deoper - Bug #466*/

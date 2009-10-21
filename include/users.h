@@ -60,6 +60,7 @@ enum RegistrationState {
 class Channel;
 class UserResolver;
 struct ConfigTag;
+class OperInfo;
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
@@ -348,11 +349,8 @@ class CoreExport User : public StreamSocket
 	time_t awaytime;
 
 	/** The oper type they logged in as, if they are an oper.
-	 * This is used to check permissions in operclasses, so that
-	 * we can say 'yea' or 'nay' to any commands they issue.
-	 * The value of this was the value of a valid 'type name=' tag
 	 */
-	std::string oper;
+	reference<OperInfo> oper;
 
 	/** Used by User to indicate the registration status of the connection
 	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
@@ -530,9 +528,8 @@ class CoreExport User : public StreamSocket
 
 	/** Oper up the user using the given opertype.
 	 * This will also give the +o usermode.
-	 * @param opertype The oper type to oper as
 	 */
-	void Oper(const std::string &opertype, const std::string &opername);
+	void Oper(OperInfo* info);
 
 	/** Change this users hash key to a new string.
 	 * You should not call this function directly. It is used by the core
@@ -949,7 +946,7 @@ inline FakeUser* IS_SERVER(User* u)
 	return u->GetFd() == FD_FAKEUSER_NUMBER ? static_cast<FakeUser*>(u) : NULL;
 }
 /** Is an oper */
-#define IS_OPER(x) (!x->oper.empty())
+#define IS_OPER(x) (x->oper)
 /** Is away */
 #define IS_AWAY(x) (!x->awaymsg.empty())
 

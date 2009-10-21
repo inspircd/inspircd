@@ -54,8 +54,6 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 {
 	char TheHost[MAXBUF];
 	char TheIP[MAXBUF];
-	std::string type;
-	bool found = false;
 	bool match_login = false;
 	bool match_pass = false;
 	bool match_hosts = false;
@@ -63,89 +61,51 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
-	for (int i = 0;; i++)
+	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
+	if (i != ServerInstance->Config->oper_blocks.end())
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("oper", i);
-		if (!tag)
-			break;
-		if (tag->getString("name") != parameters[0])
-			continue;
+		OperInfo* ifo = i->second;
+		ConfigTag* tag = ifo->oper_block;
 		match_login = true;
 		match_pass = !ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
 		match_hosts = OneOfMatches(TheHost,TheIP,tag->getString("host"));
 
 		if (match_pass && match_hosts)
 		{
-			type = tag->getString("type");
-			ConfigTag* typeTag = ServerInstance->Config->opertypes[type];
-
-			if (typeTag)
+			/* found this oper's opertype */
+			std::string host = ifo->getConfig("host");
+			if (!host.empty())
+				user->ChangeDisplayedHost(host.c_str());
+			std::string opClass = ifo->getConfig("class");
+			if (!opClass.empty())
 			{
-				/* found this oper's opertype */
-				if (!ServerInstance->IsNick(type.c_str(), ServerInstance->Config->Limits.NickMax))
-				{
-					user->WriteNumeric(491, "%s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick.c_str());
-					ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type '%s' contains invalid characters",type.c_str());
-					ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-					return CMD_FAILURE;
-				}
-				std::string host = typeTag->getString("host");
-				if (!host.empty())
-					user->ChangeDisplayedHost(host.c_str());
-				std::string opClass = typeTag->getString("class");
-				if (!opClass.empty())
-				{
-					user->SetClass(opClass);
-					user->CheckClass();
-				}
-				found = true;
+				user->SetClass(opClass);
+				user->CheckClass();
 			}
-		}
-		break;
-	}
-	if (found)
-	{
-		/* correct oper credentials */
-		user->Oper(type, parameters[0]);
-	}
-	else
-	{
-		char broadcast[MAXBUF];
-
-		if (type.empty())
-		{
-			std::string fields;
-			if (!match_login)
-				fields.append("login ");
-			if (!match_pass)
-				fields.append("password ");
-			if (!match_hosts)
-				fields.append("hosts");
-
-			// tell them they suck, and lag them up to help prevent brute-force attacks
-			user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick.c_str());
-			user->Penalty += 10;
-
-			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
-			ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
-			ServerInstance->PI->SendSNONotice("o", std::string("OPER: ") + broadcast);
-
-			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
-			return CMD_FAILURE;
-		}
-		else
-		{
-			user->WriteNumeric(491, "%s :Your oper block does not have a valid opertype associated with it",user->nick.c_str());
-
-			snprintf(broadcast, MAXBUF, "CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0].c_str(),type.c_str());
-
-			ServerInstance->SNO->WriteToSnoMask('o', std::string(broadcast));
-
-			ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str());
-			return CMD_FAILURE;
+			user->Oper(ifo);
+			return CMD_SUCCESS;
 		}
 	}
-	return CMD_SUCCESS;
+	char broadcast[MAXBUF];
+
+	std::string fields;
+	if (!match_login)
+		fields.append("login ");
+	if (!match_pass)
+		fields.append("password ");
+	if (!match_hosts)
+		fields.append("hosts");
+
+	// tell them they suck, and lag them up to help prevent brute-force attacks
+	user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick.c_str());
+	user->Penalty += 10;
+
+	snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
+	ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
+	ServerInstance->PI->SendSNONotice("o", std::string("OPER: ") + broadcast);
+
+	ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
+	return CMD_FAILURE;
 }
 
 COMMAND_INIT(CommandOper)

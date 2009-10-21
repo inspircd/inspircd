@@ -98,7 +98,7 @@ class CommandCheck : public Command
 			if (IS_OPER(targuser))
 			{
 				/* user is an oper of type ____ */
-				user->SendText(checkstr + " opertype " + irc::Spacify(targuser->oper.c_str()));
+				user->SendText(checkstr + " opertype " + targuser->oper->NameStr());
 			}
 
 			LocalUser* loctarg = IS_LOCAL(targuser);

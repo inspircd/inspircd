@@ -61,7 +61,7 @@ class ModuleOverride : public Module
 	bool CanOverride(User* source, const char* token)
 	{
 		// checks to see if the oper's type has <type:override>
-		override_t::iterator j = overrides.find(source->oper);
+		override_t::iterator j = overrides.find(source->oper->name);
 
 		if (j != overrides.end())
 		{

@@ -35,7 +35,14 @@ bool TreeSocket::OperType(const std::string &prefix, parameterlist &params)
 		if (!IS_OPER(u))
 			ServerInstance->Users->all_opers.push_back(u);
 		u->modes[UM_OPERATOR] = 1;
-		u->oper.assign(opertype, 0, 512);
+		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + opertype);
+		if (iter != ServerInstance->Config->oper_blocks.end())
+			u->oper = iter->second;
+		else
+		{
+			u->oper = new OperInfo;
+			u->oper->name = opertype;
+		}
 		Utils->DoOneToAllButSender(u->uuid, "OPERTYPE", params, u->server);
 
 		TreeServer* remoteserver = Utils->FindServer(u->server);

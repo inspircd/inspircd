@@ -275,26 +275,21 @@ public:
 
 	bool OperUser(User* user, const std::string &pattern, const std::string &type)
 	{
-		ConfigReader Conf;
+		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
+		if (iter == ServerInstance->Config->oper_blocks.end())
+			return false;
+		OperInfo* ifo = iter->second;
 
-		for (int j = 0; j < Conf.Enumerate("type"); j++)
+		std::string hostname(user->ident);
+
+		hostname.append("@").append(user->host);
+
+		if (OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
 		{
-			std::string tname = Conf.ReadValue("type","name",j);
-			std::string hostname(user->ident);
+			/* Opertype and host match, looks like this is it. */
 
-			hostname.append("@").append(user->host);
-
-			if ((tname == type) && OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
-			{
-				/* Opertype and host match, looks like this is it. */
-				std::string operhost = Conf.ReadValue("type", "host", j);
-
-				if (operhost.size())
-					user->ChangeDisplayedHost(operhost.c_str());
-
-				user->Oper(type, tname);
-				return true;
-			}
+			user->Oper(ifo);
+			return true;
 		}
 
 		return false;
