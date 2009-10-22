@@ -46,11 +46,13 @@ class NoNicks : public ModeHandler
 class ModuleNoNickChange : public Module
 {
 	NoNicks nn;
+	bool override;
  public:
 	ModuleNoNickChange() : nn(this)
 	{
+		OnRehash(NULL);
 		ServerInstance->Modes->AddMode(&nn);
-		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -91,6 +93,9 @@ class ModuleNoNickChange : public Module
 			if (res == MOD_RES_ALLOW)
 				continue;
 
+			if (override && IS_OPER(user))
+				continue;
+
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))
 			{
 				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)",
@@ -100,6 +105,12 @@ class ModuleNoNickChange : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	virtual void OnRehash(User* user)
+	{
+		ConfigReader Conf;
+		override = Conf.ReadFlag("nonicks", "operoverride", "no", 0);
 	}
 };
 

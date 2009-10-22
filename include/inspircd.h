@@ -738,11 +738,6 @@ class CoreExport InspIRCd
 	 */
 	bool SilentULine(const std::string& server);
 
-	/** Returns the subversion revision ID of this ircd
-	 * @return The revision ID or an empty string
-	 */
-	std::string GetRevision();
-
 	/** Returns the full version string of this ircd
 	 * @return The version string
 	 */

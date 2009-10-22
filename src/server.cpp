@@ -18,17 +18,15 @@
 #include "inspircd.h"
 #include "inspircd_version.h"
 
-
 void InspIRCd::SignalHandler(int signal)
 {
-	switch (signal)
+	if (signal == SIGHUP)
 	{
-		case SIGHUP:
-			Rehash("due to SIGHUP");
-			break;
-		case SIGTERM:
-			Exit(signal);
-			break;
+		Rehash("Caught SIGHUP");
+	}
+	else if (signal == SIGTERM)
+	{
+		Exit(signal);
 	}
 }
 
@@ -61,11 +59,6 @@ void RehashHandler::Call(const std::string &reason)
 	}
 }
 
-void InspIRCd::RehashServer()
-{
-	this->Rehash("");
-}
-
 std::string InspIRCd::GetVersionString()
 {
 	char versiondata[MAXBUF];
@@ -90,11 +83,6 @@ void InspIRCd::BuildISupport()
 	Config->data005 = v.str();
 	FOREACH_MOD(I_On005Numeric,On005Numeric(Config->data005));
 	Config->Update005();
-}
-
-std::string InspIRCd::GetRevision()
-{
-	return REVISION;
 }
 
 void InspIRCd::IncrementUID(int pos)

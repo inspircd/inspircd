@@ -96,8 +96,7 @@ class ModuleHttpStats : public Module
 
 				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>"
 					<< Sanitize(ServerInstance->Config->ServerDesc) << "</gecos><version>"
-					<< Sanitize(ServerInstance->GetVersionString()) << "</version><revision>"
-					<< Sanitize(ServerInstance->GetRevision()) << "</revision></server>";
+					<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
 
 				data << "<general>";
 				data << "<usercount>" << ServerInstance->Users->clientlist->size() << "</usercount>";
