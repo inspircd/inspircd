@@ -46,6 +46,7 @@ class ModuleNamedModes : public Module
 
 	void DisplayList(User* user, Channel* channel)
 	{
+		std::stringstream items;
 		for(char letter = 'A'; letter <= 'z'; letter++)
 		{
 			ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
@@ -56,8 +57,11 @@ class ModuleNamedModes : public Module
 			std::string item = mh->name;
 			if (mh->GetNumParams(true))
 				item += "=" + channel->GetModeParameter(letter);
-			user->WriteNumeric(961, "%s %s %s", user->nick.c_str(), channel->name.c_str(), item.c_str());
+			items << item << " ";
 		}
+		char pfx[MAXBUF];
+		snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());
+		user->SendText(std::string(pfx), items);
 		user->WriteNumeric(960, "%s %s :End of mode list", user->nick.c_str(), channel->name.c_str());
 	}
 
