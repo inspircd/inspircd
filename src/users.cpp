@@ -936,108 +936,12 @@ int LocalUser::GetServerPort()
 	return 0;
 }
 
-const char* User::GetCIDRMask(int range)
-{
-	static char buf[44];
-
-	if (range < 0)
-		throw "Negative range, sorry, no.";
-
-	/*
-	 * Original code written by Oliver Lupton (Om).
-	 * Integrated by me. Thanks. :) -- w00t
-	 */
-	switch (this->client_sa.sa.sa_family)
-	{
-		case AF_INET6:
-		{
-			/* unsigned char s6_addr[16]; */
-			struct in6_addr v6;
-			int i, bytestozero, extrabits;
-			char buffer[40];
-
-			if(range > 128)
-				throw "CIDR mask width greater than address width (IPv6, 128 bit)";
-
-			/* To create the CIDR mask we want to set all the bits after 'range' bits of the address
-			 * to zero. This means the last (128 - range) bits of the address must be set to zero.
-			 * Hence this number divided by 8 is the number of whole bytes from the end of the address
-			 * which must be set to zero.
-			 */
-			bytestozero = (128 - range) / 8;
-
-			/* Some of the least significant bits of the next most significant byte may also have to
-			 * be zeroed. The number of bits is the remainder of the above division.
-			 */
-			extrabits = (128 - range) % 8;
-
-			/* Populate our working struct with the parts of the user's IP which are required in the
-			 * final CIDR mask. Set all the subsequent bytes to zero.
-			 * (16 - bytestozero) is the number of bytes which must be populated with actual IP data.
-			 */
-			for(i = 0; i < (16 - bytestozero); i++)
-			{
-				v6.s6_addr[i] = client_sa.in6.sin6_addr.s6_addr[i];
-			}
-
-			/* And zero all the remaining bytes in the IP. */
-			for(; i < 16; i++)
-			{
-				v6.s6_addr[i] = 0;
-			}
-
-			/* And finally, zero the extra bits required. */
-			v6.s6_addr[15 - bytestozero] = (v6.s6_addr[15 - bytestozero] >> extrabits) << extrabits;
-
-			snprintf(buf, 44, "%s/%d", inet_ntop(AF_INET6, &v6, buffer, 40), range);
-			return buf;
-		}
-		break;
-		case AF_INET:
-		{
-			struct in_addr v4;
-			char buffer[16];
-
-			if (range > 32)
-				throw "CIDR mask width greater than address width (IPv4, 32 bit)";
-
-			/* Users already have a sockaddr* pointer (User::ip) which contains either a v4 or v6 structure */
-			v4.s_addr = client_sa.in4.sin_addr.s_addr;
-
-			/* To create the CIDR mask we want to set all the bits after 'range' bits of the address
-			 * to zero. This means the last (32 - range) bits of the address must be set to zero.
-			 * This is done by shifting the value right and then back left by (32 - range) bits.
-			 */
-			if(range > 0)
-			{
-				v4.s_addr = ntohl(v4.s_addr);
-				v4.s_addr = (v4.s_addr >> (32 - range)) << (32 - range);
-				v4.s_addr = htonl(v4.s_addr);
-			}
-			else
-			{
-				/* a range of zero would cause a 32 bit value to be shifted by 32 bits.
-				 * this has undefined behaviour, but for CIDR purposes the resulting mask
-				 * from a.b.c.d/0 is 0.0.0.0/0
-				 */
-				v4.s_addr = 0;
-			}
-
-			snprintf(buf, 44, "%s/%d", inet_ntop(AF_INET, &v4, buffer, 16), range);
-			return buf;
-		}
-		break;
-	}
-
-	return ""; // unused, but oh well
-}
-
 const char* User::GetIPString()
 {
 	int port;
 	if (cachedip.empty())
 	{
-		irc::sockets::satoap(&client_sa, cachedip, port);
+		irc::sockets::satoap(client_sa, cachedip, port);
 		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 		if (cachedip.c_str()[0] == ':')
 			cachedip.insert(0,1,'0');
@@ -1046,10 +950,25 @@ const char* User::GetIPString()
 	return cachedip.c_str();
 }
 
+irc::string User::GetCIDRMask()
+{
+	int range = 0;
+	switch (client_sa.sa.sa_family)
+	{
+		case AF_INET6:
+			range = ServerInstance->Config->c_ipv6_range;
+			break;
+		case AF_INET:
+			range = ServerInstance->Config->c_ipv4_range;
+			break;
+	}
+	return assign(irc::sockets::mask(client_sa, range));
+}
+
 bool User::SetClientIP(const char* sip)
 {
 	this->cachedip = "";
-	return irc::sockets::aptosa(sip, 0, &client_sa);
+	return irc::sockets::aptosa(sip, 0, client_sa);
 }
 
 static std::string wide_newline("\r\n");

@@ -388,19 +388,14 @@ class CoreExport User : public StreamSocket
 	 */
 	const char* GetIPString();
 
+	/** Get CIDR mask, using default range, for this user
+	 */
+	irc::string GetCIDRMask();
+
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
 	bool SetClientIP(const char* sip);
-
-	/** Get a CIDR mask from the IP of this user, using a static internal buffer.
-	 * e.g., GetCIDRMask(16) for 223.254.214.52 returns 223.254.0.0/16
-	 * This may be used for CIDR clone detection, etc.
-	 *
-	 * (XXX, brief note: when we do the sockets rewrite, this should move down a
-	 * level so it may be used on more derived objects. -- w00t)
-	 */
-	const char *GetCIDRMask(int range);
 
 	/** Default constructor
 	 * @throw CoreException if the UID allocated to the user already exists

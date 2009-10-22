@@ -343,7 +343,7 @@ class ModuleHttpServer : public Module
 			return MOD_RES_PASSTHRU;
 		int port;
 		std::string incomingip;
-		irc::sockets::satoap(client, incomingip, port);
+		irc::sockets::satoap(*client, incomingip, port);
 		new HttpServerSocket(nfd, incomingip, from, client, server);
 		return MOD_RES_ALLOW;
 	}

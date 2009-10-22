@@ -32,7 +32,7 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 	bool found = false;
 	int port;
 	std::string incomingip;
-	irc::sockets::satoap(client, incomingip, port);
+	irc::sockets::satoap(*client, incomingip, port);
 
 	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), incomingip) != Utils->ValidIPs.end());
 	if (!found)
@@ -335,7 +335,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			ValidIPs.push_back(L->AllowMask);
 
 		irc::sockets::sockaddrs dummy;
-		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, &dummy);
+		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);
 		if (ipvalid)
 			ValidIPs.push_back(L->IPAddr);
 		else

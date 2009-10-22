@@ -23,13 +23,13 @@ ListenSocket::ListenSocket(ConfigTag* tag, const std::string& addr, int port)
 	irc::sockets::sockaddrs bind_to;
 
 	// canonicalize address if it is defined
-	if (!irc::sockets::aptosa(addr, port, &bind_to))
+	if (!irc::sockets::aptosa(addr, port, bind_to))
 	{
 		fd = -1;
 		return;
 	}
-	irc::sockets::satoap(&bind_to, bind_addr, bind_port);
-	bind_desc = irc::sockets::satouser(&bind_to);
+	irc::sockets::satoap(bind_to, bind_addr, bind_port);
+	bind_desc = irc::sockets::satouser(bind_to);
 
 	fd = irc::sockets::OpenTCPSocket(bind_addr);
 

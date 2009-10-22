@@ -73,7 +73,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via
 	: BufferedSocket(newfd), Utils(Util)
 {
 	int dummy;
-	irc::sockets::satoap(client, IP, dummy);
+	irc::sockets::satoap(*client, IP, dummy);
 	age = ServerInstance->Time();
 	LinkState = WAIT_AUTH_1;
 	capab_phase = 0;

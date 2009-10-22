@@ -107,20 +107,27 @@ namespace irc
 		 * @param sa The structure to place the result in. Will be zeroed prior to conversion
 		 * @return true if the conversion was successful, false if not.
 		 */
-		CoreExport bool aptosa(const std::string& addr, int port, irc::sockets::sockaddrs* sa);
+		CoreExport bool aptosa(const std::string& addr, int port, irc::sockets::sockaddrs& sa);
+
 		/** Convert a binary sockaddr to an address-port pair
 		 * @param sa The structure to convert
 		 * @param addr the IP address
 		 * @param port the port
 		 * @return true if the conversion was successful, false if unknown address family
 		 */
-		CoreExport bool satoap(const irc::sockets::sockaddrs* sa, std::string& addr, int &port);
+		CoreExport bool satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port);
+
 		/** Convert a binary sockaddr to a user-readable string.
 		 * This means IPv6 addresses are written as [::1]:6667, and *:6668 is used for 0.0.0.0:6668
 		 * @param sa The structure to convert
 		 * @return The string; "<unknown>" if not a valid address
 		 */
-		CoreExport std::string satouser(const irc::sockets::sockaddrs* sa);
+		CoreExport std::string satouser(const irc::sockets::sockaddrs& sa);
+
+		/** Create a CIDR mask from the given address, of length <range>
+		 * Result will be of the form 192.0.5.0/24 or 2001:af35::/48
+		 */
+		CoreExport std::string mask(irc::sockets::sockaddrs sa, unsigned int range);
 	}
 }
 

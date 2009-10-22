@@ -303,7 +303,7 @@ void DNS::Rehash()
 		this->cache = new dnscache();
 	}
 
-	irc::sockets::aptosa(ServerInstance->Config->DNSServer, DNS::QUERY_PORT, &myserver);
+	irc::sockets::aptosa(ServerInstance->Config->DNSServer, DNS::QUERY_PORT, myserver);
 
 	/* Initialize mastersocket */
 	int s = irc::sockets::OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);

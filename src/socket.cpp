@@ -35,7 +35,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 		memset(&servaddr, 0, sizeof(servaddr));
 		servaddr.in4.sin_family = AF_INET;
 	}
-	else if (!irc::sockets::aptosa(addr, port, &servaddr))
+	else if (!irc::sockets::aptosa(addr, port, servaddr))
 		return false;
 
 	ret = SE->Bind(sockfd, &servaddr.sa, sa_size(servaddr));
@@ -122,8 +122,8 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		while (0 != (portno = portrange.GetToken()))
 		{
 			irc::sockets::sockaddrs bindspec;
-			irc::sockets::aptosa(Addr, portno, &bindspec);
-			std::string bind_readable = irc::sockets::satouser(&bindspec);
+			irc::sockets::aptosa(Addr, portno, bindspec);
+			std::string bind_readable = irc::sockets::satouser(bindspec);
 
 			bool skip = false;
 			for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
@@ -174,51 +174,52 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 	return bound;
 }
 
-bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::sockaddrs* sa)
+bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::sockaddrs& sa)
 {
-	memset(sa, 0, sizeof(*sa));
+	memset(&sa, 0, sizeof(sa));
 	if (addr.empty())
 	{
 #ifdef IPV6
-		sa->in6.sin6_family = AF_INET6;
-		sa->in6.sin6_port = htons(port);
+		sa.in6.sin6_family = AF_INET6;
+		sa.in6.sin6_port = htons(port);
 #else
-		sa->in4.sin_family = AF_INET;
-		sa->in4.sin_port = htons(port);
+		sa.in4.sin_family = AF_INET;
+		sa.in4.sin_port = htons(port);
 #endif
 		return true;
 	}
-	else if (inet_pton(AF_INET, addr.c_str(), &sa->in4.sin_addr) > 0)
+	else if (inet_pton(AF_INET, addr.c_str(), &sa.in4.sin_addr) > 0)
 	{
-		sa->in4.sin_family = AF_INET;
-		sa->in4.sin_port = htons(port);
+		sa.in4.sin_family = AF_INET;
+		sa.in4.sin_port = htons(port);
 		return true;
 	}
-	else if (inet_pton(AF_INET6, addr.c_str(), &sa->in6.sin6_addr) > 0)
+	else if (inet_pton(AF_INET6, addr.c_str(), &sa.in6.sin6_addr) > 0)
 	{
-		sa->in6.sin6_family = AF_INET6;
-		sa->in6.sin6_port = htons(port);
+		sa.in6.sin6_family = AF_INET6;
+		sa.in6.sin6_port = htons(port);
 		return true;
 	}
 	return false;
 }
 
-bool irc::sockets::satoap(const irc::sockets::sockaddrs* sa, std::string& addr, int &port) {
+bool irc::sockets::satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port)
+{
 	char addrv[INET6_ADDRSTRLEN+1];
-	if (sa->sa.sa_family == AF_INET)
+	if (sa.sa.sa_family == AF_INET)
 	{
-		if (!inet_ntop(AF_INET, &sa->in4.sin_addr, addrv, sizeof(addrv)))
+		if (!inet_ntop(AF_INET, &sa.in4.sin_addr, addrv, sizeof(addrv)))
 			return false;
 		addr = addrv;
-		port = ntohs(sa->in4.sin_port);
+		port = ntohs(sa.in4.sin_port);
 		return true;
 	}
-	else if (sa->sa.sa_family == AF_INET6)
+	else if (sa.sa.sa_family == AF_INET6)
 	{
-		if (!inet_ntop(AF_INET6, &sa->in6.sin6_addr, addrv, sizeof(addrv)))
+		if (!inet_ntop(AF_INET6, &sa.in6.sin6_addr, addrv, sizeof(addrv)))
 			return false;
 		addr = addrv;
-		port = ntohs(sa->in6.sin6_port);
+		port = ntohs(sa.in6.sin6_port);
 		return true;
 	}
 	return false;
@@ -226,34 +227,35 @@ bool irc::sockets::satoap(const irc::sockets::sockaddrs* sa, std::string& addr, 
 
 static const char all_zero[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
 
-std::string irc::sockets::satouser(const irc::sockets::sockaddrs* sa) {
+std::string irc::sockets::satouser(const irc::sockets::sockaddrs& sa)
+{
 	char buffer[MAXBUF];
-	if (sa->sa.sa_family == AF_INET)
+	if (sa.sa.sa_family == AF_INET)
 	{
-		if (sa->in4.sin_addr.s_addr == 0)
+		if (sa.in4.sin_addr.s_addr == 0)
 		{
-			sprintf(buffer, "*:%u", ntohs(sa->in4.sin_port));
+			sprintf(buffer, "*:%u", ntohs(sa.in4.sin_port));
 		}
 		else
 		{
-			const uint8_t* bits = reinterpret_cast<const uint8_t*>(&sa->in4.sin_addr);
-			sprintf(buffer, "%d.%d.%d.%d:%u", bits[0], bits[1], bits[2], bits[3], ntohs(sa->in4.sin_port));
+			const uint8_t* bits = reinterpret_cast<const uint8_t*>(&sa.in4.sin_addr);
+			sprintf(buffer, "%d.%d.%d.%d:%u", bits[0], bits[1], bits[2], bits[3], ntohs(sa.in4.sin_port));
 		}
 	}
-	else if (sa->sa.sa_family == AF_INET6)
+	else if (sa.sa.sa_family == AF_INET6)
 	{
-		if (!memcmp(all_zero, &sa->in6.sin6_addr, 16))
+		if (!memcmp(all_zero, &sa.in6.sin6_addr, 16))
 		{
-			sprintf(buffer, "*:%u", ntohs(sa->in6.sin6_port));
+			sprintf(buffer, "*:%u", ntohs(sa.in6.sin6_port));
 		}
 		else
 		{
 			buffer[0] = '[';
-			if (!inet_ntop(AF_INET6, &sa->in6.sin6_addr, buffer+1, MAXBUF - 10))
+			if (!inet_ntop(AF_INET6, &sa.in6.sin6_addr, buffer+1, MAXBUF - 10))
 				return "<unknown>"; // should never happen, buffer is large enough
 			int len = strlen(buffer);
 			// no need for snprintf, buffer has at least 9 chars left, max short len = 5
-			sprintf(buffer + len, "]:%u", ntohs(sa->in6.sin6_port));
+			sprintf(buffer + len, "]:%u", ntohs(sa.in6.sin6_port));
 		}
 	}
 	else
@@ -269,3 +271,33 @@ int irc::sockets::sa_size(const irc::sockets::sockaddrs& sa)
 		return sizeof(sa.in6);
 	return 0;
 }
+
+std::string irc::sockets::mask(irc::sockets::sockaddrs sa, unsigned int range)
+{
+	unsigned char* base;
+	unsigned int len;
+	if (sa.sa.sa_family == AF_INET)
+	{
+		base = (unsigned char*)&sa.in4.sin_addr;
+		len = 4;
+	}
+	else if (sa.sa.sa_family == AF_INET6)
+	{
+		base = (unsigned char*)&sa.in6.sin6_addr;
+		len = 16;
+	}
+	else
+		return "";
+	if (range > 8*len)
+		range = 8*len;
+	unsigned int byte = range / 8;
+	unsigned int bits = (-1 << (range & 7));
+	base[byte++] &= bits;
+	while (byte < len)
+		base[byte++] = 0;
+	int dummy;
+	std::string rv;
+	irc::sockets::satoap(sa, rv, dummy);
+	return rv + "/" + ConvToStr(range);
+}
+

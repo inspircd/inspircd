@@ -104,8 +104,8 @@ class CommandCheck : public Command
 			LocalUser* loctarg = IS_LOCAL(targuser);
 			if (loctarg)
 			{
-				user->SendText(checkstr + " clientaddr " + irc::sockets::satouser(&loctarg->client_sa));
-				user->SendText(checkstr + " serveraddr " + irc::sockets::satouser(&loctarg->server_sa));
+				user->SendText(checkstr + " clientaddr " + irc::sockets::satouser(loctarg->client_sa));
+				user->SendText(checkstr + " serveraddr " + irc::sockets::satouser(loctarg->server_sa));
 
 				std::string classname = loctarg->GetClass()->name;
 				if (!classname.empty())

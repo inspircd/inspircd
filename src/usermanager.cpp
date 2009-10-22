@@ -254,60 +254,28 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 void UserManager::AddLocalClone(User *user)
 {
-	int range = 32;
 	clonemap::iterator x;
-	switch (user->client_sa.sa.sa_family)
-	{
-		case AF_INET6:
-			range = ServerInstance->Config->c_ipv6_range;
-		break;
-		case AF_INET:
-			range = ServerInstance->Config->c_ipv4_range;
-		break;
-	}
-
-	x = local_clones.find(user->GetCIDRMask(range));
+	x = local_clones.find(user->GetCIDRMask());
 	if (x != local_clones.end())
 		x->second++;
 	else
-		local_clones[user->GetCIDRMask(range)] = 1;
+		local_clones[user->GetCIDRMask()] = 1;
 }
 
 void UserManager::AddGlobalClone(User *user)
 {
-	int range = 32;
 	clonemap::iterator x;
-	switch (user->client_sa.sa.sa_family)
-	{
-		case AF_INET6:
-			range = ServerInstance->Config->c_ipv6_range;
-		break;
-		case AF_INET:
-			range = ServerInstance->Config->c_ipv4_range;
-		break;
-	}
 
-	x = global_clones.find(user->GetCIDRMask(range));
+	x = global_clones.find(user->GetCIDRMask());
 	if (x != global_clones.end())
 		x->second++;
 	else
-		global_clones[user->GetCIDRMask(range)] = 1;
+		global_clones[user->GetCIDRMask()] = 1;
 }
 
 void UserManager::RemoveCloneCounts(User *user)
 {
-	int range = 32;
-	switch (user->client_sa.sa.sa_family)
-	{
-		case AF_INET6:
-			range = ServerInstance->Config->c_ipv6_range;
-		break;
-		case AF_INET:
-			range = ServerInstance->Config->c_ipv4_range;
-		break;
-	}
-
-	clonemap::iterator x = local_clones.find(user->GetCIDRMask(range));
+	clonemap::iterator x = local_clones.find(user->GetCIDRMask());
 	if (x != local_clones.end())
 	{
 		x->second--;
@@ -317,7 +285,7 @@ void UserManager::RemoveCloneCounts(User *user)
 		}
 	}
 
-	clonemap::iterator y = global_clones.find(user->GetCIDRMask(range));
+	clonemap::iterator y = global_clones.find(user->GetCIDRMask());
 	if (y != global_clones.end())
 	{
 		y->second--;
@@ -330,17 +298,7 @@ void UserManager::RemoveCloneCounts(User *user)
 
 unsigned long UserManager::GlobalCloneCount(User *user)
 {
-	int range = 32;
-	switch (user->client_sa.sa.sa_family)
-	{
-		case AF_INET6:
-			range = ServerInstance->Config->c_ipv6_range;
-		break;
-		case AF_INET:
-			range = ServerInstance->Config->c_ipv4_range;
-		break;
-	}
-	clonemap::iterator x = global_clones.find(user->GetCIDRMask(range));
+	clonemap::iterator x = global_clones.find(user->GetCIDRMask());
 	if (x != global_clones.end())
 		return x->second;
 	else
@@ -349,17 +307,7 @@ unsigned long UserManager::GlobalCloneCount(User *user)
 
 unsigned long UserManager::LocalCloneCount(User *user)
 {
-	int range = 32;
-	switch (user->client_sa.sa.sa_family)
-	{
-		case AF_INET6:
-			range = ServerInstance->Config->c_ipv6_range;
-		break;
-		case AF_INET:
-			range = ServerInstance->Config->c_ipv4_range;
-		break;
-	}
-	clonemap::iterator x = local_clones.find(user->GetCIDRMask(range));
+	clonemap::iterator x = local_clones.find(user->GetCIDRMask());
 	if (x != local_clones.end())
 		return x->second;
 	else
