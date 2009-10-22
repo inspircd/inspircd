@@ -42,61 +42,6 @@ unsigned long count(const char * const str, char a)
 	return n;
 }
 
-ResultNotifier* notifier = NULL;
-SQLiteListener* listener = NULL;
-int QueueFD = -1;
-
-class ResultNotifier : public BufferedSocket
-{
-	ModuleSQLite3* mod;
-
- public:
-	ResultNotifier(ModuleSQLite3* m, int newfd) : BufferedSocket(newfd), mod(m)
-	{
-	}
-
-	void OnDataReady()
-	{
-		recvq.clear();
-		Dispatch();
-	}
-
-	void OnError(BufferedSocketError) {}
-
-	void Dispatch();
-};
-
-class SQLiteListener : public ListenSocketBase
-{
-	ModuleSQLite3* Parent;
-	irc::sockets::sockaddrs sock_us;
-	socklen_t uslen;
-	FileReader* index;
-
- public:
-	SQLiteListener(ModuleSQLite3* P, int port, const std::string &addr) : ListenSocketBase(port, addr, "ITC", "none"), Parent(P)
-	{
-		uslen = sizeof(sock_us);
-		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
-		{
-			throw ModuleException("Could not getsockname() to find out port number for ITC port");
-		}
-	}
-
-	void OnAcceptReady(int nfd)
-	{
-		new ResultNotifier(Parent, nfd);
-	}
-
-	int GetPort()
-	{
-		int port = 0;
-		std::string addr;
-		irc::sockets::satoap(&sock_us, addr, port);
-		return port;
-	}
-};
-
 class SQLite3Result : public SQLresult
 {
  private:
@@ -419,7 +364,7 @@ class SQLConn : public classbase
 		delete[] query;
 
 		results.push_back(res);
-		SendNotify();
+		SendResults();
 		return SQLerror();
 	}
 
@@ -493,29 +438,6 @@ class SQLConn : public classbase
 		}
 	}
 
-	void SendNotify()
-	{
-		if (QueueFD < 0)
-		{
-			if ((QueueFD = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-			{
-				/* crap, we're out of sockets... */
-				return;
-			}
-
-			irc::sockets::sockaddrs addr;
-			irc::sockets::aptosa("127.0.0.1", listener->GetPort(), &addr);
-
-			if (connect(QueueFD, &addr.sa, sa_size(addr)) == -1)
-			{
-				/* wtf, we cant connect to it, but we just created it! */
-				return;
-			}
-		}
-		char id = 0;
-		send(QueueFD, &id, 1, 0);
-	}
-
 };
 
 
@@ -536,19 +458,6 @@ class ModuleSQLite3 : public Module
 			throw ModuleException("m_sqlite3: Unable to publish feature 'SQL'");
 		}
 
-		/* Create a socket on a random port. Let the tcp stack allocate us an available port */
-		listener = new SQLiteListener(this, 0, "127.0.0.1");
-
-		if (listener->GetFd() == -1)
-		{
-			ServerInstance->Modules->DoneWithInterface("SQLutils");
-			throw ModuleException("m_sqlite3: unable to create ITC pipe");
-		}
-		else
-		{
-			ServerInstance->Logs->Log("m_sqlite3", DEBUG, "SQLite: Interthread comms port is %d", listener->GetPort());
-		}
-
 		ReadConf();
 
 		ServerInstance->Modules->PublishInterface("SQL", this);
@@ -561,34 +470,9 @@ class ModuleSQLite3 : public Module
 		ClearQueue();
 		ClearAllConnections();
 
-		ServerInstance->SE->DelFd(listener);
-
-		if (QueueFD >= 0)
-		{
-			shutdown(QueueFD, 2);
-			close(QueueFD);
-		}
-
-		if (notifier)
-		{
-			ServerInstance->SE->DelFd(notifier);
-			notifier->Close();
-		}
-
-		ServerInstance->GlobalCulls.Apply();
-
 		ServerInstance->Modules->UnpublishInterface("SQL", this);
 		ServerInstance->Modules->UnpublishFeature("SQL");
 		ServerInstance->Modules->DoneWithInterface("SQLutils");
-	}
-
-
-	void SendQueue()
-	{
-		for (ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
-		{
-			iter->second->SendResults();
-		}
 	}
 
 	void ClearQueue()
@@ -727,10 +611,5 @@ class ModuleSQLite3 : public Module
 	}
 
 };
-
-void ResultNotifier::Dispatch()
-{
-	mod->SendQueue();
-}
 
 MODULE_INIT(ModuleSQLite3)
