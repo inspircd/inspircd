@@ -59,7 +59,7 @@ enum RegistrationState {
 /* Required forward declaration */
 class Channel;
 class UserResolver;
-struct ConfigTag;
+class ConfigTag;
 class OperInfo;
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.

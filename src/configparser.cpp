@@ -84,7 +84,7 @@ struct Parser
 		unget(ch);
 	}
 
-	bool kv()
+	bool kv(std::vector<KeyVal>* items)
 	{
 		std::string key;
 		nextword(key);
@@ -138,7 +138,7 @@ struct Parser
 				break;
 			value.push_back(ch);
 		}
-		tag->items.push_back(KeyVal(key, value));
+		items->push_back(KeyVal(key, value));
 		return true;
 	}
 
@@ -157,9 +157,10 @@ struct Parser
 		if (name.empty())
 			throw CoreException("Empty tag name");
 
-		tag = new ConfigTag(name, current.filename, current.line);
+		std::vector<KeyVal>* items;
+		tag = ConfigTag::create(name, current.filename, current.line, items);
 
-		while (kv());
+		while (kv(items));
 
 		if (name == "include")
 		{
@@ -374,6 +375,18 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 std::string ConfigTag::getTagLocation()
 {
 	return src_name + ":" + ConvToStr(src_line);
+}
+
+ConfigTag* ConfigTag::create(const std::string& Tag, const std::string& file, int line, std::vector<KeyVal>*&items)
+{
+	ConfigTag* rv = new ConfigTag(Tag, file, line);
+	items = &rv->items;
+	return rv;
+}
+
+ConfigTag::ConfigTag(const std::string& Tag, const std::string& file, int line)
+	: tag(Tag), src_name(file), src_line(line)
+{
 }
 
 std::string OperInfo::getConfig(const std::string& key)

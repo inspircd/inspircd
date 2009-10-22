@@ -37,24 +37,39 @@ typedef std::vector<std::string> file_cache;
  */
 typedef std::pair<std::string, std::string> KeyVal;
 
-struct CoreExport ConfigTag : public refcountbase
+/** Structure representing a single <tag> in config */
+class CoreExport ConfigTag : public refcountbase
 {
+	std::vector<KeyVal> items;
+ public:
 	const std::string tag;
 	const std::string src_name;
 	const int src_line;
-	std::vector<KeyVal> items;
 
-	ConfigTag(const std::string& Tag, const std::string& file, int line)
-		: tag(Tag), src_name(file), src_line(line) {}
-
+	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def = "");
+	/** Get the value of an option, using def if it does not exist */
 	long getInt(const std::string& key, long def = 0);
+	/** Get the value of an option, using def if it does not exist */
 	double getFloat(const std::string& key, double def = 0);
+	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);
 
+	/** Get the value of an option
+	 * @param key The option to get
+	 * @param value The location to store the value (unmodified if does not exist)
+	 * @param allow_newline Allow newlines in the option (normally replaced with spaces)
+	 * @return true if the option exists
+	 */
 	bool readString(const std::string& key, std::string& value, bool allow_newline = false);
 
 	std::string getTagLocation();
+
+	/** Create a new ConfigTag, giving access to the private KeyVal item list */
+	static ConfigTag* create(const std::string& Tag, const std::string& file, int line,
+		std::vector<KeyVal>*&items);
+ private:
+	ConfigTag(const std::string& Tag, const std::string& file, int line);
 };
 
 /** An entire config file, built up of KeyValLists
