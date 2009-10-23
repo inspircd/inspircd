@@ -165,6 +165,12 @@ CullResult SpanningTreeUtilities::cull()
 		}
 	}
 
+	for(std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = timeoutlist.begin(); i != timeoutlist.end(); ++i)
+	{
+		TreeSocket* s = i->first;
+		ServerInstance->GlobalCulls.AddItem(s);
+	}
+
 	ServerUser->uuid = TreeRoot->GetID();
 	ServerUser->cull();
 	delete ServerUser;

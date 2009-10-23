@@ -43,6 +43,7 @@ class ReloadModuleWorker : public HandlerBase1<void, bool>
 		if (user)
 			user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
 				user->nick.c_str(), name.c_str(), result ? "" : "un");
+		ServerInstance->GlobalCulls.AddItem(this);
 	}
 };
 
