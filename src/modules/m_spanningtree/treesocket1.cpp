@@ -216,9 +216,9 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Current->GetParent()->DelChild(Current);
 		delete Current;
 		if (LocalSquit)
-			ServerInstance->SNO->WriteGlobalSno('l', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+			ServerInstance->SNO->WriteToSnoMask('l', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.", num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 		else
-			ServerInstance->SNO->WriteGlobalSno('L', "Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+			ServerInstance->SNO->WriteToSnoMask('L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.", num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 	}
 	else
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
