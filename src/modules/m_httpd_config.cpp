@@ -91,7 +91,7 @@ class ModuleHttpStats : public Module
 				{
 					data << "&lt;" << x->first << " ";
 					ConfigTag* tag = x->second;
-					for (std::vector<KeyVal>::iterator j = tag->items.begin(); j != tag->items.end(); j++)
+					for (std::vector<KeyVal>::const_iterator j = tag->getItems().begin(); j != tag->getItems().end(); j++)
 					{
 						data << Sanitize(j->first) << "=&quot;" << Sanitize(j->second) << "&quot; ";
 					}

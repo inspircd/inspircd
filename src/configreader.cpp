@@ -925,7 +925,6 @@ std::string ServerConfig::GetSID()
 
 void ConfigReaderThread::Run()
 {
-	Config = new ServerConfig;
 	Config->Read();
 	done = true;
 }
@@ -957,7 +956,7 @@ void ConfigReaderThread::Finish()
 		FOREACH_MOD(I_OnRehash, OnRehash(user));
 		ServerInstance->BuildISupport();
 
-		delete old;
+		Config = old;
 	}
 	else
 	{
@@ -965,6 +964,5 @@ void ConfigReaderThread::Finish()
 		ServerInstance->Logs->CloseLogs();
 		ServerInstance->Config = old;
 		ServerInstance->Logs->OpenFileLogs();
-		delete this->Config;
 	}
 }

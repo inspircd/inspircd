@@ -628,18 +628,32 @@ void User::Oper(OperInfo* info)
 	if (info->oper_block)
 		opername = info->oper_block->getString("name");
 
-	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
-		nick.c_str(), ident.c_str(), host.c_str(), info->NameStr(), opername.c_str());
-	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", info->name[0]) ? "an" : "a", info->NameStr());
+	if (IS_LOCAL(this))
+	{
+		LocalUser* l = IS_LOCAL(this);
+		std::string vhost = oper->getConfig("vhost");
+		if (!vhost.empty())
+			l->ChangeDisplayedHost(vhost.c_str());
+		std::string opClass = oper->getConfig("class");
+		if (!opClass.empty())
+		{
+			l->SetClass(opClass);
+			l->CheckClass();
+		}
+	}
 
-	ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), info->NameStr());
+	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
+		nick.c_str(), ident.c_str(), host.c_str(), oper->NameStr(), opername.c_str());
+	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->NameStr());
+
+	ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), oper->NameStr());
 	ServerInstance->Users->all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup
 	if (IS_LOCAL(this))
 		oper->init();
 
-	FOREACH_MOD(I_OnPostOper,OnPostOper(this, info->name, opername));
+	FOREACH_MOD(I_OnPostOper,OnPostOper(this, oper->name, opername));
 }
 
 void OperInfo::init()

@@ -73,15 +73,6 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 		if (match_pass && match_hosts)
 		{
 			/* found this oper's opertype */
-			std::string host = ifo->getConfig("host");
-			if (!host.empty())
-				user->ChangeDisplayedHost(host.c_str());
-			std::string opClass = ifo->getConfig("class");
-			if (!opClass.empty())
-			{
-				user->SetClass(opClass);
-				user->CheckClass();
-			}
 			user->Oper(ifo);
 			return CMD_SUCCESS;
 		}

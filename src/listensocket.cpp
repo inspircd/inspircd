@@ -155,7 +155,11 @@ void ListenSocket::AcceptInternal()
 		}
 	}
 	if (res != MOD_RES_ALLOW)
+	{
+		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Refusing connection on %s - %s",
+			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 		ServerInstance->SE->Close(incomingSockfd);
+	}
 }
 
 void ListenSocket::HandleEvent(EventType e, int err)

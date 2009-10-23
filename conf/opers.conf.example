@@ -12,10 +12,10 @@
 #                                                                     #
 
 <class
-     name="Shutdown" 
+     name="Shutdown"
 
      # commands: oper commands that users of this class can run.
-     commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD GUNLOADMODULE GRELOADMODULE SAJOIN SAPART SANICK SAQUIT SATOPIC" 
+     commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD GUNLOADMODULE GRELOADMODULE SAJOIN SAPART SANICK SAQUIT SATOPIC"
 
      # privs: special privileges that users with this class may utilise.
      #  VIEWING:
@@ -34,7 +34,7 @@
      privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit channels/set-permanent users/flood/no-throttle users/flood/increased-buffers"
 
      # usermodes: Oper-only usermodes that opers with this class can use.
-     usermodes="*" 
+     usermodes="*"
 
      # chanmodes: Oper-only channel modes that opers with this class can use.
      chanmodes="*">
@@ -61,16 +61,16 @@
     # classes: classes (above blocks) that this type belongs to.
     classes="OperChat BanControl HostCloak Shutdown ServerLink"
 
-    # host: host oper gets on oper-up. This is optional. 
-    host="netadmin.omega.org.za"
+    # vhost: host oper gets on oper-up. This is optional.
+    vhost="netadmin.omega.org.za"
 
     # modes: usermodes besides +o that are set on a oper of this type
     # when they oper up. Used for snomasks and other things.
     # Requires that m_opermodes.so be loaded.
     modes="+s +cCqQ">
 
-<type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" host="ircop.omega.org.za">
-<type name="Helper" classes="HostCloak" host="helper.omega.org.za">
+<type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" vhost="ircop.omega.org.za">
+<type name="Helper" classes="HostCloak" vhost="helper.omega.org.za">
 
 
 #-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
@@ -80,7 +80,7 @@
 #                                                                     #
 
 # oline with plain-text password
-<oper 
+<oper
       # name: oper login that is used to oper up (/oper name password).
       # Remember: This is case sensitive
       name="Brain"
@@ -111,6 +111,10 @@
       # are loaded.
       #sslonly="yes"
 
+      # vhost: overrides the vhost in the type block. Class and modes may also
+      # be overridden
+      vhost="brain.netadmin.omega"
+
       # type: What oper type this oline is. See the block above for list
       # of types. NOTE: This is case-sensitive as well.
       type="NetAdmin">
@@ -124,7 +128,7 @@
       type="NetAdmin">
 
 # oline with hashed password. It is highly recommended to use hashed passwords.
-<oper 
+<oper
       # name: oper login that is used to oper up (/oper name password).
       # Remember: This is case sensitive
       name="Brain"

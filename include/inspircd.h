@@ -256,16 +256,17 @@ class BanCacheManager;
 class CoreExport ConfigReaderThread : public Thread
 {
 	ServerConfig* Config;
-	bool done;
+	volatile bool done;
  public:
-	std::string TheUserUID;
+	const std::string TheUserUID;
 	ConfigReaderThread(const std::string &useruid)
-		: Thread(), done(false), TheUserUID(useruid)
+		: Config(new ServerConfig), done(false), TheUserUID(useruid)
 	{
 	}
 
 	virtual ~ConfigReaderThread()
 	{
+		delete Config;
 	}
 
 	void Run();
