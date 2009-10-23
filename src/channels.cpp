@@ -483,16 +483,6 @@ void Channel::PartUser(User *user, std::string &reason)
 	this->DelUser(user);
 }
 
-void Channel::ServerKickUser(User* user, const char* reason, const std::string& servername)
-{
-	if (servername.empty() || !ServerInstance->Config->HideWhoisServer.empty())
-		ServerInstance->FakeClient->server = ServerInstance->Config->ServerName;
-	else
-		ServerInstance->FakeClient->server = servername;
-
-	KickUser(ServerInstance->FakeClient, user, reason);
-}
-
 void Channel::KickUser(User *src, User *user, const char* reason)
 {
 	if (!src || !user || !reason)

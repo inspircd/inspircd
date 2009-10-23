@@ -221,14 +221,14 @@ void User::DecrementModes()
 	}
 }
 
-User::User(const std::string &uid)
+User::User(const std::string &uid, const std::string& sid)
+	: uuid(uid), server(sid)
 {
-	server = ServerInstance->Config->ServerName;
 	age = ServerInstance->Time();
-	signon = idle_lastmsg = registered = 0;
+	signon = idle_lastmsg = 0;
+	registered = 0;
 	quietquit = quitting = exempt = dns_done = false;
 	fd = -1;
-	uuid = uid;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
@@ -240,7 +240,7 @@ User::User(const std::string &uid)
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
 
-LocalUser::LocalUser() : User(ServerInstance->GetUID())
+LocalUser::LocalUser() : User(ServerInstance->GetUID(), ServerInstance->Config->ServerName)
 {
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	server_sa.sa.sa_family = AF_UNSPEC;
@@ -250,7 +250,7 @@ LocalUser::LocalUser() : User(ServerInstance->GetUID())
 
 User::~User()
 {
-	if (uuid.length())
+	if (ServerInstance->Users->uuidlist->find(uuid) != ServerInstance->Users->uuidlist->end())
 		ServerInstance->Logs->Log("USERS", ERROR, "User destructor for %s called without cull", uuid.c_str());
 }
 
@@ -294,7 +294,7 @@ const std::string& User::MakeHostIP()
 	return this->cached_hostip;
 }
 
-const std::string User::GetFullHost()
+const std::string& User::GetFullHost()
 {
 	if (!this->cached_fullhost.empty())
 		return this->cached_fullhost;
@@ -328,7 +328,7 @@ char* User::MakeWildHost()
 	return nresult;
 }
 
-const std::string User::GetFullRealHost()
+const std::string& User::GetFullRealHost()
 {
 	if (!this->cached_fullrealhost.empty())
 		return this->cached_fullrealhost;
@@ -584,11 +584,6 @@ CullResult User::cull()
 {
 	if (!quitting)
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
-	if (uuid.empty())
-	{
-		ServerInstance->Logs->Log("USERS", DEBUG, "User culled twice? UUID empty");
-		return Extensible::cull();
-	}
 	PurgeEmptyChannels();
 	if (IS_LOCAL(this) && fd != INT_MAX)
 		Close();
@@ -597,7 +592,6 @@ CullResult User::cull()
 	this->DecrementModes();
 
 	ServerInstance->Users->uuidlist->erase(uuid);
-	uuid.clear();
 	return Extensible::cull();
 }
 
@@ -611,6 +605,13 @@ CullResult LocalUser::cull()
 
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
+	return User::cull();
+}
+
+CullResult FakeUser::cull()
+{
+	// Fake users don't quit, they just get culled.
+	quitting = true;
 	return User::cull();
 }
 
@@ -1670,24 +1671,18 @@ void User::ShowRULES()
 	this->WriteNumeric(RPL_RULESEND, "%s :End of RULES command.",this->nick.c_str());
 }
 
-void FakeUser::SetFakeServer(std::string name)
-{
-	this->nick = name;
-	this->server = name;
-}
-
-const std::string FakeUser::GetFullHost()
+const std::string& FakeUser::GetFullHost()
 {
 	if (!ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;
-	return nick;
+	return server;
 }
 
-const std::string FakeUser::GetFullRealHost()
+const std::string& FakeUser::GetFullRealHost()
 {
 	if (!ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;
-	return nick;
+	return server;
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)

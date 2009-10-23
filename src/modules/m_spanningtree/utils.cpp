@@ -147,8 +147,6 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
 
 	this->TreeRoot = new TreeServer(this, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
-	ServerUser = new FakeUser(TreeRoot->GetID());
-
 	this->ReadConfiguration();
 }
 
@@ -170,10 +168,8 @@ CullResult SpanningTreeUtilities::cull()
 		TreeSocket* s = i->first;
 		ServerInstance->GlobalCulls.AddItem(s);
 	}
+	TreeRoot->cull();
 
-	ServerUser->uuid = TreeRoot->GetID();
-	ServerUser->cull();
-	delete ServerUser;
 	return classbase::cull();
 }
 

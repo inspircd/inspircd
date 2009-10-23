@@ -27,7 +27,7 @@
  * no socket associated with it. Its version string is our own local version.
  */
 TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id)
-						: ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
+	: ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util), ServerUser(ServerInstance->FakeClient)
 {
 	age = ServerInstance->Time();
 	bursting = false;
@@ -48,7 +48,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
  * its ping counters so that it will be pinged one minute from now.
  */
 TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
+	: Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), ServerUser(new FakeUser(id, Name)), Hidden(Hide)
 {
 	age = ServerInstance->Time();
 	bursting = true;
@@ -350,10 +350,19 @@ bool TreeServer::Tidy()
 	return true;
 }
 
+CullResult TreeServer::cull()
+{
+	if (ServerUser != ServerInstance->FakeClient)
+		ServerUser->cull();
+	return classbase::cull();
+}
+
 TreeServer::~TreeServer()
 {
 	/* We'd better tidy up after ourselves, eh? */
 	this->DelHashEntry();
+	if (ServerUser != ServerInstance->FakeClient)
+		delete ServerUser;
 
 	server_hash::iterator iter = Utils->sidlist.find(GetID());
 	if (iter != Utils->sidlist.end())

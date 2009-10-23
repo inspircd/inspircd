@@ -22,7 +22,7 @@
 
 
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
-bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
+void TreeSocket::ForceJoin(User* srcuser, parameterlist &params)
 {
 	/* 1.1 FJOIN works as follows:
 	 *
@@ -51,7 +51,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 	 * who succeed at internets. :-)
 	 */
 	if (params.size() < 3)
-		return true;
+		return;
 
 	irc::modestacker modestack(true);			/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
@@ -66,13 +66,13 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 	if (params.size() > 3)
 		params[params.size() - 1] = ":" + params[params.size() - 1];
 
-	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
+	Utils->DoOneToAllButSender(srcuser->server,"FJOIN",params,srcuser->server);
 
 	if (!TS)
 	{
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", source.c_str());
-		return true;
+		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server.c_str());
+		return;
 	}
 
 	if (created)
@@ -103,7 +103,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 			ourTS = TS;
 			chan->age = TS;
 			param_list.push_back(channel);
-			this->RemoveStatus(ServerInstance->Config->GetSID(), param_list);
+			this->RemoveStatus(ServerInstance->FakeClient, param_list);
 		}
 		// The silent case here is ourTS == TS, we don't need to remove modes here, just to merge them later on.
 	}
@@ -123,7 +123,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 			modelist.push_back(params[idx]);
 		}
 
-		ServerInstance->SendMode(modelist, Utils->ServerUser);
+		ServerInstance->SendMode(modelist, srcuser);
 	}
 
 	/* Now, process every 'modes,nick' pair */
@@ -145,7 +145,7 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 				else
 				{
 					this->SendError(std::string("Unknown status mode '")+(*unparsedmodes)+"' in FJOIN");
-					return false;
+					return;
 				}
 
 				usr++;
@@ -186,18 +186,16 @@ bool TreeSocket::ForceJoin(const std::string &source, parameterlist &params)
 
 		while (modestack.GetStackedLine(stackresult))
 		{
-			ServerInstance->SendMode(stackresult, Utils->ServerUser);
+			ServerInstance->SendMode(stackresult, srcuser);
 			stackresult.erase(stackresult.begin() + 1, stackresult.end());
 		}
 	}
-
-	return true;
 }
 
-bool TreeSocket::RemoveStatus(const std::string &prefix, parameterlist &params)
+void TreeSocket::RemoveStatus(User* srcuser, parameterlist &params)
 {
 	if (params.size() < 1)
-		return true;
+		return;
 
 	Channel* c = ServerInstance->FindChan(params[0]);
 
@@ -221,10 +219,9 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, parameterlist &params)
 
 		while (stack.GetStackedLine(stackresult))
 		{
-			ServerInstance->SendMode(stackresult, Utils->ServerUser);
+			ServerInstance->SendMode(stackresult, srcuser);
 			stackresult.erase(stackresult.begin() + 1, stackresult.end());
 		}
 	}
-	return true;
 }
 

@@ -297,7 +297,7 @@ class CoreExport User : public StreamSocket
 	/** The user's unique identifier.
 	 * This is the unique identifier which the user has across the network.
 	 */
-	std::string uuid;
+	const std::string uuid;
 
 	/** The users ident reply.
 	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
@@ -336,7 +336,7 @@ class CoreExport User : public StreamSocket
 
 	/** The server the user is connected to.
 	 */
-	std::string server;
+	const std::string server;
 
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
@@ -401,8 +401,9 @@ class CoreExport User : public StreamSocket
 	 * @throw CoreException if the UID allocated to the user already exists
 	 * @param Instance Creator instance
 	 * @param uid User UUID, or empty to allocate one automatically
+	 * @param srv Server that this user is from
 	 */
-	User(const std::string &uid);
+	User(const std::string &uid, const std::string& srv);
 
 	/** Check if the user matches a G or K line, and disconnect them if they do.
 	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
@@ -415,7 +416,7 @@ class CoreExport User : public StreamSocket
 	 * on the server, in nick!ident&at;host form.
 	 * @return The full masked host of the user
 	 */
-	virtual const std::string GetFullHost();
+	virtual const std::string& GetFullHost();
 
 	/** Returns the full real host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -423,7 +424,7 @@ class CoreExport User : public StreamSocket
 	 * e.g. through a module, then this method will ignore it and return the true hostname.
 	 * @return The full real host of the user
 	 */
-	virtual const std::string GetFullRealHost();
+	virtual const std::string& GetFullRealHost();
 
 	/** This clears any cached results that are used for GetFullRealHost() etc.
 	 * The results of these calls are cached as generating them can be generally expensive.
@@ -891,7 +892,7 @@ class CoreExport LocalUser : public User
 class CoreExport RemoteUser : public User
 {
  public:
-	RemoteUser(const std::string& uid) : User(uid)
+	RemoteUser(const std::string& uid, const std::string& srv) : User(uid, srv)
 	{
 		SetFd(FD_MAGIC_NUMBER);
 	}
@@ -901,15 +902,16 @@ class CoreExport RemoteUser : public User
 class CoreExport FakeUser : public User
 {
  public:
-	FakeUser(const std::string &uid) : User(uid)
+	FakeUser(const std::string &uid, const std::string& srv) : User(uid, srv)
 	{
 		SetFd(FD_FAKEUSER_NUMBER);
+		nick = srv;
 	}
 
+	virtual CullResult cull();
 	virtual void SendText(const std::string& line);
-	virtual const std::string GetFullHost();
-	virtual const std::string GetFullRealHost();
-	void SetFakeServer(std::string name);
+	virtual const std::string& GetFullHost();
+	virtual const std::string& GetFullRealHost();
 };
 
 /* Faster than dynamic_cast */

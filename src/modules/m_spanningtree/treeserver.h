@@ -51,6 +51,7 @@ class TreeServer : public classbase
 	void SetID(const std::string &id);
 
  public:
+	FakeUser* const ServerUser;		/* User representing this server */
 	time_t age;
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
@@ -194,10 +195,10 @@ class TreeServer : public classbase
 	/** Recursive call for child servers */
 	void FinishBurstInternal();
 
+	CullResult cull();
 	/** Destructor
 	 */
 	~TreeServer();
-
 };
 
 #endif

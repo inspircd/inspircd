@@ -22,30 +22,17 @@
 
 
 /** FMODE command - server mode with timestamp checks */
-bool TreeSocket::ForceMode(const std::string &source, parameterlist &params)
+void TreeSocket::ForceMode(User* who, parameterlist &params)
 {
 	/* Chances are this is a 1.0 FMODE without TS */
 	if (params.size() < 3)
 	{
 		/* No modes were in the command, probably a channel with no modes set on it */
-		return true;
+		return;
 	}
 
-	std::string sourceserv;
+	std::string sourceserv = who->server;
 
-	/* Are we dealing with an FMODE from a user, or from a server? */
-	User* who = ServerInstance->FindNick(source);
-	if (who)
-	{
-		/* FMODE from a user, set sourceserv to the users server name */
-		sourceserv = who->server;
-	}
-	else
-	{
-		/* FMODE from a server, use a fake user to receive mode feedback */
-		who = Utils->ServerUser;
-		sourceserv = source;    /* Set sourceserv to the actual source string */
-	}
 	std::vector<std::string> modelist;
 	time_t TS = 0;
 	for (unsigned int q = 0; (q < params.size()) && (q < 64); q++)
@@ -83,28 +70,27 @@ bool TreeSocket::ForceMode(const std::string &source, parameterlist &params)
 		}
 		else
 			/* Oops, channel doesnt exist! */
-			return true;
+			return;
 	}
 
 	if (!TS)
 	{
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
-		return true;
+		return;
 	}
 
 	/* TS is equal or less: Merge the mode changes into ours and pass on.
 	 */
 	if (TS <= ourTS)
 	{
-		ServerInstance->Modes->Process(modelist, who, (who == Utils->ServerUser));
+		ServerInstance->Modes->Process(modelist, who, IS_SERVER(who));
 
 		/* HOT POTATO! PASS IT ON! */
-		Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);
+		Utils->DoOneToAllButSender(sourceserv,"FMODE",params,sourceserv);
 	}
 	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.
 	 */
-	return true;
 }
 
 

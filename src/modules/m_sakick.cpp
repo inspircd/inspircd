@@ -31,7 +31,6 @@ class CommandSakick : public Command
 		User* dest = ServerInstance->FindNick(parameters[1]);
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		const char* reason = "";
-		const char* servername = NULL;
 
 		if (dest && channel)
 		{
@@ -56,7 +55,7 @@ class CommandSakick : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				channel->ServerKickUser(dest, reason, servername);
+				channel->KickUser(ServerInstance->FakeClient, dest, reason);
 
 				Channel *n = ServerInstance->FindChan(parameters[1]);
 				if (n && n->HasUser(dest))

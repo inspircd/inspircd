@@ -82,7 +82,7 @@ class ModuleChannelNames : public Module
 			const UserMembList* users = c->GetUsers();
 			for(UserMembCIter j = users->begin(); j != users->end(); ++j)
 				if (IS_LOCAL(j->first))
-					c->ServerKickUser(j->first, "Channel name no longer valid", NULL);
+					c->KickUser(ServerInstance->FakeClient, j->first, "Channel name no longer valid");
 		}
 		badchan = false;
 	}

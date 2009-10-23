@@ -229,26 +229,13 @@ class CoreExport Channel : public Extensible
 	 * @param src The source of the kick
 	 * @param user The user being kicked (must be on this channel)
 	 * @param reason The reason for the kick
-	 * @return The number of users left on the channel. If this is zero
-	 * when the method returns, you MUST delete the Channel immediately!
 	 */
 	void KickUser(User *src, User *user, const char* reason);
-
-	/** Make the server kick user from this channel with the given reason.
-	 * @param user The user being kicked (must be on this channel)
-	 * @param reason The reason for the kick
-	 * @param triggerevents True if you wish this kick to trigger module events
-	 * @return The number of users left on the channel. If this is zero
-	 * when the method returns, you MUST delete the Channel immediately!
-	 */
-	void ServerKickUser(User* user, const char* reason, const std::string& servername = "");
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
 	 * @param user The user who is parting (must be on this channel)
 	 * @param reason The part reason
-	 * @return The number of users left on the channel. If this is zero
-	 * when the method returns, you MUST delete the Channel immediately!
 	 */
 	void PartUser(User *user, std::string &reason);
 

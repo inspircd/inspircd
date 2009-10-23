@@ -63,7 +63,6 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	/* The users default nick is their UUID */
 	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
 
-	New->server = ServerInstance->Config->ServerName;
 	New->ident.assign("unknown");
 
 	New->registered = REG_NONE;

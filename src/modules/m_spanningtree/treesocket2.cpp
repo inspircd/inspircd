@@ -242,9 +242,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 
 		if (ServerSource)
 		{
-			who = Utils->ServerUser;
-			Utils->ServerUser->SetFakeServer(ServerSource->GetName());
-			Utils->ServerUser->uuid = ServerSource->GetID();
+			who = ServerSource->ServerUser;
 			direction = prefix;
 		}
 		else
@@ -301,7 +299,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	}
 	else if (command == "FJOIN")
 	{
-		this->ForceJoin(prefix,params);
+		this->ForceJoin(who,params);
 	}
 	else if (command == "STATS")
 	{
@@ -337,7 +335,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	}
 	else if (command == "FMODE")
 	{
-		this->ForceMode(prefix,params);
+		this->ForceMode(who,params);
 	}
 	else if (command == "FTOPIC")
 	{
@@ -467,7 +465,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	}
 	else if (command == "ENCAP")
 	{
-		this->Encap(prefix, params);
+		this->Encap(who, params);
 	}
 	else if (command == "NICK")
 	{

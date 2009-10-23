@@ -210,13 +210,13 @@ class TreeSocket : public BufferedSocket
 	void Squit(TreeServer* Current, const std::string &reason);
 
 	/** FMODE command - server mode with timestamp checks */
-	bool ForceMode(const std::string &source, parameterlist &params);
+	void ForceMode(User* who, parameterlist &params);
 
 	/** FTOPIC command */
 	bool ForceTopic(const std::string &source, parameterlist &params);
 
 	/** FJOIN, similar to TS6 SJOIN, but not quite. */
-	bool ForceJoin(const std::string &source, parameterlist &params);
+	void ForceJoin(User* who, parameterlist &params);
 
 	/* Used on nick collision ... XXX ugly function HACK */
 	int DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid);
@@ -284,7 +284,7 @@ class TreeSocket : public BufferedSocket
 
 	/** ENCAP command
 	 */
-	bool Encap(const std::string &prefix, parameterlist &params);
+	void Encap(User* who, parameterlist &params);
 
 	/** OPERQUIT command
 	 */
@@ -352,7 +352,7 @@ class TreeSocket : public BufferedSocket
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
 	 * This does not update the timestamp of the target channel, this must be done seperately.
 	 */
-	bool RemoveStatus(const std::string &prefix, parameterlist &params);
+	void RemoveStatus(User* source, parameterlist &params);
 
 	/** <- (remote) <- SERVER
 	 */

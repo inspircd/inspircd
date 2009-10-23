@@ -232,7 +232,7 @@ class ModuleMsgFlood : public Module
 				char kickmessage[MAXBUF];
 				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
 
-				dest->ServerKickUser(user, kickmessage);
+				dest->KickUser(ServerInstance->FakeClient, user, kickmessage);
 
 				return MOD_RES_DENY;
 			}

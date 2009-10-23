@@ -52,7 +52,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 			routing = ROUTE_BROADCAST;
 		else
 			return;
-		if (user == ServerUser)
+		if (IS_SERVER(user) && user != ServerInstance->FakeClient)
 			return;
 	}
 	else if (routing.type == ROUTE_TYPE_OPT_BCAST)
