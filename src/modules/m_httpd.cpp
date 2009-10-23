@@ -326,6 +326,7 @@ class ModuleHttpServer : public Module
 
 	ModuleHttpServer() 	{
 		HttpModule = this;
+		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
 	}
 
 	void OnRequest(Request& request)
@@ -339,7 +340,7 @@ class ModuleHttpServer : public Module
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
-		if (from->bind_tag->getString("type") != "httpd");
+		if (from->bind_tag->getString("type") != "httpd")
 			return MOD_RES_PASSTHRU;
 		int port;
 		std::string incomingip;
