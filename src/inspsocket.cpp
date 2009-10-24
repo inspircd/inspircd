@@ -491,43 +491,51 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 	if (!error.empty())
 		return;
 	BufferedSocketError errcode = I_ERR_OTHER;
-	switch (et)
-	{
-		case EVENT_ERROR:
+	try {
+		switch (et)
 		{
-			if (errornum == 0)
-				SetError("Connection closed");
-			else
-				SetError(strerror(errornum));
-			switch (errornum)
+			case EVENT_ERROR:
 			{
-				case ETIMEDOUT:
-					errcode = I_ERR_TIMEOUT;
-					break;
-				case ECONNREFUSED:
-				case 0:
-					errcode = I_ERR_CONNECT;
-					break;
-				case EADDRINUSE:
-					errcode = I_ERR_BIND;
-					break;
-				case EPIPE:
-				case EIO:
-					errcode = I_ERR_WRITE;
-					break;
+				if (errornum == 0)
+					SetError("Connection closed");
+				else
+					SetError(strerror(errornum));
+				switch (errornum)
+				{
+					case ETIMEDOUT:
+						errcode = I_ERR_TIMEOUT;
+						break;
+					case ECONNREFUSED:
+					case 0:
+						errcode = I_ERR_CONNECT;
+						break;
+					case EADDRINUSE:
+						errcode = I_ERR_BIND;
+						break;
+					case EPIPE:
+					case EIO:
+						errcode = I_ERR_WRITE;
+						break;
+				}
+				break;
 			}
-			break;
+			case EVENT_READ:
+			{
+				DoRead();
+				break;
+			}
+			case EVENT_WRITE:
+			{
+				DoWrite();
+				break;
+			}
 		}
-		case EVENT_READ:
-		{
-			DoRead();
-			break;
-		}
-		case EVENT_WRITE:
-		{
-			DoWrite();
-			break;
-		}
+	}
+	catch (CoreException& ex)
+	{
+		ServerInstance->Logs->Log("SOCKET", ERROR, "Caught exception in socket processing on FD %d - '%s'",
+			fd, ex.GetReason());
+		SetError(ex.GetReason());
 	}
 	if (!error.empty())
 	{
