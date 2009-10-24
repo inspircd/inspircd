@@ -71,16 +71,12 @@ void ListenSocket::AcceptInternal()
 	irc::sockets::sockaddrs client;
 	irc::sockets::sockaddrs server;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket");
-	int incomingSockfd;
-
 	socklen_t length = sizeof(client);
-	incomingSockfd = ServerInstance->SE->Accept(this, &client.sa, &length);
+	int incomingSockfd = ServerInstance->SE->Accept(this, &client.sa, &length);
 
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
-		ServerInstance->SE->Shutdown(incomingSockfd, 2);
-		ServerInstance->SE->Close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
 		return;
 	}
@@ -141,7 +137,6 @@ void ListenSocket::AcceptInternal()
 	}
 
 	ServerInstance->SE->NonBlocking(incomingSockfd);
-	ServerInstance->stats->statsAccept++;
 
 	ModResult res;
 	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
@@ -154,8 +149,13 @@ void ListenSocket::AcceptInternal()
 			res = MOD_RES_ALLOW;
 		}
 	}
-	if (res != MOD_RES_ALLOW)
+	if (res == MOD_RES_ALLOW)
 	{
+		ServerInstance->stats->statsAccept++;
+	}
+	else
+	{
+		ServerInstance->stats->statsRefused++;
 		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Refusing connection on %s - %s",
 			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 		ServerInstance->SE->Close(incomingSockfd);

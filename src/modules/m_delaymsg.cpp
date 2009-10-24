@@ -28,19 +28,6 @@ class DelayMsgMode : public ModeHandler
 		levelrequired = OP_VALUE;
 	}
 
-	ModePair ModeSet(User*, User*, Channel* channel, const std::string &parameter)
-	{
-		std::string climit = channel->GetModeParameter('d');
-		if (!climit.empty())
-		{
-			return std::make_pair(true, climit);
-		}
-		else
-		{
-			return std::make_pair(false, parameter);
-		}
-	}
-
 	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
 	{
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));

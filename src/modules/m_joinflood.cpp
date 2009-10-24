@@ -88,15 +88,6 @@ class JoinFlood : public ModeHandler
 	JoinFlood(Module* Creator) : ModeHandler(Creator, "joinflood", 'j', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("joinflood", Creator) { }
 
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		joinfloodsettings* x = ext.get(channel);
-		if (x)
-			return std::make_pair(true, ConvToStr(x->joins)+":"+ConvToStr(x->secs));
-		else
-			return std::make_pair(false, parameter);
-	}
-
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)

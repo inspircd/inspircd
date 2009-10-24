@@ -22,14 +22,6 @@ class Redirect : public ModeHandler
  public:
 	Redirect(Module* Creator) : ModeHandler(Creator, "redirect", 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
 
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		if (channel->IsModeSet('L'))
-			return std::make_pair(true, channel->GetModeParameter('L'));
-		else
-			return std::make_pair(false, parameter);
-	}
-
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)

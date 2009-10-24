@@ -103,7 +103,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 	{
 		size_t ptrlen = 0;
-		std::string modestr = ServerInstance->Modes->ModeString(i->first, c, false);
+		std::string modestr = i->second->modes;
 
 		if ((curlen + modestr.length() + i->first->uuid.length() + 4) > 480)
 		{

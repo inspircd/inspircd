@@ -21,19 +21,6 @@ ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, "key", 'k', PARAM_ALWAYS, M
 {
 }
 
-ModePair ModeChannelKey::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
-{
-    if (channel->modes[CM_KEY])
-    {
-		std::string ckey = channel->GetModeParameter('k');
-		return std::make_pair(true, ckey);
-    }
-    else
-    {
-		return std::make_pair(false, parameter);
-    }
-}
-
 void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	/** +k needs a parameter when being removed,

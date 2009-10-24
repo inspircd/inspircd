@@ -22,6 +22,5 @@ class ModeChannelLimit : public ModeHandler
  public:
 	ModeChannelLimit();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
 };

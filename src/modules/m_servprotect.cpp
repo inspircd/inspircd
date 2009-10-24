@@ -79,11 +79,12 @@ class ModuleServProtectMode : public Module
 			User *u = ServerInstance->FindNick(param);
 			if (u)
 			{
+				Membership* memb = chan->GetUser(u);
 				/* The target user has +k set on themselves, and you are trying to remove a privilege mode the user has set on themselves.
 				 * This includes any prefix permission mode, even those registered in other modules, e.g. +qaohv. Using ::ModeString()
 				 * here means that the number of modes is restricted to only modes the user has, limiting it to as short a loop as possible.
 				 */
-				if (u->IsModeSet('k') && ServerInstance->Modes->ModeString(u, chan, false).find(mode) != std::string::npos)
+				if (u->IsModeSet('k') && memb && memb->modes.find(mode) != std::string::npos)
 				{
 					/* BZZZT, Denied! */
 					user->WriteNumeric(482, "%s %s :You are not permitted to remove privileges from %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network.c_str());

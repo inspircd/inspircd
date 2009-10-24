@@ -49,7 +49,11 @@ class InvisibleMode : public ModeHandler
 
 				snprintf(tb,MAXBUF,":%s %s %s", dest->GetFullHost().c_str(), adding ? "PART" : "JOIN", (*f)->name.c_str());
 				std::string out = tb;
-				std::string n = ServerInstance->Modes->ModeString(dest, (*f));
+				Membership* memb = (**f).GetUser(dest);
+				std::string ms = memb->modes;
+				for(unsigned int i=0; i < memb->modes.length(); i++)
+					ms.append(" ").append(dest->nick);
+
 
 				for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 				{
@@ -57,8 +61,8 @@ class InvisibleMode : public ModeHandler
 					if (IS_LOCAL(i->first) && !IS_OPER(i->first))
 					{
 						i->first->Write(out);
-						if (!n.empty() && !adding)
-							i->first->WriteServ("MODE %s +%s", (*f)->name.c_str(), n.c_str());
+						if (!ms.empty() && !adding)
+							i->first->WriteServ("MODE %s +%s", (**f).name.c_str(), ms.c_str());
 					}
 				}
 			}

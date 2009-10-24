@@ -49,27 +49,6 @@ class OperPrefixMode : public ModeHandler
 			}
 		}
 
-		ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-		{
-			User* x = ServerInstance->FindNick(parameter);
-			Membership* m = channel->GetUser(x);
-			if (x)
-			{
-				if (!m)
-				{
-					return std::make_pair(false, parameter);
-				}
-				else
-				{
-					if (m->hasMode('y'))
-						return std::make_pair(true, x->nick);
-					else
-							return std::make_pair(false, parameter);
-				}
-			}
-			return std::make_pair(false, parameter);
-		}
-
 		bool NeedsOper() { return true; }
 };
 

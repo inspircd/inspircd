@@ -1376,9 +1376,12 @@ void User::DoHostCycle(const std::string &quitline)
 		Channel* c = *v;
 		snprintf(buffer, MAXBUF, ":%s JOIN %s", GetFullHost().c_str(), c->name.c_str());
 		std::string joinline(buffer);
-		std::string modeline = ServerInstance->Modes->ModeString(this, c);
+		Membership* memb = c->GetUser(this);
+		std::string modeline = memb->modes;
 		if (modeline.length() > 0)
 		{
+			for(unsigned int i=0; i < memb->modes.length(); i++)
+				modeline.append(" ").append(nick);
 			snprintf(buffer, MAXBUF, ":%s MODE %s +%s", GetFullHost().c_str(), c->name.c_str(), modeline.c_str());
 			modeline = buffer;
 		}

@@ -21,19 +21,6 @@ ModeChannelLimit::ModeChannelLimit() : ModeHandler(NULL, "limit", 'l', PARAM_SET
 {
 }
 
-ModePair ModeChannelLimit::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
-{
-	std::string climit = channel->GetModeParameter('l');
-	if (!climit.empty())
-	{
-		return std::make_pair(true, climit);
-	}
-	else
-	{
-		return std::make_pair(false, parameter);
-	}
-}
-
 bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
 {
 	/* When TS is equal, the higher channel limit wins */

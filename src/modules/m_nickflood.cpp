@@ -92,15 +92,6 @@ class NickFlood : public ModeHandler
 	NickFlood(Module* Creator) : ModeHandler(Creator, "nickflood", 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("nickflood", Creator) { }
 
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		nickfloodsettings* x = ext.get(channel);
-		if (x)
-			return std::make_pair(true, ConvToStr(x->nicks)+":"+ConvToStr(x->secs));
-		else
-			return std::make_pair(false, parameter);
-	}
-
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		nickfloodsettings *f = ext.get(channel);

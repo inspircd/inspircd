@@ -32,25 +32,6 @@ unsigned int ModeChannelOp::GetPrefixRank()
 	return OP_VALUE;
 }
 
-ModePair ModeChannelOp::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
-{
-	User* x = ServerInstance->FindNick(parameter);
-	if (x)
-	{
-		Membership* memb = channel->GetUser(x);
-		if (memb && memb->hasMode('o'))
-		{
-			return std::make_pair(true, x->nick);
-		}
-		else
-		{
-			return std::make_pair(false, parameter);
-		}
-	}
-	return std::make_pair(false, parameter);
-}
-
-
 void ModeChannelOp::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
 	const UserMembList* clist = channel->GetUsers();

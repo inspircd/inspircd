@@ -141,18 +141,6 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	return dest;
 }
 
-ModePair ModeChannelBan::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
-{
-	for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-	{
-		if (!strcasecmp(i->data.c_str(), parameter.c_str()))
-		{
-			return std::make_pair(true, i->data);
-		}
-	}
-	return std::make_pair(false, parameter);
-}
-
 std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan, int)
 {
 	if ((!user) || (!chan))

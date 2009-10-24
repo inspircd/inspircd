@@ -34,14 +34,6 @@ class KickRejoin : public ModeHandler
 	KickRejoin(Module* Creator) : ModeHandler(Creator, "kicknorejoin", 'J', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("norejoinusers", Creator) { }
 
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		if (channel->IsModeSet('J'))
-			return std::make_pair(true, channel->GetModeParameter('J'));
-		else
-			return std::make_pair(false, parameter);
-	}
-
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (!adding)

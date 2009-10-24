@@ -103,31 +103,6 @@ class NetworkPrefix : public ModeHandler
 		m_paramtype = TR_NICK;
 	}
 
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		User* x = ServerInstance->FindNick(parameter);
-		if (x)
-		{
-			Membership* m = channel->GetUser(x);
-			if (!m)
-			{
-				return std::make_pair(false, parameter);
-			}
-			else
-			{
-				if (m->hasMode('Y'))
-				{
-					return std::make_pair(true, x->nick);
-				}
-				else
-				{
-					return std::make_pair(false, parameter);
-				}
-			}
-		}
-		return std::make_pair(false, parameter);
-	}
-
 	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
 		const UserMembList* cl = channel->GetUsers();

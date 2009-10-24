@@ -121,18 +121,6 @@ ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool)
 	return MODEACTION_DENY;
 }
 
-ModePair ModeHandler::ModeSet(User*, User* dest, Channel* channel, const std::string&)
-{
-	if (dest)
-	{
-		return std::make_pair(dest->IsModeSet(this->mode), "");
-	}
-	else
-	{
-		return std::make_pair(channel->IsModeSet(this->mode), "");
-	}
-}
-
 void ModeHandler::DisplayList(User*, Channel*)
 {
 }
@@ -766,40 +754,6 @@ ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
 		}
 	}
 	return NULL;
-}
-
-std::string ModeParser::ModeString(User* user, Channel* channel, bool nick_suffix)
-{
-	std::string types;
-	std::string pars;
-
-	if (!channel || !user)
-		return "";
-
-	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
-	{
-		unsigned char pos = (mode-65) | MASK_CHANNEL;
-		ModeHandler* mh = modehandlers[pos];
-		if ((mh) && (mh->GetNumParams(true)) && (mh->GetNumParams(false)))
-		{
-			ModePair ret;
-			ret = mh->ModeSet(NULL, user, channel, user->nick);
-			if ((ret.first) && (ret.second == user->nick))
-			{
-				if (nick_suffix)
-				{
-					pars.append(" ");
-					pars.append(user->nick);
-				}
-				types.push_back(mh->GetModeChar());
-			}
-		}
-	}
-
-	if (nick_suffix)
-		return types+pars;
-	else
-		return types;
 }
 
 std::string ModeParser::GiveModeList(ModeMasks m)

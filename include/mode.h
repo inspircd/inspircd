@@ -80,13 +80,6 @@ enum ParamSpec
 	PARAM_ALWAYS
 };
 
-/**
- * Used by ModeHandler::ModeSet() to return the state of a mode upon a channel or user.
- * The pair contains an activity flag, true if the mode is set with the given parameter,
- * and the parameter of the mode (or the parameter provided) in the std::string.
- */
-typedef std::pair<bool,std::string> ModePair;
-
 /** Each mode is implemented by ONE ModeHandler class.
  * You must derive ModeHandler and add the child class to
  * the list of modes handled by the ircd, using
@@ -284,21 +277,6 @@ class CoreExport ModeHandler : public classbase
 	 * @return True if the other side wins the merge, false if we win the merge for this mode.
 	 */
 	virtual bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
-
-	/**
-	 * When a remote server needs to bounce a set of modes, it will call this method for every mode
-	 * in the mode string to determine if the mode is set or not.
-	 * @param source of the mode change, this will be NULL for a server mode
-	 * @param dest Target user of the mode change, if this is a user mode
-	 * @param channel Target channel of the mode change, if this is a channel mode
-	 * @param parameter The parameter given for the mode change, or an empty string
-	 * @returns The first value of the pair should be true if the mode is set with the given parameter.
-	 * In the case of permissions modes such as channelmode +o, this should return true if the user given
-	 * as the parameter has the given privilage on the given channel. The string value of the pair will hold
-	 * the current setting for this mode set locally, when the bool is true, or, the parameter given.
-	 * This allows the local server to enforce our locally set parameters back to a remote server.
-	 */
-	virtual ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 
 	/**
 	 * When a MODETYPE_USER mode handler is being removed, the server will call this method for every user on the server.
@@ -578,18 +556,6 @@ class CoreExport ModeParser
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
 	 */
 	std::string BuildPrefixes();
-
-	/** This returns the privilages of a user upon a channel, in the format of a mode change.
-	 * For example, if a user has privilages +avh, this will return the string "avh nick nick nick".
-	 * This is used by the core when cycling a user to refresh their hostname. You may use it for
-	 * similar purposes.
-	 * @param user The username to look up
-	 * @param channel The channel name to look up the privilages of the user for
-	 * @param nick_suffix true (the default) if you want nicknames in the mode string, for easy
-	 * use with the mode stacker, false if you just want the "avh" part of "avh nick nick nick".
-	 * @return The mode string.
-	 */
-	std::string ModeString(User* user, Channel* channel, bool nick_suffix = true);
 };
 
 #endif

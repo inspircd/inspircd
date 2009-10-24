@@ -44,31 +44,6 @@ class FounderProtectBase
 	{
 	}
 
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		User* x = ServerInstance->FindNick(parameter);
-		if (x)
-		{
-			Membership* memb = channel->GetUser(x);
-			if (!memb)
-			{
-				return std::make_pair(false, parameter);
-			}
-			else
-			{
-				if (memb->hasMode(mode))
-				{
-					return std::make_pair(true, x->nick);
-				}
-				else
-				{
-					return std::make_pair(false, parameter);
-				}
-			}
-		}
-		return std::make_pair(false, parameter);
-	}
-
 	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
 		const UserMembList* cl = channel->GetUsers();
@@ -143,11 +118,6 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		return FOUNDER_VALUE;
 	}
 
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
-	}
-
 	void RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
 		FounderProtectBase::RemoveMode(channel, stack);
@@ -213,11 +183,6 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 	unsigned int GetPrefixRank()
 	{
 		return PROTECT_VALUE;
-	}
-
-	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
-	{
-		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
 	void RemoveMode(Channel* channel, irc::modestacker* stack)
