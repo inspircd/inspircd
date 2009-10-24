@@ -31,10 +31,11 @@ ListenSocket::ListenSocket(ConfigTag* tag, const std::string& addr, int port)
 	irc::sockets::satoap(bind_to, bind_addr, bind_port);
 	bind_desc = irc::sockets::satouser(bind_to);
 
-	fd = irc::sockets::OpenTCPSocket(bind_addr);
+	fd = socket(bind_to.sa.sa_family, SOCK_STREAM, 0);
 
 	if (this->fd > -1)
 	{
+		ServerInstance->SE->SetReuse(fd);
 		int rv = ServerInstance->SE->Bind(this->fd, &bind_to.sa, sizeof(bind_to));
 		if (rv >= 0)
 			rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);

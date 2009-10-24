@@ -306,13 +306,14 @@ void DNS::Rehash()
 	irc::sockets::aptosa(ServerInstance->Config->DNSServer, DNS::QUERY_PORT, myserver);
 
 	/* Initialize mastersocket */
-	int s = irc::sockets::OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
+	int s = socket(myserver.sa.sa_family, SOCK_DGRAM, 0);
 	this->SetFd(s);
-	ServerInstance->SE->NonBlocking(this->GetFd());
 
 	/* Have we got a socket and is it nonblocking? */
 	if (this->GetFd() != -1)
 	{
+		ServerInstance->SE->SetReuse(s);
+		ServerInstance->SE->NonBlocking(s);
 		/* Bind the port - port 0 INADDR_ANY */
 		if (!ServerInstance->BindSocket(this->GetFd(), portpass, "", false))
 		{

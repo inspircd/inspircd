@@ -152,9 +152,15 @@ int SocketEngine::NonBlocking(int fd)
 #endif
 }
 
-int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen)
+void SocketEngine::SetReuse(int fd)
 {
-	return getsockname(fd->GetFd(), name, namelen);
+	int on = 1;
+	struct linger linger = { 0, 0 };
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
+	/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
+	linger.l_onoff = 1;
+	linger.l_linger = 1;
+	setsockopt(fd, SOL_SOCKET, SO_LINGER, (char*)&linger, sizeof(linger));
 }
 
 int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)

@@ -66,40 +66,6 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	}
 }
 
-// Open a TCP Socket
-int irc::sockets::OpenTCPSocket(const std::string& addr, int socktype)
-{
-	int sockfd;
-	int on = 1;
-	struct linger linger = { 0, 0 };
-	if (addr.empty())
-	{
-#ifdef IPV6
-		sockfd = socket (PF_INET6, socktype, 0);
-		if (sockfd < 0)
-#endif
-			sockfd = socket (PF_INET, socktype, 0);
-	}
-	else if (addr.find(':') != std::string::npos)
-		sockfd = socket (PF_INET6, socktype, 0);
-	else
-		sockfd = socket (PF_INET, socktype, 0);
-
-	if (sockfd < 0)
-	{
-		return ERROR;
-	}
-	else
-	{
-		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
-		/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
-		linger.l_onoff = 1;
-		linger.l_linger = 1;
-		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (char*)&linger, sizeof(linger));
-		return (sockfd);
-	}
-}
-
 int InspIRCd::BindPorts(FailedPortList &failed_ports)
 {
 	int bound = 0;
@@ -112,7 +78,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		std::string porttag = tag->getString("port");
 		std::string Addr = tag->getString("address");
 
-		if (strncmp(Addr.c_str(), "::ffff:", 7) == 0)
+		if (strncasecmp(Addr.c_str(), "::ffff:", 7) == 0)
 			this->Logs->Log("SOCKET",DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
 		irc::portparser portrange(porttag, false);
@@ -175,7 +141,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::sockaddrs& sa)
 {
 	memset(&sa, 0, sizeof(sa));
-	if (addr.empty())
+	if (addr.empty() || addr.c_str()[0] == '*')
 	{
 #ifdef IPV6
 		sa.in6.sin6_family = AF_INET6;
@@ -242,11 +208,13 @@ std::string irc::sockets::sockaddrs::str() const
 	char buffer[MAXBUF];
 	if (sa.sa_family == AF_INET)
 	{
+#ifndef IPV6
 		if (in4.sin_addr.s_addr == 0)
 		{
 			sprintf(buffer, "*:%u", ntohs(in4.sin_port));
 		}
 		else
+#endif
 		{
 			const uint8_t* bits = reinterpret_cast<const uint8_t*>(&in4.sin_addr);
 			sprintf(buffer, "%d.%d.%d.%d:%u", bits[0], bits[1], bits[2], bits[3], ntohs(in4.sin_port));
@@ -254,11 +222,13 @@ std::string irc::sockets::sockaddrs::str() const
 	}
 	else if (sa.sa_family == AF_INET6)
 	{
+#ifdef IPV6
 		if (!memcmp(all_zero, &in6.sin6_addr, 16))
 		{
 			sprintf(buffer, "*:%u", ntohs(in6.sin6_port));
 		}
 		else
+#endif
 		{
 			buffer[0] = '[';
 			if (!inet_ntop(AF_INET6, &in6.sin6_addr, buffer+1, MAXBUF - 10))
@@ -282,7 +252,7 @@ int irc::sockets::sockaddrs::sa_size() const
 	return 0;
 }
 
-static void sa2cidr(const irc::sockets::sockaddrs& sa, irc::sockets::cidr_mask& cidr, int range)
+static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs& sa, int range)
 {
 	const unsigned char* base;
 	cidr.type = sa.sa.sa_family;
@@ -319,7 +289,7 @@ static void sa2cidr(const irc::sockets::sockaddrs& sa, irc::sockets::cidr_mask& 
 
 irc::sockets::cidr_mask::cidr_mask(const irc::sockets::sockaddrs& sa, int range)
 {
-	sa2cidr(sa, *this, range);
+	sa2cidr(*this, sa, range);
 }
 
 irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
@@ -330,13 +300,13 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 	if (bits_chars == std::string::npos)
 	{
 		irc::sockets::aptosa(mask, 0, sa);
-		sa2cidr(sa, *this, 128);
+		sa2cidr(*this, sa, 128);
 	}
 	else
 	{
 		int range = atoi(mask.substr(bits_chars + 1).c_str());
 		irc::sockets::aptosa(mask.substr(0, bits_chars), 0, sa);
-		sa2cidr(sa, *this, range);
+		sa2cidr(*this, sa, range);
 	}
 }
 

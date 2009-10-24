@@ -96,13 +96,6 @@ namespace irc
 		 */
 		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);
 
-		/** Create a new valid file descriptor using socket()
-		 * @return On return this function will return a value >= 0 for success,
-		 * or a negative value upon failure (negative values are invalid file
-		 * descriptors)
-		 */
-		CoreExport int OpenTCPSocket(const std::string& addr, int socktype = SOCK_STREAM);
-
 		/** Return the size of the structure for syscall passing */
 		inline int sa_size(const irc::sockets::sockaddrs& sa) { return sa.sa_size(); }
 

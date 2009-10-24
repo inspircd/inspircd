@@ -62,7 +62,7 @@ enum EventMask
 	 * it may not require a system call to transition from FD_WANT_FAST_READ
 	 */
 	FD_WANT_EDGE_READ = 0x8,
-	
+
 	/** Mask for all read events */
 	FD_WANT_READ_MASK = 0x0F,
 
@@ -362,100 +362,97 @@ public:
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
+	int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
 
 	/** Abstraction for BSD sockets close(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Close(EventHandler* fd);
+	int Close(EventHandler* fd);
 
 	/** Abstraction for BSD sockets close(2).
 	 * This function should emulate its namesake system call exactly.
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Close(int fd);
+	int Close(int fd);
 
 	/** Abstraction for BSD sockets send(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Send(EventHandler* fd, const void *buf, size_t len, int flags);
+	int Send(EventHandler* fd, const void *buf, size_t len, int flags);
 
 	/** Abstraction for BSD sockets recv(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Recv(EventHandler* fd, void *buf, size_t len, int flags);
+	int Recv(EventHandler* fd, void *buf, size_t len, int flags);
 
 	/** Abstraction for BSD sockets recvfrom(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
+	int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
 
 	/** Abstraction for BSD sockets sendto(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
+	int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
 
 	/** Abstraction for BSD sockets connect(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
+	int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
 
 	/** Make a file descriptor blocking.
 	 * @param fd a file descriptor to set to blocking mode
 	 * @return 0 on success, -1 on failure, errno is set appropriately.
 	 */
-	virtual int Blocking(int fd);
+	int Blocking(int fd);
 
 	/** Make a file descriptor nonblocking.
 	 * @param fd A file descriptor to set to nonblocking mode
 	 * @return 0 on success, -1 on failure, errno is set appropriately.
 	 */
-	virtual int NonBlocking(int fd);
+	int NonBlocking(int fd);
 
 	/** Abstraction for BSD sockets shutdown(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Shutdown(EventHandler* fd, int how);
+	int Shutdown(EventHandler* fd, int how);
 
 	/** Abstraction for BSD sockets shutdown(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Shutdown(int fd, int how);
+	int Shutdown(int fd, int how);
 
 	/** Abstraction for BSD sockets bind(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Bind(int fd, const sockaddr *my_addr, socklen_t addrlen);
+	int Bind(int fd, const sockaddr *my_addr, socklen_t addrlen);
 
 	/** Abstraction for BSD sockets listen(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	virtual int Listen(int sockfd, int backlog);
+	int Listen(int sockfd, int backlog);
 
-	/** Abstraction for BSD sockets getsockname(2).
-	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
-	 * @return This method should return exactly the same values as the system call it emulates.
+	/** Set SO_REUSEADDR and SO_LINGER on this file descriptor
 	 */
-	virtual int GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen);
+	void SetReuse(int sockfd);
 
 	/** This function is called immediately after fork().
 	 * Some socket engines (notably kqueue) cannot have their
