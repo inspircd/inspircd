@@ -12,7 +12,6 @@
  */
 
 #include "inspircd_config.h"
-#ifndef CONFIG_USE_IOCP
 
 #include "inspircd.h"
 #include "socketengine.h"
@@ -101,7 +100,7 @@ int SelectEngine::DispatchEvents()
 	FD_ZERO(&rfdset);
 	FD_ZERO(&errfdset);
 
-	/* Populate the select FD sets (this is why select sucks compared to epoll, kqueue, IOCP) */
+	/* Populate the select FD sets (this is why select sucks compared to epoll, kqueue) */
 	for (unsigned int i = 0; i < FD_SETSIZE; i++)
 	{
 		EventHandler* eh = ref[i];
