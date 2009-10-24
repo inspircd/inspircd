@@ -14,10 +14,6 @@
 #ifndef __XLINE_H
 #define __XLINE_H
 
-//#include <string>
-//#include <deque>
-//#include <vector>
-
 /** XLine is the base class for ban lines such as G lines and K lines.
  * Modules may derive from this, and their xlines will automatically be
  * handled as expected by any protocol modules (e.g. m_spanningtree will
@@ -355,10 +351,6 @@ class CoreExport QLine : public XLine
 	std::string nick;
 };
 
-/** Contains an ident and host split into two strings
- */
-typedef std::pair<std::string, std::string> IdentHostPair;
-
 /** XLineFactory is used to generate an XLine pointer, given just the
  * pattern, timing information and type of line to create. This is used
  * for example in the spanningtree module which will call an XLineFactory
@@ -401,30 +393,6 @@ class CoreExport XLineFactory
 	 */
 	virtual ~XLineFactory() { }
 };
-
-/* Required forward declarations
- */
-class ServerConfig;
-
-/** A map of xline factories
- */
-typedef std::map<std::string, XLineFactory*> XLineFactMap;
-
-/** A map of XLines indexed by string
- */
-typedef std::map<irc::string, XLine *> XLineLookup;
-
-/** A map of XLineLookup maps indexed by string
- */
-typedef std::map<std::string, XLineLookup > XLineContainer;
-
-/** An iterator in an XLineContainer
- */
-typedef XLineContainer::iterator ContainerIter;
-
-/** An interator in an XLineLookup
- */
-typedef XLineLookup::iterator LookupIter;
 
 /** XLineManager is a class used to manage glines, klines, elines, zlines and qlines,
  * or any other line created by a module. It also manages XLineFactory classes which

@@ -15,10 +15,7 @@
 #define __THREADENGINE_PTHREAD__
 
 #include <pthread.h>
-#include "inspircd_config.h"
-#include "base.h"
-
-class Thread;
+#include "typedefs.h"
 
 /** The ThreadEngine class has the responsibility of initialising
  * Thread derived classes. It does this by creating operating system

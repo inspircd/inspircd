@@ -1,6 +1,3 @@
-class Extensible;
-class Module;
-
 enum SerializeFormat
 {
 	/** Shown to a human (does not need to be unserializable) */

@@ -25,8 +25,6 @@
 #include "mode.h"
 #include "dns.h"
 
-class XLine;
-
 /** Used to define a set of behavior bits for a module
  */
 enum ModuleFlags {
@@ -107,29 +105,6 @@ struct ModResult {
  * This MUST be a pure integer, with no parenthesis
  */
 #define API_VERSION 137
-
-class ServerConfig;
-
-/* Forward-delacare module for ModuleMessage etc
- */
-class Module;
-class InspIRCd;
-
-/** A set of strings.
- */
-typedef std::vector<std::string> string_list;
-
-/** Holds a list of 'published features' for modules.
- */
-typedef std::map<std::string,Module*> featurelist;
-
-/** Holds a list of modules which implement an interface
- */
-typedef std::deque<Module*> modulelist;
-
-/** Holds a list of all modules which implement interfaces, by interface name
- */
-typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 
 /**
  * This #define allows us to call a method in all
@@ -317,8 +292,6 @@ enum Implementation
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnChannelRestrictionApply,
 	I_END
 };
-
-class ConfigReader;
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,

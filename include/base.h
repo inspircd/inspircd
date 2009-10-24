@@ -182,8 +182,6 @@ class CoreExport CoreException : public std::exception
 	}
 };
 
-class Module;
-
 class CoreExport ModuleException : public CoreException
 {
  public:

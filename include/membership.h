@@ -14,11 +14,9 @@
 #ifndef __MEMBERSHIP_H__
 #define __MEMBERSHIP_H__
 
-class User;
-class Channel;
-
-struct CoreExport Membership : public Extensible
+class CoreExport Membership : public Extensible
 {
+ public:
 	User* const user;
 	Channel* const chan;
 	// mode list, sorted by prefix rank, higest first
@@ -30,11 +28,5 @@ struct CoreExport Membership : public Extensible
 	}
 	unsigned int getRank();
 };
-
-CoreExport typedef std::map<User*, Membership*> UserMembList;
-CoreExport typedef UserMembList::iterator UserMembIter;
-CoreExport typedef UserMembList::const_iterator UserMembCIter;
-
-CoreExport typedef std::set<User*> CUList;
 
 #endif

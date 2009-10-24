@@ -29,10 +29,6 @@ enum ChannelModes {
 	CM_LIMIT = 'l'-65	/* +l: Maximum user limit */
 };
 
-/* Forward declarations - needed */
-class User;
-struct ModResult;
-
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
@@ -58,14 +54,6 @@ class HostItem
 class BanItem : public HostItem
 {
 };
-
-/** Holds a complete ban list
- */
-typedef std::list<BanItem> 	BanList;
-
-/** A list of custom modes parameters on a channel
- */
-typedef std::map<char,std::string> CustomModeList;
 
 /** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
  */

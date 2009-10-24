@@ -214,10 +214,6 @@ class CoreExport Command : public classbase
 	virtual ~Command();
 };
 
-class LocalUser;
-class RemoteUser;
-class FakeUser;
-
 class CoreExport SplitCommand : public Command
 {
  public:
@@ -228,10 +224,6 @@ class CoreExport SplitCommand : public Command
 	virtual CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* user);
 	virtual CmdResult HandleServer(const std::vector<std::string>& parameters, FakeUser* user);
 };
-
-/** A hash of commands used by the core
- */
-typedef nspace::hash_map<std::string,Command*> Commandtable;
 
 /** Shortcut macros for defining translation lists
  */

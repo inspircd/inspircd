@@ -35,8 +35,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "socket.h"
 #include "hashcomp.h"
 
-class Module;
-
 /**
  * Result status, used internally
  */
@@ -121,21 +119,6 @@ enum ResolverError
 	RESOLVER_TIMEOUT	=	4,
 	RESOLVER_FORCEUNLOAD	=	5
 };
-
-/**
- * A DNS request
- */
-class DNSRequest;
-
-/**
- * A DNS packet header
- */
-class DNSHeader;
-
-/**
- * A DNS Resource Record (rr)
- */
-struct ResourceRecord;
 
 /**
  * Query and resource record types

@@ -131,7 +131,6 @@ namespace irc
 	}
 }
 
-class ConfigTag;
 /** This class handles incoming connections on client ports.
  * It will create a new User for every valid connection
  * and assign it a file descriptor.

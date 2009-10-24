@@ -56,12 +56,6 @@ enum RegistrationState {
 	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
 };
 
-/* Required forward declaration */
-class Channel;
-class UserResolver;
-class ConfigTag;
-class OperInfo;
-
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
 struct CoreExport ConnectClass : public refcountbase
@@ -207,26 +201,6 @@ struct CoreExport ConnectClass : public refcountbase
 		return maxglobal;
 	}
 };
-
-/** Holds a complete list of all channels to which a user has been invited and has not yet joined, and the time at which they'll expire.
- */
-typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
-
-/** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
- */
-typedef std::vector<reference<ConnectClass> > ClassVector;
-
-/** Typedef for the list of user-channel records for a user
- */
-typedef std::set<Channel*> UserChanList;
-
-/** Shorthand for an iterator into a UserChanList
- */
-typedef UserChanList::iterator UCListIter;
-
-/* Required forward declaration
- */
-class User;
 
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a

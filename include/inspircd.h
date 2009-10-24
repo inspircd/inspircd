@@ -53,15 +53,12 @@
 #include <map>
 #include <bitset>
 #include <set>
-
-/** A list of failed port bindings, used for informational purposes on startup */
-typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
-
-class InspIRCd;
-CoreExport extern InspIRCd* ServerInstance;
-
 #include "inspircd_config.h"
 #include "inspircd_version.h"
+#include "typedefs.h"
+
+CoreExport extern InspIRCd* ServerInstance;
+
 #include "caller.h"
 #include "cull_list.h"
 #include "extensible.h"
@@ -71,7 +68,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "channels.h"
 #include "timer.h"
 #include "hashcomp.h"
-#include "typedefs.h"
 #include "logger.h"
 #include "usermanager.h"
 #include "socket.h"
@@ -237,18 +233,12 @@ class serverstats
 	}
 };
 
-class InspIRCd;
-
 DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
-
-/* Forward declaration - required */
-class XLineManager;
-class BanCacheManager;
 
 /** The background thread for config reading, so that reading from executable includes
  * does not block.

@@ -23,20 +23,6 @@
 #include "socketengine.h"
 #include "socket.h"
 
-/* Required forward definitions */
-class ServerConfig;
-class ServerLimits;
-class InspIRCd;
-class BufferedSocket;
-
-/** A cached text file stored with its contents as lines
- */
-typedef std::vector<std::string> file_cache;
-
-/** A configuration key and value pair
- */
-typedef std::pair<std::string, std::string> KeyVal;
-
 /** Structure representing a single <tag> in config */
 class CoreExport ConfigTag : public refcountbase
 {
@@ -73,10 +59,6 @@ class CoreExport ConfigTag : public refcountbase
  private:
 	ConfigTag(const std::string& Tag, const std::string& file, int line);
 };
-
-/** An entire config file, built up of KeyValLists
- */
-typedef std::multimap<std::string, reference<ConfigTag> > ConfigDataHash;
 
 /** Defines the server's length limits on various length-limited
  * items such as topics, nicknames, channel names etc.
@@ -200,11 +182,6 @@ class CoreExport OperInfo : public refcountbase
 		return irc::Spacify(name.c_str());
 	}
 };
-
-typedef std::map<std::string, reference<ConfigTag> > TagIndex;
-typedef std::map<std::string, reference<OperInfo> > OperIndex;
-typedef ConfigDataHash::iterator ConfigIter;
-typedef std::pair<ConfigDataHash::iterator, ConfigDataHash::iterator> ConfigTagList;
 
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
