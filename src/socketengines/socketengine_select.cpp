@@ -173,4 +173,3 @@ SocketEngine* CreateSocketEngine()
 {
 	return new SelectEngine;
 }
-#endif
