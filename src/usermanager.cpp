@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "xline.h"
 #include "bancache.h"

@@ -31,32 +31,6 @@ const unsigned char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actu
 };
 
 
-/* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
-bool irc::sockets::MatchCIDRBits(const unsigned char* address, const unsigned char* mask, unsigned int mask_bits)
-{
-	unsigned int divisor = mask_bits / 8; /* Number of whole bytes in the mask */
-	unsigned int modulus = mask_bits % 8; /* Remaining bits in the mask after whole bytes are dealt with */
-
-	/* First (this is faster) compare the odd bits with logic ops */
-	if (modulus)
-		if ((address[divisor] & inverted_bits[modulus]) != (mask[divisor] & inverted_bits[modulus]))
-			/* If they dont match, return false */
-			return false;
-
-	/* Secondly (this is slower) compare the whole bytes */
-	if (memcmp(address, mask, divisor))
-		return false;
-
-	/* The address matches the mask, to mask_bits bits of mask */
-	return true;
-}
-
-/* Match CIDR, but dont attempt to match() against leading *!*@ sections */
-bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr_mask)
-{
-	return MatchCIDR(address, cidr_mask, false);
-}
-
 /* Match CIDR strings, e.g. 127.0.0.1 to 127.0.0.0/8 or 3ffe:1:5:6::8 to 3ffe:1::0/32
  * If you have a lot of hosts to match, youre probably better off building your mask once
  * and then using the lower level MatchCIDRBits directly.
@@ -66,10 +40,6 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
  */
 bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username)
 {
-	unsigned char addr_raw[16];
-	unsigned char mask_raw[16];
-	unsigned int bits = 0;
-
 	std::string address_copy;
 	std::string cidr_copy;
 
@@ -105,69 +75,14 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 		cidr_copy.assign(cidr_mask);
 	}
 
-	in_addr  address_in4;
-	in_addr  mask_in4;
+	irc::sockets::sockaddrs addr;
+	irc::sockets::aptosa(address_copy, 0, addr);
 
-	std::string::size_type bits_chars = cidr_copy.rfind('/');
+	irc::sockets::cidr_mask mask(cidr_copy);
+	irc::sockets::cidr_mask mask2(addr, mask.length);
 
-	if (bits_chars != std::string::npos)
-	{
-		bits = atoi(cidr_copy.substr(bits_chars + 1).c_str());
-		cidr_copy.erase(bits_chars, cidr_copy.length() - bits_chars);
-	}
-	else
-	{
-		/* No 'number of bits' field! */
-		return false;
-	}
+	return mask == mask2;
 
-	in6_addr address_in6;
-	in6_addr mask_in6;
-
-	if (inet_pton(AF_INET6, address_copy.c_str(), &address_in6) > 0)
-	{
-		if (inet_pton(AF_INET6, cidr_copy.c_str(), &mask_in6) > 0)
-		{
-			memcpy(&addr_raw, &address_in6.s6_addr, 16);
-			memcpy(&mask_raw, &mask_in6.s6_addr, 16);
-
-			if (bits > 128)
-				bits = 128;
-		}
-		else
-		{
-			/* The address was valid ipv6, but the mask
-			 * that goes with it wasnt.
-			 */
-			return false;
-		}
-	}
-	else if (inet_pton(AF_INET, address_copy.c_str(), &address_in4) > 0)
-	{
-		if (inet_pton(AF_INET, cidr_copy.c_str(), &mask_in4) > 0)
-		{
-			memcpy(&addr_raw, &address_in4.s_addr, 4);
-			memcpy(&mask_raw, &mask_in4.s_addr, 4);
-
-			if (bits > 32)
-				bits = 32;
-		}
-		else
-		{
-			/* The address was valid ipv4,
-			 * but the mask that went with it wasnt.
-			 */
-			return false;
-		}
-	}
-	else
-	{
-		/* The address was neither ipv4 or ipv6 */
-		return false;
-	}
-
-	/* Low-level-match the bits in the raw data */
-	return MatchCIDRBits(addr_raw, mask_raw, bits);
 }
 
 

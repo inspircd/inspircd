@@ -364,7 +364,7 @@ class CoreExport User : public StreamSocket
 
 	/** Get CIDR mask, using default range, for this user
 	 */
-	irc::string GetCIDRMask();
+	irc::sockets::cidr_mask GetCIDRMask();
 
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful

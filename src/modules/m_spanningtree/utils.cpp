@@ -29,34 +29,19 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 	if (from->bind_tag->getString("type") != "servers")
 		return MOD_RES_PASSTHRU;
 
-	bool found = false;
-	int port;
-	std::string incomingip;
-	irc::sockets::satoap(*client, incomingip, port);
+	std::string incomingip = client->addr();
 
-	found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), incomingip) != Utils->ValidIPs.end());
-	if (!found)
+	for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
 	{
-		for (std::vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
+		if (*i == "*" || *i == incomingip || irc::sockets::cidr_mask(*i).match(*client))
 		{
-			if (*i == "*" || irc::sockets::MatchCIDR(incomingip, *i))
-			{
-				found = true;
-				break;
-			}
-		}
-
-		if (!found)
-		{
-			ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", incomingip.c_str());
-			return MOD_RES_DENY;
+			/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
+			new TreeSocket(Utils, newsock, from, client, server);
+			return MOD_RES_ALLOW;
 		}
 	}
-
-	/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
-
-	new TreeSocket(Utils, newsock, from, client, server);
-	return MOD_RES_ALLOW;
+	ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", incomingip.c_str());
+	return MOD_RES_DENY;
 }
 
 /** Yay for fast searches!

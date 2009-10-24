@@ -46,7 +46,7 @@ class CommandClones : public Command
 		for (clonemap::iterator x = ServerInstance->Users->global_clones.begin(); x != ServerInstance->Users->global_clones.end(); x++)
 		{
 			if (x->second >= limit)
-				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + assign(x->first));
+				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + x->first.str());
 		}
 
 		user->WriteServ(clonesstr + " END");

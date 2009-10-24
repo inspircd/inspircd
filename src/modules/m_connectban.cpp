@@ -81,7 +81,7 @@ class ModuleConnectBan : public Module
 			break;
 		}
 
-		irc::string mask = assign(irc::sockets::mask(u->client_sa, range));
+		irc::sockets::cidr_mask mask(u->client_sa, range);
 		i = connects.find(mask);
 
 		if (i != connects.end())
@@ -91,15 +91,15 @@ class ModuleConnectBan : public Module
 			if (i->second >= threshold)
 			{
 				// Create zline for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName.c_str(), "Connect flooding", mask.c_str());
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName.c_str(), "Connect flooding", mask.str().c_str());
 				if (ServerInstance->XLines->AddLine(zl,NULL))
 					ServerInstance->XLines->ApplyLines();
 				else
 					delete zl;
 
 				ServerInstance->SNO->WriteGlobalSno('x',"Module m_connectban added Z:line on *@%s to expire on %s: Connect flooding", 
-					mask.c_str(), ServerInstance->TimeString(zl->expiry).c_str());
-				ServerInstance->SNO->WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", mask.c_str(), threshold);
+					mask.str().c_str(), ServerInstance->TimeString(zl->expiry).c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", mask.str().c_str(), threshold);
 				connects.erase(i);
 			}
 		}

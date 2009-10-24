@@ -45,38 +45,43 @@ namespace irc
 	 */
 	namespace sockets
 	{
-
-		typedef union {
+		union CoreExport sockaddrs {
 			struct sockaddr sa;
 			struct sockaddr_in in4;
 			struct sockaddr_in6 in6;
-		} sockaddrs;
+			/** Return the size of the structure for syscall passing */
+			int sa_size() const;
+			/** Return port number or -1 if invalid */
+			int port() const;
+			/** Return IP only */
+			std::string addr() const;
+			/** Return human-readable IP/port pair */
+			std::string str() const;
+		};
 
-		/** Match raw binary data using CIDR rules.
-		 *
-		 * This function will use binary comparison to compare the
-		 * two bit sequences, address and mask, up to mask_bits
-		 * bits in size. If they match, it will return true.
-		 * @param address The whole address, of 4 or 16 bytes in length
-		 * @param mask The mask, from 1 to 16 bytes in length, anything
-		 * from 1 to 128 bits of which is significant
-		 * @param mask_Bits How many bits of the mask parameter are significant
-		 * for this comparison.
-		 * @returns True if the first mask_bits of address matches the first
-		 * mask_bits of mask.
-		 */
-		CoreExport bool MatchCIDRBits(const unsigned char* address, const unsigned char* mask, unsigned int mask_bits);
+		struct cidr_mask
+		{
+			/** Type, AF_INET or AF_INET6 */
+			unsigned char type;
+			/** Length of the mask in bits (0-128) */
+			unsigned char length;
+			/** Raw bits. Unused bits must be zero */
+			unsigned char bits[16];
 
-		/** Match CIDR, without matching username/nickname parts.
-		 *
-		 * This function will compare a human-readable address against a human-
-		 * readable CIDR mask, for example 1.2.3.4 against 1.2.0.0/16. This
-		 * method supports both IPV4 and IPV6 addresses.
-		 * @param address The human readable address, e.g. 1.2.3.4
-		 * @param cidr_mask The human readable mask, e.g. 1.2.0.0/16
-		 * @return True if the mask matches the address
-		 */
-		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask);
+			cidr_mask() {}
+			/** Construct a CIDR mask from the string. Will normalize (127.0.0.1/8 => 127.0.0.0/8). */
+			cidr_mask(const std::string& mask);
+			/** Construct a CIDR mask of a given length from the given address */
+			cidr_mask(const irc::sockets::sockaddrs& addr, int len);
+			/** Equality of bits, type, and length */
+			bool operator==(const cidr_mask& other) const;
+			/** Ordering defined for maps */
+			bool operator<(const cidr_mask& other) const;
+			/** Match within this CIDR? */
+			bool match(const irc::sockets::sockaddrs& addr) const;
+			/** Human-readable string */
+			std::string str() const;
+		};
 
 		/** Match CIDR, including an optional username/nickname part.
 		 *
@@ -99,7 +104,7 @@ namespace irc
 		CoreExport int OpenTCPSocket(const std::string& addr, int socktype = SOCK_STREAM);
 
 		/** Return the size of the structure for syscall passing */
-		CoreExport int sa_size(const irc::sockets::sockaddrs& sa);
+		inline int sa_size(const irc::sockets::sockaddrs& sa) { return sa.sa_size(); }
 
 		/** Convert an address-port pair into a binary sockaddr
 		 * @param addr The IP address, IPv4 or IPv6
@@ -122,12 +127,7 @@ namespace irc
 		 * @param sa The structure to convert
 		 * @return The string; "<unknown>" if not a valid address
 		 */
-		CoreExport std::string satouser(const irc::sockets::sockaddrs& sa);
-
-		/** Create a CIDR mask from the given address, of length <range>
-		 * Result will be of the form 192.0.5.0/24 or 2001:af35::/48
-		 */
-		CoreExport std::string mask(irc::sockets::sockaddrs sa, unsigned int range);
+		inline std::string satouser(const irc::sockets::sockaddrs& sa) { return sa.str(); }
 	}
 }
 

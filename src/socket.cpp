@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "socket.h"
 #include "socketengine.h"
@@ -203,59 +201,71 @@ bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::socka
 	return false;
 }
 
-bool irc::sockets::satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port)
+int irc::sockets::sockaddrs::port() const
+{
+	if (sa.sa_family == AF_INET)
+		return ntohs(in4.sin_port);
+	if (sa.sa_family == AF_INET6)
+		return ntohs(in6.sin6_port);
+	return -1;
+}
+
+std::string irc::sockets::sockaddrs::addr() const
 {
 	char addrv[INET6_ADDRSTRLEN+1];
-	if (sa.sa.sa_family == AF_INET)
+	if (sa.sa_family == AF_INET)
 	{
-		if (!inet_ntop(AF_INET, &sa.in4.sin_addr, addrv, sizeof(addrv)))
-			return false;
-		addr = addrv;
-		port = ntohs(sa.in4.sin_port);
-		return true;
+		if (!inet_ntop(AF_INET, &in4.sin_addr, addrv, sizeof(addrv)))
+			return "";
+		return addrv;
 	}
-	else if (sa.sa.sa_family == AF_INET6)
+	else if (sa.sa_family == AF_INET6)
 	{
-		if (!inet_ntop(AF_INET6, &sa.in6.sin6_addr, addrv, sizeof(addrv)))
-			return false;
-		addr = addrv;
-		port = ntohs(sa.in6.sin6_port);
-		return true;
+		if (!inet_ntop(AF_INET6, &in6.sin6_addr, addrv, sizeof(addrv)))
+			return "";
+		return addrv;
 	}
-	return false;
+	return "";
+}
+
+bool irc::sockets::satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port)
+{
+	port = sa.port();
+	addr = sa.addr();
+	return !addr.empty();
 }
 
 static const char all_zero[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
 
-std::string irc::sockets::satouser(const irc::sockets::sockaddrs& sa)
+std::string irc::sockets::sockaddrs::str() const
 {
 	char buffer[MAXBUF];
-	if (sa.sa.sa_family == AF_INET)
+	if (sa.sa_family == AF_INET)
 	{
-		if (sa.in4.sin_addr.s_addr == 0)
+		if (in4.sin_addr.s_addr == 0)
 		{
-			sprintf(buffer, "*:%u", ntohs(sa.in4.sin_port));
+			sprintf(buffer, "*:%u", ntohs(in4.sin_port));
 		}
 		else
 		{
-			const uint8_t* bits = reinterpret_cast<const uint8_t*>(&sa.in4.sin_addr);
-			sprintf(buffer, "%d.%d.%d.%d:%u", bits[0], bits[1], bits[2], bits[3], ntohs(sa.in4.sin_port));
+			const uint8_t* bits = reinterpret_cast<const uint8_t*>(&in4.sin_addr);
+			sprintf(buffer, "%d.%d.%d.%d:%u", bits[0], bits[1], bits[2], bits[3], ntohs(in4.sin_port));
 		}
 	}
-	else if (sa.sa.sa_family == AF_INET6)
+	else if (sa.sa_family == AF_INET6)
 	{
-		if (!memcmp(all_zero, &sa.in6.sin6_addr, 16))
+		if (!memcmp(all_zero, &in6.sin6_addr, 16))
 		{
-			sprintf(buffer, "*:%u", ntohs(sa.in6.sin6_port));
+			sprintf(buffer, "*:%u", ntohs(in6.sin6_port));
 		}
 		else
 		{
 			buffer[0] = '[';
-			if (!inet_ntop(AF_INET6, &sa.in6.sin6_addr, buffer+1, MAXBUF - 10))
+			if (!inet_ntop(AF_INET6, &in6.sin6_addr, buffer+1, MAXBUF - 10))
 				return "<unknown>"; // should never happen, buffer is large enough
 			int len = strlen(buffer);
 			// no need for snprintf, buffer has at least 9 chars left, max short len = 5
-			sprintf(buffer + len, "]:%u", ntohs(sa.in6.sin6_port));
+			sprintf(buffer + len, "]:%u", ntohs(in6.sin6_port));
 		}
 	}
 	else
@@ -263,41 +273,112 @@ std::string irc::sockets::satouser(const irc::sockets::sockaddrs& sa)
 	return std::string(buffer);
 }
 
-int irc::sockets::sa_size(const irc::sockets::sockaddrs& sa)
+int irc::sockets::sockaddrs::sa_size() const
 {
-	if (sa.sa.sa_family == AF_INET)
-		return sizeof(sa.in4);
-	if (sa.sa.sa_family == AF_INET6)
-		return sizeof(sa.in6);
+	if (sa.sa_family == AF_INET)
+		return sizeof(in4);
+	if (sa.sa_family == AF_INET6)
+		return sizeof(in6);
 	return 0;
 }
 
-std::string irc::sockets::mask(irc::sockets::sockaddrs sa, unsigned int range)
+static void sa2cidr(const irc::sockets::sockaddrs& sa, irc::sockets::cidr_mask& cidr, int range)
 {
+	const unsigned char* base;
+	cidr.type = sa.sa.sa_family;
+	if (cidr.type == AF_INET)
+	{
+		base = (unsigned char*)&sa.in4.sin_addr;
+		if (range > 32)
+			range = 32;
+	}
+	else if (cidr.type == AF_INET6)
+	{
+		base = (unsigned char*)&sa.in6.sin6_addr;
+		if (range > 128)
+			range = 128;
+	}
+	else
+	{
+		base = (unsigned char*)"";
+		range = 0;
+	}
+	cidr.length = range;
+	unsigned int border = range / 8;
+	unsigned int bitmask = (0xFF00 >> (range & 7)) & 0xFF;
+	for(unsigned int i=0; i < 16; i++)
+	{
+		if (i < border)
+			cidr.bits[i] = base[i];
+		else if (i == border)
+			cidr.bits[i] = base[i] & bitmask;
+		else
+			cidr.bits[i] = 0;
+	}
+}
+
+irc::sockets::cidr_mask::cidr_mask(const irc::sockets::sockaddrs& sa, int range)
+{
+	sa2cidr(sa, *this, range);
+}
+
+irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
+{
+	std::string::size_type bits_chars = mask.rfind('/');
+	irc::sockets::sockaddrs sa;
+
+	if (bits_chars == std::string::npos)
+	{
+		irc::sockets::aptosa(mask, 0, sa);
+		sa2cidr(sa, *this, 128);
+	}
+	else
+	{
+		int range = atoi(mask.substr(bits_chars + 1).c_str());
+		irc::sockets::aptosa(mask.substr(0, bits_chars), 0, sa);
+		sa2cidr(sa, *this, range);
+	}
+}
+
+std::string irc::sockets::cidr_mask::str() const
+{
+	irc::sockets::sockaddrs sa;
+	sa.sa.sa_family = type;
 	unsigned char* base;
-	unsigned int len;
-	if (sa.sa.sa_family == AF_INET)
+	int len;
+	if (type == AF_INET)
 	{
 		base = (unsigned char*)&sa.in4.sin_addr;
 		len = 4;
 	}
-	else if (sa.sa.sa_family == AF_INET6)
+	else if (type == AF_INET6)
 	{
 		base = (unsigned char*)&sa.in6.sin6_addr;
 		len = 16;
 	}
 	else
 		return "";
-	if (range > 8*len)
-		range = 8*len;
-	unsigned int byte = range / 8;
-	unsigned int bits = (-1 << (range & 7));
-	base[byte++] &= bits;
-	while (byte < len)
-		base[byte++] = 0;
-	int dummy;
-	std::string rv;
-	irc::sockets::satoap(sa, rv, dummy);
-	return rv + "/" + ConvToStr(range);
+	memcpy(base, bits, len);
+	return sa.addr() + "/" + ConvToStr(length);
+}
+
+bool irc::sockets::cidr_mask::operator==(const cidr_mask& other) const
+{
+	return type == other.type && length == other.length &&
+		0 == memcmp(bits, other.bits, 16);
+}
+
+bool irc::sockets::cidr_mask::operator<(const cidr_mask& other) const
+{
+	return type < other.type || length < other.length ||
+		memcmp(bits, other.bits, 16) < 0;
+}
+
+bool irc::sockets::cidr_mask::match(const irc::sockets::sockaddrs& addr) const
+{
+	if (addr.sa.sa_family != type)
+		return false;
+	irc::sockets::cidr_mask tmp(addr, length);
+	return tmp == *this;
 }
 

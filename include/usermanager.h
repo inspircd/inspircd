@@ -17,7 +17,7 @@
 #include <list>
 
 /** A list of ip addresses cross referenced against clone counts */
-typedef std::map<irc::string, unsigned int> clonemap;
+typedef std::map<irc::sockets::cidr_mask, unsigned int> clonemap;
 
 class CoreExport UserManager
 {

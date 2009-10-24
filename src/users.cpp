@@ -965,7 +965,7 @@ const char* User::GetIPString()
 	return cachedip.c_str();
 }
 
-irc::string User::GetCIDRMask()
+irc::sockets::cidr_mask User::GetCIDRMask()
 {
 	int range = 0;
 	switch (client_sa.sa.sa_family)
@@ -977,7 +977,7 @@ irc::string User::GetCIDRMask()
 			range = ServerInstance->Config->c_ipv4_range;
 			break;
 	}
-	return assign(irc::sockets::mask(client_sa, range));
+	return irc::sockets::cidr_mask(client_sa, range);
 }
 
 bool User::SetClientIP(const char* sip)
