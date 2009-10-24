@@ -442,13 +442,14 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else if (command == "BURST")
 	{
 		// Set prefix server as bursting
-		if (!IS_SERVER(who))
+		TreeServer* ServerSource = Utils->FindServer(prefix);
+		if (!ServerSource)
 		{
 			ServerInstance->SNO->WriteGlobalSno('l', "WTF: Got BURST from a non-server(?): %s", prefix.c_str());
 			return;
 		}
 
-		route_back_again->bursting = true;
+		ServerSource->bursting = true;
 		Utils->DoOneToAllButSender(prefix, command, params, prefix);
 	}
 	else if (command == "ENDBURST")
