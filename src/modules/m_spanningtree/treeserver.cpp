@@ -333,21 +333,17 @@ bool TreeServer::DelChild(TreeServer* Child)
  */
 bool TreeServer::Tidy()
 {
-	bool stillchildren = true;
-	while (stillchildren)
+	while (1)
 	{
-		stillchildren = false;
-		for (std::vector<TreeServer*>::iterator a = Children.begin(); a != Children.end(); a++)
-		{
-			TreeServer* s = (TreeServer*)*a;
-			s->Tidy();
-			Children.erase(a);
-			delete s;
-			stillchildren = true;
-			break;
-		}
+		std::vector<TreeServer*>::iterator a = Children.begin();
+		if (a == Children.end())
+			return true;
+		TreeServer* s = *a;
+		s->Tidy();
+		s->cull();
+		Children.erase(a);
+		delete s;
 	}
-	return true;
 }
 
 CullResult TreeServer::cull()
