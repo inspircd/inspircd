@@ -136,7 +136,8 @@ struct Parser
 			}
 			else if (ch == '"')
 				break;
-			value.push_back(ch);
+			else
+				value.push_back(ch);
 		}
 		items->push_back(KeyVal(key, value));
 		return true;
