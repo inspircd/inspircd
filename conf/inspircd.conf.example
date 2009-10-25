@@ -71,6 +71,10 @@
 # Variables may be redefined and may reference other variables.       #
 # Value expansion happens at the time the tag is read.                #
 #                                                                     #
+# Using variable definitions REQUIRES that the config format be       #
+# changed to "xml" from the default "compat" that uses escape         #
+# sequences such as "\"" and "\n", and does not support <define>      #
+<config format="xml">
 <define name="bindip" value="1.2.2.3">
 <define name="localips" value="&bindip;/24">
 
@@ -478,6 +482,7 @@
          # prefixpart: What (if anything) a users' part message
          # should be prefixed with.
          prefixpart="&quot;"
+         # NOTE: Use "\"" instead of "&quot;" if not using <config format="xml">
 
          # suffixpart: What (if anything) a users' part message
          # should be suffixed with.
