@@ -86,15 +86,15 @@ public:
 	issl_status status;
 };
 
-class CommandStartTLS : public Command
+class CommandStartTLS : public SplitCommand
 {
  public:
-	CommandStartTLS (Module* mod) : Command(mod, "STARTTLS")
+	CommandStartTLS (Module* mod) : SplitCommand(mod, "STARTTLS")
 	{
 		works_before_reg = true;
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser *user)
 	{
 		/* changed from == REG_ALL to catch clients sending STARTTLS
 		 * after NICK and USER but before OnUserConnect completes and
@@ -158,7 +158,7 @@ class ModuleSSLGnuTLS : public Module
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect,
 			I_OnEvent, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
@@ -296,9 +296,9 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if(target_type == TYPE_USER)
 		{
-			User* user = static_cast<User*>(item);
+			LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 
-			if (user->GetIOHook() == this)
+			if (user && user->GetIOHook() == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -547,10 +547,8 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	void OnPostConnect(User* user)
+	void OnUserConnect(LocalUser* user)
 	{
-		// This occurs AFTER OnUserConnect so we can be sure the
-		// protocol module has propagated the NICK message.
 		if (user->GetIOHook() == this)
 		{
 			if (sessions[user->GetFd()].sess)

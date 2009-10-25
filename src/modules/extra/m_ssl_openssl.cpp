@@ -125,9 +125,7 @@ class ModuleSSLOpenSSL : public Module
 
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
-		Implementation eventlist[] = {
-			I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnPostConnect,
-			I_OnHookIO };
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -250,9 +248,9 @@ class ModuleSSLOpenSSL : public Module
 	{
 		if (target_type == TYPE_USER)
 		{
-			User* user = (User*)item;
+			LocalUser* user = IS_LOCAL((User*)item);
 
-			if (user->GetIOHook() == this)
+			if (user && user->GetIOHook() == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -597,13 +595,6 @@ class ModuleSSLOpenSSL : public Module
 		X509_free(cert);
 		SSLCertSubmission(user, this, sslinfo, certinfo);
 	}
-
-	void Prioritize()
-	{
-		Module* server = ServerInstance->Modules->Find("m_spanningtree.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_AFTER, &server);
-	}
-
 };
 
 static int error_callback(const char *str, size_t len, void *u)

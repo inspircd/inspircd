@@ -103,10 +103,10 @@ class CGIResolver : public Resolver
 {
 	std::string typ;
 	int theirfd;
-	User* them;
+	LocalUser* them;
 	bool notify;
  public:
-	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, User* u, int userfd, const std::string &type, bool &cached)
+	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, LocalUser* u, int userfd, const std::string &type, bool &cached)
 		: Resolver(source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)

@@ -412,8 +412,8 @@ bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
 	if (!user || buffer.empty())
 		return true;
 
-	ServerInstance->Logs->Log("USERINPUT", DEBUG, "C[%d] I :%s %s", 
-		user->GetFd(), user->nick.c_str(), buffer.c_str());
+	ServerInstance->Logs->Log("USERINPUT", DEBUG, "C[%s] I :%s %s",
+		user->uuid.c_str(), user->nick.c_str(), buffer.c_str());
 	return ProcessCommand(user,buffer);
 }
 
@@ -428,7 +428,7 @@ bool CommandParser::AddCommand(Command *f)
 	return false;
 }
 
-CommandParser::CommandParser() 
+CommandParser::CommandParser()
 {
 	para.resize(128);
 }

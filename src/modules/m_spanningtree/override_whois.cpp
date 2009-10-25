@@ -29,7 +29,7 @@ ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& 
 	if ((IS_LOCAL(user)) && (parameters.size() > 1))
 	{
 		User* remote = ServerInstance->FindNick(parameters[1]);
-		if ((remote) && (remote->GetFd() < 0))
+		if (remote && !IS_LOCAL(remote))
 		{
 			parameterlist params;
 			params.push_back(remote->uuid);

@@ -128,6 +128,12 @@ struct SSLCertificateRequest : public Request
 		Send();
 	}
 
+	SSLCertificateRequest(Extensible* e, Module* Me, Module* info = ServerInstance->Modules->Find("m_sslinfo.so"))
+		: Request(Me, info, "GET_CERT"), item(e), cert(NULL)
+	{
+		Send();
+	}
+
 	std::string GetFingerprint()
 	{
 		if (cert)

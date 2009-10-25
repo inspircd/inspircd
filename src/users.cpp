@@ -221,14 +221,13 @@ void User::DecrementModes()
 	}
 }
 
-User::User(const std::string &uid, const std::string& sid)
-	: uuid(uid), server(sid)
+User::User(const std::string &uid, const std::string& sid, int type)
+	: uuid(uid), server(sid), usertype(type)
 {
 	age = ServerInstance->Time();
 	signon = idle_lastmsg = 0;
 	registered = 0;
 	quietquit = quitting = exempt = dns_done = false;
-	fd = -1;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
@@ -240,7 +239,7 @@ User::User(const std::string &uid, const std::string& sid)
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
 
-LocalUser::LocalUser() : User(ServerInstance->GetUID(), ServerInstance->Config->ServerName)
+LocalUser::LocalUser() : User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL)
 {
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	server_sa.sa.sa_family = AF_UNSPEC;
@@ -585,8 +584,6 @@ CullResult User::cull()
 	if (!quitting)
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
 	PurgeEmptyChannels();
-	if (IS_LOCAL(this) && fd != INT_MAX)
-		Close();
 
 	this->InvalidateCache();
 	this->DecrementModes();
@@ -605,6 +602,7 @@ CullResult LocalUser::cull()
 
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
+	Close();
 	return User::cull();
 }
 
@@ -1174,10 +1172,10 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 
 	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
-		User* u = i->first;
-		if (IS_LOCAL(u) && !u->quitting)
+		LocalUser* u = IS_LOCAL(i->first);
+		if (u && !u->quitting)
 		{
-			already_sent[u->fd] = uniq_id;
+			already_sent[u->GetFd()] = uniq_id;
 			if (i->second)
 				u->Write(line);
 		}
@@ -1188,10 +1186,10 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 		const UserMembList* ulist = c->GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			User* u = i->first;
-			if (IS_LOCAL(u) && !u->quitting && already_sent[u->fd] != uniq_id)
+			LocalUser* u = IS_LOCAL(i->first);
+			if (u && !u->quitting && already_sent[u->GetFd()] != uniq_id)
 			{
-				already_sent[u->fd] = uniq_id;
+				already_sent[u->GetFd()] = uniq_id;
 				u->Write(line);
 			}
 		}
@@ -1220,10 +1218,10 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 
 	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
-		User* u = i->first;
-		if (IS_LOCAL(u) && !u->quitting)
+		LocalUser* u = IS_LOCAL(i->first);
+		if (u && !u->quitting)
 		{
-			already_sent[u->fd] = uniq_id;
+			already_sent[u->GetFd()] = uniq_id;
 			if (i->second)
 				u->Write(IS_OPER(u) ? out2 : out1);
 		}
@@ -1233,10 +1231,10 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		const UserMembList* ulist = (*v)->GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			User* u = i->first;
-			if (IS_LOCAL(u) && !u->quitting && (already_sent[u->fd] != uniq_id))
+			LocalUser* u = IS_LOCAL(i->first);
+			if (u && !u->quitting && (already_sent[u->GetFd()] != uniq_id))
 			{
-				already_sent[u->fd] = uniq_id;
+				already_sent[u->GetFd()] = uniq_id;
 				u->Write(IS_OPER(u) ? out2 : out1);
 			}
 		}
@@ -1357,17 +1355,17 @@ void User::DoHostCycle(const std::string &quitline)
 
 	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
-		User* u = i->first;
-		if (IS_LOCAL(u) && !u->quitting)
+		LocalUser* u = IS_LOCAL(i->first);
+		if (u && !u->quitting)
 		{
 			if (i->second)
 			{
-				already_sent[u->fd] = seen_id;
+				already_sent[u->GetFd()] = seen_id;
 				u->Write(quitline);
 			}
 			else
 			{
-				already_sent[u->fd] = silent_id;
+				already_sent[u->GetFd()] = silent_id;
 			}
 		}
 	}
@@ -1389,16 +1387,16 @@ void User::DoHostCycle(const std::string &quitline)
 		const UserMembList *ulist = c->GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			User* u = i->first;
-			if (u == this || !IS_LOCAL(u))
+			LocalUser* u = IS_LOCAL(i->first);
+			if (u == NULL || u == this)
 				continue;
-			if (already_sent[u->fd] == silent_id)
+			if (already_sent[u->GetFd()] == silent_id)
 				continue;
 
-			if (already_sent[u->fd] != seen_id)
+			if (already_sent[u->GetFd()] != seen_id)
 			{
 				u->Write(quitline);
-				already_sent[i->first->fd] = seen_id;
+				already_sent[u->GetFd()] = seen_id;
 			}
 			u->Write(joinline);
 			if (modeline.length() > 0)

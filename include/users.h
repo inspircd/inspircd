@@ -56,6 +56,12 @@ enum RegistrationState {
 	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
 };
 
+enum UserType {
+	USERTYPE_LOCAL = 1,
+	USERTYPE_REMOTE = 2,
+	USERTYPE_SERVER = 3
+};
+
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
 struct CoreExport ConnectClass : public refcountbase
@@ -357,6 +363,9 @@ class CoreExport User : public StreamSocket
 	 */
 	unsigned int lastping:1;
 
+	/** What type of user is this? */
+	const unsigned int usertype:2;
+
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */
@@ -371,13 +380,10 @@ class CoreExport User : public StreamSocket
 	 */
 	bool SetClientIP(const char* sip);
 
-	/** Default constructor
+	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
-	 * @param Instance Creator instance
-	 * @param uid User UUID, or empty to allocate one automatically
-	 * @param srv Server that this user is from
 	 */
-	User(const std::string &uid, const std::string& srv);
+	User(const std::string &uid, const std::string& srv, int objtype);
 
 	/** Check if the user matches a G or K line, and disconnect them if they do.
 	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
@@ -708,14 +714,6 @@ class CoreExport User : public StreamSocket
 	virtual CullResult cull();
 };
 
-/** Represents a non-local user.
- * (in fact, any FD less than -1 does)
- */
-#define FD_MAGIC_NUMBER -42
-/** Represents a fake user (i.e. a server)
- */
-#define FD_FAKEUSER_NUMBER -7
-
 class CoreExport LocalUser : public User
 {
 	/** A list of channels the user has a pending invite to.
@@ -866,9 +864,8 @@ class CoreExport LocalUser : public User
 class CoreExport RemoteUser : public User
 {
  public:
-	RemoteUser(const std::string& uid, const std::string& srv) : User(uid, srv)
+	RemoteUser(const std::string& uid, const std::string& srv) : User(uid, srv, USERTYPE_REMOTE)
 	{
-		SetFd(FD_MAGIC_NUMBER);
 	}
 	virtual void SendText(const std::string& line);
 };
@@ -876,9 +873,8 @@ class CoreExport RemoteUser : public User
 class CoreExport FakeUser : public User
 {
  public:
-	FakeUser(const std::string &uid, const std::string& srv) : User(uid, srv)
+	FakeUser(const std::string &uid, const std::string& srv) : User(uid, srv, USERTYPE_SERVER)
 	{
-		SetFd(FD_FAKEUSER_NUMBER);
 		nick = srv;
 	}
 
@@ -892,17 +888,17 @@ class CoreExport FakeUser : public User
 /** Is a local user */
 inline LocalUser* IS_LOCAL(User* u)
 {
-	return u->GetFd() > -1 ? static_cast<LocalUser*>(u) : NULL;
+	return u->usertype == USERTYPE_LOCAL ? static_cast<LocalUser*>(u) : NULL;
 }
 /** Is a remote user */
 inline RemoteUser* IS_REMOTE(User* u)
 {
-	return u->GetFd() == FD_MAGIC_NUMBER ? static_cast<RemoteUser*>(u) : NULL;
+	return u->usertype == USERTYPE_REMOTE ? static_cast<RemoteUser*>(u) : NULL;
 }
 /** Is a server fakeuser */
 inline FakeUser* IS_SERVER(User* u)
 {
-	return u->GetFd() == FD_FAKEUSER_NUMBER ? static_cast<FakeUser*>(u) : NULL;
+	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
 }
 /** Is an oper */
 #define IS_OPER(x) (x->oper)

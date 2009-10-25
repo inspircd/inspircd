@@ -490,7 +490,7 @@ void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, c
 	if (target_type == TYPE_USER)
 	{
 		User* d = (User*)dest;
-		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
+		if (!IS_LOCAL(d) && IS_LOCAL(user))
 		{
 			parameterlist params;
 			params.push_back(d->uuid);
@@ -543,7 +543,7 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 		// route private messages which are targetted at clients only to the server
 		// which needs to receive them
 		User* d = (User*)dest;
-		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
+		if (!IS_LOCAL(d) && (IS_LOCAL(user)))
 		{
 			parameterlist params;
 			params.push_back(d->uuid);

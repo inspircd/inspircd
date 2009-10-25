@@ -36,10 +36,10 @@ class CommandTest : public Command
 		{
 			IS_LOCAL(user)->Penalty += 100;
 		}
-		else if (parameters[0] == "shutdown")
+		else if (parameters[0] == "shutdown" && IS_LOCAL(user))
 		{
 			int i = parameters.size() > 1 ? atoi(parameters[1].c_str()) : 2;
-			ServerInstance->SE->Shutdown(user->GetFd(), i);
+			ServerInstance->SE->Shutdown(IS_LOCAL(user)->GetFd(), i);
 		}
 		return CMD_SUCCESS;
 	}

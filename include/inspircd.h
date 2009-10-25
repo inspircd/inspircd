@@ -79,10 +79,10 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "filelogger.h"
 #include "caller.h"
 #include "modules.h"
+#include "threadengine.h"
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
-#include "threadengine.h"
 
 #ifndef PATH_MAX
 #warning Potentially broken system, PATH_MAX undefined
@@ -239,31 +239,6 @@ DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
-
-/** The background thread for config reading, so that reading from executable includes
- * does not block.
- */
-class CoreExport ConfigReaderThread : public Thread
-{
-	ServerConfig* Config;
-	volatile bool done;
- public:
-	const std::string TheUserUID;
-	ConfigReaderThread(const std::string &useruid)
-		: Config(new ServerConfig), done(false), TheUserUID(useruid)
-	{
-	}
-
-	virtual ~ConfigReaderThread()
-	{
-		delete Config;
-	}
-
-	void Run();
-	/** Run in the main thread to apply the configuration */
-	void Finish();
-	bool IsDone() { return done; }
-};
 
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.

@@ -195,13 +195,14 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 	if (IS_LOCAL(user))
 	{
-		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(IS_LOCAL(user)));
-		user->DoWrite();
-		if (user->GetIOHook())
+		LocalUser* lu = IS_LOCAL(user);
+		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(lu));
+		lu->DoWrite();
+		if (lu->GetIOHook())
 		{
 			try
 			{
-				user->GetIOHook()->OnStreamSocketClose(user);
+				lu->GetIOHook()->OnStreamSocketClose(lu);
 			}
 			catch (CoreException& modexcept)
 			{
@@ -209,10 +210,8 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			}
 		}
 
-		ServerInstance->SE->DelFd(user);
-		user->Close();
-		// user->Close() will set fd to -1; this breaks IS_LOCAL. Fix
-		user->SetFd(INT_MAX);
+		ServerInstance->SE->DelFd(lu);
+		lu->Close();
 	}
 
 	/*
