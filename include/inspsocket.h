@@ -94,7 +94,7 @@ class CoreExport SocketTimeout : public Timer
 class CoreExport StreamSocket : public EventHandler
 {
 	/** Module that handles raw I/O for this socket, or NULL */
-	Module *IOHook;
+	reference<Module> IOHook;
 	/** Private send queue. Note that individual strings may be shared
 	 */
 	std::deque<std::string> sendq;
@@ -105,7 +105,7 @@ class CoreExport StreamSocket : public EventHandler
  protected:
 	std::string recvq;
  public:
-	StreamSocket() : IOHook(NULL), sendq_len(0) {}
+	StreamSocket() : sendq_len(0) {}
 	inline Module* GetIOHook() { return IOHook; }
 	inline void AddIOHook(Module* m) { IOHook = m; }
 	inline void DelIOHook() { IOHook = NULL; }

@@ -12,7 +12,7 @@ enum SerializeFormat
 
 /** Class represnting an extension of some object
  */
-class CoreExport ExtensionItem : public refcountbase
+class CoreExport ExtensionItem : public usecountbase
 {
  public:
 	const std::string key;

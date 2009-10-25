@@ -43,7 +43,6 @@ CullResult::CullResult()
 
 // This trick detects heap allocations of refcountbase objects
 static void* last_heap = NULL;
-static const unsigned int top_bit = 1 << (8*sizeof(unsigned int) - 1);
 
 void* refcountbase::operator new(size_t size)
 {
@@ -58,19 +57,24 @@ void refcountbase::operator delete(void* obj)
 	::operator delete(obj);
 }
 
-refcountbase::refcountbase()
+refcountbase::refcountbase() : refcount(0)
 {
-	if (this == last_heap)
-		refcount = 0;
-	else
-		refcount = top_bit;
+	if (this != last_heap)
+		throw CoreException("Reference allocate on the stack!");
 }
 
 refcountbase::~refcountbase()
 {
-	if ((refcount & ~top_bit) && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %x",
+	if (refcount && ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %d",
 			(void*)this, refcount);
+}
+
+usecountbase::~usecountbase()
+{
+	if (usecount && ServerInstance && ServerInstance->Logs)
+		ServerInstance->Logs->Log("CULLLIST", DEBUG, "usecountbase::~ @%p with refcount %d",
+			(void*)this, usecount);
 }
 
 ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : key(Key), owner(mod)
@@ -297,12 +301,3 @@ ModuleException::ModuleException(const std::string &message, Module* who)
 {
 }
 
-ModuleRef::ModuleRef(Module* v) : value(v)
-{
-	if (value) inc(value);
-}
-
-ModuleRef::~ModuleRef()
-{
-	if (value) dec(value);
-}

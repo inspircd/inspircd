@@ -113,6 +113,8 @@ void InspIRCd::Cleanup()
 	/* Must be deleted before modes as it decrements modelines */
 	if (FakeClient)
 		FakeClient->cull();
+	if (Res)
+		Res->cull();
 	DeleteZero(this->FakeClient);
 	DeleteZero(this->Users);
 	DeleteZero(this->Modes);
@@ -523,7 +525,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
 
-	this->Res = new DNS;
+	this->Res = new DNS();
 
 	/*
 	 * Initialise SID/UID.

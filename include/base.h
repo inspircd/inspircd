@@ -81,35 +81,46 @@ class CoreExport refcountbase
 	refcountbase();
 	virtual ~refcountbase();
 	inline unsigned int GetReferenceCount() const { return refcount; }
-	friend class reference_base;
 	void* operator new(size_t);
 	void operator delete(void*);
+	inline void refcount_inc() const { refcount++; }
+	inline bool refcount_dec() const { refcount--; return !refcount; }
  private:
 	// uncopyable
 	refcountbase(const refcountbase&);
 	void operator=(const refcountbase&);
 };
 
-class CoreExport reference_base
+/** Base class for use count tracking. Uses reference<>, but does not
+ * cause object deletion when the last user is removed.
+ */
+class CoreExport usecountbase
 {
- protected:
-	template<typename T> static inline unsigned int inc(T* v) { return ++(v->refcount); }
-	template<typename T> static inline unsigned int dec(T* v) { return --(v->refcount); }
-
+	mutable unsigned int usecount;
+ public:
+	usecountbase() : usecount(0) { }
+	~usecountbase();
+	inline unsigned int GetUseCount() const { return usecount; }
+	inline void refcount_inc() const { usecount++; }
+	inline bool refcount_dec() const { usecount--; return false; }
+ private:
+	// uncopyable
+	usecountbase(const usecountbase&);
+	void operator=(const usecountbase&);
 };
 
 template <typename T>
-class reference : public reference_base
+class reference
 {
 	T* value;
  public:
 	reference() : value(0) { }
-	reference(T* v) : value(v) { if (value) inc(value); }
-	reference(const reference<T>& v) : value(v.value) { if (value) inc(value); }
+	reference(T* v) : value(v) { if (value) value->refcount_inc(); }
+	reference(const reference<T>& v) : value(v.value) { if (value) value->refcount_inc(); }
 	reference<T>& operator=(const reference<T>& other)
 	{
 		if (other.value)
-			inc(other.value);
+			other.value->refcount_inc();
 		this->reference::~reference();
 		value = other.value;
 		return *this;
@@ -117,12 +128,8 @@ class reference : public reference_base
 
 	~reference()
 	{
-		if (value)
-		{
-			int rc = dec(value);
-			if (rc == 0)
-				delete value;
-		}
+		if (value && value->refcount_dec())
+			delete value;
 	}
 	inline operator bool() const { return value; }
 	inline operator T*() const { return value; }
@@ -130,8 +137,6 @@ class reference : public reference_base
 	inline T& operator*() const { return *value; }
 	inline bool operator<(const reference<T>& other) const { return value < other.value; }
 	inline bool operator>(const reference<T>& other) const { return value > other.value; }
-	inline bool operator==(const reference<T>& other) const { return value == other.value; }
-	inline bool operator!=(const reference<T>& other) const { return value != other.value; }
  private:
 	void* operator new(size_t);
 	void operator delete(void*);
@@ -190,22 +195,6 @@ class CoreExport ModuleException : public CoreException
 	ModuleException(const std::string &message, Module* me = NULL);
 };
 
-/** Module reference, similar to reference<Module>
- */
-class CoreExport ModuleRef : public reference_base
-{
-	Module* const value;
- public:
-	ModuleRef(Module* v);
-	~ModuleRef();
-	inline operator Module*() const { return value; }
-	inline Module* operator->() const { return value; }
-	inline Module& operator*() const { return *value; }
- private:
-	ModuleRef(const ModuleRef&);
-	void operator=(const ModuleRef&);
-	void* operator new(size_t);
-	void operator delete(void*);
-};
+typedef const reference<Module> ModuleRef;
 
 #endif

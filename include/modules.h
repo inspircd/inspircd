@@ -298,10 +298,8 @@ enum Implementation
  *  its methods will be called when irc server events occur. class inherited from module must be
  *  instantiated by the ModuleFactory class (see relevent section) for the module to be initialised.
  */
-class CoreExport Module : public classbase
+class CoreExport Module : public classbase, public usecountbase
 {
-	unsigned int refcount;
-	friend class reference_base;
  public:
 	/** File that this module was loaded from
 	 */
