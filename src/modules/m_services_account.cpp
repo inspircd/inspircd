@@ -117,9 +117,9 @@ class ModuleServicesAccount : public Module
 
 		ServerInstance->Extensions.Register(&accountname);
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
-			I_OnSyncUser, I_OnUserQuit, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
+			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 
-		ServerInstance->Modules->Attach(eventlist, this, 10);
+		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
 	void On005Numeric(std::string &t)

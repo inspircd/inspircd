@@ -52,8 +52,8 @@ class ModuleCensor : public Module
 		OnRehash(NULL);
 		if (!ServerInstance->Modes->AddMode(&cu) || !ServerInstance->Modes->AddMode(&cc))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRunTestSuite };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 

@@ -226,8 +226,8 @@ class ModuleOjoin : public Module
 
 		ServerInstance->AddCommand(&mycommand);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick, I_OnUserPart, I_OnUserPreKick, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserPreKick, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)

@@ -53,7 +53,7 @@ class ModuleNoNickChange : public Module
 		OnRehash(NULL);
 		ServerInstance->Modes->AddMode(&nn);
 		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleNoNickChange()

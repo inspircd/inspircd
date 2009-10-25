@@ -18,7 +18,6 @@
 #include "u_listmode.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
-/* $ModDep: ../../include/u_listmode.h */
 
 /** Handles channel mode +g
  */
@@ -69,8 +68,8 @@ class ModuleChanFilter : public Module
 			throw ModuleException("Could not add new modes!");
 
 		cf.DoImplements(this);
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 
 		OnRehash(NULL);
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);

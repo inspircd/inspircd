@@ -19,12 +19,14 @@ class ModuleModesOnConnect : public Module
 {
  public:
 	ModuleModesOnConnect() 	{
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
-		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
-		ServerInstance->Modules->SetPriority(this, PRIORITY_FIRST);
+		ServerInstance->Modules->Attach(I_OnUserConnect, this);
 	}
 
+	void Prioritize()
+	{
+		// for things like +x on connect, important, otherwise we have to resort to config order (bleh) -- w00t
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
+	}
 
 	virtual ~ModuleModesOnConnect()
 	{

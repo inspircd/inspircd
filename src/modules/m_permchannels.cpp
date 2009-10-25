@@ -179,8 +179,8 @@ public:
 	{
 		if (!ServerInstance->Modes->AddMode(&p))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 
 		OnRehash(NULL);
 	}

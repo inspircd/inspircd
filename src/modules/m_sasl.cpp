@@ -226,8 +226,8 @@ class ModuleSASL : public Module
 	ModuleSASL()
 		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnPostConnect, I_OnUserDisconnect };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 
 		ServerInstance->AddCommand(&auth);
 		ServerInstance->AddCommand(&sasl);
