@@ -38,6 +38,12 @@ static bool isin(const std::string &host, int port, const std::vector<std::strin
 	if (std::find(portlist.begin(), portlist.end(), ":" + ConvToStr(port)) != portlist.end())
 		return true;
 
+	if (host.find('.') != std::string::npos && std::find(portlist.begin(), portlist.end(), "0.0.0.0:" + ConvToStr(port)) != portlist.end())
+		return true;
+
+	if (host.find(':') != std::string::npos && std::find(portlist.begin(), portlist.end(), ":::" + ConvToStr(port)) != portlist.end())
+		return true;
+
 	return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
 }
 
