@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "httpd.h"
+#include "xline.h"
 #include "protocol.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
@@ -92,9 +93,7 @@ class ModuleHttpStats : public Module
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
 			{
-				data << "<inspircdstats>";
-
-				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>"
+				data << "<inspircdstats><server><name>" << ServerInstance->Config->ServerName << "</name><gecos>"
 					<< Sanitize(ServerInstance->Config->ServerDesc) << "</gecos><version>"
 					<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
 
@@ -111,8 +110,25 @@ class ModuleHttpStats : public Module
 				stime = gmtime(&server_uptime);
 				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
 
-				data << "<isupport>" << Sanitize(ServerInstance->Config->data005) << "</isupport></general>";
-				data << "<modulelist>";
+				data << "<isupport>" << Sanitize(ServerInstance->Config->data005) << "</isupport></general><xlines>";
+				std::vector<std::string> xltypes = ServerInstance->XLines->GetAllTypes();
+				for (std::vector<std::string>::iterator it = xltypes.begin(); it != xltypes.end(); ++it)
+				{
+					XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
+
+					if (!lookup)
+						continue;
+					for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
+					{
+						data << "<xline type=\"" << it->c_str() << "\"><mask>"
+							<< Sanitize(i->second->Displayable()) << "</mask><settime>"
+							<< i->second->set_time << "</settime><duration>" << i->second->duration
+							<< "</duration><reason>" << Sanitize(i->second->reason)
+							<< "</reason></xline>";
+					}
+				}
+
+				data << "</xlines><modulelist>";
 				std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
 
 				for (std::vector<std::string>::iterator i = module_names.begin(); i != module_names.end(); ++i)
@@ -121,8 +137,7 @@ class ModuleHttpStats : public Module
 					Version v = m->GetVersion();
 					data << "<module><name>" << *i << "</name><version>" << v.version << "</version><description>" << Sanitize(v.description) << "</description></module>";
 				}
-				data << "</modulelist>";
-				data << "<channellist>";
+				data << "</modulelist><channellist>";
 
 				for (chan_hash::const_iterator a = ServerInstance->chanlist->begin(); a != ServerInstance->chanlist->end(); ++a)
 				{
@@ -197,9 +212,7 @@ class ModuleHttpStats : public Module
 					data << "</server>";
 				}
 
-				data << "</serverlist>";
-
-				data << "</inspircdstats>";
+				data << "</serverlist></inspircdstats>";
 
 				/* Send the document back to m_httpd */
 				HTTPDocumentResponse response(this, *http, &data, 200);

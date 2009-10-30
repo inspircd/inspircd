@@ -72,10 +72,6 @@ class CommandWhowas : public Command
 	 */
 	whowas_users_fifo whowas_fifo;
 
-	/* String holding stats so it can be collected
-	 */
-	std::string stats;
-
   public:
 	CommandWhowas(Module* parent);
 	/** Handle command.

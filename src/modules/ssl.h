@@ -122,11 +122,6 @@ struct SSLCertificateRequest : public Request
 {
 	Extensible* const item;
 	ssl_cert* cert;
-	SSLCertificateRequest(StreamSocket* ss, Module* Me)
-		: Request(Me, ss->GetIOHook(), "GET_CERT"), item(ss), cert(NULL)
-	{
-		Send();
-	}
 
 	SSLCertificateRequest(Extensible* e, Module* Me, Module* info = ServerInstance->Modules->Find("m_sslinfo.so"))
 		: Request(Me, info, "GET_CERT"), item(e), cert(NULL)

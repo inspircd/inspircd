@@ -97,8 +97,7 @@ std::string CommandWhowas::GetStats()
 			whowas_bytes += (sizeof(whowas_set) + ( sizeof(WhoWasGroup) * n->size() ) );
 		}
 	}
-	stats.assign("Whowas(MAPSETS) " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)");
-	return stats;
+	return "Whowas entries: " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)";
 }
 
 void CommandWhowas::AddToWhoWas(User* user)

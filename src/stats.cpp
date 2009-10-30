@@ -150,7 +150,6 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 		/* stats z (debug and memory info) */
 		case 'z':
 		{
-			results.push_back(sn+" 240 "+user->nick+" :InspIRCd: "+ConvToStr(sizeof(InspIRCd))+" bytes");
 			results.push_back(sn+" 249 "+user->nick+" :Users: "+ConvToStr(this->Users->clientlist->size()));
 			results.push_back(sn+" 249 "+user->nick+" :Channels: "+ConvToStr(this->chanlist->size()));
 			results.push_back(sn+" 249 "+user->nick+" :Commands: "+ConvToStr(this->Parser->cmdlist.size()));
@@ -166,8 +165,6 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 					results.push_back(sn+" 249 "+user->nick+" :"+req.value);
 				}
 			}
-
-			results.push_back(sn+" 249 "+user->nick+" :MOTD "+ConvToStr(this->Config->MOTD.size())+", RULES "+ConvToStr(this->Config->RULES.size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
