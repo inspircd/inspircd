@@ -232,52 +232,63 @@ class ModuleCloaking : public Module
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
 	}
 
-	std::string ReversePartialIP(const irc::sockets::sockaddrs& ip)
-	{
-		char rv[50];
-		if (ip.sa.sa_family == AF_INET6)
-		{
-			snprintf(rv, 50, ".%02x%02x.%02x%02x.%02x%02x.IP",
-				ip.in6.sin6_addr.s6_addr[4], ip.in6.sin6_addr.s6_addr[5],
-				ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
-				ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1]);
-		}
-		else
-		{
-			const unsigned char* ip4 = (const unsigned char*)&ip.in4.sin_addr;
-			snprintf(rv, 50, ".%d.%d.IP", ip4[1], ip4[0]);
-		}
-		return rv;
-	}
-
-	std::string SegmentIP(const irc::sockets::sockaddrs& ip)
+	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full)
 	{
 		std::string bindata;
-		int hop1, hop2;
+		int hop1, hop2, hop3;
+		std::string rv;
 		if (ip.sa.sa_family == AF_INET6)
 		{
 			bindata = std::string((const char*)ip.in6.sin6_addr.s6_addr, 16);
 			hop1 = 8;
 			hop2 = 6;
+			hop3 = 4;
+			rv.reserve(prefix.length() + 37);
 		}
 		else
 		{
 			bindata = std::string((const char*)&ip.in4.sin_addr, 4);
 			hop1 = 3;
-			hop2 = 2;
+			hop2 = 0;
+			hop3 = 2;
+			rv.reserve(prefix.length() + 30);
 		}
 
-		std::string rv;
-		rv.reserve(prefix.length() + 30);
 		rv.append(prefix);
-		rv.append(SegmentCloak(bindata, 2));
+		rv.append(SegmentCloak(bindata, 10));
 		rv.append(1, '.');
 		bindata.erase(hop1);
-		rv.append(SegmentCloak(bindata, 3));
-		rv.append(1, '.');
-		bindata.erase(hop2);
-		rv.append(SegmentCloak(bindata, 4));
-		rv.append(".IP");
+		rv.append(SegmentCloak(bindata, 11));
+		if (hop2)
+		{
+			rv.append(1, '.');
+			bindata.erase(hop2);
+			rv.append(SegmentCloak(bindata, 12));
+		}
+
+		if (full)
+		{
+			rv.append(1, '.');
+			bindata.erase(hop3);
+			rv.append(SegmentCloak(bindata, 13));
+			rv.append(".IP");
+		}
+		else
+		{
+			char buf[50];
+			if (ip.sa.sa_family == AF_INET6)
+			{
+				snprintf(buf, 50, ".%02x%02x.%02x%02x.IP",
+					ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
+					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1]);
+			}
+			else
+			{
+				const unsigned char* ip4 = (const unsigned char*)&ip.in4.sin_addr;
+				snprintf(buf, 50, ".%d.%d.IP", ip4[1], ip4[0]);
+			}
+			rv.append(buf);
+		}
 		return rv;
 	}
 
@@ -466,17 +477,15 @@ class ModuleCloaking : public Module
 				break;
 			case MODE_HALF_CLOAK:
 			{
-				std::string tail;
 				if (ipstr != dest->host)
-					tail = LastTwoDomainParts(dest->host);
-				if (tail.empty() || tail.length() > 50)
-					tail = ReversePartialIP(dest->client_sa);
-				chost = prefix + SegmentCloak(dest->host, 1) + tail;
+					chost = prefix + SegmentCloak(dest->host, 1) + LastTwoDomainParts(dest->host);
+				if (chost.empty() || chost.length() > 50)
+					chost = SegmentIP(dest->client_sa, false);
 				break;
 			}
 			case MODE_OPAQUE:
 			default:
-				chost = prefix + SegmentIP(dest->client_sa);
+				chost = SegmentIP(dest->client_sa, true);
 		}
 		cu.ext.set(dest,chost);
 	}
