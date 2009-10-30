@@ -677,9 +677,6 @@ else
 	print "no ($config{OSNAME})\n";
 }
 
-print "Checking for upgrades to extra and third party modules... ";
-system "./modulemanager upgrade";
-
 ################################################################################
 #			  BEGIN INTERACTIVE PART			      #
 ################################################################################
