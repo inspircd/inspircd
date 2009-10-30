@@ -531,9 +531,6 @@ else
 	print "no ($config{OSNAME})\n";
 }
 
-print "Checking for upgrades to extra and third party modules... ";
-system "./modulemanager upgrade";
-
 ################################################################################
 #			  BEGIN INTERACTIVE PART			      #
 ################################################################################
@@ -669,6 +666,7 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	}
 
 	$config{USE_SSL} = "n";
+	$config{MODUPDATE} = 'n';
 
 	if ($config{HAS_GNUTLS} eq "y" || $config{HAS_OPENSSL} eq "y")
 	{
@@ -701,6 +699,13 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	{
 		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed if\n";
 		print "you intend to use OpenSSL, or that GnuTLS is in your path if you intend\nto use GnuTLS.\n\n";
+	}
+
+	yesno('MODUPDATE',"Would you like to check for updates to third-party modules?");
+	print "\n";
+	if ($config{MODUPDATE} eq "y") {
+		print "Checking for upgrades to extra and third party modules... ";
+		system "./modulemanager upgrade";
 	}
 }
 
