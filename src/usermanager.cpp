@@ -277,7 +277,7 @@ void UserManager::AddGlobalClone(User *user)
 
 void UserManager::RemoveCloneCounts(User *user)
 {
-	int range = 32;
+	int range = 0;
 	switch (user->GetProtocolFamily())
 	{
 #ifdef SUPPORT_IP6LINKS
@@ -294,13 +294,16 @@ void UserManager::RemoveCloneCounts(User *user)
 		break;
 	}
 
-	clonemap::iterator x = local_clones.find(user->GetCIDRMask(range));
-	if (x != local_clones.end())
+	if (IS_LOCAL(user))
 	{
-		x->second--;
-		if (!x->second)
+		clonemap::iterator x = local_clones.find(user->GetCIDRMask(range));
+		if (x != local_clones.end())
 		{
-			local_clones.erase(x);
+			x->second--;
+			if (!x->second)
+			{
+				local_clones.erase(x);
+			}
 		}
 	}
 
