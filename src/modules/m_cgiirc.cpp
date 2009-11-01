@@ -272,6 +272,7 @@ public:
 			cmd.webirc_ip.unset(user);
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
+			user->SetClass();
 			user->CheckClass();
 			user->CheckLines(true);
 		}
@@ -292,6 +293,7 @@ public:
 			valid = user->SetClientIP(user->password.c_str());
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
+			user->SetClass();
 			user->CheckClass();
 
 			if (valid)
@@ -350,6 +352,7 @@ public:
 		user->SetClientIP(newipstr);
 		ServerInstance->Users->AddLocalClone(user);
 		ServerInstance->Users->AddGlobalClone(user);
+		user->SetClass();
 		user->CheckClass();
 		user->host = newipstr;
 		user->dhost = newipstr;
