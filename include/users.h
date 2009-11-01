@@ -723,7 +723,7 @@ class CoreExport LocalUser : public User
 	InvitedList invites;
 
  public:
-	LocalUser();
+	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
 
 	/** Stats counter for bytes inbound

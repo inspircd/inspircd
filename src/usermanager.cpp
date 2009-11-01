@@ -24,7 +24,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	LocalUser* New = NULL;
 	try
 	{
-		New = new LocalUser();
+		New = new LocalUser(socket, client, server);
 	}
 	catch (...)
 	{
@@ -32,10 +32,6 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
-
-	New->SetFd(socket);
-	memcpy(&New->client_sa, client, sizeof(irc::sockets::sockaddrs));
-	memcpy(&New->server_sa, server, sizeof(irc::sockets::sockaddrs));
 
 	/* Give each of the modules an attempt to hook the user for I/O */
 	FOREACH_MOD(I_OnHookIO, OnHookIO(New, via));
@@ -56,10 +52,9 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	this->unregistered_count++;
 
-	(*(this->clientlist))[New->uuid] = New;
-
 	/* The users default nick is their UUID */
 	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
+	(*(this->clientlist))[New->nick] = New;
 
 	New->ident.assign("unknown");
 
@@ -271,13 +266,16 @@ void UserManager::AddGlobalClone(User *user)
 
 void UserManager::RemoveCloneCounts(User *user)
 {
-	clonemap::iterator x = local_clones.find(user->GetCIDRMask());
-	if (x != local_clones.end())
+	if (IS_LOCAL(user))
 	{
-		x->second--;
-		if (!x->second)
+		clonemap::iterator x = local_clones.find(user->GetCIDRMask());
+		if (x != local_clones.end())
 		{
-			local_clones.erase(x);
+			x->second--;
+			if (!x->second)
+			{
+				local_clones.erase(x);
+			}
 		}
 	}
 

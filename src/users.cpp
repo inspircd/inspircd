@@ -239,12 +239,16 @@ User::User(const std::string &uid, const std::string& sid, int type)
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
 
-LocalUser::LocalUser() : User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL)
+LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
+	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL)
 {
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	server_sa.sa.sa_family = AF_UNSPEC;
 	Penalty = 0;
 	lastping = nping = 0;
+	SetFd(myfd);
+	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
+	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
 }
 
 User::~User()
@@ -588,6 +592,9 @@ CullResult User::cull()
 	this->InvalidateCache();
 	this->DecrementModes();
 
+	if (client_sa.sa.sa_family != AF_UNSPEC)
+		ServerInstance->Users->RemoveCloneCounts(this);
+
 	ServerInstance->Users->uuidlist->erase(uuid);
 	return Extensible::cull();
 }
@@ -600,8 +607,6 @@ CullResult LocalUser::cull()
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
 
-	if (client_sa.sa.sa_family != AF_UNSPEC)
-		ServerInstance->Users->RemoveCloneCounts(this);
 	Close();
 	return User::cull();
 }
