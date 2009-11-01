@@ -354,6 +354,7 @@ public:
 #endif
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
+			user->SetClass();
 			user->CheckClass();
 
 			if (valid)
@@ -412,6 +413,7 @@ public:
 		user->SetSockAddr(user->GetProtocolFamily(), newip, user->GetPort());
 		ServerInstance->Users->AddLocalClone(user);
 		ServerInstance->Users->AddGlobalClone(user);
+		user->SetClass();
 		user->CheckClass();
 		try
 		{
