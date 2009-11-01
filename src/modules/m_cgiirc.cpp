@@ -324,6 +324,8 @@ public:
 			user->Shrink("cgiirc_webirc_ip");
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
+
+			user->SetClass();
 			user->CheckClass();
 			user->CheckLines(true);
 		}
