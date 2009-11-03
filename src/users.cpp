@@ -1012,7 +1012,7 @@ void LocalUser::Write(const std::string& text)
 		return;
 	}
 
-	ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%d] O %s", this->GetFd(), text.c_str());
+	ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%s] O %s", uuid.c_str(), text.c_str());
 
 	this->AddWriteBuf(text);
 	this->AddWriteBuf(wide_newline);

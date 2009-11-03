@@ -26,7 +26,6 @@
 #else
 #include "inspircd_win32wrapper.h"
 /** Windows defines these already */
-#undef DELETE
 #undef ERROR
 #endif
 
