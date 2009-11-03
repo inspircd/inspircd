@@ -256,7 +256,7 @@ class TreeSocket : public BufferedSocket
 	void WriteLine(std::string line);
 
 	/** Handle ERROR command */
-	bool Error(parameterlist &params);
+	void Error(parameterlist &params);
 
 	/** remote MOTD. */
 	bool Motd(const std::string &prefix, parameterlist &params);

@@ -72,19 +72,19 @@ found:
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	: BufferedSocket(newfd), Utils(Util)
 {
-	int dummy;
-	irc::sockets::satoap(*client, IP, dummy);
+	IP = client->addr();
 	age = ServerInstance->Time();
 	LinkState = WAIT_AUTH_1;
 	capab_phase = 0;
 	proto_version = 0;
+	myhost = "inbound from " + IP;
 
 	FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
 	if (GetIOHook())
 		GetIOHook()->OnStreamSocketAccept(this, client, server);
 	SendCapabilities(1);
 
-	Utils->timeoutlist[this] = std::pair<std::string, int>("inbound from " + IP, 30);
+	Utils->timeoutlist[this] = std::pair<std::string, int>(myhost, 30);
 }
 
 ServerState TreeSocket::GetLinkState()
@@ -155,8 +155,6 @@ void TreeSocket::SendError(const std::string &errormessage)
 {
 	WriteLine("ERROR :"+errormessage);
 	SetError(errormessage);
-	/* Display the error locally as well as sending it remotely */
-	ServerInstance->SNO->WriteGlobalSno('l', "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? this->IP.c_str() : this->InboundServerName.c_str()), errormessage.c_str());
 }
 
 /** This function forces this server to quit, removing this server

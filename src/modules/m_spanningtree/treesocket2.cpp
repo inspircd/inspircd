@@ -24,13 +24,10 @@
 #include "resolvers.h"
 
 /* Handle ERROR command */
-bool TreeSocket::Error(parameterlist &params)
+void TreeSocket::Error(parameterlist &params)
 {
-	if (params.size() < 1)
-		return false;
-	ServerInstance->SNO->WriteGlobalSno('l',"ERROR from %s: %s",(!InboundServerName.empty() ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
-	/* we will return false to cause the socket to close. */
-	return false;
+	std::string msg = params.size() ? params[0] : "";
+	SetError("received ERROR " + msg);
 }
 
 void TreeSocket::Split(const std::string& line, std::string& prefix, std::string& command, parameterlist& params)
