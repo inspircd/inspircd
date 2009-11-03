@@ -553,9 +553,10 @@ class CoreExport ModeParser
 
 	static bool PrefixComparison(ModeHandler* one, ModeHandler* two);
 
-	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
+	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric, or
+	 * just the "@%+" part if the parameter false
 	 */
-	std::string BuildPrefixes();
+	std::string BuildPrefixes(bool lettersAndModes = true);
 };
 
 #endif

@@ -91,17 +91,15 @@ class CommandTban : public Command
 					TimedBanList.push_back(T);
 					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
 					ServerInstance->PI->SendChannelNotice(channel, '@', user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.");
-					if (ServerInstance->Config->AllowHalfop)
-					{
-						channel->WriteAllExcept(user, true, '%', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
-						ServerInstance->PI->SendChannelNotice(channel, '%', user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.");
-					}
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
 			}
-			else user->WriteNumeric(482, "%s %s :You must be at least a%soperator to change modes on this channel",user->nick.c_str(), channel->name.c_str(),
-					ServerInstance->Config->AllowHalfop ? " half-" : " channel ");
+			else
+			{
+				user->WriteNumeric(482, "%s %s :You do not have permission to change modes on this channel",
+					user->nick.c_str(), channel->name.c_str());
+			}
 			return CMD_FAILURE;
 		}
 		user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
@@ -170,11 +168,6 @@ class ModuleTimedBans : public Module
 					std::string expiry = "*** Timed ban on " + chan + " expired.";
 					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
 					ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
-					if (ServerInstance->Config->AllowHalfop)
-					{
-						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
-						ServerInstance->PI->SendChannelNotice(cr, '%', expiry);
-					}
 
 					ServerInstance->SendMode(setban, ServerInstance->FakeClient);
 					ServerInstance->PI->SendMode(chan, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());

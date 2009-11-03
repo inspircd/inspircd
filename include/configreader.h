@@ -376,11 +376,6 @@ class CoreExport ServerConfig
 	 */
 	bool RestrictBannedUsers;
 
-	/** If this value is true, halfops have been
-	 * enabled in the configuration file.
-	 */
-	bool AllowHalfop;
-
 	/** If this is set to true, then mode lists (e.g
 	 * MODE #chan b) are hidden from unprivileged
 	 * users.

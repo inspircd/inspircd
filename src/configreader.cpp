@@ -37,7 +37,7 @@ ServerConfig::ServerConfig()
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
-	CycleHosts = AllowHalfop = InvBypassModes = true;
+	CycleHosts = InvBypassModes = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;

@@ -803,7 +803,7 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 	return type1 + "," + type2 + "," + type3 + "," + type4;
 }
 
-std::string ModeParser::BuildPrefixes()
+std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 {
 	std::string mletters;
 	std::string mprefixes;
@@ -826,7 +826,7 @@ std::string ModeParser::BuildPrefixes()
 		mprefixes = mprefixes + n->second.second;
 	}
 
-	return "(" + mprefixes + ")" + mletters;
+	return lettersAndModes ? "(" + mprefixes + ")" + mletters : mletters;
 }
 
 bool ModeParser::AddModeWatcher(ModeWatcher* mw)
