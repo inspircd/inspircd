@@ -34,8 +34,6 @@
 #include "modes/cmode_l.h"
 /* +o (channel op) */
 #include "modes/cmode_o.h"
-/* +h (channel halfop) */
-#include "modes/cmode_h.h"
 /* +v (channel voice) */
 #include "modes/cmode_v.h"
 /* +w (see wallops) */
@@ -981,10 +979,4 @@ ModeParser::ModeParser()
 
 ModeParser::~ModeParser()
 {
-	ModeHandler* mh = FindMode('h', MODETYPE_CHANNEL);
-	if (mh)
-	{
-		mh->cull();
-		delete mh;
-	}
 }

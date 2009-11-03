@@ -12,14 +12,18 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
-#include "mode.h"
-#include "channels.h"
-#include "users.h"
-#include "modules.h"
-#include "modes/cmode_h.h"
 
-ModeChannelHalfOp::ModeChannelHalfOp() : ModeHandler(NULL, "halfop", 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
+class ModeChannelHalfOp : public ModeHandler
+{
+ public:
+	ModeChannelHalfOp(Module* parent);
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	unsigned int GetPrefixRank();
+	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
+	void RemoveMode(User* user, irc::modestacker* stack = NULL);
+};
+
+ModeChannelHalfOp::ModeChannelHalfOp(Module* parent) : ModeHandler(parent, "halfop", 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {
 	list = true;
 	prefix = '%';
@@ -62,3 +66,26 @@ ModeAction ModeChannelHalfOp::OnModeChange(User* source, User*, Channel* channel
 {
 	return MODEACTION_ALLOW;
 }
+
+class ModuleHalfop : public Module
+{
+	ModeChannelHalfOp mh;
+ public:
+	ModuleHalfop() : mh(this)
+	{
+		if (!ServerInstance->Modes->AddMode(&mh))
+			throw ModuleException("Could not add new modes!");
+	}
+
+	~ModuleHalfop()
+	{
+		ServerInstance->Modes->DelMode(&mh);
+	}
+
+	Version GetVersion()
+	{
+		return Version("Channel half-operator mode provider", VF_VENDOR|VF_COMMON);
+	}
+};
+
+MODULE_INIT(ModuleHalfop)

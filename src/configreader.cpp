@@ -30,7 +30,6 @@
 #include "xline.h"
 #include "exitcodes.h"
 #include "commands/cmd_whowas.h"
-#include "modes/cmode_h.h"
 #include "configparser.h"
 
 ServerConfig::ServerConfig()
@@ -749,9 +748,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
 		}
 
-		if (ConfValue("options")->getBool("allowhalfop"))
-			ServerInstance->Modes->AddMode(new ModeChannelHalfOp);
-
 		return;
 	}
 
@@ -768,18 +764,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 void ServerConfig::ApplyModules(User* user)
 {
-	bool AllowHalfOp = ConfValue("options")->getBool("allowhalfop");
-	ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
-	if (AllowHalfOp && !mh) {
-		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Enabling halfop mode.");
-		mh = new ModeChannelHalfOp;
-		ServerInstance->Modes->AddMode(mh);
-	} else if (!AllowHalfOp && mh) {
-		ServerInstance->Logs->Log("CONFIG", DEFAULT, "Disabling halfop mode.");
-		ServerInstance->Modes->DelMode(mh);
-		delete mh;
-	}
-
 	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
 	if (whowas)
 		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
@@ -801,6 +785,9 @@ void ServerConfig::ApplyModules(User* user)
 				added_modules.push_back(name);
 		}
 	}
+
+	if (ConfValue("options")->getBool("allowhalfop") && removed_modules.erase("m_halfop.so") == 0)
+		added_modules.push_back("m_halfop.so");
 
 	for (std::set<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 	{
