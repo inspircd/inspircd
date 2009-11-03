@@ -34,6 +34,14 @@ void TreeSocket::CompatAddModules(std::vector<std::string>& modlist)
 {
 	if (proto_version < 1202)
 	{
+		for(std::vector<std::string>::iterator i = modlist.begin(); i != modlist.end(); ++i)
+		{
+			if (*i == "m_halfop.so")
+			{
+				modlist.erase(i);
+				break;
+			}
+		}
 		// you MUST have chgident loaded in order to be able to translate FIDENT
 		modlist.push_back("m_chgident.so");
 		for(int i=0; i * sizeof(char*) < sizeof(forge_common_1201); i++)
