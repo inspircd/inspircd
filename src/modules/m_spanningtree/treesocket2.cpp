@@ -422,15 +422,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			this->Squit(Utils->FindServer(params[0]),params[1]);
 		}
 	}
-	else if (command == "MODENOTICE")
-	{
-		if (params.size() >= 2)
-		{
-			ServerInstance->Users->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s",
-				who->nick.c_str(), params[1].c_str());
-		}
-		Utils->DoOneToAllButSender(prefix, command, params, prefix);
-	}
 	else if (command == "SNONOTICE")
 	{
 		if (params.size() >= 2)

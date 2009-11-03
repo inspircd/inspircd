@@ -36,13 +36,6 @@ enum ModuleFlags {
 	VF_CORE = 16		// module is a core command, can be assumed loaded on all servers
 };
 
-/** Used with SendToMode()
- */
-enum WriteModeFlags {
-	WM_AND = 1,
-	WM_OR = 2
-};
-
 /** Used to represent an event type, for user, channel or server
  */
 enum TargetTypeFlags {

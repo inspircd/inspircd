@@ -156,16 +156,6 @@ class CoreExport UserManager
 	 * @param ... The format arguments
 	 */
 	void ServerPrivmsgAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Send text to all users with a specific set of modes
-	 * @param modes The modes to check against, without a +, e.g. 'og'
-	 * @param flags one of WM_OR or WM_AND. If you specify WM_OR, any one of the
-	 * mode characters in the first parameter causes receipt of the message, and
-	 * if you specify WM_OR, all the modes must be present.
-	 * @param text The text format string to send
-	 * @param ... The format arguments
-	 */
-	void WriteMode(const char* modes, int flags, const char* text, ...) CUSTOM_PRINTF(4, 5);
 };
 
 #endif

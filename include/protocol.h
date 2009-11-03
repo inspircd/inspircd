@@ -82,12 +82,6 @@ class ProtocolInterface
 		SendMode(target, n, types);
 	}
 
-	/** Send a notice to users with a given mode(s).
-	 * @param modes The modes required for the message to be sent.
-	 * @param text The message to send.
-	 */
-	virtual void SendModeNotice(const std::string &modes, const std::string &text) { }
-
 	/** Send a notice to users with a given snomask.
 	 * @param snomask The snomask required for the message to be sent.
 	 * @param text The message to send.

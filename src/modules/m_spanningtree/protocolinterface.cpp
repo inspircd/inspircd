@@ -94,14 +94,6 @@ void SpanningTreeProtocolInterface::SendMode(const std::string &target, const pa
 	}
 }
 
-void SpanningTreeProtocolInterface::SendModeNotice(const std::string &modes, const std::string &text)
-{
-	parameterlist p;
-	p.push_back(modes);
-	p.push_back(":" + text);
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "MODENOTICE", p);
-}
-
 void SpanningTreeProtocolInterface::SendSNONotice(const std::string &snomask, const std::string &text)
 {
 	parameterlist p;

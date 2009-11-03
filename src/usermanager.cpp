@@ -386,67 +386,6 @@ void UserManager::ServerPrivmsgAll(const char* text, ...)
 	}
 }
 
-void UserManager::WriteMode(const char* modes, int flags, const char* text, ...)
-{
-	char textbuffer[MAXBUF];
-	int modelen;
-	va_list argsPtr;
-
-	if (!text || !modes || !flags)
-	{
-		ServerInstance->Logs->Log("USERS", DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
-		return;
-	}
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-	modelen = strlen(modes);
-
-	if (flags == WM_AND)
-	{
-		for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
-		{
-			User* t = *i;
-			bool send_to_user = true;
-
-			for (int n = 0; n < modelen; n++)
-			{
-				if (!t->IsModeSet(modes[n]))
-				{
-					send_to_user = false;
-					break;
-				}
-			}
-			if (send_to_user)
-			{
-				t->WriteServ("NOTICE %s :%s", t->nick.c_str(), textbuffer);
-			}
-		}
-	}
-	else if (flags == WM_OR)
-	{
-		for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
-		{
-			User* t = *i;
-			bool send_to_user = false;
-
-			for (int n = 0; n < modelen; n++)
-			{
-				if (t->IsModeSet(modes[n]))
-				{
-					send_to_user = true;
-					break;
-				}
-			}
-
-			if (send_to_user)
-			{
-				t->WriteServ("NOTICE %s :%s", t->nick.c_str(), textbuffer);
-			}
-		}
-	}
-}
 
 /* return how many users have a given mode e.g. 'a' */
 int UserManager::ModeCount(const char mode)
