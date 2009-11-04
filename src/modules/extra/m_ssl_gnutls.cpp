@@ -402,7 +402,6 @@ class ModuleSSLGnuTLS : public Module
 			{
 				if (session->status != ISSL_CLOSING)
 					return 0;
-				user->SetError("Handshake Failed");
 				return -1;
 			}
 		}
@@ -459,7 +458,6 @@ class ModuleSSLGnuTLS : public Module
 			Handshake(session, user);
 			if (session->status != ISSL_CLOSING)
 				return 0;
-			user->SetError("Handshake Failed");
 			return -1;
 		}
 
@@ -527,6 +525,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 			else
 			{
+				user->SetError(std::string("Handshake Failed - ") + gnutls_strerror(ret));
 				CloseSession(session);
 				session->status = ISSL_CLOSING;
 			}
