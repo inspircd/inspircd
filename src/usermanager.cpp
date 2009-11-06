@@ -32,15 +32,16 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
+	UserIOHandler* eh = &New->eh;
 
 	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD(I_OnHookIO, OnHookIO(New, via));
+	FOREACH_MOD(I_OnHookIO, OnHookIO(eh, via));
 
-	if (New->GetIOHook())
+	if (eh->GetIOHook())
 	{
 		try
 		{
-			New->GetIOHook()->OnStreamSocketAccept(New, client, server);
+			eh->GetIOHook()->OnStreamSocketAccept(eh, client, server);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -127,7 +128,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 	}
 
-	if (!ServerInstance->SE->AddFd(New, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
+	if (!ServerInstance->SE->AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
 		ServerInstance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
@@ -192,12 +193,13 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	{
 		LocalUser* lu = IS_LOCAL(user);
 		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(lu));
-		lu->DoWrite();
-		if (lu->GetIOHook())
+		UserIOHandler* eh = &lu->eh;
+		eh->DoWrite();
+		if (eh->GetIOHook())
 		{
 			try
 			{
-				lu->GetIOHook()->OnStreamSocketClose(lu);
+				eh->GetIOHook()->OnStreamSocketClose(eh);
 			}
 			catch (CoreException& modexcept)
 			{
@@ -205,8 +207,8 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			}
 		}
 
-		ServerInstance->SE->DelFd(lu);
-		lu->Close();
+		ServerInstance->SE->DelFd(eh);
+		eh->Close();
 	}
 
 	/*

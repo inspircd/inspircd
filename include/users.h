@@ -140,7 +140,7 @@ struct CoreExport ConnectClass : public refcountbase
 	/** Create a new connect class with inherited settings.
 	 */
 	ConnectClass(ConfigTag* tag, char type, const std::string& mask, const ConnectClass& parent);
-	
+
 	/** Update the settings in this block to match the given block */
 	void Update(const ConnectClass* newSettings);
 
@@ -149,7 +149,7 @@ struct CoreExport ConnectClass : public refcountbase
 	const std::string& GetPass() { return pass; }
 	const std::string& GetHost() { return host; }
 	const int GetPort() { return port; }
-	
+
 	/** Returns the registration timeout
 	 */
 	time_t GetRegTimeout()
@@ -213,7 +213,7 @@ struct CoreExport ConnectClass : public refcountbase
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
  * user's nickname and hostname.
  */
-class CoreExport User : public StreamSocket
+class CoreExport User : public Extensible
 {
  private:
 	/** Cached nick!ident@dhost value using the displayed hostname
@@ -706,12 +706,26 @@ class CoreExport User : public StreamSocket
 	 */
 	void ShowRULES();
 
-	virtual void OnDataReady();
-	virtual void OnError(BufferedSocketError error);
 	/** Default destructor
 	 */
 	virtual ~User();
 	virtual CullResult cull();
+};
+
+class CoreExport UserIOHandler : public StreamSocket
+{
+ public:
+	LocalUser* const user;
+	UserIOHandler(LocalUser* me) : user(me) {}
+	void OnDataReady();
+	void OnError(BufferedSocketError error);
+
+	/** Adds to the user's write buffer.
+	 * You may add any amount of text up to this users sendq value, if you exceed the
+	 * sendq value, the user will be removed, and further buffer adds will be dropped.
+	 * @param data The data to add to the write buffer
+	 */
+	void AddWriteBuf(const std::string &data);
 };
 
 class CoreExport LocalUser : public User
@@ -725,6 +739,8 @@ class CoreExport LocalUser : public User
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
+
+	UserIOHandler eh;
 
 	/** Stats counter for bytes inbound
 	 */
@@ -797,17 +813,9 @@ class CoreExport LocalUser : public User
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	void OnDataReady();
 	void SendText(const std::string& line);
 	void Write(const std::string& text);
 	void Write(const char*, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Adds to the user's write buffer.
-	 * You may add any amount of text up to this users sendq value, if you exceed the
-	 * sendq value, the user will be removed, and further buffer adds will be dropped.
-	 * @param data The data to add to the write buffer
-	 */
-	void AddWriteBuf(const std::string &data);
 
 	/** Returns the list of channels this user has been invited to but has not yet joined.
 	 * @return A list of channels the user is invited to
@@ -859,6 +867,8 @@ class CoreExport LocalUser : public User
 	 * @return True if the user can set or unset this mode.
 	 */
 	bool HasModePermission(unsigned char mode, ModeType type);
+
+	inline int GetFd() { return eh.GetFd(); }
 };
 
 class CoreExport RemoteUser : public User

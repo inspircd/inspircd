@@ -58,7 +58,7 @@ void InspIRCd::DoBackgroundUserStuff()
 		if (curr->Penalty)
 		{
 			curr->Penalty--;
-			curr->OnDataReady();
+			curr->eh.OnDataReady();
 		}
 
 		switch (curr->registered)

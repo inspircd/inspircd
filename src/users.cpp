@@ -240,13 +240,13 @@ User::User(const std::string &uid, const std::string& sid, int type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL)
+	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this)
 {
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	server_sa.sa.sa_family = AF_UNSPEC;
 	Penalty = 0;
 	lastping = nping = 0;
-	SetFd(myfd);
+	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
 }
@@ -495,29 +495,25 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 	return false;
 }
 
-void User::OnDataReady()
+void UserIOHandler::OnDataReady()
 {
-}
-
-void LocalUser::OnDataReady()
-{
-	if (quitting)
+	if (user->quitting)
 		return;
 
-	if (recvq.length() > MyClass->GetRecvqMax() && !HasPrivPermission("users/flood/increased-buffers"))
+	if (recvq.length() > user->MyClass->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
-		ServerInstance->Users->QuitUser(this, "RecvQ exceeded");
+		ServerInstance->Users->QuitUser(user, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
-			nick.c_str(), (unsigned long)recvq.length(), MyClass->GetRecvqMax());
+			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
 	}
 	unsigned long sendqmax = ULONG_MAX;
-	if (!HasPrivPermission("users/flood/increased-buffers"))
-		sendqmax = MyClass->GetSendqSoftMax();
-	int penaltymax = MyClass->GetPenaltyThreshold();
-	if (penaltymax == 0 || HasPrivPermission("users/flood/no-fakelag"))
+	if (!user->HasPrivPermission("users/flood/increased-buffers"))
+		sendqmax = user->MyClass->GetSendqSoftMax();
+	int penaltymax = user->MyClass->GetPenaltyThreshold();
+	if (penaltymax == 0 || user->HasPrivPermission("users/flood/no-fakelag"))
 		penaltymax = INT_MAX;
 
-	while (Penalty < penaltymax && getSendQSize() < sendqmax)
+	while (user->Penalty < penaltymax && getSendQSize() < sendqmax)
 	{
 		std::string line;
 		line.reserve(MAXBUF);
@@ -546,29 +542,30 @@ eol_found:
 
 		// TODO should this be moved to when it was inserted in recvq?
 		ServerInstance->stats->statsRecv += qpos;
-		this->bytes_in += qpos;
-		this->cmds_in++;
+		user->bytes_in += qpos;
+		user->cmds_in++;
 
-		ServerInstance->Parser->ProcessBuffer(line, this);
-		if (quitting)
+		ServerInstance->Parser->ProcessBuffer(line, user);
+		if (user->quitting)
 			return;
 	}
 	// Add pseudo-penalty so that we continue processing after sendq recedes
-	if (Penalty == 0 && getSendQSize() >= sendqmax)
-		Penalty++;
+	if (user->Penalty == 0 && getSendQSize() >= sendqmax)
+		user->Penalty++;
 }
 
-void LocalUser::AddWriteBuf(const std::string &data)
+void UserIOHandler::AddWriteBuf(const std::string &data)
 {
-	if (!quitting && getSendQSize() + data.length() > MyClass->GetSendqHardMax() && !HasPrivPermission("users/flood/increased-buffers"))
+	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->GetSendqHardMax() &&
+		!user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		/*
 		 * Quit the user FIRST, because otherwise we could recurse
 		 * here and hit the same limit.
 		 */
-		ServerInstance->Users->QuitUser(this, "SendQ exceeded");
+		ServerInstance->Users->QuitUser(user, "SendQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds connect class maximum of %lu",
-			nick.c_str(), MyClass->GetSendqHardMax());
+			user->nick.c_str(), user->MyClass->GetSendqHardMax());
 		return;
 	}
 
@@ -578,9 +575,9 @@ void LocalUser::AddWriteBuf(const std::string &data)
 	WriteData(data);
 }
 
-void User::OnError(BufferedSocketError)
+void UserIOHandler::OnError(BufferedSocketError)
 {
-	ServerInstance->Users->QuitUser(this, getError());
+	ServerInstance->Users->QuitUser(user, getError());
 }
 
 CullResult User::cull()
@@ -607,7 +604,7 @@ CullResult LocalUser::cull()
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
 
-	Close();
+	eh.cull();
 	return User::cull();
 }
 
@@ -1001,7 +998,7 @@ void User::Write(const char *text, ...)
 
 void LocalUser::Write(const std::string& text)
 {
-	if (!ServerInstance->SE->BoundsCheckFd(this))
+	if (!ServerInstance->SE->BoundsCheckFd(&eh))
 		return;
 
 	if (text.length() > MAXBUF - 2)
@@ -1014,8 +1011,8 @@ void LocalUser::Write(const std::string& text)
 
 	ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%s] O %s", uuid.c_str(), text.c_str());
 
-	this->AddWriteBuf(text);
-	this->AddWriteBuf(wide_newline);
+	eh.AddWriteBuf(text);
+	eh.AddWriteBuf(wide_newline);
 
 	ServerInstance->stats->statsSent += text.length() + 2;
 	this->bytes_out += text.length() + 2;

@@ -250,12 +250,11 @@ class ModuleSSLOpenSSL : public Module
 		{
 			LocalUser* user = IS_LOCAL((User*)item);
 
-			if (user && user->GetIOHook() == this)
+			if (user && user->eh.GetIOHook() == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
-				user->DelIOHook();
 			}
 		}
 	}

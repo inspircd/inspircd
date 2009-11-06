@@ -106,11 +106,11 @@ class CommandStartTLS : public SplitCommand
 		}
 		else
 		{
-			if (!user->GetIOHook())
+			if (!user->eh.GetIOHook())
 			{
 				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
-				user->AddIOHook(creator);
-				creator->OnStreamSocketAccept(user, NULL, NULL);
+				user->eh.AddIOHook(creator);
+				creator->OnStreamSocketAccept(&user->eh, NULL, NULL);
 			}
 			else
 				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());
@@ -129,6 +129,7 @@ class ModuleSSLGnuTLS : public Module
 
 	std::string keyfile;
 	std::string certfile;
+
 	std::string cafile;
 	std::string crlfile;
 	std::string sslports;
@@ -298,12 +299,11 @@ class ModuleSSLGnuTLS : public Module
 		{
 			LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 
-			if (user && user->GetIOHook() == this)
+			if (user && user->eh.GetIOHook() == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				ServerInstance->Users->QuitUser(user, "SSL module unloading");
-				user->DelIOHook();
 			}
 		}
 	}

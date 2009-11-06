@@ -23,7 +23,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 {
 	UserResolver *res_forward; // for forward-resolution
 
-	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
+	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == &bound_user->eh))
 	{
 		this->bound_user->stored_host = result;
 		try
@@ -50,7 +50,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			ServerInstance->Logs->Log("RESOLVER", DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
-	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
+	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == &bound_user->eh))
 	{
 		/* Both lookups completed */
 
@@ -118,7 +118,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 
 void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 {
-	if (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user)
+	if (ServerInstance->SE->GetRef(this->bound_fd) == &bound_user->eh)
 	{
 		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
 		this->bound_user->dns_done = true;

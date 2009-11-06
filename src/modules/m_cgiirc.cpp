@@ -112,7 +112,7 @@ class CGIResolver : public Resolver
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
 		/* Check the user still exists */
-		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
+		if ((them) && (&them->eh == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
@@ -129,7 +129,7 @@ class CGIResolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
+		if ((them) && (&them->eh == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
 				ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());

@@ -63,7 +63,7 @@ class DNSBLResolver : public Resolver
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
 		/* Check the user still exists */
-		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
+		if ((them) && (&them->eh == ServerInstance->SE->GetRef(theirfd)))
 		{
 			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
 			if(result.length())
