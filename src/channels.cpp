@@ -646,19 +646,19 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 
 void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &out)
 {
-	char statmode = 0;
+	unsigned int minrank = 0;
 	if (status)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindPrefix(status);
 		if (mh)
-			statmode = mh->GetModeChar();
+			minrank = mh->GetPrefixRank();
 	}
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
-		if ((IS_LOCAL(i->first)) && (except_list.find(i->first) == except_list.end()))
+		if (IS_LOCAL(i->first) && (except_list.find(i->first) == except_list.end()))
 		{
-			/* User doesnt have the status we're after */
-			if (statmode && !i->second->hasMode(statmode))
+			/* User doesn't have the status we're after */
+			if (minrank && i->second->getRank() < minrank)
 				continue;
 
 			i->first->Write(out);
