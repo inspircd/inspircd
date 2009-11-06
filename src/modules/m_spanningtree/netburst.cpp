@@ -220,7 +220,7 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 			this->WriteLine(data);
 		}
 
-		for(ExtensibleStore::const_iterator i = c->second->GetExtList().begin(); i != c->second->GetExtList().end(); i++)
+		for(Extensible::ExtensibleStore::const_iterator i = c->second->GetExtList().begin(); i != c->second->GetExtList().end(); i++)
 		{
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_NETWORK, c->second, i->second);
@@ -269,7 +269,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 				}
 			}
 
-			for(ExtensibleStore::const_iterator i = u->second->GetExtList().begin(); i != u->second->GetExtList().end(); i++)
+			for(Extensible::ExtensibleStore::const_iterator i = u->second->GetExtList().begin(); i != u->second->GetExtList().end(); i++)
 			{
 				ExtensionItem* item = i->first;
 				std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);

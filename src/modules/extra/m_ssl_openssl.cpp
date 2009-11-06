@@ -53,6 +53,7 @@ class issl_session
 public:
 	SSL* sess;
 	issl_status status;
+	reference<ssl_cert> cert;
 
 	int fd;
 	bool outbound;
@@ -125,7 +126,7 @@ class ModuleSSLOpenSSL : public Module
 
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO };
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -244,6 +245,17 @@ class ModuleSSLOpenSSL : public Module
 		delete[] sessions;
 	}
 
+	void OnUserConnect(LocalUser* user)
+	{
+		if (user->eh.GetIOHook() == this)
+		{
+			if (sessions[user->GetFd()].sess)
+			{
+				SSLCertSubmission(user, this, ServerInstance->Modules->Find("m_sslinfo.so"), sessions[user->GetFd()].cert);
+			}
+		}
+	}
+
 	void OnCleanup(int target_type, void* item)
 	{
 		if (target_type == TYPE_USER)
@@ -264,14 +276,17 @@ class ModuleSSLOpenSSL : public Module
 		return Version("Provides SSL support for clients", VF_VENDOR);
 	}
 
-
 	void OnRequest(Request& request)
 	{
-		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
-		if (sslinfo)
-			sslinfo->OnRequest(request);
-	}
+		if (strcmp("GET_SSL_CERT", request.id) == 0)
+		{
+			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
+			int fd = req.sock->GetFd();
+			issl_session* session = &sessions[fd];
 
+			req.cert = session->cert;
+		}
+	}
 
 	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
@@ -472,7 +487,7 @@ class ModuleSSLOpenSSL : public Module
 		return 0;
 	}
 
-	bool Handshake(EventHandler* user, issl_session* session)
+	bool Handshake(StreamSocket* user, issl_session* session)
 	{
 		int ret;
 
@@ -537,17 +552,14 @@ class ModuleSSLOpenSSL : public Module
 		errno = EIO;
 	}
 
-	void VerifyCertificate(issl_session* session, Extensible* user)
+	void VerifyCertificate(issl_session* session, StreamSocket* user)
 	{
-		if (!session->sess || !user)
-			return;
-
-		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
-		if (!sslinfo)
+		if (!session->sess || !user || session->cert)
 			return;
 
 		X509* cert;
 		ssl_cert* certinfo = new ssl_cert;
+		session->cert = certinfo;
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
 		const EVP_MD *digest = EVP_md5();
@@ -557,7 +569,6 @@ class ModuleSSLOpenSSL : public Module
 		if (!cert)
 		{
 			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
-			SSLCertSubmission(user, this, sslinfo, certinfo);
 			return;
 		}
 
@@ -592,7 +603,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		X509_free(cert);
-		SSLCertSubmission(user, this, sslinfo, certinfo);
 	}
 };
 

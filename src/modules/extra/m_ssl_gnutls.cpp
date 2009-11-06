@@ -77,13 +77,10 @@ static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void*
 class issl_session
 {
 public:
-	issl_session()
-	{
-		sess = NULL;
-	}
-
 	gnutls_session_t sess;
 	issl_status status;
+	reference<ssl_cert> cert;
+	issl_session() : sess(NULL) {}
 };
 
 class CommandStartTLS : public SplitCommand
@@ -332,11 +329,15 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnRequest(Request& request)
 	{
-		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
-		if (sslinfo)
-			sslinfo->OnRequest(request);
-	}
+		if (strcmp("GET_SSL_CERT", request.id) == 0)
+		{
+			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
+			int fd = req.sock->GetFd();
+			issl_session* session = &sessions[fd];
 
+			req.cert = session->cert;
+		}
+	}
 
 	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
@@ -548,10 +549,11 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnUserConnect(LocalUser* user)
 	{
-		if (user->GetIOHook() == this)
+		if (user->eh.GetIOHook() == this)
 		{
 			if (sessions[user->GetFd()].sess)
 			{
+				SSLCertSubmission(user, this, ServerInstance->Modules->Find("m_sslinfo.so"), sessions[user->GetFd()].cert);
 				std::string cipher = gnutls_kx_get_name(gnutls_kx_get(sessions[user->GetFd()].sess));
 				cipher.append("-").append(gnutls_cipher_get_name(gnutls_cipher_get(sessions[user->GetFd()].sess))).append("-");
 				cipher.append(gnutls_mac_get_name(gnutls_mac_get(sessions[user->GetFd()].sess)));
@@ -562,23 +564,19 @@ class ModuleSSLGnuTLS : public Module
 
 	void CloseSession(issl_session* session)
 	{
-		if(session->sess)
+		if (session->sess)
 		{
 			gnutls_bye(session->sess, GNUTLS_SHUT_WR);
 			gnutls_deinit(session->sess);
 		}
-
 		session->sess = NULL;
+		session->cert = NULL;
 		session->status = ISSL_NONE;
 	}
 
-	void VerifyCertificate(issl_session* session, Extensible* user)
+	void VerifyCertificate(issl_session* session, StreamSocket* user)
 	{
-		if (!session->sess || !user)
-			return;
-
-		Module* sslinfo = ServerInstance->Modules->Find("m_sslinfo.so");
-		if (!sslinfo)
+		if (!session->sess || !user || session->cert)
 			return;
 
 		unsigned int status;
@@ -591,6 +589,7 @@ class ModuleSSLGnuTLS : public Module
 		size_t digest_size = sizeof(digest);
 		size_t name_size = sizeof(name);
 		ssl_cert* certinfo = new ssl_cert;
+		session->cert = certinfo;
 
 		/* This verification function uses the trusted CAs in the credentials
 		 * structure. So you must have installed one or more CA certificates.
@@ -600,7 +599,7 @@ class ModuleSSLGnuTLS : public Module
 		if (ret < 0)
 		{
 			certinfo->error = std::string(gnutls_strerror(ret));
-			goto info_done;
+			return;
 		}
 
 		certinfo->invalid = (status & GNUTLS_CERT_INVALID);
@@ -615,14 +614,14 @@ class ModuleSSLGnuTLS : public Module
 		if (gnutls_certificate_type_get(session->sess) != GNUTLS_CRT_X509)
 		{
 			certinfo->error = "No X509 keys sent";
-			goto info_done;
+			return;
 		}
 
 		ret = gnutls_x509_crt_init(&cert);
 		if (ret < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
-			goto info_done;
+			return;
 		}
 
 		cert_list_size = 0;
@@ -668,8 +667,6 @@ class ModuleSSLGnuTLS : public Module
 
 info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
-info_done:
-		SSLCertSubmission(user, this, sslinfo, certinfo);
 	}
 
 	void OnEvent(Event& ev)

@@ -151,7 +151,7 @@ enum EventMask
  * must have a file descriptor. What this file descriptor
  * is actually attached to is completely up to you.
  */
-class CoreExport EventHandler : public Extensible
+class CoreExport EventHandler : public classbase
 {
  private:
 	/** Private state maintained by socket engine */

@@ -25,7 +25,7 @@
  * in a unified manner. These classes are attached to ssl-
  * connected local users using SSLCertExt
  */
-class ssl_cert
+class ssl_cert : public refcountbase
 {
  public:
 	std::string dn;
@@ -118,13 +118,34 @@ class ssl_cert
 	}
 };
 
-struct SSLCertificateRequest : public Request
+/** Get certificate from a socket (only useful with an SSL module) */
+struct SocketCertificateRequest : public Request
 {
-	Extensible* const item;
+	StreamSocket* const sock;
 	ssl_cert* cert;
 
-	SSLCertificateRequest(Extensible* e, Module* Me, Module* info = ServerInstance->Modules->Find("m_sslinfo.so"))
-		: Request(Me, info, "GET_CERT"), item(e), cert(NULL)
+	SocketCertificateRequest(StreamSocket* ss, Module* Me, Module* hook)
+		: Request(Me, hook, "GET_SSL_CERT"), sock(ss), cert(NULL)
+	{
+		Send();
+	}
+
+	std::string GetFingerprint()
+	{
+		if (cert)
+			return cert->GetFingerprint();
+		return "";
+	}
+};
+
+/** Get certificate from a user (requires m_sslinfo) */
+struct UserCertificateRequest : public Request
+{
+	User* const user;
+	ssl_cert* cert;
+
+	UserCertificateRequest(User* u, Module* Me, Module* info = ServerInstance->Modules->Find("m_sslinfo.so"))
+		: Request(Me, info, "GET_USER_CERT"), user(u), cert(NULL)
 	{
 		Send();
 	}

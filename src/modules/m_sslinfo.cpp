@@ -25,8 +25,10 @@ class SSLCertExt : public ExtensionItem {
 	}
 	void set(Extensible* item, ssl_cert* value)
 	{
+		value->refcount_inc();
 		ssl_cert* old = static_cast<ssl_cert*>(set_raw(item, value));
-		delete old;
+		if (old && old->refcount_dec())
+			delete old;
 	}
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
@@ -61,7 +63,9 @@ class SSLCertExt : public ExtensionItem {
 
 	void free(void* item)
 	{
-		delete static_cast<ssl_cert*>(item);
+		ssl_cert* old = static_cast<ssl_cert*>(item);
+		if (old && old->refcount_dec())
+			delete old;
 	}
 };
 
@@ -228,10 +232,10 @@ class ModuleSSLInfo : public Module
 
 	void OnRequest(Request& request)
 	{
-		if (strcmp("GET_CERT", request.id) == 0)
+		if (strcmp("GET_USER_CERT", request.id) == 0)
 		{
-			SSLCertificateRequest& req = static_cast<SSLCertificateRequest&>(request);
-			req.cert = cmd.CertExt.get(req.item);
+			UserCertificateRequest& req = static_cast<UserCertificateRequest&>(request);
+			req.cert = cmd.CertExt.get(req.user);
 		}
 		else if (strcmp("SET_CERT", request.id) == 0)
 		{

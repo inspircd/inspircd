@@ -610,6 +610,14 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	params.push_back(":"+std::string(user->fullname));
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
 
+	for(Extensible::ExtensibleStore::const_iterator i = user->GetExtList().begin(); i != user->GetExtList().end(); i++)
+	{
+		ExtensionItem* item = i->first;
+		std::string value = item->serialize(FORMAT_NETWORK, user, i->second);
+		if (!value.empty())
+			ProtoSendMetaData(this, user, item->key, value);
+	}
+
 	Utils->TreeRoot->SetUserCount(1); // increment by 1
 }
 
