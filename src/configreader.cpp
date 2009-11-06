@@ -921,6 +921,15 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	errstr.str().clear();
 	include_stack.clear();
 
+	/*
+	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
+	 */
+	if (old)
+	{
+		memcpy(this->ServerName, old->ServerName, sizeof(this->ServerName));
+		memcpy(this->sid, old->sid, sizeof(this->sid));
+	}
+
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
@@ -1134,15 +1143,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	FailedPortList pl;
 	ServerInstance->BindPorts(pl);
-
-	/*
-	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
-	 */
-	if (old)
-	{
-		memcpy(this->ServerName, old->ServerName, sizeof(this->ServerName));
-		memcpy(this->sid, old->sid, sizeof(this->sid));
-	}
 
 	if (pl.size())
 	{
