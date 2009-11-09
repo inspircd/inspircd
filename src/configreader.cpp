@@ -361,12 +361,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			}
 
 			std::string name = tag->getString("name");
-			if (!name.empty())
+			if (name.empty())
 			{
-				if (names.find(name) != names.end())
-					throw CoreException("Two connect classes with name \"" + name + "\" defined!");
-				names[name] = i;
+				name = "unnamed-" + ConvToStr(i);
 			}
+
+			if (names.find(name) != names.end())
+				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
+			names[name] = i;
 
 			std::string mask, typeMask;
 			char type;
@@ -393,8 +395,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				new ConnectClass(tag, type, mask, *parent) :
 				new ConnectClass(tag, type, mask);
 
-			if (!name.empty())
-				me->name = name;
+			me->name = name;
 
 			tag->readString("password", me->pass);
 			tag->readString("hash", me->hash);
