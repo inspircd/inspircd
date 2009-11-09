@@ -83,13 +83,6 @@ void ServerConfig::Send005(User* user)
 		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
 }
 
-static void ReqRead(ServerConfig* src, const std::string& tag, const std::string& key, std::string& dest)
-{
-	ConfigTag* t = src->ConfValue(tag);
-	if (!t || !t->readString(key, dest))
-		throw CoreException("You must specify a value for <" + tag + ":" + key + ">");
-}
-
 template<typename T, typename V>
 static void range(T& value, V min, V max, V def, const char* msg)
 {
@@ -102,63 +95,11 @@ static void range(T& value, V min, V max, V def, const char* msg)
 }
 
 
-/* NOTE: Before anyone asks why we're not using inet_pton for this, it is because inet_pton and friends do not return so much detail,
- * even in strerror(errno). They just return 'yes' or 'no' to an address without such detail as to whats WRONG with the address.
- * Because ircd users arent as technical as they used to be (;)) we are going to give more of a useful error message.
- */
 static void ValidIP(const std::string& ip, const std::string& key)
 {
-	const char* p = ip.c_str();
-	int num_dots = 0;
-	int num_seps = 0;
-	int not_numbers = false;
-	int not_hex = false;
-
-	if (*p)
-	{
-		if (*p == '.')
-			throw CoreException("The value of "+key+" is not an IP address");
-
-		for (const char* ptr = p; *ptr; ++ptr)
-		{
-			if (*ptr != ':' && *ptr != '.')
-			{
-				if (*ptr < '0' || *ptr > '9')
-					not_numbers = true;
-				if ((*ptr < '0' || *ptr > '9') && (toupper(*ptr) < 'A' || toupper(*ptr) > 'F'))
-					not_hex = true;
-			}
-			switch (*ptr)
-			{
-				case ' ':
-					throw CoreException("The value of "+key+" is not an IP address");
-				case '.':
-					num_dots++;
-				break;
-				case ':':
-					num_seps++;
-				break;
-			}
-		}
-
-		if (num_dots > 3)
-			throw CoreException("The value of "+key+" is an IPv4 address with too many fields!");
-
-		if (num_seps > 8)
-			throw CoreException("The value of "+key+" is an IPv6 address with too many fields!");
-
-		if (num_seps == 0 && num_dots < 3)
-			throw CoreException("The value of "+key+" looks to be a malformed IPv4 address");
-
-		if (num_seps == 0 && num_dots == 3 && not_numbers)
-			throw CoreException("The value of "+key+" contains non-numeric characters in an IPv4 address");
-
-		if (num_seps != 0 && not_hex)
-			throw CoreException("The value of "+key+" contains non-hexdecimal characters in an IPv6 address");
-
-		if (num_seps != 0 && num_dots != 3 && num_dots != 0)
-			throw CoreException("The value of "+key+" is a malformed IPv6 4in6 address");
-	}
+	irc::sockets::sockaddrs dummy;
+	if (!irc::sockets::aptosa(ip, 0, dummy))
+		throw CoreException("The value of "+key+" is not an IP address");
 }
 
 static void ValidHost(const std::string& p, const std::string& msg)
@@ -180,8 +121,6 @@ static void ValidHost(const std::string& p, const std::string& msg)
 	if (num_dots == 0)
 		throw CoreException("The value of "+msg+" is not a valid hostname");
 }
-
-// Specialized validators
 
 bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 {
@@ -328,8 +267,19 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		}
 	}
 
+	int blk_count = config_data.count("connect");
+	if (blk_count == 0)
+	{
+		// No connect blocks found; make a trivial default block
+		std::vector<KeyVal>* items;
+		ConfigTag* tag = ConfigTag::create("connect", "<auto>", 0, items);
+		items->push_back(std::make_pair("allow", "*"));
+		config_data.insert(std::make_pair("connect", tag));
+		blk_count = 1;
+	}
+
 	ClassMap newBlocksByMask;
-	Classes.resize(config_data.count("connect"));
+	Classes.resize(blk_count);
 	std::map<std::string, int> names;
 
 	bool try_again = true;
@@ -353,7 +303,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				{
 					try_again = true;
 					// couldn't find parent this time. If it's the last time, we'll never find it.
-					if (tries == 50)
+					if (tries >= blk_count)
 						throw CoreException("Could not find parent connect class \"" + parentName + "\" for connect block " + ConvToStr(i));
 					continue;
 				}
@@ -471,17 +421,15 @@ static const Deprecated ChangedConfig[] = {
 	{"options", "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
 	{"options", "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
 	{"options",	"loglevel",		"1.2 does not use the loglevel value. Please define <log> tags instead."},
-	{"die",     "value",            "has always been deprecated"},
+	{"die",     "value",            "you need to reread your config"},
 };
 
 void ServerConfig::Fill()
 {
-	ReqRead(this, "server", "name", ServerName);
-	ReqRead(this, "power", "diepass", diepass);
-	ReqRead(this, "power", "restartpass", restartpass);
-
 	ConfigTag* options = ConfValue("options");
 	ConfigTag* security = ConfValue("security");
+	diepass = ConfValue("power")->getString("diepass");
+	restartpass = ConfValue("power")->getString("restartpass");
 	powerhash = ConfValue("power")->getString("hash");
 	DieDelay = ConfValue("power")->getInt("pause");
 	PrefixQuit = options->getString("prefixquit");
@@ -493,6 +441,7 @@ void ServerConfig::Fill()
 	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
 	MoronBanner = options->getString("moronbanner", "You're banned!");
+	ServerName = ConfValue("server")->getString("name");
 	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
 	Network = ConfValue("server")->getString("network", "Network");
 	sid = ConfValue("server")->getString("id", "");
@@ -526,10 +475,10 @@ void ServerConfig::Fill()
 	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
 	WhoWasMaxKeep = ServerInstance->Duration(ConfValue("whowas")->getString("maxkeep"));
 	DieValue = ConfValue("die")->getString("value");
-	MaxChans = ConfValue("channels")->getInt("users");
-	OperMaxChans = ConfValue("channels")->getInt("opers");
-	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone");
-	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone");
+	MaxChans = ConfValue("channels")->getInt("users", 20);
+	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
+	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
+	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
 	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);
 	Limits.ChanMax = ConfValue("limits")->getInt("maxchan", 64);
 	Limits.MaxModes = ConfValue("limits")->getInt("maxmodes", 20);
@@ -612,9 +561,6 @@ void ServerConfig::Fill()
 	Limits.Finalise();
 }
 
-/* These tags MUST occur and must ONLY occur once in the config file */
-static const char* const Once[] = { "server", "admin", "files", "power", "options" };
-
 // WARNING: it is not safe to use most of the codebase in this function, as it
 // will run in the config reader thread
 void ServerConfig::Read()
@@ -647,23 +593,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
-		/* Check we dont have more than one of singular tags, or any of them missing
-		 */
-		for (int Index = 0; Index * sizeof(*Once) < sizeof(Once); Index++)
-		{
-			std::string tag = Once[Index];
-			ConfigTagList tags = ConfTags(tag);
-			if (tags.first == tags.second)
-				throw CoreException("You have not defined a <"+tag+"> tag, this is required.");
-			tags.first++;
-			if (tags.first != tags.second)
-			{
-				errstr << "You have more than one <" << tag << "> tag.\n"
-					<< "First occurrence at " << ConfValue(tag)->getTagLocation()
-					<< "; second occurrence at " << tags.first->second->getTagLocation() << std::endl;
-			}
-		}
-
 		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
 		{
 			std::string dummy;
