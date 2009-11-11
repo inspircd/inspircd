@@ -31,7 +31,7 @@ typedef std::map<std::string, SQLConn*> ConnMap;
 typedef std::deque<classbase*> paramlist;
 typedef std::deque<SQLite3Result*> ResultQueue;
 
-unsigned long count(const char * const str, char a)
+static unsigned long count(const char * const str, char a)
 {
 	unsigned long n = 0;
 	for (const char *p = str; *p; ++p)

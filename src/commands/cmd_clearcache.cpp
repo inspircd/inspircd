@@ -13,9 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_ADMIN_H__
-#define __CMD_ADMIN_H__
-
 #include "users.h"
 #include "channels.h"
 #include "ctables.h"
@@ -39,9 +36,6 @@ class CommandClearcache : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 /** Handle /CLEARCACHE
  */

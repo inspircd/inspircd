@@ -44,7 +44,7 @@ typedef std::map<std::string, SQLConn*> ConnMap;
  */
 enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
 
-unsigned long count(const char * const str, char a)
+static unsigned long count(const char * const str, char a)
 {
 	unsigned long n = 0;
 	for (const char *p = str; *p; ++p)

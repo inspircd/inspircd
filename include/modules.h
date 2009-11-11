@@ -1696,6 +1696,28 @@ class CoreExport ModuleManager
 #define MODULE_INIT_SYM_FN_2(x) MODULE_INIT_SYM_FN_1(x)
 #define MODULE_INIT_SYM_FN_1(x) inspircd_module_ ## x
 
+#ifdef PURE_STATIC
+
+struct AllCommandList {
+	typedef Command* (*fn)(Module*);
+	AllCommandList(fn cmd);
+};
+#define COMMAND_INIT(x) static Command* MK_ ## x(Module* m) { return new x(m); } \
+	static const AllCommandList PREP_ ## x(&MK_ ## x);
+
+struct AllModuleList {
+	typedef Module* (*fn)();
+	fn init;
+	std::string name;
+	AllModuleList(fn mod, const std::string& Name);
+};
+
+#define MODULE_INIT(x) static Module* MK_ ## x() { return new x; } \
+	static const AllModuleList PREP_ ## x(&MK_ ## x, #x);
+
+
+#else
+
 /** This definition is used as shorthand for the various classes
  * and functions needed to make a module loadable by the OS.
  * It defines the class factory and external init_module function.
@@ -1728,5 +1750,7 @@ class CoreExport ModuleManager
 #endif
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)
+
+#endif
 
 #endif
