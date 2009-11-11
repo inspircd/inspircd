@@ -1647,7 +1647,7 @@ sub write_dynamic_makefile
 	if ($config{IS_DARWIN} eq "YES")
 	{
 		$libraryext = "dylib";
-		$binary_rule = "	\$(RUNCC) -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) inspircd.o "
+		$binary_rule = "	\$(RUNCC) -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) "
 	}
 	else
 	{
