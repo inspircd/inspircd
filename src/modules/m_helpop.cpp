@@ -55,7 +55,7 @@ class Helpop : public ModeHandler
 class CommandHelpop : public Command
 {
  public:
-	CommandHelpop(Module* Creator) : Command(Creator, "HELPOP", 0)
+	CommandHelpop(Module* Creator) : Command(Creator, "HELP", 0)
 	{
 		syntax = "<any-text>";
 	}
