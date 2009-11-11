@@ -19,6 +19,10 @@
 #include "dns.h"
 #include "exitcodes.h"
 
+#ifndef WIN32
+#include <dirent.h>
+#endif
+
 #ifndef PURE_STATIC
 
 bool ModuleManager::Load(const char* filename)
