@@ -52,7 +52,7 @@ class Helpop : public ModeHandler
 class CommandHelpop : public Command
 {
  public:
-	CommandHelpop (InspIRCd* Instance) : Command(Instance, "HELP", 0, 0)
+	CommandHelpop (InspIRCd* Instance) : Command(Instance, "HELPOP", 0, 0)
 	{
 		this->source = "m_helpop.so";
 		syntax = "<any-text>";
