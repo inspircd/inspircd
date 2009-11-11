@@ -89,7 +89,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 
 	// tell them they suck, and lag them up to help prevent brute-force attacks
 	user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick.c_str());
-	user->Penalty += 10;
+	user->CommandFloodPenalty += 10000;
 
 	snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
 	ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));

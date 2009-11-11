@@ -244,7 +244,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 {
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	server_sa.sa.sa_family = AF_UNSPEC;
-	Penalty = 0;
+	CommandFloodPenalty = 0;
 	lastping = nping = 0;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
@@ -509,11 +509,11 @@ void UserIOHandler::OnDataReady()
 	unsigned long sendqmax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/increased-buffers"))
 		sendqmax = user->MyClass->GetSendqSoftMax();
-	int penaltymax = user->MyClass->GetPenaltyThreshold();
-	if (penaltymax == 0 || user->HasPrivPermission("users/flood/no-fakelag"))
-		penaltymax = INT_MAX;
+	unsigned long penaltymax = ULONG_MAX;
+	if (!user->HasPrivPermission("users/flood/no-fakelag"))
+		penaltymax = user->MyClass->GetPenaltyThreshold() * 1000;
 
-	while (user->Penalty < penaltymax && getSendQSize() < sendqmax)
+	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
 		std::string line;
 		line.reserve(MAXBUF);
@@ -550,8 +550,10 @@ eol_found:
 			return;
 	}
 	// Add pseudo-penalty so that we continue processing after sendq recedes
-	if (user->Penalty == 0 && getSendQSize() >= sendqmax)
-		user->Penalty++;
+	if (user->CommandFloodPenalty == 0 && getSendQSize() >= sendqmax)
+		user->CommandFloodPenalty++;
+	if (user->CommandFloodPenalty >= penaltymax && !user->MyClass->fakelag)
+		ServerInstance->Users->QuitUser(user, "Excess Flood");
 }
 
 void UserIOHandler::AddWriteBuf(const std::string &data)
@@ -1689,19 +1691,19 @@ const std::string& FakeUser::GetFullRealHost()
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
-	: config(tag), type(t), name("unnamed"), registration_timeout(0), host(mask),
-	pingtime(0), pass(""), hash(""), softsendqmax(0), hardsendqmax(0),
-	recvqmax(0), penaltythreshold(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0)
+	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
+	pingtime(0), pass(""), hash(""), softsendqmax(0), hardsendqmax(0), recvqmax(0),
+	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0)
 {
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, const ConnectClass& parent)
-	: config(tag), type(t), name("unnamed"),
-	registration_timeout(parent.registration_timeout), host(mask),
-	pingtime(parent.pingtime), pass(parent.pass), hash(parent.hash),
-	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax),
-	recvqmax(parent.recvqmax), penaltythreshold(parent.penaltythreshold), maxlocal(parent.maxlocal),
-	maxglobal(parent.maxglobal), maxchans(parent.maxchans),
+	: config(tag), type(t), fakelag(parent.fakelag), name("unnamed"),
+	registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime),
+	pass(parent.pass), hash(parent.hash), softsendqmax(parent.softsendqmax),
+	hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
+	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
+	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxchans(parent.maxchans),
 	port(parent.port), limit(parent.limit)
 {
 }

@@ -252,7 +252,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	if (IS_LOCAL(user) && !user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		IS_LOCAL(user)->Penalty += cm != cmdlist.end() ? cm->second->Penalty : 2;
+		IS_LOCAL(user)->CommandFloodPenalty += cm != cmdlist.end() ? cm->second->Penalty * 1000 : 2000;
 	}
 
 

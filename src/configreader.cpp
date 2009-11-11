@@ -366,6 +366,8 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->hardsendqmax = tag->getInt("hardsendq", me->hardsendqmax);
 			me->recvqmax = tag->getInt("recvq", me->recvqmax);
 			me->penaltythreshold = tag->getInt("threshold", me->penaltythreshold);
+			me->commandrate = tag->getInt("commandrate", me->commandrate);
+			me->fakelag = tag->getBool("fakelag", me->fakelag);
 			me->maxlocal = tag->getInt("localmax", me->maxlocal);
 			me->maxglobal = tag->getInt("globalmax", me->maxglobal);
 			me->port = tag->getInt("port", me->port);

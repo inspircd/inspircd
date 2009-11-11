@@ -190,9 +190,9 @@ class CommandTest : public Command
 			for(unsigned int i=0; i < count; i++)
 				user->Write(line);
 		}
-		else if (parameters[0] == "freeze" && IS_LOCAL(user))
+		else if (parameters[0] == "freeze" && IS_LOCAL(user) && parameters.size() > 1)
 		{
-			IS_LOCAL(user)->Penalty += 100;
+			IS_LOCAL(user)->CommandFloodPenalty += atoi(parameters[1].c_str());
 		}
 		else if (parameters[0] == "shutdown" && IS_LOCAL(user))
 		{

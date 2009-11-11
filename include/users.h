@@ -71,6 +71,9 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	char type;
 
+	/** True if this class uses fake lag to manage flood, false if it kills */
+	bool fakelag;
+
 	/** Connect class name
 	 */
 	std::string name;
@@ -111,7 +114,10 @@ struct CoreExport ConnectClass : public refcountbase
 
 	/** Seconds worth of penalty before penalty system activates
 	 */
-	unsigned long penaltythreshold;
+	unsigned int penaltythreshold;
+
+	/** Maximum rate of commands (units: millicommands per second) */
+	unsigned int commandrate;
 
 	/** Local max when connecting by this connection class
 	 */
@@ -188,9 +194,14 @@ struct CoreExport ConnectClass : public refcountbase
 
 	/** Returns the penalty threshold value
 	 */
-	unsigned long GetPenaltyThreshold()
+	unsigned int GetPenaltyThreshold()
 	{
-		return penaltythreshold;
+		return (penaltythreshold ? penaltythreshold : 10);
+	}
+
+	unsigned int GetCommandRate()
+	{
+		return commandrate ? commandrate : 1000;
 	}
 
 	/** Returusn the maximum number of local sessions
@@ -787,10 +798,10 @@ class CoreExport LocalUser : public User
 	 */
 	time_t nping;
 
-	/** This value contains how far into the penalty threshold the user is. Once its over
-	 * the penalty threshold then commands are held and processed on-timer.
+	/** This value contains how far into the penalty threshold the user is.
+	 * This is used either to enable fake lag or for excess flood quits
 	 */
-	int Penalty;
+	unsigned int CommandFloodPenalty;
 
 	/** Stored reverse lookup from res_forward. Should not be used after resolution.
 	 */

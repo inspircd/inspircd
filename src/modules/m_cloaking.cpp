@@ -57,7 +57,7 @@ class CloakUser : public ModeHandler
 		}
 
 		/* don't allow this user to spam modechanges */
-		IS_LOCAL(dest)->Penalty += 5;
+		IS_LOCAL(dest)->CommandFloodPenalty += 5000;
 
 		if (adding)
 		{

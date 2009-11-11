@@ -55,9 +55,13 @@ void InspIRCd::DoBackgroundUserStuff()
 		if (curr->quitting)
 			continue;
 
-		if (curr->Penalty)
+		if (curr->CommandFloodPenalty)
 		{
-			curr->Penalty--;
+			unsigned int rate = curr->MyClass->GetCommandRate();
+			if (curr->CommandFloodPenalty > rate)
+				curr->CommandFloodPenalty -= rate;
+			else
+				curr->CommandFloodPenalty = 0;
 			curr->eh.OnDataReady();
 		}
 
