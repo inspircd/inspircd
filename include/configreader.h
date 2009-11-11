@@ -414,11 +414,6 @@ class CoreExport ServerConfig
 	 */
 	int MaxWhoResults;
 
-	/** How many seconds to wait before exiting
-	 * the program when /DIE is correctly issued.
-	 */
-	int DieDelay;
-
 	/** True if we're going to hide netsplits as *.net *.split for non-opers
 	 */
 	bool HideSplits;

@@ -37,7 +37,7 @@ ServerConfig::ServerConfig()
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
 	CycleHosts = InvBypassModes = true;
-	dns_timeout = DieDelay = 5;
+	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
 	SoftLimit = ServerInstance->SE->GetMaxFds();
@@ -431,7 +431,6 @@ void ServerConfig::Fill()
 	diepass = ConfValue("power")->getString("diepass");
 	restartpass = ConfValue("power")->getString("restartpass");
 	powerhash = ConfValue("power")->getString("hash");
-	DieDelay = ConfValue("power")->getInt("pause");
 	PrefixQuit = options->getString("prefixquit");
 	SuffixQuit = options->getString("suffixquit");
 	FixedQuit = options->getString("fixedquit");

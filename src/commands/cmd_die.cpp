@@ -13,14 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_DIE_H__
-#define __CMD_DIE_H__
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /DIE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -41,8 +33,6 @@ class CommandDie : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
-#endif
-
 #include "exitcodes.h"
 
 /** Handle /DIE
@@ -52,13 +42,10 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	if (!ServerInstance->PassCompare(user, ServerInstance->Config->diepass, parameters[0].c_str(), ServerInstance->Config->powerhash))
 	{
 		{
-			std::string diebuf = std::string("*** DIE command from ") + user->nick + "!" + user->ident + "@" + user->dhost + ". Terminating in " + ConvToStr(ServerInstance->Config->DieDelay) + " seconds.";
+			std::string diebuf = std::string("*** DIE command from ") + user->nick + "!" + user->ident + "@" + user->dhost + ". Terminating.";
 			ServerInstance->Logs->Log("COMMAND",SPARSE, diebuf);
 			ServerInstance->SendError(diebuf);
 		}
-
-		if (ServerInstance->Config->DieDelay)
-			sleep(ServerInstance->Config->DieDelay);
 
 		ServerInstance->Exit(EXIT_STATUS_DIE);
 	}
