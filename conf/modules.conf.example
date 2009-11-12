@@ -1423,6 +1423,7 @@
 <securehost exception="*@*.searchirc.org">
 <securehost exception="*@*.netsplit.de">
 <securehost exception="*@echo940.server4you.de">
+<securehost exception="*@*.ircdriven.com">
 #                                                                     #
 # Define the following variable to change how long a user must wait   #
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
