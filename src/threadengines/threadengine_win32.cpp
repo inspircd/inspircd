@@ -68,6 +68,7 @@ class ThreadSignalSocket : public BufferedSocket
 
 	void OnError(BufferedSocketError)
 	{
+		ServerInstance->GlobalCulls.AddItem(this);
 	}
 };
 

@@ -60,6 +60,7 @@ class HttpServerSocket : public BufferedSocket
 
 	virtual void OnError(BufferedSocketError)
 	{
+		ServerInstance->GlobalCulls.AddItem(this);
 	}
 
 	std::string Response(int response)

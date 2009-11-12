@@ -149,6 +149,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 {
 	ServerInstance->SNO->WriteGlobalSno('l', "Connection to \002%s\002 failed with error: %s",
 		myhost.c_str(), getError().c_str());
+	ServerInstance->GlobalCulls.AddItem(this);
 }
 
 void TreeSocket::SendError(const std::string &errormessage)

@@ -541,7 +541,6 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 	{
 		ServerInstance->Logs->Log("SOCKET", DEBUG, "Error on FD %d - '%s'", fd, error.c_str());
 		OnError(errcode);
-		ServerInstance->GlobalCulls.AddItem(this);
 	}
 }
 
