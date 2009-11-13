@@ -101,7 +101,7 @@ all: $(FOOTER)
 
 target: $(HEADER)
 	$(MAKEENV) perl make/calcdep.pl
-	$(MAKEENV) $(MAKE) -C $(BUILDPATH) -f real.mk $(TARGET)
+	cd $(BUILDPATH); $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
 	@${MAKE} D=1 all
