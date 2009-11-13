@@ -36,7 +36,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const std::string& addr, int port)
 	if (this->fd > -1)
 	{
 		ServerInstance->SE->SetReuse(fd);
-		int rv = ServerInstance->SE->Bind(this->fd, &bind_to.sa, sizeof(bind_to));
+		int rv = ServerInstance->SE->Bind(this->fd, bind_to);
 		if (rv >= 0)
 			rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
 

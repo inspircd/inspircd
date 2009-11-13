@@ -197,9 +197,9 @@ int SocketEngine::Shutdown(EventHandler* fd, int how)
 	return shutdown(fd->GetFd(), how);
 }
 
-int SocketEngine::Bind(int fd, const sockaddr *my_addr, socklen_t addrlen)
+int SocketEngine::Bind(int fd, const irc::sockets::sockaddrs& addr)
 {
-	return bind(fd, my_addr, addrlen);
+	return bind(fd, &addr.sa, addr.sa_size());
 }
 
 int SocketEngine::Listen(int sockfd, int backlog)

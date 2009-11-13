@@ -18,6 +18,7 @@
 #include <string>
 #include <map>
 #include "inspircd_config.h"
+#include "socket.h"
 #include "base.h"
 
 /** Types of event an EventHandler may receive.
@@ -439,7 +440,7 @@ public:
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Bind(int fd, const sockaddr *my_addr, socklen_t addrlen);
+	int Bind(int fd, const irc::sockets::sockaddrs& addr);
 
 	/** Abstraction for BSD sockets listen(2).
 	 * This function should emulate its namesake system call exactly.

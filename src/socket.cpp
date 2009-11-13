@@ -36,7 +36,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	else if (!irc::sockets::aptosa(addr, port, servaddr))
 		return false;
 
-	ret = SE->Bind(sockfd, &servaddr.sa, sa_size(servaddr));
+	ret = SE->Bind(sockfd, servaddr);
 
 	if (ret < 0)
 	{

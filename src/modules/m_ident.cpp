@@ -83,7 +83,6 @@ class IdentRequestSocket : public EventHandler
 	IdentRequestSocket(LocalUser* u) : user(u), result(u->ident)
 	{
 		age = ServerInstance->Time();
-		socklen_t size = 0;
 
 		SetFd(socket(user->server_sa.sa.sa_family, SOCK_STREAM, 0));
 
@@ -110,7 +109,7 @@ class IdentRequestSocket : public EventHandler
 		}
 
 		/* Attempt to bind (ident requests must come from the ip the query is referring to */
-		if (ServerInstance->SE->Bind(GetFd(), &bindaddr.sa, size) < 0)
+		if (ServerInstance->SE->Bind(GetFd(), bindaddr) < 0)
 		{
 			this->Close();
 			throw ModuleException("failed to bind()");
@@ -119,7 +118,7 @@ class IdentRequestSocket : public EventHandler
 		ServerInstance->SE->NonBlocking(GetFd());
 
 		/* Attempt connection (nonblocking) */
-		if (ServerInstance->SE->Connect(this, &connaddr.sa, size) == -1 && errno != EINPROGRESS)
+		if (ServerInstance->SE->Connect(this, &connaddr.sa, connaddr.sa_size()) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
 			throw ModuleException("connect() failed");

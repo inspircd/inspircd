@@ -90,7 +90,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 	if (bind.sa.sa_family != 0)
 	{
-		if (ServerInstance->SE->Bind(fd, &bind.sa, sa_size(bind)) < 0)
+		if (ServerInstance->SE->Bind(fd, bind) < 0)
 			return I_ERR_BIND;
 	}
 

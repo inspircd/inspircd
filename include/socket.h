@@ -34,7 +34,6 @@
 #endif
 
 #include <cerrno>
-#include "socketengine.h"
 
 /* Contains irc-specific definitions */
 namespace irc
@@ -124,6 +123,7 @@ namespace irc
 	}
 }
 
+#include "socketengine.h"
 /** This class handles incoming connections on client ports.
  * It will create a new User for every valid connection
  * and assign it a file descriptor.
