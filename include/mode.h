@@ -105,7 +105,7 @@ class CoreExport ModeHandler : public classbase
 	/**
 	 * The mode letter you're implementing.
 	 */
-	const char mode;
+	char mode;
 
 	/** Mode prefix, or 0
 	 */
@@ -323,6 +323,16 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
 	virtual ~SimpleChannelModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+};
+
+class CoreExport ParamChannelModeHandler : public ModeHandler
+{
+ public:
+	ParamChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
+		: ModeHandler(Creator, Name, modeletter, PARAM_SETONLY, MODETYPE_CHANNEL) {}
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	/** Validate the parameter - you may change the value to normalize it. Return true if it is valid. */
+	virtual bool ParamValidate(std::string& parameter);
 };
 
 /**

@@ -176,6 +176,25 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 	return MODEACTION_DENY;
 }
 
+ModeAction ParamChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+{
+	if (adding && !ParamValidate(parameter))
+		return MODEACTION_DENY;
+	std::string now = channel->GetModeParameter(this);
+	if (parameter == now)
+		return MODEACTION_DENY;
+	if (adding)
+		channel->SetModeParam(this, parameter);
+	else
+		channel->SetModeParam(this, "");
+	return MODEACTION_ALLOW;
+}
+
+bool ParamChannelModeHandler::ParamValidate(std::string& parameter)
+{
+	return true;
+}
+
 ModeWatcher::ModeWatcher(Module* Creator, char modeletter, ModeType type)
 	: mode(modeletter), m_type(type), creator(Creator)
 {

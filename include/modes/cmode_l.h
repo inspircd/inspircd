@@ -13,14 +13,12 @@
 
 #include "mode.h"
 
-class InspIRCd;
-
 /** Channel mode +l
  */
-class ModeChannelLimit : public ModeHandler
+class ModeChannelLimit : public ParamChannelModeHandler
 {
  public:
 	ModeChannelLimit();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	bool ParamValidate(std::string& parameter);
 	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
 };

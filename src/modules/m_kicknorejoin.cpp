@@ -15,78 +15,31 @@
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
-static inline int strtoint(const std::string &str)
-{
-	std::istringstream ss(str);
-	int result;
-	ss >> result;
-	return result;
-}
-
 typedef std::map<User*, time_t> delaylist;
 
 /** Handles channel mode +J
  */
-class KickRejoin : public ModeHandler
+class KickRejoin : public ParamChannelModeHandler
 {
  public:
 	SimpleExtItem<delaylist> ext;
-	KickRejoin(Module* Creator) : ModeHandler(Creator, "kicknorejoin", 'J', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("norejoinusers", Creator) { }
+	KickRejoin(Module* Creator) : ParamChannelModeHandler(Creator, "kicknorejoin", 'J'), ext("norejoinusers", Creator) { }
+
+	bool ParamValidate(std::string& parameter)
+	{
+		int v = atoi(parameter.c_str());
+		if (v <= 0)
+			return false;
+		parameter = ConvToStr(v);
+		return true;
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		if (!adding)
-		{
+		ModeAction rv = ParamChannelModeHandler::OnModeChange(source, dest, channel, parameter, adding);
+		if (rv == MODEACTION_ALLOW && !adding)
 			ext.unset(channel);
-
-			if (!channel->IsModeSet('J'))
-			{
-				return MODEACTION_DENY;
-			}
-			else
-			{
-				channel->SetModeParam('J', "");
-				return MODEACTION_ALLOW;
-			}
-		}
-		else if (atoi(parameter.c_str()) > 0)
-		{
-			if (!channel->IsModeSet('J'))
-			{
-				parameter = ConvToStr(atoi(parameter.c_str()));
-				channel->SetModeParam('J', parameter);
-				return MODEACTION_ALLOW;
-			}
-			else
-			{
-				std::string cur_param = channel->GetModeParameter('J');
-				if (cur_param == parameter)
-				{
-					// mode params match, don't change mode
-					return MODEACTION_DENY;
-				}
-				else
-				{
-					// new mode param, replace old with new
-					parameter = ConvToStr(atoi(parameter.c_str()));
-					if (parameter != "0")
-					{
-						channel->SetModeParam('J', parameter);
-						return MODEACTION_ALLOW;
-					}
-					else
-					{
-						/* Fix to jamie's fix, dont allow +J 0 on the new value! */
-						return MODEACTION_DENY;
-					}
-				}
-			}
-		}
-		else
-		{
-			return MODEACTION_DENY;
-		}
+		return rv;
 	}
 };
 
@@ -121,7 +74,8 @@ public:
 					{
 						if (iter->first == user)
 						{
-							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)", user->nick.c_str(), chan->name.c_str(), chan->GetModeParameter('J').c_str());
+							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)",
+								user->nick.c_str(), chan->name.c_str(), chan->GetModeParameter(&kr).c_str());
 							return MOD_RES_DENY;
 						}
 					}
@@ -144,7 +98,7 @@ public:
 
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 	{
-		if (memb->chan->IsModeSet('J') && (source != memb->user))
+		if (memb->chan->IsModeSet(&kr) && (source != memb->user))
 		{
 			delaylist* dl = kr.ext.get(memb->chan);
 			if (dl)
@@ -152,7 +106,7 @@ public:
 				dl = new delaylist;
 				kr.ext.set(memb->chan, dl);
 			}
-			(*dl)[memb->user] = ServerInstance->Time() + strtoint(memb->chan->GetModeParameter('J'));
+			(*dl)[memb->user] = ServerInstance->Time() + atoi(memb->chan->GetModeParameter(&kr).c_str());
 		}
 	}
 
@@ -162,7 +116,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Channel mode J, kick-no-rejoin", VF_COMMON | VF_VENDOR);
+		return Version("Channel mode to delay rejoin after kick", VF_COMMON | VF_VENDOR);
 	}
 };
 

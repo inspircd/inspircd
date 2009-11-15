@@ -17,7 +17,7 @@
 #include "users.h"
 #include "modes/cmode_l.h"
 
-ModeChannelLimit::ModeChannelLimit() : ModeHandler(NULL, "limit", 'l', PARAM_SETONLY, MODETYPE_CHANNEL)
+ModeChannelLimit::ModeChannelLimit() : ParamChannelModeHandler(NULL, "limit", 'l')
 {
 }
 
@@ -27,37 +27,13 @@ bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::
 	return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 }
 
-ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::string &parameter, bool adding)
+bool ModeChannelLimit::ParamValidate(std::string &parameter)
 {
-	if (adding)
-	{
-		/* Setting a new limit, sanity check */
-		long limit = atoi(parameter.c_str());
+	int limit = atoi(parameter.c_str());
 
-		/* Wrap low values at 32768 */
-		if (limit < 0)
-			limit = 0x7FFF;
+	if (limit < 0)
+		return false;
 
-		parameter = ConvToStr(limit);
-
-		/* Set new limit */
-		channel->SetModeParam('l', parameter);
-
-		return MODEACTION_ALLOW;
-	}
-	else
-	{
-		/* Check if theres a limit here to remove.
-		 * If there isnt, dont allow the -l
-		 */
-		if (channel->GetModeParameter('l').empty())
-		{
-			parameter = "";
-			return MODEACTION_DENY;
-		}
-
-		/* Removing old limit, no checks here */
-		channel->SetModeParam('l', "");
-		return MODEACTION_ALLOW;
-	}
+	parameter = ConvToStr(limit);
+	return true;
 }
