@@ -36,7 +36,12 @@ void Channel::SetMode(char mode,bool mode_on)
 	modes[mode-65] = mode_on;
 }
 
-void Channel::SetModeParam(char mode, std::string parameter)
+void Channel::SetMode(ModeHandler* mh, bool on)
+{
+	modes[mh->GetModeChar() - 65] = on;
+}
+
+void Channel::SetModeParam(char mode, const std::string& parameter)
 {
 	CustomModeList::iterator n = custom_mode_params.find(mode);
 	// always erase, even if changing, so that the map gets the new value
@@ -53,9 +58,22 @@ void Channel::SetModeParam(char mode, std::string parameter)
 	}
 }
 
+void Channel::SetModeParam(ModeHandler* mode, const std::string& parameter)
+{
+	SetModeParam(mode->GetModeChar(), parameter);
+}
+
 std::string Channel::GetModeParameter(char mode)
 {
 	CustomModeList::iterator n = custom_mode_params.find(mode);
+	if (n != custom_mode_params.end())
+		return n->second;
+	return "";
+}
+
+std::string Channel::GetModeParameter(ModeHandler* mode)
+{
+	CustomModeList::iterator n = custom_mode_params.find(mode->GetModeChar());
 	if (n != custom_mode_params.end())
 		return n->second;
 	return "";
@@ -706,30 +724,13 @@ char* Channel::ChanModes(bool showkey)
 		{
 			*offset++ = n + 65;
 			extparam.clear();
-			switch (n)
+			if (n == 'k' - 65 && !showkey)
 			{
-				case CM_KEY:
-					// Unfortunately this must be special-cased, as we definitely don't want to always display key.
-					if (showkey)
-					{
-						extparam = this->GetModeParameter('k');
-					}
-					else
-					{
-						extparam = "<key>";
-					}
-					break;
-				case CM_NOEXTERNAL:
-				case CM_TOPICLOCK:
-				case CM_INVITEONLY:
-				case CM_MODERATED:
-				case CM_SECRET:
-				case CM_PRIVATE:
-					/* We know these have no parameters */
-				break;
-				default:
-					extparam = this->GetModeParameter(n + 65);
-				break;
+				extparam = "<key>";
+			}
+			else
+			{
+				extparam = this->GetModeParameter(n + 65);
 			}
 			if (!extparam.empty())
 			{

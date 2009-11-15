@@ -15,19 +15,7 @@
 #define __CHANNELS_H__
 
 #include "membership.h"
-
-/** RFC1459 channel modes
- */
-enum ChannelModes {
-	CM_TOPICLOCK = 't'-65,	/* +t: Only operators can change topic */
-	CM_NOEXTERNAL = 'n'-65,	/* +n: Only users in the channel can message it */
-	CM_INVITEONLY = 'i'-65,	/* +i: Invite only */
-	CM_MODERATED = 'm'-65,	/* +m: Only voices and above can talk */
-	CM_SECRET = 's'-65,	/* +s: Secret channel */
-	CM_PRIVATE = 'p'-65,	/* +p: Private channel */
-	CM_KEY = 'k'-65,	/* +k: Keyed channel */
-	CM_LIMIT = 'l'-65	/* +l: Maximum user limit */
-};
+#include "mode.h"
 
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
@@ -127,6 +115,7 @@ class CoreExport Channel : public Extensible
 	 * @param mode The mode character to set or unset
 	 * @param mode_on True if you want to set the mode or false if you want to remove it
 	 */
+	void SetMode(ModeHandler* mode, bool value);
 	void SetMode(char mode,bool mode_on);
 
 	/** Sets or unsets a custom mode in the channels info
@@ -134,13 +123,15 @@ class CoreExport Channel : public Extensible
 	 * @param parameter The parameter string to associate with this mode character.
 	 * If it is empty, the mode is unset; if it is nonempty, the mode is set.
 	 */
-	void SetModeParam(char mode, std::string parameter);
+	void SetModeParam(ModeHandler* mode, const std::string& parameter);
+	void SetModeParam(char mode, const std::string& parameter);
 
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
 	  */
 	inline bool IsModeSet(char mode) { return modes[mode-'A']; }
+	inline bool IsModeSet(ModeHandler* mode) { return modes[mode->GetModeChar()-'A']; }
 
 
 	/** Returns the parameter for a custom mode on a channel.
@@ -154,6 +145,7 @@ class CoreExport Channel : public Extensible
 	  * @return The parameter for this mode is returned, or an empty string
 	  */
 	std::string GetModeParameter(char mode);
+	std::string GetModeParameter(ModeHandler* mode);
 
 	/** Sets the channel topic.
 	 * @param u The user setting the topic

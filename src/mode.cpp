@@ -99,11 +99,6 @@ int ModeHandler::GetNumParams(bool adding)
 	return 0;
 }
 
-char ModeHandler::GetModeChar()
-{
-	return mode;
-}
-
 std::string ModeHandler::GetUserParameter(User* user)
 {
 	return "";

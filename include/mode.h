@@ -14,11 +14,7 @@
 #ifndef __MODE_H
 #define __MODE_H
 
-/* Forward declarations. */
-class User;
-
 #include "ctables.h"
-#include "channels.h"
 
 /**
  * Holds the values for different type of modes
@@ -214,7 +210,7 @@ class CoreExport ModeHandler : public classbase
 	 * Returns the mode character this handler handles.
 	 * @return The mode character
 	 */
-	char GetModeChar();
+	inline char GetModeChar() { return mode; }
 
 	/** For user modes, return the current parameter, if any
 	 */
