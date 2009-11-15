@@ -17,20 +17,6 @@
 #include "users.h"
 #include "modes/cmode_t.h"
 
-ModeChannelTopicOps::ModeChannelTopicOps() : ModeHandler(NULL, "topic", 't', PARAM_NONE, MODETYPE_CHANNEL)
+ModeChannelTopicOps::ModeChannelTopicOps() : SimpleChannelModeHandler(NULL, "topic", 't')
 {
 }
-
-ModeAction ModeChannelTopicOps::OnModeChange(User*, User*, Channel* channel, std::string&, bool adding)
-{
-	if (channel->modes[CM_TOPICLOCK] != adding)
-	{
-		channel->modes[CM_TOPICLOCK] = adding;
-		return MODEACTION_ALLOW;
-	}
-	else
-	{
-		return MODEACTION_DENY;
-	}
-}
-

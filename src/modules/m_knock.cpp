@@ -49,7 +49,7 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
-		if (!c->modes[CM_INVITEONLY])
+		if (!c->IsModeSet('i'))
 		{
 			user->WriteNumeric(480, "%s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick.c_str(), c->name.c_str());
 			return CMD_FAILURE;

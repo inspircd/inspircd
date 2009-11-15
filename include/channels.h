@@ -55,14 +55,6 @@ class BanItem : public HostItem
 {
 };
 
-/** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
- */
-enum UserChannelModes {
-	UCMODE_OP	= 1,	/* Opped user */
-	UCMODE_VOICE	= 2,	/* Voiced user */
-	UCMODE_HOP	= 4	/* Halfopped user */
-};
-
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, topic, topic set time,
  * etc, and an instance of the BanList type.
@@ -81,20 +73,6 @@ class CoreExport Channel : public Extensible
 	 */
 	int maxbans;
 
- public:
-	/** Creates a channel record and initialises it with default values
-	 * @throw Nothing at present.
-	 */
-	Channel(const std::string &name, time_t ts);
-
-	/** The channel's name.
-	 */
-	std::string name; /* CHANMAX */
-
-	/** Time that the object was instantiated (used for TS calculation etc)
-	*/
-	time_t age;
-
 	/** Modes for the channel.
 	 * This is not a null terminated string! It is a bitset where
 	 * each item in it represents if a mode is set. For example
@@ -103,19 +81,33 @@ class CoreExport Channel : public Extensible
 	 */
 	std::bitset<64> modes;
 
-	/** User list.
-	 */
-	UserMembList userlist;
-
 	/** Parameters for custom modes.
 	 * One for each custom mode letter.
 	 */
 	CustomModeList custom_mode_params;
 
+ public:
+	/** Creates a channel record and initialises it with default values
+	 * @throw Nothing at present.
+	 */
+	Channel(const std::string &name, time_t ts);
+
+	/** The channel's name.
+	 */
+	std::string name;
+
+	/** Time that the object was instantiated (used for TS calculation etc)
+	*/
+	time_t age;
+
+	/** User list.
+	 */
+	UserMembList userlist;
+
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
 	 */
-	std::string topic; /* MAXTOPIC */
+	std::string topic;
 
 	/** Time topic was set.
 	 * If no topic was ever set, this will be equal to Channel::created
@@ -398,10 +390,6 @@ class CoreExport Channel : public Extensible
 	/** Clears the cached max bans value
 	 */
 	void ResetMaxBans();
-
-	/** Destructor for Channel
-	 */
-	virtual ~Channel() { /* stub */ }
 };
 
 #endif

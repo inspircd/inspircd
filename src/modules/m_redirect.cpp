@@ -96,7 +96,7 @@ class ModuleRedirect : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsModeSet('L') && chan->modes[CM_LIMIT])
+			if (chan->IsModeSet('L') && chan->IsModeSet('l'))
 			{
 				if (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str()))
 				{

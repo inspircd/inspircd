@@ -17,9 +17,8 @@ class InspIRCd;
 
 /** Channel mode +t
  */
-class ModeChannelTopicOps : public ModeHandler
+class ModeChannelTopicOps : public SimpleChannelModeHandler
 {
  public:
 	ModeChannelTopicOps();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
