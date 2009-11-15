@@ -109,7 +109,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 			match = false;
 			const Extensible::ExtensibleStore& list = user->GetExtList();
 			for(Extensible::ExtensibleStore::const_iterator i = list.begin(); i != list.end(); ++i)
-				if (InspIRCd::Match(i->first->key, matchtext))
+				if (InspIRCd::Match(i->first->name, matchtext))
 					match = true;
 		}
 		else if (opt_realname)

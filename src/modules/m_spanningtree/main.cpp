@@ -615,7 +615,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 		ExtensionItem* item = i->first;
 		std::string value = item->serialize(FORMAT_NETWORK, user, i->second);
 		if (!value.empty())
-			ServerInstance->PI->SendMetaData(user, item->key, value);
+			ServerInstance->PI->SendMetaData(user, item->name, value);
 	}
 
 	Utils->TreeRoot->SetUserCount(1); // increment by 1

@@ -53,7 +53,7 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 		Module* src = i->second->creator;
 		user->WriteNumeric(RPL_COMMANDS, "%s :%s %s %d %d",
 				user->nick.c_str(),
-				i->second->command.c_str(),
+				i->second->name.c_str(),
 				src ? src->ModuleSourceFile.c_str() : "<core>",
 				i->second->min_params,
 				i->second->Penalty);

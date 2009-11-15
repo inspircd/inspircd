@@ -594,6 +594,15 @@ class CoreExport InspIRCd
 	 */
 	bool AddResolver(Resolver* r, bool cached);
 
+	/** Register a service provided by a module */
+	void AddService(providerbase&);
+
+	inline void AddServices(providerbase** list, int count)
+	{
+		for(int i=0; i < count; i++)
+			AddService(*list[i]);
+	}
+
 	/** Add a command to this server's command parser
 	 * @param f A Command command handler object to add
 	 * @throw ModuleException Will throw ModuleExcption if the command already exists
@@ -814,7 +823,7 @@ class CommandModule : public Module
 
 	Version GetVersion()
 	{
-		return Version(cmd.command, VF_VENDOR|VF_CORE);
+		return Version(cmd.name, VF_VENDOR|VF_CORE);
 	}
 };
 

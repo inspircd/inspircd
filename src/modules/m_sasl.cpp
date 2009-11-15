@@ -229,10 +229,9 @@ class ModuleSASL : public Module
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 
-		ServerInstance->AddCommand(&auth);
-		ServerInstance->AddCommand(&sasl);
+		providerbase* providelist[] = { &auth, &sasl, &authExt };
+		ServerInstance->AddServices(providelist, 3);
 
-		ServerInstance->Extensions.Register(&authExt);
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}

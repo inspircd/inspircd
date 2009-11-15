@@ -41,7 +41,7 @@ CmdResult CommandServer::Handle (const std::vector<std::string>&, User *user)
 	}
 	else
 	{
-		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You may not register as a server (servers have seperate ports from clients, change your config)",command.c_str());
+		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You may not register as a server (servers have seperate ports from clients, change your config)",name.c_str());
 	}
 	return CMD_FAILURE;
 }

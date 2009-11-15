@@ -36,8 +36,6 @@ class CoreExport classbase
 
 	/**
 	 * Called just prior to destruction via cull list.
-	 *
-	 * @return true to allow the delete, or false to halt the delete
 	 */
 	virtual CullResult cull();
 	virtual ~classbase();
@@ -93,6 +91,8 @@ class CoreExport refcountbase
 
 /** Base class for use count tracking. Uses reference<>, but does not
  * cause object deletion when the last user is removed.
+ *
+ * Safe for use as a second parent class; will not add a second vtable.
  */
 class CoreExport usecountbase
 {
@@ -196,5 +196,36 @@ class CoreExport ModuleException : public CoreException
 };
 
 typedef const reference<Module> ModuleRef;
+
+enum ServiceType {
+	/** is a Command */
+	SERVICE_COMMAND,
+	/** is a channel ModeHandler */
+	SERVICE_CMODE,
+	/** is a user ModeHandler */
+	SERVICE_UMODE,
+	/** is a metadata descriptor */
+	SERVICE_METADATA,
+	/** is a data processing provider (MD5, SQL) */
+	SERVICE_DATA,
+	/** is an I/O hook provider (SSL) */
+	SERVICE_IOHOOK
+};
+
+/** A structure defining something that a module can provide */
+class CoreExport providerbase : public classbase
+{
+ public:
+	/** Module that is providing this service */
+	ModuleRef creator;
+	/** Name of the service being provided */
+	const std::string name;
+	/** Type of service (must match object type) */
+	const ServiceType service;
+	providerbase(Module* Creator, const std::string& Name, ServiceType Type)
+		: creator(Creator), name(Name), service(Type) {}
+	virtual ~providerbase();
+};
+
 
 #endif

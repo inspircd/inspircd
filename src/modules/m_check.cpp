@@ -41,9 +41,9 @@ class CommandCheck : public Command
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);
 			if (!value.empty())
-				user->SendText(checkstr + " meta:" + item->key + " " + value);
-			else if (!item->key.empty())
-				dumpkeys << " " << item->key;
+				user->SendText(checkstr + " meta:" + item->name + " " + value);
+			else if (!item->name.empty())
+				dumpkeys << " " << item->name;
 		}
 		if (!dumpkeys.str().empty())
 			user->SendText(checkstr + " metadata", dumpkeys);

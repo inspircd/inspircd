@@ -366,7 +366,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	{
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
+			user->WriteNumeric(RPL_SYNTAX, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->name.c_str(), cm->second->syntax.c_str());
 		return do_more;
 	}
 	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
@@ -397,7 +397,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 void CommandParser::RemoveCommand(Command* x)
 {
-	Commandtable::iterator n = cmdlist.find(x->command);
+	Commandtable::iterator n = cmdlist.find(x->name);
 	if (n != cmdlist.end() && n->second == x)
 		cmdlist.erase(n);
 }
@@ -420,9 +420,9 @@ bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
 bool CommandParser::AddCommand(Command *f)
 {
 	/* create the command and push it onto the table */
-	if (cmdlist.find(f->command) == cmdlist.end())
+	if (cmdlist.find(f->name) == cmdlist.end())
 	{
-		cmdlist[f->command] = f;
+		cmdlist[f->name] = f;
 		return true;
 	}
 	return false;

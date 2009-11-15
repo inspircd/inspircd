@@ -53,14 +53,14 @@ class CommandTitle : public Command
 		ConfigReader Conf;
 		for (int i=0; i<Conf.Enumerate("title"); i++)
 		{
-			std::string name = Conf.ReadValue("title", "name", "", i);
+			std::string Name = Conf.ReadValue("title", "name", "", i);
 			std::string pass = Conf.ReadValue("title", "password", "", i);
 			std::string hash = Conf.ReadValue("title", "hash", "", i);
 			std::string host = Conf.ReadValue("title", "host", "*@*", i);
 			std::string title = Conf.ReadValue("title", "title", "", i);
 			std::string vhost = Conf.ReadValue("title", "vhost", "", i);
 
-			if (!strcmp(name.c_str(),parameters[0].c_str()) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
+			if (!strcmp(Name.c_str(),parameters[0].c_str()) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
 			{
 				ctitle.set(user, title);
 

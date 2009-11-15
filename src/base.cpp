@@ -77,7 +77,11 @@ usecountbase::~usecountbase()
 			(void*)this, usecount);
 }
 
-ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : key(Key), owner(mod)
+providerbase::~providerbase()
+{
+}
+
+ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : providerbase(mod, Key, SERVICE_METADATA)
 {
 }
 
@@ -122,7 +126,7 @@ void* ExtensionItem::unset_raw(Extensible* container)
 
 void ExtensionManager::Register(ExtensionItem* item)
 {
-	types.insert(std::make_pair(item->key, item));
+	types.insert(std::make_pair(item->name, item));
 }
 
 void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
@@ -132,7 +136,7 @@ void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<Ext
 	{
 		std::map<std::string, reference<ExtensionItem> >::iterator me = i++;
 		ExtensionItem* item = me->second;
-		if (item->owner == module)
+		if (item->creator == module)
 		{
 			list.push_back(item);
 			types.erase(me);

@@ -29,7 +29,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	/* if whowas disabled in config */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
 	{
-		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick.c_str(),command.c_str());
+		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick.c_str(),name.c_str());
 		return CMD_FAILURE;
 	}
 

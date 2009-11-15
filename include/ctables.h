@@ -85,16 +85,9 @@ struct RouteDescriptor
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.
  */
-class CoreExport Command : public classbase
+class CoreExport Command : public providerbase
 {
  public:
-	/** Command name
-	*/
-	const std::string command;
-
-	/** Creator module - never NULL */
-	ModuleRef creator;
-
 	/** User flags needed to execute the command or 0
 	 */
 	char flags_needed;
@@ -151,7 +144,7 @@ class CoreExport Command : public classbase
 	 * NICK, optionally PASS, and been resolved).
 	 */
 	Command(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
-		command(cmd), creator(me), flags_needed(0), min_params(minpara), max_params(maxpara),
+		providerbase(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),
 		use_count(0), total_bytes(0), disabled(false), works_before_reg(false), Penalty(1)
 	{
 	}

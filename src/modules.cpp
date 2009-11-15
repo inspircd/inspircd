@@ -469,7 +469,30 @@ void InspIRCd::AddCommand(Command *f)
 {
 	if (!this->Parser->AddCommand(f))
 	{
-		throw ModuleException("Command "+std::string(f->command)+" already exists.");
+		throw ModuleException("Command "+std::string(f->name)+" already exists.");
+	}
+}
+
+void InspIRCd::AddService(providerbase& item)
+{
+	switch (item.service)
+	{
+		case SERVICE_COMMAND:
+			if (!Parser->AddCommand(static_cast<Command*>(&item)))
+				throw ModuleException("Command "+std::string(item.name)+" already exists.");
+			return;
+		case SERVICE_CMODE:
+		case SERVICE_UMODE:
+			if (!Modes->AddMode(static_cast<ModeHandler*>(&item)))
+				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
+			return;
+		case SERVICE_METADATA:
+			Extensions.Register(static_cast<ExtensionItem*>(&item));
+			return;
+		case SERVICE_DATA:
+		case SERVICE_IOHOOK:
+		default:
+			throw ModuleException("Cannot add unknown service type");
 	}
 }
 

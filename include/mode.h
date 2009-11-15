@@ -90,7 +90,7 @@ enum ParamSpec
  * mode is expected to have a parameter, then this is
  * equivalent to returning MODEACTION_DENY.
  */
-class CoreExport ModeHandler : public classbase
+class CoreExport ModeHandler : public providerbase
 {
  protected:
 	/**
@@ -145,12 +145,6 @@ class CoreExport ModeHandler : public classbase
 	int levelrequired;
 
  public:
-	/** Module that created this mode. NULL for core modes */
-	ModuleRef creator;
-	/** Long-form name
-	 */
-	const std::string name;
-
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
 	 * The constructor of any class you derive from ModeHandler should

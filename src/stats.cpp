@@ -142,7 +142,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 				if (i->second->use_count)
 				{
 					/* RPL_STATSCOMMANDS */
-					results.push_back(sn+" 212 "+user->nick+" "+i->second->command+" "+ConvToStr(i->second->use_count)+" "+ConvToStr(i->second->total_bytes));
+					results.push_back(sn+" 212 "+user->nick+" "+i->second->name+" "+ConvToStr(i->second->use_count)+" "+ConvToStr(i->second->total_bytes));
 				}
 			}
 		break;

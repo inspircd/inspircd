@@ -225,7 +225,7 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_NETWORK, c->second, i->second);
 			if (!value.empty())
-				Utils->Creator->ProtoSendMetaData(this, c->second, item->key, value);
+				Utils->Creator->ProtoSendMetaData(this, c->second, item->name, value);
 		}
 
 		FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,Utils->Creator,this));
@@ -274,7 +274,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 				ExtensionItem* item = i->first;
 				std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
 				if (!value.empty())
-					Utils->Creator->ProtoSendMetaData(this, u->second, item->key, value);
+					Utils->Creator->ProtoSendMetaData(this, u->second, item->name, value);
 			}
 
 			FOREACH_MOD(I_OnSyncUser,OnSyncUser(u->second,Utils->Creator,this));

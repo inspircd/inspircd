@@ -75,9 +75,9 @@ class ModuleHttpStats : public Module
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_USER, ext, i->second);
 			if (!value.empty())
-				data << "<meta name=\"" << item->key << "\">" << Sanitize(value) << "</meta>";
-			else if (!item->key.empty())
-				data << "<meta name=\"" << item->key << "\"/>";
+				data << "<meta name=\"" << item->name << "\">" << Sanitize(value) << "</meta>";
+			else if (!item->name.empty())
+				data << "<meta name=\"" << item->name << "\"/>";
 		}
 		data << "</metadata>";
 	}
