@@ -35,16 +35,14 @@ class ModuleSQLAuth : public Module
 public:
 	ModuleSQLAuth() : sqlAuthed("sqlauth", this)
 	{
-		ServerInstance->Modules->UseInterface("SQLutils");
-		ServerInstance->Modules->UseInterface("SQL");
-
 		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		SQLprovider = ServerInstance->Modules->FindFeature("SQL");
-		if (!SQLprovider)
+		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_DATA, "SQL");
+		if (!prov)
 			throw ModuleException("Can't find an SQL provider module. Please load one before attempting to load m_sqlauth.");
+		SQLprovider = prov->creator;
 
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRehash, I_OnUserRegister };
@@ -53,10 +51,7 @@ public:
 
 	virtual ~ModuleSQLAuth()
 	{
-		ServerInstance->Modules->DoneWithInterface("SQL");
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
-
 
 	void OnRehash(User* user)
 	{
@@ -105,19 +100,13 @@ public:
 		SearchAndReplace(thisquery, std::string("$server"), std::string(user->server));
 		SearchAndReplace(thisquery, std::string("$uuid"), user->uuid);
 
-		Module* HashMod = ServerInstance->Modules->Find("m_md5.so");
+		HashProvider* md5 = ServerInstance->Modules->FindDataService<HashProvider>("hash/md5");
+		if (md5)
+			SearchAndReplace(thisquery, std::string("$md5pass"), md5->hexsum(user->password));
 
-		if (HashMod)
-		{
-			SearchAndReplace(thisquery, std::string("$md5pass"), HashRequest(this, HashMod, user->password).hex());
-		}
-
-		HashMod = ServerInstance->Modules->Find("m_sha256.so");
-
-		if (HashMod)
-		{
-			SearchAndReplace(thisquery, std::string("$sha256pass"), HashRequest(this, HashMod, user->password).hex());
-		}
+		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
+		if (sha256)
+			SearchAndReplace(thisquery, std::string("$sha256pass"), sha256->hexsum(user->password));
 
 		/* Build the query */
 		SQLrequest req = SQLrequest(this, SQLprovider, databaseid, SQLquery(thisquery));

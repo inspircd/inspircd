@@ -129,12 +129,6 @@ class ModuleSSLInfo : public Module
 
 		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-		ServerInstance->Modules->PublishInterface("SSLCertInfo", this);
-	}
-
-	~ModuleSSLInfo()
-	{
-		ServerInstance->Modules->UnpublishInterface("SSLCertInfo", this);
 	}
 
 	Version GetVersion()

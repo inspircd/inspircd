@@ -47,7 +47,7 @@ class MD5Context
 	word32 in[16];
 };
 
-class ModuleMD5 : public Module
+class MD5Provider : public HashProvider
 {
 	void byteSwap(word32 *buf, unsigned words)
 	{
@@ -258,45 +258,36 @@ class ModuleMD5 : public Module
 		}
 		*dest++ = 0;
 	}
-
  public:
-
-	ModuleMD5()
+	std::string sum(const std::string& data)
 	{
-		ServerInstance->Modules->PublishInterface("HashRequest", this);
+		char res[16];
+		MyMD5(res, (void*)data.data(), data.length(), NULL);
+		return std::string(res, 16);
 	}
 
-	virtual ~ModuleMD5()
+	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
 	{
-		ServerInstance->Modules->UnpublishInterface("HashRequest", this);
+		char res[33];
+		GenHash(sdata.data(), res, HexMap, IV, sdata.length());
+		return res;
 	}
 
+	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5") {}
+};
 
-	void OnRequest(Request& request)
+class ModuleMD5 : public Module
+{
+	MD5Provider md5;
+ public:
+	ModuleMD5() : md5(this)
 	{
-		if (strcmp("HASH", request.id) == 0)
-		{
-			char res[16];
-			HashRequest& req = static_cast<HashRequest&>(request);
-			MyMD5(res, (void*)req.data.data(), req.data.length(), NULL);
-			req.binresult.assign(res, 16);
-		}
-		else if (strcmp("HASH-IV", request.id) == 0)
-		{
-			char res[33];
-			HashRequestIV& req = static_cast<HashRequestIV&>(request);
-			GenHash(req.data.data(), res, req.map, req.iv, req.data.length());
-			req.result = res;
-		}
-		else if (strcmp("NAME", request.id) == 0)
-		{
-			static_cast<HashNameRequest&>(request).response = "md5";
-		}
+		ServerInstance->Modules->AddService(md5);
 	}
 
 	Version GetVersion()
 	{
-		return Version("Allows for MD5 encrypted oper passwords",VF_VENDOR);
+		return Version("Implements MD5 hashing",VF_VENDOR);
 	}
 };
 

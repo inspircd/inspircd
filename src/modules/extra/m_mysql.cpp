@@ -93,6 +93,7 @@ class ModuleSQL : public Module
 	 Mutex ResultsMutex;
 	 Mutex LoggingMutex;
 	 Mutex ConnMutex;
+	 ServiceProvider sqlserv;
 
 	 ModuleSQL();
 	 ~ModuleSQL();
@@ -666,8 +667,6 @@ ConnMap::iterator GetCharId(char id)
 	return Connections.end();
 }
 
-class ModuleSQL;
-
 class DispatcherThread : public SocketThread
 {
  private:
@@ -679,24 +678,13 @@ class DispatcherThread : public SocketThread
 	virtual void OnNotify();
 };
 
-ModuleSQL::ModuleSQL() : rehashing(false)
+ModuleSQL::ModuleSQL() : rehashing(false), sqlserv(this, "SQL/mysql", SERVICE_DATA)
 {
-	ServerInstance->Modules->UseInterface("SQLutils");
-
 	currid = 0;
 
 	Dispatcher = new DispatcherThread(this);
 	ServerInstance->Threads->Start(Dispatcher);
 
-	if (!ServerInstance->Modules->PublishFeature("SQL", this))
-	{
-		Dispatcher->join();
-		delete Dispatcher;
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
-		throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
-	}
-
-	ServerInstance->Modules->PublishInterface("SQL", this);
 	Implementation eventlist[] = { I_OnRehash };
 	ServerInstance->Modules->Attach(eventlist, this, 1);
 }
@@ -705,9 +693,6 @@ ModuleSQL::~ModuleSQL()
 {
 	delete Dispatcher;
 	ClearAllConnections();
-	ServerInstance->Modules->UnpublishInterface("SQL", this);
-	ServerInstance->Modules->UnpublishFeature("SQL");
-	ServerInstance->Modules->DoneWithInterface("SQLutils");
 }
 
 unsigned long ModuleSQL::NewID()

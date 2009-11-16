@@ -40,38 +40,12 @@ public:
 	}
 };
 
-class RegexFactoryRequest : public Request
+class RegexFactory : public DataProvider
 {
-private:
-	std::string regex;
+ public:
+	RegexFactory(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) {}
 
-public:
-	Regex* result;
-
-	RegexFactoryRequest(Module* Me, Module* Target, const std::string& rx) : Request(Me, Target, "REGEX"), regex(rx), result(NULL)
-	{
-	}
-
-	const std::string& GetRegex() const
-	{
-		return regex;
-	}
-
-	Regex* Create()
-	{
-		Send();
-		return this->result;
-	}
-};
-
-class RegexNameRequest : public Request
-{
-public:
-	std::string result;
-	RegexNameRequest(Module* Me, Module* Target) : Request(Me, Target, "REGEX-NAME")
-	{
-		Send(); 
-	}
+	virtual Regex* Create(const std::string& expr) = 0;
 };
 
 #endif

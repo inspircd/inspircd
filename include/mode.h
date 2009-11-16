@@ -90,7 +90,7 @@ enum ParamSpec
  * mode is expected to have a parameter, then this is
  * equivalent to returning MODEACTION_DENY.
  */
-class CoreExport ModeHandler : public providerbase
+class CoreExport ModeHandler : public ServiceProvider
 {
  protected:
 	/**

@@ -156,15 +156,15 @@ class ModuleSQLLog : public Module
 
  public:
 	ModuleSQLLog()
-		{
-		ServerInstance->Modules->UseInterface("SQLutils");
-		ServerInstance->Modules->UseInterface("SQL");
-
+	{
 		Module* SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		SQLModule = ServerInstance->Modules->FindFeature("SQL");
+		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_DATA, "SQL");
+		if (!prov)
+			throw ModuleException("Can't find an SQL provider module. Please load one before attempting to load m_sqlauth.");
+		SQLModule = prov->creator;
 
 		OnRehash(NULL);
 		MyMod = this;
@@ -174,13 +174,6 @@ class ModuleSQLLog : public Module
 			I_OnPreCommand, I_OnUserConnect, I_OnUserQuit, I_OnLoadModule };
 		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
-
-	virtual ~ModuleSQLLog()
-	{
-		ServerInstance->Modules->DoneWithInterface("SQL");
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
-	}
-
 
 	void ReadConfig()
 	{

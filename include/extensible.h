@@ -12,7 +12,7 @@ enum SerializeFormat
 
 /** Class represnting an extension of some object
  */
-class CoreExport ExtensionItem : public providerbase, public usecountbase
+class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
  public:
 	ExtensionItem(const std::string& key, Module* owner);

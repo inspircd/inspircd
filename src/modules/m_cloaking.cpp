@@ -116,29 +116,21 @@ class ModuleCloaking : public Module
 	std::string key;
 	unsigned int compatkey[4];
 	const char* xtab[4];
-	Module* HashProvider;
+	dynamic_reference<HashProvider> Hash;
 
  public:
-	ModuleCloaking() : cu(this)
+	ModuleCloaking() : cu(this), Hash(this, "hash/md5")
 	{
-		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		HashProvider = ServerInstance->Modules->Find("m_md5.so");
-		if (!HashProvider)
-			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
-
 		OnRehash(NULL);
 
 		/* Register it with the core */
 		if (!ServerInstance->Modes->AddMode(&cu))
 			throw ModuleException("Could not add new modes!");
 
-		ServerInstance->Modules->UseInterface("HashRequest");
 		ServerInstance->Extensions.Register(&cu.ext);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
-
-		CloakExistingUsers();
 	}
 
 	/** This function takes a domain name string and returns just the last two domain parts,
@@ -195,8 +187,7 @@ class ModuleCloaking : public Module
 		/* Send the Hash module a different hex table for each octet group's Hash sum */
 		for (int k = 0; k < 4; k++)
 		{
-			HashRequestIV hash(this, HashProvider, compatkey, xtab[(compatkey[k]+i[k]) % 4], octet[k]);
-			rv.append(hash.result.substr(0,6));
+			rv.append(Hash->sumIV(compatkey, xtab[(compatkey[k]+i[k]) % 4], octet[k]).substr(0,6));
 			if (k < 3)
 				rv.append(".");
 		}
@@ -217,16 +208,14 @@ class ModuleCloaking : public Module
 			item += *input;
 			if (item.length() > 7)
 			{
-				HashRequestIV hash(this, HashProvider, compatkey, xtab[(compatkey[1]+rounds) % 4], item);
-				hashies.push_back(hash.result.substr(0,8));
+				hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[1]+rounds) % 4], item).substr(0,8));
 				item.clear();
 			}
 			rounds++;
 		}
 		if (!item.empty())
 		{
-			HashRequestIV hash(this, HashProvider, compatkey, xtab[(compatkey[1]+rounds) % 4], item);
-			hashies.push_back(hash.result.substr(0,8));
+			hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[1]+rounds) % 4], item).substr(0,8));
 		}
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
@@ -301,8 +290,7 @@ class ModuleCloaking : public Module
 		input.append(1, 0); // null does not terminate a C++ string
 		input.append(item);
 
-		HashRequest hash(this, HashProvider, input);
-		std::string rv = hash.binresult.substr(0,6);
+		std::string rv = Hash->sum(input).substr(0,6);
 		for(int i=0; i < 6; i++)
 		{
 			// this discards 3 bits per byte. We have an
@@ -313,26 +301,18 @@ class ModuleCloaking : public Module
 		return rv;
 	}
 
-	void CloakExistingUsers()
-	{
-		std::string* cloak;
-		for (std::vector<LocalUser*>::iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); u++)
-		{
-			cloak = cu.ext.get(*u);
-			if (!cloak)
-			{
-				OnUserConnect(*u);
-			}
-		}
-	}
-
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
-		char cmask[MAXBUF];
+		LocalUser* lu = IS_LOCAL(user);
+		if (!lu)
+			return MOD_RES_PASSTHRU;
+
+		OnUserConnect(lu);
 		std::string* cloak = cu.ext.get(user);
 		/* Check if they have a cloaked host, but are not using it */
 		if (cloak && *cloak != user->dhost)
 		{
+			char cmask[MAXBUF];
 			snprintf(cmask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), cloak->c_str());
 			if (InspIRCd::Match(cmask,mask))
 				return MOD_RES_DENY;
@@ -348,7 +328,6 @@ class ModuleCloaking : public Module
 
 	~ModuleCloaking()
 	{
-		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
 	Version GetVersion()
@@ -455,11 +434,8 @@ class ModuleCloaking : public Module
 				{
 					std::string tail = LastTwoDomainParts(dest->host);
 
-					/** Reset the Hash module, and send it our IV and hex table */
-					HashRequestIV hash(this, HashProvider, compatkey, xtab[(dest->host[0]) % 4], dest->host);
-
 					/* Generate a cloak using specialized Hash */
-					chost = prefix + "-" + hash.result.substr(0,8) + tail;
+					chost = prefix + "-" + Hash->sumIV(compatkey, xtab[(dest->host[0]) % 4], dest->host).substr(0,8) + tail;
 
 					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 					 * according to the DNS RFC) then they get cloaked as an IP.

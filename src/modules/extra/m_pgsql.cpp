@@ -763,25 +763,18 @@ class ModulePgSQL : public Module
 	unsigned long currid;
 	char* sqlsuccess;
 	ReconnectTimer* retimer;
-
+	ServiceProvider sqlserv;
  public:
 	ModulePgSQL()
-	: currid(0)
+	: currid(0), sqlserv(this, "SQL/pgsql", SERVICE_DATA)
 	{
-		ServerInstance->Modules->UseInterface("SQLutils");
-
 		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
 
 		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS));
 
-		if (!ServerInstance->Modules->PublishFeature("SQL", this))
-		{
-			throw ModuleException("BUG: PgSQL Unable to publish feature 'SQL'");
-		}
-
 		ReadConf();
 
-		ServerInstance->Modules->PublishInterface("SQL", this);
+		ServerInstance->Modules->AddService(sqlserv);
 		Implementation eventlist[] = { I_OnUnloadModule, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -792,9 +785,6 @@ class ModulePgSQL : public Module
 			ServerInstance->Timers->DelTimer(retimer);
 		ClearAllConnections();
 		delete[] sqlsuccess;
-		ServerInstance->Modules->UnpublishInterface("SQL", this);
-		ServerInstance->Modules->UnpublishFeature("SQL");
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
 

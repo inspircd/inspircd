@@ -152,13 +152,6 @@ bool ModuleManager::CanUnload(Module* mod)
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
-	std::pair<int,std::string> intercount = GetInterfaceInstanceCount(mod);
-	if (intercount.first > 0)
-	{
-		LastModuleError = "Failed to unload module " + mod->ModuleSourceFile + ", being used by " + ConvToStr(intercount.first) + " other(s) via interface '" + intercount.second + "'";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-		return false;
-	}
 	return true;
 }
 
@@ -192,6 +185,14 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		if (mh && mh->creator == mod)
 			ServerInstance->Modes->DelMode(mh);
 	}
+	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	{
+		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
+		if (curr->second->creator == mod)
+			DataProviders.erase(curr);
+	}
+	for(unsigned int i = 0; i < ServerInstance->Modules->ActiveDynrefs.size(); i++)
+		ServerInstance->Modules->ActiveDynrefs[i]->ClearCache();
 
 	/* Tidy up any dangling resolvers */
 	ServerInstance->Res->CleanResolvers(mod);

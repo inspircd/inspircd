@@ -446,21 +446,15 @@ class ModuleSQLite3 : public Module
  private:
 	ConnMap connections;
 	unsigned long currid;
+	ServiceProvider sqlserv;
 
  public:
 	ModuleSQLite3()
-	: currid(0)
+	: currid(0), sqlserv(this, "SQL/sqlite", SERVICE_DATA)
 	{
-		ServerInstance->Modules->UseInterface("SQLutils");
-
-		if (!ServerInstance->Modules->PublishFeature("SQL", this))
-		{
-			throw ModuleException("m_sqlite3: Unable to publish feature 'SQL'");
-		}
 
 		ReadConf();
 
-		ServerInstance->Modules->PublishInterface("SQL", this);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
@@ -469,10 +463,6 @@ class ModuleSQLite3 : public Module
 	{
 		ClearQueue();
 		ClearAllConnections();
-
-		ServerInstance->Modules->UnpublishInterface("SQL", this);
-		ServerInstance->Modules->UnpublishFeature("SQL");
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
 	void ClearQueue()

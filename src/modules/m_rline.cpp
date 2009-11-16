@@ -15,8 +15,6 @@
 #include "m_regex.h"
 #include "xline.h"
 
-static Module* rxengine = NULL;
-static Module* mymodule = NULL; /* Needed to let RLine send request! */
 static bool ZlineOnMatch = false;
 static std::vector<ZLine *> background_zlines;
 
@@ -34,21 +32,15 @@ class RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(time_t s_time, long d, std::string src, std::string re, std::string regexs)
+	RLine(time_t s_time, long d, std::string src, std::string re, std::string regexs, dynamic_reference<RegexFactory>& rxfactory)
 		: XLine(s_time, d, src, re, "R")
 	{
 		matchtext = regexs;
 
-		if (!rxengine)
-		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Cannot create regexes until engine is set to a loaded provider!");
-			throw ModuleException("Regex engine not set or loaded!");
-		}
-
 		/* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
 		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
 		 */
-		regex = RegexFactoryRequest(mymodule, rxengine, regexs).Create();
+		regex = rxfactory->Create(regexs);
 	}
 
 	/** Destructor
@@ -102,15 +94,22 @@ class RLine : public XLine
 class RLineFactory : public XLineFactory
 {
  public:
-	RLineFactory() : XLineFactory("R")
+	dynamic_reference<RegexFactory>& rxfactory;
+	RLineFactory(dynamic_reference<RegexFactory>& rx) : XLineFactory("R"), rxfactory(rx)
 	{
 	}
-
+	
 	/** Generate a RLine
 	 */
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
-		return new RLine(set_time, duration, source, reason, xline_specific_mask);
+		if (!rxfactory)
+		{
+			ServerInstance->SNO->WriteToSnoMask('a', "Cannot create regexes until engine is set to a loaded provider!");
+			throw ModuleException("Regex engine not set or loaded!");
+		}
+
+		return new RLine(set_time, duration, source, reason, xline_specific_mask, rxfactory);
 	}
 
 	~RLineFactory()
@@ -124,9 +123,10 @@ class RLineFactory : public XLineFactory
 class CommandRLine : public Command
 {
 	std::string rxengine;
+	RLineFactory& factory;
 
  public:
-	CommandRLine(Module* Creator) : Command(Creator,"RLINE", 1, 3)
+	CommandRLine(Module* Creator, RLineFactory& rlf) : Command(Creator,"RLINE", 1, 3), factory(rlf)
 	{
 		flags_needed = 'o'; this->syntax = "<regex> [<rline-duration>] :<reason>";
 	}
@@ -139,11 +139,11 @@ class CommandRLine : public Command
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 
 			long duration = ServerInstance->Duration(parameters[1]);
-			RLine *r = NULL;
+			XLine *r = NULL;
 
 			try
 			{
-				r = new RLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+				r = factory.Generate(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 			}
 			catch (ModuleException &e)
 			{
@@ -197,30 +197,26 @@ class CommandRLine : public Command
 class ModuleRLine : public Module
 {
  private:
-	CommandRLine r;
+	dynamic_reference<RegexFactory> rxfactory;
 	RLineFactory f;
+	CommandRLine r;
 	bool MatchOnNickChange;
 	std::string RegexEngine;
 
  public:
-	ModuleRLine() : r(this)
+	ModuleRLine() : rxfactory(this, "regex"), f(rxfactory), r(this, f)
 	{
-		mymodule = this;
 		OnRehash(NULL);
-
-		ServerInstance->Modules->UseInterface("RegularExpression");
 
 		ServerInstance->AddCommand(&r);
 		ServerInstance->XLines->RegisterFactory(&f);
 
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnLoadModule, I_OnStats, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
-
+		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	virtual ~ModuleRLine()
 	{
-		ServerInstance->Modules->DoneWithInterface("RegularExpression");
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
@@ -253,29 +249,8 @@ class ModuleRLine : public Module
 		ZlineOnMatch = Conf.ReadFlag("rline", "zlineonmatch", 0);
 		std::string newrxengine = Conf.ReadValue("rline", "engine", 0);
 
-		if (!RegexEngine.empty())
-		{
-			if (RegexEngine == newrxengine)
-				return;
-
-			ServerInstance->SNO->WriteToSnoMask('x', "Dumping all R-Lines due to regex engine change (was '%s', now '%s')", RegexEngine.c_str(), newrxengine.c_str());
-			ServerInstance->XLines->DelAll("R");
-		}
-		rxengine = 0;
-		RegexEngine = newrxengine;
-		modulelist* ml = ServerInstance->Modules->FindInterface("RegularExpression");
-		if (ml)
-		{
-			for (modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
-			{
-				if (RegexNameRequest(this, *i).result == newrxengine)
-				{
-					ServerInstance->SNO->WriteToSnoMask('a', "R-Line now using engine '%s'", RegexEngine.c_str());
-					rxengine = *i;
-				}
-			}
-		}
-		if (!rxengine)
+		rxfactory.SetProvider("regex/" + newrxengine);
+		if (!rxfactory)
 		{
 			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", RegexEngine.c_str());
 		}
@@ -288,19 +263,6 @@ class ModuleRLine : public Module
 
 		ServerInstance->XLines->InvokeStats("R", 223, user, results);
 		return MOD_RES_DENY;
-	}
-
-	virtual void OnLoadModule(Module* mod)
-	{
-		if (ServerInstance->Modules->ModuleHasInterface(mod, "RegularExpression"))
-		{
-			std::string rxname = RegexNameRequest(this, mod).result;
-			if (rxname == RegexEngine)
-			{
-				ServerInstance->SNO->WriteToSnoMask('a', "R-Line now using engine '%s'", RegexEngine.c_str());
-				rxengine = mod;
-			}
-		}
 	}
 
 	virtual void OnUserPostNick(User *user, const std::string &oldnick)

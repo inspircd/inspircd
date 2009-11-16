@@ -258,6 +258,44 @@ class CoreExport Event : public classbase
 	void Send();
 };
 
+class CoreExport DataProvider : public ServiceProvider
+{
+ public:
+	DataProvider(Module* Creator, const std::string& Name)
+		: ServiceProvider(Creator, Name, SERVICE_DATA) {}
+};
+
+class CoreExport dynamic_reference_base : public interfacebase
+{
+ private:
+	std::string name;
+ protected:
+	DataProvider* value;
+ public:
+	ModuleRef creator;
+	dynamic_reference_base(Module* Creator, const std::string& Name);
+	~dynamic_reference_base();
+	inline void ClearCache() { value = NULL; }
+	inline const std::string& GetProvider() { return name; }
+	void SetProvider(const std::string& newname);
+	void lookup();
+	operator bool();
+};
+
+template<typename T>
+class dynamic_reference : public dynamic_reference_base
+{
+ public:
+	dynamic_reference(Module* Creator, const std::string& Name)
+		: dynamic_reference_base(Creator, Name) {}
+	inline T* operator->()
+	{
+		if (!value)
+			lookup();
+		return static_cast<T*>(value);
+	}
+};
+
 /** Priority types which can be used by Module::Prioritize()
  */
 enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };
@@ -1419,14 +1457,6 @@ class CoreExport ModuleManager
 	 */
 	std::string LastModuleError;
 
-	/** The feature names published by various modules
-	 */
-	featurelist Features;
-
-	/** The interface names published by various modules
-	 */
-	interfacelist Interfaces;
-
 	/** Total number of modules loaded into the ircd
 	 */
 	int ModCount;
@@ -1450,6 +1480,12 @@ class CoreExport ModuleManager
 	 * This needs to be public to be used by FOREACH_MOD and friends.
 	 */
 	IntModuleList EventHandlers[I_END];
+
+	/** List of data services keyed by name */
+	std::multimap<std::string, ServiceProvider*> DataProviders;
+
+	/** List of all dynamic references that are currently active */
+	std::vector<dynamic_reference_base*> ActiveDynrefs;
 
 	/** Simple, bog-standard, boring constructor.
 	 */
@@ -1566,116 +1602,24 @@ class CoreExport ModuleManager
 	 */
 	Module* Find(const std::string &name);
 
-	/** Publish a 'feature'.
-	 * There are two ways for a module to find another module it depends on.
-	 * Either by name, using InspIRCd::FindModule, or by feature, using this
-	 * function. A feature is an arbitary string which identifies something this
-	 * module can do. For example, if your module provides SSL support, but other
-	 * modules provide SSL support too, all the modules supporting SSL should
-	 * publish an identical 'SSL' feature. This way, any module requiring use
-	 * of SSL functions can just look up the 'SSL' feature using FindFeature,
-	 * then use the module pointer they are given.
-	 * @param FeatureName The case sensitive feature name to make available
-	 * @param Mod a pointer to your module class
-	 * @returns True on success, false if the feature is already published by
-	 * another module.
-	 */
-	bool PublishFeature(const std::string &FeatureName, Module* Mod);
+	/** Register a service provided by a module */
+	void AddService(ServiceProvider&);
 
-	/** Publish a module to an 'interface'.
-	 * Modules which implement the same interface (the same way of communicating
-	 * with other modules) can publish themselves to an interface, using this
-	 * method. When they do so, they become part of a list of related or
-	 * compatible modules, and a third module may then query for that list
-	 * and know that all modules within that list offer the same API.
-	 * A prime example of this is the hashing modules, which all accept the
-	 * same types of Request class. Consider this to be similar to PublishFeature,
-	 * except for that multiple modules may publish the same 'feature'.
-	 * @param InterfaceName The case sensitive interface name to make available
-	 * @param Mod a pointer to your module class
-	 * @returns True on success, false on failure (there are currently no failure
-	 * cases)
-	 */
-	bool PublishInterface(const std::string &InterfaceName, Module* Mod);
+	inline void AddServices(ServiceProvider** list, int count)
+	{
+		for(int i=0; i < count; i++)
+			AddService(*list[i]);
+	}
 
-	/** Return a pair saying how many other modules are currently using the
-	 * interfaces provided by module m.
-	 * @param m The module to count usage for
-	 * @return A pair, where the first value is the number of uses of the interface,
-	 * and the second value is the interface name being used.
+	/** Find a service by name.
+	 * If multiple modules provide a given service, the first one loaded will be chosen.
 	 */
-	std::pair<int,std::string> GetInterfaceInstanceCount(Module* m);
+	ServiceProvider* FindService(ServiceType Type, const std::string& name);
 
-	/** Mark your module as using an interface.
-	 * If you mark your module as using an interface, then that interface
-	 * module may not unload until your module has unloaded first.
-	 * This can be used to prevent crashes by ensuring code you depend on
-	 * is always in memory while your module is active.
-	 * @param InterfaceName The interface to use
-	 */
-	void UseInterface(const std::string &InterfaceName);
-
-	/** Mark your module as finished with an interface.
-	 * If you used UseInterface() above, you should use this method when
-	 * your module is finished with the interface (usually in its destructor)
-	 * to allow the modules which implement the given interface to be unloaded.
-	 * @param InterfaceName The interface you are finished with using.
-	 */
-	void DoneWithInterface(const std::string &InterfaceName);
-
-	/** Unpublish a 'feature'.
-	 * When your module exits, it must call this method for every feature it
-	 * is providing so that the feature table is cleaned up.
-	 * @param FeatureName the feature to remove
-	 */
-	bool UnpublishFeature(const std::string &FeatureName);
-
-	/** Unpublish your module from an interface
-	 * When your module exits, it must call this method for every interface
-	 * it is part of so that the interfaces table is cleaned up. Only when
-	 * the last item is deleted from an interface does the interface get
-	 * removed.
-	 * @param InterfaceName the interface to be removed from
-	 * @param Mod The module to remove from the interface list
-	 */
-	bool UnpublishInterface(const std::string &InterfaceName, Module* Mod);
-
-	/** Find a 'feature'.
-	 * There are two ways for a module to find another module it depends on.
-	 * Either by name, using InspIRCd::FindModule, or by feature, using the
-	 * InspIRCd::PublishFeature method. A feature is an arbitary string which
-	 * identifies something this module can do. For example, if your module
-	 * provides SSL support, but other modules provide SSL support too, all
-	 * the modules supporting SSL should publish an identical 'SSL' feature.
-	 * To find a module capable of providing the feature you want, simply
-	 * call this method with the feature name you are looking for.
-	 * @param FeatureName The feature name you wish to obtain the module for
-	 * @returns A pointer to a valid module class on success, NULL on failure.
-	 */
-	Module* FindFeature(const std::string &FeatureName);
-
-	/** Find an 'interface'.
-	 * An interface is a list of modules which all implement the same API.
-	 * @param InterfaceName The Interface you wish to obtain the module
-	 * list of.
-	 * @return A pointer to a deque of Module*, or NULL if the interface
-	 * does not exist.
-	 */
-	modulelist* FindInterface(const std::string &InterfaceName);
-
-	/** Determine if a module has published the named interface.
-	 * This could be used in, for example, OnLoadModule to pick up other modules that can be used.
-	 * @param mod The module to check.
-	 * @param InterfaceName the interface you want to check for
-	 * @return True if the module provides the interface, false otherwise.
-	 */
-	bool ModuleHasInterface(Module* mod, const std::string& InterfaceName);
-
-	/** Given a pointer to a Module, return its filename
-	 * @param m The module pointer to identify
-	 * @return The module name or an empty string
-	 */
-	const std::string& GetModuleName(Module* m);
+	template<typename T> inline T* FindDataService(const std::string& name)
+	{
+		return static_cast<T*>(FindService(SERVICE_DATA, name));
+	}
 
 	/** Return a list of all modules matching the given filter
 	 * @param filter This int is a bitmask of flags set in Module::Flags,

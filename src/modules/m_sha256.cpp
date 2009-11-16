@@ -132,7 +132,7 @@ uint32_t sha256_k[64] =
 	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-class ModuleSHA256 : public Module
+class HashSHA256 : public HashProvider
 {
 	void SHA256Init(SHA256Context *ctx, const unsigned int* ikey)
 	{
@@ -245,35 +245,33 @@ class ModuleSHA256 : public Module
 	}
 
  public:
-	ModuleSHA256()
+	std::string sum(const std::string& data)
 	{
-		ServerInstance->Modules->PublishInterface("HashRequest", this);
+		unsigned char bytes[SHA256_DIGEST_SIZE];
+		SHA256(data.data(), bytes, data.length());
+		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
 	}
 
-	virtual ~ModuleSHA256()
+	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
 	{
-		ServerInstance->Modules->UnpublishInterface("HashRequest", this);
+		return "";
 	}
 
+	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256") {}
+};
 
-	void OnRequest(Request& request)
+class ModuleSHA256 : public Module
+{
+	HashSHA256 sha;
+ public:
+	ModuleSHA256() : sha(this)
 	{
-		if (strcmp("HASH", request.id) == 0)
-		{
-			unsigned char bytes[SHA256_DIGEST_SIZE];
-			HashRequest& req = static_cast<HashRequest&>(request);
-			SHA256(req.data.data(), bytes, req.data.length());
-			req.binresult.assign((char*)bytes, SHA256_DIGEST_SIZE);
-		}
-		else if (strcmp("NAME", request.id) == 0)
-		{
-			static_cast<HashNameRequest&>(request).response = "sha256";
-		}
+		ServerInstance->Modules->AddService(sha);
 	}
 
 	Version GetVersion()
 	{
-		return Version("Allows for SHA-256 encrypted oper passwords", VF_VENDOR);
+		return Version("Implements SHA-256 hashing", VF_VENDOR);
 	}
 };
 

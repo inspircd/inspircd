@@ -27,50 +27,22 @@ class ModuleSQLOper : public Module
 	LocalStringExt saved_pass;
 	Module* SQLutils;
 	std::string databaseid;
-	irc::string hashtype;
-	hashymodules hashers;
-	bool diduseiface;
+	std::string hashtype;
 	parameterlist names;
 
 public:
 	ModuleSQLOper() : saved_user("sqloper_user", this), saved_pass("sqloper_pass", this)
 	{
-		ServerInstance->Modules->UseInterface("SQLutils");
-		ServerInstance->Modules->UseInterface("SQL");
-		ServerInstance->Modules->UseInterface("HashRequest");
-
 		OnRehash(NULL);
-
-		diduseiface = false;
-
-		/* Find all modules which implement the interface 'HashRequest' */
-		modulelist* ml = ServerInstance->Modules->FindInterface("HashRequest");
-
-		/* Did we find any modules? */
-		if (ml)
-		{
-			/* Yes, enumerate them all to find out the hashing algorithm name */
-			for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
-			{
-				/* Make a request to it for its name, its implementing
-				 * HashRequest so we know its safe to do this
-				 */
-				std::string name = HashNameRequest(this, *m).response;
-				/* Build a map of them */
-				hashers[name.c_str()] = *m;
-				names.push_back(name);
-			}
-			/* UseInterface doesn't do anything if there are no providers, so we'll have to call it later if a module gets loaded later on. */
-			diduseiface = true;
-			ServerInstance->Modules->UseInterface("HashRequest");
-		}
 
 		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
 
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnLoadModule };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->AddService(saved_user);
+		ServerInstance->Modules->AddService(saved_pass);
 	}
 
 	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
@@ -87,36 +59,12 @@ public:
 		return false;
 	}
 
-	virtual void OnLoadModule(Module* mod)
-	{
-		if (ServerInstance->Modules->ModuleHasInterface(mod, "HashRequest"))
-		{
-			std::string sname = HashNameRequest(this, mod).response;
-			hashers[sname.c_str()] = mod;
-			names.push_back(sname);
-			if (!diduseiface)
-			{
-				ServerInstance->Modules->UseInterface("HashRequest");
-				diduseiface = true;
-			}
-		}
-	}
-
-	virtual ~ModuleSQLOper()
-	{
-		ServerInstance->Modules->DoneWithInterface("SQL");
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
-		if (diduseiface)
-			ServerInstance->Modules->DoneWithInterface("HashRequest");
-	}
-
-
 	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf;
 
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
-		hashtype = assign(Conf.ReadValue("sqloper", "hash", 0));
+		hashtype = Conf.ReadValue("sqloper", "hash", 0);
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
@@ -138,18 +86,14 @@ public:
 
 	bool LookupOper(User* user, const std::string &username, const std::string &password)
 	{
-		Module* target;
-
-		target = ServerInstance->Modules->FindFeature("SQL");
-
-		if (target)
+		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_DATA, "SQL");
+		if (prov)
 		{
-			hashymodules::iterator x = hashers.find(hashtype);
-			if (x == hashers.end())
-				return false;
+			Module* target = prov->creator;
+			HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
 
 			/* Make an MD5 hash of the password for using in the query */
-			std::string md5_pass_hash = HashRequest(this, x->second, password).hex();
+			std::string md5_pass_hash = hash ? hash->hexsum(password) : password;
 
 			/* We generate our own sum here because some database providers (e.g. SQLite) dont have a builtin md5/sha256 function,
 			 * also hashing it in the module and only passing a remote query containing a hash is more secure.

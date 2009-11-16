@@ -73,35 +73,30 @@ public:
 	}
 };
 
+class TREFactory : public RegexFactory {
+ public:
+	TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
+	Regex* Create(const std::string& expr)
+	{
+		return new TRERegex(expr);
+	}
+};
+
 class ModuleRegexTRE : public Module
 {
+	TREFactory trf;
 public:
-	ModuleRegexTRE() 	{
-		ServerInstance->Modules->PublishInterface("RegularExpression", this);
+	ModuleRegexTRE() : trf(this) {
+		ServerInstance->Modules->AddService(trf);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Regex Provider Module for TRE Regular Expressions", VF_COMMON | VF_VENDOR);
 	}
 
-	virtual ~ModuleRegexTRE()
+	~ModuleRegexTRE()
 	{
-		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
-	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp("REGEX-NAME", request.id) == 0)
-		{
-			static_cast<RegexNameRequest&>(request).result = "tre";
-		}
-		else if (strcmp("REGEX", request.id) == 0)
-		{
-			RegexFactoryRequest& rfr = (RegexFactoryRequest&)request;
-			std::string rx = rfr.GetRegex();
-			rfr.result = new TRERegex(rx);
-		}
 	}
 };
 

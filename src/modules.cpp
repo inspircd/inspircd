@@ -322,139 +322,6 @@ std::string& ModuleManager::LastError()
 	return LastModuleError;
 }
 
-bool ModuleManager::PublishFeature(const std::string &FeatureName, Module* Mod)
-{
-	if (Features.find(FeatureName) == Features.end())
-	{
-		Features[FeatureName] = Mod;
-		return true;
-	}
-	return false;
-}
-
-bool ModuleManager::UnpublishFeature(const std::string &FeatureName)
-{
-	featurelist::iterator iter = Features.find(FeatureName);
-
-	if (iter == Features.end())
-		return false;
-
-	Features.erase(iter);
-	return true;
-}
-
-Module* ModuleManager::FindFeature(const std::string &FeatureName)
-{
-	featurelist::iterator iter = Features.find(FeatureName);
-
-	if (iter == Features.end())
-		return NULL;
-
-	return iter->second;
-}
-
-bool ModuleManager::PublishInterface(const std::string &InterfaceName, Module* Mod)
-{
-	interfacelist::iterator iter = Interfaces.find(InterfaceName);
-
-	if (iter == Interfaces.end())
-	{
-		modulelist ml;
-		ml.push_back(Mod);
-		Interfaces[InterfaceName] = std::make_pair(0, ml);
-	}
-	else
-	{
-		iter->second.second.push_back(Mod);
-	}
-	return true;
-}
-
-bool ModuleManager::UnpublishInterface(const std::string &InterfaceName, Module* Mod)
-{
-	interfacelist::iterator iter = Interfaces.find(InterfaceName);
-
-	if (iter == Interfaces.end())
-		return false;
-
-	for (modulelist::iterator x = iter->second.second.begin(); x != iter->second.second.end(); x++)
-	{
-		if (*x == Mod)
-		{
-			iter->second.second.erase(x);
-			if (iter->second.second.empty())
-				Interfaces.erase(InterfaceName);
-			return true;
-		}
-	}
-	return false;
-}
-
-modulelist* ModuleManager::FindInterface(const std::string &InterfaceName)
-{
-	interfacelist::iterator iter = Interfaces.find(InterfaceName);
-	if (iter == Interfaces.end())
-		return NULL;
-	else
-		return &(iter->second.second);
-}
-
-bool ModuleManager::ModuleHasInterface(Module* mod, const std::string& InterfaceName)
-{
-	interfacelist::iterator iter = Interfaces.find(InterfaceName);
-	if (iter == Interfaces.end())
-		return false;
-	else
-	{
-		modulelist& ml = iter->second.second;
-		modulelist::iterator mi = std::find(ml.begin(), ml.end(), mod);
-		return (mi != ml.end());
-	}
-}
-
-void ModuleManager::UseInterface(const std::string &InterfaceName)
-{
-	interfacelist::iterator iter = Interfaces.find(InterfaceName);
-	if (iter != Interfaces.end())
-		iter->second.first++;
-
-}
-
-void ModuleManager::DoneWithInterface(const std::string &InterfaceName)
-{
-	interfacelist::iterator iter = Interfaces.find(InterfaceName);
-	if (iter != Interfaces.end())
-		iter->second.first--;
-}
-
-std::pair<int,std::string> ModuleManager::GetInterfaceInstanceCount(Module* m)
-{
-	for (interfacelist::iterator iter = Interfaces.begin(); iter != Interfaces.end(); iter++)
-	{
-		for (modulelist::iterator x = iter->second.second.begin(); x != iter->second.second.end(); x++)
-		{
-			if (*x == m)
-			{
-				return std::make_pair(iter->second.first, iter->first);
-			}
-		}
-	}
-	return std::make_pair(0, "");
-}
-
-const std::string& ModuleManager::GetModuleName(Module* m)
-{
-	static std::string nothing;
-
-	for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
-	{
-		if (n->second == m)
-			return n->first;
-	}
-
-	return nothing;
-}
-
 CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user)
 {
 	return this->Parser->CallHandler(commandname, parameters, user);
@@ -473,27 +340,99 @@ void InspIRCd::AddCommand(Command *f)
 	}
 }
 
-void InspIRCd::AddService(providerbase& item)
+void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
 	{
 		case SERVICE_COMMAND:
-			if (!Parser->AddCommand(static_cast<Command*>(&item)))
+			if (!ServerInstance->Parser->AddCommand(static_cast<Command*>(&item)))
 				throw ModuleException("Command "+std::string(item.name)+" already exists.");
 			return;
 		case SERVICE_CMODE:
 		case SERVICE_UMODE:
-			if (!Modes->AddMode(static_cast<ModeHandler*>(&item)))
+			if (!ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
 			return;
 		case SERVICE_METADATA:
-			Extensions.Register(static_cast<ExtensionItem*>(&item));
+			ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item));
 			return;
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
+		{
+			DataProviders.insert(std::make_pair(item.name, &item));
+			std::string::size_type slash = item.name.find('/');
+			if (slash != std::string::npos)
+			{
+				DataProviders.insert(std::make_pair(item.name.substr(0, slash), &item));
+				DataProviders.insert(std::make_pair(item.name.substr(slash + 1), &item));
+			}
+			return;
+		}
 		default:
 			throw ModuleException("Cannot add unknown service type");
 	}
+}
+
+ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string& name)
+{
+	switch (type)
+	{
+		case SERVICE_DATA:
+		case SERVICE_IOHOOK:
+		{
+			std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.find(name);
+			if (i != DataProviders.end() && i->second->service == type)
+				return i->second;
+			return NULL;
+		}
+		// TODO implement finding of the other types
+		default:
+			throw ModuleException("Cannot find unknown service type");
+	}
+}
+
+dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
+	: name(Name), value(NULL), creator(Creator)
+{
+	ServerInstance->Modules->ActiveDynrefs.push_back(this);
+}
+
+dynamic_reference_base::~dynamic_reference_base()
+{
+	for(unsigned int i = 0; i < ServerInstance->Modules->ActiveDynrefs.size(); i++)
+	{
+		if (ServerInstance->Modules->ActiveDynrefs[i] == this)
+		{
+			unsigned int last = ServerInstance->Modules->ActiveDynrefs.size() - 1;
+			if (i != last)
+				ServerInstance->Modules->ActiveDynrefs[i] = ServerInstance->Modules->ActiveDynrefs[last];
+			ServerInstance->Modules->ActiveDynrefs.erase(ServerInstance->Modules->ActiveDynrefs.begin() + last);
+			return;
+		}
+	}
+}
+
+void dynamic_reference_base::SetProvider(const std::string& newname)
+{
+	name = newname;
+	ClearCache();
+}
+
+void dynamic_reference_base::lookup()
+{
+	if (!*this)
+		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve");
+}
+
+dynamic_reference_base::operator bool()
+{
+	if (!value)
+	{
+		std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
+		if (i != ServerInstance->Modules->DataProviders.end())
+			value = static_cast<DataProvider*>(i->second);
+	}
+	return value;
 }
 
 void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)

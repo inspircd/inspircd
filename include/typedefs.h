@@ -123,18 +123,6 @@ typedef std::set<User*> CUList;
  */
 typedef std::vector<std::string> string_list;
 
-/** Holds a list of 'published features' for modules.
- */
-typedef std::map<std::string,Module*> featurelist;
-
-/** Holds a list of modules which implement an interface
- */
-typedef std::deque<Module*> modulelist;
-
-/** Holds a list of all modules which implement interfaces, by interface name
- */
-typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
-
 /** Contains an ident and host split into two strings
  */
 typedef std::pair<std::string, std::string> IdentHostPair;

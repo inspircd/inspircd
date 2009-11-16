@@ -71,46 +71,37 @@ public:
 	}
 };
 
+class PosixFactory : public RegexFactory
+{
+ public:
+	bool extended;
+	PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
+	Regex* Create(const std::string& expr)
+	{
+		return new POSIXRegex(expr, extended);
+	}
+};
+
 class ModuleRegexPOSIX : public Module
 {
-private:
-	bool extended;
+	PosixFactory ref;
 public:
-	ModuleRegexPOSIX() 	{
-		ServerInstance->Modules->PublishInterface("RegularExpression", this);
+	ModuleRegexPOSIX() : ref(this) {
+		ServerInstance->Modules->AddService(ref);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 		OnRehash(NULL);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Regex Provider Module for POSIX Regular Expressions", VF_COMMON | VF_VENDOR);
 	}
 
-	virtual ~ModuleRegexPOSIX()
-	{
-		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
-	}
-
-	virtual void OnRehash(User* u)
+	void OnRehash(User* u)
 	{
 		ConfigReader Conf;
-		extended = Conf.ReadFlag("posix", "extended", 0);
-	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp("REGEX-NAME", request.id) == 0)
-		{
-			static_cast<RegexNameRequest&>(request).result = "posix";
-		}
-		else if (strcmp("REGEX", request.id) == 0)
-		{
-			RegexFactoryRequest& rfr = (RegexFactoryRequest&)request;
-			std::string rx = rfr.GetRegex();
-			rfr.result = new POSIXRegex(rx, extended);
-		}
+		ref.extended = Conf.ReadFlag("posix", "extended", 0);
 	}
 };
 

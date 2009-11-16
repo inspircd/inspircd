@@ -55,15 +55,12 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	 * Note: If m_sha256.so is not loaded, we MUST fall back to plaintext with no
 	 *       HMAC challenge/response.
 	 */
-	Module* sha256 = ServerInstance->Modules->Find("m_sha256.so");
+	HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
 	{
-		/* XXX: This is how HMAC is supposed to be done:
+		/* This is how HMAC is supposed to be done:
 		 *
 		 * sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) )
-		 *
-		 * Note that we are encoding the hex hash, not the binary
-		 * output of the hash which is slightly different to standard.
 		 *
 		 * 5c and 36 were chosen as part of the HMAC standard, because they
 		 * flip the bits in a way likely to strengthen the function.
@@ -72,17 +69,28 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 
 		for (size_t n = 0; n < password.length(); n++)
 		{
-			hmac1 += static_cast<char>(password[n] ^ 0x5C);
-			hmac2 += static_cast<char>(password[n] ^ 0x36);
+			hmac1.push_back(static_cast<char>(password[n] ^ 0x5C));
+			hmac2.push_back(static_cast<char>(password[n] ^ 0x36));
 		}
 
-		hmac2 += challenge;
-		hmac2 = HashRequest(Utils->Creator, sha256, hmac2).hex();
-		
-		std::string hmac = hmac1 + hmac2;
-		hmac = HashRequest(Utils->Creator, sha256, hmac).hex();
+		if (proto_version >= 1202)
+		{
+			hmac2.append(challenge);
+			std::string hmac = sha256->hexsum(hmac1 + sha256->sum(hmac2));
 
-		return "HMAC-SHA256:"+ hmac;
+			return "AUTH:" + hmac;
+		}
+		else
+		{
+			// version 1.2 used a weaker HMAC, using hex output in the intermediate step
+			hmac2.append(challenge);
+			hmac2 = sha256->hexsum(hmac2);
+		
+			std::string hmac = hmac1 + hmac2;
+			hmac = sha256->hexsum(hmac);
+
+			return "HMAC-SHA256:"+ hmac;
+		}
 	}
 	else if (!challenge.empty() && !sha256)
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");

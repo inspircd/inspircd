@@ -67,35 +67,27 @@ public:
 	}
 };
 
+class PCREFactory : public RegexFactory
+{
+ public:
+	PCREFactory(Module* m) : RegexFactory(m, "regex/pcre") {}
+	Regex* Create(const std::string& expr)
+	{
+		return new PCRERegex(expr);
+	}
+};
+
 class ModuleRegexPCRE : public Module
 {
 public:
-	ModuleRegexPCRE() 	{
-		ServerInstance->Modules->PublishInterface("RegularExpression", this);
+	PCREFactory ref;
+	ModuleRegexPCRE() : ref(this) {
+		ServerInstance->Modules->AddService(ref);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("Regex Provider Module for PCRE", VF_COMMON | VF_VENDOR);
-	}
-
-	virtual ~ModuleRegexPCRE()
-	{
-		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
-	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp("REGEX-NAME", request.id) == 0)
-		{
-			static_cast<RegexNameRequest&>(request).result = "pcre";
-		}
-		else if (strcmp("REGEX", request.id) == 0)
-		{
-			RegexFactoryRequest& rfr = (RegexFactoryRequest&)request;
-			std::string rx = rfr.GetRegex();
-			rfr.result = new PCRERegex(rx);
-		}
+		return Version("Regex Provider Module for PCRE", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

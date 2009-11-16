@@ -72,7 +72,6 @@ class ModuleChanFilter : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 
 		OnRehash(NULL);
-		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 
 	virtual void OnRehash(User* user)
@@ -141,7 +140,6 @@ class ModuleChanFilter : public Module
 
 	virtual ~ModuleChanFilter()
 	{
-		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };
 

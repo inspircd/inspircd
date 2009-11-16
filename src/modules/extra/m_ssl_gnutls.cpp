@@ -137,13 +137,12 @@ class ModuleSSLGnuTLS : public Module
 	CommandStartTLS starttls;
 
 	GenericCap capHandler;
+	ServiceProvider iohook;
  public:
 
 	ModuleSSLGnuTLS()
-		: starttls(this), capHandler(this, "tls")
+		: starttls(this), capHandler(this, "tls"), iohook(this, "ssl/gnutls", SERVICE_IOHOOK)
 	{
-		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
-
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		gnutls_global_init(); // This must be called once in the program
@@ -160,6 +159,7 @@ class ModuleSSLGnuTLS : public Module
 			I_OnEvent, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
+		ServerInstance->Modules->AddService(iohook);
 		ServerInstance->AddCommand(&starttls);
 	}
 
@@ -286,7 +286,6 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_dh_params_deinit(dh_params);
 		gnutls_certificate_free_credentials(x509_cred);
 		gnutls_global_deinit();
-		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
 		delete[] sessions;
 	}
 

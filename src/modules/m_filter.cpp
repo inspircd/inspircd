@@ -17,8 +17,7 @@
 
 /* $ModDesc: Text (spam) filtering */
 
-static std::string RegexEngine = "";
-static Module* rxengine = NULL;
+class ModuleFilter;
 
 enum FilterFlags
 {
@@ -90,19 +89,16 @@ class FilterResult
 	{
 	}
 
-	virtual ~FilterResult()
+	~FilterResult()
 	{
 	}
 };
 
-class FilterBase;
-
 class CommandFilter : public Command
 {
-	FilterBase* Base;
  public:
-	CommandFilter(FilterBase* f)
-		: Command(reinterpret_cast<Module*>(f), "FILTER", 1, 5), Base(f)
+	CommandFilter(Module* f)
+		: Command(f, "FILTER", 1, 5)
 	{
 		flags_needed = 'o';
 		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
@@ -120,33 +116,48 @@ class CommandFilter : public Command
 	}
 };
 
-class FilterBase : public Module
+class ImplFilter : public FilterResult
 {
-	CommandFilter filtcommand;
-	int flags;
-protected:
-	std::vector<std::string> exemptfromfilter; // List of channel names excluded from filtering.
  public:
-	FilterBase();
-	virtual ~FilterBase();
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags) = 0;
-	virtual bool DeleteFilter(const std::string &freeform) = 0;
-	virtual void SyncFilters(Module* proto, void* opaque) = 0;
-	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags) = 0;
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual void OnRehash(User* user);
-	virtual Version GetVersion();
+	Regex* regex;
+
+	ImplFilter(ModuleFilter* mymodule, const std::string &rea, const std::string &act, long glinetime, const std::string &pat, const std::string &flgs);
+};
+
+
+class ModuleFilter : public Module
+{
+ public:
+	CommandFilter filtcommand;
+	dynamic_reference<RegexFactory> RegexEngine;
+
+	std::vector<ImplFilter> filters;
+	const char *error;
+	int erroffset;
+	int flags;
+
+	std::vector<std::string> exemptfromfilter; // List of channel names excluded from filtering.
+
+	ModuleFilter();
+
+	~ModuleFilter();
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
+	bool DeleteFilter(const std::string &freeform);
+	void SyncFilters(Module* proto, void* opaque);
+	void SendFilter(Module* proto, void* opaque, FilterResult* iter);
+	std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags);
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	void OnRehash(User* user);
+	Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	virtual void OnSyncNetwork(Module* proto, void* opaque);
-	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
-	virtual ModResult OnStats(char symbol, User* user, string_list &results) = 0;
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
+	void OnSyncNetwork(Module* proto, void* opaque);
+	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
+	ModResult OnStats(char symbol, User* user, string_list &results);
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
-	void OnLoadModule(Module* mod);
-	virtual void ReadFilters(ConfigReader &MyConf) = 0;
+	void ReadFilters(ConfigReader &MyConf);
 };
 
 CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User *user)
@@ -154,7 +165,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 	if (parameters.size() == 1)
 	{
 		/* Deleting a filter */
-		if (Base->DeleteFilter(parameters[0]))
+		if (static_cast<ModuleFilter&>(*creator).DeleteFilter(parameters[0]))
 		{
 			user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
 			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
@@ -201,7 +212,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			{
 				reason = parameters[3];
 			}
-			std::pair<bool, std::string> result = Base->AddFilter(freeform, type, reason, duration, flags);
+			std::pair<bool, std::string> result = static_cast<ModuleFilter&>(*creator).AddFilter(freeform, type, reason, duration, flags);
 			if (result.first)
 			{
 				user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
@@ -227,7 +238,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 	}
 }
 
-bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int iflags)
+bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
 	if ((filter->flag_no_opers) && IS_OPER(user))
 		return false;
@@ -242,20 +253,19 @@ bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	return true;
 }
 
-FilterBase::FilterBase() : filtcommand(this)
+ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine(this, "regex")
 {
-	ServerInstance->Modules->UseInterface("RegularExpression");
 	ServerInstance->AddCommand(&filtcommand);
-	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnLoadModule };
-	ServerInstance->Modules->Attach(eventlist, this, 8);
+	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
+	ServerInstance->Modules->Attach(eventlist, this, 7);
+	OnRehash(NULL);
 }
 
-FilterBase::~FilterBase()
+ModuleFilter::~ModuleFilter()
 {
-	ServerInstance->Modules->DoneWithInterface("RegularExpression");
 }
 
-ModResult FilterBase::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleFilter::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
@@ -264,7 +274,7 @@ ModResult FilterBase::OnUserPreMessage(User* user,void* dest,int target_type, st
 	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 }
 
-ModResult FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	/* Leave ulines alone */
 	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
@@ -325,7 +335,7 @@ ModResult FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std
 	return MOD_RES_PASSTHRU;
 }
 
-ModResult FilterBase::OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
 {
 	flags = 0;
 	if (validated && IS_LOCAL(user))
@@ -415,7 +425,7 @@ ModResult FilterBase::OnPreCommand(std::string &command, std::vector<std::string
 	return MOD_RES_PASSTHRU;
 }
 
-void FilterBase::OnRehash(User* user)
+void ModuleFilter::OnRehash(User* user)
 {
 	ConfigReader MyConf;
 	std::vector<std::string>().swap(exemptfromfilter);
@@ -426,62 +436,28 @@ void FilterBase::OnRehash(User* user)
 			exemptfromfilter.push_back(chan);
 		}
 	}
-	std::string newrxengine = MyConf.ReadValue("filteropts", "engine", 0);
-	if (!RegexEngine.empty())
-	{
-		if (RegexEngine == newrxengine)
-			return;
+	std::string newrxengine = "regex/" + MyConf.ReadValue("filteropts", "engine", 0);
+	if (RegexEngine.GetProvider() == newrxengine)
+		return;
 
-		ServerInstance->SNO->WriteGlobalSno('a', "Dumping all filters due to regex engine change (was '%s', now '%s')", RegexEngine.c_str(), newrxengine.c_str());
-		//ServerInstance->XLines->DelAll("R");
-	}
-	rxengine = NULL;
+	//ServerInstance->SNO->WriteGlobalSno('a', "Dumping all filters due to regex engine change (was '%s', now '%s')", RegexEngine.GetProvider().c_str(), newrxengine.c_str());
+	//ServerInstance->XLines->DelAll("R");
 
-	RegexEngine = newrxengine;
-	modulelist* ml = ServerInstance->Modules->FindInterface("RegularExpression");
-	if (ml)
+	RegexEngine.SetProvider(newrxengine);
+	if (!RegexEngine)
 	{
-		for (modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
-		{
-			if (RegexNameRequest(this, *i).result == newrxengine)
-			{
-				ServerInstance->SNO->WriteGlobalSno('a', "Filter now using engine '%s'", RegexEngine.c_str());
-				rxengine = *i;
-			}
-		}
+		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", RegexEngine.GetProvider().c_str());
 	}
-	if (!rxengine)
-	{
-		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", RegexEngine.c_str());
-	}
+	ReadFilters(MyConf);
 }
 
-void FilterBase::OnLoadModule(Module* mod)
-{
-	if (ServerInstance->Modules->ModuleHasInterface(mod, "RegularExpression"))
-	{
-		std::string rxname = RegexNameRequest(this, mod).result;
-		if (rxname == RegexEngine)
-		{
-			rxengine = mod;
-			/* Force a rehash to make sure that any filters that couldnt be applied from the conf
-			 * on startup or on load are applied right now.
-			 */
-			ConfigReader Config;
-			ServerInstance->SNO->WriteGlobalSno('a', "Found and activated regex module '%s' for m_filter.so.", RegexEngine.c_str());
-			ReadFilters(Config);
-		}
-	}
-}
-
-
-Version FilterBase::GetVersion()
+Version ModuleFilter::GetVersion()
 {
 	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON);
 }
 
 
-std::string FilterBase::EncodeFilter(FilterResult* filter)
+std::string ModuleFilter::EncodeFilter(FilterResult* filter)
 {
 	std::ostringstream stream;
 	std::string x = filter->freeform;
@@ -495,7 +471,7 @@ std::string FilterBase::EncodeFilter(FilterResult* filter)
 	return stream.str();
 }
 
-FilterResult FilterBase::DecodeFilter(const std::string &data)
+FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 {
 	FilterResult res;
 	irc::tokenstream tokens(data);
@@ -516,17 +492,17 @@ FilterResult FilterBase::DecodeFilter(const std::string &data)
 	return res;
 }
 
-void FilterBase::OnSyncNetwork(Module* proto, void* opaque)
+void ModuleFilter::OnSyncNetwork(Module* proto, void* opaque)
 {
 	this->SyncFilters(proto, opaque);
 }
 
-void FilterBase::SendFilter(Module* proto, void* opaque, FilterResult* iter)
+void ModuleFilter::SendFilter(Module* proto, void* opaque, FilterResult* iter)
 {
 	proto->ProtoSendMetaData(opaque, NULL, "filter", EncodeFilter(iter));
 }
 
-void FilterBase::OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
+void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 {
 	if ((target == NULL) && (extname == "filter"))
 	{
@@ -535,163 +511,127 @@ void FilterBase::OnDecodeMetaData(Extensible* target, const std::string &extname
 	}
 }
 
-class ImplFilter : public FilterResult
-{
- public:
-	Regex* regex;
-
-	ImplFilter(Module* mymodule, const std::string &rea, const std::string &act, long glinetime, const std::string &pat, const std::string &flgs)
+ImplFilter::ImplFilter(ModuleFilter* mymodule, const std::string &rea, const std::string &act, long glinetime, const std::string &pat, const std::string &flgs)
 		: FilterResult(pat, rea, act, glinetime, flgs)
-	{
-		if (!rxengine)
-			throw ModuleException("Regex module implementing '"+RegexEngine+"' is not loaded!");
-
-		regex = RegexFactoryRequest(mymodule, rxengine, pat).Create();
-	}
-
-	ImplFilter()
-	{
-	}
-};
-
-class ModuleFilter : public FilterBase
 {
-	std::vector<ImplFilter> filters;
-	const char *error;
-	int erroffset;
-	ImplFilter fr;
+	if (!mymodule->RegexEngine)
+		throw ModuleException("Regex module implementing '"+mymodule->RegexEngine.GetProvider()+"' is not loaded!");
+	regex = mymodule->RegexEngine->Create(pat);
+}
 
- public:
-	ModuleFilter()
+FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)
+{
+	for (std::vector<ImplFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 	{
-		OnRehash(NULL);
-	}
+		/* Skip ones that dont apply to us */
+		if (!AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flgs))
+			continue;
 
-	virtual ~ModuleFilter()
-	{
-	}
-
-	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flgs)
-	{
-		for (std::vector<ImplFilter>::iterator index = filters.begin(); index != filters.end(); index++)
+		//ServerInstance->Logs->Log("m_filter", DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
+		if (index->regex->Matches(text))
 		{
-			/* Skip ones that dont apply to us */
-			if (!FilterBase::AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flgs))
-				continue;
-
-			//ServerInstance->Logs->Log("m_filter", DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
-			if (index->regex->Matches(text))
+			//ServerInstance->Logs->Log("m_filter", DEBUG, "MATCH");
+			ImplFilter fr = *index;
+			if (index != filters.begin())
 			{
-				//ServerInstance->Logs->Log("m_filter", DEBUG, "MATCH");
-				fr = *index;
-				if (index != filters.begin())
-				{
-					/* Move to head of list for efficiency */
-					filters.erase(index);
-					filters.insert(filters.begin(), fr);
-				}
-				return &fr;
+				/* Move to head of list for efficiency */
+				filters.erase(index);
+				filters.insert(filters.begin(), fr);
 			}
-			//ServerInstance->Logs->Log("m_filter", DEBUG, "NO MATCH");
+			return &*filters.begin();
 		}
-		return NULL;
+		//ServerInstance->Logs->Log("m_filter", DEBUG, "NO MATCH");
 	}
+	return NULL;
+}
 
-	virtual bool DeleteFilter(const std::string &freeform)
+bool ModuleFilter::DeleteFilter(const std::string &freeform)
+{
+	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
-		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		if (i->freeform == freeform)
 		{
-			if (i->freeform == freeform)
-			{
-				delete i->regex;
-				filters.erase(i);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	virtual void SyncFilters(Module* proto, void* opaque)
-	{
-		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
-		{
-			this->SendFilter(proto, opaque, &(*i));
+			delete i->regex;
+			filters.erase(i);
+			return true;
 		}
 	}
+	return false;
+}
 
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flgs)
+void ModuleFilter::SyncFilters(Module* proto, void* opaque)
+{
+	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
-		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		this->SendFilter(proto, opaque, &(*i));
+	}
+}
+
+std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flgs)
+{
+	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+	{
+		if (i->freeform == freeform)
 		{
-			if (i->freeform == freeform)
-			{
-				return std::make_pair(false, "Filter already exists");
-			}
+			return std::make_pair(false, "Filter already exists");
 		}
+	}
+
+	try
+	{
+		filters.push_back(ImplFilter(this, reason, type, duration, freeform, flgs));
+	}
+	catch (ModuleException &e)
+	{
+		ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
+		return std::make_pair(false, e.GetReason());
+	}
+	return std::make_pair(true, "");
+}
+
+void ModuleFilter::ReadFilters(ConfigReader &MyConf)
+{
+	for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
+	{
+		this->DeleteFilter(MyConf.ReadValue("keyword", "pattern", index));
+
+		std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
+		std::string reason = MyConf.ReadValue("keyword", "reason", index);
+		std::string action = MyConf.ReadValue("keyword", "action", index);
+		std::string flgs = MyConf.ReadValue("keyword", "flags", index);
+		long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index));
+		if (action.empty())
+			action = "none";
+		if (flgs.empty())
+			flgs = "*";
 
 		try
 		{
-			filters.push_back(ImplFilter(this, reason, type, duration, freeform, flgs));
+			filters.push_back(ImplFilter(this, reason, action, gline_time, pattern, flgs));
+			ServerInstance->Logs->Log("m_filter", DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
-			return std::make_pair(false, e.GetReason());
+			ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
 		}
-		return std::make_pair(true, "");
 	}
+}
 
-	virtual void OnRehash(User* user)
+ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
+{
+	if (symbol == 's')
 	{
-		ConfigReader MyConf;
-		FilterBase::OnRehash(user);
-		ReadFilters(MyConf);
-	}
-
-	void ReadFilters(ConfigReader &MyConf)
-	{
-		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
+		std::string sn = ServerInstance->Config->ServerName;
+		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			this->DeleteFilter(MyConf.ReadValue("keyword", "pattern", index));
-
-			std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
-			std::string reason = MyConf.ReadValue("keyword", "reason", index);
-			std::string action = MyConf.ReadValue("keyword", "action", index);
-			std::string flgs = MyConf.ReadValue("keyword", "flags", index);
-			long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index));
-			if (action.empty())
-				action = "none";
-			if (flgs.empty())
-				flgs = "*";
-
-			try
-			{
-				filters.push_back(ImplFilter(this, reason, action, gline_time, pattern, flgs));
-				ServerInstance->Logs->Log("m_filter", DEFAULT, "Regular expression %s loaded.", pattern.c_str());
-			}
-			catch (ModuleException &e)
-			{
-				ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
-			}
+			results.push_back(sn+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->flags+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
-	}
-
-	virtual ModResult OnStats(char symbol, User* user, string_list &results)
-	{
-		if (symbol == 's')
+		for (std::vector<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
 		{
-			std::string sn = ServerInstance->Config->ServerName;
-			for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
-			{
-				results.push_back(sn+" 223 "+user->nick+" :"+RegexEngine+":"+i->freeform+" "+i->flags+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
-			}
-			for (std::vector<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
-			{
-				results.push_back(sn+" 223 "+user->nick+" :EXEMPT "+(*i));
-			}
+			results.push_back(sn+" 223 "+user->nick+" :EXEMPT "+(*i));
 		}
-		return MOD_RES_PASSTHRU;
 	}
-};
+	return MOD_RES_PASSTHRU;
+}
 
 MODULE_INIT(ModuleFilter)

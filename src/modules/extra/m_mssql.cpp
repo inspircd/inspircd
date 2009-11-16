@@ -636,29 +636,23 @@ class ModuleMsSQL : public Module
  private:
 	unsigned long currid;
 	QueryThread* queryDispatcher;
+	ServiceProvider sqlserv;
 
  public:
 	ModuleMsSQL()
-	: currid(0)
+	: currid(0), sqlserv(this, "SQL/mssql", SERVICE_DATA)
 	{
 		LoggingMutex = new Mutex();
 		ResultsMutex = new Mutex();
-
-		ServerInstance->Modules->UseInterface("SQLutils");
-
-		if (!ServerInstance->Modules->PublishFeature("SQL", this))
-		{
-			throw ModuleException("m_mssql: Unable to publish feature 'SQL'");
-		}
 
 		ReadConf();
 
 		queryDispatcher = new QueryThread(this);
 		ServerInstance->Threads->Start(queryDispatcher);
 
-		ServerInstance->Modules->PublishInterface("SQL", this);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->AddService(sqlserv);
 	}
 
 	virtual ~ModuleMsSQL()
@@ -667,10 +661,6 @@ class ModuleMsSQL : public Module
 		delete queryDispatcher;
 		ClearQueue();
 		ClearAllConnections();
-
-		ServerInstance->Modules->UnpublishInterface("SQL", this);
-		ServerInstance->Modules->UnpublishFeature("SQL");
-		ServerInstance->Modules->DoneWithInterface("SQLutils");
 
 		delete LoggingMutex;
 		delete ResultsMutex;

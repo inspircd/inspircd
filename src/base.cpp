@@ -77,11 +77,11 @@ usecountbase::~usecountbase()
 			(void*)this, usecount);
 }
 
-providerbase::~providerbase()
+ServiceProvider::~ServiceProvider()
 {
 }
 
-ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : providerbase(mod, Key, SERVICE_METADATA)
+ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : ServiceProvider(mod, Key, SERVICE_METADATA)
 {
 }
 

@@ -73,7 +73,6 @@ class ModuleExemptChanOps : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 
 		OnRehash(NULL);
-		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 
 	virtual Version GetVersion()
@@ -119,11 +118,6 @@ class ModuleExemptChanOps : public Module
 				return MOD_RES_ALLOW; //  They're opped, and the channel lets ops bypass this mode.  Allow regardless of restrictions
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ~ModuleExemptChanOps()
-	{
-		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };
 

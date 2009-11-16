@@ -34,7 +34,10 @@ public:
 
 	virtual void OnBackgroundTimer(time_t)
 	{
-		Module* target = ServerInstance->Modules->FindFeature("SQL");
+		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_DATA, "SQL");
+		if (!prov)
+			return;
+		Module* target = prov->creator;
 
 		if(target)
 		{

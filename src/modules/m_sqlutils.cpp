@@ -33,14 +33,12 @@ private:
 public:
 	ModuleSQLutils() : idExt("sqlutils_list", this)
 	{
-		ServerInstance->Modules->PublishInterface("SQLutils", this);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnUnloadModule, I_OnUserDisconnect };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	~ModuleSQLutils()
 	{
-		ServerInstance->Modules->UnpublishInterface("SQLutils", this);
 	}
 
 

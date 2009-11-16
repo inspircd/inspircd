@@ -40,26 +40,14 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, const std::string& shost, in
 	LinkState = CONNECTING;
 	if (!hook.empty())
 	{
-		modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
-		if (ml)
+		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_IOHOOK, hook);
+		if (!prov)
 		{
-			for(modulelist::iterator i = ml->begin(); i != ml->end(); ++i)
-			{
-				std::string name = (**i).ModuleSourceFile;
-				int a = name.rfind('_');
-				int b = name.rfind('.');
-				name = name.substr(a+1, b-a-1);
-				if (name == hook)
-				{
-					AddIOHook(*i);
-					goto found;
-				}
-			}
+			SetError("Could not find hook '" + hook + "' for connection to " + ServerName);
+			return;
 		}
-		SetError("Could not find hook '" + hook + "' for connection to " + ServerName);
-		return;
+		AddIOHook(prov->creator);
 	}
-found:
 	DoConnect(shost, iport, maxtime, bindto);
 	Utils->timeoutlist[this] = std::pair<std::string, int>(ServerName, maxtime);
 	SendCapabilities(1);

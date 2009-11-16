@@ -149,7 +149,7 @@ typedef		uint32_t		dword;
    }
 
 
-class ModuleRIPEMD160 : public Module
+class RIProv : public HashProvider
 {
 
 	void MDinit(dword *MDbuf, unsigned int* key)
@@ -436,36 +436,33 @@ class ModuleRIPEMD160 : public Module
 
 		return (byte *)hashcode;
 	}
+public:
+	std::string sum(const std::string& data)
+	{
+		char* rv = (char*)RMD((byte*)data.data(), data.length(), NULL);
+		return std::string(rv, RMDsize / 8);
+	}
 
+	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
+	{
+		return "";
+	}
+
+	RIProv(Module* m) : HashProvider(m, "hash/ripemd160") {}
+};
+
+class ModuleRIPEMD160 : public Module
+{
  public:
-
-	ModuleRIPEMD160()
+	RIProv mr;
+	ModuleRIPEMD160() : mr(this)
 	{
-		ServerInstance->Modules->PublishInterface("HashRequest", this);
+		ServerInstance->Modules->AddService(mr);
 	}
 
-	virtual ~ModuleRIPEMD160()
+	Version GetVersion()
 	{
-		ServerInstance->Modules->UnpublishInterface("HashRequest", this);
-	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp("HASH", request.id) == 0)
-		{
-			HashRequest& req = static_cast<HashRequest&>(request);
-			char* data = (char*)RMD((byte*)req.data.data(), req.data.length(), NULL);
-			req.binresult.assign(data, RMDsize / 8);
-		}
-		else if (strcmp("NAME", request.id) == 0)
-		{
-			static_cast<HashNameRequest&>(request).response = "ripemd160";
-		}
-	}
-
-	virtual Version GetVersion()
-	{
-		return Version("Allows for RIPEMD-160 encrypted oper passwords", VF_VENDOR);
+		return Version("Provides RIPEMD-160 hashing", VF_VENDOR);
 	}
 
 };

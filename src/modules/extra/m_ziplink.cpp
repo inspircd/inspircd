@@ -56,8 +56,6 @@ class ModuleZLib : public Module
 
 	ModuleZLib()
 	{
-		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
-
 		sessions = new izip_session[ServerInstance->SE->GetMaxFds()];
 		for (int i = 0; i < ServerInstance->SE->GetMaxFds(); i++)
 			sessions[i].status = IZIP_CLOSED;
@@ -74,7 +72,6 @@ class ModuleZLib : public Module
 
 	~ModuleZLib()
 	{
-		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
 		delete[] sessions;
 		delete[] net_buffer;
 	}

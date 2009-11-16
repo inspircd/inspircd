@@ -97,11 +97,11 @@ class ModuleSSLOpenSSL : public Module
 	std::string dhfile;
 	std::string sslports;
 
+	ServiceProvider iohook;
  public:
 
-	ModuleSSLOpenSSL()
+	ModuleSSLOpenSSL() : iohook(this, "ssl/openssl", SERVICE_IOHOOK)
 	{
-		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
@@ -128,6 +128,7 @@ class ModuleSSLOpenSSL : public Module
 		OnModuleRehash(NULL,"ssl");
 		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modules->AddService(iohook);
 	}
 
 	void OnHookIO(StreamSocket* user, ListenSocket* lsb)
@@ -241,7 +242,6 @@ class ModuleSSLOpenSSL : public Module
 	{
 		SSL_CTX_free(ctx);
 		SSL_CTX_free(clictx);
-		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
 		delete[] sessions;
 	}
 

@@ -26,6 +26,7 @@ static const char* const forge_common_1201[] = {
 	"m_saquit.so",
 	"m_setident.so",
 	"m_swhois.so",
+	"m_regex_pcre.so"
 };
 
 static std::string wide_newline("\r\n");

@@ -33,35 +33,28 @@ public:
 	}
 };
 
+class GlobFactory : public RegexFactory
+{
+ public:
+	Regex* Create(const std::string& expr)
+	{
+		return new GlobRegex(expr);
+	}
+
+	GlobFactory(Module* m) : RegexFactory(m, "regex/glob") {}
+};
+
 class ModuleRegexGlob : public Module
 {
+	GlobFactory gf;
 public:
-	ModuleRegexGlob() 	{
-		ServerInstance->Modules->PublishInterface("RegularExpression", this);
+	ModuleRegexGlob() : gf(this) {
+		ServerInstance->Modules->AddService(gf);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Regex module using plain wildcard matching.", VF_OPTCOMMON | VF_VENDOR);
-	}
-
-	virtual ~ModuleRegexGlob()
-	{
-		ServerInstance->Modules->UnpublishInterface("RegularExpression", this);
-	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp("REGEX-NAME", request.id) == 0)
-		{
-			static_cast<RegexNameRequest&>(request).result = "glob";
-		}
-		else if (strcmp("REGEX", request.id) == 0)
-		{
-			RegexFactoryRequest& rfr = (RegexFactoryRequest&)request;
-			std::string rx = rfr.GetRegex();
-			rfr.result = new GlobRegex(rx);
-		}
 	}
 };
 

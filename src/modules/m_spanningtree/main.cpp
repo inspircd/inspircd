@@ -33,7 +33,6 @@
 ModuleSpanningTree::ModuleSpanningTree()
 	: max_local(0), max_global(0)
 {
-	ServerInstance->Modules->UseInterface("BufferedSocketHook");
 	Utils = new SpanningTreeUtilities(this);
 	command_rconnect = new CommandRConnect(this, Utils);
 	ServerInstance->AddCommand(command_rconnect);
@@ -781,30 +780,16 @@ void ModuleSpanningTree::OnRehash(User* user)
 
 void ModuleSpanningTree::OnLoadModule(Module* mod)
 {
-	this->RedoConfig(mod);
+	// TODO notify other servers?
 }
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
-	this->RedoConfig(mod);
+	// TODO notify other servers?
 }
 
 void ModuleSpanningTree::RedoConfig(Module* mod)
 {
-	/* If m_sha256.so is loaded (we use this for HMAC) or any module implementing a BufferedSocket interface is loaded,
-	 * then we need to re-read our config again taking this into account.
-	 */
-	modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
-	bool IsBufferSocketModule = false;
-
-	/* Did we find any modules? */
-	if (ml && std::find(ml->begin(), ml->end(), mod) != ml->end())
-		IsBufferSocketModule = true;
-
-	if (mod->ModuleSourceFile == "m_sha256.so" || IsBufferSocketModule)
-	{
-		Utils->ReadConfiguration();
-	}
 }
 
 // note: the protocol does not allow direct umode +o except
@@ -955,7 +940,6 @@ CullResult ModuleSpanningTree::cull()
 {
 	Utils->cull();
 	ServerInstance->Timers->DelTimer(RefreshTimer);
-	ServerInstance->Modules->DoneWithInterface("BufferedSocketHook");
 	return this->Module::cull();
 }
 

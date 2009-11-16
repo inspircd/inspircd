@@ -213,7 +213,7 @@ enum ServiceType {
 };
 
 /** A structure defining something that a module can provide */
-class CoreExport providerbase : public classbase
+class CoreExport ServiceProvider : public classbase
 {
  public:
 	/** Module that is providing this service */
@@ -222,9 +222,9 @@ class CoreExport providerbase : public classbase
 	const std::string name;
 	/** Type of service (must match object type) */
 	const ServiceType service;
-	providerbase(Module* Creator, const std::string& Name, ServiceType Type)
+	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 		: creator(Creator), name(Name), service(Type) {}
-	virtual ~providerbase();
+	virtual ~ServiceProvider();
 };
 
 
