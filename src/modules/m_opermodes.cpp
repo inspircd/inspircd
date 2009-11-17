@@ -48,12 +48,6 @@ class ModuleModesOnOper : public Module
 		{
 			ApplyModes(user, ThisOpersModes);
 		}
-
-		ThisOpersModes = user->oper->getConfig("modes");
-		if (!ThisOpersModes.empty())
-		{
-			ApplyModes(user, ThisOpersModes);
-		}
 	}
 
 	void ApplyModes(User *u, std::string &smodes)
