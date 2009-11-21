@@ -123,6 +123,9 @@ class ModuleInvisible : public Module
 
 	~ModuleInvisible()
 	{
+		/* XXX is this the best place to do this? */
+		if (!ServerInstance->Modes->DelModeWatcher(&ido))
+			ServerInstance->Logs->Log("m_banredirect.so", DEBUG, "Failed to delete modewatcher!");
 	};
 
 	Version GetVersion();

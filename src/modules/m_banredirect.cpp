@@ -332,6 +332,9 @@ class ModuleBanRedirect : public Module
 
 	virtual ~ModuleBanRedirect()
 	{
+		/* XXX is this the best place to do this? */
+		if (!ServerInstance->Modes->DelModeWatcher(&re))
+			ServerInstance->Logs->Log("m_banredirect.so", DEBUG, "Failed to delete modewatcher!");
 	}
 
 	virtual Version GetVersion()
