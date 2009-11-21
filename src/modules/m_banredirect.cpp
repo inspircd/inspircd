@@ -87,9 +87,13 @@ class BanRedirect : public ModeWatcher
 						start_pos = curr+1;
 						break;
 					case '#':
-						mask[current].assign(start_pos, curr);
-						current = CHAN;
-						start_pos = curr;
+						/* bug #921: don't barf when redirecting to ## channels */
+						if (current != CHAN)
+						{
+							mask[current].assign(start_pos, curr);
+							current = CHAN;
+							start_pos = curr;
+						}
 						break;
 				}
 			}
