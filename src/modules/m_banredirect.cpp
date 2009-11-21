@@ -312,7 +312,7 @@ class ModuleBanRedirect : public Module
 						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
 						{
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
-							return MOD_RES_ALLOW;
+							return MOD_RES_DENY;
 						}
 						else
 						{
@@ -321,7 +321,7 @@ class ModuleBanRedirect : public Module
 							nofollow = true;
 							Channel::JoinUser(user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
 							nofollow = false;
-							return MOD_RES_ALLOW;
+							return MOD_RES_DENY;
 						}
 					}
 				}
