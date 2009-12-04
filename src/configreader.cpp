@@ -310,16 +310,27 @@ static bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, Valu
 
 static bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server name");
-	/* If we already have a servername, and they changed it, we should throw an exception. */
-	if (!strchr(data.GetString(), '.'))
+	if (!*conf->ServerName)
 	{
-		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s.'",
-			data.GetString(),data.GetString());
-		std::string moo = data.GetValue();
-		data.Set(moo.append("."));
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server name");
+
+		/* If we already have a servername, and they changed it, we should throw an
+		 * exception. */
+		if (!strchr(data.GetString(), '.'))
+		{
+			conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s.'",
+				data.GetString(),data.GetString());
+			std::string moo = data.GetValue();
+			data.Set(moo.append("."));
+		}
+		ValidateHostname(data.GetString(), "server", "name");
 	}
-	ValidateHostname(data.GetString(), "server", "name");
+	else
+	{
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Ignoring server name; we already have one set.");
+		data.Set(conf->ServerName);
+	}
+
 	return true;
 }
 
@@ -412,16 +423,24 @@ static bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueIt
 
 static bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
-	conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server id");
-
-	const char *sid = data.GetString();
-
-	if (*sid && !conf->GetInstance()->IsSID(sid))
+	if (!*conf->sid)
 	{
-		throw CoreException(std::string(sid) + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
-	}
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Validating server id");
 
-	strlcpy(conf->sid, sid, 5);
+		const char *sid = data.GetString();
+
+		if (*sid && !conf->GetInstance()->IsSID(sid))
+		{
+			throw CoreException(std::string(sid) + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
+		}
+
+		strlcpy(conf->sid, sid, 5);
+	}
+	else
+	{
+		conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"Ignoring server id; we already have one set.");
+		data.Set(conf->sid);
+	}
 
 	return true;
 }
