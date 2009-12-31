@@ -171,8 +171,12 @@ class ModuleSQLLog : public Module
 		active_queries.clear();
 
 		Implementation eventlist[] = { I_OnRehash, I_OnOper, I_OnGlobalOper, I_OnKill,
-			I_OnPreCommand, I_OnUserConnect, I_OnUserQuit, I_OnLoadModule };
-		ServerInstance->Modules->Attach(eventlist, this, 8);
+			I_OnPreCommand, I_OnUserRegister, I_OnUserQuit, I_OnLoadModule };
+		ServerInstance->Modules->Attach(eventlist, this, 9);
+	}
+
+	virtual ~ModuleSQLLog()
+	{
 	}
 
 	void ReadConfig()
@@ -241,7 +245,7 @@ class ModuleSQLLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	virtual void OnUserRegister(LocalUser* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}
