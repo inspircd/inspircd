@@ -28,18 +28,23 @@
 
 bool TreeSocket::ServiceJoin(const std::string &prefix, std::deque<std::string> &params)
 {
+	// Check params
 	if (params.size() < 2)
 		return true;
 
-	User* u = this->ServerInstance->FindNick(params[0]);
+	// Check for valid channel name
+	if (!ServerInstance->IsChannel(params[1].c_str(), ServerInstance->Config->Limits.ChanMax))
+		return true;
 
-	if (u)
-	{
-		/* only join if it's local, otherwise just pass it on! */
-		if (IS_LOCAL(u))
-			Channel::JoinUser(this->ServerInstance, u, params[1].c_str(), false, "", false, ServerInstance->Time());
-		Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
-	}
+	// Check target exists
+	User* u = this->ServerInstance->FindNick(params[0]);
+	if (!u)
+		return true;
+
+	/* only join if it's local, otherwise just pass it on! */
+	if (IS_LOCAL(u))
+		Channel::JoinUser(this->ServerInstance, u, params[1].c_str(), false, "", false, ServerInstance->Time());
+	Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 	return true;
 }
 
