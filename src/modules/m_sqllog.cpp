@@ -172,11 +172,7 @@ class ModuleSQLLog : public Module
 
 		Implementation eventlist[] = { I_OnRehash, I_OnOper, I_OnGlobalOper, I_OnKill,
 			I_OnPreCommand, I_OnUserRegister, I_OnUserQuit, I_OnLoadModule };
-		ServerInstance->Modules->Attach(eventlist, this, 9);
-	}
-
-	virtual ~ModuleSQLLog()
-	{
+		ServerInstance->Modules->Attach(eventlist, this, 8);
 	}
 
 	void ReadConfig()
