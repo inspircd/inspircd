@@ -380,10 +380,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		this->DelLine(prefix,params);
 	}
-	else if (command == "SVSNICK")
-	{
-		this->SVSNick(prefix,params);
-	}
 	else if (command == "SAVE")
 	{
 		this->ForceNick(prefix,params);
@@ -403,14 +399,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else if (command == "TIME")
 	{
 		this->Time(prefix,params);
-	}
-	else if (command == "SVSJOIN")
-	{
-		this->ServiceJoin(prefix,params);
-	}
-	else if (command == "SVSPART")
-	{
-		this->ServicePart(prefix,params);
 	}
 	else if (command == "SQUIT")
 	{

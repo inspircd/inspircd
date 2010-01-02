@@ -21,9 +21,7 @@
 #include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
-#include "rconnect.h"
-
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h */
+#include "commands.h"
 
 CommandRConnect::CommandRConnect (Module* Creator, SpanningTreeUtilities* Util)
 	: Command(Creator, "RCONNECT", 2), Utils(Util)

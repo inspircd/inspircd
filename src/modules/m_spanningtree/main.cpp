@@ -24,21 +24,24 @@
 #include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
-#include "rconnect.h"
-#include "rsquit.h"
+#include "commands.h"
 #include "protocolinterface.h"
-
-/* $ModDep: m_spanningtree/cachetimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h m_spanningtree/protocolinterface.h */
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: max_local(0), max_global(0)
 {
 	Utils = new SpanningTreeUtilities(this);
 	command_rconnect = new CommandRConnect(this, Utils);
-	ServerInstance->AddCommand(command_rconnect);
 	command_rsquit = new CommandRSQuit(this, Utils);
-	ServerInstance->AddCommand(command_rsquit);
+	command_svsjoin = new CommandSVSJoin(this);
+	command_svspart = new CommandSVSPart(this);
+	command_svsnick = new CommandSVSNick(this);
 	RefreshTimer = new CacheRefreshTimer(Utils);
+	ServerInstance->AddCommand(command_rconnect);
+	ServerInstance->AddCommand(command_rsquit);
+	ServerInstance->AddCommand(command_svsjoin);
+	ServerInstance->AddCommand(command_svspart);
+	ServerInstance->AddCommand(command_svsnick);
 	ServerInstance->Timers->AddTimer(RefreshTimer);
 
 	Implementation eventlist[] =
@@ -953,6 +956,9 @@ ModuleSpanningTree::~ModuleSpanningTree()
 
 	delete command_rconnect;
 	delete command_rsquit;
+	delete command_svsjoin;
+	delete command_svspart;
+	delete command_svsnick;
 }
 
 Version ModuleSpanningTree::GetVersion()

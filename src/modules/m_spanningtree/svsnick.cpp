@@ -12,50 +12,40 @@
  */
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
 #include "main.h"
 #include "utils.h"
-#include "treeserver.h"
-#include "treesocket.h"
+#include "commands.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-/** Because Andy insists that services-compatible servers must
- * implement SVSNICK and SVSJOIN, that's exactly what we do :p
- */
-bool TreeSocket::SVSNick(const std::string &prefix, parameterlist &params)
+CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, User *user)
 {
-	if (params.size() < 3)
-		return true;
+	User* u = ServerInstance->FindNick(parameters[0]);
 
-	User* u = ServerInstance->FindNick(params[0]);
-
-	if (u)
+	if (u && IS_LOCAL(u))
 	{
-		Utils->DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
+		parameterlist par;
+		par.push_back(parameters[1]);
 
-		if (IS_LOCAL(u))
+		if (!u->ForceNickChange(parameters[1].c_str()))
 		{
-			parameterlist par;
-			par.push_back(params[1]);
-
-			if (!u->ForceNickChange(params[1].c_str()))
+			/* buh. UID them */
+			if (!u->ForceNickChange(u->uuid.c_str()))
 			{
-				/* buh. UID them */
-				if (!u->ForceNickChange(u->uuid.c_str()))
-				{
-					ServerInstance->Users->QuitUser(u, "Nickname collision");
-					return true;
-				}
+				ServerInstance->Users->QuitUser(u, "Nickname collision");
+				return CMD_SUCCESS;
 			}
-
-			u->age = atoi(params[2].c_str());
 		}
+
+		u->age = atoi(parameters[2].c_str());
 	}
 
-	return true;
+	return CMD_SUCCESS;
 }
 
+RouteDescriptor CommandSVSNick::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	User* u = ServerInstance->FindNick(parameters[0]);
+	if (u)
+		return ROUTE_OPT_UCAST(u->server);
+	return ROUTE_LOCALONLY;
+}

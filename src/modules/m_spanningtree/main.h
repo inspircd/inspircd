@@ -33,6 +33,9 @@ const long MinCompatProtocol = 1201;
  */
 class CommandRConnect;
 class CommandRSQuit;
+class CommandSVSJoin;
+class CommandSVSPart;
+class CommandSVSNick;
 class SpanningTreeUtilities;
 class CacheRefreshTimer;
 class TreeServer;
@@ -47,6 +50,9 @@ class ModuleSpanningTree : public Module
 	unsigned int max_global;
 	CommandRConnect* command_rconnect;
 	CommandRSQuit* command_rsquit;
+	CommandSVSJoin* command_svsjoin;
+	CommandSVSPart* command_svspart;
+	CommandSVSNick* command_svsnick;
 	SpanningTreeUtilities* Utils;
 
 	void RedoConfig(Module* mod);

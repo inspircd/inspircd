@@ -19,31 +19,28 @@
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
+#include "commands.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-bool TreeSocket::ServicePart(const std::string &prefix, parameterlist &params)
+CmdResult CommandSVSPart::Handle(const std::vector<std::string>& parameters, User *user)
 {
-	if (params.size() < 2)
-		return true;
-
 	std::string reason = "Services forced part";
 
-	if (params.size() == 3)
-		reason = params[2];
+	if (parameters.size() == 3)
+		reason = parameters[2];
 
-	User* u = ServerInstance->FindNick(params[0]);
-	Channel* c = ServerInstance->FindChan(params[1]);
+	User* u = ServerInstance->FindNick(parameters[0]);
+	Channel* c = ServerInstance->FindChan(parameters[1]);
 
-	if (u)
-	{
-		/* only part if it's local, otherwise just pass it on! */
-		if (IS_LOCAL(u))
-			c->PartUser(u, reason);
-		Utils->DoOneToAllButSender(prefix,"SVSPART",params,prefix);
-	}
+	if (u && IS_LOCAL(u))
+		c->PartUser(u, reason);
 
-	return true;
+	return CMD_SUCCESS;
 }
 
+RouteDescriptor CommandSVSPart::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	User* u = ServerInstance->FindNick(parameters[0]);
+	if (u)
+		return ROUTE_OPT_UCAST(u->server);
+	return ROUTE_LOCALONLY;
+}

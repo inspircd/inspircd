@@ -274,11 +274,6 @@ class TreeSocket : public BufferedSocket
 	/** Remote AWAY */
 	bool Away(const std::string &prefix, parameterlist &params);
 
-	/** Because Andy insists that services-compatible servers must
-	 * implement SVSNICK and SVSJOIN, that's exactly what we do :p
-	 */
-	bool SVSNick(const std::string &prefix, parameterlist &params);
-
 	/** SAVE to resolve nick collisions without killing */
 	bool ForceNick(const std::string &prefix, parameterlist &params);
 
@@ -289,14 +284,6 @@ class TreeSocket : public BufferedSocket
 	/** OPERQUIT command
 	 */
 	bool OperQuit(const std::string &prefix, parameterlist &params);
-
-	/** SVSJOIN
-	 */
-	bool ServiceJoin(const std::string &prefix, parameterlist &params);
-
-	/** SVSPART
-	 */
-	bool ServicePart(const std::string &prefix, parameterlist &params);
 
 	/** KILL
 	 */
