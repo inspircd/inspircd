@@ -245,9 +245,10 @@ class ModuleSQLLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserRegister(LocalUser* user)
+	virtual ModResult OnUserRegister(LocalUser* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
