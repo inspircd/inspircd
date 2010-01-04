@@ -104,7 +104,7 @@ std::string User::ProcessNoticeMasks(const char *sm)
 			break;
 		}
 
-		*c++;
+		c++;
 	}
 
 	std::string s = this->FormatNoticeMasks();

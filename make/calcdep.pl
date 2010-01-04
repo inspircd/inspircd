@@ -100,7 +100,7 @@ commands: $cmds
 
 modules: $mods
 
-.PHONY: inspircd commands modules
+.PHONY: all bad-target inspircd commands modules
 
 END
 }
