@@ -232,8 +232,6 @@ if (defined $opt_noipv6)
 {
 	$config{IPV6} = "n";
 }
-chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Version
-chomp($config{GCCMINOR}     = `g++ -dumpversion | cut -c 3`);
 $config{_SOMAXCONN} = SOMAXCONN;					# Max connections in accept queue
 $config{OSNAME}       	    = $^O;			      		# Operating System Name
 $config{IS_DARWIN}	  = "NO";					# Is OSX?
@@ -407,6 +405,11 @@ print "Checking for cache from previous configure... ";
 print ((!getcache()) ? "not found\n" : "found\n");
 $config{SYSTEM} = lc $^O;
 print "Checking operating system version... $config{SYSTEM}\n";
+
+$exec = $config{CC} . " -dumpversion | cut -c 1";
+chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
+$exec = $config{CC} . " -dumpversion | cut -c 3";
+chomp($config{GCCMINOR}		= `$exec`);
 
 printf "Checking if stdint.h exists... ";
 $config{HAS_STDINT} = "true";
