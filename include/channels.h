@@ -362,8 +362,9 @@ class CoreExport Channel : public Extensible
 	 * @param user The user to associate the privilage with
 	 * @param prefix The prefix character to associate
 	 * @param adding True if adding the prefix, false when removing
+	 * @return True if a change was made
 	 */
-	void SetPrefix(User* user, char prefix, bool adding);
+	bool SetPrefix(User* user, char prefix, bool adding);
 
 	/** Check if a user is banned on this channel
 	 * @param user A user to check against the banlist

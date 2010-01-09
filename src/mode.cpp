@@ -353,6 +353,15 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		return MODEACTION_DENY;
 	}
 
+	if (mh->GetPrefixRank() && chan)
+	{
+		User* user_to_prefix = ServerInstance->FindNick(parameter);
+		if (!user_to_prefix)
+			return MODEACTION_DENY;
+		if (!chan->SetPrefix(user_to_prefix, modechar, adding))
+			return MODEACTION_DENY;
+	}
+
 	/* Call the handler for the mode */
 	ModeAction ma = mh->OnModeChange(user, targetuser, chan, parameter, adding);
 
@@ -362,14 +371,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	if (ma != MODEACTION_ALLOW)
 		return ma;
 
+	// TODO this count may not be reliable
 	mh->ChangeCount(adding ? 1 : -1);
-
-	if (mh->GetPrefixRank() && chan)
-	{
-		User* user_to_prefix = ServerInstance->FindNick(parameter);
-		if (user_to_prefix)
-			chan->SetPrefix(user_to_prefix, modechar, adding);
-	}
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 		(*watchers)->AfterMode(user, targetuser, chan, parameter, adding, type);

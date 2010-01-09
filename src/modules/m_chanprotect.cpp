@@ -147,10 +147,6 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		User* theuser = ServerInstance->FindNick(parameter);
-
-		if (!theuser)
-			return MODEACTION_DENY;
 		return MODEACTION_ALLOW;
 	}
 
@@ -218,11 +214,6 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		User* theuser = ServerInstance->FindNick(parameter);
-
-		if (!theuser)
-			return MODEACTION_DENY;
-
 		return MODEACTION_ALLOW;
 	}
 

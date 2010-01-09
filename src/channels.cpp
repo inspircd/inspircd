@@ -929,14 +929,14 @@ unsigned int Channel::GetPrefixValue(User* user)
 	return m->second->getRank();
 }
 
-void Channel::SetPrefix(User* user, char prefix, bool adding)
+bool Channel::SetPrefix(User* user, char prefix, bool adding)
 {
 	ModeHandler* delta_mh = ServerInstance->Modes->FindMode(prefix, MODETYPE_CHANNEL);
 	if (!delta_mh)
-		return;
+		return false;
 	UserMembIter m = userlist.find(user);
 	if (m == userlist.end())
-		return;
+		return false;
 	for(unsigned int i=0; i < m->second->modes.length(); i++)
 	{
 		char mchar = m->second->modes[i];
@@ -947,11 +947,12 @@ void Channel::SetPrefix(User* user, char prefix, bool adding)
 				m->second->modes.substr(0,i) +
 				(adding ? std::string(1, prefix) : "") +
 				m->second->modes.substr(mchar == prefix ? i+1 : i);
-			return;
+			return adding != (mchar == prefix);
 		}
 	}
 	if (adding)
 		m->second->modes += std::string(1, prefix);
+	return adding;
 }
 
 void Channel::RemoveAllPrefixes(User* user)
