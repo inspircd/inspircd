@@ -21,5 +21,4 @@ class ModeUserInvisible : public SimpleUserModeHandler
 {
  public:
 	ModeUserInvisible();
-	unsigned int GetCount();
 };

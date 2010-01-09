@@ -20,8 +20,3 @@
 ModeUserInvisible::ModeUserInvisible() : SimpleUserModeHandler(NULL, "invisible", 'i')
 {
 }
-
-unsigned int ModeUserInvisible::GetCount()
-{
-	return count;
-}

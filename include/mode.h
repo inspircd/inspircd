@@ -135,10 +135,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	ModeType m_type;
 
-	/** Number of items with this mode set on them
-	 */
-	unsigned int count;
-
 	/** The prefix char needed on channel to use this mode,
 	 * only checked for channel modes
 	 */
@@ -167,12 +163,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * value for this mode prefix.
 	 */
 	inline char GetPrefix() const { return prefix; }
-	/** Get number of items with this mode set on them
-	 */
-	virtual unsigned int GetCount();
-	/** Adjust usage count returned by GetCount
-	 */
-	virtual void ChangeCount(int modifier);
 	/**
 	 * Get the 'value' of this modes prefix.
 	 * determines which to display when there are multiple.

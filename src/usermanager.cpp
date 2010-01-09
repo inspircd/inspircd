@@ -392,10 +392,12 @@ void UserManager::ServerPrivmsgAll(const char* text, ...)
 /* return how many users have a given mode e.g. 'a' */
 int UserManager::ModeCount(const char mode)
 {
-	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_USER);
-
-	if (mh)
-		return mh->GetCount();
-	else
-		return 0;
+	int c = 0;
+	for(user_hash::iterator i = clientlist->begin(); i != clientlist->end(); ++i)
+	{
+		User* u = i->second;
+		if (u->modes[mode-65])
+			c++;
+	}
+	return c;
 }

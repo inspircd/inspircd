@@ -21,5 +21,4 @@ class ModeUserWallops : public SimpleUserModeHandler
 {
  public:
 	ModeUserWallops();
-	unsigned int GetCount();
 };

@@ -247,11 +247,6 @@ class CoreExport User : public Extensible
 	 */
 	std::string cachedip;
 
-	/** When we erase the user (in the destructor),
-	 * we call this method to subtract one from all
-	 * mode characters this user is making use of.
-	 */
-	void DecrementModes();
  public:
 
 	/** Hostname of connection.

@@ -20,8 +20,3 @@
 ModeUserWallops::ModeUserWallops() : SimpleUserModeHandler(NULL, "wallops", 'w')
 {
 }
-
-unsigned int ModeUserWallops::GetCount()
-{
-	return count;
-}

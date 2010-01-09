@@ -48,7 +48,7 @@
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type)
 	: ServiceProvider(Creator, Name, type == MODETYPE_CHANNEL ? SERVICE_CMODE : SERVICE_UMODE), m_paramtype(TR_TEXT),
 	parameters_taken(Params), mode(modeletter), prefix(0), oper(false),
-	list(false), m_type(type), count(0), levelrequired(HALFOP_VALUE)
+	list(false), m_type(type), levelrequired(HALFOP_VALUE)
 {
 }
 
@@ -73,17 +73,6 @@ bool ModeHandler::IsListMode()
 unsigned int ModeHandler::GetPrefixRank()
 {
 	return 0;
-}
-
-unsigned int ModeHandler::GetCount()
-{
-	return 0;
-}
-
-void ModeHandler::ChangeCount(int modifier)
-{
-	count += modifier;
-	ServerInstance->Logs->Log("MODE", DEBUG,"Change count for mode %c is now %d", mode, count);
 }
 
 int ModeHandler::GetNumParams(bool adding)
@@ -370,9 +359,6 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	if (ma != MODEACTION_ALLOW)
 		return ma;
-
-	// TODO this count may not be reliable
-	mh->ChangeCount(adding ? 1 : -1);
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 		(*watchers)->AfterMode(user, targetuser, chan, parameter, adding, type);

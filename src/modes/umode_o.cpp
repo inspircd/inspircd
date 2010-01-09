@@ -45,8 +45,3 @@ ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, st
 
 	return MODEACTION_ALLOW;
 }
-
-unsigned int ModeUserOperator::GetCount()
-{
-	return count;
-}

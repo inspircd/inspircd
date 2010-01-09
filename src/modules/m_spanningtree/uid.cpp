@@ -141,7 +141,6 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 			else
 				mh->OnModeChange(_new, _new, NULL, empty, true);
 			_new->SetMode(*v, true);
-			mh->ChangeCount(1);
 		}
 		else
 		{

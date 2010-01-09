@@ -203,24 +203,6 @@ const char* User::FormatModes(bool showparameters)
 	return data;
 }
 
-void User::DecrementModes()
-{
-	ServerInstance->Logs->Log("USERS", DEBUG, "DecrementModes()");
-	for (unsigned char n = 'A'; n <= 'z'; n++)
-	{
-		if (modes[n-65])
-		{
-			ServerInstance->Logs->Log("USERS", DEBUG,"DecrementModes() found mode %c", n);
-			ModeHandler* mh = ServerInstance->Modes->FindMode(n, MODETYPE_USER);
-			if (mh)
-			{
-				ServerInstance->Logs->Log("USERS", DEBUG,"Found handler %c and call ChangeCount", n);
-				mh->ChangeCount(-1);
-			}
-		}
-	}
-}
-
 User::User(const std::string &uid, const std::string& sid, int type)
 	: uuid(uid), server(sid), usertype(type)
 {
@@ -589,7 +571,6 @@ CullResult User::cull()
 	PurgeEmptyChannels();
 
 	this->InvalidateCache();
-	this->DecrementModes();
 
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
