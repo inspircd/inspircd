@@ -28,7 +28,6 @@
 #include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: max_local(0), max_global(0)
 {
 	Utils = new SpanningTreeUtilities(this);
 	command_rconnect = new CommandRConnect(this, Utils);
@@ -97,11 +96,6 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 			Current->GetDesc().c_str());
 }
 
-int ModuleSpanningTree::CountLocalServs()
-{
-	return Utils->TreeRoot->ChildCount();
-}
-
 int ModuleSpanningTree::CountServs()
 {
 	return Utils->serverlist.size();
@@ -111,54 +105,6 @@ void ModuleSpanningTree::HandleLinks(const std::vector<std::string>& parameters,
 {
 	ShowLinks(Utils->TreeRoot,user,0);
 	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick.c_str());
-	return;
-}
-
-void ModuleSpanningTree::HandleLusers(const std::vector<std::string>& parameters, User* user)
-{
-	unsigned int n_users = ServerInstance->Users->UserCount();
-
-	/* Only update these when someone wants to see them, more efficient */
-	if ((unsigned int)ServerInstance->Users->LocalUserCount() > max_local)
-		max_local = ServerInstance->Users->LocalUserCount();
-	if (n_users > max_global)
-		max_global = n_users;
-
-	unsigned int ulined_count = 0;
-	unsigned int ulined_local_count = 0;
-
-	/* If ulined are hidden and we're not an oper, count the number of ulined servers hidden,
-	 * locally and globally (locally means directly connected to us)
-	 */
-	if ((Utils->HideULines) && (!IS_OPER(user)))
-	{
-		for (server_hash::iterator q = Utils->serverlist.begin(); q != Utils->serverlist.end(); q++)
-		{
-			if (ServerInstance->ULine(q->second->GetName().c_str()))
-			{
-				ulined_count++;
-				if (q->second->GetParent() == Utils->TreeRoot)
-					ulined_local_count++;
-			}
-		}
-	}
-	user->WriteNumeric(251, "%s :There are %d users and %d invisible on %d servers",user->nick.c_str(),
-			n_users-ServerInstance->Users->ModeCount('i'),
-			ServerInstance->Users->ModeCount('i'),
-			ulined_count ? this->CountServs() - ulined_count : this->CountServs());
-
-	if (ServerInstance->Users->OperCount())
-		user->WriteNumeric(252, "%s %d :operator(s) online",user->nick.c_str(),ServerInstance->Users->OperCount());
-
-	if (ServerInstance->Users->UnregisteredUserCount())
-		user->WriteNumeric(253, "%s %d :unknown connections",user->nick.c_str(),ServerInstance->Users->UnregisteredUserCount());
-
-	if (ServerInstance->ChannelCount())
-		user->WriteNumeric(254, "%s %ld :channels formed",user->nick.c_str(),ServerInstance->ChannelCount());
-
-	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
-	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),max_local);
-	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d",user->nick.c_str(),n_users,max_global);
 	return;
 }
 

@@ -58,11 +58,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	{
 		return this->HandleTime(parameters,user);
 	}
-	else if (command == "LUSERS")
-	{
-		this->HandleLusers(parameters,user);
-		return MOD_RES_DENY;
-	}
 	else if (command == "LINKS")
 	{
 		this->HandleLinks(parameters,user);

@@ -46,8 +46,6 @@ class Autoconnect;
  */
 class ModuleSpanningTree : public Module
 {
-	unsigned int max_local;
-	unsigned int max_global;
 	CommandRConnect* command_rconnect;
 	CommandRSQuit* command_rsquit;
 	CommandSVSJoin* command_svsjoin;
@@ -72,10 +70,6 @@ class ModuleSpanningTree : public Module
 	 */
 	void ShowLinks(TreeServer* Current, User* user, int hops);
 
-	/** Counts local servers
-	 */
-	int CountLocalServs();
-
 	/** Counts local and remote servers
 	 */
 	int CountServs();
@@ -83,10 +77,6 @@ class ModuleSpanningTree : public Module
 	/** Handle LINKS command
 	 */
 	void HandleLinks(const std::vector<std::string>& parameters, User* user);
-
-	/** Handle LUSERS command
-	 */
-	void HandleLusers(const std::vector<std::string>& parameters, User* user);
 
 	/** Show MAP output to a user (recursive)
 	 */
