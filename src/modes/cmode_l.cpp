@@ -53,6 +53,11 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 
 		parameter = ConvToStr(limit);
 
+		std::string now = channel->GetModeParameter('l');
+
+		if (now == parameter)
+			return MODEACTION_DENY;
+
 		/* Set new limit */
 		channel->SetModeParam('l', parameter);
 
@@ -64,10 +69,7 @@ ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::s
 		 * If there isnt, dont allow the -l
 		 */
 		if (channel->GetModeParameter('l').empty())
-		{
-			parameter = "";
 			return MODEACTION_DENY;
-		}
 
 		/* Removing old limit, no checks here */
 		channel->SetModeParam('l', "");
