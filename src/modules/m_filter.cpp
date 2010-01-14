@@ -437,6 +437,8 @@ void ModuleFilter::OnRehash(User* user)
 		}
 	}
 	std::string newrxengine = "regex/" + MyConf.ReadValue("filteropts", "engine", 0);
+	if (newrxengine == "regex/")
+		newrxengine = "regex";
 	if (RegexEngine.GetProvider() == newrxengine)
 		return;
 
@@ -446,14 +448,14 @@ void ModuleFilter::OnRehash(User* user)
 	RegexEngine.SetProvider(newrxengine);
 	if (!RegexEngine)
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", RegexEngine.GetProvider().c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
 	}
 	ReadFilters(MyConf);
 }
 
 Version ModuleFilter::GetVersion()
 {
-	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine.GetProvider());
+	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
 }
 
 

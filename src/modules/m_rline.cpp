@@ -201,7 +201,6 @@ class ModuleRLine : public Module
 	RLineFactory f;
 	CommandRLine r;
 	bool MatchOnNickChange;
-	std::string RegexEngine;
 
  public:
 	ModuleRLine() : rxfactory(this, "regex"), f(rxfactory), r(this, f)
@@ -223,7 +222,7 @@ class ModuleRLine : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory.GetProvider());
+		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
 	virtual void OnUserConnect(LocalUser* user)
@@ -249,10 +248,13 @@ class ModuleRLine : public Module
 		ZlineOnMatch = Conf.ReadFlag("rline", "zlineonmatch", 0);
 		std::string newrxengine = Conf.ReadValue("rline", "engine", 0);
 
-		rxfactory.SetProvider("regex/" + newrxengine);
+		if (newrxengine.empty())
+			rxfactory.SetProvider("regex");
+		else
+			rxfactory.SetProvider("regex/" + newrxengine);
 		if (!rxfactory)
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", RegexEngine.c_str());
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", newrxengine.c_str());
 		}
 	}
 
